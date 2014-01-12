@@ -136,53 +136,6 @@ static int hf_zbee_zcl_ias_zone_server_scn_tamper = -1;
 static int hf_zbee_zcl_ias_zone_server_scn_trouble = -1;
 static int hf_zbee_zcl_ias_zone_server_scn_zone_id = -1;
 static int hf_zbee_zcl_ias_zone_server_scn_zone_status = -1;
-static int hf_zbee_zcl_ota_upgrade_client_cmd_id = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_brd = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_brdp = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_field_control = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_fo = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_fv = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_ieee = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_ieee_address = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_it = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_mc = -1;
-static int hf_zbee_zcl_ota_upgrade_client_ibr_mds = -1;
-static int hf_zbee_zcl_ota_upgrade_client_qnir_cfv = -1;
-static int hf_zbee_zcl_ota_upgrade_client_qnir_field_control = -1;
-static int hf_zbee_zcl_ota_upgrade_client_qnir_hv = -1;
-static int hf_zbee_zcl_ota_upgrade_client_qnir_hvp = -1;
-static int hf_zbee_zcl_ota_upgrade_client_qnir_image_type = -1;
-static int hf_zbee_zcl_ota_upgrade_client_qnir_manuf_code = -1;
-static int hf_zbee_zcl_ota_upgrade_client_uer_fv = -1;
-static int hf_zbee_zcl_ota_upgrade_client_uer_it = -1;
-static int hf_zbee_zcl_ota_upgrade_client_uer_mc = -1;
-static int hf_zbee_zcl_ota_upgrade_client_uer_status = -1;
-static int hf_zbee_zcl_ota_upgrade_server_cmd_id = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_ds = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_fo = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_fv = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_image_data = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_it = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_mc = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_status = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_wfd_brd = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_wfd_ct = -1;
-static int hf_zbee_zcl_ota_upgrade_server_ibr_wfd_rt = -1;
-static int hf_zbee_zcl_ota_upgrade_server_in_it = -1;
-static int hf_zbee_zcl_ota_upgrade_server_in_mc = -1;
-static int hf_zbee_zcl_ota_upgrade_server_in_nfv = -1;
-static int hf_zbee_zcl_ota_upgrade_server_in_pt = -1;
-static int hf_zbee_zcl_ota_upgrade_server_in_qj = -1;
-static int hf_zbee_zcl_ota_upgrade_server_qnir_fv = -1;
-static int hf_zbee_zcl_ota_upgrade_server_qnir_is = -1;
-static int hf_zbee_zcl_ota_upgrade_server_qnir_it = -1;
-static int hf_zbee_zcl_ota_upgrade_server_qnir_mc = -1;
-static int hf_zbee_zcl_ota_upgrade_server_qnir_status = -1;
-static int hf_zbee_zcl_ota_upgrade_server_uer_ct = -1;
-static int hf_zbee_zcl_ota_upgrade_server_uer_fv = -1;
-static int hf_zbee_zcl_ota_upgrade_server_uer_it = -1;
-static int hf_zbee_zcl_ota_upgrade_server_uer_mc = -1;
-static int hf_zbee_zcl_ota_upgrade_server_uer_ut = -1;
 static int hf_zbee_zcl_poll_control_client_cir_fpt = -1;
 static int hf_zbee_zcl_poll_control_client_cir_sfp = -1;
 static int hf_zbee_zcl_poll_control_client_cmd_id = -1;
@@ -215,8 +168,6 @@ static gint ett_zbee_zcl_attr[ZBEE_ZCL_NUM_ATTR_ETT];
 static gint ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT];
 
 static gint ett_zbee_zcl_ias_zone_server_scn_zone_status = -1;
-static gint ett_zbee_zcl_ota_upgrade_client_ibr_field_control = -1;
-static gint ett_zbee_zcl_ota_upgrade_client_qnir_field_control = -1;
 static gint ett_zbee_zcl_thermostat_client_gws_days_to_return = -1;
 static gint ett_zbee_zcl_thermostat_client_gws_mtr = -1;
 static gint ett_zbee_zcl_thermostat_client_sws_dow_for_sequence = -1;
@@ -279,7 +230,7 @@ static const value_string zbee_zcl_cs_cmd_names[] = {
 
 /* ZigBee Manufacturer Name Table */
 /* Per: 053298r19, December 2011 */
-static const value_string zbee_mfr_code_names[] = {
+const value_string zbee_mfr_code_names[] = {
 
     { ZBEE_MFG_CODE_SAMSUNG,    ZBEE_MFG_SAMSUNG },
     { ZBEE_MFG_CODE_CIRRONET,   ZBEE_MFG_CIRRONET },
@@ -555,7 +506,7 @@ static const value_string zbee_mfr_code_names[] = {
 static value_string_ext zbee_mfr_code_names_ext = VALUE_STRING_EXT_INIT(zbee_mfr_code_names);
 
 /* ZCL Attribute Status Names */
-static const value_string zbee_zcl_status_names[] = {
+const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_SUCCESS,                        "Success"},
     { ZBEE_ZCL_STAT_FAILURE,                        "Failure"},
 
@@ -579,6 +530,11 @@ static const value_string zbee_zcl_status_names[] = {
     { ZBEE_ZCL_STAT_WRITE_ONLY,                     "Write Only"},
     { ZBEE_ZCL_STAT_INCONSISTENT_STARTUP_STATE,     "Inconsistent Startup State"},
     { ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND,            "Defined Out of Band"},
+    { ZBEE_ZCL_STAT_OTA_ABORT,                      "Ota Abort"},
+    { ZBEE_ZCL_STAT_OTA_INVALID_IMAGE,              "Ota Invalid Image"},
+    { ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA,              "Ota Wait For Data"},
+    { ZBEE_ZCL_STAT_OTA_NO_IMAGE_AVAILABLE,         "Ota No Image Available"},
+    { ZBEE_ZCL_STAT_OTA_REQUIRE_MORE_IMAGE,         "Ota Require More Image"},
     { ZBEE_ZCL_STAT_HARDWARE_FAILURE,               "Hardware Failure"},
     { ZBEE_ZCL_STAT_SOFTWARE_FAILURE,               "Software Failure"},
     { ZBEE_ZCL_STAT_CALIBRATION_ERROR,              "Calibration Error"},
@@ -794,50 +750,6 @@ static const value_string zbee_zcl_ias_zone_server_cmd_names[] = {
     { 0, NULL }
 };
 
-/* ZCL OTA Upgrade Client Commands */
-static const value_string zbee_zcl_ota_upgrade_client_cmd_names[] = {
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR, "Image Block Request" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR, "Query Next Image Request" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER, "Upgrade End Request" },
-
-    { 0, NULL }
-};
-
-/* ZCL OTA Upgrade Server Commands */
-static const value_string zbee_zcl_ota_upgrade_server_cmd_names[] = {
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR, "Image Block Response" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN, "Image Notify" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_QNIR, "Query Next Image Response" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_UER, "Upgrade End Response" },
-
-    { 0, NULL }
-};
-
-/* ZCL OTA Upgrade Server Image Notify Payload Type */
-static const value_string zbee_zcl_ota_upgrade_server_in_pt[] = {
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_J, "Query jitter" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JM, "Query jitter and manufacturer code" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMI, "Query jitter, manufacturer code and image type" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMIN, "Query jitter, manufacturer code, image type and new file version" },
-
-    { 0, NULL }
-};
-
-/* ZCL OTA Upgrade Server Query Next Image Response Status */
-static const value_string zbee_zcl_ota_upgrade_server_qnir_status[] = {
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_A, "Abort" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_II, "Invalid Image" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_MC, "Malformed Command" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NA, "Not Authorised" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NIA, "No Image Available" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_RMI, "Require More Image" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_S, "Success" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_UCC, "Unsup Cluster Command" },
-    { ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_WFD, "Wait For Data" },
-
-    { 0, NULL }
-};
-
 /* ZCL Poll Control Client Commands */
 static const value_string zbee_zcl_poll_control_client_cmd_names[] = {
     { ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR, "Check-in Response" },
@@ -1023,8 +935,7 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
     } else {
         /* Cluster-specific. */
-        guint8 field_control, ibr_status, image_notify_payload_type, mode_for_sequence, number_of_transitions,
-            query_next_image_response;
+        guint8 mode_for_sequence, number_of_transitions;
 
         payload_tvb = tvb_new_subset_remaining(tvb, offset);
         if (cluster_handle != NULL) {
@@ -1096,219 +1007,6 @@ static int dissect_zbee_zcl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                 proto_tree_add_item(zcl_tree, hf_zbee_zcl_ias_zone_server_scn_delay, tvb, offset, 2,
                                     ENC_LITTLE_ENDIAN);
                                 offset += 2;
-                                break;
-                        }
-                    }
-                }
-                break;
-            case ZBEE_ZCL_CID_OTA_UPGRADE:
-                if (packet.direction == ZBEE_ZCL_DIR_REPORTED) {
-                    /* We have a client. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Client Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_ota_upgrade_client_cmd_names, "Unknown OTA Upgrade Client Command"),
-                        packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ota_upgrade_client_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR:
-                                /* Image Block Request. */
-                                field_control = tvb_get_guint8(tvb, offset);
-                                ti = proto_tree_add_uint_format(zcl_tree,
-                                    hf_zbee_zcl_ota_upgrade_client_ibr_field_control, tvb, offset, 1, field_control,
-                                    "Field Control");
-                                sub_tree = proto_item_add_subtree(ti,
-                                    ett_zbee_zcl_ota_upgrade_client_ibr_field_control);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_upgrade_client_ibr_ieee, tvb, offset, 1,
-                                    ENC_NA);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_upgrade_client_ibr_brdp, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_mc, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_it, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_fv, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_fo, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_mds, tvb, offset, 1,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 1;
-                                if (field_control & 0x01) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_ieee_address, tvb,
-                                        offset, 8, ENC_LITTLE_ENDIAN);
-                                    offset += 8;
-                                }
-                                if (field_control & 0x02) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_ibr_brd, tvb, offset,
-                                        2, ENC_LITTLE_ENDIAN);
-                                    offset += 2;
-                                }
-                                break;
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR:
-                                /* Query Next Image Request. */
-                                field_control = tvb_get_guint8(tvb, offset);
-                                ti = proto_tree_add_uint_format(zcl_tree,
-                                    hf_zbee_zcl_ota_upgrade_client_qnir_field_control, tvb, offset, 1, field_control,
-                                    "Field Control");
-                                sub_tree = proto_item_add_subtree(ti,
-                                    ett_zbee_zcl_ota_upgrade_client_qnir_field_control);
-                                proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_upgrade_client_qnir_hvp, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_manuf_code, tvb,
-                                    offset, 2, ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_image_type, tvb,
-                                    offset, 2, ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_cfv, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                if (field_control) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_qnir_hv, tvb, offset,
-                                        2, ENC_LITTLE_ENDIAN);
-                                    offset += 2;
-                                }
-                                break;
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER:
-                                /* Upgrade End Request. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_status, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_mc, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_it, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_client_uer_fv, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                break;
-                        }
-                    }
-                } else {
-                    /* We have a server. */
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Server Command: %s, Seq: %u", val_to_str(packet.cmd_id,
-                        zbee_zcl_ota_upgrade_server_cmd_names, "Unknown OTA Upgrade Server Command"),
-                        packet.tran_seqno);
-                    if (zcl_tree) {
-                        proto_tree_add_uint(zcl_tree, hf_zbee_zcl_ota_upgrade_server_cmd_id, tvb, offset, 1,
-                            packet.cmd_id);
-                        offset += 1;
-                        switch (packet.cmd_id) {
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR:
-                                /* Image Block Response. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_status, tvb, offset, 1,
-                                    ENC_NA);
-                                ibr_status = tvb_get_guint8(tvb, offset);
-                                offset += 1;
-                                switch (ibr_status) {
-                                    case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_S:
-                                        /* Success. */
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_mc, tvb,
-                                            offset, 2, ENC_LITTLE_ENDIAN);
-                                        offset += 2;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_it, tvb,
-                                            offset, 2, ENC_LITTLE_ENDIAN);
-                                        offset += 2;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_fv, tvb,
-                                            offset, 4, ENC_LITTLE_ENDIAN);
-                                        offset += 4;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_fo, tvb,
-                                            offset, 4, ENC_LITTLE_ENDIAN);
-                                        offset += 4;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_ds, tvb,
-                                            offset, 1, ENC_NA);
-                                        offset += 1;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_image_data,
-                                            tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
-                                        offset += tvb_length_remaining(tvb, offset);
-                                        break;
-                                    case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_WFD:
-                                        /* Wait For Data. */
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_wfd_ct, tvb,
-                                            offset, 4, ENC_LITTLE_ENDIAN);
-                                        offset += 4;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_wfd_rt, tvb,
-                                            offset, 4, ENC_LITTLE_ENDIAN);
-                                        offset += 4;
-                                        proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_ibr_wfd_brd, tvb,
-                                            offset, 2, ENC_LITTLE_ENDIAN);
-                                        offset += 2;
-                                        break;
-                                }
-                                break;
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN:
-                                /* Image Notify. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_pt, tvb, offset, 1,
-                                    ENC_NA);
-                                image_notify_payload_type = tvb_get_guint8(tvb, offset);
-                                offset += 1;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_qj, tvb, offset, 1,
-                                    ENC_NA);
-                                offset += 1;
-                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_J) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_mc, tvb, offset, 2,
-                                        ENC_LITTLE_ENDIAN);
-                                    offset += 2;
-                                }
-                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JM) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_it, tvb, offset, 2,
-                                        ENC_LITTLE_ENDIAN);
-                                    offset += 2;
-                                }
-                                if (image_notify_payload_type > ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMI) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_in_nfv, tvb, offset, 4,
-                                        ENC_LITTLE_ENDIAN);
-                                    offset += 4;
-                                }
-                                break;
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_QNIR:
-                                /* Query Next Image Response. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_status, tvb, offset,
-                                    1, ENC_NA);
-                                query_next_image_response = tvb_get_guint8(tvb, offset);
-                                offset += 1;
-                                if (!query_next_image_response) {
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_mc, tvb, offset,
-                                        2, ENC_LITTLE_ENDIAN);
-                                    offset += 2;
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_it, tvb, offset,
-                                        2, ENC_LITTLE_ENDIAN);
-                                    offset += 2;
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_fv, tvb, offset,
-                                        4, ENC_LITTLE_ENDIAN);
-                                    offset += 4;
-                                    proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_qnir_is, tvb, offset,
-                                        4, ENC_LITTLE_ENDIAN);
-                                    offset += 4;
-                                }
-                                break;
-                            case ZBEE_ZCL_CSC_OTA_UPGRADE_S_UER:
-                                /* Upgrade End Response. */
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_mc, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_it, tvb, offset, 2,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 2;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_fv, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_ct, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
-                                proto_tree_add_item(zcl_tree, hf_zbee_zcl_ota_upgrade_server_uer_ut, tvb, offset, 4,
-                                    ENC_LITTLE_ENDIAN);
-                                offset += 4;
                                 break;
                         }
                     }
@@ -3056,170 +2754,6 @@ void proto_register_zbee_zcl(void)
         { &hf_zbee_zcl_ias_zone_server_scn_zone_status,
             { "Zone Status", "zbee_zcl.ias_zone.server.scn.zone_status", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-        { &hf_zbee_zcl_ota_upgrade_client_cmd_id,
-            { "Command", "zbee_zcl.ota_upgrade.client.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ota_upgrade_client_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_brd,
-            { "Block Request Delay", "zbee_zcl.ota_upgrade.client.ibr.brd", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_brdp,
-            { "Block Request Delay Presents", "zbee_zcl.ota_upgrade.client.ibr.brdp", FT_BOOLEAN, 8, NULL, 0x02, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_field_control,
-            { "Field Control", "zbee_zcl.ota_upgrade.client.ibr.field_control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_fo,
-            { "File Offset (in bytes)", "zbee_zcl.ota_upgrade.client.ibr.fo", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_fv,
-            { "File Version", "zbee_zcl.ota_upgrade.client.ibr.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_ieee,
-            { "Request Node's IEEE Address Presents", "zbee_zcl.ota_upgrade.client.ibr.ieee", FT_BOOLEAN, 8, NULL, 0x01,
-                NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_ieee_address,
-            { "IEEE Address", "zbee_zcl.ota_upgrade.client.ibr.ieee_address", FT_EUI64, BASE_NONE, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_it,
-            { "Image Type", "zbee_zcl.ota_upgrade.client.ibr.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_mc,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.client.ibr.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_ibr_mds,
-            { "Maximum Data Size (in bytes)", "zbee_zcl.ota_upgrade.client.ibr.mds", FT_UINT8, BASE_DEC, NULL, 0x0,
-                NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_qnir_cfv,
-            { "Current File Version", "zbee_zcl.ota_upgrade.client.qnir.cfv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_qnir_field_control,
-            { "Field Control", "zbee_zcl.ota_upgrade.client.qnir.field_control", FT_UINT8, BASE_HEX, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_qnir_hv,
-            { "Hardware Version", "zbee_zcl.ota_upgrade.client.qnir.hardware_version", FT_UINT16, BASE_HEX, NULL, 0x0,
-                NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_qnir_hvp,
-            { "Hardware Version Present", "zbee_zcl.ota_upgrade.client.qnir.hvp", FT_BOOLEAN, 8, NULL, 0x01, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_qnir_image_type,
-            { "Image Type", "zbee_zcl.ota_upgrade.client.qnir.image_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_qnir_manuf_code,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.client.qnir.manufacturer_code", FT_UINT16, BASE_HEX, NULL, 0x0,
-                NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_uer_fv,
-            { "File Version", "zbee_zcl.ota_upgrade.client.uer.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_uer_it,
-            { "Image Type", "zbee_zcl.ota_upgrade.client.uer.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_uer_mc,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.client.uer.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_client_uer_status,
-            { "Status", "zbee_zcl.ota_upgrade.client.uer.status", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ota_upgrade_server_qnir_status), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_cmd_id,
-            { "Command", "zbee_zcl.ota_upgrade.server.cmd_id", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ota_upgrade_server_cmd_names), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_ds,
-            { "Data Size", "zbee_zcl.ota_upgrade.server.ibr.ds", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_fo,
-            { "File Offset", "zbee_zcl.ota_upgrade.server.ibr.fo", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_fv,
-            { "File Version", "zbee_zcl.ota_upgrade.server.ibr.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_image_data,
-            { "Image Data", "zbee_zcl.ota_upgrade.server.ibr.image_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_it,
-            { "Image Type", "zbee_zcl.ota_upgrade.server.ibr.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_mc,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.ibr.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_status,
-            { "Status", "zbee_zcl.ota_upgrade.server.ibr.status", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ota_upgrade_server_qnir_status), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_wfd_brd,
-            { "Block Request Delay", "zbee_zcl.ota_upgrade.server.ibr.wfd_brd", FT_UINT16, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_wfd_ct,
-            { "Current Time", "zbee_zcl.ota_upgrade.server.ibr.wfd_ct", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_ibr_wfd_rt,
-            { "Request Time", "zbee_zcl.ota_upgrade.server.ibr.wfd_rt", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_in_it,
-            { "Image Type", "zbee_zcl.ota_upgrade.server.in.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_in_mc,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.in.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_in_nfv,
-            { "New File Version", "zbee_zcl.ota_upgrade.server.in.nfv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_in_pt,
-            { "Payload Type", "zbee_zcl.ota_upgrade.server.in.pt", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ota_upgrade_server_in_pt), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_in_qj,
-            { "Query Jitter", "zbee_zcl.ota_upgrade.server.in.qj", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_qnir_fv,
-            { "File Version", "zbee_zcl.ota_upgrade.server.qnir.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_qnir_is,
-            { "Image Size (in bytes)", "zbee_zcl.ota_upgrade.server.qnir.is", FT_UINT32, BASE_DEC, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_qnir_it,
-            { "Image Type", "zbee_zcl.ota_upgrade.server.qnir.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_qnir_mc,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.qnir.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL,
-                HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_qnir_status,
-            { "Status", "zbee_zcl.ota_upgrade.server.qnir.status", FT_UINT8, BASE_HEX,
-                VALS(zbee_zcl_ota_upgrade_server_qnir_status), 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_uer_ct,
-            { "Current Time", "zbee_zcl.ota_upgrade.server.uer.ct", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_uer_fv,
-            { "File Version", "zbee_zcl.ota_upgrade.server.uer.fv", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_uer_it,
-            { "Image Type", "zbee_zcl.ota_upgrade.server.uer.it", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_uer_mc,
-            { "Manufacturer Code", "zbee_zcl.ota_upgrade.server.uer.mc", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_zbee_zcl_ota_upgrade_server_uer_ut,
-            { "Upgrade Time", "zbee_zcl.ota_upgrade.server.uer.ut", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
         { &hf_zbee_zcl_poll_control_client_cir_fpt,
             { "Fast Poll Timeout (quarterseconds)", "zbee_zcl.poll_control.client.cir.fpt", FT_UINT16, BASE_DEC, NULL,
                 0x0, NULL, HFILL }},
@@ -3320,14 +2854,12 @@ void proto_register_zbee_zcl(void)
     ett[0] = &ett_zbee_zcl;
     ett[1] = &ett_zbee_zcl_fcf;
     ett[2] = &ett_zbee_zcl_ias_zone_server_scn_zone_status;
-    ett[3] = &ett_zbee_zcl_ota_upgrade_client_ibr_field_control;
-    ett[4] = &ett_zbee_zcl_ota_upgrade_client_qnir_field_control;
-    ett[5] = &ett_zbee_zcl_thermostat_client_gws_days_to_return;
-    ett[6] = &ett_zbee_zcl_thermostat_client_gws_mtr;
-    ett[7] = &ett_zbee_zcl_thermostat_client_sws_dow_for_sequence;
-    ett[8] = &ett_zbee_zcl_thermostat_client_sws_mfs;
-    ett[9] = &ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence;
-    ett[10] = &ett_zbee_zcl_thermostat_server_gwsr_mfs;
+    ett[3] = &ett_zbee_zcl_thermostat_client_gws_days_to_return;
+    ett[4] = &ett_zbee_zcl_thermostat_client_gws_mtr;
+    ett[5] = &ett_zbee_zcl_thermostat_client_sws_dow_for_sequence;
+    ett[6] = &ett_zbee_zcl_thermostat_client_sws_mfs;
+    ett[7] = &ett_zbee_zcl_thermostat_server_gwsr_dow_for_sequence;
+    ett[8] = &ett_zbee_zcl_thermostat_server_gwsr_mfs;
 
     j = ZBEE_ZCL_NUM_INDIVIDUAL_ETT;
 

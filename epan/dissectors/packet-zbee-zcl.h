@@ -135,7 +135,7 @@ typedef struct{
 /* ZCL Miscellaneous */
 #define ZBEE_ZCL_INVALID_STR_LENGTH             0xff
 #define ZBEE_ZCL_INVALID_LONG_STR_LENGTH        0xffff
-#define ZBEE_ZCL_NUM_INDIVIDUAL_ETT             11
+#define ZBEE_ZCL_NUM_INDIVIDUAL_ETT             9
 #define ZBEE_ZCL_NUM_ATTR_ETT                   64
 #define ZBEE_ZCL_NUM_ARRAY_ELEM_ETT             16
 #define ZBEE_ZCL_NUM_TOTAL_ETT                  (ZBEE_ZCL_NUM_INDIVIDUAL_ETT + ZBEE_ZCL_NUM_ATTR_ETT + ZBEE_ZCL_NUM_ARRAY_ELEM_ETT)
@@ -169,6 +169,11 @@ typedef struct{
 #define ZBEE_ZCL_STAT_WRITE_ONLY                    0x8f
 #define ZBEE_ZCL_STAT_INCONSISTENT_STARTUP_STATE    0x90
 #define ZBEE_ZCL_STAT_DEFINED_OUT_OF_BAND           0x91
+#define ZBEE_ZCL_STAT_OTA_ABORT                     0x95
+#define ZBEE_ZCL_STAT_OTA_INVALID_IMAGE             0x96
+#define ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA             0x97
+#define ZBEE_ZCL_STAT_OTA_NO_IMAGE_AVAILABLE        0x98
+#define ZBEE_ZCL_STAT_OTA_REQUIRE_MORE_IMAGE        0x99
 #define ZBEE_ZCL_STAT_HARDWARE_FAILURE              0xc0
 #define ZBEE_ZCL_STAT_SOFTWARE_FAILURE              0xc1
 #define ZBEE_ZCL_STAT_CALIBRATION_ERROR             0xc2
@@ -194,6 +199,8 @@ typedef struct _zbee_zcl_cluster_desc {
 } zbee_zcl_cluster_desc;
 
 extern const value_string zbee_zcl_short_data_type_names[];
+extern const value_string zbee_mfr_code_names[];
+extern const value_string zbee_zcl_status_names[];
 
 /* Dissector functions */
 extern void dissect_zcl_read_attr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint *offset, guint16 cluster_id);
@@ -215,26 +222,6 @@ zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id);
 #define ZBEE_ZCL_CSC_IAS_ZONE_C_ZER                 0x00
 #define ZBEE_ZCL_CSC_IAS_ZONE_S_ZER                 0x01
 #define ZBEE_ZCL_CSC_IAS_ZONE_S_ZSCN                0x00
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_C_IBR              0x03
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_C_QNIR             0x01
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_C_UER              0x06
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR              0x05
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_A            0x95
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_II           0x96
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_MC           0x80
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NA           0x7e
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_NIA          0x98
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_RMI          0x99
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_S            0x00
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_UCC          0x81
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IBR_WFD          0x97
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN               0x00
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_J          0x00
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JM         0x01
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMI        0x02
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_IN_PT_JMIN       0x03
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_QNIR             0x02
-#define ZBEE_ZCL_CSC_OTA_UPGRADE_S_UER              0x07
 #define ZBEE_ZCL_CSC_POLL_CONTROL_C_CIR             0x00
 #define ZBEE_ZCL_CSC_POLL_CONTROL_C_FPS             0x01
 #define ZBEE_ZCL_CSC_POLL_CONTROL_C_SLPI            0x02

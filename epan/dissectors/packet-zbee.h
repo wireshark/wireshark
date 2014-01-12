@@ -797,6 +797,7 @@
 #define ZBEE_PROTOABBREV_ZCL_APPLSTATS      "zbee_zcl_ha.applstats"
 #define ZBEE_PROTOABBREV_ZCL_METIDT         "zbee_zcl_ha.metidt"
 #define ZBEE_PROTOABBREV_ZCL_ONOFF          "zbee_zcl_general.onoff"
+#define ZBEE_PROTOABBREV_ZCL_OTA            "zbee_zcl_general.ota"
 #define ZBEE_PROTOABBREV_ZCL_PART           "zbee_zcl_general.part"
 #define ZBEE_PROTOABBREV_ZCL_PWRPROF        "zbee_zcl_general.pwrprof"
 #define ZBEE_PROTOABBREV_ZCL_ILLUMMEAS      "zbee_zcl_meas_sensing.illummeas"

@@ -31,6 +31,7 @@
 #include <string.h>
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/to_str.h>
 
 #include "packet-zbee.h"
 #include "packet-zbee-aps.h"
@@ -1685,7 +1686,7 @@ void proto_register_zbee_zcl_part(void)
     /* Register the ZigBee ZCL Partition dissector. */
     new_register_dissector(ZBEE_PROTOABBREV_ZCL_PART, dissect_zbee_zcl_part, proto_zbee_zcl_part);
 
-} /* proto_register_zbee_zcl_pwr_prof */
+} /* proto_register_zbee_zcl_part */
 
 
 /*FUNCTION:------------------------------------------------------
@@ -1717,6 +1718,1219 @@ void proto_reg_handoff_zbee_zcl_part(void)
 
 } /*proto_reg_handoff_zbee_zcl_part*/
 
+/* ########################################################################## */
+/* #### (0x0019) OTA UPGRADE CLUSTER ######################################## */
+/* ########################################################################## */
+
+/*************************/
+/* Defines               */
+/*************************/
+
+#define ZBEE_ZCL_OTA_NUM_GENERIC_ETT                        3
+#define ZBEE_ZCL_OTA_NUM_ETT                                (ZBEE_ZCL_OTA_NUM_GENERIC_ETT)
+
+/* Attributes */
+#define ZBEE_ZCL_ATTR_ID_OTA_UPGRADE_SERVER_ID              0x0000  /* Upgrade Served ID */
+#define ZBEE_ZCL_ATTR_ID_OTA_FILE_OFFSET                    0x0001  /* File Offset */
+#define ZBEE_ZCL_ATTR_ID_OTA_CURRENT_FILE_VERSION           0x0002  /* Current File Version */
+#define ZBEE_ZCL_ATTR_ID_OTA_CURRENT_ZB_STACK_VERSION       0x0003  /* Current ZigBee Stack Version */
+#define ZBEE_ZCL_ATTR_ID_OTA_DOWNLOADED_FILE_VERSION        0x0004  /* Downloaded File Version */
+#define ZBEE_ZCL_ATTR_ID_OTA_DOWNLOADED_ZB_STACK_VERSION    0x0005  /* Downloaded ZigBee Stack Version */
+#define ZBEE_ZCL_ATTR_ID_OTA_IMAGE_UPGRADE_STATUS           0x0006  /* Image Upgrade Status */
+#define ZBEE_ZCL_ATTR_ID_OTA_MANUFACTURER_ID                0x0007  /* Manufacturer ID */
+#define ZBEE_ZCL_ATTR_ID_OTA_IMAGE_TYPE_ID                  0x0008  /* Image Type ID */
+#define ZBEE_ZCL_ATTR_ID_OTA_MIN_BLOCK_REQ_DELAY            0x0009  /* Minimum Block Request Delay */
+
+/* Server Commands Generated */
+#define ZBEE_ZCL_CMD_ID_OTA_IMAGE_NOTIFY                      0x00  /* Image Notify */
+#define ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_RSP              0x02  /* Query Next Image Response */
+#define ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_RSP                   0x05  /* Image Block Response */
+#define ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_RSP                   0x07  /* Upgrade End Response */
+#define ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_RSP               0x09  /* Query Specific File Response */
+
+/* Server Commands Received */
+#define ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_REQ              0x01  /* Query Next Image Request */
+#define ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_REQ                   0x03  /* Image Block Request */
+#define ZBEE_ZCL_CMD_ID_OTA_IMAGE_PAGE_REQ                    0x04  /* Image Page Request */
+#define ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_REQ                   0x06  /* Upgrade End Request */
+#define ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_REQ               0x08  /* Query Specific File Request */
+
+/* Payload Type */
+#define ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ                          0x00  /* Query Jitter */
+#define ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC                       0x01  /* Query Jitter and Manufacturer Code */
+#define ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT                    0x02  /* Query Jitter, Manufacturer Code and Image Type */
+#define ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT_FV                 0x03  /* Query Jitter, Manufacturer Code, Image Type and File Version */
+
+/* Image Type */
+#define ZBEE_ZCL_OTA_IMG_TYPE_MFR_LOW                       0x0000  /* Manufacturer Specific (Low value) */
+#define ZBEE_ZCL_OTA_IMG_TYPE_MFR_HIGH                      0xffbf  /* Manufacturer Specific (High value) */
+#define ZBEE_ZCL_OTA_IMG_TYPE_SECURITY                      0xffc0  /* Security Credential */
+#define ZBEE_ZCL_OTA_IMG_TYPE_CONFIG                        0xffc1  /* Configuration */
+#define ZBEE_ZCL_OTA_IMG_TYPE_LOG                           0xffc2  /* Log */
+#define ZBEE_ZCL_OTA_IMG_TYPE_UNASSIGNED_LOW                0xffc3  /* Reserved: Unassigned (Low value) */
+#define ZBEE_ZCL_OTA_IMG_TYPE_UNASSIGNED_HIGH               0xfffe  /* Reserved: Unassigned (High value) */
+#define ZBEE_ZCL_OTA_IMG_TYPE_WILD_CARD                     0xffff  /* Reserved: Wild Card */
+
+/* ZigBee Stack Version */
+#define ZBEE_ZCL_OTA_ZB_STACK_VER_2006                      0x0000  /* ZigBee 2006 */
+#define ZBEE_ZCL_OTA_ZB_STACK_VER_2007                      0x0001  /* ZigBee 2007 */
+#define ZBEE_ZCL_OTA_ZB_STACK_VER_PRO                       0x0002  /* ZigBee Pro */
+#define ZBEE_ZCL_OTA_ZB_STACK_VER_IP                        0x0003  /* ZigBee IP */
+#define ZBEE_ZCL_OTA_ZB_STACK_VER_RESERVED_LO               0x0004  /* Reserved Low */
+#define ZBEE_ZCL_OTA_ZB_STACK_VER_RESERVED_HI               0xffff  /* Reserved High */
+  
+/* Image Upgrade Status */
+#define ZBEE_ZCL_OTA_STATUS_NORMAL                            0x00  /* Normal */
+#define ZBEE_ZCL_OTA_STATUS_DOWNLOAD_IN_PROGRESS              0x01  /* Download in progress */
+#define ZBEE_ZCL_OTA_STATUS_DOWNLOAD_COMPLETE                 0x02  /* Download complete */
+#define ZBEE_ZCL_OTA_STATUS_WAITING_TO_UPGRADE                0x03  /* Waiting to upgrade */
+#define ZBEE_ZCL_OTA_STATUS_COUNT_DOWN                        0x04  /* Count down */
+#define ZBEE_ZCL_OTA_STATUS_WAIT_FOR_MORE                     0x05  /* Wait for more */
+                                                                    /* 0x06-0xff - Reserved */                                                        
+/* File Version mask */
+#define ZBEE_ZCL_OTA_FILE_VERS_APPL_RELEASE             0x000000FF  /* Application Release */
+#define ZBEE_ZCL_OTA_FILE_VERS_APPL_BUILD               0x0000FF00  /* Application Build */
+#define ZBEE_ZCL_OTA_FILE_VERS_STACK_RELEASE            0x00FF0000  /* Stack Release */
+#define ZBEE_ZCL_OTA_FILE_VERS_STACK_BUILD              0xFF000000  /* Stack Build */
+
+/* Field Control bitmask field list */
+#define ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT                0x01  /* bit     0 */
+#define ZBEE_ZCL_OTA_FIELD_CTRL_RESERVED                      0xfe  /* bit   1-7 */
+#define ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT             0x01  /* bit     0 - Request nodes IEEE address Present  */
+
+/* OTA Time */
+#define ZBEE_ZCL_OTA_TIME_NOW                           0x00000000  /* Now */
+#define ZBEE_ZCL_OTA_TIME_UTC_LO                        0x00000001  /* UTC Low Boundary */
+#define ZBEE_ZCL_OTA_TIME_UTC_HI                        0xfffffffe  /* UTC High Boundary */
+#define ZBEE_ZCL_OTA_TIME_WAIT                          0xffffffff  /* Wait for a Upgrade command (not used for RequesTime) */
+
+/*************************/
+/* Function Declarations */
+/*************************/
+
+void proto_register_zbee_zcl_ota(void);
+void proto_reg_handoff_zbee_zcl_ota(void);
+
+/*************************/
+/* Global Variables      */
+/*************************/
+/* Initialize the protocol and registered fields */
+static int proto_zbee_zcl_ota = -1;
+
+static int hf_zbee_zcl_ota_attr_id = -1;
+static int hf_zbee_zcl_ota_srv_tx_cmd_id = -1;
+static int hf_zbee_zcl_ota_srv_rx_cmd_id = -1;
+static int hf_zbee_zcl_ota_image_upgrade_status = -1;
+static int hf_zbee_zcl_ota_zb_stack_ver = -1;
+static int hf_zbee_zcl_ota_file_offset = -1;
+static int hf_zbee_zcl_ota_payload_type = -1;
+static int hf_zbee_zcl_ota_query_jitter = -1;
+static int hf_zbee_zcl_ota_manufacturer_code = -1;
+static int hf_zbee_zcl_ota_image_type = -1;
+static int hf_zbee_zcl_ota_file_version_appl_release = -1;
+static int hf_zbee_zcl_ota_file_version_appl_build = -1;
+static int hf_zbee_zcl_ota_file_version_stack_release = -1;
+static int hf_zbee_zcl_ota_file_version_stack_build = -1;
+static int hf_zbee_zcl_ota_field_ctrl_hw_ver_present = -1;
+static int hf_zbee_zcl_ota_field_ctrl_reserved = -1;
+static int hf_zbee_zcl_ota_hw_version = -1;
+static int hf_zbee_zcl_ota_status = -1;
+static int hf_zbee_zcl_ota_image_size = -1;
+static int hf_zbee_zcl_ota_max_data_size = -1;
+static int hf_zbee_zcl_ota_req_node_addr = -1;
+static int hf_zbee_zcl_ota_current_time = -1;
+static int hf_zbee_zcl_ota_request_time = -1;
+static int hf_zbee_zcl_ota_upgrade_time = -1;
+static int hf_zbee_zcl_ota_data_size = -1;
+static int hf_zbee_zcl_ota_image_data = -1;
+static int hf_zbee_zcl_ota_page_size = -1;
+static int hf_zbee_zcl_ota_rsp_spacing = -1;
+
+/* Initialize the subtree pointers */
+static gint ett_zbee_zcl_ota = -1;
+static gint ett_zbee_zcl_ota_field_ctrl = -1;
+static gint ett_zbee_zcl_ota_file_version = -1;
+
+/* Attributes */
+static const value_string zbee_zcl_ota_attr_names[] = {
+    { ZBEE_ZCL_ATTR_ID_OTA_UPGRADE_SERVER_ID,               "Upgrade Served ID" },
+    { ZBEE_ZCL_ATTR_ID_OTA_FILE_OFFSET,                     "File Offset" },
+    { ZBEE_ZCL_ATTR_ID_OTA_CURRENT_FILE_VERSION,            "Current File Version" },
+    { ZBEE_ZCL_ATTR_ID_OTA_CURRENT_ZB_STACK_VERSION,        "Current ZigBee Stack Version" },
+    { ZBEE_ZCL_ATTR_ID_OTA_DOWNLOADED_FILE_VERSION,         "Downloaded File Version" },
+    { ZBEE_ZCL_ATTR_ID_OTA_DOWNLOADED_ZB_STACK_VERSION,     "Downloaded ZigBee Stack Version" },
+    { ZBEE_ZCL_ATTR_ID_OTA_IMAGE_UPGRADE_STATUS,            "Image Upgrade Status" },
+    { ZBEE_ZCL_ATTR_ID_OTA_MANUFACTURER_ID,                 "Manufacturer ID" },
+    { ZBEE_ZCL_ATTR_ID_OTA_IMAGE_TYPE_ID,                   "Image Type ID" },
+    { ZBEE_ZCL_ATTR_ID_OTA_MIN_BLOCK_REQ_DELAY,             "Minimum Block Request Delay" },
+    { 0, NULL }
+};
+
+/* Server Commands Received */
+static const value_string zbee_zcl_ota_srv_rx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_REQ,             "Query Next Image Request" },
+    { ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_REQ,                  "Image Block Request" },
+    { ZBEE_ZCL_CMD_ID_OTA_IMAGE_PAGE_REQ,                   "Image Page Request" },
+    { ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_REQ,                  "Upgrade End Request" },
+    { ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_REQ,              "Query Specific File Request" },
+    { 0, NULL }
+};
+
+/* Server Commands Generated */
+static const value_string zbee_zcl_ota_srv_tx_cmd_names[] = {
+    { ZBEE_ZCL_CMD_ID_OTA_IMAGE_NOTIFY,                     "Image Notify" },
+    { ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_RSP,             "Query Next Image Response" },
+    { ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_RSP,                  "Image Block Response" },
+    { ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_RSP,                  "Upgrade End Response" },
+    { ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_RSP,              "Query Specific File Response" },
+    { 0, NULL }
+};
+
+/* Payload Type */
+static const value_string zbee_zcl_ota_paylaod_type_names[] = {
+    { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ,                         "Query Jitter" },
+    { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC,                      "Query Jitter and Manufacturer Code" },
+    { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT,                   "Query Jitter, Manufacturer Code and Image Type" },
+    { ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT_FV,                "Query Jitter, Manufacturer Code, Image Type and File Version" },
+    { 0, NULL }
+};
+
+/* Image Upgrade Status */
+static const value_string zbee_zcl_ota_image_upgrade_attr_status_names[] = {
+    { ZBEE_ZCL_OTA_STATUS_NORMAL,                           "Normal" },
+    { ZBEE_ZCL_OTA_STATUS_DOWNLOAD_IN_PROGRESS,             "Download in progress" },
+    { ZBEE_ZCL_OTA_STATUS_DOWNLOAD_COMPLETE,                "Download complete" },
+    { ZBEE_ZCL_OTA_STATUS_WAITING_TO_UPGRADE,               "Waiting to upgrade" },
+    { ZBEE_ZCL_OTA_STATUS_COUNT_DOWN,                       "Count down" },
+    { ZBEE_ZCL_OTA_STATUS_WAIT_FOR_MORE,                    "Wait for more" },
+    { 0, NULL }
+};
+
+/* ZigBee Stack Version */
+static const range_string zbee_zcl_ota_zb_stack_ver_names[] = {
+    { ZBEE_ZCL_OTA_ZB_STACK_VER_2006,         ZBEE_ZCL_OTA_ZB_STACK_VER_2006,         "ZigBee 2006" },
+    { ZBEE_ZCL_OTA_ZB_STACK_VER_2007,         ZBEE_ZCL_OTA_ZB_STACK_VER_2007,         "ZigBee 2007" },
+    { ZBEE_ZCL_OTA_ZB_STACK_VER_PRO,          ZBEE_ZCL_OTA_ZB_STACK_VER_PRO,          "ZigBee Pro" },
+    { ZBEE_ZCL_OTA_ZB_STACK_VER_IP,           ZBEE_ZCL_OTA_ZB_STACK_VER_IP,           "ZigBee IP" },
+    { ZBEE_ZCL_OTA_ZB_STACK_VER_RESERVED_LO,  ZBEE_ZCL_OTA_ZB_STACK_VER_RESERVED_HI,  "Reserved" },
+    { 0, 0, NULL },
+};
+
+/* Image Type */
+static const range_string zbee_zcl_ota_image_type_names[] = {
+    {ZBEE_ZCL_OTA_IMG_TYPE_MFR_LOW,         ZBEE_ZCL_OTA_IMG_TYPE_MFR_HIGH,         "Manufacturer Specific" },
+    {ZBEE_ZCL_OTA_IMG_TYPE_SECURITY,        ZBEE_ZCL_OTA_IMG_TYPE_SECURITY,         "Security Credential" },
+    {ZBEE_ZCL_OTA_IMG_TYPE_CONFIG,          ZBEE_ZCL_OTA_IMG_TYPE_CONFIG,           "Configuration" },
+    {ZBEE_ZCL_OTA_IMG_TYPE_LOG,             ZBEE_ZCL_OTA_IMG_TYPE_LOG,              "Log" },
+    {ZBEE_ZCL_OTA_IMG_TYPE_UNASSIGNED_LOW,  ZBEE_ZCL_OTA_IMG_TYPE_UNASSIGNED_HIGH,  "Reserved: Unassigned" },
+    {ZBEE_ZCL_OTA_IMG_TYPE_WILD_CARD,       ZBEE_ZCL_OTA_IMG_TYPE_WILD_CARD,        "Reserved: Wild Card" },
+    { 0, 0, NULL }
+};
+
+/*************************/
+/* Function Bodies       */
+/*************************/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      decode_zcl_ota_curr_time
+ *  DESCRIPTION
+ *    this function decode the current time field
+ *  PARAMETERS
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+decode_zcl_ota_curr_time(gchar *s, guint32 value)
+{
+     if (value == ZBEE_ZCL_OTA_TIME_NOW)
+         g_snprintf(s, ITEM_LABEL_LENGTH, "Now");
+     else
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%s", abs_time_secs_to_ep_str(value, ABSOLUTE_TIME_LOCAL, 1));
+
+    return;
+} /*decode_zcl_ota_curr_time*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      decode_zcl_ota_req_time
+ *  DESCRIPTION
+ *    this function decode the request time field
+ *  PARAMETERS
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+decode_zcl_ota_req_time(gchar *s, guint32 value)
+{
+     if (value == ZBEE_ZCL_OTA_TIME_WAIT)
+         g_snprintf(s, ITEM_LABEL_LENGTH, "Wrong Value");
+     else
+         /* offset from now */
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", time_secs_to_ep_str(value));
+
+    return;
+} /*decode_zcl_ota_req_time*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      decode_zcl_ota_upgr_time
+ *  DESCRIPTION
+ *    this function decode the upgrade time field
+ *  PARAMETERS
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+decode_zcl_ota_upgr_time(gchar *s, guint32 value)
+{
+     if (value == ZBEE_ZCL_OTA_TIME_WAIT)
+         g_snprintf(s, ITEM_LABEL_LENGTH, "Wait for upgrade command");
+     else
+         /* offset from now */
+        g_snprintf(s, ITEM_LABEL_LENGTH, "%s from now", time_secs_to_ep_str(value));
+
+    return;
+} /*decode_zcl_ota_upgr_time*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      decode_zcl_ota_size_in_bytes
+ *  DESCRIPTION
+ *    this function decodes size in bytes
+ *  PARAMETERS
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+decode_zcl_ota_size_in_bytes(gchar *s, guint32 value)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%d [Bytes]", value);
+} /*decode_zcl_ota_size_in_bytes*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_file_version_field
+ *  DESCRIPTION
+ *      this function is called in order to decode "FileVersion" field,
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree  *sub_tree = NULL;
+    proto_item  *ti;
+    guint32     file_version;
+    
+    /* 'File Version' field present, retrieves it */
+    file_version = tvb_get_ntohl(tvb, *offset);
+    ti = proto_tree_add_text(tree, tvb, *offset, 4, "File Version: 0x%08x", file_version);
+    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ota_file_version);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_release, tvb, *offset, 4, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_appl_build, tvb, *offset, 4, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_release, tvb, *offset, 4, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_file_version_stack_build, tvb, *offset, 4, ENC_NA);
+    *offset += 4;
+} /*dissect_zcl_ota_file_version_field*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_field_ctrl_field
+ *  DESCRIPTION
+ *      this function is called in order to decode "FileVersion" field,
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static guint8
+dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree  *sub_tree = NULL;
+    proto_item  *ti;
+    guint8      field_ctrl;
+    
+    /* Retrieve 'Field Control' field */
+    field_ctrl = tvb_get_guint8(tvb, *offset);
+    ti = proto_tree_add_text(tree, tvb, *offset, 1, "Field Control: 0x%02x", field_ctrl);
+    sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_ota_field_ctrl);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_field_ctrl_hw_ver_present, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_field_ctrl_reserved, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    return field_ctrl;
+} /*dissect_zcl_ota_field_ctrl_field*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_imagenotify
+ *  DESCRIPTION
+ *      this function is called in order to decode "ImageNotify",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_imagenotify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  payload_type;
+
+    /* Retrieve 'Payload type' field */
+    payload_type = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_payload_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    /* Retrieve 'Query Jitter' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_query_jitter, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Check if there are optional fields */
+    
+    if (payload_type >= ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC) {
+        /* 'Manufacturer Code' field present, retrieves it */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+    }
+    
+    if (payload_type >= ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT) {
+        /* 'Image Type' field present, retrieves it */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+    }
+    
+    if (payload_type >= ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT_FV) {
+        /* 'File Version' field present, retrieves it */
+        dissect_zcl_ota_file_version_field(tvb, tree, offset);
+    }
+    
+} /*dissect_zcl_ota_imagenotify*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_querynextimagereq
+ *  DESCRIPTION
+ *      this function is called in order to decode "QueryNextImageRequest",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_querynextimagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  field_ctrl;
+    
+    /* Retrieve 'Field Control' field */
+    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
+    
+    /* Retrieve 'Manufacturer Code' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve 'Image Type' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Retrieve 'File Version' field */
+    dissect_zcl_ota_file_version_field(tvb, tree, offset);
+        
+    /* Check if there are optional fields */
+    
+    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT) { 
+        /* 'Hardware Version' field present, retrieves it */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_hw_version, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+    }
+    
+} /*dissect_zcl_ota_querynextimagereq*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_querynextimagersp
+ *  DESCRIPTION
+ *      this function is called in order to decode "QueryNextImageResponse",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_querynextimagersp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  status;
+
+    /* Retrieve 'Status' field */
+    status = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    /* Check if there are optional fields */
+    if (status == ZBEE_ZCL_STAT_SUCCESS) {
+        /* Retrieve 'Manufacturer Code' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve 'Image Type' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+      
+        /* Retrieve 'File Version' field */
+        dissect_zcl_ota_file_version_field(tvb, tree, offset);
+
+        /* Retrieve 'Image Size' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+    }
+    
+} /*dissect_zcl_ota_querynextimagersp*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_imageblockreq
+ *  DESCRIPTION
+ *      this function is called in order to decode "ImageBlockRequest",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  field_ctrl;
+    
+    /* Retrieve 'Field Control' field */
+    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
+    
+    /* Retrieve 'Manufacturer Code' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve 'Image Type' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Retrieve 'File Version' field */
+    dissect_zcl_ota_file_version_field(tvb, tree, offset);
+
+    /* Retrieve 'File Offset' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_file_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    
+    /* Retrieve 'Maximum Data Size' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_max_data_size, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    /* Check if there are optional fields */
+    
+    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) { 
+        /* 'Requerst Node Address' field present, retrieves it */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+        *offset += 8;
+    }
+    
+} /*dissect_zcl_ota_imageblockreq*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_imagepagereq
+ *  DESCRIPTION
+ *      this function is called in order to decode "ImagePageRequest",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  field_ctrl;
+    
+    /* Retrieve 'Field Control' field */
+    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
+    
+    /* Retrieve 'Manufacturer Code' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve 'Image Type' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Retrieve 'File Version' field */
+    dissect_zcl_ota_file_version_field(tvb, tree, offset);
+
+    /* Retrieve 'File Offset' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_file_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+    
+    /* Retrieve 'Maximum Data Size' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_max_data_size, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    /* Retrieve 'Page Size' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_page_size, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+ 
+    /* Retrieve 'Response Spacing' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_rsp_spacing, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Check if there are optional fields */
+    
+    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) { 
+        /* 'Requerst Node Address' field present, retrieves it */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+        *offset += 8;
+    }
+    
+} /*dissect_zcl_ota_imagepagereq*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_imageblockrsp
+ *  DESCRIPTION
+ *      this function is called in order to decode "ImageBlockResponse",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  status;
+    guint8  data_size;
+    guint8  *image_data;
+
+    /* Retrieve 'Status' field */
+    status = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    if (status == ZBEE_ZCL_STAT_SUCCESS) {
+        /* Retrieve 'Manufacturer Code' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve 'Image Type' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        
+        /* Retrieve 'File Version' field */
+        dissect_zcl_ota_file_version_field(tvb, tree, offset);
+        
+        /* Retrieve 'File Offset' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_file_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+        
+        /* Retrieve 'Data Size' field */
+        data_size = tvb_get_guint8(tvb, *offset);
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_data_size, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+        
+        /* Retrieve 'Image Data' field */
+        image_data = tvb_bytes_to_ep_str_punct(tvb, *offset, data_size, ':');
+        proto_tree_add_string(tree, hf_zbee_zcl_ota_image_data, tvb, *offset, data_size, image_data);
+        *offset += data_size;
+    }
+    else if (status == ZBEE_ZCL_STAT_OTA_WAIT_FOR_DATA) {
+        /* Retrieve 'Current Time' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+        
+        /* Retrieve 'Request Time' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_request_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4;
+    }
+    else {
+      /* */
+    }
+    
+} /*dissect_zcl_ota_imageblockrsp*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_upgradeendreq
+ *  DESCRIPTION
+ *      this function is called in order to decode "UpgradeEndRequest",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_upgradeendreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{    
+    /* Retrieve 'Status' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    /* Retrieve 'Manufacturer Code' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve 'Image Type' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Retrieve 'File Version' field */
+    dissect_zcl_ota_file_version_field(tvb, tree, offset);
+
+} /*dissect_zcl_ota_upgradeendreq*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_upgradeendrsp
+ *  DESCRIPTION
+ *      this function is called in order to decode "UpgradeEndResponse",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{    
+    /* Retrieve 'Manufacturer Code' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve 'Image Type' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Retrieve 'File Version' field */
+    dissect_zcl_ota_file_version_field(tvb, tree, offset);
+    
+    /* Retrieve 'Current Time' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Retrieve 'Upgrade Time' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_upgrade_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+} /*dissect_zcl_ota_upgradeendrsp*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_queryspecfilereq
+ *  DESCRIPTION
+ *      this function is called in order to decode "QuerySpecificFileRequest",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_queryspecfilereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{    
+    /* 'Requerst Node Address' field present, retrieves it */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
+    *offset += 8;
+    
+    /* Retrieve 'Manufacturer Code' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Retrieve 'Image Type' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+    
+    /* Retrieve 'File Version' field */
+    dissect_zcl_ota_file_version_field(tvb, tree, offset);
+    
+    /* Retrieve 'ZigBee Stack Version' field */
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_zb_stack_ver, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+} /*dissect_zcl_ota_queryspecfilereq*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_queryspecfilersp
+ *  DESCRIPTION
+ *      this function is called in order to decode "QuerySpecificFileResponse",
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      guint *offset       - pointer to buffer offset
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_queryspecfilersp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint8  status;
+    
+    /* Retrieve 'Status' field */
+    status = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+    
+    if (status == ZBEE_ZCL_STAT_SUCCESS) {
+        /* Retrieve 'Manufacturer Code' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Retrieve 'Image Type' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+        
+        /* Retrieve 'File Version' field */
+        dissect_zcl_ota_file_version_field(tvb, tree, offset);
+        
+        /* Retrieve 'Image Size' field */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_image_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+        *offset += 4; 
+    }
+    
+} /*dissect_zcl_ota_queryspecfilersp*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_attr_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_attr_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    proto_tree_add_item(tree, hf_zbee_zcl_ota_attr_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+} /*dissect_zcl_ota_attr_id*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_attr_data
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type)
+{
+    /* Dissect attribute data type and data */
+    switch ( attr_id )
+    {
+        case ZBEE_ZCL_ATTR_ID_OTA_CURRENT_FILE_VERSION:
+        case ZBEE_ZCL_ATTR_ID_OTA_DOWNLOADED_FILE_VERSION:
+            dissect_zcl_ota_file_version_field(tvb, tree, offset);
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_OTA_CURRENT_ZB_STACK_VERSION:
+        case ZBEE_ZCL_ATTR_ID_OTA_DOWNLOADED_ZB_STACK_VERSION:
+            proto_tree_add_item(tree, hf_zbee_zcl_ota_zb_stack_ver, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+
+        case ZBEE_ZCL_ATTR_ID_OTA_IMAGE_UPGRADE_STATUS:
+            proto_tree_add_item(tree, hf_zbee_zcl_ota_image_upgrade_status, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+            break;
+            
+        case ZBEE_ZCL_ATTR_ID_OTA_MANUFACTURER_ID:
+            proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+            
+        case ZBEE_ZCL_ATTR_ID_OTA_IMAGE_TYPE_ID:
+            proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+        
+        case ZBEE_ZCL_ATTR_ID_OTA_MIN_BLOCK_REQ_DELAY:
+        default:
+            dissect_zcl_attr_data(tvb, tree, offset, data_type);
+            break;
+    }
+} /*dissect_zcl_ota_attr_data*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_ota_cmd_id
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster command identifier.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint8 cmd_dir      - command direction
+ *
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_ota_cmd_id(proto_tree* tree, tvbuff_t* tvb, guint* offset, guint8 cmd_dir)
+{
+    if (cmd_dir == ZBEE_ZCL_FCF_TO_CLIENT)
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_srv_rx_cmd_id, tvb, *offset, 1, ENC_NA);
+    else
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_srv_tx_cmd_id, tvb, *offset, 1, ENC_NA);
+} /*dissect_zcl_ota_cmd_id*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zbee_zcl_ota
+ *  DESCRIPTION
+ *      ZigBee ZCL OTA cluster dissector for wireshark.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      packet_info *pinfo  - pointer to packet information fields
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+static int
+dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    proto_item        *payload_root;
+    proto_tree        *payload_tree;
+    zbee_zcl_packet   *zcl;
+    guint             offset = 0;
+    guint8            cmd_id;
+    gint              rem_len;
+
+    /* Reject the packet if data is NULL */
+    if (data == NULL)
+        return 0;
+    zcl = (zbee_zcl_packet *)data;
+    cmd_id = zcl->cmd_id;
+
+    /* Create a subtree for the ZCL Command frame, and add the command ID to it. */
+    if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_ota_srv_rx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_srv_rx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_ota);
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_REQ:
+                    dissect_zcl_ota_querynextimagereq(tvb, payload_tree, &offset);
+                    break;
+                
+                case ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_REQ:
+                    dissect_zcl_ota_imageblockreq(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_OTA_IMAGE_PAGE_REQ:
+                    dissect_zcl_ota_imagepagereq(tvb, payload_tree, &offset);
+                    break;
+                    
+                case ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_REQ:
+                    dissect_zcl_ota_upgradeendreq(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_REQ:
+                    dissect_zcl_ota_queryspecfilereq(tvb, payload_tree, &offset);
+                    break;
+                
+                default:
+                    break;
+            }
+        }
+    }
+    else { /* ZBEE_ZCL_FCF_TO_CLIENT */
+        /* Append the command name to the info column. */
+        col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
+            val_to_str_const(cmd_id, zbee_zcl_ota_srv_tx_cmd_names, "Unknown Command"),
+            zcl->tran_seqno);
+
+        /* Add the command ID. */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_srv_tx_cmd_id, tvb, offset, 1, cmd_id);
+
+        /* Check is this command has a payload, than add the payload tree */
+        rem_len = tvb_reported_length_remaining(tvb, ++offset);
+        if (rem_len > 0) {
+            payload_root = proto_tree_add_text(tree, tvb, offset, rem_len, "Payload");
+            payload_tree = proto_item_add_subtree(payload_root, ett_zbee_zcl_ota);
+
+            /* Call the appropriate command dissector */
+            switch (cmd_id) {
+                case ZBEE_ZCL_CMD_ID_OTA_IMAGE_NOTIFY:
+                    dissect_zcl_ota_imagenotify(tvb, payload_tree, &offset);
+                    break;
+                
+                case ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_RSP:
+                    dissect_zcl_ota_querynextimagersp(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_RSP:
+                    dissect_zcl_ota_imageblockrsp(tvb, payload_tree, &offset);
+                    break;
+
+                case ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_RSP:
+                    dissect_zcl_ota_upgradeendrsp(tvb, payload_tree, &offset);
+                    break;
+                    
+                case ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_RSP:
+                    dissect_zcl_ota_queryspecfilersp(tvb, payload_tree, &offset);
+                    break;              
+
+                default:
+                    break;
+            }
+        }
+    }
+    
+    return tvb_length(tvb);
+} /*dissect_zbee_zcl_ota*/
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_register_zbee_zcl_ota
+ *  DESCRIPTION
+ *      this function is called by ZCL foundation dissector in order to decode
+ *      specific cluster attributes data.
+ *  PARAMETERS
+ *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      guint *offset       - pointer to buffer offset
+ *      guint16 attr_id     - attribute identifier
+ *      guint data_type     - attribute data type
+ *  RETURNS
+ *      none
+ *---------------------------------------------------------------
+ */
+void proto_register_zbee_zcl_ota(void)
+{
+    static hf_register_info hf[] = {
+
+        { &hf_zbee_zcl_ota_attr_id,
+            { "Attribute", "zbee_zcl_general.ota.attr_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_ota_attr_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_srv_tx_cmd_id,
+            { "Command", "zbee_zcl_general.ota.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_srv_tx_cmd_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_srv_rx_cmd_id,
+            { "Command", "zbee_zcl_general.ota.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_srv_rx_cmd_names),
+            0x0, NULL, HFILL } },
+        
+        { &hf_zbee_zcl_ota_image_upgrade_status,
+            { "Image Upgrade Status", "zbee_zcl_general.ota.status_attr", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_image_upgrade_attr_status_names),
+            0x0, NULL, HFILL } },
+  
+        { &hf_zbee_zcl_ota_zb_stack_ver,
+            { "ZigBee Stack Version", "zbee_zcl_general.ota.zb_stack.ver", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, 
+            RVALS(zbee_zcl_ota_zb_stack_ver_names), 0x0, NULL, HFILL } },
+   
+        { &hf_zbee_zcl_ota_payload_type,
+            { "Payload Type", "zbee_zcl_general.ota.payload.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_paylaod_type_names),
+            0x0, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_query_jitter,
+            { "Query Jitter", "zbee_zcl_general.ota.query_jitter", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_seconds,
+            0x0, NULL, HFILL } }, 
+            
+        { &hf_zbee_zcl_ota_manufacturer_code,
+            { "Manufacturer Code", "zbee_zcl_general.ota.manufacturer_code", FT_UINT16, BASE_HEX, VALS(zbee_mfr_code_names),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_type,
+            { "Image Type", "zbee_zcl_general.ota.image.type", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, 
+            RVALS(zbee_zcl_ota_image_type_names), 0x0, NULL, HFILL } },
+
+/* Begin FileVersion fields */
+        { &hf_zbee_zcl_ota_file_version_appl_release,
+            { "Application Release", "zbee_zcl_general.ota.file.version.appl.release", FT_UINT32, BASE_DEC, NULL,
+            ZBEE_ZCL_OTA_FILE_VERS_APPL_RELEASE, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_file_version_appl_build,
+            { "Application Build", "zbee_zcl_general.ota.file.version.appl.build", FT_UINT32, BASE_DEC, NULL,
+            ZBEE_ZCL_OTA_FILE_VERS_APPL_BUILD, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_file_version_stack_release,
+            { "Stack Release", "zbee_zcl_general.ota.file.version.stack.release", FT_UINT32, BASE_DEC, NULL,
+            ZBEE_ZCL_OTA_FILE_VERS_STACK_RELEASE, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_file_version_stack_build,
+            { "Stack Build", "zbee_zcl_general.ota.file.version.stack.build", FT_UINT32, BASE_DEC, NULL,
+            ZBEE_ZCL_OTA_FILE_VERS_STACK_BUILD, NULL, HFILL } },
+/* End FileVersion fields */
+
+/* Begin FieldControl fields */
+        { &hf_zbee_zcl_ota_field_ctrl_hw_ver_present,
+            { "Hardware Version", "zbee_zcl_general.ota.field_ctrl_hw_ver_present",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_field_ctrl_reserved, 
+            { "Reserved", "zbee_zcl_general.ota.field_ctrl_reserved", FT_UINT8, BASE_HEX, NULL, 
+            ZBEE_ZCL_OTA_FIELD_CTRL_RESERVED, NULL, HFILL } },
+/* End FieldControl fields */
+        
+        { &hf_zbee_zcl_ota_hw_version,
+            { "Hardware Version", "zbee_zcl_general.ota.hw_ver", FT_UINT16, BASE_HEX, NULL, 
+            0x0, NULL, HFILL } },
+        
+        { &hf_zbee_zcl_ota_status,
+            { "Status", "zbee_zcl_general.ota.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
+            0x0, NULL, HFILL } },    
+            
+        { &hf_zbee_zcl_ota_image_size,
+            { "Image Size", "zbee_zcl_general.ota.image.size", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_size_in_bytes,
+            0x0, NULL, HFILL } },
+ 
+        { &hf_zbee_zcl_ota_file_offset,
+            { "File Offset", "zbee_zcl_general.ota.file.offset", FT_UINT32, BASE_HEX, NULL, 
+            0x0, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_max_data_size,
+            { "Max Data Size", "zbee_zcl_general.ota.max_data_size", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_req_node_addr,
+            { "Ieee Address", "zbee_zcl_general.ota.ieee_addr", FT_UINT64, BASE_HEX, NULL, 
+            0x0, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_page_size,
+            { "Page Size", "zbee_zcl_general.ota.page.size", FT_UINT16, BASE_CUSTOM, decode_zcl_ota_size_in_bytes,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_rsp_spacing,
+            { "Response Spacing", "zbee_zcl_general.ota.rsp_spacing", FT_UINT16, BASE_HEX, NULL, 
+            0x0, NULL, HFILL } },
+            
+        { &hf_zbee_zcl_ota_current_time,
+            { "Current Time", "zbee_zcl_general.ota.current_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_curr_time,
+            0x0, NULL, HFILL }},
+            
+        { &hf_zbee_zcl_ota_request_time,
+            { "Request Time", "zbee_zcl_general.ota.request_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_req_time,
+            0x0, NULL, HFILL }},
+            
+        { &hf_zbee_zcl_ota_upgrade_time,
+            { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_upgr_time,
+            0x0, NULL, HFILL }},
+            
+        { &hf_zbee_zcl_ota_data_size,
+            { "Data Size", "zbee_zcl_general.ota.data_size", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_data,
+            { "Image Data", "zbee_zcl_general.ota.image.data", FT_STRING, BASE_NONE, NULL,
+            0x00, NULL, HFILL } }
+   };
+
+    /* ZCL OTA subtrees */
+    gint *ett[ZBEE_ZCL_OTA_NUM_ETT];
+    ett[0] = &ett_zbee_zcl_ota;
+    ett[1] = &ett_zbee_zcl_ota_field_ctrl;
+    ett[2] = &ett_zbee_zcl_ota_file_version;
+
+    /* Register ZigBee ZCL Ota protocol with Wireshark. */
+    proto_zbee_zcl_ota = proto_register_protocol("ZigBee ZCL OTA", "ZCL OTA", ZBEE_PROTOABBREV_ZCL_OTA);
+    proto_register_field_array(proto_zbee_zcl_ota, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    /* Register the ZigBee ZCL OTA dissector. */
+    new_register_dissector(ZBEE_PROTOABBREV_ZCL_OTA, dissect_zbee_zcl_ota, proto_zbee_zcl_ota);
+
+} /* proto_register_zbee_zcl_ota */
+
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      proto_reg_handoff_zbee_zcl_ota
+ *  DESCRIPTION
+ *      Registers the zigbee ZCL OTA cluster dissector with Wireshark.
+ *  PARAMETERS
+ *      none
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+void proto_reg_handoff_zbee_zcl_ota(void)
+{
+    dissector_handle_t ota_handle;
+
+    /* Register our dissector with the ZigBee application dissectors. */
+    ota_handle = find_dissector(ZBEE_PROTOABBREV_ZCL_OTA);
+    dissector_add_uint("zbee.zcl.cluster", ZBEE_ZCL_CID_OTA_UPGRADE, ota_handle);
+
+    zbee_zcl_init_cluster(  proto_zbee_zcl_ota,
+                            ett_zbee_zcl_ota,
+                            ZBEE_ZCL_CID_OTA_UPGRADE,
+                            (zbee_zcl_fn_attr_id)dissect_zcl_ota_attr_id,
+                            (zbee_zcl_fn_attr_data)dissect_zcl_ota_attr_data,
+                            (zbee_zcl_fn_cmd_id)dissect_zcl_ota_cmd_id
+                         );
+
+} /*proto_reg_handoff_zbee_zcl_ota*/
 
 /* ########################################################################## */
 /* #### (0x001A) POWER PROFILE CLUSTER ###################################### */
