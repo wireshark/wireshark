@@ -731,6 +731,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hazelcast.c
 	dissectors/packet-hci_h1.c
 	dissectors/packet-hci_h4.c
+	dissectors/packet-hci_mon.c
 	dissectors/packet-hci_usb.c
 	dissectors/packet-hclnfsd.c
 	dissectors/packet-hdcp.c

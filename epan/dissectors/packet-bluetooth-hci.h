@@ -67,19 +67,6 @@ extern value_string_ext bthci_cmd_auth_req_vals_ext;
 extern value_string_ext bthci_cmd_appearance_vals_ext;
 extern value_string_ext bthci_evt_comp_id_ext;
 
-extern value_string_ext bthci_cmd_cod_major_device_class_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_computer_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_phone_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_lan_net_type_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_audio_video_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_peripheral_type_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_imaging_type_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_wearable_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_toy_vals_ext;
-extern value_string_ext bthci_cmd_cod_minor_device_class_health_vals_ext;
-
 extern const value_string bthci_cmd_io_capability_vals[];
 extern const value_string bthci_cmd_oob_data_present_vals[];
 extern const value_string bthci_cmd_address_types_vals[];
@@ -103,6 +90,7 @@ extern const value_string bthci_cmd_notification_types[];
 #define HCI_INTERFACE_H4   1
 #define HCI_INTERFACE_USB  2
 #define HCI_INTERFACE_AMP  3
+#define HCI_INTERFACE_MON  4
 
 #define HCI_ADAPTER_DEFAULT 0
 
@@ -143,5 +131,8 @@ typedef struct _localhost_name_entry_t {
     guint32  adapter_id;
     gchar    *name;
 } localhost_name_entry_t;
+
+/* In "packet-btle.c" */
+extern gint dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset);
 
 #endif

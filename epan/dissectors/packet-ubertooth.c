@@ -179,6 +179,7 @@ static const value_string command_vals[] = {
     { 53,  "Read Register" },
     { 54,  "BTLE Slave" },
     { 55,  "Get Compile Info" },
+    { 56,  "BTLE Set Target" },
     { 0x00, NULL }
 };
 static value_string_ext(command_vals_ext) = VALUE_STRING_EXT_INIT(command_vals);
@@ -384,6 +385,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
     gint              p2p_dir_save;
     guint8            command;
+    gint16            command_response = -1;
     command_data_t   *command_data = NULL;
     wmem_tree_t      *wmem_tree;
     wmem_tree_key_t   key[5];
@@ -629,6 +631,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         switch (command) {
             case 38: /* Set BDADDR */
             case 54: /* BTLE Slave */
+            case 56: /* BTLE Set Target */
                 proto_tree_add_item(main_tree, hf_bdaddr, tvb, offset, 6, ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                         get_ether_name((char *) tvb_memdup(wmem_packet_scope(), tvb, offset, 6)));
@@ -696,8 +699,10 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(command_info, key);
    if (wmem_tree) {
         command_data = (command_data_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->fd->num);
-        command = command_data->command;
-        register_id = command_data->register_id;
+        if (command_data) {
+            command_response = command_data->command;
+            register_id = command_data->register_id;
+        }
    }
 
     if (!command_data) {
@@ -711,19 +716,19 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Response: %s",
-            val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
+            val_to_str_ext_const(command_response, &command_vals_ext, "Unknown"));
 
-    command_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, 0, command);
+    command_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, 0, command_response);
     command_tree = proto_item_add_subtree(command_item, ett_command);
     PROTO_ITEM_SET_GENERATED(command_item);
-    switch (command) {
+    switch (command_response) {
 
     case 1: /* Rx Symbols */
     case 27: /* Spectrum Analyzer */
         if (usb_conv_info->transfer_type == URB_BULK) {
 
             while (tvb_length_remaining(tvb, offset) > 0) {
-                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command);
+                offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response);
             }
             break;
         }
@@ -759,6 +764,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     case 51: /* Set AFH Map */
     case 52: /* Clear AFH Map */
     case 54: /* BTLE Slave */
+    case 56: /* BTLE Set Target */
         proto_tree_add_expert(command_tree, pinfo, &ei_unexpected_response, tvb, offset, 0);
         if (tvb_length_remaining(tvb, offset) > 0) {
             proto_tree_add_expert(main_tree, pinfo, &ei_unknown_data, tvb, offset, -1);
@@ -924,7 +930,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
         }
 
-        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command);
+        offset = dissect_usb_rx_packet(tree, main_tree, pinfo, tvb, offset, command_response);
 
         break;
     case 53: /* Read Register */
@@ -1290,7 +1296,7 @@ proto_register_ubertooth(void)
 
     module = prefs_register_protocol(proto_ubertooth, NULL);
     prefs_register_static_text_preference(module, "version",
-            "Ubertooth Firmware: 2012-10-R1 (also latest git version pior to: d09308f48d9f94d1c55be5f72d9a2a271bb8a54b)",
+            "Ubertooth Firmware: 2012-10-R1 (also latest version prior to: git-4470774)",
             "Version of protocol supported by this dissector.");
 }
 
@@ -1299,8 +1305,10 @@ proto_reg_handoff_ubertooth(void)
 {
     btle_handle = find_dissector("btle");
 
+    dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6000, ubertooth_handle); /* Ubertooth Zero */
+    dissector_add_uint("usb.product", (0x1d50 << 16) | 0x6002, ubertooth_handle); /* Ubertooth One */
+
     dissector_add_handle("usb.device",   ubertooth_handle);
-    dissector_add_handle("usb.product",  ubertooth_handle);
     dissector_add_handle("usb.protocol", ubertooth_handle);
 }
 

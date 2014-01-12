@@ -63,8 +63,8 @@ struct btsnooprec_hdr {
 #define KHciLoggerDatalinkTypeBCSP		1003
 /* H5 is the official three wire serial protocol derived from BCSP*/
 #define KHciLoggerDatalinkTypeH5		1004
-/* BlueZ 5 Monitor */
-#define KHciLoggerDatalinkBlueZ5Monitor	 2001
+/* Linux Monitor */
+#define KHciLoggerDatalinkLinuxMonitor	 2001
 /* BlueZ 5 Simulator */
 #define KHciLoggerDatalinkBlueZ5Simulator	2002
 
@@ -140,10 +140,9 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: H5 capture logs unsupported");
 		return -1;
-	case KHciLoggerDatalinkBlueZ5Monitor:
-		*err = WTAP_ERR_UNSUPPORTED;
-		*err_info = g_strdup_printf("btsnoop: BlueZ 5 Monitor capture logs unsupported");
-		return -1;
+	case KHciLoggerDatalinkLinuxMonitor:
+		file_encap=WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR;
+		break;
 	case KHciLoggerDatalinkBlueZ5Simulator:
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("btsnoop: BlueZ 5 Simulator capture logs unsupported");
@@ -227,9 +226,7 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
 	{
 		phdr->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
-	}
-	else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI)
-	{
+	} else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI) {
 		phdr->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 		if(flags & KHciLoggerCommandOrEvent)
 		{
@@ -246,6 +243,9 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 		{
 			phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
 		}
+	} else  if (wth->file_encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) {
+		phdr->pseudo_header.btmon.opcode = flags & 0xFFFF;
+		phdr->pseudo_header.btmon.adapter_id = flags >> 16;
 	}
 
 
@@ -261,8 +261,8 @@ int btsnoop_dump_can_write_encap(int encap)
     if (encap == WTAP_ENCAP_PER_PACKET)
         return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-    /* XXX - for now we only support WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR */
-    if (encap != WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
+    /* XXX - for now we only support WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR and WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
+    if (encap != WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR && encap != WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR)
         return WTAP_ERR_UNSUPPORTED_ENCAP;
 
     return 0;

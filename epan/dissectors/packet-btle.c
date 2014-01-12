@@ -49,7 +49,6 @@ static int hf_advertising_header_length = -1;
 static int hf_advertising_header_rfu_2 = -1;
 static int hf_advertising_address = -1;
 static int hf_initiator_addresss = -1;
-static int hf_advertising_data = -1;
 static int hf_scanning_address = -1;
 static int hf_scan_response_data = -1;
 static int hf_link_layer_data = -1;
@@ -82,6 +81,7 @@ static gint ett_data_header = -1;
 static expert_field ei_unknown_data = EI_INIT;
 
 static dissector_handle_t btle_handle;
+static dissector_handle_t btcommon_ad_handle;
 static dissector_handle_t btl2cap_handle;
 
 static const value_string pdu_type_vals[] = {
@@ -146,7 +146,7 @@ void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
 
 
-static gint
+gint
 dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint8 bd_addr[6];
@@ -172,6 +172,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     gint         offset = 0;
     guint32      access_address;
     guint8       length;
+    tvbuff_t    *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LE LL");
 
@@ -228,8 +229,9 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         case 0x06: /* ADV_SCAN_IND */
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
-/* TODO: Dissect adverising data */
-            proto_tree_add_item(btle_tree, hf_advertising_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
+            next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 3, tvb_length_remaining(tvb, offset) - 3);
+            call_dissector(btcommon_ad_handle, next_tvb, pinfo, btle_tree);
+
             offset += tvb_length_remaining(tvb, offset) - 3;
 
             break;
@@ -334,7 +336,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     proto_tree_add_item(btle_tree, hf_l2cap_fragment, tvb, offset, length, ENC_NA);
                     offset += length;
                 } else {
-                    tvbuff_t          *next_tvb;
                     bthci_acl_data_t  *acl_data;
 
                     col_append_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
@@ -476,11 +477,6 @@ proto_register_btle(void)
         { &hf_scanning_address,
             { "Scanning Address",                "btle.scanning_address",
             FT_ETHER, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_advertising_data,
-            { "Advertising Data",                "btle.advertising.data",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_scan_response_data,
@@ -630,6 +626,7 @@ proto_register_btle(void)
 void
 proto_reg_handoff_btle(void)
 {
+    btcommon_ad_handle = find_dissector("btcommon.eir_ad.ad");
     btl2cap_handle = find_dissector("btl2cap");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);

@@ -695,6 +695,10 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_NETLINK */
 	{ "Netlink", "Linux netlink" },
+
+	/* WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
+	{ "Bluetooth Linux Monitor", "bluetooth-linux-monitor" },
+
 };
 
 WS_DLL_LOCAL

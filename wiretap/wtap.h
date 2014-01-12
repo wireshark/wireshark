@@ -252,6 +252,7 @@ extern "C" {
 #define WTAP_ENCAP_STANAG_4607                  157
 #define WTAP_ENCAP_STANAG_5066_D_PDU            158
 #define WTAP_ENCAP_NETLINK                      159
+#define WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR      160
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
@@ -804,14 +805,20 @@ struct sita_phdr {
 
 /*pseudo header for Bluetooth HCI*/
 struct bthci_phdr {
-    gboolean sent;
-    guint8   channel;
+    gboolean  sent;
+    guint32   channel;
 };
 
 #define BTHCI_CHANNEL_COMMAND  1
 #define BTHCI_CHANNEL_ACL      2
 #define BTHCI_CHANNEL_SCO      3
 #define BTHCI_CHANNEL_EVENT    4
+
+/* pseudo header for WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
+struct btmon_phdr {
+    guint16   adapter_id;
+    guint16   opcode;
+};
 
 /* pseudo header for WTAP_ENCAP_LAYER1_EVENT */
 struct l1event_phdr {
@@ -865,6 +872,7 @@ union wtap_pseudo_header {
     struct erf_mc_phdr  erf;
     struct sita_phdr    sita;
     struct bthci_phdr   bthci;
+    struct btmon_phdr   btmon;
     struct l1event_phdr l1event;
     struct i2c_phdr     i2c;
     struct gsm_um_phdr  gsm_um;

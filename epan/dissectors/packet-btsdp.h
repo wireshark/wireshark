@@ -159,6 +159,8 @@
 #define BTSDP_LOCAL_SERVICE_FLAG_MASK                   0x0001
 #define BTSDP_SECONDARY_CHANNEL_FLAG_MASK               0x0002
 
+#define SDP_PSM_DEFAULT  1
+
 typedef struct _uuid_t {
     guint16  bt_uuid;
     guint8   size;
@@ -203,7 +205,14 @@ typedef struct _service_info_t {
     struct _service_info_t *parent_info;
 } service_info_t;
 
-#define SDP_PSM_DEFAULT  1
+
+typedef struct _custom_uuid_t {
+    const guint8  uuid[16];
+    const guint8  size;
+    const gchar  *name;
+} custom_uuid_t;
+
+extern const custom_uuid_t custom_uuid[];
 
 extern value_string_ext vs_service_classes_ext;
 

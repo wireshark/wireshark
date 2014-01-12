@@ -392,11 +392,6 @@ typedef struct _record_handle_service_t {
     wmem_array_t *uuid_array;
 } record_handle_service_t;
 
-typedef struct _custom_uuid_t {
-    const guint8  uuid[16];
-    const gchar  *name;
-} custom_uuid_t;
-
 #define PDU_TYPE_SERVICE_SEARCH            0x00
 #define PDU_TYPE_SERVICE_ATTRIBUTE         0x01
 #define PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE  0x02
@@ -954,9 +949,10 @@ static const value_string vs_data_element_type[] = {
     { 0, NULL }
 };
 
-static const custom_uuid_t custom_uuid[] = {
-    { {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, "SyncML Server" },
-    { {0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, "SyncML Client" }
+const custom_uuid_t custom_uuid[] = {
+    { {0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Server" },
+    { {0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x10, 0x00, 0x80, 0x00, 0x00, 0x02, 0xEE, 0x00, 0x00, 0x02}, 16, "SyncML Client" },
+    { {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}, 0, NULL},
 };
 
 extern value_string_ext ext_psm_vals;
@@ -1000,14 +996,20 @@ print_uuid(uuid_t *uuid)
     if (uuid->bt_uuid) {
         return wmem_strdup(wmem_packet_scope(), val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
     } else {
-        if (uuid->size == 16) {
-            unsigned int i_uuid;
+        guint i_uuid;
 
-            for (i_uuid = 0; i_uuid < sizeof(custom_uuid) / sizeof(custom_uuid_t); ++i_uuid) {
-                if (memcmp(uuid->data, custom_uuid[i_uuid].uuid, 16) == 0) {
-                    return wmem_strdup(wmem_packet_scope(), custom_uuid[i_uuid].name);
-                }
+        i_uuid = 0;
+        while (custom_uuid[i_uuid].name) {
+            if (custom_uuid[i_uuid].size != uuid->size) {
+                i_uuid += 1;
+                continue;
             }
+
+            if (memcmp(uuid->data, custom_uuid[i_uuid].uuid, uuid->size) == 0) {
+                return wmem_strdup(wmem_packet_scope(), custom_uuid[i_uuid].name);
+            }
+
+            i_uuid += 1;
         }
 
         return bytes_to_ep_str(uuid->data, uuid->size);
@@ -1245,17 +1247,22 @@ dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uu
         uuid->bt_uuid = tvb_get_ntohs(tvb, offset + 2);
         proto_item_append_text(item, " (%s)", val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
     } else {
+        guint i_uuid;
         item = proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
 
-        if (size == 16) {
-            unsigned int i_uuid;
-
-            for (i_uuid = 0; i_uuid < sizeof(custom_uuid) / sizeof(custom_uuid_t); ++i_uuid) {
-                if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 16) == 0) {
-                    proto_item_append_text(item, " (%s)", custom_uuid[i_uuid].name);
-                    break;
-                }
+        i_uuid = 0;
+        while (custom_uuid[i_uuid].name) {
+            if (custom_uuid[i_uuid].size != size) {
+                i_uuid += 1;
+                continue;
             }
+
+            if (tvb_memeql(tvb, offset, custom_uuid[i_uuid].uuid, 4) == 0) {
+                proto_item_append_text(item, " (%s)", custom_uuid[i_uuid].name);
+                break;
+            }
+
+            i_uuid += 1;
         }
 
         uuid->bt_uuid = 0;
@@ -4520,7 +4527,7 @@ proto_register_btsdp(void)
         },
         { &hf_data_element_value_uuid_32,
             { "Value: UUID",                     "btsdp.data_element.value.uuid_32",
-            FT_UINT16, BASE_HEX, VALS(vs_service_classes), 0,
+            FT_UINT32, BASE_HEX, VALS(vs_service_classes), 0,
             NULL, HFILL }
         },
         { &hf_data_element_value_uuid_128,
