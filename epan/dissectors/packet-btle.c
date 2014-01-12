@@ -71,17 +71,57 @@ static int hf_data_header_sequence_number = -1;
 static int hf_data_header_next_expected_sequence_number = -1;
 static int hf_control_opcode = -1;
 static int hf_l2cap_fragment = -1;
-static int hf_control_data = -1;
+static int hf_control_reject_opcode = -1;
+static int hf_control_error_code = -1;
+static int hf_control_unknown_type = -1;
+static int hf_control_version_number = -1;
+static int hf_control_company_id = -1;
+static int hf_control_subversion_number = -1;
+static int hf_control_feature_set = -1;
+static int hf_control_feature_set_le_encryption = -1;
+static int hf_control_feature_set_connection_parameters_request_procedure = -1;
+static int hf_control_feature_set_extended_reject_indication = -1;
+static int hf_control_feature_set_slave_initiated_features_exchange = -1;
+static int hf_control_feature_set_le_ping = -1;
+static int hf_control_feature_set_reserved_5_7 = -1;
+static int hf_control_feature_set_reserved = -1;
+static int hf_control_window_size = -1;
+static int hf_control_window_offset = -1;
+static int hf_control_interval = -1;
+static int hf_control_latency = -1;
+static int hf_control_timeout = -1;
+static int hf_control_instant = -1;
+static int hf_control_interval_min = -1;
+static int hf_control_interval_max = -1;
+static int hf_control_preffered_periodicity = -1;
+static int hf_control_reference_connection_event_count = -1;
+static int hf_control_offset_0 = -1;
+static int hf_control_offset_1 = -1;
+static int hf_control_offset_2 = -1;
+static int hf_control_offset_3 = -1;
+static int hf_control_offset_4 = -1;
+static int hf_control_offset_5 = -1;
+static int hf_control_channel_map = -1;
+static int hf_control_random_number = -1;
+static int hf_control_encrypted_diversifier = -1;
+static int hf_control_master_session_key_diversifier = -1;
+static int hf_control_master_session_initialization_vector = -1;
+static int hf_control_slave_session_key_diversifier = -1;
+static int hf_control_slave_session_initialization_vector = -1;
 
 static gint ett_btle = -1;
 static gint ett_advertising_header = -1;
 static gint ett_link_layer_data = -1;
 static gint ett_data_header = -1;
+static gint ett_features = -1;
+static gint ett_channel_map = -1;
+static gint ett_scan_response_data = -1;
 
 static expert_field ei_unknown_data = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
+static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
 static const value_string pdu_type_vals[] = {
@@ -142,6 +182,14 @@ static const value_string control_opcode_vals[] = {
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
 
+/* Taken from https://www.bluetooth.org/en-us/specification/assigned-numbers/link-layer */
+static const value_string ll_version_number_vals[] = {
+    {0x06, "4.0"},
+    {0x07, "4.1"},
+    {0, NULL }
+};
+static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
+
 void proto_register_btle(void);
 void proto_reg_handoff_btle(void);
 
@@ -169,6 +217,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 {
     proto_item  *btle_item;
     proto_tree  *btle_tree;
+    proto_item  *sub_item;
+    proto_tree  *sub_tree;
     gint         offset = 0;
     guint32      access_address;
     guint8       length;
@@ -229,8 +279,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         case 0x06: /* ADV_SCAN_IND */
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
-            next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 3, tvb_length_remaining(tvb, offset) - 3);
-            call_dissector(btcommon_ad_handle, next_tvb, pinfo, btle_tree);
+            if (tvb_length_remaining(tvb, offset) > 3) {
+                next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 3, tvb_length_remaining(tvb, offset) - 3);
+                call_dissector(btcommon_ad_handle, next_tvb, pinfo, btle_tree);
+            }
 
             offset += tvb_length_remaining(tvb, offset) - 3;
 
@@ -248,7 +300,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         case 0x04: /* SCAN_RSP */
             offset = dissect_bd_addr(hf_advertising_address, btle_tree, tvb, offset);
 
-            proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
+            sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
+
+            if (tvb_length_remaining(tvb, offset) > 3) {
+                next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset) - 3, tvb_length_remaining(tvb, offset) - 3);
+                call_dissector(btcommon_ad_handle, next_tvb, pinfo, sub_tree);
+            }
+
             offset += tvb_length_remaining(tvb, offset) - 3;
 
             break;
@@ -280,7 +339,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
+            sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
             offset += 5;
 
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_hop, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -348,13 +410,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     acl_data->remote_bd_addr_id  = 0;
 
                     next_tvb = tvb_new_subset(tvb, offset, length, length);
-                    call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, btle_tree, acl_data);
+                    call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
                     offset += length;
                 }
             }
             break;
         case 0x03: /* Control PDU */
-            proto_tree_add_item(tree, hf_control_opcode, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_NA);
             control_opcode = tvb_get_guint8(tvb, offset);
             offset += 1;
 
@@ -375,24 +437,143 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
                 break;
             case 0x00: /* LL_CONNECTION_UPDATE_REQ */
+                proto_tree_add_item(btle_tree, hf_control_window_size, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(btle_tree, hf_control_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
             case 0x01: /* LL_CHANNEL_MAP_REQ */
+                sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
+                sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+                call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
+                offset += 5;
+
+                proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
             case 0x02: /* LL_TERMINATE_IND */
+            case 0x0D: /* LL_REJECT_IND */
+                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                break;
             case 0x03: /* LL_ENC_REQ */
+                proto_tree_add_item(btle_tree, hf_control_random_number, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                offset += 8;
+
+                proto_tree_add_item(btle_tree, hf_control_encrypted_diversifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_master_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                offset += 8;
+
+                proto_tree_add_item(btle_tree, hf_control_master_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                break;
             case 0x04: /* LL_ENC_RSP */
+                proto_tree_add_item(btle_tree, hf_control_slave_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                offset += 8;
+
+                proto_tree_add_item(btle_tree, hf_control_slave_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                offset += 4;
+
+                break;
             case 0x07: /* LL_UNKNOWN_RSP */
+                proto_tree_add_item(btle_tree, hf_control_unknown_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                break;
             case 0x08: /* LL_FEATURE_REQ */
             case 0x09: /* LL_FEATURE_RSP */
-            case 0x0C: /* LL_VERSION_IND */
-            case 0x0D: /* LL_REJECT_IND */
             case 0x0E: /* LL_SLAVE_FEATURE_REQ */
+                sub_item = proto_tree_add_item(btle_tree, hf_control_feature_set, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                sub_tree = proto_item_add_subtree(sub_item, ett_features);
+
+                proto_tree_add_item(sub_tree, hf_control_feature_set_le_encryption, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_connection_parameters_request_procedure, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_extended_reject_indication, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_slave_initiated_features_exchange, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_le_ping, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(sub_tree, hf_control_feature_set_reserved_5_7, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(sub_tree, hf_control_feature_set_reserved, tvb, offset, 7, ENC_NA);
+                offset += 7;
+
+                break;
+            case 0x0C: /* LL_VERSION_IND */
+                proto_tree_add_item(btle_tree, hf_control_version_number, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(btle_tree, hf_control_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_subversion_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
             case 0x0F: /* LL_CONNECTION_PARAM_REQ */
             case 0x10: /* LL_CONNECTION_PARAM_RSP */
+                proto_tree_add_item(btle_tree, hf_control_interval_min, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_interval_max, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_preffered_periodicity, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(btle_tree, hf_control_reference_connection_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_offset_0, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_offset_1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_offset_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_offset_3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_offset_4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btle_tree, hf_control_offset_5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                break;
             case 0x11: /* LL_REJECT_IND_EXT */
-/* TODO: Implement above cases */
-                if (tvb_length_remaining(tvb, offset) > 3) {
-                    proto_tree_add_item(tree, hf_control_data, tvb, offset, tvb_length_remaining(tvb, offset) - 3, ENC_NA);
-                    offset += tvb_length_remaining(tvb, offset) - 3;
-                }
+                proto_tree_add_item(btle_tree, hf_control_reject_opcode, tvb, offset, 1, ENC_NA);
+                offset += 1;
+
+                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_NA);
+                offset += 1;
 
                 break;
             default:
@@ -551,17 +732,17 @@ proto_register_btle(void)
         },
         { &hf_data_header_next_expected_sequence_number,
             { "Next Expected Sequence Number",   "btle.data_header.next_expected_sequence_number",
-            FT_UINT8, BASE_DEC, NULL, 0x04,
+            FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_data_header_sequence_number,
             { "Sequence Number",                 "btle.data_header.sequence_number",
-            FT_UINT8, BASE_DEC, NULL, 0x08,
+            FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_data_header_more_data,
             { "More Data",                       "btle.data_header.more_data",
-            FT_UINT8, BASE_DEC, NULL, 0x10,
+            FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_data_header_length,
@@ -579,14 +760,194 @@ proto_register_btle(void)
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &control_opcode_vals_ext, 0x0,
             NULL, HFILL }
         },
-        { &hf_l2cap_fragment,
-            { "L2CAP Fragment",                  "btle.l2cap_data",
+        { &hf_control_reject_opcode,
+            { "Reject Opcode",                   "btle.control.reject_opcode",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &control_opcode_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_unknown_type,
+            { "Unknown Type",                    "btle.control.unknown_type",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &control_opcode_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_error_code,
+            { "Error Code",                      "btle.control.error_code",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_cmd_status_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_version_number,
+            { "Version Number",                  "btle.control.version_number",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ll_version_number_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_company_id,
+            { "Company Id",                      "btle.control.company_id",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_subversion_number,
+            { "Subversion Number",               "btle.control.subversion_number",
+            FT_UINT16, BASE_HEX, NULL, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set,
+            { "Feature Set",                     "btle.control.feature_set",
+            FT_UINT64, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_encryption,
+            { "LE Encryption",                   "btle.control.feature_set.le_encryption",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_connection_parameters_request_procedure,
+            { "Connection Parameters Request Procedure",   "btle.control.feature_set.connection_parameters_request_procedure",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_extended_reject_indication,
+            { "Extended Reject Indication",           "btle.control.feature_set.extended_reject_indication",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_slave_initiated_features_exchange,
+            { "Slave Initiated Features Exchange",    "btle.control.feature_set.slave_initiated_features_exchange",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_le_ping,
+            { "LE Ping",                         "btle.control.feature_set.le_ping",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_reserved_5_7,
+            { "Reseved",                         "btle.control.feature_set.reserved_5_7",
+            FT_BOOLEAN, 8, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_control_feature_set_reserved,
+            { "Reserved",                        "btle.control.feature_set.reserved",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_control_data,
-            { "Control Data",                    "btle.control_data",
+        { &hf_control_window_size,
+            { "Window Size",                     "btle.control.window_size",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_window_offset,
+            { "Window Offset",                   "btle.control.window_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_interval,
+            { "Interval",                        "btle.control.interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_latency,
+            { "Latency",                         "btle.control.latency",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_timeout,
+            { "Timeout",                         "btle.control.timeout",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_instant,
+            { "Instant",                         "btle.control.instant",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_interval_min,
+            { "Interval Min",                    "btle.control.interval.min",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_interval_max,
+            { "Interval Max",                    "btle.control.interval.max",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_preffered_periodicity,
+            { "Preffered Periodicity",           "btle.control.preffered_periodicity",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_reference_connection_event_count,
+            { "Reference Connection Event Count","btle.control.reference_connection_event_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_offset_0,
+            { "Offset 0",                        "btle.control.offset.0",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_offset_1,
+            { "Offset 1",                        "btle.control.offset.1",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_offset_2,
+            { "Offset 2",                        "btle.control.offset.2",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_offset_3,
+            { "Offset 3",                        "btle.control.offset.3",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_offset_4,
+            { "Offset 4",                        "btle.control.offset.4",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_offset_5,
+            { "Offset 5",                        "btle.control.offset.5",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_channel_map,
+            { "Channel Map",                     "btle.control.channel_map",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_random_number,
+            { "Random Number",                   "btle.control.random_number",
+            FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_encrypted_diversifier,
+            { "Encrypted Diversifier",           "btle.control.encrypted_diversifier",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_master_session_key_diversifier,
+            { "Master Session Key Diversifier",  "btle.control.master_session_key_diversifier",
+            FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_slave_session_key_diversifier,
+            { "Slave Session Key Diversifier",   "btle.control.slave_session_key_diversifier",
+            FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_master_session_initialization_vector,
+            { "Master Session Initialization Vector",      "btle.control.master_session_initialization_vector",
+            FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_slave_session_initialization_vector,
+            { "Slave Session Initialization Vector",       "btle.control.slave_session_initialization_vector",
+            FT_UINT64, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_l2cap_fragment,
+            { "L2CAP Fragment",                  "btle.l2cap_data",
+            FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_crc,
@@ -604,7 +965,10 @@ proto_register_btle(void)
         &ett_btle,
         &ett_advertising_header,
         &ett_link_layer_data,
-        &ett_data_header
+        &ett_data_header,
+        &ett_features,
+        &ett_channel_map,
+        &ett_scan_response_data
     };
 
     proto_btle = proto_register_protocol("Bluetooth Low Energy Link Layer",
@@ -627,6 +991,7 @@ void
 proto_reg_handoff_btle(void)
 {
     btcommon_ad_handle = find_dissector("btcommon.eir_ad.ad");
+    btcommon_le_channel_map_handle = find_dissector("btcommon.le_channel_map");
     btl2cap_handle = find_dissector("btl2cap");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_LE_LL, btle_handle);

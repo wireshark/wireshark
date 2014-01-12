@@ -61,11 +61,12 @@ extern value_string_ext bthci_cmd_input_data_format_vals_ext;
 extern value_string_ext bthci_cmd_input_sample_size_vals_ext;
 extern value_string_ext bthci_cmd_air_coding_format_vals_ext;
 extern value_string_ext bthci_cmd_status_vals_ext;
-extern value_string_ext bthci_cmd_service_class_type_vals_ext;
 extern value_string_ext bthci_cmd_eir_data_type_vals_ext;
 extern value_string_ext bthci_cmd_auth_req_vals_ext;
 extern value_string_ext bthci_cmd_appearance_vals_ext;
 extern value_string_ext bthci_evt_comp_id_ext;
+
+extern value_string_ext bt_sig_uuid_vals_ext;
 
 extern const value_string bthci_cmd_io_capability_vals[];
 extern const value_string bthci_cmd_oob_data_present_vals[];

@@ -334,6 +334,7 @@ static gint ett_bthci_cmd = -1;
 static gint ett_opcode = -1;
 static gint ett_cod_mask = -1;
 static gint ett_flow_spec_subtree = -1;
+static gint ett_le_channel_map = -1;
 
 static gint proto_btcommon = -1;
 static gint hf_btcommon_eir_ad_entry = -1;
@@ -421,6 +422,46 @@ static gint hf_btcommon_cod_minor_device_class_wearable = -1;
 static gint hf_btcommon_cod_minor_device_class_toy = -1;
 static gint hf_btcommon_cod_minor_device_class_health = -1;
 static gint hf_btcommon_cod_minor_device_class_unknown = -1;
+static gint hf_btcommon_le_channel_map_0 = -1;
+static gint hf_btcommon_le_channel_map_1 = -1;
+static gint hf_btcommon_le_channel_map_2 = -1;
+static gint hf_btcommon_le_channel_map_3 = -1;
+static gint hf_btcommon_le_channel_map_4 = -1;
+static gint hf_btcommon_le_channel_map_5 = -1;
+static gint hf_btcommon_le_channel_map_6 = -1;
+static gint hf_btcommon_le_channel_map_7 = -1;
+static gint hf_btcommon_le_channel_map_8 = -1;
+static gint hf_btcommon_le_channel_map_9 = -1;
+static gint hf_btcommon_le_channel_map_10 = -1;
+static gint hf_btcommon_le_channel_map_11 = -1;
+static gint hf_btcommon_le_channel_map_12 = -1;
+static gint hf_btcommon_le_channel_map_13 = -1;
+static gint hf_btcommon_le_channel_map_14 = -1;
+static gint hf_btcommon_le_channel_map_15 = -1;
+static gint hf_btcommon_le_channel_map_16 = -1;
+static gint hf_btcommon_le_channel_map_17 = -1;
+static gint hf_btcommon_le_channel_map_18 = -1;
+static gint hf_btcommon_le_channel_map_19 = -1;
+static gint hf_btcommon_le_channel_map_20 = -1;
+static gint hf_btcommon_le_channel_map_21 = -1;
+static gint hf_btcommon_le_channel_map_22 = -1;
+static gint hf_btcommon_le_channel_map_23 = -1;
+static gint hf_btcommon_le_channel_map_24 = -1;
+static gint hf_btcommon_le_channel_map_25 = -1;
+static gint hf_btcommon_le_channel_map_26 = -1;
+static gint hf_btcommon_le_channel_map_27 = -1;
+static gint hf_btcommon_le_channel_map_28 = -1;
+static gint hf_btcommon_le_channel_map_29 = -1;
+static gint hf_btcommon_le_channel_map_30 = -1;
+static gint hf_btcommon_le_channel_map_31 = -1;
+static gint hf_btcommon_le_channel_map_32 = -1;
+static gint hf_btcommon_le_channel_map_33 = -1;
+static gint hf_btcommon_le_channel_map_34 = -1;
+static gint hf_btcommon_le_channel_map_35 = -1;
+static gint hf_btcommon_le_channel_map_36 = -1;
+static gint hf_btcommon_le_channel_map_37 = -1;
+static gint hf_btcommon_le_channel_map_38 = -1;
+static gint hf_btcommon_le_channel_map_39 = -1;
 
 static gint ett_cod = -1;
 static gint ett_eir_ad = -1;
@@ -432,11 +473,356 @@ static expert_field ei_eir_ad_unknown                                 = EI_INIT;
 static dissector_handle_t btcommon_cod_handle;
 static dissector_handle_t btcommon_eir_handle;
 static dissector_handle_t btcommon_ad_handle;
+static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t bthci_cmd_handle;
 
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
 extern value_string_ext did_vendor_id_source_vals_ext;
+
+static const value_string bt_sig_uuid_vals[] = {
+    /* Protocol Identifiers - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
+    { 0x0001,   "SDP" },
+    { 0x0002,   "UDP" },
+    { 0x0003,   "RFCOMM" },
+    { 0x0004,   "TCP" },
+    { 0x0005,   "TCS-BIN" },
+    { 0x0006,   "TCS-AT" },
+    { 0x0007,   "ATT" },
+    { 0x0008,   "OBEX" },
+    { 0x0009,   "IP" },
+    { 0x000A,   "FTP" },
+    { 0x000C,   "HTTP" },
+    { 0x000E,   "WSP" },
+    { 0x000F,   "BNEP" },
+    { 0x0010,   "UPNP" },
+    { 0x0011,   "HIDP" },
+    { 0x0012,   "Hardcopy Control Channel" },
+    { 0x0014,   "Hardcopy Data Channel" },
+    { 0x0016,   "Hardcopy Notification" },
+    { 0x0017,   "AVCTP" },
+    { 0x0019,   "AVDTP" },
+    { 0x001B,   "CMPT" },
+    { 0x001D,   "UDI C-Plane" }, /* unofficial */
+    { 0x001E,   "MCAP Control Channel" },
+    { 0x001F,   "MCAP Data Channel" },
+    { 0x0100,   "L2CAP" },
+    /* Traditional Services - https://www.bluetooth.org/en-us/specification/assigned-numbers/service-discovery */
+    { 0x1000,   "Service Discovery Server Service Class ID" },
+    { 0x1001,   "Browse Group Descriptor Service Class ID" },
+    { 0x1002,   "Public Browse Group" },
+    { 0x1101,   "Serial Port" },
+    { 0x1102,   "LAN Access Using PPP" },
+    { 0x1103,   "Dialup Networking" },
+    { 0x1104,   "IrMC Sync" },
+    { 0x1105,   "OBEX Object Push" },
+    { 0x1106,   "OBEX File Transfer" },
+    { 0x1107,   "IrMC Sync Command" },
+    { 0x1108,   "Headset" },
+    { 0x1109,   "Cordless Telephony" },
+    { 0x110A,   "Audio Source" },
+    { 0x110B,   "Audio Sink" },
+    { 0x110C,   "A/V Remote Control Target" },
+    { 0x110D,   "Advanced Audio Distribution" },
+    { 0x110E,   "A/V Remote Control" },
+    { 0x110F,   "Video Conferencing" },
+    { 0x1110,   "Intercom" },
+    { 0x1111,   "Fax" },
+    { 0x1112,   "Headset Audio Gateway" },
+    { 0x1113,   "WAP" },
+    { 0x1114,   "WAP Client" },
+    { 0x1115,   "PANU" },
+    { 0x1116,   "NAP" },
+    { 0x1117,   "GN" },
+    { 0x1118,   "Direct Printing" },
+    { 0x1119,   "Reference Printing" },
+    { 0x111A,   "Imaging" },
+    { 0x111B,   "Imaging Responder" },
+    { 0x111C,   "Imaging Automatic Archive" },
+    { 0x111D,   "Imaging Referenced Objects" },
+    { 0x111E,   "Handsfree" },
+    { 0x111F,   "Handsfree Audio Gateway" },
+    { 0x1120,   "Direct Printing Reference Objects Service" },
+    { 0x1121,   "Reflected UI" },
+    { 0x1122,   "Basic Printing" },
+    { 0x1123,   "Printing Status" },
+    { 0x1124,   "Human Interface Device Service" },
+    { 0x1125,   "Hardcopy Cable Replacement" },
+    { 0x1126,   "HCR Print" },
+    { 0x1127,   "HCR Scan" },
+    { 0x1128,   "Common ISDN Access" },
+    { 0x1129,   "Video Conferencing GW" },
+    { 0x112A,   "UDI MT" },
+    { 0x112B,   "UDI TA" },
+    { 0x112C,   "Audio/Video" },
+    { 0x112D,   "SIM Access" },
+    { 0x112E,   "Phonebook Access Client" },
+    { 0x112F,   "Phonebook Access Server" },
+    { 0x1130,   "Phonebook Access Profile" },
+    { 0x1131,   "Headset HS" },
+    { 0x1132,   "Message Access Server" },
+    { 0x1133,   "Message Notification Server" },
+    { 0x1134,   "Message Access Profile" },
+    { 0x1135,   "Global Navigation Satellite System" },
+    { 0x1136,   "Global Navigation Satellite System Server" },
+    { 0x1137,   "3D Display" },
+    { 0x1138,   "3D Glasses" },
+    { 0x1139,   "3D Synchronization Profile" },
+    { 0x113A,   "Multi-Profile" },
+    { 0x113B,   "Multi-Profile SC" },
+    { 0x1200,   "PnP Information" },
+    { 0x1201,   "Generic Networking" },
+    { 0x1202,   "Generic File Transfer" },
+    { 0x1203,   "Generic Audio" },
+    { 0x1204,   "Generic Telephony" },
+    { 0x1205,   "UPNP Service" },
+    { 0x1206,   "UPNP IP Service" },
+    { 0x1300,   "ESDP UPNP_IP PAN" },
+    { 0x1301,   "ESDP UPNP IP LAP" },
+    { 0x1302,   "ESDP UPNP L2CAP" },
+    { 0x1303,   "Video Source" },
+    { 0x1304,   "Video Sink" },
+    { 0x1305,   "Video Distribution" },
+    { 0x1400,   "Health Device Profile" },
+    { 0x1401,   "Health Device Source" },
+    { 0x1402,   "Health Device Sink" },
+    /* LE Services -  https://developer.bluetooth.org/gatt/services/Pages/ServicesHome.aspx */
+    { 0x1800,   "Generic Access Profile" },
+    { 0x1801,   "Generic Attribute Profile" },
+    { 0x1802,   "Immediate Alert" },
+    { 0x1803,   "Link Loss" },
+    { 0x1804,   "Tx Power" },
+    { 0x1805,   "Current Time Service" },
+    { 0x1806,   "Reference Time Update Service" },
+    { 0x1807,   "Next DST Change Service" },
+    { 0x1808,   "Glucose" },
+    { 0x1809,   "Health Thermometer" },
+    { 0x180A,   "Device Information" },
+    { 0x180D,   "Heart Rate" },
+    { 0x180E,   "Phone Alert Status Service" },
+    { 0x180F,   "Battery Service" },
+    { 0x1810,   "Blood Pressure" },
+    { 0x1811,   "Alert Notification Service" },
+    { 0x1812,   "Human Interface Device" },
+    { 0x1813,   "Scan Parameters" },
+    { 0x1814,   "Running Speed and Cadence" },
+    { 0x1816,   "Cycling Speed and Cadence" },
+    { 0x1818,   "Cycling Power" },
+    { 0x1819,   "Location and Navigation" },
+    /* Units - http://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx */
+    { 0x2700,   "unitless" },
+    { 0x2701,   "length (metre)" },
+    { 0x2702,   "mass (kilogram)" },
+    { 0x2703,   "time (second)" },
+    { 0x2704,   "electric current (ampere)" },
+    { 0x2705,   "thermodynamic temperature (kelvin)" },
+    { 0x2706,   "amount of substance (mole)" },
+    { 0x2707,   "luminous intensity (candela)" },
+    { 0x2710,   "area (square metres)" },
+    { 0x2711,   "volume (cubic metres)" },
+    { 0x2712,   "velocity (metres per second)" },
+    { 0x2713,   "acceleration (metres per second squared)" },
+    { 0x2714,   "wavenumber (reciprocal metre)" },
+    { 0x2715,   "density (kilogram per cubic metre)" },
+    { 0x2716,   "surface density (kilogram per square metre)" },
+    { 0x2717,   "specific volume (cubic metre per kilogram)" },
+    { 0x2718,   "current density (ampere per square metre)" },
+    { 0x2719,   "magnetic field strength (ampere per metre)" },
+    { 0x271A,   "amount concentration (mole per cubic metre)" },
+    { 0x271B,   "mass concentration (kilogram per cubic metre)" },
+    { 0x271C,   "luminance (candela per square metre)" },
+    { 0x271D,   "refractive index" },
+    { 0x271E,   "relative permeability" },
+    { 0x2720,   "plane angle (radian)" },
+    { 0x2721,   "solid angle (steradian)" },
+    { 0x2722,   "frequency (hertz)" },
+    { 0x2723,   "force (newton)" },
+    { 0x2724,   "pressure (pascal)" },
+    { 0x2725,   "energy (joule)" },
+    { 0x2726,   "power (watt)" },
+    { 0x2727,   "electric charge (coulomb)" },
+    { 0x2728,   "electric potential difference (volt)" },
+    { 0x2729,   "capacitance (farad)" },
+    { 0x272A,   "electric resistance (ohm)" },
+    { 0x272B,   "electric conductance (siemens)" },
+    { 0x272C,   "magnetic flex (weber)" },
+    { 0x272D,   "magnetic flex density (tesla)" },
+    { 0x272E,   "inductance (henry)" },
+    { 0x272F,   "Celsius temperature (degree Celsius)" },
+    { 0x2730,   "luminous flux (lumen)" },
+    { 0x2731,   "illuminance (lux)" },
+    { 0x2732,   "activity referred to a radionuclide (becquerel)" },
+    { 0x2733,   "absorbed dose (gray)" },
+    { 0x2734,   "dose equivalent (sievert)" },
+    { 0x2735,   "catalytic activity (katal)" },
+    { 0x2740,   "dynamic viscosity (pascal second)" },
+    { 0x2741,   "moment of force (newton metre)" },
+    { 0x2742,   "surface tension (newton per metre)" },
+    { 0x2743,   "angular velocity (radian per second)" },
+    { 0x2744,   "angular acceleration (radian per second squared)" },
+    { 0x2745,   "heat flux density (watt per square metre)" },
+    { 0x2746,   "heat capacity (joule per kelvin)" },
+    { 0x2747,   "specific heat capacity (joule per kilogram kelvin)" },
+    { 0x2748,   "specific energy (joule per kilogram)" },
+    { 0x2749,   "thermal conductivity (watt per metre kelvin)" },
+    { 0x274A,   "energy density (joule per cubic metre)" },
+    { 0x274B,   "electric field strength (volt per metre)" },
+    { 0x274C,   "electric charge density (coulomb per cubic metre)" },
+    { 0x274D,   "surface charge density (coulomb per square metre)" },
+    { 0x274E,   "electric flux density (coulomb per square metre)" },
+    { 0x274F,   "permittivity (farad per metre)" },
+    { 0x2750,   "permeability (henry per metre)" },
+    { 0x2751,   "molar energy (joule per mole)" },
+    { 0x2752,   "molar entropy (joule per mole kelvin)" },
+    { 0x2753,   "exposure (coulomb per kilogram)" },
+    { 0x2754,   "absorbed dose rate (gray per second)" },
+    { 0x2755,   "radiant intensity (watt per steradian)" },
+    { 0x2756,   "radiance (watt per square metre steradian)" },
+    { 0x2757,   "catalytic activity concentration (katal per cubic metre)" },
+    { 0x2760,   "time (minute)" },
+    { 0x2761,   "time (hour)" },
+    { 0x2762,   "time (day)" },
+    { 0x2763,   "plane angle (degree)" },
+    { 0x2764,   "plane angle (minute)" },
+    { 0x2765,   "plane angle (second)" },
+    { 0x2766,   "area (hectare)" },
+    { 0x2767,   "volume (litre)" },
+    { 0x2768,   "mass (tonne)" },
+    { 0x2780,   "pressure (bar)" },
+    { 0x2781,   "pressure (millimetre of mercury)" },
+    { 0x2782,   "length (angstrom)" },
+    { 0x2783,   "length (nautical mile)" },
+    { 0x2784,   "area (barn)" },
+    { 0x2785,   "velocity (knot)" },
+    { 0x2786,   "logarithmic radio quantity (neper)" },
+    { 0x2787,   "logarithmic radio quantity (bel)" },
+    { 0x27A0,   "length (yard)" },
+    { 0x27A1,   "length (parsec)" },
+    { 0x27A2,   "length (inch)" },
+    { 0x27A3,   "length (foot)" },
+    { 0x27A4,   "length (mile)" },
+    { 0x27A5,   "pressure (pound-force per square inch)" },
+    { 0x27A6,   "velocity (kilometre per hour)" },
+    { 0x27A7,   "velocity (mile per hour)" },
+    { 0x27A8,   "angular velocity (revolution per minute)" },
+    { 0x27A9,   "energy (gram calorie)" },
+    { 0x27AA,   "energy (kilogram calorie)" },
+    { 0x27AB,   "energy (kilowatt hour)" },
+    { 0x27AC,   "thermodynamic temperature (degree Fahrenheit)" },
+    { 0x27AD,   "percentage" },
+    { 0x27AE,   "per mille" },
+    { 0x27AF,   "period (beats per minute)" },
+    { 0x27B0,   "electric charge (ampere hours)" },
+    { 0x27B1,   "mass density (milligram per decilitre)" },
+    { 0x27B2,   "mass density (millimole per litre)" },
+    { 0x27B3,   "time (year)" },
+    { 0x27B4,   "time (month)" },
+    { 0x27B5,   "concentration (count per cubic metre)" },
+    { 0x27B6,   "irradiance (watt per square metre)" },
+    { 0x27B7,   "milliliter (per kilogram per minute)" },
+    { 0x27B8,   "mass (pound)" },
+    /* Declarations - http://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx */
+    { 0x2800,   "GATT Primary Service Declaration" },
+    { 0x2801,   "GATT Secondary Service Declaration" },
+    { 0x2802,   "GATT Include Declaration" },
+    { 0x2803,   "GATT Characteristic Declaration" },
+    /* Descriptors - http://developer.bluetooth.org/gatt/descriptors/Pages/DescriptorsHomePage.aspx */
+    { 0x2900,   "Characteristic Extended Properties" },
+    { 0x2901,   "Characteristic User Description" },
+    { 0x2902,   "Client Characteristic Configuration" },
+    { 0x2903,   "Server Characteristic Configuration" },
+    { 0x2904,   "Characteristic Presentation Format" },
+    { 0x2905,   "Characteristic Aggregate Format" },
+    { 0x2906,   "Valid Range" },
+    { 0x2907,   "External Report Reference" },
+    { 0x2908,   "Report Reference" },
+    /* Characteristics - http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx */
+    { 0x2A00,   "Device Name" },
+    { 0x2A01,   "Appearance" },
+    { 0x2A02,   "Peripheral Privacy Flag" },
+    { 0x2A03,   "Reconnection Address" },
+    { 0x2A04,   "Peripheral Preferred Connection Parameters" },
+    { 0x2A05,   "Service Changed" },
+    { 0x2A06,   "Alert Level" },
+    { 0x2A07,   "Tx Power Level" },
+    { 0x2A08,   "Date Time" },
+    { 0x2A09,   "Day of Week" },
+    { 0x2A0A,   "Day Date Time" },
+    { 0x2A0C,   "Exact Time 256" },
+    { 0x2A0D,   "DST Offset" },
+    { 0x2A0E,   "Time Zone" },
+    { 0x2A0F,   "Local Time Information" },
+    { 0x2A11,   "Time with DST" },
+    { 0x2A12,   "Time Accuracy" },
+    { 0x2A13,   "Time Source" },
+    { 0x2A14,   "Reference Time Information" },
+    { 0x2A16,   "Time Update Control Point" },
+    { 0x2A17,   "Time Update State" },
+    { 0x2A18,   "Glucose Measurement" },
+    { 0x2A19,   "Battery Level" },
+    { 0x2A1C,   "Temperature Measurement" },
+    { 0x2A1D,   "Temperature Type" },
+    { 0x2A1E,   "Intermediate Temperature" },
+    { 0x2A21,   "Measurement Interval" },
+    { 0x2A22,   "Boot Keyboard Input Report" },
+    { 0x2A23,   "System ID" },
+    { 0x2A24,   "Model Number String" },
+    { 0x2A25,   "Serial Number String" },
+    { 0x2A26,   "Firmware Revision String" },
+    { 0x2A27,   "Hardware Revision String" },
+    { 0x2A28,   "Software Revision String" },
+    { 0x2A29,   "Manufacturer Name String" },
+    { 0x2A2A,   "IEEE 11073-20601 Regulatory Certification Data List" },
+    { 0x2A2B,   "Current Time" },
+    { 0x2A31,   "Scan Refresh" },
+    { 0x2A32,   "Boot Keyboard Output Report" },
+    { 0x2A33,   "Boot Mouse Input Report" },
+    { 0x2A34,   "Glucose Measurement Context" },
+    { 0x2A35,   "Blood Pressure Measurement" },
+    { 0x2A36,   "Intermediate Cuff Pressure" },
+    { 0x2A37,   "Heart Rate Measurement" },
+    { 0x2A38,   "Body Sensor Location" },
+    { 0x2A39,   "Heart Rate Control Point" },
+    { 0x2A3F,   "Alert Status" },
+    { 0x2A40,   "Ringer Control Point" },
+    { 0x2A41,   "Ringer Setting" },
+    { 0x2A42,   "Alert Category ID Bit Mask" },
+    { 0x2A43,   "Alert Category ID" },
+    { 0x2A44,   "Alert Notification Control Point" },
+    { 0x2A45,   "Unread Alert Status" },
+    { 0x2A46,   "New Alert" },
+    { 0x2A47,   "Supported New Alert Category" },
+    { 0x2A48,   "Supported Unread Alert Category" },
+    { 0x2A49,   "Blood Pressure Feature" },
+    { 0x2A4A,   "HID Information" },
+    { 0x2A4B,   "Report Map" },
+    { 0x2A4C,   "HID Control Point" },
+    { 0x2A4D,   "Report" },
+    { 0x2A4E,   "Protocol Mode" },
+    { 0x2A4F,   "Scan Interval Window" },
+    { 0x2A50,   "PnP ID" },
+    { 0x2A51,   "Glucose Feature" },
+    { 0x2A52,   "Record Access Control Point" },
+    { 0x2A53,   "RSC Measurement" },
+    { 0x2A54,   "RSC Feature" },
+    { 0x2A55,   "SC Control Point" },
+    { 0x2A5B,   "CSC Measurement" },
+    { 0x2A5C,   "CSC Feature" },
+    { 0x2A5D,   "Sensor Location" },
+    { 0x2A63,   "Cycling Power Measurement" },
+    { 0x2A64,   "Cycling Power Vector" },
+    { 0x2A65,   "Cycling Power Feature" },
+    { 0x2A66,   "Cycling Power Control Point" },
+    { 0x2A67,   "Location and Speed" },
+    { 0x2A68,   "Navigation" },
+    { 0x2A69,   "Position Quality" },
+    { 0x2A6A,   "LN Feature" },
+    { 0x2A6B,   "LN Control Point" },
+    /* SDO Uuids - https://www.bluetooth.org/en-us/specification/assigned-numbers/sdo-16-bit-uuids */
+    { 0xFFFE,   "Alliance for Wireless Power" },
+    { 0, NULL }
+};
+value_string_ext bt_sig_uuid_vals_ext = VALUE_STRING_EXT_INIT(bt_sig_uuid_vals);
 
 static const value_string bthci_ogf_vals[] = {
     { 0x01,  "Link Control Commands" },
@@ -952,98 +1338,6 @@ static const value_string bthci_cmd_cod_minor_device_class_health_vals[] = {
     { 0, NULL }
 };
 value_string_ext bthci_cmd_cod_minor_device_class_health_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_health_vals);
-
-static const value_string bthci_cmd_service_class_type_vals[] = {
-    {0x1000, "Service Discovery Server Service"},
-    {0x1001, "Browse Group Descriptor Service"},
-    {0x1002, "Public Browse Group"},
-    {0x1101, "Serial Port"},
-    {0x1102, "LAN Access Using PPP"},
-    {0x1103, "Dialup Networking"},
-    {0x1104, "IrMC Sync"},
-    {0x1105, "OBEX Object Push"},
-    {0x1106, "OBEX File Transfer"},
-    {0x1107, "IrMC Sync Command"},
-    {0x1108, "Headset"},
-    {0x1109, "Cordless Telephony"},
-    {0x110A, "Audio Source"},
-    {0x110B, "Audio Sink"},
-    {0x110C, "A/V Remote Control Target"},
-    {0x110D, "Advanced Audio Distribution"},
-    {0x110E, "A/V Remote Control"},
-    {0x110F, "Video Conferencing"},
-    {0x1110, "Intercom"},
-    {0x1111, "Fax"},
-    {0x1112, "Headset Audio Gateway"},
-    {0x1113, "WAP"},
-    {0x1114, "WAP Client"},
-    {0x1115, "PANU"},
-    {0x1116, "NAP"},
-    {0x1117, "GN"},
-    {0x1118, "Direct Printing"},
-    {0x1119, "Reference Printing"},
-    {0x111A, "Imaging"},
-    {0x111B, "Imaging Responder"},
-    {0x111C, "Imaging Automatic Archive"},
-    {0x111D, "Imaging Referenced Objects"},
-    {0x111E, "Handsfree"},
-    {0x111F, "Handsfree Audio Gateway"},
-    {0x1120, "Direct Printing Reference Objects Service"},
-    {0x1121, "Reflected UI"},
-    {0x1122, "Basic Printing"},
-    {0x1123, "Printing Status"},
-    {0x1124, "Human Interface Device Service"},
-    {0x1125, "Hardcopy Cable Replacement"},
-    {0x1126, "HCR Print"},
-    {0x1127, "HCR Scan"},
-    {0x1128, "Common ISDN Access"},
-    {0x1129, "Video Conferencing GW"},
-    {0x112A, "UDI_MT"},
-    {0x112B, "UDI_TA"},
-    {0x112C, "Audio/Video"},
-    {0x112D, "SIM Access"},
-    {0x112E, "Phonebook Access - PCE"},
-    {0x112F, "Phonebook Access - PSE"},
-    {0x1130, "Phonebook Access"},
-    {0x1200, "PnP Information"},
-    {0x1201, "Generic Networking"},
-    {0x1202, "Generic File Transfer"},
-    {0x1203, "Generic Audio"},
-    {0x1204, "Generic Telephony"},
-    {0x1205, "UPNP Service"},
-    {0x1206, "UPNP IP Service"},
-    {0x1300, "ESDP_UPNP_IP_PAN"},
-    {0x1301, "ESDP_UPNP_IP_LAP"},
-    {0x1302, "ESDP_UPNP_L2CAP"},
-    {0x1303, "Video Source"},
-    {0x1304, "Video Sink"},
-    {0x1305, "Video Distribution"},
-    /* LE services */
-    {0x1800, "Generic Access"},
-    {0x1801, "Generic Attribute"},
-    {0x1802, "Immediate Alert"},
-    {0x1803, "Link Loss"},
-    {0x1804, "Tx Power"},
-    {0x1805, "Current Time"},
-    {0x1806, "Reference Time Update"},
-    {0x1807, "Next DST Change"},
-    {0x1808, "Glucose"},
-    {0x1809, "Health Thermometer"},
-    {0x180a, "Device Information"},
-    {0x180b, ""},
-    {0x180c, ""},
-    {0x180d, "Heart Rate"},
-    {0x180e, "Phone Alert Status"},
-    {0x180f, "Battery"},
-    {0x1810, "Blood Pressure"},
-    {0x1811, "Alert Notification"},
-    {0x1812, "Human Interface Device"},
-    {0x1813, "Scan Parameters"},
-    {0x1814, "Running Speed and Cadence"},
-    {0x1816, "Cycling Speed and Cadence"},
-    {0, NULL}
-};
-value_string_ext bthci_cmd_service_class_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_service_class_type_vals);
 
 static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x01, "Flags" },
@@ -2798,7 +3092,9 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 static gint
 dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 cmd_ocf, hci_data_t *hci_data)
 {
-    proto_item *item;
+    proto_item  *item;
+    proto_item  *sub_item;
+    proto_tree  *sub_tree;
 
     switch(cmd_ocf) {
 
@@ -2939,8 +3235,12 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0014: /* LE Set Host Channel Classification */
-            proto_tree_add_item(tree, hf_bthci_cmd_le_channel_map, tvb, offset, 2, ENC_NA);
-            offset+=5;
+            sub_item = proto_tree_add_item(tree, hf_bthci_cmd_le_channel_map, tvb, offset, 5, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
+
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
+            offset += 5;
+
             break;
 
         case 0x0015: /* LE Read Channel Map */
@@ -4563,7 +4863,8 @@ proto_register_bthci_cmd(void)
         &ett_opcode,
         &ett_cod,
         &ett_cod_mask,
-        &ett_flow_spec_subtree
+        &ett_flow_spec_subtree,
+        &ett_le_channel_map
     };
 
     /* Dynamically fill "bthci_cmd_opcode_vals" */
@@ -4683,7 +4984,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             while (offset < end_offset) {
                 if (tvb_get_ntohs(tvb, offset) == 0x0000) {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_32, tvb, offset, 4, ENC_NA);
-                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &vs_service_classes_ext, "Unknown"));
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bt_sig_uuid_vals_ext, "Unknown"));
                 } else {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 4, ENC_NA);
 
@@ -4717,7 +5018,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         tvb_get_ntohl(tvb, offset + 4) == 0x1000 &&
                         tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_uuid_128, tvb, offset, 16, ENC_NA);
-                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &vs_service_classes_ext, "Unknown"));
+                    proto_item_append_text(sub_item, " (%s)", val_to_str_ext_const(tvb_get_ntohs(tvb, offset + 2), &bt_sig_uuid_vals_ext, "Unknown"));
                 } else {
                     sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_custom_uuid, tvb, offset, 16, ENC_NA);
 
@@ -5063,10 +5364,67 @@ dissect_btcommon_eir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return dissect_eir_ad_data(tvb, pinfo, main_tree);
 }
 
+static gint
+dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    gint offset = 0;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_36, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_35, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_34, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_33, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_32, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_31, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_30, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_29, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_28, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_27, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_26, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_25, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_24, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_23, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_22, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_21, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_20, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_19, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_18, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_17, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_16, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_15, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_14, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_13, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_12, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_11, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_10, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_9, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_8, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_7, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_6, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_5, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_4, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_3, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_2, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_1, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_0, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
 void
 proto_register_btcommon(void)
 {
-    module_t         *module;
     expert_module_t  *expert_module;
 
     static hf_register_info hf[] = {
@@ -5142,12 +5500,12 @@ proto_register_btcommon(void)
         },
         { &hf_btcommon_eir_ad_uuid_16,
             { "UUID 16",                         "btcommon.eir_ad.entry.uuid_16",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &vs_service_classes_ext, 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_uuid_32,
             { "UUID 32",                         "btcommon.eir_ad.entry.uuid_32",
-            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &vs_service_classes_ext, 0x0,
+            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_btcommon_eir_ad_uuid_128,
@@ -5495,6 +5853,206 @@ proto_register_btcommon(void)
             FT_UINT8, BASE_HEX, NULL, 0x03,
             NULL, HFILL }
         },
+        { &hf_btcommon_le_channel_map_39,
+            { "RF Channel 39 (2480 MHz - Advertising - 39)",         "btcommon.le_channel_map.39",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_38,
+            { "RF Channel 38 (2478 MHz - Data - 36)",                "btcommon.le_channel_map.38",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_37,
+            { "RF Channel 37 (2476 MHz - Data - 35)",                "btcommon.le_channel_map.37",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_36,
+            { "RF Channel 36 (2474 MHz - Data - 34)",                "btcommon.le_channel_map.36",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_35,
+            { "RF Channel 35 (2472 MHz - Data - 33)",                "btcommon.le_channel_map.35",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_34,
+            { "RF Channel 34 (2470 MHz - Data - 32)",                "btcommon.le_channel_map.34",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_33,
+            { "RF Channel 33 (2468 MHz - Data - 31)",                "btcommon.le_channel_map.33",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_32,
+            { "RF Channel 32 (2466 MHz - Data - 30)",                "btcommon.le_channel_map.32",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_31,
+            { "RF Channel 31 (2464 MHz - Data - 29)",                "btcommon.le_channel_map.31",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_30,
+            { "RF Channel 30 (2462 MHz - Data - 28)",                "btcommon.le_channel_map.30",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_29,
+            { "RF Channel 29 (2460 MHz - Data - 27)",                "btcommon.le_channel_map.29",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_28,
+            { "RF Channel 28 (2458 MHz - Data - 26)",                "btcommon.le_channel_map.28",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_27,
+            { "RF Channel 27 (2456 MHz - Data - 25)",                "btcommon.le_channel_map.27",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_26,
+            { "RF Channel 26 (2454 MHz - Data - 24)",                "btcommon.le_channel_map.26",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_25,
+            { "RF Channel 25 (2452 MHz - Data - 23)",                "btcommon.le_channel_map.25",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_24,
+            { "RF Channel 24 (2450 MHz - Data - 22)",                "btcommon.le_channel_map.24",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_23,
+            { "RF Channel 23 (2448 MHz - Data - 21)",                "btcommon.le_channel_map.23",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_22,
+            { "RF Channel 22 (2446 MHz - Data - 20)",                "btcommon.le_channel_map.22",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_21,
+            { "RF Channel 21 (2444 MHz - Data - 19)",                "btcommon.le_channel_map.21",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_20,
+            { "RF Channel 20 (2442 MHz - Data - 18)",                "btcommon.le_channel_map.20",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_19,
+            { "RF Channel 19 (2440 MHz - Data - 17)",                "btcommon.le_channel_map.19",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_18,
+            { "RF Channel 18 (2438 MHz - Data - 16)",                "btcommon.le_channel_map.18",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_17,
+            { "RF Channel 17 (2436 MHz - Data - 15)",                "btcommon.le_channel_map.17",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_16,
+            { "RF Channel 16 (2434 MHz - Data - 14)",                "btcommon.le_channel_map.16",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_15,
+            { "RF Channel 15 (2432 MHz - Data - 13)",                "btcommon.le_channel_map.15",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_14,
+            { "RF Channel 14 (2430 MHz - Data - 12)",                "btcommon.le_channel_map.14",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_13,
+            { "RF Channel 13 (2428 MHz - Data - 11)",                "btcommon.le_channel_map.13",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_12,
+            { "RF Channel 12 (2426 MHz - Advertising - 38)",         "btcommon.le_channel_map.12",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_11,
+            { "RF Channel 11 (2424 MHz - Data - 10)",                "btcommon.le_channel_map.11",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_10,
+            { "RF Channel 10 (2422 MHz - Data - 9)",                 "btcommon.le_channel_map.10",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_9,
+            { "RF Channel 9 (2420 MHz - Data - 8)",                  "btcommon.le_channel_map.9",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_8,
+            { "RF Channel 8 (2418 MHz - Data - 7)",                  "btcommon.le_channel_map.8",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_7,
+            { "RF Channel 7 (2416 MHz - Data - 6)",                  "btcommon.le_channel_map.7",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_6,
+            { "RF Channel 6 (2414 MHz - Data - 5)",                  "btcommon.le_channel_map.6",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_5,
+            { "RF Channel 5 (2412 MHz - Data - 4)",                  "btcommon.le_channel_map.5",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_4,
+            { "RF Channel 4 (2410 MHz - Data - 3)",                  "btcommon.le_channel_map.4",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_3,
+            { "RF Channel 3 (2408 MHz - Data - 2)",                  "btcommon.le_channel_map.3",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_2,
+            { "RF Channel 2 (2406 MHz - Data - 1)",                  "btcommon.le_channel_map.2",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_1,
+            { "RF Channel 1 (2404 MHz - Data - 0)",                  "btcommon.le_channel_map.1",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_le_channel_map_0,
+            { "RF Channel 0 (2402 MHz - Advertising - 37)",          "btcommon.le_channel_map.0",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -5515,14 +6073,10 @@ proto_register_btcommon(void)
     expert_module = expert_register_protocol(proto_btcommon);
     expert_register_field_array(expert_module, ei, array_length(ei));
 
-    module = prefs_register_protocol(proto_btcommon, NULL);
-    prefs_register_static_text_preference(module, "hci_cmd.version",
-            "Bluetooth EIR/AD version: 4.0 (Core)",
-            "Version of protocol supported by this dissector.");
-
     btcommon_ad_handle  = new_register_dissector("btcommon.eir_ad.ad",  dissect_btcommon_ad,  proto_btcommon);
     btcommon_eir_handle = new_register_dissector("btcommon.eir_ad.eir", dissect_btcommon_eir, proto_btcommon);
     btcommon_cod_handle = new_register_dissector("btcommon.cod",        dissect_btcommon_cod, proto_btcommon);
+    btcommon_le_channel_map_handle = new_register_dissector("btcommon.le_channel_map", dissect_btcommon_le_channel_map, proto_btcommon);
 }
 
 /*

@@ -550,7 +550,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE);
         if (uuid) {
-            psm_str = val_to_str_ext_const(uuid, &vs_service_classes_ext, "Unknown PSM");
+            psm_str = val_to_str_ext_const(uuid, &bt_sig_uuid_vals_ext, "Unknown PSM");
             proto_item_append_text(item, " (%s)", psm_str);
         }
     }
@@ -1376,7 +1376,7 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
             if (uuid)
                 proto_item_append_text(psm_item, ": %s",
-                                       val_to_str_ext_const(uuid, &vs_service_classes_ext, "Unknown service"));
+                                       val_to_str_ext_const(uuid, &bt_sig_uuid_vals_ext, "Unknown service"));
         }
         PROTO_ITEM_SET_GENERATED(psm_item);
 
@@ -1541,7 +1541,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 psm_item = proto_tree_add_uint(btl2cap_tree, hf_btl2cap_psm_dynamic, tvb, offset, 0, psm);
                 if (uuid)
                     proto_item_append_text(psm_item, " (%s)",
-                                           val_to_str_ext_const(uuid, &vs_service_classes_ext, "Unknown service"));
+                                           val_to_str_ext_const(uuid, &bt_sig_uuid_vals_ext, "Unknown service"));
             }
             PROTO_ITEM_SET_GENERATED(psm_item);
 

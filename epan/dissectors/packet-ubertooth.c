@@ -96,12 +96,235 @@ static int hf_usb_rx_packet_channel = -1;
 static int hf_spectrum_entry = -1;
 static int hf_frequency = -1;
 static int hf_rssi = -1;
+static int hf_cc2400_value = -1;
+static int hf_cc2400_main_resetn = -1;
+static int hf_cc2400_main_reserved_14_10 = -1;
+static int hf_cc2400_main_fs_force_en = -1;
+static int hf_cc2400_main_rxn_tx = -1;
+static int hf_cc2400_main_reserved_7_4 = -1;
+static int hf_cc2400_main_reserved_3 = -1;
+static int hf_cc2400_main_reserved_2 = -1;
+static int hf_cc2400_main_xosc16m_bypass = -1;
+static int hf_cc2400_main_xosc16m_en = -1;
+static int hf_cc2400_fsctrl_reserved = -1;
+static int hf_cc2400_fsctrl_lock_threshold = -1;
+static int hf_cc2400_fsctrl_cal_done = -1;
+static int hf_cc2400_fsctrl_cal_running = -1;
+static int hf_cc2400_fsctrl_lock_length = -1;
+static int hf_cc2400_fsctrl_lock_status = -1;
+static int hf_cc2400_fsdiv_reserved = -1;
+static int hf_cc2400_fsdiv_frequency = -1;
+static int hf_cc2400_fsdiv_freq_high = -1;
+static int hf_cc2400_fsdiv_freq = -1;
+static int hf_cc2400_mdmctrl_reserved = -1;
+static int hf_cc2400_mdmctrl_mod_offset = -1;
+static int hf_cc2400_mdmctrl_mod_dev = -1;
+static int hf_cc2400_agcctrl_vga_gain = -1;
+static int hf_cc2400_agcctrl_reserved = -1;
+static int hf_cc2400_agcctrl_agc_locked = -1;
+static int hf_cc2400_agcctrl_agc_lock = -1;
+static int hf_cc2400_agcctrl_agc_sync_lock = -1;
+static int hf_cc2400_agcctrl_vga_gain_oe = -1;
+static int hf_cc2400_frend_reserved_15_4 = -1;
+static int hf_cc2400_frend_reserved_3 = -1;
+static int hf_cc2400_frend_pa_level = -1;
+static int hf_cc2400_rssi_rssi_val = -1;
+static int hf_cc2400_rssi_rssi_cs_thres = -1;
+static int hf_cc2400_rssi_rssi_filt = -1;
+static int hf_cc2400_freqest_rx_freq_offset = -1;
+static int hf_cc2400_freqest_reserved = -1;
+static int hf_cc2400_iocfg_reserved = -1;
+static int hf_cc2400_iocfg_gio6_cfg = -1;
+static int hf_cc2400_iocfg_gio1_cfg = -1;
+static int hf_cc2400_iocfg_hssd_src = -1;
+static int hf_cc2400_fsmtc_tc_rxon2agcen = -1;
+static int hf_cc2400_fsmtc_tc_paon2switch = -1;
+static int hf_cc2400_fsmtc_res = -1;
+static int hf_cc2400_fsmtc_tc_txend2switch = -1;
+static int hf_cc2400_fsmtc_tc_txend2paoff = -1;
+static int hf_cc2400_reserved_0x0C_res_15_5 = -1;
+static int hf_cc2400_reserved_0x0C_res_4_0 = -1;
+static int hf_cc2400_manand_vga_reset_n = -1;
+static int hf_cc2400_manand_lock_status = -1;
+static int hf_cc2400_manand_balun_ctrl = -1;
+static int hf_cc2400_manand_rxtx = -1;
+static int hf_cc2400_manand_pre_pd = -1;
+static int hf_cc2400_manand_pa_n_pd = -1;
+static int hf_cc2400_manand_pa_p_pd = -1;
+static int hf_cc2400_manand_dac_lpf_pd = -1;
+static int hf_cc2400_manand_bias_pd = -1;
+static int hf_cc2400_manand_xosc16m_pd = -1;
+static int hf_cc2400_manand_chp_pd = -1;
+static int hf_cc2400_manand_fs_pd = -1;
+static int hf_cc2400_manand_adc_pd = -1;
+static int hf_cc2400_manand_vga_pd = -1;
+static int hf_cc2400_manand_rxbpf_pd = -1;
+static int hf_cc2400_manand_lnamix_pd = -1;
+static int hf_cc2400_fsmstate_reserved_15_13 = -1;
+static int hf_cc2400_fsmstate_fsm_state_bkpt = -1;
+static int hf_cc2400_fsmstate_reserved_7_5 = -1;
+static int hf_cc2400_fsmstate_fsm_cur_state = -1;
+static int hf_cc2400_adctst_reserved_15 = -1;
+static int hf_cc2400_adctst_adc_i = -1;
+static int hf_cc2400_adctst_reserved_7 = -1;
+static int hf_cc2400_adctst_adc_q = -1;
+static int hf_cc2400_rxbpftst_reserved = -1;
+static int hf_cc2400_rxbpftst_rxbpf_cap_oe = -1;
+static int hf_cc2400_rxbpftst_rxbpf_cap_o = -1;
+static int hf_cc2400_rxbpftst_rxbpf_cap_res = -1;
+static int hf_cc2400_pamtst_reserved_15_13 = -1;
+static int hf_cc2400_pamtst_vc_in_test_en = -1;
+static int hf_cc2400_pamtst_atestmod_pd = -1;
+static int hf_cc2400_pamtst_atestmod_mode = -1;
+static int hf_cc2400_pamtst_reserved_7 = -1;
+static int hf_cc2400_pamtst_txmix_cap_array = -1;
+static int hf_cc2400_pamtst_txmix_current = -1;
+static int hf_cc2400_pamtst_pa_current = -1;
+static int hf_cc2400_lmtst_reserved = -1;
+static int hf_cc2400_lmtst_rxmix_hgm = -1;
+static int hf_cc2400_lmtst_rxmix_tail = -1;
+static int hf_cc2400_lmtst_rxmix_vcm = -1;
+static int hf_cc2400_lmtst_rxmix_current = -1;
+static int hf_cc2400_lmtst_lna_cap_array = -1;
+static int hf_cc2400_lmtst_lna_lowgain = -1;
+static int hf_cc2400_lmtst_lna_gain = -1;
+static int hf_cc2400_lmtst_lna_current = -1;
+static int hf_cc2400_manor_vga_reset_n = -1;
+static int hf_cc2400_manor_lock_status = -1;
+static int hf_cc2400_manor_balun_ctrl = -1;
+static int hf_cc2400_manor_rxtx = -1;
+static int hf_cc2400_manor_pre_pd = -1;
+static int hf_cc2400_manor_pa_n_pd = -1;
+static int hf_cc2400_manor_pa_p_pd = -1;
+static int hf_cc2400_manor_dac_lpf_pd = -1;
+static int hf_cc2400_manor_bias_pd = -1;
+static int hf_cc2400_manor_xosc16m_pd = -1;
+static int hf_cc2400_manor_chp_pd = -1;
+static int hf_cc2400_manor_fs_pd = -1;
+static int hf_cc2400_manor_adc_pd = -1;
+static int hf_cc2400_manor_vga_pd = -1;
+static int hf_cc2400_manor_rxbpf_pd = -1;
+static int hf_cc2400_manor_lnamix_pd = -1;
+static int hf_cc2400_mdmtst0_reserved = -1;
+static int hf_cc2400_mdmtst0_tx_prng = -1;
+static int hf_cc2400_mdmtst0_tx_1mhz_offset_n = -1;
+static int hf_cc2400_mdmtst0_invert_data = -1;
+static int hf_cc2400_mdmtst0_afc_adjust_on_packet = -1;
+static int hf_cc2400_mdmtst0_afc_settling = -1;
+static int hf_cc2400_mdmtst0_afc_delta = -1;
+static int hf_cc2400_mdmtst1_reserved = -1;
+static int hf_cc2400_mdmtst1_bsync_threshold = -1;
+static int hf_cc2400_dactst_reserved = -1;
+static int hf_cc2400_dactst_dac_src = -1;
+static int hf_cc2400_dactst_dac_i_o = -1;
+static int hf_cc2400_dactst_dac_q_o = -1;
+static int hf_cc2400_agctst0_agc_settle_blank_dn = -1;
+static int hf_cc2400_agctst0_agc_win_size = -1;
+static int hf_cc2400_agctst0_agc_settle_peak = -1;
+static int hf_cc2400_agctst0_agc_settle_adc = -1;
+static int hf_cc2400_agctst0_agc_attempts = -1;
+static int hf_cc2400_agctst1_reserved = -1;
+static int hf_cc2400_agctst1_agc_var_gain_sat = -1;
+static int hf_cc2400_agctst1_agc_settle_blank_up = -1;
+static int hf_cc2400_agctst1_peakdet_cur_boost = -1;
+static int hf_cc2400_agctst1_agc_mult_slow = -1;
+static int hf_cc2400_agctst1_agc_settle_fixed = -1;
+static int hf_cc2400_agctst1_agc_settle_var = -1;
+static int hf_cc2400_agctst2_reserved = -1;
+static int hf_cc2400_agctst2_agc_backend_blanking = -1;
+static int hf_cc2400_agctst2_agc_adjust_m3db = -1;
+static int hf_cc2400_agctst2_agc_adjust_m1db = -1;
+static int hf_cc2400_agctst2_agc_adjust_p3db = -1;
+static int hf_cc2400_agctst2_agc_adjust_p1db = -1;
+static int hf_cc2400_fstst0_rxmixbuf_cur = -1;
+static int hf_cc2400_fstst0_txmixbuf_cur = -1;
+static int hf_cc2400_fstst0_vco_array_settle_long = -1;
+static int hf_cc2400_fstst0_vco_array_oe = -1;
+static int hf_cc2400_fstst0_vco_array_o = -1;
+static int hf_cc2400_fstst0_vco_array_res = -1;
+static int hf_cc2400_fstst1_rxbpf_locur = -1;
+static int hf_cc2400_fstst1_rxbpf_midcur = -1;
+static int hf_cc2400_fstst1_vco_current_ref = -1;
+static int hf_cc2400_fstst1_vco_current_k = -1;
+static int hf_cc2400_fstst1_vc_dac_en = -1;
+static int hf_cc2400_fstst1_vc_dac_val = -1;
+static int hf_cc2400_fstst2_reserved = -1;
+static int hf_cc2400_fstst2_vco_curcal_speed = -1;
+static int hf_cc2400_fstst2_vco_current_oe = -1;
+static int hf_cc2400_fstst2_vco_current_o = -1;
+static int hf_cc2400_fstst2_vco_current_res = -1;
+static int hf_cc2400_fstst3_reserved = -1;
+static int hf_cc2400_fstst3_chp_test_up = -1;
+static int hf_cc2400_fstst3_chp_test_dn = -1;
+static int hf_cc2400_fstst3_chp_disable = -1;
+static int hf_cc2400_fstst3_pd_delay = -1;
+static int hf_cc2400_fstst3_chp_step_period = -1;
+static int hf_cc2400_fstst3_stop_chp_current = -1;
+static int hf_cc2400_fstst3_start_chp_current = -1;
+static int hf_cc2400_manfidl_partnum = -1;
+static int hf_cc2400_manfidl_manfid = -1;
+static int hf_cc2400_manfidh_version = -1;
+static int hf_cc2400_manfidh_partnum = -1;
+static int hf_cc2400_grmdm_reserved = -1;
+static int hf_cc2400_grmdm_sync_errbits_allowed = -1;
+static int hf_cc2400_grmdm_pin_mode = -1;
+static int hf_cc2400_grmdm_packet_mode = -1;
+static int hf_cc2400_grmdm_pre_bytes = -1;
+static int hf_cc2400_grmdm_sync_word_size = -1;
+static int hf_cc2400_grmdm_crc_on = -1;
+static int hf_cc2400_grmdm_data_format = -1;
+static int hf_cc2400_grmdm_modulation_format = -1;
+static int hf_cc2400_grmdm_tx_gaussian_filter = -1;
+static int hf_cc2400_grdec_reserved = -1;
+static int hf_cc2400_grdec_ind_saturation = -1;
+static int hf_cc2400_grdec_dec_shift = -1;
+static int hf_cc2400_grdec_channel_dec = -1;
+static int hf_cc2400_grdec_dec_val = -1;
+static int hf_cc2400_pktstatus_reserved_15_11 = -1;
+static int hf_cc2400_pktstatus_sync_word_received = -1;
+static int hf_cc2400_pktstatus_crc_ok = -1;
+static int hf_cc2400_pktstatus_reserved_8 = -1;
+static int hf_cc2400_pktstatus_reserved_7_0 = -1;
+static int hf_cc2400_int_reserved_15_8 = -1;
+static int hf_cc2400_int_reserved_7 = -1;
+static int hf_cc2400_int_pkt_polarity = -1;
+static int hf_cc2400_int_fifo_polarity = -1;
+static int hf_cc2400_int_fifo_threshold = -1;
+static int hf_cc2400_reserved_0x24_res_15_14 = -1;
+static int hf_cc2400_reserved_0x24_res_13_10 = -1;
+static int hf_cc2400_reserved_0x24_res_9_7 = -1;
+static int hf_cc2400_reserved_0x24_res_6_0 = -1;
+static int hf_cc2400_reserved_0x25_res_15_12 = -1;
+static int hf_cc2400_reserved_0x25_res_11_0 = -1;
+static int hf_cc2400_reserved_0x26_res_15_10 = -1;
+static int hf_cc2400_reserved_0x26_res_9_0 = -1;
+static int hf_cc2400_reserved_0x27_res_15_8 = -1;
+static int hf_cc2400_reserved_0x27_res_7_3 = -1;
+static int hf_cc2400_reserved_0x27_res_2_0 = -1;
+static int hf_cc2400_reserved_0x28_res_15 = -1;
+static int hf_cc2400_reserved_0x28_res_14_13 = -1;
+static int hf_cc2400_reserved_0x28_res_12_7 = -1;
+static int hf_cc2400_reserved_0x28_res_6_0 = -1;
+static int hf_cc2400_reserved_0x29_res_15_8 = -1;
+static int hf_cc2400_reserved_0x29_res_7_3 = -1;
+static int hf_cc2400_reserved_0x29_res_2_0 = -1;
+static int hf_cc2400_reserved_0x2A_res_15_11 = -1;
+static int hf_cc2400_reserved_0x2A_res_10 = -1;
+static int hf_cc2400_reserved_0x2A_res_9_0 = -1;
+static int hf_cc2400_reserved_0x2B_res_15_14 = -1;
+static int hf_cc2400_reserved_0x2B_res_13 = -1;
+static int hf_cc2400_reserved_0x2B_res_12 = -1;
+static int hf_cc2400_reserved_0x2B_res_11_0 = -1;
+static int hf_cc2400_syncl = -1;
+static int hf_cc2400_synch = -1;
 
 static gint ett_ubertooth = -1;
 static gint ett_command = -1;
 static gint ett_usb_rx_packet = -1;
 static gint ett_usb_rx_packet_data = -1;
 static gint ett_entry = -1;
+static gint ett_register_value = -1;
+static gint ett_fsdiv_frequency = -1;
 
 static expert_field ei_unexpected_response = EI_INIT;
 static expert_field ei_unknown_data = EI_INIT;
@@ -234,7 +457,7 @@ static const value_string register_vals[] = {
     { 0x07,  "FREQEST" },
     { 0x08,  "IOCFG" },
     { 0x0B,  "FSMTC" },
-    { 0x0C,  "RESERVED" },
+    { 0x0C,  "RESERVED 0x0C" },
     { 0x0D,  "MANAND" },
     { 0x0E,  "FSMSTATE" },
     { 0x0F,  "ADCTST" },
@@ -258,6 +481,14 @@ static const value_string register_vals[] = {
     { 0x21,  "GRDEC" },
     { 0x22,  "PKTSTATUS" },
     { 0x23,  "INT" },
+    { 0x24,  "RESERVED 0x24" },
+    { 0x25,  "RESERVED 0x25" },
+    { 0x26,  "RESERVED 0x26" },
+    { 0x27,  "RESERVED 0x27" },
+    { 0x28,  "RESERVED 0x28" },
+    { 0x29,  "RESERVED 0x29" },
+    { 0x2A,  "RESERVED 0x2A" },
+    { 0x2B,  "RESERVED 0x2B" },
     { 0x2C,  "SYNCL" },
     { 0x2D,  "SYNCH" },
     { 0x60,  "SXOSCON" },
@@ -271,10 +502,671 @@ static const value_string register_vals[] = {
 };
 static value_string_ext(register_vals_ext) = VALUE_STRING_EXT_INIT(register_vals);
 
+static const value_string register_description_vals[] = {
+    { 0x00,  "Main Control Register" },
+    { 0x01,  "Frequency Synthesiser Control and Status" },
+    { 0x02,  "Frequency Synthesiser Frequency Division Control" },
+    { 0x03,  "Modem Control and Status" },
+    { 0x04,  "Automatic Gain Control and Status" },
+    { 0x05,  "Front-end Control Register" },
+    { 0x06,  "Received Signal Strength Indicator Status and Control Register" },
+    { 0x07,  "Received Frequency Offset Estimation" },
+    { 0x08,  "IO Configuration Register" },
+    { 0x0B,  "Finite State Machine Time Constants" },
+    { 0x0C,  "Reserved Register Containing Spare Control and Status Bits" },
+    { 0x0D,  "Manual Signal and Override Register" },
+    { 0x0E,  "Finite State Machine Information and Breakpoint" },
+    { 0x0F,  "Analog-to-Digital Converter Test Register" },
+    { 0x10,  "Receiver Band-pass Filters Test Register" },
+    { 0x11,  "Power Amplifier and Transmit Mixers Test Register" },
+    { 0x12,  "Low Noise Amplifier and Receive Mixers Test Register" },
+    { 0x13,  "Manual Signal or Override Register" },
+    { 0x14,  "Modem Test Register 0" },
+    { 0x15,  "Modem Test Register 1" },
+    { 0x16,  "Digital-to-Analog Converter Test Register" },
+    { 0x17,  "Automatic Gain Control Test Register 0" },
+    { 0x18,  "Automatic Gain Control Test Register 1" },
+    { 0x19,  "Automatic Gain Control Test Register 2" },
+    { 0x1A,  "Frequency Synthesiser Test Register 0" },
+    { 0x1B,  "Frequency Synthesiser Test Register 1" },
+    { 0x1C,  "Frequency Synthesiser Test Register 2" },
+    { 0x1D,  "Frequency Synthesiser Test Register 3" },
+    { 0x1E,  "Manufacturer ID, Lower 16 Bit" },
+    { 0x1F,  "Manufacturer ID, Upper 16 Bit" },
+    { 0x20,  "Generic Radio Modem Control and Status" },
+    { 0x21,  "Generic Radio Decimation Control and Status" },
+    { 0x22,  "Packet Mode Status" },
+    { 0x23,  "Interrupt Register" },
+    { 0x24,  "Reserved 0x24" },
+    { 0x25,  "Reserved 0x25" },
+    { 0x26,  "Reserved 0x26" },
+    { 0x27,  "Reserved 0x27" },
+    { 0x28,  "Reserved 0x28" },
+    { 0x29,  "Reserved 0x29" },
+    { 0x2A,  "Reserved 0x2A" },
+    { 0x2B,  "Reserved 0x2B" },
+    { 0x2C,  "Sync Word, Lower 16 Bit" },
+    { 0x2D,  "Sync Word, Upper 16 Bit" },
+    { 0x60,  "Command Strobe Register: Turn on XOSC" },
+    { 0x61,  "Command Strobe register: Start and calibrate Frequency Synthesizer and go from RX/TX to a wait mode where the Frequency Synthesizer is running" },
+    { 0x62,  "Command Strobe register: Start RX" },
+    { 0x63,  "Command Strobe register: Start TX (turn on Power Amplifier)" },
+    { 0x64,  "Command Strobe register: Turn off RX/TX and Frequency Synthesizer" },
+    { 0x65,  "Command Strobe register: Turn off XOSC" },
+    { 0x70,  "Used to write data to and read data from the 8-bit wide 32 bytes FIFO used to buffer outgoing TX data and incoming RX data in buffered RF mode" },
+    { 0x00, NULL }
+};
+static value_string_ext(register_description_vals_ext) = VALUE_STRING_EXT_INIT(register_description_vals);
+
+static const value_string cc2400_grdec_dec_shift_vals[] = {
+    { 0x00,  "0" },
+    { 0x01,  "1" },
+    { 0x02,  "-2" },
+    { 0x03,  "-1" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grdec_dec_shift_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grdec_dec_shift_vals);
+
+static const value_string cc2400_grdec_channel_dec_vals[] = {
+    { 0x00,  "1 MHz (used for 1Mbps and 250 kbps datarates)" },
+    { 0x01,  "500 kHz (used for 10 kbps data rate)" },
+    { 0x02,  "250 kHz" },
+    { 0x03,  "125 kHz" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grdec_channel_dec_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grdec_channel_dec_vals);
+
+static const value_string cc2400_grmdm_pin_mode_vals[] = {
+    { 0x00,  "Unbuffered Mode" },
+    { 0x01,  "Buffered Mode" },
+    { 0x02,  "HSSD Test Mode" },
+    { 0x03,  "Unused" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grmdm_pin_mode_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grmdm_pin_mode_vals);
+
+static const value_string cc2400_grmdm_pre_bytes_vals[] = {
+    { 0x00,  "0" },
+    { 0x01,  "1" },
+    { 0x02,  "2" },
+    { 0x03,  "4" },
+    { 0x04,  "8" },
+    { 0x05,  "16" },
+    { 0x06,  "32" },
+    { 0x07,  "Infinitely On" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grmdm_pre_bytes_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grmdm_pre_bytes_vals);
+
+static const value_string cc2400_grmdm_sync_word_size_vals[] = {
+    { 0x00,  "The 8 MSB bits of SYNC_WORD" },
+    { 0x01,  "The 16 MSB bits of SYNC_WORD" },
+    { 0x02,  "The 24 MSB bits of SYNC_WORD" },
+    { 0x03,  "The 32 MSB bits of SYNC_WORD" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grmdm_sync_word_size_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grmdm_sync_word_size_vals);
+
+static const value_string cc2400_grmdm_data_format_vals[] = {
+    { 0x00,  "NRZ" },
+    { 0x01,  "Manchester" },
+    { 0x02,  "8/10 line-coding (Not applied to preambles or sync words)" },
+    { 0x03,  "Reserved" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grmdm_data_format_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grmdm_data_format_vals);
+
+static const value_string cc2400_grmdm_modulation_format_vals[] = {
+    { 0x00,  "FSK/GFSK" },
+    { 0x01,  "Reserved" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_grmdm_modulation_format_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_grmdm_modulation_format_vals);
+
+static const value_string cc2400_fstst3_pd_delay_vals[] = {
+    { 0x00,  "Short Reset Delay" },
+    { 0x01,  "Long Reset Delay" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst3_pd_delay_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst3_pd_delay_vals);
+
+static const value_string cc2400_fstst3_chp_step_period_vals[] = {
+    { 0x00,  "0.25 us" },
+    { 0x01,  "0.5 us" },
+    { 0x02,  "1 us" },
+    { 0x03,  "4 us" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst3_chp_step_period_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst3_chp_step_period_vals);
+
+static const value_string cc2400_fstst2_vco_curcal_speed_vals[] = {
+    { 0x00,  "Normal" },
+    { 0x01,  "Undefined" },
+    { 0x02,  "Half Speed" },
+    { 0x03,  "Undefined" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst2_vco_curcal_speed_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst2_vco_curcal_speed_vals);
+
+static const value_string cc2400_fstst1_rxbpf_locur_vals[] = {
+    { 0x00,  "4 uA (nominal)" },
+    { 0x01,  "3 uA" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst1_rxbpf_locur_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst1_rxbpf_locur_vals);
+
+static const value_string cc2400_fstst1_rxbpf_midcur_vals[] = {
+    { 0x00,  "4 uA (nominal)" },
+    { 0x01,  "3.5 uA" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst1_rxbpf_midcur_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst1_rxbpf_midcur_vals);
+
+static const value_string cc2400_fstst1_vc_dac_en_vals[] = {
+    { 0x00,  "Loop filter (closed loop PLL)" },
+    { 0x01,  "VC DAC(open loop PLL)" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst1_vc_dac_en_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst1_vc_dac_en_vals);
+
+static const value_string cc2400_fstst0_rxtxmixbuf_cur_vals[] = {
+    { 0x00,  "690 uA" },
+    { 0x01,  "980 uA" },
+    { 0x02,  "1.16 mA (nominal)" },
+    { 0x03,  "1.44 mA" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fstst0_rxtxmixbuf_cur_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fstst0_rxtxmixbuf_cur_vals);
+
+
+static const value_string cc2400_agctst1_agc_var_gain_sat_vals[] = {
+    { 0x00,  "-1/-3 gain steps" },
+    { 0x01,  "-3/-5 gain steps" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_agctst1_agc_var_gain_sat_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_agctst1_agc_var_gain_sat_vals);
+
+static const value_string cc2400_dactst_dac_src_vals[] = {
+    { 0x00,  "Normal Operation (from Mudulator)" },
+    { 0x01,  "The DAC_I_O and DAC_Q_O override values below" },
+    { 0x02,  "From ADC" },
+    { 0x03,  "I/Q after digital down-mixing and channel filtering" },
+    { 0x04,  "Full-spectrum White Noise (from PRNG)" },
+    { 0x05,  "RX signal magnitude / frequency filtered (from demodulator)" },
+    { 0x06,  "RSSI/RX frequency offset estimation" },
+    { 0x07,  "HSSD module" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_dactst_dac_src_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_dactst_dac_src_vals);
+
+static const value_string cc2400_mdmtst0_afc_settling_vals[] = {
+    { 0x00,  "1 pair" },
+    { 0x01,  "2 pairs" },
+    { 0x02,  "4 pairs" },
+    { 0x03,  "8 pairs" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_mdmtst0_afc_settling_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_mdmtst0_afc_settling_vals);
+
+static const value_string cc2400_lmtst_rxmix_tail_vals[] = {
+    { 0x00,  "12 uA" },
+    { 0x01,  "16 uA (Nominal)" },
+    { 0x02,  "20 uA" },
+    { 0x03,  "24 uA" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_rxmix_tail_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_rxmix_tail_vals);
+
+static const value_string cc2400_lmtst_rxmix_vcm_vals[] = {
+    { 0x00,  "8 uA mixer current" },
+    { 0x01,  "12 uA mixer current (Nominal)" },
+    { 0x02,  "16 uA mixer current" },
+    { 0x03,  "20 uA mixer current" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_rxmix_vcm_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_rxmix_vcm_vals);
+
+static const value_string cc2400_lmtst_rxmix_current_vals[] = {
+    { 0x00,  "360 uA mixer current (x2)" },
+    { 0x01,  "720 uA mixer current (x2)" },
+    { 0x02,  "900 uA mixer current (x2) (Nominal)" },
+    { 0x03,  "1260 uA mixer current (x2)" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_rxmix_current_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_rxmix_current_vals);
+
+static const value_string cc2400_lmtst_lna_cap_array_vals[] = {
+    { 0x00,  "Off" },
+    { 0x01,  "0.1pF (x2) (Nominal)" },
+    { 0x02,  "0.2pF (x2)" },
+    { 0x03,  "0.3pF (x2)" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_lna_cap_array_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_lna_cap_array_vals);
+
+static const value_string cc2400_lmtst_lna_lowgain_vals[] = {
+    { 0x00,  "19 dB (Nominal)" },
+    { 0x01,  "7 dB" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_lna_lowgain_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_lna_lowgain_vals);
+
+static const value_string cc2400_lmtst_lna_gain_vals[] = {
+    { 0x00,  "Off (Nominal)" },
+    { 0x01,  "100 uA LNA current" },
+    { 0x02,  "300 uA LNA current" },
+    { 0x03,  "1000 uA LNA current" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_lna_gain_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_lna_gain_vals);
+
+static const value_string cc2400_lmtst_lna_current_vals[] = {
+    { 0x00,  "240 uA LNA current (x2)" },
+    { 0x01,  "480 uA LNA current (x2)" },
+    { 0x02,  "640 uA LNA current (x2) (Nominal)" },
+    { 0x03,  "1280 uA LNA current (x2)" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_lmtst_lna_current_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_lmtst_lna_current_vals);
+
+static const value_string cc2400_pamtst_atestmod_mode_vals[] = {
+    { 0x00,  "Outputs I (ATEST2) and Q (ATEST1) from RxMIX" },
+    { 0x01,  "Inputs I (ATEST2) and Q (ATEST1) to BPF" },
+    { 0x02,  "Outputs I (ATEST2) and Q (ATEST1) from VGA" },
+    { 0x03,  "Inputs I (ATEST2) and Q (ATEST1) to ADC" },
+    { 0x04,  "Outputs I (ATEST2) and Q (ATEST1) from LPF" },
+    { 0x05,  "Inputs I (ATEST2) and Q (ATEST1) to TxMIX" },
+    { 0x06,  "Outputs P (ATEST2) and N (ATEST1) from Prescaler" },
+    { 0x07,  "Connects TX IF to RX IF and simultaneously the ATEST1 pin to the internal VC node" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_pamtst_atestmod_mode_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_pamtst_atestmod_mode_vals);
+
+static const value_string cc2400_pamtst_txmix_current_vals[] = {
+    { 0x00,  "1.72 mA" },
+    { 0x01,  "1.88 mA" },
+    { 0x02,  "2.05 mA" },
+    { 0x03,  "2.21 mA" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_pamtst_txmix_current_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_pamtst_txmix_current_vals);
+
+static const value_string cc2400_pamtst_pa_current_vals[] = {
+    { 0x00,  "-3 current adjustment" },
+    { 0x01,  "-2 current adjustment" },
+    { 0x02,  "-1 current adjustment" },
+    { 0x03,  "Nominal Setting" },
+    { 0x04,  "+1 current adjustment" },
+    { 0x05,  "+2 current adjustment" },
+    { 0x06,  "+3 current adjustment" },
+    { 0x07,  "+4 current adjustment" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_pamtst_pa_current_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_pamtst_pa_current_vals);
+
+static const value_string cc2400_iocfg_hssd_src_vals[] = {
+    { 0x00,  "Off" },
+    { 0x01,  "Output AGC status (gain setting / peak detector status / accumulator value)" },
+    { 0x02,  "Output ADC I and Q values" },
+    { 0x03,  "Output I/Q after digital down-mixing and channel filtering" },
+    { 0x04,  "Output RX signal magnitude / frequency unfiltered (from demodulator)" },
+    { 0x05,  "Output RX signal magnitude / frequency filtered (from demodulator)" },
+    { 0x06,  "Output RSSI / RX frequency offset estimation" },
+    { 0x07,  "Input DAC values" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_iocfg_hssd_src_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_iocfg_hssd_src_vals);
+
+static const value_string cc2400_rssi_rssi_filt_vals[] = {
+    { 0x00,  "0 bits (no filtering)" },
+    { 0x01,  "1 bit" },
+    { 0x02,  "4 bits" },
+    { 0x03,  "8 bits" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_rssi_rssi_filt_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_rssi_rssi_filt_vals);
+
+static const value_string cc2400_fsctlr_lock_threshold_vals[] = {
+    { 0x00,  "64" },
+    { 0x01,  "128" },
+    { 0x02,  "256" },
+    { 0x03,  "512" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fsctlr_lock_threshold_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fsctlr_lock_threshold_vals);
+
+static const value_string cc2400_fsctlr_lock_length_vals[] = {
+    { 0x00,  "2 CLK_PRE Periods" },
+    { 0x01,  "4 CLK_PRE Periods" },
+    { 0x00, NULL }
+};
+static value_string_ext(cc2400_fsctlr_lock_length_vals_ext) = VALUE_STRING_EXT_INIT(cc2400_fsctlr_lock_length_vals);
 
 void proto_register_ubertooth(void);
 void proto_reg_handoff_ubertooth(void);
 
+
+static void
+dissect_cc2400_register(proto_tree *tree, tvbuff_t *tvb, gint offset, guint8 register_id)
+{
+    proto_item  *sub_item;
+    proto_item  *sub_tree;
+
+    switch (register_id) {
+    case 0x00: /* MAIN */
+        proto_tree_add_item(tree, hf_cc2400_main_resetn, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_reserved_14_10, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_fs_force_en, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_rxn_tx, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_reserved_7_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_reserved_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_reserved_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_xosc16m_bypass, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_main_xosc16m_en, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x01: /* FSCTRL */
+        proto_tree_add_item(tree, hf_cc2400_fsctrl_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsctrl_lock_threshold, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsctrl_cal_done, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsctrl_cal_running, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsctrl_lock_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsctrl_lock_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x02: /* FSDIV */
+        proto_tree_add_item(tree, hf_cc2400_fsdiv_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_item = proto_tree_add_item(tree, hf_cc2400_fsdiv_frequency, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_fsdiv_frequency);
+
+        proto_tree_add_item(sub_tree, hf_cc2400_fsdiv_freq_high, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_cc2400_fsdiv_freq, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x03: /* MDMCTRL */
+        proto_tree_add_item(tree, hf_cc2400_mdmctrl_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmctrl_mod_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmctrl_mod_dev, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x04: /* AGCCTRL */
+        proto_tree_add_item(tree, hf_cc2400_agcctrl_vga_gain, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agcctrl_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agcctrl_agc_locked, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agcctrl_agc_lock, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agcctrl_agc_sync_lock, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agcctrl_vga_gain_oe, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x05: /* FREND  */
+        proto_tree_add_item(tree, hf_cc2400_frend_reserved_15_4, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_frend_reserved_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_frend_pa_level, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x06: /* RSSI */
+        proto_tree_add_item(tree, hf_cc2400_rssi_rssi_val, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_rssi_rssi_cs_thres, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_rssi_rssi_filt, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x07: /* FREQEST */
+        proto_tree_add_item(tree, hf_cc2400_freqest_rx_freq_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_freqest_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x08: /* IOCFG */
+        proto_tree_add_item(tree, hf_cc2400_iocfg_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_iocfg_gio6_cfg, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_iocfg_gio1_cfg, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_iocfg_hssd_src, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x0B: /* FSMTC */
+        proto_tree_add_item(tree, hf_cc2400_fsmtc_tc_rxon2agcen, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmtc_tc_paon2switch, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmtc_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmtc_tc_txend2switch, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmtc_tc_txend2paoff, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x0C: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x0C_res_15_5, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x0C_res_4_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x0D: /* MANAND */
+        proto_tree_add_item(tree, hf_cc2400_manand_vga_reset_n, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_lock_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_balun_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_rxtx, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_pre_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_pa_n_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_pa_p_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_dac_lpf_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_bias_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_xosc16m_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_chp_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_fs_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_adc_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_vga_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_rxbpf_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manand_lnamix_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x0E: /* FSMSTATE */
+        proto_tree_add_item(tree, hf_cc2400_fsmstate_reserved_15_13, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmstate_fsm_state_bkpt, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmstate_reserved_7_5, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fsmstate_fsm_cur_state, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x0F: /* ADCTST */
+        proto_tree_add_item(tree, hf_cc2400_adctst_reserved_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_adctst_adc_i, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_adctst_reserved_7, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_adctst_adc_q, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x10: /* RXBPFTST */
+        proto_tree_add_item(tree, hf_cc2400_rxbpftst_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_rxbpftst_rxbpf_cap_oe, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_rxbpftst_rxbpf_cap_o, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_rxbpftst_rxbpf_cap_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x11: /* PAMTST */
+        proto_tree_add_item(tree, hf_cc2400_pamtst_reserved_15_13, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_vc_in_test_en, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_atestmod_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_atestmod_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_reserved_7, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_txmix_cap_array, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_txmix_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pamtst_pa_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x12: /* LMTST */
+        proto_tree_add_item(tree, hf_cc2400_lmtst_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_rxmix_hgm, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_rxmix_tail, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_rxmix_vcm, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_rxmix_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_lna_cap_array, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_lna_lowgain, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_lna_gain, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_lmtst_lna_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x13: /* MANOR */
+        proto_tree_add_item(tree, hf_cc2400_manor_vga_reset_n, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_lock_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_balun_ctrl, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_rxtx, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_pre_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_pa_n_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_pa_p_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_dac_lpf_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_bias_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_xosc16m_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_chp_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_fs_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_adc_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_vga_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_rxbpf_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manor_lnamix_pd, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x14: /* MDMTST0 */
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_tx_prng, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_tx_1mhz_offset_n, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_invert_data, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_afc_adjust_on_packet, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_afc_settling, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst0_afc_delta, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x15: /* MDMTST1 */
+        proto_tree_add_item(tree, hf_cc2400_mdmtst1_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_mdmtst1_bsync_threshold, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x16: /* DACTST */
+        proto_tree_add_item(tree, hf_cc2400_dactst_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_dactst_dac_src, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_dactst_dac_i_o, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_dactst_dac_q_o, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x17: /* AGCTST0 */
+        proto_tree_add_item(tree, hf_cc2400_agctst0_agc_settle_blank_dn, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst0_agc_win_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst0_agc_settle_peak, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst0_agc_settle_adc, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst0_agc_attempts, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x18: /* AGCTST1 */
+        proto_tree_add_item(tree, hf_cc2400_agctst1_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst1_agc_var_gain_sat, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst1_agc_settle_blank_up, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst1_peakdet_cur_boost, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst1_agc_mult_slow, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst1_agc_settle_fixed, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst1_agc_settle_var, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x19: /* AGCTST2 */
+        proto_tree_add_item(tree, hf_cc2400_agctst2_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst2_agc_backend_blanking, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst2_agc_adjust_m3db, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst2_agc_adjust_m1db, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst2_agc_adjust_p3db, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_agctst2_agc_adjust_p1db, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x1A: /* FSTST0 */
+        proto_tree_add_item(tree, hf_cc2400_fstst0_rxmixbuf_cur, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst0_txmixbuf_cur, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst0_vco_array_settle_long, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst0_vco_array_oe, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst0_vco_array_o, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst0_vco_array_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x1B: /* FSTST1 */
+        proto_tree_add_item(tree, hf_cc2400_fstst1_rxbpf_locur, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst1_rxbpf_midcur, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst1_vco_current_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst1_vco_current_k, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst1_vc_dac_en, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst1_vc_dac_val, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x1C: /* FSTST2 */
+        proto_tree_add_item(tree, hf_cc2400_fstst2_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst2_vco_curcal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst2_vco_current_oe, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst2_vco_current_o, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst2_vco_current_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x1D: /* FSTST3 */
+        proto_tree_add_item(tree, hf_cc2400_fstst3_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_chp_test_up, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_chp_test_dn, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_chp_disable, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_pd_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_chp_step_period, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_stop_chp_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_fstst3_start_chp_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x1E: /* MANFIDL */
+        proto_tree_add_item(tree, hf_cc2400_manfidl_partnum, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manfidl_manfid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x1F: /* MANFIDH */
+        proto_tree_add_item(tree, hf_cc2400_manfidh_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_manfidh_partnum, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x20: /* GRMDM */
+        proto_tree_add_item(tree, hf_cc2400_grmdm_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_sync_errbits_allowed, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_pin_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_packet_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_pre_bytes, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_sync_word_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_crc_on, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_data_format, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_modulation_format, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grmdm_tx_gaussian_filter, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x21: /* GRDEC */
+        proto_tree_add_item(tree, hf_cc2400_grdec_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grdec_ind_saturation, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grdec_dec_shift, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grdec_channel_dec, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_grdec_dec_val, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x22: /* PKTSTATUS */
+        proto_tree_add_item(tree, hf_cc2400_pktstatus_reserved_15_11, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pktstatus_sync_word_received, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pktstatus_crc_ok, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pktstatus_reserved_8, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_pktstatus_reserved_7_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x23: /* INT */
+        proto_tree_add_item(tree, hf_cc2400_int_reserved_15_8, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_int_reserved_7, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_int_pkt_polarity, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_int_fifo_polarity, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_int_fifo_threshold, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x24: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x24_res_15_14, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x24_res_13_10, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x24_res_9_7, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x24_res_6_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x25: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x25_res_15_12, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x25_res_11_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x26: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x26_res_15_10, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x26_res_9_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x27: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x27_res_15_8, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x27_res_7_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x27_res_2_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x28: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x28_res_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x28_res_14_13, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x28_res_12_7, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x28_res_6_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x29: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x29_res_15_8, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x29_res_7_3, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x29_res_2_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x2A: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2A_res_15_11, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2A_res_10, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2A_res_9_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x2B: /* Reserved */
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2B_res_15_14, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2B_res_13, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2B_res_12, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cc2400_reserved_0x2B_res_11_0, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x2C: /* SYNCL */
+        proto_tree_add_item(tree, hf_cc2400_syncl, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    case 0x2D: /* SYNCH */
+        proto_tree_add_item(tree, hf_cc2400_synch, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
+    default:
+        proto_tree_add_item(tree, hf_cc2400_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+}
 
 static gint
 dissect_usb_rx_packet(proto_tree *main_tree, proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint16 command)
@@ -381,6 +1273,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item       *command_item;
     proto_item       *command_tree;
     proto_item       *sub_item;
+    proto_item       *sub_tree;
     gint              offset = 0;
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
     gint              p2p_dir_save;
@@ -548,10 +1441,12 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
                 break;
             case 53: /* Read Register */
-                proto_tree_add_item(main_tree, hf_register, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                sub_item = proto_tree_add_item(main_tree, hf_register, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 register_id = tvb_get_letohs(tvb, offset);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
                         val_to_str_ext_const(register_id, &register_vals_ext, "Unknown"));
+                if (try_val_to_str_ext(register_id, &register_vals_ext))
+                    proto_item_append_text(sub_item, " [%s]", val_to_str_ext_const(register_id, &register_description_vals_ext, "Unknown"));
                 offset += 2;
 
                 break;
@@ -936,11 +1831,17 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     case 53: /* Read Register */
         sub_item = proto_tree_add_uint(main_tree, hf_register, tvb, offset, 0, register_id);
         PROTO_ITEM_SET_GENERATED(sub_item);
+        if (try_val_to_str_ext(register_id, &register_vals_ext))
+            proto_item_append_text(sub_item, " [%s]", val_to_str_ext_const(register_id, &register_description_vals_ext, "Unknown"));
 
-        proto_tree_add_item(main_tree, hf_register_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+        sub_item = proto_tree_add_item(main_tree, hf_register_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_register_value);
         col_append_fstr(pinfo->cinfo, COL_INFO, " = %s:  0x%04x",
                 val_to_str_ext_const(register_id, &register_vals_ext, "Unknown"),
-                tvb_get_letohs(tvb, offset));
+                tvb_get_ntohs(tvb, offset));
+
+        dissect_cc2400_register(sub_tree, tvb, offset, register_id);
         offset += 2;
 
         break;
@@ -1267,7 +2168,1114 @@ proto_register_ubertooth(void)
             { "Data",                            "ubertooth.data",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
-        }
+        },
+        { &hf_cc2400_value,
+            { "Value",                           "ubertooth.register.value",
+            FT_UINT16, BASE_HEX_DEC, NULL, 0xFFFF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_syncl,
+            { "Synchronisation Word, lower 16 bit",        "ubertooth.register.value.syncl",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_synch,
+            { "Synchronisation Word, upper 16 bit",        "ubertooth.register.value.synch",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2B_res_15_14,
+            { "Reserved [15:14]",                          "ubertooth.register.value.reserved.0x2B.15_14",
+            FT_UINT16, BASE_DEC, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2B_res_13,
+            { "Reserved [13]",                             "ubertooth.register.value.reserved.0x2B.13",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2B_res_12,
+            { "Reserved [12]",                             "ubertooth.register.value.reserved.0x2B.12",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2B_res_11_0,
+            { "Reserved [11:0]",                           "ubertooth.register.value.reserved.0x2B.11_0",
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2A_res_15_11,
+            { "Reserved [15:11]",                          "ubertooth.register.value.reserved.0x2A.15_11",
+            FT_UINT16, BASE_DEC, NULL, 0xF800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2A_res_10,
+            { "Reserved [10]",                             "ubertooth.register.value.reserved.0x2A.10",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x2A_res_9_0,
+            { "Reserved [9:0]",                            "ubertooth.register.value.reserved.0x2A.9_0",
+            FT_UINT16, BASE_DEC, NULL, 0x03FF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x29_res_15_8,
+            { "Reserved [15:8]",                           "ubertooth.register.value.reserved.0x29.15_8",
+            FT_UINT16, BASE_DEC, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x29_res_7_3,
+            { "Reserved [7:3]",                            "ubertooth.register.value.reserved.0x29.7_3",
+            FT_UINT16, BASE_DEC, NULL, 0x00F8,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x29_res_2_0,
+            { "Reserved [2:0]",                            "ubertooth.register.value.reserved.0x29.2_0",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x28_res_15,
+            { "Reserved [15]",                             "ubertooth.register.value.reserved.0x28.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x28_res_14_13,
+            { "Reserved [14:13]",                          "ubertooth.register.value.reserved.0x28.14_13",
+            FT_UINT16, BASE_DEC, NULL, 0x6000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x28_res_12_7,
+            { "Reserved [12:7]",                           "ubertooth.register.value.reserved.0x28.12_7",
+            FT_UINT16, BASE_DEC, NULL, 0x1F80,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x28_res_6_0,
+            { "Reserved [6:0]",                            "ubertooth.register.value.reserved.0x28.6_0",
+            FT_UINT16, BASE_DEC, NULL, 0x007F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x27_res_15_8,
+            { "Reserved [15:8]",                           "ubertooth.register.value.reserved.0x27.15_8",
+            FT_UINT16, BASE_DEC, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x27_res_7_3,
+            { "Reserved [7:3]",                            "ubertooth.register.value.reserved.0x27.7_3",
+            FT_UINT16, BASE_DEC, NULL, 0x00F8,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x27_res_2_0,
+            { "Reserved [2:0]",                            "ubertooth.register.value.reserved.0x27.2_0",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x26_res_15_10,
+            { "Reserved [15:10]",                          "ubertooth.register.value.reserved.0x26.15_10",
+            FT_UINT16, BASE_DEC, NULL, 0xFC00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x26_res_9_0,
+            { "Reserved [9:0]",                            "ubertooth.register.value.reserved.0x26.9_0",
+            FT_UINT16, BASE_DEC, NULL, 0x03FF,
+            NULL, HFILL }
+        },
+
+        { &hf_cc2400_reserved_0x25_res_15_12,
+            { "Reserved [15:12]",                          "ubertooth.register.value.reserved.0x25.15_12",
+            FT_UINT16, BASE_DEC, NULL, 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x25_res_11_0,
+            { "Reserved [11:0]",                            "ubertooth.register.value.reserved.0x25.11_0",
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x24_res_15_14,
+            { "Reserved [15:14]",                          "ubertooth.register.value.reserved.0x24.15_14",
+            FT_UINT16, BASE_DEC, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x24_res_13_10,
+            { "Reserved [13:10]",                          "ubertooth.register.value.reserved.0x24.13_10",
+            FT_UINT16, BASE_DEC, NULL, 0x3C00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x24_res_9_7,
+            { "Reserved [9:7]",                            "ubertooth.register.value.reserved.0x24.9_7",
+            FT_UINT16, BASE_DEC, NULL, 0x0380,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x24_res_6_0,
+            { "Reserved [6:0]",                            "ubertooth.register.value.reserved.0x24.6_0",
+            FT_UINT16, BASE_DEC, NULL, 0x007F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_int_reserved_15_8,
+            { "Reserved [15:8]",                           "ubertooth.register.value.int.reserved.15_8",
+            FT_UINT16, BASE_DEC, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_int_reserved_7,
+            { "Reserved [7]",                              "ubertooth.register.value.int.reserved.7",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_int_pkt_polarity,
+            { "PKT Polarity",                              "ubertooth.register.value.int.pkt_polarity",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_int_fifo_polarity,
+            { "FIFO Polarity",                             "ubertooth.register.value.int.fifo_polarity",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_int_fifo_threshold,
+            { "FIFO Threshold",                            "ubertooth.register.value.int.fifo_threshold",
+            FT_UINT16, BASE_DEC, NULL, 0x001F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_resetn,
+            { "Reset N",                                   "ubertooth.register.value.main.resetn",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_reserved_14_10,
+            { "Reserved [14:10]",                          "ubertooth.register.value.main.reserved.14_10",
+            FT_UINT16, BASE_DEC, NULL, 0x7C00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_fs_force_en,
+            { "Forces Frequency Synthesiser",              "ubertooth.register.value.main.fs_force_en",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_rxn_tx,
+            { "RxN Tx",                                    "ubertooth.register.value.main.rxn_tx",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_reserved_7_4,
+            { "Reserved [7:4]",                            "ubertooth.register.value.main.reserved.7_4",
+            FT_UINT16, BASE_DEC, NULL, 0x00F0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_reserved_3,
+            { "Reserved [3]",                              "ubertooth.register.value.main.reserved.3",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_reserved_2,
+            { "Reserved [2]",                              "ubertooth.register.value.main.reserved.2",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_xosc16m_bypass,
+            { "Bypass 16 MHz Crystal Oscillator",          "ubertooth.register.value.main.xosc16m_bypass",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_main_xosc16m_en,
+            { "Force 16 MHz Crystal Oscillator",           "ubertooth.register.value.main.xosc16m_en",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsctrl_reserved,
+            { "Reserved [15:6]",                           "ubertooth.register.value.fsctrl.reserved.15_6",
+            FT_UINT16, BASE_DEC, NULL, 0xFFC0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsctrl_lock_threshold,
+            { "Lock Threshold",                            "ubertooth.register.value.fsctrl.lock_threshold",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fsctlr_lock_threshold_vals_ext, 0x0030,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsctrl_cal_done,
+            { "Calibration Done",                          "ubertooth.register.value.fsctrl.cal_done",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsctrl_cal_running,
+            { "Calibration Running",                       "ubertooth.register.value.fsctrl.cal_running",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsctrl_lock_length,
+            { "Lock Length",                               "ubertooth.register.value.fsctrl.lock_length",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fsctlr_lock_length_vals_ext, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsctrl_lock_status,
+            { "PLL Lock Status",                           "ubertooth.register.value.fsctrl.lock_status",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsdiv_reserved,
+            { "Reserved [15:12]",                          "ubertooth.register.value.fsdiv.reserved.15_12",
+            FT_UINT16, BASE_DEC, NULL, 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsdiv_frequency,
+            { "Frequency",                                 "ubertooth.register.value.fsdiv.frequency",
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsdiv_freq_high,
+            { "Frequency High Part",                       "ubertooth.register.value.fsdiv.frequency.high",
+            FT_UINT16, BASE_DEC, NULL, 0x0C00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsdiv_freq,
+            { "Frequency Lower Part",                      "ubertooth.register.value.fsdiv.frequency.low",
+            FT_UINT16, BASE_DEC, NULL, 0x03FF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmctrl_reserved,
+            { "Reserved [15:13]",                          "ubertooth.register.value.mdmctrl.reserved.15_13",
+            FT_UINT16, BASE_DEC, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmctrl_mod_offset,
+            { "Modulator Offset",                          "ubertooth.register.value.mdmctrl.mod_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x1F80,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmctrl_mod_dev,
+            { "Modulator Deviation",                       "ubertooth.register.value.mdmctrl.mod_dev",
+            FT_UINT16, BASE_DEC, NULL, 0x007F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agcctrl_vga_gain,
+            { "VGA Gain",                                  "ubertooth.register.value.agcctrl.vga_gain",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agcctrl_reserved,
+            { "Reserved [7:4]",                            "ubertooth.register.value.agcctrl.reserved.7_4",
+            FT_UINT16, BASE_DEC, NULL, 0x00F0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agcctrl_agc_locked,
+            { "AGC Locked",                                "ubertooth.register.value.agcctrl.agc_locked",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agcctrl_agc_lock,
+            { "AGC Lock",                                  "ubertooth.register.value.agcctrl.agc_lock",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agcctrl_agc_sync_lock,
+            { "AGC Sync Lock",                             "ubertooth.register.value.agcctrl.agc_sync_lock",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agcctrl_vga_gain_oe,
+            { "VGA Gain Override Enable",                  "ubertooth.register.value.agcctrl.vga_gain_oe",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_frend_reserved_15_4,
+            { "Reserved [15:4]",                           "ubertooth.register.value.frend.reserved.15_4",
+            FT_UINT16, BASE_DEC, NULL, 0xFFF0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_frend_reserved_3,
+            { "Reserved [3]",                              "ubertooth.register.value.frend.reserved.3",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_frend_pa_level,
+            { "Power Amplifier Level",                     "ubertooth.register.value.frend.pa_level",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rssi_rssi_val,
+            { "Avarage RSSI Value",                        "ubertooth.register.value.rssi.rssi_val",
+            FT_INT8, BASE_DEC, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rssi_rssi_cs_thres,
+            { "RSSI Carrier Sense Threshold",              "ubertooth.register.value.rssi.rssi_cs_thres",
+            FT_INT16, BASE_DEC, NULL, 0x00FC,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rssi_rssi_filt,
+            { "RSSI Averaging Filter Length",              "ubertooth.register.value.rssi.rssi_filt",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_rssi_rssi_filt_vals_ext, 0x0003,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_freqest_rx_freq_offset,
+            { "Rx Frequence Offset",                       "ubertooth.register.value.freqest.rx_freq_offset",
+            FT_INT16, BASE_DEC, NULL, 0xFF00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_freqest_reserved,
+            { "Reserved [7:0]",                            "ubertooth.register.value.freqest.reserved.7_0",
+            FT_UINT16, BASE_DEC, NULL, 0x00FF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_iocfg_reserved,
+            { "Reserved [15]",                             "ubertooth.register.value.iocfg.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_iocfg_gio6_cfg,
+            { "GIO6 Configuration",                        "ubertooth.register.value.iocfg.gio6_cfg",
+            FT_UINT16, BASE_DEC, NULL, 0x7E00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_iocfg_gio1_cfg,
+            { "GIO1 Configuration",                        "ubertooth.register.value.iocfg.gio1_cfg",
+            FT_UINT16, BASE_DEC, NULL, 0x01F8,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_iocfg_hssd_src,
+            { "High Speed Serial Data Source",             "ubertooth.register.value.iocfg.hssd_src",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_iocfg_hssd_src_vals_ext, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmtc_tc_rxon2agcen,
+            { "Rx On to AGC Enabled",                      "ubertooth.register.value.fsmtc.tc_rxon2agcen",
+            FT_UINT16, BASE_DEC, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmtc_tc_paon2switch,
+            { "Power Amplifier On to Switch",              "ubertooth.register.value.fsmtc.tc_paon2switch",
+            FT_UINT16, BASE_DEC, NULL, 0x1C00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmtc_res,
+            { "Reserved [9:6]",                            "ubertooth.register.value.fsmtc.reserved.9_6",
+            FT_UINT16, BASE_DEC, NULL, 0x03C0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmtc_tc_txend2switch,
+            { "Tx End to Switch",                          "ubertooth.register.value.fsmtc.tc_txend2switch",
+            FT_UINT16, BASE_DEC, NULL, 0x0038,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmtc_tc_txend2paoff,
+            { "Tx End to Power Amplifier Off",             "ubertooth.register.value.fsmtc.tc_txend2paoff",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x0C_res_15_5,
+            { "Reserved [15:5]",                           "ubertooth.register.value.reserved.0x0C.15_5",
+            FT_UINT16, BASE_DEC, NULL, 0xFFE0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_reserved_0x0C_res_4_0,
+            { "Reserved [4:0]",                            "ubertooth.register.value.reserved.0x0C.4_0",
+            FT_UINT16, BASE_DEC, NULL, 0x001F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_vga_reset_n,
+            { "No VGA Reset",                              "ubertooth.register.value.manand.vga_reset_n",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_lock_status,
+            { "Lock Status",                               "ubertooth.register.value.manand.lock_status",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_balun_ctrl,
+            { "Balun Control",                             "ubertooth.register.value.manand.balun_ctrl",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_rxtx,
+            { "RxTx",                                      "ubertooth.register.value.manand.rxtx",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_pre_pd,
+            { "Power Down of Prescaler",                   "ubertooth.register.value.manand.pre_pd",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_pa_n_pd,
+            { "Power Down of Power Amplifier (negative path)",  "ubertooth.register.value.manand.pa_n_pd",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_pa_p_pd,
+            { "Power Down of Power Amplifier (positive path)",  "ubertooth.register.value.manand.pa_p_pd",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_dac_lpf_pd,
+            { "Power Down of Tx DAC",                      "ubertooth.register.value.manand.dac_lpf_pd",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_bias_pd,
+            { "Power Down control of global bias generator + XOSC clock buffer",         "ubertooth.register.value.manand.bias_pd",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_xosc16m_pd,
+            { "Power Down control of 16 MHz XOSC core",    "ubertooth.register.value.manand.xosc16m_pd",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_chp_pd,
+            { "Power Down control of Charge Pump",         "ubertooth.register.value.manand.chp_pd",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_fs_pd,
+            { "Power Down control of VCO, I/Q generator, LO buffers",     "ubertooth.register.value.manand.fs_pd",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_adc_pd,
+            { "Power Down control of the ADC",                            "ubertooth.register.value.manand.adc_pd",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_vga_pd,
+            { "Power Down control of the VGA",                            "ubertooth.register.value.manand.vga_pd",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_rxbpf_pd,
+            { "Power Down control of complex band-pass receive filter",   "ubertooth.register.value.manand.rxbpf_pd",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manand_lnamix_pd,
+            { "Power Down control of LNA, down-conversion mixers and front-end bias",    "ubertooth.register.value.manand.lnamix_pd",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmstate_reserved_15_13,
+            { "Reserved [15:13]",                          "ubertooth.register.value.fsmstate.reserved.15_13",
+            FT_UINT16, BASE_DEC, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmstate_fsm_state_bkpt,
+            { "FSM breakpoint state",                      "ubertooth.register.value.fsmstate.fsm_state_bkpt",
+            FT_UINT16, BASE_DEC, NULL, 0x1F00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmstate_reserved_7_5,
+            { "Reserved [7:5]",                            "ubertooth.register.value.fsmstate.reserved.7_5",
+            FT_UINT16, BASE_DEC, NULL, 0x00E0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fsmstate_fsm_cur_state,
+            { "Current state of the finite state machine", "ubertooth.register.value.fsmstate.fsm_cur_state",
+            FT_UINT16, BASE_DEC, NULL, 0x001F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_adctst_reserved_15,
+            { "Reserved [15]",                             "ubertooth.register.value.adctst.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_adctst_adc_i,
+            { "Current ADC I-branch value",                "ubertooth.register.value.adctst.adc_i",
+            FT_UINT16, BASE_DEC, NULL, 0x7F00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_adctst_reserved_7,
+            { "Reserved [7]",                              "ubertooth.register.value.adctst.reserved.7",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_adctst_adc_q,
+            { "Current ADC Q-branch value",                "ubertooth.register.value.adctst.adc_q",
+            FT_UINT16, BASE_DEC, NULL, 0x007F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rxbpftst_reserved,
+            { "Reserved [15]",                             "ubertooth.register.value.rxbpftst.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rxbpftst_rxbpf_cap_oe,
+            { "RX band-pass filter capacitance calibration override enable",   "ubertooth.register.value.rxbpftst.rxbpf_cap_oe",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rxbpftst_rxbpf_cap_o,
+            { "RX band-pass filter capacitance calibration override value",    "ubertooth.register.value.rxbpftst.rxbpf_cap_o",
+            FT_UINT16, BASE_DEC, NULL, 0x3F80,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_rxbpftst_rxbpf_cap_res,
+            { "RX band-pass filter capacitance calibration result",    "ubertooth.register.value.rxbpftst.rxbpf_cap_res",
+            FT_UINT16, BASE_DEC, NULL, 0x007F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_reserved_15_13,
+            { "Reserved [15:13]",                          "ubertooth.register.value.pamtst.reserved.15_13",
+            FT_UINT16, BASE_DEC, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_vc_in_test_en,
+            { "VC in Test En",                             "ubertooth.register.value.pamtst.vc_in_test_en",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_atestmod_pd,
+            { "Power down of the analog test module",      "ubertooth.register.value.pamtst.atestmod_pd",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_atestmod_mode,
+            { "Function of the Analog Test Module",        "ubertooth.register.value.pamtst.atestmod_mode",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_pamtst_atestmod_mode_vals_ext, 0x0700,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_reserved_7,
+            { "Reserved [7]",                              "ubertooth.register.value.pamtst.reserved.7",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_txmix_cap_array,
+            { "Varactor array settings in the transmit mixers", "ubertooth.register.value.pamtst.txmix_cap_array",
+            FT_UINT16, BASE_DEC, NULL, 0x0060,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_txmix_current,
+            { "Transmit Mixers Current",                   "ubertooth.register.value.pamtst.txmix_current",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_pamtst_txmix_current_vals_ext, 0x0018,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pamtst_pa_current,
+            { "Power Amplifier Current",                   "ubertooth.register.value.pamtst.pa_current",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_pamtst_pa_current_vals_ext, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_reserved,
+            { "Reserved [15:14]",                          "ubertooth.register.value.lmtst.reserved.15_14",
+            FT_UINT16, BASE_DEC, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_rxmix_hgm,
+            { "Receiver Mixers High Gain Mode Enable",     "ubertooth.register.value.lmtst.rxmix_hgm",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_rxmix_tail,
+            { "Receiver Mixers Output Current",            "ubertooth.register.value.lmtst.rxmix_tail",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_rxmix_tail_vals_ext, 0x1800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_rxmix_vcm,
+            { "Controls VCM level in the mixer feedback loop",  "ubertooth.register.value.lmtst.rxmix_vcm",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_rxmix_vcm_vals_ext, 0x0600,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_rxmix_current,
+            { "Controls current in the mixer",             "ubertooth.register.value.lmtst.rxmix_current",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_rxmix_current_vals_ext, 0x0180,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_lna_cap_array,
+            { "Varactor array setting in the LNA",         "ubertooth.register.value.lmtst.lna_cap_array",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_lna_cap_array_vals_ext, 0x0060,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_lna_lowgain,
+            { "Low gain mode of the LNA",                  "ubertooth.register.value.lmtst.lna_lowgain",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_lna_lowgain_vals_ext, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_lna_gain,
+            { "Controls current in the LNA gain compensation branch",  "ubertooth.register.value.lmtst.lna_gain",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_lna_gain_vals_ext, 0x000C,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_lmtst_lna_current,
+            { "Main current in the LNA",                   "ubertooth.register.value.lmtst.lna_current",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_lmtst_lna_current_vals_ext, 0x003,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_vga_reset_n,
+            { "No VGA Reset",                              "ubertooth.register.value.manor.vga_reset_n",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_lock_status,
+            { "Lock Status",                               "ubertooth.register.value.manor.lock_status",
+            FT_BOOLEAN, 16, NULL, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_balun_ctrl,
+            { "Balun Control",                             "ubertooth.register.value.manor.balun_ctrl",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_rxtx,
+            { "RxTx",                                      "ubertooth.register.value.manor.rxtx",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_pre_pd,
+            { "Power Down of Prescaler",                   "ubertooth.register.value.manor.pre_pd",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_pa_n_pd,
+            { "Power Down of Power Amplifier (negative path)",  "ubertooth.register.value.manor.pa_n_pd",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_pa_p_pd,
+            { "Power Down of Power Amplifier (positive path)",  "ubertooth.register.value.manor.pa_p_pd",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_dac_lpf_pd,
+            { "Power Down of Tx DAC",                      "ubertooth.register.value.manor.dac_lpf_pd",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_bias_pd,
+            { "Power Down control of global bias generator + XOSC clock buffer",         "ubertooth.register.value.manor.bias_pd",
+            FT_BOOLEAN, 16, NULL, 0x0080,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_xosc16m_pd,
+            { "Power Down control of 16 MHz XOSC core",    "ubertooth.register.value.manor.xosc16m_pd",
+            FT_BOOLEAN, 16, NULL, 0x0040,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_chp_pd,
+            { "Power Down control of Charge Pump",         "ubertooth.register.value.manor.chp_pd",
+            FT_BOOLEAN, 16, NULL, 0x0020,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_fs_pd,
+            { "Power Down control of VCO, I/Q generator, LO buffers",     "ubertooth.register.value.manor.fs_pd",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_adc_pd,
+            { "Power Down control of the ADC",                            "ubertooth.register.value.manor.adc_pd",
+            FT_BOOLEAN, 16, NULL, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_vga_pd,
+            { "Power Down control of the VGA",                            "ubertooth.register.value.manor.vga_pd",
+            FT_BOOLEAN, 16, NULL, 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_rxbpf_pd,
+            { "Power Down control of complex band-pass receive filter",   "ubertooth.register.value.manor.rxbpf_pd",
+            FT_BOOLEAN, 16, NULL, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manor_lnamix_pd,
+            { "Power Down control of LNA, down-conversion mixers and front-end bias",    "ubertooth.register.value.manor.lnamix_pd",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_reserved,
+            { "Reserved [15:14]",                          "ubertooth.register.value.mdmtst0.reserved.15_14",
+            FT_UINT16, BASE_DEC, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_tx_prng,
+            { "Tx PRNG",                                   "ubertooth.register.value.mdmtst0.tx_prng",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_tx_1mhz_offset_n,
+            { "Tx No 1MHz Offset",                         "ubertooth.register.value.mdmtst0.tx_1mhz_offset_n",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_invert_data,
+            { "Invert Data",                               "ubertooth.register.value.mdmtst0.invert_data",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_afc_adjust_on_packet,
+            { "AFC Adjust on Packet",                      "ubertooth.register.value.mdmtst0.afc_adjust_on_packet",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_afc_settling,
+            { "AFC Settling",                              "ubertooth.register.value.mdmtst0.afc_settling",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_mdmtst0_afc_settling_vals_ext, 0x0300,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst0_afc_delta,
+            { "AFC Delta",                                 "ubertooth.register.value.mdmtst0.afc_delta",
+            FT_UINT16, BASE_DEC, NULL, 0x00FF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst1_reserved,
+            { "Reserved [15:7]",                           "ubertooth.register.value.mdmtst1.reserved.15_7",
+            FT_UINT16, BASE_DEC, NULL, 0xFF80,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_mdmtst1_bsync_threshold,
+            { "B-Sync Threshold",                          "ubertooth.register.value.mdmtst1.bsync_threshold",
+            FT_UINT16, BASE_DEC, NULL, 0x07F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_dactst_reserved,
+            { "Reserved [15]",                             "ubertooth.register.value.dactst.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_dactst_dac_src,
+            { "DAC Source",                                "ubertooth.register.value.dactst.dac_src",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_dactst_dac_src_vals_ext, 0x7000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_dactst_dac_i_o,
+            { "I-branch DAC Override Value",               "ubertooth.register.value.dactst.dac_i_o",
+            FT_UINT16, BASE_DEC, NULL, 0x0FC0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_dactst_dac_q_o,
+            { "Q-branch DAC Override Value",               "ubertooth.register.value.dactst.dac_q_o",
+            FT_UINT16, BASE_DEC, NULL, 0x003F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst0_agc_settle_blank_dn,
+            { "AGC Settle Blank Down",                     "ubertooth.register.value.agctst0.agc_settle_blank_down",
+            FT_UINT16, BASE_DEC, NULL, 0xE000,
+            "Duration of blanking signal in 8 MHz clock cycles", HFILL }
+        },
+        { &hf_cc2400_agctst0_agc_win_size,
+            { "AGC Window Size",                           "ubertooth.register.value.agctst0.agc_win_size",
+            FT_UINT16, BASE_DEC, NULL, 0x1800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst0_agc_settle_peak,
+            { "AGC Settle Peak Period",                    "ubertooth.register.value.agctst0.agc_settle_peak",
+            FT_UINT16, BASE_DEC, NULL, 0x0780,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst0_agc_settle_adc,
+            { "AGC Settle ADC Period",                    "ubertooth.register.value.agctst0.agc_settle_adc",
+            FT_UINT16, BASE_DEC, NULL, 0x0078,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst0_agc_attempts,
+            { "AGC Attempts",                              "ubertooth.register.value.agctst0.agc_attempts",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst1_reserved,
+            { "Reserved [15]",                             "ubertooth.register.value.agctst1.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst1_agc_var_gain_sat,
+            { "AGC Variable Gain Stage",                   "ubertooth.register.value.agctst1.agc_var_gain_sat",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_agctst1_agc_var_gain_sat_vals_ext, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst1_agc_settle_blank_up,
+            { "AGC Settle Bank Up",                        "ubertooth.register.value.agctst1.agc_settle_blank_up",
+            FT_UINT16, BASE_DEC, NULL, 0x3800,
+            "Duration of blanking signal in 8 MHz clock cycles", HFILL }
+        },
+        { &hf_cc2400_agctst1_peakdet_cur_boost,
+            { "Current Peak Detectors Boost",              "ubertooth.register.value.agctst1.peakdet_cur_boost",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst1_agc_mult_slow,
+            { "AGC Timing Multiplier Slow Mode",           "ubertooth.register.value.agctst1.agc_mult_slow",
+            FT_UINT16, BASE_DEC, NULL, 0x03C0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst1_agc_settle_fixed,
+            { "AGC Settling Period Fixed Gain Step",       "ubertooth.register.value.agctst1.agc_settle_fixed",
+            FT_UINT16, BASE_DEC, NULL, 0x003C,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst1_agc_settle_var,
+            { "AGC Settling Period Variable Gain Step",    "ubertooth.register.value.agctst1.agc_settle_var",
+            FT_UINT16, BASE_DEC, NULL, 0x0003,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst2_reserved,
+            { "Reserved [15:14]",                          "ubertooth.register.value.agctst2.reserved.15_14",
+            FT_UINT16, BASE_DEC, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst2_agc_backend_blanking,
+            { "AGC Backend Blanking",                      "ubertooth.register.value.agctst2.agc_backend_blanking",
+            FT_UINT16, BASE_DEC, NULL, 0x3000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst2_agc_adjust_m3db,
+            { "AGC Adjust -3db",                           "ubertooth.register.value.agctst2.agc_adjust_m3db",
+            FT_UINT16, BASE_DEC, NULL, 0x0E00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst2_agc_adjust_m1db,
+            { "AGC Adjust -1db",                           "ubertooth.register.value.agctst2.agc_adjust_m1db",
+            FT_UINT16, BASE_DEC, NULL, 0x01C0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst2_agc_adjust_p3db,
+            { "AGC Adjust +3db",                           "ubertooth.register.value.agctst2.agc_adjust_p3db",
+            FT_UINT16, BASE_DEC, NULL, 0x0038,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_agctst2_agc_adjust_p1db,
+            { "AGC Adjust +1db",                           "ubertooth.register.value.agctst2.agc_adjust_p1db",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst0_rxmixbuf_cur,
+            { "Rx Mixer Buffer Bias Current",      "ubertooth.register.value.fstst0.rxmixbuf_cur",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst0_rxtxmixbuf_cur_vals_ext, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst0_txmixbuf_cur,
+            { "TX Mixer Buffer Bias Current",     "ubertooth.register.value.fstst0.txmixbuf_cur",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst0_rxtxmixbuf_cur_vals_ext, 0x3000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst0_vco_array_settle_long,
+            { "Voltage Controlled Oscillator Array Settle Long",              "ubertooth.register.value.fstst0.vco_array_settle_lon",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst0_vco_array_oe,
+            { "Voltage Controlled Oscillator Array Manual Override Enable",   "ubertooth.register.value.fstst0.vco_array_oe",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst0_vco_array_o,
+            { "Voltage Controlled Oscillator Array Override Value",           "ubertooth.register.value.fstst0.vco_array_o",
+            FT_UINT16, BASE_DEC, NULL, 0x03E0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst0_vco_array_res,
+            { "Resulting VCO Array Setting from Last Calibration",            "ubertooth.register.value.fstst0.vco_array_res",
+            FT_UINT16, BASE_DEC, NULL, 0x001F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst1_rxbpf_locur,
+            { "Rx Band-pass Filters LO Bias Current",      "ubertooth.register.value.fstst1.rxbpf_locur",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst1_rxbpf_locur_vals_ext, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst1_rxbpf_midcur,
+            { "Rx Band-pass Filters MID Bias Current",     "ubertooth.register.value.fstst1.rxbpf_midcur",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst1_rxbpf_midcur_vals_ext, 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst1_vco_current_ref,
+            { "VCO Current Reference",                     "ubertooth.register.value.fstst1.vco_current_ref",
+            FT_UINT16, BASE_DEC, NULL, 0x3C00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst1_vco_current_k,
+            { "VCO Current Calibration Constant",          "ubertooth.register.value.fstst1.vco_current_k",
+            FT_UINT16, BASE_DEC, NULL, 0x03F0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst1_vc_dac_en,
+            { "VCO Source",                                "ubertooth.register.value.fstst1.vc_dac_en",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst1_vc_dac_en_vals_ext, 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst1_vc_dac_val,
+            { "VCO DAC Output Value",                      "ubertooth.register.value.fstst1.vc_dac_val",
+            FT_UINT16, BASE_DEC, NULL, 0x0007,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst2_reserved,
+            { "Reserved [15]",                                                "ubertooth.register.value.fstst2.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst2_vco_curcal_speed,
+            { "Voltage Controlled Oscillator Current Calibration",            "ubertooth.register.value.fstst2.vco_curcal_speed",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst2_vco_curcal_speed_vals_ext, 0x6000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst2_vco_current_oe,
+            { "Voltage Controlled Oscillator Current Manual Override Enable", "ubertooth.register.value.fstst2.vco_current_oe",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst2_vco_current_o,
+            { "Voltage Controlled Oscillator Current Override Value",         "ubertooth.register.value.fstst2.vco_current_o",
+            FT_UINT16, BASE_DEC, NULL, 0x0FC0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst2_vco_current_res,
+            { "Resulting VCO Current Setting from Last Calibration",          "ubertooth.register.value.fstst2.vco_current_res",
+            FT_UINT16, BASE_DEC, NULL, 0x003F,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_reserved,
+            { "Reserved [15:14]",                          "ubertooth.register.value.fstst3.reserved.15_14",
+            FT_UINT16, BASE_DEC, NULL, 0xC000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_chp_test_up,
+            { "Charge Pump Test Up",                       "ubertooth.register.value.fstst3.chp_test_up",
+            FT_BOOLEAN, 16, NULL, 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_chp_test_dn,
+            { "Charge Pump Test Down",                     "ubertooth.register.value.fstst3.chp_test_down",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_chp_disable,
+            { "Charge Pump Disable",                       "ubertooth.register.value.fstst3.chp_disable",
+            FT_BOOLEAN, 16, NULL, 0x0800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_pd_delay,
+            { "Phase Detector Delay",                      "ubertooth.register.value.fstst3.pd_delay",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst3_pd_delay_vals_ext, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_chp_step_period,
+            { "Charge Pump Step Period",                   "ubertooth.register.value.fstst3.chp_step_period",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_fstst3_chp_step_period_vals_ext, 0x0300,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_stop_chp_current,
+            { "Stop Charge Pump Current",                  "ubertooth.register.value.fstst3.stop_chp_current",
+            FT_UINT16, BASE_DEC, NULL, 0x00F0,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_fstst3_start_chp_current,
+            { "Start Charge Pump Current",                 "ubertooth.register.value.fstst3.start_chp_current",
+            FT_UINT16, BASE_DEC, NULL, 0x000F,
+            NULL, HFILL }
+        },
+
+        { &hf_cc2400_manfidl_partnum,
+            { "Part Number [3:0]",                         "ubertooth.register.value.manfidl.partnum",
+            FT_UINT16, BASE_DEC, NULL, 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manfidl_manfid,
+            { "Manufacturer ID",                           "ubertooth.register.value.manfidl.manfid",
+            FT_UINT16, BASE_HEX, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manfidh_version,
+            { "Version",                                   "ubertooth.register.value.manfidh.version",
+            FT_UINT16, BASE_DEC, NULL, 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_manfidh_partnum,
+            { "Part Number [15:4]",                        "ubertooth.register.value.manfidh.partnum",
+            FT_UINT16, BASE_DEC, NULL, 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_reserved,
+            { "Reserved [15]",                             "ubertooth.register.value.grmdm.reserved.15",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_sync_errbits_allowed,
+            { "Sync Error Bits Allowed",                   "ubertooth.register.value.grmdm.sync_errbits_allowed",
+            FT_UINT16, BASE_DEC, NULL, 0x6000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_pin_mode,
+            { "PIN Mode",                                  "ubertooth.register.value.grmdm.pin_mode",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grmdm_pin_mode_vals_ext, 0x1800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_packet_mode,
+            { "Packet Mode",                               "ubertooth.register.value.grmdm.packet_mode",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_pre_bytes,
+            { "Preamble Bytes",                            "ubertooth.register.value.grmdm.pre_bytes",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grmdm_pre_bytes_vals_ext, 0x0380,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_sync_word_size,
+            { "Sync Word Size",                            "ubertooth.register.value.grmdm.sync_word_size",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grmdm_sync_word_size_vals_ext, 0x0060,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_crc_on,
+            { "CRC On",                                    "ubertooth.register.value.grmdm.crc_on",
+            FT_BOOLEAN, 16, NULL, 0x0010,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_data_format,
+            { "Data Format",                               "ubertooth.register.value.grmdm.data_format",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grmdm_data_format_vals_ext, 0x000C,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_modulation_format,
+            { "Modulation Format",                         "ubertooth.register.value.grmdm.modulation_format",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grmdm_modulation_format_vals_ext, 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grmdm_tx_gaussian_filter,
+            { "Tx Gaussian Filter",                        "ubertooth.register.value.grmdm.tx_gaussian_filter",
+            FT_BOOLEAN, 16, NULL, 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grdec_reserved,
+            { "Reserved [15:13]",                          "ubertooth.register.value.grdec.reserved.15_13",
+            FT_UINT16, BASE_DEC, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grdec_ind_saturation,
+            { "Ind Saturation",                            "ubertooth.register.value.grdec.ind_saturation",
+            FT_BOOLEAN, 16, NULL, 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grdec_dec_shift,
+            { "Decimation Shift",                          "ubertooth.register.value.grdec.dec_shift",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grdec_dec_shift_vals_ext, 0x0C00,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grdec_channel_dec,
+            { "Channel Decimation",                        "ubertooth.register.value.grdec.channel_dec",
+            FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cc2400_grdec_channel_dec_vals_ext, 0x0300,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_grdec_dec_val,
+            { "Decimation Value",                          "ubertooth.register.value.grdec.dec_val",
+            FT_UINT16, BASE_DEC, NULL, 0x00FF,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pktstatus_reserved_15_11,
+            { "Reserved [15:11]",                          "ubertooth.register.value.pktstatus.reserved.15_11",
+            FT_UINT16, BASE_DEC, NULL, 0xF800,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pktstatus_sync_word_received,
+            { "Sync Word Received",                        "ubertooth.register.value.pktstatus.sync_word_received",
+            FT_BOOLEAN, 16, NULL, 0x0400,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pktstatus_crc_ok,
+            { "CRC OK",                                    "ubertooth.register.value.pktstatus.crc_ok",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pktstatus_reserved_8,
+            { "Reserved [8]",                              "ubertooth.register.value.pktstatus.reserved.8",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_cc2400_pktstatus_reserved_7_0,
+            { "Reserved [7:0]",                            "ubertooth.register.value.pktstatus.reserved.7_0",
+            FT_UINT16, BASE_DEC, NULL, 0x00FF,
+            NULL, HFILL }
+        },
     };
 
     static ei_register_info ei[] = {
@@ -1281,7 +3289,9 @@ proto_register_ubertooth(void)
         &ett_command,
         &ett_usb_rx_packet,
         &ett_usb_rx_packet_data,
-        &ett_entry
+        &ett_entry,
+        &ett_register_value,
+        &ett_fsdiv_frequency
     };
 
     command_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());

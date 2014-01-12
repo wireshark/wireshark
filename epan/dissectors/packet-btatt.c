@@ -33,6 +33,8 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+
+#include "packet-bluetooth-hci.h"
 #include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
@@ -127,120 +129,6 @@ static const value_string error_vals[] = {
     {0xff, "Out of Range"},
     {0x0, NULL}
 };
-
-static const value_string uuid_vals[] = {
-    /* Services - http://developer.bluetooth.org/gatt/services/Pages/ServicesHome.aspx */
-    {0x1800, "Generic Access"},
-    {0x1801, "Generic Attribute"},
-    {0x1802, "Immediate Alert"},
-    {0x1803, "Link Loss"},
-    {0x1804, "Tx Power"},
-    {0x1805, "Current Time Service"},
-    {0x1806, "Reference Time Update Service"},
-    {0x1807, "Next DST Change Service"},
-    {0x1808, "Glucose"},
-    {0x1809, "Health Thermometer"},
-    {0x180a, "Device Information"},
-    {0x180d, "Heart Rate"},
-    {0x180e, "Phone Alert Status Service"},
-    {0x180f, "Battery Service"},
-    {0x1810, "Blood Pressure"},
-    {0x1811, "Alert Notification Service"},
-    {0x1812, "Human Interface Device"},
-    {0x1813, "Scan Parameters"},
-    {0x1814, "Running Speed and Cadence"},
-    {0x1816, "Cycling Speed and Cadence"},
-    /* Declarations - http://developer.bluetooth.org/gatt/declarations/Pages/DeclarationsHome.aspx */
-    {0x2800, "GATT Primary Service Declaration"},
-    {0x2801, "GATT Secondary Service Declaration"},
-    {0x2802, "GATT Include Declaration"},
-    {0x2803, "GATT Characteristic Declaration"},
-    /* Descriptors - http://developer.bluetooth.org/gatt/descriptors/Pages/DescriptorsHomePage.aspx */
-    {0x2900, "Characteristic Extended Properties"},
-    {0x2901, "Characteristic User Description"},
-    {0x2902, "Client Characteristic Configuration"},
-    {0x2903, "Server Characteristic Configuration"},
-    {0x2904, "Characteristic Presentation Format"},
-    {0x2905, "Characteristic Aggregate Format"},
-    {0x2906, "Valid Range"},
-    {0x2907, "External Report Reference"},
-    {0x2908, "Report Reference"},
-    /* Characteristics - http://developer.bluetooth.org/gatt/characteristics/Pages/CharacteristicsHome.aspx */
-    {0x2a00, "Device Name"},
-    {0x2a01, "Appearance"},
-    {0x2a02, "Peripheral Privacy Flag"},
-    {0x2a03, "Reconnection Address"},
-    {0x2a04, "Peripheral Preferred Connection Parameters"},
-    {0x2a05, "Service Changed"},
-    {0x2a06, "Alert Level"},
-    {0x2a07, "Tx Power Level"},
-    {0x2a08, "Date Time"},
-    {0x2a09, "Day of Week"},
-    {0x2a0a, "Day Date Time"},
-    {0x2a0c, "Exact Time 256"},
-    {0x2a0d, "DST Offset"},
-    {0x2a0e, "Time Zone"},
-    {0x2a0f, "Local Time Information"},
-    {0x2a11, "Time with DST"},
-    {0x2a12, "Time Accuracy"},
-    {0x2a13, "Time Source"},
-    {0x2a14, "Reference Time Information"},
-    {0x2a16, "Time Update Control Point"},
-    {0x2a17, "Time Update State"},
-    {0x2a18, "Glucose Measurement"},
-    {0x2a19, "Battery Level"},
-    {0x2a1c, "Temperature Measurement"},
-    {0x2a1d, "Temperature Type"},
-    {0x2a1e, "Intermediate Temperature"},
-    {0x2a21, "Measurement Interval"},
-    {0x2a22, "Boot Keyboard Input Report"},
-    {0x2a23, "System ID"},
-    {0x2a24, "Model Number String"},
-    {0x2a25, "Serial Number String"},
-    {0x2a26, "Firmware Revision String"},
-    {0x2a27, "Hardware Revision String"},
-    {0x2a28, "Software Revision String"},
-    {0x2a29, "Manufacturer Name String"},
-    {0x2a2a, "IEEE 11073-20601 Reg. Cert. Data List"},
-    {0x2a2b, "Current Time"},
-    {0x2a31, "Scan Refresh"},
-    {0x2a32, "Boot Keyboard Output Report"},
-    {0x2a33, "Boot Mouse Input Report"},
-    {0x2a34, "Glucose Measurement Context"},
-    {0x2a35, "Blood Pressure Measurement"},
-    {0x2a36, "Intermediate Cuff Pressure"},
-    {0x2a37, "Heart Rate Measurement"},
-    {0x2a38, "Body Sensor Location"},
-    {0x2a39, "Heart Rate Control Point"},
-    {0x2a3f, "Alert Status"},
-    {0x2a40, "Ringer Control Point"},
-    {0x2a41, "Ringer Setting"},
-    {0x2a42, "Alert Category ID Bit Mask"},
-    {0x2a43, "Alert Category ID"},
-    {0x2a44, "Alert Notification Control Point"},
-    {0x2a45, "Unread Alert Status"},
-    {0x2a46, "New Alert"},
-    {0x2a47, "Supported New Alert Category"},
-    {0x2a48, "Supported Unread Alert Category"},
-    {0x2a49, "Blood Pressure Feature"},
-    {0x2a4a, "HID Information"},
-    {0x2a4b, "Report Map"},
-    {0x2a4c, "HID Control Point"},
-    {0x2a4d, "Report"},
-    {0x2a4e, "Protocol Mode"},
-    {0x2a4f, "Scan Interval Window"},
-    {0x2a50, "PnP ID"},
-    {0x2a51, "Glucose Feature"},
-    {0x2a52, "Record Access Control Point"},
-    {0x2a53, "RSC Measurement"},
-    {0x2a54, "RSC Feature"},
-    {0x2a55, "SC Control Point"},
-    {0x2a5b, "CSC Measurement"},
-    {0x2a5c, "CSC Feature"},
-    {0x2a5d, "Sensor Location"},
-    {0x0, NULL}
-};
-static value_string_ext uuid_vals_ext = VALUE_STRING_EXT_INIT(uuid_vals);
 
 static const value_string uuid_format_vals[] = {
     {0x01, "16-bit UUIDs"},
@@ -357,7 +245,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 
     case 0x06: /* Find By Type Value Request */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Handles: 0x%04x..0x%04x",
-                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &uuid_vals_ext, "<unknown>"),
+                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &bt_sig_uuid_vals_ext, "<unknown>"),
                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
         proto_tree_add_item(st, hf_btatt_starting_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -388,7 +276,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     case 0x08: /* Read By Type Request */
     case 0x10: /* Read By Group Type Request */
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s, Handles: 0x%04x..0x%04x",
-                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &uuid_vals_ext, "<unknown>"),
+                            val_to_str_ext_const(tvb_get_letohs(tvb, offset+4), &bt_sig_uuid_vals_ext, "<unknown>"),
                             tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
 
         proto_tree_add_item(st, hf_btatt_starting_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -403,7 +291,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         else if (tvb_length_remaining(tvb, offset) == 16) {
             item = proto_tree_add_item(st, hf_btatt_uuid128, tvb, offset, 16, ENC_NA);
             proto_item_append_text(item, " (%s)", val_to_str_ext_const(tvb_get_letohs(tvb, offset),
-                                            &uuid_vals_ext, "<unknown>"));
+                                            &bt_sig_uuid_vals_ext, "<unknown>"));
             offset += 16;
         }
         break;
@@ -615,7 +503,7 @@ proto_register_btatt(void)
         },
         {&hf_btatt_uuid16,
             {"UUID", "btatt.uuid16",
-            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &uuid_vals_ext, 0x0,
+            FT_UINT16, BASE_HEX |BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x0,
             NULL, HFILL}
         },
         {&hf_btatt_uuid128,

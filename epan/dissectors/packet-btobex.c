@@ -33,6 +33,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 
+#include "packet-bluetooth-hci.h"
 #include "packet-btrfcomm.h"
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
@@ -1979,7 +1980,7 @@ proto_register_btobex(void)
         },
         { &hf_bip_application_parameter_data_service_id,
             { "Service ID",   "btobex.parameter.value.service_id",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &vs_service_classes_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_bip_application_parameter_data_store_flag,

@@ -32,6 +32,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 
+#include "packet-bluetooth-hci.h"
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
 #include "packet-btavctp.h"
@@ -440,7 +441,7 @@ proto_register_btavctp(void)
         },
         { &hf_btavctp_pid,
             { "Profile Identifier",   "btavctp.pid",
-            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &vs_service_classes_ext, 0x00,
+            FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_btavctp_number_of_packets,

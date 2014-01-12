@@ -39,6 +39,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
 
+#include "packet-bluetooth-hci.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
 #include "packet-btrfcomm.h"
@@ -682,7 +683,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
     if (dlci && (frame_type == 0x2f))
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
-                        val_to_str_ext_const(service_info->uuid.bt_uuid, &vs_service_classes_ext, "Unknown"));
+                        val_to_str_ext_const(service_info->uuid.bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
 
     /* UID frame */
     if ((frame_type == 0xef) && dlci && pf_flag) {

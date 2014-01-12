@@ -41,9 +41,9 @@
 #include <epan/strutil.h>
 #include <epan/to_str.h>
 
+#include "packet-bluetooth-hci.h"
 #include "packet-btsdp.h"
 #include "packet-btl2cap.h"
-#include "packet-bluetooth-hci.h"
 
 static gint proto_btsdp                                                    = -1;
 
@@ -801,119 +801,6 @@ static const value_string descriptor_list_type_vals[] = {
     { 0, NULL }
 };
 
-
-/* service UUIDs */
-static const value_string vs_service_classes[] = {
-    { 0x0001,   "SDP" },
-    { 0x0002,   "UDP" },
-    { 0x0003,   "RFCOMM" },
-    { 0x0004,   "TCP" },
-    { 0x0005,   "TCS-BIN" },
-    { 0x0006,   "TCS-AT" },
-    { 0x0007,   "ATT" },
-    { 0x0008,   "OBEX" },
-    { 0x0009,   "IP" },
-    { 0x000A,   "FTP" },
-    { 0x000C,   "HTTP" },
-    { 0x000E,   "WSP" },
-    { 0x000F,   "BNEP" },
-    { 0x0010,   "UPNP" },
-    { 0x0011,   "HIDP" },
-    { 0x0012,   "Hardcopy Control Channel" },
-    { 0x0014,   "Hardcopy Data Channel" },
-    { 0x0016,   "Hardcopy Notification" },
-    { 0x0017,   "AVCTP" },
-    { 0x0019,   "AVDTP" },
-    { 0x001B,   "CMPT" },
-    { 0x001D,   "UDI C-Plane" }, /* unofficial */
-    { 0x001E,   "MCAP Control Channel" },
-    { 0x001F,   "MCAP Data Channel" },
-    { 0x0100,   "L2CAP" },
-    { 0x1000,   "Service Discovery Server Service Class ID" },
-    { 0x1001,   "Browse Group Descriptor Service Class ID" },
-    { 0x1002,   "Public Browse Group" },
-    { 0x1101,   "Serial Port" },
-    { 0x1102,   "LAN Access Using PPP" },
-    { 0x1103,   "Dialup Networking" },
-    { 0x1104,   "IrMC Sync" },
-    { 0x1105,   "OBEX Object Push" },
-    { 0x1106,   "OBEX File Transfer" },
-    { 0x1107,   "IrMC Sync Command" },
-    { 0x1108,   "Headset" },
-    { 0x1109,   "Cordless Telephony" },
-    { 0x110A,   "Audio Source" },
-    { 0x110B,   "Audio Sink" },
-    { 0x110C,   "A/V Remote Control Target" },
-    { 0x110D,   "Advanced Audio Distribution" },
-    { 0x110E,   "A/V Remote Control" },
-    { 0x110F,   "Video Conferencing" },
-    { 0x1110,   "Intercom" },
-    { 0x1111,   "Fax" },
-    { 0x1112,   "Headset Audio Gateway" },
-    { 0x1113,   "WAP" },
-    { 0x1114,   "WAP Client" },
-    { 0x1115,   "PANU" },
-    { 0x1116,   "NAP" },
-    { 0x1117,   "GN" },
-    { 0x1118,   "Direct Printing" },
-    { 0x1119,   "Reference Printing" },
-    { 0x111A,   "Imaging" },
-    { 0x111B,   "Imaging Responder" },
-    { 0x111C,   "Imaging Automatic Archive" },
-    { 0x111D,   "Imaging Referenced Objects" },
-    { 0x111E,   "Handsfree" },
-    { 0x111F,   "Handsfree Audio Gateway" },
-    { 0x1120,   "Direct Printing Reference Objects Service" },
-    { 0x1121,   "Reflected UI" },
-    { 0x1122,   "Basic Printing" },
-    { 0x1123,   "Printing Status" },
-    { 0x1124,   "Human Interface Device Service" },
-    { 0x1125,   "Hardcopy Cable Replacement" },
-    { 0x1126,   "HCR Print" },
-    { 0x1127,   "HCR Scan" },
-    { 0x1128,   "Common ISDN Access" },
-    { 0x1129,   "Video Conferencing GW" },
-    { 0x112A,   "UDI MT" },
-    { 0x112B,   "UDI TA" },
-    { 0x112C,   "Audio/Video" },
-    { 0x112D,   "SIM Access" },
-    { 0x112E,   "Phonebook Access Client" },
-    { 0x112F,   "Phonebook Access Server" },
-    { 0x1130,   "Phonebook Access Profile" },
-    { 0x1131,   "Headset HS" },
-    { 0x1132,   "Message Access Server" },
-    { 0x1133,   "Message Notification Server" },
-    { 0x1134,   "Message Access Profile" },
-    { 0x1135,   "Global Navigation Satellite System" },
-    { 0x1136,   "Global Navigation Satellite System Server" },
-    { 0x1137,   "3D Display" },
-    { 0x1138,   "3D Glasses" },
-    { 0x1139,   "3D Synchronization Profile" },
-    { 0x113A,   "Multi-Profile" },
-    { 0x113B,   "Multi-Profile SC" },
-    { 0x1200,   "PnP Information" },
-    { 0x1201,   "Generic Networking" },
-    { 0x1202,   "Generic File Transfer" },
-    { 0x1203,   "Generic Audio" },
-    { 0x1204,   "Generic Telephony" },
-    { 0x1205,   "UPNP Service" },
-    { 0x1206,   "UPNP IP Service" },
-    { 0x1300,   "ESDP UPNP_IP PAN" },
-    { 0x1301,   "ESDP UPNP IP LAP" },
-    { 0x1302,   "ESDP UPNP L2CAP" },
-    { 0x1303,   "Video Source" },
-    { 0x1304,   "Video Sink" },
-    { 0x1305,   "Video Distribution" },
-    { 0x1400,   "Health Device Profile" },
-    { 0x1401,   "Health Device Source" },
-    { 0x1402,   "Health Device Sink" },
-    { 0x1800,   "Generic Access Profile" },
-    { 0x1801,   "Generic Attribute Profile" },
-    { 0, NULL }
-};
-
-value_string_ext vs_service_classes_ext = VALUE_STRING_EXT_INIT(vs_service_classes);
-
 static const value_string vs_error_code[] = {
     { 0x0001,   "Invalid/Unsupported SDP Version" },
     { 0x0002,   "Invalid Service Record Handle" },
@@ -994,7 +881,7 @@ static gchar *
 print_uuid(uuid_t *uuid)
 {
     if (uuid->bt_uuid) {
-        return wmem_strdup(wmem_packet_scope(), val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
+        return wmem_strdup(wmem_packet_scope(), val_to_str_ext_const(uuid->bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
     } else {
         guint i_uuid;
 
@@ -1245,7 +1132,7 @@ dissect_uuid(proto_tree *tree, tvbuff_t *tvb, gint offset, gint size, uuid_t *uu
     } else if (size == 16 && tvb_get_ntohs(tvb, offset) == 0x0000 && tvb_get_ntohl(tvb, offset + 4) == 0x1000 && tvb_get_ntoh64(tvb, offset + 8) == G_GUINT64_CONSTANT(0x800000805F9B34FB)) {
         item = proto_tree_add_item(tree, hf_data_element_value_uuid_128, tvb, offset, size, ENC_NA);
         uuid->bt_uuid = tvb_get_ntohs(tvb, offset + 2);
-        proto_item_append_text(item, " (%s)", val_to_str_const(uuid->bt_uuid, vs_service_classes, "Unknown"));
+        proto_item_append_text(item, " (%s)", val_to_str_ext_const(uuid->bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
     } else {
         guint i_uuid;
         item = proto_tree_add_item(tree, hf_data_element_value_uuid, tvb, offset, size, ENC_NA);
@@ -4522,12 +4409,12 @@ proto_register_btsdp(void)
         },
         { &hf_data_element_value_uuid_16,
             { "Value: UUID",                     "btsdp.data_element.value.uuid_16",
-            FT_UINT16, BASE_HEX, VALS(vs_service_classes), 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_data_element_value_uuid_32,
             { "Value: UUID",                     "btsdp.data_element.value.uuid_32",
-            FT_UINT32, BASE_HEX, VALS(vs_service_classes), 0,
+            FT_UINT32, BASE_HEX | BASE_EXT_STRING, &bt_sig_uuid_vals_ext, 0,
             NULL, HFILL }
         },
         { &hf_data_element_value_uuid_128,

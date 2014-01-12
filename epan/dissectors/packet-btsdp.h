@@ -214,8 +214,6 @@ typedef struct _custom_uuid_t {
 
 extern const custom_uuid_t custom_uuid[];
 
-extern value_string_ext vs_service_classes_ext;
-
 extern service_info_t* btsdp_get_service_info(wmem_tree_key_t* key);
 
 #endif

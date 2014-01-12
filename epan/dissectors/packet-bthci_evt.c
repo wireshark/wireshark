@@ -48,6 +48,7 @@ static dissector_handle_t bthci_evt_handle;
 static dissector_handle_t btcommon_cod_handle;
 static dissector_handle_t btcommon_eir_handle;
 static dissector_handle_t btcommon_ad_handle;
+static dissector_handle_t btcommon_le_channel_map_handle;
 
 /* Initialize the protocol and registered fields */
 static int proto_bthci_evt = -1;
@@ -357,6 +358,7 @@ static gint ett_opcode = -1;
 static gint ett_lmp_subtree = -1;
 static gint ett_ptype_subtree = -1;
 static gint ett_le_state_subtree = -1;
+static gint ett_le_channel_map = -1;
 
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
@@ -492,6 +494,7 @@ static const value_string evt_lmp_vers_nr[] = {
     {0x04, "2.1 + EDR"},
     {0x05, "3.0 + HS"},
     {0x06, "4.0"},
+    {0x07, "4.1"},
     {0, NULL }
 };
 
@@ -506,6 +509,7 @@ static const value_string evt_hci_vers_nr[] = {
     {0x04, "2.1 + EDR"},
     {0x05, "3.0 + HS"},
     {0x06, "4.0"},
+    {0x07, "4.1"},
     {0, NULL }
 };
 
@@ -2880,11 +2884,18 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
 
         case 0x2015: /* LE Read Channel Map */
         {
+            proto_item  *sub_item;
+            proto_tree  *sub_tree;
+
             proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
-            proto_tree_add_item(tree, hf_bthci_evt_le_channel_map, tvb, offset, 1, ENC_NA);
+
+            sub_item = proto_tree_add_item(tree, hf_bthci_evt_le_channel_map, tvb, offset, 5, ENC_NA);
+            sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
+
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset(tvb, offset, 5, 5), pinfo, sub_tree);
             offset += 5;
             break;
         }
@@ -5149,7 +5160,8 @@ proto_register_bthci_evt(void)
         &ett_opcode,
         &ett_lmp_subtree,
         &ett_ptype_subtree,
-        &ett_le_state_subtree
+        &ett_le_state_subtree,
+        &ett_le_channel_map
     };
 
     /* Register the protocol name and description */
@@ -5181,6 +5193,7 @@ proto_reg_handoff_bthci_evt(void)
     btcommon_cod_handle = find_dissector("btcommon.cod");
     btcommon_eir_handle = find_dissector("btcommon.eir_ad.eir");
     btcommon_ad_handle  = find_dissector("btcommon.eir_ad.ad");
+    btcommon_le_channel_map_handle = find_dissector("btcommon.le_channel_map");
 }
 
 /*
