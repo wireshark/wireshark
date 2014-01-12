@@ -1822,30 +1822,26 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 dnode;
   guint8 snode;
   guint8 type;
-  proto_tree *llap_tree = NULL;
+  proto_tree *llap_tree;
   proto_item *ti;
   tvbuff_t   *new_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLAP");
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, ENC_NA);
-    llap_tree = proto_item_add_subtree(ti, ett_llap);
-  }
+  ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, ENC_NA);
+  llap_tree = proto_item_add_subtree(ti, ett_llap);
 
   dnode = tvb_get_guint8(tvb, 0);
-  if (tree)
-    proto_tree_add_uint(llap_tree, hf_llap_dst, tvb, 0, 1, dnode);
+  proto_tree_add_uint(llap_tree, hf_llap_dst, tvb, 0, 1, dnode);
+
   snode = tvb_get_guint8(tvb, 1);
-  if (tree)
-    proto_tree_add_uint(llap_tree, hf_llap_src, tvb, 1, 1, snode);
+  proto_tree_add_uint(llap_tree, hf_llap_src, tvb, 1, 1, snode);
+
   type = tvb_get_guint8(tvb, 2);
   col_add_str(pinfo->cinfo, COL_INFO,
     val_to_str_ext(type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
-
-  if (tree)
-    proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
+  proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
 
   new_tvb = tvb_new_subset_remaining(tvb, 3);
 
