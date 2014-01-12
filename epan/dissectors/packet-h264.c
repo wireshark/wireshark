@@ -1450,7 +1450,7 @@ dissect_h264_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
                 }
             }
             */
-            proto_tree_add_text(tree, tvb, offset, -1, "[Not decoded yet]");
+            proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "[Not decoded yet]");
             return -1;
         }
 
@@ -1786,7 +1786,7 @@ startover:
     case H264_SEQ_PAR_SET:  /* 7 Sequence parameter set*/
         offset = dissect_h264_seq_parameter_set_rbsp(h264_nal_tree, tvb, pinfo, offset);
         /* A bit ugly */
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if ((offset != -1) && (tvb_length_remaining(tvb, offset) > 0)) {
             /* In this case length = offset as we start from zero */
             proto_item_set_len(item, offset/*Length */);
             item = proto_tree_add_item(tree, hf_h264_nal_unit, tvb, offset, -1, ENC_NA);
