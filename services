@@ -9375,7 +9375,7 @@ plysrv-https     6771/tcp # PolyServe https [Mike_Spitzer] [Mike_Spitzer] 2005-0
 plysrv-https     6771/udp # PolyServe https [Mike_Spitzer] [Mike_Spitzer] 2005-08
 ntz-tracker      6777/tcp # netTsunami Tracker [Tomahawk_Holdings] [Sagara_Wijetunga] 2013-05-01
 ntz-p2p-storage  6778/tcp # netTsunami p2p storage system [Tomahawk_Holdings] [Sagara_Wijetunga] 2013-05-01
-bfd-lag          6784/udp # Bidirectional Forwarding Detection (BFD) on Link Aggregation Group (LAG) Interfaces [IESG] [IETF_Chair] 2012-11-08 [draft-mmm-bfd-on-lags-05]
+bfd-lag          6784/udp # Bidirectional Forwarding Detection (BFD) on Link Aggregation Group (LAG) Interfaces [IESG] [BFD_Chairs] 2012-11-08 2014-01-09 [RFC-ietf-bfd-on-lags-04]
 dgpf-exchg       6785/tcp # DGPF Individual Exchange [Thomas_Weise] [Thomas_Weise] 2006-04
 dgpf-exchg       6785/udp # DGPF Individual Exchange [Thomas_Weise] [Thomas_Weise] 2006-04
 smc-jmx          6786/tcp # Sun Java Web Console JMX [Bill_Edwards] [Bill_Edwards] 2005-08
@@ -9991,6 +9991,7 @@ fmtp             8500/tcp # Flight Message Transfer Protocol [Eivan_Cerasi] [Eiv
 fmtp             8500/udp # Flight Message Transfer Protocol [Eivan_Cerasi] [Eivan_Cerasi] 2003-12
 cmtp-mgt         8501/tcp # CYTEL Message Transfer Management
 cmtp-av          8501/udp # CYTEL Message Transfer Audio and Video [Frank_Jakel] [Frank_Jakel] 2011-04-29
+ftnmtp           8502/tcp # FTN Message Transfer Protocol [Yuri_Myakotin] [Yuri_Myakotin] 2014-01-07
 rtsp-alt         8554/tcp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 rtsp-alt         8554/udp # RTSP Alternate (see port 554) [Stephen_Casner_2] [Stephen_Casner_2]
 d-fence          8555/tcp # SYMAX D-FENCE [Thomas_Geisel] [Thomas_Geisel] 2003-01
