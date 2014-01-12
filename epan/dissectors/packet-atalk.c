@@ -1850,17 +1850,17 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   new_tvb = tvb_new_subset_remaining(tvb, 3);
 
   switch (type) {
-
-  case 0x01:
-    if (proto_is_protocol_enabled(find_protocol_by_id(proto_ddp))) {
-      pinfo->current_proto = "DDP";
-      dissect_ddp_short(new_tvb, pinfo, dnode, snode, tree);
-      return;
-    }
-
-  case 0x02:
-    if (call_dissector(ddp_handle, new_tvb, pinfo, tree))
-      return;
+    case 0x01:
+      if (proto_is_protocol_enabled(find_protocol_by_id(proto_ddp))) {
+        pinfo->current_proto = "DDP";
+        dissect_ddp_short(new_tvb, pinfo, dnode, snode, tree);
+        return;
+      }
+      break;
+    case 0x02:
+      if (call_dissector(ddp_handle, new_tvb, pinfo, tree))
+        return;
+      break;
   }
   call_dissector(data_handle,new_tvb, pinfo, tree);
 }
