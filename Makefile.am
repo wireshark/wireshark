@@ -1059,7 +1059,7 @@ if HAVE_DUMPCAP_GROUP
 	-chgrp $(DUMPCAP_GROUP) $(DESTDIR)$(bindir)/dumpcap
 endif
 if SETCAP_INSTALL
-	-$(SETCAP) cap_net_raw,cap_net_admin+eip $(DESTDIR)$(bindir)/dumpcap
+	-$(SETCAP) cap_net_raw,cap_net_admin+ep $(DESTDIR)$(bindir)/dumpcap
 	-chmod o-rws $(DESTDIR)$(bindir)/dumpcap
 else
 if SETUID_INSTALL
