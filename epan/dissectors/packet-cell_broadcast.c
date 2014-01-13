@@ -41,6 +41,8 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
 
+#include "packet-cell_broadcast.h"
+
 #define GSM_CBS_PAGE_SIZE 88
 
 const value_string message_id_values[] = {
@@ -167,7 +169,7 @@ static void gsm_cbs_message_reassembly_init(void)
   reassembled_table_init(&gsm_cbs_message_table);
 }
 
-guint16 dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+guint dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
    guint16 serial_number = tvb_get_ntohs(tvb, offset) ;
    proto_item *item;
@@ -179,11 +181,11 @@ guint16 dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offse
    proto_tree_add_item(subtree, hf_gsm_cbs_geographic_scope, tvb, offset, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(subtree, hf_gsm_cbs_message_code, tvb, offset, 2, ENC_BIG_ENDIAN);
    proto_tree_add_item(subtree, hf_gsm_cbs_update_number, tvb, offset, 2, ENC_BIG_ENDIAN);
-   offset +=2;
+   offset += 2;
    return offset;
 }
 
-guint16 dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
+guint dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
    guint16 msg_id;
    const char *msg_id_string = NULL;
@@ -246,10 +248,11 @@ guint16 dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 
       }
    }
    proto_tree_add_uint_format_value(tree, hf_gsm_cbs_message_identifier, tvb, offset, 2, msg_id, "%s (%d)", msg_id_string, msg_id);
-   return 2;
+   offset += 2;
+   return offset;
 }
 
-tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 offset )
+tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset )
 {
    tvbuff_t * tvb_out = NULL;
    guint8		out_len;
@@ -327,9 +330,9 @@ dissect_gsm_cell_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    cbs_page_tree = proto_item_add_subtree(cbs_page_item, ett_gsm_cbs_page);
 
    serial_number = tvb_get_ntohs(tvb, offset);
-   offset += dissect_cbs_serial_number(tvb, cbs_page_tree, offset);
+   offset = dissect_cbs_serial_number(tvb, cbs_page_tree, offset);
    message_id = tvb_get_ntohs(tvb, offset);
-   offset += dissect_cbs_message_identifier(tvb, cbs_page_tree, offset);
+   offset = dissect_cbs_message_identifier(tvb, cbs_page_tree, offset);
    sms_encoding = dissect_cbs_data_coding_scheme(tvb, pinfo, cbs_page_tree, offset++);
    total_pages = tvb_get_guint8(tvb, offset);
    current_page = (total_pages & 0xF0) >> 4;
@@ -387,7 +390,7 @@ void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, prot
    guint32       len;
    proto_item    *cbs_item = NULL, *cbs_item2 = NULL;
    proto_tree    *cbs_tree = NULL, *cbs_subtree = NULL;
-   guint16  msg_len;
+   guint         msg_len;
    tvbuff_t * cbs_msg_tvb = NULL;
 
    len = tvb_length(tvb);
