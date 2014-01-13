@@ -56,6 +56,8 @@
 #include <epan/wmem/wmem.h>
 
 #include "packet-csn1.h"
+#include "packet-gsm_a_rr.h"
+
 #include "packet-gsm_rlcmac.h"
 
 void proto_register_gsm_rlcmac(void);

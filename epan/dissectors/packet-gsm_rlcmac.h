@@ -5241,8 +5241,6 @@ typedef struct
 
 } EnhancedMeasurementReport_t;
 
-extern gint f_k(gint k, gint *w, gint range);
-
 extern const guint8 gsm_rlcmac_gprs_cs_to_block_length[];
 extern const guint8 gsm_rlcmac_egprs_header_type_to_dl_header_block_length[];
 extern const guint8 gsm_rlcmac_egprs_header_type_to_ul_header_block_length[];

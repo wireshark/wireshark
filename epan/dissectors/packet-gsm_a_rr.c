@@ -1,4 +1,4 @@
- /* packet-gsm_a_rr.c
+/* packet-gsm_a_rr.c
  * Routines for GSM A Interface (actually A-bis really) RR dissection - A.K.A. GSM layer 3 Radio Resource Protocol
  *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>
@@ -58,6 +58,8 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-ppp.h"
+
+#include "packet-gsm_a_rr.h"
 
 void proto_register_gsm_a_rr(void);
 void proto_reg_handoff_gsm_a_rr(void);
@@ -1056,7 +1058,7 @@ static gint greatest_power_of_2_lesser_or_equal_to(gint idx)
     return j;
 }
 
-static gint f_k(gint k, gint *w, gint range)
+gint f_k(gint k, gint *w, gint range)
 {
     gint idx, n, j;
 
