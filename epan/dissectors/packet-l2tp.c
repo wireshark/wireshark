@@ -2738,7 +2738,7 @@ dissect_l2tp_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     return;
 }
 
-void init_l2tp_dissection(void)
+static void init_l2tp_dissection(void)
 {
     GSList *iterator = list_heads;
 
