@@ -228,32 +228,6 @@ geoip_db_pref_init(module_t *nameres)
             geoip_db_paths_uat);
 }
 
-void
-geoip_db_init(void) {
-    guint i;
-
-    geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
-
-    for (i = 0; i < num_geoip_db_paths; i++) {
-        if (geoip_db_paths[i].path) {
-            geoip_dat_scan_dir(geoip_db_paths[i].path);
-        }
-    }
-
-    /* add fake databases for latitude and longitude (using "City" in reality) */
-    {
-        GeoIP *gi_lat;
-        GeoIP *gi_lon;
-
-        gi_lat = (GeoIP *)g_malloc(sizeof (GeoIP));
-        gi_lat->databaseType = WS_LAT_FAKE_EDITION;
-        g_array_append_val(geoip_dat_arr, gi_lat);
-        gi_lon = (GeoIP *)g_malloc(sizeof (GeoIP));
-        gi_lon->databaseType = WS_LON_FAKE_EDITION;
-        g_array_append_val(geoip_dat_arr, gi_lon);
-    }
-}
-
 guint
 geoip_db_num_dbs(void) {
     return geoip_dat_arr->len;
@@ -569,9 +543,6 @@ geoip_db_get_paths(void) {
 }
 
 #else /* HAVE_GEOIP */
-void
-geoip_db_init(void) {}
-
 guint
 geoip_db_num_dbs(void) {
     return 0;
