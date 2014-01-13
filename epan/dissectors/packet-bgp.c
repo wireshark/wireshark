@@ -1481,7 +1481,7 @@ decode_prefix6(proto_tree *tree, int hf_addr, tvbuff_t *tvb, gint offset,
     return(1 + length);
 }
 
-static char*
+static const char*
 decode_bgp_rd(tvbuff_t *tvb, gint offset)
 {
     guint16 rd_type;
@@ -1508,7 +1508,7 @@ decode_bgp_rd(tvbuff_t *tvb, gint offset)
             break;
     } /* switch (rd_type) */
 
-    return (char*)wmem_strbuf_get_str(strbuf);
+    return wmem_strbuf_get_str(strbuf);
 }
 
 static int
