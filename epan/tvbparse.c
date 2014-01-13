@@ -755,6 +755,7 @@ tvbparse_wanted_t* tvbparse_some(const int id,
 }
 
 
+#if 0
 static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     tvbparse_elem_t* new_elem = NULL;
     int len = 0;
@@ -873,7 +874,6 @@ tvbparse_wanted_t* tvbparse_end_of_buffer(const int id,
 }
 
 
-#if 0
 /* these extract binary values */
 
 static int cond_ft(tvbparse_t* tt, int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
