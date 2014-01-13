@@ -30,8 +30,6 @@
 #include "opcua_simpletypes.h"
 #include "opcua_transport_layer.h"
 
-void dispatchService(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int ServiceId);
-
 static int hf_opcua_transport_type = -1;
 static int hf_opcua_transport_chunk = -1;
 static int hf_opcua_transport_size = -1;
