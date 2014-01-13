@@ -39,6 +39,8 @@
 
 #include "packet-gmr1_common.h"
 
+#include "packet-gmr1_rr.h"
+
 void proto_register_gmr1_common(void);
 
 /* GMR-1 Common proto */
@@ -243,10 +245,6 @@ elem_fcn gmr1_ie_common_func[NUM_GMR1_IE_COMMON] = {
 /* ------------------------------------------------------------------------ */
 /* Messages and IEs parsing                                                 */
 /* ------------------------------------------------------------------------ */
-
-extern void
-gmr1_get_msg_rr_params(guint8 oct, int dcch, const gchar **msg_str,
-                       int *ett_tree, int *hf_idx, gmr1_msg_func_t *msg_func_p);
 
 void
 gmr1_get_msg_params(gmr1_pd_e pd, guint8 oct, const gchar **msg_str,

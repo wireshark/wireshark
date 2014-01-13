@@ -40,6 +40,8 @@
 #include "packet-gmr1_common.h"
 #include "packet-gsm_sms.h"
 
+#include "packet-gmr1_rr.h"
+
 void proto_register_gmr1_rr(void);
 void proto_reg_handoff_gmr1_rr(void);
 
