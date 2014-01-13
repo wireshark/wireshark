@@ -386,9 +386,10 @@ version, with limitations not present in a "full" version; it
 <br />
 
 The license under which Wireshark is issued is <a
-href="http://www.gnu.org/licenses/gpl.html">the GNU General Public
-License version 2</a>.  See <a href="http://www.gnu.org/licenses/gpl-faq.html">the
-GNU GPL FAQ</a> for some more information.
+href="http://www.gnu.org/licenses/gpl-2.0.html">the GNU General Public
+License version 2</a>.  See <a
+href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html">the GNU
+GPL FAQ</a> for some more information.
 """)
 
 question("But I just paid someone on eBay for a copy of Wireshark! Did I get ripped off?")
@@ -422,20 +423,20 @@ question("Can I use Wireshark as part of my commercial product?",
 
 answer("""
 As noted, Wireshark is licensed under <a
-href="http://www.gnu.org/licenses/gpl.html">the GNU General Public
-License</a>.  The GPL imposes conditions on your use of GPL'ed code in
-your own products; you cannot, for example, make a "derived work" from
-Wireshark, by making modifications to it, and then sell the resulting
-derived work and not allow recipients to give away the resulting work.
-You must also make the changes you've made to the Wireshark source
-available to all recipients of your modified version; those changes
-must also be licensed under the terms of the GPL.  See the <a
-href="http://www.gnu.org/licenses/gpl-faq.html">GPL FAQ</a> for more
-details; in particular, note the answer to <a
-href="http://www.gnu.org/licenses/gpl-faq.html#GPLCommercially">the
+href="http://www.gnu.org/licenses/gpl-2.0.html">the GNU General Public
+License, version 2</a>. The GPL imposes conditions on your use of GPL'ed
+code in your own products; you cannot, for example, make a "derived
+work" from Wireshark, by making modifications to it, and then sell the
+resulting derived work and not allow recipients to give away the
+resulting work. You must also make the changes you've made to the
+Wireshark source available to all recipients of your modified version;
+those changes must also be licensed under the terms of the GPL. See the
+<a href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html">GPL
+FAQ</a> for more details; in particular, note the answer to <a
+href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#GPLCommercially">the
 question about modifying a GPLed program and selling it
 commercially</a>, and <a
-href="http://www.gnu.org/licenses/gpl-faq.html#LinkingWithGPL">the
+href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#LinkingWithGPL">the
 question about linking GPLed code with other code to make a proprietary
 program</a>.
 
@@ -443,7 +444,7 @@ program</a>.
 
 You can combine a GPLed program such as Wireshark and a commercial
 program as long as they communicate "at arm's length", as per <a
-href="http://www.gnu.org/licenses/gpl-faq.html#GPLInProprietarySystem">this
+href="http://www.gnu.org/licenses/old-licenses/gpl-2.0-faq.html#GPLInProprietarySystem">this
 item in the GPL FAQ</a>.
 
 <br />
