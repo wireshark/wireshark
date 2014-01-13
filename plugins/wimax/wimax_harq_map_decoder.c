@@ -33,10 +33,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
-
-extern guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset);
-extern guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, guint offset, guint nibble_offset);
-
+#include "wimax_compact_dlmap_ie_decoder.h"
+#include "wimax_compact_ulmap_ie_decoder.h"
 
 extern gint proto_wimax;
 

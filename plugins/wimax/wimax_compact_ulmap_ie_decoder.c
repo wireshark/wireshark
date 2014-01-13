@@ -33,6 +33,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include "crc.h"
+#include "wimax_compact_ulmap_ie_decoder.h"
 
 /* MASKs */
 #define MSB_NIBBLE_MASK      0xF0

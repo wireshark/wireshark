@@ -79,6 +79,8 @@ NONGENERATED_C_FILES = \
 CLEAN_HEADER_FILES = \
 	crc.h		\
 	wimax_bits.h	\
+	wimax_compact_dlmap_ie_decoder.h	\
+	wimax_compact_ulmap_ie_decoder.h	\
 	wimax_mac.h	\
 	wimax_tlv.h	\
 	wimax_utils.h
