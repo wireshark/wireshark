@@ -61,6 +61,26 @@ dissect_pn_uint8(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     return offset + 1;
 }
 
+/* dissect a 16 bit unsigned integer; return the item through a pointer as well */
+int
+dissect_pn_uint16_ret_item(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+                       proto_tree *tree, int hfindex, guint16 *pdata, proto_item ** new_item)
+{
+    guint16     data;
+    proto_item *item = NULL;
+
+    data = tvb_get_ntohs (tvb, offset);
+
+    if (tree) {
+        item = proto_tree_add_uint(tree, hfindex, tvb, offset, 2, data);
+    }
+    if (pdata)
+        *pdata = data;
+    if (new_item)
+        *new_item = item;
+    return offset + 2;
+}
+
 /* dissect a 16 bit unsigned integer */
 int
 dissect_pn_uint16(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
