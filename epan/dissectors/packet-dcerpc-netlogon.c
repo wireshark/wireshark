@@ -2818,9 +2818,6 @@ netlogon_dissect_USER_PRIVATE_INFO(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int
-lsarpc_dissect_sec_desc_buf(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep);
-
 /*
  * IDL typedef struct {
  * IDL   UNICODESTRING UserName;
@@ -5752,9 +5749,6 @@ dissect_ndr_ulongs_as_counted_string(tvbuff_t *tvb, int offset,
                                     "Buffer", hf_index,NULL,NULL);
     return offset;
 }
-
-extern int
-lsarpc_dissect_struct_dom_sid2(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di, guint8 *drep _U_, int unused1 _U_, int unused2 _U_);
 
 static int
 DomainInfo_sid_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info *di, guint8 *drep _U_)
