@@ -2948,7 +2948,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
      told to print. */
   ret = process_specified_packets(cf, &print_args->range, "Writing CSV",
                                   "selected packets", TRUE,
-                                  write_csv_packet, fh);
+                                  write_csv_packet, &callback_args);
 
   epan_dissect_cleanup(&callback_args.edt);
 
