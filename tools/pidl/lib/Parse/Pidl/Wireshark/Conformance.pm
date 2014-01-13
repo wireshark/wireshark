@@ -89,6 +89,14 @@ to write a function manually. This can be used to remove the function
 for only one level for a particular element rather than all the functions and 
 ett/hf variables for a particular element as the NOEMIT command does.
 
+=item I<CODE START>/I<CODE END>
+Begin and end a section of code to be put directly into the generated
+source file for the dissector.
+
+=item I<HEADER START>/I<HEADER END>
+Begin and end a section of code to be put directly into the generated
+header file for the dissector.
+
 =back
 
 =head1 EXAMPLE
@@ -284,7 +292,7 @@ sub handle_manual($$$)
 		return;
 	}
 
-    $data->{manual}->{$fn} = 1;
+	$data->{manual}->{$fn} = 1;
 }
 
 sub handle_protocol($$$$$$)
