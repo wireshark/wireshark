@@ -1880,8 +1880,6 @@ trans_param_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gui
 
     SHORT_DATA_CHECK(len, 2);
 
-    email_addr = FALSE;
-
     oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_ansi_637_trans_addr_param_digit_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
