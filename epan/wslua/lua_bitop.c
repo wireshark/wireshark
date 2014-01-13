@@ -32,6 +32,8 @@
 #include <lua.h>
 #include <lauxlib.h>
 
+#include "lua_bitop.h"
+
 #ifdef _MSC_VER
 /* MSVC is stuck in the last century and doesn't have C99's stdint.h. */
 typedef __int32 int32_t;

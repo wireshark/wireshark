@@ -79,6 +79,7 @@ MAINTAINERCLEANFILES = \
 
 EXTRA_DIST = \
 	declare_wslua.h		\
+	lua_bitop.h		\
 	register_wslua.c	\
 	taps			\
 	make-reg.pl		\
