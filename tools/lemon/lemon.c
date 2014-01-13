@@ -4636,8 +4636,8 @@ struct symbol **Symbol_arrayof(void)
 /* Compare two configurations */
 int Configcmp(const char *_a,const char *_b)
 {
-  const struct config *a = (struct config *) _a;
-  const struct config *b = (struct config *) _b;
+  const struct config *a = (const struct config *) _a;
+  const struct config *b = (const struct config *) _b;
   int x;
   x = a->rp->index - b->rp->index;
   if( x==0 ) x = a->dot - b->dot;
