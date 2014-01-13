@@ -1056,7 +1056,7 @@ static gint greatest_power_of_2_lesser_or_equal_to(gint idx)
     return j;
 }
 
-gint f_k(gint k, gint *w, gint range)
+static gint f_k(gint k, gint *w, gint range)
 {
     gint idx, n, j;
 
