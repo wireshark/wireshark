@@ -1019,6 +1019,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ospf.c
 	dissectors/packet-ouch.c
 	dissectors/packet-p_mul.c
+	dissectors/packet-pathport.c
 	dissectors/packet-packetbb.c
 	dissectors/packet-packetlogger.c
 	dissectors/packet-pagp.c

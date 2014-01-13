@@ -940,6 +940,7 @@ DISSECTOR_SRC = \
 	packet-ospf.c		\
 	packet-ouch.c		\
 	packet-p_mul.c		\
+	packet-pathport.c	\
 	packet-packetbb.c	\
 	packet-packetlogger.c	\
 	packet-pagp.c		\
