@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V11.2.0 (2013-03)
+-- 3GPP TS 36.355 V11.5.0 (2013-12)
 -- $Id$
 --
 
@@ -696,7 +696,9 @@ OTDOA-ProvideCapabilities ::= SEQUENCE {
 	otdoa-Mode		BIT STRING { 	ue-assisted (0) } (SIZE (1..8)),
 	...,
 	supportedBandListEUTRA 		SEQUENCE (SIZE (1..maxBands)) OF SupportedBandEUTRA		OPTIONAL,
-	supportedBandListEUTRA-v9a0	SEQUENCE (SIZE (1..maxBands)) OF SupportedBandEUTRA-v9a0	OPTIONAL
+	supportedBandListEUTRA-v9a0	SEQUENCE (SIZE (1..maxBands)) OF SupportedBandEUTRA-v9a0
+																						OPTIONAL,
+	interFreqRSTDmeasurement-r10	ENUMERATED { supported }							OPTIONAL
 }
 
 maxBands INTEGER ::= 64
@@ -1472,9 +1474,9 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 
 
 GNSS-ReferenceTimeReq ::= SEQUENCE {
-	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,			
-	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
-	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
+    	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,			
+    	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
+    	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
 	...
 }
 
@@ -1531,15 +1533,15 @@ SatListRelatedDataList ::= SEQUENCE (SIZE (1..64)) OF SatListRelatedDataElement
 
 SatListRelatedDataElement ::= SEQUENCE {
 	svID 				SV-ID,
-	iod 				BIT STRING (SIZE(11)),
-	clockModelID		INTEGER (1..8)			OPTIONAL,
-orbitModelID		INTEGER (1..8)			OPTIONAL,			
-	...
+    	iod 				BIT STRING (SIZE(11)),
+    	clockModelID		INTEGER (1..8)			OPTIONAL,
+     orbitModelID		INTEGER (1..8)			OPTIONAL,			
+    	...
 }
 
 ReqNavListInfo ::=	SEQUENCE { 
 	svReqList				BIT STRING (SIZE (64)),
-	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
+    	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
 	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,	
 	addNavparamReq			BOOLEAN				OPTIONAL,	-- Cond orbitModelID-2
 	...
@@ -1735,7 +1737,7 @@ GNSS-SupportElement ::= SEQUENCE {
 }
 
 AssistanceDataSupportList ::= SEQUENCE {
-	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
+    	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
 	gnss-GenericAssistanceDataSupport	GNSS-GenericAssistanceDataSupport,
 	...
 }
