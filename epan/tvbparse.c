@@ -755,7 +755,6 @@ tvbparse_wanted_t* tvbparse_some(const int id,
 }
 
 
-#if 0
 static int cond_until(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     tvbparse_elem_t* new_elem = NULL;
     int len = 0;
@@ -829,6 +828,7 @@ tvbparse_wanted_t* tvbparse_until(const int id,
     return w;
 }
 
+#if 0
 static int cond_handle(tvbparse_t* tt, const int offset, const tvbparse_wanted_t * wanted, tvbparse_elem_t** tok) {
     tvbparse_wanted_t* w = *(wanted->control.handle);
     int len = w->condition(tt, offset, w,  tok);
