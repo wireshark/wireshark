@@ -2904,7 +2904,7 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 #define CBA_MRSH_VERSION_SRT_WITHOUT_CONSID     0x11
 
 
-int
+static int
 dissect_CBA_Connection_Data(tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, cba_ldev_t *cons_ldev, cba_frame_t *frame)
 {

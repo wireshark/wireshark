@@ -70,11 +70,4 @@ cba_ldev_find(packet_info *pinfo, const void *ip, e_uuid_t *ipid);
 extern cba_ldev_t *
 cba_ldev_add(packet_info *pinfo, cba_pdev_t *pdev, const char *name);
 
-
-#if 0
-int
-dissect_CBA_Connection_Data(tvbuff_t *tvb, packet_info *pinfo,
-                            proto_tree *tree, cba_ldev_t *ldev, cba_frame_t *frame);
-#endif
-
 #endif /* packet-dcerpc-dcom-cba-acco.h */
