@@ -59,6 +59,7 @@ const value_string afn_vals[] = {
     { AFNUM_EIGRP_IPV4, "EIGRP IPv4 Service Family" },
     { AFNUM_EIGRP_IPV6, "EIGRP IPv6 Service Family" },
     { AFNUM_LCAF, "LISP Canonical Address Format (LCAF)" },
+    { AFNUM_LINK_STATE, "Link State and TE information" },
     { 65535, "Reserved" },
     { 0, NULL },
 };
