@@ -46,6 +46,8 @@
 #include "color.h"
 #include "color_filters.h"
 
+#include "file-file.h"
+
 void proto_register_file(void);
 void proto_reg_handoff_file(void);
 
