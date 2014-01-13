@@ -33,8 +33,10 @@
  * @param tvb the tv buffer of the current data
  * @param tree the tree to append this item to
  * @param offset the offset in the tvb
+ *
+ * @return the offset after the Message Identifier
  */
-void dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
+guint dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 
 /**
@@ -43,8 +45,10 @@ void dissect_cbs_message_identifier(tvbuff_t *tvb, proto_tree *tree, guint16 off
  * @param tvb the tv buffer of the current data
  * @param tree the tree to append this item to
  * @param offset the offset in the tvb
+ *
+ * @return the offset after the Serial Number
  */
-void dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
+guint dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint offset);
 
 
 /**
@@ -54,11 +58,11 @@ void dissect_cbs_serial_number(tvbuff_t *tvb, proto_tree *tree, guint16 offset);
  * @param pinfo the packet info of the current data
  * @param tree the tree to append this item to
  */
-guint16 dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+void dissect_umts_cell_broadcast_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /**
  * Dissects CB Data
  */
-tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 offset);
+tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint offset);
 
 #endif /* PACKET_CELL_BROADCAST_H */
