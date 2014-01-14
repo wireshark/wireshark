@@ -128,7 +128,7 @@ int display_unicode_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_i
 #define	MAX_UNICODE_STR_LEN	256
 
 int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_index,
-				 char **data)
+				 const char **data)
 {
 	int compr_len;
 	const guchar *str = NULL;
@@ -138,7 +138,7 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, in
 	proto_tree_add_string(tree, hf_index, tvb, offset, compr_len, str);
 
 	if (data)
-		*data = (char*) str;
+		*data = str;
 
 	return offset + compr_len;
 }

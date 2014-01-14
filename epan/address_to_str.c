@@ -117,7 +117,7 @@ tvb_ip_to_str(tvbuff_t *tvb, const gint offset)
 /* XXX FIXME
 remove this one later when every call has been converted to ep_address_to_str()
 */
-gchar *
+const gchar *
 ip6_to_str(const struct e_in6_addr *ad) {
     gchar *str;
 
@@ -127,7 +127,7 @@ ip6_to_str(const struct e_in6_addr *ad) {
 }
 
 #define IPV6_LENGTH 16
-gchar *
+const gchar *
 tvb_ip6_to_str(tvbuff_t *tvb, const gint offset)
 {
     gchar *buf;

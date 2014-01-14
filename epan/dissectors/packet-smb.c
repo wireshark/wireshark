@@ -993,17 +993,17 @@ const gchar *tree_ip_str(packet_info *pinfo, guint16 cmd) {
 		if (	cmd == SMB_COM_READ_ANDX ||
 			cmd == SMB_COM_READ ||
 			cmd == SMB2_COM_READ) {
-			buf = (gchar *)ip_to_str((const guint8 *)pinfo->src.data);
+			buf = ip_to_str((const guint8 *)pinfo->src.data);
 		} else {
-			buf = (gchar *)ip_to_str((const guint8 *)pinfo->dst.data);
+			buf = ip_to_str((const guint8 *)pinfo->dst.data);
 		}
 	} else {
 		if (	cmd == SMB_COM_READ_ANDX ||
 			cmd == SMB_COM_READ ||
 			cmd == SMB2_COM_READ) {
-			buf = (gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->src.data);
+			buf = ip6_to_str((const struct e_in6_addr *)pinfo->src.data);
 		} else {
-			buf = (gchar *)ip6_to_str((const struct e_in6_addr *)pinfo->dst.data);
+			buf = ip6_to_str((const struct e_in6_addr *)pinfo->dst.data);
 		}
 	}
 
@@ -7227,7 +7227,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			/* If we have found a uid->acct_name mapping, store it */
 			if (!pinfo->fd->flags.visited && si->sip) {
 				int idx = 0;
-				if ((ntlmssph = (ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx + 1 )) != NULL) {
+				if ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx + 1 )) != NULL) {
 					if (ntlmssph && (ntlmssph->type == 3)) {
 						smb_uid_t *smb_uid;
 
