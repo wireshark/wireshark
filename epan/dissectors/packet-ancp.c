@@ -528,7 +528,7 @@ static int
 ancp_stats_tree_packet(stats_tree* st, packet_info* pinfo _U_,
                        epan_dissect_t* edt _U_ , const void* p)
 {
-    struct ancp_tap_t *pi = (struct ancp_tap_t *) p;
+    const struct ancp_tap_t *pi = (const struct ancp_tap_t *) p;
 
     tick_stat_node(st, st_str_packets, 0, FALSE);
     stats_tree_tick_pivot(st, st_node_packet_types,
