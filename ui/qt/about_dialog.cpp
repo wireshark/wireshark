@@ -69,9 +69,9 @@ void AboutDialog::about_folders_row(const char *name, const char *dir, const cha
 
 }
 
-void plugins_add_description(const char *name, const char *version,
-                        const char *types, const char *filename,
-                        void *user_data )
+static void plugins_add_description(const char *name, const char *version,
+                                    const char *types, const char *filename,
+                                    void *user_data )
 {
 
     QTableWidget *tbPlugins = (QTableWidget *)user_data;
