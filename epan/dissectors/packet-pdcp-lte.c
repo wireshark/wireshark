@@ -1350,8 +1350,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
                                   enum pdcp_plane plane, gboolean will_be_deciphered,
                                   gboolean *deciphered)
 {
-    guint8* decrypted_data;
-    gint payload_length;
+    guint8* decrypted_data = NULL;
+    gint payload_length = 0;
     tvbuff_t *decrypted_tvb;
 
     /* Nothing to do if NULL ciphering */
