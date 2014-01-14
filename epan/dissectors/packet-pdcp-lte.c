@@ -964,13 +964,13 @@ static gpointer get_ueid_frame_hash_key(guint16 ueid, guint32 frameNumber,
 
 static gint pdcp_lte_ueid_frame_hash_equal(gconstpointer v, gconstpointer v2)
 {
-    ueid_frame_t *ueid_frame_1 = (ueid_frame_t *)v;
-    ueid_frame_t *ueid_frame_2 = (ueid_frame_t *)v2;
+    const ueid_frame_t *ueid_frame_1 = (const ueid_frame_t *)v;
+    const ueid_frame_t *ueid_frame_2 = (const ueid_frame_t *)v2;
     return ((ueid_frame_1->framenum == ueid_frame_2->framenum) && (ueid_frame_1->ueid == ueid_frame_2->ueid));
 }
 static guint pdcp_lte_ueid_frame_hash_func(gconstpointer v)
 {
-    ueid_frame_t *ueid_frame = (ueid_frame_t *)v;
+    const ueid_frame_t *ueid_frame = (const ueid_frame_t *)v;
     return ueid_frame->framenum + 100*ueid_frame->ueid;
 }
 static GHashTable *pdcp_security_result_hash = NULL;
