@@ -145,7 +145,7 @@ dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, 
  * *result will be the decoded value
  */
 static int
-dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, const char *label )
+dissect_bencoded_int(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
 {
   guint start_offset;
 
@@ -174,7 +174,7 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   proto_item *ti;
   proto_tree *sub_tree;
   guint       one_byte;
-  char       *result;
+  const char *result;
 
   ti = proto_tree_add_none_format( tree, hf_bencoded_list, tvb, offset, 0, "%s: list...", label );
   sub_tree = proto_item_add_subtree( ti, ett_bencoded_list);
@@ -210,11 +210,11 @@ dissect_bencoded_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 
 /* dissect a bt dht error from tvb, start at offset. it's like "li201e9:error msge" */
 static int
-dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, const char *label )
+dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;
-  char       *error_no, *error_msg;
+  const char *error_no, *error_msg;
 
   error_no  = NULL;
   error_msg = NULL;
@@ -238,7 +238,7 @@ dissect_bt_dht_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 
 /* dissect a bt dht values list from tvb, start at offset. it's like "l6:....6:....e" */
 static int
-dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, const char *label )
+dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;
@@ -294,7 +294,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
 }
 
 static int
-dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, char **result, const char *label )
+dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, const char **result, const char *label )
 {
   proto_item *ti;
   proto_tree *sub_tree;
