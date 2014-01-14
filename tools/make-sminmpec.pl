@@ -20,12 +20,12 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 use strict;
 
 my $in = shift;
 
-$in = "http://www.iana.org/assignments/enterprise-numbers" unless(defined $in);
+$in = "http://www.iana.org/assignments/enterprise-numbers/enterprise-numbers" unless(defined $in);
 
 my @in_lines;
 
@@ -127,9 +127,7 @@ print OUT <<"_SMINMPEC";
  *       with "(Unknown)" as the name so that direct (indexed) access
  *       to the list is possible.
  */
-#ifdef HAVE_CONFIG_H
-# include "config.h"
-#endif
+#include "config.h"
 
 #include <glib.h>
 
