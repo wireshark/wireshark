@@ -106,15 +106,15 @@ UAT_CSTRING_CB_DEF(pres_users, oid, pres_user_t)
 static guint
 pres_ctx_oid_hash(gconstpointer k)
 {
-	pres_ctx_oid_t *pco=(pres_ctx_oid_t *)k;
+	const pres_ctx_oid_t *pco=(const pres_ctx_oid_t *)k;
 	return pco->ctx_id;
 }
 
 static gint
 pres_ctx_oid_equal(gconstpointer k1, gconstpointer k2)
 {
-	pres_ctx_oid_t *pco1=(pres_ctx_oid_t *)k1;
-	pres_ctx_oid_t *pco2=(pres_ctx_oid_t *)k2;
+	const pres_ctx_oid_t *pco1=(const pres_ctx_oid_t *)k1;
+	const pres_ctx_oid_t *pco2=(const pres_ctx_oid_t *)k2;
 	return (pco1->ctx_id==pco2->ctx_id && pco1->index==pco2->index);
 }
 
