@@ -41,7 +41,7 @@
 #endif /* HAVE_LIBGCRYPT */
 
 /* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available */
-/* #define HAVE_SNOW3G */
+#define HAVE_SNOW3G
 #ifdef HAVE_SNOW3G
 #include <epan/snow3g_algorithm.h>
 #endif
@@ -1453,7 +1453,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     if (pdu_security_settings->ciphering == eea1) {
         /* Extract the encrypted data into a buffer */
         payload_length = tvb_length_remaining(tvb, *offset);
-        decrypted_data = (guint8 *)g_malloc0(payload_length);
+        decrypted_data = (guint8 *)g_malloc0(payload_length+4);
         tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
 
         /* Do the algorithm */
@@ -1506,7 +1506,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             {
                 guint8  *mac;
                 gint message_length = tvb_length_remaining(tvb, offset) - 4;
-                guint8 *message_data = (guint8 *)g_malloc0(message_length+1);
+                guint8 *message_data = (guint8 *)g_malloc0(message_length+5);
                 message_data[0] = header;
                 tvb_memcpy(tvb, message_data+1, offset, message_length);
 
