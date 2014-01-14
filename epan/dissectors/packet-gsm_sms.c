@@ -2491,7 +2491,6 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     fragment_head     *fd_sm = NULL;
     guint8             fill_bits;
     guint32            total_sms_len, len_sms, length_ucs2, i;
-    proto_item        *ucs2_item;
     gchar             *utf8_text = NULL;
     gchar              save_byte = 0, save_byte2 = 0;
 
@@ -2665,9 +2664,8 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                 if (!(reassembled && pinfo->fd->num == reassembled_in))
                 {
                     /* Show unreassembled SMS */
-                    ucs2_item = proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb,
-                                                    0, rep_len, ENC_UCS_2|ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_GENERATED(ucs2_item);
+                    proto_tree_add_item(subtree, hf_gsm_sms_text, sm_tvb,
+                                        0, rep_len, ENC_UCS_2|ENC_BIG_ENDIAN);
                 } else {
                     /*  Show reassembled SMS.  We show each fragment separately
                      *  so that the text doesn't get truncated when we add it to
@@ -2695,10 +2693,9 @@ dis_field_ud(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
                         } else
                             length_ucs2 = len_sms % MAX_SMS_FRAG_LEN;
 
-                        ucs2_item = proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
-                                                          i * MAX_SMS_FRAG_LEN, length_ucs2,
-                                                          &utf8_text[i * MAX_SMS_FRAG_LEN]);
-                        PROTO_ITEM_SET_GENERATED(ucs2_item);
+                        proto_tree_add_string(subtree, hf_gsm_sms_text, sm_tvb,
+                                              i * MAX_SMS_FRAG_LEN, length_ucs2,
+                                              &utf8_text[i * MAX_SMS_FRAG_LEN]);
 
                         /* return the save byte to utf8 buffer*/
                         if(i * MAX_SMS_FRAG_LEN < len_sms) {
