@@ -1631,7 +1631,7 @@ telnet_sub_option(packet_info *pinfo, proto_tree *option_tree, proto_item *optio
 }
 
 static void
-telnet_suboption_name(proto_tree *tree, tvbuff_t *tvb, int* offset, gchar** optname,
+telnet_suboption_name(proto_tree *tree, tvbuff_t *tvb, int* offset, const gchar** optname,
                       proto_tree **opt_tree, proto_item **opt_item, const char *type)
 {
   guint8      opt_byte;
@@ -1659,7 +1659,7 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
 {
   int    offset = start_offset;
   guchar optcode;
-  gchar* optname;
+  const gchar* optname;
   proto_item *cmd_item, *subopt_item = NULL;
   proto_tree *cmd_tree, *subopt_tree = NULL;
 
@@ -1693,7 +1693,7 @@ telnet_command(packet_info *pinfo, proto_tree *telnet_tree, tvbuff_t *tvb, int s
     break;
 
   default:
-    optname = (gchar*)val_to_str_const(optcode, cmd_vals, "<unknown option>");
+    optname = val_to_str_const(optcode, cmd_vals, "<unknown option>");
     break;
   }
 
