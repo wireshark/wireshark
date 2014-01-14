@@ -82,6 +82,7 @@
 #include <epan/print.h>
 #include <epan/addr_resolv.h>
 #include "ui/util.h"
+#include "ui/ui_util.h"
 #include "clopts_common.h"
 #include "cmdarg_err.h"
 #include "version_info.h"
@@ -2185,10 +2186,6 @@ main(int argc, char *argv[])
 #endif
   guint32 packet_count = 0;
 
-
-/* XXX - move to the right position / file */
-/* read from a pipe (callback) */
-typedef gboolean (*pipe_input_cb_t) (gint source, gpointer user_data);
 
 typedef struct pipe_input_tag {
   gint             source;
