@@ -41,7 +41,7 @@
 #endif /* HAVE_LIBGCRYPT */
 
 /* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available */
-#define HAVE_SNOW3G
+/* #define HAVE_SNOW3G */
 #ifdef HAVE_SNOW3G
 #include <epan/snow3g_algorithm.h>
 #endif
