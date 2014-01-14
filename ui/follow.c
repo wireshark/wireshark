@@ -33,7 +33,7 @@
 #include "ui/follow.h"
 
 #ifdef HAVE_LIBZ
-char *
+static char *
 sgetline(char *str, int *next)
 {
     char *end;
