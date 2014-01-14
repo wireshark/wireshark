@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.4.0 (2013-06)
+-- 3GPP TS 36.331 V11.6.0 (2013-12)
 -- $Id$
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
@@ -1925,7 +1925,7 @@ SystemInformationBlockType6 ::=		SEQUENCE {
 }
 
 SystemInformationBlockType6-v8h0-IEs ::=	SEQUENCE {
-	carrierFreqListUTRA-FDD-v8h0 SEQUENCE (SIZE (1..maxUTRA-FDD-Carrier)) OF CarrierFreqInfoUTRA-FDD-v8h0 OPTIONAL,	-- Need OR
+	carrierFreqListUTRA-FDD-v8h0 SEQUENCE (SIZE (1..maxUTRA-FDD-Carrier)) OF CarrierFreqInfoUTRA-FDD-v8h0 OPTIONAL,	-- Cond UTRA-FDD
 	nonCriticalExtension			SEQUENCE {}							OPTIONAL	-- Need OP
 }
 
@@ -2203,7 +2203,7 @@ SystemInformationBlockType15-r11 ::=	SEQUENCE {
 	mbms-SAI-InterFreqList-r11				MBMS-SAI-InterFreqList-r11		OPTIONAL,	-- Need OR
 	lateNonCriticalExtension				OCTET STRING					OPTIONAL,	-- Need OP
 	...,
-	[[	mbms-SAI-InterFreqList-v1140		MBMS-SAI-InterFreqList-v1140	OPTIONAL	-- Need OR
+	[[	mbms-SAI-InterFreqList-v1140		MBMS-SAI-InterFreqList-v1140	OPTIONAL	-- Cond InterFreq
 	]]
 }
 
@@ -2656,7 +2656,7 @@ MAC-MainConfig ::=					SEQUENCE {
 	]],
 	[[	stag-ToReleaseList-r11				STAG-ToReleaseList-r11	OPTIONAL,	-- Need ON
 		stag-ToAddModList-r11				STAG-ToAddModList-r11	OPTIONAL,	-- Need ON
-		drx-Config-v1130					DRX-Config-v1130		OPTIONAL	-- Cond DRX
+		drx-Config-v1130					DRX-Config-v1130		OPTIONAL	-- Need ON
 	]]
 }
 
@@ -2875,7 +2875,7 @@ PhysicalConfigDedicated ::=		SEQUENCE {
 		cqi-ReportConfig-v1130				CQI-ReportConfig-v1130			OPTIONAL,	-- Need ON
 		pucch-ConfigDedicated-v1130			PUCCH-ConfigDedicated-v1130		OPTIONAL,	-- Need ON
 		pusch-ConfigDedicated-v1130			PUSCH-ConfigDedicated-v1130		OPTIONAL,	-- Need ON
-		uplinkPowerControlDedicated-v1130	UplinkPowerControlDedicated-v1130	OPTIONAL	-- Cond ULPC
+		uplinkPowerControlDedicated-v1130	UplinkPowerControlDedicated-v1130	OPTIONAL	-- Need ON
 	]]
 }
 
@@ -2910,7 +2910,7 @@ PhysicalConfigDedicatedSCell-r10 ::=		SEQUENCE {
 	-- UL configuration
 		cqi-ReportConfig-v1130				CQI-ReportConfig-v1130			OPTIONAL,	-- Need ON
 		pusch-ConfigDedicated-v1130				PUSCH-ConfigDedicated-v1130	OPTIONAL,	-- Need ON
-		uplinkPowerControlDedicatedSCell-v1130	UplinkPowerControlDedicated-v1130	OPTIONAL	-- Cond ULPC
+		uplinkPowerControlDedicatedSCell-v1130	UplinkPowerControlDedicated-v1130	OPTIONAL	-- Need ON
 	]]
 }
 
@@ -4148,7 +4148,7 @@ MeasSubframePatternConfigNeigh-r10 ::=	CHOICE {
 	release									NULL,
 	setup									SEQUENCE {
 		measSubframePatternNeigh-r10			MeasSubframePattern-r10,
-		measSubframeCellList-r10				MeasSubframeCellList-r10	OPTIONAL	-- Cond measSubframe
+		measSubframeCellList-r10				MeasSubframeCellList-r10	OPTIONAL	-- Cond always
 	}
 }
 
@@ -4693,7 +4693,17 @@ UE-EUTRA-Capability-v9d0-IEs ::=		SEQUENCE {
 
 UE-EUTRA-Capability-v9e0-IEs ::=	SEQUENCE {
 	rf-Parameters-v9e0					RF-Parameters-v9e0						OPTIONAL,
-	-- Following field is only to be used for late extensions
+	nonCriticalExtension				UE-EUTRA-Capability-v9h0-IEs			OPTIONAL
+}
+UE-EUTRA-Capability-v9h0-IEs ::=	SEQUENCE {
+	interRAT-ParametersUTRA-v9h0		IRAT-ParametersUTRA-v9h0			OPTIONAL,
+	-- Following field is only to be used for late REL-9 extensions
+	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	nonCriticalExtension				UE-EUTRA-Capability-v10c0-IEs			OPTIONAL
+}
+UE-EUTRA-Capability-v10c0-IEs ::=	SEQUENCE {
+	otdoa-PositioningCapabilities-r10	OTDOA-PositioningCapabilities-r10		OPTIONAL,
+	--Following field is only to be used for late extensions from REL-10
 	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
@@ -4768,7 +4778,9 @@ UE-EUTRA-CapabilityAddXDD-Mode-v1060 ::=	SEQUENCE {
 	featureGroupIndRel10-v1060			BIT STRING (SIZE (32))				OPTIONAL,
 	interRAT-ParametersCDMA2000-v1060	IRAT-ParametersCDMA2000-1XRTT-v1020	OPTIONAL,
 	interRAT-ParametersUTRA-TDD-v1060	IRAT-ParametersUTRA-TDD-v1020		OPTIONAL,
-	...
+	...,
+	[[	otdoa-PositioningCapabilities-r10	OTDOA-PositioningCapabilities-r10	OPTIONAL
+	]]
 }
 
 UE-EUTRA-CapabilityAddXDD-Mode-v1130 ::=	SEQUENCE {
@@ -4994,6 +5006,9 @@ IRAT-ParametersUTRA-v9c0 ::=		SEQUENCE {
 	srvcc-FromUTRA-TDD128-ToGERAN-r9				ENUMERATED {supported}		OPTIONAL
 }
 
+IRAT-ParametersUTRA-v9h0 ::=		SEQUENCE {
+	mfbi-UTRA-r9						ENUMERATED {supported}
+}
 SupportedBandListUTRA-FDD ::=		SEQUENCE (SIZE (1..maxBands)) OF SupportedBandUTRA-FDD 
 
 SupportedBandUTRA-FDD ::=			ENUMERATED {
@@ -5106,6 +5121,10 @@ UE-BasedNetwPerfMeasParameters-r10 ::=	SEQUENCE {
 	standaloneGNSS-Location-r10				ENUMERATED {supported}		OPTIONAL
 }
 
+OTDOA-PositioningCapabilities-r10 ::=	SEQUENCE {
+	otdoa-UE-Assisted-r10					ENUMERATED {supported},
+	interFreqRSTD-Measurement-r10			ENUMERATED {supported}		OPTIONAL
+}
 Other-Parameters-r11 ::=				SEQUENCE {
 	inDeviceCoexInd-r11						ENUMERATED {supported}		OPTIONAL,
 	powerPrefInd-r11						ENUMERATED {supported}		OPTIONAL,
