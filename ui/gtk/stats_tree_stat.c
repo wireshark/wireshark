@@ -53,6 +53,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+#include "ui/gtk/gui_stat_menu.h"
+
 #ifdef _WIN32
 #define USE_WIN32_FILE_DIALOGS
 #endif
@@ -426,7 +428,7 @@ init_gtk_tree(const char* opt_arg, void *userdata _U_)
 				if (init_strlen == strlen(opt_arg)) {
 					st = stats_tree_new(cfg,pr,NULL);
 				} else {
-					st = stats_tree_new(cfg,pr,(char*)opt_arg+init_strlen+1);
+					st = stats_tree_new(cfg,pr,opt_arg+init_strlen+1);
 				}
 
 			} else {
