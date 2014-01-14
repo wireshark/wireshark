@@ -4678,7 +4678,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             tcph->th_seq,                         /* sequence number */
                             tcph->th_ack,                         /* acknowledgment number */
                             tcph->th_seglen,                      /* data length */
-                            (gchar*)tvb_get_ptr(tvb, offset, length_remaining), /* data */
+                            (const gchar*)tvb_get_ptr(tvb, offset, length_remaining), /* data */
                             length_remaining,                     /* captured data length */
                             ( tcph->th_flags & TH_SYN ),          /* is syn set? */
                             &pinfo->net_src,
