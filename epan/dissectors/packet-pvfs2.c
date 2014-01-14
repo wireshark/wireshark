@@ -775,7 +775,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_,
 	int hfindex,
 	gboolean fixed_length, guint32 length,
-	gboolean string_data, char const **string_buffer_ret)
+	gboolean string_data, const char **string_buffer_ret)
 {
 	int data_offset;
 	proto_item *string_item = NULL;
@@ -888,17 +888,18 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 		if (string_length != string_length_copy) {
 			if (string_data) {
 				char *formatted;
-				guint16 string_buffer_size = 0;
+				size_t string_buffer_size = 0;
+				char *string_buffer_temp;
 
 				formatted = format_text((guint8 *)string_buffer,
 						(int)strlen(string_buffer));
 
-				string_buffer_size = (guint16)strlen(formatted) + 12 + 1;
+				string_buffer_size = strlen(formatted) + 12 + 1;
 
 				/* alloc maximum data area */
-				string_buffer_print = (char*) wmem_alloc(wmem_packet_scope(), string_buffer_size);
+				string_buffer_temp = (char*) wmem_alloc(wmem_packet_scope(), string_buffer_size);
 				/* copy over the data */
-				g_snprintf((char *)string_buffer_print, string_buffer_size,
+				g_snprintf(string_buffer_temp, string_buffer_size,
 						"%s<TRUNCATED>", formatted);
 				/* append <TRUNCATED> */
 				/* This way, we get the TRUNCATED even
@@ -908,6 +909,7 @@ dissect_pvfs_opaque_data(tvbuff_t *tvb, int offset,
 				   first \0 or at the end (where we
 				   put the securing \0).
 				*/
+				string_buffer_print = string_buffer_temp;
 			} else {
 				string_buffer_print="<DATA><TRUNCATED>";
 			}
@@ -2339,7 +2341,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	guint32 total_bytes = 0, total_config_bytes = 0, total_lines = 0;
 	guint32 bytes_processed = 0;
 	guint32 length_remaining = 0;
-	char *ptr = NULL;
+	const char *ptr = NULL;
 	proto_item *item = NULL, *config_item = NULL;
 	proto_tree *tree = NULL, *config_tree = NULL;
 	/*guint8 truncated = 0;*/
@@ -2378,7 +2380,7 @@ dissect_pvfs2_getconfig_response(tvbuff_t *tvb, proto_tree *parent_tree,
 	offset += 4;
 
 	/* Get pointer to server config data */
-	ptr = (char *) tvb_get_ptr(tvb, offset, total_config_bytes);
+	ptr = tvb_get_ptr(tvb, offset, total_config_bytes);
 
 	/* Check if all data is available */
 	length_remaining = tvb_length_remaining(tvb, offset);
