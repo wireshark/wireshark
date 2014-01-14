@@ -516,7 +516,7 @@ dissect_snmp_variable_date_and_time(proto_tree *tree,int hfid, tvbuff_t *tvb, in
 
  */
 
-extern int
+static int
 dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 		     asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
