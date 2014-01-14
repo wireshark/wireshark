@@ -234,6 +234,7 @@ private slots:
     void on_actionFileExportObjectsSMB_triggered();
     void on_actionFilePrint_triggered();
 
+    void on_actionFileExportPDU_triggered();
     void on_actionFileExportSSLSessionKeys_triggered();
 
     void actionEditCopyTriggered(MainWindow::CopySelected selection_type);

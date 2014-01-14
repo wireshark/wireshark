@@ -70,6 +70,7 @@
 #include "capture_file_dialog.h"
 #include "decode_as_dialog.h"
 #include "export_object_dialog.h"
+#include "export_pdu_dialog.h"
 #include "packet_comment_dialog.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
@@ -1295,6 +1296,22 @@ void MainWindow::on_actionFileExportPacketBytes_triggered()
         /* Save the directory name for future file dialogs. */
         wsApp->setLastOpenDir(&file_name);
     }
+}
+void MainWindow::on_actionFileExportPDU_triggered()
+{
+    ExportPDUDialog *exportpdu_dialog = new ExportPDUDialog(this);
+
+    if (exportpdu_dialog->isMinimized() == true)
+    {
+        exportpdu_dialog->showNormal();
+    }
+    else
+    {
+        exportpdu_dialog->show();
+    }
+
+    exportpdu_dialog->raise();
+    exportpdu_dialog->activateWindow();
 }
 
 void MainWindow::on_actionFileExportSSLSessionKeys_triggered()

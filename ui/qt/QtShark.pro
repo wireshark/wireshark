@@ -227,6 +227,7 @@ FORMS += \
     column_preferences_frame.ui \
     decode_as_dialog.ui \
     export_object_dialog.ui \
+    export_pdu_dialog.ui \
     file_set_dialog.ui \
     filter_expressions_preferences_frame.ui \
     follow_stream_dialog.ui \
@@ -268,6 +269,7 @@ HEADERS += $$HEADERS_WS_C \
     elided_label.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
+    export_pdu_dialog.h \
     filter_expressions_preferences_frame.h \
     follow_stream_dialog.h \
     follow_stream_text.h \
@@ -575,6 +577,7 @@ SOURCES += \
     elided_label.cpp \
     export_dissection_dialog.cpp \
     export_object_dialog.cpp \
+    export_pdu_dialog.cpp \
     file_set_dialog.cpp \
     filter_expressions_preferences_frame.cpp \
     follow_stream_dialog.cpp \

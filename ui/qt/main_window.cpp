@@ -1421,6 +1421,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileExportPackets->setEnabled(false);
         main_ui_->menuFileExportPacketDissections->setEnabled(false);
         main_ui_->actionFileExportPacketBytes->setEnabled(false);
+        main_ui_->actionFileExportPDU->setEnabled(false);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(false);
         main_ui_->menuFileExportObjects->setEnabled(false);
         main_ui_->actionViewReload->setEnabled(false);
@@ -1438,6 +1439,7 @@ void MainWindow::setMenusForCaptureFile(bool force_disable)
         main_ui_->actionFileExportPackets->setEnabled(cf_can_write_with_wiretap(cap_file_));
         main_ui_->menuFileExportPacketDissections->setEnabled(true);
         main_ui_->actionFileExportPacketBytes->setEnabled(true);
+        main_ui_->actionFileExportPDU->setEnabled(true);
         main_ui_->actionFileExportSSLSessionKeys->setEnabled(true);
         main_ui_->menuFileExportObjects->setEnabled(true);
         main_ui_->actionViewReload->setEnabled(true);
@@ -1452,6 +1454,7 @@ void MainWindow::setMenusForCaptureInProgress(bool capture_in_progress) {
     main_ui_->menuOpenRecentCaptureFile->setEnabled(!capture_in_progress);
     main_ui_->menuFileExportPacketDissections->setEnabled(capture_in_progress);
     main_ui_->actionFileExportPacketBytes->setEnabled(capture_in_progress);
+    main_ui_->actionFileExportPDU->setEnabled(capture_in_progress);
     main_ui_->actionFileExportSSLSessionKeys->setEnabled(capture_in_progress);
     main_ui_->menuFileExportObjects->setEnabled(capture_in_progress);
     main_ui_->menuFileSet->setEnabled(!capture_in_progress);

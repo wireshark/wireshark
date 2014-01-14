@@ -151,53 +151,13 @@
     <addaction name="actionFileExportPackets"/>
     <addaction name="menuFileExportPacketDissections"/>
     <addaction name="actionFileExportPacketBytes"/>
+    <addaction name="actionFileExportPDU"/>
     <addaction name="actionFileExportSSLSessionKeys"/>
     <addaction name="menuFileExportObjects"/>
     <addaction name="separator"/>
     <addaction name="actionFilePrint"/>
     <addaction name="separator"/>
     <addaction name="actionFileQuit"/>
-   </widget>
-   <widget class="QMenu" name="menuEdit">
-    <property name="title">
-     <string>&amp;Edit</string>
-    </property>
-    <widget class="QMenu" name="menuEditCopy">
-     <property name="title">
-      <string>Copy</string>
-     </property>
-     <addaction name="actionEditCopyDescription"/>
-     <addaction name="actionEditCopyFieldName"/>
-     <addaction name="actionEditCopyValue"/>
-     <addaction name="separator"/>
-     <addaction name="actionEditCopyAsFilter"/>
-    </widget>
-    <addaction name="menuEditCopy"/>
-    <addaction name="actionEditFindPacket"/>
-    <addaction name="actionEditFindNext"/>
-    <addaction name="actionEditFindPrevious"/>
-    <addaction name="separator"/>
-    <addaction name="actionEditMarkPacket"/>
-    <addaction name="actionEditMarkAllDisplayed"/>
-    <addaction name="actionEditUnmarkAllDisplayed"/>
-    <addaction name="actionEditNextMark"/>
-    <addaction name="actionEditPreviousMark"/>
-    <addaction name="separator"/>
-    <addaction name="actionEditIgnorePacket"/>
-    <addaction name="actionEditIgnoreAllDisplayed"/>
-    <addaction name="actionEditUnignoreAllDisplayed"/>
-    <addaction name="separator"/>
-    <addaction name="actionEditSetTimeReference"/>
-    <addaction name="actionEditUnsetAllTimeReferences"/>
-    <addaction name="actionEditNextTimeReference"/>
-    <addaction name="actionEditPreviousTimeReference"/>
-    <addaction name="separator"/>
-    <addaction name="actionEditTimeShift"/>
-    <addaction name="separator"/>
-    <addaction name="actionEditPacketComment"/>
-    <addaction name="separator"/>
-    <addaction name="actionEditConfigurationProfiles"/>
-    <addaction name="actionEditPreferences"/>
    </widget>
    <widget class="QMenu" name="menuCapture">
     <property name="title">
@@ -376,6 +336,47 @@
     <addaction name="menuRTSP"/>
     <addaction name="actionTelephonySMPPOperations"/>
     <addaction name="actionTelephonyUCPMessages"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>&amp;Edit</string>
+    </property>
+    <widget class="QMenu" name="menuEditCopy">
+     <property name="title">
+      <string>Copy</string>
+     </property>
+     <addaction name="actionEditCopyDescription"/>
+     <addaction name="actionEditCopyFieldName"/>
+     <addaction name="actionEditCopyValue"/>
+     <addaction name="separator"/>
+     <addaction name="actionEditCopyAsFilter"/>
+    </widget>
+    <addaction name="menuEditCopy"/>
+    <addaction name="actionEditFindPacket"/>
+    <addaction name="actionEditFindNext"/>
+    <addaction name="actionEditFindPrevious"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditMarkPacket"/>
+    <addaction name="actionEditMarkAllDisplayed"/>
+    <addaction name="actionEditUnmarkAllDisplayed"/>
+    <addaction name="actionEditNextMark"/>
+    <addaction name="actionEditPreviousMark"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditIgnorePacket"/>
+    <addaction name="actionEditIgnoreAllDisplayed"/>
+    <addaction name="actionEditUnignoreAllDisplayed"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditSetTimeReference"/>
+    <addaction name="actionEditUnsetAllTimeReferences"/>
+    <addaction name="actionEditNextTimeReference"/>
+    <addaction name="actionEditPreviousTimeReference"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditTimeShift"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditPacketComment"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditConfigurationProfiles"/>
+    <addaction name="actionEditPreferences"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -1519,6 +1520,11 @@
    </property>
    <property name="toolTip">
     <string>Filter this Association</string>
+   </property>
+  </action>
+  <action name="actionFileExportPDU">
+   <property name="text">
+    <string>Export PDUs to File</string>
    </property>
   </action>
  </widget>

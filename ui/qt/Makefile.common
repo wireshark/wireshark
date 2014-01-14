@@ -37,6 +37,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_column_preferences_frame.h	\
 	ui_decode_as_dialog.h	\
 	ui_export_object_dialog.h	\
+	ui_export_pdu_dialog.h	\
 	ui_file_set_dialog.h	\
 	ui_filter_expressions_preferences_frame.h	\
 	ui_follow_stream_dialog.h	\
@@ -123,6 +124,7 @@ MOC_HDRS =	\
 	elided_label.h	\
 	export_dissection_dialog.h	\
 	export_object_dialog.h	\
+	export_pdu_dialog.h	\
 	file_set_dialog.h	\
 	filter_expressions_preferences_frame.h	\
 	follow_stream_dialog.h	\
@@ -181,6 +183,7 @@ UI_FILES =	\
 	column_preferences_frame.ui	\
 	decode_as_dialog.ui	\
 	export_object_dialog.ui	\
+	export_pdu_dialog.ui	\
 	file_set_dialog.ui	\
 	filter_expressions_preferences_frame.ui	\
 	follow_stream_dialog.ui	\
@@ -283,6 +286,7 @@ WIRESHARK_QT_SRC =	\
 	elided_label.cpp	\
 	export_dissection_dialog.cpp	\
 	export_object_dialog.cpp	\
+	export_pdu_dialog.cpp	\
 	file_set_dialog.cpp	\
 	filter_expressions_preferences_frame.cpp	\
 	follow_stream_dialog.cpp	\
