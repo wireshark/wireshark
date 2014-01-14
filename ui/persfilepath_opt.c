@@ -33,6 +33,8 @@
 
 #include <wsutil/filesystem.h>
 
+#include "ui/persfilepath_opt.h"
+
 /*
  * process command line option that affects the paths of the directories
  * used for personal files (configuration, saved captures)
