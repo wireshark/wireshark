@@ -93,7 +93,7 @@ void md5_init(md5_state_t *ctx)
  * Update context to reflect the concatenation of another buffer full
  * of bytes.
  */
-void md5_append( md5_state_t *ctx, unsigned char const *buf, size_t len)
+void md5_append( md5_state_t *ctx, const guint8 *buf, size_t len)
 {
     guint32 t;
 
@@ -109,7 +109,7 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, size_t len)
     /* Handle any leading odd-sized chunks */
 
     if (t) {
-	unsigned char *p = (unsigned char *) ctx->in + t;
+	guint8 *p = (guint8 *) ctx->in + t;
 
 	t = 64 - t;
 	if (len < t) {
@@ -141,17 +141,17 @@ void md5_append( md5_state_t *ctx, unsigned char const *buf, size_t len)
  * Final wrapup - pad to 64-byte boundary with the bit pattern
  * 1 0* (64-bit count of bits processed, MSB-first)
  */
-void md5_finish(md5_state_t *ctx, unsigned char digest[16])
+void md5_finish(md5_state_t *ctx, guint8 digest[16])
 {
     guint count;
-    unsigned char *p;
+    guint8 *p;
 
     /* Compute number of bytes mod 64 */
     count = (ctx->bits[0] >> 3) & 0x3F;
 
     /* Set the first char of padding to 0x80.  This is safe since there is
        always at least one byte free */
-    p = (unsigned char *) ctx->in + count;
+    p = (guint8 *) ctx->in + count;
     *p++ = 0x80;
 
     /* Bytes of padding needed to make 64 bytes */

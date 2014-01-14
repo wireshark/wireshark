@@ -327,9 +327,9 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 
 static int
-arcfour_mic_key(void *key_data, size_t key_size, int key_type,
-		void *cksum_data, size_t cksum_size,
-		void *key6_data)
+arcfour_mic_key(const guint8 *key_data, size_t key_size, int key_type,
+		const guint8 *cksum_data, size_t cksum_size,
+		guint8 *key6_data)
 {
     guint8 k5_data[16];
     guint8 T[4];
@@ -342,23 +342,23 @@ arcfour_mic_key(void *key_data, size_t key_size, int key_type,
 	memcpy(L40 + 10, T, sizeof(T));
 	md5_hmac(
                 L40, 14,
-                (guint8 *)key_data,
+                key_data,
                 key_size,
 	        k5_data);
 	memset(&k5_data[7], 0xAB, 9);
     } else {
 	md5_hmac(
                 T, 4,
-                (guint8 *)key_data,
+                key_data,
                 key_size,
 	        k5_data);
     }
 
     md5_hmac(
-	(guint8 *)cksum_data, cksum_size,
-	(guint8 *)k5_data,
+	cksum_data, cksum_size,
+	k5_data,
 	16,
-	(guint8 *)key6_data);
+	key6_data);
 
     return 0;
 }
@@ -385,15 +385,15 @@ static int
 arcfour_mic_cksum(guint8 *key_data, int key_length,
 		  unsigned int usage,
 		  guint8 sgn_cksum[8],
-		  const void *v1, size_t l1,
-		  const void *v2, size_t l2,
-		  const void *v3, size_t l3)
+		  const guint8 *v1, size_t l1,
+		  const guint8 *v2, size_t l2,
+		  const guint8 *v3, size_t l3)
 {
-    const guint8 signature[] = "signaturekey";
+    static const guint8 signature[] = "signaturekey";
     guint8 ksign_c[16];
-    unsigned char t[4];
+    guint8 t[4];
     md5_state_t ms;
-    unsigned char digest[16];
+    guint8 digest[16];
     int rc4_usage;
     guint8 cksum[16];
 
@@ -407,9 +407,9 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
     t[2] = (rc4_usage >> 16) & 0xFF;
     t[3] = (rc4_usage >> 24) & 0xFF;
     md5_append(&ms, t, 4);
-    md5_append(&ms, (guint8 *)v1, l1);
-    md5_append(&ms, (guint8 *)v2, l2);
-    md5_append(&ms, (guint8 *)v3, l3);
+    md5_append(&ms, v1, l1);
+    md5_append(&ms, v2, l2);
+    md5_append(&ms, v3, l3);
     md5_finish(&ms, digest);
     md5_hmac(digest, 16, ksign_c, 16, cksum);
 
@@ -422,11 +422,11 @@ arcfour_mic_cksum(guint8 *key_data, int key_length,
  * Verify padding of a gss wrapped message and return its length.
  */
 static int
-gssapi_verify_pad(unsigned char *wrapped_data, int wrapped_length,
+gssapi_verify_pad(guint8 *wrapped_data, int wrapped_length,
 		   int datalen,
 		   int *padlen)
 {
-    unsigned char *pad;
+    guint8 *pad;
     int padlength;
     int i;
 
@@ -478,7 +478,7 @@ decrypt_arcfour(packet_info *pinfo,
     }
 
     ret = arcfour_mic_key(key_value, key_size, key_type,
-			  (void *)tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
+			  tvb_get_ptr(pinfo->gssapi_wrap_tvb, 16, 8),
 			  8, /* SGN_CKSUM */
 			  k6_data);
     if (ret) {
@@ -490,7 +490,7 @@ decrypt_arcfour(packet_info *pinfo,
 
 	crypt_rc4_init(&rc4_state, k6_data, sizeof(k6_data));
 	tvb_memcpy(pinfo->gssapi_wrap_tvb, SND_SEQ, 8, 8);
-	crypt_rc4(&rc4_state, (unsigned char *)SND_SEQ, 8);
+	crypt_rc4(&rc4_state, (guint8 *)SND_SEQ, 8);
 
 	memset(k6_data, 0, sizeof(k6_data));
     }
@@ -507,7 +507,7 @@ decrypt_arcfour(packet_info *pinfo,
 	    Klocaldata[i] = ((guint8 *)key_value)[i] ^ 0xF0;
     }
     ret = arcfour_mic_key(Klocaldata,sizeof(Klocaldata),key_type,
-			  (unsigned char *)SND_SEQ, 4,
+			  (const guint8 *)SND_SEQ, 4,
 			  k6_data);
     memset(Klocaldata, 0, sizeof(Klocaldata));
     if (ret) {
@@ -625,9 +625,9 @@ decrypt_gssapi_krb_arcfour_wrap(proto_tree *tree, packet_info *pinfo, tvbuff_t *
 
 /* borrowed from heimdal */
 static int
-rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
+rrc_rotate(guint8 *data, int len, guint16 rrc, int unrotate)
 {
-	unsigned char *tmp, buf[256];
+	guint8 *tmp, buf[256];
 	size_t left;
 
 	if (len == 0)
@@ -643,18 +643,18 @@ rrc_rotate(void *data, int len, guint16 rrc, int unrotate)
 	if (rrc <= sizeof(buf)) {
 		tmp = buf;
 	} else {
-		tmp = (unsigned char *)g_malloc(rrc);
+		tmp = (guint8 *)g_malloc(rrc);
 		if (tmp == NULL)
 			return -1;
 	}
 
 	if (unrotate) {
 		memcpy(tmp, data, rrc);
-		memmove(data, (unsigned char *)data + rrc, left);
-		memcpy((unsigned char *)data + left, tmp, rrc);
+		memmove(data, data + rrc, left);
+		memcpy(data + left, tmp, rrc);
 	} else {
-		memcpy(tmp, (unsigned char *)data + left, rrc);
-		memmove((unsigned char *)data + rrc, data, left);
+		memcpy(tmp, data + left, rrc);
+		memmove(data + rrc, data, left);
 		memcpy(data, tmp, rrc);
 	}
 
