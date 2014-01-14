@@ -133,7 +133,7 @@ typedef struct _diam_vnd_t {
 
 struct _diam_avp_t {
 	guint32 code;
-	const diam_vnd_t *vendor;
+	diam_vnd_t *vendor;
 	diam_avp_dissector_t dissector_v16;
 	diam_avp_dissector_t dissector_rfc;
 
@@ -153,7 +153,7 @@ typedef struct _diam_dictionary_t {
 	value_string *commands;
 } diam_dictionary_t;
 
-typedef diam_avp_t *(*avp_constructor_t)(const avp_type_t *, guint32, const diam_vnd_t *, const char *,  const value_string *, void *);
+typedef diam_avp_t *(*avp_constructor_t)(const avp_type_t *, guint32, diam_vnd_t *, const char *,  const value_string *, void *);
 
 struct _avp_type_t {
 	const char *name;
@@ -1325,7 +1325,7 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 
 static diam_avp_t *
 build_address_avp(const avp_type_t *type _U_, guint32 code,
-		  const diam_vnd_t *vendor, const char *name,
+		  diam_vnd_t *vendor, const char *name,
 		  const value_string *vs _U_, void *data _U_)
 {
 	diam_avp_t *a = wmem_new0(wmem_epan_scope(), diam_avp_t);
@@ -1397,7 +1397,7 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 
 static diam_avp_t *
 build_proto_avp(const avp_type_t *type _U_, guint32 code,
-		const diam_vnd_t *vendor, const char *name _U_,
+		diam_vnd_t *vendor, const char *name _U_,
 		const value_string *vs _U_, void *data)
 {
 	diam_avp_t *a = (diam_avp_t *)g_malloc0(sizeof(diam_avp_t));
@@ -1422,7 +1422,7 @@ build_proto_avp(const avp_type_t *type _U_, guint32 code,
 }
 
 static diam_avp_t *
-build_simple_avp(const avp_type_t *type, guint32 code, const diam_vnd_t *vendor,
+build_simple_avp(const avp_type_t *type, guint32 code, diam_vnd_t *vendor,
 		 const char *name, const value_string *vs, void *data _U_)
 {
 	diam_avp_t *a;
