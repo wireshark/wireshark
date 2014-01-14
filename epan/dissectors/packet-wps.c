@@ -1638,7 +1638,7 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
       if ((hf_info != NULL) && hf_info->strings) {
         /* item has value_string */
         proto_item_append_text(tlv_item, fmt, val_to_str(value,
-                                                         (value_string *)hf_info->strings,
+                                                         (const value_string *)hf_info->strings,
                                                          "Unknown: %d"), value);
       } else if (valuep != NULL) {
         /* the string-case */
