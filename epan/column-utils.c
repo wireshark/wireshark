@@ -1611,7 +1611,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
       pinfo->cinfo->col_expr.col_expr[col] = "ax25.src";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ax25.dst";
-    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ax25_to_str((guint8 *)addr->data), COL_MAX_LEN);
+    g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], ax25_to_str((const guint8 *)addr->data), COL_MAX_LEN);
     break;
 
   case AT_ETHER:
@@ -1627,7 +1627,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
       pinfo->cinfo->col_expr.col_expr[col] = "ip.src";
     else
       pinfo->cinfo->col_expr.col_expr[col] = "ip.dst";
-    ip_to_str_buf((guint8 *)addr->data, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
+    ip_to_str_buf((const guint8 *)addr->data, pinfo->cinfo->col_expr.col_expr_val[col], COL_MAX_LEN);
     break;
 
   case AT_IPv6:
