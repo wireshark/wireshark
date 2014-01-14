@@ -137,8 +137,8 @@ build_follow_conv_filter( packet_info *pi ) {
   /* UDP over IPv4 */
     buf = g_strdup_printf(
 	     "(ip.addr eq %s and ip.addr eq %s) and (udp.port eq %d and udp.port eq %d)",
-	     ip_to_str((guint8 *)pi->net_src.data),
-	     ip_to_str((guint8 *)pi->net_dst.data),
+	     ip_to_str((const guint8 *)pi->net_src.data),
+	     ip_to_str((const guint8 *)pi->net_dst.data),
 	     pi->srcport, pi->destport );
     len = 4;
     is_ipv6 = FALSE;

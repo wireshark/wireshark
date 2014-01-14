@@ -123,7 +123,7 @@ geoip_dat_scan_dir(const char *dirname) {
 
 /* UAT callbacks */
 static void* geoip_db_path_copy_cb(void* dest, const void* orig, size_t len _U_) {
-    const geoip_db_path_t *m = (geoip_db_path_t *)orig;
+    const geoip_db_path_t *m = (const geoip_db_path_t *)orig;
     geoip_db_path_t *d = (geoip_db_path_t *)dest;
 
     d->path = g_strdup(m->path);
