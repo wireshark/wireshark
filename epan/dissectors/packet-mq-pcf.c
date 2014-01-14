@@ -109,14 +109,14 @@ static guint32 dissect_mqpcf_getDigits(guint uCnt)
 * to get val_to_str value from the value of a parameter on a more
 * easier way than using switch cases
 */
-static guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
+static const guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
 {
-    value_string *pVs;
-    pVs = (value_string *)try_val_to_str(uPrm, GET_VALSV(MQCFINT_Parse));
+    const value_string *pVs;
+    pVs = (const value_string *)try_val_to_str(uPrm, GET_VALSV(MQCFINT_Parse));
 
     if (pVs)
     {
-        return (guint8 *)try_val_to_str(uVal, pVs);
+        return (const guint8 *)try_val_to_str(uVal, pVs);
     }
     return NULL;
 }
@@ -125,7 +125,7 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset
                             guint uVal, int hfindex, guint iCnt, guint iMaxCnt, guint iDigit, gboolean bParse)
 {
     header_field_info *hfinfo;
-    guint8 *pVal = NULL;
+    const guint8 *pVal = NULL;
 
     if (bParse)
         pVal = dissect_mqpcf_parm_getintval(uPrm, uVal);
@@ -243,7 +243,7 @@ static void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq
             break;
         case MQ_MQCFT_INTEGER:
             {
-                guint8 *pVal = NULL;
+                const guint8 *pVal = NULL;
                 uVal = tvb_get_guint32_endian(tvb, offset + uLenF, bLittleEndian);
                 if (bParse)
                     pVal = dissect_mqpcf_parm_getintval(uPrm, uVal);
