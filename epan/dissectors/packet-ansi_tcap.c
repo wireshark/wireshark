@@ -179,6 +179,13 @@ extern gboolean gtcap_PersistentSRT;
 extern guint gtcap_RepetitionTimeout;
 extern guint gtcap_LostTimeout;
 
+/* When several Tcap components are received in a single TCAP message,
+   we have to use several buffers for the stored parameters
+   because else this data are erased during TAP dissector call */
+#define MAX_TCAP_INSTANCE 10
+int tcapsrt_global_current=0;
+struct tcapsrt_info_t tcapsrt_global_info[MAX_TCAP_INSTANCE];
+
 static dissector_table_t ber_oid_dissector_table=NULL;
 static const char * cur_oid;
 static const char * tcapext_oid;
@@ -1394,7 +1401,7 @@ dissect_ansi_tcap_PackageType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 /*--- End of included file: packet-ansi_tcap-fn.c ---*/
-#line 352 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 359 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
 
 
 
@@ -1739,7 +1746,7 @@ proto_register_ansi_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-ansi_tcap-hfarr.c ---*/
-#line 488 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 495 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -1777,7 +1784,7 @@ proto_register_ansi_tcap(void)
     &ett_ansi_tcap_T_paramSet,
 
 /*--- End of included file: packet-ansi_tcap-ettarr.c ---*/
-#line 499 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
+#line 506 "../../asn1/ansi_tcap/packet-ansi_tcap-template.c"
     };
 
     static const enum_val_t ansi_tcap_response_matching_type_values[] = {
