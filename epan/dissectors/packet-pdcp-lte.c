@@ -39,6 +39,13 @@
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
+/* Define this symbol if you have a working implementation of SNOW3G f8() available */
+/* TODO: add support for calling f9() too */
+/* #define HAVE_SNOW3G */
+#ifdef HAVE_SNOW3G
+#include <epan/snow3g_algorithm.h>
+#endif
+
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
@@ -1362,7 +1369,11 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     }
 
     /* Only EEA2 supported at the moment */
-    if (pdu_security_settings->ciphering != eea2) {
+    if ((pdu_security_settings->ciphering != eea2)
+#ifdef HAVE_SNOW3G
+        && (pdu_security_settings->ciphering != eea1)
+#endif
+        ){
         return tvb;
     }
 
@@ -1377,52 +1388,71 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
     }
 
-    /* Set CTR */
-    memset(ctr_block, 0, 16);
-    /* Only first 5 bytes set */
-    ctr_block[0] = (pdu_security_settings->count & 0xff000000) >> 24;
-    ctr_block[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
-    ctr_block[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
-    ctr_block[3] = (pdu_security_settings->count & 0x000000ff);
-    ctr_block[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
-
-    /* Open gcrypt handle */
-    gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
-    if (gcrypt_err != 0) {
-        return tvb;
-    }
-
-    /* Set the key */
-    gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->cipherKey, 16);
-    if (gcrypt_err != 0) {
+    /* AES */
+    if (pdu_security_settings->ciphering == eea2) {
+        /* Set CTR */
+        memset(ctr_block, 0, 16);
+        /* Only first 5 bytes set */
+        ctr_block[0] = (pdu_security_settings->count & 0xff000000) >> 24;
+        ctr_block[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
+        ctr_block[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
+        ctr_block[3] = (pdu_security_settings->count & 0x000000ff);
+        ctr_block[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
+    
+        /* Open gcrypt handle */
+        gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
+        if (gcrypt_err != 0) {
+            return tvb;
+        }
+    
+        /* Set the key */
+        gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->cipherKey, 16);
+        if (gcrypt_err != 0) {
+            gcry_cipher_close(cypher_hd);
+            return tvb;
+        }
+    
+        /* Set the CTR */
+        gcrypt_err = gcry_cipher_setctr(cypher_hd, ctr_block, 16);
+        if (gcrypt_err != 0) {
+            gcry_cipher_close(cypher_hd);
+            return tvb;
+        }
+    
+        /* Extract the encrypted data into a buffer */
+        payload_length = tvb_length_remaining(tvb, *offset);
+        decrypted_data = (guint8 *)g_malloc0(payload_length);
+        tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
+    
+        /* Decrypt the actual data */
+        gcrypt_err = gcry_cipher_decrypt(cypher_hd,
+                                         decrypted_data, payload_length,
+                                         NULL, 0);
+        if (gcrypt_err != 0) {
+            gcry_cipher_close(cypher_hd);
+            g_free(decrypted_data);
+            return tvb;
+        }
+    
+        /* Close gcrypt handle */
         gcry_cipher_close(cypher_hd);
-        return tvb;
     }
+#ifdef HAVE_SNOW3G
+    /* SNOW-3G */
+    else if (pdu_security_settings->ciphering == eea1) {
+        /* Extract the encrypted data into a buffer */
+        payload_length = tvb_length_remaining(tvb, *offset);
+        decrypted_data = (guint8 *)g_malloc0(payload_length);
+        tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
 
-    /* Set the CTR */
-    gcrypt_err = gcry_cipher_setctr(cypher_hd, ctr_block, 16);
-    if (gcrypt_err != 0) {
-        gcry_cipher_close(cypher_hd);
-        return tvb;
+        /* Do the algorithm */
+        snow3g_f8(pdu_security_settings->cipherKey,
+                  pdu_security_settings->count,
+                  pdu_security_settings->bearer,
+                  pdu_security_settings->direction,
+                  decrypted_data, payload_length*8);
     }
-
-    /* Extract the encrypted data into a buffer */
-    payload_length = tvb_length_remaining(tvb, *offset);
-    decrypted_data = (guint8 *)g_malloc0(payload_length);
-    tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
-
-    /* Decrypt the actual data */
-    gcrypt_err = gcry_cipher_decrypt(cypher_hd,
-                                     decrypted_data, payload_length,
-                                     NULL, 0);
-    if (gcrypt_err != 0) {
-        gcry_cipher_close(cypher_hd);
-        g_free(decrypted_data);
-        return tvb;
-    }
-
-    /* Close gcrypt handle */
-    gcry_cipher_close(cypher_hd);
+#endif
 
     /* Create tvb for resulting deciphered sdu */
     decrypted_tvb = tvb_new_child_real_data(tvb, decrypted_data, payload_length, payload_length);
