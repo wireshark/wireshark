@@ -45,6 +45,8 @@
 
 #include "ui/capture_globals.h"
 #include "ui/software_update.h"
+#include "ui/last_open_dir.h"
+#include "ui/recent_utils.h"
 
 #ifdef _WIN32
 #  include "ui/win32/console_win32.h"
