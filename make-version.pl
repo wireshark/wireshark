@@ -163,7 +163,6 @@ sub read_repo_info {
 			chomp($line = qx{git log -1 --pretty=format:%at});
 			if (defined($line)) {
 				$last_change = $line;
-			print "lc l: $last_change\n";
 			}
 
 			# Commits in current (master-1.8) branch. We may want to use
