@@ -1681,7 +1681,7 @@ column_format_set_cb(pref_t* pref, const gchar* value, gboolean* changed _U_)
       cfmt->title    = g_strdup((gchar *)col_l_elt->data);
       col_l_elt      = col_l_elt->next;
       parse_column_format(cfmt, (char *)col_l_elt->data);
-      cfmt->visible   = prefs_is_column_visible((gchar*)(*hidden_pref->varp.string), cfmt);
+      cfmt->visible   = prefs_is_column_visible(*hidden_pref->varp.string, cfmt);
       col_l_elt      = col_l_elt->next;
       *pref->varp.list = g_list_append(*pref->varp.list, cfmt);
     }
