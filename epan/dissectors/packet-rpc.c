@@ -380,14 +380,14 @@ rpc_proc_name(guint32 prog, guint32 vers, guint32 proc)
 {
 	rpc_proc_info_key key;
 	rpc_proc_info_value *value;
-	char *procname;
+	const char *procname;
 
 	key.prog = prog;
 	key.vers = vers;
 	key.proc = proc;
 
 	if ((value = (rpc_proc_info_value *)g_hash_table_lookup(rpc_procs,&key)) != NULL)
-		procname = (char *)value->name;
+		procname = value->name;
 	else {
 		/* happens only with strange program versions or
 		   non-existing dissectors */
