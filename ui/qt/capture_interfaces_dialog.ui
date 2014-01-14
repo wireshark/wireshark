@@ -17,7 +17,7 @@
    <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
-      <number>2</number>
+      <number>0</number>
      </property>
      <widget class="QWidget" name="inputTab">
       <attribute name="title">
@@ -210,7 +210,7 @@
        <item>
         <widget class="QGroupBox" name="gbCaptureToFile">
          <property name="title">
-          <string>Capture direcly to file</string>
+          <string>Capture directly to file</string>
          </property>
          <property name="flat">
           <bool>true</bool>
