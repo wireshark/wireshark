@@ -1487,7 +1487,7 @@ gint rtps_util_add_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
   }
 
   proto_tree_add_string(tree, hf_item, tvb, offset, size+4,
-                        (size == 0) ? (guint8 *)"" : retVal);
+                        (size == 0) ? (const guint8 *)"" : retVal);
 
   /* NDDS align strings at 4-bytes word. So:
    *  string_length: 4 -> buffer_length = 4;
@@ -1569,7 +1569,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
                               gboolean little_endian, int param_length, int hf_numstring,
                               int hf_string, const char *label) {
   guint32 i, num_strings, size;
-  guint8 * retVal;
+  const guint8 * retVal;
   proto_tree *string_tree;
   proto_item *ti;
 
@@ -1587,7 +1587,7 @@ gint rtps_util_add_seq_string(proto_tree *tree, tvbuff_t* tvb, gint offset,
     if (size > 0) {
       retVal = tvb_get_string(wmem_packet_scope(), tvb, offset+4, size);
     } else {
-      retVal = (guint8 *)"";
+      retVal = (const guint8 *)"";
     }
 
     proto_tree_add_string_format(string_tree, hf_string, tvb, offset, size+4, retVal,
@@ -3156,7 +3156,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
       ENSURE_LENGTH(4);
       {
         guint32 prev_offset, temp_offset, prop_size;
-        guint8 *propName, *propValue;
+        const guint8 *propName, *propValue;
         guint32 seq_size = NEXT_guint32(tvb, offset, little_endian);
         proto_item_append_text( parameter_item, " (%d properties)", seq_size );
         if (seq_size > 0) {
@@ -3175,7 +3175,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             if (prop_size > 0) {
               propName = tvb_get_string(wmem_packet_scope(), tvb, temp_offset+4, prop_size);
             } else {
-              propName = (guint8 *)"";
+              propName = (const guint8 *)"";
             }
             /* NDDS align strings at 4-bytes word. */
             temp_offset += (4 + ((prop_size + 3) & 0xfffffffc));
@@ -3184,7 +3184,7 @@ static gboolean dissect_parameter_sequence_v1(proto_tree *rtps_parameter_tree, p
             if (prop_size > 0) {
               propValue = tvb_get_string(wmem_packet_scope(), tvb, temp_offset+4, prop_size);
             } else {
-              propValue = (guint8 *)"";
+              propValue = (const guint8 *)"";
             }
             /* NDDS align strings at 4-bytes word. */
             temp_offset += (4 + ((prop_size + 3) & 0xfffffffc));
