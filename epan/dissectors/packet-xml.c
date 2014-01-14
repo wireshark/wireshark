@@ -829,7 +829,7 @@ static void add_xml_field(wmem_array_t *hfs, int *p_id, const gchar *name, const
 static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 {
     struct _attr_reg_data *d = (struct _attr_reg_data *)p;
-    gchar *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", d->basename, (gchar *)k);
+    const gchar *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", d->basename, (gchar *)k);
 
     add_xml_field(d->hf, (int*) v, (gchar *)k, basename);
 }
@@ -838,7 +838,7 @@ static void add_xml_attribute_names(gpointer k, gpointer v, gpointer p)
 static void add_xmlpi_namespace(gpointer k _U_, gpointer v, gpointer p)
 {
     xml_ns_t *ns       = (xml_ns_t *)v;
-    gchar    *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", (gchar *)p, ns->name);
+    const gchar *basename = wmem_strdup_printf(wmem_epan_scope(), "%s.%s", (gchar *)p, ns->name);
     gint     *ett_p    = &(ns->ett);
     struct _attr_reg_data d;
 
