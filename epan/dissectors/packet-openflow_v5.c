@@ -5070,10 +5070,12 @@ dissect_openflow_queue_desc_prop_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 
 #define OFPQ_ALL  0xffffffff
+#if 0
 static const value_string openflow_v5_queue_id_reserved_values[] = {
     { OFPQ_ALL, "OFPQ_ALL" },
     { 0,        NULL }
 };
+#endif
 
 static int
 dissect_openflow_queue_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
@@ -5778,13 +5780,16 @@ static const value_string openflow_v5_bundle_control_type_values[] = {
     { 0, NULL }
 };
 
+
 #define OFPBF_ATOMIC   1<<0
 #define OFPBF_ORDERED  1<<1
+#if 0
 static const value_string openflow_v5_bundle_control_flags[] = {
     { OFPBF_ATOMIC, "OFPBF_ATOMIC" },
     { OFPBF_ORDERED, "OFPBF_ORDERED" },
     { 0, NULL }
 };
+#endif
 
 static void
 dissect_openflow_bundle_control_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_)
