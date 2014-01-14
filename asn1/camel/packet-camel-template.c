@@ -1048,7 +1048,7 @@ dissect_camel_camelPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn
     application_context_version = 0;
     if (p_private_tcap != NULL){
         if (p_private_tcap->acv==TRUE ){
-            version_ptr = strrchr((char *)p_private_tcap->oid,'.');
+            version_ptr = strrchr((const char *)p_private_tcap->oid,'.');
             if (version_ptr)
                 application_context_version = atoi(version_ptr+1);
         }
