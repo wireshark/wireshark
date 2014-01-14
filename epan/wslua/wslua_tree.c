@@ -217,7 +217,7 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     item = proto_tree_add_int64(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,*(Int64)checkInt64(L,1));
                     break;
                 case FT_IPv4:
-                    item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,*((guint32*)(checkAddress(L,1)->data)));
+                    item = proto_tree_add_ipv4(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,*((const guint32*)(checkAddress(L,1)->data)));
                     break;
                 case FT_ETHER:
                 case FT_UINT_BYTES:

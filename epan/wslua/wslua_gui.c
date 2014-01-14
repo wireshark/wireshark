@@ -257,7 +257,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
     top -= 2;
 
     for (i = 1; i <= top; i++) {
-        gchar* label = (gchar *)luaL_checkstring(L,i);
+        const char* label = luaL_checkstring(L,i);
 
         /* XXX leaks labels on error */
         if (! label)

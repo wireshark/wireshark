@@ -396,6 +396,7 @@ wslua_plugins_dump_all(void)
 
 int wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
+    const gchar *script_filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
     expert_module_t* expert_lua;
@@ -491,10 +492,10 @@ int wslua_init(register_cb cb, gpointer client_data) {
         g_free(filename);
 
         /* load scripts from command line */
-        while((filename = (gchar *)ex_opt_get_next("lua_script"))) {
+        while((script_filename = ex_opt_get_next("lua_script"))) {
             if (cb)
-                (*cb)(RA_LUA_PLUGINS, get_basename(filename), client_data);
-            lua_load_script(filename);
+                (*cb)(RA_LUA_PLUGINS, get_basename(script_filename), client_data);
+            lua_load_script(script_filename);
         }
     }
 

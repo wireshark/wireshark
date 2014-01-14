@@ -30,8 +30,8 @@
 use strict;
 
 my %types = %{{
-	'gchar[]' => 'lua_pushstring(L,(char*)v->%s);',
-	'gchar*' => 'lua_pushstring(L,(char*)v->%s);',
+	'gchar[]' => 'lua_pushstring(L,(const char*)v->%s);',
+	'gchar*' => 'lua_pushstring(L,(const char*)v->%s);',
 	'guint' => 'lua_pushnumber(L,(lua_Number)v->%s);',
 	'guint8' => 'lua_pushnumber(L,(lua_Number)v->%s);',
 	'guint16' => 'lua_pushnumber(L,(lua_Number)v->%s);',
