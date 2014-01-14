@@ -67,6 +67,7 @@ struct rtentry;
 #endif  /* HAVE_PCAP_FINDALLDEVS */
 
 #include "capture_ifinfo.h"
+#include "capture-pcap-util.h"
 #include "capture-pcap-util-int.h"
 
 #ifdef HAVE_PCAP_REMOTE
