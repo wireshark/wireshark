@@ -905,7 +905,7 @@ static gboolean is_pkg_default(guint16 pkgid) {
     return s_pkg->is_default;
 }
 
-void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action) {
+void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
     h248_package_t *pkg_found = NULL, *pkg_high = NULL, *pkg_low = NULL;
     s_h248_package_t *s_pkg = NULL;
     value_string *vst; 

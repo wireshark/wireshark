@@ -123,7 +123,7 @@ static const h248_pkg_sig_t h248_an_signals[] = {
 	{ 0, NULL, NULL, NULL, NULL}
 };
 
-static const h248_package_t h248_pkg_an = {
+static h248_package_t h248_pkg_an = {
 	0x001d,
 	&proto_h248_an,
 	&ett_h248_an,

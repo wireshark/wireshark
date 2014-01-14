@@ -74,7 +74,7 @@ static const h248_pkg_evt_t h248_CHP_mgcon_events[] = {
 	{ 0, NULL, NULL, NULL, NULL}
 };
 
-static const h248_package_t h248_pkg_CHP = {
+static h248_package_t h248_pkg_CHP = {
 	0x0029,
 	&proto_h248_CHP,
 	&ett_h248_CHP,

@@ -123,6 +123,6 @@ struct _h248_curr_info_t {
 };
 
 WS_DLL_PUBLIC
-void h248_register_package(const h248_package_t* pkg, pkg_reg_action reg_action);
+void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action);
 
 #endif  /* PACKET_H248_H */

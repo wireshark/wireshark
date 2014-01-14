@@ -127,7 +127,7 @@ static const h248_pkg_param_t h248_package_3GUP_properties[] = {
 	{ 0x0000, NULL, NULL, NULL }
 };
 
-static const h248_package_t h248_package_3GUP = {
+static h248_package_t h248_package_3GUP = {
 	0x002f,
 	&proto_h248_package_3GUP,
 	&ett_h248_package_3GUP,
@@ -257,7 +257,7 @@ static const h248_pkg_sig_t h248_package_3GCSD_sigs[] = {
 	{ 0, NULL, NULL, NULL,NULL}
 };
 
-static const h248_package_t h248_package_3GCSD = {
+static h248_package_t h248_package_3GCSD = {
 	0x0030,
 	&hf_h248_package_3GCSD,
 	&ett_h248_package_3GCSD,
@@ -415,7 +415,7 @@ static const h248_pkg_evt_t h248_package_3GTFO_evts[] = {
 	{ 0, NULL, NULL, NULL,NULL}
 };
 
-static const h248_package_t h248_package_3GTFO = {
+static h248_package_t h248_package_3GTFO = {
 	0x0031,
 	&hf_h248_package_3GTFO,
 	&ett_h248_package_3GTFO,

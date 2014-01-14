@@ -105,7 +105,7 @@ static h248_pkg_evt_t h248_pkg_generic_cause_evts[] = {
 
 
 /* Call Type Discrimination Package */
-static const h248_package_t h248_pkg_ctype = {
+static h248_package_t h248_pkg_ctype = {
 	0x0011,						/* Id */
 	&proto_h248_2,				/* hfid */
 	&ett_h248_2,				/* ett */
