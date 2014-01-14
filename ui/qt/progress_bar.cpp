@@ -27,6 +27,8 @@
 
 #include "wireshark_application.h"
 
+#include "ui/progress_dlg.h"
+
 #include <QGraphicsOpacityEffect>
 #include <QPropertyAnimation>
 
