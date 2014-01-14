@@ -28,7 +28,11 @@
 
 #ifdef HAVE_LIBPCAP
 
-#ifndef HAVE_PCAP_FINDALLDEVS
+#ifdef HAVE_PCAP_FINDALLDEVS
+
+#include <pcap.h>
+
+#else /* HAVE_PCAP_FINDALLDEVS */
 
 #include <stdlib.h>
 #include <string.h>
@@ -60,24 +64,10 @@ struct rtentry;
 
 #include "capture-pcap-util.h"
 
-#else
-
-#include <pcap.h>
-
 #endif  /* HAVE_PCAP_FINDALLDEVS */
 
 #include "capture_ifinfo.h"
 #include "capture-pcap-util-int.h"
-
-#ifndef HAVE_PCAP_FINDALLDEVS
-struct search_user_data {
-	char	*name;
-	if_info_t *if_info;
-};
-
-static void
-search_for_if_cb(gpointer data, gpointer user_data);
-#endif
 
 #ifdef HAVE_PCAP_REMOTE
 GList *
@@ -110,12 +100,31 @@ get_remote_interface_list(const char *hostname, const char *port,
 }
 #endif
 
+#ifdef HAVE_PCAP_FINDALLDEVS
 GList *
 get_interface_list(int *err, char **err_str)
 {
-#ifdef HAVE_PCAP_FINDALLDEVS
 	return get_interface_list_findalldevs(err, err_str);
-#else
+}
+#else /* HAVE_PCAP_FINDALLDEVS */
+struct search_user_data {
+	char	*name;
+	if_info_t *if_info;
+};
+
+static void
+search_for_if_cb(gpointer data, gpointer user_data)
+{
+	struct search_user_data *search_user_data = user_data;
+	if_info_t *if_info = data;
+
+	if (strcmp(if_info->name, search_user_data->name) == 0)
+		search_user_data->if_info = if_info;
+}
+
+GList *
+get_interface_list(int *err, char **err_str)
+{
 	GList  *il = NULL;
 	gint    nonloopback_pos = 0;
 	struct  ifreq *ifr, *last;
@@ -309,18 +318,6 @@ fail:
 	close(sock);
 	*err = CANT_GET_INTERFACE_LIST;
 	return NULL;
-#endif /* HAVE_PCAP_FINDALLDEVS */
-}
-
-#ifndef HAVE_PCAP_FINDALLDEVS
-static void
-search_for_if_cb(gpointer data, gpointer user_data)
-{
-	struct search_user_data *search_user_data = user_data;
-	if_info_t *if_info = data;
-
-	if (strcmp(if_info->name, search_user_data->name) == 0)
-		search_user_data->if_info = if_info;
 }
 #endif /* HAVE_PCAP_FINDALLDEVS */
 
