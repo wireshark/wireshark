@@ -705,6 +705,7 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	int	    cse;
 	int	    spd;
 	guint8  ssid;
+	const guint8 *addr;
 	const mic_e_dst_code_table_s *dst_code_entry;
 
 	data_len    = tvb_length_remaining( tvb, offset );
@@ -724,33 +725,35 @@ dissect_mic_e(	tvbuff_t    *tvb,
 	if ( pinfo->dst.type == AT_AX25 && pinfo->dst.len == AX25_ADDR_LEN )
 		{
 		/* decode the AX.25 destination address */
-		dst_code_entry = dst_code_lookup( ((guint8 *)pinfo->dst.data)[ 0 ] );
+		addr = (const guint8 *)pinfo->dst.data;
+
+		dst_code_entry = dst_code_lookup( addr[ 0 ] );
 		latitude[ 0 ] = dst_code_entry->digit;
 		msg_a = dst_code_entry->msg & 0x1;
 
-		dst_code_entry = dst_code_lookup( ((guint8 *)pinfo->dst.data)[ 1 ] );
+		dst_code_entry = dst_code_lookup( addr[ 1 ] );
 		latitude[ 1 ] = dst_code_entry->digit;
 		msg_b = dst_code_entry->msg & 0x1;
 
-		dst_code_entry = dst_code_lookup( ((guint8 *)pinfo->dst.data)[ 2 ] );
+		dst_code_entry = dst_code_lookup( addr[ 2 ] );
 		latitude[ 2 ] = dst_code_entry->digit;
 		msg_c = dst_code_entry->msg & 0x1;
 
-		dst_code_entry = dst_code_lookup( ((guint8 *)pinfo->dst.data)[ 3 ] );
+		dst_code_entry = dst_code_lookup( addr[ 3 ] );
 		latitude[ 3 ] = dst_code_entry->digit;
 		n_s = dst_code_entry->n_s;
 
 		latitude[ 4 ] = '.';
 
-		dst_code_entry = dst_code_lookup( ((guint8 *)pinfo->dst.data)[ 4 ] );
+		dst_code_entry = dst_code_lookup( addr[ 4 ] );
 		latitude[ 5 ] = dst_code_entry->digit;
 		long_offset = dst_code_entry->long_offset;
 
-		dst_code_entry = dst_code_lookup( ((guint8 *)pinfo->dst.data)[ 5 ] );
+		dst_code_entry = dst_code_lookup( addr[ 5 ] );
 		latitude[ 6 ] = dst_code_entry->digit;
 		w_e = dst_code_entry->w_e;
 
-		ssid = (((guint8 *)pinfo->dst.data)[ 6 ] >> 1) & 0x0f;
+		ssid = (addr[ 6 ] >> 1) & 0x0f;
 		}
 
 	/* decode the mic-e info fields */
