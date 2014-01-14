@@ -4043,7 +4043,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
     int offset = start;
     guint8 peek = tvb_get_guint8 (tvb,start);
     guint32 val = 0, type = 0, type_len, val_len;
-    gchar *str = NULL;
+    const gchar *str = NULL;
     const gchar *val_str = NULL;
     gchar *s;
     gboolean ok;
@@ -4260,7 +4260,7 @@ parameter (proto_tree *tree, proto_item *ti, tvbuff_t *tvb, int start, int len)
                 peek &= 0x7F;
                 proto_tree_add_uint (tree, hf_wsp_parameter_sec,
                         tvb, start, 2, peek);
-                str = (gchar *) val_to_str_ext_const(peek, &vals_wsp_parameter_sec_ext, "Undefined");
+                str = val_to_str_ext_const(peek, &vals_wsp_parameter_sec_ext, "Undefined");
                 s = wmem_strdup_printf(wmem_packet_scope(), "; SEC=%s", str);
                 proto_item_append_string (ti, s);
                 offset++;
