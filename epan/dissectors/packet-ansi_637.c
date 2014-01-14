@@ -532,6 +532,8 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
     case 0x04: /* UNICODE */
 
+        offset = 0;
+
         proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields*2, ENC_UCS_2|ENC_BIG_ENDIAN);
         break;
 
