@@ -53,7 +53,7 @@ WS_DLL_PUBLIC const gchar *guids_get_guid_name(const e_guid_t *guid);
 WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid);
 
 /* add a UUID (dcerpc_init_uuid() will call this too) */
-#define guids_add_uuid(uuid, name) guids_add_guid((e_guid_t *) (uuid), (name))
+#define guids_add_uuid(uuid, name) guids_add_guid((const e_guid_t *) (uuid), (name))
 
 /* try to get registered name for this UUID */
 #define guids_get_uuid_name(uuid) guids_get_guid_name((e_guid_t *) (uuid))
