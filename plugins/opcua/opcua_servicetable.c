@@ -28,6 +28,7 @@
 #include "opcua_identifiers.h"
 #include "opcua_serviceparser.h"
 #include "opcua_serviceids.h"
+#include "opcua_servicetable.h"
 
 ParserEntry g_arParserTable[] = {
     { OpcUaId_FindServersRequest_Encoding_DefaultBinary, parseFindServersRequest },

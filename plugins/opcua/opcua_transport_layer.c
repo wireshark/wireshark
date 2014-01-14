@@ -29,6 +29,7 @@
 #include "opcua_application_layer.h"
 #include "opcua_simpletypes.h"
 #include "opcua_transport_layer.h"
+#include "opcua_servicetable.h"
 
 static int hf_opcua_transport_type = -1;
 static int hf_opcua_transport_chunk = -1;
