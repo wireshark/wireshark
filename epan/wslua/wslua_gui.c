@@ -263,7 +263,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
         if (! label)
             WSLUA_ERROR(new_dialog,"All fields must be strings");
 
-        g_ptr_array_add(labels,label);
+        g_ptr_array_add(labels,(gpointer)label);
     }
 
     g_ptr_array_add(labels,NULL);
