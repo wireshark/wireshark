@@ -60,6 +60,7 @@ common_create_progress_dlg(bool animate, const gpointer top_level_window,
     return pb->show(animate, terminate_is_stop, stop_flag, value);
 }
 
+#if 0
 progdlg_t *
 create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
                             gboolean terminate_is_stop, gboolean *stop_flag,
@@ -71,6 +72,7 @@ create_progress_dlg(const gpointer top_level_window, const gchar *task_title, co
 
     return common_create_progress_dlg(false, top_level_window, terminate_is_stop, stop_flag, progress * 100);
 }
+#endif
 
 progdlg_t *
 delayed_create_progress_dlg(const gpointer top_level_window, const gchar *task_title, const gchar *item_title,
