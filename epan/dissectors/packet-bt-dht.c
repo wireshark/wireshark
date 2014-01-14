@@ -124,7 +124,7 @@ bencoded_string_length(tvbuff_t *tvb, guint *offset_ptr)
  */
 
 static int
-dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, char **result, gboolean tohex, const char *label )
+dissect_bencoded_string(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, guint offset, const char **result, gboolean tohex, const char *label )
 {
   guint string_len;
   string_len = bencoded_string_length(tvb, &offset);
