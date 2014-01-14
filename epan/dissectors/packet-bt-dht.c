@@ -345,7 +345,8 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_item *ti;
   proto_tree *sub_tree;
   gboolean    tohex;
-  char       *key, *val;
+  const char *key;
+  const char *val;
   guint       orig_offset = offset;
 
   key = NULL;
@@ -362,7 +363,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   {
   case 'd':
     offset = dissect_bencoded_dict( tvb, pinfo, sub_tree, offset, "Value" );
-    val    = (char*)dict_str;
+    val    = dict_str;
     break;
   case 'l':
     if( strcmp(key,"e")==0 )
@@ -373,7 +374,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else
     {
       offset = dissect_bencoded_list( tvb, pinfo, sub_tree, offset, "Value" );
-      val = (char*)list_str;
+      val = list_str;
     }
     break;
   case 'i':
@@ -399,7 +400,7 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       if(len == 4) {
         proto_tree_add_item(sub_tree, hf_ip, tvb, offset, len, ENC_BIG_ENDIAN);
-        val = (char*)tvb_ip_to_str(tvb, offset);
+        val = tvb_ip_to_str(tvb, offset);
         offset += len;
       }
       else {
@@ -417,9 +418,9 @@ dissect_bencoded_dict_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   }
 
   if( strlen(key)==1 )
-    key = (char*)val_to_str_const( key[0], short_key_name_value_string, key );
+    key = val_to_str_const( key[0], short_key_name_value_string, key );
   if( strlen(val)==1 )
-    val = (char*)val_to_str_const( val[0], short_val_name_value_string, val );
+    val = val_to_str_const( val[0], short_val_name_value_string, val );
 
   proto_item_set_text( ti, "%s: %s", key, val );
   proto_item_set_len( ti, offset-orig_offset );
