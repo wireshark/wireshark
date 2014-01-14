@@ -3826,7 +3826,7 @@ ssl_association_remove(GTree* associations, SslAssociation *assoc)
 gint
 ssl_association_cmp(gconstpointer a, gconstpointer b)
 {
-    const SslAssociation *assoc_a=(SslAssociation *)a, *assoc_b=(SslAssociation *)b;
+    const SslAssociation *assoc_a=(const SslAssociation *)a, *assoc_b=(const SslAssociation *)b;
     if (assoc_a->tcp != assoc_b->tcp) return (assoc_a->tcp)?1:-1;
     return assoc_a->ssl_port - assoc_b->ssl_port;
 }

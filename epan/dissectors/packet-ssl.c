@@ -906,7 +906,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     /* save data to update IV if decoder is available or updated later */
     data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
     data_for_iv_len = (record_length < 24) ? record_length : 24;
-    ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
+    ssl_data_set(data_for_iv, (const guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
 
     if (!decoder) {
         ssl_debug_printf("decrypt_ssl3_record: no decoder available\n");
@@ -925,7 +925,7 @@ decrypt_ssl3_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
         /* save data to update IV if valid session key is obtained later */
         data_for_iv = (direction != 0) ? &ssl->server_data_for_iv : &ssl->client_data_for_iv;
         data_for_iv_len = (record_length < 24) ? record_length : 24;
-        ssl_data_set(data_for_iv, (guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
+        ssl_data_set(data_for_iv, (const guchar*)tvb_get_ptr(tvb, offset + record_length - data_for_iv_len, data_for_iv_len), data_for_iv_len);
     }
     if (ret && save_plaintext) {
       ssl_add_data_info(proto_ssl, pinfo, ssl_decrypted_data.data, ssl_decrypted_data_avail,  tvb_raw_offset(tvb)+offset, decoder->flow);
@@ -4784,7 +4784,7 @@ ssldecrypt_free_cb(void *r)
 static void*
 ssldecrypt_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
-    const ssldecrypt_assoc_t *o = (ssldecrypt_assoc_t *)orig;
+    const ssldecrypt_assoc_t *o = (const ssldecrypt_assoc_t *)orig;
     ssldecrypt_assoc_t       *d = (ssldecrypt_assoc_t *)dest;
 
     d->ipaddr    = g_strdup(o->ipaddr);
