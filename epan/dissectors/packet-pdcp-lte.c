@@ -34,8 +34,9 @@
 #include <epan/addr_resolv.h>
 #include <epan/wmem/wmem.h>
 
-#ifdef HAVE_LIBGCRYPT
 #include <epan/uat.h>
+
+#ifdef HAVE_LIBGCRYPT
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
@@ -146,7 +147,6 @@ static expert_field ei_pdcp_lte_sequence_analysis_sn_repeated = EI_INIT;
 static expert_field ei_pdcp_lte_sequence_analysis_sn_missing = EI_INIT;
 static expert_field ei_pdcp_lte_digest_wrong = EI_INIT;
 
-#ifdef HAVE_LIBGCRYPT
 /*-------------------------------------
  * UAT for UE Keys
  *-------------------------------------
@@ -294,7 +294,6 @@ UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcIntegrityKeyString,  uat_ue_keys_reco
 
 static gboolean global_pdcp_decipher_signalling = FALSE;
 static gboolean global_pdcp_decipher_userplane = FALSE;
-#endif
 static gboolean global_pdcp_check_integrity = FALSE;
 
 static const value_string direction_vals[] =
@@ -538,12 +537,12 @@ static GHashTable *pdcp_lte_sequence_analysis_report_hash = NULL;
 /* Gather together security settings in order to be able to do deciphering */
 typedef struct pdu_security_settings_t
 {
-    gboolean cipherValid;
-    gboolean integrityValid;
     enum security_ciphering_algorithm_e ciphering;
     enum security_integrity_algorithm_e integrity;
     guint8* cipherKey;
     guint8* integrityKey;
+    gboolean cipherKeyValid;
+    gboolean integrityKeyValid;
     guint32 count;
     guint8  bearer;
     guint8  direction;
@@ -615,11 +614,10 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 (pdu_security->integrity != eia0)) {
                 guint32              hfn_multiplier;
                 guint32              count;
-#if HAVE_LIBGCRYPT
                 gchar                *cipher_key = NULL;
                 gchar                *integrity_key = NULL;
                 guint                record_id;
-#endif
+
                 /* BEARER */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
                                          tvb, 0, 0, p_pdcp_lte_info->channelId-1);
@@ -655,7 +653,6 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 PROTO_ITEM_SET_GENERATED(ti);
                 pdu_security->count = count;
 
-#if HAVE_LIBGCRYPT
                 /* KEY.  Look this UE up among UEs that have keys configured */
                 for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
                     if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
@@ -664,13 +661,13 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                             if (uat_ue_keys_records[record_id].rrcCipherKeyOK) {
                                 cipher_key = uat_ue_keys_records[record_id].rrcCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].rrcCipherBinaryKey[0]);
-                                pdu_security->cipherValid = TRUE;
+                                pdu_security->cipherKeyValid = TRUE;
                             }
                             /* Get RRC integrity key */
                             if (uat_ue_keys_records[record_id].rrcIntegrityKeyOK) {
                                 integrity_key = uat_ue_keys_records[record_id].rrcIntegrityKeyString;
                                 pdu_security->integrityKey = &(uat_ue_keys_records[record_id].rrcIntegrityBinaryKey[0]);
-                                pdu_security->integrityValid = TRUE;
+                                pdu_security->integrityKeyValid = TRUE;
                             }
                         }
                         else {
@@ -678,7 +675,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                             if (uat_ue_keys_records[record_id].upCipherKeyOK) {
                                 cipher_key = uat_ue_keys_records[record_id].upCipherKeyString;
                                 pdu_security->cipherKey = &(uat_ue_keys_records[record_id].upCipherBinaryKey[0]);
-                                pdu_security->cipherValid = TRUE;
+                                pdu_security->cipherKeyValid = TRUE;
                             }
                         }
 
@@ -696,7 +693,6 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         break;
                     }
                 }
-#endif
                 pdu_security->direction = p_pdcp_lte_info->direction;
             }
             break;
@@ -1349,31 +1345,40 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
                         p_frame_security);
 }
 
-#if HAVE_LIBGCRYPT
 /* Decipher payload if algorithm is supported and plausible inputs are available */
 static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset,
                                   pdu_security_settings_t *pdu_security_settings,
                                   enum pdcp_plane plane, gboolean will_be_deciphered,
                                   gboolean *deciphered)
 {
-    unsigned char ctr_block[16];
-    gcry_cipher_hd_t cypher_hd;
-    int gcrypt_err;
     guint8* decrypted_data;
     gint payload_length;
     tvbuff_t *decrypted_tvb;
 
-    /* Nothing to do if no ciphering algorithm was specified */
-    if (!pdu_security_settings->cipherValid) {
+    /* Nothing to do if NULL ciphering */
+    if (pdu_security_settings->ciphering == eea0) {
         return tvb;
     }
 
-    /* Only EEA2 supported at the moment */
-    if ((pdu_security_settings->ciphering != eea2)
-#ifdef HAVE_SNOW3G
-        && (pdu_security_settings->ciphering != eea1)
+    /* Nothing to do if don't have valid cipher key */
+    if (!pdu_security_settings->cipherKeyValid) {
+        return tvb;
+    }
+
+    /* Check whether algorithm supported (only drop through and process if we do) */
+    if (pdu_security_settings->ciphering == eea1) {
+#ifndef HAVE_SNOW3G
+        return tvb;
 #endif
-        ){
+    }
+    else
+    if (pdu_security_settings->ciphering == eea2) {
+#ifndef HAVE_LIBGCRYPT
+        return tvb;
+#endif
+    }
+    else {
+        /* An algorithm we don't support at all! */
         return tvb;
     }
 
@@ -1388,8 +1393,13 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
     }
 
+#ifdef HAVE_LIBGCRYPT
     /* AES */
     if (pdu_security_settings->ciphering == eea2) {
+        unsigned char ctr_block[16];
+        gcry_cipher_hd_t cypher_hd;
+        int gcrypt_err;
+
         /* Set CTR */
         memset(ctr_block, 0, 16);
         /* Only first 5 bytes set */
@@ -1437,9 +1447,11 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         /* Close gcrypt handle */
         gcry_cipher_close(cypher_hd);
     }
+#endif
+
 #ifdef HAVE_SNOW3G
     /* SNOW-3G */
-    else if (pdu_security_settings->ciphering == eea1) {
+    if (pdu_security_settings->ciphering == eea1) {
         /* Extract the encrypted data into a buffer */
         payload_length = tvb_length_remaining(tvb, *offset);
         decrypted_data = (guint8 *)g_malloc0(payload_length);
@@ -1464,45 +1476,63 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     *deciphered = TRUE;
     return decrypted_tvb;
 }
-#else
-static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo _U_, int *offset _U_,
-                                  pdu_security_settings_t *pdu_security_settings _U_,
-                                  enum pdcp_plane plane _U_, gboolean will_be_deciphered _U_,
-                                  gboolean *deciphered _U_)
-{
-    return tvb;
-}
-#endif
 
-#ifdef HAVE_LIBGCRYPT
+
+/* Try to calculate digest to compare with that found in frame. */
 static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header _U_,
                                 tvbuff_t *tvb _U_, gint offset _U_, gboolean *calculated)
 {
     *calculated = FALSE;
 
+    if (pdu_security_settings->integrity == eia0) {
+        /* Should be zero in this case */
+        *calculated = TRUE;
+        return 0;
+    }
+
+    /* Can't calculate if don't have valid integrity key */
+    if (!pdu_security_settings->integrityKeyValid) {
+        return 0;
+    }
+
+    /* Can only do if indicated in preferences */
+    if (!global_pdcp_check_integrity) {
+        return 0;
+    }
+
     switch (pdu_security_settings->integrity) {
-        case eia0:
-            /* Should be zero in this case */
-            *calculated = TRUE;
-            return 0;
+
+#ifdef HAVE_SNOW3G
+        case eia1:
+            {
+                guint8  *mac;
+                gint message_length = tvb_length_remaining(tvb, offset) - 4;
+                guint8 *message_data = (guint8 *)g_malloc0(message_length+1);
+                message_data[0] = header;
+                tvb_memcpy(tvb, message_data+1, offset, message_length);
+
+                mac = (u8*)snow3g_f9(pdu_security_settings->integrityKey,
+                                     pdu_security_settings->count,
+                                     pdu_security_settings->bearer << 27,
+                                     pdu_security_settings->direction,
+                                     message_data,
+                                     (message_length+1)*8);
+                          
+                *calculated = TRUE;
+                g_free(message_data);
+                return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
+            }
+#endif
+
+#if (defined GCRYPT_VERSION_NUMBER) && (GCRYPT_VERSION_NUMBER >= 0x010600)
         case eia2:
             {
-#if (defined GCRYPT_VERSION_NUMBER) && (GCRYPT_VERSION_NUMBER >= 0x010600)
                 gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
                 gint message_length;
                 guint8 *message_data;
                 guint8  mac[4];
                 ssize_t read_digest_length = 4;
-
-                if (!pdu_security_settings->integrityValid) {
-                    return 0;
-                }
-            
-                /* Can only do if indicated in preferences */
-                if (!global_pdcp_check_integrity) {
-                    return 0;
-                }
 
                 /* Open gcrypt handle */
                 /* N.B. Unfortunately GCRY_MAC_CMAC_AES is not available in currently used version of gcrypt! */
@@ -1552,38 +1582,16 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 g_free(message_data);
 
                 *calculated = TRUE;
-                /* 3GPP TS 33.401 C.2 suggests the first word will be the calculated CMAC. */
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
-#endif
             }
-            /* Just dropping through if gcrypt version doesn't support GCRY_MAC_CMAC_AES! */ 
-
-        case eia1:
-        default:
-            /* Can't calculate */
-            *calculated = FALSE;
-            return 0;
-    }
-}
-#else
-static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, guint8 header _U_,
-                                tvbuff_t *tvb _U_,  gint offset _U_, gboolean *calculated)
-{
-    switch (pdu_security_settings->integrity) {
-        case eia0:
-            /* Should be zero in this case */
-            *calculated = TRUE;
-            return 0;
-
-        default:
-            /* Can't calculate */
-            *calculated = FALSE;
-            return 0;
-    }
-}
 #endif
 
-
+        default:
+            /* Can't calculate */
+            *calculated = FALSE;
+            return 0;
+    }
+}
 
 
 
@@ -2455,7 +2463,6 @@ void proto_register_pdcp(void)
         {NULL, NULL, -1}
     };
 
-#ifdef HAVE_LIBGCRYPT
   static uat_field_t ue_keys_uat_flds[] = {
       UAT_FLD_DEC(uat_ue_keys_records, ueid, "UEId", "UE Identifier of UE associated with keys"),
       UAT_FLD_CSTRING(uat_ue_keys_records, rrcCipherKeyString, "RRC Cipher Key",        "Key for deciphering signalling messages"),
@@ -2463,7 +2470,6 @@ void proto_register_pdcp(void)
       UAT_FLD_CSTRING(uat_ue_keys_records, rrcIntegrityKeyString,  "RRC Integrity Key", "Key for deciphering user-plane messages"),
       UAT_END_FIELDS
     };
-#endif
 
     module_t *pdcp_lte_module;
     expert_module_t* expert_pdcp_lte;
@@ -2519,7 +2525,6 @@ void proto_register_pdcp(void)
         "Can show RLC, PDCP or Traffic layer info in Info column",
         &global_pdcp_lte_layer_to_show, show_info_col_vals, FALSE);
 
-#ifdef HAVE_LIBGCRYPT
     ue_keys_uat = uat_new("PDCP UE security keys",
               sizeof(uat_ue_keys_record_t),    /* record size */
               "pdcp_lte_ue_keys",              /* filename */
@@ -2543,21 +2548,20 @@ void proto_register_pdcp(void)
     /* Attempt to decipher RRC messages */
     prefs_register_bool_preference(pdcp_lte_module, "decipher_signalling",
         "Attempt to decipher Signalling (RRC) SDUs",
-        "N.B. only possible if key available and configured",
+        "N.B. only possible if build with algorithm support, and have key available and configured",
         &global_pdcp_decipher_signalling);
 
     /* Attempt to decipher user-plane messages */
     prefs_register_bool_preference(pdcp_lte_module, "decipher_userplane",
         "Attempt to decipher User-plane (IP) SDUs",
-        "N.B. only possible if key available and configured",
+        "N.B. only possible if build with algorithm support, and have key available and configured",
         &global_pdcp_decipher_userplane);
 
     /* Attempt to verify RRC integrity/authentication digest */
     prefs_register_bool_preference(pdcp_lte_module, "verify_integrity",
         "Attempt to check integrity calculation",
-        "N.B. only possible if key available and configured",
+        "N.B. only possible if build with algorithm support, and have key available and configured",
         &global_pdcp_check_integrity);
-#endif
 
     register_init_routine(&pdcp_lte_init_protocol);
 }
