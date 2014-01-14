@@ -32,7 +32,7 @@
 struct ansi_tcap_private_t {
   guint32 signature;
   gboolean oid_is_present; /* Is the Application Context Version present */
-  void * objectApplicationId_oid;
+  const void * objectApplicationId_oid;
   guint32 session_id;
   void * context;
   gchar *TransactionID_str;

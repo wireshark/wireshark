@@ -1063,7 +1063,7 @@ dissect_tcap_AUDT_application_context_name(gboolean implicit_tag _U_, tvbuff_t *
 #line 108 "../../asn1/tcap/tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
-	tcap_private.oid= (void*) cur_oid;
+	tcap_private.oid= (const void*) cur_oid;
 	tcap_private.acv=TRUE;
 
 
@@ -1160,7 +1160,7 @@ dissect_tcap_AARQ_application_context_name(gboolean implicit_tag _U_, tvbuff_t *
 #line 113 "../../asn1/tcap/tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
-	tcap_private.oid= (void*) cur_oid;
+	tcap_private.oid= (const void*) cur_oid;
 	tcap_private.acv=TRUE;
 
 
@@ -1228,7 +1228,7 @@ dissect_tcap_AARE_application_context_name(gboolean implicit_tag _U_, tvbuff_t *
 #line 118 "../../asn1/tcap/tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
-	tcap_private.oid= (void*) cur_oid;
+	tcap_private.oid= (const void*) cur_oid;
 	tcap_private.acv=TRUE;
 
 

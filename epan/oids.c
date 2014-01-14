@@ -1195,16 +1195,16 @@ const gchar *oid_resolved(guint32 num_subids, guint32* subids) {
 	}
 }
 
-extern void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p) {
-	*resolved_p = (char *)oid_resolved(oid_len,subids);
-	*numeric_p = (char *)oid_subid2string(subids,oid_len);
+extern void oid_both(guint oid_len, guint32 *subids, const char** resolved_p, const char** numeric_p) {
+	*resolved_p = oid_resolved(oid_len,subids);
+	*numeric_p = oid_subid2string(subids,oid_len);
 }
 
-extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p) {
+extern void oid_both_from_encoded(const guint8 *oid, gint oid_len, const char** resolved_p, const char** numeric_p) {
 	guint32* subids;
 	guint subids_len = oid_encoded2subid(oid, oid_len, &subids);
-	*resolved_p = (char *)oid_resolved(subids_len,subids);
-	*numeric_p = (char *)oid_subid2string(subids,subids_len);
+	*resolved_p = oid_resolved(subids_len,subids);
+	*numeric_p = oid_subid2string(subids,subids_len);
 }
 
 void oid_both_from_string(const gchar *oid_str, const char** resolved_p, const char** numeric_p) {

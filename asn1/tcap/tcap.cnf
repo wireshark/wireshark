@@ -106,17 +106,17 @@ ENDTRY;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AUDT-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (void*) cur_oid;
+	tcap_private.oid= (const void*) cur_oid;
 	tcap_private.acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARQ-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (void*) cur_oid;
+	tcap_private.oid= (const void*) cur_oid;
 	tcap_private.acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY AARE-apdu/_untag/application-context-name  FN_VARIANT = _str  VAL_PTR = &cur_oid
 %(DEFAULT_BODY)s
-	tcap_private.oid= (void*) cur_oid;
+	tcap_private.oid= (const void*) cur_oid;
 	tcap_private.acv=TRUE;
 #----------------------------------------------------------------------------------------
 #.FN_BODY OrigTransactionID

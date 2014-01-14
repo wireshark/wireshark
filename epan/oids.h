@@ -163,8 +163,8 @@ WS_DLL_PUBLIC const gchar *rel_oid_resolved_from_encoded(const guint8 *oid, gint
 WS_DLL_PUBLIC const gchar *oid_resolved_from_string(const gchar *oid_str);
 
 /* these yield two formated strings one resolved and one numeric */
-WS_DLL_PUBLIC void oid_both(guint oid_len, guint32 *subids, char** resolved_p, char** numeric_p);
-WS_DLL_PUBLIC void oid_both_from_encoded(const guint8 *oid, gint oid_len, char** resolved_p, char** numeric_p);
+WS_DLL_PUBLIC void oid_both(guint oid_len, guint32 *subids, const char** resolved_p, const char** numeric_p);
+WS_DLL_PUBLIC void oid_both_from_encoded(const guint8 *oid, gint oid_len, const char** resolved_p, const char** numeric_p);
 WS_DLL_PUBLIC void oid_both_from_string(const gchar *oid_str, const char** resolved_p, const char** numeric_p);
 
 /*
