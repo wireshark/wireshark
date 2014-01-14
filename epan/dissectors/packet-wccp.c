@@ -409,7 +409,7 @@ static guint dissect_web_cache_list_entry(tvbuff_t *tvb, int offset,
                                           int idx, proto_tree *wccp_tree);
 static int wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree,
                             guint32 start, tvbuff_t *tvb, int offset);
-static gchar *bucket_name(guint8 bucket);
+static const gchar *bucket_name(guint8 bucket);
 static guint16 dissect_wccp2_header(tvbuff_t *tvb, int offset,
                                     proto_tree *wccp_tree);
 static void dissect_wccp2_info(tvbuff_t *tvb, int offset, guint16 length,
@@ -488,7 +488,7 @@ static gint dissect_wccp2_alternate_mask_value_set_list(tvbuff_t *tvb, int offse
 static gint dissect_wccp2_alternate_mask_value_set_element(tvbuff_t *tvb, int offset, gint length, guint el_index, packet_info *pinfo, proto_tree *info_tree);
 static gint dissect_wccp2_web_cache_value_element(tvbuff_t *tvb, int offset,
                                                   gint length,  packet_info *pinfo, proto_tree *info_tree);
-static gchar *assignment_bucket_name(guint8 bucket);
+static const gchar *assignment_bucket_name(guint8 bucket);
 static void dissect_32_bit_capability_flags(tvbuff_t *tvb, int curr_offset,
                                             guint16 capability_val_len, gint ett, const capability_flag *flags,
                                             proto_tree *element_tree, proto_item *header);
@@ -835,11 +835,11 @@ wccp_bucket_info(guint8 bucket_info, proto_tree *bucket_tree, guint32 start,
   return(start);
 }
 
-static gchar *
+static const gchar *
 bucket_name(guint8 bucket)
 {
   if (bucket == 0xff) {
-    return (gchar *) "Unassigned";
+    return "Unassigned";
   } else {
     return wmem_strdup_printf(wmem_packet_scope(), "%u", bucket);
   }
@@ -1646,13 +1646,13 @@ dissect_wccp2_router_assignment_element(tvbuff_t *tvb, int offset,
   EAT(4);
 }
 
-static gchar *
+static const gchar *
 assignment_bucket_name(guint8 bucket)
 {
-  gchar *cur;
+  const gchar *cur;
 
   if (bucket == 0xff) {
-    cur= (gchar *) "Unassigned";
+    cur= "Unassigned";
   } else {
     cur=wmem_strdup_printf(wmem_packet_scope(), "%u%s", bucket & 0x7F,
                          (bucket & 0x80) ? " (Alt)" : "");
