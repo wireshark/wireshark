@@ -1800,7 +1800,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 		/* from an aircraft it's downlink */
 		
 		/* convert addr into 32-bit integer */
-		addr = pinfo->src.data;
+		addr = (const guint8 *)pinfo->src.data;
 		adr_prefix =
 				((addr[0]<<24) |
 				(addr[1]<<16) |
@@ -1826,7 +1826,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 		/* from an aircraft it's downlink */
 
 		/* convert addr into 32-bit integer */
-		addr = pinfo->dst.data;
+		addr = (const guint8 *)pinfo->dst.data;
 		adr_prefix = ((addr[0]<<24) |
 				(addr[1]<<16) |
 				(addr[2]<<8) |
@@ -1864,7 +1864,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 		if( (pinfo->src.len != 20) || (pinfo->dst.len != 20)) {
 				return t; }
 
-		addr = pinfo->src.data;
+		addr = (const guint8 *)pinfo->src.data;
 
 		/* convert address to 32-bit integer  */
 		adr_prefix = ((addr[0]<<24) | (addr[1]<<16) | (addr[2]<<8) | addr[3] );
@@ -1877,7 +1877,7 @@ int check_heur_msg_type(packet_info *pinfo  _U_)
 				t = dm; /* source is an aircraft: it's a downlink PDU */
 		}
 
-		addr = pinfo->dst.data;
+		addr = (const guint8 *)pinfo->dst.data;
 
 		/* convert address to 32-bit integer  */
 		adr_prefix = ((addr[0]<<24) | (addr[1]<<16) | (addr[2]<<8) | addr[3] );
