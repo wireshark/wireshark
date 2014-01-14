@@ -80,7 +80,7 @@ static void *
 ess_copy_cb(void *dest, const void *orig, size_t len _U_)
 {
   ess_category_attributes_t *u = (ess_category_attributes_t *)dest;
-  const ess_category_attributes_t *o = (ess_category_attributes_t *)orig;
+  const ess_category_attributes_t *o = (const ess_category_attributes_t *)orig;
 
   u->oid  = g_strdup(o->oid);
   u->lacv = o->lacv;
