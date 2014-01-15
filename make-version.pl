@@ -69,6 +69,7 @@ my $tortoise_file = "tortoise_template";
 my $last_change = 0;
 my $revision = 0;
 my $repo_path = "unknown";
+my $git_description = undef;
 my $get_svn = 0;
 my $set_svn = 0;
 my $set_version = 0;
@@ -181,6 +182,11 @@ sub read_repo_info {
 			chomp($line = qx{git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if (defined($line)) {
 				$repo_path = basename($line);
+			}
+
+			chomp($line = qx{git describe --tags --dirty});
+			if (defined($line)) {
+				$git_description = $line;
 			}
 
 			1;
@@ -520,7 +526,11 @@ sub print_svn_revision
 	my $svn_revision;
 	my $needs_update = 1;
 
-	if ($last_change && $revision) {
+	if ($git_description) {
+		$svn_revision = "#define SVNVERSION \"" .
+			$git_description . "\"\n" .
+			"#define SVNPATH \"" . $repo_path . "\"\n";
+	} elsif ($last_change && $revision) {
 		$svn_revision = "#define SVNVERSION \"SVN Rev " .
 			$revision . "\"\n" .
 			"#define SVNPATH \"" . $repo_path . "\"\n";
