@@ -219,7 +219,7 @@ bytes_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
 
 	bytes = g_byte_array_new();
 
-	g_byte_array_append(bytes, (guint8 *)s, (guint)strlen(s));
+	g_byte_array_append(bytes, (const guint8 *)s, (guint)strlen(s));
 
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
