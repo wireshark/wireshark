@@ -142,8 +142,8 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
 static int
 frames_compare(gconstpointer a, gconstpointer b)
 {
-    const FrameRecord_t *frame1 = *(const FrameRecord_t **) a;
-    const FrameRecord_t *frame2 = *(const FrameRecord_t **) b;
+    const FrameRecord_t *frame1 = *(const FrameRecord_t *const *) a;
+    const FrameRecord_t *frame2 = *(const FrameRecord_t *const *) b;
 
     const nstime_t *time1 = &frame1->time;
     const nstime_t *time2 = &frame2->time;
