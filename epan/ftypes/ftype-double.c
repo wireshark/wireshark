@@ -49,7 +49,7 @@ value_get_floating(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	char    *endptr = NULL;
 
@@ -166,7 +166,12 @@ ftype_register_double(void)
 		float_val_to_repr,		/* val_to_string_repr */
 		float_val_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_snteger */
 		NULL,				/* set_value_integer64 */
@@ -204,7 +209,12 @@ ftype_register_double(void)
 		double_val_to_repr,		/* val_to_string_repr */
 		double_val_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */

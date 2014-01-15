@@ -659,7 +659,7 @@ WS_DLL_PUBLIC proto_tree* proto_item_add_subtree(proto_item *ti, const gint idx)
 /** Get an existing subtree under an item.
  @param ti the parent item of the subtree
  @return the subtree or NULL */
-WS_DLL_PUBLIC proto_tree* proto_item_get_subtree(const proto_item *ti);
+WS_DLL_PUBLIC proto_tree* proto_item_get_subtree(proto_item *ti);
 
 /** Get the parent of a subtree item.
  @param ti the child item in the subtree
@@ -754,7 +754,7 @@ proto_tree_prime_hfid(proto_tree *tree, const int hfid);
 /** Get a parent item of a subtree.
  @param tree the tree to get the parent from
  @return parent item */
-WS_DLL_PUBLIC proto_item* proto_tree_get_parent(const proto_tree *tree);
+WS_DLL_PUBLIC proto_item* proto_tree_get_parent(proto_tree *tree);
 
 /** Get the root tree from any subtree.
  @param tree the tree to get the root from
@@ -901,7 +901,7 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-	gint length, nstime_t* value_ptr);
+	gint length, const nstime_t* value_ptr);
 
 /** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with
     the format generating the string for the value and with the field name

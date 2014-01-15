@@ -45,17 +45,14 @@ string_fvalue_free(fvalue_t *fv)
 }
 
 static void
-string_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+string_fvalue_set_string(fvalue_t *fv, const gchar *value)
 {
 	DISSECTOR_ASSERT(value != NULL);
 
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
 
-	if (already_copied)
-		fv->value.string = (gchar *)value; /* must be g_ allocated */
-	else
-		fv->value.string = (gchar *)g_strdup((const gchar *)value);
+	fv->value.string = (gchar *)g_strdup(value);
 }
 
 static int
@@ -95,7 +92,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
+val_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
 {
 	/* Free up the old value, if we have one */
 	string_fvalue_free(fv);
@@ -105,7 +102,7 @@ val_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	fvalue_t *fv_bytes;
 
@@ -247,7 +244,12 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		string_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		string_fvalue_set_string,       /* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -284,7 +286,12 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		string_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		string_fvalue_set_string,       /* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -321,7 +328,12 @@ ftype_register_string(void)
 		string_to_repr,			/* val_to_string_repr */
 		string_repr_len,		/* len_string_repr */
 
-		string_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		string_fvalue_set_string,       /* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */

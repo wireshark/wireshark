@@ -64,7 +64,7 @@ get_sinteger(fvalue_t *fv)
 
 
 static gboolean
-uint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
+uint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
 		   guint32 max)
 {
 	unsigned long value;
@@ -117,31 +117,31 @@ uint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 }
 
 static gboolean
-uint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint32_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT32);
 }
 
 static gboolean
-uint24_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint24_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, 0xFFFFFF);
 }
 
 static gboolean
-uint16_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint16_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT16);
 }
 
 static gboolean
-uint8_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+uint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return uint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXUINT8);
 }
 
 static gboolean
-sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
+sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc,
 		   gint32 max, gint32 min)
 {
 	long value;
@@ -202,25 +202,25 @@ sint_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogF
 }
 
 static gboolean
-sint32_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint32_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT32, G_MININT32);
 }
 
 static gboolean
-sint24_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint24_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, 0x7FFFFF, -0x800000);
 }
 
 static gboolean
-sint16_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint16_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT16, G_MININT16);
 }
 
 static gboolean
-sint8_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+sint8_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	return sint_from_unparsed (fv, s, allow_partial_value, logfunc, G_MAXINT8, G_MININT8);
 }
@@ -258,7 +258,7 @@ uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static gboolean
-ipxnet_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+ipxnet_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint32 	val;
 	gboolean	known;
@@ -379,7 +379,7 @@ get_integer64(fvalue_t *fv)
 }
 
 static gboolean
-uint64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+uint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint64 value;
 	char    *endptr;
@@ -424,7 +424,7 @@ uint64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Lo
 }
 
 static gboolean
-sint64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+sint64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	gint64 value;
 	char   *endptr;
@@ -613,7 +613,7 @@ bool_ne(const fvalue_t *a, const fvalue_t *b)
 
 /* EUI64-specific */
 static gboolean
-eui64_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+eui64_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 
 	/*
@@ -664,7 +664,12 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		set_uinteger,		/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -701,8 +706,13 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
-		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
@@ -738,8 +748,13 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
-		set_uinteger,		/* set_value_integer */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		set_uinteger,			/* set_value_integer */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
@@ -775,14 +790,19 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
-		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_uinteger,		/* get_value_integer */
+		get_uinteger,			/* get_value_integer */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
@@ -812,16 +832,21 @@ ftype_register_integers(void)
 		uinteger64_to_repr,		/* val_to_string_repr */
 		uinteger64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		set_integer64,		/* set_value_integer64 */
+		set_integer64,			/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		get_integer64,		/* get_value_integer64 */
+		get_integer64,			/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -849,9 +874,14 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
-		set_sinteger,		/* set_value_sinteger */
+		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
@@ -886,15 +916,20 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
-		set_sinteger,		/* set_value_sinteger */
+		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
-		get_sinteger,		/* get_value_sinteger */
+		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -923,9 +958,14 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
-		set_sinteger,		/* set_value_sinteger */
+		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
@@ -960,15 +1000,20 @@ ftype_register_integers(void)
 		integer_to_repr,		/* val_to_string_repr */
 		integer_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
-		set_sinteger,		/* set_value_sinteger */
+		set_sinteger,			/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
-		get_sinteger,		/* get_value_sinteger */
+		get_sinteger,			/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
@@ -997,16 +1042,21 @@ ftype_register_integers(void)
 		integer64_to_repr,		/* val_to_string_repr */
 		integer64_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
-		set_integer64,		/* set_value_integer64 */
+		set_integer64,			/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
 		NULL,				/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
-		get_integer64,		/* get_value_integer64 */
+		get_integer64,			/* get_value_integer64 */
 		NULL,				/* get_value_floating */
 
 		cmp_eq64,
@@ -1034,14 +1084,19 @@ ftype_register_integers(void)
 		boolean_to_repr,		/* val_to_string_repr */
 		boolean_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
-		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_uinteger,		/* get_value_uinteger */
+		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
@@ -1072,14 +1127,19 @@ ftype_register_integers(void)
 		ipxnet_to_repr,			/* val_to_string_repr */
 		ipxnet_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
-		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_uinteger,		/* get_value_uinteger */
+		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
@@ -1110,14 +1170,19 @@ ftype_register_integers(void)
 		uinteger_to_repr,		/* val_to_string_repr */
 		uinteger_repr_len,		/* len_string_repr */
 
-		NULL,				/* set_value */
-		set_uinteger,		/* set_value_uinteger */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		set_uinteger,			/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
 		NULL,				/* set_value_floating */
 
 		NULL,				/* get_value */
-		get_uinteger,		/* get_value_uinteger */
+		get_uinteger,			/* get_value_uinteger */
 		NULL,				/* get_value_sinteger */
 		NULL,				/* get_value_integer64 */
 		NULL,				/* get_value_floating */
@@ -1145,10 +1210,15 @@ ftype_register_integers(void)
 		NULL,				/* free_value */
 		eui64_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
-		eui64_to_repr,		/* val_to_string_repr */
-		eui64_repr_len,		/* len_string_repr */
+		eui64_to_repr,			/* val_to_string_repr */
+		eui64_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		set_integer64,			/* set_value_integer64 */

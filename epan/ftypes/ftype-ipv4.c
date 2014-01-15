@@ -44,13 +44,13 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	guint32	addr;
 	unsigned int nmask_bits;
 
-	char *has_slash;
-	char *net_str, *addr_str;
+	const char *has_slash;
+	const char *net_str, *addr_str;
 	fvalue_t *nmask_fvalue;
 
 	/* Look for CIDR: Is there a single slash in the string? */
@@ -178,7 +178,12 @@ ftype_register_ipv4(void)
 		val_to_repr,			/* val_to_string_repr */
 		val_repr_len,			/* len_string_repr */
 
-		NULL,				/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		set_uinteger,		/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */

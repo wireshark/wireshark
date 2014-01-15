@@ -74,7 +74,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
                 }
 
                 new_ft_string = fvalue_new(FT_STRING);
-                fvalue_set(new_ft_string, s, FALSE);
+                fvalue_set_string(new_ft_string, s);
                 *retval = g_list_append(*retval, new_ft_string);
                 break;
 

@@ -31,10 +31,9 @@
 #include <epan/to_str.h>
 
 static void
-guid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+guid_fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)
 {
-    g_assert(!already_copied);
-    fv->value.guid = *(e_guid_t*)value;
+    fv->value.guid = *value;
 }
 
 static gpointer
@@ -44,10 +43,11 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-get_guid(char *s, e_guid_t *guid)
+get_guid(const char *s, e_guid_t *guid)
 {
     size_t i, n;
-    char *p, digits[9];
+    const char *p;
+    char digits[9];
     static const char fmt[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
 
     n = strlen(s);
@@ -87,7 +87,7 @@ get_guid(char *s, e_guid_t *guid)
 }
 
 static gboolean
-guid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+guid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
      e_guid_t guid;
 
@@ -140,7 +140,12 @@ ftype_register_guid(void)
         guid_to_repr,        /* val_to_string_repr */
         guid_repr_len,       /* len_string_repr */
 
-        guid_fvalue_set,     /* set_value */
+        NULL,                /* set_value_byte_array */
+        NULL,                /* set_value_bytes */
+        guid_fvalue_set_guid, /* set_value_guid */
+        NULL,                /* set_value_time */
+        NULL,                /* set_value_string */
+        NULL,                /* set_value_tvbuff */
         NULL,                /* set_value_uinteger */
         NULL,                /* set_value_sinteger */
         NULL,                /* set_value_integer64 */

@@ -227,7 +227,7 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype)
 }
 
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc)
+fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	fvalue_t	*fv;
 
@@ -246,7 +246,7 @@ fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogF
 }
 
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc)
+fvalue_from_string(ftenum_t ftype, const char *s, LogFunc logfunc)
 {
 	fvalue_t	*fv;
 
@@ -408,16 +408,51 @@ fvalue_slice(fvalue_t *fv, drange_t *d_range)
 	drange_foreach_drange_node(d_range, slice_func, &slice_data);
 
 	new_fv = fvalue_new(FT_BYTES);
-	fvalue_set(new_fv, slice_data.bytes, TRUE);
+	fvalue_set_byte_array(new_fv, slice_data.bytes);
 	return new_fv;
 }
 
 
 void
-fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+fvalue_set_byte_array(fvalue_t *fv, GByteArray *value)
 {
-	g_assert(fv->ftype->set_value);
-	fv->ftype->set_value(fv, value, already_copied);
+	g_assert(fv->ftype->set_value_byte_array);
+	fv->ftype->set_value_byte_array(fv, value);
+}
+
+void
+fvalue_set_bytes(fvalue_t *fv, const guint8 *value)
+{
+	g_assert(fv->ftype->set_value_bytes);
+	fv->ftype->set_value_bytes(fv, value);
+}
+
+void
+fvalue_set_guid(fvalue_t *fv, const e_guid_t *value)
+{
+	g_assert(fv->ftype->set_value_guid);
+	fv->ftype->set_value_guid(fv, value);
+}
+
+void
+fvalue_set_time(fvalue_t *fv, const nstime_t *value)
+{
+	g_assert(fv->ftype->set_value_time);
+	fv->ftype->set_value_time(fv, value);
+}
+
+void
+fvalue_set_string(fvalue_t *fv, const gchar *value)
+{
+	g_assert(fv->ftype->set_value_string);
+	fv->ftype->set_value_string(fv, value);
+}
+
+void
+fvalue_set_tvbuff(fvalue_t *fv, tvbuff_t *value)
+{
+	g_assert(fv->ftype->set_value_tvbuff);
+	fv->ftype->set_value_tvbuff(fv, value);
 }
 
 void

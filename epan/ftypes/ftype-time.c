@@ -113,11 +113,11 @@ cmp_le(const fvalue_t *a, const fvalue_t *b)
  * Returns true on success, false on failure.
  */
 static gboolean
-get_nsecs(char *startp, int *nsecs)
+get_nsecs(const char *startp, int *nsecs)
 {
 	int ndigits;
 	int scale;
-	char *p;
+	const char *p;
 	int val;
 	int digit;
 	int i;
@@ -171,9 +171,10 @@ get_nsecs(char *startp, int *nsecs)
 }
 
 static gboolean
-relative_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+relative_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
-	char    *curptr, *endptr;
+	const char    *curptr;
+	char *endptr;
         gboolean negative = FALSE;
 
 	curptr = s;
@@ -236,7 +237,7 @@ fail:
 
 
 static gboolean
-absolute_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
+absolute_val_from_string(fvalue_t *fv, const char *s, LogFunc logfunc)
 {
 	struct tm tm;
 	char    *curptr;
@@ -300,7 +301,7 @@ fail:
 }
 
 static gboolean
-absolute_val_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+absolute_val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	return absolute_val_from_string(fv, s, logfunc);
 }
@@ -313,10 +314,9 @@ time_fvalue_new(fvalue_t *fv)
 }
 
 static void
-time_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+time_fvalue_set(fvalue_t *fv, const nstime_t *value)
 {
-	g_assert(!already_copied);
-	memcpy(&(fv->value.time), value, sizeof(nstime_t));
+	fv->value.time = *value;
 }
 
 static gpointer
@@ -374,7 +374,12 @@ ftype_register_time(void)
 		absolute_val_to_repr,		/* val_to_string_repr */
 		absolute_val_repr_len,		/* len_string_repr */
 
-		time_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		time_fvalue_set,		/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -411,7 +416,12 @@ ftype_register_time(void)
 		relative_val_to_repr,		/* val_to_string_repr */
 		relative_val_repr_len,		/* len_string_repr */
 
-		time_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		time_fvalue_set,		/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */

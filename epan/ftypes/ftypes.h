@@ -208,10 +208,10 @@ fvalue_init(fvalue_t *fv, ftenum_t ftype);
 
 WS_DLL_PUBLIC
 fvalue_t*
-fvalue_from_unparsed(ftenum_t ftype, char *s, gboolean allow_partial_value, LogFunc logfunc);
+fvalue_from_unparsed(ftenum_t ftype, const char *s, gboolean allow_partial_value, LogFunc logfunc);
 
 fvalue_t*
-fvalue_from_string(ftenum_t ftype, char *s, LogFunc logfunc);
+fvalue_from_string(ftenum_t ftype, const char *s, LogFunc logfunc);
 
 /* Returns the length of the string required to hold the
  * string representation of the the field value.
@@ -243,7 +243,22 @@ const char*
 fvalue_type_name(fvalue_t *fv);
 
 void
-fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied);
+fvalue_set_byte_array(fvalue_t *fv, GByteArray *value);
+
+void
+fvalue_set_bytes(fvalue_t *fv, const guint8 *value);
+
+void
+fvalue_set_guid(fvalue_t *fv, const e_guid_t *value);
+
+void
+fvalue_set_time(fvalue_t *fv, const nstime_t *value);
+
+void
+fvalue_set_string(fvalue_t *fv, const gchar *value);
+
+void
+fvalue_set_tvbuff(fvalue_t *fv, tvbuff_t *value);
 
 void
 fvalue_set_uinteger(fvalue_t *fv, guint32 value);

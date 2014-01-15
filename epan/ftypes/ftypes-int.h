@@ -49,12 +49,17 @@ void ftype_register_pcre(void);
 typedef void (*FvalueNewFunc)(fvalue_t*);
 typedef void (*FvalueFreeFunc)(fvalue_t*);
 
-typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, char*, gboolean, LogFunc);
-typedef gboolean (*FvalueFromString)(fvalue_t*, char*, LogFunc);
+typedef gboolean (*FvalueFromUnparsed)(fvalue_t*, const char*, gboolean, LogFunc);
+typedef gboolean (*FvalueFromString)(fvalue_t*, const char*, LogFunc);
 typedef void (*FvalueToStringRepr)(fvalue_t*, ftrepr_t, char*volatile);
 typedef int (*FvalueStringReprLen)(fvalue_t*, ftrepr_t);
 
-typedef void (*FvalueSetFunc)(fvalue_t*, gpointer, gboolean);
+typedef void (*FvalueSetByteArrayFunc)(fvalue_t*, GByteArray *);
+typedef void (*FvalueSetBytesFunc)(fvalue_t*, const guint8 *);
+typedef void (*FvalueSetGuidFunc)(fvalue_t*, const e_guid_t *);
+typedef void (*FvalueSetTimeFunc)(fvalue_t*, const nstime_t *);
+typedef void (*FvalueSetStringFunc)(fvalue_t*, const gchar *value);
+typedef void (*FvalueSetTvbuffFunc)(fvalue_t*, tvbuff_t *value);
 typedef void (*FvalueSetUnsignedIntegerFunc)(fvalue_t*, guint32);
 typedef void (*FvalueSetSignedIntegerFunc)(fvalue_t*, gint32);
 typedef void (*FvalueSetInteger64Func)(fvalue_t*, guint64);
@@ -84,7 +89,12 @@ struct _ftype_t {
 	FvalueStringReprLen	len_string_repr;
 
 	/* could be union */
-	FvalueSetFunc		set_value;
+	FvalueSetByteArrayFunc	set_value_byte_array;
+	FvalueSetBytesFunc	set_value_bytes;
+	FvalueSetGuidFunc	set_value_guid;
+	FvalueSetTimeFunc	set_value_time;
+	FvalueSetStringFunc	set_value_string;
+	FvalueSetTvbuffFunc	set_value_tvbuff;
 	FvalueSetUnsignedIntegerFunc	set_value_uinteger;
 	FvalueSetSignedIntegerFunc		set_value_sinteger;
 	FvalueSetInteger64Func	set_value_integer64;

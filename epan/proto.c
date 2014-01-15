@@ -180,7 +180,7 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
 proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length);
 static void
-proto_tree_set_time(field_info *fi, nstime_t *value_ptr);
+proto_tree_set_time(field_info *fi, const nstime_t *value_ptr);
 static void
 proto_tree_set_string(field_info *fi, const char* value);
 static void
@@ -1990,7 +1990,7 @@ ptvcursor_advance(ptvcursor_t* ptvc, gint length)
 static void
 proto_tree_set_protocol_tvb(field_info *fi, tvbuff_t *tvb)
 {
-	fvalue_set(&fi->value, tvb, TRUE);
+	fvalue_set_tvbuff(&fi->value, tvb);
 }
 
 /* Add a FT_PROTOCOL to a proto_tree */
@@ -2102,7 +2102,7 @@ proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, start_ptr, length);
 	}
-	fvalue_set(&fi->value, bytes, TRUE);
+	fvalue_set_byte_array(&fi->value, bytes);
 }
 
 
@@ -2115,7 +2115,7 @@ proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length
 /* Add a FT_*TIME to a proto_tree */
 proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		    gint length, nstime_t *value_ptr)
+		    gint length, const nstime_t *value_ptr)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -2171,11 +2171,11 @@ proto_tree_add_time_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 /* Set the FT_*TIME value */
 static void
-proto_tree_set_time(field_info *fi, nstime_t *value_ptr)
+proto_tree_set_time(field_info *fi, const nstime_t *value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
 
-	fvalue_set(&fi->value, value_ptr, FALSE);
+	fvalue_set_time(&fi->value, value_ptr);
 }
 
 /* Add a FT_IPXNET to a proto_tree */
@@ -2366,7 +2366,7 @@ static void
 proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
-	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
+	fvalue_set_bytes(&fi->value, value_ptr);
 }
 
 static void
@@ -2437,7 +2437,7 @@ static void
 proto_tree_set_guid(field_info *fi, const e_guid_t *value_ptr)
 {
 	DISSECTOR_ASSERT(value_ptr != NULL);
-	fvalue_set(&fi->value, (gpointer) value_ptr, FALSE);
+	fvalue_set_guid(&fi->value, value_ptr);
 }
 
 static void
@@ -2519,7 +2519,7 @@ proto_tree_set_oid(field_info *fi, const guint8* value_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, value_ptr, length);
 	}
-	fvalue_set(&fi->value, bytes, TRUE);
+	fvalue_set_byte_array(&fi->value, bytes);
 }
 
 static void
@@ -2540,7 +2540,7 @@ proto_tree_set_system_id(field_info *fi, const guint8* value_ptr, gint length)
 	if (length > 0) {
 		g_byte_array_append(bytes, value_ptr, length);
 	}
-	fvalue_set(&fi->value, bytes, TRUE);
+	fvalue_set_byte_array(&fi->value, bytes);
 }
 
 static void
@@ -2769,7 +2769,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 		new_str = ep_strconcat(old_str, str, NULL);
 	else
 		new_str = str;
-	fvalue_set(&fi->value, (gpointer) new_str, FALSE);
+	fvalue_set_string(&fi->value, new_str);
 }
 
 /* Set the FT_STRING value */
@@ -2777,9 +2777,9 @@ static void
 proto_tree_set_string(field_info *fi, const char* value)
 {
 	if (value) {
-		fvalue_set(&fi->value, (gpointer) value, FALSE);
+		fvalue_set_string(&fi->value, value);
 	} else {
-		fvalue_set(&fi->value, (gpointer) "[ Null ]", FALSE);
+		fvalue_set_string(&fi->value, "[ Null ]");
 	}
 }
 
@@ -2819,7 +2819,7 @@ proto_tree_add_ax25(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start, gi
 static void
 proto_tree_set_ax25(field_info *fi, const guint8* value)
 {
-	fvalue_set(&fi->value, (gpointer) value, FALSE);
+	fvalue_set_bytes(&fi->value, value);
 }
 
 static void
@@ -2832,7 +2832,7 @@ proto_tree_set_ax25_tvb(field_info *fi, tvbuff_t *tvb, gint start)
 static void
 proto_tree_set_vines(field_info *fi, const guint8* value)
 {
-	fvalue_set(&fi->value, (gpointer) value, FALSE);
+	fvalue_set_bytes(&fi->value, value);
 }
 
 static void
@@ -2901,7 +2901,7 @@ proto_tree_add_ether_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 static void
 proto_tree_set_ether(field_info *fi, const guint8* value)
 {
-	fvalue_set(&fi->value, (gpointer) value, FALSE);
+	fvalue_set_bytes(&fi->value, value);
 }
 
 static void
@@ -4379,7 +4379,7 @@ proto_item_add_subtree(proto_item *pi,	const gint idx) {
 }
 
 proto_tree *
-proto_item_get_subtree(const proto_item *pi) {
+proto_item_get_subtree(proto_item *pi) {
 	field_info *fi;
 
 	if (!pi)
@@ -4411,7 +4411,7 @@ proto_item_get_parent_nth(proto_item *ti, int gen) {
 
 
 proto_item *
-proto_tree_get_parent(const proto_tree *tree) {
+proto_tree_get_parent(proto_tree *tree) {
 	if (!tree)
 		return NULL;
 	return (proto_item *)tree;
@@ -4503,10 +4503,11 @@ int
 proto_register_protocol(const char *name, const char *short_name,
 			const char *filter_name)
 {
-	protocol_t *protocol, *existing_protocol = NULL;
+	protocol_t *protocol;
+	const protocol_t *existing_protocol = NULL;
 	header_field_info *hfinfo;
 	int proto_id;
-	char *existing_name;
+	const char *existing_name;
 	gint *key;
 	guint i;
 	guchar c;
@@ -4531,7 +4532,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	key  = (gint *)g_malloc (sizeof(gint));
 	*key = wrs_str_hash(name);
 
-	existing_name = (char *)g_hash_table_lookup(proto_names, key);
+	existing_name = (const char *)g_hash_table_lookup(proto_names, key);
 	if (existing_name != NULL) {
 		/* g_error will terminate the program */
 		g_error("Duplicate protocol name \"%s\"!"
@@ -4539,7 +4540,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	}
 	g_hash_table_insert(proto_names, key, (gpointer)name);
 
-	existing_name = (char *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
+	existing_name = (const char *)g_hash_table_lookup(proto_short_names, (gpointer)short_name);
 	if (existing_name != NULL) {
 		g_error("Duplicate protocol short_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", short_name);
@@ -4558,7 +4559,7 @@ proto_register_protocol(const char *name, const char *short_name,
 			" Allowed are lower characters, digits, '-', '_' and '.'."
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
 	}
-	existing_protocol = (protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
+	existing_protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
 	if (existing_protocol != NULL) {
 		g_error("Duplicate protocol filter_name \"%s\"!"
 			" This might be caused by an inappropriate plugin or a development error.", filter_name);
@@ -4701,14 +4702,14 @@ proto_get_id(const protocol_t *protocol)
 
 int proto_get_id_by_filter_name(const gchar* filter_name)
 {
-	protocol_t *protocol = NULL;
+	const protocol_t *protocol = NULL;
 
 	if(!filter_name){
 		fprintf(stderr, "No filter name present");
 		DISSECTOR_ASSERT(filter_name);
 	}
 
-	protocol = (protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
+	protocol = (const protocol_t *)g_hash_table_lookup(proto_filter_names, (gpointer)filter_name);
 
 	if (protocol == NULL)
 		return -1;

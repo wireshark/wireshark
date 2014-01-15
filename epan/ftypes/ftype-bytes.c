@@ -50,14 +50,12 @@ bytes_fvalue_free(fvalue_t *fv)
 
 
 static void
-bytes_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+bytes_fvalue_set(fvalue_t *fv, GByteArray *value)
 {
-	g_assert(already_copied);
-
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
 
-	fv->value.bytes = (GByteArray *)value;
+	fv->value.bytes = value;
 }
 
 static int
@@ -163,7 +161,7 @@ bytes_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
 }
 
 static void
-common_fvalue_set(fvalue_t *fv, guint8* data, guint len)
+common_fvalue_set(fvalue_t *fv, const guint8* data, guint len)
 {
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
@@ -173,46 +171,39 @@ common_fvalue_set(fvalue_t *fv, guint8* data, guint len)
 }
 
 static void
-ax25_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+ax25_fvalue_set(fvalue_t *fv, const guint8 *value)
 {
-	g_assert(!already_copied);
-	common_fvalue_set(fv, (guint8 *)value, FT_AX25_ADDR_LEN);
+	common_fvalue_set(fv, value, FT_AX25_ADDR_LEN);
 }
 
 static void
-vines_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+vines_fvalue_set(fvalue_t *fv, const guint8 *value)
 {
-	g_assert(!already_copied);
-	common_fvalue_set(fv, (guint8 *)value, FT_VINES_ADDR_LEN);
+	common_fvalue_set(fv, value, FT_VINES_ADDR_LEN);
 }
 
 static void
-ether_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+ether_fvalue_set(fvalue_t *fv, const guint8 *value)
 {
-	g_assert(!already_copied);
-	common_fvalue_set(fv, (guint8*)value, FT_ETHER_LEN);
+	common_fvalue_set(fv, value, FT_ETHER_LEN);
 }
 
 static void
-oid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+oid_fvalue_set(fvalue_t *fv, GByteArray *value)
 {
-	g_assert(already_copied);
-
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
 
-	fv->value.bytes = (GByteArray *)value;
+	fv->value.bytes = value;
 }
 
 static void
-system_id_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
+system_id_fvalue_set(fvalue_t *fv, GByteArray *value)
 {
-	g_assert(already_copied);
-
 	/* Free up the old value, if we have one */
 	bytes_fvalue_free(fv);
 
-	fv->value.bytes = (GByteArray *)value;
+	fv->value.bytes = value;
 }
 
 static gpointer
@@ -222,7 +213,7 @@ value_get(fvalue_t *fv)
 }
 
 static gboolean
-bytes_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
+bytes_from_string(fvalue_t *fv, const char *s, LogFunc logfunc _U_)
 {
 	GByteArray	*bytes;
 
@@ -238,7 +229,7 @@ bytes_from_string(fvalue_t *fv, char *s, LogFunc logfunc _U_)
 }
 
 static gboolean
-bytes_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+bytes_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -263,7 +254,7 @@ bytes_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, Log
 }
 
 static gboolean
-ax25_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+ax25_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	/*
 	 * Don't log a message if this fails; we'll try looking it
@@ -321,7 +312,7 @@ ax25_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc 
 }
 
 static gboolean
-vines_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+vines_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	/*
 	 * Don't log a message if this fails; we'll try looking it
@@ -350,7 +341,7 @@ vines_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc
 }
 
 static gboolean
-ether_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc logfunc)
+ether_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value, LogFunc logfunc)
 {
 	guint8	*mac;
 
@@ -381,12 +372,12 @@ ether_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc
 		return FALSE;
 	}
 
-	ether_fvalue_set(fv, mac, FALSE);
+	ether_fvalue_set(fv, mac);
 	return TRUE;
 }
 
 static gboolean
-oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -420,7 +411,7 @@ oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFu
 }
 
 static gboolean
-rel_oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+rel_oid_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	GByteArray	*bytes;
 	gboolean	res;
@@ -448,7 +439,7 @@ rel_oid_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, L
 }
 
 static gboolean
-system_id_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
+system_id_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
 	/*
 	 * Don't log a message if this fails; we'll try looking it
@@ -677,28 +668,33 @@ ftype_register_bytes(void)
 {
 
 	static ftype_t bytes_type = {
-		FT_BYTES,					/* ftype */
-		"FT_BYTES",					/* name */
+		FT_BYTES,			/* ftype */
+		"FT_BYTES",			/* name */
 		"Sequence of bytes",		/* pretty_name */
-		0,							/* wire_size */
-		bytes_fvalue_new,			/* new_value */
-		bytes_fvalue_free,			/* free_value */
+		0,				/* wire_size */
+		bytes_fvalue_new,		/* new_value */
+		bytes_fvalue_free,		/* free_value */
 		bytes_from_unparsed,		/* val_from_unparsed */
-		bytes_from_string,			/* val_from_string */
-		bytes_to_repr,				/* val_to_string_repr */
-		bytes_repr_len,				/* len_string_repr */
+		bytes_from_string,		/* val_from_string */
+		bytes_to_repr,			/* val_to_string_repr */
+		bytes_repr_len,			/* len_string_repr */
 
-		bytes_fvalue_set,			/* set_value */
-		NULL,						/* set_value_uinteger */
-		NULL,						/* set_value_sinteger */
-		NULL,						/* set_value_integer64 */
-		NULL,						/* set_value_floating */
+		bytes_fvalue_set,		/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
+		NULL,				/* set_value_uinteger */
+		NULL,				/* set_value_sinteger */
+		NULL,				/* set_value_integer64 */
+		NULL,				/* set_value_floating */
 
-		value_get,					/* get_value */
-		NULL,						/* get_value_uinteger */
-		NULL,						/* get_value_sinteger */
-		NULL,						/* get_value_integer64 */
-		NULL,						/* get_value_floating */
+		value_get,			/* get_value */
+		NULL,				/* get_value_uinteger */
+		NULL,				/* get_value_sinteger */
+		NULL,				/* get_value_integer64 */
+		NULL,				/* get_value_floating */
 
 		cmp_eq,
 		cmp_ne,
@@ -726,7 +722,12 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		bytes_fvalue_set,		/* set_value */
+		bytes_fvalue_set,		/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -764,7 +765,12 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		ax25_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		ax25_fvalue_set,		/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_integer */
 		NULL,				/* set_value_integer64 */
@@ -797,12 +803,17 @@ ftype_register_bytes(void)
 		FT_VINES_ADDR_LEN,		/* wire_size */
 		bytes_fvalue_new,		/* new_value */
 		bytes_fvalue_free,		/* free_value */
-		vines_from_unparsed,	/* val_from_unparsed */
+		vines_from_unparsed,		/* val_from_unparsed */
 		NULL,				/* val_from_string */
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		vines_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		vines_fvalue_set,		/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_integer */
 		NULL,				/* set_value_integer64 */
@@ -840,7 +851,12 @@ ftype_register_bytes(void)
 		bytes_to_repr,			/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		ether_fvalue_set,		/* set_value */
+		NULL,				/* set_value_byte_array */
+		ether_fvalue_set,		/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -878,7 +894,12 @@ ftype_register_bytes(void)
 		oid_to_repr,			/* val_to_string_repr */
 		oid_repr_len,			/* len_string_repr */
 
-		oid_fvalue_set,		/* set_value */
+		oid_fvalue_set,		/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -916,7 +937,12 @@ ftype_register_bytes(void)
 		rel_oid_to_repr,		/* val_to_string_repr */
 		rel_oid_repr_len,		/* len_string_repr */
 
-		oid_fvalue_set,		/* set_value (same as full oid) */
+		oid_fvalue_set,		/* set_value_byte_array (same as full oid) */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
@@ -954,7 +980,12 @@ ftype_register_bytes(void)
 		system_id_to_repr,		/* val_to_string_repr */
 		bytes_repr_len,			/* len_string_repr */
 
-		system_id_fvalue_set,	/* set_value */
+		system_id_fvalue_set,	/* set_value_byte_array */
+		NULL,				/* set_value_bytes */
+		NULL,				/* set_value_guid */
+		NULL,				/* set_value_time */
+		NULL,				/* set_value_string */
+		NULL,				/* set_value_tvbuff */
 		NULL,				/* set_value_uinteger */
 		NULL,				/* set_value_sinteger */
 		NULL,				/* set_value_integer64 */
