@@ -94,7 +94,7 @@ static int camelsrt_packet(void *phs,
 			   const void *phi)
 {
   struct camelsrt_t *hs=(struct camelsrt_t *)phs;
-  const struct camelsrt_info_t * pi=(struct camelsrt_info_t *)phi;
+  const struct camelsrt_info_t * pi=(const struct camelsrt_info_t *)phi;
   int i;
 
   for (i=1; i<NB_CAMELSRT_CATEGORY; i++) {
