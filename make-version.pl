@@ -55,6 +55,7 @@
 use strict;
 
 use Time::Local;
+use File::Basename;
 use POSIX qw(strftime);
 use Getopt::Long;
 use Pod::Usage;
@@ -68,6 +69,7 @@ my $tortoise_file = "tortoise_template";
 my $last_change = 0;
 my $revision = 0;
 my $repo_path = "unknown";
+my $git_description = undef;
 my $get_svn = 0;
 my $set_svn = 0;
 my $set_version = 0;
@@ -79,6 +81,7 @@ my %version_pref = (
 	"version_build" => 0,
 
 	"enable"        => 1,
+	"git_client"    => 0,
 	"svn_client"    => 1,
 	"tortoise_svn"  => 0,
 	"format"        => "SVN %Y%m%d%H%M%S",
@@ -98,10 +101,11 @@ my $info_cmd = "";
 # Ensure we run with correct locale
 $ENV{LANG} = "C";
 $ENV{LC_ALL} = "C";
+$ENV{GIT_PAGER} = "";
 
 # Run "svn info".  Parse out the most recent modification time and the
 # revision number.
-sub read_svn_info {
+sub read_repo_info {
 	my $line;
 	my $version_format = $version_pref{"format"};
 	my $package_format = "";
@@ -117,7 +121,10 @@ sub read_svn_info {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
-	if (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
+	if (-d "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
+		$info_source = "Command line (git)";
+		$version_pref{"git_client"} = 1;
+	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
 		$info_source = "Command line (svn info)";
 		$info_cmd = "svn info $srcdir";
 	} elsif (-d "$srcdir/.git/svn") {
@@ -125,7 +132,74 @@ sub read_svn_info {
 		$info_cmd = "(cd $srcdir; git svn info)";
 	}
 
-	if ($version_pref{"svn_client"}) {
+	#Git can give us:
+	#
+	# A big ugly hash: git rev-parse HEAD
+	# 1ddc83849075addb0cac69a6fe3782f4325337b9
+	#
+	# A small ugly hash: git rev-parse --short HEAD
+	# 1ddc838
+	#
+	# The upstream branch path: git rev-parse --abbrev-ref --symbolic-full-name @{upstream}
+	# origin/master-1.8
+	#
+	# A version description: git describe --tags --dirty
+	# wireshark-1.8.12-15-g1ddc838
+	#
+	# Number of commits in this branch: git rev-list --count HEAD
+	# 48879
+	#
+	# Number of commits since 1.8.0: git rev-list --count 5e212d72ce098a7fec4332cbe6c22fcda796a018..HEAD
+	# 320
+	#
+	# Refs: git ls-remote code.wireshark.org:wireshark
+	# ea19c7f952ce9fc53fe4c223f1d9d6797346258b (r48972, changed version to 1.11.0)
+
+	if ($version_pref{"git_client"}) {
+		eval {
+			use warnings "all";
+			no warnings "all";
+
+			chomp($line = qx{git log -1 --pretty=format:%at});
+			if (defined($line)) {
+				$last_change = $line;
+			}
+
+			# Commits in current (master-1.8) branch. We may want to use
+			# a different number.
+			chomp($line = qx{git rev-list --count ea19c7f952ce9fc53fe4c223f1d9d6797346258b..HEAD});
+			if (defined($line)) {
+				$revision = $line;
+			}
+
+			chomp($line = qx{git ls-remote --get-url origin});
+			if (defined($line)) {
+				$repo_url = $line;
+			}
+
+			# Probably not quite what we're looking for
+			chomp($line = qx{git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
+			if (defined($line)) {
+				$repo_path = basename($line);
+			}
+
+
+			# XXX After the SVN->git migration we'll create tags for 1.11.x.
+			#chomp($line = qx{git describe --tags --dirty});
+			chomp($line = qx{git rev-parse --short HEAD});
+			if (defined($line)) {
+				#$git_description = $line;
+				$git_description = "wireshark-1.11." . $version_pref{"version_minor"} .
+					"-$revision-g$line";
+			}
+
+			1;
+		};
+
+		if ($last_change && $revision && $repo_url && $repo_path) {
+			$do_hack = 0;
+		}
+	} elsif ($version_pref{"svn_client"}) {
 		eval {
 			use warnings "all";
 			no warnings "all";
@@ -510,7 +584,11 @@ sub print_svn_revision
 	my $svn_revision;
 	my $needs_update = 1;
 
-	if ($last_change && $revision) {
+	if ($git_description) {
+		$svn_revision = "#define SVNVERSION \"" .
+			$git_description . "\"\n" .
+			"#define SVNPATH \"" . $repo_path . "\"\n";
+	} elsif ($last_change && $revision) {
 		$svn_revision = "#define SVNVERSION \"SVN Rev " .
 			$revision . "\"\n" .
 			"#define SVNPATH \"" . $repo_path . "\"\n";
@@ -586,7 +664,7 @@ sub get_config {
 
 &get_config();
 
-&read_svn_info();
+&read_repo_info();
 
 &print_svn_revision;
 
