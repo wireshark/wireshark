@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V11.5.0 (2012-12)
+-- 3GPP TS 29.002 V12.3.0 (2013-12)
 -- 17.7.5	Supplementary service codes
 
 MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version13 (13)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version15 (15)}
 
 DEFINITIONS
 

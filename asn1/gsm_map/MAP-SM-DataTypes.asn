@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002  V10.4.0 (2011-09)  
+-- 3GPP TS 29.002  V12.3.0 (2013-12)  
 -- 17.7.6	Short message data types
 
 MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version13 (13)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version15 (15)}
 
 DEFINITIONS
 
@@ -42,21 +42,22 @@ IMPORTS
 	LMSI,
 	ASCI-CallReference,
 	Time,
-	NetworkNodeDiameterAddress
+	NetworkNodeDiameterAddress,
+	HLR-Id
 
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
 
 	AbsentSubscriberDiagnosticSM
 FROM MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version13 (13)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version15 (15)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
 ;
 
 
@@ -73,7 +74,10 @@ RoutingInfoForSM-Arg ::= SEQUENCE {
 	sm-RP-SMEA	[9] SM-RP-SMEA	OPTIONAL,
 	sm-deliveryNotIntended	[10] SM-DeliveryNotIntended	OPTIONAL,
 	ip-sm-gwGuidanceIndicator	[11] NULL		OPTIONAL,
-	imsi			[12] IMSI		OPTIONAL }
+	imsi			[12] IMSI		OPTIONAL,
+	t4-Trigger-Indicator	[14] NULL		OPTIONAL,
+	singleAttemptDelivery	[13]	NULL		OPTIONAL,
+	correlationID	[15] CorrelationID	OPTIONAL }
 
 SM-DeliveryNotIntended ::= ENUMERATED {
 	onlyIMSI-requested  (0),
@@ -137,7 +141,10 @@ MO-ForwardSM-Arg ::= SEQUENCE {
 	sm-RP-UI		SignalInfo,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	... ,
-	imsi			IMSI 		OPTIONAL }
+	imsi			IMSI 		OPTIONAL,
+	correlationID	[0] CorrelationID	OPTIONAL,
+	sm-DeliveryOutcome	[1] SM-DeliveryOutcome	OPTIONAL
+ }
 
 MO-ForwardSM-Res ::= SEQUENCE {
 	sm-RP-UI		SignalInfo 	OPTIONAL,
@@ -153,8 +160,17 @@ MT-ForwardSM-Arg ::= SEQUENCE {
 	...,
 	smDeliveryTimer	SM-DeliveryTimerValue	OPTIONAL,
 	smDeliveryStartTime	Time			OPTIONAL,
-	smsOverIP-OnlyIndicator	[0] NULL		OPTIONAL }
+	smsOverIP-OnlyIndicator	[0] NULL		OPTIONAL,
+	correlationID	[1] CorrelationID	OPTIONAL }
 	-- SM-DeliveryTimerValue contains the value used by the SMS-GMSC
+
+CorrelationID ::= SEQUENCE {
+	hlr-id		[0] HLR-Id		OPTIONAL,
+	sip-uri-A		[1] SIP-URI		OPTIONAL,
+	sip-uri-B		[2] SIP-URI}
+
+SIP-URI ::= OCTET STRING 
+-- octets are coded as defined in IETF RFC 3261 
 
 MT-ForwardSM-Res ::= SEQUENCE {
 	sm-RP-UI		SignalInfo	OPTIONAL,
@@ -206,7 +222,9 @@ ReportSM-DeliveryStatusArg ::= SEQUENCE {
 	-- If received ip-sm-gw-sm-absentSubscriberDiagnosticSM is for delivery via IMS
 	-- If ip-sm-gw-Indicator is set, then ip-sm-gw-sm-absentSubscriberDiagnosticSM 
 	-- shall be absent
-	imsi			[9] IMSI		OPTIONAL
+	imsi			[9] IMSI		OPTIONAL,
+	singleAttemptDelivery	[10] NULL		OPTIONAL,
+	correlationID	[11]	CorrelationID	OPTIONAL
 }
 
 SM-DeliveryOutcome ::= ENUMERATED {
@@ -223,7 +241,8 @@ AlertServiceCentreArg ::= SEQUENCE {
 	msisdn		ISDN-AddressString,
 	serviceCentreAddress	AddressString,
 	...,
-	imsi			IMSI			OPTIONAL }
+	imsi			IMSI			OPTIONAL,
+	correlationID	CorrelationID	OPTIONAL }
 
 InformServiceCentreArg ::= SEQUENCE {
 	storedMSISDN	ISDN-AddressString	OPTIONAL,

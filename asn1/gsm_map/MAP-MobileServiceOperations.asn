@@ -1,11 +1,11 @@
 -- $Id$
--- 3GPP TS 29.002 V11.5.0 (2012-12) 
+-- 3GPP TS 29.002 V12.3.0 (2013-12) 
 -- 17.6.1	Mobile Service Operations
 
 MAP-MobileServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MobileServiceOperations (5)
-   version13 (13)}
+   version15 (15)}
 
 DEFINITIONS
 
@@ -114,7 +114,7 @@ joint-iso-itu-t remote-operations(4)
 
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version13 (13)}
+   gsm-Network (1) modules (3) map-Errors (10) version15 (15)}
 
 	UpdateLocationArg,
 	UpdateLocationRes,
@@ -173,7 +173,7 @@ PrepareSubsequentHO-Res,
 
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version13 (13)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
 
 ;
 

@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V11.5.0 (2012-12)
+-- 3GPP TS 29.002 V12.3.0 (2013-12)
 -- 17.7.3	Call handling data types
  
 MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CH-DataTypes (13) version13 (13)}
+   gsm-Network (1) modules (3) map-CH-DataTypes (13) version15 (15)}
 
 DEFINITIONS
 
@@ -36,10 +36,10 @@ EXPORTS
 IST-CommandRes,
 UU-Data,
 ReleaseResourcesArg,
--- WS added exports needed by gsm_map.asn (extra asn1 file to handle older proto. ver.)
+ReleaseResourcesRes,
+--- WS added exports needed by gsm_map.asn (extra asn1 file to handle older proto. ver.)
 RoutingInfo,
-CUG-CheckInfo,
-ReleaseResourcesRes
+CUG-CheckInfo
 ;
 
 IMPORTS
@@ -58,14 +58,14 @@ IMPORTS
 	PagingArea
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version13 (13)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
 
 	ForwardingOptions,
 	SS-List,
 	CCBS-Feature
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version13 (13)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version15 (15)}
 
 	ISDN-AddressString,
 	ISDN-SubaddressString,
@@ -77,15 +77,16 @@ FROM MAP-SS-DataTypes {
 	Ext-BasicServiceCode,
 	AlertingPattern,
 	NAEA-PreferredCI,
-	EMLPP-Priority
+	EMLPP-Priority,
+	PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
 ;
 
 
@@ -260,7 +261,8 @@ ProvideRoamingNumberArg ::= SEQUENCE {
 	pagingArea	[22] PagingArea	OPTIONAL,
 	callPriority	[23]	EMLPP-Priority	OPTIONAL,
 	mtrf-Indicator	[24] NULL		OPTIONAL,
-	oldMSC-Number	[25] ISDN-AddressString	OPTIONAL
+	oldMSC-Number	[25] ISDN-AddressString	OPTIONAL,
+	lastUsedLtePLMN-Id	[26] PLMN-Id	OPTIONAL
 	 }
 
 ProvideRoamingNumberRes ::= SEQUENCE {

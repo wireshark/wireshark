@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V11.5.0 (2012-12)
+-- 3GPP TS 29.002 V12.3.0 (2013-12)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
 
 DEFINITIONS
 
@@ -22,8 +22,8 @@ EXPORTS
 	maxISDN-AddressLength,
 	FTN-AddressString,
 	ISDN-SubaddressString,
-	ExternalSignalInfo,
-	Ext-ExternalSignalInfo,
+	ExternalSignalInfo, 
+	Ext-ExternalSignalInfo, 
 AccessNetworkSignalInfo,
 	SignalInfo,
 	maxSignalInfoLength,
@@ -31,10 +31,11 @@ AccessNetworkSignalInfo,
 	TBCD-STRING,
 	DiameterIdentity,
 	Time,
+	HLR-Id,
 
 	-- data types for numbering and identification
 	IMSI,
-	TMSI,
+	TMSI, 
 	Identity,
 	SubscriberId,
 	IMEI,
@@ -43,8 +44,8 @@ AccessNetworkSignalInfo,
 	GlobalCellId,
 	NetworkResource,
 	AdditionalNetworkResource,
-	NAEA-PreferredCI,
-	NAEA-CIC,
+	NAEA-PreferredCI, 
+	NAEA-CIC, 
 	ASCI-CallReference,
 	SubscriberIdentity,
 	PLMN-Id,
@@ -54,7 +55,7 @@ AccessNetworkSignalInfo,
 	NetworkNodeDiameterAddress,
 
 	-- data types for CAMEL
-	CellGlobalIdOrServiceAreaIdOrLAI,
+	CellGlobalIdOrServiceAreaIdOrLAI, 
 	CellGlobalIdOrServiceAreaIdFixedLength,
 	LAIFixedLength,
 
@@ -62,7 +63,7 @@ AccessNetworkSignalInfo,
 	BasicServiceCode,
 	Ext-BasicServiceCode,
 	EMLPP-Info,
-	EMLPP-Priority,
+	EMLPP-Priority, 
 	MC-SS-Info,
 	MaxMC-Bearers,
 	MC-Bearers,
@@ -73,9 +74,8 @@ AccessNetworkSignalInfo,
 	LCSClientExternalID,
 	LCSClientInternalID,
 	LCSServiceTypeID,
-	-- WS added exports needed by gsm_map.asn (extra asn1 file to handle older prot. ver.)
+-- WS added exports needed by gsm_map.asn (extra asn1 file to handle older prot. ver.)
 	ProtocolId,
-
 	-- gprs location registration types
 	GSN-Address
 
@@ -86,23 +86,23 @@ IMPORTS
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version13 (13)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version15 (15)}
 
 	BearerServiceCode,
 	Ext-BearerServiceCode
 FROM MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version13 (13)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version15 (15)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version13 (13)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version15 (15)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
 ;
 
 
@@ -118,7 +118,7 @@ TBCD-STRING ::= OCTET STRING
 	-- bits 8765 of octet n encoding digit 2n
 	-- bits 4321 of octet n encoding digit 2(n-1) +1
 
-DiameterIdentity ::= OCTET STRING (SIZE(9..55))
+DiameterIdentity ::= OCTET STRING (SIZE(9..255))
 -- content of DiameterIdentity is defined in IETF RFC 3588 [139]
 
 AddressString ::= OCTET STRING (SIZE (1..maxAddressLength))
@@ -164,21 +164,21 @@ AddressString ::= OCTET STRING (SIZE (1..maxAddressLength))
 
 maxAddressLength  INTEGER ::= 20
 
-ISDN-AddressString ::=
+ISDN-AddressString ::= 
 			AddressString (SIZE (1..maxISDN-AddressLength))
 	-- This type is used to represent ISDN numbers.
 
 maxISDN-AddressLength  INTEGER ::= 9
 
-FTN-AddressString ::=
+FTN-AddressString ::= 
 			AddressString (SIZE (1..maxFTN-AddressLength))
-	-- This type is used to represent forwarded-to numbers.
+	-- This type is used to represent forwarded-to numbers. 
 	-- If NAI = international the first digits represent the country code (CC)
 	-- and the network destination code (NDC) as for E.164.
 
 maxFTN-AddressLength  INTEGER ::= 15
 
-ISDN-SubaddressString ::=
+ISDN-SubaddressString ::= 
 			OCTET STRING (SIZE (1..maxISDN-SubaddressLength))
 	-- This type is used to represent ISDN subaddresses.
 	-- It is composed of
@@ -254,18 +254,18 @@ Ext-ExternalSignalInfo ::= SEQUENCE {
 
 Ext-ProtocolId ::= ENUMERATED {
 	ets-300356  (1),
-	...
+	... 
 	 }
 -- exception handling:
 -- For Ext-ExternalSignalInfo sequences containing this parameter with any
--- other value than the ones listed the receiver shall ignore the whole
+-- other value than the ones listed the receiver shall ignore the whole 
 -- Ext-ExternalSignalInfo sequence.
 
 AccessNetworkSignalInfo ::= SEQUENCE {
 	accessNetworkProtocolId	AccessNetworkProtocolId,
 	signalInfo	LongSignalInfo,
 	-- Information about the internal structure is given in clause 7.6.9.1
-
+	
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
 
@@ -284,7 +284,7 @@ AccessNetworkProtocolId ::= ENUMERATED {
 	...}
 	-- exception handling:
 	-- For AccessNetworkSignalInfo sequences containing this parameter with any
-	-- other value than the ones listed the receiver shall ignore the whole
+	-- other value than the ones listed the receiver shall ignore the whole 
 	-- AccessNetworkSignalInfo sequence.
 
 AlertingPattern ::= OCTET STRING (SIZE (1) )
@@ -305,7 +305,7 @@ alertingLevel-1   AlertingPattern ::= '00000001'B
 alertingLevel-2   AlertingPattern ::= '00000010'B
 	-- all other values of Alerting level are reserved
 	-- Alerting Levels are defined in GSM 02.07
-
+	
 alertingCategory-1   AlertingPattern ::= '00000100'B
 alertingCategory-2   AlertingPattern ::= '00000101'B
 alertingCategory-3   AlertingPattern ::= '00000110'B
@@ -408,9 +408,9 @@ NAEA-PreferredCI ::= SEQUENCE {
 
 NAEA-CIC ::= OCTET STRING (SIZE (3))
 	-- The internal structure is defined by the Carrier Identification
-	-- parameter in ANSI T1.113.3. Carrier codes between "000" and "999" may
-	-- be encoded as 3 digits using "000" to "999" or as 4 digits using
-	-- "0000" to "0999". Carrier codes between "1000" and "9999" are encoded
+	-- parameter in ANSI T1.113.3. Carrier codes between “000” and “999” may
+	-- be encoded as 3 digits using “000” to “999” or as 4 digits using 
+	-- “0000” to “0999”. Carrier codes between “1000” and “9999” are encoded
 	-- using 4 digits.
 
 SubscriberIdentity ::= CHOICE {
@@ -449,7 +449,7 @@ navigation			LCSServiceTypeID ::= 8
 	--this service type is reserved for use in previous releases
 citySightseeing		LCSServiceTypeID ::= 9
 localizedAdvertising		LCSServiceTypeID ::= 10
-mobileYellowPages		LCSServiceTypeID ::= 11
+mobileYellowPages		LCSServiceTypeID ::= 11 
 trafficAndPublicTransportationInfo		LCSServiceTypeID ::= 12
 weather				LCSServiceTypeID ::= 13
 assetAndServiceFinding		LCSServiceTypeID ::= 14
@@ -571,8 +571,8 @@ CellGlobalIdOrServiceAreaIdFixedLength ::= OCTET STRING (SIZE (7))
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
 	-- octets 4 and 5	Location Area Code according to 3GPP TS 24.008
-	-- octets 6 and 7	Cell Identity (CI) value or
-	-- 			Service Area Code (SAC) value
+	-- octets 6 and 7	Cell Identity (CI) value or 
+	-- 			Service Area Code (SAC) value 
 	--			according to 3GPP TS 23.003
 
 LAIFixedLength ::= OCTET STRING (SIZE (5))
@@ -658,9 +658,9 @@ AgeOfLocationInformation ::= INTEGER (0..32767)
 -- the value represents the elapsed time in minutes since the last
 -- network contact of the mobile station (i.e. the actuality of the
 -- location information).
--- value "0" indicates that the MS is currently in contact with the
+-- value “0” indicates that the MS is currently in contact with the
 --           network
--- value "32767" indicates that the location information is at least
+-- value “32767” indicates that the location information is at least
 --               32767 minutes old
 
 END

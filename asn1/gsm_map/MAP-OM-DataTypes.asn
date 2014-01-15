@@ -1,10 +1,10 @@
 -- $Id$
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V11.5.0 (2012-12)
+-- 3GPP TS 29.002 V12.3.0 (2013-12)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version13 (13)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version15 (15)}
 
 DEFINITIONS
 
@@ -33,12 +33,12 @@ IMPORTS
 	LAIFixedLength
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version15 (15)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
 
 ;
 
@@ -70,7 +70,53 @@ MDT-Configuration ::= SEQUENCE {
 	loggingInterval	[3] LoggingInterval	OPTIONAL,
 	loggingDuration	[4] LoggingDuration	OPTIONAL,
 	extensionContainer	[5] ExtensionContainer	OPTIONAL,
-	... }
+	...,
+	measurementPeriodUMTS	[6] PeriodUMTS	OPTIONAL,
+	measurementPeriodLTE	[7] PeriodLTE	OPTIONAL,
+	collectionPeriodRRM-UMTS	[8] PeriodUMTS	OPTIONAL,
+	collectionPeriodRRM-LTE	[9] PeriodLTE	OPTIONAL,
+	positioningMethod	[10] PositioningMethod	OPTIONAL,
+	measurementQuantity	[11] MeasurementQuantity	OPTIONAL,
+	eventThreshold1F	[12] EventThreshold1F	OPTIONAL,
+	eventThreshold1I	[13] EventThreshold1I	OPTIONAL }
+
+PeriodUMTS ::= ENUMERATED {
+	d250ms (0),
+	d500ms (1),
+	d1000ms (2),
+	d2000ms (3),
+	d3000ms (4),
+	d4000ms (5),
+	d6000ms (6),
+	d8000ms (7),
+	d12000ms (8),
+	d16000ms (9),
+	d20000ms (10),
+	d24000ms (11),
+	d28000ms (12),
+	d32000ms (13),
+	d64000ms (14)}
+
+PeriodLTE ::= ENUMERATED {
+	d1024ms (0),
+	d1280ms (1),
+	d2048ms (2),
+	d2560ms (3),
+	d5120ms (4),
+	d10240ms (5),
+	d1min (6)}
+
+PositioningMethod ::= OCTET STRING (SIZE (1))
+	-- Octet is coded as described in 3GPP TS 32.422 [132].
+
+MeasurementQuantity ::= OCTET STRING (SIZE (1))
+	-- Octet is coded as described in 3GPP TS 32.422 [132].
+
+EventThreshold1F ::= INTEGER
+	(-120..165)
+
+EventThreshold1I ::= INTEGER
+	(-120..-25)
 
 JobType ::= ENUMERATED {
 	immediate-MDT-only (0),
@@ -101,6 +147,7 @@ LocationAreaId-List ::= SEQUENCE SIZE (1..8) OF
 
 TrackingAreaId-List ::= SEQUENCE SIZE (1..8) OF
 				TA-Id
+
 ListOfMeasurements ::= OCTET STRING (SIZE (4))
 	-- Octets are coded as described in 3GPP TS 32.422.
 

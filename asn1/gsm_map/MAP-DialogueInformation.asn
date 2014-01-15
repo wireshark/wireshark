@@ -1,9 +1,9 @@
 -- $Id$
--- 3GPP TS 29.002 V11.5.0 (2012-12) 
+-- 3GPP TS 29.002 V12.3.0 (2013-12) 
 -- 17.4	MAP Dialogue Information
 MAP-DialogueInformation {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-DialogueInformation (3) version13 (13)}
+   gsm-Network (1) modules (3) map-DialogueInformation (3) version15 (15)}
 
 DEFINITIONS
 
@@ -29,12 +29,12 @@ FROM MobileDomainDefinitions {
 	AddressString
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network(1) modules (3) map-CommonDataTypes (18) version13 (13)}
+   gsm-Network(1) modules (3) map-CommonDataTypes (18) version15 (15)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version15 (15)}
 
 
 ;

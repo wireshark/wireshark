@@ -1,11 +1,11 @@
 -- $Id$
--- 3GPP TS 29.002 V11.5.0 (2012-12)  
+-- 3GPP TS 29.002 V12.3.0 (2013-12)  
 -- 17.6.7	Group Call operations
  
 MAP-Group-Call-Operations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-Group-Call-Operations (22)
-   version13 (13)}
+   version15 (15)}
 
 DEFINITIONS
 
@@ -36,7 +36,7 @@ joint-iso-itu-t remote-operations(4)
 	dataMissing
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version13 (13)}
+   gsm-Network (1) modules (3) map-Errors (10) version15 (15)}
 
 	PrepareGroupCallArg,
 	PrepareGroupCallRes,
@@ -48,7 +48,7 @@ FROM MAP-Errors {
 	SendGroupCallInfoRes
 FROM MAP-GR-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-GR-DataTypes (23) version13 (13)}
+   gsm-Network (1) modules (3) map-GR-DataTypes (23) version15 (15)}
 
 ;
 
