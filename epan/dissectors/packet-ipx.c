@@ -1493,7 +1493,7 @@ proto_reg_handoff_ipx(void)
 	ipx_handle = find_dissector("ipx");
 	dissector_add_uint("udp.port", UDP_PORT_IPX, ipx_handle);
 	dissector_add_uint("ethertype", ETHERTYPE_IPX, ipx_handle);
-    dissector_add_uint("chdlc.protocol", ETHERTYPE_IPX, ipx_handle);
+	dissector_add_uint("chdlc.protocol", ETHERTYPE_IPX, ipx_handle);
 	dissector_add_uint("ppp.protocol", PPP_IPX, ipx_handle);
 	dissector_add_uint("llc.dsap", SAP_NETWARE1, ipx_handle);
 	dissector_add_uint("llc.dsap", SAP_NETWARE2, ipx_handle);
@@ -1523,3 +1523,16 @@ proto_reg_handoff_ipx(void)
 
 	data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
