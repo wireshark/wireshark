@@ -38,6 +38,7 @@ The following bugs have been fixed:
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 * Tshark doesn't display the longer data fields (mbtcp). (ws-buglink:9572[])
 * DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
+* False error: capture file appears to be damaged or corrupt. (ws-buglink:9634[])
 
 === New and Updated Features
 
@@ -59,11 +60,11 @@ OpenSafety
 
 === New and Updated Capture File Support
 
-//--sort-and-group--
+--sort-and-group--
 
-There is no updated capture file support in this release.
+libpcap
 
-//--sort-and-group--
+--sort-and-group--
 
 == Getting Wireshark
 
