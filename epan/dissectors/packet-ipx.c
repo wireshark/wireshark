@@ -89,6 +89,10 @@ static int hf_spx_connection_control_sys = -1;
 static int hf_spx_connection_control_send_ack = -1;
 static int hf_spx_connection_control_attn = -1;
 static int hf_spx_connection_control_eom = -1;
+static int hf_spx_connection_control_v2 = -1;
+static int hf_spx_connection_control_neg_size = -1;
+static int hf_spx_connection_control_reserved = -1;
+static int hf_spx_connection_control_ext_header = -1;
 static int hf_spx_datastream_type = -1;
 static int hf_spx_src_id = -1;
 static int hf_spx_dst_id = -1;
@@ -518,6 +522,10 @@ spx_hash_lookup(conversation_t *conversation, guint32 spx_src, guint32 spx_seq)
 #define SPX_SEND_ACK	0x40
 #define SPX_ATTN	0x20
 #define SPX_EOM		0x10
+#define SPX_VII_PACKET	0x08
+#define SPX_NEG_SIZE	0x04
+#define SPX_RESERVED	0x02
+#define SPX_EXT_HEADER	0x01
 
 static const char*
 spx_conn_ctrl(guint8 ctrl)
@@ -603,6 +611,14 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_attn, tvb,
 				       0, 1, conn_ctrl);
 		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_eom, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_v2, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_neg_size, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_reserved, tvb,
+				       0, 1, conn_ctrl);
+		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_ext_header, tvb,
 				       0, 1, conn_ctrl);
 	}
 
@@ -1335,12 +1351,12 @@ proto_register_ipx(void)
 
 	static hf_register_info hf_spx[] = {
 		{ &hf_spx_connection_control,
-		{ "Connection Control",		"spx.ctl",
+		{ "Connection Control",	"spx.ctl",
 		  FT_UINT8,	BASE_HEX,	NULL,	0x0,
 		  NULL, HFILL }},
 
 		{ &hf_spx_connection_control_sys,
-		{ "System Packet",		"spx.ctl.sys",
+		{ "System Packet",	"spx.ctl.sys",
 		  FT_BOOLEAN,	8,	NULL,	SPX_SYS_PACKET,
 		  NULL, HFILL }},
 
@@ -1357,6 +1373,26 @@ proto_register_ipx(void)
 		{ &hf_spx_connection_control_eom,
 		{ "End of Message",	"spx.ctl.eom",
 		  FT_BOOLEAN,	8,	NULL,	SPX_EOM,
+		  NULL, HFILL }},
+
+		{ &hf_spx_connection_control_v2,
+		{ "SPXII Packet",	"spx.ctl.v2",
+		  FT_BOOLEAN,	8,	NULL,	SPX_VII_PACKET,
+		  NULL, HFILL }},
+
+		{ &hf_spx_connection_control_neg_size,
+		{ "Negotiate Size",	"spx.ctl.neg_size",
+		  FT_BOOLEAN,	8,	NULL,	SPX_NEG_SIZE,
+		  NULL, HFILL }},
+
+		{ &hf_spx_connection_control_reserved,
+		{ "Reserved",		"spx.ctl.reserved",
+		  FT_BOOLEAN,	8,	NULL,	SPX_RESERVED,
+		  NULL, HFILL }},
+
+		{ &hf_spx_connection_control_ext_header,
+		{ "Extended Header",	"spx.ctl.ext_header",
+		  FT_BOOLEAN,	8,	NULL,	SPX_EXT_HEADER,
 		  NULL, HFILL }},
 
 		{ &hf_spx_datastream_type,
