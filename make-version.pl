@@ -185,6 +185,7 @@ sub read_repo_info {
 
 
 			# XXX After the SVN->git migration we'll create tags for 1.11.x.
+			# Until then we'll fake it.
 			#chomp($line = qx{git describe --tags --dirty});
 			chomp($line = qx{git rev-parse --short HEAD});
 			if (defined($line)) {
