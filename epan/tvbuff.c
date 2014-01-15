@@ -1981,6 +1981,7 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 	strbuf = tvb_extract_ucs_2_string(scope, tvb, offset, length, encoding);
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2087,6 +2088,7 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, length, encoding);
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2142,6 +2144,7 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 	strbuf = tvb_extract_ucs_4_string(scope, tvb, offset, length, encoding);
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2314,6 +2317,7 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 		wmem_strbuf_append_unichar(strbuf, UNREPL);
 	}
 
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2577,6 +2581,7 @@ tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	if (lengthp)
 		*lengthp = size;
 
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2601,6 +2606,7 @@ tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 	if (lengthp)
 		*lengthp = size;
 
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
@@ -2633,6 +2639,7 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	if (lengthp)
 		*lengthp = size; /* Number of *bytes* processed */
 
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
