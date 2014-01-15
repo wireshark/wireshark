@@ -58,6 +58,7 @@ wireshark-tap-register-cache.pkl
 aclocal.m4
 autom4te.cache
 capinfos
+captype
 compile
 config.h
 config.h.in
@@ -81,6 +82,7 @@ reordercap
 reassemble_test
 stamp-h1
 text2pcap
+tfshark
 tshark
 tvbtest
 wireshark
