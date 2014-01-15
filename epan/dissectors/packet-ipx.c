@@ -99,6 +99,7 @@ static int hf_spx_dst_id = -1;
 static int hf_spx_seq_nr = -1;
 static int hf_spx_ack_nr = -1;
 static int hf_spx_all_nr = -1;
+static int hf_spx_neg_size = -1;
 static int hf_spx_rexmt_frame = -1;
 
 static gint ett_spx = -1;
@@ -298,12 +299,12 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ipx_tree = proto_item_add_subtree(ti, ett_ipx);
 	}
 
-	str=ep_address_to_str(&pinfo->net_src);
+	str=address_to_str(wmem_packet_scope(), &pinfo->net_src);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_src, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
-	str=ep_address_to_str(&pinfo->net_dst);
+	str=address_to_str(wmem_packet_scope(), &pinfo->net_dst);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_dst, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
@@ -567,6 +568,7 @@ spx_datastream(guint8 type)
 }
 
 #define SPX_HEADER_LEN	12
+#define SPX2_HEADER_LEN	14
 
 static void
 dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -576,6 +578,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t	*next_tvb;
 	guint8		conn_ctrl;
 	proto_tree	*cc_tree;
+	guint8		hdr_len = SPX_HEADER_LEN;
 	guint8		datastream_type;
 	const char	*datastream_type_string;
 	guint16         spx_seq;
@@ -590,12 +593,18 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPX");
 	col_set_str(pinfo->cinfo, COL_INFO, "SPX");
 
+	conn_ctrl = tvb_get_guint8(tvb, 0);
+	if ((conn_ctrl & SPX_VII_PACKET) && tvb_get_ntohs(tvb, 4) != 0xffff) {
+		/* SPX2 packets have an extra two-byte field, unless they have
+		 * a dest-ID of 0xffff... */
+		hdr_len = SPX2_HEADER_LEN;
+	}
+
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, SPX_HEADER_LEN, ENC_NA);
+		ti = proto_tree_add_item(tree, proto_spx, tvb, 0, hdr_len, ENC_NA);
 		spx_tree = proto_item_add_subtree(ti, ett_spx);
 	}
 
-	conn_ctrl = tvb_get_guint8(tvb, 0);
 	spx_msg_string = spx_conn_ctrl(conn_ctrl);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", spx_msg_string);
 	if (tree) {
@@ -612,14 +621,16 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				       0, 1, conn_ctrl);
 		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_eom, tvb,
 				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_v2, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_neg_size, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_reserved, tvb,
-				       0, 1, conn_ctrl);
-		proto_tree_add_boolean(cc_tree, hf_spx_connection_control_ext_header, tvb,
-				       0, 1, conn_ctrl);
+		if (conn_ctrl & SPX_VII_PACKET) {
+			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_v2, tvb,
+					       0, 1, conn_ctrl);
+			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_neg_size, tvb,
+					       0, 1, conn_ctrl);
+			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_reserved, tvb,
+					       0, 1, conn_ctrl);
+			proto_tree_add_boolean(cc_tree, hf_spx_connection_control_ext_header, tvb,
+					       0, 1, conn_ctrl);
+		}
 	}
 
 	datastream_type = tvb_get_guint8(tvb, 1);
@@ -649,6 +660,14 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(spx_tree, hf_spx_seq_nr, tvb,  6, 2, spx_seq);
 		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, ENC_BIG_ENDIAN);
+		/*  field exists on ALL SPXII packets EXCEPT the first packet of
+		 *  the session.  The first packet can be determined by checking
+		 *  the destination ID field for a value of 0xffff (65535) and
+		 *  that the SPXII bit is set in Connection Control.
+		 */
+		if ((conn_ctrl & SPX_VII_PACKET) && tvb_get_ntohs(tvb, 4) != 0xffff) {
+			proto_tree_add_item(spx_tree, hf_spx_neg_size, tvb, 12, 2, ENC_BIG_ENDIAN);
+		}
 	}
 
 	/*
@@ -771,16 +790,16 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb, 0, 0, spx_rexmit_info_p->num,
 			    "This is a retransmission of frame %u",
 			    spx_rexmit_info_p->num);
-			if (tvb_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
+			if (tvb_length_remaining(tvb, hdr_len) > 0) {
 				proto_tree_add_text(spx_tree, tvb,
-				    SPX_HEADER_LEN, -1,
+				    hdr_len, -1,
 				    "Retransmitted data");
 			}
 		}
 		return;
 	}
 
-	if (tvb_reported_length_remaining(tvb, SPX_HEADER_LEN) > 0) {
+	if (tvb_reported_length_remaining(tvb, hdr_len) > 0) {
 		/*
 		 * Call subdissectors based on the IPX socket numbers; a
 		 * subdissector might have registered with our IPX socket
@@ -810,7 +829,7 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		spx_infox.eom = conn_ctrl & SPX_EOM;
 		spx_infox.datastream_type = datastream_type;
 
-		next_tvb = tvb_new_subset_remaining(tvb, SPX_HEADER_LEN);
+		next_tvb = tvb_new_subset_remaining(tvb, hdr_len);
 		if (dissector_try_uint_new(spx_socket_dissector_table, low_socket,
 		    next_tvb, pinfo, tree, FALSE, &spx_infox))
 		{
@@ -1422,6 +1441,11 @@ proto_register_ipx(void)
 
 		{ &hf_spx_all_nr,
 		{ "Allocation Number",		"spx.alloc",
+		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
+		  NULL, HFILL }},
+
+		{ &hf_spx_neg_size,
+		{ "Negotiation Size",		"spx.neg_size",
 		  FT_UINT16,	BASE_DEC,	NULL,	0x0,
 		  NULL, HFILL }},
 
