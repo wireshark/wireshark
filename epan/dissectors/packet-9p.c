@@ -1005,7 +1005,7 @@ static gint _9p_hash_equal(gconstpointer k1, gconstpointer k2) {
 
 static guint _9p_hash_hash(gconstpointer k)
 {
-	const struct _9p_hashkey *key = (struct _9p_hashkey *)k;
+	const struct _9p_hashkey *key = (const struct _9p_hashkey *)k;
 
 	return (key->conv_index ^ key->tag ^ key->fid);
 }
