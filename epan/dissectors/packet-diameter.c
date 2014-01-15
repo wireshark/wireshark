@@ -484,11 +484,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	guint32 flags_bits_idx = (len & 0xE0000000) >> 29;
 	guint32 flags_bits     = (len & 0xFF000000) >> 24;
 	guint32 vendorid       = vendor_flag ? tvb_get_ntohl(tvb,offset+8) : 0 ;
-	wmem_tree_key_t k[]    = {
-		{1,&code},
-		{1,&vendorid},
-		{0,NULL}
-	};
+	wmem_tree_key_t k[3];
 	diam_avp_t *a          = (diam_avp_t *)wmem_tree_lookup32_array(dictionary.avps,k);
 	proto_item *pi, *avp_item;
 	proto_tree *avp_tree, *save_tree;
@@ -497,6 +493,15 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	const char *code_str;
 	const char *avp_str = NULL;
 	guint8 pad_len;
+
+	k[0].length = 1;
+	k[0].key = &code;
+
+	k[1].length = 1;
+	k[1].key = &vendorid;
+
+	k[2].length = 0;
+	k[2].key = NULL;
 
 	len &= 0x00ffffff;
 	pad_len =  (len % 4) ? 4 - (len % 4) : 0 ;
@@ -1624,7 +1629,10 @@ dictionary_load(void)
 		GArray *arr = g_array_new(TRUE,TRUE,sizeof(value_string));
 
 		for (; p; p = p->next) {
-			value_string item = {p->code,p->name};
+			value_string item[1];
+
+			item[0].value = p->code;
+			item[0].strptr = p->name;
 			g_array_append_val(arr,item);
 		}
 
@@ -1634,7 +1642,10 @@ dictionary_load(void)
 
 	if ((v = d->vendors)) {
 		for ( ; v; v = v->next) {
-			value_string item = {v->code,v->name};
+			value_string item[1];
+
+			item[0].value = v->code;
+			item[0].strptr = v->name;
 
 			if (v->name == NULL) {
 				fprintf(stderr,"Diameter Dictionary: Invalid Vendor (empty name): code==%d\n",v->code);
@@ -1668,7 +1679,11 @@ dictionary_load(void)
 			}
 
 			if ((vnd = (diam_vnd_t *)g_hash_table_lookup(vendors,c->vendor))) {
-				value_string item = {c->code,c->name};
+				value_string item[1];
+
+				item[0].value =  c->code;
+				item[0].strptr = c->name;
+
 				g_array_append_val(vnd->vs_cmds,item);
 				/* Also add to all_cmds as used by RFC version */
 				g_array_append_val(all_cmds,item);
@@ -1692,7 +1707,12 @@ dictionary_load(void)
 		}
 
 		if ((vnd = (diam_vnd_t *)g_hash_table_lookup(vendors,vend))) {
-			value_string vndvs = {a->code,a->name};
+			value_string vndvs[1];
+
+			vndvs[0].value =  a->code;
+			vndvs[0].strptr = a->name;
+
+
 			g_array_append_val(vnd->vs_avps,vndvs);
 		} else {
 			fprintf(stderr,"Diameter Dictionary: No Vendor: %s\n",vend);
@@ -1701,10 +1721,16 @@ dictionary_load(void)
 
 		if ((e = a->enums)) {
 			wmem_array_t *arr = wmem_array_new(wmem_epan_scope(), sizeof(value_string));
-			value_string term = {0, NULL};
+			value_string term[1];
+
+			term[0].value =  0;
+			term[0].strptr = NULL;
 
 			for (; e; e = e->next) {
-				value_string item = {e->code,e->name};
+				value_string item[1];
+
+				item[0].value =  e->code;
+				item[0].strptr = e->name;
 				wmem_array_append_one(arr,item);
 			}
 			wmem_array_sort(arr, compare_avps);
@@ -1736,11 +1762,15 @@ dictionary_load(void)
 			g_hash_table_insert(build_dict.avps, a->name, avp);
 
 			{
-				wmem_tree_key_t k[] = {
-					{ 1, &(a->code) },
-					{ 1, &(vnd->code) },
-					{ 0 , NULL }
-				};
+				wmem_tree_key_t k[3];
+
+				k[0].length = 1;
+				k[0].key	= &(a->code);
+				k[1].length = 1;
+				k[1].key	= &(vnd->code);
+				k[2].length = 0;
+				k[2].key	= NULL;
+
 				wmem_tree_insert32_array(dictionary.avps,k,avp);
 			}
 		}
