@@ -40,11 +40,11 @@
 #include <wsutil/wsgcrypt.h>
 #endif /* HAVE_LIBGCRYPT */
 
-/* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available */
+/* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available.
+   Note that the use of this algorithm is restricted, and that an administrative charge
+   may be applicable if you use it (see e.g. http://www.gsma.com/technicalprojects/fraud-security/security-algorithms).
+   A version of Wireshark with this enabled would not be distributable. */
 /* #define HAVE_SNOW3G */
-#ifdef HAVE_SNOW3G
-#include <epan/snow3g_algorithm.h>
-#endif
 
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
@@ -1512,6 +1512,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 
                 mac = (u8*)snow3g_f9(pdu_security_settings->integrityKey,
                                      pdu_security_settings->count,
+                                     /* 'Fresh' is the bearer bits then zeros */
                                      pdu_security_settings->bearer << 27,
                                      pdu_security_settings->direction,
                                      message_data,
