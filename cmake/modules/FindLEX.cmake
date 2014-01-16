@@ -15,6 +15,7 @@ INCLUDE(FindCygwin)
 FIND_PROGRAM(LEX_EXECUTABLE
   NAMES
     flex
+    win_flex
     lex
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin

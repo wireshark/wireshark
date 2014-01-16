@@ -16,6 +16,7 @@ INCLUDE(FindCygwin)
 FIND_PROGRAM(YACC_EXECUTABLE
   NAMES
     bison
+    win_bison
     yacc
   PATHS
     ${CYGWIN_INSTALL_PATH}/bin
