@@ -95,7 +95,7 @@ done
 #
 # OK, run it.
 #
-echo "Running ${LEX}"
+echo "Running ${LEX} -o$outfile $flags $@"
 ${LEX} -o"$outfile" $flags "$@"
 
 #
