@@ -36,7 +36,14 @@ then
 	echo "Usage: runlex <lex/flex command to run> [ arguments ]" 1>&2
 	exit 1
 fi
-LEX="$1"
+
+if [ -n "${OS#Windows}" ] ; then
+	LEX=`cygpath --unix $1`
+        echo "$1 -> $LEX"
+else
+	LEX="$1"
+fi
+
 shift
 #
 # Check whether we have it.
