@@ -59,6 +59,8 @@ static const gchar FWD_LABEL_TEXT[] = "Select a forward stream with left mouse b
 static const gchar FWD_ONLY_LABEL_TEXT[] = "Select a forward stream with Ctrl + left mouse button";
 static const gchar REV_LABEL_TEXT[] = "Select a reverse stream with Ctrl + left mouse button";
 
+void register_tap_listener_rtp_stream_dlg(void);
+
 /****************************************************************************/
 /* pointer to the one and only dialog window */
 static GtkWidget *rtp_stream_dlg = NULL;

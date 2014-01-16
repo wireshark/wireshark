@@ -48,6 +48,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtksmbstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
 	GtkWidget *win;

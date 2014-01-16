@@ -59,6 +59,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkscsistat(void);
+
 /* used to keep track of the statistics for an entire scsi command set */
 typedef struct _scsistat_t {
 	GtkWidget	 *win;

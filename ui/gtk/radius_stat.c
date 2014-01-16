@@ -48,6 +48,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkradiusstat(void);
+
 #define NUM_COLUMNS 11
 
 typedef enum _radius_category {

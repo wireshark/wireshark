@@ -45,6 +45,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/main.h"
 
+void register_tap_listener_gtkncpstat(void);
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _ncpstat_t {

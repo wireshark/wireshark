@@ -51,7 +51,7 @@
 #include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
 
-
+void register_tap_listener_sctpstat(void);
 static void sctpstat_init(const char *opt_arg, void *userdata);
 
 static tap_param sctp_stat_params[] = {

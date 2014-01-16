@@ -70,6 +70,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_voip_calls_dlg(void);
+
 /****************************************************************************/
 /* pointer to the one and only dialog window */
 static GtkWidget *voip_calls_dlg = NULL;

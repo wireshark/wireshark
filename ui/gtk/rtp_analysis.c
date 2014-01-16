@@ -97,6 +97,8 @@
 
 #include "frame_tvbuff.h"
 
+void register_tap_listener_rtp_analysis(void);
+
 enum
 {
 	PACKET_COLUMN,

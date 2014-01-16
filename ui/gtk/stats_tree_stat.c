@@ -65,6 +65,8 @@
 #include "ui/win32/file_dlg_win32.h"
 #endif
 
+void register_tap_listener_stats_tree_stat(void);
+
 struct _st_node_pres {
 	GtkTreeIter*	iter;
 };

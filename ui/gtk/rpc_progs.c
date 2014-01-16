@@ -53,6 +53,8 @@
 
 #define NANOSECS_PER_SEC 1000000000
 
+void register_tap_listener_gtkrpcprogs(void);
+
 static GtkWidget *win   = NULL;
 static GtkWidget *grid  = NULL;
 static int num_progs    = 0;

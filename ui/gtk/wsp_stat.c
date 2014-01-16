@@ -43,6 +43,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkwspstat(void);
+
 /* Used to keep track of the statistics for a specific PDU type */
 typedef struct _wsp_pdu_t {
 	GtkLabel 	*widget;

@@ -51,6 +51,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_wlanstat(void);
+
 enum {
     BSSID_COLUMN,
     CHANNEL_COLUMN,
