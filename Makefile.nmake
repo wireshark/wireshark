@@ -8,7 +8,6 @@
 
 include config.nmake
 include <win32.mak>
-include Makefile.nmake.inc
 
 ############### no need to modify below this line #########
 
@@ -548,6 +547,10 @@ SVNENTRIES =
 svnversion.h: $(SVNENTRIES)
 	rm -f svnversion.h
 	$(PERL) make-version.pl
+
+
+text2pcap-scanner.c : text2pcap-scanner.l
+	$(LEX) -otext2pcap-scanner.c text2pcap-scanner.l
 
 text2pcap-scanner.obj : text2pcap-scanner.c
 	$(CC) $(GENERATED_CFLAGS) -Fd.\ -c $?
