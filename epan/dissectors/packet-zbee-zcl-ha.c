@@ -281,11 +281,11 @@ dissect_zcl_appl_idt_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
             ti = proto_tree_add_text(tree, tvb, *offset, 8, "Basic Identification: 0x%" G_GINT64_MODIFIER "x", value64);
             sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_appl_idt_basic);
 
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_company_id, tvb, *offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_company_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_brand_id, tvb, *offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_brand_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
-            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_prod_type_id, tvb, *offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_prod_type_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
             proto_tree_add_item(sub_tree, hf_zbee_zcl_appl_idt_ceced_spec_ver, tvb, *offset, 1, ENC_NA);
             *offset += 1;
