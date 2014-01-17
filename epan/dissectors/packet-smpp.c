@@ -1476,7 +1476,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                                  hf_smpp_source_bearer_type, offset);
                 break;
             case  0x0010:       /* source_telematics_id */
-                smpp_handle_int2(sub_tree, tvb,
+                smpp_handle_int1(sub_tree, tvb,
                                  hf_smpp_source_telematics_id, offset);
                 break;
             case  0x0017:       /* qos_time_to_live     */
@@ -3124,7 +3124,7 @@ proto_register_smpp(void)
         },
         {   &hf_smpp_source_telematics_id,
             {   "Telematic interworking (orig)", "smpp.source_telematics_id",
-                FT_UINT16, BASE_HEX, NULL, 0x00,
+                FT_UINT8, BASE_HEX, NULL, 0x00,
                 "Telematic interworking used for message submission.",
                 HFILL
             }
