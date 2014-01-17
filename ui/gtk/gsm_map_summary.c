@@ -54,6 +54,7 @@
 
 #define SUM_STR_MAX 1024
 
+void register_tap_listener_gtkgsm_map_summary(void);
 
 static void
 add_string_to_box(gchar *str, GtkWidget *box)

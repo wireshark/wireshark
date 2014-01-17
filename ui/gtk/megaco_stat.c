@@ -53,6 +53,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkmegacostat(void);
+
 static void
 megacostat_reset(void *pms)
 {

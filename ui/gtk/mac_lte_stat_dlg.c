@@ -48,6 +48,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_mac_lte_stat(void);
+
 /**********************************************/
 /* Table column identifiers and title strings */
 

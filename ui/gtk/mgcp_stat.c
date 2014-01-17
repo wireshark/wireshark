@@ -48,6 +48,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkmgcpstat(void);
+
 #define NUM_TIMESTATS 10
 
 /* used to keep track of the statistics for an entire program interface */

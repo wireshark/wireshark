@@ -54,6 +54,8 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_mcast_stream_dlg(void);
+
 /* Capture callback data keys */
 #define E_MCAST_ENTRY_1     "burst_interval"
 #define E_MCAST_ENTRY_2     "burst_alarm"

@@ -39,6 +39,8 @@
 #include "ui/gtk/gui_stat_menu.h"
 #include "ui/gtk/hostlist_table.h"
 
+void register_tap_listener_rsvp_hostlist(void);
+
 static int
 rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {

@@ -48,6 +48,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtk_h225counter(void);
 static void gtk_h225counter_init(const char *opt_arg, void *userdata);
 
 static tap_param h225_counter_params[] = {

@@ -90,6 +90,8 @@
 
 #include "frame_tvbuff.h"
 
+void register_tap_listener_iax2_analysis(void);
+
 enum
 {
 	PACKET_COLUMN,

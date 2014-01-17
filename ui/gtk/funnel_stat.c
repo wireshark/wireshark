@@ -62,6 +62,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkfunnel(void);
 
 struct _funnel_text_window_t {
     GtkWidget* win;

@@ -56,6 +56,8 @@
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/gui_utils.h"
 
+void register_tap_listener_gtk_iostat(void);
+
 #define MAX_GRAPHS           5
 
 #define MAX_YSCALE          28

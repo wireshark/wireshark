@@ -49,6 +49,7 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtk_h225rassrt(void);
 static void gtk_h225rassrt_init(const char *opt_arg, void *userdata);
 
 static tap_param h225_rassrt_params[] = {

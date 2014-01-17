@@ -55,6 +55,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkgsm_a_stat(void);
+
 enum
 {
     IEI_COLUMN,

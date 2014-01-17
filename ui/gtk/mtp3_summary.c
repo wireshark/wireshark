@@ -51,6 +51,7 @@
 
 #define SUM_STR_MAX 1024
 
+void register_tap_listener_gtkmtp3_summary(void);
 
 typedef struct _my_columns_t {
     guint32           value;

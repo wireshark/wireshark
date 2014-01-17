@@ -47,6 +47,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkldapstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _ldapstat_t {
 	GtkWidget *win;

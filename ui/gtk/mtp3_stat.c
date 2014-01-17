@@ -56,6 +56,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkmtp3_stat(void);
+
 enum
 {
     OPC_COLUMN,
