@@ -485,7 +485,7 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	guint32 flags_bits     = (len & 0xFF000000) >> 24;
 	guint32 vendorid       = vendor_flag ? tvb_get_ntohl(tvb,offset+8) : 0 ;
 	wmem_tree_key_t k[3];
-	diam_avp_t *a          = (diam_avp_t *)wmem_tree_lookup32_array(dictionary.avps,k);
+	diam_avp_t *a;
 	proto_item *pi, *avp_item;
 	proto_tree *avp_tree, *save_tree;
 	tvbuff_t *subtvb;
@@ -502,6 +502,8 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 
 	k[2].length = 0;
 	k[2].key = NULL;
+
+	a = (diam_avp_t *)wmem_tree_lookup32_array(dictionary.avps,k);
 
 	len &= 0x00ffffff;
 	pad_len =  (len % 4) ? 4 - (len % 4) : 0 ;
