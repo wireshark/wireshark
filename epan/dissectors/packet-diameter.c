@@ -1289,15 +1289,22 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 	enum ftenum ft, field_display_e base, const value_string_ext *vs_ext,
 	guint32 mask)
 {
-	hf_register_info hf = { hf_ptr, {
-				name,
-				abbr,
-				ft,
-				base,
-				NULL,
-				mask,
-				desc,
-				HFILL }};
+	hf_register_info hf;
+
+	hf.p_id						= hf_ptr;
+	hf.hfinfo.name				= name;
+	hf.hfinfo.abbrev			= abbr;
+	hf.hfinfo.type				= ft;
+	hf.hfinfo.display			= base;
+	hf.hfinfo.strings			= NULL;
+	hf.hfinfo.bitmask			= mask;
+	hf.hfinfo.blurb				= desc;
+	/* HFILL */
+	hf.hfinfo.id				= -1;
+	hf.hfinfo.parent			= 0;
+	hf.hfinfo.ref_type			= HF_REF_TYPE_NONE;
+	hf.hfinfo.same_name_prev_id	= -1;
+	hf.hfinfo.same_name_next	= NULL;
 
 	if (vs_ext) {
 		hf.hfinfo.strings = vs_ext;
@@ -1311,22 +1318,34 @@ static void
 basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 		  field_display_e base, const value_string_ext *vs_ext)
 {
-	hf_register_info hf[] = { { &(a->hf_value),
-				  { NULL, NULL, ft, base, NULL, 0x0,
-				  a->vendor->code ?
-				  wmem_strdup_printf(wmem_epan_scope(), "vendor=%d code=%d", a->vendor->code, a->code)
-				  : wmem_strdup_printf(wmem_epan_scope(), "code=%d", a->code),
-				  HFILL }}
-	};
+	hf_register_info hf;
 	gint *ettp = &(a->ett);
 
-	hf->hfinfo.name = wmem_strdup_printf(wmem_epan_scope(), "%s",name);
-	hf->hfinfo.abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s",name));
+	hf.p_id						= &(a->hf_value);
+	hf.hfinfo.name				= NULL;
+	hf.hfinfo.abbrev			= NULL;
+	hf.hfinfo.type				= ft;
+	hf.hfinfo.display			= base;
+	hf.hfinfo.strings			= NULL;
+	hf.hfinfo.bitmask			= 0x0;
+	hf.hfinfo.blurb				= a->vendor->code ?
+									wmem_strdup_printf(wmem_epan_scope(), "vendor=%d code=%d", a->vendor->code, a->code)
+									: wmem_strdup_printf(wmem_epan_scope(), "code=%d", a->code);
+	/* HFILL */
+	hf.hfinfo.id				= -1;
+	hf.hfinfo.parent			= 0;
+	hf.hfinfo.ref_type			= HF_REF_TYPE_NONE;
+	hf.hfinfo.same_name_prev_id	= -1;
+	hf.hfinfo.same_name_next	= NULL;
+
+
+	hf.hfinfo.name = wmem_strdup_printf(wmem_epan_scope(), "%s",name);
+	hf.hfinfo.abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s",name));
 	if (vs_ext) {
-		hf->hfinfo.strings = vs_ext;
+		hf.hfinfo.strings = vs_ext;
 	}
 
-	wmem_array_append(build_dict.hf,hf,1);
+	wmem_array_append(build_dict.hf,&hf,1);
 	g_ptr_array_add(build_dict.ett,ettp);
 }
 
