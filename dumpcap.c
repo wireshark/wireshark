@@ -180,7 +180,7 @@ static void cap_pipe_close(int pipe_fd, gboolean from_socket _U_);
  * and not continue to capture, should we report it as a warning, or
  * what?
  */
-void
+static void
 enable_kernel_bpf_jit_compiler(void)
 {
     int fd;

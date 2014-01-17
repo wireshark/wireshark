@@ -47,6 +47,8 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_flow_graph(void);
+
 static seq_analysis_info_t *graph_analysis	  = NULL;
 static graph_analysis_data_t *graph_analysis_data = NULL;
 

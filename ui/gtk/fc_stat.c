@@ -48,6 +48,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkfcstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _fcstat_t {
 	GtkWidget *win;

@@ -55,6 +55,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkansi_map_stat(void);
+
 enum
 {
     OP_CODE_COLUMN,

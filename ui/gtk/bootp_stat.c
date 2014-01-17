@@ -43,6 +43,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkdhcpstat(void);
+
 typedef const char *bootp_info_value_t;
 
 /* used to keep track of the statistics for an entire program interface */

@@ -83,6 +83,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkcomparestat(void);
+
 /* From colorize conversion */
 #define COLOR_N	1
 

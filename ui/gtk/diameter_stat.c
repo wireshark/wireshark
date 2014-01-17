@@ -50,6 +50,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkdiameterstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _diameterstat_t {
 	GtkWidget *win;

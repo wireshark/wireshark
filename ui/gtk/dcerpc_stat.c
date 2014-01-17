@@ -59,6 +59,8 @@
 
 #include "ui/gtk/old-gtk-compat.h"
 
+void register_tap_listener_gtkdcerpcstat(void);
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _dcerpcstat_t {
 	GtkWidget *win;
