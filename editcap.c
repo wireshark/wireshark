@@ -1596,7 +1596,7 @@ main(int argc, char *argv[])
     }
 
     if (dup_detect) {
-        fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate window of %u packets.\n",
+        fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate window of %i packets.\n",
                 count - 1, plurality(count - 1, "", "s"), duplicate_count,
                 plurality(duplicate_count, "", "s"), dup_window);
     } else if (dup_detect_by_time) {

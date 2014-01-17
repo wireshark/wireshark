@@ -1353,7 +1353,7 @@ print_machine_readable_interfaces(GList *if_list)
         else
             printf("\t");
 
-        printf("%u\t", if_info->type);
+        printf("%i\t", if_info->type);
 
         for (addr = g_slist_nth(if_info->addrs, 0); addr != NULL;
                     addr = g_slist_next(addr)) {
@@ -1379,7 +1379,7 @@ print_machine_readable_interfaces(GList *if_list)
                 }
                 break;
             default:
-                printf("<type unknown %u>", if_addr->ifat_type);
+                printf("<type unknown %i>", if_addr->ifat_type);
             }
         }
 
