@@ -884,6 +884,7 @@ main(int argc, char *argv[])
    * Get credential information for later use.
    */
     init_process_policies();
+    init_open_routines();
 
 #ifdef HAVE_PLUGINS
     /* Register wiretap plugins */
@@ -1148,7 +1149,7 @@ main(int argc, char *argv[])
         exit(1);
     }
 
-    wth = wtap_open_offline(argv[optind], &err, &err_info, FALSE);
+    wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
 
     if (!wth) {
         fprintf(stderr, "editcap: Can't open %s: %s\n", argv[optind],

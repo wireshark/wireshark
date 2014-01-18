@@ -108,11 +108,12 @@ cf_callback_remove(cf_callback_t func);
  *
  * @param cf the capture file to be opened
  * @param fname the filename to be opened
+ * @param type WTAP_TYPE_AUTO for automatic or index to direct open routine
  * @param is_tempfile is this a temporary file?
  * @param err error code
  * @return one of cf_status_t
  */
-cf_status_t cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err);
+cf_status_t cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err);
 
 /**
  * Close a capture file.

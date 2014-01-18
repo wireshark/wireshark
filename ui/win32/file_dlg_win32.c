@@ -1157,7 +1157,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
         return FALSE;
     }
 
-    wth = wtap_open_offline(preview_file, &err, &err_info, TRUE);
+    wth = wtap_open_offline(preview_file, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (cur_ctrl && wth == NULL) {
         if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             SetWindowText(cur_ctrl, _T("unknown file format"));

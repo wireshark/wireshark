@@ -832,6 +832,8 @@ int main(int argc, char *argv[])
     init_report_err(failure_alert_box, open_failure_alert_box,
                     read_failure_alert_box, write_failure_alert_box);
 
+    init_open_routines();
+
 #ifdef HAVE_PLUGINS
     /* Register all the plugin types we have. */
     epan_register_plugin_types(); /* Types known to libwireshark */

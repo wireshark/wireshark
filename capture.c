@@ -236,7 +236,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
   int err;
 
   /* Capture succeeded; attempt to open the capture file. */
-  if (cf_open((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err) != CF_OK) {
+  if (cf_open((capture_file *)cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err) != CF_OK) {
     /* We're not doing a capture any more, so we don't have a save file. */
     return FALSE;
   }
@@ -362,7 +362,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if(capture_opts->real_time_mode) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:

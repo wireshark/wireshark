@@ -221,7 +221,7 @@ gboolean capture_info_new_file(const char *new_filename)
         wtap_close(info_data.wtap);
     }
 
-    info_data.wtap = wtap_open_offline(new_filename, &err, &err_info, FALSE);
+    info_data.wtap = wtap_open_offline(new_filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
     if (!info_data.wtap) {
         err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
                                   new_filename);

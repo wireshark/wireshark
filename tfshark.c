@@ -906,6 +906,8 @@ main(int argc, char *argv[])
   timestamp_set_precision(TS_PREC_AUTO);
   timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
+  init_open_routines();
+
 #ifdef HAVE_PLUGINS
   /* Register all the plugin types we have. */
   epan_register_plugin_types(); /* Types known to libwireshark */
@@ -1425,7 +1427,7 @@ main(int argc, char *argv[])
     relinquish_special_privs_perm();
     print_current_user();
 
-    if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
+    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
       epan_cleanup();
       return 2;
     }
@@ -2498,7 +2500,7 @@ write_finale(void)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
 {
 #if USE_FTAP
   ftap  *fth;
@@ -2513,7 +2515,7 @@ cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   if (fth == NULL)
     goto fail;
 #else
-  wth = wtap_open_offline(fname, err, &err_info, perform_two_pass_analysis);
+  wth = wtap_open_offline(fname, type, err, &err_info, perform_two_pass_analysis);
   if (wth == NULL)
     goto fail;
 #endif

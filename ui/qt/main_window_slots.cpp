@@ -102,6 +102,7 @@ void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
     QString file_name = "";
     dfilter_t *rfcode = NULL;
     int err;
+    unsigned int type;
 
     testCaptureFileClose(false);
 
@@ -130,7 +131,7 @@ void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
                 break;
             }
 
-            if (open_dlg.open(file_name)) {
+            if (open_dlg.open(file_name, type)) {
                 if (dfilter_compile(display_filter.toUtf8().constData(), &rfcode)) {
                     cf_set_rfcode(&cfile, rfcode);
                 } else {
@@ -153,7 +154,7 @@ void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
 
         /* Try to open the capture file. */
         cfile.window = this;
-        if (cf_open(&cfile, cf_path.toUtf8().constData(), FALSE, &err) != CF_OK) {
+        if (cf_open(&cfile, cf_path.toUtf8().constData(), type, FALSE, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,
                just leave it around so that the user can, after they
                dismiss the alert box popped up for the open error,

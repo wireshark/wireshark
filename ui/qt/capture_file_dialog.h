@@ -41,6 +41,7 @@
 #include <QRadioButton>
 #include <QCheckBox>
 #include <QDialogButtonBox>
+#include <QComboBox>
 
 class CaptureFileDialog : public QFileDialog
 {
@@ -87,6 +88,7 @@ private:
 
 #if !defined(Q_OS_WIN)
     void addMergeControls(QVBoxLayout &v_box);
+    void addFormatTypeSelector(QVBoxLayout &v_box);
     void addDisplayFilterEdit();
     void addPreview(QVBoxLayout &v_box);
     QString fileExtensionType(int et, bool extension_globs = true);
@@ -110,6 +112,7 @@ private:
     QRadioButton merge_chrono_;
     QRadioButton merge_append_;
 
+    QComboBox format_type_;
     QHash<QString, int>type_hash_;
 
     void addResolutionControls(QVBoxLayout &v_box);
@@ -143,7 +146,7 @@ signals:
 public slots:
 
     int exec();
-    int open(QString &file_name);
+    int open(QString &file_name, unsigned int &type);
     check_savability_t saveAs(QString &file_name, bool must_support_comments);
     check_savability_t exportSelectedPackets(QString &file_name, packet_range_t *range);
     int merge(QString &file_name);

@@ -1126,6 +1126,7 @@ main(int argc, char *argv[])
    * Get credential information for later use.
    */
   init_process_policies();
+  init_open_routines();
 
 #ifdef HAVE_PLUGINS
   if ((init_progfile_dir_error = init_progfile_dir(argv[0], main))) {
@@ -1407,7 +1408,7 @@ main(int argc, char *argv[])
     }
 #endif /* HAVE_LIBGCRYPT */
 
-    wth = wtap_open_offline(argv[opt], &err, &err_info, FALSE);
+    wth = wtap_open_offline(argv[opt], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
 
     if (!wth) {
       fprintf(stderr, "capinfos: Can't open %s: %s\n", argv[opt],

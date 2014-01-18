@@ -518,7 +518,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
     }
 
 
-    if (cf_open(&cfile, fname, FALSE, &err) != CF_OK) {
+    if (cf_open(&cfile, fname, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
         *err_str = g_strerror(err);
         if (rfcode != NULL) dfilter_free(rfcode);
         return FALSE;

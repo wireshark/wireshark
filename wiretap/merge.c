@@ -62,7 +62,7 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
 
   for (i = 0; i < in_file_count; i++) {
     files[i].filename    = in_file_names[i];
-    files[i].wth         = wtap_open_offline(in_file_names[i], err, err_info, FALSE);
+    files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
     files[i].data_offset = 0;
     files[i].state       = PACKET_NOT_PRESENT;
     files[i].packet_num  = 0;

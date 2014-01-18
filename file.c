@@ -336,12 +336,12 @@ ws_epan_new(capture_file *cf)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
 {
   wtap  *wth;
   gchar *err_info;
 
-  wth = wtap_open_offline(fname, err, &err_info, TRUE);
+  wth = wtap_open_offline(fname, type, err, &err_info, TRUE);
   if (wth == NULL)
     goto fail;
 
@@ -4336,7 +4336,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   wtap_close(cf->wth);
 
   /* Open the new file. */
-  cf->wth = wtap_open_offline(fname, err, &err_info, TRUE);
+  cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, err, &err_info, TRUE);
   if (cf->wth == NULL) {
     cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
     return CF_READ_ERROR;
@@ -4770,7 +4770,7 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          the wtap structure, the filename, and the "is temporary"
          status applies to the new file; just update that. */
       wtap_close(cf->wth);
-      cf->wth = wtap_open_offline(fname, &err, &err_info, TRUE);
+      cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
       if (cf->wth == NULL) {
         cf_open_failure_alert_box(fname, err, err_info, FALSE, 0);
         cf_close(cf);
@@ -5212,7 +5212,7 @@ cf_reload(capture_file *cf) {
   filename = g_strdup(cf->filename);
   is_tempfile = cf->is_tempfile;
   cf->is_tempfile = FALSE;
-  if (cf_open(cf, filename, is_tempfile, &err) == CF_OK) {
+  if (cf_open(cf, filename, WTAP_TYPE_AUTO, is_tempfile, &err) == CF_OK) {
     switch (cf_read(cf, TRUE)) {
 
     case CF_READ_OK:

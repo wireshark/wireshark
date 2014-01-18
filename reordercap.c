@@ -221,8 +221,10 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
+    init_open_routines();
+
     /* Open infile */
-    wth = wtap_open_offline(infile, &err, &err_info, TRUE);
+    wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
         fprintf(stderr, "reordercap: Can't open %s: %s\n", infile,
                 wtap_strerror(err));

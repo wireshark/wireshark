@@ -204,7 +204,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
 
     if (in_file_count == 1) {
         /* open and read the capture file (this will close an existing file) */
-        if (cf_open(&cfile, in_filenames[0], FALSE, &err) == CF_OK) {
+        if (cf_open(&cfile, in_filenames[0], WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
             /* XXX - add this to the menu if the read fails? */
             cf_read(&cfile, FALSE);
             add_menu_recent_capture_file(in_filenames[0]);
@@ -219,7 +219,7 @@ dnd_open_file_cmd(gchar *cf_names_freeme)
             /* Merge succeeded; close the currently-open file and try
                to open the merged capture file. */
             cf_close(&cfile);
-            if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) == CF_OK) {
+            if (cf_open(&cfile, tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) == CF_OK) {
                 g_free(tmpname);
                 cf_read(&cfile, FALSE);
             } else {

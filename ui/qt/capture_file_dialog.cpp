@@ -231,7 +231,7 @@ bool CaptureFileDialog::isCompressed() {
     return compressed_;
 }
 
-int CaptureFileDialog::open(QString &file_name) {
+int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
@@ -239,6 +239,7 @@ int CaptureFileDialog::open(QString &file_name) {
     // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
     wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), fname, dfilter);
     file_name = fname->str;
+    type = format_type_.currentIndex();
     display_filter_ = dfilter->str;
 
     g_string_free(fname, TRUE);
@@ -499,6 +500,15 @@ void CaptureFileDialog::addDisplayFilterEdit() {
     last_row_++;
 }
 
+void CaptureFileDialog::addFormatTypeSelector(QVBoxLayout &v_box) {
+    format_type_.addItem("Automatic");
+    for (int i = 0; open_routines[i].name != NULL; i += 1) {
+        format_type_.addItem(open_routines[i].name);
+    }
+
+    v_box.addWidget(&format_type_, 0, Qt::AlignTop);
+}
+
 void CaptureFileDialog::addResolutionControls(QVBoxLayout &v_box) {
     mac_res_.setText(tr("&MAC name resolution"));
     mac_res_.setChecked(gbl_resolv_flags.mac_name);
@@ -548,11 +558,12 @@ QDialogButtonBox *CaptureFileDialog::addHelpButton(topic_action_e help_topic)
     return button_box;
 }
 
-int CaptureFileDialog::open(QString &file_name) {
+int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
     setWindowTitle(tr("Wireshark: Open Capture File"));
     setNameFilters(buildFileOpenTypeList());
     setFileMode(QFileDialog::ExistingFile);
 
+    addFormatTypeSelector(left_v_box_);
     addDisplayFilterEdit();
     addResolutionControls(left_v_box_);
     addPreview(right_v_box_);
@@ -569,6 +580,7 @@ int CaptureFileDialog::open(QString &file_name) {
 
     if (QFileDialog::exec() && selectedFiles().length() > 0) {
         file_name = selectedFiles()[0];
+        type = format_type_.currentIndex();
         display_filter_.append(display_filter_edit_->text());
 
         gbl_resolv_flags.mac_name = mac_res_.isChecked();
@@ -761,7 +773,7 @@ void CaptureFileDialog::preview(const QString & path)
         return;
     }
 
-    wth = wtap_open_offline(path.toUtf8().data(), &err, &err_info, TRUE);
+    wth = wtap_open_offline(path.toUtf8().data(), WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
         if(err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
             preview_format_.setText(tr("unknown file format"));

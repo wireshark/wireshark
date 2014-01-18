@@ -643,7 +643,7 @@ void MainWindow::mergeCaptureFile()
 
         /* Try to open the merged capture file. */
         cfile.window = this;
-        if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
+        if (cf_open(&cfile, tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
             /* We couldn't open it; fail. */
             cfile.window = NULL;
             if (rfcode != NULL)

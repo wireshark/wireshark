@@ -1110,6 +1110,8 @@ main(int argc, char *argv[])
   timestamp_set_precision(TS_PREC_AUTO);
   timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
+  init_open_routines();
+
 #ifdef HAVE_PLUGINS
   /* Register all the plugin types we have. */
   epan_register_plugin_types(); /* Types known to libwireshark */
@@ -1999,7 +2001,7 @@ main(int argc, char *argv[])
     relinquish_special_privs_perm();
     print_current_user();
 
-    if (cf_open(&cfile, cf_name, FALSE, &err) != CF_OK) {
+    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
       epan_cleanup();
       return 2;
     }
@@ -2594,7 +2596,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
   /* if we are in real-time mode, open the new file now */
   if (do_dissection) {
     /* Attempt to open the capture file and set up to read from it. */
-    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, is_tempfile, &err)) {
+    switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err)) {
     case CF_OK:
       break;
     case CF_ERROR:
@@ -3945,13 +3947,13 @@ write_finale(void)
 }
 
 cf_status_t
-cf_open(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
+cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
 {
   wtap  *wth;
   gchar *err_info;
   char   err_msg[2048+1];
 
-  wth = wtap_open_offline(fname, err, &err_info, perform_two_pass_analysis);
+  wth = wtap_open_offline(fname, type, err, &err_info, perform_two_pass_analysis);
   if (wth == NULL)
     goto fail;
 

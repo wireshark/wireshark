@@ -2523,6 +2523,8 @@ main(int argc, char *argv[])
         g_free(init_progfile_dir_error);
     }
 
+    init_open_routines();
+
 #ifdef HAVE_PLUGINS
     /* Register all the plugin types we have. */
     epan_register_plugin_types(); /* Types known to libwireshark */
@@ -3088,7 +3090,7 @@ main(int argc, char *argv[])
             }
         }
         if (!rfilter_parse_failed) {
-            if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+            if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
                 /* "cf_open()" succeeded, so it closed the previous
                  capture file, and thus destroyed any previous read filter
                  attached to "cf". */

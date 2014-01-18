@@ -1201,10 +1201,23 @@ typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
  * the ones that don't, to handle the case where a file of one type
  * might be recognized by the heuristics for a different file type.
  */
-struct heuristic_open_info {
+/*struct heuristic_open_info {
 	wtap_open_routine_t open_routine;
 	const char *extensions;
 };
+*/
+#define OPEN_INFO_MAGIC      0
+#define OPEN_INFO_HEURISTIC  1
+
+WS_DLL_PUBLIC void init_open_routines(void);
+
+struct open_info {
+    const char *name;
+    int type;
+    wtap_open_routine_t open_routine;
+    const char *extensions;
+};
+WS_DLL_PUBLIC struct open_info *open_routines;
 
 /*
  * Types of comments.
@@ -1251,11 +1264,13 @@ struct file_type_subtype_info {
     int (*dump_open)(wtap_dumper *, int *);
 };
 
+#define WTAP_TYPE_AUTO 0
 
 /** On failure, "wtap_open_offline()" returns NULL, and puts into the
  * "int" pointed to by its second argument:
  *
  * @param filename Name of the file to open
+ * @param type WTAP_TYPE_AUTO for automatic recognize file format or explicit choose format type
  * @param err a positive "errno" value if the capture file can't be opened;
  * a negative number, indicating the type of error, on other failures.
  * @param err_info for some errors, a string giving more details of
@@ -1264,7 +1279,7 @@ struct file_type_subtype_info {
  * FALSE if not
  */
 WS_DLL_PUBLIC
-struct wtap* wtap_open_offline(const char *filename, int *err,
+struct wtap* wtap_open_offline(const char *filename, unsigned int type, int *err,
     gchar **err_info, gboolean do_random);
 
 /**
@@ -1471,10 +1486,14 @@ WS_DLL_PUBLIC
 void register_all_wiretap_modules(void);
 WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
+#if 0
 WS_DLL_PUBLIC
 void wtap_register_magic_number_open_routine(wtap_open_routine_t open_routine);
 WS_DLL_PUBLIC
 void wtap_register_heuristic_open_info(const struct heuristic_open_info *oi);
+#endif
+WS_DLL_PUBLIC
+void wtap_register_open_info(const struct open_info *oi);
 WS_DLL_PUBLIC
 int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC

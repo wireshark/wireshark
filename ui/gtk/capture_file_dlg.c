@@ -139,7 +139,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
     return NULL;
   }
 
-  wth = wtap_open_offline(cf_name, &err, &err_info, TRUE);
+  wth = wtap_open_offline(cf_name, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
   if (wth == NULL) {
     label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
     if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT) {
@@ -474,11 +474,14 @@ preview_new(void)
 
 /* Open a file */
 static gboolean
-gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
+gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_filter)
 {
   GtkWidget *file_open_w;
   GtkWidget *main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te;
   GtkWidget *m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *e_resolv_cb, *prev;
+  GtkWidget *format_type_co;
+  GtkCellRenderer *cell;
+  gint i;
 
   /* No Apply button, and "OK" just sets our text widget, it doesn't
      activate it (i.e., it doesn't cause us to try to open the file). */
@@ -541,6 +544,21 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_box_pack_start(GTK_BOX(main_hb), main_vb, FALSE, FALSE, 0);
   gtk_widget_show(main_vb);
+
+  format_type_co = gtk_combo_box_text_new();
+  cell = gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(format_type_co), cell, TRUE);
+
+  gtk_widget_set_tooltip_text(format_type_co, "Format type of capture file");
+  gtk_box_pack_start(GTK_BOX(main_vb), format_type_co, FALSE, FALSE, 0);
+
+  gtk_combo_box_text_append_text((GtkComboBoxText *) format_type_co, (const gchar *) "Automatic");
+  for (i = 0; open_routines[i].name != NULL; i += 1) {
+    gtk_combo_box_text_append_text((GtkComboBoxText *) format_type_co, open_routines[i].name);
+  }
+
+  gtk_combo_box_set_active((GtkComboBox *) format_type_co, 0);
+  gtk_widget_show(format_type_co);
 
   /* Filter row */
   filter_hbox = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 1, FALSE);
@@ -639,6 +657,8 @@ gtk_open_file(GtkWidget *w, GString *file_name, GString *display_filter)
   else
     gbl_resolv_flags.use_external_net_name_resolver = FALSE;
 
+  *type = gtk_combo_box_get_active((GtkComboBox *) format_type_co);
+
   /* We've crossed the Rubicon; get rid of the file selection box. */
   window_destroy(GTK_WIDGET(file_open_w));
 
@@ -666,6 +686,7 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
   GString   *display_filter = g_string_new("");
   dfilter_t *rfcode         = NULL;
   int        err;
+  int        type = WTAP_TYPE_AUTO;
 
   /*
    * Loop until the user either selects a file or gives up.
@@ -674,7 +695,7 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
 #ifdef USE_WIN32_FILE_DIALOGS
     if (win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), file_name, display_filter)) {
 #else /* USE_WIN32_FILE_DIALOGS */
-    if (gtk_open_file(top_level, file_name, display_filter)) {
+    if (gtk_open_file(top_level, file_name, &type, display_filter)) {
 #endif /* USE_WIN32_FILE_DIALOGS */
 
       /* Only close the old file now that we know we want to open another one. */
@@ -690,7 +711,7 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
       }
 
       /* Try to open the capture file. */
-      if (cf_open(&cfile, file_name->str, FALSE, &err) != CF_OK) {
+      if (cf_open(&cfile, file_name->str, type, FALSE, &err) != CF_OK) {
         /* We couldn't open it; don't dismiss the open dialog box,
            just leave it around so that the user can, after they
            dismiss the alert box popped up for the open error,
@@ -971,7 +992,7 @@ file_merge_cmd(GtkWidget *w _U_)
       cf_close(&cfile);
 
       /* Try to open the merged capture file. */
-      if (cf_open(&cfile, tmpname, TRUE /* temporary file */, &err) != CF_OK) {
+      if (cf_open(&cfile, tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
         /* We couldn't open it; fail. */
         if (rfcode != NULL)
           dfilter_free(rfcode);

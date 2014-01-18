@@ -4323,7 +4323,7 @@ menu_open_filename(gchar *cf_name)
     recent_files_list = (GList *)g_object_get_data(G_OBJECT(submenu_recent_files), "recent-files-list");
     /* XXX: ask user to remove item, it's maybe only a temporary problem */
     /* open and read the capture file (this will close an existing file) */
-    if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
     }else{
         recent_files_list = remove_present_file_name(recent_files_list, cf_name);
@@ -4351,7 +4351,7 @@ menu_open_recent_file_cmd(GtkAction *action)
 #endif
 
     /* open and read the capture file (this will close an existing file) */
-    if (cf_open(&cfile, cf_name, FALSE, &err) == CF_OK) {
+    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
     } else {
         submenu_recent_files = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_RECENT_FILES_PATH);

@@ -79,7 +79,7 @@ fs_open_entry(fileset_entry *entry)
 
     /* close the old and open the new file */
     cf_close(&cfile);
-    if (cf_open(&cfile, fname, FALSE, &err) == CF_OK) {
+    if (cf_open(&cfile, fname, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
         cf_read(&cfile, FALSE);
     }
 

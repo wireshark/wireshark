@@ -541,7 +541,7 @@ file_import_open(text_import_info_t *info)
         write_failure_alert_box(capfile_name, err);
     }
 
-    if (cf_open(&cfile, capfile_name, TRUE /* temporary file */, &err) != CF_OK) {
+    if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
         open_failure_alert_box(capfile_name, err, FALSE);
         goto end;
     }
