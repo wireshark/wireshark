@@ -192,7 +192,6 @@ else()
 		-Wformat-security
 		-Wvla
 		-Waddress
-		-Warray-bounds
 		-Wattributes
 		-Wdiv-by-zero
 		-Wignored-qualifiers
