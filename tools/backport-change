@@ -58,7 +58,18 @@ fi
 #
 
 git ls-remote --heads gerrit &> /dev/null
-if [ $? -ne 0 ] ; then exit_err "Can't find a remote named \"gerrit\"" ; fi
+if [ $? -ne 0 ] ; then
+    exit_err "Can't find a remote named \"gerrit\".\nAdd one with one of\n" \
+    "\n    git remote add gerrit https://your.username@code.wireshark.org/review/wireshark" \
+    "\n    git remote add gerrit ssh://your.username@code.wireshark.org:29418/wireshark"
+fi
+
+if [ ! -f "$COMMIT_MSG_HOOK" ] ; then
+    exit_err "Can't find a commit-msg hook.\nDownload it with one with one of\n" \
+    "\n    curl -Lo .git/hooks/commit-msg https://code.wireshark.org/review/tools/hooks/commit-msg" \
+    "\n    scp -p -P 29418 your.username@code.wireshark.org:hooks/commit-msg .git/hooks/"
+fi
+
 
 #
 # Make sure our working directory is clean
@@ -67,23 +78,32 @@ if [ $? -ne 0 ] ; then exit_err "Can't find a remote named \"gerrit\"" ; fi
 git diff --quiet HEAD || exit_err "You have changes in your working directory. Please clean them up."
 
 #
+# Make sure we're up to date
+#
+git fetch gerrit
+
+#
 # Find our change
 #
 
 CHANGE="$1"
 LONG_HASH=""
+TOPIC=""
 
 if [ -z "$CHANGE" ] ; then exit_err ; fi
 
 if [[ $CHANGE = r* ]] ; then
     # Subversion
     SVN_REV=${CHANGE:1}
-    LONG_HASH=`git log master --grep "svn path=/trunk/; revision=${SVN_REV}\$" -1 --format=format:%H`
+    LONG_HASH=`git log gerrit/master --grep "svn path=/trunk/; revision=${SVN_REV}\$" -1 --format=format:%H`
     if [ -z "$LONG_HASH" ] ; then exit_err "Can't find SVN revision $CHANGE" ; fi
+    TOPIC="/backport-$CHANGE"
 else
     # Git
     LONG_HASH=`git rev-parse $CHANGE`
+    SHORT_HASH=`git rev-parse --short $CHANGE`
     if [ -z "$LONG_HASH" ] ; then exit_err "Can't find git commit $CHANGE" ; fi
+    TOPIC="/backport-g$SHORT_HASH"
 fi
 
 #
@@ -99,7 +119,7 @@ if [[ $UPSTREAM_NAME != master-[0-9].[0-9]* ]] ; then
     exit_err "Can't backport to remote branch $UPSTREAM_NAME."
 fi
 
-PUSH_CMD="git push gerrit HEAD:refs/for/$UPSTREAM_NAME"
+PUSH_CMD="git push gerrit HEAD:refs/for/${UPSTREAM_NAME}${TOPIC}"
 
 #
 # On with the show
