@@ -1282,7 +1282,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 				_SETCAP_RESULT
 			)
 			if( _SETCAP_RESULT )
-				message( ERROR \"setcap failed (${_SETCAP_RESULT}).\")
+				message( WARNING \"setcap failed (${_SETCAP_RESULT}).\")
 			endif()"
 		)
 	endif()
