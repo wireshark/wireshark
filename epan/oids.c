@@ -633,11 +633,8 @@ static void register_mibs(void) {
                 hf.hfinfo.strings           = NULL;
                 hf.hfinfo.bitmask           = 0;
                 hf.hfinfo.blurb             = smiRenderOID(smiNode->oidlen, smiNode->oid, SMI_RENDER_ALL);
-                hf.hfinfo.id                = -1;
-                hf.hfinfo.parent            = 0;
-                hf.hfinfo.ref_type          = HF_REF_TYPE_NONE;
-                hf.hfinfo.same_name_prev_id = -1;
-                hf.hfinfo.same_name_next    = NULL;
+                /* HFILL */
+                HFILL_INIT(hf);
 
 				/* Don't allow duplicate blurb/name */
 				if (strcmp(hf.hfinfo.blurb, hf.hfinfo.name) == 0) {
@@ -711,12 +708,8 @@ static void register_mibs(void) {
 					hf.hfinfo.strings           = NULL;
 					hf.hfinfo.bitmask           = 0;
 					hf.hfinfo.blurb             = NULL;
-					hf.hfinfo.id                = -1;
-					hf.hfinfo.parent            = 0;
-					hf.hfinfo.ref_type          = HF_REF_TYPE_NONE;
-					hf.hfinfo.same_name_prev_id = -1;
-					hf.hfinfo.same_name_next    = NULL;
-
+                    /* HFILL */
+                    HFILL_INIT(hf);
 
 					D(5,("\t\t\tIndex: name=%s subids=%d key_type=%d",
 						 key->name, key->num_subids, key->key_type ));

@@ -383,11 +383,11 @@ struct _header_field_info {
 	const char		*blurb;          /**< [FIELDDESCR] Brief description of field */
 
 	/* ------- set by proto routines (prefilled by HFILL macro, see below) ------ */
-	int			 id;             /**< Field ID */
-	int			 parent;         /**< parent protocol tree */
-	hf_ref_type		 ref_type;       /**< is this field referenced by a filter */
-	int                      same_name_prev_id; /**< ID of previous hfinfo with same abbrev */
-	header_field_info	*same_name_next; /**< Link to next hfinfo with same abbrev */
+	int				     id;                /**< Field ID */
+	int					 parent;            /**< parent protocol tree */
+	hf_ref_type			 ref_type;          /**< is this field referenced by a filter */
+	int                  same_name_prev_id; /**< ID of previous hfinfo with same abbrev */
+	header_field_info	*same_name_next;    /**< Link to next hfinfo with same abbrev */
 };
 
 /**
@@ -396,6 +396,13 @@ struct _header_field_info {
  * be changed as necessary.
  */
 #define HFILL -1, 0, HF_REF_TYPE_NONE, -1, NULL
+
+#define HFILL_INIT(hf)   \
+	hf.hfinfo.id				= -1;   \
+	hf.hfinfo.parent			= 0;   \
+	hf.hfinfo.ref_type			= HF_REF_TYPE_NONE;   \
+	hf.hfinfo.same_name_prev_id	= -1;   \
+	hf.hfinfo.same_name_next	= NULL;   
 
 /** Used when registering many fields at once, using proto_register_field_array() */
 typedef struct hf_register_info {

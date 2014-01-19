@@ -1300,11 +1300,7 @@ reginfo(int *hf_ptr, const char *name, const char *abbr, const char *desc,
 	hf.hfinfo.bitmask			= mask;
 	hf.hfinfo.blurb				= desc;
 	/* HFILL */
-	hf.hfinfo.id				= -1;
-	hf.hfinfo.parent			= 0;
-	hf.hfinfo.ref_type			= HF_REF_TYPE_NONE;
-	hf.hfinfo.same_name_prev_id	= -1;
-	hf.hfinfo.same_name_next	= NULL;
+	HFILL_INIT(hf);
 
 	if (vs_ext) {
 		hf.hfinfo.strings = vs_ext;
@@ -1332,12 +1328,7 @@ basic_avp_reginfo(diam_avp_t *a, const char *name, enum ftenum ft,
 									wmem_strdup_printf(wmem_epan_scope(), "vendor=%d code=%d", a->vendor->code, a->code)
 									: wmem_strdup_printf(wmem_epan_scope(), "code=%d", a->code);
 	/* HFILL */
-	hf.hfinfo.id				= -1;
-	hf.hfinfo.parent			= 0;
-	hf.hfinfo.ref_type			= HF_REF_TYPE_NONE;
-	hf.hfinfo.same_name_prev_id	= -1;
-	hf.hfinfo.same_name_next	= NULL;
-
+	HFILL_INIT(hf);
 
 	hf.hfinfo.name = wmem_strdup_printf(wmem_epan_scope(), "%s",name);
 	hf.hfinfo.abbrev = alnumerize(wmem_strdup_printf(wmem_epan_scope(), "diameter.%s",name));
