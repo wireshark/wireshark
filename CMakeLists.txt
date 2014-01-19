@@ -137,8 +137,17 @@ if(NOT LIBRARY_OUTPUT_PATH)
 		   "Single output directory for building all libraries.")
 endif()
 
-
-include(CMakeOptions.txt)
+include( CMakeOptions.txt )
+if( DUMPCAP_INSTALL_OPTION STREQUAL "suid" )
+	set( DUMPCAP_SETUID "SETUID" )
+else()
+	set( DUMPCAP_SETUID )
+endif()
+if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
+	DUMPCAP_INSTALL_OPTION STREQUAL "capabilities" )
+	message( WARNING "Capabilities are only supported on Linux" )
+	set( DUMPCAP_INSTALL_OPTION )
+endif()
 
 if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	if (MSVC10)
@@ -492,7 +501,7 @@ endif()
 
 # Capabilities
 if(ENABLE_CAP)
-	set(PACKAGELIST ${PACKAGELIST} CAP)
+	set(PACKAGELIST ${PACKAGELIST} CAP SETCAP)
 endif()
 
 if(ENABLE_PYTHON)
@@ -1256,7 +1265,27 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 	set_target_properties(dumpcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	set_target_properties(dumpcap PROPERTIES FOLDER "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
-	install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
+	install(TARGETS dumpcap
+			RUNTIME
+			DESTINATION ${CMAKE_INSTALL_BINDIR}
+			PERMISSIONS ${DUMPCAP_SETUID}
+				OWNER_READ OWNER_WRITE OWNER_EXECUTE
+				GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
+	)
+	if(DUMPCAP_INSTALL_OPTION STREQUAL "capabilities")
+		install( CODE "execute_process(
+			COMMAND
+				${SETCAP_EXECUTABLE}
+				cap_net_raw,cap_net_admin+ep
+				${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/dumpcap${CMAKE_EXECUTABLE_SUFFIX}
+			RESULT_VARIABLE
+				_SETCAP_RESULT
+			)
+			if( _SETCAP_RESULT )
+				message( ERROR \"setcap failed (${_SETCAP_RESULT}).\")
+			endif()"
+		)
+	endif()
 endif()
 
 ADD_CUSTOM_COMMAND(

@@ -56,3 +56,8 @@ option(ENABLE_CARES      "Build with c-ares support" ON)
 option(ENABLE_NETLINK    "Build with libnl support" ON)
 # todo Mostly hardcoded
 option(ENABLE_KERBEROS   "Build with Kerberos support" ON)
+# How to install
+set(DUMPCAP_INSTALL_OPTION   "normal" CACHE STRING "Permissions to install")
+set(DUMPCAP_INST_VALS "normal" "suid" "capabilities")
+set_property(CACHE DUMPCAP_INSTALL_OPTION PROPERTY STRINGS ${DUMPCAP_INST_VALS})
+
