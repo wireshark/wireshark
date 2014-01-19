@@ -5126,8 +5126,8 @@ iwlistener       2866/tcp # iwlistener [Fred_Surr] [Fred_Surr]
 iwlistener       2866/udp # iwlistener [Fred_Surr] [Fred_Surr]
 esps-portal      2867/tcp # esps-portal [Nicholas_Stowfis] [Nicholas_Stowfis]
 esps-portal      2867/udp # esps-portal [Nicholas_Stowfis] [Nicholas_Stowfis]
-npep-messaging   2868/tcp # NPEP Messaging [Kristian_A_Bognaes] [Kristian_A_Bognaes]
-npep-messaging   2868/udp # NPEP Messaging [Kristian_A_Bognaes] [Kristian_A_Bognaes]
+npep-messaging   2868/tcp # Norman Proprietaqry Events Protocol [Norman_Safeground_AS] [Kristian_A_Bognaes] 2014-01-15
+npep-messaging   2868/udp # Norman Proprietaqry Events Protocol [Norman_Safeground_AS] [Kristian_A_Bognaes] 2014-01-15
 icslap           2869/tcp # ICSLAP [Richard_Lamb] [Richard_Lamb]
 icslap           2869/udp # ICSLAP [Richard_Lamb] [Richard_Lamb]
 daishi           2870/tcp # daishi [Patrick_Chipman] [Patrick_Chipman]
@@ -9893,6 +9893,7 @@ vmware-fdm       8182/udp # VMware Fault Domain Manager [Ron_Passerini] [Ron_Pas
 proremote        8183/tcp # ProRemote [Alex_Lelievre] [Alex_Lelievre] 2009-08-18
 itach            8184/tcp # Remote iTach Connection [Barend_Jacobus_van_d] [Barend_Jacobus_van_d] 2010-04-27
 itach            8184/udp # Remote iTach Connection [Barend_Jacobus_van_d] [Barend_Jacobus_van_d] 2010-04-27
+limnerpressure   8191/tcp # Limner Pressure [Aaron_Kleinsteiber] [Aaron_Kleinsteiber] 2014-01-16
 spytechphone     8192/tcp # SpyTech Phone Service [Bill_Kay] [Bill_Kay] 2006-04
 spytechphone     8192/udp # SpyTech Phone Service [Bill_Kay] [Bill_Kay] 2006-04
 blp1             8194/tcp # Bloomberg data API [Albert_Hou] [Albert_Hou] 2006-05
@@ -10518,6 +10519,8 @@ irisa           11000/tcp # IRISA [V_A_Brauner] [V_A_Brauner]
 irisa           11000/udp # IRISA [V_A_Brauner] [V_A_Brauner]
 metasys         11001/tcp # Metasys [Tobin_Schuster] [Tobin_Schuster]
 metasys         11001/udp # Metasys [Tobin_Schuster] [Tobin_Schuster]
+weave           11095/tcp # Nest device-to-device and device-to-service application protocol [Nest_Labs_Inc] [Grant_Erickson] 2014-01-16
+weave           11095/udp # Nest device-to-device and device-to-service application protocol [Nest_Labs_Inc] [Grant_Erickson] 2014-01-16
 origo-sync      11103/tcp # OrigoDB Server Sync Interface [Devrex_Labs] [Robert_Friberg] 2013-03-29
 netapp-icmgmt   11104/tcp # NetApp Intercluster Management [Craig_Everhart] [Craig_Everhart] 2010-07-06
 netapp-icdata   11105/tcp # NetApp Intercluster Data [Craig_Everhart] [Craig_Everhart] 2010-07-06
