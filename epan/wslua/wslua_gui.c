@@ -309,6 +309,10 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
         WSLUA_ERROR(ProgDlg_update,"GUI not available");
     }
 
+    if (!pd) {
+        WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
+    }
+
     g_free(pd->task);
     pd->task = g_strdup(task);
 
