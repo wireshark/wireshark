@@ -3136,7 +3136,7 @@ PRIVATE void tplt_xfer(const char *name, FILE *in, FILE *out, int *lineno)
     (*lineno)++;
     iStart = 0;
     if( name ){
-      for(i=0; line[i] && i<LINESIZE; i++){
+      for(i=0; i<LINESIZE && line[i]; i++){
         if( line[i]=='P' && i<(LINESIZE-5) && strncmp(&line[i],"Parse",5)==0
           && (i==0 || !safe_isalpha(line[i-1]))
         ){
@@ -3422,10 +3422,8 @@ PRIVATE void translate_code(struct lemon *lemp, struct rule *rp){
       }
     }
   }
-  if( rp->code ){
-    cp = append_str(0,0,0,0);
-    rp->code = Strsafe(cp?cp:"");
-  }
+  cp = append_str(0,0,0,0);
+  rp->code = Strsafe(cp?cp:"");
 }
 
 /*
