@@ -1793,15 +1793,17 @@ sync_pipe_input_cb(gint source, gpointer user_data)
         /* (an error message doesn't mean we have to stop capturing) */
         break;
     case SP_BAD_FILTER: {
-        char *ch;
-        int indx;
+        char *ch=NULL;
+        int indx=0;
 
         ch = strtok(buffer, ":");
-        indx = (int)strtol(ch, NULL, 10);
-        ch = strtok(NULL, ":");
+        if (ch) {
+           indx = (int)strtol(ch, NULL, 10);
+           ch = strtok(NULL, ":");
+        }
         capture_input_cfilter_error_message(cap_session, indx, ch);
-         /* the capture child will close the sync_pipe, nothing to do for now */
-         break;
+        /* the capture child will close the sync_pipe, nothing to do for now */
+        break;
         }
     case SP_DROPS:
         capture_input_drops(cap_session, (guint32)strtoul(buffer, NULL, 10));
