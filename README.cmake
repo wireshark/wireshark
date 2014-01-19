@@ -66,7 +66,7 @@ How to do out of tree build (Win32/64):
 1d) In case you want to use Visual Studio, make sure that the paths
     to python and cygwin are available to GUI applications.
 2) Install cmake
-2a) Build the zblib library, e.g.
+2a) Build the zlib library, e.g.
     cd %WIRESHARK_BASE_DIR%\wireshark-%WIRESHARK_TARGET_PLATFORM%-libs\zlib125
     cmake -G "NMake Makefiles" . # msbuild will not do because of configuration path
     cmake --build .
