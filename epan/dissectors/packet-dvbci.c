@@ -2206,7 +2206,7 @@ decrypt_sac_msg_body(
     clear_data = (unsigned char *)g_malloc(clear_len);
 
     err = gcry_cipher_decrypt (cipher, clear_data, clear_len,
-                tvb_get_string(wmem_packet_scope(), encrypted_tvb, offset, len), len);
+                tvb_get_ptr(encrypted_tvb, offset, len), len);
     if (gcry_err_code (err))
         goto end;
 
