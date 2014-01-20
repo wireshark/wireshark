@@ -10332,19 +10332,21 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
             break;
         case 5: /* fixed-one */
             format_len=1;
-            code = (guint8)tvb_get_guint8(tvb, offset);
+            code = (int)tvb_get_guint8(tvb, offset);
             break;
         case 6: /* fixed-two */
             format_len=2;
-            code = (gint16)tvb_get_ntohs(tvb, offset);
+            code = (int)tvb_get_ntohs(tvb, offset);
             break;
         case 7: /* fixed-four */
             format_len=4;
-            code = (gint32)tvb_get_ntohl(tvb, offset);
+            code = (int)tvb_get_ntohl(tvb, offset);
             break;
         case 8: /* fixed-eight */
             format_len=8;
-            code = (gint64)tvb_get_ntoh64(tvb, offset);
+            code = (int)tvb_get_ntoh64(tvb, offset);
+            /* TODO: use a gint64 for 32-bit platforms? we never compare it to
+             * anything bigger than an int anyways... */
             break;
         case 9: /* fixed-sixteen */
             format_len=16;
