@@ -223,6 +223,7 @@ DIRTY_CORBA_IDL_DISSECTOR_SRC = \
 	packet-tango.c
 
 FILE_DISSECTOR_SRC = \
+	file-btsnoop.c \
 	file-elf.c	\
 	file-file.c	\
 	file-gif.c	\

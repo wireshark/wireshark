@@ -311,6 +311,7 @@ set(DIRTY_CORBA_IDL_DISSECTOR_SRC
 )
 
 set(DISSECTOR_SRC
+	dissectors/file-btsnoop.c
 	dissectors/file-elf.c
 	dissectors/file-file.c
 	dissectors/file-gif.c

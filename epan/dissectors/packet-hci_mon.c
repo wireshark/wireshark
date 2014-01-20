@@ -63,7 +63,7 @@ static const value_string opcode_vals[] = {
     { 0x07,  "SCO Rx Packet" },
     { 0x00, NULL }
 };
-static value_string_ext(opcode_vals_ext) = VALUE_STRING_EXT_INIT(opcode_vals);
+value_string_ext(hci_mon_opcode_vals_ext) = VALUE_STRING_EXT_INIT(opcode_vals);
 
 static const value_string type_vals[] = {
     { 0x00,  "Virtual" },
@@ -147,7 +147,7 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     PROTO_ITEM_SET_GENERATED(sub_item);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Adapter Id: %u, Opcode: %s",
-            adapter_id, val_to_str_ext_const(opcode, &opcode_vals_ext, "Unknown"));
+            adapter_id, val_to_str_ext_const(opcode, &hci_mon_opcode_vals_ext, "Unknown"));
 
     bluetooth_data->adapter_id = adapter_id;
 
@@ -261,7 +261,7 @@ proto_register_hci_mon(void)
         },
         {  &hf_opcode,
             { "Opcode",                          "hci_mon.opcode",
-            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &opcode_vals_ext, 0x00,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &hci_mon_opcode_vals_ext, 0x00,
             NULL, HFILL }
         },
         {  &hf_type,
