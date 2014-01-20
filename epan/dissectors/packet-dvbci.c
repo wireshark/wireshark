@@ -952,10 +952,16 @@ static int hf_dvbci_disp_rep_id = -1;
 static int hf_dvbci_mmi_char_tbl = -1;
 static int hf_dvbci_blind_ans = -1;
 static int hf_dvbci_ans_txt_len = -1;
+static int hf_dvbci_enq = -1;
 static int hf_dvbci_ans_id = -1;
+static int hf_dvbci_ans = -1;
 static int hf_dvbci_choice_nb = -1;
 static int hf_dvbci_choice_ref = -1;
 static int hf_dvbci_item_nb = -1;
+static int hf_dvbci_title = -1;
+static int hf_dvbci_subtitle = -1;
+static int hf_dvbci_bottom = -1;
+static int hf_dvbci_item = -1;
 static int hf_dvbci_host_country = -1;
 static int hf_dvbci_host_language = -1;
 static int hf_dvbci_cup_type = -1;
@@ -2232,10 +2238,10 @@ decrypt_sac_msg_body(guint8 enc_cip _U_,
 #endif
 
 
- /* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
+/* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
 static void
 dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
-        packet_info *pinfo, proto_tree *tree, const gchar *title,
+        packet_info *pinfo, proto_tree *tree, int hf, const gchar *title,
         gboolean show_col_info)
 {
     guint           enc_len;
@@ -2259,7 +2265,9 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
     if (!si_str)
         return;
 
-    proto_tree_add_text(tree, tvb, offset, str_len, "%s: %s", title, si_str);
+    proto_tree_add_string_format(tree, hf,
+            tvb, offset, str_len, si_str, "%s: %s", title, si_str);
+
     if (show_col_info)
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", si_str);
 }
@@ -2389,7 +2397,7 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 /* dissect a text pseudo-apdu */
 static gint
 dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
-                   packet_info *pinfo, proto_tree *tree)
+                   packet_info *pinfo, proto_tree *tree, int hf)
 {
     proto_item *ti = NULL;
     proto_tree *text_tree;
@@ -2414,7 +2422,8 @@ dissect_dvbci_text(const gchar *title, tvbuff_t *tvb, gint offset,
             tvb, offset, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
     offset += APDU_TAG_SIZE;
     offset = dissect_ber_length(pinfo, text_tree, tvb, offset, &len_field, NULL);
-    dissect_si_string(tvb, offset, len_field, pinfo, text_tree, "Text", FALSE);
+    dissect_si_string(tvb, offset, len_field, pinfo, text_tree,
+            hf, "Text", FALSE);
     offset += len_field;
 
     proto_item_set_len(ti, offset-offset_start);
@@ -2945,7 +2954,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             offset++;
             dissect_si_string(tvb, offset,
                     tvb_reported_length_remaining(tvb, offset),
-                    pinfo, tree, "Enquiry string", FALSE);
+                    pinfo, tree, hf_dvbci_enq, "Enquiry string", FALSE);
             break;
         case T_ANSW:
             ans_id = tvb_get_guint8(tvb,offset);
@@ -2954,7 +2963,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             if (ans_id == ANSW_ID_ANSWER) {
                 dissect_si_string(tvb, offset,
                     tvb_reported_length_remaining(tvb, offset),
-                    pinfo, tree, "Answer", TRUE);
+                    pinfo, tree, hf_dvbci_ans, "Answer", TRUE);
             }
             break;
         case T_MENU_LAST:
@@ -2979,14 +2988,17 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                 }
             }
             offset++;
-            text_len = dissect_dvbci_text("Title", tvb, offset, pinfo, tree);
+            text_len = dissect_dvbci_text("Title", tvb, offset,
+                    pinfo, tree, hf_dvbci_title);
             offset += text_len;
-            text_len = dissect_dvbci_text("Sub-title", tvb, offset, pinfo, tree);
+            text_len = dissect_dvbci_text("Sub-title", tvb, offset,
+                    pinfo, tree, hf_dvbci_subtitle);
             offset += text_len;
-            text_len = dissect_dvbci_text("Bottom line", tvb, offset, pinfo, tree);
+            text_len = dissect_dvbci_text("Bottom line", tvb, offset,
+                    pinfo, tree, hf_dvbci_bottom);
             offset += text_len;
             while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                text_len = dissect_dvbci_text("Item", tvb, offset, pinfo, tree);
+                text_len = dissect_dvbci_text("Item", tvb, offset, pinfo, tree, hf_dvbci_item);
                 /* minimum is apdu tag + 1 byte len field */
                 if (text_len<APDU_TAG_SIZE+1) {
                     proto_tree_add_expert(tree, pinfo, &ei_dvbci_not_text_more_or_text_last, tvb, offset, -1);
@@ -5318,9 +5330,17 @@ proto_register_dvbci(void)
           { "Answer text length", "dvb-ci.mmi.ans_txt_len",
             FT_UINT8, BASE_DEC, NULL , 0, NULL, HFILL }
         },
+        { &hf_dvbci_enq,
+          { "Enquiry string", "dvb-ci.mmi.enq",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+        },
         { &hf_dvbci_ans_id,
           { "Answer ID", "dvb-ci.mmi.ans_id",
             FT_UINT8, BASE_HEX, VALS(dvbci_ans_id) , 0, NULL, HFILL }
+        },
+        { &hf_dvbci_ans,
+          { "Answer", "dvb-ci.mmi.ans",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_choice_nb,
           { "Number of menu items", "dvb-ci.mmi.choice_nb",
@@ -5333,6 +5353,22 @@ proto_register_dvbci(void)
         { &hf_dvbci_item_nb,
           { "Number of list items", "dvb-ci.mmi.item_nb",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_title,
+          { "Title", "dvb-ci.mmi.title",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_subtitle,
+          { "Sub-title", "dvb-ci.mmi.subtitle",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_bottom,
+          { "Bottom line", "dvb-ci.mmi.bottom",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_item,
+          { "Item", "dvb-ci.mmi.item",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_host_country,
           { "Host country", "dvb-ci.hlc.country",
