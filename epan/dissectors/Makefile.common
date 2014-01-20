@@ -800,6 +800,7 @@ DISSECTOR_SRC = \
 	packet-lsc.c		\
 	packet-ltp.c		\
 	packet-lwapp.c		\
+  packet-lwm.c		\
 	packet-lwres.c		\
 	packet-m2pa.c		\
 	packet-m2tp.c		\

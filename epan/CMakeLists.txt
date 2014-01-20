@@ -878,6 +878,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-lsc.c
 	dissectors/packet-ltp.c
 	dissectors/packet-lwapp.c
+  dissectors/packet-lwm.c
 	dissectors/packet-lwres.c
 	dissectors/packet-m2pa.c
 	dissectors/packet-m2tp.c
