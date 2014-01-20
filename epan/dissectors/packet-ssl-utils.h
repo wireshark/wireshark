@@ -162,6 +162,7 @@
 #define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
 #define SSL_HND_HELLO_EXT_ALPN               0x0010
 #define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2  0x0011
+#define SSL_HND_HELLO_EXT_SESSION_TICKET	 0x0023
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
 #define SSL_HND_HELLO_EXT_NPN                0x3374
 #define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
@@ -333,9 +334,11 @@ typedef struct {
 typedef struct _SslDecryptSession {
     guchar _master_secret[48];
     guchar _session_id[256];
+	guchar _session_ticket[1024];
     guchar _client_random[32];
     guchar _server_random[32];
     StringInfo session_id;
+	StringInfo session_ticket;
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
@@ -567,6 +570,12 @@ ssl_save_session(SslDecryptSession* ssl, GHashTable *session_hash);
 extern gboolean
 ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash);
 
+extern void
+ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
+
+extern gboolean
+ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash);
+
 extern gint
 ssl_is_valid_content_type(guint8 type);
 
@@ -629,7 +638,7 @@ typedef struct ssl_common_dissect {
 
 extern gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client);
+                          guint32 offset, guint32 left, gboolean is_client, SslDecryptSession *ssl);
 
 extern gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,

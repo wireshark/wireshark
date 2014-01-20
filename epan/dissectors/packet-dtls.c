@@ -1822,7 +1822,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
         {
           ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
                                               length -
-                                              (offset - start_offset), TRUE);
+                                              (offset - start_offset), TRUE, ssl);
         }
     }
 }
@@ -1909,7 +1909,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
         {
           offset = ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
                                               length -
-                                              (offset - start_offset), FALSE);
+                                              (offset - start_offset), FALSE, ssl);
         }
     }
     return offset;

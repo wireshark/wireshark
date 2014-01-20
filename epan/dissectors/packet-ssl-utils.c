@@ -1043,7 +1043,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_HEARTBEAT, "Heartbeat" },  /* RFC 6520 */
     { SSL_HND_HELLO_EXT_ALPN, "Application Layer Protocol Negotiation" }, /* draft-ietf-tls-applayerprotoneg-01 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
-    { 35, "SessionTicket TLS" },  /* RFC 4507 */
+    { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
     { 0, NULL }
@@ -3668,6 +3668,8 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->session_id.data = ssl_session->_session_id;
     ssl_session->client_random.data = ssl_session->_client_random;
     ssl_session->server_random.data = ssl_session->_server_random;
+	ssl_session->session_ticket.data = ssl_session->_session_ticket;
+	ssl_session->session_ticket.data_len = 0;
     ssl_session->master_secret.data_len = 48;
     ssl_session->server_data_for_iv.data_len = 0;
     ssl_session->server_data_for_iv.data = ssl_session->_server_data_for_iv;
@@ -4123,6 +4125,58 @@ ssl_restore_session(SslDecryptSession* ssl, GHashTable *session_hash)
     ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
     ssl->state |= SSL_MASTER_SECRET;
     ssl_debug_printf("ssl_restore_session master key retrieved\n");
+    return TRUE;
+}
+
+/* store master secret into session data cache */
+void
+ssl_save_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
+{
+    /* allocate stringinfo chunks for session id and master secret data*/
+    StringInfo* session_ticket;
+    StringInfo* master_secret;
+
+    if (ssl->session_ticket.data_len == 0) {
+        ssl_debug_printf("ssl_save_session_ticket - session ticket is empty!\n");
+        return;
+    }
+
+    session_ticket = (StringInfo *)wmem_alloc0(wmem_file_scope(), sizeof(StringInfo) + ssl->session_ticket.data_len);
+    master_secret = (StringInfo *)wmem_alloc0(wmem_file_scope(), 48 + sizeof(StringInfo));
+
+    master_secret->data = ((guchar*)master_secret+sizeof(StringInfo));
+
+    /*  ssl_hash() depends on session_id->data being aligned for guint access
+     *  so be careful in changing how it is allocated.
+     */
+    session_ticket->data = ((guchar*)session_ticket+sizeof(StringInfo));
+
+    ssl_data_set(session_ticket, ssl->session_ticket.data, ssl->session_ticket.data_len);
+    ssl_data_set(master_secret, ssl->master_secret.data, ssl->master_secret.data_len);
+    g_hash_table_insert(session_hash, session_ticket, master_secret);
+    ssl_print_string("ssl_save_session_ticket stored session_ticket", session_ticket);
+    ssl_print_string("ssl_save_session_ticket stored master secret", master_secret);
+}
+
+gboolean
+ssl_restore_session_ticket(SslDecryptSession* ssl, GHashTable *session_hash)
+{
+    StringInfo* ms;
+
+    if (ssl->session_ticket.data_len == 0) {
+        ssl_debug_printf("ssl_restore_session_ticket Cannot restore using an empty session ticket\n");
+        return FALSE;
+    }
+
+    ms = (StringInfo *)g_hash_table_lookup(session_hash, &ssl->session_ticket);
+
+    if (!ms) {
+        ssl_debug_printf("ssl_restore_session_ticket can't find stored session ticket\n");
+        return FALSE;
+    }
+    ssl_data_set(&ssl->master_secret, ms->data, ms->data_len);
+    ssl->state |= SSL_MASTER_SECRET;
+    ssl_debug_printf("ssl_restore_session_ticket master key retrieved\n");
     return TRUE;
 }
 
@@ -4747,6 +4801,23 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
    return offset;
 }
 
+static gint
+ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                      proto_tree *tree, guint32 offset, guint32 ext_len, gboolean is_client, SslDecryptSession *ssl)
+{
+	if(is_client && ssl && ext_len != 0)
+	{
+		/*save the ticket on the ssl opaque so that we can use it as key on server hello */
+		tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
+    	ssl->session_ticket.data_len = ext_len;
+	}
+	proto_tree_add_bytes_format(tree, hf->hf.hs_ext_data,
+                                tvb, offset, ext_len, NULL,
+                                "Data (%u byte%s)",
+                                ext_len, plurality(ext_len, "", "s"));
+    return offset + ext_len;
+}
+
 void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
@@ -4950,14 +5021,14 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
 
 gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client)
+                          guint32 offset, guint32 left, gboolean is_client, SslDecryptSession *ssl)
 {
     guint16     extension_length;
     guint16     ext_type;
     guint16     ext_len;
     proto_item *pi;
     proto_tree *ext_tree;
-
+	
     if (left < 2)
         return offset;
 
@@ -5027,6 +5098,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += ext_len;
             break;
+		case SSL_HND_HELLO_EXT_SESSION_TICKET:
+			offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, is_client, ssl);
+			break;
         default:
             proto_tree_add_bytes_format(ext_tree, hf->hf.hs_ext_data,
                                         tvb, offset, ext_len, NULL,

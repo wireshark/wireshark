@@ -535,7 +535,8 @@ static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
 
 static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
                                        proto_tree *tree,
-                                       guint32 offset, guint32 length);
+                                       guint32 offset, guint32 length,
+                                       SslDecryptSession *ssl);
 
 static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                   proto_tree *tree, guint32 offset, packet_info *pinfo);
@@ -2023,7 +2024,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_NEWSESSION_TICKET:
-                dissect_ssl3_hnd_new_ses_ticket(tvb, ssl_hand_tree, offset, length);
+                dissect_ssl3_hnd_new_ses_ticket(tvb, ssl_hand_tree, offset, length, ssl);
                 break;
 
             case SSL_HND_CERTIFICATE:
@@ -2255,6 +2256,11 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                     ssl_debug_printf("  found master secret in keylog file\n");
                 }
             }
+			/* if the session_ids match, then there is a chance that we need to restore a session_ticket */
+			if(ssl->session_ticket.data_len != 0)
+			{
+				ssl_restore_session_ticket(ssl, ssl_session_hash);
+			}
         } else {
             tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
             ssl->session_id.data_len = session_id_length;
@@ -2323,7 +2329,6 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
         ssl_set_server(ssl, &pinfo->dst, pinfo->ptype, pinfo->destport);
         ssl_find_private_key(ssl, ssl_key_hash, ssl_associations, pinfo);
     }
-
     if (tree || ssl)
     {
         /* show the client version */
@@ -2331,18 +2336,17 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(tree, hf_ssl_handshake_client_version, tvb,
                             offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-
         /* show the fields in common with server hello */
         offset += dissect_ssl3_hnd_hello_common(tvb, tree, offset, ssl, 0);
-
         /* tell the user how many cipher suites there are */
         cipher_suite_length = tvb_get_ntohs(tvb, offset);
-        if (!tree)
-            return;
+
+		/* even if there's no tree, we'll have to dissect the whole record to get to the extensions.
+		 * we will continue with tree==NULL */
+		
         proto_tree_add_uint(tree, hf_ssl_handshake_cipher_suites_len,
                         tvb, offset, 2, cipher_suite_length);
         offset += 2;            /* skip opaque length */
-
         if (cipher_suite_length > 0)
         {
             tvb_ensure_bytes_exist(tvb, offset, cipher_suite_length);
@@ -2376,13 +2380,11 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                 cipher_suite_length -= 2;
             }
         }
-
         /* tell the user how many compression methods there are */
         compression_methods_length = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(tree, hf_ssl_handshake_comp_methods_len,
                             tvb, offset, 1, compression_methods_length);
         offset += 1;
-
         if (compression_methods_length > 0)
         {
             tvb_ensure_bytes_exist(tvb, offset, compression_methods_length);
@@ -2419,11 +2421,10 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                 compression_methods_length--;
             }
         }
-
         if (length > offset - start_offset)
         {
             ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
-                                       length - (offset - start_offset), TRUE);
+                                       length - (offset - start_offset), TRUE, ssl);
         }
     }
 }
@@ -2498,19 +2499,19 @@ no_cipher:
         if (length > offset - start_offset)
         {
             ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
-                                       length - (offset - start_offset), FALSE);
+                                       length - (offset - start_offset), FALSE, ssl);
         }
     }
 }
 
 static void
 dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
-                              guint32 offset, guint32 length)
+                              guint32 offset, guint32 length, SslDecryptSession *ssl)
 {
     guint       nst_len;
     proto_item *ti;
     proto_tree *subtree;
-
+	guint16 session_ticket_length = 0;
 
     nst_len = tvb_get_ntohs(tvb, offset+4);
     if (6 + nst_len != length) {
@@ -2524,11 +2525,22 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
                         tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
+	
+	session_ticket_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(subtree, hf_ssl_handshake_session_ticket_len,
         tvb, offset, 2, nst_len);
+	offset += 2;
+
+	/* save the session ticket to cache */
+	if(ssl){
+		tvb_memcpy(tvb,ssl->session_ticket.data, offset, session_ticket_length);
+		ssl->session_ticket.data_len = session_ticket_length;
+		ssl_save_session_ticket(ssl, ssl_session_hash);
+	}
+
     /* Content depends on implementation, so just show data! */
     proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket,
-            tvb, offset + 2, nst_len, ENC_NA);
+            tvb, offset, nst_len, ENC_NA);
 }
 
 static void
