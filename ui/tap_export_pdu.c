@@ -212,4 +212,16 @@ do_export_pdu(const char *filter, gchar *tap_name, gpointer data)
     exp_pdu_file_open(exp_pdu_tap_data);
     return TRUE;
 }
- 
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
