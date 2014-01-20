@@ -5369,54 +5369,54 @@ dissect_btcommon_le_channel_map(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
     gint offset = 0;
 
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_36, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_35, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_34, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_33, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_32, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_31, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_30, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_29, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_28, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_27, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_26, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_25, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_24, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_23, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_22, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_21, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_20, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_19, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_18, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_17, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_16, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_15, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_14, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_13, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_12, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_11, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_10, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_9, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_8, tvb, offset, 1, ENC_NA);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_7, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_6, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_5, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_4, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_3, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_2, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(tree, hf_btcommon_le_channel_map_1, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(tree, hf_btcommon_le_channel_map_0, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_1, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_2, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_3, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_4, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_5, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_6, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_7, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_8, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_9, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_10, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_11, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_12, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_13, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_14, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_15, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_16, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_17, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_18, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_19, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_20, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_21, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_22, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_23, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_24, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_25, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_26, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_27, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_28, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_29, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_30, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_31, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_32, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_33, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_34, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_35, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_36, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_37, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_38, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_btcommon_le_channel_map_39, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     return offset;
@@ -5854,205 +5854,205 @@ proto_register_btcommon(void)
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_39,
-            { "RF Channel 39 (2480 MHz - Advertising - 39)",         "btcommon.le_channel_map.39",
+            { "RF Channel 39 (2480 MHz - Reserved for Advertising - 39)",         "btcommon.le_channel_map.39",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_38,
-            { "RF Channel 38 (2478 MHz - Data - 36)",                "btcommon.le_channel_map.38",
+            { "RF Channel 12 (2426 MHz - Reserved for Advertising - 38)",         "btcommon.le_channel_map.38",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_37,
-            { "RF Channel 37 (2476 MHz - Data - 35)",                "btcommon.le_channel_map.37",
+            { "RF Channel 0 (2402 MHz - Reserved for Advertising - 37)",          "btcommon.le_channel_map.37",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_36,
-            { "RF Channel 36 (2474 MHz - Data - 34)",                "btcommon.le_channel_map.36",
+            { "RF Channel 38 (2478 MHz - Data - 36)",                "btcommon.le_channel_map.36",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_35,
-            { "RF Channel 35 (2472 MHz - Data - 33)",                "btcommon.le_channel_map.35",
+            { "RF Channel 37 (2476 MHz - Data - 35)",                "btcommon.le_channel_map.35",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_34,
-            { "RF Channel 34 (2470 MHz - Data - 32)",                "btcommon.le_channel_map.34",
+            { "RF Channel 36 (2474 MHz - Data - 34)",                "btcommon.le_channel_map.34",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_33,
-            { "RF Channel 33 (2468 MHz - Data - 31)",                "btcommon.le_channel_map.33",
+            { "RF Channel 35 (2472 MHz - Data - 33)",                "btcommon.le_channel_map.33",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_32,
-            { "RF Channel 32 (2466 MHz - Data - 30)",                "btcommon.le_channel_map.32",
+            { "RF Channel 34 (2470 MHz - Data - 32)",                "btcommon.le_channel_map.32",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_31,
-            { "RF Channel 31 (2464 MHz - Data - 29)",                "btcommon.le_channel_map.31",
+            { "RF Channel 33 (2468 MHz - Data - 31)",                "btcommon.le_channel_map.31",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_30,
-            { "RF Channel 30 (2462 MHz - Data - 28)",                "btcommon.le_channel_map.30",
+            { "RF Channel 32 (2466 MHz - Data - 30)",                "btcommon.le_channel_map.30",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_29,
-            { "RF Channel 29 (2460 MHz - Data - 27)",                "btcommon.le_channel_map.29",
+            { "RF Channel 31 (2464 MHz - Data - 29)",                "btcommon.le_channel_map.29",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_28,
-            { "RF Channel 28 (2458 MHz - Data - 26)",                "btcommon.le_channel_map.28",
+            { "RF Channel 30 (2462 MHz - Data - 28)",                "btcommon.le_channel_map.28",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_27,
-            { "RF Channel 27 (2456 MHz - Data - 25)",                "btcommon.le_channel_map.27",
+            { "RF Channel 29 (2460 MHz - Data - 27)",                "btcommon.le_channel_map.27",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_26,
-            { "RF Channel 26 (2454 MHz - Data - 24)",                "btcommon.le_channel_map.26",
+            { "RF Channel 28 (2458 MHz - Data - 26)",                "btcommon.le_channel_map.26",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_25,
-            { "RF Channel 25 (2452 MHz - Data - 23)",                "btcommon.le_channel_map.25",
+            { "RF Channel 27 (2456 MHz - Data - 25)",                "btcommon.le_channel_map.25",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_24,
-            { "RF Channel 24 (2450 MHz - Data - 22)",                "btcommon.le_channel_map.24",
+            { "RF Channel 26 (2454 MHz - Data - 24)",                "btcommon.le_channel_map.24",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_23,
-            { "RF Channel 23 (2448 MHz - Data - 21)",                "btcommon.le_channel_map.23",
+            { "RF Channel 25 (2452 MHz - Data - 23)",                "btcommon.le_channel_map.23",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_22,
-            { "RF Channel 22 (2446 MHz - Data - 20)",                "btcommon.le_channel_map.22",
+            { "RF Channel 24 (2450 MHz - Data - 22)",                "btcommon.le_channel_map.22",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_21,
-            { "RF Channel 21 (2444 MHz - Data - 19)",                "btcommon.le_channel_map.21",
+            { "RF Channel 23 (2448 MHz - Data - 21)",                "btcommon.le_channel_map.21",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_20,
-            { "RF Channel 20 (2442 MHz - Data - 18)",                "btcommon.le_channel_map.20",
+            { "RF Channel 22 (2446 MHz - Data - 20)",                "btcommon.le_channel_map.20",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_19,
-            { "RF Channel 19 (2440 MHz - Data - 17)",                "btcommon.le_channel_map.19",
+            { "RF Channel 21 (2444 MHz - Data - 19)",                "btcommon.le_channel_map.19",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_18,
-            { "RF Channel 18 (2438 MHz - Data - 16)",                "btcommon.le_channel_map.18",
+            { "RF Channel 20 (2442 MHz - Data - 18)",                "btcommon.le_channel_map.18",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_17,
-            { "RF Channel 17 (2436 MHz - Data - 15)",                "btcommon.le_channel_map.17",
+            { "RF Channel 19 (2440 MHz - Data - 17)",                "btcommon.le_channel_map.17",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_16,
-            { "RF Channel 16 (2434 MHz - Data - 14)",                "btcommon.le_channel_map.16",
+            { "RF Channel 18 (2438 MHz - Data - 16)",                "btcommon.le_channel_map.16",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_15,
-            { "RF Channel 15 (2432 MHz - Data - 13)",                "btcommon.le_channel_map.15",
+            { "RF Channel 17 (2436 MHz - Data - 15)",                "btcommon.le_channel_map.15",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_14,
-            { "RF Channel 14 (2430 MHz - Data - 12)",                "btcommon.le_channel_map.14",
+            { "RF Channel 16 (2434 MHz - Data - 14)",                "btcommon.le_channel_map.14",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_13,
-            { "RF Channel 13 (2428 MHz - Data - 11)",                "btcommon.le_channel_map.13",
+            { "RF Channel 15 (2432 MHz - Data - 13)",                "btcommon.le_channel_map.13",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_12,
-            { "RF Channel 12 (2426 MHz - Advertising - 38)",         "btcommon.le_channel_map.12",
+            { "RF Channel 14 (2430 MHz - Data - 12)",                "btcommon.le_channel_map.12",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_11,
-            { "RF Channel 11 (2424 MHz - Data - 10)",                "btcommon.le_channel_map.11",
+            { "RF Channel 13 (2428 MHz - Data - 11)",                "btcommon.le_channel_map.11",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_10,
-            { "RF Channel 10 (2422 MHz - Data - 9)",                 "btcommon.le_channel_map.10",
+            { "RF Channel 11 (2424 MHz - Data - 10)",                "btcommon.le_channel_map.10",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_9,
-            { "RF Channel 9 (2420 MHz - Data - 8)",                  "btcommon.le_channel_map.9",
+            { "RF Channel 10 (2422 MHz - Data - 9)",                 "btcommon.le_channel_map.9",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_8,
-            { "RF Channel 8 (2418 MHz - Data - 7)",                  "btcommon.le_channel_map.8",
+            { "RF Channel 9 (2420 MHz - Data - 8)",                  "btcommon.le_channel_map.8",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_7,
-            { "RF Channel 7 (2416 MHz - Data - 6)",                  "btcommon.le_channel_map.7",
+            { "RF Channel 8 (2418 MHz - Data - 7)",                  "btcommon.le_channel_map.7",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_6,
-            { "RF Channel 6 (2414 MHz - Data - 5)",                  "btcommon.le_channel_map.6",
+            { "RF Channel 7 (2416 MHz - Data - 6)",                  "btcommon.le_channel_map.6",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_5,
-            { "RF Channel 5 (2412 MHz - Data - 4)",                  "btcommon.le_channel_map.5",
+            { "RF Channel 6 (2414 MHz - Data - 5)",                  "btcommon.le_channel_map.5",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_4,
-            { "RF Channel 4 (2410 MHz - Data - 3)",                  "btcommon.le_channel_map.4",
+            { "RF Channel 5 (2412 MHz - Data - 4)",                  "btcommon.le_channel_map.4",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_3,
-            { "RF Channel 3 (2408 MHz - Data - 2)",                  "btcommon.le_channel_map.3",
+            { "RF Channel 4 (2410 MHz - Data - 3)",                  "btcommon.le_channel_map.3",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_2,
-            { "RF Channel 2 (2406 MHz - Data - 1)",                  "btcommon.le_channel_map.2",
+            { "RF Channel 3 (2408 MHz - Data - 2)",                  "btcommon.le_channel_map.2",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_1,
-            { "RF Channel 1 (2404 MHz - Data - 0)",                  "btcommon.le_channel_map.1",
+            { "RF Channel 2 (2406 MHz - Data - 1)",                  "btcommon.le_channel_map.1",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_btcommon_le_channel_map_0,
-            { "RF Channel 0 (2402 MHz - Advertising - 37)",          "btcommon.le_channel_map.0",
+            { "RF Channel 1 (2404 MHz - Data - 0)",                  "btcommon.le_channel_map.0",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
-        },
+        }
     };
 
     static gint *ett[] = {
