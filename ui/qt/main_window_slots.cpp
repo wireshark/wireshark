@@ -2034,7 +2034,7 @@ void MainWindow::on_actionHelpCheckForUpdates_triggered()
 
 void MainWindow::on_actionHelpAbout_triggered()
 {
-    AboutDialog *about_dialog = new AboutDialog(this);;
+    AboutDialog *about_dialog = new AboutDialog(this);
 
     if (about_dialog->isMinimized() == true)
     {
