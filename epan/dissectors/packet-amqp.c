@@ -10493,7 +10493,7 @@ format_amqp_1_0_uint(tvbuff_t *tvb,
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid uint length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%lu", val);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "u", val);
     return length;
 }
 
@@ -10517,7 +10517,7 @@ format_amqp_1_0_int(tvbuff_t *tvb,
         *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
         return length;
     }
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%li", val);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "i", val);
     return length;
 }
 
@@ -10559,7 +10559,7 @@ format_amqp_1_0_timestamp(tvbuff_t *tvb,
                           guint offset, guint bound _U_, guint length _U_,
                           const char **value)
 {
-    *value = wmem_strdup_printf(wmem_packet_scope(), "%ld", tvb_get_ntoh64(tvb, offset));
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%" G_GINT64_MODIFIER "d", tvb_get_ntoh64(tvb, offset));
     return 8;
 }
 
