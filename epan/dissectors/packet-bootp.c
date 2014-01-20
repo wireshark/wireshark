@@ -3290,8 +3290,8 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 
 
 static int
-dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
-				 tvbuff_t *tvb, int optoff, int optend)
+dissect_vendor_generic_suboption(packet_info *pinfo _U_, proto_item *v_ti _U_, proto_tree *v_tree,
+				 tvbuff_t *tvb, int optoff, int optend _U_)
 {
 	int         suboptoff = optoff;
 	guint8      subopt_len;
