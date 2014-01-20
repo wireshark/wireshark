@@ -448,7 +448,8 @@ static int hf_bootp_option_6RD_border_relay_ip = -1;			/* 212 */
 static int hf_bootp_option_private_proxy_autodiscovery = -1;		/* 252 */
 static int hf_bootp_option_end = -1;					/* 255 */
 static int hf_bootp_option_end_overload = -1;				/* 255 (with overload)*/
-
+static int hf_bootp_vendor_unknown_suboption = -1;
+static int hf_bootp_suboption_data = -1;
 
 
 
@@ -801,6 +802,8 @@ static int dissect_packetcable_i05_ccc(packet_info *pinfo, proto_item *v_ti, pro
 static int dissect_packetcable_ietf_ccc(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					tvbuff_t *tvb, int optoff, int optend, int revision);
 static int dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+					    tvbuff_t *tvb, int optoff, int optend);
+static int dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 					    tvbuff_t *tvb, int optoff, int optend);
 
 #define OPT53_DISCOVER "Discover"
@@ -2565,8 +2568,18 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			break;
 
 			default:
-				/* skip over the data and look for next enterprise number */
-				optoff += s_option_len;
+				s_end = optoff + s_option_len;
+				if ( s_end > optend ) {
+					expert_add_info_format(pinfo, vti, &ei_bootp_option125_enterprise_malformed, "no room left in option for enterprise %u data", enterprise);
+					break;
+				}
+
+				e_tree = proto_item_add_subtree(vti, ett_bootp_option);
+				while (optoff < s_end) {
+
+				optoff = dissect_vendor_generic_suboption(pinfo, vti, e_tree, tvb, optoff, s_end);
+			}
+			break;
 			}
 
 			optleft -= s_option_len;
@@ -3275,6 +3288,29 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	return optoff;
 }
 
+
+static int
+dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				 tvbuff_t *tvb, int optoff, int optend)
+{
+	int         suboptoff = optoff;
+	guint8      subopt_len;
+	proto_item *item;
+	proto_tree *sub_tree;
+
+	item = proto_tree_add_item(v_tree, hf_bootp_vendor_unknown_suboption, tvb, optoff, 1, ENC_BIG_ENDIAN);
+	suboptoff+=1;
+
+	sub_tree = proto_item_add_subtree(item, ett_bootp_option125_suboption);
+	subopt_len = tvb_get_guint8(tvb,suboptoff);
+	proto_tree_add_item(sub_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	suboptoff++;
+	proto_tree_add_item(sub_tree, hf_bootp_suboption_data, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+	suboptoff+= subopt_len;
+
+	return suboptoff;
+
+}
 static const value_string option43_alcatel_suboption_vals[] = {
 	{  0, "Padding" },
 	{ 58, "Voice VLAN ID" },
@@ -6848,6 +6884,15 @@ proto_register_bootp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 255: End (Overload)", HFILL }},
 
+		{ &hf_bootp_vendor_unknown_suboption,
+		  { "Option 125 Suboption", "bootp.vendor.suboption",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_suboption_data,
+		  { "Data", "bootp.vendor.data",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 	};
 
 	static uat_field_t bootp_uat_flds[] = {
