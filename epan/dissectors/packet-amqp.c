@@ -4,6 +4,7 @@
  *
  * Author: Martin Sustrik <sustrik@imatix.com> (AMQP 0-9)
  * Author: Steve Huston <shuston@riverace.com> (extended for AMQP 0-10)
+ * Author: Pavel Moravec <pmoravec@redhat.com> (extended for AMQP 1.0)
  *
  * Copyright (c) 1996-2007 iMatix Corporation
  *
@@ -44,9 +45,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
-
-void proto_register_amqp(void);
-void proto_reg_handoff_amqp(void);
+#include <glib.h>
 
 /*  Generic data  */
 
@@ -60,7 +59,7 @@ static int amqp_port = 5672;
 }
 
 /*
- * This dissector handles AMQP 0-9 and 0-10. The conversation structure
+ * This dissector handles AMQP 0-9, 0-10 and 1.0. The conversation structure
  * contains the version being run - it's only really reliably detected at
  * protocol init. If this dissector starts in the middle of a conversation
  * it will try to figure it out, but conversation start is the best.
@@ -70,9 +69,12 @@ static int amqp_port = 5672;
 #define AMQP_V0_9           2
 /* #define AMQP_V0_91          3 */
 #define AMQP_V0_10          4
+#define AMQP_V1_0           5
 typedef struct {
     guint8 version;
 } amqp_conv;
+
+#define MAX_BUFFER 256
 
 /* 0-9 defines */
 
@@ -195,6 +197,65 @@ typedef struct {
 #define AMQP_0_9_METHOD_DTX_START_OK                                   21
 
 #define AMQP_0_9_METHOD_TUNNEL_REQUEST                                 10
+
+/* AMQP 1.0 values */
+
+#define AMQP_1_0_AMQP_FRAME 0
+#define AMQP_1_0_SASL_FRAME 1
+#define AMQP_1_0_TLS_FRAME  2
+
+#define AMQP_1_0_AMQP_OPEN        0x10
+#define AMQP_1_0_AMQP_BEGIN       0x11
+#define AMQP_1_0_AMQP_ATTACH      0x12
+#define AMQP_1_0_AMQP_FLOW        0x13
+#define AMQP_1_0_AMQP_TRANSFER    0x14
+#define AMQP_1_0_AMQP_DISPOSITION 0x15
+#define AMQP_1_0_AMQP_DETACH      0x16
+#define AMQP_1_0_AMQP_END         0x17
+#define AMQP_1_0_AMQP_CLOSE       0x18
+
+#define AMQP_1_0_SASL_MECHANISMS 0x40
+#define AMQP_1_0_SASL_INIT       0x41
+#define AMQP_1_0_SASL_CHALLENGE  0x42
+#define AMQP_1_0_SASL_RESPONSE   0x43
+#define AMQP_1_0_SASL_OUTCOME    0x44
+
+#define AMQP_1_0_AMQP_TYPE_ERROR 0x1d
+#define AMQP_1_0_AMQP_TYPE_HEADER 0x70
+#define AMQP_1_0_AMQP_TYPE_DELIVERY_ANNOTATIONS 0x71
+#define AMQP_1_0_AMQP_TYPE_MESSAGE_ANNOTATIONS 0x72
+#define AMQP_1_0_AMQP_TYPE_PROPERTIES 0x73
+#define AMQP_1_0_AMQP_TYPE_APPLICATION_PROPERTIES 0x74
+#define AMQP_1_0_AMQP_TYPE_DATA 0x75
+#define AMQP_1_0_AMQP_TYPE_AMQP_SEQUENCE 0x76
+#define AMQP_1_0_AMQP_TYPE_AMQP_VALUE 0x77
+#define AMQP_1_0_AMQP_TYPE_FOOTER 0x78
+#define AMQP_1_0_AMQP_TYPE_RECEIVED 0x23
+#define AMQP_1_0_AMQP_TYPE_ACCEPTED 0x24
+#define AMQP_1_0_AMQP_TYPE_REJECTED 0x25
+#define AMQP_1_0_AMQP_TYPE_RELEASED 0x26
+#define AMQP_1_0_AMQP_TYPE_MODIFIED 0x27
+#define AMQP_1_0_AMQP_TYPE_SOURCE 0x28
+#define AMQP_1_0_AMQP_TYPE_TARGET 0x29
+#define AMQP_1_0_AMQP_TYPE_DELETE_ON_CLOSE 0x2b
+#define AMQP_1_0_AMQP_TYPE_DELETE_ON_NO_LINKS 0x2c
+#define AMQP_1_0_AMQP_TYPE_DELETE_ON_NO_MESSAGE 0x2d
+#define AMQP_1_0_AMQP_TYPE_DELETE_ON_NO_LINKS_OR_MESSAGE 0x2e
+#define AMQP_1_0_AMQP_TYPE_COORDINATOR 0x30
+#define AMQP_1_0_AMQP_TYPE_DECLARE 0x31
+#define AMQP_1_0_AMQP_TYPE_DISCHARGE 0x32
+#define AMQP_1_0_AMQP_TYPE_DECLARED 0x33
+#define AMQP_1_0_AMQP_TYPE_TRANSACTIONAL_STATE 0x34
+
+#define AMQP_1_0_TYPE_DESCRIPTOR_CONSTRUCTOR 0x00
+
+#define AMQP_1_0_TYPE_LIST0   0x45
+#define AMQP_1_0_TYPE_LIST8   0xc0
+#define AMQP_1_0_TYPE_LIST32   0xd0
+#define AMQP_1_0_TYPE_MAP8   0xc1
+#define AMQP_1_0_TYPE_MAP32   0xd1
+#define AMQP_1_0_TYPE_ARRAY8   0xe0
+#define AMQP_1_0_TYPE_ARRAY32   0xf0
 
 /* AMQP 0-10 values */
 
@@ -334,6 +395,40 @@ static void
 check_amqp_version(tvbuff_t *tvb, amqp_conv *conn);
 
 static guint
+get_amqp_1_0_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
+
+static guint
+dissect_amqp_1_0_list(tvbuff_t *tvb,
+                      packet_info *pinfo,
+                      int offset,
+                      int bound,
+                      proto_item *item,
+                      int hf_amqp_type,
+                      int hf_amqp_subtype_count,
+                      const int **hf_amqp_subtypes,
+                      const char *name);
+
+static guint
+dissect_amqp_1_0_map(tvbuff_t *tvb,
+                     packet_info *pinfo,
+                     int offset,
+                     int bound,
+                     proto_item *item,
+                     int hf_amqp_type,
+                     const char *name);
+
+static guint
+dissect_amqp_1_0_array(tvbuff_t *tvb,
+                       packet_info *pinfo,
+                       int offset,
+                       int bound,
+                       proto_item *item,
+                       int hf_amqp_type,
+                       int hf_amqp_subtype_count,
+                       const int **hf_amqp_subtypes,
+                       const char *name);
+
+static guint
 get_amqp_0_10_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset);
 
 static guint
@@ -418,6 +513,25 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
 static void
 dissect_amqp_0_10_struct32(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                            int offset, guint32 struct_length);
+
+static guint32
+dissect_amqp_1_0_AMQP_frame(tvbuff_t *tvb,
+                            guint offset,
+                            guint16 bound,
+                            proto_item *amqp_tree,
+                            packet_info *pinfo,
+                            const gchar **method_name);
+
+static guint32
+dissect_amqp_1_0_SASL_frame(tvbuff_t *tvb,
+                            guint offset,
+                            guint16 bound,
+                            proto_item *amqp_tree,
+                            packet_info *pinfo,
+                            const gchar **method_name);
+
+static int
+dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
 
 static int
 dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_);
@@ -806,6 +920,144 @@ struct amqp_typeinfo {
     type_formatter  formatter;
     guint           known_size;
 };
+
+/*  AMQP 1-0 type decoding information  */
+
+/*  struct for field interpreting format code (i.e. 0x70 for msg.header) to relevant hf_* variable
+ *  (here hf_amqp_1_0_messageHeader). If the type is list, next 2 struct items specify how to
+ *  interpret list items (in terms of hf_* variable)
+ */
+struct amqp_defined_types_t {
+    const int format_code;
+    int       *hf_amqp_type;
+    int       hf_amqp_subtype_count;
+    const int **hf_amqp_subtypes;
+};
+
+/* functions for decoding 1.0 type and/or value */
+
+static gboolean decode_fixed_type(tvbuff_t *tvb,
+                                  guint8 code,
+                                  int offset,
+                                  int bound,
+                                  guint8 *type_width_size,
+                                  guint *length_size,
+                                  const char **type_name,
+                                  const char **value);
+
+static proto_item*
+add_1_0_proto_item(proto_item *item,
+             tvbuff_t *tvb,
+             int offset,
+             int length,
+             int hf_amqp_type,
+             const char *no_format_value);
+
+static void
+get_amqp_1_0_value_formatter(tvbuff_t *tvb,
+                             packet_info *pinfo,
+                             guint8 code,
+                             int offset,
+                             int bound,
+                             int hf_amqp_type,
+                             const char *name,
+                             int hf_amqp_subtype_count,
+                             const int **hf_amqp_subtypes,
+                             guint *length_size,
+                             proto_item *item);
+
+static guint
+get_amqp_1_0_type_formatter(tvbuff_t *tvb,
+                            int offset,
+                            int bound,
+                            int *hf_amqp_type,
+                            const char **name,
+                            int *hf_amqp_subtype_count,
+                            const int ***hf_amqp_subtypes,
+                            guint *length_size);
+
+static void
+get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
+                                  packet_info *pinfo,
+                                  int offset,
+                                  int bound,
+                                  int hf_amqp_type,
+                                  const char *name,
+                                  guint *length_size,
+                                  proto_item *item);
+
+/* functions for decoding particular primitive types */
+
+static int
+format_amqp_1_0_null(tvbuff_t *tvb _U_,
+                     guint offset, guint bound _U_, guint length _U_,
+                     const char **value _U_);
+
+static int
+format_amqp_1_0_boolean_true(tvbuff_t *tvb,
+                             guint offset, guint bound _U_, guint length _U_,
+                             const char **value);
+
+static int
+format_amqp_1_0_boolean_false(tvbuff_t *tvb,
+                              guint offset, guint bound _U_, guint length _U_,
+                              const char **value);
+
+static int
+format_amqp_1_0_boolean(tvbuff_t *tvb,
+                        guint offset, guint bound _U_, guint length _U_,
+                        const char **value);
+
+static int
+format_amqp_1_0_uint(tvbuff_t *tvb,
+                     guint offset, guint bound _U_, guint length,
+                     const char **value);
+
+static int
+format_amqp_1_0_int(tvbuff_t *tvb,
+                    guint offset, guint bound _U_, guint length,
+                    const char **value);
+
+static int
+format_amqp_1_0_float(tvbuff_t *tvb,
+                      guint offset, guint bound _U_, guint length _U_,
+                      const char **value);
+
+static int
+format_amqp_1_0_double(tvbuff_t *tvb,
+                       guint offset, guint bound _U_, guint length _U_,
+                       const char **value);
+
+static int
+format_amqp_1_0_char(tvbuff_t *tvb,
+                     guint offset, guint bound _U_, guint length _U_,
+                     const char **value);
+
+static int
+format_amqp_1_0_timestamp(tvbuff_t *tvb,
+                          guint offset, guint bound _U_, guint length _U_,
+                          const char **value);
+
+static int
+format_amqp_1_0_uuid(tvbuff_t *tvb,
+                     guint offset, guint bound _U_, guint length _U_,
+                     const char **value);
+
+static int
+format_amqp_1_0_bin(tvbuff_t *tvb,
+                    guint offset, guint bound _U_, guint length,
+                    const char **value);
+
+static int
+format_amqp_1_0_str(tvbuff_t *tvb,
+                    guint offset, guint bound, guint length,
+                    const char **value);
+
+static int
+format_amqp_1_0_symbol(tvbuff_t *tvb,
+                       guint offset, guint bound, guint length,
+                       const char **value);
+
 static gboolean
 get_amqp_0_10_type_formatter(guint8 code,
                              const char **name,
@@ -854,6 +1106,533 @@ format_amqp_0_10_sequence_set(tvbuff_t *tvb, guint offset, guint length,
 /*  Various handles  */
 
 static int proto_amqp = -1;
+static const char* element_suffix [] = {"", "s"}; /* to distinguish singular/plural in "list of 1 item" vs. "list of 2 items" */
+
+/* 1.0 handles */
+
+static int hf_amqp_1_0_size = -1;
+static int hf_amqp_1_0_doff = -1;
+static int hf_amqp_1_0_type = -1;
+static int hf_amqp_1_0_containerId = -1;
+static int hf_amqp_1_0_hostname = -1;
+static int hf_amqp_1_0_maxFrameSize = -1;
+static int hf_amqp_1_0_channelMax = -1;
+static int hf_amqp_1_0_idleTimeOut = -1;
+static int hf_amqp_1_0_outgoingLocales = -1;
+static int hf_amqp_1_0_incomingLocales = -1;
+static int hf_amqp_1_0_offeredCapabilities = -1;
+static int hf_amqp_1_0_desiredCapabilities = -1;
+static int hf_amqp_1_0_properties = -1;
+static int hf_amqp_1_0_remoteChannel = -1;
+static int hf_amqp_1_0_nextOutgoingId = -1;
+static int hf_amqp_1_0_incomingWindow = -1;
+static int hf_amqp_1_0_outgoingWindow = -1;
+static int hf_amqp_1_0_handleMax = -1;
+static int hf_amqp_1_0_name = -1;
+static int hf_amqp_1_0_handle = -1;
+static int hf_amqp_1_0_role = -1;
+static int hf_amqp_1_0_sndSettleMode = -1;
+static int hf_amqp_1_0_rcvSettleMode = -1;
+static int hf_amqp_1_0_source = -1;
+static int hf_amqp_1_0_target = -1;
+static int hf_amqp_1_0_deleteOnClose = -1;
+static int hf_amqp_1_0_deleteOnNoLinks = -1;
+static int hf_amqp_1_0_deleteOnNoMessages = -1;
+static int hf_amqp_1_0_deleteOnNoLinksOrMessages = -1;
+static int hf_amqp_1_0_coordinator = -1;
+static int hf_amqp_1_0_declare = -1;
+static int hf_amqp_1_0_globalId = -1;
+static int hf_amqp_1_0_discharge = -1;
+static int hf_amqp_1_0_txnId = -1;
+static int hf_amqp_1_0_fail = -1;
+static int hf_amqp_1_0_declared = -1;
+static int hf_amqp_1_0_transactionalState = -1;
+static int hf_amqp_1_0_outcome = -1;
+static int hf_amqp_1_0_unsettled = -1;
+static int hf_amqp_1_0_incompleteUnsettled = -1;
+static int hf_amqp_1_0_initialDeliveryCount = -1;
+static int hf_amqp_1_0_maxMessageSize = -1;
+static int hf_amqp_1_0_nextIncomingId = -1;
+static int hf_amqp_1_0_deliveryCount = -1;
+static int hf_amqp_1_0_sectionNumber = -1;
+static int hf_amqp_1_0_sectionOffset = -1;
+static int hf_amqp_1_0_deliveryFailed = -1;
+static int hf_amqp_1_0_undeliverableHere = -1;
+static int hf_amqp_1_0_linkCredit = -1;
+static int hf_amqp_1_0_available = -1;
+static int hf_amqp_1_0_drain = -1;
+static int hf_amqp_1_0_echo = -1;
+static int hf_amqp_1_0_deliveryId = -1;
+static int hf_amqp_1_0_deliveryTag = -1;
+static int hf_amqp_1_0_messageFormat = -1;
+static int hf_amqp_1_0_settled = -1;
+static int hf_amqp_1_0_more = -1;
+static int hf_amqp_1_0_state = -1;
+static int hf_amqp_1_0_resume = -1;
+static int hf_amqp_1_0_aborted = -1;
+static int hf_amqp_1_0_batchable = -1;
+static int hf_amqp_1_0_first = -1;
+static int hf_amqp_1_0_last = -1;
+static int hf_amqp_1_0_closed = -1;
+static int hf_amqp_1_0_amqp_performative = -1;
+static int hf_amqp_1_0_error = -1;
+static int hf_amqp_1_0_messageHeader = -1;
+static int hf_amqp_1_0_deliveryAnnotations = -1;
+static int hf_amqp_1_0_messageAnnotations = -1;
+static int hf_amqp_1_0_messageProperties = -1;
+static int hf_amqp_1_0_applicationProperties = -1;
+static int hf_amqp_1_0_data = -1;
+static int hf_amqp_1_0_amqp_sequence = -1;
+static int hf_amqp_1_0_amqp_value = -1;
+static int hf_amqp_1_0_footer = -1;
+static int hf_amqp_1_0_received = -1;
+static int hf_amqp_1_0_accepted = -1;
+static int hf_amqp_1_0_rejected = -1;
+static int hf_amqp_1_0_released = -1;
+static int hf_amqp_1_0_modified = -1;
+static int hf_amqp_1_0_condition = -1;
+static int hf_amqp_1_0_description = -1;
+static int hf_amqp_1_0_info = -1;
+static int hf_amqp_1_0_address = -1;
+static int hf_amqp_1_0_durable = -1;
+static int hf_amqp_1_0_terminusDurable = -1;
+static int hf_amqp_1_0_priority = -1;
+static int hf_amqp_1_0_ttl = -1;
+static int hf_amqp_1_0_firstAcquirer = -1;
+static int hf_amqp_1_0_expiryPolicy = -1;
+static int hf_amqp_1_0_timeout = -1;
+static int hf_amqp_1_0_dynamic = -1;
+static int hf_amqp_1_0_dynamicNodeProperties = -1;
+static int hf_amqp_1_0_distributionMode = -1;
+static int hf_amqp_1_0_filter = -1;
+static int hf_amqp_1_0_defaultOutcome = -1;
+static int hf_amqp_1_0_outcomes = -1;
+static int hf_amqp_1_0_capabilities = -1;
+static int hf_amqp_1_0_messageId = -1;
+static int hf_amqp_1_0_userId = -1;
+static int hf_amqp_1_0_to = -1;
+static int hf_amqp_1_0_subject = -1;
+static int hf_amqp_1_0_replyTo = -1;
+static int hf_amqp_1_0_correlationId = -1;
+static int hf_amqp_1_0_contentType = -1;
+static int hf_amqp_1_0_contentEncoding = -1;
+static int hf_amqp_1_0_absoluteExpiryTime = -1;
+static int hf_amqp_1_0_creationTime = -1;
+static int hf_amqp_1_0_groupId = -1;
+static int hf_amqp_1_0_groupSequence = -1;
+static int hf_amqp_1_0_replyToGroupId = -1;
+static int hf_amqp_1_0_sasl_method = -1;
+static int hf_amqp_1_0_mechanisms = -1;
+static int hf_amqp_1_0_mechanism = -1;
+static int hf_amqp_1_0_initResponse = -1;
+static int hf_amqp_1_0_saslChallenge = -1;
+static int hf_amqp_1_0_saslResponse = -1;
+static int hf_amqp_1_0_saslCode = -1;
+static int hf_amqp_1_0_saslAdditionalData = -1;
+static int hf_amqp_1_0_list = -1;
+static int hf_amqp_1_0_map = -1;
+static int hf_amqp_1_0_array = -1;
+/* sub-hf_* variables for variant sub-types */
+static int hf_amqp_1_0_hostname_str = -1;
+static int hf_amqp_1_0_maxFrameSize_1 = -1;
+static int hf_amqp_1_0_maxFrameSize_4 = -1;
+static int hf_amqp_1_0_incomingWindow_1 = -1;
+static int hf_amqp_1_0_incomingWindow_4 = -1;
+static int hf_amqp_1_0_outgoingWindow_1 = -1;
+static int hf_amqp_1_0_outgoingWindow_4 = -1;
+static int hf_amqp_1_0_linkCredit_1 = -1;
+static int hf_amqp_1_0_linkCredit_4 = -1;
+static int hf_amqp_1_0_available_1 = -1;
+static int hf_amqp_1_0_available_4 = -1;
+static int hf_amqp_1_0_deliveryCount_1 = -1;
+static int hf_amqp_1_0_deliveryCount_4 = -1;
+static int hf_amqp_1_0_sectionNumber_1 = -1;
+static int hf_amqp_1_0_sectionNumber_4 = -1;
+static int hf_amqp_1_0_idleTimeOut_1 = -1;
+static int hf_amqp_1_0_idleTimeOut_4 = -1;
+static int hf_amqp_1_0_outgoingLocales_sym = -1;
+static int hf_amqp_1_0_incomingLocales_sym = -1;
+static int hf_amqp_1_0_offeredCapabilities_sym = -1;
+static int hf_amqp_1_0_desiredCapabilities_sym = -1;
+static int hf_amqp_1_0_nextIncomingId_1 = -1;
+static int hf_amqp_1_0_nextIncomingId_4 = -1;
+static int hf_amqp_1_0_sectionOffset_1 = -1;
+static int hf_amqp_1_0_sectionOffset_8 = -1;
+static int hf_amqp_1_0_maxMessageSize_1 = -1;
+static int hf_amqp_1_0_maxMessageSize_8 = -1;
+static int hf_amqp_1_0_nextOutgoingId_1 = -1;
+static int hf_amqp_1_0_nextOutgoingId_4 = -1;
+static int hf_amqp_1_0_deliveryId_1 = -1;
+static int hf_amqp_1_0_deliveryId_4 = -1;
+static int hf_amqp_1_0_deliveryTag_bin = -1;
+static int hf_amqp_1_0_messageFormat_1 = -1;
+static int hf_amqp_1_0_messageFormat_4 = -1;
+static int hf_amqp_1_0_first_1 = -1;
+static int hf_amqp_1_0_first_4 = -1;
+static int hf_amqp_1_0_last_1 = -1;
+static int hf_amqp_1_0_last_4 = -1;
+static int hf_amqp_1_0_remoteChannel_2 = -1;
+static int hf_amqp_1_0_handleMax_1 = -1;
+static int hf_amqp_1_0_handleMax_4 = -1;
+static int hf_amqp_1_0_handle_1 = -1;
+static int hf_amqp_1_0_handle_4 = -1;
+static int hf_amqp_1_0_sndSettleMode_1 = -1;
+static int hf_amqp_1_0_rcvSettleMode_1 = -1;
+static int hf_amqp_1_0_initialDeliveryCount_1 = -1;
+static int hf_amqp_1_0_initialDeliveryCount_4 = -1;
+static int hf_amqp_1_0_description_str = -1;
+static int hf_amqp_1_0_address_str = -1;
+static int hf_amqp_1_0_terminusDurable_1 = -1;
+static int hf_amqp_1_0_terminusDurable_4 = -1;
+static int hf_amqp_1_0_priority_1 = -1;
+static int hf_amqp_1_0_ttl_1 = -1;
+static int hf_amqp_1_0_ttl_4 = -1;
+static int hf_amqp_1_0_expiryPolicy_sym = -1;
+static int hf_amqp_1_0_timeout_1 = -1;
+static int hf_amqp_1_0_timeout_4 = -1;
+static int hf_amqp_1_0_distributionMode_sym = -1;
+static int hf_amqp_1_0_outcomes_sym = -1;
+static int hf_amqp_1_0_capabilities_sym = -1;
+static int hf_amqp_1_0_messageId_1 = -1;
+static int hf_amqp_1_0_messageId_str = -1;
+static int hf_amqp_1_0_messageId_bin = -1;
+static int hf_amqp_1_0_messageId_uuid = -1;
+static int hf_amqp_1_0_messageId_8 = -1;
+static int hf_amqp_1_0_correlationId_1 = -1;
+static int hf_amqp_1_0_correlationId_str = -1;
+static int hf_amqp_1_0_correlationId_bin = -1;
+static int hf_amqp_1_0_correlationId_uuid = -1;
+static int hf_amqp_1_0_correlationId_8 = -1;
+static int hf_amqp_1_0_userId_bin = -1;
+static int hf_amqp_1_0_to_str = -1;
+static int hf_amqp_1_0_subject_str = -1;
+static int hf_amqp_1_0_replyTo_str = -1;
+static int hf_amqp_1_0_contentType_sym = -1;
+static int hf_amqp_1_0_contentEncoding_sym = -1;
+static int hf_amqp_1_0_absoluteExpiryTime_timestamp = -1;
+static int hf_amqp_1_0_creationTime_timestamp = -1;
+static int hf_amqp_1_0_groupId_str = -1;
+static int hf_amqp_1_0_groupSequence_1 = -1;
+static int hf_amqp_1_0_groupSequence_4 = -1;
+static int hf_amqp_1_0_replyToGroupId_str = -1;
+static int hf_amqp_1_0_mechanisms_sym = -1;
+static int hf_amqp_1_0_initResponse_bin = -1;
+static int hf_amqp_1_0_saslAdditionalData_bin = -1;
+
+/* Many AMQP variables can have value in either 0,1,2,4,8 or 16 bytes, depending on particular type.
+ * To distinguish it among hf_amqp_1_0_* variables, table below "translates" original hf_amqp_1_0_*
+ * variable to the proper one based on format code subcategory
+ */
+
+const int* hf_amqp_1_0_hostname_[] = { &hf_amqp_1_0_hostname, &hf_amqp_1_0_hostname_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_maxFrameSize_[] = { &hf_amqp_1_0_maxFrameSize, &hf_amqp_1_0_maxFrameSize_1, NULL, &hf_amqp_1_0_maxFrameSize_4, NULL, NULL };
+const int* hf_amqp_1_0_incomingWindow_[] = { &hf_amqp_1_0_incomingWindow, &hf_amqp_1_0_incomingWindow_1, NULL, &hf_amqp_1_0_incomingWindow_4, NULL, NULL };
+const int* hf_amqp_1_0_outgoingWindow_[] = { &hf_amqp_1_0_outgoingWindow, &hf_amqp_1_0_outgoingWindow_1, NULL, &hf_amqp_1_0_outgoingWindow_4, NULL, NULL };
+const int* hf_amqp_1_0_linkCredit_[] = { &hf_amqp_1_0_linkCredit, &hf_amqp_1_0_linkCredit_1, NULL, &hf_amqp_1_0_linkCredit_4, NULL, NULL };
+const int* hf_amqp_1_0_available_[] = { &hf_amqp_1_0_available, &hf_amqp_1_0_available_1, NULL, &hf_amqp_1_0_available_4, NULL, NULL };
+const int* hf_amqp_1_0_deliveryCount_[] = { &hf_amqp_1_0_deliveryCount, &hf_amqp_1_0_deliveryCount_1, NULL, &hf_amqp_1_0_deliveryCount_4, NULL, NULL };
+const int* hf_amqp_1_0_sectionNumber_[] = { &hf_amqp_1_0_sectionNumber, &hf_amqp_1_0_sectionNumber_1, NULL, &hf_amqp_1_0_sectionNumber_4, NULL, NULL };
+const int* hf_amqp_1_0_idleTimeOut_[] = { &hf_amqp_1_0_idleTimeOut, &hf_amqp_1_0_idleTimeOut_1, NULL, &hf_amqp_1_0_idleTimeOut_4, NULL, NULL };
+const int* hf_amqp_1_0_outgoingLocales_[] = { &hf_amqp_1_0_outgoingLocales, &hf_amqp_1_0_outgoingLocales_sym, NULL, &hf_amqp_1_0_outgoingLocales_sym, NULL, NULL };
+const int* hf_amqp_1_0_incomingLocales_[] = { &hf_amqp_1_0_incomingLocales, &hf_amqp_1_0_incomingLocales_sym, NULL, &hf_amqp_1_0_incomingLocales_sym, NULL, NULL };
+const int* hf_amqp_1_0_offeredCapabilities_[] = { &hf_amqp_1_0_offeredCapabilities, &hf_amqp_1_0_offeredCapabilities_sym, NULL, &hf_amqp_1_0_offeredCapabilities_sym, NULL, NULL };
+const int* hf_amqp_1_0_desiredCapabilities_[] = { &hf_amqp_1_0_desiredCapabilities, &hf_amqp_1_0_desiredCapabilities_sym, NULL, &hf_amqp_1_0_desiredCapabilities_sym, NULL, NULL };
+const int* hf_amqp_1_0_nextIncomingId_[] = { &hf_amqp_1_0_nextIncomingId, &hf_amqp_1_0_nextIncomingId_1, NULL, &hf_amqp_1_0_nextIncomingId_4, NULL, NULL };
+const int* hf_amqp_1_0_sectionOffset_[] = { &hf_amqp_1_0_sectionOffset, &hf_amqp_1_0_sectionOffset_1, NULL, NULL, &hf_amqp_1_0_sectionOffset_8, NULL };
+const int* hf_amqp_1_0_maxMessageSize_[] = { &hf_amqp_1_0_maxMessageSize, &hf_amqp_1_0_maxMessageSize_1, NULL, NULL, &hf_amqp_1_0_maxMessageSize_8, NULL };
+const int* hf_amqp_1_0_nextOutgoingId_[] = { &hf_amqp_1_0_nextOutgoingId, &hf_amqp_1_0_nextOutgoingId_1, NULL, &hf_amqp_1_0_nextOutgoingId_4, NULL, NULL };
+const int* hf_amqp_1_0_deliveryId_[] = { &hf_amqp_1_0_deliveryId, &hf_amqp_1_0_deliveryId_1, NULL, &hf_amqp_1_0_deliveryId_4, NULL, NULL };
+const int* hf_amqp_1_0_deliveryTag_[] = { &hf_amqp_1_0_deliveryTag, &hf_amqp_1_0_deliveryTag_bin, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_messageFormat_[] = { &hf_amqp_1_0_messageFormat, &hf_amqp_1_0_messageFormat_1, NULL, &hf_amqp_1_0_messageFormat_4, NULL, NULL };
+const int* hf_amqp_1_0_first_[] = { &hf_amqp_1_0_first, &hf_amqp_1_0_first_1, NULL, &hf_amqp_1_0_first_4, NULL, NULL };
+const int* hf_amqp_1_0_last_[] = { &hf_amqp_1_0_last, &hf_amqp_1_0_last_1, NULL, &hf_amqp_1_0_last_4, NULL, NULL };
+const int* hf_amqp_1_0_remoteChannel_[] = { &hf_amqp_1_0_remoteChannel, NULL, &hf_amqp_1_0_remoteChannel_2, NULL, NULL, NULL };
+const int* hf_amqp_1_0_handleMax_[] = { &hf_amqp_1_0_handleMax, &hf_amqp_1_0_handleMax_1, NULL, &hf_amqp_1_0_handleMax_4, NULL, NULL };
+const int* hf_amqp_1_0_handle_[] = { &hf_amqp_1_0_handle, &hf_amqp_1_0_handle_1, NULL, &hf_amqp_1_0_handle_4, NULL, NULL };
+const int* hf_amqp_1_0_sndSettleMode_[] = { &hf_amqp_1_0_sndSettleMode, &hf_amqp_1_0_sndSettleMode_1, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_rcvSettleMode_[] = { &hf_amqp_1_0_rcvSettleMode, &hf_amqp_1_0_rcvSettleMode_1, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_initialDeliveryCount_[] = { &hf_amqp_1_0_initialDeliveryCount, &hf_amqp_1_0_initialDeliveryCount_1, NULL, &hf_amqp_1_0_initialDeliveryCount_4, NULL, NULL };
+const int* hf_amqp_1_0_description_[] = { &hf_amqp_1_0_description, &hf_amqp_1_0_description_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_address_[] = { &hf_amqp_1_0_address, &hf_amqp_1_0_address_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_terminusDurable_[] = { &hf_amqp_1_0_terminusDurable, &hf_amqp_1_0_terminusDurable_1, NULL, &hf_amqp_1_0_terminusDurable_4, NULL, NULL };
+const int* hf_amqp_1_0_priority_[] = { &hf_amqp_1_0_priority, &hf_amqp_1_0_priority_1, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_ttl_[] = { &hf_amqp_1_0_ttl, &hf_amqp_1_0_ttl_1, NULL, &hf_amqp_1_0_ttl_4, NULL, NULL };
+const int* hf_amqp_1_0_expiryPolicy_[] = { &hf_amqp_1_0_expiryPolicy, &hf_amqp_1_0_expiryPolicy_sym, NULL, &hf_amqp_1_0_expiryPolicy_sym, NULL, NULL };
+const int* hf_amqp_1_0_timeout_[] = { &hf_amqp_1_0_timeout, &hf_amqp_1_0_timeout_1, NULL, &hf_amqp_1_0_timeout_4, NULL, NULL };
+const int* hf_amqp_1_0_distributionMode_[] = { &hf_amqp_1_0_distributionMode, &hf_amqp_1_0_distributionMode_sym, NULL, &hf_amqp_1_0_distributionMode_sym, NULL, NULL };
+const int* hf_amqp_1_0_outcomes_[] = { &hf_amqp_1_0_outcomes, &hf_amqp_1_0_outcomes_sym, NULL, &hf_amqp_1_0_outcomes_sym, NULL, NULL };
+const int* hf_amqp_1_0_capabilities_[] = { &hf_amqp_1_0_capabilities, &hf_amqp_1_0_capabilities_sym, NULL, &hf_amqp_1_0_capabilities_sym, NULL, NULL };
+const int* hf_amqp_1_0_messageId_[] = { &hf_amqp_1_0_messageId, &hf_amqp_1_0_messageId_1, &hf_amqp_1_0_messageId_str, &hf_amqp_1_0_messageId_bin, &hf_amqp_1_0_messageId_8, &hf_amqp_1_0_messageId_uuid };
+const int* hf_amqp_1_0_correlationId_[] = { &hf_amqp_1_0_correlationId, &hf_amqp_1_0_correlationId_1, &hf_amqp_1_0_correlationId_str, &hf_amqp_1_0_correlationId_bin, &hf_amqp_1_0_correlationId_8, &hf_amqp_1_0_correlationId_uuid };
+const int* hf_amqp_1_0_userId_[] = { &hf_amqp_1_0_userId, &hf_amqp_1_0_userId_bin, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_to_[] = { &hf_amqp_1_0_to, &hf_amqp_1_0_to_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_subject_[] = { &hf_amqp_1_0_subject, &hf_amqp_1_0_subject_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_replyTo_[] = { &hf_amqp_1_0_replyTo, &hf_amqp_1_0_replyTo_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_contentType_[] = { &hf_amqp_1_0_contentType, &hf_amqp_1_0_contentType_sym, NULL, &hf_amqp_1_0_contentType_sym, NULL, NULL };
+const int* hf_amqp_1_0_contentEncoding_[] = { &hf_amqp_1_0_contentEncoding, &hf_amqp_1_0_contentEncoding_sym, NULL, &hf_amqp_1_0_contentEncoding_sym, NULL, NULL };
+const int* hf_amqp_1_0_absoluteExpiryTime_[] = { &hf_amqp_1_0_absoluteExpiryTime, NULL, NULL, NULL, &hf_amqp_1_0_absoluteExpiryTime_timestamp, NULL };
+const int* hf_amqp_1_0_creationTime_[] = { &hf_amqp_1_0_creationTime, NULL, NULL, NULL, &hf_amqp_1_0_creationTime_timestamp, NULL };
+const int* hf_amqp_1_0_groupId_[] = { &hf_amqp_1_0_groupId, &hf_amqp_1_0_groupId_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_groupSequence_[] = { &hf_amqp_1_0_groupSequence, &hf_amqp_1_0_groupSequence_1, NULL, &hf_amqp_1_0_groupSequence_4, NULL, NULL };
+const int* hf_amqp_1_0_replyToGroupId_[] = { &hf_amqp_1_0_replyToGroupId, &hf_amqp_1_0_replyToGroupId_str, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_mechanisms_[] = { &hf_amqp_1_0_mechanisms, &hf_amqp_1_0_mechanisms_sym, NULL, &hf_amqp_1_0_mechanisms_sym, NULL, NULL };
+const int* hf_amqp_1_0_initResponse_[] = { &hf_amqp_1_0_initResponse, &hf_amqp_1_0_initResponse_bin, NULL, NULL, NULL, NULL };
+const int* hf_amqp_1_0_saslAdditionalData_[] = { &hf_amqp_1_0_saslAdditionalData, &hf_amqp_1_0_saslAdditionalData_bin, NULL, NULL, NULL, NULL };
+
+const int** subtypes_for_hf_amqp_1_0[] = {
+  NULL, /* hf_amqp_1_0_size */
+  NULL, /* hf_amqp_1_0_doff */
+  NULL, /* hf_amqp_1_0_type */
+  NULL, /* hf_amqp_1_0_amqp_performative */
+  NULL, /* hf_amqp_1_0_sasl_method */
+  NULL, /* hf_amqp_1_0_list */
+  NULL, /* hf_amqp_1_0_map */
+  NULL, /* hf_amqp_1_0_array */
+  NULL, /* hf_amqp_1_0_containerId - mandatory string */
+  hf_amqp_1_0_hostname_,
+  hf_amqp_1_0_maxFrameSize_,
+  NULL, /* hf_amqp_1_0_channelMax_,*/
+  hf_amqp_1_0_idleTimeOut_,
+  hf_amqp_1_0_outgoingLocales_,
+  hf_amqp_1_0_incomingLocales_,
+  hf_amqp_1_0_offeredCapabilities_,
+  hf_amqp_1_0_desiredCapabilities_,
+  NULL, /* hf_amqp_1_0_properties */
+  hf_amqp_1_0_nextIncomingId_,
+  hf_amqp_1_0_deliveryCount_,
+  hf_amqp_1_0_sectionNumber_,
+  hf_amqp_1_0_sectionOffset_,
+  NULL, /* hf_amqp_1_0_deliveryFailed */
+  NULL, /* hf_amqp_1_0_undeliverableHere */
+  hf_amqp_1_0_linkCredit_,
+  hf_amqp_1_0_available_,
+  NULL, /* hf_amqp_1_0_drain */
+  NULL, /* hf_amqp_1_0_echo */
+  hf_amqp_1_0_deliveryId_,
+  hf_amqp_1_0_deliveryTag_,
+  hf_amqp_1_0_messageFormat_,
+  NULL, /* hf_amqp_1_0_settled */
+  NULL, /* hf_amqp_1_0_more */
+  NULL, /* hf_amqp_1_0_state */
+  NULL, /* hf_amqp_1_0_resume */
+  NULL, /* hf_amqp_1_0_aborted */
+  NULL, /* hf_amqp_1_0_batchable */
+  hf_amqp_1_0_first_,
+  hf_amqp_1_0_last_,
+  NULL, /* hf_amqp_1_0_closed */
+  hf_amqp_1_0_remoteChannel_,
+  hf_amqp_1_0_nextOutgoingId_,
+  hf_amqp_1_0_incomingWindow_,
+  hf_amqp_1_0_outgoingWindow_,
+  hf_amqp_1_0_handleMax_,
+  NULL, /* hf_amqp_1_0_name */
+  hf_amqp_1_0_handle_,
+  NULL, /* hf_amqp_1_0_role */
+  hf_amqp_1_0_sndSettleMode_,
+  hf_amqp_1_0_rcvSettleMode_,
+  NULL, /* hf_amqp_1_0_source */
+  NULL, /* hf_amqp_1_0_target */
+  NULL, /* hf_amqp_1_0_deleteOnClose */
+  NULL, /* hf_amqp_1_0_deleteOnNoLinks */
+  NULL, /* hf_amqp_1_0_deleteOnNoMessages */
+  NULL, /* hf_amqp_1_0_deleteOnNoLinksOrMessages */
+  NULL, /* hf_amqp_1_0_coordinator */
+  NULL, /* hf_amqp_1_0_declare */
+  NULL, /* hf_amqp_1_0_globalId */
+  NULL, /* hf_amqp_1_0_discharge */
+  NULL, /* hf_amqp_1_0_txnId */
+  NULL, /* hf_amqp_1_0_fail */
+  NULL, /* hf_amqp_1_0_declared */
+  NULL, /* hf_amqp_1_0_transactionalState */
+  NULL, /* hf_amqp_1_0_outcome */
+  NULL, /* hf_amqp_1_0_unsettled */
+  NULL, /* hf_amqp_1_0_incompleteUnsettled */
+  hf_amqp_1_0_initialDeliveryCount_,
+  hf_amqp_1_0_maxMessageSize_,
+  NULL, /* hf_amqp_1_0_error */
+  NULL, /* hf_amqp_1_0_messageHeader */
+  NULL, /* hf_amqp_1_0_messageProperties */
+  NULL, /* hf_amqp_1_0_deliveryAnnotations */
+  NULL, /* hf_amqp_1_0_messageAnnotations */
+  NULL, /* hf_amqp_1_0_applicationProperties */
+  NULL, /* hf_amqp_1_0_data */
+  NULL, /* hf_amqp_1_0_amqp_sequence */
+  NULL, /* hf_amqp_1_0_amqp_value */
+  NULL, /* hf_amqp_1_0_footer */
+  NULL, /* hf_amqp_1_0_received */
+  NULL, /* hf_amqp_1_0_accepted */
+  NULL, /* hf_amqp_1_0_rejected */
+  NULL, /* hf_amqp_1_0_released */
+  NULL, /* hf_amqp_1_0_modified */
+  NULL, /* hf_amqp_1_0_condition */
+  hf_amqp_1_0_description_,
+  NULL, /* hf_amqp_1_0_info */
+  hf_amqp_1_0_address_,
+  NULL, /* hf_amqp_1_0_durable */
+  hf_amqp_1_0_terminusDurable_,
+  hf_amqp_1_0_priority_,
+  hf_amqp_1_0_ttl_,
+  NULL, /* hf_amqp_1_0_firstAcquirer */
+  hf_amqp_1_0_expiryPolicy_,
+  hf_amqp_1_0_timeout_,
+  NULL, /* hf_amqp_1_0_dynamic */
+  NULL, /* hf_amqp_1_0_dynamicNodeProperties */
+  hf_amqp_1_0_distributionMode_,
+  NULL, /* hf_amqp_1_0_filter */
+  NULL, /* hf_amqp_1_0_defaultOutcome */
+  hf_amqp_1_0_outcomes_,
+  hf_amqp_1_0_capabilities_,
+  hf_amqp_1_0_messageId_,
+  hf_amqp_1_0_userId_,
+  hf_amqp_1_0_to_,
+  hf_amqp_1_0_subject_,
+  hf_amqp_1_0_replyTo_,
+  hf_amqp_1_0_correlationId_,
+  hf_amqp_1_0_contentType_,
+  hf_amqp_1_0_contentEncoding_,
+  hf_amqp_1_0_absoluteExpiryTime_,
+  hf_amqp_1_0_creationTime_,
+  hf_amqp_1_0_groupId_,
+  hf_amqp_1_0_groupSequence_,
+  hf_amqp_1_0_replyToGroupId_,
+  hf_amqp_1_0_mechanisms_,
+  NULL, /* hf_amqp_1_0_mechanism */
+  hf_amqp_1_0_initResponse_,
+  NULL, /* hf_amqp_1_0_saslChallenge */
+  NULL, /* hf_amqp_1_0_saslResponse */
+  NULL, /* hf_amqp_1_0_saslCode */
+  hf_amqp_1_0_saslAdditionalData_
+};
+
+/* fields with hf_* types for list items;
+ * i.e. sasl.init method has 3 arguments in a list (mechanism, init.response, hostname)
+ * so when dissecting sasl.init arguments list, identify the list items with
+ * corresponding hf_* variable */
+const int* hf_amqp_1_0_sasl_mechanisms_items[] = { &hf_amqp_1_0_mechanisms };
+const int* hf_amqp_1_0_sasl_init_items[] = { &hf_amqp_1_0_mechanism,
+                                             &hf_amqp_1_0_initResponse,
+                                             &hf_amqp_1_0_hostname };
+const int* hf_amqp_1_0_sasl_challenge_items[] = { &hf_amqp_1_0_saslChallenge };
+const int* hf_amqp_1_0_sasl_response_items[] = { &hf_amqp_1_0_saslResponse };
+const int* hf_amqp_1_0_sasl_outcome_items[] = { &hf_amqp_1_0_saslCode,
+                                                &hf_amqp_1_0_saslAdditionalData };
+const int* hf_amqp_1_0_amqp_open_items[] = { &hf_amqp_1_0_containerId,
+                                             &hf_amqp_1_0_hostname,
+                                             &hf_amqp_1_0_maxFrameSize,
+                                             &hf_amqp_1_0_channelMax,
+                                             &hf_amqp_1_0_idleTimeOut,
+                                             &hf_amqp_1_0_outgoingLocales,
+                                             &hf_amqp_1_0_incomingLocales,
+                                             &hf_amqp_1_0_offeredCapabilities,
+                                             &hf_amqp_1_0_desiredCapabilities,
+                                             &hf_amqp_1_0_properties };
+const int* hf_amqp_1_0_amqp_begin_items[] = { &hf_amqp_1_0_remoteChannel,
+                                              &hf_amqp_1_0_nextOutgoingId,
+                                              &hf_amqp_1_0_incomingWindow,
+                                              &hf_amqp_1_0_outgoingWindow,
+                                              &hf_amqp_1_0_handleMax,
+                                              &hf_amqp_1_0_offeredCapabilities,
+                                              &hf_amqp_1_0_desiredCapabilities,
+                                              &hf_amqp_1_0_properties };
+const int* hf_amqp_1_0_amqp_attach_items[] = { &hf_amqp_1_0_name,
+                                               &hf_amqp_1_0_handle,
+                                               &hf_amqp_1_0_role,
+                                               &hf_amqp_1_0_sndSettleMode,
+                                               &hf_amqp_1_0_rcvSettleMode,
+                                               &hf_amqp_1_0_source,
+                                               &hf_amqp_1_0_target,
+                                               &hf_amqp_1_0_unsettled,
+                                               &hf_amqp_1_0_incompleteUnsettled,
+                                               &hf_amqp_1_0_initialDeliveryCount,
+                                               &hf_amqp_1_0_maxMessageSize,
+                                               &hf_amqp_1_0_offeredCapabilities,
+                                               &hf_amqp_1_0_desiredCapabilities,
+                                               &hf_amqp_1_0_properties };
+const int* hf_amqp_1_0_amqp_flow_items[] = { &hf_amqp_1_0_nextIncomingId,
+                                             &hf_amqp_1_0_incomingWindow,
+                                             &hf_amqp_1_0_nextOutgoingId,
+                                             &hf_amqp_1_0_outgoingWindow,
+                                             &hf_amqp_1_0_handle,
+                                             &hf_amqp_1_0_deliveryCount,
+                                             &hf_amqp_1_0_linkCredit,
+                                             &hf_amqp_1_0_available,
+                                             &hf_amqp_1_0_drain,
+                                             &hf_amqp_1_0_echo,
+                                             &hf_amqp_1_0_properties };
+const int* hf_amqp_1_0_amqp_transfer_items[] = { &hf_amqp_1_0_handle,
+                                                 &hf_amqp_1_0_deliveryId,
+                                                 &hf_amqp_1_0_deliveryTag,
+                                                 &hf_amqp_1_0_messageFormat,
+                                                 &hf_amqp_1_0_settled,
+                                                 &hf_amqp_1_0_more,
+                                                 &hf_amqp_1_0_rcvSettleMode,
+                                                 &hf_amqp_1_0_state,
+                                                 &hf_amqp_1_0_resume,
+                                                 &hf_amqp_1_0_aborted,
+                                                 &hf_amqp_1_0_batchable };
+const int* hf_amqp_1_0_amqp_disposition_items[] = { &hf_amqp_1_0_role,
+                                                    &hf_amqp_1_0_first,
+                                                    &hf_amqp_1_0_last,
+                                                    &hf_amqp_1_0_settled,
+                                                    &hf_amqp_1_0_state,
+                                                    &hf_amqp_1_0_batchable };
+const int* hf_amqp_1_0_amqp_detach_items[] = { &hf_amqp_1_0_handle,
+                                               &hf_amqp_1_0_closed,
+                                               &hf_amqp_1_0_error };
+const int* hf_amqp_1_0_amqp_end_items[] = { &hf_amqp_1_0_error };
+const int* hf_amqp_1_0_amqp_close_items[] = { &hf_amqp_1_0_error };
+const int* hf_amqp_1_0_error_items[] = { &hf_amqp_1_0_condition,
+                                         &hf_amqp_1_0_description,
+                                         &hf_amqp_1_0_info };
+const int* hf_amqp_1_0_messageHeader_items[] = { &hf_amqp_1_0_durable,
+                                                 &hf_amqp_1_0_priority,
+                                                 &hf_amqp_1_0_ttl,
+                                                 &hf_amqp_1_0_firstAcquirer,
+                                                 &hf_amqp_1_0_deliveryCount };
+const int* hf_amqp_1_0_received_items[] = { &hf_amqp_1_0_sectionNumber,
+                                            &hf_amqp_1_0_sectionOffset };
+const int* hf_amqp_1_0_rejected_items[] = { &hf_amqp_1_0_error };
+const int* hf_amqp_1_0_modified_items[] = { &hf_amqp_1_0_deliveryFailed,
+                                            &hf_amqp_1_0_undeliverableHere,
+                                            &hf_amqp_1_0_messageAnnotations };
+const int* hf_amqp_1_0_source_items[] = { &hf_amqp_1_0_address,
+                                          &hf_amqp_1_0_terminusDurable,
+                                          &hf_amqp_1_0_expiryPolicy,
+                                          &hf_amqp_1_0_timeout,
+                                          &hf_amqp_1_0_dynamic,
+                                          &hf_amqp_1_0_dynamicNodeProperties,
+                                          &hf_amqp_1_0_distributionMode,
+                                          &hf_amqp_1_0_filter,
+                                          &hf_amqp_1_0_defaultOutcome,
+                                          &hf_amqp_1_0_outcomes,
+                                          &hf_amqp_1_0_capabilities };
+const int* hf_amqp_1_0_target_items[] = { &hf_amqp_1_0_address,
+                                          &hf_amqp_1_0_terminusDurable,
+                                          &hf_amqp_1_0_expiryPolicy,
+                                          &hf_amqp_1_0_timeout,
+                                          &hf_amqp_1_0_dynamic,
+                                          &hf_amqp_1_0_dynamicNodeProperties,
+                                          &hf_amqp_1_0_capabilities };
+const int* hf_amqp_1_0_messageProperties_items[] = { &hf_amqp_1_0_messageId,
+                                                     &hf_amqp_1_0_userId,
+                                                     &hf_amqp_1_0_to,
+                                                     &hf_amqp_1_0_subject,
+                                                     &hf_amqp_1_0_replyTo,
+                                                     &hf_amqp_1_0_correlationId,
+                                                     &hf_amqp_1_0_contentType,
+                                                     &hf_amqp_1_0_contentEncoding,
+                                                     &hf_amqp_1_0_absoluteExpiryTime,
+                                                     &hf_amqp_1_0_creationTime,
+                                                     &hf_amqp_1_0_groupId,
+                                                     &hf_amqp_1_0_groupSequence,
+                                                     &hf_amqp_1_0_replyToGroupId };
+const int* hf_amqp_1_0_coordinator_items[] = { &hf_amqp_1_0_capabilities };
+const int* hf_amqp_1_0_declare_items[] = { &hf_amqp_1_0_globalId };
+const int* hf_amqp_1_0_discharge_items[] = { &hf_amqp_1_0_txnId,
+                                             &hf_amqp_1_0_fail };
+const int* hf_amqp_1_0_declared_items[] = { &hf_amqp_1_0_txnId };
+const int* hf_amqp_1_0_transactionalState_items[] = { &hf_amqp_1_0_txnId,
+                                                      &hf_amqp_1_0_outcome };
 
 /* 0-10 handles */
 
@@ -1315,10 +2094,12 @@ static int hf_amqp_header_tunnel_durable = -1;
 static int hf_amqp_header_tunnel_broadcast = -1;
 static int hf_amqp_payload = -1;
 static int hf_amqp_init_protocol = -1;
+static int hf_amqp_init_id = -1;
 static int hf_amqp_init_id_major = -1;
 static int hf_amqp_init_id_minor = -1;
 static int hf_amqp_init_version_major = -1;
 static int hf_amqp_init_version_minor = -1;
+static int hf_amqp_init_version_revision = -1;
 
 static gint ett_amqp = -1;
 static gint ett_header = -1;
@@ -1328,6 +2109,9 @@ static gint ett_field_table = -1;
 static gint ett_amqp_init = -1;
 static gint ett_amqp_0_10_map = -1;
 static gint ett_amqp_0_10_array = -1;
+static gint ett_amqp_1_0_list = -1;
+static gint ett_amqp_1_0_array = -1;
+static gint ett_amqp_1_0_map = -1;
 
 static expert_field ei_amqp_bad_flag_value = EI_INIT;
 static expert_field ei_amqp_unknown_stream_method = EI_INIT;
@@ -1348,8 +2132,87 @@ static expert_field ei_amqp_unknown_dtx_method = EI_INIT;
 static expert_field ei_amqp_unknown_method_class = EI_INIT;
 static expert_field ei_amqp_unknown_file_method = EI_INIT;
 static expert_field ei_amqp_unknown_exchange_method = EI_INIT;
+static expert_field ei_amqp_unknown_sasl_command = EI_INIT;
+static expert_field ei_amqp_unknown_amqp_command = EI_INIT;
+static expert_field ei_amqp_unknown_amqp_type = EI_INIT;
+static expert_field ei_amqp_invalid_number_of_params = EI_INIT;
 
 /*  Various enumerations  */
+
+static const value_string amqp_1_0_SASL_code_value [] = {
+    {0, "ok"},
+    {1, "auth"},
+    {2, "sys"},
+    {3, "sys-perm"},
+    {4, "sys-temp"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_role_value [] = {
+    {0x40, "null"},
+    {0x41, "receiver"},
+    {0x42, "sender"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_sndSettleMode_value[] = {
+    {0, "unsettled"},
+    {1, "settled"},
+    {2, "mixed"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_rcvSettleMode_value[] = {
+    {0, "first"},
+    {1, "second"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_durable_value[] = {
+    {0, "none"},
+    {1, "configuration"},
+    {2, "unsettled-state"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_AMQP_performatives [] = {
+    {AMQP_1_0_AMQP_OPEN,        "open"},
+    {AMQP_1_0_AMQP_BEGIN,       "begin"},
+    {AMQP_1_0_AMQP_ATTACH,      "attach"},
+    {AMQP_1_0_AMQP_FLOW,        "flow"},
+    {AMQP_1_0_AMQP_TRANSFER,    "transfer"},
+    {AMQP_1_0_AMQP_DISPOSITION, "disposition"},
+    {AMQP_1_0_AMQP_DETACH,      "detach"},
+    {AMQP_1_0_AMQP_END,         "end"},
+    {AMQP_1_0_AMQP_CLOSE,       "close"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_SASL_methods [] = {
+    {AMQP_1_0_SASL_MECHANISMS, "sasl.mechanisms"},
+    {AMQP_1_0_SASL_INIT,       "sasl.init"},
+    {AMQP_1_0_SASL_CHALLENGE,  "sasl.challenge"},
+    {AMQP_1_0_SASL_RESPONSE,   "sasl.response"},
+    {AMQP_1_0_SASL_OUTCOME,    "sasl.outcome"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_type [] = {
+    {AMQP_1_0_AMQP_FRAME, "AMQP"},
+    {AMQP_1_0_SASL_FRAME, "SASL"},
+    {AMQP_1_0_TLS_FRAME,  "TLS"},
+    {0, NULL}
+};
+
+static const value_string amqp_1_0_encoding_width0 [] = {
+    {0x40, "null"},
+    {0x41, "true"},
+    {0x42, "false"},
+    {0x43, "0"},
+    {0x44, "0"},
+    {0x45, "empty list"},
+    {0, NULL}
+};
 
 static const value_string amqp_0_10_frame_position [] = {
     {0x00,  "----"},
@@ -1819,6 +2682,70 @@ static struct amqp_typeinfo amqp_0_10_var_types[] = {
     { 0xff, "end", 0, 0 }
 };
 
+/*  AMQP 1.0 Type Info  */
+static struct amqp_typeinfo amqp_1_0_fixed_types[] = {
+    { 0x40, "null",       format_amqp_1_0_null,         0 },
+    { 0x41, "bool",       format_amqp_1_0_boolean_true, 0 },
+    { 0x42, "bool",       format_amqp_1_0_boolean_false,0 },
+    { 0x56, "bool",       format_amqp_1_0_boolean,      1 },
+    { 0x50, "ubyte",      format_amqp_1_0_uint,         1 },
+    { 0x60, "ushort",     format_amqp_1_0_uint,         2 },
+    { 0x70, "uint",       format_amqp_1_0_uint,         4 },
+    { 0x52, "smalluint",  format_amqp_1_0_uint,         1 },
+    { 0x43, "uint0",      format_amqp_1_0_uint,         0 },
+    { 0x80, "ulong",      format_amqp_1_0_uint,         8 },
+    { 0x53, "smallulong", format_amqp_1_0_uint,         1 },
+    { 0x44, "ulong0",     format_amqp_1_0_uint,         0 },
+    { 0x51, "byte",       format_amqp_1_0_int,          1 },
+    { 0x61, "short",      format_amqp_1_0_int,          2 },
+    { 0x71, "int",        format_amqp_1_0_int,          4 },
+    { 0x54, "smallint",   format_amqp_1_0_int,          1 },
+    { 0x81, "long",       format_amqp_1_0_int,          8 },
+    { 0x55, "smalllong",  format_amqp_1_0_int,          1 },
+    { 0x72, "float",      format_amqp_1_0_float,        4 },
+    { 0x82, "double",     format_amqp_1_0_double,       8 },
+    { 0x73, "char",       format_amqp_1_0_char,         4 },
+    { 0x83, "timestamp",  format_amqp_1_0_timestamp,    8 },
+    { 0x98, "uuid",       format_amqp_1_0_uuid,         16 },
+    { 0xa0, "vbin8",      format_amqp_1_0_bin,          1 },
+    { 0xb0, "vbin32",     format_amqp_1_0_bin,          4 },
+    { 0xa1, "str8-utf8",  format_amqp_1_0_str,          1 },
+    { 0xb1, "str32-utf8", format_amqp_1_0_str,          4 },
+    { 0xa3, "sym8",       format_amqp_1_0_symbol,       1 },
+    { 0xb3, "sym32",      format_amqp_1_0_symbol,       4 },
+    { 0xff, "end", 0, 0 }
+};
+
+/* see explanation at declaration of amqp_defined_types_t */
+static struct amqp_defined_types_t amqp_1_0_defined_types[] = {
+    {AMQP_1_0_AMQP_TYPE_ERROR,                  &hf_amqp_1_0_error,                 3, hf_amqp_1_0_error_items },
+    {AMQP_1_0_AMQP_TYPE_HEADER,                 &hf_amqp_1_0_messageHeader,         5, hf_amqp_1_0_messageHeader_items },
+    {AMQP_1_0_AMQP_TYPE_DELIVERY_ANNOTATIONS,   &hf_amqp_1_0_deliveryAnnotations,   0, NULL },
+    {AMQP_1_0_AMQP_TYPE_MESSAGE_ANNOTATIONS,    &hf_amqp_1_0_messageAnnotations,    0, NULL },
+    {AMQP_1_0_AMQP_TYPE_PROPERTIES,             &hf_amqp_1_0_messageProperties,     13, hf_amqp_1_0_messageProperties_items },
+    {AMQP_1_0_AMQP_TYPE_APPLICATION_PROPERTIES, &hf_amqp_1_0_applicationProperties, 0, NULL },
+    {AMQP_1_0_AMQP_TYPE_DATA,                   &hf_amqp_1_0_data,                  0, NULL },
+    {AMQP_1_0_AMQP_TYPE_AMQP_SEQUENCE,          &hf_amqp_1_0_amqp_sequence,         0, NULL },
+    {AMQP_1_0_AMQP_TYPE_AMQP_VALUE,             &hf_amqp_1_0_amqp_value,            0, NULL },
+    {AMQP_1_0_AMQP_TYPE_FOOTER,                 &hf_amqp_1_0_footer,                0, NULL },
+    {AMQP_1_0_AMQP_TYPE_RECEIVED,               &hf_amqp_1_0_received,              2, hf_amqp_1_0_received_items },
+    {AMQP_1_0_AMQP_TYPE_ACCEPTED,               &hf_amqp_1_0_accepted,              0, NULL },
+    {AMQP_1_0_AMQP_TYPE_REJECTED,               &hf_amqp_1_0_rejected,              1, hf_amqp_1_0_rejected_items },
+    {AMQP_1_0_AMQP_TYPE_RELEASED,               &hf_amqp_1_0_released,              0, NULL },
+    {AMQP_1_0_AMQP_TYPE_MODIFIED,               &hf_amqp_1_0_modified,              3, hf_amqp_1_0_modified_items },
+    {AMQP_1_0_AMQP_TYPE_SOURCE,                 &hf_amqp_1_0_source,                11, hf_amqp_1_0_source_items },
+    {AMQP_1_0_AMQP_TYPE_TARGET,                 &hf_amqp_1_0_target,                7, hf_amqp_1_0_target_items },
+    {AMQP_1_0_AMQP_TYPE_DELETE_ON_CLOSE,        &hf_amqp_1_0_deleteOnClose,         0, NULL },
+    {AMQP_1_0_AMQP_TYPE_DELETE_ON_NO_LINKS,     &hf_amqp_1_0_deleteOnNoLinks,       0, NULL },
+    {AMQP_1_0_AMQP_TYPE_DELETE_ON_NO_MESSAGE,   &hf_amqp_1_0_deleteOnNoMessages,    0, NULL },
+    {AMQP_1_0_AMQP_TYPE_DELETE_ON_NO_LINKS_OR_MESSAGE, &hf_amqp_1_0_deleteOnNoLinksOrMessages, 0, NULL },
+    {AMQP_1_0_AMQP_TYPE_COORDINATOR,            &hf_amqp_1_0_coordinator,           1, hf_amqp_1_0_coordinator_items },
+    {AMQP_1_0_AMQP_TYPE_DECLARE,                &hf_amqp_1_0_declare,               1, hf_amqp_1_0_declare_items },
+    {AMQP_1_0_AMQP_TYPE_DISCHARGE,              &hf_amqp_1_0_discharge,             2, hf_amqp_1_0_discharge_items },
+    {AMQP_1_0_AMQP_TYPE_DECLARED,               &hf_amqp_1_0_declared,              1, hf_amqp_1_0_declared_items },
+    {AMQP_1_0_AMQP_TYPE_TRANSACTIONAL_STATE,    &hf_amqp_1_0_transactionalState,    2, hf_amqp_1_0_transactionalState_items },
+    { 0, NULL, 0, NULL }
+};
 
 /*  Main dissection routine  */
 
@@ -1856,6 +2783,11 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         dissector = dissect_amqp_0_10_frame;
         fixed_length = 8;
         break;
+    case AMQP_V1_0:
+        length_getter = &get_amqp_1_0_message_len;
+        dissector = dissect_amqp_1_0_frame;
+        fixed_length = 8;
+        break;
     default:
         col_append_str(pinfo->cinfo, COL_INFO, "AMQP (unknown version)");
         col_set_fence(pinfo->cinfo, COL_INFO);
@@ -1880,15 +2812,22 @@ check_amqp_version(tvbuff_t *tvb, amqp_conv *conn)
         return;
 
     if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
-        guint8 proto_major;
-        guint8 proto_minor;
+        /* AMQP 0-* has protocol major/minor in 6th/7th byte, while AMQP 1.0
+         * has it in 5th/6th byte (7th is revision)
+         */
+        guint8 fivth_byte;
+        guint8 sixth_byte;
+        guint8 seventh_byte;
 
-        proto_major = tvb_get_guint8(tvb, 6);
-        proto_minor = tvb_get_guint8(tvb, 7);
-        if (proto_major == 0) {
-            if (proto_minor == 9)
+        fivth_byte = tvb_get_guint8(tvb, 5);
+        sixth_byte = tvb_get_guint8(tvb, 6);
+        seventh_byte = tvb_get_guint8(tvb, 7);
+        if ((fivth_byte == 1) && (sixth_byte == 0) && (seventh_byte == 0))
+            conn->version = AMQP_V1_0;
+        else if (sixth_byte == 0) {
+            if (seventh_byte == 9)
                 conn->version = AMQP_V0_9;
-            else if (proto_minor == 10)
+            else if (seventh_byte == 10)
                 conn->version = AMQP_V0_10;
         }
         return;
@@ -1899,15 +2838,27 @@ check_amqp_version(tvbuff_t *tvb, amqp_conv *conn)
      * deduce it from the content. First indicator is the frame length. 0-9
      * has a 32-bit length in octets 3-7. If the frame length is the same
      * as the PDU length and there's a frame end where it should be, this
-     * is 0-9. Else assume 0-10.
+     * is 0-9. Else, higher version. 0-10 has 5th octet 0x00 while 1.0 has
+     * there at least 2 (DOFF) - use this fact to determine.
      */
     f0_9_length = tvb_get_ntohl(tvb, 3) + 7 + 1; /* Add header and end */
     if ((f0_9_length == tvb_reported_length(tvb)) &&
         (tvb_get_guint8(tvb, f0_9_length - 1) == 0xCE))
         conn->version = AMQP_V0_9;
-    else
+    else if (tvb_get_guint8(tvb, 4) == 0x00)
         conn->version = AMQP_V0_10;
+    else
+        conn->version = AMQP_V1_0;
     return;
+}
+
+static guint
+get_amqp_1_0_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
+    if (tvb_memeql(tvb, offset, "AMQP", 4) == 0)
+        return 8;
+    return (guint) tvb_get_ntohl(tvb, offset);
 }
 
 static guint
@@ -2201,7 +3152,7 @@ dissect_amqp_0_10_array(tvbuff_t *tvb,
     element_count = tvb_get_ntohl(tvb, offset);
     AMQP_INCREMENT(offset, 4, bound);
     length -= 4;
-    proto_item_append_text(item, " (%d elements)", element_count);
+    proto_item_append_text(item, " (array of %d element%s)", element_count, element_suffix[element_count!=1]);
     if (element_count > 1)
         array_tree = proto_item_add_subtree(item, ett_amqp_0_10_array);
     while ((element_count > 0) && (length > 0)) {
@@ -5561,6 +6512,655 @@ dissect_amqp_0_10_struct32(tvbuff_t *tvb,
     }
 }
 
+/* decodes AMQP 1.0 list
+ * arguments:
+ *   tvb: obvious
+ *   pinfo: obvious
+ *   offset: obvious
+ *   bound: boundary within that the list has to end
+ *   item: obvious
+ *   hf_amqp_type: what hf_* type is the list itself
+ *   hf_amqp_subtype_count: length of hf_amqp_subtypes
+ *   hf_amqp_subtypes: what hf_* types are the list items
+ *   name: what to show for unformatted content
+ */
+static guint
+dissect_amqp_1_0_list(tvbuff_t *tvb,
+                      packet_info *pinfo,
+                      int offset,
+                      int bound,
+                      proto_item *item,
+                      int hf_amqp_type,
+                      int hf_amqp_subtype_count,
+                      const int **hf_amqp_subtypes,
+                      const char *name)
+{
+    proto_item *list_tree;
+    guint8      type;
+    guint8      count_len;
+    guint32     element_count;
+    guint32     element_size;
+    guint32     decoded_element_size;
+    guint32     orig_offset;
+    int         decoded_elements;
+    int         hf_amqp_item;
+
+    list_tree = 0;
+    decoded_elements = 0;
+    orig_offset = offset;
+    type = tvb_get_guint8(tvb, offset);
+    AMQP_INCREMENT(offset, 1, bound);
+    switch (type) {
+    case AMQP_1_0_TYPE_LIST0:
+        count_len = 0;
+        element_size = 0;
+        element_count = 0;
+        break;
+    case AMQP_1_0_TYPE_LIST8:
+        count_len = 1;
+        element_size = tvb_get_guint8(tvb, offset);
+        element_count = tvb_get_guint8(tvb, offset+count_len);
+        break;
+    case AMQP_1_0_TYPE_LIST32:
+        count_len = 4;
+        element_size = tvb_get_ntohl(tvb, offset);
+        element_count = tvb_get_ntohl(tvb, offset+count_len);
+        break;
+    default:
+        proto_tree_add_none_format(list_tree, hf_amqp_1_0_list, tvb,
+                                   offset-1,
+                                   1,
+                                   "(unknown type %d)",
+                                   type);
+        expert_add_info_format(pinfo,
+                               list_tree,
+                               &ei_amqp_unknown_amqp_type,
+                               "Unknown AMQP list type %d",
+                               type);
+        return bound-orig_offset;
+    }
+    AMQP_INCREMENT(offset, count_len*2, bound);
+    list_tree = add_1_0_proto_item(item,
+                                   tvb,
+                                   offset-1-count_len*2,
+                                   element_size+1+count_len,
+                                   hf_amqp_type,
+                                   name);
+    if (element_count > 0)
+        list_tree = proto_item_add_subtree(list_tree, ett_amqp_1_0_list);
+    proto_item_append_text(list_tree, " (list of %d element%s)", element_count, element_suffix[element_count!=1]);
+
+    if (element_count > element_size)
+    {
+        expert_add_info_format(pinfo,
+                               list_tree,
+                               &ei_amqp_invalid_number_of_params,
+                               "Number of list elements (%d) bigger than list size (%d)",
+                               element_count, element_size);
+        return bound-orig_offset;
+    }
+
+    while ((element_count > 0) && (offset < bound)) {
+        decoded_element_size = 0;
+        if (decoded_elements<hf_amqp_subtype_count)
+            hf_amqp_item = *(hf_amqp_subtypes[decoded_elements]);
+        else
+            hf_amqp_item = hf_amqp_1_0_list;
+        get_amqp_1_0_type_value_formatter(tvb,
+                                          pinfo,
+                                          offset,
+                                          bound,
+                                          hf_amqp_item,
+                                          NULL,
+                                          &decoded_element_size,
+                                          list_tree);
+        element_count -= 1;
+        decoded_elements += 1;
+        AMQP_INCREMENT(offset, decoded_element_size, bound);
+    }
+    if (element_count > 0)
+        expert_add_info_format(pinfo,
+                               list_tree,
+                               &ei_amqp_invalid_number_of_params,
+                               "Number of list elements (%d) not matching number of decoded elements (%d)",
+                               element_count+decoded_elements, decoded_elements);
+    return offset-orig_offset;
+}
+
+/* decodes AMQP 1.0 map
+ *  arguments: see dissect_amqp_1_0_list
+ */
+static guint
+dissect_amqp_1_0_map(tvbuff_t *tvb,
+                     packet_info *pinfo,
+                     int offset,
+                     int bound,
+                     proto_item *item,
+                     int hf_amqp_type,
+                     const char *name)
+{
+    proto_item *map_tree;
+    guint8      type;
+    guint8      count_len;
+    guint32     element_count;
+    guint32     element_size;
+    guint32     decoded_element_size;
+    guint8      decoded_width_size;
+    guint32     orig_offset;
+    const char *type_name = NULL;
+    const char *value = NULL;
+
+    map_tree = 0;
+    orig_offset = offset;
+    type = tvb_get_guint8(tvb, offset);
+    AMQP_INCREMENT(offset, 1, bound);
+    switch (type) {
+    case AMQP_1_0_TYPE_MAP8:
+        count_len = 1;
+        element_size = tvb_get_guint8(tvb, offset);
+        element_count = tvb_get_guint8(tvb, offset+count_len);
+        break;
+    case AMQP_1_0_TYPE_MAP32:
+        count_len = 4;
+        element_size = tvb_get_ntohl(tvb, offset);
+        element_count = tvb_get_ntohl(tvb, offset+count_len);
+        break;
+    default:
+        proto_tree_add_none_format(map_tree, hf_amqp_1_0_map, tvb,
+                                   offset-1,
+                                   1,
+                                   "(unknown type %d)",
+                                   type);
+        expert_add_info_format(pinfo,
+                               map_tree,
+                               &ei_amqp_unknown_amqp_type,
+                               "Unknown AMQP map type %d",
+                               type);
+        return bound-orig_offset;
+    }
+    AMQP_INCREMENT(offset, count_len*2, bound);
+    map_tree = add_1_0_proto_item(item,
+                                  tvb,
+                                  offset-1-count_len*2,
+                                  element_size+1+count_len,
+                                  hf_amqp_type,
+                                  name);
+    if (element_count > 0)
+        map_tree = proto_item_add_subtree(map_tree, ett_amqp_1_0_map);
+    if (element_count%2==1) {
+        expert_add_info_format(pinfo,
+                               map_tree,
+                               &ei_amqp_invalid_number_of_params,
+                               "Odd number of map items: %d",
+                               element_count);
+        return bound-orig_offset;
+    }
+
+    if (element_count > element_size)
+    {
+        expert_add_info_format(pinfo,
+                               map_tree,
+                               &ei_amqp_invalid_number_of_params,
+                               "Number of map elements (%d) bigger than map size (%d)",
+                               element_count, element_size);
+        return bound-orig_offset;
+    }
+
+    proto_item_append_text(map_tree,
+                           " (map of %d element%s)",
+                           (element_count/2),
+                           element_suffix[(element_count/2)!=1]);
+
+    while (element_count > 0) {
+        if (element_count%2 == 0) { /* decode key */
+            decode_fixed_type(tvb,
+                              tvb_get_guint8(tvb, offset),
+                              offset+1,
+                              bound,
+                              &decoded_width_size,
+                              &decoded_element_size,
+                              &type_name,
+                              &value);
+            AMQP_INCREMENT(offset, decoded_element_size+1, bound);
+        }
+        else { /* decode value */
+            get_amqp_1_0_type_value_formatter(tvb,
+                                              pinfo,
+                                              offset,
+                                              bound,
+                                              hf_amqp_1_0_map,
+                                              value,
+                                              &decoded_element_size,
+                                              map_tree);
+            AMQP_INCREMENT(offset, decoded_element_size, bound);
+        }
+        element_count--;
+    }
+    return offset-orig_offset;
+}
+
+/* decodes AMQP 1.0 array
+ *  arguments: see dissect_amqp_1_0_list
+ */
+static guint
+dissect_amqp_1_0_array(tvbuff_t *tvb,
+                       packet_info *pinfo,
+                       int offset,
+                       int bound,
+                       proto_item *item,
+                       int hf_amqp_type,
+                       int hf_amqp_subtype_count,
+                       const int **hf_amqp_subtypes,
+                       const char *name)
+{
+    proto_item *array_tree;
+    guint8      type;
+    guint8      count_len;
+    guint32     element_count;
+    guint32     element_size;
+    guint32     element_type;
+    guint32     decoded_element_size;
+    guint32     orig_offset;
+    int         decoded_elements;
+    int         hf_amqp_item;
+    int         hf_amqp_subtype_count_array = 0;
+    const int   **hf_amqp_subtypes_array = NULL;
+    const char  *type_name_array = NULL;
+
+    array_tree = 0;
+    decoded_elements = 0;
+    orig_offset = offset;
+    type = tvb_get_guint8(tvb, offset);
+    AMQP_INCREMENT(offset, 1, bound);
+    switch (type) {
+    case AMQP_1_0_TYPE_ARRAY8:
+        count_len = 1;
+        element_size = tvb_get_guint8(tvb, offset);
+        element_count = tvb_get_guint8(tvb, offset+count_len);
+        break;
+    case AMQP_1_0_TYPE_ARRAY32:
+        count_len = 4;
+        element_size = tvb_get_ntohl(tvb, offset);
+        element_count = tvb_get_ntohl(tvb, offset+count_len);
+        break;
+    default:
+        proto_tree_add_none_format(array_tree, hf_amqp_1_0_list, tvb,
+                                   offset-1,
+                                   1,
+                                   "(unknown type %d)",
+                                   type);
+        expert_add_info_format(pinfo,
+                               array_tree,
+                               &ei_amqp_unknown_amqp_type,
+                               "Unknown AMQP array type %d",
+                               type);
+        return bound-orig_offset;
+    }
+    element_type = get_amqp_1_0_type_formatter(tvb,
+                                               offset+count_len*2,
+                                               bound,
+                                               &hf_amqp_type,
+                                               &type_name_array,
+                                               &hf_amqp_subtype_count_array,
+                                               &hf_amqp_subtypes_array,
+                                               &decoded_element_size);
+    AMQP_INCREMENT(offset, count_len*2+decoded_element_size, bound);
+    array_tree = add_1_0_proto_item(item,
+                                    tvb,
+                                    offset-1-count_len*2-decoded_element_size,
+                                    element_size+1+count_len,
+                                    hf_amqp_type,
+                                    name);
+
+    if (element_count > 0)
+        array_tree = proto_item_add_subtree(array_tree, ett_amqp_1_0_array);
+    proto_item_append_text(array_tree, " (array of %d element%s)", element_count, element_suffix[element_count!=1]);
+
+    if (element_count > element_size)
+    {
+        expert_add_info_format(pinfo,
+                               array_tree,
+                               &ei_amqp_invalid_number_of_params,
+                               "Number of array elements (%d) bigger than array size (%d)",
+                               element_count, element_size);
+        return bound-orig_offset;
+    }
+
+    while ((element_count > 0) && (offset < bound)) {
+        decoded_element_size = 0;
+        if (decoded_elements<hf_amqp_subtype_count)
+            hf_amqp_item = *(hf_amqp_subtypes[decoded_elements]);
+        else
+            hf_amqp_item = hf_amqp_1_0_array;
+        get_amqp_1_0_value_formatter(tvb,
+                                     pinfo,
+                                     element_type, /* code */
+                                     offset,
+                                     offset+element_size, /* bound */
+                                     hf_amqp_item,
+                                     (proto_registrar_get_nth(hf_amqp_type))->name, /* name */
+                                     hf_amqp_subtype_count_array, /* subitem list count */
+                                     hf_amqp_subtypes_array, /* subitem list hf_.. list */
+                                     &decoded_element_size,
+                                     array_tree);
+        element_count -= 1;
+        decoded_elements += 1;
+        if (decoded_element_size==0)
+            decoded_element_size=1; /* necessary for 0x40 or similar values where value_formatter returns size of _value_ 0 (type=1 not counted) */
+        AMQP_INCREMENT(offset, decoded_element_size, bound);
+    }
+    if (element_count > 0)
+        expert_add_info_format(pinfo,
+                               array_tree,
+                               &ei_amqp_invalid_number_of_params,
+                               "Number of array elements (%d) not matching number of decoded elements (%d)",
+                               element_count+decoded_elements, decoded_elements);
+    return offset-orig_offset;
+}
+
+/* decodes AMQP 1.0 AMQP performative (open, attach, transfer or so)
+ * arguments:
+ *   tvb, offset, length, amqp_tree, pinfo: obvious
+ *   method_name: what to print to col_append_str method in dissect_amqp_1_0_frame
+ */
+static guint32
+dissect_amqp_1_0_AMQP_frame(tvbuff_t *tvb,
+                            guint offset,
+                            guint16 bound,
+                            proto_item *amqp_tree,
+                            packet_info *pinfo,
+                            const gchar **method_name)
+{
+    proto_item  *args_tree;
+    guint32     arg_length = 0;
+    guint8      method;
+    guint       orig_offset = offset;
+
+    if (bound == offset) { /* empty keepalive sent */
+        *method_name = "(empty)";
+        return 0;
+    }
+    args_tree = proto_item_add_subtree(amqp_tree, ett_args);
+    method = tvb_get_guint8(tvb, offset+2);
+    *method_name = val_to_str_const(method, amqp_1_0_AMQP_performatives,
+                                    "<invalid AMQP performative>");
+    proto_tree_add_item(args_tree, hf_amqp_1_0_amqp_performative, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+    AMQP_INCREMENT(offset, 3, bound); /* descriptor-constructor & fixed_one length & AMQP performative code */
+    switch(method) {
+        case AMQP_1_0_AMQP_OPEN:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               10, hf_amqp_1_0_amqp_open_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_BEGIN:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               8, hf_amqp_1_0_amqp_begin_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_ATTACH:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               14, hf_amqp_1_0_amqp_attach_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_FLOW:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               11, hf_amqp_1_0_amqp_flow_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_TRANSFER:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               11, hf_amqp_1_0_amqp_transfer_items, NULL);
+            /* now decode message header, annotations, properties and data */
+            while (offset+arg_length < bound) {
+                AMQP_INCREMENT(offset, arg_length, bound);
+                get_amqp_1_0_type_value_formatter(tvb,
+                                                  pinfo,
+                                                  offset,
+                                                  bound,
+                                                  hf_amqp_method_arguments, /* should be re-written */
+                                                  NULL,
+                                                  &arg_length,
+                                                  args_tree);
+            }
+            break;
+        case AMQP_1_0_AMQP_DISPOSITION:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               6, hf_amqp_1_0_amqp_disposition_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_DETACH:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               3, hf_amqp_1_0_amqp_detach_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_END:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               1, hf_amqp_1_0_amqp_end_items, NULL);
+            break;
+        case AMQP_1_0_AMQP_CLOSE:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               1, hf_amqp_1_0_amqp_close_items, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo,
+                                   amqp_tree,
+                                   &ei_amqp_unknown_amqp_command,
+                                   "Unknown AMQP performative %d",
+                                   tvb_get_guint8(tvb, offset + 2));
+            return bound-orig_offset;
+    }
+    return (arg_length) + (offset-orig_offset);
+}
+
+/* decodes AMQP 1.0 SASL methods (mechanisms offer, challenge, response,..)
+ * arguments: see dissect_amqp_1_0_AMQP_frame
+ */
+static guint32
+dissect_amqp_1_0_SASL_frame(tvbuff_t *tvb,
+                            guint offset,
+                            guint16 bound,
+                            proto_item *amqp_tree,
+                            packet_info *pinfo,
+                            const gchar **method_name)
+{
+    proto_item  *args_tree;
+    guint32     arg_length = 0;
+    guint8      method;
+    guint       orig_offset = offset;
+
+    args_tree = proto_item_add_subtree(amqp_tree, ett_args);
+    method = tvb_get_guint8(tvb, offset+2);
+    *method_name = val_to_str_const(method, amqp_1_0_SASL_methods,
+                                    "<invalid SASL method>");
+    proto_tree_add_item(args_tree, hf_amqp_1_0_sasl_method, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+
+    AMQP_INCREMENT(offset, 3, bound); /* descriptor-constructor & fixed_one length & SASL method code */
+    switch(method) {
+        case AMQP_1_0_SASL_MECHANISMS:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               1, hf_amqp_1_0_sasl_mechanisms_items, NULL);
+            break;
+        case AMQP_1_0_SASL_INIT:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               3, hf_amqp_1_0_sasl_init_items, NULL);
+            break;
+         case AMQP_1_0_SASL_CHALLENGE:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               1, hf_amqp_1_0_sasl_challenge_items, NULL);
+            break;
+        case AMQP_1_0_SASL_RESPONSE:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               1, hf_amqp_1_0_sasl_response_items, NULL);
+            break;
+        case AMQP_1_0_SASL_OUTCOME:
+            arg_length = dissect_amqp_1_0_list(tvb,
+                                               pinfo,
+                                               offset,
+                                               bound,
+                                               args_tree,
+                                               hf_amqp_method_arguments,
+                                               2, hf_amqp_1_0_sasl_outcome_items, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo,
+                                   amqp_tree,
+                                   &ei_amqp_unknown_sasl_command,
+                                   "Unknown SASL command %d",
+                                   tvb_get_guint8(tvb, offset + 2));
+            return bound-orig_offset;
+    }
+    return (arg_length) + (offset-orig_offset);
+}
+
+static int
+dissect_amqp_1_0_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_item  *ti = NULL;
+    proto_item  *amqp_tree = NULL;
+    guint8      frame_type;
+    guint16     length;
+    guint32     arg_length = 0;
+    guint       offset;
+    const gchar *method_name = NULL;
+
+#if 0  /* XXX: Not currently used ?? */
+    conversation_t *conv;
+    amqp_conv *conn;
+
+    /* Find (or build) conversation to remember the protocol version */
+    conv = find_or_create_conversation(pinfo);
+    conn = conversation_get_proto_data(conv, proto_amqp);
+#endif
+
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /*  Heuristic - protocol initialisation frame starts with 'AMQP' followed by 0x0  */
+    if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
+        guint8         proto_major;
+        guint8         proto_minor;
+        guint8         proto_revision;
+        wmem_strbuf_t *strbuf;
+
+        proto_major    = tvb_get_guint8(tvb, 5);
+        proto_minor    = tvb_get_guint8(tvb, 6);
+        proto_revision = tvb_get_guint8(tvb, 7);
+        strbuf         = wmem_strbuf_new_label(wmem_packet_scope());
+        wmem_strbuf_append_printf(strbuf,
+                                  "Protocol-Header%s %d-%d-%d ",
+                                  (tvb_get_guint8(tvb, 4)==0x2) ? "(TLS)" : "", /* frame type = 2 => TLS */
+                                  proto_major,
+                                  proto_minor,
+                                  proto_revision);
+        col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(strbuf));
+        col_set_fence(pinfo->cinfo, COL_INFO);
+
+        if (tree) {
+            ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_NA);
+            amqp_tree = proto_item_add_subtree(ti, ett_amqp_init);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_protocol,         tvb, 0, 4, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_id,               tvb, 4, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_version_major,    tvb, 5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_version_minor,    tvb, 6, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_version_revision, tvb, 7, 1, ENC_BIG_ENDIAN);
+        }
+        return 8;
+    }
+
+    /* Protocol frame */
+    if (tree) {
+        /* frame header */
+        ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_NA);
+        amqp_tree = proto_item_add_subtree(ti, ett_amqp);
+        proto_tree_add_item(amqp_tree, hf_amqp_1_0_size, tvb, 0, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(amqp_tree, hf_amqp_1_0_doff, tvb, 4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(amqp_tree, hf_amqp_1_0_type, tvb, 5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(amqp_tree, hf_amqp_channel,  tvb, 6, 2, ENC_BIG_ENDIAN);
+    }
+
+    length     = tvb_get_ntohl(tvb, 0);
+    offset     = 4*tvb_get_guint8(tvb,4); /* i.e. 4*DOFF */
+    frame_type = tvb_get_guint8(tvb, 5);
+    THROW_ON((length < offset), ReportedBoundsError);
+
+    switch(frame_type) {
+    case AMQP_1_0_AMQP_FRAME:
+        arg_length = dissect_amqp_1_0_AMQP_frame(tvb, offset, length, amqp_tree, pinfo, &method_name);
+        break;
+    case AMQP_1_0_SASL_FRAME:
+        arg_length = dissect_amqp_1_0_SASL_frame(tvb, offset, length, amqp_tree, pinfo, &method_name);
+        break;
+    case AMQP_1_0_TLS_FRAME:
+        /* should not occur, this is handled in '(tvb_memeql(tvb, 0, "AMQP", 4) == 0)' test above */
+        break;
+    default:
+        expert_add_info_format(pinfo, amqp_tree, &ei_amqp_unknown_frame_type, "Unknown frame type %d", frame_type);
+    }
+    AMQP_INCREMENT(offset, arg_length, length);
+    col_append_str(pinfo->cinfo, COL_INFO, method_name);
+    col_append_str(pinfo->cinfo, COL_INFO, " ");
+    col_set_fence(pinfo->cinfo, COL_INFO);
+    return tvb_length(tvb);
+}
+
 static int
 dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -8496,6 +10096,544 @@ dissect_amqp_0_9_content_header_tunnel(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
+/*  AMQP 1.0 Type Decoders  */
+
+/* knowing the primitive type (code), this routine decodes its value (using
+ * amqp_1_0_fixed_types)
+ * arguments:
+ *   tvb, code, offset, bound: obvious
+ *   type_length_size: number of bytes of value length for types with variable width
+ *   length_size: number of bytes decoded by the routine
+ *   type_name: string with code type
+ *   value: string with type value
+ * return value: true iff code found in fixed sized codes
+ *               false iff code is list, array or map (or unknown)
+ */
+static gboolean decode_fixed_type(tvbuff_t *tvb,
+                                  guint8 code,
+                                  int offset,
+                                  int bound,
+                                  guint8 *type_width_size,
+                                  guint *length_size,
+                                  const char **type_name,
+                                  const char **value)
+{
+    int i;
+    type_formatter formatter;
+
+    for (i = 0; amqp_1_0_fixed_types[i].typecode != 0xff; ++i) {
+        if (amqp_1_0_fixed_types[i].typecode == code) {
+            *type_name = wmem_strdup(wmem_packet_scope(), amqp_1_0_fixed_types[i].amqp_typename);
+            formatter   = amqp_1_0_fixed_types[i].formatter;
+            if (code/16 > 0x9) /* variable width code is 0xa[0-9] or 0xb[0-9] */
+                *type_width_size = amqp_1_0_fixed_types[i].known_size;
+            else
+                *type_width_size = 0;
+            *length_size = formatter(tvb, offset, bound, amqp_1_0_fixed_types[i].known_size, value);
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+static proto_item*
+add_1_0_proto_item(proto_item *item,
+             tvbuff_t *tvb,
+             int offset,
+             int length,
+             int hf_amqp_type,
+             const char *no_format_value)
+{
+    proto_item *return_item;
+    if (length==0) /* show type constructor rather */
+    {
+        length=1;
+        offset--;
+    }
+
+    if (no_format_value!=NULL)
+        return_item = proto_tree_add_none_format(item,
+                                                 hf_amqp_type,
+                                                 tvb,
+                                                 offset,
+                                                 length,
+                                                 "%s",
+                                                 no_format_value);
+    else
+        return_item = proto_tree_add_item(item,
+                                          hf_amqp_type,
+                                          tvb,
+                                          offset,
+                                          length,
+                                          ENC_NA);
+    return return_item;
+}
+
+/* For given code, the routine decodes its value, format & print output.
+ * If the code is compound type (array,list,map), it calls relevant
+ * dissect_* routines for decoding its items
+ * arguments:
+ *   tvb, pinfo, code, offset, bound: obvious
+ *   hf_amqp_type: what hf_* variable corresponds to type of the code
+ *   name: name of type of this code (applicable to map items and type descriptor
+ *   hf_amqp_subtype_count: for format code to be list, expected number of list items
+ *   hf_amqp_subtypes: for format code to be list, field of hf_* variables of list items
+ *   length_size: decoded length
+ */
+static void
+get_amqp_1_0_value_formatter(tvbuff_t *tvb,
+                             packet_info *pinfo,
+                             guint8 code,
+                             int offset,
+                             int bound,
+                             int hf_amqp_type,
+                             const char *name,
+                             int hf_amqp_subtype_count,
+                             const int **hf_amqp_subtypes,
+                             guint *length_size,
+                             proto_item *item)
+{
+    char *no_format_value = NULL;
+    const char *type_name = NULL;
+    const char *value = NULL;
+    guint8 width_size;
+    const int *hf_amqp_type_ptr;
+
+    if (decode_fixed_type(tvb, code, offset, bound, &width_size, length_size, &type_name, &value))
+    {
+        /* if AMQP variable can be of potentialy multiple length, modify hf_amqp_type to proper subtype
+         * according to code; code=0x4[0-e] means 0 octet length, 0x5[0-e] means 1, 6 means 2, 7 means 4,
+         * 8 means 8 and 9 means 16 octet length; variable width types decoded with meaning 1  */
+        if ((hf_amqp_type<=hf_amqp_1_0_saslAdditionalData) &&
+            (subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size] != NULL))
+        {
+          /* message-id and correlation-id can be of so many so different types,
+           * that the subtypes_for_hf_amqp_1_0 table is different for them */
+            if ((hf_amqp_type==hf_amqp_1_0_messageId)||(hf_amqp_type==hf_amqp_1_0_correlationId))
+            {
+              switch (code) {
+                case 0xa1:
+                case 0xb1: /* string */
+                  hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][2];
+                  break;
+                case 0xa0:
+                case 0xb0: /* binary */
+                  hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][3];
+                  break;
+                default: /* ulong and uuid */
+                  hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][code/16-4];
+                  break;
+              }
+            }
+            else
+            {
+                hf_amqp_type_ptr = subtypes_for_hf_amqp_1_0[hf_amqp_type-hf_amqp_1_0_size][(code<0xa0)?(code/16-4):(1)];
+            }
+            if (hf_amqp_type_ptr==NULL) {
+                expert_add_info_format(pinfo,
+                                       item,
+                                       &ei_amqp_unknown_amqp_type,
+                                       "Can't match AMQP type %d(hex=%x, frame position: %d) to list field \"%s\"",
+                                       code, code,
+                                       offset,
+                                       (proto_registrar_get_nth(hf_amqp_type))->name);
+                *length_size = bound-offset; /* to stop dissecting */
+                return;
+            }
+            hf_amqp_type = *hf_amqp_type_ptr;
+        }
+        if (name != NULL)
+        {
+            no_format_value = (char*) wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
+            g_snprintf(no_format_value, MAX_BUFFER, "%s (%s): %s", name, type_name, value);
+        }
+        else if (hf_amqp_type==hf_amqp_1_0_list)
+        {
+            no_format_value = (char*) value;
+        }
+        add_1_0_proto_item(item, tvb, offset+width_size, (*length_size)-width_size, hf_amqp_type, no_format_value);
+    }
+    else { /* no fixed code, i.e. compound (list, map, array) */
+        switch (code) {
+            case AMQP_1_0_TYPE_LIST0:
+            case AMQP_1_0_TYPE_LIST8:
+            case AMQP_1_0_TYPE_LIST32:
+                *length_size = dissect_amqp_1_0_list(tvb,
+                                                     pinfo,
+                                                     offset-1, /* "-1" due to decode type again in the method */
+                                                     bound,
+                                                     item,
+                                                     hf_amqp_type,
+                                                     hf_amqp_subtype_count,
+                                                     hf_amqp_subtypes, name)-1; /* "-1" due to decode type again in the method */
+                break;
+            case AMQP_1_0_TYPE_MAP8:
+            case AMQP_1_0_TYPE_MAP32:
+                 /* "-1" due to decode type again in the method */
+                *length_size = dissect_amqp_1_0_map(tvb, pinfo, offset-1, bound, item, hf_amqp_type, name)-1;
+                break;
+            case AMQP_1_0_TYPE_ARRAY8:
+            case AMQP_1_0_TYPE_ARRAY32:
+                *length_size = dissect_amqp_1_0_array(tvb,
+                                                      pinfo,
+                                                      offset-1, /* "-1" due to decode type again in the method */
+                                                      bound,
+                                                      item,
+                                                      hf_amqp_type,
+                                                      hf_amqp_subtype_count,
+                                                      hf_amqp_subtypes, name)-1; /* "-1" due to decode type again in the method */
+                break;
+            default:
+                expert_add_info_format(pinfo,
+                                       item,
+                                       &ei_amqp_unknown_amqp_type,
+                                       "Unknown AMQP type %d(hex=%x)",
+                                       code, code);
+                *length_size = bound-offset; /* to stop dissecting */
+                break;
+        }
+    }
+}
+
+/* It decodes 1.0 type, including type constructor
+ * arguments: see get_amqp_1_0_value_formatter
+ * return code: decoded format code of primitive type
+ */
+static guint
+get_amqp_1_0_type_formatter(tvbuff_t *tvb,
+                            int offset,
+                            int bound,
+                            int *hf_amqp_type,
+                            const char **name,
+                            int *hf_amqp_subtype_count,
+                            const int ***hf_amqp_subtypes,
+                            guint *length_size)
+{
+    int    i;
+    int    code;
+    int    format_code;
+    int    format_code_type;
+    guint  format_len = 0;
+    guint  orig_offset = offset;
+
+    code = tvb_get_guint8(tvb, offset);
+    AMQP_INCREMENT(offset, 1, bound);
+    if (code == AMQP_1_0_TYPE_DESCRIPTOR_CONSTRUCTOR) {
+        format_code_type = tvb_get_guint8(tvb, offset);
+        format_code = format_code_type;
+        AMQP_INCREMENT(offset, 1, bound);
+        if (format_code_type%16==0xf) { /* i.e. format codes like %x5F %x00-FF */
+            format_code = format_code*0xff + tvb_get_guint8(tvb, offset);
+            AMQP_INCREMENT(offset, 1, bound);
+        }
+        switch (format_code_type/16) {
+        case 4: /* empty */
+            format_len=0;
+            break;
+        case 5: /* fixed-one */
+            format_len=1;
+            code = (guint8)tvb_get_guint8(tvb, offset);
+            break;
+        case 6: /* fixed-two */
+            format_len=2;
+            code = (gint16)tvb_get_ntohs(tvb, offset);
+            break;
+        case 7: /* fixed-four */
+            format_len=4;
+            code = (gint32)tvb_get_ntohl(tvb, offset);
+            break;
+        case 8: /* fixed-eight */
+            format_len=8;
+            code = (gint64)tvb_get_ntoh64(tvb, offset);
+            break;
+        case 9: /* fixed-sixteen */
+            format_len=16;
+            /* TODO: somehow set code = next_128_bytes */
+            break;
+        case 0xa: /* variable-one */
+            format_len = format_amqp_1_0_str(tvb, offset, bound, 1, name);
+            break;
+        case 0xb: /* variable-four */
+            format_len = format_amqp_1_0_str(tvb, offset, bound, 4, name);
+            break;
+        /* TODO: could be type compound? or array? */
+        }
+        AMQP_INCREMENT(offset, format_len, bound);
+        for (i = 0; amqp_1_0_defined_types[i].format_code != 0x00; ++i) {
+            if (amqp_1_0_defined_types[i].format_code == code) {
+                *hf_amqp_type = *(amqp_1_0_defined_types[i].hf_amqp_type);
+                *hf_amqp_subtype_count = amqp_1_0_defined_types[i].hf_amqp_subtype_count;
+                *hf_amqp_subtypes = amqp_1_0_defined_types[i].hf_amqp_subtypes;
+            }
+        }
+        /* now take the real primitive format code */
+        code = tvb_get_guint8(tvb, offset);
+        AMQP_INCREMENT(offset, 1, bound);
+    }
+    *length_size = (offset-orig_offset);
+    return code;
+}
+
+/* It decodes both 1.0 type and its value, in fact it just calls
+ * get_amqp_1_0_type_formatter and get_amqp_1_0_value_formatter methods
+ * arguments: see get_amqp_1_0_value_formatter
+ */
+static void
+get_amqp_1_0_type_value_formatter(tvbuff_t *tvb,
+                                  packet_info *pinfo,
+                                  int offset,
+                                  int bound,
+                                  int hf_amqp_type,   /* what to print in GUI if name==NULL */
+                                  const char *name,   /* what to print in GUI  */
+                                  guint *length_size, /* decoded length */
+                                  proto_item *item)
+{
+    int        code;
+    int        hf_amqp_subtype_count = 0;
+    const int  **hf_amqp_subtypes = NULL;
+    const char *type_name = NULL;
+    char       *format_name = NULL;
+    guint      type_length_size;
+
+    code = get_amqp_1_0_type_formatter(tvb,
+                                       offset,
+                                       bound,
+                                       &hf_amqp_type,
+                                       &type_name,
+                                       &hf_amqp_subtype_count,
+                                       &hf_amqp_subtypes,
+                                       &type_length_size);
+    if ((name != NULL) || (type_name != NULL))
+    {
+      if (type_name == NULL)
+        format_name=(char*)name;
+      else if (name == NULL)
+        format_name=(char*)format_name;
+      else
+      {
+        format_name = (char*) wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
+        g_snprintf(format_name, MAX_BUFFER, "%s : %s", name, type_name);
+      }
+    }
+    AMQP_INCREMENT(offset, type_length_size, bound);
+    get_amqp_1_0_value_formatter(tvb,
+                                 pinfo,
+                                 code,
+                                 offset,
+                                 bound,
+                                 hf_amqp_type,
+                                 format_name,
+                                 hf_amqp_subtype_count,
+                                 hf_amqp_subtypes,
+                                 length_size,
+                                 item);
+    *length_size += type_length_size;
+}
+
+static int
+format_amqp_1_0_null(tvbuff_t *tvb _U_,
+                      guint offset _U_, guint bound _U_, guint length _U_,
+                      const char **value _U_)
+{
+    *value = "null";
+    return 0;
+}
+
+static int
+format_amqp_1_0_boolean_true(tvbuff_t *tvb _U_,
+                        guint offset _U_, guint bound _U_, guint length _U_,
+                        const char **value)
+{
+    *value = wmem_strdup(wmem_packet_scope(), "true");
+    return 0;
+}
+
+static int
+format_amqp_1_0_boolean_false(tvbuff_t *tvb _U_,
+                        guint offset _U_, guint bound _U_, guint length _U_,
+                        const char **value)
+{
+    *value = wmem_strdup(wmem_packet_scope(), "false");
+    return 0;
+}
+
+static int
+format_amqp_1_0_boolean(tvbuff_t *tvb,
+                        guint offset, guint bound _U_, guint length _U_,
+                        const char **value)
+{
+    guint8 val;
+
+    val = tvb_get_guint8(tvb, offset);
+    *value = wmem_strdup(wmem_packet_scope(), val ? "true" : "false");
+    return 1;
+}
+
+/* this covers ubyte, ushort, uint and ulong */
+static int
+format_amqp_1_0_uint(tvbuff_t *tvb,
+                     guint offset, guint bound _U_, guint length,
+                     const char **value)
+{
+    guint64 val;
+
+    if (length == 0)
+        val = 0;
+    else if (length == 1)
+        val = tvb_get_guint8(tvb, offset);
+    else if (length == 2)
+        val = tvb_get_ntohs(tvb, offset);
+    else if (length == 4)
+        val = tvb_get_ntohl(tvb, offset);
+    else if (length == 8)
+        val = tvb_get_ntoh64(tvb, offset);
+    else {
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid uint length %d!", length);
+        return length;
+    }
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%lu", val);
+    return length;
+}
+
+/* this covers byte, short, int and long */
+static int
+format_amqp_1_0_int(tvbuff_t *tvb,
+                    guint offset, guint bound _U_, guint length,
+                    const char **value)
+{
+    gint64 val;
+
+    if (length == 1)
+        val = (gint8)tvb_get_guint8(tvb, offset);
+    else if (length == 2)
+        val = (gint16)tvb_get_ntohs(tvb, offset);
+    else if (length == 4)
+        val = (gint32)tvb_get_ntohl(tvb, offset);
+    else if (length == 8)
+        val = (gint64)tvb_get_ntoh64(tvb, offset);
+    else {
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid int length %d!", length);
+        return length;
+    }
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%li", val);
+    return length;
+}
+
+static int
+format_amqp_1_0_float(tvbuff_t *tvb,
+                      guint offset, guint bound _U_, guint length _U_,
+                      const char **value)
+{
+    float floatval;
+    floatval = tvb_get_letohieee_float(tvb, offset);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%f", floatval);
+    return 4;
+}
+
+static int
+format_amqp_1_0_double(tvbuff_t *tvb,
+                       guint offset, guint bound _U_, guint length _U_,
+                       const char **value)
+{
+    double doubleval;
+    doubleval = tvb_get_letohieee_double(tvb, offset);
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%f", doubleval);
+    return 8;
+}
+
+/* TODO: add AMQP 1.0 decimal[32|64|128] primitive types */
+
+static int
+format_amqp_1_0_char(tvbuff_t *tvb,
+                     guint offset, guint bound _U_, guint length _U_,
+                     const char **value)
+{
+    *value = tvb_format_text(tvb, offset, 1);
+    return 1;
+}
+
+static int
+format_amqp_1_0_timestamp(tvbuff_t *tvb,
+                          guint offset, guint bound _U_, guint length _U_,
+                          const char **value)
+{
+    *value = wmem_strdup_printf(wmem_packet_scope(), "%ld", tvb_get_ntoh64(tvb, offset));
+    return 8;
+}
+
+static int
+format_amqp_1_0_uuid(tvbuff_t *tvb,
+                     guint offset, guint bound _U_, guint length _U_,
+                     const char **value)
+{
+    e_guid_t uuid;
+    tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
+    *value = tvb_format_text(tvb, offset, 16);
+    return 1;
+}
+
+static int
+format_amqp_1_0_bin(tvbuff_t *tvb,
+                    guint offset, guint bound _U_, guint length,
+                    const char **value)
+{
+    guint bin_length;
+
+    if (length == 1)
+        bin_length = tvb_get_guint8(tvb, offset);
+    else if (length == 4)
+        bin_length = tvb_get_ntohl(tvb, offset);
+    else {
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid binary length size %d!", length);
+        return length;
+    }
+    AMQP_INCREMENT(offset, length, bound);
+    *value = tvb_bytes_to_ep_str(tvb, offset, bin_length);
+    return (length+bin_length);
+}
+
+static int
+format_amqp_1_0_str(tvbuff_t *tvb,
+                    guint offset, guint bound, guint length,
+                    const char **value)
+{
+    guint string_length;
+
+    if (length == 1)
+        string_length = tvb_get_guint8(tvb, offset);
+    else if (length == 4)
+        string_length = tvb_get_ntohl(tvb, offset);
+    else {
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid string length size %d!", length);
+        return length;
+    }
+    AMQP_INCREMENT(offset, length, bound);
+    *value = tvb_get_string(wmem_packet_scope(), tvb, offset, string_length);
+    AMQP_INCREMENT(offset, string_length, bound);
+    return (string_length + length);
+}
+
+static int
+format_amqp_1_0_symbol(tvbuff_t *tvb,
+                       guint offset, guint bound, guint length,
+                       const char **value)
+{
+    guint symbol_length;
+    if (length == 1)
+        symbol_length = tvb_get_guint8(tvb, offset);
+    else if (length == 4)
+        symbol_length = tvb_get_ntohl(tvb, offset);
+    else {
+        *value = wmem_strdup_printf(wmem_packet_scope(), "Invalid symbol length size %d!", length);
+        return length;
+    }
+    AMQP_INCREMENT(offset, length, bound);
+    *value = tvb_get_string(wmem_packet_scope(), tvb, offset, symbol_length);
+    AMQP_INCREMENT(offset, symbol_length, bound);
+    return (symbol_length + length);
+}
+
+
 /*  AMQP 0-10 Type Decoders  */
 
 static gboolean
@@ -8680,6 +10818,837 @@ proto_register_amqp(void)
      * in 0-10, but there are many separate.
      */
     static hf_register_info hf[] = {
+        /* DO NOT CHANGE BELOW hf_amqp_1_0_* VARIABLES ORDERING!
+         * It is crucial for subtypes_for_hf_amqp_1_0 */
+        {&hf_amqp_1_0_size, {
+            "Length", "amqp.length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Length of the frame", HFILL}},
+        {&hf_amqp_1_0_doff, {
+            "Doff", "amqp.doff",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Data offset", HFILL}},
+        {&hf_amqp_1_0_type, {
+            "Type", "amqp.type",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_type), 0x0,
+            "Frame type", HFILL}},
+        {&hf_amqp_1_0_amqp_performative, {
+            "Performative", "amqp.performative",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_AMQP_performatives), 0x0,
+            "AMQP Performative", HFILL}},
+        {&hf_amqp_1_0_sasl_method, {
+            "Method", "amqp.sasl.method",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_SASL_methods), 0x0,
+            "SASL Method", HFILL}},
+        {&hf_amqp_1_0_list, {
+            "list-item", "amqp.list",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "List item", HFILL}},
+        {&hf_amqp_1_0_map, {
+            "map-item", "amqp.map",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Map item", HFILL}},
+        {&hf_amqp_1_0_array, {
+            "array-item", "amqp.array",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Array item", HFILL}},
+        {&hf_amqp_1_0_containerId, {
+            "Container-Id", "amqp.performative.arguments.containerId",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Container ID", HFILL}},
+        {&hf_amqp_1_0_hostname, {
+            "Hostname", "amqp.performative.arguments.hostname",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            NULL, HFILL}},
+        {&hf_amqp_1_0_maxFrameSize, {
+            "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Max frame size", HFILL}},
+        {&hf_amqp_1_0_channelMax, {
+            "Channel-Max", "amqp.performative.arguments.channelMax",
+            FT_UINT16, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Channel max", HFILL}},
+        {&hf_amqp_1_0_idleTimeOut, {
+            "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Idle timeout", HFILL}},
+        {&hf_amqp_1_0_outgoingLocales, {
+            "Outgoing-Locales", "amqp.performative.arguments.outgoingLocales",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Outgoing locales", HFILL}},
+        {&hf_amqp_1_0_incomingLocales, {
+            "Incoming-Locales", "amqp.performative.arguments.incomingLocales",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Incoming locales", HFILL}},
+        {&hf_amqp_1_0_offeredCapabilities, {
+            "Offered-Capabilities", "amqp.arguments.offeredCapabilities",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Offered capabilities", HFILL}},
+        {&hf_amqp_1_0_desiredCapabilities, {
+            "Desired-Capabilities", "amqp.performative.arguments.desiredCapabilities",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Desired capabilities", HFILL}},
+        {&hf_amqp_1_0_properties, {
+            "Properties", "amqp.performative.arguments.properties",
+            FT_NONE, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_1_0_nextIncomingId, {
+            "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Next incoming id", HFILL}},
+        {&hf_amqp_1_0_deliveryCount, {
+            "Delivery-Count", "amqp.performative.arguments.deliveryCount",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Delivery count", HFILL}},
+        {&hf_amqp_1_0_sectionNumber, {
+            "Section-Number", "amqp.received.sectionNumber",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Section number of received message", HFILL}},
+        {&hf_amqp_1_0_sectionOffset, {
+            "Section-Offset", "amqp.received.sectionOffset",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Section offset of received message", HFILL}},
+        {&hf_amqp_1_0_deliveryFailed, {
+            "Delivery-Failed", "amqp.modified.deliveryFailed",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Deliver failed", HFILL}},
+        {&hf_amqp_1_0_undeliverableHere, {
+            "Undeliverable-Here", "amqp.modified.undeliverableHere",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Undeliverable here", HFILL}},
+        {&hf_amqp_1_0_linkCredit, {
+            "Link-Credit", "amqp.performative.arguments.linkCredit",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Link credit", HFILL}},
+        {&hf_amqp_1_0_available, {
+            "Available", "amqp.performative.arguments.available",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "The number of available messages", HFILL}},
+        {&hf_amqp_1_0_drain, {
+            "Drain", "amqp.performative.arguments.drain",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Drain mode", HFILL}},
+        {&hf_amqp_1_0_echo, {
+            "Echo", "amqp.performative.arguments.echo",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Request state from partner", HFILL}},
+        {&hf_amqp_1_0_deliveryId, {
+            "Delivery-Id", "amqp.performative.arguments.deliveryId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Delivery id", HFILL}},
+        {&hf_amqp_1_0_deliveryTag, {
+            "Delivery-Tag", "amqp.performative.arguments.deliveryTag",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Delivery tag", HFILL}},
+        {&hf_amqp_1_0_messageFormat, {
+            "Message-Format", "amqp.performative.arguments.messageFormat",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Message format", HFILL}},
+        {&hf_amqp_1_0_settled, {
+            "Settled", "amqp.performative.arguments.settled",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            NULL, HFILL}},
+        {&hf_amqp_1_0_more, {
+            "More", "amqp.performative.arguments.more",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "The message has more content", HFILL}},
+        {&hf_amqp_1_0_state, {
+            "State", "amqp.performative.arguments.state",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "State of the delivery at sender", HFILL}},
+        {&hf_amqp_1_0_resume, {
+            "Resume", "amqp.performative.arguments.resume",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Resumed delivery", HFILL}},
+        {&hf_amqp_1_0_aborted, {
+            "Aborted", "amqp.performative.arguments.aborted",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Message is aborted", HFILL}},
+        {&hf_amqp_1_0_batchable, {
+            "Batchable", "amqp.performative.arguments.batchable",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Batchable hint", HFILL}},
+        {&hf_amqp_1_0_first, {
+            "First", "amqp.performative.arguments.first",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Lower bound of deliveries", HFILL}},
+        {&hf_amqp_1_0_last, {
+            "Last", "amqp.performative.arguments.last",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Upper bound of deliveries", HFILL}},
+        {&hf_amqp_1_0_closed, {
+            "Closed", "amqp.performative.arguments.closed",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Sender closed the link", HFILL}},
+        {&hf_amqp_1_0_remoteChannel, {
+            "Remote-Channel", "amqp.performative.arguments.remoteChannel",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Remote Channel", HFILL}},
+        {&hf_amqp_1_0_nextOutgoingId, {
+            "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Next outgoing id", HFILL}},
+        {&hf_amqp_1_0_incomingWindow, {
+            "Incoming-Window", "amqp.performative.arguments.incomingWindow",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Incoming window", HFILL}},
+        {&hf_amqp_1_0_outgoingWindow, {
+            "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Outgoing window", HFILL}},
+        {&hf_amqp_1_0_handleMax, {
+            "Handle-Max", "amqp.performative.arguments.handleMax",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Handle max", HFILL}},
+        {&hf_amqp_1_0_name, {
+            "Name", "amqp.performative.arguments.name",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Name of the link", HFILL}},
+        {&hf_amqp_1_0_handle, {
+            "Handle", "amqp.performative.arguments.handle",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Handle for the link while attached", HFILL}},
+        {&hf_amqp_1_0_role, {
+            "Role", "amqp.performative.arguments.role",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_role_value), 0,
+            "Role of the link endpoint", HFILL}},
+        {&hf_amqp_1_0_sndSettleMode, {
+            "Send-Settle-Mode", "amqp.performative.arguments.sndSettleMode",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Send settle mode", HFILL}},
+        {&hf_amqp_1_0_rcvSettleMode, {
+            "Receive-Settle-Mode", "amqp.performative.arguments.rcvSettleMode",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Receive settle mode", HFILL}},
+        {&hf_amqp_1_0_source, {
+            "Source", "amqp.performative.arguments.source",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Source for messages", HFILL}},
+        {&hf_amqp_1_0_target, {
+            "Target", "amqp.performative.arguments.target",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Target for messages", HFILL}},
+        {&hf_amqp_1_0_deleteOnClose, {
+            "Delete-On-Close", "amqp.lifetime-policy.deleteOnClose",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Delete on close", HFILL}},
+        {&hf_amqp_1_0_deleteOnNoLinks, {
+            "Delete-On-No-Links", "amqp.lifetime-policy.deleteOnNoLinks",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Delete on no links", HFILL}},
+        {&hf_amqp_1_0_deleteOnNoMessages, {
+            "Delete-On-No-Messages", "amqp.lifetime-policy.deleteOnNoMessages",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Delete on no messages", HFILL}},
+        {&hf_amqp_1_0_deleteOnNoLinksOrMessages, {
+            "Delete-On-No-Links-Or-Messages", "amqp.lifetime-policy.deleteOnNoLinksOrMessages",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Delete on no links or messages", HFILL}},
+        {&hf_amqp_1_0_coordinator, {
+            "Coordinator", "amqp.tx.coordinator",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Transaction coordinator", HFILL}},
+        {&hf_amqp_1_0_declare, {
+            "Declare", "amqp.tx.declare",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Declare transaction", HFILL}},
+        {&hf_amqp_1_0_globalId, {
+            "Global-Id", "amqp.tx.arguments.globalId",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Global id of a transaction", HFILL}},
+        {&hf_amqp_1_0_discharge, {
+            "Discharge", "amqp.tx.discharge",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Discharge transaction", HFILL}},
+        {&hf_amqp_1_0_txnId, {
+            "Txn-Id", "amqp.tx.arguments.txnId",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Transaction id", HFILL}},
+        {&hf_amqp_1_0_fail, {
+            "Fail", "amqp.tx.arguments.fail",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Fail flag of transaction", HFILL}},
+        {&hf_amqp_1_0_declared, {
+            "Declared", "amqp.tx.declared",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Declared transaction", HFILL}},
+        {&hf_amqp_1_0_transactionalState, {
+            "Transactional-State", "amqp.tx.transactionalState",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Transactional state", HFILL}},
+        {&hf_amqp_1_0_outcome, {
+            "Outcome", "amqp.tx.arguments.outcome",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Outcome of transaction", HFILL}},
+        {&hf_amqp_1_0_unsettled, {
+            "Unsettled", "amqp.performative.arguments.unsettled",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Unsettled delivery state", HFILL}},
+        {&hf_amqp_1_0_incompleteUnsettled, {
+            "Incomplete-Unsettled", "amqp.performative.arguments.incompleteUnsettled",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Incomplete unsettled", HFILL}},
+        {&hf_amqp_1_0_initialDeliveryCount, {
+            "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Initial delivery count", HFILL}},
+        {&hf_amqp_1_0_maxMessageSize, {
+            "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Max message size", HFILL}},
+        {&hf_amqp_1_0_error, {
+            "Error", "amqp.performative.arguments.error",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Error in a performative", HFILL}},
+        {&hf_amqp_1_0_messageHeader, {
+            "Message-Header", "amqp.header",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Message header", HFILL}},
+        {&hf_amqp_1_0_messageProperties, {
+            "Message-Properties", "amqp.properties",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Message properties", HFILL}},
+        {&hf_amqp_1_0_deliveryAnnotations, {
+            "Delivery-Annotations", "amqp.deliveryAnnotations",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Delivery annotations", HFILL}},
+        {&hf_amqp_1_0_messageAnnotations, {
+            "Message-Annotations", "amqp.messageAnnotations",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Message annotations", HFILL}},
+        {&hf_amqp_1_0_applicationProperties, {
+            "Application-Properties", "amqp.applicationProperties",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Application properties", HFILL}},
+        {&hf_amqp_1_0_data, {
+            "Data", "amqp.data",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Opaque binary data", HFILL}},
+        {&hf_amqp_1_0_amqp_sequence, {
+            "AMQP-Sequence", "amqp.amqp_sequence",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "AMQP sequence", HFILL}},
+        {&hf_amqp_1_0_amqp_value, {
+            "AMQP-Value", "amqp.amqp_value",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "AMQP value", HFILL}},
+        {&hf_amqp_1_0_footer, {
+            "Footer", "amqp.footer",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Message footer", HFILL}},
+        {&hf_amqp_1_0_received, {
+            "Received", "amqp.delivery-state.received",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Received messages", HFILL}},
+        {&hf_amqp_1_0_accepted, {
+            "Accepted", "amqp.delivery-state.accepted",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Accepted messages", HFILL}},
+        {&hf_amqp_1_0_rejected, {
+            "Rejected", "amqp.delivery-state.rejected",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Rejected messages", HFILL}},
+        {&hf_amqp_1_0_released, {
+            "Released", "amqp.delivery-state.released",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Released messages", HFILL}},
+        {&hf_amqp_1_0_modified, {
+            "Modified", "amqp.delivery-state.modified",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Modified messages", HFILL}},
+        {&hf_amqp_1_0_condition, {
+            "Condition", "amqp.error.condition",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Error condition", HFILL}},
+        {&hf_amqp_1_0_description, {
+            "Description", "amqp.error.description",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Error description", HFILL}},
+        {&hf_amqp_1_0_info, {
+            "Info", "amqp.error.info",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Error info", HFILL}},
+        {&hf_amqp_1_0_address, {
+            "Address", "amqp.performative.arguments.address",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Address of a node", HFILL}},
+        {&hf_amqp_1_0_durable, {
+            "Durable", "amqp.message.durable",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Message durability", HFILL}},
+        {&hf_amqp_1_0_terminusDurable, {
+            "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Terminus durability", HFILL}},
+        {&hf_amqp_1_0_priority, {
+            "Priority", "amqp.message.priority",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Message priority", HFILL}},
+        {&hf_amqp_1_0_ttl, {
+            "Ttl", "amqp.message.ttl",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Time to live", HFILL}},
+        {&hf_amqp_1_0_firstAcquirer, {
+            "First-Acquirer", "amqp.message.firstAcquirer",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "First acquirer", HFILL}},
+        {&hf_amqp_1_0_expiryPolicy, {
+            "Expiry-Policy", "amqp.properties.expiryPolicy",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Expiry policy", HFILL}},
+        {&hf_amqp_1_0_timeout, {
+            "Timeout", "amqp.properties.timeout",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Duration that an expiring target will be retained", HFILL}},
+        {&hf_amqp_1_0_dynamic, {
+            "Dynamic", "amqp.properties.dynamic",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Dynamic creation of a remote node", HFILL}},
+        {&hf_amqp_1_0_dynamicNodeProperties, {
+            "Dynamic-Node-Properties", "amqp.properties.dynamicNodeProperties",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Dynamic node properties", HFILL}},
+        {&hf_amqp_1_0_distributionMode, {
+            "Distribution-Mode", "amqp.properties.distributionMode",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Distribution mode", HFILL}},
+        {&hf_amqp_1_0_filter, {
+            "Filter", "amqp.properties.filter",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Predicates to filter messages admitted to the link", HFILL}},
+        {&hf_amqp_1_0_defaultOutcome, {
+            "Default-Outcome", "amqp.properties.defaultOutcome",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Default outcome", HFILL}},
+        {&hf_amqp_1_0_outcomes, {
+            "Outcomes", "amqp.properties.outcomes",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Outcomes descriptors for the link", HFILL}},
+        {&hf_amqp_1_0_capabilities, {
+            "Capabilities", "amqp.properties.capabilities",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Extension capabilities of the sender", HFILL}},
+        {&hf_amqp_1_0_messageId, {
+            "Message-Id", "amqp.message.messageId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Message id", HFILL}},
+        {&hf_amqp_1_0_userId, {
+            "User-Id", "amqp.message.userId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "User id", HFILL}},
+        {&hf_amqp_1_0_to, {
+            "To", "amqp.message.to",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Destination address of the message", HFILL}},
+        {&hf_amqp_1_0_subject, {
+            "Subject", "amqp.message.subject",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Message subject", HFILL}},
+        {&hf_amqp_1_0_replyTo, {
+            "Reply-To", "amqp.message.replyTo",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Reply to", HFILL}},
+        {&hf_amqp_1_0_correlationId, {
+            "Correlation-Id", "amqp.message.correlationId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Correlation id", HFILL}},
+        {&hf_amqp_1_0_contentType, {
+            "Content-Type", "amqp.message.contentType",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Content type", HFILL}},
+        {&hf_amqp_1_0_contentEncoding, {
+            "Content-Encoding", "amqp.message.contentEncoding",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Content encoding", HFILL}},
+        {&hf_amqp_1_0_absoluteExpiryTime, {
+            "Expiry-Time", "amqp.message.expiryTime",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Absolute expiry time", HFILL}},
+        {&hf_amqp_1_0_creationTime, {
+            "Creation-Time", "amqp.message.creationTime",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Creation time", HFILL}},
+        {&hf_amqp_1_0_groupId, {
+            "Group-Id", "amqp.message.groupId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Croup id", HFILL}},
+        {&hf_amqp_1_0_groupSequence, {
+            "Group-Sequence", "amqp.message.groupSequence",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Group sequence", HFILL}},
+        {&hf_amqp_1_0_replyToGroupId, {
+            "Reply-To-Group-Id", "amqp.message.replyToGroupId",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Reply to group id", HFILL}},
+        {&hf_amqp_1_0_mechanisms, {
+            "Mechanisms", "amqp.sasl.mechanisms",
+            FT_NONE, BASE_NONE, NULL, 0,
+            "Supported security mechanisms", HFILL}},
+        {&hf_amqp_1_0_mechanism, {
+            "Mechanism", "amqp.sasl.mechanism",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Chosen security mechanism", HFILL}},
+        {&hf_amqp_1_0_initResponse, {
+            "Init-Response", "amqp.sasl.initResponse",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "Initial response", HFILL}},
+        {&hf_amqp_1_0_saslChallenge, {
+            "Challenge", "amqp.sasl.challenge",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "SASL challenge", HFILL}},
+        {&hf_amqp_1_0_saslResponse, {
+            "Response", "amqp.sasl.response",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "SASL response", HFILL}},
+        {&hf_amqp_1_0_saslCode, {
+            "Code", "amqp.sasl.saslCode",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_SASL_code_value), 0,
+            "SASL outcome code", HFILL}},
+        {&hf_amqp_1_0_saslAdditionalData, {
+            "Additional-Data", "amqp.sasl.addData",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_encoding_width0), 0,
+            "SASL outcome additional data", HFILL}},
+        /* further hf_amqp_1_0_* can be re-ordered if required; */
+        {&hf_amqp_1_0_hostname_str, {
+            "Hostname", "amqp.performative.arguments.hostname",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL}},
+        {&hf_amqp_1_0_maxFrameSize_1, {
+            "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Max frame size", HFILL}},
+        {&hf_amqp_1_0_maxFrameSize_4, {
+            "Max-Frame-Size", "amqp.performative.arguments.maxFrameSize",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Max frame size", HFILL}},
+        {&hf_amqp_1_0_incomingWindow_1, {
+            "Incoming-Window", "amqp.performative.arguments.incomingWindow",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Incoming window", HFILL}},
+        {&hf_amqp_1_0_incomingWindow_4, {
+            "Incoming-Window", "amqp.performative.arguments.incomingWindow",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Incoming window", HFILL}},
+        {&hf_amqp_1_0_outgoingWindow_1, {
+            "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Outgoing window", HFILL}},
+        {&hf_amqp_1_0_outgoingWindow_4, {
+            "Outgoing-Window", "amqp.performative.arguments.outgoingWindow",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Outgoing window", HFILL}},
+        {&hf_amqp_1_0_linkCredit_1, {
+            "Link-Credit", "amqp.performative.arguments.linkCredit",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Link credit", HFILL}},
+        {&hf_amqp_1_0_linkCredit_4, {
+            "Link-Credit", "amqp.performative.arguments.linkCredit",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Link credit", HFILL}},
+        {&hf_amqp_1_0_available_1, {
+            "Available", "amqp.performative.arguments.available",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "The number of available messages", HFILL}},
+        {&hf_amqp_1_0_available_4, {
+            "Available", "amqp.performative.arguments.available",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "The number of available messages", HFILL}},
+        {&hf_amqp_1_0_deliveryCount_1, {
+            "Delivery-Count", "amqp.performative.arguments.deliveryCount",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Delivery count", HFILL}},
+        {&hf_amqp_1_0_deliveryCount_4, {
+            "Delivery-Count", "amqp.performative.arguments.deliveryCount",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Delivery count", HFILL}},
+        {&hf_amqp_1_0_sectionNumber_1, {
+            "Section-Number", "amqp.received.sectionNumber",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Section number of received message", HFILL}},
+        {&hf_amqp_1_0_sectionNumber_4, {
+            "Section-Number", "amqp.received.sectionNumber",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Section number of received message", HFILL}},
+        {&hf_amqp_1_0_idleTimeOut_1, {
+            "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Idle timeout", HFILL}},
+        {&hf_amqp_1_0_idleTimeOut_4, {
+            "Idle-Timeout", "amqp.performative.arguments.idleTimeout",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Idle timeout", HFILL}},
+        {&hf_amqp_1_0_outgoingLocales_sym, {
+            "Outgoing-Locales", "amqp.performative.arguments.outgoingLocales",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Outgoing locales", HFILL}},
+        {&hf_amqp_1_0_incomingLocales_sym, {
+            "Incoming-Locales", "amqp.performative.arguments.incomingLocales",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Incoming locales", HFILL}},
+        {&hf_amqp_1_0_offeredCapabilities_sym, {
+            "Offered-Capabilities", "amqp.arguments.offeredCapabilities",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Offered capabilities", HFILL}},
+        {&hf_amqp_1_0_desiredCapabilities_sym, {
+            "Desired-Capabilities", "amqp.performative.arguments.desiredCapabilities",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Desired capabilities", HFILL}},
+        {&hf_amqp_1_0_nextIncomingId_1, {
+            "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Next incoming id", HFILL}},
+        {&hf_amqp_1_0_nextIncomingId_4, {
+            "Next-Incoming-Id", "amqp.performative.arguments.nextIncomingId",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Next incoming id", HFILL}},
+        {&hf_amqp_1_0_sectionOffset_1, {
+            "Section-Offset", "amqp.received.sectionOffset",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Section offset of received message", HFILL}},
+        {&hf_amqp_1_0_sectionOffset_8, {
+            "Section-Offset", "amqp.received.sectionOffset",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            "Section offset of received message", HFILL}},
+        {&hf_amqp_1_0_maxMessageSize_1, {
+            "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Max message size", HFILL}},
+        {&hf_amqp_1_0_maxMessageSize_8, {
+            "Max-Message-Size", "amqp.performative.arguments.maxMessageSize",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            "Max message size", HFILL}},
+        {&hf_amqp_1_0_nextOutgoingId_1, {
+            "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Next outgoing id", HFILL}},
+        {&hf_amqp_1_0_nextOutgoingId_4, {
+            "Next-Outgoing-Id", "amqp.performative.arguments.nextOutgoingId",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Next outgoing id", HFILL}},
+        {&hf_amqp_1_0_deliveryId_1, {
+            "Delivery-Id", "amqp.performative.arguments.deliveryId",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Delivery id", HFILL}},
+        {&hf_amqp_1_0_deliveryId_4, {
+            "Delivery-Id", "amqp.performative.arguments.deliveryId",
+            FT_UINT16, BASE_DEC, 0, 0,
+            "Delivery id", HFILL}},
+        {&hf_amqp_1_0_deliveryTag_bin, {
+            "Delivery-Tag", "amqp.performative.arguments.deliveryTag",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Delivery tag", HFILL}},
+        {&hf_amqp_1_0_messageFormat_1, {
+            "Message-Format", "amqp.performative.arguments.messageFormat",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Message format", HFILL}},
+        {&hf_amqp_1_0_messageFormat_4, {
+            "Message-Format", "amqp.performative.arguments.messageFormat",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Message format", HFILL}},
+        {&hf_amqp_1_0_first_1, {
+            "First", "amqp.performative.arguments.first",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Lower bound of deliveries", HFILL}},
+        {&hf_amqp_1_0_first_4, {
+            "First", "amqp.performative.arguments.first",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Lower bound of deliveries", HFILL}},
+        {&hf_amqp_1_0_last_1, {
+            "Last", "amqp.performative.arguments.last",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Upper bound of deliveries", HFILL}},
+        {&hf_amqp_1_0_last_4, {
+            "Last", "amqp.performative.arguments.last",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Upper bound of deliveries", HFILL}},
+        {&hf_amqp_1_0_remoteChannel_2, {
+            "Remote-Channel", "amqp.performative.arguments.remoteChannel",
+            FT_UINT16, BASE_DEC, NULL, 0,
+            "Remote Channel", HFILL}},
+        {&hf_amqp_1_0_handleMax_1, {
+            "Handle-Max", "amqp.performative.arguments.handleMax",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Handle max", HFILL}},
+        {&hf_amqp_1_0_handleMax_4, {
+            "Handle-Max", "amqp.performative.arguments.handleMax",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Handle max", HFILL}},
+        {&hf_amqp_1_0_handle_1, {
+            "Handle", "amqp.performative.arguments.handle",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Handle for the link while attached", HFILL}},
+        {&hf_amqp_1_0_handle_4, {
+            "Handle", "amqp.performative.arguments.handle",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Handle for the link while attached", HFILL}},
+        {&hf_amqp_1_0_sndSettleMode_1, {
+            "Send-Settle-Mode", "amqp.performative.arguments.sndSettleMode",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_sndSettleMode_value), 0,
+            "Send settle mode", HFILL}},
+        {&hf_amqp_1_0_rcvSettleMode_1, {
+            "Receive-Settle-Mode", "amqp.performative.arguments.rcvSettleMode",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_rcvSettleMode_value), 0,
+            "Receive settle mode", HFILL}},
+        {&hf_amqp_1_0_initialDeliveryCount_1, {
+            "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Initial delivery count", HFILL}},
+        {&hf_amqp_1_0_initialDeliveryCount_4, {
+            "Initial-Delivery-Count", "amqp.performative.arguments.initDeliveryCount",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Initial delivery count", HFILL}},
+        {&hf_amqp_1_0_description_str, {
+            "Description", "amqp.error.description",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Error description", HFILL}},
+        {&hf_amqp_1_0_address_str, {
+            "Address", "amqp.performative.arguments.address",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Address of a node", HFILL}},
+        {&hf_amqp_1_0_terminusDurable_1, {
+            "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
+            FT_UINT8, BASE_DEC, VALS(amqp_1_0_durable_value), 0,
+            "Terminus durability", HFILL}},
+        {&hf_amqp_1_0_terminusDurable_4, {
+            "Terminus-Durable", "amqp.performative.arguments.terminusDurable",
+            FT_UINT32, BASE_DEC, VALS(amqp_1_0_durable_value), 0,
+            "Terminus durability", HFILL}},
+        {&hf_amqp_1_0_priority_1, {
+            "Priority", "amqp.message.priority",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Message priority", HFILL}},
+        {&hf_amqp_1_0_ttl_1, {
+            "Ttl", "amqp.message.ttl",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Time to live", HFILL}},
+        {&hf_amqp_1_0_ttl_4, {
+            "Ttl", "amqp.message.ttl",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Time to live", HFILL}},
+        {&hf_amqp_1_0_expiryPolicy_sym, {
+            "Expiry-Policy", "amqp.properties.expiryPolicy",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Expiry policy", HFILL}},
+        {&hf_amqp_1_0_timeout_1, {
+            "Timeout", "amqp.properties.timeout",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Duration that an expiring target will be retained", HFILL}},
+        {&hf_amqp_1_0_timeout_4, {
+            "Timeout", "amqp.properties.timeout",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Duration that an expiring target will be retained", HFILL}},
+        {&hf_amqp_1_0_distributionMode_sym, {
+            "Distribution-Mode", "amqp.properties.distributionMode",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Distribution mode", HFILL}},
+        {&hf_amqp_1_0_outcomes_sym, {
+            "Outcomes", "amqp.properties.outcomes",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Outcomes descriptors for the link", HFILL}},
+        {&hf_amqp_1_0_capabilities_sym, {
+            "Capabilities", "amqp.properties.capabilities",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Extension capabilities of the sender", HFILL}},
+        {&hf_amqp_1_0_messageId_1, {
+            "Message-Id", "amqp.message.messageId",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Message id", HFILL}},
+        {&hf_amqp_1_0_messageId_str, {
+            "Message-Id", "amqp.message.messageId",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Message id", HFILL}},
+        {&hf_amqp_1_0_messageId_bin, {
+            "Message-Id", "amqp.message.messageId",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Message id", HFILL}},
+        {&hf_amqp_1_0_messageId_uuid, {
+            "Message-Id", "amqp.message.messageId",
+            FT_GUID, BASE_NONE, NULL, 0,
+            "Message id", HFILL}},
+        {&hf_amqp_1_0_messageId_8, {
+            "Message-Id", "amqp.message.messageId",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            "Message id", HFILL}},
+        {&hf_amqp_1_0_correlationId_1, {
+            "Correlation-Id", "amqp.message.correlationId",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Correlation id", HFILL}},
+        {&hf_amqp_1_0_correlationId_str, {
+            "Correlation-Id", "amqp.message.correlationId",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Correlation id", HFILL}},
+        {&hf_amqp_1_0_correlationId_bin, {
+            "Correlation-Id", "amqp.message.correlationId",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Correlation id", HFILL}},
+        {&hf_amqp_1_0_correlationId_uuid, {
+            "Correlation-Id", "amqp.message.correlationId",
+            FT_GUID, BASE_NONE, NULL, 0,
+            "Correlation id", HFILL}},
+        {&hf_amqp_1_0_correlationId_8, {
+            "Correlation-Id", "amqp.message.correlationId",
+            FT_UINT64, BASE_DEC, NULL, 0,
+            "Correlation id", HFILL}},
+        {&hf_amqp_1_0_userId_bin, {
+            "User-Id", "amqp.message.userId",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "User id", HFILL}},
+        {&hf_amqp_1_0_to_str, {
+            "To", "amqp.message.to",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Destination address of the message", HFILL}},
+        {&hf_amqp_1_0_subject_str, {
+            "Subject", "amqp.message.subject",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Message subject", HFILL}},
+        {&hf_amqp_1_0_replyTo_str, {
+            "Reply-To", "amqp.message.replyTo",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Reply to", HFILL}},
+        {&hf_amqp_1_0_contentType_sym, {
+            "Content-Type", "amqp.message.contentType",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Content type", HFILL}},
+        {&hf_amqp_1_0_contentEncoding_sym, {
+            "Content-Encoding", "amqp.message.contentEncoding",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Content encoding", HFILL}},
+        {&hf_amqp_1_0_absoluteExpiryTime_timestamp, {
+            "Expiry-Time", "amqp.message.expiryTime",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+            "Absolute expiry time", HFILL}},
+        {&hf_amqp_1_0_creationTime_timestamp, {
+            "Creation-Time", "amqp.message.creationTime",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+            "Creation time", HFILL}},
+        {&hf_amqp_1_0_groupId_str, {
+            "Group-Id", "amqp.message.groupId",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Croup id", HFILL}},
+        {&hf_amqp_1_0_groupSequence_1, {
+            "Group-Sequence", "amqp.message.groupSequence",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Group sequence", HFILL}},
+        {&hf_amqp_1_0_groupSequence_4, {
+            "Group-Sequence", "amqp.message.groupSequence",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            "Group sequence", HFILL}},
+        {&hf_amqp_1_0_replyToGroupId_str, {
+            "Reply-To-Group-Id", "amqp.message.replyToGroupId",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Reply to group id", HFILL}},
+        {&hf_amqp_1_0_mechanisms_sym, {
+            "Mechanisms", "amqp.sasl.mechanisms",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Supported security mechanisms", HFILL}},
+        {&hf_amqp_1_0_initResponse_bin, {
+            "Init-Response", "amqp.sasl.initResponse",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "Initial response", HFILL}},
+        {&hf_amqp_1_0_saslAdditionalData_bin, {
+            "Additional-Data", "amqp.sasl.addData",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            "SASL outcome additional data", HFILL}},
         {&hf_amqp_0_10_format, {
             "Format", "amqp.format",
             FT_UINT8, BASE_DEC, NULL, 0xc0,
@@ -10525,6 +13494,10 @@ proto_register_amqp(void)
             "Protocol ID Minor", "amqp.init.id_minor",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL}},
+        {&hf_amqp_init_id, {
+            "Protocol-ID", "amqp.init.id",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL}},
         {&hf_amqp_init_version_major, {
             "Version Major", "amqp.init.version_major",
             FT_UINT8, BASE_DEC, NULL, 0,
@@ -10532,7 +13505,11 @@ proto_register_amqp(void)
         {&hf_amqp_init_version_minor, {
             "Version Minor", "amqp.init.version_minor",
             FT_UINT8, BASE_DEC, NULL, 0,
-            "Protocol version minor", HFILL}}
+            "Protocol version minor", HFILL}},
+        {&hf_amqp_init_version_revision, {
+            "Version-Revision", "amqp.init.version_revision",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            "Protocol version revision", HFILL}}
     };
 
     /*  Setup of protocol subtree array  */
@@ -10545,7 +13522,10 @@ proto_register_amqp(void)
          &ett_field_table,
          &ett_amqp_init,
          &ett_amqp_0_10_map,
-         &ett_amqp_0_10_array
+         &ett_amqp_0_10_array,
+         &ett_amqp_1_0_array,
+         &ett_amqp_1_0_map,
+         &ett_amqp_1_0_list
     };
 
     static ei_register_info ei[] = {
@@ -10568,6 +13548,10 @@ proto_register_amqp(void)
         { &ei_amqp_unknown_tunnel_method, { "amqp.unknown.method.tunnel", PI_PROTOCOL, PI_ERROR, "Unknown tunnel method", EXPFILL }},
         { &ei_amqp_unknown_method_class, { "amqp.unknown.method.class", PI_PROTOCOL, PI_ERROR, "Unknown method class", EXPFILL }},
         { &ei_amqp_unknown_header_class, { "amqp.unknown.header_class", PI_PROTOCOL, PI_ERROR, "Unknown header class", EXPFILL }},
+        { &ei_amqp_unknown_sasl_command, { "amqp.unknown.sasl_command", PI_PROTOCOL, PI_ERROR, "Unknown SASL command", EXPFILL }},
+        { &ei_amqp_unknown_amqp_command, { "amqp.unknown.amqp_command", PI_PROTOCOL, PI_ERROR, "Unknown AMQP command", EXPFILL }},
+        { &ei_amqp_unknown_amqp_type,  { "amqp.unknown.amqp_type", PI_PROTOCOL, PI_ERROR, "Unknown AMQP type", EXPFILL }},
+        { &ei_amqp_invalid_number_of_params, { "amqp.invalid.params_number", PI_PROTOCOL, PI_ERROR, "Invalid number of parameters", EXPFILL }},
     };
 
     expert_module_t* expert_amqp;
