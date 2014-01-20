@@ -2374,9 +2374,6 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * was a gboolean for the byte order, not an
 		 * encoding value, and passed non-zero values
 		 * other than TRUE to mean "little-endian".
-		 *
-		 * XXX - should map all octets with the 8th bit
-		 * set REPLACEMENT CHARACTERs.
 		 */
 		strbuf = tvb_get_string(scope, tvb, offset, length);
 		break;
@@ -2387,8 +2384,6 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * points to a "substitute" UTF-8 character?
 		 * XXX - should map code points > 10FFFF to REPLACEMENT
 		 * CHARACTERs.
-		 * XXX - should map invalid UTF-8 sequences to
-		 * REPLACEMENT CHARACTERs.
 		 */
 		strbuf = tvb_get_string(scope, tvb, offset, length);
 		break;
