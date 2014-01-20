@@ -1,4 +1,4 @@
-/* export_pdu_dlg.h
+/* tap_export_pdu.h
  * Routines for exporting PDU:s to file
  *
  * $Id$
@@ -6,7 +6,6 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -23,13 +22,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __EXPORT_PDU_DLG_H__
-#define __EXPORT_PDU_DLG_H__
+#ifndef __TAP_EXPORT_PDU_H__
+#define __TAP_EXPORT_PDU_H__
 
-void export_pdu_show_cb(GtkWidget *widget, gpointer data);
-void export_pdu_action(gpointer data);
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-#endif /* __EXPORT_PDU_DLG_H__ */
+typedef struct _exp_pdu_t {
+    int          pkt_encap;
+    wtap_dumper* wdh;
+} exp_pdu_t;
+
+void exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data);
+gboolean do_export_pdu(const char *filter, gchar *tap_name, gpointer data);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __TAP_EXPORT_PDU_H__ */
 
 /*
  * Editor modelines

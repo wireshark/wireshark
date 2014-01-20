@@ -2180,7 +2180,7 @@ file_export_pdu_ok_cb(GtkWidget *widget _U_, gpointer data)
     }
   }
 
-  do_export_pdu(data);
+  export_pdu_action(data);
 }
 
 
