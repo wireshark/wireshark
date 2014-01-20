@@ -1851,9 +1851,14 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 
 /*
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
- * to hold a non-null-terminated string of that length at that offset,
- * plus a trailing '\0', copy the string into it, and return a pointer
- * to the string.
+ * to hold a string of length characters plus a trailing '\0'. Copy length
+ * characters, starting at offset, from the tvbuff into the buffer and return
+ * a pointer to the buffer.
+ * Characters with the highest bit set will be converted to the Unicode
+ * Replacement Character. The resulting buffer contains a valid UTF-8
+ * string of length+1 characters (not necessarily length+1 bytes since
+ * the replacement char is two bytes long).
+ * 
  * If scope is NULL, memory is allocated with g_malloc() and user must
  * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
@@ -1861,15 +1866,30 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  * Throws an exception if the tvbuff ends before the string does.
  */
 guint8 *
-tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
+tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
-	guint8       *strbuf;
+	wmem_strbuf_t *str;
 
 	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
-	tvb_memcpy(tvb, strbuf, offset, length);
-	strbuf[length] = '\0';
-	return strbuf;
+
+	str = wmem_strbuf_new(scope, "");
+
+	while (length > 0) {
+		guint8 ch = tvb_get_guint8(tvb, offset);
+
+		if (ch < 0x80)
+			wmem_strbuf_append_c(str, ch);
+		else {
+			wmem_strbuf_append_unichar(str, UNREPL);
+		}
+		offset++;
+		length--;
+	}
+	wmem_strbuf_append_c(str, '\0');
+
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str
+	   (like when strbuf is no longer needed) */
+	return (guint8 *) wmem_strbuf_get_str(str);
 }
 
 static guint8 *

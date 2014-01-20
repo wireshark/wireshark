@@ -479,13 +479,14 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
 
 /**
  * Given a tvbuff, an offset, and a length, allocate a buffer big enough
- * to hold a non-null-terminated string of that length at that offset,
- * plus a trailing zero, copy the string into it, and return a pointer
- * to the string.
+ * to hold a string of length characters plus a trailing '\0'. Copy length
+ * characters, starting at offset, from the tvbuff into the buffer and return
+ * a pointer to the buffer.
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
- * tvb_get_string() returns a string allocated.
+ * tvb_get_string() handles 7bit ASCII strings, 8bit characters are
+ *                  converted into the Unicode Replacement Character.
  *
  * tvb_get_string_enc() takes a string encoding as well, and converts to UTF-8
  *                   from the encoding.
@@ -495,7 +496,7 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
  * automatically freed when the scope lifetime is reached.
  */
 WS_DLL_PUBLIC guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const gint offset, const gint length);
+    gint offset, gint length);
 WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
