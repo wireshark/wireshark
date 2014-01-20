@@ -76,9 +76,9 @@ export_pdu_action(gpointer data)
     filter = gtk_entry_get_text(GTK_ENTRY(exp_pdu_dlg_data->filter_widget));
     tap_name = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(exp_pdu_dlg_data->tap_name_widget));
 
-	do_export_pdu(filter, tap_name, &(exp_pdu_dlg_data->exp_pdu_tap_data));
+    do_export_pdu(filter, tap_name, &(exp_pdu_dlg_data->exp_pdu_tap_data));
     window_destroy(export_pdu_dlg);
-	g_free(exp_pdu_dlg_data);
+    g_free(exp_pdu_dlg_data);
 }
 
 
@@ -106,7 +106,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
     }
 
     exp_pdu_dlg_data = (exp_pdu_dlg_t *)g_malloc(sizeof(exp_pdu_dlg_t));
-    exp_pdu_dlg_data->exp_pdu_tap_data.pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU); 
+    exp_pdu_dlg_data->exp_pdu_tap_data.pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
 
     export_pdu_dlg = window_new(GTK_WINDOW_TOPLEVEL, "Wireshark: Export PDU:s to pcap-ng file");
 
