@@ -4748,7 +4748,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="QoS-Subscribed" code="1404" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="UTF8String"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="ULR-Flags" code="1405" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -4798,7 +4798,7 @@
 				<gavp name="KASME"/>
 			</grouped>
 		</avp>
-		<avp name="UMTS-Vector" code="1415" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="UTRAN-Vector" code="1415" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Item-Number"/>
 				<gavp name="RAND"/>
@@ -5162,42 +5162,42 @@
 			<enum name="FALSE" code="0"/>
 			<enum name="TRUE" code="1"/>
 		</avp>
-		<avp name="IMS-Voice-Over-PSSessions-Supported" code="1492"  vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="IMS-Voice-Over-PS-Sessions-Supported" code="1492"  mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="NOT_SUPPORTED" code="0"/>
 			<enum name="SUPPORTED" code="1"/>
 		</avp>
-		<avp name="Homogeneous-Support-of-IMS-Voice-Over-PS-Sessions" code="1493" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="Homogeneous-Support-of-IMS-Voice-Over-PS-Sessions" code="1493"  mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="NOT_SUPPORTED" code="0"/>
 			<enum name="SUPPORTED" code="1"/>
 		</avp>
-		<avp name="Last-UE-Activity-Time" code="1494" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="Last-UE-Activity-Time" code="1494" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Time"/>
 		</avp>
-		<avp name="EPS-User-State" code="1495" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="EPS-User-State" code="1495"  mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="MME-User-State"/>
 				<gavp name="SGSN-User-State"/>
 			</grouped>
 		</avp>
-		<avp name="EPS-Location-Information" code="1496" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="EPS-Location-Information" code="1496" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="MME-Location-Information"/>
 				<gavp name="SGSN-Location-Information"/>
 			</grouped>
 		</avp>
-		<avp name="MME-User-State" code="1497" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="MME-User-State" code="1497" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="User-State"/>
 			</grouped>
 		</avp>
-		<avp name="SGSN-User-State" code="1498" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="SGSN-User-State" code="1498" mandatory="mustnot" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="User-State"/>
 			</grouped>
 		</avp>
-		<avp name="User-State" code="1499" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
+		<avp name="User-State" code="1499" vendor-bit="mustnot" may-encrypt="no" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="DETACHED" code="0"/>
 			<enum name="ATTACHED_NOT_REACHABLE_FOR_PAGING" code="1"/>
@@ -5274,7 +5274,7 @@
 		Note: The AVP codes from 1508 to 1599 are reserved for TS 29.273
 		-->
 
-		<avp name="MME-Location-Information" code="1600" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MME-Location-Information" code="1600" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="E-UTRAN-Cell-Global-Identity"/>
 				<gavp name="Tracking-Area-Identity"/>
@@ -5284,7 +5284,7 @@
 				<gavp name="Age-Of-Location-Information"/>
 			</grouped>
 		</avp>
-		<avp name="SGSN-Location-Information" code="1601" vendor-bit="must" vendor-id="TGPP">
+		<avp name="SGSN-Location-Information" code="1601" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Cell-Global-Identity"/>
 				<gavp name="Location-Area-Identity"/>
@@ -5296,38 +5296,38 @@
 				<gavp name="Age-Of-Location-Information"/>
 			</grouped>
 		</avp>
-		<avp name="E-UTRAN-Cell-Global-Identity" code="1602" vendor-bit="must" vendor-id="TGPP">
+		<avp name="E-UTRAN-Cell-Global-Identity" code="1602" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Tracking-Area-Identity" code="1603" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Tracking-Area-Identity" code="1603" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Cell-Global-Identity" code="1604" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Cell-Global-Identity" code="1604" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Routing-Area-Identity" code="1605" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Routing-Area-Identity" code="1605" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Location-Area-Identity" code="1606" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Location-Area-Identity" code="1606" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Service-Area-Identity" code="1607" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Service-Area-Identity" code="1607" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Geographical-Information" code="1608" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Geographical-Information" code="1608" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Geodetic-Information" code="1609" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Geodetic-Information" code="1609" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Current-Location-Retrieved" code="1610" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Current-Location-Retrieved" code="1610" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="ACTIVE-LOCATION-RETRIEVAL" code="0"/>
 		</avp>
-		<avp name="Age-Of-Location-Information" code="1611" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Age-Of-Location-Information" code="1611" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Active-APN" code="1612" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Active-APN" code="1612" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Context-Identifier"/>
 				<gavp name="Service-Selection"/>
@@ -5336,12 +5336,12 @@
 				<gavp name="Specific-APN-Info"/>
 			</grouped>
 		</avp>
-		<avp name="SIPTO-Permission" code="1613" vendor-bit="must" vendor-id="TGPP">
+		<avp name="SIPTO-Permission" code="1613" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="SIPTO_ALLOWED" code="0"/>
 			<enum name="SIPTO_NOTALLOWED" code="1"/>
 		</avp>
-		<avp name="Error-Diagnostic" code="1614" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Error-Diagnostic" code="1614" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="GPRS_DATA_SUBSCRIBED" code="0"/>
 			<enum name="NO_GPRS_DATA_SUBSCRIBED" code="1"/>
@@ -5349,35 +5349,35 @@
 			<enum name="ODB-HPLMN-APN" code="3"/>
 			<enum name="ODB-VPLMN-APN" code="4"/>
 		</avp>
-		<avp name="UE-SRVCC-Capability" code="1615" vendor-bit="must" vendor-id="TGPP">
+		<avp name="UE-SRVCC-Capability" code="1615" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="UE-SRVCC-NOT-SUPPORTED" code="0"/>
 			<enum name="UE-SRVCC-SUPPORTED" code="1"/>
 		</avp>
-		<avp name="MPS-Priority" code="1616" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MPS-Priority" code="1616" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="VPLMN-LIPA-Allowed" code="1617" vendor-bit="must" vendor-id="TGPP">
+		<avp name="VPLMN-LIPA-Allowed" code="1617" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="LIPA-NOTALLOWED" code="0"/>
 			<enum name="LIPA-ALLOWED" code="1"/>
 		</avp>
-		<avp name="LIPA-Permission" code="1618" vendor-bit="must" vendor-id="TGPP">
+		<avp name="LIPA-Permission" code="1618" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="LIPA-PROHIBITED" code="0"/>
 			<enum name="LIPA-ONLY" code="1"/>
 			<enum name="LIPA-CONDITIONAL" code="2"/>
 		</avp>
-		<avp name="Subscribed-Periodic-RAU-TAU-Timer" code="1619" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Subscribed-Periodic-RAU-TAU-Timer" code="1619" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Ext-PDP-Type" code="1620" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Ext-PDP-Type" code="1620" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="Ext-PDP-Address" code="1621" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Ext-PDP-Address" code="1621" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="IPAddress"/>
 		</avp>
-		<avp name="MDT-Configuration" code="1622" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MDT-Configuration" code="1622" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Job-Type"/>
 				<gavp name="Area-Scope"/>
@@ -5391,7 +5391,7 @@
 				<gavp name="Logging-Duration"/>
 			</grouped>
 		</avp>
-		<avp name="Job-Type" code="1623" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Job-Type" code="1623" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="Immediate-MDT-only" code="0"/>
 			<enum name="Logged-MDT-only" code="1"/>
@@ -5399,7 +5399,7 @@
 			<enum name="Immediate-MDT-and-Trace" code="3"/>
 			<enum name="RLF-reports-only" code="4"/>
 		</avp>
-		<avp name="Area-Scope" code="1624" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Area-Scope" code="1624" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Cell-Global-Identity"/>
 				<gavp name="E-UTRAN-Cell-Global-Identity"/>
@@ -5408,13 +5408,13 @@
 				<gavp name="Tracking-Area-Identity"/>
 			</grouped>
 		</avp>
-		<avp name="List-Of-Measurements" code="1625" vendor-bit="must" vendor-id="TGPP">
+		<avp name="List-Of-Measurements" code="1625" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Reporting-Trigger" code="1626" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Reporting-Trigger" code="1626" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Report-Interval" code="1627" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Report-Interval" code="1627" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="UMTS_250_ms" code="0"/>
 			<enum name="UMTS_500_ms" code="1"/>
@@ -5445,7 +5445,7 @@
 			<enum name="LTE_1800000_ms" code="26"/>
 			<enum name="LTE_3600000_ms" code="27"/>
 		</avp>
-		<avp name="Report-Amount" code="1628" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Report-Amount" code="1628" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="1" code="0"/>
 			<enum name="2" code="1"/>
@@ -5456,13 +5456,13 @@
 			<enum name="64" code="6"/>
 			<enum name="infinity" code="7"/>
 		</avp>
-		<avp name="Event-Threshold-RSRP" code="1629" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Event-Threshold-RSRP" code="1629" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Event-Threshold-RSRQ" code="1630" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Event-Threshold-RSRQ" code="1630" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Logging-Interval" code="1631" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Logging-Interval" code="1631" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="1.28" code="0"/>
 			<enum name="2.56" code="1"/>
@@ -5473,7 +5473,7 @@
 			<enum name="40.96" code="6"/>
 			<enum name="61.44" code="7"/>
 		</avp>
-		<avp name="Logging-Duration" code="1632" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Logging-Duration" code="1632" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="600_sec" code="0"/>
 			<enum name="1200_sec" code="1"/>
@@ -5487,24 +5487,24 @@
 			<enum name="NOT_RELAY_NODE" code="0"/>
 			<enum name="RELAY_NODE" code="1"/>
 		</avp>
-		<avp name="MDT-User-Consent" code="1634" vendor-bit="must" vendor-id="TGPP">
+		<avp name="MDT-User-Consent" code="1634" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="CONSENT_NOT_GIVEN" code="0"/>
 			<enum name="CONSENT_GIVEN" code="1"/>
 		</avp>
-		<avp name="PUR-Flags" code="1635" vendor-bit="must" vendor-id="TGPP">
+		<avp name="PUR-Flags" code="1635" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<avp name="Subscribed-VSRVCC" code="1636" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Subscribed-VSRVCC" code="1636" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="VSRVCC_SUBSCRIBED" code="0"/>
 		</avp>
-		<avp name="Equivalent-PLMN-List" code="1637" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Equivalent-PLMN-List" code="1637" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Visited-PLMN-Id"/>
 			</grouped>
 		</avp>
-    <avp name="CLR-Flags" code="1638" vendor-bit="must" vendor-id="TGPP">
+    <avp name="CLR-Flags" code="1638" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
     <avp name="UVR-Flags" code="1639" vendor-bit="must" vendor-id="TGPP">
