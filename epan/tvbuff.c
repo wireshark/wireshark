@@ -1850,23 +1850,29 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 #define UNREPL 0x00FFFD
 
 /*
- * Given a tvbuff, an offset, and a length, allocate a buffer big enough
- * to hold a string of length characters plus a trailing '\0'. Copy length
- * characters, starting at offset, from the tvbuff into the buffer and return
- * a pointer to the buffer.
- * Characters with the highest bit set will be converted to the Unicode
- * Replacement Character. The resulting buffer contains a valid UTF-8
- * string of length+1 characters (not necessarily length+1 bytes since
- * the replacement char is two bytes long).
+ * All string functions below take a scope as an argument.
+ *
  * 
  * If scope is NULL, memory is allocated with g_malloc() and user must
  * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
  * lifetime.
- * Throws an exception if the tvbuff ends before the string does.
+ *
+ * All functions throw an exception if the tvbuff ends before the string
+ * does.
  */
-guint8 *
-tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+
+/*
+ * Given a tvbuff, an offset, and a length, treat the string of bytes
+ * referred to by them as an ASCII string, with all bytes with the
+ * high-order bit set being invalid, and return a pointer to a
+ * UTF-8 string.
+ *
+ * Octets with the highest bit set will be converted to the Unicode
+ * REPLACEMENT CHARACTER.
+ */
+static guint8 *
+tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
 	wmem_strbuf_t *str;
 
@@ -1879,9 +1885,8 @@ tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 
 		if (ch < 0x80)
 			wmem_strbuf_append_c(str, ch);
-		else {
+		else
 			wmem_strbuf_append_unichar(str, UNREPL);
-		}
 		offset++;
 		length--;
 	}
@@ -1892,6 +1897,31 @@ tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 	return (guint8 *) wmem_strbuf_get_str(str);
 }
 
+/*
+ * Given a tvbuff, an offset, and a length, treat the string of bytes
+ * referred to by them as a UTF-8 string, and return a pointer to that
+ * string.
+ *
+ * XXX - should map invalid UTF-8 sequences to UNREPL.
+ */
+static guint8 *
+tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
+{
+	guint8       *strbuf;
+
+	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
+	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
+	tvb_memcpy(tvb, strbuf, offset, length);
+	strbuf[length] = '\0';
+	return strbuf;
+}
+
+/*
+ * Given a tvbuff, an offset, and a length, treat the string of bytes
+ * referred to by them as an ISO 8859/1 string, with all bytes with the
+ * high-order bit set being invalid, and return a pointer to a UTF-8
+ * string.
+ */
 static guint8 *
 tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
@@ -1922,11 +1952,13 @@ tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 }
 
 /*
- * Given a string encoded using octet per character, with octets with
- * the high-order bit clear being ASCII, and a translation table that
- * maps values for other octets to 2-byte Unicode Basic Multilingual
- * Plane characters (including REPLACEMENT CHARACTER), return a UTF-8
- * string with the same characters.
+ * Given a tvbuff, an offset, and a length, and a translation table,
+ * treat the string of bytes referred to by them as a string encoded
+ * using one octet per character, with octets with the high-order bit
+ * clear being ASCII and octets with the high-order bit set being
+ * mapped by the translation table to 2-byte Unicode Basic Multilingual
+ * Plane characters (including REPLACEMENT CHARACTER), and return a
+ * pointer to a UTF-8 string.
  */
 static guint8 *
 tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[0x80])
@@ -1951,18 +1983,14 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
 }
 
 /*
- * Given a UCS-2 encoded string containing characters from the
- * Basic Multilingual Plane (plane 0) of Unicode, return a UTF-8
- * string with the same characters.
+ * Given a tvbuff, and offset, and a length, treat the string of bytes
+ * referred to by them as a UCS-2 encoded string containing characters
+ * from the Basic Multilingual Plane (plane 0) of Unicode, return a
+ * pointer to a UTF-8 string.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
- * Specify length in bytes
- *
- * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitly free it with g_free().
- * If scope is not NULL, memory is allocated with the corresponding pool
- * lifetime.
+ * Specify length in bytes.
  *
  * XXX - should map lead and trail surrogate values to REPLACEMENT
  * CHARACTERs (0xFFFD)?
@@ -2006,24 +2034,19 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 }
 
 /*
- * Given a UTF-16 encoded Unicode string, return a UTF-8 string with the
- * same characters.
+ * Given a tvbuff, and offset, and a length, treat the string of bytes
+ * referred to by them as a UTF-16 encoded string, return a pointer to
+ * a UTF-8 string.
  *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
- * Specify length in bytes
- *
- * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitly free it with g_free().
- * If scope is not NULL, memory is allocated with the corresponding pool
- * lifetime.
+ * Specify length in bytes.
  *
  * XXX - should map surrogate errors to REPLACEMENT CHARACTERs (0xFFFD).
  * XXX - should map code points > 10FFFF to REPLACEMENT CHARACTERs.
  * XXX - if there are an odd number of bytes, should put a
  * REPLACEMENT CHARACTER at the end.
  */
-
 static wmem_strbuf_t *
 tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint size, const guint encoding)
 {
@@ -2113,17 +2136,13 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 /*
- * Given a UCS-4-encoded Unicode string, return a UTF-8 string with the
- * same characters.
+ * Given a tvbuff, and offset, and a length, treat the string of bytes
+ * referred to by them as a UCS-4 encoded string, return a pointer to
+ * a UTF-8 string.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
  * Specify length in bytes
- *
- * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitly free it with g_free().
- * If scope is not NULL, memory is allocated with the corresponding pool
- * lifetime.
  *
  * XXX - should map lead and trail surrogate values to a "substitute"
  * UTF-8 character?
@@ -2347,13 +2366,6 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
  * at that offset, plus a trailing '\0', copy into the buffer the
  * string as converted from the appropriate encoding to UTF-8, and
  * return a pointer to the string.
- *
- * Throws an exception if the tvbuff ends before the string does.
- *
- * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitly free it with g_free().
- * If scope is not NULL, memory is allocated with the corresponding pool
- * lifetime.
  */
 guint8 *
 tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
@@ -2375,7 +2387,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * encoding value, and passed non-zero values
 		 * other than TRUE to mean "little-endian".
 		 */
-		strbuf = tvb_get_string(scope, tvb, offset, length);
+		strbuf = tvb_get_ascii_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_UTF_8:
@@ -2385,7 +2397,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * XXX - should map code points > 10FFFF to REPLACEMENT
 		 * CHARACTERs.
 		 */
-		strbuf = tvb_get_string(scope, tvb, offset, length);
+		strbuf = tvb_get_utf_8_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_UTF_16:
@@ -2500,20 +2512,54 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 /*
- * Given a tvbuff and an offset, with the offset assumed to refer to
- * a null-terminated string, find the length of that string (and throw
- * an exception if the tvbuff ends before we find the null), allocate
- * a buffer big enough to hold the string, copy the string into it,
- * and return a pointer to the string.	Also return the length of the
- * string (including the terminating null) through a pointer.
- *
- * If scope is NULL, memory is allocated with g_malloc() and user must
- * explicitly free it with g_free().
- * If scope is not NULL, memory is allocated with the corresponding pool
- * lifetime.
+ * Get an ASCII string; this should not be used in new code.
  */
 guint8 *
-tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp)
+tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
+			     const gint length)
+{
+	return tvb_get_ascii_string(scope, tvb, offset, length);
+}
+
+/*
+ * These routines are like the above routines, except that they handle
+ * null-terminated strings.  They find the length of that string (and
+ * throw an exception if the tvbuff ends before we find the null), and
+ * also return through a pointer the length of the string, in bytes,
+ * including the terminating null (the terminating null being 2 bytes
+ * for UCS-2 and UTF-16, 4 bytes for UCS-4, and 1 byte for other
+ * encodings).
+ */
+static guint8 *
+tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint   size, i;
+	wmem_strbuf_t *str;
+
+	str = wmem_strbuf_new(scope, "");
+
+	size   = tvb_strsize(tvb, offset);
+	for (i = 0; i < size; i++) {
+		guint8 ch = tvb_get_guint8(tvb, offset);
+
+		if (ch < 0x80)
+			wmem_strbuf_append_c(str, ch);
+		else
+			wmem_strbuf_append_unichar(str, UNREPL);
+		offset++;
+	}
+	/* No need to append '\0' - we processed the NUL in the loop above. */
+
+	if (lengthp)
+		*lengthp = size;
+
+	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str
+	   (like when strbuf is no longer needed) */
+	return (guint8 *) wmem_strbuf_get_str(str);
+}
+
+static guint8 *
+tvb_get_utf_8_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp)
 {
 	guint   size;
 	guint8 *strptr;
@@ -2574,15 +2620,6 @@ tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
 	return strptr;
 }
 
-/*
- * Version of tvb_get_stringz() that handles the Basic Multilingual Plane
- * (plane 0) of Unicode, with each code point encoded in 16 bits.
- *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
- *
- * Returns an allocated UTF-8 string and updates lengthp pointer with
- * length of string (in bytes), including the terminating (2-byte) NUL.
- */
 static gchar *
 tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -2600,14 +2637,6 @@ tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
-/*
- * Version of tvb_get_stringz() that handles UTF-16.
- *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
- *
- * Returns an allocated UTF-8 string and updates lengthp pointer with
- * length of string (in bytes), including the terminating (2-byte) NUL.
- */
 static gchar *
 tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -2625,14 +2654,6 @@ tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 	return (gchar*)wmem_strbuf_get_str(strbuf);
 }
 
-/*
- * Version of tvb_get_stringz() that handles UCS-4.
- *
- * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
- *
- * Returns an allocated UTF-8 string and updates lengthp pointer with
- * length of string (in bytes), including the terminating (4-byte) NUL.
- */
 static gchar *
 tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -2676,19 +2697,18 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		 * was a gboolean for the byte order, not an
 		 * encoding value, and passed non-zero values
 		 * other than TRUE to mean "little-endian".
-		 *
-		 * XXX - should map all octets with the 8th bit
-		 * not set to a "substitute" UTF-8 character.
 		 */
-		strptr = tvb_get_stringz(scope, tvb, offset, lengthp);
+		strptr = tvb_get_ascii_stringz(scope, tvb, offset, lengthp);
 		break;
 
 	case ENC_UTF_8:
 		/*
 		 * XXX - should map all invalid UTF-8 sequences
 		 * to a "substitute" UTF-8 character.
+		 * XXX - should map code points > 10FFFF to REPLACEMENT
+		 * CHARACTERs.
 		 */
-		strptr = tvb_get_stringz(scope, tvb, offset, lengthp);
+		strptr = tvb_get_utf_8_stringz(scope, tvb, offset, lengthp);
 		break;
 
 	case ENC_UTF_16:
@@ -2795,6 +2815,16 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 	}
 
 	return strptr;
+}
+
+/*
+ * Get an ASCII string; this should not be used in new code.
+ */
+guint8 *
+tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
+			     gint *lengthp)
+{
+	return tvb_get_ascii_stringz(scope, tvb, offset, lengthp);
 }
 
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies

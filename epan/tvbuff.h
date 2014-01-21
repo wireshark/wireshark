@@ -485,11 +485,13 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
- * tvb_get_string() handles 7bit ASCII strings, 8bit characters are
- *                  converted into the Unicode Replacement Character.
+ * tvb_get_string() handles 7-bit ASCII strings, with characters
+ *                   with the 8th bit set are converted to the
+ *                   Unicode REPLACEMENT CHARACTER.
  *
  * tvb_get_string_enc() takes a string encoding as well, and converts to UTF-8
- *                   from the encoding.
+ *                   from the encoding, possibly mapping some characters
+ *                   to the REPLACEMENT CHARACTER.
  *
  * If scope is set to NULL it is the user's responsibility to g_free()
  * the memory allocated by tvb_memdup(). Otherwise memory is
@@ -522,10 +524,13 @@ WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
  * and return a pointer to the string.  Also return the length of the
  * string (including the terminating null) through a pointer.
  *
- * tvb_get_stringz() returns a string
+ * tvb_get_stringz() handles 7-bit ASCII strings, with characters
+ *                   with the 8th bit set are converted to the
+ *                   Unicode REPLACEMENT CHARACTER.
  *
- * tvb_get_stringz_enc() takes a string encoding as well, and converts to
- *                   UTF-8 from the encoding.
+ * tvb_get_stringz_enc() takes a string encoding as well, and converts to UTF-8
+ *                   from the encoding, possibly mapping some characters
+ *                   to the REPLACEMENT CHARACTER.
  *
  * tvb_get_const_stringz() returns a constant (unmodifiable) string that does
  *                   not need to be freed, instead it will automatically be
