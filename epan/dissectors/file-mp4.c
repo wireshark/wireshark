@@ -220,7 +220,8 @@ dissect_mp4_box(guint32 parent_box_type _U_,
         return -1;
 
     box_type = tvb_get_ntohl(tvb, offset+4);
-    box_type_str = tvb_get_string(wmem_packet_scope(), tvb, offset+4, 4);
+    box_type_str = tvb_get_string_enc(wmem_packet_scope(), tvb,
+            offset+4, 4, ENC_ASCII|ENC_NA);
 
     type_pi = proto_tree_add_text(tree, tvb, offset, -1, "%s (%s)",
             val_to_str_const(box_type, box_types, "unknown"), box_type_str);
