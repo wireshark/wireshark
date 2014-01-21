@@ -1548,11 +1548,18 @@ cf_merge_files(char **out_filenamep, int in_file_count,
     destroy_progress_dlg(progbar);
 
   merge_close_in_files(in_file_count, in_files);
-  if (!got_read_error && !got_write_error) {
+  if (!got_write_error) {
     if (!wtap_dump_close(pdh, &write_err))
       got_write_error = TRUE;
-  } else
-    wtap_dump_close(pdh, &close_err);
+  } else {
+    /*
+     * We already got a write error; no need to report another
+     * write error on close.
+     *
+     * Don't overwrite the earlier write error.
+     */
+    (void)wtap_dump_close(pdh, &close_err);
+  }
 
   if (got_read_error) {
     /*
