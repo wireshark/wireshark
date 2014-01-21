@@ -26,17 +26,9 @@
 
 #include "config.h"
 
-#ifdef HAVE_SYS_TYPES_H
-#include <sys/types.h>
-#endif
-#include <sys/stat.h>
-
-#include <string.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/expert.h>
 
 
@@ -184,7 +176,7 @@ dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 {
 
     /* 1) first byte must have bits 0000xxxx */
-    if (tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED )
+    if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
         return (FALSE);
 
     dissect_lwm(tvb, pinfo, tree);
@@ -207,9 +199,9 @@ dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
  */
 static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    gint       lwm_len = 0;
-    gint       lwm_header_len = 0;
-    gint       lwm_payload_len = 0;
+    gint        lwm_len         = 0;
+    gint        lwm_header_len  = 0;
+    gint        lwm_payload_len = 0;
 
     guint8      lwm_fcf;
     guint8      lwm_fcf_security;
@@ -226,15 +218,20 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32     lwm_mic;
     guint8      lwm_cmd;
 
-    proto_item          *proto_root, *ti;
-    proto_tree          *lwm_tree = NULL;
-    proto_tree          *multi_tree = NULL;
-    proto_tree          *field_tree = NULL;
+    proto_item *proto_root, *ti;
+    proto_tree *lwm_tree        = NULL;
+    proto_tree *multi_tree      = NULL;
+    proto_tree *field_tree      = NULL;
 
     /*---------------------------------------------------------*/
 
-    /*Get totaly length of LWM bytes (header + payload)*/
-    lwm_len = tvb_length(tvb);
+    /*Enter name of protocol to info field*/
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LwMesh");
+
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    /*Get total length of LWM bytes (header + payload)*/
+    lwm_len = tvb_reported_length(tvb);
 
     /*Set base length of LWM header*/
     lwm_header_len = LWM_HEADER_BASE_LEN;
@@ -273,7 +270,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         lwm_multi_header =  tvb_get_letohs(tvb, 7);
 
-        lwm_header_len += LWM_MULTI_HEADER_LEN;
+        lwm_header_len  += LWM_MULTI_HEADER_LEN;
         lwm_payload_len -= LWM_MULTI_HEADER_LEN;
     }
 
@@ -290,21 +287,16 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*Check wrong values of lengths*/
     if(lwm_payload_len < 0){
-        expert_add_info_format(pinfo, lwm_tree, &ei_lwm_mal_error,"Wrong size of LwMesh packet (missing bytes or wrong field values)");
+        expert_add_info_format(pinfo, lwm_tree, &ei_lwm_mal_error, "Wrong size of LwMesh packet (missing bytes or wrong field values)");
 
-        col_clear(pinfo->cinfo, COL_INFO);
-        col_add_fstr(pinfo->cinfo, COL_INFO,"Lightweight Mesh[Malformed data!]");
+        col_set_str(pinfo->cinfo, COL_INFO, "Lightweight Mesh[Malformed data!]");
 
         return;
     }
 
-    /*Enter name of protocol to info field*/
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "LwMesh");
-
 
     /*Enter description to info field*/
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO,"Lightweight Mesh, Nwk_Dst: 0x%04x, Nwk_Src: 0x%04x",lwm_dst_addr,lwm_src_addr);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Lightweight Mesh, Nwk_Dst: 0x%04x, Nwk_Src: 0x%04x", lwm_dst_addr, lwm_src_addr);
 
 
     if(tree){
@@ -348,15 +340,15 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if(lwm_dst_addr==LWM_BCAST_ADDR){
 
             proto_tree_add_uint_format_value(lwm_tree, hf_lwm_dst_addr, tvb, 4, 2, lwm_dst_addr,
-                  "Broadcast (0x%04x)",lwm_dst_addr);
+                  "Broadcast (0x%04x)", lwm_dst_addr);
 
         }else{
             ti=proto_tree_add_uint(lwm_tree, hf_lwm_dst_addr, tvb, 4, 2, lwm_dst_addr);
 
             if(lwm_fcf_multicast & LWM_FCF_MULTICAST){
-                proto_item_append_text(ti, " %s",LWM_MULTI_GROUP_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
             }else{
-                proto_item_append_text(ti, " %s",LWM_MULTI_UNICAST_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
 
                 if(lwm_dst_addr < 0x8000){
                     proto_item_append_text(ti, " (Routing node)");
@@ -384,15 +376,15 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         else if( (lwm_src_endp == 0) || (lwm_dst_endp == 0)){
                    /*If only one endpoint is 0, alert about that*/
 
-                  col_append_fstr(pinfo->cinfo, COL_INFO,"[Stack command Endpoints missmatch]");
+                  col_append_str(pinfo->cinfo, COL_INFO, "[Stack command Endpoints missmatch]");
 
-                  expert_add_info(pinfo, lwm_tree,&ei_lwm_missmatch_endp);
+                  expert_add_info(pinfo, lwm_tree, &ei_lwm_missmatch_endp);
         }
 
         /*Multicast header*/
         if( (lwm_fcf_multicast & LWM_FCF_MULTICAST) ){
 
-            ti = proto_tree_add_text(lwm_tree, tvb, 7,2, "Multicast Header");
+            ti = proto_tree_add_text(lwm_tree, tvb, 7, 2, "Multicast Header");
             multi_tree = proto_item_add_subtree(ti, ett_lwm_multi_tree);
 
             proto_tree_add_uint(multi_tree, hf_lwm_multi_nmrad, tvb, 7, 2, (lwm_multi_header & LWM_MULTI_NON_MEM_RAD_MASK) >> LWM_MULTI_NON_MEM_RAD_OFFSET);
@@ -423,9 +415,8 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*Encrypted data*/
         if(lwm_fcf_security & LWM_FCF_SEC_EN){
 
-            /*Enter name info protocol field*/
             col_clear(pinfo->cinfo, COL_INFO);
-            col_add_fstr(pinfo->cinfo, COL_INFO,"Encrypted data (%i byte(s)) ",lwm_payload_len);
+            col_add_fstr(pinfo->cinfo, COL_INFO, "Encrypted data (%i byte(s)) ", lwm_payload_len);
 
 
             call_dissector(data_handle, new_tvb, pinfo, tree);
@@ -461,7 +452,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             default:
                 /*Unknown command*/
-                col_append_fstr(pinfo->cinfo, COL_INFO,", Unknown command (0x%02x bytes)",lwm_cmd);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ", Unknown command (0x%02x bytes)", lwm_cmd);
 
                 call_dissector(data_handle, new_tvb, pinfo, tree);
                 return;
@@ -485,7 +476,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*------------------*/
         expert_add_info(pinfo, lwm_tree, &ei_lwm_empty_payload);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO,"[Empty LwMesh Payload]");
+        col_append_str(pinfo->cinfo, COL_INFO, "[Empty LwMesh Payload]");
 
     }
 
@@ -522,12 +513,12 @@ static void dissect_lwm_cmd_frame_ack(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 
     col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Sequence number: %d", val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING),lwm_seq);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Sequence number: %d", val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING), lwm_seq);
 
 
     if(tree){
         proto_root = proto_tree_add_protocol_format(tree, proto_lwm, tvb, 0, -1, "%s, Sequence number: %d",
-            val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING),lwm_seq);
+            val_to_str(lwm_cmd, lwm_cmd_names, LWM_CMD_UNKNOWN_VAL_STRING), lwm_seq);
 
         lwm_cmd_tree = proto_item_add_subtree(proto_root, ett_lwm_cmd_tree);
 
@@ -544,7 +535,7 @@ static void dissect_lwm_cmd_frame_ack(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
     }else{
         expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error,
-            "Size is %i byte(s), instead of %i bytes",frame_len,LWM_CMD_FRAME_ACK_LEN);
+            "Size is %i byte(s), instead of %i bytes", frame_len, LWM_CMD_FRAME_ACK_LEN);
     }
 
 } /* dissect_lwm_cmd_frame_ack*/
@@ -567,11 +558,11 @@ static void dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo, p
     proto_item    *proto_root, *ti;
     proto_tree    *lwm_cmd_tree = NULL;
 
-    guint         frame_len = 0;
-    guint8        lwm_cmd;
-    guint8        lwm_cmd_multi;
-    guint16       lwm_src_addr;
-    guint16       lwm_dst_addr;
+    guint          frame_len = 0;
+    guint8         lwm_cmd;
+    guint8         lwm_cmd_multi;
+    guint16        lwm_src_addr;
+    guint16        lwm_dst_addr;
 
 
     frame_len = tvb_length(tvb);
@@ -601,9 +592,9 @@ static void dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo, p
             ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_route_dst, tvb, 3, 2, lwm_dst_addr);
 
             if(lwm_cmd_multi == LWM_CMD_MULTI_ADDR_TRUE){
-                proto_item_append_text(ti, " %s",LWM_MULTI_GROUP_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
             }else{
-                proto_item_append_text(ti, " %s",LWM_MULTI_UNICAST_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
             }
 
             proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_multi, tvb, 5, 1, ENC_NA);
@@ -611,7 +602,7 @@ static void dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo, p
 
     }else{
         expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error,
-                      "Size is %i byte(s), instead of %i bytes",frame_len,LWM_CMD_FRAME_ROUTE_ERR_LEN);
+                      "Size is %i byte(s), instead of %i bytes", frame_len, LWM_CMD_FRAME_ROUTE_ERR_LEN);
     }
 
 } /* dissect_lwm_cmd_frame_route_err*/
@@ -670,21 +661,21 @@ static void dissect_lwm_cmd_frame_route_req(tvbuff_t *tvb, packet_info *pinfo, p
             ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_route_dst, tvb, 3, 2, lwm_dst_addr);
 
             if(lwm_cmd_multi == LWM_CMD_MULTI_ADDR_TRUE){
-                proto_item_append_text(ti, " %s",LWM_MULTI_GROUP_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
             }else{
-                proto_item_append_text(ti, " %s",LWM_MULTI_UNICAST_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
             }
 
             proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_multi, tvb, 5, 1, ENC_NA);
             ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_linkquality, tvb, 6, 1, lwm_linkqual);
             if(lwm_linkqual == 255){
-                proto_item_append_text(ti, " %s",LWM_CMD_LINKQ_STRING);
+                proto_item_append_text(ti, " %s", LWM_CMD_LINKQ_STRING);
             }
         }
 
     }else{
         expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error,
-                      "Size is %i byte(s), instead of %i bytes",frame_len,LWM_CMD_FRAME_ROUTE_REQ_LEN);
+                      "Size is %i byte(s), instead of %i bytes", frame_len, LWM_CMD_FRAME_ROUTE_REQ_LEN);
     }
 
 } /* dissect_lwm_cmd_frame_route_req*/
@@ -745,22 +736,22 @@ static void dissect_lwm_cmd_frame_route_reply(tvbuff_t *tvb, packet_info *pinfo,
             ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_route_dst, tvb, 3, 2, lwm_dst_addr);
 
             if(lwm_cmd_multi == LWM_CMD_MULTI_ADDR_TRUE){
-                proto_item_append_text(ti, " %s",LWM_MULTI_GROUP_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_GROUP_STRING);
             }else{
-                proto_item_append_text(ti, " %s",LWM_MULTI_UNICAST_STRING);
+                proto_item_append_text(ti, " %s", LWM_MULTI_UNICAST_STRING);
             }
 
             proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_route_multi, tvb, 5, 1, ENC_NA);
             proto_tree_add_item(lwm_cmd_tree, hf_lwm_cmd_forwlinkquality, tvb, 6, 1, ENC_NA);
             ti = proto_tree_add_uint(lwm_cmd_tree, hf_lwm_cmd_revlinkquality, tvb, 7, 1, lwm_revlinkqual);
             if(lwm_revlinkqual == 255){
-                proto_item_append_text(ti, " %s",LWM_CMD_LINKQ_STRING);
+                proto_item_append_text(ti, " %s", LWM_CMD_LINKQ_STRING);
             }
         }
 
     }else{
         expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error,
-                      "Size is %i byte(s), instead of %i bytes",frame_len,LWM_CMD_FRAME_ROUTE_REPLY_LEN);
+                      "Size is %i byte(s), instead of %i bytes", frame_len, LWM_CMD_FRAME_ROUTE_REPLY_LEN);
     }
 
 } /* dissect_lwm_cmd_frame_route_reply*/
@@ -803,7 +794,7 @@ void proto_register_lwm(void)
         "If the Multicast subfield is set to one, Multicast Header should be present and the Destination Address is a group address.", HFILL }},
 
         { &hf_lwm_fcf_reserved,
-        { "Reserved bits", "lwm.fcf.reserved",FT_UINT8, BASE_HEX, NULL, LWM_FCF_RESERVED,
+        { "Reserved bits", "lwm.fcf.reserved", FT_UINT8, BASE_HEX, NULL, LWM_FCF_RESERVED,
         "The 4 bits are reserved.", HFILL }},
 
         /*Other fields*/
@@ -939,8 +930,8 @@ void proto_register_lwm(void)
  *  NAME
  *      proto_reg_handoff_lwm
  *  DESCRIPTION
- *      Registers the zigbee dissector with Wireshark.
- *      Will be called every time 'apply' is pressed in the preferences menu.
+ *      Registers the lwm dissector with Wireshark.
+ *      Will be called during Wireshark startup.
  *  PARAMETERS
  *      none
  *  RETURNS
@@ -949,17 +940,10 @@ void proto_register_lwm(void)
  */
 void proto_reg_handoff_lwm(void)
 {
-    static gboolean lwm_inited = FALSE;
+    data_handle     = find_dissector("data");
 
-    if ( !lwm_inited )
-    {
-        data_handle     = find_dissector("data");
-
-        /* Register our dissector with IEEE 802.15.4 */
-        heur_dissector_add("wpan", dissect_lwm_heur, proto_lwm);
-
-        lwm_inited = TRUE;
-    }
+    /* Register our dissector with IEEE 802.15.4 */
+    heur_dissector_add("wpan", dissect_lwm_heur, proto_lwm);
 
 } /* proto_reg_handoff_lwm */
 
