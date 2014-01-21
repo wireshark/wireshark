@@ -1,4 +1,4 @@
-/* packet-9P.c
+/* packet-9p.c
  * Routines for 9P dissection
  * Copyright 2005, Nils O. Selaasdal
  *
