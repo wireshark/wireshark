@@ -735,7 +735,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         case 2:
             /* IA5 Coding */
             proto_tree_add_item(subtree, hf_ansi_map_ia5_digits, tvb, offset, -1, ENC_ASCII|ENC_NA);
-            proto_item_append_text(actx->created_item, " - %s", tvb_get_string(wmem_packet_scope(),tvb,offset,tvb_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
+            proto_item_append_text(actx->created_item, " - %s", tvb_get_string_enc(wmem_packet_scope(),tvb,offset,tvb_length_remaining(tvb,offset),ENC_ASCII|ENC_NA));
             break;
         case 3:
             /* Octet string */
