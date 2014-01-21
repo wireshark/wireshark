@@ -498,7 +498,7 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
  * automatically freed when the scope lifetime is reached.
  */
 WS_DLL_PUBLIC guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb,
-    gint offset, gint length);
+    const gint offset, const gint length);
 WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
