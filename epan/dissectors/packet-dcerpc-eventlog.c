@@ -344,39 +344,25 @@ eventlog_dissect_element_Record_sid_offset(tvbuff_t *tvb, int offset, packet_inf
 	return offset;
 }
 static int
-eventlog_get_unicode_string_length(tvbuff_t *tvb, int offset)
-{
-	int len;
-	len=0;
-	while(1){
-		if(!tvb_get_ntohs(tvb, offset+len*2)){
-			len++;
-			break;
-		}
-		len++;
-	}
-	return len;
-}
-static int
 eventlog_dissect_element_Record_source_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	char *str;
-	int len;
-	len=eventlog_get_unicode_string_length(tvb, offset);
-	str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, offset, len, TRUE);
-	proto_tree_add_string_format(tree, hf_eventlog_Record_source_name, tvb, offset, len*2, str, "source_name: %s", str);
-	offset+=len*2;
+	guint len;
+
+	len=tvb_unicode_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_eventlog_Record_source_name, tvb, offset, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
+	offset+=len;
 	return offset;
 }
 static int
 eventlog_dissect_element_Record_computer_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	char *str;
-	int len;
-	len=eventlog_get_unicode_string_length(tvb, offset);
-	str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, offset, len, TRUE);
-	proto_tree_add_string_format(tree, hf_eventlog_Record_computer_name, tvb, offset, len*2, str, "computer_name: %s", str);
-	offset+=len*2;
+	guint len;
+
+	len=tvb_unicode_strsize(tvb, offset);
+	proto_tree_add_item(tree, hf_eventlog_Record_computer_name, tvb, offset, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
+	offset+=len;
 	return offset;
 }
 static guint16 num_of_strings;
@@ -399,15 +385,16 @@ static int
 eventlog_dissect_element_Record_strings(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
 	while(string_offset && num_of_strings){
-		char *str;
-		int len;
-		len=eventlog_get_unicode_string_length(tvb, string_offset);
-		str=tvb_get_faked_unicode(wmem_packet_scope(), tvb, string_offset, len, TRUE);
-		proto_tree_add_string_format(tree, hf_eventlog_Record_string, tvb, string_offset, len*2, str, "string: %s", str);
-		string_offset+=len*2;
+		guint len;
+
+		len=tvb_unicode_strsize(tvb, string_offset);
+		proto_tree_add_item(tree, hf_eventlog_Record_string, tvb, string_offset, len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		string_offset+=len;
 	
 		num_of_strings--;
 	}
+
+
 	return offset;
 }
 

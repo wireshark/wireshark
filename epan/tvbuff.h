@@ -436,19 +436,6 @@ WS_DLL_PUBLIC guint tvb_unicode_strsize(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gint tvb_strnlen(tvbuff_t *tvb, const gint offset,
     const guint maxlength);
 
-/** Convert a string from Unicode to ASCII.  At the moment we fake it by
- * assuming all characters are ASCII  )-:  The len parameter is the number
- * of guint16's to convert from Unicode.
- *
- * XXX - These functions have been superceded by tvb_get_unicode_string()
- *
- * If scope is set to NULL, returned buffer is allocated by g_malloc()
- * and must be g_free by the caller. Otherwise memory is automatically
- * freed when the scope lifetime is reached.
- */
-WS_DLL_PUBLIC char *tvb_get_faked_unicode(wmem_allocator_t *scope,
-    tvbuff_t *tvb, int offset, const int len, const gboolean little_endian);
-
 /**
  * Format the data in the tvb from offset for size ...
  */

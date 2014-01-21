@@ -1741,43 +1741,6 @@ tvb_memeql(tvbuff_t *tvb, const gint offset, const guint8 *str, size_t size)
 	}
 }
 
-/* Convert a string from Unicode to ASCII.	At the moment we fake it by
- * replacing all non-ASCII characters with a '.' )-:   The len parameter is
- * the number of guint16's to convert from Unicode.
- *
- * If scope is set to NULL, returned buffer is allocated by g_malloc()
- * and must be g_free by the caller. Otherwise memory is automatically
- * freed when the scope lifetime is reached.
- */
-/* XXX: This has been replaced by tvb_get_string() */
-char *
-tvb_get_faked_unicode(wmem_allocator_t *scope, tvbuff_t *tvb, int offset,
-		      const int len, const gboolean little_endian)
-{
-	char    *buffer;
-	int      i;
-	guint16  character;
-
-	/* Make sure we have enough data before allocating the buffer,
-	   so we don't blow up if the length is huge. */
-	tvb_ensure_bytes_exist(tvb, offset, 2*len);
-
-	/* We know we won't throw an exception, so we don't have to worry
-	   about leaking this buffer. */
-	buffer = (char *)wmem_alloc(scope, len + 1);
-
-	for (i = 0; i < len; i++) {
-		character = little_endian ? tvb_get_letohs(tvb, offset)
-					  : tvb_get_ntohs(tvb, offset);
-		buffer[i] = character < 256 ? character : '.';
-		offset += 2;
-	}
-
-	buffer[len] = 0;
-
-	return buffer;
-}
-
 /*
  * Format the data in the tvb from offset for length ...
  */
