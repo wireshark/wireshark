@@ -2,7 +2,7 @@
  * Dissector  routines for the ATMEL Lightweight Mesh 1.1.1
  * Copyright 2013 Martin Leixner <info@sewio.net>
  *
- * $Id: packet-lwm.c v0.1.0 2013-12-15 16:49:22 $
+ * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
