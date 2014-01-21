@@ -1275,7 +1275,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
 		if (firstpass) {
-			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8);
+			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 
 			if (!strncmp(tvb_s, "9P2000.L", _9p_len)) {
 				u32 = _9P2000_L;
@@ -1365,7 +1365,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 		sub_tree = proto_item_add_subtree(ti, ett_9P_aname);
 		proto_tree_add_item(sub_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		if(firstpass) {
-			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8);
+			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 			conv_set_fid(pinfo, fid, tvb_s, _9p_len+1);
 			g_free(tvb_s);
 		}
@@ -1411,7 +1411,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			}
 
 			if (firstpass) {
-				tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8);
+				tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 				wmem_strbuf_append_c(tmppath, '/');
 				wmem_strbuf_append(tmppath, tvb_s);
 				g_free(tvb_s);
@@ -1486,7 +1486,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
 			wmem_strbuf_append_c(tmppath, '/');
-			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8);
+			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 			wmem_strbuf_append(tmppath, tvb_s);
 			g_free(tvb_s);
 		}
@@ -1521,7 +1521,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			tmppath = wmem_strbuf_sized_new(wmem_packet_scope(), 0, MAXPATHLEN);
 			wmem_strbuf_append(tmppath, fid_path);
 			wmem_strbuf_append_c(tmppath, '/');
-			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8);
+			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 			wmem_strbuf_append(tmppath, tvb_s);
 			g_free(tvb_s);
 		}
@@ -1937,7 +1937,7 @@ static int dissect_9P(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 			wmem_strbuf_append(tmppath, conv_get_fid(pinfo, dfid));
 			wmem_strbuf_append_c(tmppath, '/');
 
-			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8);
+			tvb_s = tvb_get_string_enc(NULL, tvb, offset+2, _9p_len, ENC_UTF_8|ENC_NA);
 			wmem_strbuf_append(tmppath, tvb_s);
 			g_free(tvb_s);
 
