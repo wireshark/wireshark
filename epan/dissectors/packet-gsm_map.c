@@ -8789,7 +8789,7 @@ dissect_gsm_map_ms_APN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
     length = tvb_length(parameter_tvb);
     name_len = tvb_get_guint8(parameter_tvb, 0);
-	apn_str = tvb_get_string(wmem_packet_scope(), parameter_tvb, 1, length - 1);
+    apn_str = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 1, length - 1, ENC_ASCII|ENC_NA);
     if (name_len < length-1) {
 		for (;;) {
 			if (name_len >= length - 1)
