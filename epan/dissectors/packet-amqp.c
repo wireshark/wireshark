@@ -10311,7 +10311,6 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
 {
     int    i;
     int    code;
-    int    format_code;
     int    format_code_type;
     guint  format_len = 0;
     guint  orig_offset = offset;
@@ -10320,10 +10319,8 @@ get_amqp_1_0_type_formatter(tvbuff_t *tvb,
     AMQP_INCREMENT(offset, 1, bound);
     if (code == AMQP_1_0_TYPE_DESCRIPTOR_CONSTRUCTOR) {
         format_code_type = tvb_get_guint8(tvb, offset);
-        format_code = format_code_type;
         AMQP_INCREMENT(offset, 1, bound);
         if (format_code_type%16==0xf) { /* i.e. format codes like %x5F %x00-FF */
-            format_code = format_code*0xff + tvb_get_guint8(tvb, offset);
             AMQP_INCREMENT(offset, 1, bound);
         }
         switch (format_code_type/16) {
