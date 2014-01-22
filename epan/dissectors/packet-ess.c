@@ -7,7 +7,8 @@
 
 #line 1 "../../asn1/ess/packet-ess-template.c"
 /* packet-ess.c
- * Routines for RFC5035 Extended Security Services packet dissection
+ * Routines for RFC 2634 and RFC 5035 Extended Security Services packet
+ * dissection
  *   Ronnie Sahlberg 2004
  *   Stig Bjorlykke 2010
  *
@@ -145,7 +146,7 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-#line 66 "../../asn1/ess/packet-ess-template.c"
+#line 67 "../../asn1/ess/packet-ess-template.c"
 
 
 /*--- Included file: packet-ess-val.h ---*/
@@ -169,7 +170,7 @@ static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 #define id_sha256                      "2.16.840.1.101.3.4.2.1"
 
 /*--- End of included file: packet-ess-val.h ---*/
-#line 68 "../../asn1/ess/packet-ess-template.c"
+#line 69 "../../asn1/ess/packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -208,7 +209,7 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-#line 71 "../../asn1/ess/packet-ess-template.c"
+#line 72 "../../asn1/ess/packet-ess-template.c"
 
 static const char *object_identifier_id;
 
@@ -263,7 +264,7 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
   guint i;
    
   tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
-  value = tvb_get_ephemeral_string (tvb, 0, tvb_length (tvb));
+  value = (guint8 *)ep_tvb_memdup (tvb, 0, tvb_length (tvb));
   
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
@@ -1126,7 +1127,7 @@ static void dissect_SigningCertificateV2_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-#line 142 "../../asn1/ess/packet-ess-template.c"
+#line 143 "../../asn1/ess/packet-ess-template.c"
 
 /*--- proto_register_ess ----------------------------------------------*/
 void proto_register_ess(void) {
@@ -1424,7 +1425,7 @@ void proto_register_ess(void) {
         "CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-#line 155 "../../asn1/ess/packet-ess-template.c"
+#line 156 "../../asn1/ess/packet-ess-template.c"
   };
 
   /* List of subtrees */
@@ -1466,7 +1467,7 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-#line 161 "../../asn1/ess/packet-ess-template.c"
+#line 162 "../../asn1/ess/packet-ess-template.c"
   };
   
   static uat_field_t attributes_flds[] = {
@@ -1533,6 +1534,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 206 "../../asn1/ess/packet-ess-template.c"
+#line 207 "../../asn1/ess/packet-ess-template.c"
 }
 
