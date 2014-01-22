@@ -111,7 +111,7 @@ generate_key_or_iv(unsigned int id, tvbuff_t *salt_tvb, unsigned int iter,
   cur_keylen = 0;
 
   salt_size = tvb_length(salt_tvb);
-  salt_p = tvb_get_string(wmem_packet_scope(), salt_tvb, 0, salt_size);
+  salt_p = (char *)tvb_memdup(wmem_packet_scope(), salt_tvb, 0, salt_size);
 
   if (pw == NULL)
     pwlen = 0;
