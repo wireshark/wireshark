@@ -1925,7 +1925,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 			/* Add data for instance of User Class. */
 			proto_tree_add_item(o77_v_tree, hf_bootp_option77_user_class_data,
-					tvb, optoff + i + 1, byte, ENC_BIG_ENDIAN);
+					tvb, optoff + i + 1, byte, ENC_NA);
 
 			/* Slide to next instance of User Class if any. */
 			i += byte + 1;
@@ -3307,7 +3307,7 @@ dissect_vendor_generic_suboption(packet_info *pinfo _U_, proto_item *v_ti _U_, p
 	subopt_len = tvb_get_guint8(tvb,suboptoff);
 	proto_tree_add_item(sub_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
-	proto_tree_add_item(sub_tree, hf_bootp_suboption_data, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_bootp_suboption_data, tvb, suboptoff, subopt_len, ENC_NA);
 	suboptoff+= subopt_len;
 
 	return suboptoff;
