@@ -492,7 +492,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					                    tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA);
 					/* Show AC-Name in info column */
 					col_append_fstr(pinfo->cinfo, COL_INFO, " AC-Name='%s'",
-						               tvb_get_string(wmem_packet_scope(), tvb, tagstart+4, poe_tag_length));
+						               tvb_get_string_enc(wmem_packet_scope(), tvb, tagstart+4, poe_tag_length, ENC_ASCII|ENC_NA));
 					break;
 				case PPPOE_TAG_HOST_UNIQ:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_host_uniq, tvb,
