@@ -507,7 +507,7 @@ dissect_aim_rendezvous_extended_message(tvbuff_t *tvb, proto_tree *msg_tree)
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_priority_code, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	text_length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(msg_tree, hf_aim_rendezvous_extended_data_message_text_length, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
-	text = tvb_get_string(wmem_packet_scope(), tvb, offset, text_length);
+	text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, text_length, ENC_ASCII|ENC_NA);
 	proto_tree_add_text(msg_tree, tvb, offset, text_length, "Text: %s", text); /* offset+=text_length; */
 
 	offset = tvb_length(tvb);

@@ -827,7 +827,7 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 					 tvb_format_text(tvb, offset, buddyname_length));
 		buddy_tree = proto_item_add_subtree(ti, ett_aim_buddyname);
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
+		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_UTF_8|ENC_NA);
 	}
 
 	return offset+buddyname_length;
@@ -1154,7 +1154,7 @@ dissect_aim_tlv_value_string (proto_item *ti, guint16 valueid _U_, tvbuff_t *tvb
 	gint string_len;
 
 	string_len = tvb_length(tvb);
-	buf = tvb_get_string(wmem_packet_scope(), tvb, 0, string_len);
+	buf = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, string_len, ENC_UTF_8|ENC_NA);
 	proto_item_set_text(ti, "Value: %s", format_text(buf, string_len));
 
 	return string_len;
@@ -1171,7 +1171,7 @@ dissect_aim_tlv_value_string08_array (proto_item *ti, guint16 valueid _U_, tvbuf
 	while (tvb_reported_length_remaining(tvb, offset) > 1)
 	{
 		guint8 string_len = tvb_get_guint8(tvb, offset++);
-		guint8 *buf = tvb_get_string(wmem_packet_scope(), tvb, offset, string_len);
+		guint8 *buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, string_len, ENC_UTF_8|ENC_NA);
 		proto_tree_add_text(entry, tvb, offset, string_len, "%s",
 				    format_text(buf, string_len));
 		offset += string_len;
@@ -1276,7 +1276,7 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 		offset += 2;
 
 		/* The actual message */
-		buf = tvb_get_string(wmem_packet_scope(), tvb, offset, blocklen - 4);
+		buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, blocklen - 4, ENC_ASCII|ENC_NA);
 		proto_item_append_text(ti, "Message: %s ",
 				    format_text(buf, blocklen - 4));
 		proto_tree_add_item(entry, hf_aim_messageblock_message, tvb,
