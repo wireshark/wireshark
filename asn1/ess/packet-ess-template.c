@@ -1,5 +1,6 @@
 /* packet-ess.c
- * Routines for RFC5035 Extended Security Services packet dissection
+ * Routines for RFC 2634 and RFC 5035 Extended Security Services packet
+ * dissection
  *   Ronnie Sahlberg 2004
  *   Stig Bjorlykke 2010
  *
@@ -120,7 +121,7 @@ ess_dissect_attribute_flags (tvbuff_t *tvb, asn1_ctx_t *actx)
   guint i;
    
   tree = proto_item_add_subtree (actx->created_item, ett_Category_attributes);
-  value = tvb_get_ephemeral_string (tvb, 0, tvb_length (tvb));
+  value = (guint8 *)ep_tvb_memdup (tvb, 0, tvb_length (tvb));
   
   for (i = 0; i < num_ess_category_attributes; i++) {
     ess_category_attributes_t *u = &(ess_category_attributes[i]);
