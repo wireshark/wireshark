@@ -134,25 +134,25 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
 
     switch (selector_type) {
 
-    case FT_UINT8:
-    case FT_UINT16:
-    case FT_UINT24:
-    case FT_UINT32:
-        port = GPOINTER_TO_UINT(key);
-        /* Hack: Use fixed width rj str so alpha sort (strcmp) will sort field numerically */
-        str = g_strdup_printf ("%10d", port);
-        proto_add_to_list(tree_info, store, str, proto_name);
-        g_free (str);
-        break;
+        case FT_UINT8:
+        case FT_UINT16:
+        case FT_UINT24:
+        case FT_UINT32:
+            port = GPOINTER_TO_UINT(key);
+            /* Hack: Use fixed width rj str so alpha sort (strcmp) will sort field numerically */
+            str = g_strdup_printf ("%10d", port);
+            proto_add_to_list(tree_info, store, str, proto_name);
+            g_free (str);
+            break;
 
-    case FT_STRING:
-    case FT_STRINGZ:
-        str = (gchar*) key;
-        proto_add_to_list(tree_info, store, str, proto_name);
-        break;
+        case FT_STRING:
+        case FT_STRINGZ:
+            str = (gchar*) key;
+            proto_add_to_list(tree_info, store, str, proto_name);
+            break;
 
-    default:
-        g_assert_not_reached();
+        default:
+            g_assert_not_reached();
     }
 
 }
@@ -177,19 +177,19 @@ table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
 static void
 display_heur_dissector_table_entries(gpointer data, gpointer user_data)
 {
-	heur_dtbl_entry_t *dtbl_entry = (heur_dtbl_entry_t *)data;
-	dissector_tables_tree_info_t  *tree_info = (dissector_tables_tree_info_t*)user_data;
-	GtkTreeStore       *store;
+    heur_dtbl_entry_t            *dtbl_entry = (heur_dtbl_entry_t *)data;
+    dissector_tables_tree_info_t *tree_info  = (dissector_tables_tree_info_t*)user_data;
+    GtkTreeStore                 *store;
 
-	if(dtbl_entry->protocol){
+    if (dtbl_entry->protocol) {
 
-		store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_info->tree))); /* Get store */
-		proto_add_to_list(tree_info, store, 
-			(gchar *)proto_get_protocol_long_name(dtbl_entry->protocol), 
-			proto_get_protocol_short_name(dtbl_entry->protocol));
-	}else{
-		g_warning("no protocol info");
-	}
+        store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_info->tree))); /* Get store */
+        proto_add_to_list(tree_info, store,
+                          (gchar *)proto_get_protocol_long_name(dtbl_entry->protocol),
+                          proto_get_protocol_short_name(dtbl_entry->protocol));
+    }else{
+        g_warning("no protocol info");
+    }
 
 
 }
@@ -199,17 +199,17 @@ display_heur_dissector_table_names(const char *table_name, gpointer table, gpoin
 {
     dissector_tables_trees_t      *dis_tbl_trees;
     dissector_tables_tree_info_t  *tree_info;
-	heur_dissector_list_t *list;
-	 
-	tree_info = g_new(dissector_tables_tree_info_t, 1);
-	dis_tbl_trees = (dissector_tables_trees_t*)w;
-	list = (heur_dissector_list_t *)table;
+    heur_dissector_list_t *list;
 
-	table_name_add_to_list(tree_info, dis_tbl_trees->heuristic_tree_wgt, "", table_name);
+    tree_info = g_new(dissector_tables_tree_info_t, 1);
+    dis_tbl_trees = (dissector_tables_trees_t*)w;
+    list = (heur_dissector_list_t *)table;
 
-	if(table){
-		g_slist_foreach (*list, display_heur_dissector_table_entries, tree_info);
-	}
+    table_name_add_to_list(tree_info, dis_tbl_trees->heuristic_tree_wgt, "", table_name);
+
+    if (table) {
+        g_slist_foreach (*list, display_heur_dissector_table_entries, tree_info);
+    }
 
 }
 
@@ -242,7 +242,7 @@ display_dissector_table_names(const char *table_name, const char *ui_name, gpoin
     g_free(tree_info);
 }
 
-static GtkWidget*
+static GtkWidget *
 init_table(void)
 {
     GtkTreeStore      *store;
@@ -366,7 +366,7 @@ dissector_tables_dlg_init(void)
     gtk_box_pack_start(GTK_BOX(temp_page), scrolled_window, TRUE, TRUE, 0);
     gtk_widget_show(scrolled_window);
 
-	/* We must display TOP LEVEL Widget before calling init_table() */
+    /* We must display TOP LEVEL Widget before calling init_table() */
     gtk_widget_show_all(dissector_tables_dlg_w);
     g_signal_connect(dissector_tables_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), NULL);
 
@@ -375,7 +375,7 @@ dissector_tables_dlg_init(void)
 
     dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees);
 
-	sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.str_tree_wgt)));
+    sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.str_tree_wgt)));
     gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
 
     sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.uint_tree_wgt)));
@@ -390,8 +390,21 @@ void
 dissector_tables_dlg_cb(GtkWidget *w _U_, gpointer d _U_)
 {
     if (dissector_tables_dlg_w) {
-          reactivate_window(dissector_tables_dlg_w);
+        reactivate_window(dissector_tables_dlg_w);
     } else {
-          dissector_tables_dlg_init();
+        dissector_tables_dlg_init();
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
