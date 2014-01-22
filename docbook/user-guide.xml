@@ -61,7 +61,7 @@ DOCUMENT SECTION
 -->
 
   <!ENTITY DocumentTitle "<application>Wireshark</application> User's Guide">
-  <!ENTITY DocumentSubTitle "&SvnVersion; for Wireshark &WiresharkCurrentVersion;">
+  <!ENTITY DocumentSubTitle "&GitVersion; for Wireshark &WiresharkCurrentVersion;">
   <!ENTITY DocumentTitleAbbreviation "WSUG">
 
   <!ENTITY DocumentCopyrightHolder1 "Ulf Lamping ">
@@ -73,8 +73,8 @@ DOCUMENT SECTION
   <!ENTITY DocumentVersion "V3.0.2">
   <!ENTITY DocumentPubDate "2008">
 
-  <!ENTITY % SvnVersionFile SYSTEM "svn_version.xml">
-  %SvnVersionFile;
+  <!ENTITY % GitVersionFile SYSTEM "git_version.xml">
+  %GitVersionFile;
   <!ENTITY DocumentLegalNotice "<para>Permission is granted to copy, distribute
     and/or modify this document under the terms of the GNU General Public
     License, Version 2 or any later version published by the Free Software

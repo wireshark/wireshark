@@ -208,7 +208,7 @@ set(WSDG_GRAPHICS
 # user-guide.xml must be first in the list
 set(WSUG_SOURCE
 	user-guide.xml
-	svn_version.xml
+	git_version.xml
 	wsluarm
 	${WSUG_FILES}
 	${WSUG_GRAPHICS}
@@ -217,7 +217,7 @@ set(WSUG_SOURCE
 # developer-guide.xml must be first in the list
 set(WSDG_SOURCE
 	developer-guide.xml
-	svn_version.xml
+	git_version.xml
 	${WSDG_FILES}
 	${WSDG_GRAPHICS}
 )
@@ -242,11 +242,11 @@ find_package( ASCIIDOC )
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT
-		svn_version.xml
+		git_version.xml
 	COMMAND ${SH}
-		${CMAKE_CURRENT_SOURCE_DIR}/check_svn_version.sh
+		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
 	DEPENDS
-		${CMAKE_CURRENT_SOURCE_DIR}/check_svn_version.sh
+		${CMAKE_CURRENT_SOURCE_DIR}/check_git_version.sh
 )
 
 add_custom_target(
