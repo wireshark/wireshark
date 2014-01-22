@@ -1680,7 +1680,7 @@ dissect_ldap_oid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  *       proto_tree_add_oid() instead.
  */
 
-	oid=tvb_get_string(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
+	oid=tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_length(tvb), ENC_UTF_8|ENC_NA);
 	if(!oid){
 		return;
 	}
