@@ -462,6 +462,8 @@ static gint ett_bootp_option77_instance = -1;
 static gint ett_bootp_option82_suboption = -1;
 static gint ett_bootp_option82_suboption9 = -1;
 static gint ett_bootp_option125_suboption = -1;
+static gint ett_bootp_option125_tr111_suboption = -1;
+static gint ett_bootp_option125_cl_suboption = -1;
 static gint ett_bootp_fqdn = -1;
 
 static expert_field ei_bootp_bad_length = EI_INIT;
@@ -3572,7 +3574,7 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
 				subopt, val_to_str_const(subopt, option125_tr111_suboption_vals, "Unknown"));
 
-	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_tr111_suboption);
+	o125_v_tree = proto_item_add_subtree(vti, ett_bootp_option125_tr111_suboption);
 	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
@@ -3665,7 +3667,7 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 				tvb, optoff, subopt_len+2, subopt, "(%d) %s",
 				subopt, val_to_str_const(subopt, option125_cl_suboption_vals, "Unknown"));
 
-	o125_v_tree = proto_item_add_subtree(vti, hf_bootp_option125_cl_suboption);
+	o125_v_tree = proto_item_add_subtree(vti, ett_bootp_option125_cl_suboption);
 	proto_tree_add_item(o125_v_tree, hf_bootp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 	suboptoff++;
 
@@ -6912,6 +6914,8 @@ proto_register_bootp(void)
 		&ett_bootp_option82_suboption,
 		&ett_bootp_option82_suboption9,
 		&ett_bootp_option125_suboption,
+		&ett_bootp_option125_tr111_suboption,
+		&ett_bootp_option125_cl_suboption,
 		&ett_bootp_fqdn,
 	};
 
