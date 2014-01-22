@@ -684,8 +684,17 @@ static gchar *csv_massage_str(const gchar *source, const gchar *exceptions)
     gchar *csv_str;
     gchar *tmp_str;
 
+    /* In general, our output for any field can contain unicode characters,
+       so g_strescape (which escapes any non-ASCII) is the wrong thing to do.
+       Unfortunately glib doesn't appear to provide g_unicode_strescape()... */
     csv_str = g_strescape(source, exceptions);
     tmp_str = csv_str;
+    /* Locate the UTF-8 righ arrow character and replace it by an ASCII equivalent */
+    while ( (tmp_str = strstr(tmp_str, "\xe2\x86\x92")) != NULL ) {
+        tmp_str[0] = ' ';
+        tmp_str[1] = '>';
+        tmp_str[2] = ' ';
+    }
     while ( (tmp_str = strstr(tmp_str, "\\\"")) != NULL )
         *tmp_str = '\"';
     return csv_str;
@@ -695,7 +704,8 @@ static void csv_write_str(const char *str, char sep, FILE *fh)
 {
     gchar *csv_str;
 
-    csv_str = csv_massage_str(str, NULL);
+    /* Do not escape the UTF-8 righ arrow character */
+    csv_str = csv_massage_str(str, "\xe2\x86\x92");
     fprintf(fh, "\"%s\"%c", csv_str, sep);
     g_free(csv_str);
 }
