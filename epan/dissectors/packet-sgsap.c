@@ -31,6 +31,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/asn1.h>
+#include <epan/prefs.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
@@ -39,18 +40,18 @@
 #define PSNAME "SGSAP"
 #define PFNAME "sgsap"
 
-/* The registered SCTP port number for SGsAP is 29118.
- * The payload protocol identifier to be used for SGsAP is 0.
- */
-#define SCTP_PORT_SGSAP 29118
 
 void proto_register_sgsap(void);
 void proto_reg_handoff_sgsap(void);
 
 /* Global variables */
 static dissector_handle_t gsm_a_dtap_handle;
-static guint gbl_sgsapSctpPort=SCTP_PORT_SGSAP;
 
+/* The registered SCTP port number for SGsAP is 29118.
+ * The payload protocol identifier to be used for SGsAP is 0.
+ */
+#define SGSAP_SCTP_PORT_RANGE "29118"
+static range_t *global_sgsap_port_range;
 
 /* Initialize the protocol and registered fields */
 static int proto_sgsap = -1;
@@ -1447,6 +1448,7 @@ dissect_sgsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_sgsap(void) {
     guint        i;
     guint        last_offset;
+	module_t    *sgsap_module;
 
     /* List of fields */
 
@@ -1553,6 +1555,17 @@ void proto_register_sgsap(void) {
 
     /* Register dissector */
     register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
+
+   /* Set default SCTP ports */
+    range_convert_str(&global_sgsap_port_range, SGSAP_SCTP_PORT_RANGE, MAX_SCTP_PORT);
+
+	sgsap_module = prefs_register_protocol(proto_sgsap, proto_reg_handoff_sgsap);
+
+    prefs_register_range_preference(sgsap_module, "sctp_ports",
+                                  "SGsAP SCTP port numbers",
+                                  "Port numbers used for SGsAP traffic "
+                                  "(default " SGSAP_SCTP_PORT_RANGE ")",
+                                  &global_sgsap_port_range, MAX_SCTP_PORT);
 }
 
 void
@@ -1563,7 +1576,7 @@ proto_reg_handoff_sgsap(void)
      */
     static gboolean Initialized = FALSE;
     static dissector_handle_t sgsap_handle;
-    static guint SctpPort;
+    static range_t *sgsap_port_range;
 
     sgsap_handle = find_dissector("sgsap");
     gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
@@ -1572,14 +1585,11 @@ proto_reg_handoff_sgsap(void)
         dissector_add_handle("sctp.port", sgsap_handle);   /* for "decode-as"  */
         Initialized=TRUE;
     } else {
-        if (SctpPort != 0) {
-            dissector_delete_uint("sctp.port", SctpPort, sgsap_handle);
-        }
+        dissector_delete_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
+        g_free(sgsap_port_range);
     }
 
-    SctpPort = gbl_sgsapSctpPort;
-    if (SctpPort != 0) {
-        dissector_add_uint("sctp.port", SctpPort, sgsap_handle);
-    }
+    sgsap_port_range = range_copy(global_sgsap_port_range);
+    dissector_add_uint_range("sctp.port", sgsap_port_range, sgsap_handle);
 }
 
