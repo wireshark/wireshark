@@ -599,7 +599,7 @@ static guint8 edonkey_metatag_name_get_type(tvbuff_t *tvb, gint start, gint leng
 
     if (try_val_to_str(special_tagtype, edonkey_special_tags) == NULL) {
         gint idx;
-        tag_name = tvb_get_string(wmem_packet_scope(), tvb, start, length);
+        tag_name = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, ENC_ASCII|ENC_NA);
         idx = lookup_str_index(tag_name, length, edonkey_special_tags);
         if (idx < 0)
             return EDONKEY_STAG_UNKNOWN;
@@ -916,7 +916,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    tagname = tvb_get_string(wmem_packet_scope(),  tvb, offset + 2, string_length );
+    tagname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
 
     tag_full_name = "UnknownTagName";
 
@@ -926,7 +926,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
         tag_full_name = val_to_str_const( tagname_value, kademlia_tags, tag_full_name );
     }
 
-    ti = proto_tree_add_item(tree, hf_kademlia_tag_name, tvb, offset+2, string_length, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_kademlia_tag_name, tvb, offset + 2, string_length, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, " [%s]", tag_full_name);
 
     if (outputTagName)
@@ -948,6 +948,7 @@ static int dissect_kademlia_string(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
 
+    /* TODO: ASCII or UTF-8? */
     string_value = tvb_get_string(wmem_packet_scope(),  tvb, offset + 2, string_length );
 
     proto_tree_add_text(tree, tvb, offset+2, string_length, "String: %s", string_value);
@@ -1087,9 +1088,9 @@ static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    hidden_item = proto_tree_add_item(tree, hf_edonkey_string, tvb, offset+2, string_length, ENC_ASCII|ENC_NA);
+    hidden_item = proto_tree_add_item(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-    *string_value = tvb_get_string(wmem_packet_scope(), tvb, offset + 2, string_length);
+    *string_value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
 
     proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
     return offset + 2 + string_length;
