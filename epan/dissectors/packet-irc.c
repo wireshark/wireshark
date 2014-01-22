@@ -169,7 +169,8 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     if (eoc_offset == -1)
     {
         proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
-        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_string(wmem_packet_scope(), tvb, offset, end_offset-offset));
+        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)",
+              tvb_get_string_enc(wmem_packet_scope(), tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA));
 
         /* Warn if there is a "numeric" command */
         if ((end_offset-offset == 3) &&
@@ -183,7 +184,7 @@ dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int off
     }
 
     proto_tree_add_item(request_tree, hf_irc_request_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
-    str_command = tvb_get_string(wmem_packet_scope(), tvb, offset, eoc_offset-offset);
+    str_command = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
     col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
     /* Warn if there is a "numeric" command */
@@ -337,7 +338,8 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     if (eoc_offset == -1)
     {
         proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA);
-        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", tvb_get_string(wmem_packet_scope(), tvb, offset, end_offset-offset));
+        col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)",
+              tvb_get_string_enc(wmem_packet_scope(), tvb, offset, end_offset-offset, ENC_ASCII|ENC_NA));
 
         /* if response command is numeric, allow it to be filtered as an integer */
         if ((end_offset-offset == 3) &&
@@ -353,7 +355,7 @@ dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
     }
 
     proto_tree_add_item(response_tree, hf_irc_response_command, tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
-    str_command = tvb_get_string(wmem_packet_scope(), tvb, offset, eoc_offset-offset);
+    str_command = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, eoc_offset-offset, ENC_ASCII|ENC_NA);
     col_append_fstr( pinfo->cinfo, COL_INFO, " (%s)", str_command);
 
     /* if response command is numeric, allow it to be filtered as an integer */
