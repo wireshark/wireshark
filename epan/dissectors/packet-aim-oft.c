@@ -1,4 +1,4 @@
-/* packet-aim.c
+/* packet-aim-oft.c
  * Routines for AIM Instant Messenger (OSCAR) dissection
  * Copyright 2004, Jelmer Vernooij <jelmer@samba.org>
  *
