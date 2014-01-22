@@ -123,7 +123,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint8 addr, reg;
     proto_item *pi;
     ptvcursor_t *cursor;
-    proto_tree *hdcp_tree = NULL;
+    proto_tree *hdcp_tree;
     hdcp_transaction_t *hdcp_trans;
     proto_item *it;
     guint64 a_ksv, b_ksv;
@@ -135,11 +135,9 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HDCP");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        pi = proto_tree_add_protocol_format(tree, proto_hdcp,
-                tvb, 0, tvb_reported_length(tvb), "HDCP");
-        hdcp_tree = proto_item_add_subtree(pi, ett_hdcp);
-    }
+    pi = proto_tree_add_protocol_format(tree, proto_hdcp,
+            tvb, 0, tvb_reported_length(tvb), "HDCP");
+    hdcp_tree = proto_item_add_subtree(pi, ett_hdcp);
 
     cursor = ptvcursor_new(hdcp_tree, tvb, 0);
     /* all values in HDCP are little endian */
