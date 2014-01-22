@@ -153,8 +153,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
        * Probably a corrupt capture file or a file that's not an ERF file
-       * but that passed earlier tests; don't blow up trying
-       * to allocate space for an immensely-large packet.
+       * but that passed earlier tests.
        */
       return 0;
     }
@@ -239,8 +238,8 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
        is reached whereas the record is truncated */
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
-       * Probably a corrupt capture file; don't blow up trying
-       * to allocate space for an immensely-large packet.
+       * Probably a corrupt capture file or a file that's not an ERF file
+       * but that passed earlier tests.
        */
       return 0;
     }
@@ -591,6 +590,12 @@ static gboolean erf_dump(
   int      round_down   = 0;
   gboolean must_add_crc = FALSE;
   guint32  crc32        = 0x00000000;
+
+  /* Don't write anything bigger than we're willing to read. */
+  if(phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+    *err = WTAP_ERR_PACKET_TOO_LARGE;
+    return FALSE;
+  }
 
   if(wdh->encap == WTAP_ENCAP_PER_PACKET){
     encap = phdr->pkt_encap;

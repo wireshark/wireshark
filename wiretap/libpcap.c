@@ -935,6 +935,12 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 
 	phdrsize = pcap_get_phdr_size(wdh->encap, pseudo_header);
 
+	/* Don't write anything we're not willing to read. */
+	if (phdr->caplen + phdrsize > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	rec_hdr.hdr.ts_sec = (guint32) phdr->ts.secs;
 	if(wdh->tsprecision == WTAP_FILE_TSPREC_NSEC) {
 		rec_hdr.hdr.ts_usec = phdr->ts.nsecs;

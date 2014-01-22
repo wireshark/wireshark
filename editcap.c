@@ -1529,11 +1529,27 @@ main(int argc, char *argv[])
                     case WTAP_ERR_UNSUPPORTED_ENCAP:
                         /*
                          * This is a problem with the particular frame we're
-                         * writing; note that, and give the frame number.
+                         * writing and the file type and subtype we're
+                         * writing; note that, and report the frame number
+                         * and file type/subtype.
                          */
                         fprintf(stderr,
-                                "editcap: Frame %u of \"%s\" has a network type that can't be saved in a file with that format\n.",
-                                read_count, argv[optind]);
+                                "editcap: Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file\n.",
+                                read_count, argv[optind],
+                                wtap_file_type_subtype_string(out_file_type_subtype));
+                        break;
+
+                    case WTAP_ERR_PACKET_TOO_LARGE:
+                        /*
+                         * This is a problem with the particular frame we're
+                         * writing and the file type and subtype we're
+                         * writing; note that, and report the frame number
+                         * and file type/subtype.
+                         */
+                        fprintf(stderr,
+                                "editcap: Frame %u of \"%s\" is too large for a \"%s\" file\n.",
+                                read_count, argv[optind],
+                                wtap_file_type_subtype_string(out_file_type_subtype));
                         break;
 
                     default:

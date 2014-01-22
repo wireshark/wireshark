@@ -372,6 +372,12 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_TimeStamped_Header HeaderFrame;
 
+	/* Don't write out something bigger than we can read. */
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	/* Frame Header */
 	/* constant fields */
 	HeaderFrame.Key = GUINT32_TO_LE(CST_5VW_RECORDS_HEADER_KEY);

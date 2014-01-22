@@ -658,7 +658,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       double x;
       int    i;
       int    len;
-	  struct timeval tv;
+      struct timeval tv;
 
       LA_TmpInfo *itmp = (LA_TmpInfo*)(wdh->priv);
       struct timeval td;
@@ -671,6 +671,12 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
             }
 
       len = phdr->caplen + (phdr->caplen ? LA_PacketRecordSize : 0);
+
+      /* len goes into a 16-bit field, so there's a hard limit of 65535. */
+      if (len > 65535) {
+            *err = WTAP_ERR_PACKET_TOO_LARGE;
+            return FALSE;
+      }
 
       if (!s16write(wdh, GUINT16_TO_LE(0x1005), err))
             return FALSE;

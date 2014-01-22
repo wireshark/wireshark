@@ -1190,7 +1190,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         /*       encountered in k12_dump_src_setting).                              */
         g_hash_table_foreach(file_data->src_by_id,k12_dump_src_setting,wdh);
     }
-    obj.record.len = 0x20 + phdr->len;
+    obj.record.len = 0x20 + phdr->caplen;
     obj.record.len += (obj.record.len % 4) ? 4 - obj.record.len % 4 : 0;
 
     len = obj.record.len;
@@ -1198,12 +1198,12 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     obj.record.len = g_htonl(obj.record.len);
 
     obj.record.type = g_htonl(K12_REC_PACKET);
-    obj.record.frame_len = g_htonl(phdr->len);
+    obj.record.frame_len = g_htonl(phdr->caplen);
     obj.record.input = g_htonl(pseudo_header->k12.input);
 
     obj.record.ts = GUINT64_TO_BE((((guint64)phdr->ts.secs - 631152000) * 2000000) + (phdr->ts.nsecs / 1000 * 2));
 
-    memcpy(obj.record.frame,pd,phdr->len);
+    memcpy(obj.record.frame,pd,phdr->caplen);
 
     return k12_dump_record(wdh,len,obj.buffer, err);
 }

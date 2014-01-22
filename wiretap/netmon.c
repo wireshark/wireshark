@@ -1027,6 +1027,34 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	gint64	secs;
 	gint32	nsecs;
 
+	switch (wdh->file_type_subtype) {
+
+	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
+		/*
+		 * The length fields are 16-bit, so there's a hard limit
+		 * of 65535.
+		 */
+		if (phdr->caplen > 65535) {
+			*err = WTAP_ERR_PACKET_TOO_LARGE;
+			return FALSE;
+		}
+		break;
+
+	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
+		/* Don't write anything we're not willing to read. */
+		if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+			*err = WTAP_ERR_PACKET_TOO_LARGE;
+			return FALSE;
+		}
+		break;
+
+	default:
+		/* We should never get here - our open routine
+		   should only get called for the types above. */
+		*err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+		return FALSE;
+	}
+
 	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
 		/*
 		 * Is this network type supported?

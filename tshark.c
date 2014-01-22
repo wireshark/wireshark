@@ -3204,14 +3204,30 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
               case WTAP_ERR_UNSUPPORTED_ENCAP:
                 /*
-                 * This is a problem with the particular frame we're writing;
-                 * note that, and give the frame number.
+                 * This is a problem with the particular frame we're writing
+                 * and the file type and subtype we're writing; note that,
+                 * and report the frame number and file type/subtype.
                  *
                  * XXX - framenum is not necessarily the frame number in
                  * the input file if there was a read filter.
                  */
                 fprintf(stderr,
                         "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
+                        framenum, cf->filename,
+                        wtap_file_type_subtype_short_string(out_file_type));
+                break;
+
+              case WTAP_ERR_PACKET_TOO_LARGE:
+                /*
+                 * This is a problem with the particular frame we're writing
+                 * and the file type and subtype we're writing; note that,
+                 * and report the frame number and file type/subtype.
+                 *
+                 * XXX - framenum is not necessarily the frame number in
+                 * the input file if there was a read filter.
+                 */
+                fprintf(stderr,
+                        "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
                         framenum, cf->filename,
                         wtap_file_type_subtype_short_string(out_file_type));
                 break;
@@ -3271,11 +3287,24 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
             case WTAP_ERR_UNSUPPORTED_ENCAP:
               /*
-               * This is a problem with the particular frame we're writing;
-               * note that, and give the frame number.
+               * This is a problem with the particular frame we're writing
+               * and the file type and subtype we're writing; note that,
+               * and report the frame number and file type/subtype.
                */
               fprintf(stderr,
                       "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
+                      framenum, cf->filename,
+                      wtap_file_type_subtype_short_string(out_file_type));
+              break;
+
+            case WTAP_ERR_PACKET_TOO_LARGE:
+              /*
+               * This is a problem with the particular frame we're writing
+               * and the file type and subtype we're writing; note that,
+               * and report the frame number and file type/subtype.
+               */
+              fprintf(stderr,
+                      "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
                       framenum, cf->filename,
                       wtap_file_type_subtype_short_string(out_file_type));
               break;

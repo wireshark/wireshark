@@ -2075,6 +2075,13 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	guint16 start_date;
 	struct tm *tm;
 
+	/* The captured length field is 16 bits, so there's a hard
+	   limit of 65535. */
+	if (phdr->caplen > 65535) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	/* Sniffer files have a capture start date in the file header, and
 	   have times relative to the beginning of that day in the packet
 	   headers; pick the date of the first packet as the capture start

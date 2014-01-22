@@ -277,6 +277,14 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	commview_header_t cv_hdr;
 	struct tm *tm;
 
+	/* Don't write out anything bigger than we can read.
+	 * (The length field in packet headers is 16 bits, which
+	 * imposes a hard limit.) */
+	if (phdr->caplen > 65535) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	memset(&cv_hdr, 0, sizeof(cv_hdr));
 
 	cv_hdr.data_len = GUINT16_TO_LE((guint16)phdr->caplen);

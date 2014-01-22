@@ -3253,6 +3253,12 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh,
         guint32 comment_len = 0, comment_pad_len = 0;
         wtapng_if_descr_t int_data;
 
+	/* Don't write anything we're not willing to read. */
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
         phdr_len = (guint32)pcap_get_phdr_size(phdr->pkt_encap, pseudo_header);
         if ((phdr_len + phdr->caplen) % 4) {
                 pad_len = 4 - ((phdr_len + phdr->caplen) % 4);

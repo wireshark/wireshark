@@ -887,9 +887,16 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	/* Record length = header length plus data length... */
 	reclen = (int)sizeof rec_hdr + phdr->caplen + atm_hdrsize;
 
+
 	/* ... plus enough bytes to pad it to a 4-byte boundary. */
 	padlen = ((reclen + 3) & ~3) - reclen;
 	reclen += padlen;
+
+	/* Don't write anything we're not willing to read. */
+	if (phdr->caplen + atm_hdrsize > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
 
 	rec_hdr.orig_len = g_htonl(phdr->len + atm_hdrsize);
 	rec_hdr.incl_len = g_htonl(phdr->caplen + atm_hdrsize);

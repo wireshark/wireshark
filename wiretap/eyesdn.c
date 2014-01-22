@@ -417,6 +417,14 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	int protocol;
 	int size;
 
+	/* Don't write out anything bigger than we can read.
+	 * (The length field in packet headers is 16 bits, which
+	 * imposes a hard limit.) */
+	if (phdr->caplen > 65535) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	usecs=phdr->ts.nsecs/1000;
 	secs=phdr->ts.secs;
 	size=phdr->caplen;

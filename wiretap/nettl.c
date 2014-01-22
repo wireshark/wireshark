@@ -734,6 +734,12 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	struct nettlrec_hdr rec_hdr;
 	guint8 dummyc[24];
 
+	/* Don't write anything we're not willing to read. */
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	memset(&rec_hdr,0,sizeof(rec_hdr));
         /* HP-UX 11.X header should be 68 bytes */
 	rec_hdr.hdr_len = g_htons(sizeof(rec_hdr) + 4);

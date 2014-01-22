@@ -699,6 +699,13 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     packet_entry_header           packet_header;
     guint64                       seconds_since_2000;
 
+    /* The captured size field is 16 bits, so there's a hard limit of
+       65535. */
+    if (phdr->caplen > 65535) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return FALSE;
+    }
+
     /* convert the number of seconds since epoch from ANSI-relative to
        Observer-relative */
     if (phdr->ts.secs < ansi_to_observer_epoch_offset) {

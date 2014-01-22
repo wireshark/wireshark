@@ -682,6 +682,12 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     guint delta_msec;
     guint32 packet_status;
 
+    /* Don't write anything we're not willing to read. */
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return FALSE;
+    }
+
     /* If the visual structure was never allocated then nothing useful
        can be done. */
     if (visual == 0)

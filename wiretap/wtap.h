@@ -1546,6 +1546,10 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_INTERNAL                     -23
     /** "Shouldn't happen" internal errors */
 
+#define WTAP_ERR_PACKET_TOO_LARGE             -24
+    /** Packet being written is larger than we support; do not use when
+        reading, use WTAP_ERR_BAD_FILE instead */
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

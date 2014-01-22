@@ -375,6 +375,12 @@ k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	gboolean ret;
 	struct tm *tmp;
 
+	/* Don't write anything bigger than we're willing to read. */
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	str_enc = NULL;
 	for(i=0; encaps[i].s; i++) {
 		if (phdr->pkt_encap == encaps[i].e) {

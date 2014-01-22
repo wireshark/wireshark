@@ -333,6 +333,15 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
+    /*
+     * Don't write out anything bigger than we can read.
+     * (This will also fail on a caplen of 0, as it should.)
+     */ 
+    if (phdr->caplen-1 > WTAP_MAX_PACKET_SIZE) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return FALSE;
+    }
+
     if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
         return FALSE;
 
@@ -361,6 +370,12 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
+
+    /* Don't write out anything bigger than we can read. */
+    if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+        *err = WTAP_ERR_PACKET_TOO_LARGE;
+        return FALSE;
+    }
 
     if (!btsnoop_dump_partial_rec_hdr(wdh, phdr, pseudo_header, pd, err, &rec_hdr))
         return FALSE;

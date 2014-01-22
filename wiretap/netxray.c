@@ -1742,6 +1742,13 @@ netxray_dump_1_1(wtap_dumper *wdh,
 	guint32 t32;
 	struct netxrayrec_1_x_hdr rec_hdr;
 
+	/* The captured length field is 16 bits, so there's a hard
+	   limit of 65535. */
+	if (phdr->caplen > 65535) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
+
 	/* NetXRay/Windows Sniffer files have a capture start date/time
 	   in the header, in a UNIX-style format, with one-second resolution,
 	   and a start time stamp with microsecond resolution that's just
@@ -1907,6 +1914,12 @@ netxray_dump_2_0(wtap_dumper *wdh,
 	guint64 timestamp;
 	guint32 t32;
 	struct netxrayrec_2_x_hdr rec_hdr;
+
+	/* Don't write anything we're not willing to read. */
+	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_PACKET_TOO_LARGE;
+		return FALSE;
+	}
 
 	/* NetXRay/Windows Sniffer files have a capture start date/time
 	   in the header, in a UNIX-style format, with one-second resolution,

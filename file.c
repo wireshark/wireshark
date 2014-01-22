@@ -1625,12 +1625,27 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
       case WTAP_ERR_UNSUPPORTED_ENCAP:
         /*
-         * This is a problem with the particular frame we're writing;
-         * note that, and give the frame number.
+         * This is a problem with the particular frame we're writing and
+         * the file type and subtype we're writing; note that, and report
+         * the frame number and file type/subtype.
          */
         display_basename = g_filename_display_basename(in_file->filename);
         simple_error_message_box(
                       "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.",
+                      in_file->packet_num, display_basename,
+                      wtap_file_type_subtype_string(file_type));
+        g_free(display_basename);
+        break;
+
+      case WTAP_ERR_PACKET_TOO_LARGE:
+        /*
+         * This is a problem with the particular frame we're writing and
+         * the file type and subtype we're writing; note that, and report
+         * the frame number and file type/subtype.
+         */
+        display_basename = g_filename_display_basename(in_file->filename);
+        simple_error_message_box(
+                      "Frame %u of \"%s\" is too large for a \"%s\" file.",
                       in_file->packet_num, display_basename,
                       wtap_file_type_subtype_string(file_type));
         g_free(display_basename);
@@ -4147,11 +4162,23 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 
       case WTAP_ERR_UNSUPPORTED_ENCAP:
         /*
-         * This is a problem with the particular frame we're writing;
-         * note that, and give the frame number.
+         * This is a problem with the particular frame we're writing and
+         * the file type and subtype we're writing; note that, and report
+         * the frame number and file type/subtype.
          */
         simple_error_message_box(
                       "Frame %u has a network type that can't be saved in a \"%s\" file.",
+                      fdata->num, wtap_file_type_subtype_string(args->file_type));
+        break;
+
+      case WTAP_ERR_PACKET_TOO_LARGE:
+        /*
+         * This is a problem with the particular frame we're writing and
+         * the file type and subtype we're writing; note that, and report
+         * the frame number and file type/subtype.
+         */
+        simple_error_message_box(
+                      "Frame %u is larger than Wireshark supports in a \"%s\" file.",
                       fdata->num, wtap_file_type_subtype_string(args->file_type));
         break;
 
