@@ -1153,7 +1153,7 @@ dissect_ldap_LDAPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
      ldap_do_protocolop(actx->pinfo);
 
      if(parameter_tvb)
-        ldapstring = tvb_get_string(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0));
+        ldapstring = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb, 0), ENC_UTF_8|ENC_NA);
 
      if(hf_index == hf_ldap_baseObject) {
   	/* this is search - put it on the scanline */
@@ -1289,7 +1289,7 @@ char *mechanism = NULL;
      * different type and/or mechanism.
      */
     if(!actx->pinfo->fd->flags.visited) {
-        mechanism = tvb_get_string(NULL, parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+        mechanism = tvb_get_string_enc(NULL, parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
         ldap_info->first_auth_frame = 0;	/* not known until we see the bind reply */
         /*
          * If the mechanism in this request is an empty string (which is
@@ -2368,7 +2368,7 @@ dissect_ldap_AttributeValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
         break;
 
     if(i == len) {
-      string = tvb_get_string(wmem_packet_scope(), next_tvb, 0, tvb_length_remaining(next_tvb, 0));
+      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_length_remaining(next_tvb, 0), ENC_ASCII|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %s", string);
     }
   }
@@ -2872,7 +2872,7 @@ dissect_ldap_LDAPOID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	if (!parameter_tvb)
 		return offset;
 
-	object_identifier_id = tvb_get_string(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0));
+	object_identifier_id = tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, 0, tvb_length_remaining(parameter_tvb,0), ENC_UTF_8|ENC_NA);
 	name = oid_resolved_from_string(object_identifier_id);
 
 	if(name){
