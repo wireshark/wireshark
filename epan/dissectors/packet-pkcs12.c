@@ -10,6 +10,10 @@
  * Routines for PKCS#12: Personal Information Exchange packet dissection
  * Graeme Lunt 2006
  *
+ * See "PKCS #12 v1.1: Personal Information Exchange Syntax":
+ *
+ *    http://www.emc.com/emc-plus/rsa-labs/pkcs/files/h11301-wp-pkcs-12v1-1-personal-information-exchange-syntax.pdf
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -144,7 +148,7 @@ static int hf_pkcs12_encryptionScheme = -1;       /* AlgorithmIdentifier */
 static int hf_pkcs12_messageAuthScheme = -1;      /* AlgorithmIdentifier */
 
 /*--- End of included file: packet-pkcs12-hf.c ---*/
-#line 81 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 85 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -172,7 +176,7 @@ static gint ett_pkcs12_PBES2Params = -1;
 static gint ett_pkcs12_PBMAC1Params = -1;
 
 /*--- End of included file: packet-pkcs12-ett.c ---*/
-#line 84 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 88 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 static void append_oid(proto_tree *tree, const char *oid)
 {
@@ -406,7 +410,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	datalen = tvb_length(encrypted_tvb);
 	clear_data = (char *)g_malloc(datalen);
 
-	err = gcry_cipher_decrypt (cipher, clear_data, datalen, tvb_get_string(wmem_packet_scope(), encrypted_tvb, 0, datalen), datalen);
+	err = gcry_cipher_decrypt (cipher, clear_data, datalen, (char *)tvb_memdup(wmem_packet_scope(), encrypted_tvb, 0, datalen), datalen);
 	if (gcry_err_code (err)) {
 
 		proto_item_append_text(item, " [Failed to decrypt with password preference]");
@@ -1135,7 +1139,7 @@ static void dissect_PBMAC1Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkcs12-fn.c ---*/
-#line 392 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 396 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 static int strip_octet_string(tvbuff_t *tvb)
 {
@@ -1423,7 +1427,7 @@ void proto_register_pkcs12(void) {
         "AlgorithmIdentifier", HFILL }},
 
 /*--- End of included file: packet-pkcs12-hfarr.c ---*/
-#line 459 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 463 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
 
   /* List of subtrees */
@@ -1454,7 +1458,7 @@ void proto_register_pkcs12(void) {
     &ett_pkcs12_PBMAC1Params,
 
 /*--- End of included file: packet-pkcs12-ettarr.c ---*/
-#line 465 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 469 "../../asn1/pkcs12/packet-pkcs12-template.c"
   };
   module_t *pkcs12_module;
 
@@ -1515,7 +1519,7 @@ void proto_reg_handoff_pkcs12(void) {
 
 
 /*--- End of included file: packet-pkcs12-dis-tab.c ---*/
-#line 497 "../../asn1/pkcs12/packet-pkcs12-template.c"
+#line 501 "../../asn1/pkcs12/packet-pkcs12-template.c"
 
 	register_ber_oid_dissector("1.2.840.113549.1.9.22.1", dissect_X509Certificate_OCTETSTRING_PDU, proto_pkcs12, "x509Certificate");
 

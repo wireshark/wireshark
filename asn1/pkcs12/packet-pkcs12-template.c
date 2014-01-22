@@ -2,6 +2,10 @@
  * Routines for PKCS#12: Personal Information Exchange packet dissection
  * Graeme Lunt 2006
  *
+ * See "PKCS #12 v1.1: Personal Information Exchange Syntax":
+ *
+ *    http://www.emc.com/emc-plus/rsa-labs/pkcs/files/h11301-wp-pkcs-12v1-1-personal-information-exchange-syntax.pdf
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -314,7 +318,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 	datalen = tvb_length(encrypted_tvb);
 	clear_data = (char *)g_malloc(datalen);
 
-	err = gcry_cipher_decrypt (cipher, clear_data, datalen, tvb_get_string(wmem_packet_scope(), encrypted_tvb, 0, datalen), datalen);
+	err = gcry_cipher_decrypt (cipher, clear_data, datalen, (char *)tvb_memdup(wmem_packet_scope(), encrypted_tvb, 0, datalen), datalen);
 	if (gcry_err_code (err)) {
 
 		proto_item_append_text(item, " [Failed to decrypt with password preference]");
