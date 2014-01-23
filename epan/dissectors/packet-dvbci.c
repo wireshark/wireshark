@@ -915,6 +915,7 @@ static int hf_dvbci_app_manf = -1;
 static int hf_dvbci_manf_code = -1;
 static int hf_dvbci_menu_str_len = -1;
 static int hf_dvbci_ap_char_tbl = -1;
+static int hf_dvbci_menu_str = -1;
 static int hf_dvbci_data_rate = -1;
 static int hf_dvbci_ca_sys_id = -1;
 static int hf_dvbci_ca_pmt_list_mgmt = -1;
@@ -2545,7 +2546,8 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
                     tvb, offset, menu_str_len, dvb_enc_to_item_enc(encoding));
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "Module name %s", menu_string);
-            proto_tree_add_text(tree, tvb, offset, menu_str_len,
+            proto_tree_add_string_format(tree, hf_dvbci_menu_str,
+                    tvb, offset, menu_str_len, menu_string,
                     "Menu string: %s", menu_string);
         }
     }
@@ -5182,6 +5184,10 @@ proto_register_dvbci(void)
         { &hf_dvbci_ap_char_tbl,
           { "Character table", "dvb-ci.ap.menu_char_tbl",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+        },
+        { &hf_dvbci_menu_str,
+          { "Menu string", "dvb-ci.ap.menu_string",
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_data_rate,
           { "Transport stream data rate supported by the host",
