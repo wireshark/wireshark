@@ -2471,7 +2471,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         a_bigbuf[0] = Dgt_meid.out[(oct & 0xf0) >> 4];
         curr_offset++;
 
-        poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt_meid);
@@ -2560,7 +2560,7 @@ elem_mid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, gu
         a_bigbuf[0] = Dgt_msid.out[(oct & 0xf0) >> 4];
         curr_offset++;
 
-        poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt_msid);
@@ -3690,7 +3690,7 @@ elem_clg_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
         curr_offset++;
     }
 
-    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset), ENC_ASCII|ENC_NA);
 
     proto_tree_add_string_format(tree, hf_ansi_a_clg_party_ascii_num, tvb, curr_offset, len - (curr_offset - offset),
         (gchar *) poctets,
@@ -4163,7 +4163,7 @@ elem_cld_party_bcd_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
     curr_offset++;
 
-    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+    poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
     my_dgt_tbcd_unpack(a_bigbuf, poctets, len - (curr_offset - offset), &Dgt_tbcd);
     proto_tree_add_string(tree, hf_ansi_a_cld_party_bcd_num, tvb, curr_offset, len - (curr_offset - offset), a_bigbuf);
@@ -5811,7 +5811,7 @@ elem_rev_ms_info_recs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
             switch (rec_type)
             {
             case ANSI_REV_MS_INFO_REC_KEYPAD_FAC:
-                poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, oct_len);
+                poctets = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset, oct_len, ENC_ASCII|ENC_NA);
 
                 proto_tree_add_string_format(subtree, hf_ansi_a_cld_party_ascii_num, tvb, curr_offset, oct_len,
                     (gchar *) poctets,
@@ -6310,7 +6310,7 @@ elem_cld_party_ascii_num(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     proto_tree_add_item(tree, hf_ansi_a_cld_party_ascii_num_plan, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+    poctets = tvb_get_string_enc(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset), ENC_ASCII|ENC_NA);
 
     proto_tree_add_string_format(tree, hf_ansi_a_cld_party_ascii_num, tvb, curr_offset, len - (curr_offset - offset),
         (gchar *) poctets,
@@ -7254,7 +7254,7 @@ elem_dtmf_chars(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
     packed_len = len - (curr_offset - offset);
 
-    poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, packed_len);
+    poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, packed_len);
 
     /*
      * the packed DTMF digits are not "terminated" with a '0xF' for an odd
@@ -10777,7 +10777,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             ansi_a_tvb = tvb_new_composite();
             msg_type = (guint8 *) wmem_alloc(pinfo->pool, 1);
-            msg_type[0] = (guint8) strtoul(tvb_get_string(wmem_packet_scope(), tvb, offset, 2), NULL, 16);
+            msg_type[0] = (guint8) strtoul(tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 2, ENC_ASCII|ENC_NA), NULL, 16);
 
             if ((begin = tvb_find_guint8(tvb, offset, linelen, '"')) > 0)
             {
@@ -10803,7 +10803,7 @@ dissect_sip_dtap_bsmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if ((begin = tvb_find_guint8(tvb, offset, linelen, '=')) > 0)
                 {
                     begin++;
-                    tvb_composite_append(ansi_a_tvb, base64_to_tvb(tvb, tvb_get_string(wmem_packet_scope(), tvb, begin, offset + linelen - begin)));
+                    tvb_composite_append(ansi_a_tvb, base64_to_tvb(tvb, tvb_get_string_enc(wmem_packet_scope(), tvb, begin, offset + linelen - begin, ENC_ASCII|ENC_NA)));
                 }
 
                 offset = next_offset;
