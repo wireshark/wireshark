@@ -1348,7 +1348,7 @@ main(int argc, char *argv[])
                                  * situation since trace files usually have packets in
                                  * chronological order (oldest to newest).
                                  */
-                                /* printf("++out of order, need to adjust this packet!\n"); */
+                                /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
                                 snap_phdr = *phdr;
                                 snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
                                 snap_phdr.ts.nsecs = previous_time.nsecs;
