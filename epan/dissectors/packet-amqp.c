@@ -45,7 +45,6 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
-#include <glib.h>
 
 /*  Generic data  */
 
