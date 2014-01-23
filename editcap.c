@@ -762,7 +762,7 @@ usage(gboolean is_error)
     fprintf(output, "  -v                     verbose output.\n");
     fprintf(output, "                         If -v is used with any of the 'Duplicate Packet\n");
     fprintf(output, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
-    fprintf(output, "                         and MD5 hashes are printed to standard-out.\n");
+    fprintf(output, "                         and MD5 hashes are printed to standard-error.\n");
     fprintf(output, "\n");
 }
 
@@ -1421,24 +1421,24 @@ main(int argc, char *argv[])
                 if (dup_detect) {
                     if (is_duplicate(buf, phdr->caplen)) {
                         if (verbose) {
-                            fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ",
+                            fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
                                     count, phdr->caplen);
                             for (i = 0; i < 16; i++)
-                                fprintf(stdout, "%02x",
+                                fprintf(stderr, "%02x",
                                         (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stdout, "\n");
+                            fprintf(stderr, "\n");
                         }
                         duplicate_count++;
                         count++;
                         continue;
                     } else {
                         if (verbose) {
-                            fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ",
+                            fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
                                     count, phdr->caplen);
                             for (i = 0; i < 16; i++)
-                                fprintf(stdout, "%02x",
+                                fprintf(stderr, "%02x",
                                         (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stdout, "\n");
+                            fprintf(stderr, "\n");
                         }
                     }
                 }
@@ -1447,29 +1447,29 @@ main(int argc, char *argv[])
                 if (dup_detect_by_time) {
                     nstime_t current;
 
-                    current.secs = phdr->ts.secs;
+                    current.secs  = phdr->ts.secs;
                     current.nsecs = phdr->ts.nsecs;
 
                     if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
                         if (verbose) {
-                            fprintf(stdout, "Skipped: %u, Len: %u, MD5 Hash: ",
+                            fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
                                     count, phdr->caplen);
                             for (i = 0; i < 16; i++)
-                                fprintf(stdout, "%02x",
+                                fprintf(stderr, "%02x",
                                         (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stdout, "\n");
+                            fprintf(stderr, "\n");
                         }
                         duplicate_count++;
                         count++;
                         continue;
                     } else {
                         if (verbose) {
-                            fprintf(stdout, "Packet: %u, Len: %u, MD5 Hash: ",
+                            fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
                                     count, phdr->caplen);
                             for (i = 0; i < 16; i++)
-                                fprintf(stdout, "%02x",
+                                fprintf(stderr, "%02x",
                                         (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stdout, "\n");
+                            fprintf(stderr, "\n");
                         }
                     }
                 }
@@ -1612,11 +1612,11 @@ main(int argc, char *argv[])
     }
 
     if (dup_detect) {
-        fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate window of %i packets.\n",
+        fprintf(stderr, "%u packet%s seen, %u packet%s skipped with duplicate window of %i packets.\n",
                 count - 1, plurality(count - 1, "", "s"), duplicate_count,
                 plurality(duplicate_count, "", "s"), dup_window);
     } else if (dup_detect_by_time) {
-        fprintf(stdout, "%u packet%s seen, %u packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
+        fprintf(stderr, "%u packet%s seen, %u packet%s skipped with duplicate time window equal to or less than %ld.%09ld seconds.\n",
                 count - 1, plurality(count - 1, "", "s"), duplicate_count,
                 plurality(duplicate_count, "", "s"),
                 (long)relative_time_window.secs,
