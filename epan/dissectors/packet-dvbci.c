@@ -914,6 +914,7 @@ static int hf_dvbci_app_type = -1;
 static int hf_dvbci_app_manf = -1;
 static int hf_dvbci_manf_code = -1;
 static int hf_dvbci_menu_str_len = -1;
+static int hf_dvbci_ap_char_tbl = -1;
 static int hf_dvbci_data_rate = -1;
 static int hf_dvbci_ca_sys_id = -1;
 static int hf_dvbci_ca_pmt_list_mgmt = -1;
@@ -2514,9 +2515,11 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint8  menu_str_len;
-    guint8 *menu_string;
-    guint8  data_rate;
+    guint8          menu_str_len;
+    guint           enc_len;
+    dvb_encoding_e  encoding;
+    guint8         *menu_string;
+    guint8          data_rate;
 
     if (tag==T_APP_INFO) {
         proto_tree_add_item(tree, hf_dvbci_app_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2531,11 +2534,15 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         proto_tree_add_item(
                 tree, hf_dvbci_menu_str_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        /* ephemeral -> string is freed automatically when dissection
-           of this packet is finished
-           tvb_get_string() always returns a 0-terminated string */
-        menu_string = tvb_get_string(wmem_packet_scope(), tvb, offset, menu_str_len);
-        if (menu_string) {
+        if (menu_str_len > 0) {
+            enc_len = dvb_analyze_string_charset(
+                    tvb, offset, menu_str_len, &encoding);
+            dvb_add_chartbl(
+                    tree, hf_dvbci_ap_char_tbl, tvb, offset, enc_len, encoding);
+            offset += enc_len;
+            menu_str_len -= enc_len;
+            menu_string = tvb_get_string_enc(wmem_packet_scope(),
+                    tvb, offset, menu_str_len, dvb_enc_to_item_enc(encoding));
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                     "Module name %s", menu_string);
             proto_tree_add_text(tree, tvb, offset, menu_str_len,
@@ -5171,6 +5178,10 @@ proto_register_dvbci(void)
         { &hf_dvbci_menu_str_len,
           { "Menu string length", "dvb-ci.ap.menu_string_length",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_ap_char_tbl,
+          { "Character table", "dvb-ci.ap.menu_char_tbl",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
         },
         { &hf_dvbci_data_rate,
           { "Transport stream data rate supported by the host",
