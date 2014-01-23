@@ -3701,7 +3701,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
 
 		/* Allocate a new key and value */
 		p_key = wmem_new(wmem_file_scope(), sip_hash_key);
-		p_val = wmem_new(wmem_file_scope(), sip_hash_value);
+		p_val = wmem_new0(wmem_file_scope(), sip_hash_value);
 
 		/* Fill in key and value details */
 		g_snprintf(p_key->call_id, MAX_CALL_ID_SIZE, "%s", call_id);
@@ -3717,7 +3717,6 @@ guint sip_is_packet_resend(packet_info *pinfo,
 		p_val->cseq = cseq_number;
 		g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
 		p_val->transaction_state = nothing_seen;
-		p_val->frame_number = 0;
 		if (line_type == REQUEST_LINE)
 		{
 			p_val->request_time = pinfo->fd->abs_ts;
