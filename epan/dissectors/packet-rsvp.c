@@ -1260,7 +1260,10 @@ enum {
     RSVP_SESSION_TYPE_AGGREGATE_IPV6,
 
     RSVP_SESSION_TYPE_IPV4_UNI = 11,
-    RSVP_SESSION_TYPE_IPV4_E_NNI = 15
+
+    RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4 = 13,
+    RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6,
+    RSVP_SESSION_TYPE_IPV4_E_NNI
 };
 
 /*
@@ -2131,6 +2134,20 @@ summary_session(tvbuff_t *tvb, int offset)
                                   tvb_get_ntohs(tvb, offset+10),
                                   tvb_ip_to_str(tvb, offset+12));
         break;
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv4-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
+                                  tvb_get_ntohl(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10),
+                                  tvb_ip_to_str(tvb, offset+12));
+        break;
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV6:
+        return wmem_strdup_printf(wmem_packet_scope(),
+                                  "SESSION: IPv6-P2MP LSP TUNNEL, PSMP ID %d, Tunnel ID %d, Ext Tunnel %s. ",
+                                  tvb_get_ntohl(tvb, offset+4),
+                                  tvb_get_ntohs(tvb, offset+10),
+                                  tvb_ip6_to_str(tvb, offset+12));
+        break;
     case RSVP_SESSION_TYPE_IPV4_E_NNI:
         return wmem_strdup_printf(wmem_packet_scope(),
                                   "SESSION: IPv4-E-NNI, Destination %s, Tunnel ID %d, Ext Address %s. ",
@@ -2310,6 +2327,36 @@ dissect_rsvp_session(proto_item *ti, proto_tree *rsvp_object_tree,
          * later.
          */
         rsvph->session_type = RSVP_SESSION_TYPE_IPV4_UNI;
+        TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
+        rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
+        rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
+
+        break;
+
+    case RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4:
+        proto_tree_add_text(rsvp_object_tree, tvb, offset+3, 1,
+                            "C-type: 13 - IPv4 P2MP LSP TUNNEL");
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_IP],
+                            tvb, offset2, 4, ENC_BIG_ENDIAN);
+
+        proto_tree_add_item(rsvp_object_tree,
+                            hf_rsvp_filter[RSVPF_SESSION_TUNNEL_ID],
+                            tvb, offset2+6, 2, ENC_BIG_ENDIAN);
+
+        proto_tree_add_text(rsvp_object_tree, tvb, offset2+8, 4,
+                            "Extended Tunnel: %s",
+                            tvb_ip_to_str(tvb, offset2+8));
+        hidden_item = proto_tree_add_item(rsvp_object_tree,
+                                   hf_rsvp_filter[RSVPF_SESSION_EXT_TUNNEL_ID],
+                                   tvb, offset2+8, 4, ENC_BIG_ENDIAN);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+
+        /*
+         * Save this information to build the conversation request key
+         * later.
+         */
+        rsvph->session_type = RSVP_SESSION_TYPE_P2MP_LSP_TUNNEL_IPV4;
         TVB_SET_ADDRESS(&rsvph->destination, AT_IPv4, tvb, offset2, 4);
         rsvph->udp_dest_port = tvb_get_ntohs(tvb, offset2+6);
         rsvph->ext_tunnel_id = tvb_get_ntohl(tvb, offset2 + 8);
