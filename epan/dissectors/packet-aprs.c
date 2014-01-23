@@ -999,8 +999,12 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 					/* optional: software type/unit: see if present */
 					lr = new_offset - offset;
 #if 0 /* fcn'al change: defer */
+					/*
+					 * XXX - ASCII or UTF-8?
+					 * See http://www.aprs.org/aprs12/utf-8.txt
+					 */
 					if ( ((lr < 3) || (lr > 5)) ||
-						( lr != strspn( tvb_get_string( wmem_packet_scope(), tvb, offset, lr ), "a-zA-Z0-9-_" ) ) )
+						( lr != strspn( tvb_get_string_enc( wmem_packet_scope(), tvb, offset, lr, ENC_ASCII|ENC_NA ), "a-zA-Z0-9-_" ) ) )
 						{
 						new_offset = offset;  /* Assume rest is a comment: force exit from while */
 						break;  /* from switch */
@@ -1132,7 +1136,11 @@ aprs_item( proto_tree *aprs_tree, tvbuff_t *tvb, int offset )
 
 	data_len    = 10;
 
-	info_buffer = tvb_get_string( wmem_packet_scope(), tvb, offset, data_len );
+	/*
+	 * XXX - ASCII or UTF-8?
+	 * See http://www.aprs.org/aprs12/utf-8.txt
+	 */
+	info_buffer = tvb_get_string_enc( wmem_packet_scope(), tvb, offset, data_len, ENC_ASCII|ENC_NA );
 
 	ch_ptr = strchr( info_buffer, '!' );
 	if ( ch_ptr != NULL )
