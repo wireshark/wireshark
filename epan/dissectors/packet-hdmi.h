@@ -1,6 +1,6 @@
-/* packet-hdcp.h
- * Routines for HDCP dissection
- * Copyright 2011-2012, Martin Kaiser <martin@kaiser.cx>
+/* packet-hdmi.h
+ * Routines for HDMI dissection
+ * Copyright 2014 Martin Kaiser <martin@kaiser.cx>
  *
  * $Id$
  *
@@ -23,13 +23,13 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __PACKET_HDCP_H__
-#define __PACKET_HDCP_H__
+#ifndef __PACKET_HDMI_H__
+#define __PACKET_HDMI_H__
 
 #include <glib.h>
 #include <epan/packet.h>
 
-gboolean sub_check_hdcp(packet_info *pinfo _U_);
+gboolean sub_check_hdmi(packet_info *pinfo _U_);
 
 #endif
 

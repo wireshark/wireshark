@@ -34,7 +34,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-i2c.h"
-#include "packet-hdcp.h"
+#include "packet-hdmi.h"
 
 void proto_register_i2c(void);
 void proto_reg_handoff_i2c(void);
@@ -51,7 +51,7 @@ static gint ett_i2c = -1;
 enum {
 	SUB_DATA = 0,
 	SUB_IPMB,
-	SUB_HDCP,
+	SUB_HDMI,
 
 	SUB_MAX
 };
@@ -183,7 +183,7 @@ sub_check_ipmb(packet_info *pinfo)
 static sub_checkfunc_t sub_check[SUB_MAX] = {
 	NULL, /* raw data */
 	sub_check_ipmb, /* IPMI */
-	sub_check_hdcp  /* HDCP */
+	sub_check_hdmi  /* HDMI */
 };
 
 static void
@@ -274,7 +274,7 @@ proto_register_i2c(void)
 	static const enum_val_t sub_enum_vals[] = {
 		{ "none", "None (raw I2C)", SUB_DATA },
 		{ "ipmb", "IPMB", SUB_IPMB },
-		{ "hdcp", "HDCP", SUB_HDCP },
+		{ "hdmi", "HDMI (including HDCP)", SUB_HDMI },
 		{ NULL, NULL, 0 }
 	};
 	module_t *m;
@@ -296,7 +296,7 @@ proto_reg_handoff_i2c(void)
 
 	sub_handles[SUB_DATA] = find_dissector("data");
 	sub_handles[SUB_IPMB] = find_dissector("ipmi");
-	sub_handles[SUB_HDCP] = find_dissector("hdcp");
+	sub_handles[SUB_HDMI] = find_dissector("hdmi");
 	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
 }

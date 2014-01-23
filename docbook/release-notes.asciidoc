@@ -96,6 +96,7 @@ Cisco MetaData
 ELF file format
 EXPORTED PDU
 FINGER
+HDMI
 HTTP2
 IDRP
 ILP

@@ -741,6 +741,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hdcp2.c
 	dissectors/packet-hdfs.c
 	dissectors/packet-hdfsdata.c
+	dissectors/packet-hdmi.c
 	dissectors/packet-hip.c
 	dissectors/packet-homeplug-av.c
 	dissectors/packet-homeplug.c
