@@ -208,6 +208,14 @@ static int hf_smb2_ioctl_function_access = -1;
 static int hf_smb2_ioctl_function_function = -1;
 static int hf_smb2_fsctl_pipe_wait_timeout = -1;
 static int hf_smb2_fsctl_pipe_wait_name = -1;
+static int hf_smb2_fsctl_offload_read_size = -1;
+static int hf_smb2_fsctl_offload_read_flags = -1;
+static int hf_smb2_fsctl_offload_read_token_ttl = -1;
+static int hf_smb2_fsctl_offload_reserved = -1;
+static int hf_smb2_fsctl_offload_read_file_offset = -1;
+static int hf_smb2_fsctl_offload_read_copy_length = -1;
+static int hf_smb2_fsctl_offload_read_transfer_length = -1;
+static int hf_smb2_fsctl_offload_token = -1;
 static int hf_smb2_ioctl_function_method = -1;
 static int hf_smb2_ioctl_resiliency_timeout = -1;
 static int hf_smb2_ioctl_resiliency_reserved = -1;
@@ -1458,6 +1466,7 @@ static const value_string smb2_ioctl_vals[] = {
 	{0x000940E7, "FSCTL_CREATE_USN_JOURNAL"},
 	{0x000940EB, "FSCTL_READ_FILE_USN_DATA"},
 	{0x000940EF, "FSCTL_WRITE_USN_CLOSE_RECORD"},
+	{0x00094264, "FSCTL_OFFLOAD_READ"},
 	{0x00098098, "FSCTL_SET_OBJECT_ID"},			      /* dissector implemented */
 	{0x000980A0, "FSCTL_DELETE_OBJECT_ID"}, /* no data in/out */
 	{0x000980A4, "FSCTL_SET_REPARSE_POINT"},
@@ -4706,6 +4715,41 @@ dissect_smb2_write_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static void
+dissect_smb2_FSCTL_OFFLOAD_READ(tvbuff_t *tvb,
+				packet_info *pinfo _U_,
+				proto_tree *tree,
+				int offset,
+				proto_tree *top_tree _U_,
+				gboolean in)
+{
+	proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	if (in) {
+		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_token_ttl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+
+		proto_tree_add_item(tree, hf_smb2_fsctl_offload_reserved, tvb, offset, 4, ENC_NA);
+		offset += 4;
+
+		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_file_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_copy_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		/* offset += 8; */
+	} else {
+		proto_tree_add_item(tree, hf_smb2_fsctl_offload_read_transfer_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+		offset += 8;
+
+		proto_tree_add_item(tree, hf_smb2_fsctl_offload_token, tvb, offset, 512, ENC_NA);
+		/* offset += 512; */
+	}
+}
+
+static void
 dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *top_tree, gboolean data_in _U_, void *data)
 {
 	dissect_file_data_dcerpc(tvb, pinfo, tree, offset, tvb_captured_length_remaining(tvb, offset), top_tree, data);
@@ -5300,6 +5344,9 @@ dissect_smb2_ioctl_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 		} else {
 			dissect_get_dfs_referral_data(tvb, pinfo, tree, 0, &dc, TRUE);
 		}
+		break;
+	case 0x00094264: /* FSCTL_OFFLOAD_READ */
+		dissect_smb2_FSCTL_OFFLOAD_READ(tvb, pinfo, tree, 0, top_tree, data_in);
 		break;
 	case 0x0011c017: /* FSCTL_PIPE_TRANSCEIVE */
 		dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvb, pinfo, tree, 0, top_tree, data_in, private_data);
@@ -8490,6 +8537,44 @@ proto_register_smb2(void)
 		{ &hf_smb2_fsctl_pipe_wait_name,
 		  { "Name", "smb2.fsctl.wait.name", FT_STRING, BASE_NONE,
 		    NULL, 0, "Pipe name", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_read_size,
+		  { "Size", "smb2.fsctl.offload.read", FT_UINT32, BASE_DEC,
+		    NULL, 0, "Size of data element", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_read_flags,
+		  { "Flags", "smb2.fsctl.offload.flags", FT_UINT32, BASE_HEX,
+		    NULL, 0, "Flags for this operation", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_read_token_ttl,
+		  { "TokenTimeToLive", "smb2.fsctl.offload.token_ttl",
+		    FT_UINT32, BASE_DEC, NULL, 0,
+		    "TTL for the generated token (in milliseconds)", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_reserved,
+		  { "Reserved", "smb2.fsctl.offload.reserved",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }},
+
+		{ &hf_smb2_fsctl_offload_read_file_offset,
+		  { "FileOffset", "smb2.fsctl.offload.file_offset",
+		    FT_UINT64, BASE_DEC, NULL, 0,
+		    "File offset", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_read_copy_length,
+		  { "CopyLength", "smb2.fsctl.offload.copy_length",
+		    FT_UINT64, BASE_DEC, NULL, 0,
+		    "Copy length", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_read_transfer_length,
+		  { "TransferLength", "smb2.fsctl.offload.transfer_length",
+		    FT_UINT64, BASE_DEC, NULL, 0,
+		    "Transfer length", HFILL }},
+
+		{ &hf_smb2_fsctl_offload_token,
+		  { "Token", "smb2.fsctl.offload.token",
+		    FT_BYTES, BASE_NONE, NULL, 0,
+		    NULL, HFILL }},
 
 		{ &hf_smb2_ioctl_resiliency_timeout,
 		  { "Timeout", "smb2.ioctl.resiliency.timeout", FT_UINT32, BASE_DEC,
