@@ -207,7 +207,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8      lwm_fcf_security;
     guint8      lwm_fcf_multicast;
 
-    guint16     lwm_multi_header;
+    guint16     lwm_multi_header = 0;
 
     guint8      lwm_seq;
     guint16     lwm_src_addr;
@@ -215,7 +215,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8      lwm_endp_field;
     guint8      lwm_src_endp;
     guint8      lwm_dst_endp;
-    guint32     lwm_mic;
+    guint32     lwm_mic = 0;
     guint8      lwm_cmd;
 
     proto_item *proto_root, *ti;
