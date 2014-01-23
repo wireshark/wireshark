@@ -3046,16 +3046,19 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
 
   if (tag==T_HOST_COUNTRY) {
       proto_tree_add_item(tree, hf_dvbci_host_country,
-              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+              tvb, offset, tvb_reported_length_remaining(tvb, offset),
+              ENC_ISO_8859_1|ENC_NA);
   }
   else if (tag==T_HOST_LANGUAGE) {
       proto_tree_add_item(tree, hf_dvbci_host_language,
-              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+              tvb, offset, tvb_reported_length_remaining(tvb, offset),
+              ENC_ISO_8859_1|ENC_NA);
   }
 
   /* both apdus' body is only a country code, this can be shared */
-  str = tvb_get_string(wmem_packet_scope(), tvb, offset,
-              tvb_reported_length_remaining(tvb, offset));
+  str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset,
+              tvb_reported_length_remaining(tvb, offset),
+              ENC_ISO_8859_1|ENC_NA);
   if (str)
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", str);
 }
@@ -5389,11 +5392,11 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_host_country,
           { "Host country", "dvb-ci.hlc.country",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_host_language,
           { "Host language", "dvb-ci.hlc.language",
-            FT_STRING, STR_ASCII, NULL, 0, NULL, HFILL }
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_cup_type,
           { "CAM upgrade type", "dvb-ci.cup.type",
