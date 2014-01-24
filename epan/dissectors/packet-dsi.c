@@ -342,7 +342,8 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 		sign_ofs = tvb_get_ntohs(tvb, ofs);
 		proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %d", sign_ofs);
-		sign_ofs += offset;
+		if (sign_ofs)
+			sign_ofs += offset;
 
 		if ((flag & AFPSRVRINFO_TCPIP)) {
 			ofs += 2;
@@ -365,12 +366,15 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		}
 	}
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
-	if (ofs)
-		proto_tree_add_item(tree, hf_dsi_server_type, tvb, ofs, 1, ENC_ASCII|ENC_NA);
-
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
 	if (ofs) {
+		ofs += offset;
+		proto_tree_add_item(tree, hf_dsi_server_type, tvb, ofs, 1, ENC_ASCII|ENC_NA);
+	}
+
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+	if (ofs) {
+		ofs += offset;
 		nbe = tvb_get_guint8(tvb, ofs);
 		ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %d", nbe);
 		ofs++;
@@ -382,8 +386,9 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		}
 	}
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
 	if (ofs) {
+		ofs += offset;
 		nbe = tvb_get_guint8(tvb, ofs);
 		ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %d", nbe);
 		ofs++;
@@ -395,9 +400,11 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		}
 	}
 
-	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-	if (ofs)
+	ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
+	if (ofs) {
+		ofs += offset;
 		proto_tree_add_item(tree, hf_dsi_server_icon, tvb, ofs, 256, ENC_NA);
+	}
 
 	if (sign_ofs) {
 		proto_tree_add_item(tree, hf_dsi_server_signature, tvb, sign_ofs, 16, ENC_NA);
