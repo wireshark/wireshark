@@ -34,13 +34,16 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 
 # Convert an AsciiDoc document to a Docbook chapter
 .asciidoc.xml:
+	$(SH) <<
+	PATH=/usr/bin
 	$(A2X) --verbose \
 		--asciidoc-opts="--conf-file=asciidoc.conf" \
 		--no-xmllint \
 		--format=docbook --doctype=book \
 		$<
+<<
 	mv $*.xml $*.dbk
-	xmllint --xpath chapter $*.dbk > $@
+	xmllint --xpath //chapter $*.dbk > $@
 
 .SUFFIXES: .asciidoc .xml
 
@@ -49,9 +52,10 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 #   in git_version.xml (if the svn version has changed).
 # This is done during nmake "preprocessing" so that it's done *before*
 #  nmake gets the date/time of the dependency file(s)].
-!IF [$(SH) ./check_git_version.sh]
-!ENDIF
+git_version_check: _FORCE_
+	$(SH) ./check_git_version.sh
 
+git_version.xml: git_version_check
 
 # -- (Public) targets -------------------------------------------------------
 
@@ -264,4 +268,6 @@ release-notes-a4.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 		release-notes.asciidoc
 <<
 	mv release-notes.pdf $@
+
+_FORCE_:  ## Assumption: no file named _FORCE_ exists in the current directory
 
