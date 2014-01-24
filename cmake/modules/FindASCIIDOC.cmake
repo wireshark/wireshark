@@ -18,6 +18,17 @@ FIND_PROGRAM(A2X_EXECUTABLE
     /sbin
 )
 
+FIND_PROGRAM(XMLLINT_EXECUTABLE
+  NAMES
+    xmllint
+  PATHS
+    ${CYGWIN_INSTALL_PATH}/bin
+    /bin
+    /usr/bin
+    /usr/local/bin
+    /sbin
+)
+
 # Make sure we don't get language specific quotes
 set( A2X_EXECUTABLE LC_ALL=C ${A2X_EXECUTABLE} )
 
@@ -105,3 +116,31 @@ MACRO( ASCIIDOC2PDF _output _asciidocsource _conffile _paper )
     )
 ENDMACRO()
 
+# Convert an AsciiDoc document to a Docbook chapter
+MACRO( ASCIIDOC2CHAPTER _output _asciidocsource _conffile )
+    GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+    set( A2X_HTML_OPTS --stylesheet=ws.css )
+    ADD_CUSTOM_COMMAND(
+	WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+        OUTPUT
+            ${_output}
+	COMMAND ${A2X_EXECUTABLE}
+	    --verbose
+	    --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
+	    --asciidoc-opts="--conf-file=${_conffile}"
+	    --no-xmllint
+	    --format=docbook --doctype=book
+	    ${A2X_HTML_OPTS}
+	    ${_asciidocsource}
+	COMMAND mv
+	    ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.xml
+	    ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.dbk
+	COMMAND ${XMLLINT}
+	    --xpath chapter
+	    ${CMAKE_CURRENT_BINARY_DIR}/${_source_base_name}.dbk
+	    > ${CMAKE_CURRENT_BINARY_DIR}/${_output}
+        DEPENDS
+            ${_asciidocsources}
+            ${_conffile}
+    )
+ENDMACRO()

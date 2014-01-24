@@ -32,6 +32,19 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 
 .SUFFIXES: .fo .pdf
 
+# Convert an AsciiDoc document to a Docbook chapter
+.asciidoc.xml:
+	$(A2X) --verbose \
+		--asciidoc-opts="--conf-file=asciidoc.conf" \
+		--no-xmllint \
+		--format=docbook --doctype=book \
+		$<
+	mv $*.xml $*.dbk
+	xmllint --xpath chapter $*.dbk > $@
+
+.SUFFIXES: .asciidoc .xml
+
+
 # On every build, record the working copy revision string
 #   in git_version.xml (if the svn version has changed).
 # This is done during nmake "preprocessing" so that it's done *before*

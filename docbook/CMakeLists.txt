@@ -192,6 +192,10 @@ set(WSDG_FILES
 	ws.css
 )
 
+set(WSDG_ASCIIDOC_FILES
+	wsdg_src/WSDG_chapter_sources.asciidoc
+)
+
 set(WSDG_GRAPHICS
 	wsdg_graphics/ws-capture-sync.dia
 	wsdg_graphics/ws-capture-sync.png
@@ -313,6 +317,7 @@ VALIDATE_XML(
 	WSDG_SOURCE
 )
 
+ASCIIDOC2CHAPTER(WSDG_ASCIIDOC_FILES)
 XML2HTML(
 	wsdg.validated
 	wsdg_html/index.html

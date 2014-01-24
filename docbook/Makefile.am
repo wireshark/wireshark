@@ -55,6 +55,15 @@ else
 	@false
 endif
 
+# Convert an AsciiDoc document to a Docbook chapter
+.asciidoc.xml:
+	$(A2X) --verbose \
+		--asciidoc-opts="--conf-file=asciidoc.conf" \
+		--no-xmllint \
+		--format=docbook --doctype=book \
+		$<
+	mv $*.xml $*.dbk
+	xmllint --xpath chapter $*.dbk > $@
 
 if HAVE_XSLTPROC
 ALL_TARGETS=git_version_check wsug wsdg release_notes
@@ -233,6 +242,8 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 news: release-notes.txt
 	cp release-notes.txt ../NEWS
 
+# Apparently we can only run one instance of a2x at a time.
+.NOTPARALLEL: release-notes-us.pdf release-notes-a4.pdf
 # create pdf file, portrait pages on US letter paper
 release-notes-us.pdf: $(RELEASE_NOTES_SOURCE) custom_layer_pdf.xsl
 	@ echo --- RELEASE NOTES - PDF US LETTER PAPER ---
