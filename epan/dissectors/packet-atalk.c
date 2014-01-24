@@ -1056,8 +1056,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   if (machine_ofs)
     proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, ENC_ASCII|ENC_NA);
 
-  ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
+  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
   if (ofs) {
+    ofs += offset;
     nbe = tvb_get_guint8(tvb, ofs);
     ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %u", nbe);
     ofs++;
@@ -1069,8 +1070,9 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
   }
 
-  ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
+  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
   if (ofs) {
+    ofs += offset;
     nbe = tvb_get_guint8(tvb, ofs);
     ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %u", nbe);
     ofs++;
@@ -1082,9 +1084,11 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     }
   }
 
-  ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-  if (ofs)
+  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
+  if (ofs) {
+    ofs += offset;
     proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, ENC_NA);
+  }
 
   if (sign_ofs) {
     proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, ENC_NA);
