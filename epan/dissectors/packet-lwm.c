@@ -528,7 +528,7 @@ static int dissect_lwm_cmd_frame_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tr
  *      int length          - amount of data processed
  *---------------------------------------------------------------
  */
-static int dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lwm_cmd_tree)
+static int dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *lwm_cmd_tree)
 {
     if(lwm_cmd_tree){
         proto_item *ti;
@@ -563,7 +563,7 @@ static int dissect_lwm_cmd_frame_route_err(tvbuff_t *tvb, packet_info *pinfo, pr
  *      int length          - amount of data processed
  *---------------------------------------------------------------
  */
-static int dissect_lwm_cmd_frame_route_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lwm_cmd_tree)
+static int dissect_lwm_cmd_frame_route_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *lwm_cmd_tree)
 {
     if(lwm_cmd_tree){
         proto_item *ti;
@@ -605,7 +605,7 @@ static int dissect_lwm_cmd_frame_route_req(tvbuff_t *tvb, packet_info *pinfo, pr
  *      int length          - amount of data processed
  *---------------------------------------------------------------
  */
-static int dissect_lwm_cmd_frame_route_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lwm_cmd_tree)
+static int dissect_lwm_cmd_frame_route_reply(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *lwm_cmd_tree)
 {
     if(lwm_cmd_tree){
         proto_item *ti;
