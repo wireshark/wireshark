@@ -1,4 +1,4 @@
-/* packet-image-png.c
+/* file-png.c
  *
  * Routines for PNG (Portable Network Graphics) image file dissection
  *

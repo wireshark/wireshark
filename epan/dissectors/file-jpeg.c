@@ -1,4 +1,4 @@
-/* packet-image-jfif.c
+/* file-jpeg.c
  *
  * Routines for JFIF image/jpeg media dissection
  * Copyright 2004, Olivier Biot.
