@@ -1595,8 +1595,8 @@ gint dissect_ulmap_ie( proto_tree *ie_tree, const guint8 *bufptr, gint offset, g
     nibble = offset;
 
     /* 8.4.5.4 UL-MAP IE format - table 287 */
-    cid = NIB_WORD(nibble, bufptr);
-    uiuc = NIB_NIBBLE(nibble + 4, bufptr);
+    cid = TVB_NIB_WORD(nibble, tvb);
+    uiuc = TVB_NIB_NIBBLE(nibble + 4, tvb);
 
     if (uiuc == 0)
     {

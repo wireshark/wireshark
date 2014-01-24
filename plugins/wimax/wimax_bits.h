@@ -55,6 +55,10 @@
     (((n) & 1) \
     ?  (b)[(n)/2] & NIBBLE_MASK \
     : ((b)[(n)/2] >> 4) & NIBBLE_MASK)
+#define TVB_NIB_NIBBLE(n,t) \
+    (((n) & 1) \
+    ?  tvb_get_guint8((t), (n)/2) & NIBBLE_MASK \
+    : (tvb_get_guint8((t), (n)/2) >> 4) & NIBBLE_MASK)
 
 /* extract the byte at the given nibble address 'n' of buffer 'b' */
 #define NIB_BYTE(n,b) \
@@ -78,6 +82,10 @@
     : pletoh16((b) + (n)/2)
     ? (pletoh32((b)+(n)/2) >> 12) & 0x0000FFFF \
     */
+#define TVB_NIB_WORD(n,t) \
+    (n) & 1 \
+    ? (gint)((tvb_get_ntohl((t), (n)/2) >> 12) & 0x0000FFFF) \
+    : tvb_get_ntohs((t), (n)/2)
 
 /* extract the word at the given nibble address 'n' of buffer 'b' */
 #define NIB_LONG(n,b) \
