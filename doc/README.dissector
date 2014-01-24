@@ -1631,13 +1631,6 @@ proto_tree_add_text()
 ---------------------
 proto_tree_add_text() is used to add a label to the GUI tree.  It will
 contain no value, so it is not searchable in the display filter process.
-This function was needed in the transition from the old-style proto_tree
-to this new-style proto_tree so that Wireshark would still decode all
-protocols w/o being able to filter on all protocols and fields.
-Otherwise we would have had to cripple Wireshark's functionality while we
-converted all the old-style proto_tree calls to the new-style proto_tree
-calls.  In other words, you should not use this in new code unless you've got
-a specific reason (see below).
 
 This can (and should only) be used for items with subtrees, which may not
 have values themselves - the items in the subtree are the ones with values.
