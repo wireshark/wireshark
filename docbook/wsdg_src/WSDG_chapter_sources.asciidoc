@@ -1,0 +1,1130 @@
+
+
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Sources -->
+++++++++++++++++++++++++++++++++++++++
+    
+
+
+++++++++++++++++++++++++++++++++++++++
+<!-- $Id$ -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterSources]]
+
+== Work with the Wireshark sources
+
+[[ChSrcIntro]]
+
+=== Introduction
+
+This chapter will explain how to work with the Wireshark source code.
+It will show you how to:
+
+
+* Get the source
+
+* Compile it on your machine
+
+* Submit changes for inclusion in the official release
+
+
+However, this chapter will not explain the source file contents in detai,
+such as where to find a specific functionality. This is done in
+<<ChCodeOverview>>.
+
+
+[[ChSrcSVNServer]]
+
+
+=== The Wireshark Subversion repository
+
+Subversion is used to keep track of the changes made to the Wireshark
+source code. The Wireshark source code is stored inside Wireshark project's
+Subversion repository located at a server at the wireshark.org domain.
+
+
+To quote the Subversion book about "What is Subversion?":
+
+
+"Subversion is a free/open-source version control system. That is,
+    Subversion manages files and directories over time. A tree of files is
+    placed into a central repository. The repository is much like an ordinary
+    file server, except that it remembers every change ever made to your files
+    and directories. This allows you to recover older versions of your data,
+    or examine the history of how your data changed. In this regard, many
+    people think of a version control system as a sort of "time machine".
+    "
+
+
+[TIP]
+.Tip: Subversion and SVN is the same!
+====
+Subversion is often abbreviated as SVN, as the command-line tools are
+abbreviated that way. You will find both terms with the same meaning in
+this book, in mailing list discussions and elsewhere.
+
+
+====
+
+Using Wireshark's Subversion repository you can:
+
+
+* keep your private sources up to date with very little effort
+
+* get a mail notification if someone changes the latest sources
+
+* get the source files from any previous release (or any other point in time)
+
+* have a quick look at the sources using a web interface
+
+* see which person changed a specific piece of code
+
+* ... and a lot more things related to the history of the Wireshark source
+code development
+
+
+Subversion is divided into a client and a server part.
+Thanks to Gerald Combs (the maintainer of the Subversion server),
+no user has to deal with the maintenance of the Subversion server.
+You will only need a Subversion client, which is available as
+both a command-line and a GUI tool for many different platforms.
+
+For further reference about Subversion, have a look at the homepage of the
+Subversion project: http://subversion.apache.org/[]. There
+is a good and free book about it available at: http://svnbook.red-bean.com/[].
+
+Please note that Wireshark's public (anonymous) Subversion repository is
+separate from the main repository.
+It may take several minutes for committed changes to appear in the
+public repository - so please be patient for a few minutes if you
+desperately need a code change that was committed to the repository
+very recently.
+
+[[ChSrcWebInterface]]
+
+==== The web interface to the Subversion repository
+
+If you need a quick look at the Wireshark source code,
+you will only need a Web browser.
+
+A _simple view_ of the latest developer version can be
+found at:
+
+http://anonsvn.wireshark.org/wireshark/trunk/[].
+
+A _comprehensive view_ of all source versions
+(e.g. including the capability to show differences between versions)
+is available at:
+
+http://anonsvn.wireshark.org/viewvc/viewvc.cgi/[].
+
+Of special interest might be the subdirectories:
+
+* 'trunk': the very latest source files
+
+* 'releases': the source files of all released versions
+
+[[ChSrcObtain]]
+
+=== Obtain the Wireshark sources
+
+There are several ways to obtain the sources from Wireshark's Subversion
+server.
+
+
+
+[TIP]
+.Anonymous Subversion access is recommended!
+====
+It can make your life much easier, compared to updating your source tree by
+using any of the zip file methods mentioned below.
+Subversion handles merging of changes into your personal source tree in a
+very comfortable and quick way. So you can update your source tree several
+times a day without much effort.
+
+
+====
+
+
+[NOTE]
+.Keep your sources "up to date"!
+====
+The following ways to retrieve the Wireshark sources are sorted in
+decreasing source timeliness.
+If you plan to commit changes you've made to the sources,
+it's a good idea to keep your private source tree as current as possible.
+
+
+====
+
+The age mentioned in the following sections indicates the age of the
+most recent change in that set of the sources.
+
+
+[[ChSrcAnon]]
+
+
+==== Anonymous Subversion access
+
+Recommended for development purposes.
+
+
+Age: a few minutes.
+
+
+You can use a Subversion client to download the source code from
+Wireshark's anonymous Subversion repository. The URL for the repository
+trunk is:
+wireshark-repository-site:[]/wireshark/trunk/[].
+
+
+See <<ChToolsSubversion>>on how to install a Subversion client.
+
+
+For example, to check out using the command-line Subversion client, you
+would type:
+
+
++$ svn checkout wireshark-repository-site:[]/wireshark/trunk wireshark+
+
+The checkout has to be only done once. This will copy all the sources of
+the latest version (including directories) from the server to your machine.
+This will take some time, depending on the speed of your internet connection.
+
+
+[[ChSrcSVNWeb]]
+
+
+==== Anonymous Subversion web interface
+
+Recommended for informational purposes only, as only individual files can
+be downloaded.
+
+
+Age: a few minutes (same as anonymous Subversion access).
+
+
+The entire source tree of the Subversion repository is available via a
+web interface at:
+wireshark-repository-site:[]/viewvc/viewvc.cgi/[].
+You can view each revision of a particular file, as well as diffs between
+different revisions.
+You can also download individual files but not entire directories.
+
+
+[[ChSrcBuildbot]]
+
+
+==== Buildbot Snapshots
+
+Recommended for development purposes, if direct Subversion access isn't
+possible (e.g. because of a restrictive firewall).
+
+
+Age: some number of minutes (a bit older than the anonymous Subversion access).
+
+
+The buildbot server will automatically start to generate a snapshot of
+Wireshark's source tree after a source code change is committed.
+These snapshots can be found at: wireshark-download-page:[]automated/src/[].
+
+
+If anonymous Subversion access isn't possible, e.g. if the connection to
+the server isn't possible because of a corporate firewall, the sources
+can be obtained by downloading the buildbot snapshots. However, if you are
+going to maintain your sources in parallel to the "official" sources
+for some time, it's recommended to use the anonymous Subversion access if
+possible (believe it, it will save you a lot of time).
+
+
+[[ChSrcReleased]]
+
+
+==== Released sources
+
+Recommended for productive purposes.
+
+
+Age: from days to weeks.
+
+
+The officially released source files can be found at: wireshark-download-page:[][].
+You should use these sources if you want to build Wireshark on your
+platform for productive use.
+
+
+The differences between the released sources and the sources stored at
+the Subversion repository will keep on growing until the next release is
+done (at the release time, the released and latest Subversion repository
+versions are then identical again :-).
+
+
+[[ChSrcUpdating]]
+
+
+=== Update the Wireshark sources
+
+After you've obtained the Wireshark sources for the first time, you
+might want to keep them in sync with the sources at the Subversion
+repository.
+
+
+
+[TIP]
+.Take a look at the buildbot first!
+====
+As development evolves, the Wireshark sources are compilable most of the
+time - but not always.
+You may take a look at the <<ChIntroAutomated>>first,
+to see if the sources are currently in a good shape.
+
+
+====
+
+[[ChSrcAnonUpdate]]
+
+
+==== ... with Anonymous Subversion access
+
+After the first time checkout is done, updating your
+sources is simply done by typing (in the Wireshark source dir):
+
+
+$**`svn update`**
+
+This will only take a few seconds, even on a slow internet connection. It will
+replace old file versions by new ones. If you and someone else have
+changed the same file since the last update, Subversion will try to merge
+the changes into your private file (this works remarkably well).
+
+
+[[ChSrcZipUpdate]]
+
+
+==== ... from zip files
+
+Independent of the way you retrieve the zip file of the Wireshark sources
+(as described in <<ChSrcObtain>>), the way to
+bring the changes from the official sources into your personal source tree
+is identical.
+
+
+First of all, you will download the new zip file of the official sources
+the way you did it the first time.
+
+
+If you haven't changed anything in the sources, you could simply throw
+away your old sources and reinstall everything just like the first time.
+But be sure, that you really haven't changed anything. It might be a good
+idea to simply rename the "old" dir to have it around, just in case you
+remember later that you really did change something before.
+
+
+Well, if you did change something in your source tree, you have to merge
+the official changes
+since the last update into your source tree. You will install the content
+of the zip file into a new directory and use a good merge tool (e.g.
+http://winmerge.sourceforge.net/[]for Win32) to bring
+your personal source tree in sync with the official sources again.
+
+
+[[ChSrcBuildFirstTime]]
+
+
+=== Build Wireshark
+
+The sources contain several documentation files, it's a good idea to
+look at these files first.
+
+
+So after obtaining the sources, tools and libraries, the
+first place to look at is _doc/README.developer_,
+here you will get the latest infos for Wireshark development for all
+supported platforms.
+
+
+
+[TIP]
+.Tip!
+====
+It is a very good idea, to first test your complete build environment
+(including running and debugging Wireshark) before doing any changes
+to the source code (unless otherwise noted).
+
+
+====
+
+The following steps for the first time generation differ on the two
+major platforms.
+
+
+
+
+==== Unix
+
+Run the autogen.sh script at the top-level wireshark directory to configure
+your build directory.
+
+----
+$ ./autogen.sh
+$ ./configure
+$ make
+----
+
+
+
+If you need to build with a non-standard configuration, you can use:
+
+----
+$ ./configure --help
+----
+
+to see what options you have.
+
+
+
+
+==== Win32 native
+
+The first thing to do will be to check the file
+'config.nmake' to determine if it reflects your configuration.
+The settings in this file are well documented, so please have a look at
+that file.
+However, if you've installed the libraries and tools as recommended there
+should be no need to edit things here.
+
+
+Many of the file and directory names used in the build process go past the
+old 8.3 naming limitations.
+As a result, you should use the `cmd.exe` command interpreter
+instead of the old `command.com`.
+
+
+Be sure that your command-line environment is set up to compile
+and link with MSV$$C++$$. When installing MSV$$C++$$, you can have your
+system's environment set up to always allow compiling from the
+command line, or you can invoke the vcvars32.bat script, which can
+usually be found in the _VC98\Bin_subdirectory of the
+directory in which Visual Studio was installed.
+
+
+You should then cleanup any intermediate files, which are shipped for
+convenience of Unix users, by typing at the command line prompt (cmd.exe):
+
+----
+> nmake -f Makefile.nmake distclean
+----
+
+After doing this, typing at the command line prompt (cmd.exe):
+
+----
+> nmake -f Makefile.nmake all
+----
+
+will start the whole Wireshark build process.
+
+
+After the build process has successfully finished, you should find a
+`wireshark.exe` and some other files
+in the root directory.
+
+
+[[ChSrcRunFirstTime]]
+
+
+=== Run generated Wireshark
+
+
+[TIP]
+.Tip!
+====
+An already installed Wireshark may interfere with your newly generated
+version in various ways. If you have any problems getting your Wireshark
+running the first time, it might be a good idea to remove the previously
+installed version first.
+====
+
+[[ChSrcRunFirstTimeUnix]]
+
+==== Unix/Linux
+
+After a successful build you can run Wireshark right from the build
+directory. Still the program would need to know that it's being run from
+the build directory and not from its install location. This has inpact
+on the directories where the program can find the other parts and
+relevant data files.
+
+
+In order to run the Wireshark from the build directory set the environment
+variable `WIRESHARK_RUN_FROM_BUILD_DIRECTORY` and run
+Wireshark. If your platform is properly setup, your build directory and
+current working directory are not in your PATH, so the
+commandline to launch Wireshark would be:
+
+----
+$ WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 ./wireshark
+----
+
+There's no need to run Wireshark as root user, you just won't be able to
+capture. When you opt to run Wireshark this way, your terminal output can
+be informative when things don't work as expected.
+
+
+[[ChSrcRunFirstTimeWin32]]
+
+
+==== Win32 native
+
+During the build all relevant program files are collected in a subdirectory
+'wireshark-gtk2'. You can run the program from there by
+launching the wireshark.exe executable.
+
+
+[[ChSrcDebug]]
+
+
+=== Debug your generated Wireshark
+
+[[ChSrcUnixDebug]]
+
+
+==== Unix/Linux
+
+When you want to investigate a problem with Wireshark you want to load
+the program into your debugger. But loading wireshark into debugger fails
+because of the libtool build environment. You'll have to wrap loading
+wireshark into a libtool command:
+
+----
+$ libtool --mode=execute gdb wireshark
+----
+
+If you prefer a graphic debugger you can use the Data Display Debugger
+(ddd) instead of GNU debugger (gdb).
+
+
+Additional traps can be set on GLib by setting the `G_DEBUG` environment variable:
+
+----
+$ G_DEBUG=fatal_criticals libtool --mode=execute ddd wireshark
+----
+
+See http://library.gnome.org/devel/glib/stable/glib-running.html[]
+
+[[ChSrcWin32Debug]]
+
+
+==== Win32 native
+
+****
+To be written
+****
+
+[[ChSrcChange]]
+
+
+=== Make changes to the Wireshark sources
+
+As the Wireshark developers are working on many different platforms, a lot of
+editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
+and many many others). There's no "standard" or "default" development
+environment.
+
+There are several reasons why you might want to change the Wireshark
+sources:
+
+* Add support for a new protocol (a new dissector)
+
+* Change or extend an existing dissector
+
+* Fix a bug
+
+* Implement a glorious new feature
+
+The internal structure of the Wireshark sources will be described in
+<<PartDevelopment>>.
+
+.Ask the _wireshark-dev_ mailing list before you start a new development task.
+[TIP]
+====
+If you have an idea what you want to add or change it's a good idea to
+contact the developer mailing list
+(see <<ChIntroMailingLists>>)
+and explain your idea. Someone else might already be working on the same
+topic, so a duplicated effort can be reduced. Someone might also give you tips that
+should be thought about (like side effects that are sometimes very
+hard to see).
+====
+
+[[ChSrcContribute]]
+
+
+=== Contribute your changes
+
+If you have finished changing the Wireshark sources to suit your needs,
+you might want to contribute your changes back to the Wireshark
+community. You gain the following benefits by contributing your improvements:
+
+* _It's the right thing to do._ Other people who find your contributions
+useful will appreciate them, and you will know that you have helped
+people in the same way that the developers of Wireshark have helped
+you.
+
+* _You get free enhancements._ By making your code public, other developers
+have a chance to make improvements, as there's always room for
+improvements. In addition someone may implement advanced features on top of
+your code, which can be useful for yourself too.
+
+* _You save time and effort._ The maintainers and developers of Wireshark
+will maintain your code as well, updating it when API changes or other
+changes are made, and generally keeping it in tune with what is
+happening with Wireshark. So if Wireshark is updated (which is done
+often), you can get a new Wireshark version from the website and your
+changes will already be included without any effort for you.
+
+There's no direct way to commit changes to the SVN repository. Only a few
+people are authorised to actually
+make changes to the source code (check-in changed files). If you want
+to submit your changes, you should make a diff file (a patch) and upload it to the bug tracker.
+
+[[ChSrcDiffWhat]]
+
+==== What is a diff file (a patch)?
+
+A http://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
+(or a multiple of such file pairs).
+
+.A diff file is often also called a patch.
+[TIP]
+====
+No matter what the name it can be used to patch an existing source file or tree with changes
+from somewhere else.
+====
+
+The Wireshark community is using patches to transfer source code changes
+between the authors.
+
+A patch is both readable by humans and (as it is specially formatted) by
+some dedicated tools.
+
+Here is a small example of a patch for _file.h_that
+makes the second argument in cf_continue_tail()volatile.  It was created using _svn diff _,
+described below:
+
+[source,Diff]
+----
+Index: file.h
+===================================================================
+--- file.h      (revision 21134)
++++ file.h      (revision 22401)
+@@ -142,7 +142,7 @@
+  * @param err the error code, if an error had occurred
+  * @return one of cf_read_status_t
+  */
+-cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
++cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
+
+ /**
+  * Finish reading from "end" of a capture file.
+----
+
+The plus sign at the start of a line indicates an added line, a minus
+sign indicates a deleted line compared to the original sources.
+
+We prefer to use so called "unified" diff files in Wireshark development,
+three unchanged lines before and after the actual changed parts are
+included. This makes it much easier for a merge/patch tool to find
+the right place(s) to change in the existing sources.
+
+[[ChSrcGeneratePatch]]
+
+==== Generate a patch
+
+There are several ways to generate patches. The preferred way is to
+generate them from an updated Subversion tree, since it avoids
+unnecessary integration work.
+
+[[ChSrcSVNDiff]]
+
+
+===== Using the svn command-line client
+
+----
+$ svn diff [changed_files] > svn.diff
+----
+
+Use the command line svn client to generate a patch in the required format
+from the changes you've made to your working copy. If you leave out the
+name of the changed file the svn client searches for all changes in the
+working copy and usually produces a patch containing more than just the
+change you want to send. Therefore you should always check the produced
+patch file.
+
+If you've added a new file, e.g.
+'packet-myprotocol.c', you can use `svn add` to add it to your local tree before generating the patch.
+Similarly, you can use `svn rm` for files that shouldbe removed.
+
+[[ChSrcSVNGUIDiff]]
+
+===== Using the diff feature of the GUI Subversion clients
+
+Most (if not all) of the GUI Subversion clients (RapidSVN, TortoiseSVN, ...)
+have a built-in "diff" feature.
+
+If you use TortoiseSVN:
+
+TortoiseSVN (to be precise Subversion) keeps track of the files you have
+changed in the directories it controls, and will generate for you a
+unified diff file compiling the differences. To do so - after updating
+your sources from the SVN repository if needed - just right-click on the
+highest level directory and choose "TortoiseSVN" -> "Create patch...".
+You will be asked for a name and then the diff file will be created. The
+names of the files in the patch will be relative to the directory you have
+right-clicked on, so it will need to be applied on that level too.
+
+When you create the diff file, it will include any difference TortoiseSVN
+finds in files in and under the directory you have right-clicked on, and
+nothing else. This means that changes you might have made for your
+specific configuration - like modifying 'config.nmake' so that it uses
+your lib directory - will also be included, and you will need to remove
+these lines from the diff file. It also means that only changes will be
+recorded, i.e. if you have created new files -- say, a new
+'packet-xxx.c' for a
+new protocol dissector -- it will not be included in the diff, you need to
+add it separately. And, of course, if you have been working separately in
+two different patches, the .diff file will include both topics, which is
+probably not a good idea.
+
+[[ChSrcDiff]]
+
+===== Using the diff tool
+
+A diff file is generated, by comparing two files or directories between
+your own working copy and the "official" source tree. So to be able to
+do a diff, you should
+have two source trees on your computer, one with your working copy
+(containing your changes), and one with the "official" source tree
+(hopefully the latest SVN files) from wireshark-web-site:[].
+
+If you have only changed a single file, you could type something like
+this:
+
+----
+$ diff -r -u --strip-trailing-cr svn-file.c work-file.c > foo.diff
+----
+
+To get a diff file for your complete directory (including
+subdirectories), you could type something like this:
+
+----
+$ diff -N -r -u --strip-trailing-cr ./svn-dir ./working-dir > foo.diff
+----
+
+It's a good idea to run `make distclean` before the
+actual diff call, as this will remove a lot
+of temporary files which might be otherwise included in the diff. After
+doing the diff, you should edit the _foo.diff_ file and remove unnecessary
+things, like your private changes to the
+'config.nmake' file.
+
+
+.Some useful diff options
+[options="header"]
+|===============
+|Option|Purpose
+|-N|Add new files when used in conjunction with -r.
+|-r|Recursively compare any subdirectories found.
+|-u|Output unified context.
+|--strip-trailing-cr|Strip trailing carriage return on input. This is useful for Win32
+      
+|-x PAT|Exclude files that match PAT.
+      This could be something like -x *.obj to exclude all win32 object files.
+|===============
+
+
+The diff tool has a lot options; they can be listed with:
+
+----
+diff --help
+----
+
+[[ChSrcGoodPatch]]
+
+
+==== Some tips for a good patch
+
+Some tips that will make the merging of your changes into the
+SVN tree much more likely (and you want exactly that, don't you :-):
+
+
+* 'Use the latest SVN sources, or alike.' It's a good idea to work with the same sources that are used by the
+other developer's, this makes it usually much easier to apply your
+patch. For information about the different ways to get the sources,
+see <<ChSrcObtain>>.
+
+* 'Update your SVN sources just before making a patch.' For the same reasons as the previous point.
+
+* 'Do a "make clean" before generating the patch.' This removes a lot of unneeded intermediate files (like object files)
+which can confuse the diff tool generating a lot of unneeded stuff which
+you have to remove by hand from the patch again.
+
+* 'Find a good descriptive filename for your patch.' Think a moment to find a proper name for your patch file. Often a
+filename like 'wireshark.diff' is used, which isn't
+really helpful if keeping several of these files and find the right
+one later. For example: If you want to commit changes to the datatypes
+of dissector foo, a good filename might be:
+'packet-foo-datatypes.diff'.
+
+* 'Don't put unrelated things into one large patch.' A few smaller patches are usually easier to apply (but also
+don't put every changed line into a separate patch.
+
+* 'Remove any parts of the patch not related to the changes you want to submit.' You can use a text editor for this.
+A common example for win32 developers are the differences in your private
+'config.nmake' file.
+
+In general, making it easier to understand and apply your patch by one
+of the maintainers will make it much more likely (and faster) that it
+will actually be applied.
+
+.Please remember
+[NOTE]
+====
+Wireshark is a volunteer effort. You aren't paying to have your code reviewed
+and integrated.
+====
+
+[[ChSrcCodeRequirements]]
+
+==== Code Requirements
+
+The core maintainers have done a lot of work fixing bugs and making code
+compile on the various platforms Wireshark supports.
+
+
+To ensure Wireshark's source code quality, and to reduce the workload of
+the core maintainers, there are some things you should
+think about 'before' submitting a patch.
+
+.Pay attention to the coding guidelines
+[WARNING]
+====
+Ignoring the code requirements will make it very likely
+that your patch will be rejected.
+====
+
+* 'Follow the Wireshark source code style guide.' Just because something compiles on your platform, that doesn't
+mean it'll compile on all of the other platforms for which Wireshark is
+built.
+Wireshark runs on many platforms, and can be compiled with a number of
+different compilers. See <<ChCodeStyle>>for details.
+
+* 'Submit dissectors as built-in whenever possible.' Developing a new dissector
+as a plugin is a good idea because compiling is
+quicker, but it's best to convert dissectors to the built-in style before
+submitting for checkin. This reduces the number of files that must be installed
+with Wireshark and ensures your dissector will be available on all platforms.
++
+This is no hard-and-fast rule though. Many dissectors are straightforward so they
+can easily be put into "the big pile", while some are ASN.1 based which takes a
+different approach, and some multiple sourcefile dissectors are more suitable to
+be placed separate as plugin.
+
+* 'Verify that your dissector code does not use prohibited or deprecated APIs.' This can be done as follows:
++
+----
+$ perl <wireshark_root>/tools/checkAPIs.pl <source filename(s)>
+----
+
+* 'Fuzz test your changes!' Fuzz testing is a very
+effective way to automatically find a lot of dissector related bugs.
+You'll take a capture file containing packets affecting your dissector
+and the fuzz test will randomly change bytes in this file, so that unusual
+code paths in your dissector are checked. There are tools available to
+automatically do this on any number of input files, see:
+wireshark-wiki-site:[]/FuzzTesting[]for details.
+
+[[ChSrcSend]]
+
+
+==== Sending your patch for inclusion
+
+After generating a patch of your changes, you might want to have your
+changes included into the SVN repository.
+
+To submit a patch, open a new ticket in the Wireshark bug database at wireshark-bugs-site:[]/bugzilla/enter_bug.cgi?product=Wireshark[].
+You must first create a bug, then attach your patch or patches.
+
+* Set the Product, Priority, and Severity as needed.
+
+* Add a Summary and Description, and create a bug using the
+Commitbutton. If your code has passed fuzz
+testing, please say so in the description.
+
+* Once the bug has been created, select Create a New Attachmentand upload your
+patch or patches. Set the +review_for_checkin+ flag to *?*. If you skip
+this step, your patch won't show up in the patch request queue.
+
+* If possible and applicable, attach a capture file that demonstrates
+your new feature or protocol.
+
+* Don't set the bug's status to ASSIGNED and don't assign the bug to
+yourself -- if you do the latter, the core developers won't see the
+updates made to the bug.
+
+You might get one of the following responses to your patch request:
+
+* Your patch is checked into the SVN repository. Congratulations!
+
+* You are asked to provide additional information, capture files, or
+other material. If you haven't fuzzed your code, you may be asked
+to do so.
+
+* Your patch is rejected. You should get a response with the reason
+for rejection.  Common reasons include not following the style
+guide, buggy or insecure code, and code that won't compile on other
+platforms. In each case you'll have to fix each problem and upload
+another patch.
+
+* You don't get any response to your patch.
+Possible reason: Don't worry, if your patch is in the bug tracker, it
+won't get lost.  But it may be that all the core developers are busy
+(e.g., with their day jobs or family or...) and haven't had time to
+look at your patch.  If you're concerned, feel free to add a comment
+to the patch or send an email to the developer's list asking for
+status.  But please be patient: most if not all of us do this in our
+"spare" time.
+
+[[ChSrcPatchApply]]
+
+=== Apply a patch from someone else
+
+Sometimes you need to apply a patch to your private source tree. Maybe
+because you want to try a patch from someone on the developer mailing
+list, or you want to check your own patch before submitting.
+
+
+.Beware line endings
+[WARNING]
+====
+If you have problems applying a patch, make sure the line endings (CR/LF)
+of the patch and your source files match.
+====
+
+[[ChSrcPatchUse]]
+
+
+==== Using patch
+
+Given the file 'new.diff' containing a unified diff,
+the right way to call the patch tool depends on what the pathnames in
+'new.diff' look like.
+If they're relative to the top-level source directory (for example, if a
+patch to 'prefs.c' just has 'prefs.c' as the file name) you'd run it as:
+
+----
+$ patch -p0 < new.diff
+----
+
+If they're relative to a higher-level directory, you'd replace 0 with the
+number of higher-level directories in the path, e.g. if the names are
+'wireshark.orig/prefs.c' and
+'wireshark.mine/prefs.c', you'd run it with:
+
+----
+$ patch -p1 < new.diff
+----
+
+If they're relative to a 'subdirectory' of the top-level
+directory, you'd run `patch` in 'that' directory and run it with `-p0`.
+
+If you run it without `-pat` all, the patch tool
+flattens path names, so that if you
+have a patch file with patches to 'Makefile.am' and
+'wiretap/Makefile.am',
+it'll try to apply the first patch to the top-level
+'Makefile.am' and then apply the
+'wiretap/Makefile.am' patch to the top-level
+'Makefile.am' as well.
+
+At which position in the filesystem should the patch tool be called?
+
+If the pathnames are relative to the top-level source directory, or to a
+directory above that directory, you'd run it in the top-level source
+directory.
+
+If they're relative to a *subdirectory* -- for example,
+if somebody did a patch to 'packet-ip.c' and ran `diff` or `svn diff` in
+the 'epan/dissectors' directory -- you'd run it in that subdirectory.
+It is preferred that people *not* submit patches like
+that, especially if they're only patching files that exist in multiple
+directories such as 'Makefile.am'.
+
+[[ChSrcAdd]]
+
+=== Add a new file to the Subversion repository
+
+The recommended way to commit new files is described in <<ChSrcContribute>>.
+However, the following might be of interest for contributing developers as well.
+
+[NOTE]
+====
+These actions can only be performed by the Wireshark core developers who
+have write access to the Subversion repository. It is put in here to have
+all information in one place.
+====
+
+If you (as a core developer) need to add a file to the SVN repository,
+then you need to perform the following steps:
+
+. Verify that that file is complete (has Wireshark boilerplate, `$Id$`, etc).
+
+. Add the new file(s) to the repository:
++
+----
+$ svn add new_file
+----
+
+. Set the line ending property to 'native' for the new file(s):
++
+----
+$ svn propset svn:eol-style native new_file
+----
+
+. Set version keyword to 'Id' for the new file(s):
++
+----
+$ svn propset svn:keywords Id new_file
+----
+
+. Commit your changes, including the added file(s).
++
+----
+$ svn commit new_file other_files_you_modified
+----
+
+Don't forget a brief description of the reason for the commit so other
+developers don't need to read the diff in order to know what has changed.
+
+[[ChSrcBinary]]
+
+=== Binary packaging
+
+Delivering binary packages makes it much easier for the end-users to
+install Wireshark on their target system. This section will explain how
+the binary packages are made.
+
+
+[[ChSrcDeb]]
+
+
+==== Debian: .deb packages
+
+The Debian Package is built using dpkg-buildpackage, based on information
+found in the source tree under _debian_. See
+http://www.debian-administration.org/articles/336[]for a
+more in-depth discussion of the build process.
+
+
+In the wireshark directory, type:
+
+----
+$ make debian-package
+----
+
+to build the Debian Package.
+
+[[ChSrcRpm]]
+
+==== Red Hat: .rpm packages
+
+The RPM is built using rpmbuild (http://www.rpm.org/), which comes as standard on many flavours of Linux, including
+Red Hat and Fedora. The process creates a clean build environment in _packaging/rpm/BUILD_every
+time the RPM is built. The settings controlling the build are in _packaging/rpm/SPECS/wireshark.spec.in_.
+After editing the settings in this file, _./configure_must be run again in the wireshark directory to
+generate the actual specification script.
+
+
+.Careful with that `configure` setting
+[NOTE]
+====
+The SPEC file contains settings for the _configure_ used to set the RPM build
+environment. These are completely independent of any settings passed to the
+usual Wireshark `./configure`. The exception to this rule is that the _prefix_
+given to `configure --prefix` is passed to rpmbuild.
+====
+
+In the wireshark directory, type:
+
+----
+$ make rpm-package
+----
+
+to build the RPM and source RPM. Once it is done, there will be a message stating where the built RPM can be found.
+
+.This might take a while
+[TIP]
+====
+Because this does a clean build as well as constructing the package this can
+take quite a long time.
+====
+
+.Build requirements differ from run requirements
+[TIP]
+====
+Building the RPM requires building a source distribution which itself requires
+the Qt development tools `uic` and `moc`. These can usually be obtained by
+installing the _qt-devel_ package.
+====
+
+[[ChSrcOSX]]
+
+==== MAC OS X: .dmg packages
+
+The MAC OS X Package is built using OS X packaging tools, based on information
+found in the source tree under 'packaging/macosx'.
+
+In the wireshark directory, type:
+
+----
+$ make osx-package
+----
+
+to build the MAC OS X Package.
+
+[[ChSrcNSIS]]
+
+==== Win32: NSIS .exe installer
+
+The _Nullsoft Install System_ is a free installer generator for Win32
+based systems; instructions how to install it can be found in <<ChToolsNSIS>>.
+NSIS is script based, you will find the Wireshark installer
+generation script at: 'packaging/nsis/wireshark.nsi'.
+
+You will probably have to modify the MAKENSIS setting in the
+'config.nmake' file to specify where the NSIS binaries
+are installed.
+
+In the wireshark directory, type:
+
+----
+> nmake -f makefile.nmake packaging
+----
+
+to build the installer.
+
+.This might take a while
+[TIP]
+====
+Please be patient while the package is compressed.
+It might take some time, even on fast machines.
+====
+
+If everything went well, you will now find something like:
+'wireshark-setup-wireshark-version:[].exe' in
+the 'packaging/nsis' directory.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter Sources -->
+++++++++++++++++++++++++++++++++++++++
+    

@@ -165,13 +165,16 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_env_intro.xml	\
 	wsdg_src/WSDG_chapter_libraries.xml	\
 	wsdg_src/WSDG_chapter_quick_setup.xml	\
-	wsdg_src/WSDG_chapter_sources.xml	\
+	wsdg_src/WSDG_chapter_sources.asciidoc	\
 	wsdg_src/WSDG_chapter_tools.xml		\
 	wsdg_src/WSDG_chapter_userinterface.xml	\
 	wsdg_src/WSDG_chapter_works.xml		\
 	wsdg_src/WSDG_meta_info.xml		\
 	wsdg_src/WSDG_preface.xml		\
 	ws.css
+
+WSDG_GENERATED_SOURCE = \
+	wsdg_src/WSDG_chapter_sources.xml
 
 WSDG_GRAPHICS =	\
 	wsdg_graphics/ws-capture-sync.dia	\
@@ -197,7 +200,7 @@ WSUG_SOURCE =	\
 	$(WSUG_GRAPHICS)
 
 # developer-guide.xml must be first in the list (to match $<)
-WSDG_SOURCE =	\
+WSDG_DIST =	\
 	developer-guide.xml	\
 	git_version.xml		\
 	GPL_appendix.xml	\
@@ -205,6 +208,8 @@ WSDG_SOURCE =	\
 	Makefile.common		\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)
+
+WSDG_SOURCE = $(WSDG_DIST) $(WSDG_GENERATED_SOURCE)
 
 RELEASE_NOTES_SOURCE = \
 	release-notes.asciidoc	\
@@ -218,6 +223,8 @@ CLEANFILES =	\
 	*.hhp			\
 	*.pdf			\
 	*.validated		\
+	$(WSDG_GENERATED_SOURCE) \
+	wsdg_src/*.dbk		\
 	wsdg_chm		\
 	wsdg_html.zip		\
 	wsdg_html_chunked.zip	\

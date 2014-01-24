@@ -267,7 +267,7 @@ clean-local:
 
 EXTRA_DIST = \
 	$(WSUG_SOURCE)		\
-	$(WSDG_SOURCE)		\
+	$(WSDG_DIST)		\
 	$(RELEASE_NOTES_SOURCE)	\
 	check_git_version.sh	\
 	docbook.vcproj		\
