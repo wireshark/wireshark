@@ -43,6 +43,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_sms.h"
 #include "packet-usb.h"
+#include "packet-mbim.h"
 
 void proto_register_mbim(void);
 void proto_reg_handoff_mbim(void);
@@ -551,6 +552,8 @@ static gboolean mbim_control_decode_unknown_itf = FALSE;
 
 static reassembly_table mbim_reassembly_table;
 
+static wmem_tree_t *mbim_uuid_ext_tree = NULL;
+
 static const fragment_items mbim_frag_items = {
     &ett_mbim_fragment,
     &ett_mbim_fragments,
@@ -566,11 +569,6 @@ static const fragment_items mbim_frag_items = {
     &hf_mbim_reassembled_length,
     &hf_mbim_reassembled_data,
     "MBIM fragments"
-};
-
-struct mbim_info {
-    guint32 req_frame;
-    guint32 resp_frame;
 };
 
 struct mbim_conv_info {
@@ -604,9 +602,6 @@ static const value_string mbim_msg_type_vals[] = {
     { MBIM_INDICATE_STATUS_MSG, "INDICATE_STATUS_MSG"},
     { 0, NULL}
 };
-
-#define MBIM_COMMAND_QUERY 0
-#define MBIM_COMMAND_SET   1
 
 static const value_string mbim_command_type_vals[] = {
     { MBIM_COMMAND_QUERY, "Query"},
@@ -691,6 +686,7 @@ struct mbim_uuid {
 #define UUID_MS_HOSTSHUTDOWN 8
 #define UUID_MSFWID          9
 #define UUID_EXT_QMUX        10 /* Qualcomm proprietary UUID */
+#define UUID_EXT_IDX         255
 
 static const struct mbim_uuid mbim_uuid_service_id_vals[] = {
     { UUID_BASIC_CONNECT, {0xa289cc33, 0xbcbb, 0x8b4f, { 0xb6, 0xb0, 0x13, 0x3e, 0xc2, 0xaa, 0xe6, 0xdf}}},
@@ -1631,10 +1627,13 @@ static const int *mbim_descriptor_network_capabilities_fields[] = {
 };
 
 static guint8
-mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf, gint *offset)
+mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf,
+                             gint *offset, struct mbim_uuid_ext **uuid_ext_info)
 {
     e_guid_t uuid;
     guint i;
+    guint32 uuid_ext[4];
+    wmem_tree_key_t uuid_key[2];
 
     tvb_get_ntohguid(tvb, *offset, &uuid);
 
@@ -1643,6 +1642,28 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
             break;
         }
     }
+
+    if ((i == array_length(mbim_uuid_service_id_vals)) && uuid_ext_info) {
+        /* Let's check if UUID is known in extension table */
+        uuid_ext[0] = tvb_get_ntohl(tvb, *offset);
+        uuid_ext[1] = tvb_get_ntohl(tvb, *offset + 4);
+        uuid_ext[2] = tvb_get_ntohl(tvb, *offset + 8);
+        uuid_ext[3] = tvb_get_ntohl(tvb, *offset + 12);
+
+        uuid_key[0].length = 4;
+        uuid_key[0].key = uuid_ext;
+        uuid_key[1].length = 0;
+        uuid_key[1].key = NULL;
+
+        *uuid_ext_info = (struct mbim_uuid_ext *)wmem_tree_lookup32_array(mbim_uuid_ext_tree, uuid_key);
+        if (*uuid_ext_info) {
+            proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
+                                             (*uuid_ext_info)->uuid_name, guid_to_ep_str(&uuid));
+            *offset += 16;
+            return UUID_EXT_IDX;
+        }
+    }
+
     proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
                                      val_to_str_const(i, mbim_service_id_vals, "Unknown"), guid_to_ep_str(&uuid));
     *offset += 16;
@@ -1651,7 +1672,8 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 static guint32
-mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint8 uuid_idx)
+mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offset, guint8 uuid_idx,
+                 struct mbim_uuid_ext *uuid_ext_info)
 {
     guint32 cid;
 
@@ -1701,6 +1723,14 @@ mbim_dissect_cid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint *offs
         case UUID_EXT_QMUX:
             proto_tree_add_uint(tree, hf_mbim_uuid_ext_qmux_cid, tvb, *offset, 4, cid);
             col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", val_to_str_const(cid, mbim_uuid_ext_qmux_cid_vals, "Unknown"));
+            break;
+        case UUID_EXT_IDX:
+            {
+                const gchar* cid_string = val_to_str_const(cid, uuid_ext_info->uuid_cid_list, "Unknown");
+
+                proto_tree_add_uint_format_value(tree, hf_mbim_cid, tvb, *offset, 4, cid, "%s (%u)", cid_string , cid);
+                col_append_fstr(pinfo->cinfo, COL_INFO, ": %s", cid_string);
+            }
             break;
         default:
             proto_tree_add_uint(tree, hf_mbim_cid, tvb, *offset, 4, cid);
@@ -2455,8 +2485,9 @@ mbim_dissect_device_service_element(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     guint8 uuid_idx;
     guint32 i, cid_count, cid;
+    struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_device_service_element_device_service_id, &offset);
+    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_device_service_element_device_service_id, &offset, &uuid_ext_info);
     proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_device_service_element_dss_payload,
                            ett_mbim_bitmap, mbim_device_service_element_dss_payload_fields, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -2512,6 +2543,10 @@ mbim_dissect_device_service_element(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                 proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
                                                  val_to_str_const(cid, mbim_uuid_ext_qmux_cid_vals, "Unknown"), cid);
                 break;
+            case UUID_EXT_IDX:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, uuid_ext_info->uuid_cid_list, "Unknown"), cid);
+                break;
             default:
                 proto_tree_add_uint(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid);
                 break;
@@ -2565,8 +2600,9 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 {
     guint8 uuid_idx;
     guint32 i, cid_count, cid;
+    struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_event_entry_device_service_id, &offset);
+    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_event_entry_device_service_id, &offset, &uuid_ext_info);
     cid_count = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_event_entry_cid_count, tvb, offset, 4, cid_count);
     offset += 4;
@@ -2616,6 +2652,10 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
             case UUID_EXT_QMUX:
                 proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
                                                  val_to_str_const(cid, mbim_uuid_ext_qmux_cid_vals, "Unknown"), cid);
+                break;
+            case UUID_EXT_IDX:
+                proto_tree_add_uint_format_value(tree, hf_mbim_device_service_element_cid, tvb, offset, 4, cid, "%s (%u)",
+                                                 val_to_str_const(cid, uuid_ext_info->uuid_cid_list, "Unknown"), cid);
                 break;
             default:
                 proto_tree_add_uint(tree, hf_mbim_event_entry_cid, tvb, offset, 4, cid);
@@ -3426,7 +3466,7 @@ mbim_dissect_muticarrier_current_cid_list_req(tvbuff_t *tvb, packet_info *pinfo 
 {
     guint8 service_idx;
 
-    service_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_multicarrier_current_cid_list_req_uuid, &offset);
+    service_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_multicarrier_current_cid_list_req_uuid, &offset, NULL);
     if (service_idx != UUID_MULTICARRIER) {
         expert_add_info_format(pinfo, NULL, &ei_mbim_unexpected_uuid_value,
                                "Unexpected UUID value, should be UUID_MULTICARRIER");
@@ -3459,7 +3499,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     wmem_tree_key_t trans_id_key[3];
     conversation_t *conversation;
     struct mbim_conv_info *mbim_conv;
-    struct mbim_info *mbim_info;
+    struct mbim_info *mbim_info = NULL;
 
     if (mbim_control_decode_unknown_itf && (tvb_reported_length(tvb) < 12)) {
         return 0;
@@ -3526,6 +3566,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 guint8 uuid_idx;
                 fragment_head *frag_data;
                 tvbuff_t *frag_tvb;
+                struct mbim_uuid_ext *uuid_ext_info = NULL;
 
                 ti = proto_tree_add_text(mbim_tree, tvb, offset, 8, "Fragment Header");
                 subtree = proto_item_add_subtree(ti, ett_mbim_frag_header);
@@ -3576,9 +3617,12 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     }
                 }
 
-                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset);
-                cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx);
+                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info);
+                cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx, uuid_ext_info);
                 cmd_type = tvb_get_letohl(frag_tvb, offset);
+                if (mbim_info) {
+                    mbim_info->cmd_type = cmd_type;
+                }
                 proto_tree_add_uint(mbim_tree, hf_mbim_command_type, frag_tvb, offset, 4, cmd_type);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str_const(cmd_type, mbim_command_type_vals, "Unknown"));
                 offset += 4;
@@ -3990,6 +4034,25 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                         }
                         break;
+                    case UUID_EXT_IDX:
+                        {
+                            gint cid_idx;
+                            mbim_dissect_fct dissect_cid;
+
+                            try_val_to_str_idx(cid, uuid_ext_info->uuid_cid_list, &cid_idx);
+                            if (cid_idx != -1) {
+                                dissect_cid = (cmd_type == MBIM_COMMAND_SET) ? uuid_ext_info->uuid_fct_list[cid_idx].cmd_set :
+                                    uuid_ext_info->uuid_fct_list[cid_idx].cmd_query;
+                                if (dissect_cid) {
+                                    dissect_cid(frag_tvb, pinfo, subtree, offset, mbim_info);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                            } else {
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                            }
+                        }
+                        break;
                     default:
                         if (info_buff_len) {
                             proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
@@ -4035,6 +4098,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 guint8 uuid_idx;
                 fragment_head *frag_data;
                 tvbuff_t *frag_tvb;
+                struct mbim_uuid_ext *uuid_ext_info = NULL;
 
                 ti = proto_tree_add_text(mbim_tree, tvb, offset, 8, "Fragment Header");
                 subtree = proto_item_add_subtree(ti, ett_mbim_frag_header);
@@ -4087,8 +4151,8 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     }
                 }
 
-                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset);
-                cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx);
+                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info);
+                cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx, uuid_ext_info);
                 if (msg_type == MBIM_COMMAND_DONE) {
                     proto_tree_add_item(mbim_tree, hf_mbim_status, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);
                     offset += 4;
@@ -4459,6 +4523,25 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                         }
                         break;
+                    case UUID_EXT_IDX:
+                        {
+                            gint cid_idx;
+                            mbim_dissect_fct dissect_cid;
+
+                            try_val_to_str_idx(cid, uuid_ext_info->uuid_cid_list, &cid_idx);
+                            if (cid_idx != -1) {
+                                dissect_cid = (msg_type == MBIM_COMMAND_DONE) ? uuid_ext_info->uuid_fct_list[cid_idx].cmd_done :
+                                    uuid_ext_info->uuid_fct_list[cid_idx].ind_status;
+                                if (dissect_cid) {
+                                    dissect_cid(frag_tvb, pinfo, subtree, offset, mbim_info);
+                                } else if (info_buff_len) {
+                                    proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
+                                }
+                            } else {
+                                proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
+                            }
+                        }
+                        break;
                     default:
                         proto_tree_add_item(subtree, hf_mbim_info_buffer, frag_tvb, offset, info_buff_len, ENC_NA);
                         break;
@@ -4720,6 +4803,21 @@ mbim_reassembly_init(void)
 {
     reassembly_table_init(&mbim_reassembly_table,
                           &addresses_reassembly_table_functions);
+}
+
+void mbim_register_uuid_ext(struct mbim_uuid_ext *uuid_ext)
+{
+    wmem_tree_key_t uuid_key[2];
+
+    if (!mbim_uuid_ext_tree) {
+        mbim_uuid_ext_tree = wmem_tree_new(wmem_epan_scope());
+    }
+
+    uuid_key[0].length = 4;
+    uuid_key[0].key = uuid_ext->uuid;
+    uuid_key[1].length = 0;
+    uuid_key[1].key = NULL;
+    wmem_tree_insert32_array(mbim_uuid_ext_tree, uuid_key, uuid_ext);
 }
 
 void
