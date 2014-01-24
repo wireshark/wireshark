@@ -2099,6 +2099,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		 */
 		bits_needed = 1;
 		GET_DATA;
+		value = oct>>(32-bits_needed);
 
 		proto_tree_add_bits_item(tf_tree, hf_gsm_a_gm_rac_8psk_pow_cap_pres, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
@@ -2107,7 +2108,7 @@ de_gmm_ms_radio_acc_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
 		bits_in_oct	  -= bits_needed;
 
 		/* analyse bits */
-		if ((oct>>(32-bits_needed)) == 1)
+		if (value == 1)
 		{
 			/*
 			 * 8PSK Power Capability
