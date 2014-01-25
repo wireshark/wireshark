@@ -143,7 +143,7 @@ dissect_dtcp_ip(tvbuff_t *tvb, packet_info *pinfo,
     guint        offset = 0;
     guint16      length;
     proto_item  *pi, *pi_ctrl;
-    proto_tree  *dtcp_ip_tree = NULL, *dtcp_ip_ctrl_tree = NULL;
+    proto_tree  *dtcp_ip_tree, *dtcp_ip_ctrl_tree;
     guint8       subfct_val;
     const gchar *subfct_str;
     gint         ake_info_len;
