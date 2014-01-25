@@ -21,6 +21,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+find_package( FOP ) # Call before XSLTPROC
+find_package( LYNX )
+find_package( XSLTPROC )
+find_package( XMLLINT )
+find_package( ASCIIDOC )
 
 set(WSUG_FILES
 	wsug_src/WSUG_app_files.xml
@@ -183,7 +188,7 @@ set(WSDG_FILES
 	wsdg_src/WSDG_chapter_env_intro.xml
 	wsdg_src/WSDG_chapter_libraries.xml
 	wsdg_src/WSDG_chapter_quick_setup.xml
-	wsdg_src/WSDG_chapter_sources.xml
+	wsdg_generated_src/WSDG_chapter_sources.xml
 	wsdg_src/WSDG_chapter_tools.xml
 	wsdg_src/WSDG_chapter_userinterface.xml
 	wsdg_src/WSDG_chapter_works.xml
@@ -218,12 +223,56 @@ set(WSUG_SOURCE
 	${WSUG_GRAPHICS}
 )
 
+SET( WSDG_GENERATED_FILES )
+# Convert an AsciiDoc document to a Docbook chapter
+MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
+	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+	set( A2X_HTML_OPTS --stylesheet=ws.css )
+	set( _output_xml ${_source_base_name}.xml )
+	set( _output_dbk ${_source_base_name}.dbk )
+	ADD_CUSTOM_TARGET(${_output_xml}
+		# XXX - Output to a specific directory, e.g. wsdg_generated_src
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMAND ${A2X_EXECUTABLE}
+			--verbose
+			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
+			--asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+			--no-xmllint
+			--fop
+			--format=docbook --doctype=book
+			${A2X_HTML_OPTS}
+			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+		COMMAND mv
+			${_output_xml}
+			${_output_dbk}
+		COMMAND ${XMLLINT_EXECUTABLE}
+			--xpath chapter
+			${_output_dbk}
+			> ${_output_xml}
+		DEPENDS
+			${_outptudir}
+	${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+	${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}
+	)
+LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
+ENDMACRO()
+
+FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
+	ASCIIDOC2CHAPTER(
+		${ASCIIDOCFILE}
+		asciidoc.conf
+	)
+ENDFOREACH()
+
+ADD_CUSTOM_TARGET( wsdg_generated_src DEPENDS ${WSDG_GENERATED_FILES} )
+
 # developer-guide.xml must be first in the list
 set(WSDG_SOURCE
 	developer-guide.xml
 	git_version.xml
 	${WSDG_FILES}
 	${WSDG_GRAPHICS}
+        wsdg_generated_src
 )
 
 set(WSLUA_MODULES
@@ -237,12 +286,6 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tvb.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
 )
-
-find_package( FOP ) # Call before XSLTPROC
-find_package( LYNX )
-find_package( XSLTPROC )
-find_package( XMLLINT )
-find_package( ASCIIDOC )
 
 ADD_CUSTOM_COMMAND(
 	OUTPUT
@@ -316,8 +359,6 @@ VALIDATE_XML(
 	wsdg.validated
 	WSDG_SOURCE
 )
-
-#ASCIIDOC2CHAPTER(WSDG_ASCIIDOC_FILES)
 
 XML2HTML(
 	wsdg.validated
