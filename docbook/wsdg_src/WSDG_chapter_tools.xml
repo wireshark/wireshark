@@ -1542,6 +1542,7 @@ Copyright (C) 2000-2006 CollabNet.
       nicely integrate into the Windows Explorer window.</para>
     </section>
   </section>
+  <!--
   <section id="ChToolsDiff">
     <title>diff (optional)</title>
     <para>Diff is used to get a file of all differences between two
@@ -1569,7 +1570,7 @@ Copyright (C) 2000-2006 CollabNet.
       bash command line prompt:</para>
       <para>
         <prompt>$</prompt>
-        <userinput>diff --version</userinput>
+        <userinput>diff - --><!-- -version</userinput>
       </para>
       <para>should result in something like:
       <programlisting>
@@ -1595,6 +1596,7 @@ warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.]]>
       can use them.</para>
     </section>
   </section>
+    -->
   <section id="ChToolsPatch">
     <title>patch (optional)</title>
     <para>The patch utility is used to merge a diff file into your
