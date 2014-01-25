@@ -347,36 +347,24 @@ your personal source tree in sync with the official sources again.
 
 === Build Wireshark
 
-The sources contain several documentation files, it's a good idea to
-look at these files first.
+The sources contain several documentation files. It's a good idea to read these
+files first. After obtaining the sources, tools and libraries, the first place
+to look at is 'doc/README.developer'. Inside you will find the latest
+information for Wireshark development for all supported platforms.
 
-
-So after obtaining the sources, tools and libraries, the
-first place to look at is _doc/README.developer_,
-here you will get the latest infos for Wireshark development for all
-supported platforms.
-
-
-
+.Build Wireshark before changing anything
 [TIP]
-.Tip!
 ====
-It is a very good idea, to first test your complete build environment
-(including running and debugging Wireshark) before doing any changes
+It is a very good idea to first test your complete build environment
+(including running and debugging Wireshark) before making any changes
 to the source code (unless otherwise noted).
-
-
 ====
 
-The following steps for the first time generation differ on the two
-major platforms.
-
-
-
+Building Wireshark for the first time depends on your platform.
 
 ==== Unix
 
-Run the autogen.sh script at the top-level wireshark directory to configure
+Run the `autogen.sh` script at the top-level wireshark directory to configure
 your build directory.
 
 ----
@@ -385,9 +373,7 @@ $ ./configure
 $ make
 ----
 
-
-
-If you need to build with a non-standard configuration, you can use:
+If you need to build with a non-standard configuration, you can run
 
 ----
 $ ./configure --help
@@ -395,24 +381,16 @@ $ ./configure --help
 
 to see what options you have.
 
-
-
-
 ==== Win32 native
 
-The first thing to do will be to check the file
-'config.nmake' to determine if it reflects your configuration.
-The settings in this file are well documented, so please have a look at
-that file.
-However, if you've installed the libraries and tools as recommended there
-should be no need to edit things here.
+First, check the file 'config.nmake' to determine if it reflects your
+configuration. The settings in this file are well documented but there are a lot
+of them so please look closely. If you've installed the libraries and tools as
+recommended there should be no need to change anything.
 
-
-Many of the file and directory names used in the build process go past the
-old 8.3 naming limitations.
-As a result, you should use the `cmd.exe` command interpreter
-instead of the old `command.com`.
-
+Many of the file and directory names used in the build process go past the old
+8.3 naming limitations. As a result you should use the `cmd.exe` command
+interpreter instead of the old `command.com`.
 
 Be sure that your command-line environment is set up to compile
 and link with MSV$$C++$$. When installing MSV$$C++$$, you can have your
@@ -570,235 +548,234 @@ should be thought about (like side effects that are sometimes very
 hard to see).
 ====
 
+// XXX - Add a section on branching.
+
 [[ChSrcContribute]]
 
 
 === Contribute your changes
 
-If you have finished changing the Wireshark sources to suit your needs,
-you might want to contribute your changes back to the Wireshark
-community. You gain the following benefits by contributing your improvements:
+If you have finished changing the Wireshark sources to suit your needs, you
+might want to contribute your changes back to the Wireshark community. You gain
+the following benefits by contributing your improvements:
 
-* _It's the right thing to do._ Other people who find your contributions
-useful will appreciate them, and you will know that you have helped
-people in the same way that the developers of Wireshark have helped
-you.
+* _It's the right thing to do._ Other people who find your contributions useful
+  will appreciate them, and you will know that you have helped people in the
+  same way that the developers of Wireshark have helped you.
 
-* _You get free enhancements._ By making your code public, other developers
-have a chance to make improvements, as there's always room for
-improvements. In addition someone may implement advanced features on top of
-your code, which can be useful for yourself too.
+* _You get free enhancements._ By making your code public, other developers have
+  a chance to make improvements, as there's always room for improvements. In
+  addition someone may implement advanced features on top of your code, which
+  can be useful for yourself too.
 
-* _You save time and effort._ The maintainers and developers of Wireshark
-will maintain your code as well, updating it when API changes or other
-changes are made, and generally keeping it in tune with what is
-happening with Wireshark. So if Wireshark is updated (which is done
-often), you can get a new Wireshark version from the website and your
-changes will already be included without any effort for you.
+* _You save time and effort._ The maintainers and developers of Wireshark will
+  maintain your code as well, updating it when API changes or other changes are
+  made, and generally keeping it in tune with what is happening with Wireshark.
+  So if Wireshark is updated (which is done often), you can get a new Wireshark
+  version from the website and your changes will already be included without any
+  effort for you.
 
-There's no direct way to commit changes to the SVN repository. Only a few
-people are authorised to actually
-make changes to the source code (check-in changed files). If you want
-to submit your changes, you should make a diff file (a patch) and upload it to the bug tracker.
+There's no direct way to push changes to the Git repository. Only a few people
+are authorised to actually make changes to the source code (check-in changed
+files). If you want to submit your changes, you should push them to the code
+review system.
 
-[[ChSrcDiffWhat]]
-
-==== What is a diff file (a patch)?
-
-A http://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
-(or a multiple of such file pairs).
-
-.A diff file is often also called a patch.
-[TIP]
-====
-No matter what the name it can be used to patch an existing source file or tree with changes
-from somewhere else.
-====
-
-The Wireshark community is using patches to transfer source code changes
-between the authors.
-
-A patch is both readable by humans and (as it is specially formatted) by
-some dedicated tools.
-
-Here is a small example of a patch for _file.h_that
-makes the second argument in cf_continue_tail()volatile.  It was created using _svn diff _,
-described below:
-
-[source,Diff]
-----
-Index: file.h
-===================================================================
---- file.h      (revision 21134)
-+++ file.h      (revision 22401)
-@@ -142,7 +142,7 @@
-  * @param err the error code, if an error had occurred
-  * @return one of cf_read_status_t
-  */
--cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
-+cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
-
- /**
-  * Finish reading from "end" of a capture file.
-----
-
-The plus sign at the start of a line indicates an added line, a minus
-sign indicates a deleted line compared to the original sources.
-
-We prefer to use so called "unified" diff files in Wireshark development,
-three unchanged lines before and after the actual changed parts are
-included. This makes it much easier for a merge/patch tool to find
-the right place(s) to change in the existing sources.
-
-[[ChSrcGeneratePatch]]
-
-==== Generate a patch
-
-There are several ways to generate patches. The preferred way is to
-generate them from an updated Subversion tree, since it avoids
-unnecessary integration work.
-
-[[ChSrcSVNDiff]]
-
-
-===== Using the svn command-line client
-
-----
-$ svn diff [changed_files] > svn.diff
-----
-
-Use the command line svn client to generate a patch in the required format
-from the changes you've made to your working copy. If you leave out the
-name of the changed file the svn client searches for all changes in the
-working copy and usually produces a patch containing more than just the
-change you want to send. Therefore you should always check the produced
-patch file.
-
-If you've added a new file, e.g.
-'packet-myprotocol.c', you can use `svn add` to add it to your local tree before generating the patch.
-Similarly, you can use `svn rm` for files that shouldbe removed.
-
-[[ChSrcSVNGUIDiff]]
-
-===== Using the diff feature of the GUI Subversion clients
-
-Most (if not all) of the GUI Subversion clients (RapidSVN, TortoiseSVN, ...)
-have a built-in "diff" feature.
-
-If you use TortoiseSVN:
-
-TortoiseSVN (to be precise Subversion) keeps track of the files you have
-changed in the directories it controls, and will generate for you a
-unified diff file compiling the differences. To do so - after updating
-your sources from the SVN repository if needed - just right-click on the
-highest level directory and choose "TortoiseSVN" -> "Create patch...".
-You will be asked for a name and then the diff file will be created. The
-names of the files in the patch will be relative to the directory you have
-right-clicked on, so it will need to be applied on that level too.
-
-When you create the diff file, it will include any difference TortoiseSVN
-finds in files in and under the directory you have right-clicked on, and
-nothing else. This means that changes you might have made for your
-specific configuration - like modifying 'config.nmake' so that it uses
-your lib directory - will also be included, and you will need to remove
-these lines from the diff file. It also means that only changes will be
-recorded, i.e. if you have created new files -- say, a new
-'packet-xxx.c' for a
-new protocol dissector -- it will not be included in the diff, you need to
-add it separately. And, of course, if you have been working separately in
-two different patches, the .diff file will include both topics, which is
-probably not a good idea.
-
-[[ChSrcDiff]]
-
-===== Using the diff tool
-
-A diff file is generated, by comparing two files or directories between
-your own working copy and the "official" source tree. So to be able to
-do a diff, you should
-have two source trees on your computer, one with your working copy
-(containing your changes), and one with the "official" source tree
-(hopefully the latest SVN files) from wireshark-web-site:[].
-
-If you have only changed a single file, you could type something like
-this:
-
-----
-$ diff -r -u --strip-trailing-cr svn-file.c work-file.c > foo.diff
-----
-
-To get a diff file for your complete directory (including
-subdirectories), you could type something like this:
-
-----
-$ diff -N -r -u --strip-trailing-cr ./svn-dir ./working-dir > foo.diff
-----
-
-It's a good idea to run `make distclean` before the
-actual diff call, as this will remove a lot
-of temporary files which might be otherwise included in the diff. After
-doing the diff, you should edit the _foo.diff_ file and remove unnecessary
-things, like your private changes to the
-'config.nmake' file.
-
-
-.Some useful diff options
-[options="header"]
-|===============
-|Option|Purpose
-|-N|Add new files when used in conjunction with -r.
-|-r|Recursively compare any subdirectories found.
-|-u|Output unified context.
-|--strip-trailing-cr|Strip trailing carriage return on input. This is useful for Win32
-      
-|-x PAT|Exclude files that match PAT.
-      This could be something like -x *.obj to exclude all win32 object files.
-|===============
-
-
-The diff tool has a lot options; they can be listed with:
-
-----
-diff --help
-----
+// [[ChSrcDiffWhat]]
+//
+// ==== What is a diff file (a patch)?
+//
+// A http://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
+// (or a multiple of such file pairs).
+//
+// .A diff file is often also called a patch.
+// [TIP]
+// ====
+// No matter what the name it can be used to patch an existing source file or tree with changes
+// from somewhere else.
+// ====
+//
+// The Wireshark community is using patches to transfer source code changes
+// between the authors.
+//
+// A patch is both readable by humans and (as it is specially formatted) by
+// some dedicated tools.
+//
+// Here is a small example of a patch for _file.h_that
+// makes the second argument in cf_continue_tail()volatile.  It was created using _svn diff _,
+// described below:
+//
+// [source,Diff]
+// ----
+// Index: file.h
+// ===================================================================
+// --- file.h      (revision 21134)
+// +++ file.h      (revision 22401)
+// @@ -142,7 +142,7 @@
+//   * @param err the error code, if an error had occurred
+//   * @return one of cf_read_status_t
+//   */
+// -cf_read_status_t cf_continue_tail(capture_file *cf, int to_read, int *err);
+// +cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
+//
+//  /**
+//   * Finish reading from "end" of a capture file.
+// ----
+//
+// The plus sign at the start of a line indicates an added line, a minus
+// sign indicates a deleted line compared to the original sources.
+//
+// We prefer to use so called "unified" diff files in Wireshark development,
+// three unchanged lines before and after the actual changed parts are
+// included. This makes it much easier for a merge/patch tool to find
+// the right place(s) to change in the existing sources.
+//
+// [[ChSrcGeneratePatch]]
+//
+// ==== Generate a patch
+//
+// There are several ways to generate patches. The preferred way is to
+// generate them from an updated Subversion tree, since it avoids
+// unnecessary integration work.
+//
+// [[ChSrcSVNDiff]]
+//
+//
+// ===== Using the svn command-line client
+//
+// ----
+// $ svn diff [changed_files] > svn.diff
+// ----
+//
+// Use the command line svn client to generate a patch in the required format
+// from the changes you've made to your working copy. If you leave out the
+// name of the changed file the svn client searches for all changes in the
+// working copy and usually produces a patch containing more than just the
+// change you want to send. Therefore you should always check the produced
+// patch file.
+//
+// If you've added a new file, e.g.
+// 'packet-myprotocol.c', you can use `svn add` to add it to your local tree before generating the patch.
+// Similarly, you can use `svn rm` for files that shouldbe removed.
+//
+// [[ChSrcSVNGUIDiff]]
+//
+// ===== Using the diff feature of the GUI Subversion clients
+//
+// Most (if not all) of the GUI Subversion clients (RapidSVN, TortoiseSVN, ...)
+// have a built-in "diff" feature.
+//
+// If you use TortoiseSVN:
+//
+// TortoiseSVN (to be precise Subversion) keeps track of the files you have
+// changed in the directories it controls, and will generate for you a
+// unified diff file compiling the differences. To do so - after updating
+// your sources from the SVN repository if needed - just right-click on the
+// highest level directory and choose "TortoiseSVN" -> "Create patch...".
+// You will be asked for a name and then the diff file will be created. The
+// names of the files in the patch will be relative to the directory you have
+// right-clicked on, so it will need to be applied on that level too.
+//
+// When you create the diff file, it will include any difference TortoiseSVN
+// finds in files in and under the directory you have right-clicked on, and
+// nothing else. This means that changes you might have made for your
+// specific configuration - like modifying 'config.nmake' so that it uses
+// your lib directory - will also be included, and you will need to remove
+// these lines from the diff file. It also means that only changes will be
+// recorded, i.e. if you have created new files -- say, a new
+// 'packet-xxx.c' for a
+// new protocol dissector -- it will not be included in the diff, you need to
+// add it separately. And, of course, if you have been working separately in
+// two different patches, the .diff file will include both topics, which is
+// probably not a good idea.
+//
+// [[ChSrcDiff]]
+//
+// ===== Using the diff tool
+//
+// A diff file is generated, by comparing two files or directories between
+// your own working copy and the "official" source tree. So to be able to
+// do a diff, you should
+// have two source trees on your computer, one with your working copy
+// (containing your changes), and one with the "official" source tree
+// (hopefully the latest SVN files) from wireshark-web-site:[].
+//
+// If you have only changed a single file, you could type something like
+// this:
+//
+// ----
+// $ diff -r -u --strip-trailing-cr svn-file.c work-file.c > foo.diff
+// ----
+//
+// To get a diff file for your complete directory (including
+// subdirectories), you could type something like this:
+//
+// ----
+// $ diff -N -r -u --strip-trailing-cr ./svn-dir ./working-dir > foo.diff
+// ----
+//
+// It's a good idea to run `make distclean` before the
+// actual diff call, as this will remove a lot
+// of temporary files which might be otherwise included in the diff. After
+// doing the diff, you should edit the _foo.diff_ file and remove unnecessary
+// things, like your private changes to the
+// 'config.nmake' file.
+//
+//
+// .Some useful diff options
+// [options="header"]
+// |===============
+// |Option|Purpose
+// |-N|Add new files when used in conjunction with -r.
+// |-r|Recursively compare any subdirectories found.
+// |-u|Output unified context.
+// |--strip-trailing-cr|Strip trailing carriage return on input. This is useful for Win32
+//
+// |-x PAT|Exclude files that match PAT.
+//       This could be something like -x *.obj to exclude all win32 object files.
+// |===============
+//
+//
+// The diff tool has a lot options; they can be listed with:
+//
+// ----
+// diff --help
+// ----
 
 [[ChSrcGoodPatch]]
 
-
 ==== Some tips for a good patch
 
-Some tips that will make the merging of your changes into the
-SVN tree much more likely (and you want exactly that, don't you :-):
+Some tips that will make the merging of your changes into Git much more likely
+(and you want exactly that, don't you?):
 
+* 'Use the latest Git sources.' It's a good idea to work with the same
+  sources that are used by the other developers. This usuall makes it much
+  easier to apply your patch. For information about the different ways to get
+  the sources, see <<ChSrcObtain>>.
 
-* 'Use the latest SVN sources, or alike.' It's a good idea to work with the same sources that are used by the
-other developer's, this makes it usually much easier to apply your
-patch. For information about the different ways to get the sources,
-see <<ChSrcObtain>>.
+* 'Update your sources just before making a patch.' For the same reasons as the
+  previous point.
 
-* 'Update your SVN sources just before making a patch.' For the same reasons as the previous point.
+* 'Inspect your patch carefully.' Run `git diff` and make sure you aren't
+  adding, removing, or omitting anything you shouldn't.
 
-* 'Do a "make clean" before generating the patch.' This removes a lot of unneeded intermediate files (like object files)
-which can confuse the diff tool generating a lot of unneeded stuff which
-you have to remove by hand from the patch again.
+// * 'Do a "make clean" before generating the patch.' This removes a lot of
+//   unneeded intermediate files (like object files) which can confuse the diff
+//   tool generating a lot of unneeded stuff which you have to remove by hand from
+//   the patch again.
 
-* 'Find a good descriptive filename for your patch.' Think a moment to find a proper name for your patch file. Often a
-filename like 'wireshark.diff' is used, which isn't
-really helpful if keeping several of these files and find the right
-one later. For example: If you want to commit changes to the datatypes
-of dissector foo, a good filename might be:
-'packet-foo-datatypes.diff'.
+// XXX - What *are* good topic names?
+* 'Find a good descriptive topic name for your patch.' Short, specific
+  names are preferred. 'snowcone-machine-protocol' is good, your name or
+  your company name isn't.
 
-* 'Don't put unrelated things into one large patch.' A few smaller patches are usually easier to apply (but also
-don't put every changed line into a separate patch.
+* 'Don't put unrelated things into one large patch.' A few smaller patches are
+  usually easier to apply (but also don't put every changed line into a separate
+  patch.
 
-* 'Remove any parts of the patch not related to the changes you want to submit.' You can use a text editor for this.
-A common example for win32 developers are the differences in your private
-'config.nmake' file.
-
-In general, making it easier to understand and apply your patch by one
-of the maintainers will make it much more likely (and faster) that it
-will actually be applied.
+In general, making it easier to understand and apply your patch by one of the
+maintainers will make it much more likely (and faster) that it will actually be
+applied.
 
 .Please remember
 [NOTE]
@@ -814,36 +791,36 @@ and integrated.
 The core maintainers have done a lot of work fixing bugs and making code
 compile on the various platforms Wireshark supports.
 
-
-To ensure Wireshark's source code quality, and to reduce the workload of
-the core maintainers, there are some things you should
-think about 'before' submitting a patch.
+To ensure Wireshark's source code quality, and to reduce the workload of the
+core maintainers, there are some things you should think about _before_
+submitting a patch.
 
 .Pay attention to the coding guidelines
 [WARNING]
 ====
-Ignoring the code requirements will make it very likely
-that your patch will be rejected.
+Ignoring the code requirements will make it very likely that your patch will
+be rejected.
 ====
 
-* 'Follow the Wireshark source code style guide.' Just because something compiles on your platform, that doesn't
-mean it'll compile on all of the other platforms for which Wireshark is
-built.
-Wireshark runs on many platforms, and can be compiled with a number of
-different compilers. See <<ChCodeStyle>>for details.
+* 'Follow the Wireshark source code style guide.' Just because something
+  compiles on your platform, that doesn't mean it'll compile on all of the other
+  platforms for which Wireshark is built. Wireshark runs on many platforms, and
+  can be compiled with a number of different compilers. See <<ChCodeStyle>>for
+  details.
 
 * 'Submit dissectors as built-in whenever possible.' Developing a new dissector
-as a plugin is a good idea because compiling is
-quicker, but it's best to convert dissectors to the built-in style before
-submitting for checkin. This reduces the number of files that must be installed
-with Wireshark and ensures your dissector will be available on all platforms.
+as a plugin is a good idea because compiling and testing is quicker, but it's
+best to convert dissectors to the built-in style before submitting for checkin.
+This reduces the number of files that must be installed with Wireshark and
+ensures your dissector will be available on all platforms.
 +
 This is no hard-and-fast rule though. Many dissectors are straightforward so they
 can easily be put into "the big pile", while some are ASN.1 based which takes a
 different approach, and some multiple sourcefile dissectors are more suitable to
 be placed separate as plugin.
 
-* 'Verify that your dissector code does not use prohibited or deprecated APIs.' This can be done as follows:
+* 'Verify that your dissector code does not use prohibited or deprecated APIs.'
+  This can be done as follows:
 +
 ----
 $ perl <wireshark_root>/tools/checkAPIs.pl <source filename(s)>
@@ -855,58 +832,68 @@ You'll take a capture file containing packets affecting your dissector
 and the fuzz test will randomly change bytes in this file, so that unusual
 code paths in your dissector are checked. There are tools available to
 automatically do this on any number of input files, see:
-wireshark-wiki-site:[]/FuzzTesting[]for details.
+wireshark-wiki-site:[]/FuzzTesting[] for details.
 
-[[ChSrcSend]]
+[[ChSrcUpload]]
 
+==== Uploading your changes
 
-==== Sending your patch for inclusion
+When you're satisfied with your changes (and obtained any necessary approval
+from your organization) you can upload them for review. Changes should be
+pushed to a
+http://test.code.wireshark.org/review/Documentation/user-upload.html#push_create[magical "refs/for" branch]
+in Gerrit. For example, to upload your new Snowcone Machine Protocol dissector
+you could push to refs/for/master with the topic "snowcone-machine":
 
-After generating a patch of your changes, you might want to have your
-changes included into the SVN repository.
+----
+$ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master/snowcone-machine
+----
 
-To submit a patch, open a new ticket in the Wireshark bug database at wireshark-bugs-site:[]/bugzilla/enter_bug.cgi?product=Wireshark[].
-You must first create a bug, then attach your patch or patches.
+You can push using any Git client. Many clients have support for Gerrit, either
+built in or via an additional module.
 
-* Set the Product, Priority, and Severity as needed.
+// XXX - Talk about Gerrit change IDs
 
-* Add a Summary and Description, and create a bug using the
-Commitbutton. If your code has passed fuzz
-testing, please say so in the description.
-
-* Once the bug has been created, select Create a New Attachmentand upload your
-patch or patches. Set the +review_for_checkin+ flag to *?*. If you skip
-this step, your patch won't show up in the patch request queue.
-
-* If possible and applicable, attach a capture file that demonstrates
-your new feature or protocol.
-
-* Don't set the bug's status to ASSIGNED and don't assign the bug to
-yourself -- if you do the latter, the core developers won't see the
-updates made to the bug.
+// To submit a patch, open a new ticket in the Wireshark bug database at wireshark-bugs-site:[]/bugzilla/enter_bug.cgi?product=Wireshark[].
+// You must first create a bug, then attach your patch or patches.
+//
+// * Set the Product, Priority, and Severity as needed.
+//
+// * Add a Summary and Description, and create a bug using the
+// Commitbutton. If your code has passed fuzz
+// testing, please say so in the description.
+//
+// * Once the bug has been created, select Create a New Attachmentand upload your
+// patch or patches. Set the +review_for_checkin+ flag to *?*. If you skip
+// this step, your patch won't show up in the patch request queue.
+//
+// * If possible and applicable, attach a capture file that demonstrates
+// your new feature or protocol.
+//
+// * Don't set the bug's status to ASSIGNED and don't assign the bug to
+// yourself -- if you do the latter, the core developers won't see the
+// updates made to the bug.
 
 You might get one of the following responses to your patch request:
 
 * Your patch is checked into the SVN repository. Congratulations!
 
-* You are asked to provide additional information, capture files, or
-other material. If you haven't fuzzed your code, you may be asked
-to do so.
+* You are asked to provide additional information, capture files, or other
+  material. If you haven't fuzzed your code, you may be asked to do so.
 
-* Your patch is rejected. You should get a response with the reason
-for rejection.  Common reasons include not following the style
-guide, buggy or insecure code, and code that won't compile on other
-platforms. In each case you'll have to fix each problem and upload
-another patch.
+* Your patch is rejected. You should get a response with the reason for
+  rejection. Common reasons include not following the style guide, buggy or
+  insecure code, and code that won't compile on other platforms. In each case
+  you'll have to fix each problem and upload another patch.
 
-* You don't get any response to your patch.
-Possible reason: Don't worry, if your patch is in the bug tracker, it
-won't get lost.  But it may be that all the core developers are busy
-(e.g., with their day jobs or family or...) and haven't had time to
-look at your patch.  If you're concerned, feel free to add a comment
-to the patch or send an email to the developer's list asking for
-status.  But please be patient: most if not all of us do this in our
-"spare" time.
+* You don't get any response to your patch. Possible reason: All
+  the core developers are busy (e.g., with their day jobs or family or other commitments) and
+  haven't had time to look at your patch. Don't worry, if
+  your patch is in the review system it won't get lost.
++
+If you're concerned, feel free to add a comment to the patch or send an email
+to the developer's list asking for status. But please be patient: most if not
+all of us do this in our spare time.
 
 [[ChSrcPatchApply]]
 
