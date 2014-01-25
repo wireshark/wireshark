@@ -1008,8 +1008,8 @@ dns_class_name(int dns_class)
 
 /* This function returns the number of bytes consumed and the expanded string
  * in *name.
- * The string is allocated with ep scope and does not need to be free()d.
- * it will be automatically free()d when the packet has been dissected.
+ * The string is allocated with wmem_packet_scope scope and does not need to be freed.
+ * it will be automatically freed when the packet has been dissected.
  */
 int
 expand_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
