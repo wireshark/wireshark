@@ -33,6 +33,7 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 .SUFFIXES: .fo .pdf
 
 # Convert an AsciiDoc document to a Docbook chapter
+# .asciidoc -> whole book (.dbk) -> chapter (.xml)
 .asciidoc.xml:
 	$(SH) <<
 	PATH=/usr/bin
@@ -43,6 +44,7 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 		$<
 <<
 	mv $*.xml $*.dbk
+	# We want the top-level <chapter/>, not the whole book.
 	xmllint --xpath //chapter $*.dbk > $@
 
 .SUFFIXES: .asciidoc .xml

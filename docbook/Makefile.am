@@ -56,6 +56,7 @@ else
 endif
 
 # Convert an AsciiDoc document to a Docbook chapter
+# .asciidoc -> whole book (.dbk) -> chapter (.xml)
 .asciidoc.xml:
 	$(A2X) --verbose \
 		--asciidoc-opts="--conf-file=asciidoc.conf" \
@@ -63,7 +64,7 @@ endif
 		--format=docbook --doctype=book \
 		$<
 	mv $*.xml $*.dbk
-	xmllint --xpath chapter $*.dbk > $@
+	xmllint --xpath //chapter $*.dbk > $@
 
 if HAVE_XSLTPROC
 ALL_TARGETS=git_version_check wsug wsdg release_notes

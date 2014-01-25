@@ -225,6 +225,7 @@ set(WSUG_SOURCE
 
 SET( WSDG_GENERATED_FILES )
 # Convert an AsciiDoc document to a Docbook chapter
+# .asciidoc -> whole book (.dbk) -> chapter (.xml)
 MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
 	set( A2X_HTML_OPTS --stylesheet=ws.css )
@@ -246,7 +247,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 			${_output_xml}
 			${_output_dbk}
 		COMMAND ${XMLLINT_EXECUTABLE}
-			--xpath chapter
+			--xpath //chapter
 			${_output_dbk}
 			> ${_output_xml}
 		DEPENDS
