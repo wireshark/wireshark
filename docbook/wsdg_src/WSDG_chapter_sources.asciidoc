@@ -577,7 +577,7 @@ are authorised to actually make changes to the source code (check-in changed
 files). If you want to submit your changes, you should push them to the code
 review system.
 
-// [[ChSrcDiffWhat]]
+[[ChSrcDiffWhat]]
 //
 // ==== What is a diff file (a patch)?
 //
@@ -625,17 +625,17 @@ review system.
 // three unchanged lines before and after the actual changed parts are
 // included. This makes it much easier for a merge/patch tool to find
 // the right place(s) to change in the existing sources.
-//
-// [[ChSrcGeneratePatch]]
-//
+
+[[ChSrcGeneratePatch]]
+
 // ==== Generate a patch
 //
 // There are several ways to generate patches. The preferred way is to
 // generate them from an updated Subversion tree, since it avoids
 // unnecessary integration work.
-//
-// [[ChSrcSVNDiff]]
-//
+
+[[ChSrcSVNDiff]]
+
 //
 // ===== Using the svn command-line client
 //
@@ -653,9 +653,9 @@ review system.
 // If you've added a new file, e.g.
 // 'packet-myprotocol.c', you can use `svn add` to add it to your local tree before generating the patch.
 // Similarly, you can use `svn rm` for files that shouldbe removed.
-//
-// [[ChSrcSVNGUIDiff]]
-//
+
+[[ChSrcSVNGUIDiff]]
+
 // ===== Using the diff feature of the GUI Subversion clients
 //
 // Most (if not all) of the GUI Subversion clients (RapidSVN, TortoiseSVN, ...)
@@ -684,9 +684,9 @@ review system.
 // add it separately. And, of course, if you have been working separately in
 // two different patches, the .diff file will include both topics, which is
 // probably not a good idea.
-//
-// [[ChSrcDiff]]
-//
+
+[[ChSrcDiff]]
+
 // ===== Using the diff tool
 //
 // A diff file is generated, by comparing two files or directories between
