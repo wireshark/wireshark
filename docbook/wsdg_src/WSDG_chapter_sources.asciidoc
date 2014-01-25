@@ -21,141 +21,148 @@
 This chapter will explain how to work with the Wireshark source code.
 It will show you how to:
 
-
 * Get the source
 
 * Compile it on your machine
 
 * Submit changes for inclusion in the official release
 
-
-However, this chapter will not explain the source file contents in detai,
-such as where to find a specific functionality. This is done in
+This chapter will not explain the source file contents in detail,
+such as where to find specific functionality. This is done in
 <<ChCodeOverview>>.
 
+[[ChSrcGitRepository]]
 
-[[ChSrcSVNServer]]
+=== The Wireshark Git repository
 
+http://git-scm.com/[Git] is used to keep track of the changes made to the
+Wireshark source code. The code is stored inside Wireshark project's Git
+repository located at a server at the wireshark.org domain.
 
-=== The Wireshark Subversion repository
+// To quote the Subversion book about "What is Subversion?":
 
-Subversion is used to keep track of the changes made to the Wireshark
-source code. The Wireshark source code is stored inside Wireshark project's
-Subversion repository located at a server at the wireshark.org domain.
+// "Subversion is a free/open-source version control system. That is,
+//     Subversion manages files and directories over time. A tree of files is
+//     placed into a central repository. The repository is much like an ordinary
+//     file server, except that it remembers every change ever made to your files
+//     and directories. This allows you to recover older versions of your data,
+//     or examine the history of how your data changed. In this regard, many
+//     people think of a version control system as a sort of "time machine".
+//     "
 
-
-To quote the Subversion book about "What is Subversion?":
-
-
-"Subversion is a free/open-source version control system. That is,
-    Subversion manages files and directories over time. A tree of files is
-    placed into a central repository. The repository is much like an ordinary
-    file server, except that it remembers every change ever made to your files
-    and directories. This allows you to recover older versions of your data,
-    or examine the history of how your data changed. In this regard, many
-    people think of a version control system as a sort of "time machine".
-    "
-
-
-[TIP]
-.Tip: Subversion and SVN is the same!
+.Git is our *third* revision conrol system
+[NOTE]
 ====
-Subversion is often abbreviated as SVN, as the command-line tools are
-abbreviated that way. You will find both terms with the same meaning in
-this book, in mailing list discussions and elsewhere.
-
-
+Wireshark originally used http://www.nongnu.org/cvs/[Concurrent Versions System]
+(CVS) and migrated to http://subversion.apache.org/[Subversion] in July 2004.
+The Subversion repository was subsequently migrated to Git in January 2014.
 ====
 
-Using Wireshark's Subversion repository you can:
+Using Wireshark's Git repository you can:
 
+* Keep your private sources up to date with very little effort
 
-* keep your private sources up to date with very little effort
+* Get a mail notification when the official source code changes
 
-* get a mail notification if someone changes the latest sources
+* Get the source files from any previous release (or any other point in time)
 
-* get the source files from any previous release (or any other point in time)
+* Have a quick look at the sources using a web interface
 
-* have a quick look at the sources using a web interface
+* See which person changed a specific piece of code
 
-* see which person changed a specific piece of code
+* and much more
 
-* ... and a lot more things related to the history of the Wireshark source
-code development
+Changes to the official repository are managed using the
+https://code.google.com/p/gerrit/[Gerrit] code review sytem. Gerrit
+makes it easy to test and disucss changes before they are pushed to the
+main repository. For an overview of Gerrit see the
+https://code.wireshark.org/review/Documentation/intro-quick.html[Quick Introduction].
 
-
-Subversion is divided into a client and a server part.
-Thanks to Gerald Combs (the maintainer of the Subversion server),
-no user has to deal with the maintenance of the Subversion server.
-You will only need a Subversion client, which is available as
-both a command-line and a GUI tool for many different platforms.
-
-For further reference about Subversion, have a look at the homepage of the
-Subversion project: http://subversion.apache.org/[]. There
-is a good and free book about it available at: http://svnbook.red-bean.com/[].
-
-Please note that Wireshark's public (anonymous) Subversion repository is
-separate from the main repository.
-It may take several minutes for committed changes to appear in the
-public repository - so please be patient for a few minutes if you
-desperately need a code change that was committed to the repository
-very recently.
+// Subversion is divided into a client and a server part.
+// Thanks to Gerald Combs (the maintainer of the Subversion server),
+// no user has to deal with the maintenance of the Subversion server.
+// You will only need a Subversion client, which is available as
+// both a command-line and a GUI tool for many different platforms.
+//
+// For further reference about Subversion, have a look at the homepage of the
+// Subversion project: http://subversion.apache.org/[]. There
+// is a good and free book about it available at: http://svnbook.red-bean.com/[].
+//
+// Please note that Wireshark's public (anonymous) Subversion repository is
+// separate from the main repository.
+// It may take several minutes for committed changes to appear in the
+// public repository - so please be patient for a few minutes if you
+// desperately need a code change that was committed to the repository
+// very recently.
 
 [[ChSrcWebInterface]]
 
-==== The web interface to the Subversion repository
+==== The web interface to the Git repository
 
-If you need a quick look at the Wireshark source code,
-you will only need a Web browser.
+If you need a quick look at the Wireshark source code you can
+browse the most recent file versions in the master branch using Gitweb:
 
-A _simple view_ of the latest developer version can be
-found at:
+https://code.wireshark.org/review/gitweb?p=wireshark.git;a=tree
 
-http://anonsvn.wireshark.org/wireshark/trunk/[].
+You can also view commit logs, branches, tags, and past revisions:
 
-A _comprehensive view_ of all source versions
-(e.g. including the capability to show differences between versions)
-is available at:
+https://code.wireshark.org/review/gitweb?p=wireshark.git
 
-http://anonsvn.wireshark.org/viewvc/viewvc.cgi/[].
+Like most revision control systems, Git uses
+http://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
+manange different copies of the source code and allow parallel development.
+Wireshark uses the following branches for official releases:
 
-Of special interest might be the subdirectories:
+* 'master': Main feature development and odd-numbered "feature" releases.
+* 'master-x.y': Stable release maintenance. For example, master-1.10 is used
+  to manage the 1.10.x official releases.
 
-* 'trunk': the very latest source files
-
-* 'releases': the source files of all released versions
+// wireshark-code-browse-url:[]
+//
+// you only need a Web browser.
+//
+// A _simple view_ of the latest developer version can be
+// found at:
+//
+// http://anonsvn.wireshark.org/wireshark/trunk/[].
+//
+// A _comprehensive view_ of all source versions
+// (e.g. including the capability to show differences between versions)
+// is available at:
+//
+// http://anonsvn.wireshark.org/viewvc/viewvc.cgi/[].
+//
+// Of special interest might be the subdirectories:
+//
+// * 'trunk': the very latest source files
+//
+// * 'releases': the source files of all released versions
 
 [[ChSrcObtain]]
 
 === Obtain the Wireshark sources
 
-There are several ways to obtain the sources from Wireshark's Subversion
-server.
-
-
+There are several ways to obtain the sources from Wireshark's Git
+repository.
 
 [TIP]
-.Anonymous Subversion access is recommended!
+.Check out from the master branch using Git.
 ====
-It can make your life much easier, compared to updating your source tree by
+Using Git is much easier than synchronizing your source tree by hand
 using any of the zip file methods mentioned below.
-Subversion handles merging of changes into your personal source tree in a
+Git merges of changes into your personal source tree in a
 very comfortable and quick way. So you can update your source tree several
 times a day without much effort.
-
-
 ====
 
 
 [NOTE]
-.Keep your sources "up to date"!
+.Keep your sources up to date
 ====
 The following ways to retrieve the Wireshark sources are sorted in
 decreasing source timeliness.
 If you plan to commit changes you've made to the sources,
 it's a good idea to keep your private source tree as current as possible.
-
-
 ====
 
 The age mentioned in the following sections indicates the age of the
@@ -165,36 +172,42 @@ most recent change in that set of the sources.
 [[ChSrcAnon]]
 
 
-==== Anonymous Subversion access
+==== Git over HTTPS or SSH
 
 Recommended for development purposes.
 
-
 Age: a few minutes.
 
+You can use a Git client to download the source code from Wireshark's code
+review system. Anyone can clone from the anonymous URL:
 
-You can use a Subversion client to download the source code from
-Wireshark's anonymous Subversion repository. The URL for the repository
-trunk is:
-wireshark-repository-site:[]/wireshark/trunk/[].
+* wireshark-git-anonhttp-url:[]
 
+If you create a Gerrit account you can clone from an authenticated URL:
 
-See <<ChToolsSubversion>>on how to install a Subversion client.
+* wireshark-git-http-url:[]
+* wireshark-git-ssh-url:[]
 
+SSH lets you use Gerrit on the
+https://code.wireshark.org/review/Documentation/cmd-index.html#_server[command line].
+HTTP lets you access the repository in environments that block the Gerrit SSH
+port (29418). Command line access isn't available over HTTP.
 
-For example, to check out using the command-line Subversion client, you
+See <<ChToolsSubversion>> for information on installing and configuring a Git
+client.
+
+For example, to check out using the command-line Git client you
 would type:
 
+----
+$ git clone wireshark-git-anonhttp-url:[]
+----
 
-+$ svn checkout wireshark-repository-site:[]/wireshark/trunk wireshark+
-
-The checkout has to be only done once. This will copy all the sources of
-the latest version (including directories) from the server to your machine.
-This will take some time, depending on the speed of your internet connection.
-
+The checkout has to be only done once. This will copy all the sources of the
+latest version (including directories) from the server to your machine. This
+may take some time, depending on the speed of your internet connection.
 
 [[ChSrcSVNWeb]]
-
 
 ==== Anonymous Subversion web interface
 
@@ -207,7 +220,7 @@ Age: a few minutes (same as anonymous Subversion access).
 
 The entire source tree of the Subversion repository is available via a
 web interface at:
-wireshark-repository-site:[]/viewvc/viewvc.cgi/[].
+wireshark-code-browse-url:[].
 You can view each revision of a particular file, as well as diffs between
 different revisions.
 You can also download individual files but not entire directories.

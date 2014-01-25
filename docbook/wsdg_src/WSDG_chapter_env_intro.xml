@@ -481,7 +481,7 @@
 	The README.developer is packed full with all kinds of details relevant
 	to the developer of Wireshark source code. It advices you around common
 	pitfalls, shows you basic layout of dissector code, shows details of the
-	API's available to the dissector developer, etc.  
+	API's available to the dissector developer, etc.
 	</para>
 	</note>
 	</listitem>
@@ -558,7 +558,7 @@
 	      repository is checked in, a mail to this mailing list is generated.
 	      If you want to be notified about all the changes to the SVN
 	      repository, join this list. Details about the SVN repository can be
-	      found in <xref linkend="ChSrcSVNServer"/>.
+	      found in <xref linkend="ChSrcGitRepository"/>.
 	    </para>
 	  </listitem>
 	</varlistentry>
@@ -662,7 +662,7 @@
 	If you send captured data to the mailing lists, or add it to your bug report,
 	be sure it doesn't contain any sensitive or confidential information,
 	such as passwords.  Visibility of such files can be limited to certain
-	groups in the Bugzilla database though. 
+	groups in the Bugzilla database though.
 	</para>
 	</note>
   </section>
