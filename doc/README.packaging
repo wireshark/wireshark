@@ -27,8 +27,8 @@ distribution. This is available online at
 
 2. Licensing.
 
-Wireshark is released under the GNU General Public License version 2.
-Make sure your package complies with this license.
+Wireshark is released under the GNU General Public License version 2 or
+newer.  Make sure your package complies with this license.
 
 3. Privileges.
 
