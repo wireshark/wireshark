@@ -1636,7 +1636,7 @@ ssl_private_decrypt(guint len, guchar* encr_data, SSL_PRIVATE_KEY* pk)
     ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %" G_GSIZE_MODIFIER "u\n",
         rc, decr_len);
     ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
-    g_memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
+    memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
     decr_len -= rc;
 
 out:
@@ -1673,7 +1673,7 @@ out:
     ssl_debug_printf("pcry_private_decrypt: stripping %d bytes, decr_len %d\n",
         rc, decr_len);
     ssl_print_data("decrypted_unstrip_pre_master", decr_data_ptr, decr_len);
-    g_memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
+    memmove(decr_data_ptr, &decr_data_ptr[rc], decr_len - rc);
     decr_len -= rc;
 #endif /* SSL_FAST */
     gcry_mpi_release(text);
