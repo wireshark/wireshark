@@ -149,74 +149,74 @@ do_simple_message_box(ESD_TYPE_E type, gboolean *notagain,
                       const char *secondary_msg, const char *msg_format,
                       va_list ap)
 {
-  QMessageBox *msg_dialog;
-  gchar *message;
+    QMessageBox *msg_dialog;
+    gchar *message;
 
-  if (notagain != NULL) {
-    if (*notagain) {
-      /*
-       * The user had checked the "Don't show this message again" checkbox
-       * in the past; don't bother showing it.
-       */
-      return;
+    if (notagain != NULL) {
+        if (*notagain) {
+        /*
+         * The user had checked the "Don't show this message again" checkbox
+         * in the past; don't bother showing it.
+         */
+        return;
+        }
     }
-  }
 
-  /*
-   * XXX - this should be passed the main window.
-   * Also, this should be set to window modal by setting its window
-   * modality to Qt::WindowModal, so it shows up as a sheet in
-   * OS X.
-   */
-  msg_dialog = new QMessageBox(NULL);
-  switch (type) {
-
-  case ESD_TYPE_INFO:
-    msg_dialog->setIcon(QMessageBox::Information);
-    break;
-
-  case ESD_TYPE_WARN:
-    msg_dialog->setIcon(QMessageBox::Warning);
-    break;
-
-  case ESD_TYPE_ERROR:
-    msg_dialog->setIcon(QMessageBox::Critical);
-    break;
-
-  default:
-    g_assert_not_reached();
-    return;
-  }
-
-  /* Format the message. */
-  message = g_strdup_vprintf(msg_format, ap);
-  msg_dialog->setText(message);
-  g_free(message);
-
-  /* Add the secondary text. */
-  if (secondary_msg != NULL)
-    msg_dialog->setInformativeText(secondary_msg);
-
-#if 0
-  if (notagain != NULL) {
-    checkbox = gtk_check_button_new_with_label("Don't show this message again.");
-    gtk_container_set_border_width(GTK_CONTAINER(checkbox), 12);
-    gtk_box_pack_start(GTK_BOX(gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(msg_dialog))), checkbox,
-                       TRUE, TRUE, 0);
-    gtk_widget_show(checkbox);
-  }
-#endif
-
-  msg_dialog->exec();  
-#if 0
-  if (notagain != NULL) {
     /*
-     * OK, did they check the checkbox?
+     * XXX - this should be passed the main window.
+     * Also, this should be set to window modal by setting its window
+     * modality to Qt::WindowModal, so it shows up as a sheet in
+     * OS X.
      */
-    *notagain = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbox));
-  }
+    msg_dialog = new QMessageBox(NULL);
+    switch (type) {
+
+    case ESD_TYPE_INFO:
+        msg_dialog->setIcon(QMessageBox::Information);
+        break;
+
+    case ESD_TYPE_WARN:
+        msg_dialog->setIcon(QMessageBox::Warning);
+        break;
+
+    case ESD_TYPE_ERROR:
+        msg_dialog->setIcon(QMessageBox::Critical);
+        break;
+
+    default:
+        g_assert_not_reached();
+        return;
+    }
+
+    /* Format the message. */
+    message = g_strdup_vprintf(msg_format, ap);
+    msg_dialog->setText(message);
+    g_free(message);
+
+    /* Add the secondary text. */
+    if (secondary_msg != NULL)
+        msg_dialog->setInformativeText(secondary_msg);
+
+#if 0
+    if (notagain != NULL) {
+        checkbox = gtk_check_button_new_with_label("Don't show this message again.");
+        gtk_container_set_border_width(GTK_CONTAINER(checkbox), 12);
+        gtk_box_pack_start(GTK_BOX(gtk_message_dialog_get_message_area(GTK_MESSAGE_DIALOG(msg_dialog))), checkbox,
+                           TRUE, TRUE, 0);
+        gtk_widget_show(checkbox);
+    }
 #endif
-  delete msg_dialog;
+
+    msg_dialog->exec();
+#if 0
+    if (notagain != NULL) {
+        /*
+         * OK, did they check the checkbox?
+        */
+        *notagain = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbox));
+    }
+#endif
+    delete msg_dialog;
 }
 
 /*
@@ -227,11 +227,11 @@ void
 simple_message_box(ESD_TYPE_E type, gboolean *notagain,
                    const char *secondary_msg, const char *msg_format, ...)
 {
-  va_list ap;
+    va_list ap;
 
-  va_start(ap, msg_format);
-  do_simple_message_box(type, notagain, secondary_msg, msg_format, ap);
-  va_end(ap);
+    va_start(ap, msg_format);
+    do_simple_message_box(type, notagain, secondary_msg, msg_format, ap);
+    va_end(ap);
 }
 
 /*
@@ -240,7 +240,7 @@ simple_message_box(ESD_TYPE_E type, gboolean *notagain,
 void
 vsimple_error_message_box(const char *msg_format, va_list ap)
 {
-  do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
+    do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
 }
 
 /*
@@ -249,9 +249,22 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
 void
 simple_error_message_box(const char *msg_format, ...)
 {
-  va_list ap;
+    va_list ap;
 
-  va_start(ap, msg_format);
-  do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
-  va_end(ap);
+    va_start(ap, msg_format);
+    do_simple_message_box(ESD_TYPE_ERROR, NULL, NULL, msg_format, ap);
+    va_end(ap);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
