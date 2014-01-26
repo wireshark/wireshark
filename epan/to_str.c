@@ -582,29 +582,22 @@ abs_time_to_ep_str(const nstime_t *abs_time, const absolute_time_display_e fmt,
 	const char *zonename = "???";
 	gchar *buf = NULL;
 
-#if (defined _WIN32) && (_MSC_VER < 1500)
-	/* calling localtime() on MSVC 2005 with huge values causes it to crash */
-	/* XXX - find the exact value that still does work */
-	/* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
-	if(abs_time->secs > 2000000000) {
-		tmp = NULL;
-	} else
-#endif
-		switch (fmt) {
 
-			case ABSOLUTE_TIME_UTC:
-			case ABSOLUTE_TIME_DOY_UTC:
-				tmp = gmtime(&abs_time->secs);
-				zonename = "UTC";
-				break;
+	switch (fmt) {
 
-			case ABSOLUTE_TIME_LOCAL:
-				tmp = localtime(&abs_time->secs);
-				if (tmp) {
-					zonename = get_zonename(tmp);
-				}
-				break;
-		}
+		case ABSOLUTE_TIME_UTC:
+		case ABSOLUTE_TIME_DOY_UTC:
+			tmp = gmtime(&abs_time->secs);
+			zonename = "UTC";
+			break;
+
+		case ABSOLUTE_TIME_LOCAL:
+			tmp = localtime(&abs_time->secs);
+			if (tmp) {
+				zonename = get_zonename(tmp);
+			}
+			break;
+	}
 	if (tmp) {
 		switch (fmt) {
 
@@ -666,29 +659,21 @@ abs_time_secs_to_ep_str(const time_t abs_time, const absolute_time_display_e fmt
 	const char *zonename = "???";
 	gchar *buf = NULL;
 
-#if (defined _WIN32) && (_MSC_VER < 1500)
-	/* calling localtime() on MSVC 2005 with huge values causes it to crash */
-	/* XXX - find the exact value that still does work */
-	/* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
-	if(abs_time > 2000000000) {
-		tmp = NULL;
-	} else
-#endif
-		switch (fmt) {
+	switch (fmt) {
 
-			case ABSOLUTE_TIME_UTC:
-			case ABSOLUTE_TIME_DOY_UTC:
-				tmp = gmtime(&abs_time);
-				zonename = "UTC";
-				break;
+		case ABSOLUTE_TIME_UTC:
+		case ABSOLUTE_TIME_DOY_UTC:
+			tmp = gmtime(&abs_time);
+			zonename = "UTC";
+			break;
 
-			case ABSOLUTE_TIME_LOCAL:
-				tmp = localtime(&abs_time);
-				if (tmp) {
-					zonename = get_zonename(tmp);
-				}
-				break;
-		}
+		case ABSOLUTE_TIME_LOCAL:
+			tmp = localtime(&abs_time);
+			if (tmp) {
+				zonename = get_zonename(tmp);
+			}
+			break;
+	}
 	if (tmp) {
 		switch (fmt) {
 

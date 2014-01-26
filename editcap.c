@@ -176,15 +176,7 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
     struct tm *tmp;
     gchar     *buf = (gchar *)g_malloc(16);
 
-#if (defined _WIN32) && (_MSC_VER < 1500)
-    /* calling localtime() on MSVC 2005 with huge values causes it to crash */
-    /* XXX - find the exact value that still does work */
-    /* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
-    if (abs_time->secs > 2000000000)
-        tmp = NULL;
-    else
-#endif
-        tmp = localtime(&abs_time->secs);
+    tmp = localtime(&abs_time->secs);
 
     if (tmp) {
         g_snprintf(buf, 16, "%d%02d%02d%02d%02d%02d",

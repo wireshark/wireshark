@@ -100,20 +100,6 @@ PROCESSOR_ARCHITECTURE=amd64
 # For the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
 # Only one of the following MSVC_VARIANT settings should be used
 
-# "Microsoft Visual Studio 2005"
-# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-#MSVC_VARIANT=MSVC2005
-
-# "Microsoft Visual C++ 2005 Express Edition"
-# needs additional Platform SDK installation
-# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-#MSVC_VARIANT=MSVC2005EE
-
-# "Microsoft .Net Framework 2.0 SDK"
-# needs additional Platform SDK installation
-# Visual C++ 8.0, _MSC_VER 1400, msvcr80.dll
-#MSVC_VARIANT=DOTNET20
-
 # "Microsoft Visual Studio 2008"
 # Visual C++ 9.0, _MSC_VER 1500, msvcr90.dll
 #MSVC_VARIANT=MSVC2008

@@ -35,10 +35,6 @@
 
 #include "console_win32.h"
 
-#if _MSC_VER < 1500
-/* AttachConsole() needs this #define! */
-#define _WIN32_WINNT 0x0501
-#endif
 #include <fcntl.h>
 #include <conio.h>
 #include <windows.h>

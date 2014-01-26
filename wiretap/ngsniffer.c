@@ -2088,14 +2088,6 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	   date. */
 	if (ngsniffer->first_frame) {
 		ngsniffer->first_frame=FALSE;
-#if (defined _WIN32) && (_MSC_VER < 1500)
-		/* calling localtime() on MSVC 2005 with huge values causes it to crash */
-		/* XXX - find the exact value that still does work */
-		/* XXX - using _USE_32BIT_TIME_T might be another way to circumvent this problem */
-		if (phdr->ts.secs > 2000000000)
-			tm = NULL;
-		else
-#endif
 		tm = localtime(&phdr->ts.secs);
 		if (tm != NULL && tm->tm_year >= DOS_YEAR_OFFSET) {
 			start_date = (tm->tm_year - DOS_YEAR_OFFSET) << DOS_YEAR_SHIFT;
