@@ -38,8 +38,8 @@
 #include <assert.h>
 #include "ws_symbol_export.h"
 
-#define XCEPT_GROUP_ANY	0
-#define XCEPT_CODE_ANY	0
+#define XCEPT_GROUP_ANY 0
+#define XCEPT_CODE_ANY  0
 #define XCEPT_BAD_ALLOC 1
 
 #ifdef __cplusplus
@@ -79,16 +79,16 @@ struct except_stacknode {
     struct except_stacknode *except_down;
     enum except_stacktype except_type;
     union {
-	struct except_catch *except_catcher;
-	struct except_cleanup *except_cleanup;
+        struct except_catch *except_catcher;
+        struct except_cleanup *except_cleanup;
     } except_info;
 };
 
 /* private functions made external so they can be used in macros */
 extern void except_setup_clean(struct except_stacknode *,
-	struct except_cleanup *, void (*)(void *), void *);
+        struct except_cleanup *, void (*)(void *), void *);
 WS_DLL_PUBLIC void except_setup_try(struct except_stacknode *,
-	struct except_catch *, const except_id_t [], size_t);
+        struct except_catch *, const except_id_t [], size_t);
 WS_DLL_PUBLIC struct except_stacknode *except_pop(void);
 
 /* public interface functions */
@@ -125,61 +125,74 @@ WS_DLL_PUBLIC void except_free(void *);
  * void except_try_pop(void);
  */
 
-#define except_cleanup_push(F, C) 				\
-    {								\
-	struct except_stacknode except_sn;			\
-	struct except_cleanup except_cl;			\
-	except_setup_clean(&except_sn, &except_cl, F, C)
+#define except_cleanup_push(F, C)                               \
+    {                                                           \
+        struct except_stacknode except_sn;                      \
+        struct except_cleanup except_cl;                        \
+        except_setup_clean(&except_sn, &except_cl, F, C)
 
-#define except_cleanup_pop(E)					\
-	except_pop();						\
-	if (E)							\
-	    except_cl.except_func(except_cl.except_context);	\
+#define except_cleanup_pop(E)                                   \
+        except_pop();                                           \
+        if (E)                                                  \
+            except_cl.except_func(except_cl.except_context);    \
     }
 
-#define except_checked_cleanup_pop(F, E)			\
-    	except_pop();						\
-	assert (except_cl.except_func == (F));			\
-	if (E)							\
-	    except_cl.except_func(except_cl.except_context);	\
+#define except_checked_cleanup_pop(F, E)                        \
+            except_pop();                                       \
+        assert (except_cl.except_func == (F));                  \
+        if (E)                                                  \
+            except_cl.except_func(except_cl.except_context);    \
     }
 
 
 /* --- Variants to allow nesting of except_cleanup_push w/o "shadowing" variables */
-#define except_cleanup_push_pfx(pfx, F, C)				\
-    {									\
-	struct except_stacknode pfx##_except_sn;			\
-	struct except_cleanup pfx##_except_cl;				\
-	except_setup_clean(&pfx##_except_sn, &pfx##_except_cl, F, C)
+#define except_cleanup_push_pfx(pfx, F, C)                      \
+    {                                                           \
+        struct except_stacknode pfx##_except_sn;                \
+        struct except_cleanup pfx##_except_cl;                  \
+        except_setup_clean(&pfx##_except_sn, &pfx##_except_cl, F, C)
 
-#define except_cleanup_pop_pfx(pfx, E)					\
-	except_pop();							\
-	if (E)								\
-	    pfx##_except_cl.except_func(pfx##_except_cl.except_context);\
+#define except_cleanup_pop_pfx(pfx, E)                          \
+        except_pop();                                           \
+        if (E)                                                  \
+            pfx##_except_cl.except_func(pfx##_except_cl.except_context);\
     }
 
-#define except_checked_cleanup_pop_pfx(pfx, F, E)			\
-    	except_pop();							\
-	assert (pfx##_except_cl.except_func == (F));			\
-	if (E)								\
-	    pfx##_except_cl.except_func(pfx##_except_cl.except_context);\
+#define except_checked_cleanup_pop_pfx(pfx, F, E)               \
+            except_pop();                                       \
+        assert (pfx##_except_cl.except_func == (F));            \
+        if (E)                                                  \
+            pfx##_except_cl.except_func(pfx##_except_cl.except_context);\
     }
 /* ---------- */
 
 
-#define except_try_push(ID, NUM, PPE)				\
-     {								\
-	struct except_stacknode except_sn;			\
-	struct except_catch except_ch;				\
-	except_setup_try(&except_sn, &except_ch, ID, NUM);	\
-	if (setjmp(except_ch.except_jmp))			\
-	    *(PPE) = &except_ch.except_obj;			\
-	else							\
-	    *(PPE) = 0
+#define except_try_push(ID, NUM, PPE)                           \
+     {                                                          \
+        struct except_stacknode except_sn;                      \
+        struct except_catch except_ch;                          \
+        except_setup_try(&except_sn, &except_ch, ID, NUM);      \
+        if (setjmp(except_ch.except_jmp))                       \
+            *(PPE) = &except_ch.except_obj;                     \
+        else                                                    \
+            *(PPE) = 0
 
-#define except_try_pop()					\
-	except_free(except_ch.except_obj.except_dyndata);	\
-	except_pop();						\
+#define except_try_pop()                                        \
+        except_free(except_ch.except_obj.except_dyndata);       \
+        except_pop();                                           \
     }
 
 #endif /* XCEPT_H */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
