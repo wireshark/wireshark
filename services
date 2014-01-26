@@ -10519,6 +10519,7 @@ irisa           11000/tcp # IRISA [V_A_Brauner] [V_A_Brauner]
 irisa           11000/udp # IRISA [V_A_Brauner] [V_A_Brauner]
 metasys         11001/tcp # Metasys [Tobin_Schuster] [Tobin_Schuster]
 metasys         11001/udp # Metasys [Tobin_Schuster] [Tobin_Schuster]
+cefd-vmp        10023/udp # Comtech EF-Data's Vipersat Management Protocol [Comtech] [Nathan_Jeffords] 2014-01-23
 weave           11095/tcp # Nest device-to-device and device-to-service application protocol [Nest_Labs_Inc] [Grant_Erickson] 2014-01-16
 weave           11095/udp # Nest device-to-device and device-to-service application protocol [Nest_Labs_Inc] [Grant_Erickson] 2014-01-16
 origo-sync      11103/tcp # OrigoDB Server Sync Interface [Devrex_Labs] [Robert_Friberg] 2013-03-29
@@ -10706,6 +10707,7 @@ hde-lcesrvr-2   14937/tcp # hde-lcesrvr-2 [Horizon_Digital_Ente] [Horizon_Digita
 hde-lcesrvr-2   14937/udp # hde-lcesrvr-2 [Horizon_Digital_Ente] [Horizon_Digital_Ente]
 hydap           15000/tcp # Hypack Data Aquisition [HYPACK_Inc] [Mircea_Neacsu] 2011-10-27
 hydap           15000/udp # Hypack Data Aquisition [HYPACK_Inc] [Mircea_Neacsu] 2011-10-27
+onep-tls        15002/tcp # Open Network Environment TLS [Cisco_3] [Andrew_Thurber] 2014-01-21
 v2g-secc        15118/udp # v2g Supply Equipment Communication Controller Discovery Protocol [Holger_Lochner] [Holger_Lochner] 2011-04-06
 xpilot          15345/tcp # XPilot Contact Port [Bert_Gijsbers] [Bert_Gijsbers]
 xpilot          15345/udp # XPilot Contact Port [Bert_Gijsbers] [Bert_Gijsbers]
