@@ -2,6 +2,65 @@
 <!DOCTYPE TS>
 <TS version="2.0" language="de_DE">
 <context>
+    <name>AboutDialog</name>
+    <message>
+        <source>About Wireshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;span size=\&quot;x-large\&quot; weight=\&quot;bold\&quot;&gt;Network Protocol Analyzer&lt;/span&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Authors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Folders</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Folder</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Typical Files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plugins</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ByteViewTab</name>
     <message>
         <source>Packet bytes</source>
@@ -164,6 +223,203 @@
     </message>
 </context>
 <context>
+    <name>CaptureFilterCombo</name>
+    <message>
+        <source>Capture filter selector</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureFilterEdit</name>
+    <message>
+        <source>Capture filter entry</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Enter a capture filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>CaptureInterfacesDialog</name>
+    <message>
+        <source>Wireshark: Capture interfaces</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Input</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link-layer header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prom. mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Snaplen [B]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Buffer [MB]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mon. Mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture packets in promiscuous mode</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture summary dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show the capture summary dialog while capturing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add pipe...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Output format:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pcap-ng</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>pcap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture directly to file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create a new file automatically after...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Megabytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Kilobytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>seconds</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>minutes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>hours</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reuse old files</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Update list of packets in real-time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatically scroll during live capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show extra capture information dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resolution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve MAC Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve network names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve transport names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop capture automatically after...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CapturePreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -238,6 +494,73 @@
     </message>
     <message>
         <source>Field occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DecodeAsDialog</name>
+    <message>
+        <source>Wireshark: Decode As</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Match using this field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current &quot;Decode As&quot; behavior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Default &quot;Decode As&quot; behavior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change behavior when the protocol field matches this value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change the dissection behavior for a protocol.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this dissection behavior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy this dissection behavior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>String</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Integer, base </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unknown</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -420,6 +743,125 @@
     </message>
 </context>
 <context>
+    <name>FollowStreamDialog</name>
+    <message>
+        <source>Follow Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hint.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show data as</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find &amp;Next</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide this stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Print</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln turn(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>No capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please make sure you have a capture file opened.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error following stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture file invalid.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please make sure you have a TCP packet selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please make sure you have a UDP packet selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error following stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please make sure you have an SSL packet selected.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error creating filter for this stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A transport or network layer header is needed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln total stream(s).</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Could not read from temporary file %1: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Short read from temporary file %1: expected %2, got %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error reading temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>FontColorPreferencesFrame</name>
     <message>
         <source>Frame</source>
@@ -446,15 +888,27 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Sample stream client text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Sample stream server text</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Wireshark: Font</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample &quot;Follow Stream&quot; client text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample &quot;Follow Stream&quot; server text</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample valid filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample invalid filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample deprecated filter</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -676,7 +1130,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%1</source>
+        <source>Interface information not available</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -805,15 +1259,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;User&apos;s Guide&lt;/p&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;p&gt;Wiki&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Capture
-live packets from the network</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Open
 a recent capture file</source>
         <translation type="unfinished"></translation>
@@ -821,6 +1266,46 @@ a recent capture file</source>
     <message>
         <source>Learn
 more about Wireshark</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;
+&lt;body&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+How to install Wireshark and how to use each of its features.&lt;br/&gt;
+Other formats and command-line man pages can be found on&lt;br/&gt;
+the &lt;a href=&quot;http://www.wireshark.org/docs/&quot;&gt;documentation page&lt;/a&gt;.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://wiki.wireshark.org/&quot;&gt;The Wireshark Wiki&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+User-contributed pages on different aspects of using Wireshark.&lt;br/&gt;
+Capturing in different environments, filtering, specific protocols,&lt;br/&gt;
+and a variety of other information.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://ask.wireshark.org/&quot;&gt;Wireshark Q&amp;amp;A&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+Question and answer site for Wireshark and protocol analysis.
+&lt;/p&gt;
+
+&lt;h2&gt;&lt;a href=&quot;http://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;
+In-depth discussions about Wireshark and protocol analysis.
+&lt;/p&gt;
+
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture
+live packets from your network</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1711,10 +2196,6 @@ more about Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name set in iconText to keep QMenuBar from grabbing it on OS X</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Manage your configuration profiles</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1744,6 +2225,278 @@ more about Wireshark</source>
     </message>
     <message>
         <source>The Wireshark Network Analyzer</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Stream Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BACnet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Telephony</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTSP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Options</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configuration profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Protocol Hierarchy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capinfos</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reordercap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Sequence (Stevens)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (Stevens)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP througput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP round trip time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP window scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow TCP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow UDP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow SSL Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time Sequence (tcptrace)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP time sequence graph (tcptrace)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analyse this Association</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show All Associations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flow Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flow sequence diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ANCP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ANCP statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets sorted by Instance ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by instance ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets sorted by IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets sorted by object type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by object type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets sorted by service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>BACapp statistics sorted by service</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collectd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collectd statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HART-IP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HART-IP statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Counter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP packet counter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP requests</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Load Distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>HTTP load distribution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet Lengths</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet length statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sametime</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sametime statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ISUP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ISUP message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTSP packet counts</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SM&amp;PP Operations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SMPP operation statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;UCP Messages</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>UCP message statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Decode &amp;As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change the way packets are dissected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter this Association</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>splitterMaster</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>splitterExtra</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>emptyPane</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please wait while Wireshark is initializing . . .</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1831,6 +2584,30 @@ more about Wireshark</source>
     </message>
     <message>
         <source>Filter toolbar style:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Language: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Auto-Detect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>English</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>Français</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deutsch</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chinese</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1950,6 +2727,14 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Follow...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -2202,6 +2987,744 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <source>Browse...</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Avgerage Througput (bits/s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time (ms)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Segment Length (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sequence Number (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Size (B)</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCTPAllAssocsDialog</name>
+    <message>
+        <source>Wireshark - SCTP Associations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ID</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of DATA Chunks</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Selected Association</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Analyze</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset the graph to its initial state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move left 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move right 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move left 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move right 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the next stream in the capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PgUp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the previous stream in the capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PgDown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch direction (swap TCP endpoints)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go To Packet Under Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to packet currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag / Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle mouse drag / zoom behavior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relative / Absolute Sequence Numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle relative / absolute sequence numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture / Session Time Origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle capture / session time origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crosshairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle crosshairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Round Trip Time graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Throughput graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time / Sequence (Stevens)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Stevens-style Time / Sequence graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Window Scaling graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time / Sequence (tcptrace)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the tcptrace-style Time / Sequence graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>4</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCTPAssocAnalyseDialog</name>
+    <message>
+        <source>Wireshark - Analyse Association</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TabWidget</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chunk Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Filter Association</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of Data Chunks from EP2 to EP1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Checksum Type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of Data Chunks from EP1 to EP2: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of Data Bytes from EP1 to EP2:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Number of Data Bytes from EP2 to EP1: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TextLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Endpoint 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graph TSN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graph Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Requested Number of Inbound Streams:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Port:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sent Verification Tag:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimum Number of Inbound Streams:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Minimum Number of Outbound Streams:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graph Arwnd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Endpoint 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Provided Number of Outbound Streams:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Graph a_rwnd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Association found for this packet.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of used IP-Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used Number of Inbound Streams:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Used Number of Outbound Streams:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCTPChunkStatisticsDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Association</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Endpoint 1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Endpoint 2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Chunk Type Order</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hide Chunk Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove the chunk type from the table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Chunk Type Preferences</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the chunk type preferences dialog to show or hide other chunk types</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show All Registered Chunk Types</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show all chunk types with defined names</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP Chunk Statistics: %1 Port1 %2 Port2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCTPGraphArwndDialog</name>
+    <message>
+        <source>SCTP Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset to full size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>goToPacket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Data Chunks sent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Arwnd</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>time [secs]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Advertised Receiver Window [Bytes]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Graph %1: a_rwnd=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCTPGraphByteDialog</name>
+    <message>
+        <source>SCTP Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset to full size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>goToPacket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Data Chunks sent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>time [secs]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Received Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Graph %1: Received bytes=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SCTPGraphDialog</name>
+    <message>
+        <source>SCTP Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only SACKs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Only TSNs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show both</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset to full size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>goToPacket</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Data Chunks sent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>CumTSNAck</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Gap Ack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>NR Gap Ack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Duplicate Ack</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TSN</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>time [secs]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TSNs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;%1: %2 Time: %3 secs &lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save Graph As...</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SearchFrame</name>
@@ -2319,6 +3842,254 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
 </context>
 <context>
+    <name>SequenceDialog</name>
+    <message>
+        <source>Flow</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;A hint&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displayed packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Flow type:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Addresses:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Any</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Network</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset the diagram to its initial state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move left 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move right 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move left 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move right 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go To Packet Under Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to packet currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show flows for all packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP Flows</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show only TCP flow information</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln node(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln item(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>ASCII (*.txt)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save Graph As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>SplashOverlay</name>
     <message>
         <source>Form</source>
@@ -2374,6 +4145,838 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
 </context>
 <context>
+    <name>StatsTreeDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Regenerate statistics using this display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy a text representation of the tree to the clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+C</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save as...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the stats_tree data in various formats</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Configuration not found</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to find configuration for %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> Stats Tree</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 already open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Each type of tree can only be generated one at at time.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 failed to attach to tap</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save stats tree as ...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Plain text file (*.txt)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error saving file %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>SummaryDialog</name>
+    <message>
+        <source>Wireshark - Summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File capture details</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>/</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Encapsulation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elapsed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture file comments</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture app</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Traffic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Captured</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Marked</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interface</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dropped packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet size limit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ignored packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Comment summary</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Refresh</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy To Clipboard</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Summary created by Wireshark %1
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>File: 
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Length:		%1 bytes
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Format:		%1%2
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (gzip compressed)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Encapsulation:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>First packet:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Last packet:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Elapsed:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>OS:	%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture application:	%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dropped packets:	%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture filter:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link type:		%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet size limit:	%1
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Statistics:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1:	%2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture File Comments:
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not representable</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 bytes (%2 Mbytes)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>none</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%u bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Between first and last packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%.3f sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Avg. packets/sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Avg. packet size</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%.3f bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Avg. bytes/sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Avg. MBit/sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>TCPStreamDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Up&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Next stream&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Pg Dn&lt;/i&gt;&lt;/th&gt;&lt;td&gt;Previous stream&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;d&lt;/th&gt;&lt;td&gt;Switch direction (swap TCP endpoints)&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Toggle mouse drag / zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;s&lt;/th&gt;&lt;td&gt;Toggle relative / absolute sequence numbers&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;1&lt;/th&gt;&lt;td&gt;Round Trip Time graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;2&lt;/th&gt;&lt;td&gt;Throughput graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;3&lt;/th&gt;&lt;td&gt;Stevens-style Time / Sequence graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;4&lt;/th&gt;&lt;td&gt;tcptrace-style Time / Sequence graph&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;5&lt;/th&gt;&lt;td&gt;Window Scaling graph&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;Mouse over for shortcuts&lt;/i&gt;&lt;/small&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Switch the direction of the connection (view the opposite flow).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch Direction</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mouse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag using the mouse button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>drags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select using the mouse button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>zooms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Reset the graph to its initial state.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset the graph to its initial state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom in</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move left 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move right 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move up 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move left 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move right 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Next Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the next stream in the capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PgUp</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Previous Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to the previous stream in the capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PgDown</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch direction (swap TCP endpoints)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go To Packet Under Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to packet currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag / Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle mouse drag / zoom behavior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Relative / Absolute Sequence Numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle relative / absolute sequence numbers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture / Session Time Origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle capture / session time origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crosshairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle crosshairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Round Trip Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Round Trip Time graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Throughput</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Throughput graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time / Sequence (Stevens)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Stevens-style Time / Sequence graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Window Scaling</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the Window Scaling graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time / Sequence (tcptrace)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Switch to the tcptrace-style Time / Sequence graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Capture Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 %2 pkts, %3 %4 %5 pkts, %6 </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sequence Numbers (Stevens)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sequence Numbers (tcptrace)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (1s MA)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (%1 Segment MA)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> [not enough data]</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> for %1:%2 %3 %4:%5</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 %2 (%3s len %4 seq %5 ack %6 win %7)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to select packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to select range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to select a portion of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save Graph As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>TimeShiftDialog</name>
     <message>
         <source>Wireshark: Time Shift</source>
@@ -2421,6 +5024,29 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Time shifting is not available capturing packets.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>UatDialog</name>
+    <message>
+        <source>Create a new profile using default settings.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy this profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown User Accessible Table</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open </source>
         <translation type="unfinished"></translation>
     </message>
 </context>
