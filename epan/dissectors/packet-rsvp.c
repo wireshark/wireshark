@@ -2689,7 +2689,7 @@ dissect_rsvp_hop(proto_item *ti, proto_tree *rsvp_object_tree,
     case 2:
         proto_tree_add_uint_format_value(rsvp_object_tree, hf_rsvp_ctype, tvb, offset+3, 1,
                             type, "2 - IPv6");
-        proto_tree_add_item(rsvp_object_tree, hf_rsvp_hop_neighbor_address_ipv6, tvb, offset2, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rsvp_object_tree, hf_rsvp_hop_neighbor_address_ipv6, tvb, offset2, 16, ENC_NA);
         proto_tree_add_item(rsvp_object_tree, hf_rsvp_hop_logical_interface, tvb, offset2+16, 4, ENC_BIG_ENDIAN);
         break;
 
@@ -6103,7 +6103,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                     proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset+=4;
                 }else{
-                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv6_addr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(rsvp_object_tree, hf_rsvp_3gpp_obj_ue_ipv6_addr, tvb, offset, 16, ENC_NA);
                     offset+=16;
                 }
                 /* D Reserved NS SR_ID Reserved P TFT Operation Code Number of Packet filters */
@@ -6192,7 +6192,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             pf_cont_len-=11;
                             break;
                         case 32: /* IPv6 Source Address with Prefix Length */
-                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_src_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_src_ipv6, tvb, offset, 16, ENC_NA);
                             offset+=16;
                             proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
@@ -6200,7 +6200,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             pf_cont_len-=20;
                             break;
                         case 33: /* IPv6 Destination Address with Prefix Length */
-                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_dst_ipv6, tvb, offset, 16, ENC_NA);
                             offset+=16;
                             proto_tree_add_item(flow_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
@@ -6258,7 +6258,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                         case 129: /* Type 2 Routing Header with Prefix Length */
                             ti = proto_tree_add_text(flow_tree, tvb, offset, 17, "Type 2 Routing Header packet filter");
                             t2_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_T2]);
-                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6, tvb, offset, 16, ENC_NA);
                             offset+=16;
                             proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
@@ -6268,7 +6268,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                         case 130: /* Home Address Option with Prefix Length */
                             ti = proto_tree_add_text(flow_tree, tvb, offset, 17, "Home address Option packet filter");
                             t2_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_HO]);
-                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+                            proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6, tvb, offset, 16, ENC_NA);
                             offset+=16;
                             proto_tree_add_item(t2_tree, hf_rsvp_3gpp_obj_pf_ipv6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset++;
@@ -6332,7 +6332,7 @@ dissect_rsvp_3gpp_object(proto_tree *ti _U_, proto_tree *rsvp_object_tree,
                             tft_qos_list_len--;
 
                             /* R_QoS_SUB_BLOB X.S0011-004-D */
-                            ti = proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob, tvb, offset, blob_len, ENC_BIG_ENDIAN);
+                            ti = proto_tree_add_item(qos_tree, hf_rsvp_3gpp_r_qos_blob, tvb, offset, blob_len, ENC_NA);
                             qos_sub_blob_tree = proto_item_add_subtree(ti, ett_treelist[TT_3GPP_OBJ_QOS_SUB_BLOB]);
 
                             proto_tree_add_item(qos_sub_blob_tree, hf_rsvp_3gpp_r_qos_blob_flow_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
