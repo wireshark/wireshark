@@ -254,7 +254,7 @@ gpointer    dest_memory_addr;
 	/* ...then, put the chunk of the file in the right place */
 	if (!file->is_out_of_memory) {
 		dest_memory_addr = entry->payload_data + chunk_offset;
-		g_memmove(dest_memory_addr, eo_info->payload_data, eo_info->payload_len);
+		memmove(dest_memory_addr, eo_info->payload_data, eo_info->payload_len);
 	}
 }
 
