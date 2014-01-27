@@ -1,0 +1,565 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Setup -->
+++++++++++++++++++++++++++++++++++++++
+
+++++++++++++++++++++++++++++++++++++++
+<!-- $Id$ -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterSetup]]
+
+== Quick Setup
+
+[[ChSetupUNIX]]
+
+=== UNIX: Installation
+
+All the tools required are usually installed on a UNIX developer machine.
+
+If a tool is not already installed on your system, you can usually install it
+using the package in your distribution: aptitude, yum, Synaptic, etc.
+
+If an install package is not available or you have a
+reason not to use it (maybe because it's simply too old), you
+can install that tool from source code. The following sections
+will provide you with the webpage addresses where you can get
+these sources.
+
+[[ChSetupWin32]]
+
+=== Win32/64: Step-by-Step Guide
+
+A quick setup guide for Win32 and Win64 with recommended
+configuration.
+
+[WARNING]
+====
+Unless you know exactly what you are doing, you
+should strictly follow the recommendations below.
+====
+
+[[ChSetupMSVC]]
+
+==== Install Microsoft C compiler and SDK
+
+You need to install, in exactly this order:
+
+. C compiler:
+http://www.microsoft.com/visualstudio/eng/downloads#d-2010-express[Download]
+and install "Microsoft Visual $$C++$$ 2010 Express Edition." This is a very
+large download.
+
+. Windows SDK for Windows 7, if you want to build 64-bit binaries for Windows 7:
+http://msdn.microsoft.com/en-us/windowsserver/bb980924.aspx[Download] and
+install "Microsoft Windows SDK for Windows 7."
++
+In case the install of the SDK fails go to software management and
+remove the $$VC++$$ 2010 runtime and redist packages (don't worry, they
+will be added back via the service pack later). If installation of
+the SDK still fails, there may be a permission problem. See
+http://ctrlf5.net/?p=184[here] for a solution.
+
+. C compiler service pack:
+http://www.microsoft.com/en-us/download/details.aspx?id=23691[Download] and
+install "Microsoft Visual Studio 2010 Service Pack 1." This is a very large
+download.
+
+. Microsoft Visual $$C++$$ 2010 Service Pack 1 Compiler Update for the Windows
+SDK 7.1, if you want to build 64-bit binaries for Windows 7:
+http://www.microsoft.com/en-us/download/details.aspx?id=4422[Download] and
+install "Microsoft Visual $$C++$$ 2010 Service Pack 1 Compiler Update for the
+Windows SDK 7.1."
+
+If you will be building 64-bit binaries those items must be
+installed in that order as installing the Microsoft Visual Studio
+2010 Service Pack 1 can, if you've installed the Microsoft Windows
+SDK for Windows 7, remove the 64-bit compilers, as per
+http://support.microsoft.com/?kbid=2519277[the Microsoft Knowledge Base article "FIX: Visual C++ compilers are removed when you upgrade Visual Studio 2010 Professional or Visual Studio 2010 Express to Visual Studio 2010 SP1 if Windows SDK v7.1 is installed"].  The release notes for the Microsoft Visual
+$$C++$$ 2010 Service Pack 1 Compiler Update for the Windows SDK 7.1
+say that, to ensure that your system has a supported
+configuration, you must install the items in the order specified
+above.  If you have Microsoft Update installed, so that the
+Windows update process will update software other than components
+of Windows, and thus will update Visual Studio, you may need to
+disable it until after all of the above are installed, to make
+sure it doesn't install Visual Studio 2010 SP1 out of order.
+
+[TIP]
+.You can use other Microsoft C compiler variants
+====
+It's possible to compile Wireshark with a wide range
+of Microsoft C compiler variants. For details see
+<<ChToolsMSChain>>!
+====
+
+
+[WARNING]
+.Don't use gcc or Clang
+====
+Compiling with gcc or Clang is not recommended and will
+certainly not work (at least without a lot of advanced
+tweaking). For further details on this topic, see
+<<ChToolsGNUChain>>.
+====
+
+// XXX - mention the compiler and PSDK web installers -
+// which significantly reduce download size - and find out the
+// required components
+
+Why is this recommended? While this is a huge download,
+the 2010 Express Edition is the only free (as in beer)
+version that includes the Visual Studio integrated
+debugger. Visual $$C++$$ 2010 is also used to create official
+Wireshark builds, so it will likely have fewer development-related
+problems.
+
+[[ChSetupCygwin]]
+
+
+==== Install Cygwin
+
+http://www.cygwin.com/setup.exe[Download the Cygwin installer] and start it.
+
+At the "Select Packages" page, you'll need to select
+some additional packages which are not installed by default.
+Navigate to the required Category/Package row and, if the package
+has a "Skip" item in the "New" column, click on the "Skip" item
+so it shows a version number for:
+
+* Archive/unzip
+
+* Base/dos2unix
+
+* Devel/bison
+
+* Devel/flex
+
+* Devel/git (recommended - see discussion about using Git below)
+
+* Interpreters/perl
+
+* Utils/patch (optional)
+
+* Web/wget
+
+After clicking the Next button several times, the setup
+will then download and install the selected packages (this
+may take a while).
+
+Why is this recommended? Cygwin's bash version is required, as no native Win32
+version is available. As additional packages can easily be added, Perl and
+other packages are also used.
+
+[[ChSetupPython]]
+
+==== Install Python
+
+Get the Python 2.7 installer from http://python.org/download/[] and install
+Python into the default location ('C:\Python27').
+
+Why is this recommended? Cygwin's Python package doesn't work on some machines,
+so the Win32 native package is recommended.
+
+[[ChSetupsubversion]]
+
+==== Install Git
+
+Please note that the following is not required to build Wireshark but can be
+quite helpful when working with the sources.
+
+Working with the Git source repositories is highly recommended, see
+<<ChSrcObtain>>. It is much easier to update a personal source tree with Git
+rather than downloading a zip file and merging new sources into a personal
+source tree by hand. It also makes first-time setup easy and enables the
+Wireshark build process to determine your current source code revision.
+
+There are several ways in which Git can be installed. Most packages are
+available at the URLs below or via the http://chocolatey.org/[Chocolatey package manager].
+Note that many of the GUI interfaces depend on the command line version.
+
+===== The Official Windows Installer
+
+The official command-line installer is available at http://msysgit.github.io/.
+
+===== From Cygwin
+
+Cygwin comes with a port of git. To install it, run Cygwin's setup.exe, navigate
+to Devel/git, and if the package has a "Skip" item in the "New" column, click on
+the "Skip" item so it shows a version number.
+
+===== Git Extensions
+
+Git Extensions is a native Windows graphical Git client for
+Windows.  You can download the installer from
+http://code.google.com/p/gitextensions/.
+
+===== TortoiseGit
+
+TortoiseGit is a native Windows graphical Git 
+similar to TortoiseSVN. You can download the installer from
+http://code.google.com/p/tortoisegit/.
+
+===== Others
+
+A list of other GUI interfaces for Git can be found at
+http://git-scm.com/downloads/guis
+
+==== Install and Prepare Sources
+
+[TIP]
+.Make sure everything works
+====
+It's a good idea to make sure Wireshark compiles and runs at least once before
+you start hacking the Wireshark sources for your own project. This example uses
+Git Extensions but any other Git client should work as well.
+====
+
+// XXX -
+
+. *Download sources*. Download Wireshark sources into
+'C:\Development\wireshark' using Git Extensions:
+
+.. Open the Git Extensions application. By default Git Extensions
+   will show a validation checklist at startup. If anything needs to
+   be fixed do so now. You can bring up the checklist at any time
+   via _Tools -> Settings_.
+
+.. In the main screen select _Clone repository_. Fill in the following:
++
+Repository to clone: `https://code.wireshark.org/review/wireshark`
++
+Destination: Your top-level development directory, e.g. `C:\Development`.
++
+Subdirectory to create: Anything you'd like. Usually `wireshark`.
++
+[TIP]
+.Check your paths
+====
+Make sure your repository path doesn't contain spaces.
+====
+
+.. Click the _Clone_ button. Git Extensions should start cloning the
+   Wireshark repository.
+
+. Navigate to your newly cloned directory and open 'config.nmake' in an editor.
+  Edit the following settings:
+
+.. `VERSION_EXTRA`: Give Wireshark your "private" version info, e.g.
+`-myprotocol123` to distinguish it from official releases.
+
+.. `WIRESHARK_TARGET_PLATFORM`: Change to `win64` if you're building
+a 64-bit package. You can also define this in the system environment.
+
+.. `PROGRAM_FILES`: Where your programs reside, usually just keep the default:
+_C:\Program Files_ footnote:[International Windows might use different values
+here, e.g. a German version uses 'C:\Programme' -- take this also in account
+where 'C:\Program Files' appears elsewhere.]
+
+.. `MSVC_VARIANT`: Make sure the variant for your compiler is uncommented, and
+that all others are commented out. For example, if you're using Visual $$C++$$
+2010 Express Edition, find the line
++
+--
+----
+#MSVC_VARIANT=MSVC2010EE
+----
+and remove the comment character (#) from the beginning of the line. Then, find
+the line
+----
+MSVC_VARIANT=MSVC2010
+----
+and comment it out, by prefixing a hash (#). footnote:[Compiler dependent: This
+step depends on the compiler you are using. For compilers other than Visual
+$$C++$$ 2010, see the table at <<ChToolsMSChain>>.]
+--
+
+[[ChSetupPrepareCommandCom]]
+
+==== Prepare cmd.exe
+
+Prepare `cmd.exe` -- set its environment and current directory.
+
+. Start `cmd.exe`.
+
+. Set environment variables for Visual $$C++$$ 2010 Express Edition.
+footnote:[International Windows might use different values here, e.g. a German
+version uses 'C:\Programme' -- take this also in account where 'C:\Program
+Files' appears elsewhere. Note: You need to repeat steps 1 - 4 each time you
+open a new cmd.exe.] footnote:[Compiler dependent: This step depends on the
+compiler variant used. For variants other than the recommended Visual $$C++$$
+2010 Express Edition see the table at <<ChToolsMSChain>>]
++
+--
+To build 32-bit binaries call
+----
+> "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x86'
+----
+and to build 64-bit binaries call
+----
+> "C:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x64
+----
+If your version of the compiler does not have `SetEnv.Cmd` you may need to use
+`vcvarsall.bat` or `vcvars32.bat` which do much the same thing as `SetEnv.cmd`.
+For example, on some 64-bit installations, one would build a 32-bit version by
+invoking
+----
+> "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\bin\vcvars32.bat
+----
+and one would build a 64-bit version using the command
+----
+> "C:\Program Files (x86)\Microsoft Visual Studio 10.0\VC\Vcvarsall.bat" amd64
+----
+Consult your compiler's documentation to learn which version applies to your
+installation.
+--
+
+. Set environment variable to select target platform.
++
+--
+To build 32-bit binaries execute
+----
+> set WIRESHARK_TARGET_PLATFORM=win32
+----
+and to build 64-bit binaries execute
+----
+> set WIRESHARK_TARGET_PLATFORM=win64
+----
+--
+
+
+. Run
++
+--
+----
+> cd C:\Development\wireshark
+----
+to jump into the source directory
+--
+
+Wireshark development depends on several additional environment variables,
+particularly PATH. You can use a batch script to fill these in, along with the
+Visual $$C++$$ variables; for example:
+
+----
+@echo off
+
+if "%1" == "" goto x86
+if /i %1 == x86       goto x86
+if /i %1 == x64      goto x64
+goto usage
+
+:usage
+echo Error in script usage. The correct usage is:
+echo     %0 [option]
+echo where [option] is: x86 ^| x64 
+echo:
+echo For example:
+echo     %0 x86
+goto :eof
+
+:x64
+echo Adding things to the path...
+set PATH=%PATH%;c:\cygwin\bin
+set WIRESHARK_TARGET_PLATFORM=win64
+call "c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x64
+title Command Prompt (VC++ 2010 x64)
+goto :eof
+
+:x86
+echo Adding things to the path...
+set PATH=%PATH%;c:\cygwin\bin
+set WIRESHARK_TARGET_PLATFORM=win32
+call "c:\Program Files\Microsoft SDKs\Windows\v7.1\Bin\SetEnv.Cmd" /Release /x86
+title Command Prompt (VC++ 2010 -x86)
+goto :eof
+----
+
+[[ChToolsWin32Verify]]
+
+==== Verify installed tools
+
+After you've installed the Wireshark sources (see <<ChSrcObtain>>), you can
+check the correct installation of all tools by using the `verify_tools` target of
+the `Makefile.nmake` from the source package.
+
+[WARNING]
+.Dependencies ahead
+====
+You will need the Wireshark sources and some tools
+(nmake, bash) installed, before this verification is able
+to work.
+====
+
+Enter at the command line (cmd.exe, not Cygwin's bash):
+
+----
+> nmake -f Makefile.nmake verify_tools
+----
+
+This will check for the various tools needed to build Wireshark:
+
+----
+Checking for required applications:
+        cl: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/Bin/amd64/cl
+        link: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/Bin/amd64/link
+        nmake: /cygdrive/c/Program Files (x86)/Microsoft Visual Studio 10.0/VC/Bin/amd64/nmake
+        bash: /usr/bin/bash
+        bison: /usr/bin/bison
+        flex: /usr/bin/flex
+        env: /usr/bin/env
+        grep: /usr/bin/grep
+        /usr/bin/find: /usr/bin/find
+        peflags: /usr/bin/peflags
+        perl: /usr/bin/perl
+        C:\Python27\python.exe: /cygdrive/c/Python27/python.exe
+        sed: /usr/bin/sed
+        unzip: /usr/bin/unzip
+        wget: /usr/bin/wget
+----
+
+If you have problems with all the first three items (cl, link, nmake), check
+that you called `SetEnv.Cmd` as mentioned in <<ChSetupPrepareCommandCom>>(which
+will "fix" your PATHsettings). However, the exact text will be slightly
+different depending on the MSVC version used.
+
+Unfortunately, the `link` command is defined both in Cygwin and in MSVC, each
+with completely different functionality. You'll need the MSVC link. If your link
+command looks something like: `/usr/bin/link` the link command of Cygwin takes
+precedence over the MSVC one. To fix this, you can change your `PATH` environment
+setting or simply rename `link.exe` in Cygwin. If you rename it, make sure to
+remember that a Cygwin update may provide a new version of it.
+
+Make sure that the other tools found are the Cygwin versions. Some build
+problems have been caused by incompatible versions of `grep` and `unzip`.
+
+==== Install Libraries
+
+. If you've closed `cmd.exe` prepare it again.
+
+. Run
++
+--
+----
+> nmake -f Makefile.nmake setup
+----
+to download and install libraries using `wget`. This may take a while.
+--
+
+. If the download fails you may be behind a restrictive firewall. See the proxy
+comment in <<ChToolsWget>>.
+
+Note that 32-bit versions of the software require 32-bit versions of the
+libraries and that 64-bit versions require 64-bit libraries. The build process
+creates independent directories for each as needed. See
+<<ChSetupPrepareCommandCom>>for how to use `SetEnv.Cmd` and
+`WIRESHARK_TARGET_PLATFORM` to select either a 32- or 64-bit build.
+
+==== Distclean Sources
+
+The released Wireshark sources contain files that are
+prepared for a UNIX build (e.g. 'config.h').
+
+You must distclean your sources before building the first time.
+
+. If you've closed `cmd.exe` prepare it again.
+
+. Run
++
+--
+----
+> nmake -f Makefile.nmake distclean
+----
+to cleanup the Wireshark sources.
+--
+
+==== Build Wireshark
+
+Now it's time to build Wireshark!
+
+. If you've closed `cmd.exe` prepare it again.
+
+. Run
++
+--
+----
+> nmake -f Makefile.nmake all
+----
+to build Wireshark.
+--
+
+. Wait for Wireshark to compile. This will take a while.
+
+. Run `C:\wireshark\wireshark-gtk2\wireshark.exe` and make sure it starts. s
+
+. Open 'Help -> About'. If it shows your "private" program
+version, e.g.: Version wireshark-major-minor-version:[].x-myprotocol123
+congratulations! You have compiled your own version of Wireshark!
+
+TIP: If compilation fails for suspicious
+reasons after you changed some source files try to "distclean"
+the sources and make "all" again
+
+==== Debug Environment Setup
+
+****
+Unfortunately this section hasn't been written. You should be able
+to use the Visual Studio debugger to attach to a running executable.
+****
+
+==== Optional: Create User's and Developer's Guide
+
+Detailed information to build these guides can be found in the file
+'docbook/README.txt' in the Wireshark sources.
+
+==== Optional: Create a Wireshark Installer
+
+Note: You should have successfully built Wireshark
+before doing the following.
+
+If you want to build your own
+'wireshark-win32-wireshark-major-minor-version:[].x-myprotocol123.exe',
+you'll need NSIS.
+
+. NSIS:
+http://nsis.sourceforge.net[Download] and install NSIS
++
+You may check the `MAKENSIS` setting in the file 'config.nmake' in the Wireshark
+sources. Note that the 32-bit version of NSIS will work for both 32-bit and
+64-bit versions of Wireshark.
+
+. Runtime redistributable: To build a 32-bit version you will need
+'$$vcredist_x86.exe$$':
+http://www.microsoft.com/en-us/download/details.aspx?id=8328[Download] the
+C-Runtime redistributable for Visual
+$$C++$$ 2010 Express Edition SP1 (__$$vcredist_x86.exe$$__)
+and copy it into 'C:\wireshark-win32-libs'.footnoteref:[compilerdependent,Compiler dependent: This step
+depends on the compiler variant used. For variants other than
+the recommended Visual $$C++$$ 2010 Express Edition SP1 see the table
+at <<ChToolsMSChain>>.]
++
+To build a 64-bit version, you will need 
+_$$vcredist_x64.exe$$_: 
+http://www.microsoft.com/en-us/download/details.aspx?id=13523[Download] the 64-bit redistributable for Visual $$C++$$ 2010 Express
+Edition SP1 (__$$vcredist_x64.exe$$__) and copy it into 
+__C:\Wireshark-win64-libs__.footnoteref:[compilerdependent]
+
+. If you've closed `cmd.exe` prepare it again.
+
+. Run
++
+--
+----
+> nmake -f Makefile.nmake packaging
+----
+to build Wireshark installer.
+--
+
+. Run
++
+--
+----
+> C:\wireshark\packaging\nsis\wireshark-win32-wireshark-major-minor-version:[].x-myprotocol123.exe
+----
+to test your new installer. It's a good idea to test on a different machine
+than the developer machine.
+--

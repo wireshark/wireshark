@@ -36,6 +36,18 @@ http://git-scm.com/[Git] is used to keep track of the changes made to the
 Wireshark source code. The code is stored inside Wireshark project's Git
 repository located at a server at the wireshark.org domain.
 
+
+// Why Git?
+//
+// - Allows much more flexible development
+//
+// Why Gerrit?
+//
+// - Easy to contribute. Sign in with any OpenID provider and push your changes.
+// - Usable from the web and command line.
+// - Integrated with many popular tools.
+
+
 // To quote the Subversion book about "What is Subversion?":
 
 // "Subversion is a free/open-source version control system. That is,
