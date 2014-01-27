@@ -1237,7 +1237,7 @@ install-generated-files: doc
 install-all: install-generated-files
 	set copycmd=/y
 	if not exist $(INSTALL_DIR) mkdir $(INSTALL_DIR)
-!IF "$(GTK_INST_VERSION)" == "3.4"
+!IF "$(GTK_INST_VERSION)" == "3.4" || "$(GTK_INST_VERSION)" == "3.6"
 	xcopy $(GTK_DIR)\bin\libgdk-3-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\libgtk-3-0.dll $(INSTALL_DIR) /d
 !ELSE
@@ -1254,7 +1254,7 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\$(GTK_ETC_DIR)\*.* $(INSTALL_DIR)\$(GTK_ETC_DIR) /d
 #	if not exist $(INSTALL_DIR)\etc\pango mkdir $(INSTALL_DIR)\etc\pango
 #	xcopy $(GTK_DIR)\etc\pango\pango.* $(INSTALL_DIR)\etc\pango /d
-!IF "$(GTK_INST_VERSION)" == "3.4"
+!IF "$(GTK_INST_VERSION)" == "3.4" || "$(GTK_INST_VERSION)" == "3.6"
 	if not exist $(INSTALL_DIR)\lib\gtk-3.0 mkdir $(INSTALL_DIR)\lib\gtk-3.0
 	if not exist $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR) mkdir $(INSTALL_DIR)\lib\gtk-3.0\$(GTK_LIB_DIR)
 	xcopy ".\ui\win32\settings.ini" $(INSTALL_DIR)\$(GTK_ETC_DIR) /d
@@ -1376,7 +1376,7 @@ install-all: install-generated-files
 !ENDIF
 	cd $(INSTALL_DIR)
 	peflags --dynamicbase=true --nxcompat=true *.dll
-!IF "$(GTK_INST_VERSION)" == "3.4"
+!IF "$(GTK_INST_VERSION)" == "3.4" || "$(GTK_INST_VERSION)" == "3.6"
 !ELSE
 	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/*/engines/*.dll
 	peflags --dynamicbase=true --nxcompat=true lib/gtk-2.0/modules/*.dll
