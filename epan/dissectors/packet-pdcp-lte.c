@@ -44,8 +44,7 @@
    Note that the use of this algorithm is restricted, and that an administrative charge
    may be applicable if you use it (see e.g. http://www.gsma.com/technicalprojects/fraud-security/security-algorithms).
    A version of Wireshark with this enabled would not be distributable. */
-#define HAVE_SNOW3G
-#include <epan/snow3g_algorithm.h>
+/* #define HAVE_SNOW3G */
 
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
