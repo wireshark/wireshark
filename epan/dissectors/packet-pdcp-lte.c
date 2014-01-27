@@ -44,7 +44,8 @@
    Note that the use of this algorithm is restricted, and that an administrative charge
    may be applicable if you use it (see e.g. http://www.gsma.com/technicalprojects/fraud-security/security-algorithms).
    A version of Wireshark with this enabled would not be distributable. */
-/* #define HAVE_SNOW3G */
+#define HAVE_SNOW3G
+#include <epan/snow3g_algorithm.h>
 
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
@@ -1328,20 +1329,53 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
     /* N.B. won't work for internal, non-RRC signalling methods... */
     pdcp_security_info_t *p_frame_security;
 
-    /* Copy security struct */
-    pdcp_security_info_t *p_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
-    *p_security = *security_info;
+    /* Create or update current settings, by UEID */
+    pdcp_security_info_t* ue_security =
+        (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_hash,
+                                                   GUINT_TO_POINTER((guint)ueid));
+    if (ue_security == NULL) {
+        /* Copy whole security struct */
+        ue_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
+        *ue_security = *security_info;
 
-    /* And add into security table */
-    g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), p_security);
+        /* And add into security table */
+        g_hash_table_insert(pdcp_security_hash, GUINT_TO_POINTER((guint)ueid), ue_security);
+    }
+    else {
+        /* Just update existing entry already in table */
+        ue_security->previous_configuration_frame = ue_security->configuration_frame;
+        ue_security->previous_integrity = ue_security->integrity;
+        ue_security->previous_ciphering = ue_security->ciphering;
 
-    /* Add an entry for this PDU already to use these settings, as otherwise it won't be present
+        ue_security->configuration_frame = security_info->configuration_frame;
+        ue_security->integrity = security_info->integrity;
+        ue_security->ciphering = security_info->ciphering;
+        ue_security->seen_next_ul_pdu = FALSE;
+    }
+
+    /* Also add an entry for this PDU already to use these settings, as otherwise it won't be present
        when we query it on the first pass. */
     p_frame_security = wmem_new(wmem_file_scope(), pdcp_security_info_t);
-    *p_frame_security = *p_security;
+    *p_frame_security = *ue_security;
     g_hash_table_insert(pdcp_security_result_hash,
-                        get_ueid_frame_hash_key(ueid, security_info->configuration_frame, TRUE),
+                        get_ueid_frame_hash_key(ueid, ue_security->configuration_frame, TRUE),
                         p_frame_security);
+}
+
+/* UE failed to process SecurityModeCommand so go back to previous security settings */
+void set_pdcp_lte_security_algorithms_failed(guint16 ueid)
+{
+    /* Look up current state by UEID */
+    pdcp_security_info_t* ue_security =
+        (pdcp_security_info_t*)g_hash_table_lookup(pdcp_security_hash,
+                                                   GUINT_TO_POINTER((guint)ueid));
+    if (ue_security != NULL) {
+        /* TODO: could remove from table if previous_configuration_frame is 0 */
+        /* Go back to previous state */
+        ue_security->configuration_frame = ue_security->previous_configuration_frame;
+        ue_security->integrity = ue_security->previous_integrity;
+        ue_security->ciphering = ue_security->previous_ciphering;        
+    }
 }
 
 /* Decipher payload if algorithm is supported and plausible inputs are available */

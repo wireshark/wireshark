@@ -60,9 +60,14 @@ enum security_ciphering_algorithm_e { eea0, eea1, eea2 };
 typedef struct pdcp_security_info_t
 {
     guint32                             configuration_frame;
-    gboolean                            seen_next_ul_pdu; /* i.e. have we seen SecurityModeResponse */
+    gboolean                            seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
     enum security_integrity_algorithm_e integrity;
     enum security_ciphering_algorithm_e ciphering;
+
+    /* Store previous settings so can revert if get SecurityModeFailure */
+    guint32                             previous_configuration_frame;
+    enum security_integrity_algorithm_e previous_integrity;
+    enum security_ciphering_algorithm_e previous_ciphering;
 } pdcp_security_info_t;
 
 
@@ -174,4 +179,8 @@ typedef struct pdcp_lte_info
 
 /* Function to configure ciphering & integrity algorithms */
 void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info);
+
+/* Function to indicate securityModeCommand did not complete */
+void set_pdcp_lte_security_algorithms_failed(guint16 ueid);
+
 

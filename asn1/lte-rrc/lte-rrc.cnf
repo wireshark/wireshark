@@ -1092,9 +1092,19 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeComplete");
 
-#.FN_HDR SecurityModeFailure
+#.FN_BODY SecurityModeFailure
+  mac_lte_info *p_mac_lte_info;
+%(DEFAULT_BODY)s
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+
+  if (p_mac_lte_info != NULL) {
+    /* Inform PDCP that the UE failed to execute the securityModeCommand */
+    set_pdcp_lte_security_algorithms_failed(p_mac_lte_info->ueid);
+  }
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
+  
 
 #.FN_HDR UECapabilityInformation
 
@@ -1510,6 +1520,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     /* We do release the configuration here instead of RRC Connection Release message */
     /* as the UE could have locally dropped the previous RRC Connection */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+    /* TODO: also release PDCP security config here */
   }
 %(DEFAULT_BODY)s
 
@@ -1520,6 +1531,10 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 %(DEFAULT_BODY)s
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
+  p_security_algorithms->previous_configuration_frame = 0;
+  p_security_algorithms->previous_integrity = eia0;
+  p_security_algorithms->previous_ciphering = eea0;
+
   /* Look for UE identifier */
   p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_pdcp_lte, 0);
   if (p_pdcp_lte_info != NULL) {

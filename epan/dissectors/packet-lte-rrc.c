@@ -18812,6 +18812,7 @@ dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     /* We do release the configuration here instead of RRC Connection Release message */
     /* as the UE could have locally dropped the previous RRC Connection */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+    /* TODO: also release PDCP security config here */
   }
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_RRCConnectionSetup, RRCConnectionSetup_sequence);
@@ -22299,6 +22300,10 @@ dissect_lte_rrc_SecurityAlgorithmConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->configuration_frame = actx->pinfo->fd->num;
+  p_security_algorithms->previous_configuration_frame = 0;
+  p_security_algorithms->previous_integrity = eia0;
+  p_security_algorithms->previous_ciphering = eea0;
+
   /* Look for UE identifier */
   p_pdcp_lte_info = (pdcp_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_pdcp_lte, 0);
   if (p_pdcp_lte_info != NULL) {
@@ -27943,11 +27948,21 @@ static const per_sequence_t SecurityModeFailure_sequence[] = {
 
 static int
 dissect_lte_rrc_SecurityModeFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
-
+  mac_lte_info *p_mac_lte_info;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_SecurityModeFailure, SecurityModeFailure_sequence);
+
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+
+  if (p_mac_lte_info != NULL) {
+    /* Inform PDCP that the UE failed to execute the securityModeCommand */
+    set_pdcp_lte_security_algorithms_failed(p_mac_lte_info->ueid);
+  }
+
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
+  
+
 
   return offset;
 }
