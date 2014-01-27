@@ -828,6 +828,9 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			/* ROS won't do this for us */
 			session->ros_op = (ROS_OP_INVOKE | ROS_OP_ARGUMENT);
 			/*offset=*/dissect_ber_external_type(FALSE, tree, next_tvb, 0, &asn1_ctx, -1, call_rtse_external_type_callback);
+			top_tree = NULL;
+			/* Return other than 0 to indicate that we handled this packet */
+			return 1;
 		} else {
 			offset = tvb_length (tvb);
 		}
@@ -1004,7 +1007,7 @@ void proto_register_rtse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-rtse-hfarr.c ---*/
-#line 351 "../../asn1/rtse/packet-rtse-template.c"
+#line 354 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   /* List of subtrees */
@@ -1026,7 +1029,7 @@ void proto_register_rtse(void) {
     &ett_rtse_CallingSSuserReference,
 
 /*--- End of included file: packet-rtse-ettarr.c ---*/
-#line 360 "../../asn1/rtse/packet-rtse-template.c"
+#line 363 "../../asn1/rtse/packet-rtse-template.c"
   };
 
   static ei_register_info ei[] = {
