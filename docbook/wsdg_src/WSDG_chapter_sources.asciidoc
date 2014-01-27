@@ -359,7 +359,7 @@ to the source code (unless otherwise noted).
 
 Building Wireshark for the first time depends on your platform.
 
-==== Unix
+==== Building on Unix
 
 Run the `autogen.sh` script at the top-level wireshark directory to configure
 your build directory.
