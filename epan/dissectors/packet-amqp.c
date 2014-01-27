@@ -6716,14 +6716,26 @@ dissect_amqp_1_0_map(tvbuff_t *tvb,
 
     while (element_count > 0) {
         if (element_count%2 == 0) { /* decode key */
-            decode_fixed_type(tvb,
-                              tvb_get_guint8(tvb, offset),
-                              offset+1,
-                              bound,
-                              &decoded_width_size,
-                              &decoded_element_size,
-                              &type_name,
-                              &value);
+            if (!decode_fixed_type(tvb,
+                                   tvb_get_guint8(tvb, offset),
+                                   offset+1,
+                                   bound,
+                                   &decoded_width_size,
+                                   &decoded_element_size,
+                                   &type_name,
+                                   &value)) { /* can't decode key type */
+                proto_tree_add_none_format(map_tree, hf_amqp_1_0_map, tvb,
+                                           offset,
+                                           1,
+                                           "(unknown map key type %d)",
+                                           tvb_get_guint8(tvb, offset));
+                expert_add_info_format(pinfo,
+                                       map_tree,
+                                       &ei_amqp_unknown_amqp_type,
+                                       "Unknown AMQP map key type %d",
+                                       tvb_get_guint8(tvb, offset));
+                decoded_element_size=0;
+            }
             AMQP_INCREMENT(offset, decoded_element_size+1, bound);
         }
         else { /* decode value */
