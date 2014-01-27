@@ -193,12 +193,13 @@ set(WSDG_FILES
 	wsdg_src/WSDG_chapter_userinterface.xml
 	wsdg_src/WSDG_chapter_works.xml
 	wsdg_src/WSDG_meta_info.xml
-	wsdg_src/WSDG_preface.xml
+	wsdg_generated_src/WSDG_preface.xml
 	ws.css
 )
 
 set(WSDG_ASCIIDOC_FILES
 	wsdg_src/WSDG_chapter_sources.asciidoc
+	wsdg_src/WSDG_preface.asciidoc
 )
 
 set(WSDG_GRAPHICS
@@ -247,7 +248,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 			${_output_xml}
 			${_output_dbk}
 		COMMAND ${XMLLINT_EXECUTABLE}
-			--xpath //chapter
+			--xpath '//chapter | //preface'
 			${_output_dbk}
 			> ${_output_xml}
 		DEPENDS

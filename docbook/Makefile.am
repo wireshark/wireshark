@@ -64,7 +64,7 @@ endif
 		--format=docbook --doctype=book \
 		$<
 	mv $*.xml $*.dbk
-	xmllint --xpath //chapter $*.dbk > $@
+	xmllint --xpath '//chapter | //preface' $*.dbk > $@
 
 if HAVE_XSLTPROC
 ALL_TARGETS=git_version_check wsug wsdg release_notes

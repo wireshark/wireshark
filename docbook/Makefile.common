@@ -170,11 +170,12 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_userinterface.xml	\
 	wsdg_src/WSDG_chapter_works.xml		\
 	wsdg_src/WSDG_meta_info.xml		\
-	wsdg_src/WSDG_preface.xml		\
+	wsdg_src/WSDG_preface.asciidoc		\
 	ws.css
 
 WSDG_GENERATED_SOURCE = \
-	wsdg_src/WSDG_chapter_sources.xml
+	wsdg_src/WSDG_chapter_sources.xml	\
+	wsdg_src/WSDG_preface.xml
 
 WSDG_GRAPHICS =	\
 	wsdg_graphics/ws-capture-sync.dia	\
