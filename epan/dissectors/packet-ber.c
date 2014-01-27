@@ -4893,7 +4893,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         sep  = " (";
         term = FALSE;
         nb = named_bits;
-        bitstring = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+        bitstring = tvb_memdup(wmem_packet_scope(), tvb, offset, len);
 
         while (nb->p_id) {
             if ((len > 0) && (nb->bit < (8*len-pad))) {
