@@ -284,7 +284,7 @@ static guint16 checksum (guint8 *buffer, gint len, gint offset)
   guint8  *hpp, *pls;
 
   if (len < offset+2) {
-    /* Buffer to small */
+    /* Buffer too small */
     return 0;
   }
 
