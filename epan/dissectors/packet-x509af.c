@@ -177,6 +177,7 @@ static gint ett_x509af_DSS_Params = -1;
 
 /*--- End of included file: packet-x509af-ett.c ---*/
 #line 56 "../../asn1/x509af/packet-x509af-template.c"
+static const char *algorithm_id;
 
 /*--- Included file: packet-x509af-fn.c ---*/
 #line 1 "../../asn1/x509af/packet-x509af-fn.c"
@@ -217,6 +218,8 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_algorithm_id, &actx->external.direct_reference);
 
 
+  algorithm_id = actx->external.direct_reference;
+
   if(actx->external.direct_reference) {
     name = oid_resolved_from_string(actx->external.direct_reference);
 
@@ -232,7 +235,7 @@ dissect_x509af_T_algorithmId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_x509af_T_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "../../asn1/x509af/x509af.cnf"
+#line 84 "../../asn1/x509af/x509af.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -323,7 +326,7 @@ static const ber_choice_t SubjectName_choice[] = {
 
 static int
 dissect_x509af_SubjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 109 "../../asn1/x509af/x509af.cnf"
+#line 111 "../../asn1/x509af/x509af.cnf"
 
   const char* str;
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -369,7 +372,7 @@ dissect_x509af_SubjectPublicKeyInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509af_T_extnId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "../../asn1/x509af/x509af.cnf"
+#line 90 "../../asn1/x509af/x509af.cnf"
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509af_extension_id, &actx->external.direct_reference);
@@ -399,7 +402,7 @@ dissect_x509af_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_x509af_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/x509af/x509af.cnf"
+#line 101 "../../asn1/x509af/x509af.cnf"
   gint8 ber_class;
   gboolean pc, ind;
   gint32 tag;
@@ -886,7 +889,12 @@ static void dissect_DSS_Params_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-x509af-fn.c ---*/
-#line 57 "../../asn1/x509af/packet-x509af-template.c"
+#line 58 "../../asn1/x509af/packet-x509af-template.c"
+
+const char *x509af_get_last_algorithm_id(void) {
+  return algorithm_id;
+}
+
 
 static int
 dissect_pkix_crl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -1223,7 +1231,7 @@ void proto_register_x509af(void) {
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-x509af-hfarr.c ---*/
-#line 93 "../../asn1/x509af/packet-x509af-template.c"
+#line 99 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* List of subtrees */
@@ -1266,7 +1274,7 @@ void proto_register_x509af(void) {
     &ett_x509af_DSS_Params,
 
 /*--- End of included file: packet-x509af-ettarr.c ---*/
-#line 99 "../../asn1/x509af/packet-x509af-template.c"
+#line 105 "../../asn1/x509af/packet-x509af-template.c"
   };
 
   /* Register protocol */
@@ -1309,7 +1317,7 @@ void proto_reg_handoff_x509af(void) {
 
 
 /*--- End of included file: packet-x509af-dis-tab.c ---*/
-#line 127 "../../asn1/x509af/packet-x509af-template.c"
+#line 133 "../../asn1/x509af/packet-x509af-template.c"
 
 	/*XXX these should really go to a better place but since that
 	  I have not that ITU standard, ill put it here for the time

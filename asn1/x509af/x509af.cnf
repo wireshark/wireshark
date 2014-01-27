@@ -72,6 +72,8 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
 
   %(DEFAULT_BODY)s
 
+  algorithm_id = actx->external.direct_reference;
+
   if(actx->external.direct_reference) {
     name = oid_resolved_from_string(actx->external.direct_reference);
 

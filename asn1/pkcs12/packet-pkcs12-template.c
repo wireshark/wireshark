@@ -252,7 +252,7 @@ int PBE_decrypt_data(const char *object_identifier_id_param, tvbuff_t *encrypted
 		return FALSE;
 	}
 
-	encryption_algorithm = actx->external.direct_reference;
+	encryption_algorithm = x509af_get_last_algorithm_id();
 
 	/* these are the only encryption schemes we understand for now */
 	if(!strcmp(encryption_algorithm, PKCS12_PBE_3DES_SHA1_OID)) {
