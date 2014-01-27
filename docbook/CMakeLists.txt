@@ -185,7 +185,7 @@ set(WSDG_FILES
 	wsdg_src/WSDG_chapter_build_intro.xml
 	wsdg_src/WSDG_chapter_capture.xml
 	wsdg_src/WSDG_chapter_dissection.xml
-	wsdg_src/WSDG_chapter_env_intro.xml
+	wsdg_generated_src/WSDG_chapter_env_intro.xml
 	wsdg_src/WSDG_chapter_libraries.xml
 	wsdg_src/WSDG_chapter_quick_setup.xml
 	wsdg_generated_src/WSDG_chapter_sources.xml
@@ -198,6 +198,7 @@ set(WSDG_FILES
 )
 
 set(WSDG_ASCIIDOC_FILES
+	wsdg_src/WSDG_chapter_env_intro.asciidoc
 	wsdg_src/WSDG_chapter_sources.asciidoc
 	wsdg_src/WSDG_preface.asciidoc
 )

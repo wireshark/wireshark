@@ -162,18 +162,19 @@ WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_build_intro.xml	\
 	wsdg_src/WSDG_chapter_capture.xml	\
 	wsdg_src/WSDG_chapter_dissection.xml	\
-	wsdg_src/WSDG_chapter_env_intro.xml	\
+	wsdg_src/WSDG_chapter_env_intro.asciidoc	\
 	wsdg_src/WSDG_chapter_libraries.xml	\
 	wsdg_src/WSDG_chapter_quick_setup.xml	\
-	wsdg_src/WSDG_chapter_sources.asciidoc	\
+	wsdg_src/WSDG_chapter_sources.asciidoc		\
 	wsdg_src/WSDG_chapter_tools.xml		\
 	wsdg_src/WSDG_chapter_userinterface.xml	\
 	wsdg_src/WSDG_chapter_works.xml		\
 	wsdg_src/WSDG_meta_info.xml		\
-	wsdg_src/WSDG_preface.asciidoc		\
+	wsdg_src/WSDG_preface.asciidoc			\
 	ws.css
 
 WSDG_GENERATED_SOURCE = \
+	wsdg_src/WSDG_chapter_env_intro.xml	\
 	wsdg_src/WSDG_chapter_sources.xml	\
 	wsdg_src/WSDG_preface.xml
 
