@@ -807,7 +807,7 @@ static const value_string link_state_nlri_protocol_id_values[] = {
 };
 
 /* Link-State routing universes */
-static const value_string link_state_nlri_routing_universe_values[] = {
+static const val64_string link_state_nlri_routing_universe_values[] = {
         {BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_3, "L3 packet topology" },
         {BGP_LS_NLRI_ROUTING_UNIVERSE_LEVEL_1, "L1 optical topology"},
         {0, NULL}
