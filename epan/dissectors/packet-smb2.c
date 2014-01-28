@@ -5256,7 +5256,7 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  *  4 - lease state
  *  4 - lease flags
  *  8 - lease duration
- * 16 - pareant lease key
+ * 16 - parent lease key
  *  4 - epoch
  */
 #define SMB2_LEASE_STATE_READ_CACHING   0x00000001
