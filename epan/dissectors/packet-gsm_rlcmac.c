@@ -227,9 +227,9 @@ static int hf_egprs_acknack_crbb_starting_color_code = -1;
 static int hf_arfcn = -1;
 static int hf_maio = -1;
 static int hf_hsn = -1;
+#if 0
 static int hf_channel_description_channel_type_and_tdma_offset = -1;
 static int hf_channel_description_tn = -1;
-#if 0
 static int hf_group_call_reference_value = -1;
 static int hf_group_call_reference_sf = -1;
 static int hf_group_call_reference_af = -1;
@@ -307,8 +307,10 @@ static int hf_packet_control_acknowledgement_ctrl_ack = -1;
 /* < Packet Downlink Dummy Control Block message content > */
 
 /* < Packet Uplink Dummy Control Block message content > */
+#if 0
 static int hf_receive_n_pdu_number_nsapi = -1;
 static int hf_receive_n_pdu_number_value = -1;
+#endif
 
 /* < MS Radio Access capability IE > */
 static int hf_dtm_egprs_dtm_egprs_multislot_class = -1;
@@ -473,7 +475,7 @@ static int hf_change_mark_change_mark_1 = -1;
 static int hf_change_mark_change_mark_2 = -1;
 static int hf_indirect_encoding_ma_number = -1;
 static int hf_packet_request_reference_random_access_information = -1;
-static int hf_timeslot_allocation_usf_tn = -1;
+static int hf_timeslot_allocation_usf_tn = -1;  /* XXX: missing hf[] entry */
 static int hf_extended_dynamic_allocation = -1;
 static int hf_rlc_data_blocks_granted = -1;
 static int hf_single_block_allocation_timeslot_number = -1;
@@ -951,7 +953,7 @@ static int hf_packet_system_info_type13_si2n_support = -1;
 
 
 
-
+#if 0
 static int hf_si1_restoctet_nch_position = -1;
 static int hf_si1_restoctet_bandindicator = -1;
 static int hf_selection_parameters_cbq = -1;
@@ -974,11 +976,14 @@ static int hf_pch_and_nch_info_callpriority = -1;
 static int hf_si6_restoctet_vbs_vgcs_options = -1;
 static int hf_si6_restoctet_max_lapdm = -1;
 static int hf_si6_restoctet_bandindicator = -1;
+#endif
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gsm_rlcmac_sync_case_tstd = -1;
+#if 0
 static int hf_gsm_rlcmac_diversity = -1;
 static int hf_gsm_rlcmac_scrambling_code = -1;
+#endif
 static int hf_gsm_rlcmac_cell_parameter = -1;
 static int hf_gsm_rlcmac_diversity_tdd = -1;
 
@@ -8474,8 +8479,6 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_single_rf_channel_spare,
       { "spare",        "gsm_rlcmac.dl.single_rf_channel_spare",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8501,6 +8504,7 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+#if 0
     { &hf_channel_description_channel_type_and_tdma_offset,
       { "Channel_type_and_TDMA_offset",        "gsm_rlcmac.dl.channel_description_channel_type_and_tdma_offset",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8513,6 +8517,7 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+#endif
     { &hf_tsc,
       { "TSC",        "gsm_rlcmac.dl.tsc",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8526,80 +8531,60 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_group_call_reference_sf,
       { "SF",        "gsm_rlcmac.dl.group_call_sf",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_group_call_reference_af,
       { "AF",        "gsm_rlcmac.dl.group_call_af",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_group_call_reference_call_priority,
       { "call_priority",        "gsm_rlcmac.dl.group_call_reference_call_priority",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_group_call_reference_ciphering_information,
       { "Ciphering_information",        "gsm_rlcmac.dl.group_call_reference_call_ciphering_information",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_nln_pch,
       { "NLN_PCH",        "gsm_rlcmac.dl.nln_pch",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_nln_status,
       { "NLN_status",        "gsm_rlcmac.dl.nln_status",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_priority,
       { "Priority",        "gsm_rlcmac.dl.priority",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_p1_rest_octets_packet_page_indication_1,
       { "Packet_Page_Indication_1",        "gsm_rlcmac.dl.p1_rest_octets_packet_page_indication_1",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_p1_rest_octets_packet_page_indication_2,
       { "Packet_Page_Indication_2",        "gsm_rlcmac.dl.p1_rest_octets_packet_page_indication_2",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_p2_rest_octets_cn3,
       { "CN3",        "gsm_rlcmac.dl.p2_rest_octets_cn3",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8704,16 +8689,12 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_ia_egprs_uniontype,
       { "UnionType",        "gsm_rlcmac.dl.ia_egprs_00_uniontype",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_ia_freqparamsbeforetime_length,
       { "Length",        "gsm_rlcmac.dl.ia_freqparamsbeforetime_length",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8956,6 +8937,7 @@ proto_register_gsm_rlcmac(void)
 /* < Packet Downlink Dummy Control Block message content > */
 
 /* < Packet Uplink Dummy Control Block message content > */
+#if 0
     { &hf_receive_n_pdu_number_nsapi,
       { "nsapi",        "gsm_rlcmac.dl.receive_n_pdu_number_nsapi",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -8968,6 +8950,7 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+#endif
 
 /* < MS Radio Access capability IE > */
     { &hf_dtm_egprs_dtm_egprs_multislot_class,
@@ -9244,48 +9227,36 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_arc_arc2_spare,
       { "Arc2_Spare",        "gsm_rlcmac.ul.arc2_spare",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_arc_arc1,
       { "Arc1",        "gsm_rlcmac.ul.arc1",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_multiband_a5_bits,
       { "A5 Bits",        "gsm_rlcmac.ul.multiband_a5_bits",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_edge_rf_pwr_edge_rf_pwrcap1,
       { "EDGE_RF_PwrCap1",        "gsm_rlcmac.ul.edge_rf_pwrcap1",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_edge_rf_pwr_edge_rf_pwrcap2,
       { "EDGE_RF_PwrCap2",        "gsm_rlcmac.ul.edge_rf_pwrcap2",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_ms_class3_unpacked_spare1,
       { "Spare1",        "gsm_rlcmac.ul.ms_class3_unpacked_spare1",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11307,8 +11278,6 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_enhancedmeasurementreport_rr_short_pd,
       { "RR_Short_PD",        "gsm_rlcmac.ul.emr_rr_short_pd",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11599,56 +11568,42 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_repeated_invalid_bsic_info_bcch_freq_ncell,
       { "BCCH_FREQ_NCELL",        "gsm_rlcmac.dl.repeated_invalid_bsic_info_bcch_freq_ncell",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_repeated_invalid_bsic_info_bsic,
       { "BSIC",        "gsm_rlcmac.dl.repeated_invalid_bsic_info_bsic",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_repeated_invalid_bsic_info_rxlev_ncell,
       { "RXLEV_NCELL",        "gsm_rlcmac.dl.repeated_invalid_bsic_info_rxlev_ncell",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_reporting_quantity_reporting_quantity,
       { "REPORTING_QUANTITY",        "gsm_rlcmac.dl.repeated_invalid_bsic_info_reporting_quantity",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_nc_measurementreport_nc_mode,
       { "NC_MODE",        "gsm_rlcmac.dl.nc_measurementreport_nc_mode",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_nc_measurementreport_pmo_used,
       { "PMO_USED",        "gsm_rlcmac.dl.nc_measurementreport_pmo_used",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
         NULL, HFILL
       }
     },
-#endif
-#if 0
     { &hf_nc_measurementreport_scale,
       { "SCALE",        "gsm_rlcmac.dl.nc_measurementreport_scale",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -11759,6 +11714,7 @@ proto_register_gsm_rlcmac(void)
 /* < Packet Physical Information message content > */
 
 /* < End Packet Physical Information > */
+#if 0
     { &hf_si1_restoctet_nch_position,
       { "NCH_Position",        "gsm_rlcmac.dl.i1_restoctet_nch_position",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11891,6 +11847,7 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+#endif
 /* < Additional MS Radio Access Capability message content > */
 /* < End Additional MS Radio Access Capability> */
 
@@ -12402,8 +12359,10 @@ proto_register_gsm_rlcmac(void)
 /* < End Packet System Information Type 13 message content > */
 
       /* Generated from convert_proto_tree_add_text.pl */
+#if 0
       { &hf_gsm_rlcmac_scrambling_code, { "Scrambling Code", "gsm_rlcmac.scrambling_code", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_rlcmac_diversity, { "Diversity", "gsm_rlcmac.diversity", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+#endif
       { &hf_gsm_rlcmac_cell_parameter, { "Cell Parameter", "gsm_rlcmac.cell_parameter", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_rlcmac_sync_case_tstd, { "Sync Case TSTD", "gsm_rlcmac.sync_case_tstd", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_gsm_rlcmac_diversity_tdd, { "Diversity TDD", "gsm_rlcmac.diversity_tdd", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
