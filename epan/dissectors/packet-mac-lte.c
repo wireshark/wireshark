@@ -243,9 +243,9 @@ static int hf_mac_lte_drx_config_short_cycle_timer = -1;
 
 static int hf_mac_lte_drx_state = -1;
 static int hf_mac_lte_drx_state_long_cycle_offset = -1;
-static int hf_mac_lte_drx_state_long_cycle_on = -1;
+/* static int hf_mac_lte_drx_state_long_cycle_on = -1; */
 static int hf_mac_lte_drx_state_short_cycle_offset = -1;
-static int hf_mac_lte_drx_state_short_cycle_on = -1;
+/* static int hf_mac_lte_drx_state_short_cycle_on = -1; */
 static int hf_mac_lte_drx_state_inactivity_remaining = -1;
 static int hf_mac_lte_drx_state_onduration_remaining = -1;
 static int hf_mac_lte_drx_state_retransmission_remaining = -1;
@@ -6682,24 +6682,28 @@ void proto_register_mac_lte(void)
               0, 0x0, NULL, HFILL
             }
         },
+#if 0
         { &hf_mac_lte_drx_state_long_cycle_on,
             { "Long cycle current on",
               "mac-lte.drx-state.long-cycle-on", FT_BOOLEAN, BASE_NONE,
               0, 0x0, NULL, HFILL
             }
         },
+#endif
         { &hf_mac_lte_drx_state_short_cycle_offset,
             { "Short cycle offset",
               "mac-lte.drx-state.short-cycle-offset", FT_UINT16, BASE_DEC,
               0, 0x0, NULL, HFILL
             }
         },
+#if 0
         { &hf_mac_lte_drx_state_short_cycle_on,
             { "Short cycle current on",
               "mac-lte.drx-state.short-cycle-on", FT_BOOLEAN, BASE_NONE,
               0, 0x0, NULL, HFILL
             }
         },
+#endif
         { &hf_mac_lte_drx_state_inactivity_remaining,
             { "Inactivity remaining",
               "mac-lte.drx-state.inactivity-remaining", FT_UINT16, BASE_DEC,

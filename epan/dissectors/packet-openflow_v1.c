@@ -50,11 +50,11 @@ static int hf_openflow_datapath_mac = -1;
 static int hf_openflow_datapath_impl = -1;
 static int hf_openflow_n_buffers = -1;
 static int hf_openflow_n_tables = -1;
-static int hf_openflow_auxiliary_id = -1;
-static int hf_openflow_pad3 = -1;
+/* static int hf_openflow_auxiliary_id = -1; */
+/* static int hf_openflow_pad3 = -1; */
 static int hf_openflow_capabilities = -1;
 static int hf_openflow_actions = -1;
-static int hf_openflow_reserved32 = -1;
+/* static int hf_openflow_reserved32 = -1; */
 static int hf_openflow_cap_flow_stats = -1;
 static int hf_openflow_table_stats = -1;
 static int hf_openflow_port_stats = -1;
@@ -118,12 +118,12 @@ static int hf_openflow_buffer_id = -1;
 static int hf_openflow_total_len = -1;
 static int hf_openflow_in_port = -1;
 static int hf_openflow_reason = -1;
-static int hf_openflow_table_id = -1;
+/* static int hf_openflow_table_id = -1; */
 static int hf_openflow_cookie = -1;
-static int hf_openflow_cookie_mask = -1;
+/* static int hf_openflow_cookie_mask = -1; */
 static int hf_openflow_padd8 = -1;
-static int hf_openflow_padd16 = -1;
-static int hf_openflow_padd48 = -1;
+/* static int hf_openflow_padd16 = -1; */
+/* static int hf_openflow_padd48 = -1; */
 static int hf_openflow_actions_len = -1;
 static int hf_openflow_action_type = -1;
 static int hf_openflow_action_len = -1;
@@ -139,7 +139,7 @@ static int hf_openflow_idle_timeout = -1;
 static int hf_openflow_hard_timeout = -1;
 static int hf_openflow_priority = -1;
 static int hf_openflow_out_port = -1;
-static int hf_openflow_out_group = -1;
+/* static int hf_openflow_out_group = -1; */
 static int hf_openflow_flags = -1;
 
 /* Initialize the subtree pointers */
@@ -840,16 +840,20 @@ proto_register_openflow_v1(void)
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#if 0
         { &hf_openflow_auxiliary_id,
             { "auxiliary_id", "openflow.auxiliary_id",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
+#if 0
         { &hf_openflow_pad3,
             { "Padding", "openflow.pad3",
                FT_UINT24, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
         { &hf_openflow_capabilities,
             { "capabilities", "openflow.capabilities",
                FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -860,11 +864,13 @@ proto_register_openflow_v1(void)
                FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
+#if 0
         { &hf_openflow_reserved32,
             { "Reserved", "openflow.reserved32",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
         { &hf_openflow_cap_flow_stats,
             { "Flow statistics", "openflow.flow_stats",
                FT_BOOLEAN, 32, NULL, OFPC_FLOW_STATS,
@@ -1135,36 +1141,44 @@ proto_register_openflow_v1(void)
                FT_UINT8, BASE_DEC, VALS(openflow_reason_values), 0x0,
                NULL, HFILL }
         },
+#if 0
         { &hf_openflow_table_id,
             { "Table Id", "openflow.table_id",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
         { &hf_openflow_cookie,
             { "Cookie", "openflow.cookie",
                FT_UINT64, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
+#if 0
         { &hf_openflow_cookie_mask,
             { "Cookie mask", "openflow.cookie",
                FT_UINT64, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
         { &hf_openflow_padd8,
             { "Padding", "openflow.padding8",
                FT_UINT8, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#if 0
         { &hf_openflow_padd16,
             { "Padding", "openflow.padding16",
                FT_UINT16, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
+#if 0
         { &hf_openflow_padd48,
             { "Padding", "openflow.padding48",
                FT_UINT64, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
         { &hf_openflow_actions_len,
             { "Actions length", "openflow.actions_len",
                FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -1240,11 +1254,13 @@ proto_register_openflow_v1(void)
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#if 0
         { &hf_openflow_out_group,
             { "Out group", "openflow.out_group",
                FT_UINT32, BASE_DEC, NULL, 0x0,
                NULL, HFILL }
         },
+#endif
         { &hf_openflow_flags,
             { "Flags", "openflow.flags",
                FT_UINT16, BASE_DEC, NULL, 0x0,

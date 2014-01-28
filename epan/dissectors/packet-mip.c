@@ -110,7 +110,7 @@ static int hf_mip_pmipv4skipext_accesstechnology_type = -1;
 static int hf_mip_cvse_reserved = -1;
 static int hf_mip_cvse_vendor_org_id = -1;
 static int hf_mip_cvse_verizon_cvse_type = -1;
-static int hf_mip_cvse_3gpp2_cvse_type = -1;
+/* static int hf_mip_cvse_3gpp2_cvse_type = -1; */
 static int hf_mip_cvse_3gpp2_grekey = -1;
 static int hf_mip_cvse_vendor_cvse_type = -1;
 static int hf_mip_cvse_vendor_cvse_value = -1;
@@ -1358,11 +1358,13 @@ void proto_register_mip(void)
         FT_UINT16, BASE_DEC, VALS(mip_cvse_verizon_cvse_types), 0,
         NULL, HFILL }
     },
+#if 0
     { &hf_mip_cvse_3gpp2_cvse_type ,
       { "3GPP2 CVSE Type","mip.ext.cvse.3gpp2_type",
         FT_UINT16, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
+#endif
     { &hf_mip_cvse_3gpp2_grekey,
       { "GRE Key","mip.ext.cvse.3gpp2_grekey",
         FT_UINT16, BASE_DEC, NULL, 0,

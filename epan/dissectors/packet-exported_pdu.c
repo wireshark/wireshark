@@ -52,7 +52,7 @@ static int hf_exported_pdu_ipv6_dst = -1;
 static int hf_exported_pdu_port_type = -1;
 static int hf_exported_pdu_src_port = -1;
 static int hf_exported_pdu_dst_port = -1;
-static int hf_exported_pdu_sctp_ppid = -1;
+/** static int hf_exported_pdu_sctp_ppid = -1; **/
 static int hf_exported_pdu_ss7_opc = -1;
 static int hf_exported_pdu_ss7_dpc = -1;
 static int hf_exported_pdu_orig_fno = -1;
@@ -284,11 +284,13 @@ proto_register_exported_pdu(void)
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
+#if 0
         { &hf_exported_pdu_sctp_ppid,
             { "SCTP PPID", "exported_pdu.sctp_ppid",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
+#endif
         { &hf_exported_pdu_ss7_opc,
             { "SS7 OPC", "exported_pdu.ss7_opc",
                FT_UINT32, BASE_DEC, NULL, 0,

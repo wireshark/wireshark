@@ -282,7 +282,7 @@ void proto_reg_handoff_17221(void);
 #define AECP_OFFSET_STREAM_INFO_STREAM_DEST_MAC          52
 #define AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_CODE        58
 #define AECP_OFFSET_STREAM_INFO_MSRP_FAILURE_BRIDGE_ID   60
-#define AECP_OFFSET_STREAM_INFO_STREAM_VLAN_ID           68
+/** #define AECP_OFFSET_STREAM_INFO_STREAM_VLAN_ID           68 **/
 
 /* GET/SET_NAME */
 #define AECP_OFFSET_NAME_DESCRIPTOR_TYPE             24
@@ -1896,10 +1896,10 @@ static int hf_adp_listener_cap = -1;
 static int hf_adp_controller_cap = -1;
 static int hf_adp_avail_index = -1;
 static int hf_adp_gptp_gm_id = -1;
-static int hf_adp_def_aud_format = -1;
-static int hf_adp_def_vid_format = -1;
+/* static int hf_adp_def_aud_format = -1; */
+/* static int hf_adp_def_vid_format = -1; */
 static int hf_adp_assoc_id = -1;
-static int hf_adp_entity_type = -1;
+/* static int hf_adp_entity_type = -1; */
 
 /* Entity Capabilties Flags */
 static int hf_adp_entity_cap_efu_mode = -1;
@@ -2076,7 +2076,7 @@ static int hf_aecp_msrp_accumulated_latency = -1;
 static int hf_aecp_msrp_failure_bridge_id = -1;
 static int hf_aecp_msrp_failure_code = -1;
 static int hf_aecp_msrp_failure_valid_flag = -1;
-static int hf_aecp_stream_vlan_id = -1;
+/* static int hf_aecp_stream_vlan_id = -1; */
 static int hf_aecp_name = -1;
 static int hf_aecp_name_index = -1;
 static int hf_aecp_number_of_maps = -1;
@@ -2148,7 +2148,7 @@ static int hf_aecp_backedup_talker_unique_id = -1;
 static int hf_aecp_avb_info_ptp_grandmaster_id = -1;
 static int hf_aecp_avb_info_propegation_delay = -1;
 static int hf_aecp_avb_info_gptp_domain_number = -1;
-static int hf_aecp_avb_info_flags = -1;
+/* static int hf_aecp_avb_info_flags = -1; */
 static int hf_aecp_as_capable_flag = -1;
 static int hf_aecp_gptp_enabled_flag = -1;
 static int hf_aecp_srp_enabled_flag = -1;
@@ -2418,7 +2418,7 @@ static int ett_adp_ent_cap = -1;
 static int ett_adp_talk_cap = -1;
 static int ett_adp_list_cap = -1;
 static int ett_adp_cont_cap = -1;
-static int ett_adp_aud_format = -1;
+/* static int ett_adp_aud_format = -1; */
 static int ett_adp_samp_rates = -1;
 static int ett_adp_chan_format = -1;
 /* ACMP */
@@ -4928,10 +4928,12 @@ proto_register_17221(void)
          { "gPTP Grandmaster ID", "ieee17221.gptp_grandmaster_id",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#if 0
       { &hf_adp_def_aud_format,
          { "Default Audio Format", "ieee17221.default_audio_format",
             FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#endif
 #if 0
       /* Default Audio Formats Fields Begin */
       { &hf_adp_def_aud_sample_rates,
@@ -5048,18 +5050,22 @@ proto_register_17221(void)
 #endif
       /* Channel Formats Fields End */
       /* Default Audio Formats Fields End */
+#if 0
       { &hf_adp_def_vid_format,
          { "Default Video Format", "ieee17221.default_video_format",
             FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#endif
       { &hf_adp_assoc_id,
          { "Assocation ID", "ieee17221.assocation_id",
             FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#if 0
       { &hf_adp_entity_type,
          { "Entity Type", "ieee17221.entity_type",
             FT_UINT32, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#endif
       /*******************************************************************/
       { &hf_acmp_message_type,
          { "Message Type", "ieee17221.message_type",
@@ -5330,10 +5336,12 @@ proto_register_17221(void)
          {"gPTP Domain Number", "ieee17221.avb_info_gptp_domain_number",
             FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
+#if 0
       { &hf_aecp_avb_info_flags,
          {"Flags", "ieee17221.avbinfo_flags",
             FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
       },
+#endif
 
       { &hf_aecp_as_capable_flag,
          { "AS Capable Flag", "ieee17221.as_capable_flag",
@@ -5395,10 +5403,12 @@ proto_register_17221(void)
          {"MSRP Failure Bridge ID", "ieee17221.msrp_failure_bridge_id",
             FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
       },
+#if 0
       { &hf_aecp_stream_vlan_id,
          {"Stream VLAN ID", "ieee17221.stream_vlan_id",
              FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
       },
+#endif
       { &hf_aecp_stream_vlan_id_valid_flag,
          {"Stream VLAN ID Valid Flag", "ieee17221.flags.stream_vlan_id_valid",
             FT_BOOLEAN, 32, NULL, AECP_STREAM_VLAN_ID_VALID_FLAG_MASK, NULL, HFILL }
@@ -6976,7 +6986,7 @@ proto_register_17221(void)
       &ett_adp_talk_cap,
       &ett_adp_list_cap,
       &ett_adp_cont_cap,
-      &ett_adp_aud_format,
+/*       &ett_adp_aud_format, */
       &ett_adp_samp_rates,
       &ett_adp_chan_format,
       &ett_acmp_flags,
