@@ -30,6 +30,7 @@ epan/sminmpec.c
 epan/taps.txt
 epan/taps_wslua.c
 epan/uat_load.c
+epan/wmem/wmem_test
 epan/wslua/declare_wslua.h
 epan/wslua/init.lua
 epan/wslua/register_wslua.c
@@ -137,6 +138,7 @@ cscope.*
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
 packaging/macosx/osx-dmg.sh
+packaging/macosx/Wireshark_package.pmdoc/index.xml
 packaging/rpm/SPECS/wireshark.spec
 packaging/svr4/checkinstall
 packaging/svr4/pkginfo
