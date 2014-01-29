@@ -183,15 +183,9 @@ sub read_repo_info {
 				$repo_path = basename($line);
 			}
 
-
-			# XXX After the SVN->git migration we'll create tags for 1.11.x.
-			# Until then we'll fake it.
-			#chomp($line = qx{git describe --tags --dirty});
-			chomp($line = qx{git rev-parse --short HEAD});
+			chomp($line = qx{git describe --dirty --match "v*"});
 			if (defined($line)) {
-				#$git_description = $line;
-				$git_description = "wireshark-1.11." . $version_pref{"version_minor"} .
-					"-$revision-g$line";
+				$git_description = "wireshark-" . substr($line, 1);
 			}
 
 			1;
