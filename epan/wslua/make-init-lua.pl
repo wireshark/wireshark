@@ -147,7 +147,7 @@ my $menu_i = 0;
 
 open STAT_MENU, "< $WSROOT/stat_menu.h" or die "cannot open '$WSROOT/stat_menu.h':  $!";
 while(<STAT_MENU>) {
-    if (/REGISTER_([A-Z]+)_GROUP_([A-Z]+)/) {
+    if (/REGISTER_([A-Z]+)_GROUP_([A-Z_]+)/) {
         $menu_groups .= "MENU_$1_$2 = $menu_i\n";
         $menu_groups =~ s/_NONE//;
         $menu_i++;
