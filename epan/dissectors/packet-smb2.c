@@ -228,6 +228,7 @@ static int hf_smb2_lease_flags_break_in_progress = -1;
 static int hf_smb2_lease_duration = -1;
 static int hf_smb2_parent_lease_key = -1;
 static int hf_smb2_lease_epoch = -1;
+static int hf_smb2_lease_reserved = -1;
 static int hf_smb2_lease_break_reason = -1;
 static int hf_smb2_lease_access_mask_hint = -1;
 static int hf_smb2_lease_share_mask_hint = -1;
@@ -5257,7 +5258,8 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
  *  4 - lease flags
  *  8 - lease duration
  * 16 - parent lease key
- *  4 - epoch
+ *  2 - epoch
+ *  2 - reserved
  */
 #define SMB2_LEASE_STATE_READ_CACHING   0x00000001
 #define SMB2_LEASE_STATE_HANDLE_CACHING 0x00000002
@@ -5338,7 +5340,10 @@ dissect_SMB2_CREATE_LEASE_VX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(sub_tree, hf_smb2_parent_lease_key, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 	offset += 16;
 
-	proto_tree_add_item(sub_tree, hf_smb2_lease_epoch, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_smb2_lease_epoch, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item(sub_tree, hf_smb2_lease_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -7541,7 +7546,11 @@ proto_register_smb2(void)
 		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_smb2_lease_epoch,
-		  { "Lease Epoch", "smb2.lease.lease_oplock", FT_UINT32, BASE_HEX,
+		  { "Lease Epoch", "smb2.lease.lease_oplock", FT_UINT16, BASE_HEX,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_lease_reserved,
+		  { "Lease Reserved", "smb2.lease.lease_reserved", FT_UINT16, BASE_HEX,
 		    NULL, 0, NULL, HFILL }},
 
 		{ &hf_smb2_lease_break_reason,
