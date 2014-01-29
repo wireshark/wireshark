@@ -301,7 +301,10 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 set(DISSECTOR_SRC
 	dissectors/file-elf.c
 	dissectors/file-file.c
+	dissectors/file-gif.c
+	dissectors/file-jpeg.c
 	dissectors/file-mp4.c
+	dissectors/file-png.c
 	dissectors/packet-2dparityfec.c
 	dissectors/packet-3com-njack.c
 	dissectors/packet-3com-xns.c
@@ -784,9 +787,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-igap.c
 	dissectors/packet-igmp.c
 	dissectors/packet-igrp.c
-	dissectors/packet-image-gif.c
-	dissectors/packet-image-jfif.c
-	dissectors/packet-image-png.c
 	dissectors/packet-imap.c
 	dissectors/packet-imf.c
 	dissectors/packet-infiniband.c

@@ -1,4 +1,4 @@
-/* packet-image-gif.c
+/* file-gif.c
  *
  * Routines for image/gif media dissection
  * Copyright 2003, 2004, Olivier Biot.

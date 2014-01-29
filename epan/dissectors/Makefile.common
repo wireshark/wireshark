@@ -217,8 +217,10 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 FILE_DISSECTOR_SRC = \
 	file-elf.c \
 	file-file.c \
-	file-mp4.c
-
+	file-gif.c \
+	file-jpeg.c \
+	file-mp4.c \
+	file-png.c
 #
 # Dissectors without warnings.
 #
@@ -706,9 +708,6 @@ DISSECTOR_SRC = \
 	packet-igap.c		\
 	packet-igmp.c		\
 	packet-igrp.c		\
-	packet-image-gif.c	\
-	packet-image-jfif.c	\
-	packet-image-png.c	\
 	packet-imap.c		\
 	packet-imf.c		\
 	packet-infiniband.c	\
