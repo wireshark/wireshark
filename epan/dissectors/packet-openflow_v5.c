@@ -9858,6 +9858,3 @@ proto_register_openflow_v5(void)
     expert_openflow_v5 = expert_register_protocol(proto_openflow_v5);
     expert_register_field_array(expert_openflow_v5, ei, array_length(ei));
 }
-
-
-    
