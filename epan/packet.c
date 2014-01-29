@@ -324,7 +324,22 @@ add_new_data_source(packet_info *pinfo, tvbuff_t *tvb, const char *name)
 	src = g_slice_new(struct data_source);
 	src->tvb = tvb;
 	src->name = g_strdup(name);
+	/* This could end up slow, but we should never have that many data
+	 * sources so it probably doesn't matter */
 	pinfo->data_src = g_slist_append(pinfo->data_src, src);
+}
+
+void
+remove_last_data_source(packet_info *pinfo)
+{
+	struct data_source *src;
+	GSList *last;
+
+	last = g_slist_last(pinfo->data_src);
+	src = (struct data_source *)last->data;
+	pinfo->data_src = g_slist_delete_link(pinfo->data_src, last);
+	g_free(src->name);
+	g_slice_free(struct data_source, src);
 }
 
 const char*

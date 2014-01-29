@@ -512,6 +512,8 @@ final_registration_all_protocols(void);
  */
 WS_DLL_PUBLIC void add_new_data_source(packet_info *pinfo, tvbuff_t *tvb,
     const char *name);
+/* Removes the last-added data source, if it turns out it wasn't needed */
+WS_DLL_PUBLIC void remove_last_data_source(packet_info *pinfo);
 
 
 /*

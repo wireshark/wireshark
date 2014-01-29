@@ -1889,6 +1889,7 @@ again:
                  * being a new higher-level PDU that also
                  * needs desegmentation).
                  */
+                remove_last_data_source(pinfo);
                 fragment_set_partial_reassembly(&tcp_reassembly_table,
                                                 pinfo, msp->first_frame, NULL);
 
