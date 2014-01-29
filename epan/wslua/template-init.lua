@@ -64,6 +64,11 @@ function typeof(obj)
     return mt and mt.__typeof or type(obj)
 end
 
+function file_exists(name)
+   local f = io.open(name,"r")
+   if f ~= nil then io.close(f) return true else return false end
+end
+
 -- %WTAP_ENCAPS%
 
 -- %WTAP_FILETYPES%
