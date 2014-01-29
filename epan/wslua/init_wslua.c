@@ -446,7 +446,13 @@ int wslua_init(register_cb cb, gpointer client_data) {
     WSLUA_REG_GLOBAL_NUMBER(L,"DESEGMENT_ONE_MORE_SEGMENT",DESEGMENT_ONE_MORE_SEGMENT);
 
     /* load system's init.lua */
-    filename = get_datafile_path("init.lua");
+    if (running_in_build_directory()) {
+        /* Running from build directory, load generated file */
+        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
+                                   G_DIR_SEPARATOR_S "init.lua", get_progfile_dir());
+    } else {
+        filename = get_datafile_path("init.lua");
+    }
 
     if (( file_exists(filename))) {
         lua_load_script(filename);

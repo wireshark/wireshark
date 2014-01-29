@@ -202,6 +202,16 @@ static char* wslua_get_actual_filename(const char* fname) {
     }
     g_free(filename);
 
+    if (running_in_build_directory()) {
+        /* Running in build directory, try wslua source directory */
+        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
+                                   G_DIR_SEPARATOR_S "%s", get_datafile_dir(), fname_clean);
+        if ( file_exists(filename) ) {
+            return filename;
+        }
+        g_free(filename);
+    }
+
     return NULL;
 }
 
@@ -262,7 +272,15 @@ WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
 WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
 #define WSLUA_OPTARG_datafile_path_FILENAME 1 /* A filename */
     const char *fname = luaL_optstring(L, WSLUA_OPTARG_datafile_path_FILENAME,"");
-    char* filename = get_datafile_path(fname);
+    char* filename;
+
+    if (running_in_build_directory()) {
+        /* Running in build directory, set datafile_path to wslua source directory */
+        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
+                                   G_DIR_SEPARATOR_S "%s", get_datafile_dir(), fname);
+    } else {
+        filename = get_datafile_path(fname);
+    }
 
     lua_pushstring(L,filename);
     g_free(filename);
@@ -454,3 +472,16 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
     register_stat_cmd_arg(arg, statcmd_init, sc);
     return 0;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
