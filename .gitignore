@@ -124,8 +124,11 @@ qtshark
 *.swp
 *~
 .DS_Store
+cscope.in.out
+cscope.po.out
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
+packaging/macosx/osx-dmg.sh
 packaging/rpm/SPECS/wireshark.spec
 packaging/svr4/checkinstall
 packaging/svr4/pkginfo
