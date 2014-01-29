@@ -950,24 +950,31 @@ nfs_name_snoop_add_name(int xid, tvbuff_t *tvb, int name_offset, int name_len, i
 	nfs_name_snoop_t *nns, *old_nns;
 	const char *ptr=NULL;
 
+	if (name_len <= 0) {
+		/* Do we need some way to signal an error here? This could be
+		 * programmatic or just a corrupt packet, depending on the
+		 * caller... */
+		return;
+	}
+
 	/* filter out all '.' and '..' names */
 	if(!name){
 		ptr=(const char *)tvb_get_ptr(tvb, name_offset, name_len);
 	} else {
 		ptr=name;
 	}
-	if(ptr[0]=='.'){
-		if(ptr[1]==0){
+	if (ptr[0] == '.') {
+		if (name_len <= 1 || ptr[1] == 0) {
 			return;
 		}
-		if(ptr[1]=='.'){
-			if(ptr[2]==0){
+		if (ptr[1] == '.') {
+			if (name_len <= 2 || ptr[2] == 0) {
 				return;
 			}
 		}
 	}
 
-	nns=(nfs_name_snoop_t *)g_malloc(sizeof(nfs_name_snoop_t));
+	nns = g_new(nfs_name_snoop_t, 1);
 
 	nns->fh_length=0;
 	nns->fh=NULL;
