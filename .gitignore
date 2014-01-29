@@ -69,6 +69,7 @@ depcomp
 dftest
 dumpcap
 editcap
+exntest
 install-sh
 libtool
 ltmain.sh
@@ -76,6 +77,7 @@ Makefile
 Makefile.in
 mergecap
 missing
+oids_test
 randpkt
 rawshark
 reordercap
