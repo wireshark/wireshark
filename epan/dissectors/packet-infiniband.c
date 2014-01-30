@@ -318,14 +318,14 @@ static const value_string CM_Attributes[] = {
 
 
 /* RMPP Types */
-#define RMPP_ILLEGAL 0
+#define RMPP_NOT_USED 0
 #define RMPP_DATA   1
 #define RMPP_ACK    2
 #define RMPP_STOP   3
 #define RMPP_ABORT  4
 
 static const value_string RMPP_Packet_Types[] = {
-    { RMPP_ILLEGAL, " Illegal RMPP Type (0)! " },
+    { RMPP_NOT_USED, " Not an RMPP Packet " },
     { RMPP_DATA,    "RMPP (DATA)" },
     { RMPP_ACK,     "RMPP (ACK)" },
     { RMPP_STOP,    "RMPP (STOP)" },
@@ -2803,8 +2803,8 @@ static void parse_SUBNADMN(proto_tree *parentTree, packet_info *pinfo, tvbuff_t 
     SUBNADMN_header_tree = proto_item_add_subtree(SUBNADMN_header_item, ett_subnadmin);
 
     proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_sm_key,             tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
-    proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_attribute_offset,   tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 4;
-    proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_reserved16,         tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_attribute_offset,   tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
+    proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_reserved16,         tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
     proto_tree_add_item(SUBNADMN_header_tree, hf_infiniband_component_mask,     tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
 
     label_SUBA_Method(SUBNADMN_header_item, &MadData, pinfo);
@@ -3322,7 +3322,7 @@ static gboolean parse_RMPP(proto_tree *parentTree, tvbuff_t *tvb, gint *offset)
     proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_status,    tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     switch (RMPP_Type)
     {
-        case RMPP_ILLEGAL:
+        case RMPP_NOT_USED:
             proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_data1,     tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
             proto_tree_add_item(RMPP_header_tree, hf_infiniband_rmpp_data2,     tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
             break;
