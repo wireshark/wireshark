@@ -178,18 +178,18 @@ static const value_string u_types[] = {
 #define C_CS_NA_1  103    /* clock synchronization command 							*/
 #define C_RP_NA_1  105    /* reset process command 								*/
 #define C_TS_TA_1  107    /* test command with time tag CP56Time2a 						*/
-#define  P_ME_NA_1  110    /* parameter of measured value, normalized value 					*/
-#define  P_ME_NB_1  111    /* parameter of measured value, scaled value 					*/
-#define  P_ME_NC_1  112    /* parameter of measured value, short floating-point number 				*/
-#define  P_AC_NA_1  113    /* parameter activation 								*/
-#define  F_FR_NA_1  120    /* file ready 									*/
-#define  F_SR_NA_1  121    /* section ready 									*/
-#define  F_SC_NA_1  122    /* call directory, select file, call file, call section 				*/
-#define  F_LS_NA_1  123    /* last section, last segment 							*/
-#define  F_AF_NA_1  124    /* ack file, ack section 								*/
-#define  F_SG_NA_1  125    /* segment 										*/
-#define  F_DR_TA_1  126    /* directory 									*/
-#define  F_SC_NB_1  127    /* Query Log - Request archive file 							*/
+#define P_ME_NA_1  110    /* parameter of measured value, normalized value 					*/
+#define P_ME_NB_1  111    /* parameter of measured value, scaled value 						*/
+#define P_ME_NC_1  112    /* parameter of measured value, short floating-point number 				*/
+#define P_AC_NA_1  113    /* parameter activation 								*/
+#define F_FR_NA_1  120    /* file ready 									*/
+#define F_SR_NA_1  121    /* section ready 									*/
+#define F_SC_NA_1  122    /* call directory, select file, call file, call section 				*/
+#define F_LS_NA_1  123    /* last section, last segment 							*/
+#define F_AF_NA_1  124    /* ack file, ack section 								*/
+#define F_SG_NA_1  125    /* segment 										*/
+#define F_DR_TA_1  126    /* directory 										*/
+#define F_SC_NB_1  127    /* Query Log - Request archive file 							*/
 static const value_string asdu_types [] = {
 	{  M_SP_NA_1,		"M_SP_NA_1" },
 	{  M_DP_NA_1,		"M_DP_NA_1" },
@@ -523,8 +523,7 @@ static const true_false_string tfs_overflow_no_overflow = { "Overflow", "No over
 static const true_false_string tfs_select_execute = { "Select", "Execute" };
 static const true_false_string tfs_local_dst = { "DST", "Local" };
 static const true_false_string tfs_coi_i = { "Initialisation after change of local parameters", "Initialisation with unchanged local parameters" };
-static const true_false_string tfs_overflow = { "No Overflow", "Overflow" };
-static const true_false_string tfs_adjusted = { "Not Adjusted", "Adjusted" };
+static const true_false_string tfs_adjusted_not_adjusted = { "Adjusted", "Not Adjusted" };
 
 /* Protocol fields to be filtered */
 static int hf_apdulen = -1;
@@ -920,13 +919,14 @@ static void get_BSIspt(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_
    ==================================================================== */
 static void get_BCR(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
-	proto_tree_add_item(iec104_header_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-	*offset += 4;
-	proto_tree_add_item(iec104_header_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec104_header_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec104_header_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(iec104_header_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
-	*offset += 1;
+  proto_tree_add_item(iec104_header_tree, hf_bcr_count, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+  *offset += 4;
+
+  proto_tree_add_item(iec104_header_tree, hf_bcr_sq, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(iec104_header_tree, hf_bcr_cy, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(iec104_header_tree, hf_bcr_ca, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(iec104_header_tree, hf_bcr_iv, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+  *offset += 1;
 }
 
 /* ====================================================================
@@ -1012,7 +1012,7 @@ static void get_RCO(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tre
 }
 
 /* ====================================================================
-    COI: Qualifier of interrogation
+    COI: Cause of initialisation
    ==================================================================== */
 static void get_COI(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_header_tree)
 {
@@ -1164,6 +1164,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		case M_ME_TD_1:
 		case M_ME_TE_1:
 		case M_ME_TF_1:
+		case M_IT_NA_1:
 		case M_IT_TB_1:
 		case C_SC_NA_1:
 		case C_DC_NA_1:
@@ -1253,6 +1254,9 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					get_FLT(tvb, &offset, trSignal);
 					get_QDS(tvb, &offset, trSignal);
 					break;
+				case M_IT_NA_1: /* 15	Integrated totals */
+					get_BCR(tvb, &offset, trSignal);
+					break;
 				case M_ME_ND_1: /* 21    Measured value, normalized value without quality descriptor */
 					get_NVA(tvb, &offset, trSignal);
 					break;
@@ -1289,7 +1293,7 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					get_QDS(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
-				case M_IT_TB_1: /* 37    integrated totals with time tag CP56Time2a */
+				case M_IT_TB_1: /* 37	Integrated totals with time tag CP56Time2a */
 					get_BCR(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
@@ -1348,13 +1352,13 @@ static void dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 					get_BSIspt(tvb, &offset, trSignal);
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
-				case M_EI_NA_1: /* 70    end of initialization  */
+				case M_EI_NA_1: /* 70    End of initialization  */
 					get_COI(tvb, &offset, trSignal);
 					break;
-				case C_IC_NA_1: /* 100    interrogation command  */
+				case C_IC_NA_1: /* 100   Interrogation command  */
 					get_QOI(tvb, &offset, trSignal);
 					break;
-				case C_CS_NA_1: /* 103    clock synchronization command  */
+				case C_CS_NA_1: /* 103   Clock synchronization command  */
 					get_CP56Time(tvb, &offset, trSignal);
 					break;
 
@@ -1775,11 +1779,11 @@ proto_register_iec104asdu(void)
 		    "Sequence Number", HFILL }},
 
 		{ &hf_bcr_cy,
-		  { "CY", "104asdu.bcr.cy", FT_BOOLEAN, 8, TFS(&tfs_overflow), 0x20,
+		  { "CY", "104asdu.bcr.cy", FT_BOOLEAN, 8, TFS(&tfs_overflow_no_overflow), 0x20,
 		    "Counter Overflow", HFILL }},
 
 		{ &hf_bcr_ca,
-		  { "CA", "104asdu.bcr.ca", FT_BOOLEAN, 8, TFS(&tfs_adjusted), 0x40,
+		  { "CA", "104asdu.bcr.ca", FT_BOOLEAN, 8, TFS(&tfs_adjusted_not_adjusted), 0x40,
 		    "Counter Adjusted", HFILL }},
 
 		{ &hf_bcr_iv,
