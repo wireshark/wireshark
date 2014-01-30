@@ -45,6 +45,7 @@ static int hf_advertising_header_pdu_type = -1;
 static int hf_advertising_header_rfu_1 = -1;
 static int hf_advertising_header_randomized_tx = -1;
 static int hf_advertising_header_randomized_rx = -1;
+static int hf_advertising_header_reserved = -1;
 static int hf_advertising_header_length = -1;
 static int hf_advertising_header_rfu_2 = -1;
 static int hf_advertising_address = -1;
@@ -256,11 +257,20 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
 
+        pdu_type = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_tx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        switch (pdu_type) {
+        case 0x00: /* ADV_IND */
+        case 0x02: /* ADV_NONCONN_IND */
+        case 0x04: /* SCAN_RSP */
+        case 0x06: /* ADV_SCAN_IND */
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            break;
+        default:
+            proto_tree_add_item(advertising_header_tree, hf_advertising_header_randomized_rx, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_pdu_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        pdu_type = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_item_append_text(advertising_header_item, " (PDU Type: %s, TxAdd=%s, RxAdd=%s)",
                 val_to_str_ext_const(pdu_type, &pdu_type_vals_ext, "Unknown"),
                 (tvb_get_guint8(tvb, offset) & 0x20) ? "true" : "false",
@@ -632,6 +642,11 @@ proto_register_btle(void)
         },
         { &hf_advertising_header_randomized_rx,
             { "Randomized Rx Address",           "btle.advertising_header.randomized_rx",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_advertising_header_reserved,
+            { "Reserved",                        "btle.advertising_header.reserved",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
