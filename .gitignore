@@ -14,6 +14,7 @@
 *scanner.c
 *_dict.c
 *_lex.h
+init.lua
 epan/declare_wslua.h
 epan/dissectors/dcerpc/idl2wrs
 epan/dissectors/mesa
@@ -23,7 +24,6 @@ epan/dissectors/register-cache.pkl
 epan/dissectors/register.c
 epan/dtd_parse.c
 epan/dtd_preparse.c
-epan/init.lua
 epan/packet-ncp2222.c
 epan/register-cache.pkl
 epan/register.c
@@ -33,7 +33,6 @@ epan/taps.txt
 epan/taps_wslua.c
 epan/uat_load.c
 epan/wslua/declare_wslua.h
-epan/wslua/init.lua
 epan/wslua/register_wslua.c
 epan/wslua/taps.txt
 epan/wslua/taps_wslua.c
@@ -184,3 +183,6 @@ packaging/macosx/Wireshark_package.pmdoc/index.xml
 packaging/rpm/SPECS/wireshark.spec
 packaging/svr4/checkinstall
 packaging/svr4/pkginfo
+*.dylib
+*.sublime-project
+*.sublime-workspace
