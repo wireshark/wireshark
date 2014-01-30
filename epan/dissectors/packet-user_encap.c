@@ -234,7 +234,7 @@ void proto_register_user_encap(void)
                          sizeof(user_encap_t),
                          "user_dlts",
                          TRUE,
-                         (void**) &encaps,
+                         &encaps,
                          &num_encaps,
                          UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                          "ChUserDLTsSection",

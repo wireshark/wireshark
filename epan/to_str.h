@@ -67,6 +67,8 @@ extern gchar*	fcwwn_to_str (const guint8 *);
 WS_DLL_PUBLIC const gchar*	tvb_fc_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gchar*	tvb_fcwwn_to_str (tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC const gchar*	ip6_to_str(const struct e_in6_addr *);
+WS_DLL_PUBLIC const gchar*      ip6_guint8_to_str(const guint8 *ad);
+
 WS_DLL_PUBLIC const gchar*	tvb_ip6_to_str(tvbuff_t *tvb, const gint offset);
 void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
 extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);

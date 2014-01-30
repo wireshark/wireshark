@@ -2037,7 +2037,7 @@ void proto_register_c1222(void) {
       sizeof(c1222_uat_data_t),         /* record size */
       "c1222_decryption_table",         /* filename */
       TRUE,                             /* from_profile */
-      (void**)&c1222_uat_data,          /* data_ptr */
+      &c1222_uat_data,                  /* data_ptr */
       &num_c1222_uat_data,              /* numitems_ptr */
       UAT_AFFECTS_DISSECTION,           /* affects dissection of packets, but not set of named fields */
       NULL,                             /* help */

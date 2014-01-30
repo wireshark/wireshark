@@ -3087,7 +3087,7 @@ proto_register_http(void)
 			      sizeof(header_field_t),
 			      "custom_http_header_fields",
 			      TRUE,
-			      (void**) &header_fields,
+			      &header_fields,
 			      &num_header_fields,
 			      /* specifies named fields, so affects dissection
 			         and the set of named fields */

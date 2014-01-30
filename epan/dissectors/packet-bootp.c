@@ -6984,7 +6984,7 @@ proto_register_bootp(void)
 			sizeof(uat_bootp_record_t), /* record size           */
 			"custom_bootp",		    /* filename              */
 			TRUE,			    /* from_profile          */
-			(void**) &uat_bootp_records,/* data_ptr              */
+			&uat_bootp_records,	    /* data_ptr              */
 			&num_bootp_records_uat,	    /* numitems_ptr          */
 			UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
 			NULL,			    /* help                  */

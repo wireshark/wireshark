@@ -2216,7 +2216,7 @@ proto_register_ipsec(void)
             sizeof(uat_esp_sa_record_t),    /* record size */
             "esp_sa",                       /* filename */
             TRUE,                           /* from_profile */
-            (void**) &uat_esp_sa_records,   /* data_ptr */
+            &uat_esp_sa_records,            /* data_ptr */
             &num_sa_uat,                    /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* help */

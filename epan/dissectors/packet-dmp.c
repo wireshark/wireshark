@@ -4916,7 +4916,7 @@ void proto_register_dmp (void)
                                   sizeof(dmp_security_class_t),
                                   "dmp_security_classifications",
                                   TRUE,
-                                  (void**) &dmp_security_classes,
+                                  &dmp_security_classes,
                                   &num_dmp_security_classes,
                                   UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                   "ChDMPSecurityClassifications",

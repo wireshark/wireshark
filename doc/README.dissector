@@ -140,7 +140,7 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,64} and FT_INT{8,16,24,32,64):
                 --For all other types:
 
                   BASE_NONE
-FIELDCONVERT    VALS(x), RVALS(x), TFS(x), NULL
+FIELDCONVERT    VALS(x), VALS64(x), RVALS(x), TFS(x), NULL
 BITMASK         Used to mask a field not 8-bit aligned or with a size other
                 than a multiple of 8 bits
 FIELDDESCR      A brief description of the field, or NULL. [Please do not use ""].
@@ -873,6 +873,12 @@ For hf[] array FT_(U)INT* fields that need a 'valstringname_ext' struct, the
 'strings' field would be set to '&valstringname_ext'. Furthermore, the 'display'
 field must be ORed with 'BASE_EXT_STRING' (e.g. BASE_DEC|BASE_EXT_STRING).
 
+-- val64_string
+
+val64_strings are like value_strings, except that the integer type
+used is a guint64 (instead of guint32). Instead of using the VALS()
+macro for the 'strings' field in the header_field_info struct array,
+'VALS64()' is used.
 
 -- Ranges
 If the field has a numeric type that might logically fit in ranges of values

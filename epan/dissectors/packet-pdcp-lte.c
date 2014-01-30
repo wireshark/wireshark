@@ -2562,7 +2562,7 @@ void proto_register_pdcp(void)
               sizeof(uat_ue_keys_record_t),    /* record size */
               "pdcp_lte_ue_keys",              /* filename */
               TRUE,                            /* from_profile */
-              (void**) &uat_ue_keys_records,   /* data_ptr */
+              &uat_ue_keys_records,            /* data_ptr */
               &num_ue_keys_uat,                /* numitems_ptr */
               UAT_AFFECTS_DISSECTION,          /* affects dissection of packets, but not set of named fields */
               NULL,                            /* help */

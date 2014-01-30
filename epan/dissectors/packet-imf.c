@@ -1230,7 +1230,7 @@ proto_register_imf(void)
                                sizeof(header_field_t),
                                "imf_header_fields",
                                TRUE,
-                               (void**) &header_fields,
+                               &header_fields,
                                &num_header_fields,
                                /* specifies named fields, so affects dissection
                                   and the set of named fields */

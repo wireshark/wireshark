@@ -3329,7 +3329,7 @@ proto_register_dtls(void)
                               sizeof(ssldecrypt_assoc_t),
                               "dtlsdecrypttablefile",         /* filename */
                               TRUE,                           /* from_profile */
-                              (void**) &dtlskeylist_uats,     /* data_ptr */
+                              &dtlskeylist_uats,              /* data_ptr */
                               &ndtlsdecrypt,                  /* numitems_ptr */
                               UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
                               "ChK12ProtocolsSection",        /* TODO, need revision - help */

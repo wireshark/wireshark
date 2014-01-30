@@ -22012,7 +22012,7 @@ proto_register_ieee80211 (void)
             sizeof(uat_wep_key_record_t), /* record size */
             "80211_keys",                 /* filename */
             TRUE,                         /* from_profile */
-            (void**) &uat_wep_key_records,/* data_ptr */
+            &uat_wep_key_records,         /* data_ptr */
             &num_wepkeys_uat,             /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,       /* affects dissection of packets, but not set of named fields */
             NULL,                         /* help */

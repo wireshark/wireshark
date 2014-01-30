@@ -6178,7 +6178,7 @@ proto_register_isakmp(void)
       sizeof(ikev1_uat_data_key_t),
       "ikev1_decryption_table",
       TRUE,
-      (void**)&ikev1_uat_data,
+      &ikev1_uat_data,
       &num_ikev1_uat_data,
       UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
       "ChIKEv1DecryptionSection",
@@ -6198,7 +6198,7 @@ proto_register_isakmp(void)
       sizeof(ikev2_uat_data_t),
       "ikev2_decryption_table",
       TRUE,
-      (void**)&ikev2_uat_data,
+      &ikev2_uat_data,
       &num_ikev2_uat_data,
       UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
       "ChIKEv2DecryptionSection",

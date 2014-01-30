@@ -5501,7 +5501,7 @@ proto_register_ssl(void)
             sizeof(ssldecrypt_assoc_t),
             "ssl_keys",                     /* filename */
             TRUE,                           /* from_profile */
-            (void**) &sslkeylist_uats,      /* data_ptr */
+            &sslkeylist_uats,               /* data_ptr */
             &nssldecrypt,                   /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */

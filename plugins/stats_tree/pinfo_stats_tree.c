@@ -248,7 +248,7 @@ void register_pinfo_stat_trees(void) {
 			sizeof(uat_plen_record_t),  /* record size */
 			"packet_lengths",           /* filename */
 			TRUE,                       /* from_profile */
-			(void**) &uat_plen_records, /* data_ptr */
+			&uat_plen_records,          /* data_ptr */
 			&num_plen_uat,              /* numitems_ptr */
 			0,                          /* not a dissector, so affects neither dissection nor fields */
 			NULL,                       /* help */

@@ -6896,7 +6896,7 @@ void proto_register_mac_lte(void)
                                     sizeof(lcid_drb_mapping_t),
                                     "drb_logchans",
                                     TRUE,
-                                    (void**) &lcid_drb_mappings,
+                                    &lcid_drb_mappings,
                                     &num_lcid_drb_mappings,
                                     UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                     "",  /* TODO: is this ref to help manual? */

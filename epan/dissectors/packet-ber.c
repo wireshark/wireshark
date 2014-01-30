@@ -5411,7 +5411,7 @@ proto_register_ber(void)
                                sizeof(oid_user_t),
                                "oid",
                                FALSE,
-                               (void**) &oid_users,
+                               &oid_users,
                                &num_oid_users,
                                UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                "ChObjectIdentifiers",

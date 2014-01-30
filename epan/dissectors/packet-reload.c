@@ -5907,7 +5907,7 @@ proto_register_reload(void)
             sizeof(kind_t),
             "reload_kindids",               /* filename */
             TRUE,                           /* from_profile */
-            (void**) &kindidlist_uats,      /* data_ptr */
+            &kindidlist_uats,               /* data_ptr */
             &nreloadkinds,                  /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* Help section (currently a wiki page) */

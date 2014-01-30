@@ -4692,7 +4692,7 @@ proto_register_sctp(void)
                             sizeof(type_field_t),
                             "statistics_chunk_types",
                             TRUE,
-                            (void**) &type_fields,
+                            &type_fields,
                             &num_type_fields,
                             0,
                             NULL,

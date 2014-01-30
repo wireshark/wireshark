@@ -82,6 +82,9 @@ struct expert_field;
 /** Make a const value_string[] look like a _value_string pointer, used to set header_field_info.strings */
 #define VALS(x)	(const struct _value_string*)(x)
 
+/** Make a const val64_string[] look like a _val64_string pointer, used to set header_field_info.strings */
+#define VALS64(x)   (const struct _val64_string*)(x)
+
 /** Make a const true_false_string[] look like a _true_false_string pointer, used to set header_field_info.strings */
 #define TFS(x)	(const struct true_false_string*)(x)
 
@@ -375,7 +378,7 @@ struct _header_field_info {
 	const char		*abbrev;         /**< [FIELDABBREV] abbreviated name of this field */
 	enum ftenum		 type;           /**< [FIELDTYPE] field type, one of FT_ (from ftypes.h) */
 	int			     display;        /**< [FIELDDISPLAY] one of BASE_, or field bit-width if FT_BOOLEAN and non-zero bitmask */
-	const void		*strings;        /**< [FIELDCONVERT] value_string, range_string or true_false_string,
+	const void		*strings;        /**< [FIELDCONVERT] value_string, val64_string, range_string or true_false_string,
 				                      typically converted by VALS(), RVALS() or TFS().
 				                      If this is an FT_PROTOCOL then it points to the
 				                      associated protocol_t structure */

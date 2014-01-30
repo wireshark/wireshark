@@ -278,7 +278,7 @@ void zbee_security_register(module_t *zbee_prefs, int proto)
                                sizeof(uat_key_record_t),
                                "zigbee_pc_keys",
                                TRUE,
-                               (void**) &uat_key_records,
+                               &uat_key_records,
                                &num_uat_key_records,
                                UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                NULL,  /* TODO: ptr to help manual? */

@@ -6620,7 +6620,7 @@ proto_register_bgp(void)
           BASE_DEC, VALS(link_state_nlri_protocol_id_values), 0x0, NULL, HFILL }},
       { &hf_bgp_ls_nlri_node_identifier,
         { "Identifier", "bgp.ls.nlri_node.identifier", FT_UINT64,
-          BASE_DEC | BASE_VAL64_STRING, VALS(link_state_nlri_routing_universe_values), 0x0, NULL, HFILL }},
+          BASE_DEC | BASE_VAL64_STRING, VALS64(link_state_nlri_routing_universe_values), 0x0, NULL, HFILL }},
       { &hf_bgp_ls_ipv4_topology_prefix_nlri_type,
         { "Link-State NLRI IPv4 Topology Prefix", "bgp.ls.ipv4_topology_prefix", FT_NONE,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},

@@ -2732,7 +2732,7 @@ void proto_register_ieee802154(void)
             sizeof(static_addr_t),      /* record size */
             "802154_addresses",         /* filename */
             TRUE,                       /* from_profile */
-            (void**)&static_addrs,      /* data_ptr */
+            &static_addrs,              /* data_ptr */
             &num_static_addrs,          /* numitems_ptr */
             UAT_AFFECTS_DISSECTION,     /* affects dissection of packets, but not set of named fields */
             NULL,                       /* help */

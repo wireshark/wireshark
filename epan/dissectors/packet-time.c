@@ -45,7 +45,13 @@ static int proto_time = -1;
 static int hf_time_time = -1;
 
 static gint ett_time = -1;
-static absolute_time_display_e time_display_type = ABSOLUTE_TIME_LOCAL;
+/* Instead of using absolute_time_display_e as the type for
+ * time_display_type, we use gint to avoid a type-punning problem
+ * with prefs_register_enum_preference(). This variable is also
+ * used with abs_time_secs_to_ep_str(), which _does_ take
+ * an absolute_time_display_e, but gcc doesn't complain about
+ * casting the gint to absolute_time_display_e */
+static gint time_display_type = ABSOLUTE_TIME_LOCAL;
 
 /* This dissector works for TCP and UDP time packets */
 #define TIME_PORT 37

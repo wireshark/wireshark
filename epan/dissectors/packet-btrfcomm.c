@@ -1084,7 +1084,7 @@ proto_register_btrfcomm(void)
             sizeof(uat_rfcomm_channels_t),
             "rfcomm_channels",
             TRUE,
-            (void**) &rfcomm_channels,
+            &rfcomm_channels,
             &num_rfcomm_channels,
             UAT_AFFECTS_DISSECTION,
             NULL,

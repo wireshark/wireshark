@@ -58,7 +58,7 @@ uat_t* uat_new(const char* name,
                size_t size,
                const char* filename,
                gboolean from_profile,
-               void** data_ptr,
+               void* data_ptr,
                guint* numitems_ptr,
                guint flags,
                const char* help,
@@ -85,7 +85,12 @@ uat_t* uat_new(const char* name,
     uat->record_size = size;
     uat->filename = g_strdup(filename);
     uat->from_profile = from_profile;
-    uat->user_ptr = data_ptr;
+    /* Callers of uat_new() pass in (void*) for data_ptr, because
+     * that is the "universal" pointer type that can be cast to
+     * anything. However, for our purposes, we want a (void**).
+     * So, we cast (void*) data_ptr to (void**) here. That keeps
+     * gcc -fstrict-aliasing from complaining. */
+    uat->user_ptr = (void**) data_ptr;
     uat->nrows_p = numitems_ptr;
     uat->copy_cb = copy_cb;
     uat->update_cb = update_cb;
@@ -115,7 +120,7 @@ uat_t* uat_new(const char* name,
 
     uat->ncols = i;
 
-    *data_ptr = NULL;
+    *((void**)data_ptr) = NULL;
     *numitems_ptr = 0;
 
     return uat;

@@ -621,7 +621,7 @@ proto_register_vcdu(void)
         sizeof(uat_channel_t),
         "vcdu_bitstream_channels",
         TRUE,
-        (void**)&uat_bitchannels,
+        &uat_bitchannels,
         &num_channels_uat,
         UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
         NULL,

@@ -1021,7 +1021,7 @@ void proto_register_devicenet(void)
                             sizeof(uat_devicenet_record_t), /* record size           */
                             "devicenet_bodytypes",          /* filename              */
                             TRUE,                           /* from_profile          */
-                            (void**) &uat_devicenet_records,/* data_ptr              */
+                            &uat_devicenet_records,         /* data_ptr              */
                             &num_devicenet_records_uat,     /* numitems_ptr          */
                             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
                             NULL,                           /* help                  */

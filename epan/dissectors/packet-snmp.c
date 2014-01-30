@@ -3999,7 +3999,7 @@ void proto_register_snmp(void) {
 			      sizeof(snmp_ue_assoc_t),
 			      "snmp_users",
 			      TRUE,
-			      (void**)&ueas,
+			      &ueas,
 			      &num_ueas,
 			      UAT_AFFECTS_DISSECTION,	/* affects dissection of packets, but not set of named fields */
 			      "ChSNMPUsersSection",

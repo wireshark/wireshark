@@ -245,7 +245,7 @@ typedef struct _uat_field_t {
  * @param size The size of the structure
  * @param filename The filename to be used (either in userdir or datadir)
  * @param from_profile TRUE if profile directory to be used
- * @param data_ptr A pointer to a null terminated array of pointers to the data
+ * @param data_ptr Although a void*, this is really a pointer to a null terminated array of pointers to the data
  * @param num_items_ptr A pointer with number of items
  * @param flags flags indicating what this UAT affects
  * @param help A pointer to help text
@@ -262,7 +262,7 @@ uat_t* uat_new(const char* name,
 			   size_t size,
 			   const char* filename,
 			   gboolean from_profile,
-			   void** data_ptr,
+			   void* data_ptr,
 			   guint* num_items_ptr,
 			   guint flags,
 			   const char* help,

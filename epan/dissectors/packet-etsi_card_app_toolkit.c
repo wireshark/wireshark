@@ -1522,7 +1522,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_aid_rid,
 			{ "RID", "etsi_cat.comp_tlv.aid.rid",
-			  FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS(aid_rid_vals), 0,
+			  FT_UINT64, BASE_HEX|BASE_VAL64_STRING, VALS64(aid_rid_vals), 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_aid_pix_app_code_etsi,

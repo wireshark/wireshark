@@ -2271,7 +2271,7 @@ static gint dissect_mq_sid(tvbuff_t *tvb, proto_tree *tree, mq_parm_t *p_mq_parm
 {
     guint8    iSIDL;
     guint8    iSID;
-    guint8 *sid_str;
+    char *sid_str;
     gint    bOffset    = offset;
 
     iSIDL = tvb_get_guint8(tvb, offset);
@@ -2284,7 +2284,7 @@ static gint dissect_mq_sid(tvbuff_t *tvb, proto_tree *tree, mq_parm_t *p_mq_parm
         offset++;
         if (iSID == MQ_MQSIDT_NT_SECURITY_ID)
         {
-            offset = dissect_nt_sid(tvb, offset, tree, "SID", (char **)&sid_str, -1);
+            offset = dissect_nt_sid(tvb, offset, tree, "SID", &sid_str, -1);
         }
         else
         {

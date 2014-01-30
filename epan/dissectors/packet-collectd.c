@@ -1460,7 +1460,7 @@ void proto_register_collectd(void)
 		},
 		{ &hf_collectd_data_severity,
 			{ "Severity", "collectd.data.severity", FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-				VALS(severity_names),
+				VALS64(severity_names),
 				0x0, NULL, HFILL }
 		},
 		{ &hf_collectd_data_message,
