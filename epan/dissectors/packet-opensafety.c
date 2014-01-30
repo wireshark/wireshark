@@ -674,8 +674,8 @@ void proto_reg_handoff_opensafety(void);
 /* Tracks the information that the packet pinfo has been sent by sender, and received by receiver, and adds that information to
  * the tree, using pos for the sender and pos2 for the receiver, as byte position in the PDU */
 #define PACKET_SENDER_RECEIVER(pinfo, send, pos, recv, pos2, posnet, sdn)         { \
-        PACKET_SENDER(pinfo, send, pos, posnet, sdn); \
         PACKET_RECEIVER(pinfo, recv, pos2, posnet, sdn); \
+        PACKET_SENDER(pinfo, send, pos, posnet, sdn); \
         }
 
 static guint16
@@ -1480,8 +1480,8 @@ dissect_opensafety_snmt_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
     }
     else
     {
-        PACKET_SENDER_RECEIVER ( pinfo, taddr, OSS_FRAME_POS_ADDR + frameStart1, addr, frameStart2 + 3,
-                                 frameStart2, sdn );
+        PACKET_SENDER_RECEIVER ( pinfo, taddr, frameStart2 + 3, addr, OSS_FRAME_POS_ADDR + frameStart1,
+                             frameStart2, sdn );
     }
 
     item = proto_tree_add_uint_format_value(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + frameStart1, 1,
@@ -2372,10 +2372,10 @@ proto_register_opensafety(void)
           { "Safety Domain",  "opensafety.msg.network",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_msg_sender,
-          { "Sender",  "opensafety.msg.sender",
+          { "SN send from",  "opensafety.msg.sender",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_msg_receiver,
-          { "Receiver",  "opensafety.msg.receiver",
+          { "SN send to",  "opensafety.msg.receiver",
             FT_UINT16,   BASE_HEX, NULL,   0x0, NULL, HFILL } },
         { &hf_oss_length,
           { "Length",    "opensafety.length",
