@@ -173,7 +173,6 @@ ui/qt/config.pri
 *.swp
 *~
 .DS_Store
-.gitreview
 cscope.*
 tags
 packaging/macosx/COPYING.txt
