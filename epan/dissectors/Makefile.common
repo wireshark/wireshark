@@ -1470,6 +1470,7 @@ DISSECTOR_INCLUDES =	\
 	packet-isis-clv.h	\
 	packet-isl.h	\
 	packet-isup.h	\
+	packet-iwarp-ddp-rdmap.h \
 	packet-jxta.h	\
 	packet-kerberos.h	\
 	packet-klm.h	\

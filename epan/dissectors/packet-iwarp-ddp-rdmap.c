@@ -34,6 +34,8 @@
 
 #include <epan/packet.h>
 
+#include "packet-iwarp-ddp-rdmap.h"
+
 void proto_register_iwarp_ddp_rdmap(void);
 void proto_reg_handoff_iwarp_ddp_rdmap(void);
 
@@ -261,10 +263,11 @@ static const value_string ddp_errcode_untagged_names[] = {
 static heur_dissector_list_t rdmap_heur_subdissector_list;
 
 static void
-dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
+		      proto_tree *tree, struct rdmapinfo *info)
 {
 	if (!dissector_try_heuristic(rdmap_heur_subdissector_list,
-				    tvb, pinfo, tree, NULL)) {
+				    tvb, pinfo, tree, info)) {
 		call_dissector(data_handle, tvb, pinfo, tree);
 	}
 }
@@ -485,16 +488,17 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb = NULL;
 
 	gboolean is_tagged_buffer_model;
-	guint8 ddp_ctrl_field, rdma_ctrl_field, rdma_msg_opcode;
+	guint8 ddp_ctrl_field, rdma_ctrl_field;
+	struct rdmapinfo info = { 0, };
 	guint32 header_end;
 	guint32 offset = 0;
 
 	ddp_ctrl_field = tvb_get_guint8(tvb, 0);
 	rdma_ctrl_field = tvb_get_guint8(tvb, 1);
-	rdma_msg_opcode = rdma_ctrl_field & RDMA_OPCODE;
+	info.opcode = rdma_ctrl_field & RDMA_OPCODE;
 	is_tagged_buffer_model = ddp_ctrl_field & DDP_TAGGED_FLAG;
 
-	ddp_rdma_packetlist(pinfo, ddp_ctrl_field & DDP_LAST_FLAG, rdma_msg_opcode);
+	ddp_rdma_packetlist(pinfo, ddp_ctrl_field & DDP_LAST_FLAG, info.opcode);
 
 	if (tree) {
 
@@ -507,8 +511,8 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			header_end = DDP_UNTAGGED_HEADER_LEN;
 		}
 
-		if (rdma_msg_opcode == RDMA_READ_REQUEST
-				|| rdma_msg_opcode == RDMA_TERMINATE) {
+		if (info.opcode == RDMA_READ_REQUEST
+				|| info.opcode == RDMA_TERMINATE) {
 			header_end = -1;
 		}
 
@@ -574,16 +578,16 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += RDMA_CONTROL_FIELD_LEN;
 
 		/* dissection of DDP rsvdULP[8:39] with respect to RDMAP */
-		if (rdma_msg_opcode == RDMA_READ_REQUEST
-				|| rdma_msg_opcode == RDMA_SEND
-				|| rdma_msg_opcode == RDMA_SEND_SE
-				|| rdma_msg_opcode == RDMA_TERMINATE) {
+		if (info.opcode == RDMA_READ_REQUEST
+				|| info.opcode == RDMA_SEND
+				|| info.opcode == RDMA_SEND_SE
+				|| info.opcode == RDMA_TERMINATE) {
 			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_reserved,
 				 tvb, offset, RDMA_RESERVED_FIELD_LEN, ENC_NA);
 		}
 
-		if (rdma_msg_opcode == RDMA_SEND_INVALIDATE
-				|| rdma_msg_opcode == RDMA_SEND_SE_INVALIDATE) {
+		if (info.opcode == RDMA_SEND_INVALIDATE
+				|| info.opcode == RDMA_SEND_SE_INVALIDATE) {
 			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_inval_stag,
 				tvb, offset, RDMA_INVAL_STAG_LEN, ENC_BIG_ENDIAN);
 		}
@@ -609,12 +613,12 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset, DDP_TO_LEN, ENC_NA);
 			offset += DDP_TO_LEN;
 
-			if( rdma_msg_opcode == RDMA_READ_RESPONSE
-					|| rdma_msg_opcode == RDMA_WRITE) {
+			if( info.opcode == RDMA_READ_RESPONSE
+					|| info.opcode == RDMA_WRITE) {
 
 				/* display the payload */
 				next_tvb = tvb_new_subset_remaining(tvb, DDP_TAGGED_HEADER_LEN);
-				dissect_rdmap_payload(next_tvb, pinfo, tree);
+				dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
 			}
 
 		} else {
@@ -636,22 +640,22 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset, DDP_MO_LEN, ENC_BIG_ENDIAN);
 			offset += DDP_MO_LEN;
 
-			if (rdma_msg_opcode == RDMA_SEND
-					|| rdma_msg_opcode == RDMA_SEND_INVALIDATE
-					|| rdma_msg_opcode == RDMA_SEND_SE
-					|| rdma_msg_opcode == RDMA_SEND_SE_INVALIDATE) {
+			if (info.opcode == RDMA_SEND
+					|| info.opcode == RDMA_SEND_INVALIDATE
+					|| info.opcode == RDMA_SEND_SE
+					|| info.opcode == RDMA_SEND_SE_INVALIDATE) {
 
 				/* display the payload */
 				next_tvb = tvb_new_subset_remaining(tvb, DDP_UNTAGGED_HEADER_LEN);
-				dissect_rdmap_payload(next_tvb, pinfo, tree);
+				dissect_rdmap_payload(next_tvb, pinfo, tree, &info);
 			}
 		}
 	}
 
 	/* do further dissection for RDMA messages RDMA Read Request & Terminate */
-	if (rdma_msg_opcode == RDMA_READ_REQUEST
-			|| rdma_msg_opcode == RDMA_TERMINATE) {
-		dissect_iwarp_rdmap(tvb, rdma_tree, offset, rdma_msg_opcode);
+	if (info.opcode == RDMA_READ_REQUEST
+			|| info.opcode == RDMA_TERMINATE) {
+		dissect_iwarp_rdmap(tvb, rdma_tree, offset, info.opcode);
 	}
 }
 
