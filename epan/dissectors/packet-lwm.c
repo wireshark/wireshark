@@ -449,7 +449,6 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         default:
-            len = 0; /*nothing processed*/
             /*Unknown command*/
             expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error, "Unknown command");
             call_dissector(data_handle, new_tvb, pinfo, lwm_cmd_tree);
