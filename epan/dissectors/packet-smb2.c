@@ -5422,7 +5422,6 @@ dissect_SMB2_CREATE_LEASE_VX(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 2;
 
 	proto_tree_add_item(sub_tree, hf_smb2_lease_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	offset += 2;
 }
 
 static void
