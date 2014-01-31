@@ -90,7 +90,8 @@ static void
 dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
         proto_tree *tree, int direction _U_)
 {
-    proto_tree *cl_tree = NULL;
+    proto_tree *cl_tree;
+    proto_item *cl_item;
     guint8  *text;
     int  len;
     int  offset;
@@ -98,24 +99,19 @@ dissect_quake2_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint32 marker;
 
     marker = tvb_get_ntohl(tvb, 0);
-    if (tree) {
-        proto_item *cl_item = NULL;
-        cl_item = proto_tree_add_text(tree, tvb,
-                0, -1, "Connectionless");
-        cl_tree = proto_item_add_subtree(cl_item, ett_quake2_connectionless);
-        proto_tree_add_uint(cl_tree, hf_quake2_connectionless_marker,
-                tvb, 0, 4, marker);
-    }
+    cl_item = proto_tree_add_text(tree, tvb,
+            0, -1, "Connectionless");
+    cl_tree = proto_item_add_subtree(cl_item, ett_quake2_connectionless);
+    proto_tree_add_uint(cl_tree, hf_quake2_connectionless_marker,
+            tvb, 0, 4, marker);
 
     /* all the rest of the packet is just text */
     offset = 4;
 
     len = tvb_length_remaining(tvb, offset);
-    if (cl_tree) {
-        text = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
-        proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
-                tvb, offset, len, text);
-    }
+    text = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+    proto_tree_add_string(cl_tree, hf_quake2_connectionless_text,
+            tvb, offset, len, text);
     /*offset += len;*/
 
     /* we should analyse the result 'text' a bit further */
@@ -344,10 +340,8 @@ dissect_quake2_client_commands_uinfo(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     len = tvb_strsize(tvb, 0);
 
-    if (tree) {
-        proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
-                tvb_get_string(wmem_packet_scope(), tvb, 0, len));
-    }
+    proto_tree_add_text(tree, tvb, 0, len, "Userinfo: %s",
+            tvb_get_string(wmem_packet_scope(), tvb, 0, len));
 
     return len;
 }
@@ -360,10 +354,8 @@ dissect_quake2_client_commands_stringcmd(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     len = tvb_strsize(tvb, 0);
 
-    if (tree) {
-        proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
-                tvb_get_string(wmem_packet_scope(), tvb, 0, len));
-    }
+    proto_tree_add_text(tree, tvb, 0, len, "Command: %s",
+            tvb_get_string(wmem_packet_scope(), tvb, 0, len));
 
     return len;
 }
@@ -388,23 +380,22 @@ dissect_quake2_client_commands(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree)
 {
     proto_tree *clc_tree = NULL;
-    tvbuff_t *next_tvb   = NULL;
-    guint8 client_cmd_type;
-    guint rest_length = 0;
-    int   offset      = 0;
+    tvbuff_t   *next_tvb   = NULL;
+    guint8      client_cmd_type;
+    proto_item *cmd_type_item;
+    guint       rest_length = 0;
+    int         offset      = 0;
 
     do {
         client_cmd_type = tvb_get_guint8(tvb, offset);
 
-        if (tree) {
-            proto_item *cmd_type_item = proto_tree_add_uint(tree,
-                    hf_quake2_game_client_command, tvb, offset, 1,
-                    client_cmd_type);
+        cmd_type_item = proto_tree_add_uint(tree,
+                hf_quake2_game_client_command, tvb, offset, 1,
+                client_cmd_type);
 
-            proto_item_append_text(cmd_type_item, " (%s)",
-                    val_to_str(client_cmd_type, names_client_cmd, "%u"));
-            clc_tree = proto_item_add_subtree(cmd_type_item, ett_quake2_game_clc_cmd);
-        }
+        proto_item_append_text(cmd_type_item, " (%s)",
+                val_to_str(client_cmd_type, names_client_cmd, "%u"));
+        clc_tree = proto_item_add_subtree(cmd_type_item, ett_quake2_game_clc_cmd);
 
         offset++;
         rest_length = tvb_reported_length(tvb) - offset;
@@ -493,21 +484,19 @@ static void
 dissect_quake2_server_commands(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree)
 {
-    tvbuff_t *next_tvb = NULL;
-    guint8 server_cmd_type;
-    guint rest_length = 0;
-    int offset = 0;
+    tvbuff_t   *next_tvb = NULL;
+    guint8      server_cmd_type;
+    proto_item *cmd_type_item;
+    guint       rest_length = 0;
+    int         offset = 0;
 
     server_cmd_type = tvb_get_guint8(tvb, offset);
 
-    if (tree) {
-        proto_item *cmd_type_item;
-        cmd_type_item = proto_tree_add_uint(tree,
-                hf_quake2_game_server_command, tvb, offset, 1, server_cmd_type);
+    cmd_type_item = proto_tree_add_uint(tree,
+            hf_quake2_game_server_command, tvb, offset, 1, server_cmd_type);
 
-        proto_item_append_text(cmd_type_item, " (%s)",
-                val_to_str(server_cmd_type, names_server_cmd, "%u"));
-    }
+    proto_item_append_text(cmd_type_item, " (%s)",
+            val_to_str(server_cmd_type, names_server_cmd, "%u"));
 
     offset++;
     rest_length = tvb_reported_length(tvb) - offset;
@@ -585,7 +574,8 @@ static void
 dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, int direction)
 {
-    proto_tree *game_tree = NULL;
+    proto_tree *game_tree;
+    proto_item *game_item;
     guint32    seq1;
     guint32    seq2;
     int        rel1;
@@ -596,12 +586,9 @@ dissect_quake2_GamePacket(tvbuff_t *tvb, packet_info *pinfo,
     direction = (pinfo->destport == gbl_quake2ServerPort) ?
         DIR_C2S : DIR_S2C;
 
-    if (tree) {
-        proto_item *game_item;
-        game_item = proto_tree_add_text(tree, tvb,
-                0, -1, "Game");
-        game_tree = proto_item_add_subtree(game_item, ett_quake2_game);
-    }
+    game_item = proto_tree_add_text(tree, tvb,
+            0, -1, "Game");
+    game_tree = proto_item_add_subtree(game_item, ett_quake2_game);
 
     offset = 0;
 
