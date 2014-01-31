@@ -86,9 +86,10 @@ void proto_reg_handoff_icmpv6(void);
  * RFC 6496: Secure Proxy ND Support for SEND
  * RFC 6550: RPL: IPv6 Routing Protocol for Low power and Lossy Networks
  * RFC 6554: An IPv6 Routing Header for Source Routes with RPL
- * draft-irtf-rrg-ilnp-icmpv6-06: ICMP Locator Update message for ILNPv6
- * draft-ietf-6lowpan-nd-21: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
- * http://www.iana.org/assignments/icmpv6-parameters (last updated 2012-08-27)
+ * RFC 6743: ICMP Locator Update message for ILNPv6
+ * RFC 6775: Neighbor Discovery Optimization for Low Power and Lossy Networks (6LoWPAN)
+ * RFC 7112: Implications of Oversized IPv6 Header Chains
+ * http://www.iana.org/assignments/icmpv6-parameters (last updated 2014-01-30)
  */
 
 static int proto_icmpv6 = -1;
@@ -597,9 +598,9 @@ static const value_string icmpv6_type_val[] = {
     { ICMP6_MCAST_ROUTER_TERM,     "Multicast Router Termination" },                    /* [RFC4286] */
     { ICMP6_FMIPV6_MESSAGES,       "FMIPv6" },                                          /* [RFC5568] */
     { ICMP6_RPL_CONTROL,           "RPL Control" },                                     /* [RFC6550] */
-    { ICMP6_ILNPV6,                "Locator Update"},                                   /* draft-irtf-rrg-ilnp-icmpv6-06.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* draft-ietf-6lowpan-nd-21.txt Pending IANA */
-    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* draft-ietf-6lowpan-nd-21.txt Pending IANA */
+    { ICMP6_ILNPV6,                "Locator Update"},                                   /* [RFC6743] */
+    { ICMP6_6LOWPANND_DAR,         "Duplicate Address Request"},                        /* [RFC6775] */
+    { ICMP6_6LOWPANND_DAC,         "Duplicate Address Confirmation"},                   /* [RFC6775] */
     { 200,                         "Private experimentation" },                         /* [RFC4443] */
     { 201,                         "Private experimentation" },                         /* [RFC4443] */
     { 255,                         "Reserved for expansion of ICMPv6 informational messages" }, /* [RFC4443] */
@@ -640,11 +641,13 @@ static const value_string icmpv6_timeex_code_val[] = {
 #define ICMP6_PARAMPROB_HEADER                  0       /* erroneous header field */
 #define ICMP6_PARAMPROB_NEXTHEADER              1       /* unrecognized next header */
 #define ICMP6_PARAMPROB_OPTION                  2       /* unrecognized option */
+#define ICMP6_PARAMPROB_FIRSTFRAG               3       /* IPv6 First Fragment has incomplete IPv6 Header Chain [RFC 7112] */
 
 static const value_string icmpv6_paramprob_code_val[] = {
     { ICMP6_PARAMPROB_HEADER,     "erroneous header field encountered" },
     { ICMP6_PARAMPROB_NEXTHEADER, "unrecognized Next Header type encountered" },
     { ICMP6_PARAMPROB_OPTION,     "unrecognized IPv6 option encountered" },
+    { ICMP6_PARAMPROB_FIRSTFRAG,  "IPv6 First Fragment has incomplete IPv6 Header Chain" },
     { 0, NULL }
 };
 
@@ -858,9 +861,9 @@ static const value_string option_vals[] = {
 /* 30 */   { ND_OPT_MOBILE_NODE_ID,            "Mobile Node Identifier Option" },          /* [RFC5271] */
 /* 31 */   { ND_OPT_DNS_SEARCH_LIST,           "DNS Search List Option" },                 /* [RFC6106] */
 /* 32 */   { ND_OPT_PROXY_SIGNATURE,           "Proxy Signature (PS)" },                   /* [RFC6496] */
-/* 33 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [draft-ietf-6lowpan-nd-21.txt] */
-/* 34 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [draft-ietf-6lowpan-nd-21.txt] */
-/* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },              /* [draft-ietf-6lowpan-nd-21.txt] */
+/* 33 */   { ND_OPT_ADDR_REGISTRATION,         "Address Registration Option" },            /* [RFC6775] */
+/* 34 */   { ND_OPT_6LOWPAN_CONTEXT,           "6LoWPAN Context Option" },                 /* [RFC6775] */
+/* 35 */   { ND_OPT_AUTH_BORDER_ROUTER,        "Authoritative Border Router" },            /* [RFC6775] */
 /* 36-137  Unassigned */
    { 138,                              "CARD Request" },                           /* [RFC4065] */
    { 139,                              "CARD Reply" },                             /* [RFC4065] */
@@ -1190,7 +1193,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         if (PINFO_FD_VISITED(pinfo)) {
                 /* No response found - add field and expert info */
                 it = proto_tree_add_item(tree, hf_icmpv6_no_resp, NULL, 0, 0,
-                                         ENC_BIG_ENDIAN);
+                                         ENC_NA);
                 PROTO_ITEM_SET_GENERATED(it);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
@@ -3797,9 +3800,9 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_rpl_control(tvb, offset, pinfo, icmp6_tree, icmp6_type, icmp6_code);
                 break;
             }
-            case ICMP6_ILNPV6: /* Locator Update (156 Pending IANA) */
+            case ICMP6_ILNPV6: /* Locator Update (156) */
             {
-                /*TODO Add support of Locator Update : draft-irtf-rrg-ilnp-icmpv6-06 */
+                /*TODO Add support of Locator Update : RFC6743 */
                 break;
             }
             case ICMP6_6LOWPANND_DAR:
