@@ -147,7 +147,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 /* Parsing Methods for specific IB headers. */
 
 static void parse_VENDOR(proto_tree *, tvbuff_t *, gint *);
-static void parse_PAYLOAD(proto_tree *, packet_info *, tvbuff_t *, gint *, gint length);
+static void parse_PAYLOAD(proto_tree *, packet_info *, struct infinibandinfo *, tvbuff_t *, gint *, gint length);
 static void parse_IETH(proto_tree *, tvbuff_t *, gint *);
 static void parse_IMMDT(proto_tree *, tvbuff_t *, gint *offset);
 static void parse_ATOMICACKETH(proto_tree *, tvbuff_t *, gint *offset);
@@ -1180,81 +1180,6 @@ static const value_string Trap_Description[]= {
 #define IP_NON_IBA 1
 #define RAW        0
 
-/* OpCodeValues
-* Code Bits [7-5] Connection Type
-*           [4-0] Message Type
-
-* Reliable Connection (RC)
-* [7-5] = 000 */
-#define RC_SEND_FIRST                    0 /*0x00000000 */
-#define RC_SEND_MIDDLE                   1 /*0x00000001 */
-#define RC_SEND_LAST                     2 /*0x00000010 */
-#define RC_SEND_LAST_IMM                 3 /*0x00000011 */
-#define RC_SEND_ONLY                     4 /*0x00000100 */
-#define RC_SEND_ONLY_IMM                 5 /*0x00000101 */
-#define RC_RDMA_WRITE_FIRST              6 /*0x00000110 */
-#define RC_RDMA_WRITE_MIDDLE             7 /*0x00000111 */
-#define RC_RDMA_WRITE_LAST               8 /*0x00001000 */
-#define RC_RDMA_WRITE_LAST_IMM           9 /*0x00001001 */
-#define RC_RDMA_WRITE_ONLY              10 /*0x00001010 */
-#define RC_RDMA_WRITE_ONLY_IMM          11 /*0x00001011 */
-#define RC_RDMA_READ_REQUEST            12 /*0x00001100 */
-#define RC_RDMA_READ_RESPONSE_FIRST     13 /*0x00001101 */
-#define RC_RDMA_READ_RESPONSE_MIDDLE    14 /*0x00001110 */
-#define RC_RDMA_READ_RESPONSE_LAST      15 /*0x00001111 */
-#define RC_RDMA_READ_RESPONSE_ONLY      16 /*0x00010000 */
-#define RC_ACKNOWLEDGE                  17 /*0x00010001 */
-#define RC_ATOMIC_ACKNOWLEDGE           18 /*0x00010010 */
-#define RC_CMP_SWAP                     19 /*0x00010011 */
-#define RC_FETCH_ADD                    20 /*0x00010100 */
-#define RC_SEND_LAST_INVAL              22 /*0x00010110 */
-#define RC_SEND_ONLY_INVAL              23 /*0x00010111 */
-
-/* Reliable Datagram (RD)
-* [7-5] = 010 */
-#define RD_SEND_FIRST                   64 /*0x01000000 */
-#define RD_SEND_MIDDLE                  65 /*0x01000001 */
-#define RD_SEND_LAST                    66 /*0x01000010 */
-#define RD_SEND_LAST_IMM                67 /*0x01000011 */
-#define RD_SEND_ONLY                    68 /*0x01000100 */
-#define RD_SEND_ONLY_IMM                69 /*0x01000101 */
-#define RD_RDMA_WRITE_FIRST             70 /*0x01000110 */
-#define RD_RDMA_WRITE_MIDDLE            71 /*0x01000111 */
-#define RD_RDMA_WRITE_LAST              72 /*0x01001000 */
-#define RD_RDMA_WRITE_LAST_IMM          73 /*0x01001001 */
-#define RD_RDMA_WRITE_ONLY              74 /*0x01001010 */
-#define RD_RDMA_WRITE_ONLY_IMM          75 /*0x01001011 */
-#define RD_RDMA_READ_REQUEST            76 /*0x01001100 */
-#define RD_RDMA_READ_RESPONSE_FIRST     77 /*0x01001101 */
-#define RD_RDMA_READ_RESPONSE_MIDDLE    78 /*0x01001110 */
-#define RD_RDMA_READ_RESPONSE_LAST      79 /*0x01001111 */
-#define RD_RDMA_READ_RESPONSE_ONLY      80 /*0x01010000 */
-#define RD_ACKNOWLEDGE                  81 /*0x01010001 */
-#define RD_ATOMIC_ACKNOWLEDGE           82 /*0x01010010 */
-#define RD_CMP_SWAP                     83 /*0x01010011 */
-#define RD_FETCH_ADD                    84 /*0x01010100 */
-#define RD_RESYNC                       85 /*0x01010101 */
-
-/* Unreliable Datagram (UD)
-* [7-5] = 011 */
-#define UD_SEND_ONLY                   100 /*0x01100100 */
-#define UD_SEND_ONLY_IMM               101 /*0x01100101 */
-
-/* Unreliable Connection (UC)
-* [7-5] = 001 */
-#define UC_SEND_FIRST                   32 /*0x00100000 */
-#define UC_SEND_MIDDLE                  33 /*0x00100001 */
-#define UC_SEND_LAST                    34 /*0x00100010 */
-#define UC_SEND_LAST_IMM                35 /*0x00100011 */
-#define UC_SEND_ONLY                    36 /*0x00100100 */
-#define UC_SEND_ONLY_IMM                37 /*0x00100101 */
-#define UC_RDMA_WRITE_FIRST             38 /*0x00100110 */
-#define UC_RDMA_WRITE_MIDDLE            39 /*0x00100111 */
-#define UC_RDMA_WRITE_LAST              40 /*0x00101000 */
-#define UC_RDMA_WRITE_LAST_IMM          41 /*0x00101001 */
-#define UC_RDMA_WRITE_ONLY              42 /*0x00101010 */
-#define UC_RDMA_WRITE_ONLY_IMM          43 /*0x00101011 */
-
 static const value_string OpCodeMap[] =
 {
     { RC_SEND_FIRST,                "RC Send First " },
@@ -1613,7 +1538,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    guint8 opCode = 0;              /* OpCode from BTH header. */
+    struct infinibandinfo info = { 0, };
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -1786,8 +1711,8 @@ skip_lrh:
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_opcode,                       tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Get the OpCode - this tells us what headers are following */
-            opCode = tvb_get_guint8(tvb, offset);
-            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)opCode, OpCodeMap, "Unknown OpCode"));
+            info.opCode = tvb_get_guint8(tvb, offset);
+            col_append_str(pinfo->cinfo, COL_INFO, val_to_str_const((guint32)info.opCode, OpCodeMap, "Unknown OpCode"));
             offset += 1;
 
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_solicited_event,              tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1832,8 +1757,8 @@ skip_lrh:
         * The find_next_header_sequence method could be used to automate this.
         * We need to keep track of this so we know much data to mark as payload/ICRC/VCRC values. */
 
-        transport_type = (opCode & 0xE0) >> 5;   /* save transport type for identifying EoIB payloads later... */
-        nextHeaderSequence = find_next_header_sequence((guint32) opCode);
+        transport_type = (info.opCode & 0xE0) >> 5;   /* save transport type for identifying EoIB payloads later... */
+        nextHeaderSequence = find_next_header_sequence((guint32) info.opCode);
 
         /* find_next_header_sequence gives us the DEFINE value corresponding to the header order following */
         /* Enumerations are named intuitively, e.g. RDETH DETH PAYLOAD means there is an RDETH Header, DETH Header, and a packet payload */
@@ -1846,7 +1771,7 @@ skip_lrh:
                 packetLength -= 4; /* RDETH */
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_RETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1857,7 +1782,7 @@ skip_lrh:
                 packetLength -= 8; /* DETH */
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1868,7 +1793,7 @@ skip_lrh:
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_RETH_IMMDT_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1881,7 +1806,7 @@ skip_lrh:
                 packetLength -= 16; /* RETH */
                 packetLength -= 4;  /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RDETH_DETH_RETH:
                 parse_RDETH(all_headers_tree, tvb, &offset);
@@ -1900,14 +1825,14 @@ skip_lrh:
                 packetLength -= 4; /* RDETH */
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RDETH_PAYLD:
                 parse_RDETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* RDETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RDETH_AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -1951,25 +1876,25 @@ skip_lrh:
 
                 packetLength -= 8; /* DETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case PAYLD:
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case IMMDT_PAYLD:
                 parse_IMMDT(all_headers_tree, tvb, &offset);
 
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RETH_PAYLD:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
                 packetLength -= 16; /* RETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case RETH:
                 parse_RETH(all_headers_tree, tvb, &offset);
@@ -1982,7 +1907,7 @@ skip_lrh:
 
                 packetLength -= 4; /* AETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case AETH:
                 parse_AETH(all_headers_tree, tvb, &offset);
@@ -2009,7 +1934,7 @@ skip_lrh:
 
                 packetLength -= 4; /* IETH */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             case DETH_IMMDT_PAYLD:
                 parse_DETH(all_headers_tree, pinfo, tvb, &offset);
@@ -2018,7 +1943,7 @@ skip_lrh:
                 packetLength -= 8; /* DETH */
                 packetLength -= 4; /* IMMDT */
 
-                parse_PAYLOAD(all_headers_tree, pinfo, tvb, &offset, packetLength);
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
             default:
                 parse_VENDOR(all_headers_tree, tvb, &offset);
@@ -2392,10 +2317,13 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 /* Parse Payload - Packet Payload / Invariant CRC / Variant CRC
 * IN: parentTree to add the dissection to - in this code the all_headers_tree
 * IN: pinfo - packet info from wireshark
+* IN: info - infiniband info passed to subdissectors
 * IN: tvb - the data buffer from wireshark
 * IN/OUT: offset - The current and updated offset
 * IN: length - Length of Payload */
-static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, gint length)
+static void parse_PAYLOAD(proto_tree *parentTree,
+			  packet_info *pinfo, struct infinibandinfo *info,
+			  tvbuff_t *tvb, gint *offset, gint length)
 {
     gint                local_offset    = *offset;
     /* Payload - Packet Payload */
@@ -2584,7 +2512,7 @@ static void parse_PAYLOAD(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
         /* Try any heuristic dissectors that requested a chance to try and dissect IB payloads */
         if (!dissector_found) {
-            dissector_found = dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, parentTree, NULL);
+            dissector_found = dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, parentTree, info);
         }
 
         if (!dissector_found) {
