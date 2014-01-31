@@ -32,6 +32,7 @@
 
 #include "packet-windows-common.h"
 #include "packet-iwarp-ddp-rdmap.h"
+#include "packet-infiniband.h"
 
 static int proto_smb_direct = -1;
 
@@ -387,6 +388,40 @@ dissect_smb_direct_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
 	return TRUE;
 }
 
+static gboolean
+dissect_smb_direct_infiniband_heur(tvbuff_t *tvb, packet_info *pinfo,
+				   proto_tree *parent_tree, void *data)
+{
+	struct infinibandinfo *info = (struct infinibandinfo *)data;
+	enum SMB_DIRECT_HDR_TYPE hdr_type;
+
+	if (info == NULL) {
+		return FALSE;
+	}
+
+	switch (info->opCode) {
+	case RC_SEND_FIRST:
+	case RC_SEND_MIDDLE:
+	case RC_SEND_LAST:
+	case RC_SEND_LAST_IMM:
+	case RC_SEND_ONLY:
+	case RC_SEND_ONLY_IMM:
+	case RC_SEND_LAST_INVAL:
+	case RC_SEND_ONLY_INVAL:
+		break;
+	default:
+		return FALSE;
+	}
+
+	hdr_type = is_smb_direct(tvb, pinfo);
+	if (hdr_type == SMB_DIRECT_HDR_UNKNOWN) {
+		return FALSE;
+	}
+
+	dissect_smb_direct(tvb, pinfo, parent_tree, hdr_type);
+	return TRUE;
+}
+
 void proto_register_smb_direct(void)
 {
 	static gint *ett[] = {
@@ -488,6 +523,10 @@ proto_reg_handoff_smb_direct(void)
 	heur_dissector_add("iwarp_ddp_rdmap",
 			   dissect_smb_direct_iwarp_heur,
 			   proto_smb_direct);
+	heur_dissector_add("infiniband.payload",
+			   dissect_smb_direct_infiniband_heur,
+			   proto_smb_direct);
+
 }
 
 /*
