@@ -1,0 +1,6 @@
+[gerrit]
+host=review.wireshark.org
+port=29418
+project=wireshark.git
+defaultremote=origin
+defaultbranch=master-1.10
