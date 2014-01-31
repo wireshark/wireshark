@@ -31,6 +31,7 @@
 #include <glib.h>
 
 #include "packet-windows-common.h"
+#include "packet-iwarp-ddp-rdmap.h"
 
 static int proto_smb_direct = -1;
 
@@ -358,9 +359,24 @@ is_smb_direct(tvbuff_t *tvb, packet_info *pinfo _U_)
 
 static gboolean
 dissect_smb_direct_iwarp_heur(tvbuff_t *tvb, packet_info *pinfo,
-			      proto_tree *parent_tree, void *data _U_)
+			      proto_tree *parent_tree, void *data)
 {
+	struct rdmapinfo *info = (struct rdmapinfo *)data;
 	enum SMB_DIRECT_HDR_TYPE hdr_type;
+
+	if (info == NULL) {
+		return FALSE;
+	}
+
+	switch (info->opcode) {
+	case RDMA_SEND:
+	case RDMA_SEND_INVALIDATE:
+	case RDMA_SEND_SE:
+	case RDMA_SEND_SE_INVALIDATE:
+		break;
+	default:
+		return FALSE;
+	}
 
 	hdr_type = is_smb_direct(tvb, pinfo);
 	if (hdr_type == SMB_DIRECT_HDR_UNKNOWN) {
