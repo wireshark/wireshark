@@ -74,11 +74,11 @@ $wtap_filetypes_table = "-- Wiretap file types\nwtap_filetypes = {\n";
 open WTAP_H, "< $WSROOT/wiretap/wtap.h" or die "cannot open '$WSROOT/wiretap/wtap.h':  $!";
 
 while(<WTAP_H>) {
-    if ( /^#define WTAP_ENCAP_([A-Z0-9_]+)\s+(\d+)/ ) {
+    if ( /^#define WTAP_ENCAP_([A-Z0-9_]+)\s+(-?\d+)/ ) {
         $wtap_encaps_table .= "\t[\"$1\"] = $2,\n";
     }
 
-    if ( /^#define WTAP_FILE_([A-Z0-9_]+)\s+(\d+)/ ) {
+    if ( /^#define WTAP_FILE_TYPE_SUBTYPE_([A-Z0-9_]+)\s+(\d+)/ ) {
         $wtap_filetypes_table .= "\t[\"$1\"] = $2,\n";
     }
 }
