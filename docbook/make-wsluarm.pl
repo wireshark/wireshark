@@ -65,7 +65,7 @@ my $docbook_template = {
 #	class_methods_footer => "\t\t</section> <!-- class_methods_footer: %s -->\n",
 	class_attr_header => "\t\t<section id='lua_class_attrib_%s'>\n\t\t\t<title>%s</title>\n",
 	class_attr_footer => "\t\t</section> <!-- class_attr_footer: %s -->\n",
-	class_attr_descr => "\t\t\t<para>%s</para>\n",
+	class_attr_descr => "\t\t\t<para>%s%s</para>\n",
 	function_header => "\t\t\t<section id='lua_fn_%s'>\n\t\t\t\t<title>%s</title>\n",
 	function_descr => "\t\t\t\t<para>%s</para>\n",
 	function_footer => "\t\t\t</section> <!-- function_footer: %s -->\n",
@@ -231,6 +231,7 @@ sub {
 	push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
 } ],
 
+# the following never gets used (WSLUA_ATTR_GET is defunct)
 [ 'WSLUA_ATTR_GET\s+([A-Za-z]+)_([a-z_]+).*?' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
@@ -361,8 +362,14 @@ while ( $file =  shift) {
 			for my $a (@{${$cl}{attributes}}) {
 				my $a_id = ${$a}{name};
 				$a_id =~ s/[^a-zA-Z0-9]/_/g;
+				my $mode = ${$a}{mode};
+				if ($mode) {
+					$mode =~ s/RO/ (read-only)/;
+					$mode =~ s/WO/ (write-only)/;
+					$mode =~ s/RW|WR/ (read\/write)/;
+				}
 				printf D ${$template_ref}{class_attr_header}, $a_id, ${$a}{name};
-				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, ${$a}{descr} if ${$a}{descr};
+				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, $mode if ${$a}{mode};
 				printf D ${$template_ref}{class_attr_footer}, ${$a}{name}, ${$a}{name};
 
 			}

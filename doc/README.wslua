@@ -44,6 +44,8 @@ Lua tables. (you can do so, however)
 Both of the perl scripts above are given the C-source files to search through
 by the make process, generated from the lists in CMakeLists.txt.  Naturally if
 you add new source files, you need to add them to the list in CMakeLists.txt.
+You also have to add the module name into docbook/user-guide.xml, and 
+docbook/wsluarm.xml, to get it to be generated in the user guide.
 
 Another Perl script is used as well, called 'make-init-lua.pl', which
 generates the init.lua script.  A large part of it deals with exposing #define
@@ -203,7 +205,10 @@ created those in the same documentation section because they're in the same c
 file as that WSLUA_MODULE comment.  You'll also note the documentation
 includes a sub-section for 'Non Method Functions', which it auto-generated
 from anything with a 'WSLUA_FUNCTION' macro (as opposed to class member
-functions, which use the 'WSLUA_METHOD' and 'WSLUA_CONSTRUCTOR' macros).
+functions, which use the 'WSLUA_METHOD' and 'WSLUA_CONSTRUCTOR' macros). Also,
+to make new wslua files generate documentation, it is not sufficient to just
+add this macro to a new file and add the file to the CMakeLists.txt; you also
+have to add the module name into docbook/user-guide.xml, and docbook/wsluarm.xml.
 
 WSLUA_ATTRIBUTE - this is another documentation-only "macro", only used within
 comments.  It makes the API docs generate documentation for a member variable
