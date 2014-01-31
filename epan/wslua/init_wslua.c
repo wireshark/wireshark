@@ -263,6 +263,7 @@ static gboolean lua_load_script(const gchar* filename) {
         case 0:
             lua_pcall(L,0,0,1);
             fclose(file);
+            lua_pop(L,1); /* pop the error handler */
             return TRUE;
         case LUA_ERRSYNTAX: {
             report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
@@ -470,6 +471,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
         L = NULL;
         return 0;
     }
+    lua_pop(L,1);  /* pop the getglobal result */
 
     /* load global scripts */
     lua_load_plugins(get_plugin_dir(), cb, client_data, FALSE);
@@ -480,6 +482,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     if (lua_isboolean(L,-1) && lua_toboolean(L,-1)) {
         run_anyway = TRUE;
     }
+    lua_pop(L,1);  /* pop the getglobal result */
 
     /* if we are indeed superuser run user scripts only if told to do so */
     if ( (!started_with_special_privs()) || run_anyway ) {

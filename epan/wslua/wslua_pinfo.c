@@ -304,7 +304,7 @@ int NSTime_register(lua_State* L) {
     lua_pushcfunction(L, NSTime_new);
     lua_setglobal(L, "NSTime");
 
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(Address,NOP,NOP); /* Represents an address */
@@ -525,7 +525,7 @@ WSLUA_META Address_meta[] = {
 
 int Address_register(lua_State *L) {
     WSLUA_REGISTER_CLASS(Address);
-    return 1;
+    return 0;
 }
 
 
@@ -740,7 +740,7 @@ WSLUA_META Column_meta[] = {
 
 int Column_register(lua_State *L) {
     WSLUA_REGISTER_CLASS(Column);
-    return 1;
+    return 0;
 }
 
 
@@ -853,7 +853,7 @@ static const luaL_Reg Columns_meta[] = {
 
 int Columns_register(lua_State *L) {
     WSLUA_REGISTER_META(Columns);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(PrivateTable,NOP,NOP);
@@ -969,7 +969,7 @@ WSLUA_META PrivateTable_meta[] = {
 
 int PrivateTable_register(lua_State* L) {
     WSLUA_REGISTER_META(PrivateTable);
-    return 1;
+    return 0;
 }
 
 
@@ -1481,5 +1481,5 @@ int Pinfo_register(lua_State* L) {
     outstanding_Column = g_ptr_array_new();
     outstanding_Columns = g_ptr_array_new();
     outstanding_PrivateTable = g_ptr_array_new();
-    return 1;
+    return 0;
 }

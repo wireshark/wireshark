@@ -318,6 +318,6 @@ static const luaL_Reg Listener_meta[] = {
 int Listener_register(lua_State* L) {
     wslua_set_tap_enums(L);
     WSLUA_REGISTER_CLASS(Listener);
-    return 1;
+    return 0;
 }
 

@@ -263,7 +263,7 @@ WSLUA_META Pref_meta[] = {
 
 WSLUA_REGISTER Pref_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Pref);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(Prefs,NOP,NOP); /* The table of preferences of a protocol */
@@ -427,7 +427,7 @@ WSLUA_META Prefs_meta[] = {
 
 WSLUA_REGISTER Prefs_register(lua_State* L) {
     WSLUA_REGISTER_META(Prefs);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(ProtoField,FAIL_ON_NULL("null ProtoField"),NOP);
@@ -1332,7 +1332,7 @@ static const luaL_Reg ProtoField_meta[] = {
 
 int ProtoField_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(ProtoField);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(Proto,NOP,NOP);
@@ -1665,7 +1665,7 @@ int Proto_register(lua_State* L) {
 	lua_pushcfunction(L, Proto_new);
 	lua_setglobal(L, "Proto");
 
-    return 1;
+    return 0;
 }
 
 /**
@@ -1731,6 +1731,8 @@ int Proto_commit(lua_State* L) {
         g_array_free(hfa,FALSE);
         g_array_free(etta,FALSE);
     }
+
+    lua_pop(L,1); /* pop the protocols_table_ref */
 
     return 0;
 }
@@ -1810,7 +1812,7 @@ static const luaL_Reg Dissector_meta[] = {
 
 int Dissector_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Dissector);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(DissectorTable,NOP,NOP);
@@ -2214,5 +2216,5 @@ static const luaL_Reg DissectorTable_meta[] = {
 
 int DissectorTable_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(DissectorTable);
-    return 1;
+    return 0;
 }

@@ -418,7 +418,7 @@ int Dir_register(lua_State* L) {
 
     WSLUA_REGISTER_CLASS(Dir);
 
-    return 1;
+    return 0;
 }
 
 

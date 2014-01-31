@@ -462,6 +462,6 @@ WSLUA_META Dumper_meta[] = {
 int Dumper_register(lua_State* L) {
     dumper_encaps = g_hash_table_new(g_direct_hash,g_direct_equal);
     WSLUA_REGISTER_CLASS(Dumper);
-    return 1;
+    return 0;
 }
 

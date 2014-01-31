@@ -412,7 +412,7 @@ int ProgDlg_register(lua_State* L) {
 
     WSLUA_REGISTER_CLASS(ProgDlg);
 
-    return 1;
+    return 0;
 }
 
 
@@ -726,7 +726,7 @@ int TextWindow_register(lua_State* L) {
 
     WSLUA_REGISTER_CLASS(TextWindow);
 
-    return 1;
+    return 0;
 }
 
 

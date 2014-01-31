@@ -335,7 +335,7 @@ static const luaL_Reg ByteArray_meta[] = {
 
 int ByteArray_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(ByteArray);
-    return 1;
+    return 0;
 }
 
 
@@ -666,7 +666,7 @@ static const luaL_Reg Tvb_meta[] = {
 
 int Tvb_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Tvb);
-    return 1;
+    return 0;
 }
 
 
@@ -1501,7 +1501,7 @@ int TvbRange_register(lua_State* L) {
     outstanding_Tvb = g_ptr_array_new();
     outstanding_TvbRange = g_ptr_array_new();
     WSLUA_REGISTER_CLASS(TvbRange);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(Int64,FAIL_ON_NULL("null int64"),NOP);
@@ -1543,7 +1543,7 @@ static const luaL_Reg Int64_meta[] = {
 
 int Int64_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Int64);
-    return 1;
+    return 0;
 }
 
 WSLUA_CLASS_DEFINE(UInt64,FAIL_ON_NULL("null uint64"),NOP);
@@ -1579,6 +1579,6 @@ static const luaL_Reg UInt64_meta[] = {
 
 int UInt64_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(UInt64);
-    return 1;
+    return 0;
 }
 

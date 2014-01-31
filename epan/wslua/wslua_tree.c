@@ -444,5 +444,5 @@ int TreeItem_register(lua_State *L) {
     WSLUA_REGISTER_CLASS(TreeItem);
     outstanding_TreeItem = g_ptr_array_new();
     proto_register_subtree_array(etts,1);
-    return 1;
+    return 0;
 }

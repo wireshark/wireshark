@@ -440,7 +440,7 @@ static const luaL_Reg FieldInfo_meta[] = {
 
 int FieldInfo_register(lua_State* L) {
     WSLUA_REGISTER_META(FieldInfo);
-    return 1;
+    return 0;
 }
 
 
@@ -655,7 +655,7 @@ int Field_register(lua_State* L) {
     WSLUA_REGISTER_CLASS(Field);
     outstanding_FieldInfo = g_ptr_array_new();
 
-    return 1;
+    return 0;
 }
 
 /*
