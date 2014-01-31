@@ -912,11 +912,11 @@ static int dissect_smb_command(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 #define CHECK_BYTE_COUNT(len)	\
 	if (bc < len) goto endofcommand;
 
-#define COUNT_BYTES(len)   {\
-	int tmp;	    \
-	tmp = len;	    \
-	offset += tmp;	    \
-	bc -= tmp;	    \
+#define COUNT_BYTES(len)	{\
+	int tmp;		\
+	tmp = len;		\
+	offset += tmp;		\
+	bc -= tmp;			\
 	}
 
 #define END_OF_SMB	\
@@ -1714,19 +1714,19 @@ dissect_access(tvbuff_t *tvb, proto_tree *parent_tree, int offset, const char *t
 }
 
 #define SMB_FILE_ATTRIBUTE_READ_ONLY			0x00000001
-#define SMB_FILE_ATTRIBUTE_HIDDEN				0x00000002
-#define SMB_FILE_ATTRIBUTE_SYSTEM				0x00000004
-#define SMB_FILE_ATTRIBUTE_VOLUME				0x00000008
+#define SMB_FILE_ATTRIBUTE_HIDDEN			0x00000002
+#define SMB_FILE_ATTRIBUTE_SYSTEM			0x00000004
+#define SMB_FILE_ATTRIBUTE_VOLUME			0x00000008
 #define SMB_FILE_ATTRIBUTE_DIRECTORY			0x00000010
-#define SMB_FILE_ATTRIBUTE_ARCHIVE				0x00000020
-#define SMB_FILE_ATTRIBUTE_DEVICE				0x00000040
-#define SMB_FILE_ATTRIBUTE_NORMAL				0x00000080
+#define SMB_FILE_ATTRIBUTE_ARCHIVE			0x00000020
+#define SMB_FILE_ATTRIBUTE_DEVICE			0x00000040
+#define SMB_FILE_ATTRIBUTE_NORMAL			0x00000080
 #define SMB_FILE_ATTRIBUTE_TEMPORARY			0x00000100
-#define SMB_FILE_ATTRIBUTE_SPARSE				0x00000200
-#define SMB_FILE_ATTRIBUTE_REPARSE				0x00000400
+#define SMB_FILE_ATTRIBUTE_SPARSE			0x00000200
+#define SMB_FILE_ATTRIBUTE_REPARSE			0x00000400
 #define SMB_FILE_ATTRIBUTE_COMPRESSED			0x00000800
-#define SMB_FILE_ATTRIBUTE_OFFLINE				0x00001000
-#define SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED	0x00002000
+#define SMB_FILE_ATTRIBUTE_OFFLINE			0x00001000
+#define SMB_FILE_ATTRIBUTE_NOT_CONTENT_INDEXED		0x00002000
 #define SMB_FILE_ATTRIBUTE_ENCRYPTED			0x00004000
 
 static const true_false_string tfs_file_attribute_read_only = {
@@ -2506,7 +2506,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* system time */
 		offset = dissect_nt_64bit_time(tvb, tree, offset,
-			       	hf_smb_system_time);
+				hf_smb_system_time);
 
 		/* time zone */
 		tz = tvb_get_letohs(tvb, offset);
@@ -2666,8 +2666,8 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			   * right things ...
 			   */
 
-			  if (si->ct)
-			    si->ct->raw_ntlmssp = 1;
+			if (si->ct)
+				si->ct->raw_ntlmssp = 1;
 
 			}
 		}
@@ -3169,7 +3169,7 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-	        fn_len,	fn, "Old File Name: %s", format_text(fn, strlen(fn)));
+		fn_len,	fn, "Old File Name: %s", format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Old Name: %s",
@@ -3233,7 +3233,7 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "Source File Name: %s", format_text(fn, strlen(fn)));
+		fn_len, fn, "Source File Name: %s", format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source Name: %s",
@@ -3250,7 +3250,7 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string_format(tree, hf_smb_file_name, tvb, offset,
-		fn_len,	fn, "Destination File Name: %s",
+		fn_len, fn, "Destination File Name: %s",
 		format_text(fn, strlen(fn)));
 	COUNT_BYTES(fn_len);
 
