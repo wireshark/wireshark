@@ -1,0 +1,416 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Libraries -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterLibraries]]
+
+== Library Reference
+
+[[ChLibIntro]]
+
+=== Introduction
+
+Several libraries are needed to build and run Wireshark. Most of them
+are split into three packages:
+
+. 'Runtime'. System and third party libraries such as 'MSVCR110.dll' and 'libglib-2.0-0.dll'.
+
+. 'Developer'. Documentation, header files, import libraries, and other files needed for compilation.
+
+. 'Source'. Library sources, which are usually not required to
+build Wireshark.
+
+[TIP]
+.Our libraries are freely available
+====
+All libraries required to build Wireshark on Windows are available for download at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and
+http://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[].
+See <<ChLibsSetup>> for an easier way to install them.
+====
+
+[[ChLibsFormat]]
+
+=== Binary library formats
+
+Binary libraries are available in different formats, depending on the C
+compiler used to build it and of course the platform they were built for.
+
+
+[[ChLibsFormatUnix]]
+
+
+==== Unix
+
+If you have installed unix binary libraries on your system, they will
+match the C compiler. If not already installed, the libraries should be
+available as a package from the platform installer, or you can download
+and compile the source and then install the binaries.
+
+
+[[ChLibsFormatWin32]]
+
+
+==== Win32: MSVC
+
+Most of the Win32 binary libraries you will find on the web are in this
+format. You will recognize MSVC libraries by the .lib/.dll file extension.
+
+
+[[ChLibsFormatWin32Cygwin]]
+
+
+==== Win32: cygwin gcc
+
+Cygwin provides most of the required libraries (with file extension .a or .lib)
+for Wireshark suitable for cygwin's gcc compiler.
+
+
+[[ChLibsSetup]]
+
+
+=== Win32: Automated library download
+
+[[ChLibsSetupInitial]]
+
+
+==== Initial download
+
+You can download and install all required libraries by using the `setup` target
+of 'Makefile.nmake' from the source package.
+
+[TIP]
+.Use the setup target
+====
+It's a really good idea to use the Win32 automated library download to
+install the required libraries as it makes this download very easy.
+
+Before you start the download, you must have installed both the required tools
+(see <<ChapterTools>>) and the Wireshark sources (see <<ChSrcObtain>>).
+====
+
+By default the libraries will be downloaded and installed into
+'C:\wireshark-win32-libs' for x86 builds and 'C:\wireshark-win64-libs' for x86_64 builds.
+You can change this to any other location by editing
+'config.nmake' and changing the line containing
+WIRESHARK_LIB_DIR to your favourite place. You must use an absolute path.
+
+Then run the command
+
+----
+> nmake -f Makefile.nmake setup
+----
+
+This will first check for all the various tools needed to build Wireshark
+as described in <<ChToolsWin32Verify>>.
+
+Then it will download the zipped libraries (together around 30MB!) from the
+server location at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] into the
+directory specified by WIRESHARK_LIB_DIR and install (unzip) all required
+library files there.
+
+If you have problems downloading the library files, you might be connected to
+the internet through a proxy. In this case see the wget proxy comment in
+<<ChToolsWget>>.
+
+[[ChLibsSetupUpdate]]
+
+==== Update of a previous download
+
+As new versions of the libraries become available, maybe with bugfixes or
+some new functionality, your libraries get outdated.
+
+You could simply remove everything in the WIRESHARK_LIB_DIR dir and call the
+`setup` target again, but that would require a download of every file again,
+which isn't necessary.
+
+The following will bring your libraries up to date:
+
+* Update your Wireshark sources to the latest SVN files (see <<ChSrcObtain>>), so the zip filenames in the setup target
+of Makefile.nmake are in sync with the library zip files on the server.
+
+* Execute the library setup command as described above.
++
+--
+----
+> nmake -f Makefile.nmake setup
+----
+
+Note that this command will automatically do a `clean-setup` which will
+remove all files previously unzipped from the downloaded files in your
+WIRESHARK_LIB_DIR library path (all the subdirs, e.g.
+'$$c:\wireshark-win32-libs\gtk+$$'),
+except for the zip files located at the toplevel, which are the files
+downloaded the last time(s).
+
+Also note that as wget will download only the
+missing (updated) files, existing zip files in the WIRESHARK_LIB_DIR dir won't be
+downloaded again. Remaining (outdated) zip files shouldn't do any harm.
+--
+
+[[ChLibsGtk]]
+
+=== GTK+ / GLib / GDK / Pango / ATK / GNU gettext / GNU libiconv
+
+The Glib library is used as a basic platform abstraction library, it's
+not related to graphical user interface (GUI) things. For a detailed
+description about GLib, see <<ChCodeGLib>>.
+
+The GTK and its dependent libraries are used to build Wireshark's GUI.
+For a detailed description of the GTK libraries, see <<ChUIGTK>>.
+
+All other libraries are dependent on the two libraries mentioned above,
+you will typically not come in touch with these while doing Wireshark
+development.
+
+As the requirements for the GLib/GTK libraries have increased in the past,
+the required additional libraries depend on the GLib/GTK versions you have.
+The 2.x versions require all mentioned libs.
+
+[[ChLibsUnixGTK]]
+
+
+==== Unix
+
+The GLib/GTK+ libraries are available for many unix-like platforms and
+Cygwin.
+
+If these libraries aren't already installed and also aren't available as a
+package for your platform, you can get them at
+http://www.gtk.org/download.html[].
+
+[[ChLibsWin32GTK]]
+
+==== Win32 MSVC
+
+You can get the latest version at http://www.gtk.org/download.html[].
+
+[[ChLibsSMI]]
+
+=== SMI (optional)
+
+LibSMI is used for MIB and PIB parsing and for OID resolution.
+
+[[ChLibsUnixSMI]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
+
+[[ChLibsWin32SMI]]
+
+==== Win32 MSVC
+
+Wireshark uses the source libSMI distribution at
+http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
+LibSMI is cross-compiled using MinGW32. It's stored in the libsmi zip archive at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsCares]]
+
+=== c-ares (optional)
+
+C-Ares is used for asynchronous DNS resolution. This is the primary name
+resolution library in Wireshark.
+
+[[ChLibsUnixCares]]
+
+==== Unix
+
+If this library isn't already installed or available as a package for your
+platform, you can get it at http://c-ares.haxx.se/[].
+
+[[ChLibsWin32Cares]]
+
+==== Win32 MSVC
+
+C-Ares is cross-compiled using MinGW32 and is available at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsZlib]]
+
+=== zlib (optional)
+
+[quote, The zlib web site, http://www.zlib.net/]
+____
+zlib is designed to be a
+http://www.gzip.org/zlib/zlib_license.html[free],
+general-purpose, legally unencumbered -- that is, not covered by any
+patents -- lossless data-compression library for use on virtually any computer
+hardware and operating system.
+____
+
+[[ChLibsUnixZlib]]
+
+==== Unix
+
+This library is almost certain to be installed on your system. If it isn't or
+you don't want to use the default library you can download it from
+http://www.zlib.net/[].
+
+[[ChLibsWin32Zlib]]
+
+==== Win32 MSVC
+
+The zlib sources are downloaded from
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
+locally.
+
+[[ChLibsPcap]]
+
+=== libpcap/WinPcap (optional)
+
+Libpcap and WinPcap provide that packet capture capabilities that are central
+to Wireshark's core functionality.
+
+[[ChLibsLibpcap]]
+
+==== Unix: libpcap
+
+If this library isn't already installed or available as a package for your
+platform, you can get it at http://www.tcpdump.org/[].
+
+[[ChLibsWinpPcap]]
+
+==== Win32 MSVC: WinPcap
+
+You can get the "Windows packet capture library" at:
+http://www.winpcap.org/install/[]
+
+[[ChLibsGNUTLS]]
+
+=== GnuTLS (optional)
+
+The GNU Transport Layer Security Library is used to dissect SSL and TLS
+protocols (aka: HTTPS).
+
+[[ChLibsUnixGNUTLS]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://www.gnu.org/software/gnutls/download.html[].
+
+[[ChLibsWin32GNUTLS]]
+
+==== Win32 MSVC
+
+We provide a package cross-compiled using MinGW32 at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsGcrypt]]
+
+=== Gcrypt (optional)
+
+The Gcrypt Library is a low-level encryption library that provides
+support for many ciphers, such as DES, 3DES, AES, Blowfish, and others..
+
+[[ChLibsUnixGcrypt]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://directory.fsf.org/security/libgcrypt.html[].
+
+[[ChLibsWin32Gcrypt]]
+
+==== Win32 MSVC
+
+Part of our GnuTLS package.
+
+[[ChLibsKerberos]]
+
+=== Kerberos (optional)
+
+The Kerberos library is used to dissect Kerberos, sealed DCERPC and
+secureLDAP protocols.
+
+[[ChLibsUnixKerberos]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://web.mit.edu/Kerberos/dist/[].
+
+[[ChLibsWin32Kerberos]]
+
+==== Win32 MSVC
+
+We provide a package at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsLua]]
+
+=== LUA (optional)
+
+The LUA library is used to add scripting support to Wireshark.
+
+[[ChLibsUnixLua]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://www.lua.org/download.html[].
+
+[[ChLibsWin32Lua]]
+
+==== Win32 MSVC
+
+We provide a copy of the official package at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+[[ChLibsPortAudio]]
+
+=== PortAudio (optional)
+
+The PortAudio library enables audio output for RTP streams.
+
+[[ChLibsUnixPortAudio]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://www.portaudio.com/download.html[].
+
+[[ChLibsWin32PortAudio]]
+
+==== Win32 MSVC
+
+The PortAudio sources are downloaded from
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[] and compiled
+locally.
+
+[[ChLibsGeoIP]]
+
+=== GeoIP (optional)
+
+MaxMind Inc. publishes a GeoIP database for use in open source software.
+It can be used to map IP addresses to geographical locations.
+
+[[ChLibsUnixGeoIP]]
+
+==== Unix
+
+If this library isn't already installed or available as a
+package for your platform, you can get it at
+http://www.maxmind.com/app/c[].
+
+[[ChLibsWin32GeoIP]]
+
+==== Win32 MSVC
+
+We provide a package cross-compiled using MinGW32 at
+http://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter Libraries -->
+++++++++++++++++++++++++++++++++++++++
+    
