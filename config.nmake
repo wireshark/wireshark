@@ -14,6 +14,13 @@ PROGRAM_NAME=Wireshark
 !ENDIF
 
 ##### Target platform #####
+
+# Pick up the value from the environment, VS2012 onwards sets this via vcvarsall.bat
+# For VS2010 and earlier you'll have to set the value yourself
+!IF "$(PLATFORM)" == "X64"
+WIRESHARK_TARGET_PLATFORM=win64
+!ENDIF
+
 # Only "win32" and "win64" are valid (for now).
 # This can be defined in the system environment.
 !IFNDEF WIRESHARK_TARGET_PLATFORM
@@ -34,8 +41,9 @@ VERSION_BUILD=$(SVN_REVISION)
 
 # Local build information. Recommended: Unique string for your
 # environment, e.g. "-JackStackBarbecue". Updated by make-version.pl
+# Defaults to the environment variable WIRESHARK_VERSION_EXTRA
 
-VERSION_EXTRA=
+VERSION_EXTRA=$(WIRESHARK_VERSION_EXTRA)
 
 # The version of the wiretap library. Recommended: Leave unchanged.
 WTAP_VERSION_MAJOR=$(VERSION_MAJOR)
@@ -97,6 +105,18 @@ PROCESSOR_ARCHITECTURE=amd64
 
 
 ##### Microsoft Visual C / Studio Variant #####
+
+# Pick up the value from the environment, VS2012 onwards sets this via vcvarsall.bat
+# For VS2010 and earlier you'll have to set the value yourself
+# Assume that the lack of detection of Express editions doesn't matter
+!IF "$(VISUALSTUDIOVERSION)" == "10.0"
+MSVC_VARIANT=MSVC2010
+!ELSE IF "$(VISUALSTUDIOVERSION)" == "11.0"
+MSVC_VARIANT=MSVC2012
+!ELSE IF "$(VISUALSTUDIOVERSION)" == "12.0"
+MSVC_VARIANT=MSVC2013
+!ENDIF
+
 # For the different Studios, see: http://en.wikipedia.org/wiki/Microsoft_Visual_Studio
 # Only one of the following MSVC_VARIANT settings should be used
 
@@ -901,10 +921,10 @@ MSC_VER_REQUIRED=1800
 MANIFEST_INFO_REQUIRED=1
 !ENDIF
 
-## VS2012 (VC11): configure subsystem version
+## VS2012 (VC11) and later: configure subsystem version
 ## See: https://blogs.msdn.com/b/vcblog/archive/2012/10/08/10357555.aspx
 ## (APPVER used in win32.mak to set subsystem version)
-!IF ($(MSC_VER_REQUIRED) == 1700)
+!IF ($(MSC_VER_REQUIRED) >= 1700)
 !if "$(WIRESHARK_TARGET_PLATFORM)" == "win32"
 APPVER=5.01
 !else
@@ -942,6 +962,10 @@ APPVER=5.02
 #                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
 #                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms725491(v=vs.85).aspx
 #                                   To continue to use GetVersionEx, we can define BUILD_WINDOWS
+# -D_ALLOW_KEYWORD_MACROS           For VS2012 onwards the, C++ STL does not permit macro redefinitions of keywords
+#                                   (see http://msdn.microsoft.com/en-us/library/bb531344(v=vs.110).aspx)
+#                                   This definition prevents the complaint about the redefinition of inline by WinPCap
+#                                   in pcap-stdinc.h when compiling CPP files, e.g. the QT UI
 #
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
@@ -958,6 +982,13 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2013EE"
 LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
+
+!IF "$(MSVC_VARIANT)" == "MSVC2012"   || \
+        "$(MSVC_VARIANT)" == "MSVC2012EE" || \
+        "$(MSVC_VARIANT)" == "MSVC2013"   || \
+        "$(MSVC_VARIANT)" == "MSVC2013EE"
+LOCAL_CFLAGS=$(LOCAL_CFLAGS) /D_ALLOW_KEYWORD_MACROS
+!ENDIF
 
 !IF "$(MSVC_VARIANT)" == "MSVC2013"   || \
         "$(MSVC_VARIANT)" == "MSVC2013EE"
