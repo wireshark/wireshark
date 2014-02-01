@@ -1,0 +1,1372 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Tools -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterTools]]
+
+== Tool Reference
+
+[[ChToolsIntro]]
+
+=== Introduction
+
+This chapter will provide you with information about the
+various tools needed for Wireshark development.
+
+None of the tools mentioned in this chapter are needed to
+run Wireshark; they are only needed to build it.
+
+Most of these tools have their roots on UNIX like
+platforms, but Win32 ports are also available. Therefore the
+tools are available in different "flavours":
+
+* UNIX (or Win32 Cygwin): the tools should be commonly available on the
+  supported UNIX platforms, and for Win32 platforms by using the Cygwin UNIX
+  emulation
+
+* Win32 native: some tools are available as native Win32 tools, no special
+  emulation is required
+
+[WARNING]
+.Follow the directions
+====
+Unless you know exactly what you are doing, you should strictly follow the recommendations given in <<ChapterSetup>>.
+====
+
+The following sections give a very brief description of
+what a particular tool is doing, how it is used in the
+Wireshark project and how it can be installed and
+tested.
+
+Documentation for these tools is outside the scope of this document. If you need
+further information on using a specific tool you should find lots of useful
+information on the web, as these tools are commonly used. You can also get help
+for the UNIX based tools with `toolname --help` or the man page via `man
+toolname`.
+
+You will find explanations of the tool usage for some of the specific
+development tasks in <<ChapterSources>>.
+
+[[ChToolsCygwin]]
+
+=== Win32: Cygwin
+
+Cygwin provides a lot of UNIX based tools on the Win32 platform. It uses a UNIX
+emulation layer which might be a bit slower compared to the native Win32 tools,
+but at an acceptable level. The installation and update is pretty easy and done
+through a single utility, 'setup.exe'.
+
+The native Windows tools will typically be a bit faster but more complicated to
+install, as you would have to download the tools from different web sites and
+install and configure them them individually.
+
+
+[NOTE]
+.You must have Cygwin installed
+====
+As there's no Win32 native bash version available, at least a basic installation
+of Cygwin is required in any case. This may change in the future as packaging
+systems such as NuGet and Chocolatey mature.
+====
+
+Although Cygwin consists of several separate packages, the installation and
+update is done through a single utility, 'setup.exe', which acts similar to
+other web based installers. All tools will be installed into one base folder.
+The default is 'C:\cygwin'.
+
+You will find 'setup.exe' at http://www.cygwin.com/[]. Click on one of the
+"Install Cygwin now" links to download 'setup.exe'. After the download
+completes, run it.
+
+Setup.exe will ask you for some settings. The defaults
+should usually work well, at least initially. At the "Select
+Packages" page, you'll need to select some additional packages,
+which are not installed by default. Navigate to the required
+Category/Package row and click on the "Skip" item in the "New"
+column so it shows a version number for the required
+package
+
+After clicking the Next button several times the setup
+will then download and install the selected packages (this may
+take a while, depending on the package size).
+
+Under: 'Start→Programs→Cygwin→Cygwin Bash Shell' you should now be able to start
+a new Cygwin bash shell, which is similar to the standard Windows command line
+interpreters (command.com / cmd.exe) but much more powerful.
+
+[[ChToolsCygwinPackages]]
+
+==== Add/Update/Remove Cygwin Packages
+
+If you want to add, update, or remove packages later you can do so by running
+'setup.exe' again. At the "Select Packages" page, the entry in the "New" column
+will control what is done (or not) with the package. If a new version of a
+package is available, the new version number will be displayed, so it will be
+automatically updated. You can change the current setting by simply clicking at
+it, it will change between:
+
+* 'A specific version number.' This specific package version will be installed.
+
+* 'Skip.' Not installed, no changes.
+
+* 'Keep.' Already installed, no changes.
+
+* 'Uninstall.' Uninstall this package.
+
+* 'Reinstall.' Reinstall this package.
+
+[[ChToolsGNUChain]]
+
+=== GNU compiler toolchain (UNIX or Win32 Cygwin)
+
+[[ChToolsGCC]]
+
+==== gcc (GNU compiler collection)
+
+[WARNING]
+.Compiling with gcc on Windows is discouraged
+====
+Using Cygwin gcc to compile Wireshark is unsupported and recommended. If you
+really want to try it anyway see:
+http://wiki.wireshark.org/Development/CygwinGCC[] for details.
+====
+
+The GCC C compiler is available for most of the
+UNIX-like platforms and as the Devel/gcc package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If GCC isn't already installed or available
+as a package for your platform, you can get it at:
+http://gcc.gnu.org/[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ gcc --version
+----
+
+should result in something like
+
+----
+gcc (GCC) 3.4.4 (cygwin special) (gdc 0.12, using dmd 0.125)
+Copyright (C) 2004 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+----
+
+Your version string may vary, of course.
+
+[[ChToolsGDB]]
+
+==== gdb (GNU project debugger)
+
+GDB is the debugger for the GCC compiler. It is
+available for many (if not all) UNIX-like platforms and as
+the Devel/gdb package from the
+<<ChToolsCygwin,Cygwin setup>>
+
+If you don't like debugging using the command line
+there are some GUI frontends for it available, most notably
+GNU DDD.
+
+If gdb isn't already installed or available
+as a package for your platform, you can get it at:
+http://www.gnu.org/software/gdb/gdb.html[].
+
+After correct installation:
+
+----
+$ gdb --version
+----
+
+should result in something like:
+
+----
+GNU gdb 6.5.50.20060706-cvs (cygwin-special)
+Copyright 2003 Free Software Foundation, Inc.
+GDB is free software, covered by the GNU General Public License, and you are
+welcome to change it and/or distribute copies of it under certain conditions.
+Type "show copying" to see the conditions.
+There is absolutely no warranty for GDB.  Type "show warranty" for details.
+This GDB was configured as "i686-pc-cygwin".
+----
+
+Your version string may vary, of course.
+
+[[ChToolsDDD]]
+
+
+==== ddd (GNU Data Display Debugger)
+
+The GNU Data Display Debugger is a good GUI frontend
+for GDB (and a lot of other command line debuggers), so you
+have to install GDB first. It is available for many UNIX-like
+platforms and as the ddd package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If GNU DDD isn't already installed or
+available as a package for your platform, you can get it at:
+http://www.gnu.org/software/ddd/[].
+
+[[ChToolsGNUmake]]
+
+==== make (GNU Make)
+
+[NOTE]
+.GNU make isn't supported either
+====
+Although some effort is made to use make from the
+Cygwin environment, the mainline is still using Microsoft
+Visual Studio's nmake.
+====
+
+GNU Make is available for most of the UNIX-like
+platforms and also as the Devel/make package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If GNU Make isn't already installed or
+available as a package for your platform, you can get it at:
+http://www.gnu.org/software/make/[].
+
+After correct installation:
+
+----
+$ make --version
+----
+
+should result in something like:
+
+----
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
+----
+
+Your version string may vary, of course.
+
+[[ChToolsMSChain]]
+
+=== Microsoft compiler toolchain (Win32 native)
+
+To compile Wireshark on Windows using the Microsoft C/$$C++$$
+compiler, you'll need:
+
+. C compiler (`cl.exe`)
+
+. Assembler (`ml.exe` for 32-bit targets and `ml64.exe` for 64-bit targets)
+
+. Linker (`link.exe`)
+
+. Make (`nmake.exe`)
+
+. C runtime headers and libraries (e.g. 'stdio.h', 'msvcrt.lib')
+
+. Windows platform headers and libraries (e.g.
+'windows.h', 'WSock32.lib')
+
+// Can we drop support for CHM?
+. HTML help headers and libraries ('htmlhelp.h', 'htmlhelp.lib')
+
+==== Toolchain Package Alternatives
+
+The official Wireshark 1.8.x and 1.10.x releases are compiled using
+Microsoft Visual $$C++$$ 2010 SP1.
+The official 1.2, 1.4, and 1.6 releases were compiled using
+Microsoft Visual $$C++$$ 2008 SP1.
+Other past releases, including the 1.0 branch,
+were compiled using Microsoft Visual $$C++$$ 6.0. Using the release
+compilers is recommended for Wireshark development work. "Express
+Edition" compilers such as Visual $$C++$$ 2010 Express Edition SP1 can be
+used but any PortableApps packages you create with them
+will require the installation of a separate Visual $$C++$$
+Redistributable package on any machine on which the PortableApps
+package is to be used. See
+<<msvc-runtime-redistributable>> below for more details.
+
+However, you might already have a different Microsoft $$C++$$ compiler
+installed. It should be possible to use any of the following with the considerations listed:
+
+
+.Visual C++ 2010 Express Edition (recommended)
+
+IDE + Debugger?:: Yes
+
+Purchase required?:: http://www.microsoft.com/express/Downloads/#Visual_Studio_2010_Express_Downloads[Free Download]
+
+SDK required for 64-bit builds?:: Yes.
+
+config.nmake MSVC_VARIANT:: MSVC2010EE
+
+32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86`
+
+64-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64`
+
+Remarks:: Installers created using express editions require a $$C++$$ redistributable
+('$$vcredist_x86.exe$$' or
+'$$vcredist_x86.exe$$').footnoteref[vcredist,'$$vcredist_x86.exe$$' (3MB free
+download) is required to build
+Wireshark-win32-wireshark-major-minor-version:[].x.exe, and
+'$$vcredist_x64.exe$$' is required to build
+Wireshark-win64-wireshark-major-minor-version:[].x.exe. The version of
+'$$vcredist_x86.exe$$' or '$$vcredist_x64.exe$$' _must_ match the version for your
+compiler including any service packs installed for the compiler.]
+
+
+.Visual Studio 2010
+
+IDE + Debugger?:: Yes
+
+Purchase required?:: Yes
+
+SDK required for 64-bit builds?:: No
+
+config.nmake MSVC_VARIANT:: MSVC2010
+
+32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x86`
+
+64-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 10.0\VC\vcvarsall.bat x64_`
+
+Remarks:: Default compiler in 'config.nmake'. Building a 64-bit installer
+requires a a $$C++$$ redistributable
+('$$vcredist_x86.exe$$').footnoteref[vcredist]
+
+
+.Visual C++ 2008 Express Edition SP1
+
+IDE + Debugger?:: Yes
+
+Purchase required?:: http://www.microsoft.com/download/details.aspx?id=14597[Free Download]
+
+SDK required for 64-bit builds?:: 64-bit build not supported
+
+config.nmake MSVC_VARIANT:: MSVC2008EE
+
+32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat`
+
+Remarks:: Installers created using express editions require a $$C++$$ redistributable
+('$$vcredist_x86.exe$$').footnoteref[vcredist]
+
+
+.Visual Studio 2008
+
+IDE + Debugger?:: Yes
+
+Purchase required?:: Yes
+
+SDK required for 64-bit builds?:: 64-bit build not supported
+
+config.nmake MSVC_VARIANT:: MSVC2008
+
+32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 9.0\VC\bin\vcvars32.bat`
+
+
+.Visual C++ 2005 Express Edition
+
+IDE + Debugger?:: Yes
+
+Purchase required?:: Free Download (link disappeared)
+
+SDK required for 64-bit builds?:: 64-bit build not supported
+
+config.nmake MSVC_VARIANT:: MSVC2005EE
+
+32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 8\VC\bin\vcvars32.bat`
+
+Remarks:: Installers created using express editions require a $$C++$$ redistributable
+('$$vcredist_x86.exe$$').footnoteref[vcredist]
+
+
+.Visual Studio 2005
+
+IDE + Debugger?:: Yes
+
+Purchase required?:: Yes
+
+SDK required for 64-bit builds?:: 64-bit build not supported
+
+config.nmake MSVC_VARIANT:: MSVC2005
+
+32-bit environment setup:: `%PROGRAMFILES%\Microsoft Visual Studio 8\VC\bin\vcvars32.bat`
+
+==== Legal issues with MSVC > V6?
+
+Please note: The following is not legal advice - ask your preferred lawyer
+instead. It's the author's view, but this view might be wrong.
+
+The myriad of http://anonsvn.wireshark.org/wireshark-win32-libs/tags/[Win32
+support lib] port projects all seem to believe there are legal issues involved
+in using newer versions of Visual Studio. This FUD essentially stems from two
+misconceptions:
+
+. Unfortunately, it is believed by many that the Microsoft Visual Studio 2003
+EULA explicitly forbids linking with GPL'ed programs. This belief is probably
+due to an improper interpretation of the
+http://msdn.microsoft.com/visualc/vctoolkit2003/eula.aspx[Visual Studio 2003
+Toolkit EULA], which places redistribution restrictions only on SOURCE CODE
+SAMPLES which accompany the toolkit.
+
+. Other maintainers believe that the GPL itself forbids using Visual Studio 2003
+since one of the required support libraries (MSVCR71.DLL) does not ship with the
+Windows operating system. This is also a wrongful interpretation, and the
+http://www.gnu.org/licenses/gpl-faq.html#WindowsRuntimeAndGPL[GPL FAQ]
+explicitly addresses this issue.
+
+The situation is similar for Visual Studio 2005 and later.
+
+It should be perfectly legal to compile
+Wireshark, distribute, run it if it was compiled with any
+MSVC version > V6.
+
+==== cl.exe (C Compiler)
+
+The following table gives an overview of the possible
+Microsoft toolchain variants and their specific C compiler
+versions ordered by release date.
+
+|===============
+|Compiler Package|cl.exe|_MSC_VER|CRT DLL
+|Visual Studio 2005|8.0|1400|msvcr80.dll
+|Visual $$C++$$ 2005 Express Edition
+|.NET Framework 2.0 SDK
+|Windows SDK for Windows Vista and
+.NET Framework 3.0 Runtime Components
+|Visual Studio 2008|9.0|1500|msvcr90.dll
+|Visual Studio 2008 Express Edition
+|Visual Studio 2010|10.0|1600|msvcr100.dll
+|Visual Studio 2010 Express Edition
+|===============
+
+After correct installation of the toolchain, typing
+at the command line prompt (cmd.exe):
+
+----
+> cl
+----
+
+should result in something like:
+
+----
+Microsoft (R) 32-bit C/C++ Optimizing Compiler Version 15.00.30729.01 for 80x86
+Copyright (C) Microsoft Corp. All rights reserved.
+
+usage: cl [ option... ] filename... [ /link linkoption... 
+----
+
+However, the version string may vary.
+
+[[ChToolsNMake]]
+
+==== nmake.exe (Make)
+
+Nmake is part of the toolchain packages described
+above.
+
+Instead of using the workspace (.dsw) and projects (.dsp) files, the traditional
+nmake makefiles are used. This has one main reason: it makes it much easier to
+maintain changes simultaneously with the GCC toolchain makefile.am files as both
+file formats are similar. However, as no Visual Studio workspace/project files
+are available, this makes it hard to use the Visual Studio IDE e.g. for using
+the integrated debugging feature.
+
+After correct installation, typing at the command line prompt (cmd.exe):
+
+----
+> nmake
+----
+
+should result in something like:
+
+----
+Microsoft (R) Program Maintenance Utility   Version 6.00.9782.0
+Copyright (C) Microsoft Corp 1988-1998. All rights reserved.
+
+NMAKE : fatal error U1064: MAKEFILE not found and no target specified
+Stop.
+----
+
+However, the version string may vary.
+
+Documentation on nmake can be found at
+http://msdn2.microsoft.com/library/dd9y37ha(VS.71).aspx[Microsoft MSDN]
+
+==== link.exe (Linker)
+
+****
+This section not yet written
+****
+
+[[msvc-runtime-redistributable]]
+
+
+==== C-Runtime "Redistributable" Files
+
+Please note: The following is not legal advice - ask your preferred lawyer
+instead. It's the authors view and this view might be wrong.
+
+Depending on the Microsoft compiler version you use, some binary files coming
+from Microsoft might be required to be installed on Windows machine to run
+Wireshark. On a developer machine, the compiler setup installs these files so
+they are available - but they might not be available on a user machine!
+
+This is especially true for the C runtime DLL (msvcr*.dll), which contains the
+implementation of ANSI and alike functions, e.g.: fopen(), malloc(). The DLL is
+named like: msvcr'version'.dll, an abbreviation for "MicroSoft Visual C
+Runtime". For Wireshark to work, this DLL must be available on the users
+machine.
+
+Starting with MSVC7, it is necessary to ship the C runtime DLL
+(msvcr'version'.dll) together with the application installer somehow, as that
+DLL is possibly not available on the target system.
+
+
+[NOTE]
+.Make sure you're allowed to distribute this file
+====
+The files to redistribute must be mentioned in the
+redist.txt file of the compiler package. Otherwise it
+can't be legally redistributed by third parties like
+us.
+====
+
+The following MSDN links are recommended for the
+interested reader:
+
+* http://msdn2.microsoft.com/library/ms235299(VS.80).aspx[Redistributing Visual C++ Files]
+
+* http://msdn2.microsoft.com/library/ms235291(VS.80).aspx[How to: Deploy using XCopy]
+
+* http://support.microsoft.com/?scid=kb%3Ben-us%3B326922&amp;x=10&amp;y=13[Redistribution
+  of the shared C runtime component in Visual $$C++$$ 2005 and in Visual $$C++$$
+  .NET]
+
+In all cases where '$$vcredist_x86.exe$$' or '$$vcredist_x64.exe$$' is
+downloaded it should be downloaded to the directory into which the support
+libraries for Wireshark have been downloaded and installed. This directory is
+specified by the WIRESHARK_LIB_DIR setting in the 'config.nmake'. By default it
+is 'C:\wireshark-win32-libs'. It need not, and should not, be run after being
+downloaded.
+
+===== msvcr80.dll / vcredist_x86.exe - Version 8.0 (2005)
+
+There are three redistribution methods that MSDN
+mentions for MSVC 8 (see
+http://msdn.microsoft.com/library/ms235316(VS.80).aspx["Choosing a Deployment Method"]):
+
+. 'Using Visual $$C++$$ Redistributable Merge Modules'.
+(Loadable modules for building msi installers.
+Not suitable for Wireshark's NSIS based installer)
+
+. 'Using Visual $$C++$$ Redistributable Package'. The Microsoft libraries are
+installed by copying '$$vcredist_x86.exe$$', '$$vcredist_x64.exe$$', or
+'$$vcredist_ia64.exe$$' to the target machine and executing it on that machine
+(MSDN recommends this for applications built with Visual Studio 2005 Express
+Edition).
+
+. 'Install a particular Visual $$C++$$ assembly as a private assembly for the
+application'. The Microsoft libraries are installed by copying the folder
+content of 'Microsoft.VC80.CRT' to the target directory (e.g. 'C:\Program
+Files\Wireshark')
+
+To save installer size, and to make a portable
+version of Wireshark (which must be completely self-contained,
+on a medium such as a flash drive, and not require that an
+installer be run to install anything on the target machine)
+possible, when building 32-bit Wireshark with MSVC2005, method
+3 (copying the content of 'Microsoft.VC80.CRT')
+is used (this produces the smallest package).
+
+As MSVC2005EE and DOTNET20 don't provide the folder
+'Microsoft.VC80.CRT', when 32-bit Wireshark
+is built with either of them method 2 is used.
+You'll have to download the appropriate version of
+'$$vcredist_x86.exe$$' from Microsoft for your
+compiler version.
+
+A portable version of 64-bit Wireshark is not built, so method 3 is used for all
+64-bit builds. You'll have to download the appropriate version of
+'$$vcredist_x64.exe$$' or '$$vcredist_ia64.exe$$' from Microsoft for your target
+processor and compiler version.
+
+* For 32-bit builds using Microsoft Visual $$C++$$ 2005
+Express Edition without Service Pack 1, you need
+'8.0.50608.0',
+from: "Microsoft Visual $$C++$$ 2005 Redistributable Package (x86)":
+http://www.microsoft.com/download/details.aspx?id=3387[].
+
+* For 64-bit x86 (x64) builds using Microsoft Visual $$C++$$
+2005, any edition, without Service Pack 1, you need
+'{fill this in}',
+from: "Microsoft Visual $$C++$$ 2005 Redistributable Package (x64)":
+http://www.microsoft.com/download/details.aspx?id=21254[].
+
+* For IA-64 builds using Microsoft Visual $$C++$$ 2005, any
+edition, without Service Pack 1, you need
+'{fill this in}',
+from: "Microsoft Visual $$C++$$ 2005 Redistributable Package (IA64)":
+http://www.microsoft.com/download/details.aspx?id=16326[].
+
+* For 32-bit builds using Microsoft Visual $$C++$$ 2005
+Express Edition with Service Pack 1, you need
+'8.0.50727.762', from: "Microsoft
+Visual $$C++$$ 2005 SP1 Redistributable Package (x86)":
+http://www.microsoft.com/download/details.aspx?id=5638[].
+
+* For 64-bit x86 builds using Microsoft Visual $$C++$$ 2005,
+any edition, with Service Pack 1, you need
+'{fill this in}', from: "Microsoft
+Visual $$C++$$ 2005 SP1 Redistributable Package (x64)":
+http://www.microsoft.com/download/details.aspx?id=18471[].
+
+Please send a message to the wireshark-dev mailing list if you
+find a different version number.
+
+===== msvcr90.dll / vcredist_x86.exe / vcredist_x64.exe - Version 9.0 (2008)
+
+There are three redistribution methods that MSDN
+mentions for MSVC 9 (see:
+http://msdn.microsoft.com/en-US/library/ms235316(v=vs.90).aspx["Choosing a Deployment Method"]):
+
+. 'Using Visual $$C++$$ Redistributable Merge Modules'.
+(Loadable modules for building msi installers.
+Not suitable for Wireshark's NSIS based installer)
+
+. 'Using Visual $$C++$$ Redistributable Package'. The Microsoft
+libraries are installed by copying '$$vcredist_x64.exe$$' or
+'$$vcredist_x86.exe$$' to the target machine and executing it on that machine
+(MSDN recommends this for applications built with Visual Studio 2008 Express
+Edition)
+
+. 'Install a particular Visual $$C++$$ assembly as a private assembly for the
+application'. The Microsoft libraries are installed by copying the folder
+content of _Microsoft.VC90.CRT_to the target directory (e.g. 'C:\Program
+Files\Wireshark')
+
+To save installer size and to make a portable version of Wireshark (which must
+be completely self-contained, on a medium such as a flash drive, and not require
+that an installer be run to install anything on the target machine) possible,
+when building 32-bit Wireshark with MSVC2008, method 3 (copying the content of
+'Microsoft.VC90.CRT') is used (this produces the smallest package).
+
+As MSVC2008EE doesn't provide the folder 'Microsoft.VC90.CRT', when 32-bit
+Wireshark is built with it method 2 is used. You'll have to download the
+appropriate version of '$$vcredist_x64.exe$$' from Microsoft for your compiler
+version.
+
+A portable version of 64-bit Wireshark is not built, so method 2 is used for all
+64-bit builds. You'll have to download the appropriate version of
+'$$vcredist_x86.exe$$' from Microsoft for your compiler version.
+
+
+* For 32-bit builds using Microsoft Visual $$C++$$ 2008
+Express Edition without Service Pack 1, you need
+'9.0.21022.8', from:
+"Microsoft Visual $$C++$$ 2008 Redistributable Package (x86)":
+http://www.microsoft.com/download/details.aspx?id=29[].
+
+* For 64-bit builds using Microsoft Visual $$C++$$ 2008,
+any edition, without Service Pack 1, you need
+'9.0.21022.8', from:
+"Microsoft Visual $$C++$$ 2008 Redistributable Package (x64)":
+http://www.microsoft.com/download/details.aspx?id=15336[].
+
+* For 32-bit builds with Microsoft Visual $$C++$$ 2008
+Express Edition with Service Pack 1, you need
+'9.0.30729.17', from:
+"Microsoft Visual $$C++$$ 2008 SP1 Redistributable Package (x86)":
+http://www.microsoft.com/download/details.aspx?id=5582[].
+
+* For 64-bit builds with Microsoft Visual $$C++$$ 2008,
+any edition, with Service Pack 1, you need
+'9.0.30729.17', from:
+"Microsoft Visual $$C++$$ 2008 SP1 Redistributable Package (x64)":
+http://www.microsoft.com/download/details.aspx?id=2092[].
+
+Please send a message to the wireshark-dev mailing list if you
+find a different version number.
+
+===== msvcr100.dll / vcredist_x86.exe / vcredist_x64.exe - Version 10.0 (2010)
+
+There are three redistribution methods that MSDN
+mentions for MSVC 10 (see:
+http://msdn.microsoft.com/en-US/library/ms235316(v=vs.100).aspx["Choosing a Deployment Method"]):
+
+. 'Using Visual $$C++$$ Redistributable Package'.
+The Microsoft libraries are installed by copying
+'$$vcredist_x64.exe$$' or
+'$$vcredist_x86.exe$$' to the target
+machine and executing it on that machine (MSDN recommends
+this for applications built with Visual Studio 2010,
+both Express Edition and non-Express editions)
+
+. 'Using Visual $$C++$$ Redistributable Merge Modules'.
+(Loadable modules for building msi installers.
+Not suitable for Wireshark's NSIS based installer)
+
+. 'Install a particular Visual $$C++$$ assembly as a
+private assembly for the application'. The
+Microsoft libraries are installed by copying the folder
+content of 'Microsoft.VC100.CRT' to
+the target directory (e.g. 'C:\Program Files\Wireshark')
+
+To save installer size, and to make a portable
+version of Wireshark (which must be completely self-contained,
+on a medium such as a flash drive, and not require that an
+installer be run to install anything on the target machine)
+possible, when building 32-bit Wireshark with MSVC2010, method
+3 (copying the content of 'Microsoft.VC100.CRT')
+is used (this produces the smallest package).
+
+As MSVC20010EE doesn't provide the folder 'Microsoft.VC100.CRT', when 32-bit
+Wireshark is built with it method 1 is used. You'll have to download the
+appropriate version of '$$vcredist_x64.exe$$' from Microsoft that corresponds to
+your compiler version.
+
+A portable version of 64-bit Wireshark is not built, so method
+1 is used for all 64-bit builds.  You'll have to download the
+appropriate version of '$$vcredist_x86.exe$$' from Microsoft for your compiler version.
+
+* For 32-bit builds using Microsoft Visual $$C++$$ 2010
+Express Edition without Service Pack 1, you need
+'10.0.30319.1', from: "Microsoft Visual
+$$C++$$ 2010 Redistributable Package (x86)":
+http://www.microsoft.com/download/en/details.aspx?id=5555[].
+
+* For 64-bit builds using Microsoft Visual $$C++$$ 2010,
+any edition, without Service Pack 1, you need
+'10.0.30319.1', from: "Microsoft Visual
+$$C++$$ 2010 Redistributable Package (x64)":
+http://www.microsoft.com/download/details.aspx?id=14632[].
+
+* For 32-bit builds using Microsoft Visual $$C++$$ 2010
+Express Edition with Service Pack 1, you need
+'10.0.40219.1', from: "Microsoft Visual
+$$C++$$ 2010 SP1 Redistributable Package (x86)":
+http://www.microsoft.com/download/en/details.aspx?id=8328[].
+
+* For 64-bit builds using Microsoft Visual $$C++$$ 2010,
+any edition, with Service Pack 1, you need
+'10.0.40219.1', from: "Microsoft Visual
+$$C++$$ 2010 SP1 Redistributable Package (x64)":
+http://www.microsoft.com/download/details.aspx?id=13523[].
+
+Please report to the developer mailing list, if you
+find a different version number!
+
+==== Windows (Platform) SDK
+
+The Windows Platform SDK (PSDK) or Windows SDK is a free
+(as in beer) download and contains platform specific headers and
+libraries (e.g. 'windows.h', 'WSock32.lib', etc.). As new Windows
+features evolve in time, updated SDK's become available that
+include new and updated APIs.
+
+When you purchase a commercial Visual Studio, it will
+include an SDK. The free (as in beer) downloadable C compiler
+versions (V$$C++$$ 2012 Express, V$$C++$$ 2012 Express, etc.) do not
+contain an SDK -- you'll need to download a PSDK in order to
+have the required C header files and libraries.
+
+Older versions of the SDK should also work. However, the
+command to set the environment settings will be different, try
+search for SetEnv.* in the SDK directory.
+
+Prior to Windows Vista, the name "Platform SDK" was used;
+starting with Vista, the name was changed just to "Windows
+Software Development Kit" or "Windows SDK".  The full names of the
+SDKs can be misleading; for example, the SDK for Vista was called
+the "Microsoft Windows Software Development Kit for Windows Vista
+and .NET Framework 3.0 Runtime Components", which really means the
+Windows SDK for Windows Vista and Platforms (like WinXP) that have
+the .NET 3.0 runtime installed.
+
+==== HTML Help
+
+HTML Help is used to create the User's and Developer's Guide in .chm format and
+to show the User's Guide as the Wireshark "Online Help".
+
+Both features are currently optional, and might be removed in future versions.
+
+===== HTML Help Compiler (hhc.exe)
+
+This compiler is used to generate a .chm file from a bunch of HTML files -- in
+our case to generate the User's and Developer's Guide in .chm format.
+
+The compiler is only available as the free (as in beer) "HTML Help Workshop"
+download. If you want to compile the guides yourself, you need to download and
+install this. If you don't install it into the default directory, you may also
+have a look at the HHC_DIR setting in the file docbook/Makefile.
+
+===== HTML Help Build Files (htmlhelp.c / htmlhelp.lib)
+
+The files 'htmlhelp.c' and 'htmlhelp.lib' are required to
+be able to open .chm files from Wireshark and show the
+online help. Both files are part of the SDK (standalone (P)SDK or MSVC
+since 2002).
+
+Simply set HHC_DIR in 'config.nmake' to use it.
+
+[[ChToolsDebugger]]
+
+==== Debugger
+
+Using a good debugger can save you a lot of development time.
+
+The debugger you use must match the C compiler Wireshark was compiled with,
+otherwise the debugger will simply fail or you will only see a lot of garbage.
+
+[[ChToolsMSVCDebugger]]
+
+===== Visual Studio integrated debugger
+
+You can use the integrated debugger of Visual Studio if your toolchain includes
+it. However, setting up the environment is a bit tricky, as the Win32 build
+process uses makefiles instead of the .dsp/.dsw files usually used.
+
+****
+This section not yet written
+****
+
+[[ChToolsMSDebuggingTools]]
+
+===== Debugging Tools for Windows
+
+You can also use the Microsoft Debugging Tools for Windows toolkit, which is a
+standalone GUI debugger. Although it's not that comfortable compared to
+debugging with the Visual Studio integrated debugger it can be helpful if you
+have to debug on a machine where an integrated debugger is not available.
+
+You can get it free of charge at:
+http://www.microsoft.com/whdc/devtools/debugging/default.mspx[] (as
+links to Microsoft pages change from time to time, search
+for "Debugging Tools" at their page if this link happens to be
+outdated).
+
+[[ChToolsBash]]
+
+
+=== bash
+
+The bash shell is needed to run several shell scripts.
+
+[[ChToolsGNUBash]]
+
+==== UNIX or Win32 Cygwin: GNU bash
+
+The bash shell is available for most of the UNIX-like
+platforms and as the bash package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If bash isn't already installed or
+available as a package for your platform, you can get it at
+http://www.gnu.org/software/bash/bash.html[].
+
+After correct installation, typing at the bash command line prompt:
+
+----
+$ bash --version
+----
+
+should result in something like:
+
+----
+GNU bash, version 3.1.17(6)-release (i686-pc-cygwin)
+Copyright (C) 2005 Free Software Foundation, Inc.
+----
+
+However, the version string may vary.
+
+[[ChToolsWin32Bash]]
+
+==== Win32 native:
+
+// MinGW? PowerShell?
+****
+This section not yet written
+****
+
+[[ChToolsPython]]
+
+=== Python
+
+Python is an interpreted programming language. The homepage of the Python
+project is http://python.org/[]. It is used to generate some source files.
+Python 2.5 or later (including Python 3) should work fine but Python 2.7 is
+recommended.
+
+[[ChToolsUnixPython]]
+
+==== UNIX or Win32 Cygwin: Python
+
+// XXX - This seems to contradict other parts of the documentation.
+// Do we recommend Cygwin Python or not?
+
+Python is available for most UNIX-like platforms
+and as the python package from the
+<<ChToolsCygwin,Cygwin setup>>
+
+If Python isn't already installed or
+available as a package for your platform, you can get it at
+http://www.python.org/[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ python --version
+----
+
+should result in something like:
+
+Python 2.7.3
+
+However, the version string may vary.
+
+[[ChToolsWin32Python]]
+
+==== Win32 native: python
+
+Get Python (2.7 is recommended) from
+http://python.org/download/[].
+You can download an installation package there, which
+will install the Python system in the top level of your
+'C:' drive by default, e.g.
+'C:\Python27'.
+
+You can check for a successful installation from a command prompt (cmd.exe):
+
+----
+C:\> cd python27
+
+C:\Python27> python --version
+----
+
+The output should look something like:
+
+----
+Python 2.7.5
+----
+
+However, the version string may vary.
+
+[[ChToolsPerl]]
+
+=== Perl
+
+Perl is an interpreted programming language. The
+homepage of the Perl project is
+http://www.perl.com[]. Perl is used to convert
+various text files into usable source code. Perl version 5.6
+and above should work fine.
+
+[[ChToolsUnixPerl]]
+
+==== UNIX or Win32 Cygwin: Perl
+
+Perl is available for most of the UNIX-like platforms
+and as the perl package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If perl isn't already installed or available
+as a package for your platform, you can get it at
+http://www.perl.com/[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ perl --version
+----
+
+should result in something like:
+
+----
+This is perl, v5.8.7 built for cygwin-thread-multi-64int
+(with 1 registered patch, see perl -V for more detail)
+
+Copyright 1987-2005, Larry Wall
+
+Perl may be copied only under the terms of either the Artistic License or the
+GNU General Public License, which may be found in the Perl 5 source kit.
+
+Complete documentation for Perl, including FAQ lists, should be found on
+this system using `man perl' or `perldoc perl'.  If you have access to the
+Internet, point your browser at http://www.perl.com/, the Perl Home Page.
+----
+
+However, the version string may vary.
+
+[[ChToolsWin32Perl]]
+
+==== Win32 native: Perl
+
+// XXX - Straberry?
+A native Win32 Perl package can be obtained from
+http://www.ActiveState.com[]. The installation
+should be straightforward.
+
+After correct installation, typing at the command
+line prompt (cmd.exe):
+
+----
+> perl -v
+----
+
+should result in something like:
+
+----
+This is perl, v5.8.0 built for MSWin32-x86-multi-thread
+(with 1 registered patch, see perl -V for more detail)
+
+Copyright 1987-2002, Larry Wall
+
+Binary build 805 provided by ActiveState Corp. http://www.ActiveState.com
+Built 18:08:02 Feb  4 2003
+...
+----
+
+However, the version string may vary.
+
+[[ChToolsSed]]
+
+=== sed
+
+Sed it the streaming editor. It makes it easy for example
+to replace text inside a source code file.
+The Wireshark build process uses this to stamp version strings
+in various places.
+
+[[ChToolsUnixSed]]
+
+==== UNIX or Win32 Cygwin: sed
+
+Sed is available for most of the UNIX-like platforms
+and as the sed package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If sed isn't already installed or available
+as a package for your platform, you can get it at
+http://directory.fsf.org/GNU/sed.html[]
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ sed --version
+----
+
+should result in something like:
+
+----
+GNU sed version 4.1.5
+Copyright (C) 2003 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE,
+to the extent permitted by law.
+----
+
+However, the version string may vary.
+
+[[ChToolsWin32Sed]]
+
+==== Win32 native: sed
+
+A native Win32 sed package can be obtained from
+http://gnuwin32.sourceforge.net/[]. The
+installation should be straightforward.
+
+[[ChToolsYacc]]
+
+=== yacc (bison)
+
+Bison is a free implementation of yacc.
+
+[[ChToolsUnixYacc]]
+
+==== UNIX or Win32 Cygwin: bison
+
+// XXX Add win flex-bison. The Chocolatey version isn't
+// ready pending a Chocolatey bug.
+
+Bison is available for most of the UNIX-like platforms
+and as the bison package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If GNU Bison isn't already installed or
+available as a package for your platform, you can get it at:
+http://www.gnu.org/software/bison/bison.html[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ bison --version
+----
+
+should result in something like:
+
+----
+bison (GNU Bison) 2.3
+Written by Robert Corbett and Richard Stallman.
+
+Copyright (C) 2006 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+----
+
+However, the version string may vary.
+
+[[ChToolsWin32Yacc]]
+
+==== Win32 native: bison
+
+A native Win32 yacc/bison package can be obtained from
+http://gnuwin32.sourceforge.net/[]. The
+installation should be straightforward.
+
+[[ChToolsLexx]]
+
+=== flex
+
+Flex is a free implementation of lexx.
+
+[[ChToolsUnixLexx]]
+
+==== UNIX or Win32 Cygwin: flex
+
+Flex is available for most of the UNIX-like platforms
+and as the flex package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If GNU flex isn't already installed or
+available as a package for your platform, you can get it at
+http://www.gnu.org/software/flex/[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ flex --version
+----
+
+should result in something like:
+
+----
+flex version 2.5.4
+----
+
+However, the version string may vary.
+
+[[ChToolsWin32Lexx]]
+
+==== Win32 native: flex
+
+A native Win32 lexx/flex package can be obtained from
+http://gnuwin32.sourceforge.net/[]. The
+installation should be straightforward.
+
+[[ChToolsGit]]
+
+=== Git client
+
+The Wireshark project uses its own Git repository
+to keep track of all the changes done to the source
+code. Details about the usage of Git in the Wireshark
+project can be found in
+<<ChSrcGitRepository>>.
+
+If you want to work with the source code and are planning to
+commit your changes back to the Wireshark community, it is
+recommended to use a Git client to get the latest source files.
+For detailed information about the different ways to obtain the
+Wireshark sources, see
+<<ChSrcObtain>>.
+
+You will find more instructions in
+<<ChSrcAnon>>on how to use the Git
+client.
+
+[[ChToolsUnixGit]]
+
+==== UNIX or Win32 Cygwin: git
+
+Git is available for most of the UNIX-like platforms
+and as the Git package from the
+<<ChToolsCygwin,Cygwin setup>>
+
+If Git isn't already installed or available as a package for your platform, you
+can get it at: http://git-scm.com/[].
+
+After correct installation, typing at the bash command line prompt:
+
+----
+$ git --version
+----
+
+should result in something like:
+
+----
+git version 1.8.3.4
+----
+
+Your version will likely be different.
+
+[[ChToolsWin32SVN]]
+
+==== Win32 native: git
+
+The Git command line tools for Win32 can be found at
+http://git-scm.com/download/win[].
+
+After correct installation, typing at the command
+line prompt (cmd.exe):
+
+----
+$ git --version
+----
+
+should result in something like:
+
+----
+git version 1.8.3.4
+----
+
+However, the version string may vary.
+
+[[ChToolsGitGUI]]
+
+=== Git GUI client (optional)
+
+Along with the traditional command-line client, several
+GUI clients are available for a number of platforms. See
+http://git-scm.com/downloads/guis[] for details.
+
+// [[ChToolsUnixGitGUI]]
+// XXX Add Gui client section
+
+[[ChToolsPatch]]
+
+=== patch (optional)
+
+The patch utility is used to merge a diff file into your own source tree. This
+tool is only needed, if you want to apply a patch (diff file) from someone else
+(probably from the developer mailing list) to try out in your own private source
+tree.
+
+It most cases you may not need the patch tool installed. Git and Gerrit should
+handle patches for you.
+
+You will find more instructions in <<ChSrcPatchApply>>on how to use the patch
+tool.
+
+[[ChToolsUnixPatch]]
+
+==== UNIX or Win32 Cygwin: patch
+
+Patch is available for most of the UNIX-like platforms
+and as the patch package from the
+<<ChToolsCygwin,Cygwin setup>>.
+
+If GNU patch isn't already installed or
+available as a package for your platform, you can get it at
+http://www.gnu.org/software/patch/patch.html[].
+
+After correct installation, typing at the
+bash command line prompt:
+
+----
+$ patch --version
+----
+
+should result in something like:
+
+----
+patch 2.5.8
+Copyright (C) 1988 Larry Wall
+Copyright (C) 2002 Free Software Foundation, Inc.
+
+This program comes with NO WARRANTY, to the extent permitted by law.
+You may redistribute copies of this program
+under the terms of the GNU General Public License.
+For more information about these matters, see the file named COPYING.
+
+written by Larry Wall and Paul Eggert
+----
+
+However, the version string may vary.
+
+[[ChToolsWin32Patch]]
+
+==== Win32 native: patch
+
+A native Win32 patch package can be obtained from
+http://gnuwin32.sourceforge.net/[]. The
+installation should be straightforward.
+
+[[ChToolsWget]]
+
+=== Win32: GNU wget (optional)
+
+GNU wget is used to download files from the internet using the command line.
+
+GNU wget is available for most of the UNIX-like platforms and as the wget
+package from the <<ChToolsCygwin,Cygwin setup>>.
+
+You will only need wget, if you want to use the Win32 automated library
+download, see <<ChLibsSetup>>for details.
+
+If GNU wget isn't already installed or available as a package for your platform
+(well, for Win32 it is available as a Cygwin package), you can get it at
+http://www.gnu.org/software/wget/wget.html[].
+
+If wget is trying to download files but fails to do so, your Internet connection
+might use an HTTP proxy. Some Internet providers use such a proxy and it is
+common in many company networks today. Wireshark's setup script will try to
+discover your proxy settings automatically, but you may need to set the
+environment variable 'HTTP_PROXY' by hand before using wget. For example, if you
+are behind proxy.com which is listening on port 8080, you have to set it to
+something like:
+
+----
+set HTTP_PROXY=http://proxy.com:8080/
+----
+
+If you are unsure about the settings, you might ask your system administrator.
+
+[[ChToolsUnzip]]
+
+=== Win32: GNU unzip (optional)
+
+GNU unzip is used to, well, unzip the zip files downloaded using the wget tool.
+
+GNU unzip is available for most of the UNIX-like platforms and as the unzip
+package from the <<ChToolsCygwin,Cygwin setup>>.
+
+You will only need unzip, if you want to use the Win32 automated library
+download, see <<ChLibsSetup>>for details.
+
+If GNU unzip isn't already installed or available as a package for your platform
+(well, for Win32 it is available as a Cygwin package), you can get it at
+http://gnuwin32.sourceforge.net/packages/unzip.htm[].
+
+[[ChToolsNSIS]]
+
+=== Win32: NSIS (optional)
+
+The NSIS (Nullsoft Scriptable Install System) is used to generate
+'wireshark-win32-wireshark-major-minor-version:[].x.exe' from all the files
+needed to be installed, including all required DLLs, plugins, and supporting
+files.
+
+To install it, simply download the latest released version (currently 2.46)
+from http://nsis.sourceforge.net[] and start the downloaded installer. You will
+need NSIS version 2. Version 3 is not yet supported.
+
+You will find more instructions in <<ChSrcNSIS>>on how to use the NSIS tool.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter Tools -->
+++++++++++++++++++++++++++++++++++++++
+    

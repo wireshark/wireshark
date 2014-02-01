@@ -202,7 +202,7 @@ https://code.wireshark.org/review/Documentation/cmd-index.html#_server[command l
 HTTP lets you access the repository in environments that block the Gerrit SSH
 port (29418). Command line access isn't available over HTTP.
 
-See <<ChToolsSubversion>> for information on installing and configuring a Git
+See <<ChToolsGit>> for information on installing and configuring a Git
 client.
 
 For example, to check out using the command-line Git client you
