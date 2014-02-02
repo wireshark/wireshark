@@ -43,10 +43,10 @@ static int proto_quic = -1;
 static int hf_quic_puflags = -1;
 static int hf_quic_puflags_vrsn = -1;
 static int hf_quic_puflags_rst = -1;
-static int hf_quic_puflags_guid = -1;
+static int hf_quic_puflags_cid = -1;
 static int hf_quic_puflags_seq = -1;
 static int hf_quic_puflags_rsv = -1;
-static int hf_quic_guid = -1;
+static int hf_quic_cid = -1;
 static int hf_quic_version = -1;
 static int hf_quic_sequence = -1;
 #if 0 /* Decode Private Flags is not yet ready... */
@@ -72,11 +72,11 @@ static gint ett_quic_prflags = -1;
 /**************************************************************************/
 #define PUFLAGS_VRSN    0x01
 #define PUFLAGS_RST     0x02
-#define PUFLAGS_GUID    0x0C
+#define PUFLAGS_CID    0x0C
 #define PUFLAGS_SEQ     0x30
 #define PUFLAGS_RSV     0xC0
 
-static const value_string puflags_guid_vals[] = {
+static const value_string puflags_cid_vals[] = {
     { 0, "0 Byte" },
     { 1, "1 Bytes" },
     { 2, "4 Bytes" },
@@ -107,8 +107,8 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti, *ti_puflags/*, *ti_prflags, *expert_ti*/;
     proto_tree *quic_tree, *puflags_tree/*, *prflags_tree*/;
     guint offset = 0;
-    guint8 puflags, len_guid, len_seq;
-    guint64 guid, seq;
+    guint8 puflags, len_cid, len_seq;
+    guint64 cid, seq;
 
     if (tvb_length(tvb) < QUIC_MIN_LENGTH)
         return 0;
@@ -123,7 +123,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     puflags_tree = proto_item_add_subtree(ti_puflags, ett_quic_puflags);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_vrsn, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rst, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item(puflags_tree, hf_quic_puflags_guid, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(puflags_tree, hf_quic_puflags_cid, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_seq, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(puflags_tree, hf_quic_puflags_rsv, tvb, offset, 1, ENC_NA);
 
@@ -131,35 +131,35 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     offset += 1;
 
-    /* GUID */
+    /* CID */
 
-    /* Get len of GUID (and GUID), may be a more easy function to get the length... */
-    switch((puflags & PUFLAGS_GUID) >> 2){
+    /* Get len of CID (and CID), may be a more easy function to get the length... */
+    switch((puflags & PUFLAGS_CID) >> 2){
         case 0:
-            len_guid = 0;
-            guid = 0;
+            len_cid = 0;
+            cid = 0;
         break;
         case 1:
-            len_guid = 1;
-            guid = tvb_get_guint8(tvb, offset);
+            len_cid = 1;
+            cid = tvb_get_guint8(tvb, offset);
         break;
         case 2:
-            len_guid = 4;
-            guid = tvb_get_letohl(tvb, offset);
+            len_cid = 4;
+            cid = tvb_get_letohl(tvb, offset);
         break;
         case 3:
-            len_guid = 8;
-            guid = tvb_get_letoh64(tvb, offset);
+            len_cid = 8;
+            cid = tvb_get_letoh64(tvb, offset);
         break;
         default: /* It is only between 0..3 but Clang(Analyser) i don't like this... ;-) */
-            len_guid = 8;
-            guid = tvb_get_letoh64(tvb, offset);
+            len_cid = 8;
+            cid = tvb_get_letoh64(tvb, offset);
         break;
     }
 
-    if (len_guid) {
-        proto_tree_add_item(quic_tree, hf_quic_guid, tvb, offset, len_guid, ENC_LITTLE_ENDIAN);
-        offset += len_guid;
+    if (len_cid) {
+        proto_tree_add_item(quic_tree, hf_quic_cid, tvb, offset, len_cid, ENC_LITTLE_ENDIAN);
+        offset += len_cid;
     }
 
     /* Version */
@@ -196,7 +196,7 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(quic_tree, hf_quic_sequence, tvb, offset, len_seq, ENC_LITTLE_ENDIAN);
     offset += len_seq;
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "GUID: %" G_GINT64_MODIFIER "u, Seq: %" G_GINT64_MODIFIER "u", guid, seq);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "CID: %" G_GINT64_MODIFIER "u, Seq: %" G_GINT64_MODIFIER "u", cid, seq);
 
 #if 0 /* Decode Private Flags is not yet ready... */
     /* Private Flags */
@@ -250,10 +250,10 @@ proto_register_quic(void)
                FT_BOOLEAN, 8, TFS(&tfs_yes_no), PUFLAGS_RST,
               "Signifies that this packet is a public reset packet", HFILL }
         },
-        { &hf_quic_puflags_guid,
-            { "GUID Length", "quic.puflags.guid",
-               FT_UINT8, BASE_HEX, VALS(puflags_guid_vals), PUFLAGS_GUID,
-              "Signifies the Length of GUID", HFILL }
+        { &hf_quic_puflags_cid,
+            { "CID Length", "quic.puflags.cid",
+               FT_UINT8, BASE_HEX, VALS(puflags_cid_vals), PUFLAGS_CID,
+              "Signifies the Length of CID", HFILL }
         },
         { &hf_quic_puflags_seq,
             { "Sequence Length", "quic.puflags.seq",
@@ -265,10 +265,10 @@ proto_register_quic(void)
                FT_UINT8, BASE_HEX, NULL, PUFLAGS_RSV,
               "Must be Zero", HFILL }
         },
-        { &hf_quic_guid,
-            { "GUID", "quic.guid",
+        { &hf_quic_cid,
+            { "CID", "quic.cid",
                FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Globally Unique Identifier 64 bit pseudo random number", HFILL }
+              "Connection ID 64 bit pseudo random number", HFILL }
         },
         { &hf_quic_version,
             { "Version", "quic.version",
