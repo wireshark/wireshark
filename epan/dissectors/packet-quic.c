@@ -157,8 +157,10 @@ dissect_quic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
     }
 
-    proto_tree_add_item(quic_tree, hf_quic_guid, tvb, offset, len_guid, ENC_LITTLE_ENDIAN);
-    offset += len_guid;
+    if (len_guid) {
+        proto_tree_add_item(quic_tree, hf_quic_guid, tvb, offset, len_guid, ENC_LITTLE_ENDIAN);
+        offset += len_guid;
+    }
 
     /* Version */
     if(puflags & PUFLAGS_VRSN){
