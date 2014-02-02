@@ -148,7 +148,8 @@ void yyerror(FILE_T fh _U_, const char *);
 const gchar *ascend_parse_error;
 
 static unsigned int bcur;
-static guint32 start_time, secs, usecs, caplen, wirelen;
+static guint32 start_time, usecs, caplen, wirelen;
+static time_t secs;
 struct ascend_phdr *pseudo_header;
 static guint8 *pkt_data;
 static gint64 first_hexbyte;
