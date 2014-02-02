@@ -1,0 +1,115 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Works -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterWorks]]
+
+== How Wireshark Works
+
+[[ChWorksIntro]]
+
+=== Introduction
+
+This chapter will give you a short overview of how Wireshark works.
+
+[[ChWorksOverview]]
+
+=== Overview
+
+The following will give you a simplified overview of Wireshark's function blocks:
+
+[[ChWorksFigOverview]]
+
+.Wireshark function blocks
+image::wsdg_graphics/ws-function-blocks.png[]
+
+****
+This image is out of date. It is missing the utility library in 'wsutil' and
+the Qt UI in 'ui/qt'.
+****
+
+The function blocks in more detail:
+$$GTK+ 2$$:: Handling of all user input/output (all windows, dialogs and such). 
+Source code can be found in the 'ui/gtk' directory.
+
+Core:: Main "glue code" that holds the other blocks together. Source 
+code can be found in the root directory.
+
+Epan:: Ethereal Packet ANalyzer -- the packet analyzing engine.
+Source code can be found in the 'epan' directory. Epan provides
+the following APIs:
+
+* Protocol Tree. Dissection information for an individual packet.
+
+* Dissectors. The various protocol dissectors in 
+'epan/dissectors'.
+
+* Dissector Plugins - Support for implementing dissectors as separate modules.
+Source code can be found in 'plugins'.
+
+* Display Filters - The display filter engine at 
+'epan/dfilter'.
+
+Wiretap:: The wiretap library is used to read andwrite capture files in libpcap,
+pcapng, and many other file formats. Source code is in the
+'wiretap' directory.
+
+Capture:: The interface with the capture engine. Source code in the
+root directory.
+
+Dumpcap:: The capture engine itself. This is the only part that is to execute
+with elevated privileges. Source code in the root directory.
+
+WinPcap and libpcap:: These are separate libraries that provide packet capture
+and filtering support on different platforms. The filtering WinPcap and libpcap
+works at a much lower level than Wireshark's display filters and uses a
+significantly different mechanism. That's why we have different display and
+capture filter syntaxes.
+
+
+[[ChWorksCapturePackets]]
+
+=== Capturing packets
+
+Capturing takes packets from a network adapter and saves them to a file 
+on your hard disk. 
+
+Since raw network adapter access requires elevated privileges these functions
+are isolated into the `dumpcap` program. It's only this program that needs these
+privileges, allowing the main part of the code (dissectors, user interface,
+etc) to run with normal user privileges.
+
+To hide all the low-level machine dependent details from Wireshark, the libpcap
+and WinPcap (see <<ChLibsPcap>>) libraries is used. These libraries provide a
+general purpose interface to capture packets and are used by a wide variety of
+applications.
+
+[[ChWorksCaptureFiles]]
+
+=== Capture Files
+
+Wireshark can read and write capture files in its natural file formats, pcapng
+and pcap, which are used by many other network capturing tools, such as tcpdump.
+In addition to this, as one of its strengths, Wireshark can read and write files
+in many different file formats of other network capturing tools. The wiretap
+library, developed together with Wireshark, provides a general purpose interface
+to read and write all the file formats. If you need to add support for another
+capture file format this is the place to start. 
+
+[[ChWorksDissectPackets]]
+
+=== Dissect packets
+
+While Wireshark is loading packets from a file each packet is dissected.
+Wireshark tries to detect the packet type and gets as much information from the
+packet as possible. In this run though, only the information shown in the packet
+list pane is needed. 
+
+As the user selects a specific packet in the packet list pane this packet will
+be dissected again. This time, Wireshark tries to get every single piece of
+information and put it into the packet details pane.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter Works -->
+++++++++++++++++++++++++++++++++++++++
+    

@@ -1,0 +1,54 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Build Introduction -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterBuildIntro]]
+
+== Introduction
+
+[[ChCodeOverview]]
+
+=== Source overview
+
+Wireshark consists of the following major parts:
+
+* Packet dissection - in the '/epan/dissector' and '/plugin/*' directories
+
+* File I/O - using Wireshark's own wiretap library
+
+* Capture - using the libpcap/winpcap library, in /wiretap
+
+* User interface - using the Qt or $$GTK+$$ and associated libraries
+
+* Utilities - miscellaneous helper code
+
+* Help - using an external web browser and GTK text output
+
+[[ChCodeStyle]]
+
+=== Coding Style
+
+The coding style guides for Wireshark can be found in the "Code style" 
+section of the file 'doc/README.developer'.
+
+[[ChCodeGLib]]
+
+=== The GLib library
+
+Glib is used as a basic platform abstraction library. It's doesn't provide
+any direct GUI functionality.
+
+To quote the Glib Reverence Manual:
+____
+GLib provides the core application building blocks for libraries and
+applications written in C. It provides the core object system used in GNOME, the
+main loop implementation, and a large set of utility functions for strings and
+common data structures.
+____
+
+GLib contains lots of useful things for platform independent development.
+See https://developer.gnome.org/glib/[] for details about GLib.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter Build Introduction -->
+++++++++++++++++++++++++++++++++++++++

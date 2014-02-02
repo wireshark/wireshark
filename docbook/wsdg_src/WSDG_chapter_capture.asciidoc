@@ -1,0 +1,74 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter Capture -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterCapture]]
+
+== Packet capturing
+
+****
+This chapter needs to be reviewed and extended.
+****
+
+[[ChCaptureAddLibpcap]]
+
+=== How to add a new capture type to libpcap
+
+The following is an updated excerpt from a developer mailing list mail about
+adding ISO 9141 and 14230 (simple serial line card diagnostics) to Wireshark:
+
+For libpcap, the first thing you'd need to do would be to get +$$DLT_*$$+ values
+for all the link-layer protocols you'd need. If ISO 9141 and 14230 use the same
+link-layer protocol, they might be able to share a +$$DLT_*$$+ value, unless the
+only way to know what protocols are running above the link layer is to know
+which link-layer protocol is being used, in which case you might want separate
++$$DLT_*$$+ values.
+
+For the rest of the libpcap discussion, I'll assume you're working with libpcap
+1.0 or later and that this is on a UN*X platform. You probably don't want to
+work with a version older than 1.0, even if whatever OS you're using happens to
+include libpcap - older versions are not as friendly towards adding support for
+devices other than standard network interfaces.
+
+Then you'd probably add to the +pcap_open_live()+ routine, for whatever
+platform or platforms this code should work, something such as a check
+for device names that look like serial port names and, if the check
+succeeds, a call to a routine to open the serial port.
+
+See, for example, the +#ifdef HAVE_DAG_API+ code in 'pcap-linux.c' and
+'pcap-bpf.c'.
+
+The serial port open routine would open the serial port device, set the baud
+rate and do anything else needed to open the device. It'd allocate a +pcap_t+,
+set its +fd+ member to the file descriptor for the serial device, set the
++snapshot+ member to the argument passed to the open routine, set the +linktype+
+member to one of the +$$DLT_*$$+ values, and set the +selectable_fd+ member to
+the same value as the +fd+ member. It should also set the +dlt_count+ member to
+the number of +$$DLT_*$$+ values to support, and allocate an array of
++dlt_count+ +u_int+s, assign it to the +dlt_list+ member, and fill in that list
+with all the +$$DLT_*$$+ values.
+
+You'd then set the various +$$*_op$$+ fields to routines to handle the operations in
+question. +read_op+ is the routine that'd read packets from the device. +inject_op+
+would be for sending packets; if you don't care about that, you'd set it to a
+routine that returns an error indication. +setfilter_op+ can probably just be set
+to +install_bpf_program+. +set_datalink+ would just set the +linktype+ member to the
+specified value if it's one of the values for OBD, otherwise it should return an
+error. +getnonblock_op+ can probably be set to +pcap_getnonblock_fd+. +setnonblock_op+
+can probably be set to +pcap_setnonblock_fd+. +stats_op+ would be set to a routine
+that reports statistics. +close_op+ can probably be set to +pcap_close_common+.
+
+If there's more than one +$$DLT_*$$+ value, you definitely want a +set_datalink+
+routine so that the user can select the appropriate link-layer type.
+
+For Wireshark, you'd add support for those +$$DLT_*$$+ values to
+'wiretap/libpcap.c', which might mean adding one or more +WTAP_ENCAP+ types to
+'wtap.h' and to the +$$encap_table[]$$+ table in 'wiretap/wtap.c'. You'd then
+have to write a dissector or dissectors for the link-layer protocols or
+protocols and have them register themselves with the +wtap_encap+ dissector
+table, with the appropriate +WTAP_ENCAP+ values by calling
++dissector_add_uint()+.
+
+++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter Capture -->
+++++++++++++++++++++++++++++++++++++

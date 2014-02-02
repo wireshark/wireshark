@@ -109,12 +109,12 @@ FILE SECTION
 <title>Wireshark Build Environment</title>
 <partintro>
 <para>
-<command>Part I. Wireshark Build Environment</command>
+Part I. Wireshark Build Environment
 </para>
 <para>
-<command>The first part describes how to set up the tools, libraries and
+The first part describes how to set up the tools, libraries and
 source needed to generate Wireshark, and how to do some typical development
-tasks.</command>
+tasks.
 </para>
 <para>
 Part II. Wireshark Development
