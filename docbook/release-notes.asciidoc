@@ -68,6 +68,8 @@ Dynamic Source Routing (RFC 4728)
 MCPE (Minecraft Pocket Edition)
 RakNet games library
 (LISP) TCP Control Message
+Android ADB
+Android Logcat text
 --sort-and-group--
 
 === Updated Protocol Support
@@ -77,7 +79,7 @@ Too many protocols have been updated to list here.
 === New and Updated Capture File Support
 
 --sort-and-group--
-Android logcat text files
+Android Logcat text files
 Wireshark now supports nanosecond timestamp resolution in PCAP-NG files.
 --sort-and-group--
 

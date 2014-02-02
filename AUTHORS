@@ -3496,7 +3496,7 @@ Michał Łabędzki		<michal.labedzki[AT]tieto.com> {
 	Bluetooth SDP significant improvements
 	Ubertooth USB firmware dissector
 	ELF file dissector
-	Android ADB Client-Server dissector
+	Android ADB dissectors
 	Android Logcat binary logs support
 }
 
