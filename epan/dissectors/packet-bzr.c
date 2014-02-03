@@ -1,6 +1,6 @@
 /* packet-bzr.c
  * Routines for Bazaar packet dissection
- * Copyright 2011, Jelmer Vernooij <jelmer@samba.org>
+ * Copyright 2011,2013 Jelmer Vernooij <jelmer@samba.org>
  *
  * http://doc.bazaar.canonical.com/developers/network-protocol.html
  *
@@ -45,13 +45,14 @@ static gint ett_prefixed_bytes = -1;
 
 static gint hf_bzr_prefixed_bencode = -1;
 static gint hf_bzr_prefixed_bencode_len = -1;
-static gint hf_bzr_prefixed_bencode_data = -1;
 static gint hf_bzr_bytes = -1;
 static gint hf_bzr_bytes_data = -1;
 static gint hf_bzr_bytes_length = -1;
 static gint hf_bzr_result = -1;
 static gint hf_bzr_packet_protocol_version = -1;
 static gint hf_bzr_packet_kind = -1;
+
+static dissector_handle_t bencode_handle;
 
 #define REQUEST_VERSION_TWO   "bzr request 2\n"
 #define RESPONSE_VERSION_TWO  "bzr response 2\n"
@@ -123,7 +124,7 @@ get_bzr_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 }
 
 static gint
-dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                          proto_tree *tree)
 {
     guint32     plen;
@@ -138,11 +139,12 @@ dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     if (prefixed_bencode_tree)
     {
+        tvbuff_t *subtvb;
         proto_tree_add_item(prefixed_bencode_tree, hf_bzr_prefixed_bencode_len,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(prefixed_bencode_tree, hf_bzr_prefixed_bencode_data,
-                            tvb, offset+4, plen, ENC_NA);
+        subtvb = tvb_new_subset(tvb, offset+4, plen, plen);
+        call_dissector(bencode_handle, subtvb, pinfo, prefixed_bencode_tree);
     }
 
     return 4 + plen;
@@ -277,10 +279,6 @@ proto_register_bzr(void)
           { "Bencode packet length", "bzr.bencode.length", FT_UINT32,
             BASE_HEX, NULL, 0x0, NULL, HFILL },
         },
-        { &hf_bzr_prefixed_bencode_data,
-          { "Bencode packet data", "bzr.bencode.data", FT_BYTES, BASE_NONE,
-            NULL, 0x0, NULL, HFILL },
-        },
         { &hf_bzr_bytes,
           { "Prefixed bytes", "bzr.bytes", FT_BYTES, BASE_NONE, NULL, 0x0,
             "Bytes field with prefixed 32-bit length", HFILL },
@@ -327,6 +325,8 @@ void
 proto_reg_handoff_bzr(void)
 {
     dissector_handle_t bzr_handle;
+
+    bencode_handle = find_dissector("bencode");
 
     bzr_handle = find_dissector("bzr");
     dissector_add_uint("tcp.port", TCP_PORT_BZR, bzr_handle);
