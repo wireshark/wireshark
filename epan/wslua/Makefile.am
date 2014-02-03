@@ -40,6 +40,7 @@ wslua_modules = 	\
 	$(srcdir)/wslua_gui.c \
 	$(srcdir)/wslua_util.c \
 	$(srcdir)/wslua_field.c \
+	$(srcdir)/wslua_struct.c \
 	$(srcdir)/wslua_dumper.c
 
 libwslua_la_SOURCES = \
@@ -129,7 +130,8 @@ checkapi:
 	wslua_int64.c \
 	wslua_pinfo.c \
 	wslua_proto.c \
-	wslua_listener.c \
+	wslua_struct.c \
+	wslua_tree.c \
 	wslua_tree.c \
 	wslua_tvb.c \
 	wslua_util.c

@@ -152,6 +152,22 @@ unittests_step_lua_args_test() {
 	test_step_ok
 }
 
+unittests_step_lua_struct_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# Tshark catches lua script failures, so we have to parse the output.
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/struct.lua > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		cat testout.txt
+		test_step_failed "didn't find pass marker"
+	fi
+}
+
 unittests_step_oids_test() {
 	DUT=$SOURCE_DIR/epan/oids_test
 	ARGS=
@@ -188,6 +204,7 @@ unittests_suite() {
 	test_step_add "lua dissector" unittests_step_lua_dissector_test
 	test_step_add "lua int64" unittests_step_lua_int64_test
 	test_step_add "lua script arguments" unittests_step_lua_args_test
+	test_step_add "lua struct" unittests_step_lua_struct_test
 	test_step_add "oids_test" unittests_step_oids_test
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest

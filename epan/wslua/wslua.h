@@ -256,6 +256,7 @@ typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_main* WireShark;
 typedef struct _wslua_dir* Dir;
 typedef struct _wslua_private_table* PrivateTable;
+typedef gchar* Struct;
 
 /*
  * toXxx(L,idx) gets a Xxx from an index (Lua Error if fails)
@@ -449,6 +450,11 @@ extern void wslua_prime_dfilter(epan_dissect_t *edt);
 extern void lua_prime_all_fields(proto_tree* tree);
 
 extern int Proto_commit(lua_State* L);
+
+extern void Int64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian);
+extern int Int64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian);
+extern void UInt64_pack(lua_State* L, luaL_Buffer *b, gint idx, gboolean asLittleEndian);
+extern int UInt64_unpack(lua_State* L, const gchar *buff, gboolean asLittleEndian);
 
 extern Tvb* push_Tvb(lua_State* L, tvbuff_t* tvb);
 extern gboolean push_TvbRange(lua_State* L, tvbuff_t* tvb, int offset, int len);

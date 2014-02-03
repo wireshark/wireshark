@@ -61,7 +61,7 @@ end
 
 function typeof(obj)
     local mt = getmetatable(obj)
-    return mt and mt.__typeof or type(obj)
+    return mt and mt.__typeof or obj.__typeof or type(obj)
 end
 
 function file_exists(name)

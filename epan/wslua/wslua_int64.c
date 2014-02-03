@@ -52,7 +52,7 @@ WSLUA_CLASS_DEFINE_BASE(Int64,NOP,NOP,0);
   Lua uses one single number representation which can be chosen at compile time and since
   it is often set to IEEE 754 double precision floating point, we cannot store a 64 bit integer
   with full precision.
-  For details, see: http://lua-users.org/wiki/FloatingPoint
+  For details, see: http://wiki.wireshark.org/LuaAPI/Int64
  */
 
 /* these declarations are here because some funcs in Int64 need to know about UInt64 */
@@ -222,9 +222,10 @@ WSLUA_METHOD Int64_tonumber(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR Int64_fromhex(lua_State* L) { /* Creates an Int64 object from the given hex string */
+#define WSLUA_ARG_Int64_fromhex_HEX 1 /* The hex-ascii Lua string */
     guint64 result = 0;
     size_t len = 0;
-    const gchar *s = luaL_checklstring(L,1,&len);
+    const gchar *s = luaL_checklstring(L,WSLUA_ARG_Int64_fromhex_HEX,&len);
 
     if (s && len > 0) {
         sscanf(s, "%" G_GINT64_MODIFIER "x", &result);
@@ -252,11 +253,11 @@ WSLUA_METHOD Int64_higher(lua_State* L) {
     /* Returns a Lua number of the higher 32-bits of the Int64 value. (negative Int64 will return a negative Lua number) */
     gint64 num = getInt64(L,1);
     gint64 b = num;
-    lua_Number n;
+    lua_Number n = 0;
     if (b < 0) b = -b; /* masking/shifting negative int64 isn't working on some platforms */
     b &= G_GUINT64_CONSTANT(0x7FFFFFFF00000000);
     b >>= 32;
-    n = (lua_Number)(guint32)(b & 0x00000000FFFFFFFFF);
+    n = (lua_Number)(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF));
     if (num < 0) n = -n;
     lua_pushnumber(L,n);
     WSLUA_RETURN(1); /* The Lua number */
@@ -515,7 +516,8 @@ LUALIB_API int Int64_register(lua_State* L) {
 
 
 WSLUA_CLASS_DEFINE_BASE(UInt64,NOP,NOP,0);
-    /* UInt64 represents a 64 bit unsigned integer, similar to Int64. */
+    /* UInt64 represents a 64 bit unsigned integer, similar to Int64.
+       For details, see: http://wiki.wireshark.org/LuaAPI/Int64 */
 
 /* A checkUInt64 but that also auto-converts numbers, strings, and Int64 to a guint64 */
 static guint64 getUInt64(lua_State *L, int i)
@@ -687,9 +689,10 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) { /* Creates a UInt64 object from the given hex string */
+#define WSLUA_ARG_UInt64_fromhex_HEX 1 /* The hex-ascii Lua string */
     guint64 result = 0;
     size_t len = 0;
-    const gchar *s = luaL_checklstring(L,1,&len);
+    const gchar *s = luaL_checklstring(L,WSLUA_ARG_UInt64_fromhex_HEX,&len);
 
     if (s && len > 0) {
         sscanf(s, "%" G_GINT64_MODIFIER "x", &result);
@@ -700,9 +703,9 @@ WSLUA_CONSTRUCTOR UInt64_fromhex(lua_State* L) { /* Creates a UInt64 object from
 
 WSLUA_METHOD UInt64_tohex(lua_State* L) {
     /* Returns a hex string of the UInt64 value. */
-#define WSLUA_OPTARG_Int64_new_NUMBYTES 2 /* The number of hex-chars/nibbles to generate, negative means uppercase (default=16) */
+#define WSLUA_OPTARG_UInt64_new_NUMBYTES 2 /* The number of hex-chars/nibbles to generate, negative means uppercase (default=16) */
     guint64 b = getUInt64(L,1);
-    gint n = luaL_optint(L, WSLUA_OPTARG_Int64_new_NUMBYTES, 16);
+    gint n = luaL_optint(L, WSLUA_OPTARG_UInt64_new_NUMBYTES, 16);
     const gchar *hexdigits = "0123456789abcdef";
     gchar buf[16];
     gint i;
@@ -717,7 +720,7 @@ WSLUA_METHOD UInt64_higher(lua_State* L) {
     /* Returns a Lua number of the higher 32-bits of the UInt64 value. */
     guint64 num = getUInt64(L,1);
     guint64 b = num;
-    lua_Number n;
+    lua_Number n = 0;
     b &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
     b >>= 32;
     n = (lua_Number)(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF));

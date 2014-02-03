@@ -310,6 +310,8 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tree.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tvb.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_int64.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
 )
 
 ADD_CUSTOM_COMMAND(

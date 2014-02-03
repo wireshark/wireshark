@@ -348,6 +348,7 @@ WSLua Reference Manual
   <!ENTITY WsLuaTvb SYSTEM "wsluarm_src/wslua_tvb.xml">
   <!ENTITY WsLuaUtility SYSTEM "wsluarm_src/wslua_util.xml">
   <!ENTITY WsLuaInt64 SYSTEM "wsluarm_src/wslua_int64.xml">
+  <!ENTITY WsLuaStruct SYSTEM "wsluarm_src/wslua_struct.xml">
 
 ]>
 
