@@ -1054,7 +1054,8 @@ file_seek(FILE_T file, gint64 offset, int whence, int *err)
 
 	/* if within raw area while reading, just go there */
 	if (file->compression == UNCOMPRESSED && file->pos + offset >= file->raw
-			&& (offset < 0 || offset >= file->have) /* seek only when we don't have that offset in buffer */)
+			&& (offset < 0 || offset >= file->have) /* seek only when we don't have that offset in buffer */
+			&& (file->fast_seek) /* seek only when random access is supported */)
 	{
 		if (ws_lseek64(file->fd, offset - file->have, SEEK_CUR) == -1) {
 			*err = errno;
