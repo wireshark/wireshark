@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V11.7.0 (2013-09)
+-- 3GPP TS 25.331 V11.8.0 (2013-12)
 -- $Id$
 --
 InformationElements DEFINITIONS AUTOMATIC TAGS ::=
@@ -1074,6 +1074,10 @@ DL-PhysChCapabilityFDD-vb50ext ::=		SEQUENCE {
 	supportOfNodeBTrigHS-DPCCHTransmission	ENUMERATED { true }					OPTIONAL
 }
 
+DL-PhysChCapabilityFDD-vb80ext ::=		SEQUENCE {
+	non-ContiguousMulti-CellWithMIMO		ENUMERATED { true }					OPTIONAL
+}
+
 DL-PhysChCapabilityTDD ::=			SEQUENCE {
 	maxTS-PerFrame						MaxTS-PerFrame,
 	maxPhysChPerFrame					MaxPhysChPerFrame,
@@ -1623,6 +1627,10 @@ MultiModeRAT-Capability-v860ext ::=	SEQUENCE {
 	eutraFeatureGroupIndicators			BIT STRING (SIZE (4))							OPTIONAL
 }
 
+MultiModeRAT-Capability-vae0ext ::=			SEQUENCE {
+	eutraSupportOfMFBI						ENUMERATED { true }							OPTIONAL
+}
+
 MultiModeRAT-Capability-vb50ext ::=	SEQUENCE {
 	supportOfEUTRAFDDMeasurementReportingInCELLFACH		ENUMERATED { 																doesSupportOfEUTRAFDDMeasurementReportingInCELLFACH }	OPTIONAL,
 	supportOfEUTRATDDMeasurementReportingInCELLFACH		ENUMERATED { 																doesSupportOfEUTRATDDMeasurementReportingInCELLFACH }	OPTIONAL
@@ -1859,6 +1867,12 @@ PhysicalChannelCapability-vb50ext ::=	SEQUENCE {
 	fddPhysChCapability						SEQUENCE {
 		downlinkPhysChCapability				DL-PhysChCapabilityFDD-vb50ext,
 		uplinkPhysChCapability					UL-PhysChCapabilityFDD-vb50ext
+	}		OPTIONAL
+}
+
+PhysicalChannelCapability-vb80ext ::=	SEQUENCE {
+	fddPhysChCapability						SEQUENCE {
+		downlinkPhysChCapability				DL-PhysChCapabilityFDD-vb80ext
 	}		OPTIONAL
 }
 
@@ -2647,7 +2661,13 @@ UE-RadioAccessCapability-LaterNonCriticalExtensions ::= SEQUENCE {
 				ue-RadioAccessCapability-vb50ext		UE-RadioAccessCapability-vb50ext-IEs,
 				vb70NonCriticalExtensions		SEQUENCE {
 					ue-RadioAccessCapability-vb70ext		UE-RadioAccessCapability-vb70ext-IEs,
-					nonCriticalExtensions			SEQUENCE {} OPTIONAL
+					vae0NonCriticalExtensions				SEQUENCE {
+						ue-RadioAccessCapability-vae0ext	UE-RadioAccessCapability-vae0ext-IEs,
+						vb80NonCriticalExtensions		SEQUENCE {
+							ue-RadioAccessCapability-vb80ext	UE-RadioAccessCapability-vb80ext-IEs,
+							nonCriticalExtensions			SEQUENCE {} OPTIONAL
+						}		OPTIONAL
+					}		OPTIONAL
 				}		OPTIONAL
 			}		OPTIONAL
 		}		OPTIONAL
@@ -2683,6 +2703,11 @@ UE-RadioAccessCapability-vaa0ext-IEs ::= SEQUENCE {
 	rf-capability							RF-Capability-vaa0ext						OPTIONAL
 }
 
+UE-RadioAccessCapability-vae0ext-IEs ::= SEQUENCE {
+	-- UE radio access capability
+		multiModeRAT-Capability				MultiModeRAT-Capability-vae0ext			OPTIONAL
+}
+
 UE-RadioAccessCapability-vb50ext-IEs ::= SEQUENCE {
 	multiModeRAT-Capability							MultiModeRAT-Capability-vb50ext,
 	supportOfCommonERGCHBasedInterferenceControl	ENUMERATED { true }		OPTIONAL,
@@ -2710,6 +2735,11 @@ UE-RadioAccessCapability-vb50ext-IEs ::= SEQUENCE {
 UE-RadioAccessCapability-vb70ext-IEs ::= SEQUENCE {
 	measurementCapability					MeasurementCapability-vb70ext		OPTIONAL,
 	ue-RadioAccessCapabBandFDDList7			UE-RadioAccessCapabBandFDDList7		OPTIONAL
+}
+
+UE-RadioAccessCapability-vb80ext-IEs ::= SEQUENCE {
+	-- UE physical channel capability
+	physicalChannelCapability				PhysicalChannelCapability-vb80ext
 }
 
 UE-ConnTimersAndConstants ::=		SEQUENCE {
@@ -13914,8 +13944,15 @@ EUTRA-FrequencyAndPriorityInfoExtension-vb50ext ::=	SEQUENCE {
 	eutraDetection						BOOLEAN
 }
 
+EUTRA-FrequencyAndPriorityInfoExtension-vb80ext ::=	SEQUENCE {
+	qqualMinEUTRA-WB					INTEGER (-34..-3)						OPTIONAL
+}
+
 EUTRA-FrequencyAndPriorityInfoExtensionList ::=	SEQUENCE (SIZE (1..maxNumEUTRAFreqs)) OF
 											EUTRA-FrequencyAndPriorityInfoExtension-vb50ext
+
+EUTRA-FrequencyAndPriorityInfoExtensionList-vb80ext ::=	SEQUENCE  (SIZE (1..maxNumEUTRAFreqs)) OF
+											EUTRA-FrequencyAndPriorityInfoExtension-vb80ext
 
 EUTRA-FrequencyAndPriorityInfoList ::=	SEQUENCE (SIZE (1..maxNumEUTRAFreqs)) OF
 											EUTRA-FrequencyAndPriorityInfo
@@ -21831,8 +21868,11 @@ SysInfoType19 ::=						SEQUENCE {
 				vb30NonCriticalExtensions		SEQUENCE {
 					sysInfoType19-vb30ext			SysInfoType19-vb30ext,
 					vb50NonCriticalExtensions		SEQUENCE {
-						sysInfoType19-vb50ext				SysInfoType19-vb50ext,
-						nonCriticalExtensions				SEQUENCE {}					OPTIONAL
+						sysInfoType19-vb50ext			SysInfoType19-vb50ext,
+						vb80NonCriticalExtensions		SEQUENCE {
+							sysInfoType19-vb80ext			SysInfoType19-vb80ext,
+							nonCriticalExtensions			SEQUENCE {}			OPTIONAL
+						}	OPTIONAL
 					}	OPTIONAL
 				}	OPTIONAL
 			}	OPTIONAL
@@ -21861,6 +21901,10 @@ SysInfoType19-vb50ext ::=				SEQUENCE {
 		multipleEutraFrequencyInfoExtensionList		MultipleEUTRAFrequencyInfoExtensionList	OPTIONAL,
 	-- Measurement IEs
 		eutra-FrequencyRACHReportingInfo		EUTRA-FrequencyRACHReportingInfo		OPTIONAL
+}
+
+SysInfoType19-vb80ext ::=				SEQUENCE {
+		eutra-FrequencyAndPriorityInfoExtensionList-vb80ext		EUTRA-FrequencyAndPriorityInfoExtensionList-vb80ext							OPTIONAL
 }
 
 SysInfoType20 ::=					SEQUENCE {
