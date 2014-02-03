@@ -4020,7 +4020,7 @@ void proto_register_snmp(void) {
                                       sizeof(snmp_st_assoc_t),
                                       "snmp_specific_traps",
                                       TRUE,
-                                      (void**)&specific_traps,
+                                      &specific_traps,
                                       &num_specific_traps,
                                       UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                       "ChSNMPEnterpriseSpecificTrapTypes",
