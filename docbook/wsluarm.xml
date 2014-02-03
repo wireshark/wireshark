@@ -177,4 +177,5 @@ end
 	&WsLuaTree;
 	&WsLuaTvb;
 	&WsLuaUtility;
+	&WsLuaInt64;
 </chapter>

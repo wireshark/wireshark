@@ -25,6 +25,7 @@
 
 set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lua_bitop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_int64.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_tvb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_proto.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_tree.c

@@ -33,6 +33,7 @@ wslua_modules = 	\
 	$(srcdir)/lua_bitop.c \
 	$(srcdir)/wslua_tvb.c \
 	$(srcdir)/wslua_proto.c \
+	$(srcdir)/wslua_int64.c \
 	$(srcdir)/wslua_tree.c \
 	$(srcdir)/wslua_pinfo.c \
 	$(srcdir)/wslua_listener.c \
@@ -125,6 +126,7 @@ checkapi:
 	wslua_dumper.c \
 	wslua_field.c \
 	wslua_gui.c \
+	wslua_int64.c \
 	wslua_pinfo.c \
 	wslua_proto.c \
 	wslua_listener.c \

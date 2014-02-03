@@ -289,6 +289,7 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dumper.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_field.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_gui.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_int64.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_listener.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_pinfo.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_proto.c

@@ -240,8 +240,8 @@ typedef struct _wslua_pinfo* Pinfo;
 typedef struct _wslua_treeitem* TreeItem;
 typedef address* Address;
 typedef nstime_t* NSTime;
-typedef gint64* Int64;
-typedef guint64* UInt64;
+typedef gint64 Int64;
+typedef guint64 UInt64;
 typedef header_field_info** Field;
 typedef struct _wslua_field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
@@ -267,17 +267,20 @@ typedef struct _wslua_private_table* PrivateTable;
  * (a dummy typedef is used to be syntactically correct)
  */
 #define WSLUA_CLASS_DEFINE(C,check_code,push_code) \
+    WSLUA_CLASS_DEFINE_BASE(C,check_code,push_code,NULL)
+
+#define WSLUA_CLASS_DEFINE_BASE(C,check_code,push_code,retval) \
 C to##C(lua_State* L, int idx) { \
     C* v = (C*)lua_touserdata (L, idx); \
     if (!v) luaL_error(L, "bad argument %d (%s expected, got %s)", idx, #C, lua_typename(L, lua_type(L, idx))); \
-    return v ? *v : NULL; \
+    return v ? *v : retval; \
 } \
 C check##C(lua_State* L, int idx) { \
     C* p; \
     luaL_checktype(L,idx,LUA_TUSERDATA); \
     p = (C*)luaL_checkudata(L, idx, #C); \
     check_code; \
-    return p ? *p : NULL; \
+    return p ? *p : retval; \
 } \
 C* push##C(lua_State* L, C v) { \
     C* p; \
@@ -298,13 +301,13 @@ gboolean is##C(lua_State* L,int i) { \
 } \
 C shift##C(lua_State* L,int i) { \
     C* p; \
-    if(!lua_isuserdata(L,i)) return NULL; \
+    if(!lua_isuserdata(L,i)) return retval; \
     p = (C*)lua_touserdata(L, i); \
     lua_getfield(L, LUA_REGISTRYINDEX, #C); \
     if (p == NULL || !lua_getmetatable(L, i) || !lua_rawequal(L, -1, -2)) p=NULL; \
     lua_pop(L, 2); \
     if (p) { lua_remove(L,i); return *p; }\
-    else return NULL;\
+    else return retval;\
 } \
 typedef int dummy##C
 
@@ -437,6 +440,7 @@ WSLUA_DECLARE_FUNCTIONS()
 
 extern lua_State* wslua_state(void);
 
+extern int wslua__concat(lua_State* L);
 extern gboolean wslua_optbool(lua_State* L, int n, gboolean def);
 extern const gchar* lua_shiftstring(lua_State* L,int idx);
 extern void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup);

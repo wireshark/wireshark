@@ -69,6 +69,17 @@ unittests_step_exntest() {
 	unittests_step_test
 }
 
+unittests_step_lua_int64_test() {
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/int64.lua > testout.txt 2>&1
+	# Tshark catches lua script failures, so we have to parse the output.
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		cat testout.txt
+		test_step_failed "didn't find pass marker"
+	fi
+}
+
 unittests_step_oids_test() {
 	DUT=$SOURCE_DIR/epan/oids_test
 	ARGS=
@@ -101,6 +112,7 @@ unittests_suite() {
 	test_step_set_pre unittests_cleanup_step
 	test_step_set_post unittests_cleanup_step
 	test_step_add "exntest" unittests_step_exntest
+	test_step_add "lua int64" unittests_step_lua_int64_test
 	test_step_add "oids_test" unittests_step_oids_test
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest

@@ -32,6 +32,19 @@
 #include <math.h>
 #include <epan/stat_cmd_args.h>
 
+
+WSLUA_API int wslua__concat(lua_State* L) {
+    /* Concatenate two objects to a string */
+    if (!luaL_callmeta(L,1,"__tostring"))
+        lua_pushvalue(L,1);
+    if (!luaL_callmeta(L,2,"__tostring"))
+        lua_pushvalue(L,2);
+
+    lua_concat(L,2);
+
+    return 1;
+}
+
 WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
     gboolean val = FALSE;
 

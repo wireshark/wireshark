@@ -18,6 +18,7 @@ MODULES = 	\
 	lua_bitop.c \
 	wslua_tvb.c \
 	wslua_proto.c \
+	wslua_int64.c \
 	wslua_tree.c \
 	wslua_pinfo.c \
 	wslua_listener.c \
@@ -37,6 +38,7 @@ OBJECTS= \
 	wslua_pinfo.obj \
 	wslua_proto.obj \
 	wslua_listener.obj \
+	wslua_int64.obj \
 	wslua_tree.obj \
 	wslua_tvb.obj \
 	wslua_util.obj

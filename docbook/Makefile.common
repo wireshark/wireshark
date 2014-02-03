@@ -262,6 +262,7 @@ WSLUA_MODULES = \
 	../epan/wslua/wslua_listener.c \
 	../epan/wslua/wslua_pinfo.c \
 	../epan/wslua/wslua_proto.c \
+	../epan/wslua/wslua_int64.c \
 	../epan/wslua/wslua_tree.c \
 	../epan/wslua/wslua_tvb.c \
 	../epan/wslua/wslua_util.c

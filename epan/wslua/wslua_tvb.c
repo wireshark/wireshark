@@ -575,18 +575,6 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 }
 #endif
 
-WSLUA_METAMETHOD wslua__concat(lua_State* L) {
-	/* Concatenate two objects to a string */
-    if (!luaL_callmeta(L,1,"__tostring"))
-        lua_pushvalue(L,1);
-    if (!luaL_callmeta(L,2,"__tostring"))
-        lua_pushvalue(L,2);
-
-    lua_concat(L,2);
-
-    return 1;
-}
-
 WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
 /*
   A TvbRange represents a usable range of a Tvb and is used to extract data from the Tvb that generated it
@@ -761,9 +749,7 @@ WSLUA_METHOD TvbRange_uint64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            UInt64 num = (UInt64)g_malloc(sizeof(guint64));
-            *num = tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
-            pushUInt64(L,num);
+            pushUInt64(L,tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1);
         }
         default:
@@ -793,9 +779,7 @@ WSLUA_METHOD TvbRange_le_uint64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            UInt64 num = (UInt64)g_malloc(sizeof(guint64));
-            *num = tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
-            pushUInt64(L,num);
+            pushUInt64(L,tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1);
         }
         default:
@@ -888,9 +872,7 @@ WSLUA_METHOD TvbRange_int64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            Int64 num = (Int64)g_malloc(sizeof(gint64));
-            *num = (gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset);
-            pushInt64(L,num);
+            pushInt64(L,(gint64)tvb_get_ntoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1);
         }
         default:
@@ -920,9 +902,7 @@ WSLUA_METHOD TvbRange_le_int64(lua_State* L) {
         case 6:
         case 7:
         case 8: {
-            Int64 num = (Int64)g_malloc(sizeof(gint64));
-            *num = (gint64)tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset);
-            pushInt64(L,num);
+            pushInt64(L,(gint64)tvb_get_letoh64(tvbr->tvb->ws_tvb,tvbr->offset));
             WSLUA_RETURN(1);
         }
         default:
@@ -1335,9 +1315,7 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
         lua_pushnumber(L,tvb_get_bits32(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
         return 1;
     } else if (len <= 64) {
-        UInt64 num = (UInt64)g_malloc(sizeof(guint64));
-        *num = tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE);
-        pushUInt64(L,num);
+        pushUInt64(L,tvb_get_bits64(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
         WSLUA_RETURN(1); /* The bitfield value */
     } else {
         luaL_error(L,"TvbRange:bitfield() does not handle %d bits",len);
@@ -1501,84 +1479,6 @@ int TvbRange_register(lua_State* L) {
     outstanding_Tvb = g_ptr_array_new();
     outstanding_TvbRange = g_ptr_array_new();
     WSLUA_REGISTER_CLASS(TvbRange);
-    return 0;
-}
-
-WSLUA_CLASS_DEFINE(Int64,FAIL_ON_NULL("null int64"),NOP);
-/*
-  Int64 represents a 64 bit integer.
-  Lua uses one single number representation which can be chosen at compile time and since
-  it is often set to IEEE 754 double precision floating point, we cannot store a 64 bit integer
-  with full precision.
-  For details, see: http://lua-users.org/wiki/FloatingPoint
- */
-
-WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
-	/* Converts the Int64 into a string */
-    Int64 num = checkInt64(L,1);
-    lua_pushstring(L,ep_strdup_printf("%" G_GINT64_MODIFIER "d",(gint64)*(num)));
-    return 1;
-}
-
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int Int64__gc(lua_State* L) {
-    Int64 num = checkInt64(L,1);
-
-    if (!num) return 0;
-
-    g_free(num);
-
-    return 0;
-}
-
-static const luaL_Reg Int64_methods[] = {
-    { NULL, NULL }
-};
-
-static const luaL_Reg Int64_meta[] = {
-    {"__tostring", Int64__tostring},
-    {"__concat", wslua__concat},
-    { NULL, NULL }
-};
-
-int Int64_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(Int64);
-    return 0;
-}
-
-WSLUA_CLASS_DEFINE(UInt64,FAIL_ON_NULL("null uint64"),NOP);
-	/* UInt64 represents a 64 bit unsigned integer. */
-
-WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
-	/* Converts the UInt64 into a string */
-    UInt64 num = checkUInt64(L,1);
-    lua_pushstring(L,ep_strdup_printf("%" G_GINT64_MODIFIER "u",(guint64)*(num)));
-    return 1;
-}
-
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int UInt64__gc(lua_State* L) {
-    UInt64 num = checkUInt64(L,1);
-
-    if (!num) return 0;
-
-    g_free(num);
-
-    return 0;
-}
-
-static const luaL_Reg UInt64_methods[] = {
-    { NULL, NULL }
-};
-
-static const luaL_Reg UInt64_meta[] = {
-    {"__tostring", UInt64__tostring},
-    {"__concat", wslua__concat},
-    { NULL, NULL }
-};
-
-int UInt64_register(lua_State* L) {
-    WSLUA_REGISTER_CLASS(UInt64);
     return 0;
 }
 
