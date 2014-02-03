@@ -173,7 +173,7 @@ void proto_register_ess(void) {
                                   sizeof(ess_category_attributes_t),
                                   "ess_category_attributes",
                                   TRUE,
-                                  (void**) &ess_category_attributes,
+                                  &ess_category_attributes,
                                   &num_ess_category_attributes,
                                   UAT_AFFECTS_DISSECTION, /* affects dissection of packets, but not set of named fields */
                                   "ChEssCategoryAttributes",
