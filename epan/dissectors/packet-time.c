@@ -77,7 +77,8 @@ dissect_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         guint32 delta_seconds = tvb_get_ntohl(tvb, 0);
         proto_tree_add_uint_format(time_tree, hf_time_time, tvb, 0, 4,
                 delta_seconds, "%s",
-                abs_time_secs_to_ep_str(delta_seconds-2208988800U, time_display_type, TRUE));
+                abs_time_secs_to_ep_str(delta_seconds-2208988800U,
+                    (absolute_time_display_e)time_display_type, TRUE));
     }
 }
 
