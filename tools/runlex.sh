@@ -37,12 +37,17 @@ then
 	exit 1
 fi
 
-if [ -n "${OS#Windows}" ] ; then
+case "$OS" in
+
+Windows*)
 	LEX=`cygpath --unix $1`
-        echo "$1 -> $LEX"
-else
+	echo "$1 -> $LEX"
+	;;
+
+*)
 	LEX="$1"
-fi
+	;;
+esac
 
 shift
 #
