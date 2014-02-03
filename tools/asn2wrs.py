@@ -2940,9 +2940,10 @@ class EthOut:
         out += '\n'
         # Make Windows path separator look like Unix path separator
         out = out.replace('\\', '/')
-        # Change abolute paths to paths relative to asn1/<proto> subdir
-        out = re.sub(r'(\s)/\S*(/tools/|/epan/)', r'\1../..\2', out)
-        out = re.sub(r'(\s)/\S*/asn1/\S*?([\s/])', r'\1.\2', out)
+        # Change absolute paths and relative paths generated outside
+        # source directory to paths relative to asn1/<proto> subdir.
+        out = re.sub(r'(\s)[./]\S*(/tools/|/epan/)', r'\1../..\2', out)
+        out = re.sub(r'(\s)[./]\S*/asn1/\S*?([\s/])', r'\1.\2', out)
         return out
 
     #--- dbg_print -------------------------------------------------------
