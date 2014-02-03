@@ -835,14 +835,11 @@ static void wimaxasncp_dissect_tlv_value(
     {
         if (tree)
         {
-            const guint8 *p;
             const gchar  *s = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
-
-            p = tvb_get_ptr(tvb, offset, length);
 
             proto_tree_add_string_format(
                 tree, tlv_info->hf_value,
-                tvb, offset, length, p,
+                tvb, offset, length, s,
                 "Value: %s", s);
 
             proto_item_append_text(
