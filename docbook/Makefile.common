@@ -161,7 +161,7 @@ WSUG_GRAPHICS =	\
 WSDG_FILES =	\
 	wsdg_src/WSDG_chapter_build_intro.asciidoc	\
 	wsdg_src/WSDG_chapter_capture.asciidoc		\
-	wsdg_src/WSDG_chapter_dissection.xml	\
+	wsdg_src/WSDG_chapter_dissection.asciidoc	\
 	wsdg_src/WSDG_chapter_env_intro.asciidoc	\
 	wsdg_src/WSDG_chapter_libraries.asciidoc	\
 	wsdg_src/WSDG_chapter_quick_setup.asciidoc	\
@@ -176,6 +176,7 @@ WSDG_FILES =	\
 WSDG_GENERATED_SOURCE = \
 	wsdg_src/WSDG_chapter_build_intro.xml	\
 	wsdg_src/WSDG_chapter_capture.xml	\
+	wsdg_src/WSDG_chapter_dissection.xml	\
 	wsdg_src/WSDG_chapter_env_intro.xml	\
 	wsdg_src/WSDG_chapter_libraries.xml	\
 	wsdg_src/WSDG_chapter_quick_setup.xml	\
