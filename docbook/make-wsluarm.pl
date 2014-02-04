@@ -108,7 +108,7 @@ sub {
 	$module{descr} = $2
 } ],
 
-[ 'WSLUA_CLASS_DEFINE\050\s*([A-Z][a-zA-Z0-9]+).*?\051;' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_CLASS_DEFINE(?:_BASE)?\050\s*([A-Z][a-zA-Z0-9]+).*?\051;' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">c=$1=$2=$3=$4=$5=$6=$7=\n";
 	$class = {
@@ -163,7 +163,7 @@ sub {
 	push @{${$class}{constructors}}, $function;
 } ],
 
-[ 'WSLUA_METHOD\s+([A-Za-z]+)_([a-z0-9_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_METHOD\s+([A-Za-z0-9]+)_([a-z0-9_]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = "$1";
@@ -180,7 +180,7 @@ sub {
 	push @{${$class}{methods}}, $function;
 } ],
 
-[ 'WSLUA_METAMETHOD\s+([A-Za-z]+)(__[a-z0-9]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
+[ 'WSLUA_METAMETHOD\s+([A-Za-z0-9]+)(__[a-z0-9]+)[^\173]*\173' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">cm=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = "$1";
@@ -198,7 +198,7 @@ sub {
 	push @{${$class}{methods}}, $function;
 } ],
 
-[ '#define WSLUA_(OPT)?ARG_([a-z0-9_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
+[ '#define WSLUA_(OPT)?ARG_([A-Za-z0-9_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = $1 eq 'OPT' ? "[$3]" : $3;
@@ -214,7 +214,7 @@ sub {
 	${${$function}{args}}{$name} = {descr=>$4,}
 } ],
 
-[ '#define WSLUA_(OPT)?ARG_([A-Za-z]+)_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
+[ '#define WSLUA_(OPT)?ARG_([A-Za-z0-9]+)_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
 sub {
 	deb ">ca=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = $1 eq 'OPT' ? "[$4]" : $4;
@@ -222,7 +222,7 @@ sub {
 	${${$function}{args}}{$name} = {descr=>$7,optional => $1 eq '' ? 1 : 0 }
 } ],
 
-[ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
+[ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z0-9]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
 sub {
 	deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = "$1";
@@ -272,7 +272,7 @@ sub {
 	push @{$errors}, gorolla($4);
 } ],
 
-[ 'WSLUA_(OPT)?ARG_ERROR\s*\050\s*(([A-Z][A-Za-z]+)_)?([a-z_]+)\s*,\s*([A-Z0-9]+)\s*,\s*' . $QUOTED_RE,
+[ 'WSLUA_(OPT)?ARG_ERROR\s*\050\s*(([A-Z][A-Za-z0-9]+)_)?([a-z_]+)\s*,\s*([A-Z0-9]+)\s*,\s*' . $QUOTED_RE,
 sub {
 	deb ">ae=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $errors;
