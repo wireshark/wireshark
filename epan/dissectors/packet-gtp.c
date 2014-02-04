@@ -3955,7 +3955,7 @@ decode_quintuplet(tvbuff_t * tvb, int offset, proto_tree * tree, guint16 count)
         ext_tree_quint = proto_item_add_subtree(te_quint, ett_gtp_quint);
 
 
-        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_ep_str(tvb, offset, 16));
+        proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 16, "RAND: %s", tvb_bytes_to_ep_str(tvb, offset + q_offset, 16));
         q_offset = q_offset + 16;
         xres_len = tvb_get_guint8(tvb, offset + q_offset);
         proto_tree_add_text(ext_tree_quint, tvb, offset + q_offset, 1, "XRES length: %u", xres_len);
