@@ -3668,8 +3668,8 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->session_id.data = ssl_session->_session_id;
     ssl_session->client_random.data = ssl_session->_client_random;
     ssl_session->server_random.data = ssl_session->_server_random;
-	ssl_session->session_ticket.data = ssl_session->_session_ticket;
-	ssl_session->session_ticket.data_len = 0;
+    ssl_session->session_ticket.data = ssl_session->_session_ticket;
+    ssl_session->session_ticket.data_len = 0;
     ssl_session->master_secret.data_len = 48;
     ssl_session->server_data_for_iv.data_len = 0;
     ssl_session->server_data_for_iv.data = ssl_session->_server_data_for_iv;
@@ -4805,13 +4805,13 @@ static gint
 ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len, gboolean is_client, SslDecryptSession *ssl)
 {
-	if(is_client && ssl && ext_len != 0)
-	{
-		/*save the ticket on the ssl opaque so that we can use it as key on server hello */
-		tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
-    	ssl->session_ticket.data_len = ext_len;
-	}
-	proto_tree_add_bytes_format(tree, hf->hf.hs_ext_data,
+    if(is_client && ssl && ext_len != 0)
+    {
+        /*save the ticket on the ssl opaque so that we can use it as key on server hello */
+        tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
+        ssl->session_ticket.data_len = ext_len;
+    }
+    proto_tree_add_bytes_format(tree, hf->hf.hs_ext_data,
                                 tvb, offset, ext_len, NULL,
                                 "Data (%u byte%s)",
                                 ext_len, plurality(ext_len, "", "s"));
@@ -5028,7 +5028,7 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
     guint16     ext_len;
     proto_item *pi;
     proto_tree *ext_tree;
-	
+
     if (left < 2)
         return offset;
 
@@ -5098,9 +5098,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += ext_len;
             break;
-		case SSL_HND_HELLO_EXT_SESSION_TICKET:
-			offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, is_client, ssl);
-			break;
+        case SSL_HND_HELLO_EXT_SESSION_TICKET:
+            offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, is_client, ssl);
+            break;
         default:
             proto_tree_add_bytes_format(ext_tree, hf->hf.hs_ext_data,
                                         tvb, offset, ext_len, NULL,

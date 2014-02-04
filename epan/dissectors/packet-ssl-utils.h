@@ -162,7 +162,7 @@
 #define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
 #define SSL_HND_HELLO_EXT_ALPN               0x0010
 #define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2  0x0011
-#define SSL_HND_HELLO_EXT_SESSION_TICKET	 0x0023
+#define SSL_HND_HELLO_EXT_SESSION_TICKET     0x0023
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
 #define SSL_HND_HELLO_EXT_NPN                0x3374
 #define SSL_HND_CERT_URL_TYPE_INDIVIDUAL_CERT       1
@@ -334,11 +334,11 @@ typedef struct {
 typedef struct _SslDecryptSession {
     guchar _master_secret[48];
     guchar _session_id[256];
-	guchar _session_ticket[1024];
+    guchar _session_ticket[1024];
     guchar _client_random[32];
     guchar _server_random[32];
     StringInfo session_id;
-	StringInfo session_ticket;
+    StringInfo session_ticket;
     StringInfo server_random;
     StringInfo client_random;
     StringInfo master_secret;
