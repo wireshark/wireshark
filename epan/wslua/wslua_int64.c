@@ -357,7 +357,7 @@ WSLUA_METHOD Int64_lshift(lua_State* L) {
     /* Returns a Int64 of the bitwise logical left-shift operation, by the given number of bits. */
 #define WSLUA_ARG_Int64_lshift_NUMBITS 2 /* The number of bits to left-shift by */
     guint64 b = (guint64) getInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_Int64_lshift_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_Int64_lshift_NUMBITS);
     pushInt64(L,(gint64)(b << n));
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -366,7 +366,7 @@ WSLUA_METHOD Int64_rshift(lua_State* L) {
     /* Returns a Int64 of the bitwise logical right-shift operation, by the given number of bits. */
 #define WSLUA_ARG_Int64_rshift_NUMBITS 2 /* The number of bits to right-shift by */
     guint64 b = (guint64) getInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_Int64_rshift_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_Int64_rshift_NUMBITS);
     pushInt64(L,(gint64)(b >> n));
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -375,7 +375,7 @@ WSLUA_METHOD Int64_arshift(lua_State* L) {
     /* Returns a Int64 of the bitwise arithmetic right-shift operation, by the given number of bits. */
 #define WSLUA_ARG_Int64_arshift_NUMBITS 2 /* The number of bits to right-shift by */
     gint64 b = getInt64(L,1);
-    gint32 n = luaL_checknumber(L,WSLUA_ARG_Int64_arshift_NUMBITS);
+    gint32 n = (gint32) luaL_checknumber(L,WSLUA_ARG_Int64_arshift_NUMBITS);
     pushInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -384,7 +384,7 @@ WSLUA_METHOD Int64_rol(lua_State* L) {
     /* Returns a Int64 of the bitwise left rotation operation, by the given number of bits (up to 63). */
 #define WSLUA_ARG_Int64_rol_NUMBITS 2 /* The number of bits to roll left by */
     guint64 b = (guint64) getInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_Int64_rol_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_Int64_rol_NUMBITS);
     pushInt64(L,(gint64)((b << n) | (b >> (64-n))));
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -393,7 +393,7 @@ WSLUA_METHOD Int64_ror(lua_State* L) {
     /* Returns a Int64 of the bitwise right rotation operation, by the given number of bits (up to 63). */
 #define WSLUA_ARG_Int64_ror_NUMBITS 2 /* The number of bits to roll right by */
     guint64 b = (guint64) getInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_Int64_ror_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_Int64_ror_NUMBITS);
     pushInt64(L,(gint64)((b << (64-n)) | (b >> n)));
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -475,7 +475,7 @@ static guint64 getUInt64(lua_State *L, int i)
     switch (lua_type(L,i))
     {
         case LUA_TNUMBER:
-            return luaL_checknumber(L,i);
+            return (guint64) luaL_checknumber(L,i);
         case LUA_TSTRING:
             return g_ascii_strtoull(luaL_checkstring(L,i), &end, 10);
         case LUA_TUSERDATA:
@@ -769,7 +769,7 @@ WSLUA_METHOD UInt64_lshift(lua_State* L) {
     /* Returns a UInt64 of the bitwise logical left-shift operation, by the given number of bits. */
 #define WSLUA_ARG_UInt64_lshift_NUMBITS 2 /* The number of bits to left-shift by */
     guint64 b = getUInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_UInt64_lshift_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_UInt64_lshift_NUMBITS);
     pushUInt64(L,(b << n));
     WSLUA_RETURN(1); /* The UInt64 object */
 }
@@ -778,7 +778,7 @@ WSLUA_METHOD UInt64_rshift(lua_State* L) {
     /* Returns a UInt64 of the bitwise logical right-shift operation, by the given number of bits. */
 #define WSLUA_ARG_UInt64_rshift_NUMBITS 2 /* The number of bits to right-shift by */
     guint64 b = getUInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_UInt64_rshift_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_UInt64_rshift_NUMBITS);
     pushUInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The UInt64 object */
 }
@@ -787,7 +787,7 @@ WSLUA_METHOD UInt64_arshift(lua_State* L) {
     /* Returns a UInt64 of the bitwise arithmetic right-shift operation, by the given number of bits. */
 #define WSLUA_ARG_UInt64_arshift_NUMBITS 2 /* The number of bits to right-shift by */
     guint64 b = getUInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_UInt64_arshift_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_UInt64_arshift_NUMBITS);
     pushUInt64(L,(b >> n));
     WSLUA_RETURN(1); /* The UInt64 object */
 }
@@ -796,7 +796,7 @@ WSLUA_METHOD UInt64_rol(lua_State* L) {
     /* Returns a UInt64 of the bitwise left rotation operation, by the given number of bits (up to 63). */
 #define WSLUA_ARG_UInt64_rol_NUMBITS 2 /* The number of bits to roll left by */
     guint64 b = getUInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_UInt64_rol_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_UInt64_rol_NUMBITS);
     pushUInt64(L,((b << n) | (b >> (64-n))));
     WSLUA_RETURN(1); /* The UInt64 object */
 }
@@ -805,7 +805,7 @@ WSLUA_METHOD UInt64_ror(lua_State* L) {
     /* Returns a UInt64 of the bitwise right rotation operation, by the given number of bits (up to 63). */
 #define WSLUA_ARG_UInt64_ror_NUMBITS 2 /* The number of bits to roll right by */
     guint64 b = getUInt64(L,1);
-    guint32 n = luaL_checknumber(L,WSLUA_ARG_UInt64_ror_NUMBITS);
+    guint32 n = (guint32) luaL_checknumber(L,WSLUA_ARG_UInt64_ror_NUMBITS);
     pushUInt64(L,((b << (64-n)) | (b >> n)));
     WSLUA_RETURN(1); /* The UInt64 object */
 }
