@@ -1199,6 +1199,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL);
@@ -1230,7 +1231,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
+
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1241,6 +1244,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL);
@@ -1271,7 +1275,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
+
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1299,6 +1305,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1314,6 +1321,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (message_type == MESSAGE_TYPE_REJECT) {
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1324,6 +1332,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1339,6 +1348,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (message_type == MESSAGE_TYPE_REJECT) {
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1349,6 +1359,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
@@ -1361,6 +1372,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
 
@@ -1380,6 +1392,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
                 break;
             }
             break;
