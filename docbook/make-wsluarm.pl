@@ -102,7 +102,7 @@ my @control =
 (
 # This will be scanned in order trying to match the re if it matches
 # the body will be executed immediatelly after.
-[ 'WSLUA_MODULE\s*([A-Z][a-zA-Z]+)([^\*]*)',
+[ 'WSLUA_MODULE\s*([A-Z][a-zA-Z0-9]+)([^\*]*)',
 sub {
 	$module{name} = $1;
 	$module{descr} = $2
