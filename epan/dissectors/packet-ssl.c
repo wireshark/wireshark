@@ -2256,11 +2256,11 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
                     ssl_debug_printf("  found master secret in keylog file\n");
                 }
             }
-			/* if the session_ids match, then there is a chance that we need to restore a session_ticket */
-			if(ssl->session_ticket.data_len != 0)
-			{
-				ssl_restore_session_ticket(ssl, ssl_session_hash);
-			}
+            /* if the session_ids match, then there is a chance that we need to restore a session_ticket */
+            if(ssl->session_ticket.data_len != 0)
+            {
+                ssl_restore_session_ticket(ssl, ssl_session_hash);
+            }
         } else {
             tvb_memcpy(tvb,ssl->session_id.data, offset+33, session_id_length);
             ssl->session_id.data_len = session_id_length;
@@ -2341,9 +2341,9 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
         /* tell the user how many cipher suites there are */
         cipher_suite_length = tvb_get_ntohs(tvb, offset);
 
-		/* even if there's no tree, we'll have to dissect the whole record to get to the extensions.
-		 * we will continue with tree==NULL */
-		
+        /* even if there's no tree, we'll have to dissect the whole record to get to the extensions.
+         * we will continue with tree==NULL */
+
         proto_tree_add_uint(tree, hf_ssl_handshake_cipher_suites_len,
                         tvb, offset, 2, cipher_suite_length);
         offset += 2;            /* skip opaque length */
@@ -2511,7 +2511,7 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
     guint       nst_len;
     proto_item *ti;
     proto_tree *subtree;
-	guint16 session_ticket_length = 0;
+    guint16 session_ticket_length = 0;
 
     nst_len = tvb_get_ntohs(tvb, offset+4);
     if (6 + nst_len != length) {
@@ -2525,18 +2525,18 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
                         tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-	
-	session_ticket_length = tvb_get_ntohs(tvb, offset);
+
+    session_ticket_length = tvb_get_ntohs(tvb, offset);
     proto_tree_add_uint(subtree, hf_ssl_handshake_session_ticket_len,
         tvb, offset, 2, nst_len);
-	offset += 2;
+    offset += 2;
 
-	/* save the session ticket to cache */
-	if(ssl){
-		tvb_memcpy(tvb,ssl->session_ticket.data, offset, session_ticket_length);
-		ssl->session_ticket.data_len = session_ticket_length;
-		ssl_save_session_ticket(ssl, ssl_session_hash);
-	}
+    /* save the session ticket to cache */
+    if(ssl){
+        tvb_memcpy(tvb,ssl->session_ticket.data, offset, session_ticket_length);
+        ssl->session_ticket.data_len = session_ticket_length;
+        ssl_save_session_ticket(ssl, ssl_session_hash);
+    }
 
     /* Content depends on implementation, so just show data! */
     proto_tree_add_item(subtree, hf_ssl_handshake_session_ticket,
