@@ -181,9 +181,11 @@ LUALIB_API int luaopen_bit(lua_State *L)
   }
 #if LUA_VERSION_NUM < 502
   luaL_register(L, "bit", bit_funcs);
+  return 1;
 #else
   luaL_newlib(L, bit_funcs);
+  lua_setglobal(L, "bit"); /* added for wireshark */
+  return 0; /* changed from 1 to 0 for wireshark, since lua_setglobal now pops the table */
 #endif
-  return 1;
 }
 
