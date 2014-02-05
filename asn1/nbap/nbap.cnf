@@ -1680,6 +1680,11 @@ nbap_edch_channel_info[e_dch_macdflow_id].no_ddi_entries = num_items;
             break;
         }
 
+
+# Reset num_items before calling the sequence
+#.FN_HDR HSDSCH-MACdFlows-to-Delete
+    num_items = 0;
+
 # Make sure num_items isn't 0 when accessing HSDSCH-MACdFlow-ID
 #
 #.FN_HDR HSDSCH-MACdFlows-to-Delete-Item
