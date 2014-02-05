@@ -2978,11 +2978,10 @@ Samu Varjonen		<samu.varjonen[AT]hiit.fi> {
 
 Alexis La Goutte	<alexis.lagoutte[AT]gmail.com> {
 	Add FT_EUI64 Field Type
-	Aruba ERM dissector
+	Aruba ERM, IAP, PAPI dissector
 	ATMTCP dissector
 	CAPWAP dissector
 	HTTP2 dissector
-	PAPI dissector
 	QUIC dissector
 	MONGO dissector
 	WebSocket dissector
