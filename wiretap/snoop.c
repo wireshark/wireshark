@@ -656,8 +656,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	 */
 	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS &&
 	    phdr->pseudo_header.atm.type == TRAF_LANE) {
-		atm_guess_lane_type(buffer_start_ptr(buf), packet_size,
-		    &phdr->pseudo_header);
+		atm_guess_lane_type(phdr, buffer_start_ptr(buf));
 	}
 
 	return rec_size - ((guint)sizeof hdr + packet_size);

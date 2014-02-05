@@ -443,8 +443,8 @@ netmon_trailer_size(netmon_t *netmon)
 }
 
 static void
-netmon_set_pseudo_header_info(int pkt_encap,
-    union wtap_pseudo_header *pseudo_header, Buffer *buf, int length)
+netmon_set_pseudo_header_info(int pkt_encap, struct wtap_pkthdr *phdr,
+    Buffer *buf)
 {
 	guint8 *pd = buffer_start_ptr(buf);
 
@@ -453,16 +453,16 @@ netmon_set_pseudo_header_info(int pkt_encap,
 	case WTAP_ENCAP_ATM_PDUS:
 		/*
 		 * Attempt to guess from the packet data, the VPI, and
-		 * the VCIinformation about the type of traffic.
+		 * the VCI information about the type of traffic.
 		 */
-		atm_guess_traffic_type(pd, length, pseudo_header);
+		atm_guess_traffic_type(phdr, pd);
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
 		/*
 		 * We assume there's no FCS in this frame.
 		 */
-		pseudo_header->eth.fcs_len = 0;
+		phdr->pseudo_header.eth.fcs_len = 0;
 		break;
 
 	case WTAP_ENCAP_IEEE_802_11_NETMON:
@@ -472,8 +472,8 @@ netmon_set_pseudo_header_info(int pkt_encap,
 		 * I'm not sure about control frames.  An
 		 * "FCS length" of -2 means "NetMon weirdness".
 		 */
-		pseudo_header->ieee_802_11.fcs_len = -2;
-		pseudo_header->ieee_802_11.decrypted = FALSE;
+		phdr->pseudo_header.ieee_802_11.fcs_len = -2;
+		phdr->pseudo_header.ieee_802_11.decrypted = FALSE;
 		break;
 	}
 }
@@ -740,8 +740,8 @@ again:
 		return FALSE;
 	}
 
-	netmon_set_pseudo_header_info(wth->phdr.pkt_encap,
-	    &wth->phdr.pseudo_header, wth->frame_buffer, wth->phdr.caplen);
+	netmon_set_pseudo_header_info(wth->phdr.pkt_encap, &wth->phdr,
+	    wth->frame_buffer);
 	return TRUE;
 }
 
@@ -787,8 +787,7 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 		return FALSE;
 	}
 
-	netmon_set_pseudo_header_info(phdr->pkt_encap,
-	    &phdr->pseudo_header, buf, phdr->caplen);
+	netmon_set_pseudo_header_info(phdr->pkt_encap, phdr, buf);
 
 	return TRUE;
 }

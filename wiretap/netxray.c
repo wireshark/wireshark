@@ -1642,8 +1642,7 @@ netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr, Buffer *buf)
 			 * on the VPI/VCI and packet contents.
 			 */
 			pd = buffer_start_ptr(buf);
-			atm_guess_traffic_type(pd, phdr->caplen,
-			    &phdr->pseudo_header);
+			atm_guess_traffic_type(phdr, pd);
 		} else if (phdr->pseudo_header.atm.aal == AAL_5 &&
 		    phdr->pseudo_header.atm.type == TRAF_LANE) {
 			/*
@@ -1651,8 +1650,7 @@ netxray_guess_atm_type(wtap *wth, struct wtap_pkthdr *phdr, Buffer *buf)
 			 * packet contents.
 			 */
 			pd = buffer_start_ptr(buf);
-			atm_guess_lane_type(pd, phdr->caplen,
-			    &phdr->pseudo_header);
+			atm_guess_lane_type(phdr, pd);
 		}
 	}
 }

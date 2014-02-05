@@ -32,11 +32,9 @@
  */
 
 extern void
-atm_guess_traffic_type(const guint8 *pd, guint32 len,
-    union wtap_pseudo_header *pseudo_header);
+atm_guess_traffic_type(struct wtap_pkthdr *phdr, const guint8 *pd);
 
 extern void
-atm_guess_lane_type(const guint8 *pd, guint32 len,
-    union wtap_pseudo_header *pseudo_header);
+atm_guess_lane_type(struct wtap_pkthdr *phdr, const guint8 *pd);
 
 #endif /* __ATM_H__ */

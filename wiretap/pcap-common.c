@@ -1185,113 +1185,122 @@ struct usb_device_setup_hdr {
 	    sizeof(*fieldp))
 
 static void
-pcap_process_linux_usb_pseudoheader(guint packet_size, gboolean byte_swapped,
-    gboolean header_len_64_bytes, guint8 *pd)
+pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
+    gboolean header_len_64_bytes)
 {
-	struct linux_usb_phdr *phdr;
+	guint packet_size;
+	struct linux_usb_phdr *usb_phdr;
 	struct linux_usb_isodesc *pisodesc;
 	gint32 iso_numdesc, i;
 
-	if (byte_swapped) {
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = phdr->caplen;
+	if (packet_size > phdr->len)
+		packet_size = phdr->len;
+
+	/*
+	 * Greasy hack, but we never directly dereference any of
+	 * the fields in *usb_phdr, we just get offsets of and
+	 * addresses of its members and byte-swap it with a
+	 * byte-at-a-time macro, so it's alignment-safe.
+	 */
+	usb_phdr = (struct linux_usb_phdr *)(void *)pd;
+
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->id))
+		return;
+	PBSWAP64((guint8 *)&usb_phdr->id);
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->bus_id))
+		return;
+	PBSWAP16((guint8 *)&usb_phdr->bus_id);
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->ts_sec))
+		return;
+	PBSWAP64((guint8 *)&usb_phdr->ts_sec);
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->ts_usec))
+		return;
+	PBSWAP32((guint8 *)&usb_phdr->ts_usec);
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->status))
+		return;
+	PBSWAP32((guint8 *)&usb_phdr->status);
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->urb_len))
+		return;
+	PBSWAP32((guint8 *)&usb_phdr->urb_len);
+	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->data_len))
+		return;
+	PBSWAP32((guint8 *)&usb_phdr->data_len);
+
+	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
+		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->s.iso.error_count))
+			return;
+		PBSWAP32((guint8 *)&usb_phdr->s.iso.error_count);
+
+		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->s.iso.numdesc))
+			return;
+		PBSWAP32((guint8 *)&usb_phdr->s.iso.numdesc);
+	}
+
+	if (header_len_64_bytes) {
 		/*
-		 * Greasy hack, but we never directly direference any of
-		 * the fields in *phdr, we just get offsets of and
-		 * addresses of its members, so it's safe.
+		 * This is either the "version 1" header, with
+		 * 16 bytes of additional fields at the end, or
+		 * a "version 0" header from a memory-mapped
+		 * capture, with 16 bytes of zeroed-out padding
+		 * at the end.  Byte swap them as if this were
+		 * a "version 1" header.
+		 *
+		 * Yes, the first argument to END_OFFSETOF() should
+		 * be usb_phdr, not usb_phdr_ext; we want the offset of
+		 * the additional fields from the beginning of
+		 * the packet.
 		 */
-		phdr = (struct linux_usb_phdr *)(void *)pd;
+		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->interval))
+			return;
+		PBSWAP32((guint8 *)&usb_phdr->interval);
+		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->start_frame))
+			return;
+		PBSWAP32((guint8 *)&usb_phdr->start_frame);
+		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->xfer_flags))
+			return;
+		PBSWAP32((guint8 *)&usb_phdr->xfer_flags);
+		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->ndesc))
+			return;
+		PBSWAP32((guint8 *)&usb_phdr->ndesc);
+	}
 
-		if (packet_size < END_OFFSETOF(phdr, &phdr->id))
-			return;
-		PBSWAP64((guint8 *)&phdr->id);
-		if (packet_size < END_OFFSETOF(phdr, &phdr->bus_id))
-			return;
-		PBSWAP16((guint8 *)&phdr->bus_id);
-		if (packet_size < END_OFFSETOF(phdr, &phdr->ts_sec))
-			return;
-		PBSWAP64((guint8 *)&phdr->ts_sec);
-		if (packet_size < END_OFFSETOF(phdr, &phdr->ts_usec))
-			return;
-		PBSWAP32((guint8 *)&phdr->ts_usec);
-		if (packet_size < END_OFFSETOF(phdr, &phdr->status))
-			return;
-		PBSWAP32((guint8 *)&phdr->status);
-		if (packet_size < END_OFFSETOF(phdr, &phdr->urb_len))
-			return;
-		PBSWAP32((guint8 *)&phdr->urb_len);
-		if (packet_size < END_OFFSETOF(phdr, &phdr->data_len))
-			return;
-		PBSWAP32((guint8 *)&phdr->data_len);
+	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
+		/* swap the values in struct linux_usb_isodesc */
 
-		if (phdr->transfer_type == URB_ISOCHRONOUS) {
-			if (packet_size < END_OFFSETOF(phdr, &phdr->s.iso.error_count))
-				return;
-			PBSWAP32((guint8 *)&phdr->s.iso.error_count);
-
-			if (packet_size < END_OFFSETOF(phdr, &phdr->s.iso.numdesc))
-				return;
-			PBSWAP32((guint8 *)&phdr->s.iso.numdesc);
-
-		}
-
+		/*
+		 * See previous "Greasy hack" comment.
+		 */
 		if (header_len_64_bytes) {
-			/*
-			 * This is either the "version 1" header, with
-			 * 16 bytes of additional fields at the end, or
-			 * a "version 0" header from a memory-mapped
-			 * capture, with 16 bytes of zeroed-out padding
-			 * at the end.  Byte swap them as if this were
-			 * a "version 1" header.
-			 *
-			 * Yes, the first argument to END_OFFSETOF() should
-			 * be phdr, not phdr_ext; we want the offset of
-			 * the additional fields from the beginning of
-			 * the packet.
-			 */
-			if (packet_size < END_OFFSETOF(phdr, &phdr->interval))
-				return;
-			PBSWAP32((guint8 *)&phdr->interval);
-			if (packet_size < END_OFFSETOF(phdr, &phdr->start_frame))
-				return;
-			PBSWAP32((guint8 *)&phdr->start_frame);
-			if (packet_size < END_OFFSETOF(phdr, &phdr->xfer_flags))
-				return;
-			PBSWAP32((guint8 *)&phdr->xfer_flags);
-			if (packet_size < END_OFFSETOF(phdr, &phdr->ndesc))
-				return;
-			PBSWAP32((guint8 *)&phdr->ndesc);
+			pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 64);
+		} else {
+			pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 48);
 		}
-
-		if (phdr->transfer_type == URB_ISOCHRONOUS) {
-			/* swap the values in struct linux_usb_isodesc */
-
+		iso_numdesc = usb_phdr->s.iso.numdesc;
+		for (i = 0; i < iso_numdesc; i++) {
 			/*
-			 * See previous "Greasy hack" comment.
+			 * Always check if we have enough data from the
+			 * beginning of the packet (usb_phdr).
 			 */
-			if (header_len_64_bytes) {
-				pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 64);
-			} else {
-				pisodesc = (struct linux_usb_isodesc*)(void *)(pd + 48);
-			}
-			iso_numdesc = phdr->s.iso.numdesc;
-			for (i = 0; i < iso_numdesc; i++) {
-				/* always check if we have enough data from the
-				 * beginnig of the packet (phdr)
-				 */
-				if (packet_size < END_OFFSETOF(phdr, &pisodesc->iso_status))
-					return;
-				PBSWAP32((guint8 *)&pisodesc->iso_status);
-				if (packet_size < END_OFFSETOF(phdr, &pisodesc->iso_off))
-					return;
-				PBSWAP32((guint8 *)&pisodesc->iso_off);
-				if (packet_size < END_OFFSETOF(phdr, &pisodesc->iso_len))
-					return;
-				PBSWAP32((guint8 *)&pisodesc->iso_len);
-				if (packet_size < END_OFFSETOF(phdr, &pisodesc->_pad))
-					return;
-				PBSWAP32((guint8 *)&pisodesc->_pad);
+			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->iso_status))
+				return;
+			PBSWAP32((guint8 *)&pisodesc->iso_status);
+			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->iso_off))
+				return;
+			PBSWAP32((guint8 *)&pisodesc->iso_off);
+			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->iso_len))
+				return;
+			PBSWAP32((guint8 *)&pisodesc->iso_len);
+			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->_pad))
+				return;
+			PBSWAP32((guint8 *)&pisodesc->_pad);
 
-				pisodesc++;
-			}
+			pisodesc++;
 		}
 	}
 }
@@ -1790,8 +1799,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 
 void
 pcap_read_post_process(int file_type, int wtap_encap,
-    union wtap_pseudo_header *pseudo_header,
-    guint8 *pd, guint packet_size, gboolean bytes_swapped, int fcs_len)
+    struct wtap_pkthdr *phdr, guint8 *pd, gboolean bytes_swapped, int fcs_len)
 {
 	switch (wtap_encap) {
 
@@ -1803,7 +1811,7 @@ pcap_read_post_process(int file_type, int wtap_encap,
 			 * Guess the traffic type based on the packet
 			 * contents.
 			 */
-			atm_guess_traffic_type(pd, packet_size, pseudo_header);
+			atm_guess_traffic_type(phdr, pd);
 		} else {
 			/*
 			 * SunATM.
@@ -1812,24 +1820,23 @@ pcap_read_post_process(int file_type, int wtap_encap,
 			 * type of LANE traffic it is based on the packet
 			 * contents.
 			 */
-			if (pseudo_header->atm.type == TRAF_LANE)
-				atm_guess_lane_type(pd, packet_size,
-				    pseudo_header);
+			if (phdr->pseudo_header.atm.type == TRAF_LANE)
+				atm_guess_lane_type(phdr, pd);
 		}
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
-		pseudo_header->eth.fcs_len = fcs_len;
+		phdr->pseudo_header.eth.fcs_len = fcs_len;
 		break;
 
 	case WTAP_ENCAP_USB_LINUX:
-		pcap_process_linux_usb_pseudoheader(packet_size,
-		    bytes_swapped, FALSE, pd);
+		if (bytes_swapped)
+			pcap_byteswap_linux_usb_pseudoheader(phdr, pd, FALSE);
 		break;
 
 	case WTAP_ENCAP_USB_LINUX_MMAPPED:
-		pcap_process_linux_usb_pseudoheader(packet_size,
-		    bytes_swapped, TRUE, pd);
+		if (bytes_swapped)
+			pcap_byteswap_linux_usb_pseudoheader(phdr, pd, TRUE);
 		break;
 
 	case WTAP_ENCAP_NETANALYZER:
@@ -1838,7 +1845,7 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		 * dissector calls the "Ethernet with FCS"
 		 * dissector, but we might as well set it.
 		 */
-		pseudo_header->eth.fcs_len = 4;
+		phdr->pseudo_header.eth.fcs_len = 4;
 		break;
 
 	default:

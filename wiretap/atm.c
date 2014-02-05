@@ -34,35 +34,34 @@
  */
 
 void
-atm_guess_traffic_type(const guint8 *pd, guint32 len,
-    union wtap_pseudo_header *pseudo_header)
+atm_guess_traffic_type(struct wtap_pkthdr *phdr, const guint8 *pd)
 {
 	/*
 	 * Start out assuming nothing other than that it's AAL5.
 	 */
-	pseudo_header->atm.aal = AAL_5;
-	pseudo_header->atm.type = TRAF_UNKNOWN;
-	pseudo_header->atm.subtype = TRAF_ST_UNKNOWN;
+	phdr->pseudo_header.atm.aal = AAL_5;
+	phdr->pseudo_header.atm.type = TRAF_UNKNOWN;
+	phdr->pseudo_header.atm.subtype = TRAF_ST_UNKNOWN;
 
-	if (pseudo_header->atm.vpi == 0) {
+	if (phdr->pseudo_header.atm.vpi == 0) {
 		/*
 		 * Traffic on some PVCs with a VPI of 0 and certain
 		 * VCIs is of particular types.
 		 */
-		switch (pseudo_header->atm.vci) {
+		switch (phdr->pseudo_header.atm.vci) {
 
 		case 5:
 			/*
 			 * Signalling AAL.
 			 */
-			pseudo_header->atm.aal = AAL_SIGNALLING;
+			phdr->pseudo_header.atm.aal = AAL_SIGNALLING;
 			return;
 
 		case 16:
 			/*
 			 * ILMI.
 			 */
-			pseudo_header->atm.type = TRAF_ILMI;
+			phdr->pseudo_header.atm.type = TRAF_ILMI;
 			return;
 		}
 	}
@@ -73,21 +72,21 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 	 * to guess.
 	 */
 
-	if (len >= 3) {
+	if (phdr->caplen >= 3) {
 		if (pd[0] == 0xaa && pd[1] == 0xaa && pd[2] == 0x03) {
 			/*
 			 * Looks like a SNAP header; assume it's LLC
 			 * multiplexed RFC 1483 traffic.
 			 */
-			pseudo_header->atm.type = TRAF_LLCMX;
-		} else if ((pseudo_header->atm.aal5t_len &&
-			pseudo_header->atm.aal5t_len < 16) || len<16) {
+			phdr->pseudo_header.atm.type = TRAF_LLCMX;
+		} else if ((phdr->pseudo_header.atm.aal5t_len && phdr->pseudo_header.atm.aal5t_len < 16) ||
+		    phdr->caplen < 16) {
 			/*
 			 * As this cannot be a LANE Ethernet frame (less
 			 * than 2 bytes of LANE header + 14 bytes of
 			 * Ethernet header) we can try it as a SSCOP frame.
 			 */
-			pseudo_header->atm.aal = AAL_SIGNALLING;
+			phdr->pseudo_header.atm.aal = AAL_SIGNALLING;
 		} else if (pd[0] == 0x83 || pd[0] == 0x81) {
 			/*
 			 * MTP3b headers often encapsulate
@@ -95,33 +94,32 @@ atm_guess_traffic_type(const guint8 *pd, guint32 len,
 			 * This should cause 0x83 or 0x81
 			 * in the first byte.
 			 */
-			pseudo_header->atm.aal = AAL_SIGNALLING;
+			phdr->pseudo_header.atm.aal = AAL_SIGNALLING;
 		} else {
 			/*
 			 * Assume it's LANE.
 			 */
-			pseudo_header->atm.type = TRAF_LANE;
-			atm_guess_lane_type(pd, len, pseudo_header);
+			phdr->pseudo_header.atm.type = TRAF_LANE;
+			atm_guess_lane_type(phdr, pd);
 		}
 	} else {
 	       /*
 		* Not only VCI 5 is used for signaling. It might be
 		* one of these VCIs.
 		*/
-	       pseudo_header->atm.aal = AAL_SIGNALLING;
+	       phdr->pseudo_header.atm.aal = AAL_SIGNALLING;
 	}
 }
 
 void
-atm_guess_lane_type(const guint8 *pd, guint32 len,
-    union wtap_pseudo_header *pseudo_header)
+atm_guess_lane_type(struct wtap_pkthdr *phdr, const guint8 *pd)
 {
-	if (len >= 2) {
+	if (phdr->caplen >= 2) {
 		if (pd[0] == 0xff && pd[1] == 0x00) {
 			/*
 			 * Looks like LE Control traffic.
 			 */
-			pseudo_header->atm.subtype = TRAF_ST_LANE_LE_CTRL;
+			phdr->pseudo_header.atm.subtype = TRAF_ST_LANE_LE_CTRL;
 		} else {
 			/*
 			 * XXX - Ethernet, or Token Ring?
@@ -131,7 +129,7 @@ atm_guess_lane_type(const guint8 *pd, guint32 len,
 			 * still be situations where the user has to
 			 * tell us.
 			 */
-			pseudo_header->atm.subtype = TRAF_ST_LANE_802_3;
+			phdr->pseudo_header.atm.subtype = TRAF_ST_LANE_802_3;
 		}
 	}
 }
