@@ -160,30 +160,30 @@ sub read_repo_info {
 			use warnings "all";
 			no warnings "all";
 
-			chomp($line = qx{git log -1 --pretty=format:%at});
+			chomp($line = qx{git --git-dir=$srcdir/.git log -1 --pretty=format:%at});
 			if (defined($line)) {
 				$last_change = $line;
 			}
 
 			# Commits in current (master-1.8) branch. We may want to use
 			# a different number.
-			chomp($line = qx{git rev-list --count ea19c7f952ce9fc53fe4c223f1d9d6797346258b..HEAD});
+			chomp($line = qx{git --git-dir=$srcdir/.git rev-list --count ea19c7f952ce9fc53fe4c223f1d9d6797346258b..HEAD});
 			if (defined($line)) {
 				$revision = $line;
 			}
 
-			chomp($line = qx{git ls-remote --get-url origin});
+			chomp($line = qx{git --git-dir=$srcdir/.git ls-remote --get-url origin});
 			if (defined($line)) {
 				$repo_url = $line;
 			}
 
 			# Probably not quite what we're looking for
-			chomp($line = qx{git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
+			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if (defined($line)) {
 				$repo_path = basename($line);
 			}
 
-			chomp($line = qx{git describe --dirty --match "v*"});
+			chomp($line = qx{git --git-dir=$srcdir/.git describe --dirty --match "v*"});
 			if (defined($line)) {
 				$git_description = "wireshark-" . substr($line, 1);
 			}
