@@ -1207,6 +1207,7 @@ DISSECTOR_SRC = \
 	packet-vmlab.c		\
 	packet-vnc.c		\
 	packet-vntag.c		\
+	packet-vp8.c		\
 	packet-vrrp.c		\
 	packet-vrt.c        \
 	packet-vssmonitoring.c	\
