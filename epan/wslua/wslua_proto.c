@@ -629,6 +629,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
 #define WSLUA_OPTARG_ProtoField_new_DESCR 7 /* The description of the field.  */
 
     ProtoField f;
+    int nargs = lua_gettop(L);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_ProtoField_new_NAME);
     const gchar* abbr = luaL_checkstring(L,WSLUA_ARG_ProtoField_new_ABBR);
     enum ftenum type;
@@ -688,7 +689,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"This type does not display as hexadecimal");
         }
-        if (!lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING)) {
+        if (nargs >= WSLUA_OPTARG_ProtoField_new_VOIDSTRING && !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING)) {
             if (type == FT_UINT64 || type == FT_INT64) {
                 WSLUA_OPTARG_ERROR(ProtoField_new,VOIDSTRING,"This type does not support value string");
                 return 0;
@@ -704,7 +705,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         if (mask != 0x0 && (base < 1 || base > 64)) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be between 1 and 64 if bitmask is non-zero.");
         }
-        if (!lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING)) {
+        if (nargs >= WSLUA_OPTARG_ProtoField_new_VOIDSTRING && !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING)) {
             tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VOIDSTRING);
         }
         break;
