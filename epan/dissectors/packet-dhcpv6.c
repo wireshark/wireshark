@@ -1078,21 +1078,17 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
                 /* Validate KRB Realm name encoding (sort of) and syntax per RFCs 3495, 1510, and 1035 */
                 for (cnt=0; cnt < len_cnt-2; cnt++) {
                     kr_value = (int) wmem_strbuf_get_str(strbuf)[cnt];
-                    if ((kr_value >= 65 && kr_value <= 90)
-                        || kr_value == 34
-                        || kr_value == 44
-                        || kr_value == 46
-                        || kr_value == 47
-                        || kr_value == 58
-                        || kr_value == 61
-                        || kr_value == 92) {
+                    if ((kr_value >= 'A' && kr_value <= 'Z')
+                        || (kr_value >= '0' && kr_value <= '9')
+                        || kr_value == '.'
+                        || kr_value == '-') {
                     } else if (!kr_fail_flag) {
                         kr_pos = cnt;
                         kr_fail_flag = 1;
                     }
                 }
                 if (kr_fail_flag)
-                    expert_add_info_format(pinfo, pi_tmp, &ei_dhcpv6_invalid_byte, "Invalid at byte=%d", kr_pos);
+                    expert_add_info_format(pinfo, pi_tmp, &ei_dhcpv6_invalid_byte, "Invalid at byte offset=%d", kr_pos);
             }
             suboptoff += subopt_len;
             break;
@@ -2529,7 +2525,7 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_bogus_length, { "dhcpv6.bogus_length", PI_MALFORMED, PI_ERROR, "Bogus length", EXPFILL }},
         { &ei_dhcpv6_malformed_option, { "dhcpv6.malformed_option", PI_MALFORMED, PI_ERROR, "Malformed option", EXPFILL }},
         { &ei_dhcpv6_no_suboption_len, { "dhcpv6.no_suboption_len", PI_PROTOCOL, PI_WARN, "no room left in option for suboption length", EXPFILL }},
-        { &ei_dhcpv6_invalid_byte, { "dhcpv6.invalid_byte", PI_PROTOCOL, PI_WARN, "Invalid at byte", EXPFILL }},
+        { &ei_dhcpv6_invalid_byte, { "dhcpv6.invalid_byte", PI_PROTOCOL, PI_WARN, "Invalid at byte offset", EXPFILL }},
         { &ei_dhcpv6_invalid_time_value, { "dhcpv6.invalid_time_value", PI_PROTOCOL, PI_WARN, "Invalid time value", EXPFILL }},
         { &ei_dhcpv6_invalid_type, { "dhcpv6.invalid_type", PI_PROTOCOL, PI_WARN, "Invalid type", EXPFILL }},
         { &ei_dhcpv6_malformed_dns, { "dhcpv6.malformed_dns", PI_PROTOCOL, PI_WARN, "Malformed DNS name record (MS Vista client?)", EXPFILL }},
