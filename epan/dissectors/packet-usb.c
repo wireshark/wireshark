@@ -1617,7 +1617,7 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_item_append_text(endpoint_item, "  Endpoint:%d", endpoint);
 }
 
-static int
+int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
                                 usb_trans_info_t *usb_trans_info _U_,
@@ -1765,7 +1765,7 @@ dissect_usb_interface_assn_descriptor(packet_info *pinfo _U_, proto_tree *parent
     return offset;
 }
 
-static int
+int
 dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                tvbuff_t *tvb, int offset,
                                usb_trans_info_t *usb_trans_info _U_,
