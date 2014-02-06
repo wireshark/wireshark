@@ -61,6 +61,10 @@
 *
 *   for AMF3.
 *
+*   For FLV, see:
+*
+*          http://download.macromedia.com/f4v/video_file_format_spec_v10_1.pdf
+*
 *   Default TCP port is 1935
 */
 
@@ -293,13 +297,17 @@ static const value_string rtmpt_audio_types[] = {
         { 0, NULL }
 };
 
+/* from FLV v10.1 section E.4.3.1 */
 static const value_string rtmpt_video_types[] = {
         { 1,                                "keyframe" },
         { 2,                                "inter-frame" },
         { 3,                                "disposable inter-frame" },
+        { 4,                                "generated key frame" },
+        { 5,                                "video info/command frame" },
         { 0, NULL }
 };
 
+/* from FLV v10.1 section E.4.3.1 */
 static const value_string rtmpt_video_codecs[] = {
         { 2,                                "Sorensen H.263" },
         { 3,                                "Screen video" },
