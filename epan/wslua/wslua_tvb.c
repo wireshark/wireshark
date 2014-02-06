@@ -250,7 +250,7 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
     WSLUA_RETURN(1); /* A ByteArray contaning the requested segment. */
 }
 
-static int ByteArray_base64_decode(lua_State* L) {
+WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
 	/* Obtain a base64 decoded ByteArray */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
@@ -272,8 +272,8 @@ static int ByteArray_base64_decode(lua_State* L) {
     WSLUA_RETURN(1); /* The created ByteArray. */
 }
 
-static int ByteArray_tostring(lua_State* L) {
-	/* Obtain a string containing the bytes in a ByteArray so that it can be used in display filters (e.g. "01:23:45:67:89:AB") */
+WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
+	/* Obtain a string containing the bytes in a ByteArray so that it can be used in display filters (e.g. "01FE456789AB") */
     static const char byte_to_str[][3] = {
         "00","01","02","03","04","05","06","07","08","09","0A","0B","0C","0D","0E","0F",
         "10","11","12","13","14","15","16","17","18","19","1A","1B","1C","1D","1E","1F",
@@ -307,7 +307,7 @@ static int ByteArray_tostring(lua_State* L) {
     lua_pushstring(L,s->str);
     g_string_free(s,TRUE);
 
-    WSLUA_RETURN(1); /* A string contaning a representaion of the ByteArray. */
+    WSLUA_RETURN(1); /* A hex-ascii string containing a representation of the ByteArray. */
 }
 
 static int ByteArray_tvb (lua_State *L);
@@ -327,7 +327,7 @@ static const luaL_Reg ByteArray_methods[] = {
 };
 
 static const luaL_Reg ByteArray_meta[] = {
-    {"__tostring", ByteArray_tostring},
+    {"__tostring", ByteArray__tostring},
     {"__concat", ByteArray__concat},
     {"__call",ByteArray_subset},
     { NULL, NULL }
