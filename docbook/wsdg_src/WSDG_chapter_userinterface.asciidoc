@@ -1,0 +1,210 @@
+++++++++++++++++++++++++++++++++++++++
+<!-- WSDG Chapter User Interface -->
+++++++++++++++++++++++++++++++++++++++
+    
+[[ChapterUserInterface]]
+
+== User Interface
+
+[[ChUIIntro]]
+
+=== Introduction
+
+Wireshark can be logically separated into the backend (dissecting protocols,
+file loading and saving, capturing, etc.) and the frontend (the user interface).
+
+The following frontends are currently maintained by the Wireshark
+development team:
+
+* Wireshark, GTK 2.x based
+
+* Wireshark, GTK 3.x based (Wireshark 1.10 and newer)
+
+* Wireshark, Qt based (Wireshark 1.11 and newer)
+
+* TShark, console based
+
+There are other Wireshark frontends which are not developed nor maintained by
+the Wireshark development team:
+
+* Packetyzer (Win32 native interface, written in Delphi and released
+under the GPL, see: http://www.paglo.com/opensource/packetyzer[])
+
+* hethereal (web based frontend, not actively maintained and not
+finished)
+
+This chapter is focused on the Wireshark frontend, and especially on
+the GTK interface.
+
+[[ChUIGTK]]
+
+=== The GTK library
+
+.We're switching to Qt
+[NOTE]
+====
+This chapter describes the state of our stable release, which is based on GTK+.
+A major effort is underway to migrate Wireshark to Qt. If you would like to add
+a new interface feature you should use it and not GTK+.
+====
+
+Wireshark is based on the GTK toolkit. See http://www.gtk.org[] for details.
+GTK is designed to hide the details of the underlying GUI in a platform
+independent way. As GTK is intended to be a multiplatform tool, there are some
+drawbacks, as the result is a somewhat "non native" look and feel.
+
+GTK is available for many different platforms including, but not limited to:
+Unix/Linux, Mac OS X and Win32. It's the foundation of the famous GNOME desktop,
+so the future development of GTK should be certain. GTK is implemented in plain
+C (as is Wireshark itself), and available under the LGPL (Lesser General Public
+License), making it free to used by commercial and noncommercial applications.
+
+There are other similar toolkits like wxWidgets which could also be used for
+Wireshark. There's no "one and only" reason for or against any of these
+toolkits. However, the decision towards GTK was made a long time ago :-)
+
+As of 2013 there are two major GTK versions available:
+
+[[ChUIGTK2x]]
+
+==== GTK Version 2.x
+
+GTK 2.x depends on the following libraries:
+
+* GObject (Object library. Basis for GTK and others)
+
+* GLib (A general-purpose utility library, not specific to graphical user
+  interfaces. GLib provides many useful data types, macros, type conversions,
+  string utilities, file utilities, a main loop abstraction, and so on.)
+
+* Pango (Pango is a library for internationalized text handling. It centers
+  around the PangoLayout object, representing a paragraph of text. Pango
+  provides the engine for GtkTextView, GtkLabel, GtkEntry, and other widgets
+  that display text.)
+
+* ATK (ATK is the Accessibility Toolkit. It provides a set of generic interfaces
+  allowing accessibility technologies to interact with a graphical user
+  interface. For example, a screen reader uses ATK to discover the text in an
+  interface and read it to blind users. GTK+ widgets have built-in support for
+  accessibility using the ATK framework.)
+
+* GdkPixbuf (This is a small library which allows you to create GdkPixbuf
+  ("pixel buffer") objects from image data or image files. Use a
+  GdkPixbuf in combination with GtkImage to display images.)
+
+* GDK (GDK is the abstraction layer that allows GTK+ to support multiple
+  windowing systems. GDK provides drawing and window system facilities on X11,
+  Windows, and the Linux framebuffer device.)
+
+[[ChUIGTK3x]]
+
+==== GTK Version 3.x
+
+Wireshark (as of version 1.10) has been ported to use the GTK3 library.
+
+GTK 3.x depends on the following libraries:
+
+(See GTK 2.x)
+
+[[ChUIGTKCompat]]
+
+==== Compatibility GTK versions
+
+The GTK library itself defines some values which makes it easy to distinguish
+between the versions, e.g. +GTK_MAJOR_VERSION+ and +GTK_MINOR_VERSION+ will be
+set to the GTK version at compile time inside the gtkversion.h header.
+
+[[ChUIGTKWeb]]
+
+==== GTK resources on the web
+
+You can find several resources about GTK.
+
+First of all, have a look at http://www.gtk.org[]. This
+will be the first place to look at. If you want to develop GTK related
+things for Wireshark, the most important place might be the GTK API
+documentation at http://library.gnome.org/devel/gtk/stable/[].
+
+Several mailing lists are available about GTK development, see
+http://mail.gnome.org/mailman/listinfo[], the gtk-app-devel-list may be your
+friend.
+
+As it's often done wrong: You should post a mail to *help* the developers
+there instead of only complaining. Posting such a thing like "I don't like
+your dialog, it looks ugly" won't be of much help. You might think about
+what you dislike and describe why you dislike it and provide a suggestion
+for a better way.
+
+[[ChUIGUIDocs]]
+
+=== GUI Reference documents
+
+Although the GUI development of Wireshark is platform independent, the
+Wireshark development team tries to
+follow the GNOME Human Interface Guidelines (HIG) where appropriate.
+This is the case, because both GNOME and Wireshark are based on the GTK+
+toolkit and the GNOME HIG is excellently written and easy to understand.
+
+For further reference, see the following documents:
+
+* Android Design:
+http://developer.android.com/design/index.html[] (Wireshark doesn't have a
+mobile frontend but there is still useful information here)
+
+* GNOME Human Interface Guidelines:
+http://library.gnome.org/devel/hig-book/stable/[]
+
+* The KDE Usability/HIG project:
+http://techbase.kde.org/Projects/Usability/HIG[]
+
+* OS X Human Interface Guidelines:
+https://developer.apple.com/library/mac/documentation/UserExperience/Conceptual/AppleHIGuidelines/Intro/Intro.html[]
+
+* Design apps for the Windows desktop:
+http://msdn.microsoft.com/en-us/library/Aa511258.aspx[]
+
+[[ChUIGTKDialogs]]
+
+=== Adding/Extending Dialogs
+
+This is usually the main area for contributing new user interface features.
+
+XXX: add the various functions from gtk/dlg_utils.h
+
+[[ChUIGTKWidgetNamings]]
+
+=== Widget naming
+
+It seems to be common sense to name the widgets with some
+descriptive trailing characters, like:
+
+* xy_lb = gtk_label_new();
+
+* xy_cb = gtk_checkbox_new();
+
+* XXX: add more examples
+
+However, this schema isn't used at all places inside the code.
+
+[[ChUIGTKPitfalls]]
+
+=== Common GTK programming pitfalls
+
+There are some common pitfalls in GTK programming.
+
+[[ChUIGTKShowAll]]
+
+==== Usage of gtk_widget_show() / gtk_widget_show_all()
+
+When a GTK widget is created it will be hidden by default. In order to
+show it, a call to gtk_widget_show() has to be done.
+
+
+It isn't necessary to do this for each and every widget created. A call
+to gtk_widget_show_all() on the parent of all the widgets in question
+(e.g. a dialog window) can be done, so all of its child widgets will
+be shown too.
+
+++++++++++++++++++++++++++++++++++++++
+<!-- End of WSDG Chapter User Interface -->
+++++++++++++++++++++++++++++++++++++++
