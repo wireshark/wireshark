@@ -34,7 +34,7 @@
 #ifdef __CLANG__
 
 #pragma clang diagnostic push
-#pragma clang diagnostic warning "-Wdeprecated-declarations"
+#pragma clang diagnostic ignored "-Wdeprecated-declarations"
 #include <gcrypt.h>
 #pragma clang diagnostic pop
 
@@ -59,7 +59,7 @@
 
 /* gcc version is between 4.2.0 and 4.6.0:
    diagnostic warning/error is supported, diagnostic push/pop is not supported */
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <gcrypt.h>
 #pragma GCC diagnostic error "-Wdeprecated-declarations"
 
@@ -67,7 +67,7 @@
 
 /* gcc version is >= 4.6.0: we can use push/pop */
 #pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wdeprecated-declarations"
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <gcrypt.h>
 #pragma GCC diagnostic pop
 
