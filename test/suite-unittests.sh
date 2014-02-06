@@ -69,6 +69,34 @@ unittests_step_exntest() {
 	unittests_step_test
 }
 
+unittests_step_lua_dissector_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# First run tshark with the dissector script.
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -V -X lua_script:$TESTS_DIR/lua/dissector.lua > testin.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testin_tmp.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# then run tshark again with the verification script. (it internally reads in testin.txt)
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		echo
+		cat ./testin.txt
+		cat ./testout.txt
+		test_step_failed "didn't find pass marker"
+	fi
+}
+
 unittests_step_lua_int64_test() {
 	if [ $HAVE_LUA -ne 0 ]; then
 		test_step_skipped
@@ -80,7 +108,8 @@ unittests_step_lua_int64_test() {
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else
-		cat testout.txt
+		echo
+		cat ./testout.txt
 		test_step_failed "didn't find pass marker"
 	fi
 }
@@ -111,12 +140,14 @@ unittests_step_wmem_test() {
 
 unittests_cleanup_step() {
 	rm -f ./testout.txt
+	rm -f ./testin.txt
 }
 
 unittests_suite() {
 	test_step_set_pre unittests_cleanup_step
 	test_step_set_post unittests_cleanup_step
 	test_step_add "exntest" unittests_step_exntest
+	test_step_add "lua dissector" unittests_step_lua_dissector_test
 	test_step_add "lua int64" unittests_step_lua_int64_test
 	test_step_add "oids_test" unittests_step_oids_test
 	test_step_add "reassemble_test" unittests_step_reassemble_test
