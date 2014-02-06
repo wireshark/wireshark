@@ -1184,6 +1184,33 @@ struct usb_device_setup_hdr {
 	(((char *)(void *)(fieldp)) - ((char *)(void *)(basep)) + \
 	    sizeof(*fieldp))
 
+/*
+ * Is that offset within the bounds of the packet?
+ */
+#define WITHIN_PACKET(basep, fieldp) \
+	(packet_size >= END_OFFSETOF((basep), (fieldp)))
+
+#define CHECK_AND_SWAP16(fieldp) \
+	{ \
+		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
+			return; \
+		PBSWAP16((guint8 *)fieldp); \
+	}
+
+#define CHECK_AND_SWAP32(fieldp) \
+	{ \
+		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
+			return; \
+		PBSWAP32((guint8 *)fieldp); \
+	}
+
+#define CHECK_AND_SWAP64(fieldp) \
+	{ \
+		if (!WITHIN_PACKET(usb_phdr, fieldp)) \
+			return; \
+		PBSWAP64((guint8 *)fieldp); \
+	}
+
 static void
 pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
     gboolean header_len_64_bytes)
@@ -1210,36 +1237,17 @@ pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
 	 */
 	usb_phdr = (struct linux_usb_phdr *)(void *)pd;
 
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->id))
-		return;
-	PBSWAP64((guint8 *)&usb_phdr->id);
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->bus_id))
-		return;
-	PBSWAP16((guint8 *)&usb_phdr->bus_id);
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->ts_sec))
-		return;
-	PBSWAP64((guint8 *)&usb_phdr->ts_sec);
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->ts_usec))
-		return;
-	PBSWAP32((guint8 *)&usb_phdr->ts_usec);
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->status))
-		return;
-	PBSWAP32((guint8 *)&usb_phdr->status);
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->urb_len))
-		return;
-	PBSWAP32((guint8 *)&usb_phdr->urb_len);
-	if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->data_len))
-		return;
-	PBSWAP32((guint8 *)&usb_phdr->data_len);
+	CHECK_AND_SWAP64(&usb_phdr->id);
+	CHECK_AND_SWAP16(&usb_phdr->bus_id);
+	CHECK_AND_SWAP64(&usb_phdr->ts_sec);
+	CHECK_AND_SWAP32(&usb_phdr->ts_usec);
+	CHECK_AND_SWAP32(&usb_phdr->status);
+	CHECK_AND_SWAP32(&usb_phdr->urb_len);
+	CHECK_AND_SWAP32(&usb_phdr->data_len);
 
 	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
-		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->s.iso.error_count))
-			return;
-		PBSWAP32((guint8 *)&usb_phdr->s.iso.error_count);
-
-		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->s.iso.numdesc))
-			return;
-		PBSWAP32((guint8 *)&usb_phdr->s.iso.numdesc);
+		CHECK_AND_SWAP32(&usb_phdr->s.iso.error_count);
+		CHECK_AND_SWAP32(&usb_phdr->s.iso.numdesc);
 	}
 
 	if (header_len_64_bytes) {
@@ -1256,18 +1264,10 @@ pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
 		 * the additional fields from the beginning of
 		 * the packet.
 		 */
-		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->interval))
-			return;
-		PBSWAP32((guint8 *)&usb_phdr->interval);
-		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->start_frame))
-			return;
-		PBSWAP32((guint8 *)&usb_phdr->start_frame);
-		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->xfer_flags))
-			return;
-		PBSWAP32((guint8 *)&usb_phdr->xfer_flags);
-		if (packet_size < END_OFFSETOF(usb_phdr, &usb_phdr->ndesc))
-			return;
-		PBSWAP32((guint8 *)&usb_phdr->ndesc);
+		CHECK_AND_SWAP32(&usb_phdr->interval);
+		CHECK_AND_SWAP32(&usb_phdr->start_frame);
+		CHECK_AND_SWAP32(&usb_phdr->xfer_flags);
+		CHECK_AND_SWAP32(&usb_phdr->ndesc);
 	}
 
 	if (usb_phdr->transfer_type == URB_ISOCHRONOUS) {
@@ -1283,22 +1283,10 @@ pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
 		}
 		iso_numdesc = usb_phdr->s.iso.numdesc;
 		for (i = 0; i < iso_numdesc; i++) {
-			/*
-			 * Always check if we have enough data from the
-			 * beginning of the packet (usb_phdr).
-			 */
-			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->iso_status))
-				return;
-			PBSWAP32((guint8 *)&pisodesc->iso_status);
-			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->iso_off))
-				return;
-			PBSWAP32((guint8 *)&pisodesc->iso_off);
-			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->iso_len))
-				return;
-			PBSWAP32((guint8 *)&pisodesc->iso_len);
-			if (packet_size < END_OFFSETOF(usb_phdr, &pisodesc->_pad))
-				return;
-			PBSWAP32((guint8 *)&pisodesc->_pad);
+			CHECK_AND_SWAP32(&pisodesc->iso_status);
+			CHECK_AND_SWAP32(&pisodesc->iso_off);
+			CHECK_AND_SWAP32(&pisodesc->iso_len);
+			CHECK_AND_SWAP32(&pisodesc->_pad);
 
 			pisodesc++;
 		}
