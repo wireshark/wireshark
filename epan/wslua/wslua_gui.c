@@ -84,7 +84,11 @@ WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in o
                                               MENU_STAT_CONVERSATION (Statistics/Conversation List),
                                               MENU_STAT_ENDPOINT (Statistics/Endpoint List),
                                               MENU_STAT_RESPONSE (Statistics/Service Response Time),
-                                              MENU_STAT_TELEPHONY (Telephony), MENU_ANALYZE (Analyze),
+                                              MENU_STAT_TELEPHONY (Telephony),
+                                              MENU_STAT_TELEPHONY_GSM (Telephony/GSM),
+                                              MENU_STAT_TELEPHONY_LTE (Telephony/LTE),
+                                              MENU_STAT_TELEPHONY_SCTP (Telephony/SCTP),
+                                              MENU_ANALYZE (Analyze),
                                               MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter),
                                               MENU_TOOLS_UNSORTED (Tools). (number) */
 

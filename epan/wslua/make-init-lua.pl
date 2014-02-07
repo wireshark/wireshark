@@ -146,8 +146,12 @@ $menu_groups .= "-- menu groups for register_menu\n";
 my $menu_i = 0;
 
 open STAT_MENU, "< $WSROOT/stat_menu.h" or die "cannot open '$WSROOT/stat_menu.h':  $!";
+my $foundit = 0;
 while(<STAT_MENU>) {
-    if (/REGISTER_([A-Z]+)_GROUP_([A-Z_]+)/) {
+    # need to skip matching words in comments, and get to the enum
+    if (/^typedef enum {/) { $foundit = 1; }
+    # the problem here is we need to pick carefully, so we don't break existing scripts
+    if ($foundit && /REGISTER_([A-Z]+)_GROUP_(CONVERSATION|RESPONSE|[A-Z_]+)/) {
         $menu_groups .= "MENU_$1_$2 = $menu_i\n";
         $menu_groups =~ s/_NONE//;
         $menu_i++;
