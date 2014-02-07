@@ -73,8 +73,7 @@ PKG_CONFIG_VERSION=0.28
 #
 # If you don't want to build with GTK+ at all, comment out both lines.
 # 
-#QT_VERSION=5.1.1
-QT_VERSION=5.2.0
+QT_VERSION=5.2.1
 GTK_VERSION=2.24.17
 #GTK_VERSION=3.5.2
 if [ "$GTK_VERSION" ]; then
