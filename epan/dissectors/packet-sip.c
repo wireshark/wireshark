@@ -184,6 +184,12 @@ static gint hf_sip_rack_cseq_no           = -1;
 static gint hf_sip_rack_cseq_method       = -1;
 
 static gint hf_sip_msg_body               = -1;
+static gint hf_sip_sec_mechanism          = -1;
+static gint hf_sip_sec_mechanism_alg      = -1;
+static gint hf_sip_sec_mechanism_ealg     = -1;
+static gint hf_sip_sec_mechanism_prot     = -1;
+static gint hf_sip_sec_mechanism_spi_c    = -1;
+static gint hf_sip_sec_mechanism_spi_s    = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
@@ -199,6 +205,9 @@ static gint ett_sip_message_body          = -1;
 static gint ett_sip_cseq                  = -1;
 static gint ett_sip_via                   = -1;
 static gint ett_sip_reason                = -1;
+static gint ett_sip_security_client       = -1;
+static gint ett_sip_security_server       = -1;
+static gint ett_sip_security_verify       = -1;
 static gint ett_sip_rack                  = -1;
 static gint ett_sip_route                 = -1;
 static gint ett_sip_record_route          = -1;
@@ -1739,6 +1748,109 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 
 }
 
+/* Dissect the details of a security client header
+ * sec-mechanism    = mechanism-name *(SEMI mech-parameters)
+ *     mech-parameters  = ( preference / digest-algorithm /
+ *                          digest-qop / digest-verify / extension )
+ *    preference       = "q" EQUAL qvalue
+ *    qvalue           = ( "0" [ "." 0*3DIGIT ] )
+ *                        / ( "1" [ "." 0*3("0") ] )
+ *    digest-algorithm = "d-alg" EQUAL token
+ *    digest-qop       = "d-qop" EQUAL token
+ *    digest-verify    = "d-ver" EQUAL LDQUOT 32LHEX RDQUOT
+ *    extension        = generic-param
+ *
+ *
+ */
+static void
+dissect_sip_sec_mechanism(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset){
+
+    gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
+	guint32 spi_c = 0;
+	guint32 spi_s = 0;
+
+    /* skip Spaces and Tabs */
+    start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
+
+    if (start_offset >= line_end_offset)
+    {
+        /* Nothing to parse */
+        return;
+    }
+
+    current_offset = start_offset;
+	semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
+	if(semi_colon_offset == -1){
+		semi_colon_offset = line_end_offset;
+	}
+
+	length = semi_colon_offset-current_offset;
+	proto_tree_add_item(tree, hf_sip_sec_mechanism, tvb,
+			                    start_offset, length,
+			                    ENC_ASCII|ENC_NA);
+
+	current_offset = current_offset + length + 1;
+
+
+	while(current_offset < line_end_offset){
+		gchar *param_name = NULL, *value = NULL;
+
+	    semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
+
+	    if(semi_colon_offset == -1){
+			semi_colon_offset = line_end_offset;
+		}
+
+	    length = semi_colon_offset - current_offset;
+
+		/* Parse parameter and value */
+		equals_offset = tvb_find_guint8(tvb, current_offset + 1, length, '=');
+		if(equals_offset != -1){
+			/* Has value part */
+			par_name_end_offset = equals_offset;
+			/* Extract the parameter name */
+			param_name = tvb_get_string(wmem_packet_scope(), tvb, current_offset, par_name_end_offset-current_offset);
+			/* Extract the value */
+			value = tvb_get_string(wmem_packet_scope(), tvb, equals_offset+1, semi_colon_offset-equals_offset+1);
+		}
+
+
+
+		/* Protection algorithm to be used */
+		if (g_ascii_strcasecmp(param_name, "alg") == 0){
+			proto_tree_add_item(tree, hf_sip_sec_mechanism_alg, tvb,
+			                    equals_offset+1, semi_colon_offset-equals_offset-1,
+			                    ENC_ASCII|ENC_NA);
+
+		}else if (g_ascii_strcasecmp(param_name, "ealg") == 0){
+			proto_tree_add_item(tree, hf_sip_sec_mechanism_ealg, tvb,
+			                    equals_offset+1, semi_colon_offset-equals_offset-1,
+			                    ENC_ASCII|ENC_NA);
+
+		}else if (g_ascii_strcasecmp(param_name, "prot") == 0){
+			proto_tree_add_item(tree, hf_sip_sec_mechanism_prot, tvb,
+			                    equals_offset+1, semi_colon_offset-equals_offset-1,
+			                    ENC_ASCII|ENC_NA);
+
+		}else if (g_ascii_strcasecmp(param_name, "spi-c") == 0){
+			spi_c = (guint32)strtoul(value, NULL, 10);
+			proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_c, tvb,
+								equals_offset+1, semi_colon_offset-equals_offset-1, spi_c);
+
+		}else if (g_ascii_strcasecmp(param_name, "spi-s") == 0){
+			spi_s = (guint32)strtoul(value, NULL, 10);
+			proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_s, tvb,
+								equals_offset+1, semi_colon_offset-equals_offset-1, spi_s);
+		}
+
+		else{
+			proto_tree_add_text(tree, tvb, current_offset, length,"%s",tvb_format_text(tvb, current_offset, length));
+		}
+		current_offset = semi_colon_offset+1;
+	}
+
+}
+
 /* Dissect the details of a Route (and Record-Route) header */
 static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, hf_sip_uri_t *sip_route_uri_p, gint start_offset, gint line_end_offset)
 {
@@ -2141,7 +2253,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	proto_tree *sip_tree  = NULL, *reqresp_tree      = NULL, *hdr_tree  = NULL,
 		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL,
 		*via_tree         = NULL, *reason_tree       = NULL, *rack_tree = NULL,
-		*route_tree       = NULL;
+		*route_tree       = NULL, *security_client_tree = NULL;
 	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
@@ -3088,7 +3200,70 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						content_encoding_parameter_str = ascii_strdown_inplace(tvb_get_string(wmem_packet_scope(), tvb, value_offset,
 							                             (line_end_offset-value_offset)));
 						break;
-					default :
+                    case POS_SECURITY_CLIENT:
+						/* security-client  = "Security-Client" HCOLON
+						 *                     sec-mechanism *(COMMA sec-mechanism)
+						 */
+                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                                                         hf_header_array[hf_index], tvb,
+                                                         offset, next_offset - offset,
+                                                         value, "%s",
+                                                         tvb_format_text(tvb, offset, linelen));
+						comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
+						while(comma_offset<line_end_offset){
+							comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
+							if(comma_offset == -1){
+								comma_offset = line_end_offset;
+							}
+							security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_client);
+							dissect_sip_sec_mechanism(tvb, security_client_tree, value_offset, comma_offset);
+							comma_offset = value_offset = comma_offset+1;
+						}
+
+                        break;
+                    case POS_SECURITY_SERVER:
+						/* security-server  = "Security-Server" HCOLON
+						 *                     sec-mechanism *(COMMA sec-mechanism)
+						 */
+                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                                                         hf_header_array[hf_index], tvb,
+                                                         offset, next_offset - offset,
+                                                         value, "%s",
+                                                         tvb_format_text(tvb, offset, linelen));
+						comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
+						while(comma_offset<line_end_offset){
+							comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
+							if(comma_offset == -1){
+								comma_offset = line_end_offset;
+							}
+							security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_server);
+							dissect_sip_sec_mechanism(tvb, security_client_tree, value_offset, comma_offset);
+							comma_offset = value_offset = comma_offset+1;
+						}
+
+                        break;
+                    case POS_SECURITY_VERIFY:
+						/* security-verify  = "Security-Verify" HCOLON
+						 *                     sec-mechanism *(COMMA sec-mechanism)
+						 */
+                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                                                         hf_header_array[hf_index], tvb,
+                                                         offset, next_offset - offset,
+                                                         value, "%s",
+                                                         tvb_format_text(tvb, offset, linelen));
+						comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
+						while(comma_offset<line_end_offset){
+							comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
+							if(comma_offset == -1){
+								comma_offset = line_end_offset;
+							}
+							security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_verify);
+							dissect_sip_sec_mechanism(tvb, security_client_tree, value_offset, comma_offset);
+							comma_offset = value_offset = comma_offset+1;
+						}
+
+                        break;
+                    default :
 						/* Default case is to assume it's an FT_STRING field */
 						proto_tree_add_string_format(hdr_tree,
 							                             hf_header_array[hf_index], tvb,
@@ -5127,7 +5302,37 @@ void proto_register_sip(void)
 				{ "Message Body",           "sip.msg_body",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				"Message Body in SIP message", HFILL }
-		}
+		},
+		{ &hf_sip_sec_mechanism,
+			{ "[Security-mechanism]",  "sip.sec_mechanism",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_sip_sec_mechanism_alg,
+			{ "alg",  "sip.sec_mechanism.alg",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_sip_sec_mechanism_ealg,
+			{ "ealg",  "sip.sec_mechanism.ealg",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_sip_sec_mechanism_prot,
+			{ "prot",  "sip.sec_mechanism.prot",
+			FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_sip_sec_mechanism_spi_c,
+			{ "spi-c",  "sip.sec_mechanism.spi_c",
+			FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_sip_sec_mechanism_spi_s,
+			{ "spi-s",  "sip.sec_mechanism.spi_s",
+			FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+		    NULL, HFILL}
+		},
 };
 
         /* raw_sip header field(s) */
@@ -5153,6 +5358,9 @@ void proto_register_sip(void)
 		&ett_sip_cseq,
 		&ett_sip_via,
 		&ett_sip_reason,
+		&ett_sip_security_client,
+		&ett_sip_security_server,
+		&ett_sip_security_verify,
 		&ett_sip_rack,
 		&ett_sip_record_route,
 		&ett_sip_route,
