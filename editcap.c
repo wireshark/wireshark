@@ -82,7 +82,7 @@
 #include <wsutil/md5.h>
 #include <wsutil/plugins.h>
 
-#include "svnversion.h"
+#include "version.h"
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
@@ -676,8 +676,8 @@ usage(gboolean is_error)
         output = stderr;
 
     fprintf(output, "Editcap %s"
-#ifdef SVNVERSION
-        " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+        " (" GITVERSION " from " GITBRANCH ")"
 #endif
         "\n", VERSION);
     fprintf(output, "Edit and/or translate the format of capture files.\n");

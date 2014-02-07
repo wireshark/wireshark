@@ -31,9 +31,9 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
- * The svn version string or ""
+ * The Git version string or ""
  */
-extern const gchar *wireshark_svnversion;
+extern const gchar *wireshark_gitversion;
 
 /*
  * Get various library compile-time versions and append them to

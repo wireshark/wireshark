@@ -489,7 +489,7 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 	get_runtime_version_info(runtime_info_str, NULL);
 
 	version_long_str = g_strdup_printf("%s%s\n%s\n%s\n%s",
-		version_str, wireshark_svnversion, get_copyright_info(),
+		version_str, wireshark_gitversion, get_copyright_info(),
 		comp_info_str->str, runtime_info_str->str);
 
 	if (error) {
@@ -498,7 +498,7 @@ static void preinit_epan(char* argv0, int (*main)(int, char **)) {
 
 	 /* Add it to the information to be reported on a crash. */
 	ws_add_crash_info("Echld " VERSION "%s\n%s\n%s",
-		wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+		wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
 
 	init_stuff();
 

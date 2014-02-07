@@ -93,7 +93,7 @@ you use this to differentiate it from official Wireshark releases.
 
 4.1. Source-level version detection.
 
-The SVN version corresponding to each release is in svnversion.h. It's
+The Git version corresponding to each release is in version.h. It's
 defined as a string. If you need a numeric definition, let us know.
 
 5. Trademarks.

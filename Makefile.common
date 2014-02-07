@@ -25,7 +25,7 @@
 
 # "BUILT_SOURCES" are built before any "make all" or "make check" targets.
 BUILT_HEADER_FILES =	\
-	svnversion.h
+	version.h
 
 BUILT_C_FILES =
 
@@ -54,7 +54,7 @@ SHARK_COMMON_SRC =	\
 
 # corresponding headers
 SHARK_COMMON_INCLUDES =	\
-	svnversion.h		\
+	version.h		\
 	capture-pcap-util.h	\
 	capture-pcap-util-int.h	\
 	cfile.h			\
@@ -156,7 +156,7 @@ editcap_SOURCES = \
 # reordercap specifics
 reordercap_SOURCES = \
 	reordercap.c \
-	svnversion.h
+	version.h
 
 # capinfos specifics
 capinfos_SOURCES = \

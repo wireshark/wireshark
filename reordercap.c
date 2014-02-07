@@ -53,8 +53,8 @@ static void usage(gboolean is_error)
     }
 
     fprintf(output, "Reordercap %s"
-#ifdef SVNVERSION
-                      " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+                      " (" GITVERSION " from " GITBRANCH ")"
 #endif
                       "\n", VERSION);
     fprintf(output, "Reorder timestamps of input file frames into output file.\n");
@@ -98,10 +98,10 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
     gchar  *err_info;
     struct wtap_pkthdr phdr;
 
-    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u)\n", 
+    DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u)\n",
                 frame->offset);
 
-    
+
     /* Re-read the first frame from the stored location */
     if (!wtap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info)) {
         if (err != 0) {

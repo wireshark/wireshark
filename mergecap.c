@@ -52,7 +52,7 @@
 
 #include <wiretap/merge.h>
 
-#include "svnversion.h"
+#include "version.h"
 
 #ifdef HAVE_FCNTL_H
 #include <fcntl.h>
@@ -117,8 +117,8 @@ usage(gboolean is_error)
   }
 
   fprintf(output, "Mergecap %s"
-#ifdef SVNVERSION
-          " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+          " (" GITVERSION " from " GITBRANCH ")"
 #endif
           "\n", VERSION);
   fprintf(output, "Merge two or more capture files into one.\n");

@@ -460,7 +460,7 @@ follow_print_stream(GtkWidget * w _U_, gpointer data)
         return;
     }
 
-    if (!print_preamble(stream, cfile.filename, wireshark_svnversion))
+    if (!print_preamble(stream, cfile.filename, wireshark_gitversion))
         goto print_error;
 
     switch (follow_read_stream(follow_info, follow_print_text, stream)) {

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Check for SVN version
+# Check for Git version
 #
 # $Id$
 #
@@ -23,14 +23,14 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
-#if [ -d ../.git ] ; then
-#    GIT_VERSION=`git describe --tags --dirty`
-#fi
-#echo '<!ENTITY GitVersion "'${GIT_VERSION}'">' > git_version_tmp.xml
+if [ -d ../.git ] ; then
+    GIT_VERSION=`git describe --tags --dirty`
+fi
+echo '<!ENTITY GitVersion "'${GIT_VERSION}'">' > git_version_tmp.xml
 
-echo -n '<!ENTITY GitVersion "' > git_version_tmp.xml
-[ -x svnversion ] && svnversion -n .                   >> git_version_tmp.xml
-echo '">'   >> git_version_tmp.xml
+#echo -n '<!ENTITY GitVersion "' > git_version_tmp.xml
+#[ -x svnversion ] && svnversion -n .                   >> git_version_tmp.xml
+#echo '">'   >> git_version_tmp.xml
 
 # /dev/null buries the output of the "cmp" command.
 diff git_version.xml git_version_tmp.xml &> /dev/null

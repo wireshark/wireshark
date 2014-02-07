@@ -78,7 +78,7 @@ main_titlebar_update(void)
         if ((prefs.gui_version_placement == version_title_only) ||
             (prefs.gui_version_placement == version_both)) {
             gchar *old_title = title;
-            title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_svnversion);
+            title = g_strdup_printf("%s   [Wireshark %s %s]", title, VERSION, wireshark_gitversion);
             g_free(old_title);
         }
         gtk_window_set_title(GTK_WINDOW(top_level), title);

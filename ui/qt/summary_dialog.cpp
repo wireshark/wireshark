@@ -127,7 +127,7 @@ QString SummaryDialog::SummaryToString()
     QString summaryStr;
     QTextStream out(&summaryStr);
 
-    out << tr("Summary created by Wireshark %1\n\n").arg(wireshark_svnversion);
+    out << tr("Summary created by Wireshark %1\n\n").arg(wireshark_gitversion);
 
     // File Section
     out << tr("File: \n");

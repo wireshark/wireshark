@@ -40,7 +40,7 @@ epan/ps.c
 ui/cli/tshark-tap-register-cache.pkl
 plugin.c
 plugins/mate/mate_parser.c
-svnversion.h
+version.h
 tools/lemon/lemon
 tools/lemon/lemon
 tools/setuid-root.pl

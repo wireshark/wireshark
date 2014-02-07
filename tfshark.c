@@ -203,7 +203,7 @@ print_usage(gboolean print_ver)
         "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
-         wireshark_svnversion, get_copyright_info());
+         wireshark_gitversion, get_copyright_info());
   } else {
     output = stderr;
   }
@@ -271,7 +271,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TFShark " VERSION "%s\n", wireshark_svnversion);
+  fprintf(output, "TFShark " VERSION "%s\n", wireshark_gitversion);
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tfshark -G [report]\n");
@@ -749,7 +749,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
          "%s"
          "\n"
          "%s",
-         wireshark_svnversion, get_copyright_info(), comp_info_str->str,
+         wireshark_gitversion, get_copyright_info(), comp_info_str->str,
          runtime_info_str->str);
 }
 
@@ -802,7 +802,7 @@ main(int argc, char *argv[])
          "%s"
          "\n"
          "%s",
-      wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+      wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -2101,7 +2101,7 @@ write_preamble(capture_file *cf)
   switch (output_action) {
 
   case WRITE_TEXT:
-    return print_preamble(print_stream, cf ? cf->filename : NULL, wireshark_svnversion);
+    return print_preamble(print_stream, cf ? cf->filename : NULL, wireshark_gitversion);
 
   case WRITE_XML:
     if (print_details)

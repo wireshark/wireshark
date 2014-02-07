@@ -259,7 +259,7 @@ print_usage(gboolean print_ver)
         "See http://www.wireshark.org for more information.\n"
         "\n"
         "%s",
-         wireshark_svnversion, get_copyright_info());
+         wireshark_gitversion, get_copyright_info());
   } else {
     output = stderr;
   }
@@ -381,7 +381,7 @@ glossary_option_help(void)
 
   output = stdout;
 
-  fprintf(output, "TShark " VERSION "%s\n", wireshark_svnversion);
+  fprintf(output, "TShark " VERSION "%s\n", wireshark_gitversion);
 
   fprintf(output, "\n");
   fprintf(output, "Usage: tshark -G [report]\n");
@@ -887,7 +887,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
          "%s"
          "\n"
          "%s",
-         wireshark_svnversion, get_copyright_info(), comp_info_str->str,
+         wireshark_gitversion, get_copyright_info(), comp_info_str->str,
          runtime_info_str->str);
 }
 
@@ -988,7 +988,7 @@ main(int argc, char *argv[])
          "%s"
          "\n"
          "%s",
-      wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+      wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
   arg_list_utf_16to8(argc, argv);
@@ -3050,7 +3050,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     /* If we don't have an application name add Tshark */
     if (shb_hdr->shb_user_appl == NULL) {
-        g_snprintf(appname, sizeof(appname), "TShark " VERSION "%s", wireshark_svnversion);
+        g_snprintf(appname, sizeof(appname), "TShark " VERSION "%s", wireshark_gitversion);
         shb_hdr->shb_user_appl = appname;
     }
 
@@ -3550,7 +3550,7 @@ write_preamble(capture_file *cf)
   switch (output_action) {
 
   case WRITE_TEXT:
-    return print_preamble(print_stream, cf ? cf->filename : NULL, wireshark_svnversion);
+    return print_preamble(print_stream, cf ? cf->filename : NULL, wireshark_gitversion);
 
   case WRITE_XML:
     if (print_details)

@@ -2614,7 +2614,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
   callback_args.num_visible_cols = 0;
   callback_args.visible_cols = NULL;
 
-  if (!print_preamble(print_args->stream, cf->filename, wireshark_svnversion)) {
+  if (!print_preamble(print_args->stream, cf->filename, wireshark_gitversion)) {
     destroy_print_stream(print_args->stream);
     return CF_PRINT_WRITE_ERROR;
   }

@@ -61,14 +61,14 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
-#include "svnversion.h"
+#include "version.h"
 
 static void
 usage(void)
 {
   fprintf(stderr, "Captype %s"
-#ifdef SVNVERSION
-      " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
 #endif
       "\n", VERSION);
   fprintf(stderr, "Prints the file types of capture files.\n");

@@ -210,7 +210,7 @@ print_usage(gboolean print_ver) {
                 "See http://www.wireshark.org for more information.\n"
                 "\n"
                 "%s",
-                wireshark_svnversion, get_copyright_info());
+                wireshark_gitversion, get_copyright_info());
     } else {
         output = stderr;
     }
@@ -302,7 +302,7 @@ show_version(void)
            "%s"
            "\n"
            "%s",
-           wireshark_svnversion, get_copyright_info(), comp_info_str->str,
+           wireshark_gitversion, get_copyright_info(), comp_info_str->str,
            runtime_info_str->str);
 }
 
@@ -544,7 +544,7 @@ int main(int argc, char *argv[])
            "%s"
            "\n"
            "%s",
-        wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+        wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
 
     /*
      * Get credential information for later use, and drop privileges
@@ -905,7 +905,7 @@ int main(int argc, char *argv[])
     wsApp->installTranslator(&qtTranslator);
 
     /* Removed thread code:
-     * http://anonsvn.wireshark.org/viewvc/viewvc.cgi?view=rev&revision=35027
+     * https://code.wireshark.org/review/gitweb?p=wireshark.git;a=commit;h=9e277ae6154fd04bf6a0a34ec5655a73e5a736a3
      */
 
     g_log(NULL, G_LOG_LEVEL_DEBUG, "FIX: timestamp types should be set elsewhere");
