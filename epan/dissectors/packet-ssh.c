@@ -177,6 +177,8 @@ static expert_field ei_ssh_packet_length = EI_INIT;
 
 static gboolean ssh_desegment = TRUE;
 
+static dissector_handle_t ssh_handle;
+
 #define TCP_PORT_SSH  22
 #define SCTP_PORT_SSH 22
 
@@ -1370,15 +1372,13 @@ proto_register_ssh(void)
 				       "Whether the SSH dissector should reassemble SSH buffers spanning multiple TCP segments. "
 				       "To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
 				       &ssh_desegment);
+
+	ssh_handle = register_dissector("ssh", dissect_ssh, proto_ssh);
 }
 
 void
 proto_reg_handoff_ssh(void)
 {
-	dissector_handle_t ssh_handle;
-
-	ssh_handle = create_dissector_handle(dissect_ssh, proto_ssh);
-
 	dissector_add_uint("tcp.port", TCP_PORT_SSH, ssh_handle);
 	dissector_add_uint("sctp.port", SCTP_PORT_SSH, ssh_handle);
 	dissector_add_uint("sctp.ppi", SSH_PAYLOAD_PROTOCOL_ID, ssh_handle);
