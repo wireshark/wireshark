@@ -1222,7 +1222,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)wblock->pseudo_header,
             (guint8 *) (wblock->frame_buffer),
-            (int) (wblock->data.packet.cap_len - pseudo_header_len),
+            (int) (wblock->packet_header->caplen),
             pn->byte_swapped, fcslen);
         return block_read;
 }
@@ -1391,7 +1391,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
         pcap_read_post_process(WTAP_FILE_PCAPNG, int_data.wtap_encap,
             (union wtap_pseudo_header *)wblock->pseudo_header,
             (guint8 *) (wblock->frame_buffer),
-            (int) wblock->data.simple_packet.cap_len,
+            (int) (wblock->packet_header->caplen),
             pn->byte_swapped, pn->if_fcslen);
         return block_read;
 }
