@@ -141,7 +141,7 @@ sub read_repo_info {
 	# A small ugly hash: git rev-parse --short HEAD
 	# 1ddc838
 	#
-	# The upstream branch path: git rev-parse --abbrev-ref --symbolic-full-name @{upstream}
+	# The upstream branch path: git rev-parse --abbrev-ref --symbolic-full-name origin
 	# origin/master-1.8
 	#
 	# A version description: git describe --tags --dirty
@@ -185,7 +185,7 @@ sub read_repo_info {
 			}
 
 			# Probably not quite what we're looking for
-			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
+			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name origin});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
