@@ -345,12 +345,17 @@ void SequenceDialog::on_buttonBox_accepted()
 void SequenceDialog::fillDiagram()
 {
     QCustomPlot *sp = ui->sequencePlot;
+    seq_analysis_info_t new_sa;
 
+    new_sa = seq_analysis_;
+    new_sa.list = NULL;
+    new_sa.ht = NULL;
+    new_sa.num_nodes = 0;
+    sequence_analysis_list_get(cap_file_, &new_sa);
+    num_items_ = sequence_analysis_get_nodes(&new_sa);
+    seq_diagram_->setData(&new_sa);
     sequence_analysis_list_free(&seq_analysis_);
-    sequence_analysis_list_get(cap_file_, &seq_analysis_);
-    num_items_ = sequence_analysis_get_nodes(&seq_analysis_);
-
-    seq_diagram_->setData(&seq_analysis_);
+    seq_analysis_ = new_sa;
 
     QFontMetrics vfm = QFontMetrics(sp->xAxis2->labelFont());
     node_label_w_ = 0;
