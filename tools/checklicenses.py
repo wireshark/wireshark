@@ -127,6 +127,15 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'dtds': [
         'UNKNOWN',
     ],
+    'diameter/dictionary.dtd': [
+        'UNKNOWN',
+    ],
+    'wimaxasncp/dictionary.dtd': [
+        'UNKNOWN',
+    ],
+    'docbook/custom_layer_pdf.xsl': [
+        'UNKNOWN',
+    ],
     'fix': [
         'UNKNOWN',
     ],
@@ -142,22 +151,10 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'packaging/macosx': [
         'UNKNOWN',
     ],
-    'version.h': [
-        'UNKNOWN',
-    ],
-    'tools/lemon': [
-        'UNKNOWN',
-    ],
     'epan/except.c': [
         'UNKNOWN',
     ],
     'epan/except.h': [
-        'UNKNOWN',
-    ],
-    'plugins/mate/mate_grammar.c': [
-        'GPL (v2 or later) LGPL (v2 or later)', # licensecheck bug?
-    ],
-    'plugins/mate/mate_grammar.h': [
         'UNKNOWN',
     ],
     'cmake/TestFileOffsetBits.c': [
@@ -166,10 +163,35 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'cmake/TestWindowsFSeek.c': [
         'UNKNOWN',
     ],
+    'plugins/mate/mate_grammar.c': [
+        'GPL (v2 or later) LGPL (v2 or later)', # licensecheck bug?
+    ],
+    # Generated header files by lex/yacc/whatever
+    'epan/dtd_grammar.h': [
+        'UNKNOWN',
+    ],
+    'epan/dfilter/grammar.h': [
+        'UNKNOWN',
+    ],
+    'plugins/mate/mate_grammar.h': [
+        'UNKNOWN',
+    ],
+    'version.h': [
+        'UNKNOWN',
+    ],
+    # Special IDL license that appears to be compatible as far as I (not a
+    # lawyer) can tell. See
+    # https://www.wireshark.org/lists/wireshark-dev/201310/msg00234.html
     'epan/dissectors/pidl/idl_types.h': [
-        # Special IDL license that appears to be compatible as far as I (not a
-        # lawyer) can tell. See
-        # https://www.wireshark.org/lists/wireshark-dev/201310/msg00234.html
+        'UNKNOWN',
+    ],
+    # Written by Ronnie Sahlberg and correctly licensed, but cannot include
+    # a license header despite the file extension as they need to be
+    # parsed by the pidl tool
+    'epan/dissectors/pidl/mapi/request.cnf.c': [
+        'UNKNOWN',
+    ],
+    'epan/dissectors/pidl/mapi/response.cnf.c': [
         'UNKNOWN',
     ],
     # The following tools are under incompatible licenses (mostly GPLv3 or
@@ -178,6 +200,9 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
         'UNKNOWN',
     ],
     'tools/html2text.py': [
+        'UNKNOWN',
+    ],
+    'tools/lemon': [
         'UNKNOWN',
     ],
 }
