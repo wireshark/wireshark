@@ -78,7 +78,8 @@ while(<WTAP_H>) {
         $wtap_encaps_table .= "\t[\"$1\"] = $2,\n";
     }
 
-    if ( /^#define WTAP_FILE_TYPE_SUBTYPE_([A-Z0-9_]+)\s+(\d+)/ ) {
+    # this has to catch both file types and timestamp precision defines (yuck)
+    if ( /^#define WTAP_FILE_(?:TYPE_SUBTYPE_)?([A-Z0-9_]+)\s+(\d+)/ ) {
         $wtap_filetypes_table .= "\t[\"$1\"] = $2,\n";
     }
 }
