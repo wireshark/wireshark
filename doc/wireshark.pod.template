@@ -604,6 +604,13 @@ is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
 default Lua scripts.
 
+B<lua_script>I<num>:I<argument> tells B<Wireshark> to pass the given argument
+to the lua script identified by 'num', which is the number indexed order of the 'lua_script' command.
+For example, if only one script was loaded with '-X lua_script:my.lua', then '-X lua_script1:foo'
+will pass the string 'foo' to the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua'
+and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would pass the string 'bar' to the second lua
+script, namely 'other.lua'.
+
 B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
 capturing from standard input (B<-i ->).
 

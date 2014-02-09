@@ -585,6 +585,14 @@ standard libpcap format.
         <para>
         <command>lua_script</command>:lua_script_filename; Tells Wireshark to load the given script in addition to the default Lua scripts.
         </para>
+        <para>
+        <command>lua_script[num]</command>:argument; Tells Wireshark to pass the given argument
+        to the lua script identified by 'num', which is the number indexed order of the 'lua_script' command.
+        For example, if only one script was loaded with '-X lua_script:my.lua', then '-X lua_script1:foo'
+        will pass the string 'foo' to the 'my.lua' script.  If two scripts were loaded, such as '-X lua_script:my.lua' and
+        '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would pass the string 'bar' to the second lua
+        script, namely 'other.lua'.
+        </para>
       </listitem>
     </varlistentry>
     <varlistentry><term><command>-z &lt;statistics-string></command></term>

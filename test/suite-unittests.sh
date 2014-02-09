@@ -114,6 +114,44 @@ unittests_step_lua_int64_test() {
 	fi
 }
 
+unittests_step_lua_args_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# Tshark catches lua script failures, so we have to parse the output.
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:1 > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "lua_args_test test 1 failed"
+	fi
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 -X lua_script1:foo -X lua_script1:bar > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "lua_args_test test 2 failed"
+	fi
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 -X lua_script2:1 -X lua_script1:foo -X lua_script1:bar > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "lua_args_test test 3 failed"
+	fi
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		cat testout.txt
+		test_step_failed "lua_args_test negative test 4 failed"
+	fi
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		cat testout.txt
+		test_step_failed "lua_args_test negative test 5 failed"
+	fi
+	test_step_ok
+}
+
 unittests_step_oids_test() {
 	DUT=$SOURCE_DIR/epan/oids_test
 	ARGS=
@@ -149,6 +187,7 @@ unittests_suite() {
 	test_step_add "exntest" unittests_step_exntest
 	test_step_add "lua dissector" unittests_step_lua_dissector_test
 	test_step_add "lua int64" unittests_step_lua_int64_test
+	test_step_add "lua script arguments" unittests_step_lua_args_test
 	test_step_add "oids_test" unittests_step_oids_test
 	test_step_add "reassemble_test" unittests_step_reassemble_test
 	test_step_add "tvbtest" unittests_step_tvbtest

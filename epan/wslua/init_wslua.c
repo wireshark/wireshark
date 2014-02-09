@@ -241,9 +241,27 @@ static void wslua_add_plugin(gchar *name, gchar *version, gchar *filename)
     new_plug->next = NULL;
 }
 
-static gboolean lua_load_script(const gchar* filename) {
+static int lua_script_push_args(const int script_num) {
+    gchar* argname = g_strdup_printf("lua_script%d", script_num);
+    const gchar* argvalue = NULL;
+    int count = 0;
+
+    while((argvalue = ex_opt_get_next(argname))) {
+        lua_pushstring(L,argvalue);
+        count++;
+    }
+
+    g_free(argname);
+    return count;
+}
+
+/* If file_count > 0 then it's a command-line-added user script, and the count
+ * represents which user script it is (first=1, second=2, etc.).
+ */
+static gboolean lua_load_script(const gchar* filename, const int file_count) {
     FILE* file;
     int error;
+    int numargs = 0;
 
     if (! ( file = ws_fopen(filename,"r")) ) {
         report_open_failure(filename,errno,FALSE);
@@ -261,7 +279,10 @@ static gboolean lua_load_script(const gchar* filename) {
 #endif
     switch (error) {
         case 0:
-            lua_pcall(L,0,0,1);
+            if (file_count > 0) {
+                numargs = lua_script_push_args(file_count);
+            }
+            lua_pcall(L,numargs,0,1);
             fclose(file);
             lua_pop(L,1); /* pop the error handler */
             return TRUE;
@@ -332,7 +353,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
                 if (!count_only) {
                     if (cb)
                         (*cb)(RA_LUA_PLUGINS, name, client_data);
-                    if (lua_load_script(filename)) {
+                    if (lua_load_script(filename,0)) {
                         wslua_add_plugin(g_strdup(name), g_strdup(""), g_strdup(filename));
                     }
                 }
@@ -401,6 +422,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
     expert_module_t* expert_lua;
+    int file_count = 1;
 
     static ei_register_info ei[] = {
         { &ei_lua_error, { "_ws.lua.error", PI_UNDECODED, PI_ERROR ,"Lua Error", EXPFILL }},
@@ -456,7 +478,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     }
 
     if (( file_exists(filename))) {
-        lua_load_script(filename);
+        lua_load_script(filename,0);
     }
 
     g_free(filename);
@@ -491,7 +513,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
         if ((file_exists(filename))) {
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(filename), client_data);
-            lua_load_script(filename);
+            lua_load_script(filename,0);
         }
         g_free(filename);
 
@@ -504,7 +526,8 @@ int wslua_init(register_cb cb, gpointer client_data) {
         while((script_filename = ex_opt_get_next("lua_script"))) {
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(script_filename), client_data);
-            lua_load_script(script_filename);
+            lua_load_script(script_filename,file_count);
+            file_count++;
         }
     }
 
