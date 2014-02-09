@@ -182,22 +182,6 @@ set(WSUG_GRAPHICS
 )
 
 set(WSDG_FILES
-	wsdg_generated_src/WSDG_chapter_build_intro.xml
-	wsdg_generated_src/WSDG_chapter_capture.xml
-	wsdg_generated_src/WSDG_chapter_dissection.xml
-	wsdg_generated_src/WSDG_chapter_env_intro.xml
-	wsdg_generated_src/WSDG_chapter_libraries.xml
-	wsdg_generated_src/WSDG_chapter_quick_setup.xml
-	wsdg_generated_src/WSDG_chapter_sources.xml
-	wsdg_generated_src/WSDG_chapter_tools.xml
-	wsdg_generated_src/WSDG_chapter_userinterface.xml
-	wsdg_generated_src/WSDG_chapter_works.xml
-	wsdg_src/WSDG_meta_info.xml
-	wsdg_generated_src/WSDG_preface.xml
-	ws.css
-)
-
-set(WSDG_ASCIIDOC_FILES
 	wsdg_src/WSDG_chapter_build_intro.asciidoc
 	wsdg_src/WSDG_chapter_capture.asciidoc
 	wsdg_src/WSDG_chapter_dissection.asciidoc
@@ -209,6 +193,7 @@ set(WSDG_ASCIIDOC_FILES
 	wsdg_src/WSDG_chapter_userinterface.asciidoc
 	wsdg_src/WSDG_chapter_works.asciidoc
 	wsdg_src/WSDG_preface.asciidoc
+	ws.css
 )
 
 set(WSDG_GRAPHICS
@@ -233,8 +218,37 @@ set(WSUG_SOURCE
 	${WSUG_GRAPHICS}
 )
 
+MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conffile )
+	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
+	set( A2X_HTML_OPTS --stylesheet=ws.css )
+	set( _output_xml ${_source_base_name}.xml )
+	set( _output_dbk ${_source_base_name}.dbk )
+	ADD_CUSTOM_TARGET(${_output_xml}
+		# XXX - Output to a specific directory, e.g. wsdg_generated_src
+		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+		COMMAND ${A2X_EXECUTABLE}
+			--verbose
+			--attribute=docinfo
+			--destination-dir=${CMAKE_CURRENT_BINARY_DIR}
+			--asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+			--no-xmllint
+			--format=docbook
+			--fop
+			${A2X_HTML_OPTS}
+			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+		DEPENDS
+			${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
+			${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}
+			${WSDG_GENERATED_FILES}
+	)
+ENDMACRO()
+
+ASCIIDOC2DOCBOOK( developer-guide.asciidoc asciidoc.conf )
+
 SET( WSDG_GENERATED_FILES )
-# Convert an AsciiDoc document to a Docbook chapter
+# Convert an AsciiDoc document to a DocBook chapter
+# Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
+# Can be removed after the User's Guide is converted.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
 MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 	GET_FILENAME_COMPONENT( _source_base_name ${_asciidocsource} NAME_WE )
@@ -268,14 +282,14 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
 ENDMACRO()
 
-FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
-	ASCIIDOC2CHAPTER(
-		${ASCIIDOCFILE}
-		asciidoc.conf
-	)
-ENDFOREACH()
+#FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
+#	ASCIIDOC2CHAPTER(
+#		${ASCIIDOCFILE}
+#		asciidoc.conf
+#	)
+#ENDFOREACH()
 
-ADD_CUSTOM_TARGET( wsdg_generated_src DEPENDS ${WSDG_GENERATED_FILES} )
+#ADD_CUSTOM_TARGET( wsdg_generated_src DEPENDS ${WSDG_GENERATED_FILES} )
 
 # developer-guide.xml must be first in the list
 set(WSDG_SOURCE
@@ -283,7 +297,6 @@ set(WSDG_SOURCE
 	git_version.xml
 	${WSDG_FILES}
 	${WSDG_GRAPHICS}
-        wsdg_generated_src
 )
 
 set(WSLUA_MODULES

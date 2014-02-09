@@ -1,0 +1,52 @@
+= Wireshark Developer's Guide =
+Ulf Lamping <ulf.lamping[AT]web.de>
+//v1.0, February 2014: Finished conversion from DocBook to AsciiDoc
+:doctype: book
+
+[[Preface]]
+["preface",id="Preface"]
+= Preface
+
+include::wsdg_src/WSDG_preface.asciidoc[]
+
+[[PartEnvironment]]
+= Wireshark Build Environment
+[partintro]
+.Wireshark Build Environment
+--
+The first part describes how to set up the tools, libraries and source needed to
+generate Wireshark and how to do some typical development tasks.
+--
+
+include::wsdg_src/WSDG_chapter_env_intro.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_quick_setup.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_sources.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_tools.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_libraries.asciidoc[]
+
+[[PartDevelopment]]
+= Wireshark Development
+[partintro]
+.Wireshark Development
+--
+The second part describes how the Wireshark sources are structured and how to
+change the sources such as adding a new dissector.
+--
+
+include::wsdg_src/WSDG_chapter_works.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_build_intro.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_capture.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_dissection.asciidoc[]
+
+include::wsdg_src/WSDG_chapter_userinterface.asciidoc[]
+
+include::GPL_appendix.asciidoc[]

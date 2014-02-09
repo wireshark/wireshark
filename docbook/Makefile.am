@@ -55,7 +55,9 @@ else
 	@false
 endif
 
-# Convert an AsciiDoc document to a Docbook chapter
+# Convert an AsciiDoc document to a DocBook chapter
+# Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
+# Can be removed after the User's Guide is converted.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
 .asciidoc.xml:
 	$(A2X) --verbose \
@@ -163,6 +165,14 @@ WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html
 endif
 
 wsdg: $(WSDG_TARGETS)
+
+developer-guide.xml: developer-guide.asciidoc $(WSDG_FILES)
+	$(A2X) --verbose \
+		--attribute=docinfo \
+		--asciidoc-opts="--conf-file=asciidoc.conf" \
+		--no-xmllint \
+		--format=docbook \
+		$<
 
 # validate the content
 wsdg.validated: $(WSDG_SOURCE)

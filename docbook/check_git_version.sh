@@ -23,8 +23,9 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+GIT_VERSION="unknown git version"
 if [ -d ../.git ] ; then
-    GIT_VERSION=`git describe --tags --dirty`
+    GIT_VERSION=`git describe --always --long`
 fi
 echo '<!ENTITY GitVersion "'${GIT_VERSION}'">' > git_version_tmp.xml
 

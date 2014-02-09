@@ -38,7 +38,8 @@ MACRO( ASCIIDOC2HTML _output _asciidocsource _conffile )
 	COMMAND ${A2X_EXECUTABLE}
 	    --format=xhtml
 	    --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-	    # --conf-file=${_conffile}
+	    --asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+	    --fop
 	    ${A2X_HTML_OPTS}
 	    ${_asciidocsource}
 	# Replacing file with itself will fail
@@ -65,7 +66,8 @@ MACRO( ASCIIDOC2TXT _output _asciidocsource _conffile )
         COMMAND ${A2X_EXECUTABLE}
             --format=text
 	    --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-	    # --conf-file=${_conffile}
+	    --asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+	    --fop
             ${A2X_TEXT_OPTS}
             --xsltproc-opts '--stringparam generate.toc "article nop"'
             ${_asciidocsource}
@@ -91,7 +93,8 @@ MACRO( ASCIIDOC2PDF _output _asciidocsource _conffile _paper )
 	COMMAND ${A2X_EXECUTABLE}
 	    --format=pdf
 	    --destination-dir=${CMAKE_CURRENT_BINARY_DIR}
-	    # --conf-file=${_conffile}
+	    --asciidoc-opts="--conf-file=${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}"
+	    --fop
 	    ${A2X_HTML_OPTS}
 	    --xsltproc-opts "--stringparam paper.type ${_paper} --nonet"
 	    --xsl-file=custom_layer_pdf.xsl

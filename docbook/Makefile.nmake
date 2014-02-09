@@ -32,7 +32,9 @@ A2X_TEXT_OPTS=$(A2X_TEXT_OPTS) --lynx
 
 .SUFFIXES: .fo .pdf
 
-# Convert an AsciiDoc document to a Docbook chapter
+# Convert an AsciiDoc document to a DocBook chapter
+# Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
+# Can be removed after the User's Guide is converted.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
 .asciidoc.xml:
 	$(SH) <<
@@ -157,6 +159,17 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 # -- Developer's Guide ------------------------------------------------------------------------
 
 wsdg_x: wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf developer-guide.chm
+
+developer-guide.xml: developer-guide.asciidoc  $(WSDG_FILES)
+	$(SH) <<
+	PATH=/usr/bin
+	$(A2X) --verbose \
+		--attribute=docinfo \
+		--asciidoc-opts=\"--conf-file=asciidoc.conf\" \
+		--no-xmllint \
+		--format=docbook \
+		developer-guide.asciidoc
+<<
 
 # validate the content
 wsdg.validated: $(WSDG_SOURCE)
