@@ -317,6 +317,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-acn.c
 	dissectors/packet-acr122.c
 	dissectors/packet-actrace.c
+	dissectors/packet-adb_cs.c
 	dissectors/packet-adwin-config.c
 	dissectors/packet-adwin.c
 	dissectors/packet-afp.c

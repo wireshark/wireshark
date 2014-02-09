@@ -237,6 +237,7 @@ DISSECTOR_SRC = \
 	packet-acn.c		\
 	packet-acr122.c		\
 	packet-actrace.c	\
+	packet-adb_cs.c		\
 	packet-adwin-config.c	\
 	packet-adwin.c		\
 	packet-afp.c		\
