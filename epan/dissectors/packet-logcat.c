@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/exported_pdu.h>
 #include <epan/tap.h>
+#include <wiretap/wtap.h>
 
 static int proto_logcat = -1;
 
@@ -282,6 +283,8 @@ proto_register_logcat(void)
 void
 proto_reg_handoff_logcat(void)
 {
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_LOGCAT, logcat_handle);
+
     dissector_add_handle("tcp.port", logcat_handle);
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LOGCAT);

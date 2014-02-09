@@ -51,6 +51,7 @@ set(CLEAN_FILES
 	k12.c
 	lanalyzer.c
 	libpcap.c
+	logcat.c
 	merge.c
 	mpeg.c
 	mime_file.c

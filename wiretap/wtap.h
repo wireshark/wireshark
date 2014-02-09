@@ -254,6 +254,14 @@ extern "C" {
 #define WTAP_ENCAP_BLUETOOTH_BREDR_BB           161
 #define WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR    162
 #define WTAP_ENCAP_NSTRACE_3_0                  163
+#define WTAP_ENCAP_LOGCAT                       164
+#define WTAP_ENCAP_LOGCAT_BRIEF                 165
+#define WTAP_ENCAP_LOGCAT_PROCESS               166
+#define WTAP_ENCAP_LOGCAT_TAG                   167
+#define WTAP_ENCAP_LOGCAT_THREAD                168
+#define WTAP_ENCAP_LOGCAT_TIME                  169
+#define WTAP_ENCAP_LOGCAT_THREADTIME            170
+#define WTAP_ENCAP_LOGCAT_LONG                  171
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
@@ -330,6 +338,14 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_CAMINS                        64
 #define WTAP_FILE_TYPE_SUBTYPE_STANAG_4607                   65
 #define WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0                 66
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT                        67
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_BRIEF                  68
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_PROCESS                69
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TAG                    70
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREAD                 71
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_TIME                   72
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_THREADTIME             73
+#define WTAP_FILE_TYPE_SUBTYPE_LOGCAT_LONG                   74
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 
@@ -865,6 +881,11 @@ struct gsm_um_phdr {
 #define GSM_UM_CHANNEL_AGCH     7
 #define GSM_UM_CHANNEL_PCH      8
 
+/* pseudo header for WTAP_ENCAP_LOGCAT */
+struct logcat_phdr {
+    gint version;
+};
+
 union wtap_pseudo_header {
     struct eth_phdr     eth;
     struct x25_phdr     x25;
@@ -890,6 +911,7 @@ union wtap_pseudo_header {
     struct nstr_phdr    nstr;
     struct nokia_phdr   nokia;
     struct llcp_phdr    llcp;
+    struct logcat_phdr  logcat;
 };
 
 struct wtap_pkthdr {

@@ -64,6 +64,7 @@
 #include "5views.h"
 #include "erf.h"
 #include "hcidump.h"
+#include "logcat.h"
 #include "network_instruments.h"
 #include "k12.h"
 #include "ber.h"
@@ -360,6 +361,7 @@ static struct open_info open_info_base[] = {
     { "Hcidump",                     OPEN_INFO_HEURISTIC, hcidump_open,             NULL,       NULL },
     { "Commview",                    OPEN_INFO_HEURISTIC, commview_open,            "ncf",      NULL },
     { "Nstrace",                     OPEN_INFO_HEURISTIC, nstrace_open,             "txt",      NULL },
+    { "Logcat ",                     OPEN_INFO_HEURISTIC, logcat_open,              "logcat",   NULL },
     /* ASCII trace files from Telnet sessions. */
     { "Ascend",                      OPEN_INFO_HEURISTIC, ascend_open,              "txt",      NULL },
     { "Toshiba",                     OPEN_INFO_HEURISTIC, toshiba_open,             "txt",      NULL },
@@ -1420,7 +1422,33 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	/* WTAP_FILE_NETSCALER_3_0 */
 	{ "NetScaler Trace (Version 3.0)", "nstrace30", "cap", NULL,
 	  TRUE, FALSE, 0,
-	  nstrace_30_dump_can_write_encap, nstrace_dump_open, NULL }
+	  nstrace_30_dump_can_write_encap, nstrace_dump_open, NULL },
+
+	/* WTAP_FILE_LOGCAT */
+	{ "Android Logcat Binary format",          "logcat",         "logcat", NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_binary_dump_open, NULL },
+	{ "Android Logcat Brief text format",      "logcat-brief",      NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_brief_dump_open, NULL },
+	{ "Android Logcat Process text format",    "logcat-process",    NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_process_dump_open, NULL },
+	{ "Android Logcat Tag text format",        "logcat-tag",        NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_tag_dump_open, NULL },
+	{ "Android Logcat Time text format",       "logcat-time",       NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_time_dump_open, NULL },
+	{ "Android Logcat Thread text format",     "logcat-thread",     NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_thread_dump_open, NULL },
+	{ "Android Logcat Threadtime text format", "logcat-threadtime", NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_threadtime_dump_open, NULL },
+	{ "Android Logcat Long text format",       "logcat-long",       NULL, NULL,
+	  FALSE, FALSE, 0,
+	  logcat_dump_can_write_encap, logcat_text_long_dump_open, NULL }
 
 };
 
