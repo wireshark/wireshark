@@ -3487,6 +3487,7 @@ Michal Labedzki		<michal.labedzki[AT]tieto.com> {
 	Bluetooth MCAP dissector
 	Bluetooth HCRP dissector
 	Bluetooth AVDTP/A2DP/VDP/SBC dissectors
+	Android Logcat logs support
 }
 
 Wido Kelling		<kellingwido[AT]aol.com> {
