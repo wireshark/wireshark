@@ -117,9 +117,6 @@ static header_field_info hfi_nflog_version NFLOG_HFI_INIT =
 static header_field_info hfi_nflog_resid NFLOG_HFI_INIT =
 	{ "Resource id", "nflog.res_id", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL };
 
-static header_field_info hfi_nflog_encoding NFLOG_HFI_INIT =
-	{ "Encoding", "nflog.encoding", FT_UINT32, BASE_HEX, VALS(_encoding_vals), 0x00, NULL, HFILL };
-
 /* TLV */
 static header_field_info hfi_nflog_tlv NFLOG_HFI_INIT =
 	{ "TLV", "nflog.tlv", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL };
@@ -150,57 +147,6 @@ static dissector_handle_t ip_handle;
 static dissector_handle_t ip6_handle;
 static dissector_handle_t data_handle;
 
-static int
-nflog_tvb_test_order(tvbuff_t *tvb, int offset, guint16 (*val16_get)(tvbuff_t *, int))
-{
-	while (tvb_length_remaining(tvb, offset) > 4) {
-		guint16 tlv_len = val16_get(tvb, offset + 0);
-		guint16 tlv_type;
-
-		/* malformed */
-		if (tlv_len < 4)
-			return 0;
-
-		tlv_type = (val16_get(tvb, offset + 2) & 0x7fff);
-
-		if (tlv_type >= 0x100)
-			break;
-
-		if (tlv_type)
-			return 1;
-
-		offset += ((tlv_len + 3) & ~3);	/* next TLV aligned to 4B */
-	}
-	return 0;
-}
-
-static int
-nflog_tvb_byte_order(tvbuff_t *tvb, int tlv_offset)
-{
-	switch (nflog_byte_order) {
-		case BYTE_ORDER_BE:
-			return ENC_BIG_ENDIAN;
-
-		case BYTE_ORDER_LE:
-			return ENC_LITTLE_ENDIAN;
-
-		case BYTE_ORDER_HOST:
-#if (G_BYTE_ORDER == G_LITTLE_ENDIAN)
-                    return ENC_LITTLE_ENDIAN;
-#else
-                    return ENC_BIG_ENDIAN;
-#endif
-	}
-
-	if (nflog_tvb_test_order(tvb, tlv_offset, tvb_get_ntohs))
-		return ENC_BIG_ENDIAN;
-
-	if (nflog_tvb_test_order(tvb, tlv_offset, tvb_get_letohs))
-		return ENC_LITTLE_ENDIAN;
-
-	return ENC_NA;	/* ENC_NA same as ENC_BIG_ENDIAN */
-}
-
 static void
 dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -214,24 +160,10 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tvbuff_t *next_tvb = NULL;
 	int aftype;
 
-	int enc;
-	guint16 (*val16_get)(tvbuff_t *, int);
-
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NFLOG");
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	aftype = tvb_get_guint8(tvb, 0);
-	enc = nflog_tvb_byte_order(tvb, start_tlv_offset);
-	switch (enc) {
-		case ENC_LITTLE_ENDIAN:
-			val16_get = tvb_get_letohs;
-			break;
-
-		case ENC_BIG_ENDIAN:
-		default:
-			val16_get = tvb_get_ntohs;
-			break;
-	}
 
 	/* Header */
 	if (proto_field_is_referenced(tree, hfi_nflog->id)) {
@@ -246,16 +178,12 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_item(nflog_tree, &hfi_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-
-		ti = proto_tree_add_uint(nflog_tree, &hfi_nflog_encoding,
-					 tvb, offset, tvb_length_remaining(tvb, offset), enc);
-		PROTO_ITEM_SET_GENERATED(ti);
 	}
 
 	offset = start_tlv_offset;
 	/* TLVs */
-	while (tvb_length_remaining(tvb, offset) >= 4) {
-		guint16 tlv_len = val16_get(tvb, offset + 0);
+	while (tvb_reported_length_remaining(tvb, offset) >= 4) {
+		guint16 tlv_len = tvb_get_h_guint16(tvb, offset + 0);
 		guint16 tlv_type;
 		guint16 value_len;
 
@@ -266,7 +194,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 
 		value_len = tlv_len - 4;
-		tlv_type = (val16_get(tvb, offset + 2) & 0x7fff);
+		tlv_type = (tvb_get_h_guint16(tvb, offset + 2) & 0x7fff);
 
 		if (nflog_tree) {
 			gboolean handled = FALSE;
@@ -278,8 +206,8 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							 tlv_type, tlv_len);
 			tlv_tree = proto_item_add_subtree(ti, ett_nflog_tlv);
 
-			proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_length, tvb, offset + 0, 2, enc);
-			proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_type, tvb, offset + 2, 2, enc);
+			proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_length, tvb, offset + 0, 2, ENC_HOST_ENDIAN);
+			proto_tree_add_item(tlv_tree, &hfi_nflog_tlv_type, tvb, offset + 2, 2, ENC_HOST_ENDIAN);
 			switch (tlv_type) {
 				case WS_NFULA_PAYLOAD:
 					handled = TRUE;
@@ -358,7 +286,6 @@ proto_register_nflog(void)
 		&hfi_nflog_family,
 		&hfi_nflog_version,
 		&hfi_nflog_resid,
-		&hfi_nflog_encoding,
 	/* TLV */
 		&hfi_nflog_tlv,
 		&hfi_nflog_tlv_length,

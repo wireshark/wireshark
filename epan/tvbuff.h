@@ -318,6 +318,23 @@ WS_DLL_PUBLIC gfloat tvb_get_letohieee_float(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
     const gint offset);
 
+/*
+ * Fetch 16-bit and 32-bit values in host byte order.
+ * Used for some pseudo-headers in pcap/pcap-ng files, in which the
+ * headers are, when capturing, in the byte order of the host, and
+ * are converted to the byte order of the host reading the file
+ * when reading a capture file.
+ */
+#if G_BYTE_ORDER == G_LITTLE_ENDIAN
+#define tvb_get_h_guint16	tvb_get_letohs
+#define tvb_get_h_guint32	tvb_get_letohl
+#elif G_BYTE_ORDER == G_BIG_ENDIAN
+#define tvb_get_h_guint16	tvb_get_ntohs
+#define tvb_get_h_guint32	tvb_get_ntohl
+#else
+#error "Unsupported byte order"
+#endif
+
 /**
  * Fetch an IPv4 address, in network byte order.
  * We do *not* convert it to host byte order; we leave it in

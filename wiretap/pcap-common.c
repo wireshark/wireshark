@@ -1293,6 +1293,81 @@ pcap_byteswap_linux_usb_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd,
 	}
 }
 
+struct nflog_hdr {
+	guint8 nflog_family;		/* address family */
+	guint8 nflog_version;		/* version */
+	guint16 nflog_rid;		/* resource ID */
+};
+
+struct nflog_tlv {
+	guint16 tlv_length;		/* tlv length */
+	guint16 tlv_type;		/* tlv type */
+	/* value follows this */
+};
+
+static void
+pcap_byteswap_nflog_pseudoheader(struct wtap_pkthdr *phdr, guint8 *pd)
+{
+	guint packet_size;
+	guint8 *p;
+	struct nflog_hdr *nfhdr;
+	struct nflog_tlv *tlv;
+	guint size;
+
+	/*
+	 * Minimum of captured and actual length (just in case the
+	 * actual length < the captured length, which Should Never
+	 * Happen).
+	 */
+	packet_size = phdr->caplen;
+	if (packet_size > phdr->len)
+		packet_size = phdr->len;
+
+	if (packet_size < sizeof(struct nflog_hdr)) {
+		/* Not enough data to have any TLVs. */
+		return;
+	}
+
+	p = pd;
+	nfhdr = (struct nflog_hdr *)pd;
+	if (!(nfhdr->nflog_version) == 0) {
+		/* Unknown NFLOG version */
+		return;
+	}
+
+	packet_size -= (guint)sizeof(struct nflog_hdr);
+	p += sizeof(struct nflog_hdr);
+
+	while (packet_size >= sizeof(struct nflog_tlv)) {
+		tlv = (struct nflog_tlv *) p;
+
+		/* Swap the type and length. */
+		PBSWAP16((guint8 *)&tlv->tlv_type);
+		PBSWAP16((guint8 *)&tlv->tlv_length);
+
+		/* Get the length of the TLV. */
+		size = tlv->tlv_length;
+		if (size % 4 != 0)
+			size += 4 - size % 4;
+
+		/* Is the TLV's length less than the minimum? */
+		if (size < sizeof(struct nflog_tlv)) {
+			/* Yes. Give up now. */
+			return;
+		}
+
+		/* Do we have enough data for the full TLV? */
+		if (packet_size < size) {
+			/* No. */
+			return;
+		}
+
+		/* Skip over the TLV. */
+		packet_size -= size;
+		p += size;
+	}
+}
+
 static gboolean
 pcap_read_bt_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
@@ -1875,6 +1950,11 @@ pcap_read_post_process(int file_type, int wtap_encap,
 		 * dissector, but we might as well set it.
 		 */
 		phdr->pseudo_header.eth.fcs_len = 4;
+		break;
+
+	case WTAP_ENCAP_NFLOG:
+		if (bytes_swapped)
+			pcap_byteswap_nflog_pseudoheader(phdr, pd);
 		break;
 
 	default:
