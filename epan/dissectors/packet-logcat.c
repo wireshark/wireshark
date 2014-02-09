@@ -26,6 +26,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/exported_pdu.h>
+#include <epan/tap.h>
 
 static int proto_logcat = -1;
 
@@ -47,6 +49,8 @@ static gint ett_logcat = -1;
 static gint ett_logcat_timestamp = -1;
 
 static dissector_handle_t logcat_handle;
+
+static gint exported_pdu_tap = -1;
 
 static expert_field ei_invalid_payload_length = EI_INIT;
 
@@ -171,6 +175,15 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     if (length != check_length)
         proto_tree_add_expert(maintree, pinfo, &ei_invalid_payload_length, tvb, offset, tvb_length_remaining(tvb, offset));
 
+    if (have_tap_listener(exported_pdu_tap)) {
+        exp_pdu_data_t *exp_pdu_data;
+
+        exp_pdu_data = load_export_pdu_tags(pinfo, "logcat", -1, EXP_PDU_TAG_END_OF_OPT);
+        exp_pdu_data->tvb_length = tvb_length(tvb);
+        exp_pdu_data->pdu_tvb = tvb;
+        tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+    }
+
     return offset;
 }
 
@@ -269,6 +282,8 @@ void
 proto_reg_handoff_logcat(void)
 {
     dissector_add_handle("tcp.port", logcat_handle);
+
+    exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LOGCAT);
 }
 
 /*

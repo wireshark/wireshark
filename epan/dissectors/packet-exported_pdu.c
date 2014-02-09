@@ -350,6 +350,7 @@ proto_register_exported_pdu(void)
     register_tap(EXPORT_PDU_TAP_NAME_LAYER_3);
     register_tap(EXPORT_PDU_TAP_NAME_LAYER_7);
     register_tap(EXPORT_PDU_TAP_NAME_DVB_CI);
+    register_tap(EXPORT_PDU_TAP_NAME_LOGCAT);
 }
 
 void

@@ -40,6 +40,7 @@
 #define EXPORT_PDU_TAP_NAME_LAYER_3 "OSI layer 3"
 #define EXPORT_PDU_TAP_NAME_LAYER_7 "OSI layer 7"
 #define EXPORT_PDU_TAP_NAME_DVB_CI  "DVB-CI"
+#define EXPORT_PDU_TAP_NAME_LOGCAT  "Logcat"
 
 /**
  * This struct is used as the data part of tap_queue_packet() and contains a

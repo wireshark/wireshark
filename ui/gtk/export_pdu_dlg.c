@@ -154,6 +154,7 @@ export_pdu_show_cb(GtkWidget *w _U_, gpointer d _U_)
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_dlg_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_7);
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_dlg_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LAYER_3);
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_dlg_data->tap_name_widget), EXPORT_PDU_TAP_NAME_DVB_CI);
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(exp_pdu_dlg_data->tap_name_widget), EXPORT_PDU_TAP_NAME_LOGCAT);
     gtk_combo_box_set_active(GTK_COMBO_BOX(exp_pdu_dlg_data->tap_name_widget), 0);
 
     ws_gtk_grid_attach_defaults(GTK_GRID(grid), exp_pdu_dlg_data->tap_name_widget, 0, row, 1, 1);
