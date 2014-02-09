@@ -93,13 +93,14 @@ for i,t in ipairs(testtbl) do
     test("new1",checkeq(my64a,val))
     test("new2",checkeq(my64b,val))
     test("new3",checkeq(my64a,obj.new(my64b)))
+    test("new3b",checkeq(my64a,obj(my64b)))
     test("new4",checkeq(valc,my64c))
     test("new5",checkeq(0,my64z))
     test("new6",obj.new(0,1):tonumber() == (2^32))
     if t.name == "Int64" then
-        test("new7",obj.new(-1):tonumber() == -1)
+        test("new7",obj(-1):tonumber() == -1)
         test("new8",obj.new(0,-1):tonumber() == -4294967296)
-        test("new9",obj.new(obj.new(-1)):tonumber() == -1)
+        test("new9",obj(obj.new(-1)):tonumber() == -1)
     end
 
     test("tonumber1",val == my64a:tonumber())
@@ -126,7 +127,7 @@ for i,t in ipairs(testtbl) do
     test("ge2", my64c >= my64z)
 
     test("neq1",not(my64a ~= my64b))
-    test("neq2",my64a ~= obj.new(0))
+    test("neq2",my64a ~= obj(0))
     test("neq2",my64a ~= my64c)
 
     test("gt1",my64a > my64z)
@@ -166,7 +167,7 @@ for i,t in ipairs(testtbl) do
     test("pow3",checkeq(my64a ^ obj.new(3), val ^ 3))
     test("pow4",checkeq(my64c ^ 1, valc ^ 1))
 
-    test("mul1",checkeq(my64a * obj.new(1), my64b))
+    test("mul1",checkeq(my64a * obj(1), my64b))
     test("mul2",checkeq(my64a * my64b, my64b * my64a))
     test("mul3",checkeq(my64a * 1, my64b))
     test("mul4",checkeq(2 * my64c, 2 * valc))
@@ -268,23 +269,23 @@ for i,t in ipairs(testtbl) do
 
     testing("bit operations")
 
-    test("band1",checkeq(obj.new(1):band(1), 1))
-    test("band2",checkeq(obj.new(1):band(0), 0))
-    test("band3",checkeq(obj.new(4294967295,100):band(4294967295), 4294967295))
-    test("band4",obj.new(4294967295,100):band(obj.new(0,100),obj.new(0,100),obj.new(0,100)) == obj.new(0,100))
-    test("band5",checkeq(obj.new(4294967295,100):band(obj.new(0,100),obj.new(0)), 0))
+    test("band1",checkeq(obj(1):band(1), 1))
+    test("band2",checkeq(obj(1):band(0), 0))
+    test("band3",checkeq(obj(4294967295,100):band(4294967295), 4294967295))
+    test("band4",obj.new(4294967295,100):band(obj(0,100),obj(0,100),obj(0,100)) == obj(0,100))
+    test("band5",checkeq(obj.new(4294967295,100):band(obj.new(0,100),obj(0)), 0))
 
-    test("bor1",checkeq(obj.new(1):bor(1), 1))
-    test("bor2",checkeq(obj.new(1):bor(0), 1))
-    test("bor3",checkeq(obj.new(0):bor(0), 0))
+    test("bor1",checkeq(obj(1):bor(1), 1))
+    test("bor2",checkeq(obj(1):bor(0), 1))
+    test("bor3",checkeq(obj(0):bor(0), 0))
     test("bor4",obj.new(0,100):bor(4294967295) == obj.new(4294967295,100))
-    test("bor5",obj.new(1):bor(obj.new(2),obj.new(4),obj.new(8),16,32,64,128) == obj.new(255))
+    test("bor5",obj.new(1):bor(obj(2),obj.new(4),obj(8),16,32,64,128) == obj(255))
 
     test("bxor1",checkeq(obj.new(1):bxor(1), 0))
     test("bxor2",checkeq(obj.new(1):bxor(0), 1))
     test("bxor3",checkeq(obj.new(0):bxor(0), 0))
-    test("bxor4",obj.new(4294967295,100):bxor(obj.new(0,100)) == obj.new(4294967295))
-    test("bxor5",obj.new(1):bxor(obj.new(2),obj.new(4),obj.new(8),16,32,64,128) == obj.new(255))
+    test("bxor4",obj.new(4294967295,100):bxor(obj(0,100)) == obj.new(4294967295))
+    test("bxor5",obj.new(1):bxor(obj(2),obj(4),obj(8),16,32,64,128) == obj(255))
 
     test("bnot1",checkeq(obj.new(4294967295,4294967295):bnot(), 0))
     test("bnot2",obj.new(0):bnot() == obj.new(4294967295,4294967295))
@@ -335,6 +336,41 @@ z=z-1
 test("min3",z==Int64.min())
 
 test("minmax",Int64.min()== - Int64.max() - 1)
+
+testing("error conditions")
+
+local function divtest(f,s)
+    local r = (f / s)
+    if r == 5 then
+        io.stdout:write("ok...")
+    else
+        error("test failed!")
+    end
+end
+
+local function modtest(f,s)
+    local r = (f % s)
+    if r == 5 then
+        io.stdout:write("ok...")
+    else
+        error("test failed!")
+    end
+end
+
+test("error1", pcall(divtest, 10, 2)) -- not an error, but checking the div function works above
+test("error2", not pcall(divtest, Int64(10), 0))
+test("error3", not pcall(divtest, Int64(10), Int64(0)))
+test("error4", not pcall(divtest, Int64(10), UInt64(0)))
+test("error5", not pcall(divtest, UInt64(10), 0))
+test("error6", not pcall(divtest, UInt64(10), Int64(0)))
+test("error7", not pcall(divtest, UInt64(10), UInt64(0)))
+test("error8", pcall(modtest, 17, 6)) -- not an error, but checking the mod function works above
+test("error9", not pcall(modtest, Int64(10), 0))
+test("error10", not pcall(modtest, Int64(10), Int64(0)))
+test("error11", not pcall(modtest, Int64(10), UInt64(0)))
+test("error12", not pcall(modtest, UInt64(10), 0))
+test("error13", not pcall(modtest, UInt64(10), Int64(0)))
+test("error14", not pcall(modtest, UInt64(10), UInt64(0)))
 
 print("\n-----------------------------\n")
 

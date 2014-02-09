@@ -337,11 +337,8 @@ typedef int dummy##C
     /* push a copy of the class methods table, and set it to be the metatable's __index field */ \
     lua_pushvalue (L, -2); \
     lua_setfield (L, -2, "__index"); \
-    /* push a copy of the class methods table, and set it to be the metatable's __metatable field, to hide metatable */ \
-    lua_pushvalue (L, -2); \
-    lua_setfield (L, -2, "__metatable"); \
-    /* pop the metatable */ \
-    lua_pop (L, 1); \
+    /* set the metatable to be the class's metatable, so scripts can inspect it, and metamethods work for class tables */ \
+    lua_setmetatable(L, -2); \
     /* set the class methods table as the global class table */ \
     lua_setglobal (L, #C); \
 }

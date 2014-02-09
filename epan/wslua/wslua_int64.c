@@ -179,8 +179,8 @@ WSLUA_CONSTRUCTOR Int64_new(lua_State* L) { /* Creates a Int64 Object */
                 value = (gint64)lua_tonumber(L, WSLUA_OPTARG_Int64_new_VALUE);
                 if (lua_gettop(L) == 2 && lua_type(L, WSLUA_OPTARG_Int64_new_HIGHVALUE) == LUA_TNUMBER) {
                     gint64 h = (gint64)lua_tonumber(L, WSLUA_OPTARG_Int64_new_HIGHVALUE);
-                    value &= 0x00000000FFFFFFFF;
-                    h <<= 32; h &= 0xFFFFFFFF00000000;
+                    value &= G_GUINT64_CONSTANT(0x00000000FFFFFFFF);
+                    h <<= 32; h &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
                     value += h;
                 }
                 break;
@@ -197,6 +197,11 @@ WSLUA_CONSTRUCTOR Int64_new(lua_State* L) { /* Creates a Int64 Object */
     pushInt64(L,value);
 
     WSLUA_RETURN(1); /* The new Int64 object. */
+}
+
+WSLUA_METAMETHOD Int64__call(lua_State* L) { /* Creates a Int64 Object */
+    lua_remove(L,1); /* remove the table */
+    WSLUA_RETURN(Int64_new(L)); /* The new Int64 object. */
 }
 
 WSLUA_CONSTRUCTOR Int64_max(lua_State* L) { /* Gets the max possible value */
@@ -249,7 +254,7 @@ WSLUA_METHOD Int64_higher(lua_State* L) {
     gint64 b = num;
     lua_Number n;
     if (b < 0) b = -b; /* masking/shifting negative int64 isn't working on some platforms */
-    b &= 0x7FFFFFFF00000000;
+    b &= G_GUINT64_CONSTANT(0x7FFFFFFF00000000);
     b >>= 32;
     n = (lua_Number)(guint32)(b & 0x00000000FFFFFFFFF);
     if (num < 0) n = -n;
@@ -261,7 +266,7 @@ WSLUA_METHOD Int64_lower(lua_State* L) {
     /* Returns a Lua number of the lower 32-bits of the Int64 value. (always positive) */
     gint64 b = getInt64(L,1);
     if (b < 0) b = -b; /* masking/shifting negative int64 isn't working on some platforms */
-    lua_pushnumber(L,(guint32)(b & 0x00000000FFFFFFFFF));
+    lua_pushnumber(L,(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF)));
     WSLUA_RETURN(1); /* The Lua number */
 }
 
@@ -304,13 +309,25 @@ WSLUA_METAMETHOD Int64__mul(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Int64__div(lua_State* L) {
-    /* Divides two Int64 and returns a new one (integer divide, no remainder) */
-    WSLUA_MATH_OP_FUNC(Int64,/);
+    /* Divides two Int64 and returns a new one (integer divide, no remainder).
+       Trying to divide by zero results in a Lua error. */
+    Int64 num1 = getInt64(L,1);
+    Int64 num2 = getInt64(L,2);
+    if (num2 == 0)
+        luaL_error(L, "Trying to divide Int64 by zero");
+    pushInt64(L, num1 / num2);
+    WSLUA_RETURN(1); /* The Int64 object */
 }
 
 WSLUA_METAMETHOD Int64__mod(lua_State* L) {
-    /* Divides two Int64 and returns a new one of the remainder */
-    WSLUA_MATH_OP_FUNC(Int64,%);
+    /* Divides two Int64 and returns a new one of the remainder.
+       Trying to modulo by zero results in a Lua error. */
+    Int64 num1 = getInt64(L,1);
+    Int64 num2 = getInt64(L,2);
+    if (num2 == 0)
+        luaL_error(L, "Trying to modulo Int64 by zero");
+    pushInt64(L, num1 % num2);
+    WSLUA_RETURN(1); /* The Int64 object */
 }
 
 WSLUA_METAMETHOD Int64__pow(lua_State* L) {
@@ -437,7 +454,7 @@ WSLUA_METHOD Int64_bswap(lua_State* L) {
     size_t i;
     for (i = 0; i < sizeof(gint64); i++) {
         result <<= 8;
-        result |= (b & 0x00000000000000FF);
+        result |= (b & G_GUINT64_CONSTANT(0x00000000000000FF));
         b >>= 8;
     }
     pushInt64(L,(gint64)result);
@@ -475,6 +492,7 @@ static const luaL_Reg Int64_methods[] = {
 
 static const luaL_Reg Int64_meta[] = {
     {"__tostring", Int64__tostring},
+    {"__call", Int64__call},
     {"__concat", wslua__concat},
     {"__unm", Int64__unm},
     {"__add", Int64__add},
@@ -617,8 +635,8 @@ WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) { /* Creates a UInt64 Object */
                 value = (guint64)lua_tonumber(L, WSLUA_OPTARG_UInt64_new_VALUE);
                  if (lua_gettop(L) == 2 && lua_type(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE) == LUA_TNUMBER) {
                     guint64 h = (guint64)lua_tonumber(L, WSLUA_OPTARG_UInt64_new_HIGHVALUE);
-                    value &= 0x00000000FFFFFFFF;
-                    h <<= 32; h &= 0xFFFFFFFF00000000;
+                    value &= G_GUINT64_CONSTANT(0x00000000FFFFFFFF);
+                    h <<= 32; h &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
                     value += h;
                 }
                break;
@@ -635,6 +653,11 @@ WSLUA_CONSTRUCTOR UInt64_new(lua_State* L) { /* Creates a UInt64 Object */
     pushUInt64(L,value);
 
     WSLUA_RETURN(1); /* The new UInt64 object. */
+}
+
+WSLUA_METAMETHOD UInt64__call(lua_State* L) { /* Creates a UInt64 Object */
+    lua_remove(L,1); /* remove the table */
+    WSLUA_RETURN(UInt64_new(L)); /* The new UInt64 object. */
 }
 
 WSLUA_CONSTRUCTOR UInt64_max(lua_State* L) { /* Gets the max possible value */
@@ -695,9 +718,9 @@ WSLUA_METHOD UInt64_higher(lua_State* L) {
     guint64 num = getUInt64(L,1);
     guint64 b = num;
     lua_Number n;
-    b &= 0xFFFFFFFF00000000;
+    b &= G_GUINT64_CONSTANT(0xFFFFFFFF00000000);
     b >>= 32;
-    n = (lua_Number)(guint32)(b & 0x00000000FFFFFFFFF);
+    n = (lua_Number)(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF));
     lua_pushnumber(L,n);
     WSLUA_RETURN(1); /* The Lua number */
 }
@@ -705,7 +728,7 @@ WSLUA_METHOD UInt64_higher(lua_State* L) {
 WSLUA_METHOD UInt64_lower(lua_State* L) {
     /* Returns a Lua number of the lower 32-bits of the UInt64 value. */
     guint64 b = getUInt64(L,1);
-    lua_pushnumber(L,(guint32)(b & 0x00000000FFFFFFFFF));
+    lua_pushnumber(L,(guint32)(b & G_GUINT64_CONSTANT(0x00000000FFFFFFFFF)));
     WSLUA_RETURN(1); /* The Lua number */
 }
 
@@ -731,13 +754,25 @@ WSLUA_METAMETHOD UInt64__mul(lua_State* L) {
 }
 
 WSLUA_METAMETHOD UInt64__div(lua_State* L) {
-    /* Divides two UInt64 and returns a new one (integer divide, no remainder) */
-    WSLUA_MATH_OP_FUNC(UInt64,/);
+    /* Divides two UInt64 and returns a new one (integer divide, no remainder).
+       Trying to divide by zero results in a Lua error. */
+    UInt64 num1 = getUInt64(L,1);
+    UInt64 num2 = getUInt64(L,2);
+    if (num2 == 0)
+        luaL_error(L, "Trying to divide UInt64 by zero");
+    pushUInt64(L, num1 / num2);
+    WSLUA_RETURN(1); /* The UInt64 result */
 }
 
 WSLUA_METAMETHOD UInt64__mod(lua_State* L) {
-    /* Divides two UInt64 and returns a new one of the remainder */
-    WSLUA_MATH_OP_FUNC(UInt64,%);
+    /* Divides two UInt64 and returns a new one of the remainder.
+       Trying to modulo by zero results in a Lua error. */
+    UInt64 num1 = getUInt64(L,1);
+    UInt64 num2 = getUInt64(L,2);
+    if (num2 == 0)
+        luaL_error(L, "Trying to modulo UInt64 by zero");
+    pushUInt64(L, num1 % num2);
+    WSLUA_RETURN(1); /* The UInt64 result */
 }
 
 WSLUA_METAMETHOD UInt64__pow(lua_State* L) {
@@ -849,7 +884,7 @@ WSLUA_METHOD UInt64_bswap(lua_State* L) {
     size_t i;
     for (i = 0; i < sizeof(guint64); i++) {
         result <<= 8;
-        result |= (b & 0x00000000000000FF);
+        result |= (b & G_GUINT64_CONSTANT(0x00000000000000FF));
         b >>= 8;
     }
     pushUInt64(L,result);
@@ -887,6 +922,7 @@ static const luaL_Reg UInt64_methods[] = {
 
 static const luaL_Reg UInt64_meta[] = {
     {"__tostring", UInt64__tostring},
+    {"__call", UInt64__call},
     {"__concat", wslua__concat},
     {"__unm", UInt64__unm},
     {"__add", UInt64__add},
