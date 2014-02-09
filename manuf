@@ -2705,7 +2705,7 @@
 00:0A:76	BeidaJad               # Beida Jade Bird Huaguang Technology Co.,Ltd
 00:0A:77	Bluewire               # Bluewire Technologies LLC
 00:0A:78	Olitec
-00:0A:79	AlliedTe               # Allied Telesis K.K. corega division
+00:0A:79	CoregaKK               # corega K.K
 00:0A:7A	Kyoritsu               # Kyoritsu Electric Co., Ltd.
 00:0A:7B	Corneliu               # Cornelius Consult
 00:0A:7C	Tecton                 # Tecton Ltd
@@ -5827,7 +5827,7 @@
 00:16:A8	Cwt                    # CWT CO., LTD.
 00:16:A9	2ei
 00:16:AA	KeiCommu               # Kei Communication Technology Inc.
-00:16:AB	Pbi-Dans               # PBI-Dansensor A/S
+00:16:AB	Dansenso               # Dansensor A/S
 00:16:AC	TohoTech               # Toho Technology Corp.
 00:16:AD	Bt-Links               # BT-Links Company Limited
 00:16:AE	Inventel
@@ -10072,7 +10072,7 @@
 00:26:84	KisanSys               # KISAN SYSTEM
 00:26:85	DigitalI               # Digital Innovation
 00:26:86	Quantenn               # Quantenna Communcations, Inc.
-00:26:87	AlliedTe               # ALLIED TELESIS, K.K corega division.
+00:26:87	CoregaKK               # Corega K.K
 00:26:88	JuniperN               # Juniper Networks
 00:26:89	GeneralD               # General Dynamics Robotic Systems
 00:26:8A	TerrierS               # Terrier SC Ltd
@@ -17991,6 +17991,7 @@
 24:21:AB	SonyEric               # Sony Ericsson Mobile Communications
 24:26:42	Sharp                  # SHARP Corporation.
 24:2F:FA	ToshibaG               # Toshiba Global Commerce Solutions
+24:33:6C	Private
 24:37:4C	CiscoSpv               # Cisco SPVTG
 24:37:EF	EmcElect               # EMC Electronic Media Communication SA
 24:3C:20	Dynamode               # Dynamode Group
@@ -19369,6 +19370,7 @@
 48:C8:B6	Systec                 # SysTec GmbH
 48:CB:6E	CelloEle               # Cello Electronics (UK) Ltd
 48:D0:CF	Universa               # Universal Electronics, Inc.
+48:D1:8E	MetisCom               # Metis Communication Co.,Ltd
 48:D2:24	LiteonTe               # Liteon Technology Corporation
 48:D5:4C	JedaNetw               # Jeda Networks
 48:D7:FF	BlankomA               # BLANKOM Antennentechnik GmbH
@@ -20349,6 +20351,7 @@
 70:B2:65	HiltronS               # Hiltron s.r.l.
 70:B3:D5	IeeeRegi               # IEEE REGISTRATION AUTHORITY  - Please see OUI36 public listing for more information.
 70:B3:D5:04:40:00/36	DonElect               # Don Electronics Ltd
+70:B3:D5:09:00:00/36	Powercra               # POWERCRAFT ELECTRONICS PVT. LTD.
 70:B3:D5:0A:90:00/36	Proconne               # ProConnections, Inc.
 70:B3:D5:0A:A0:00/36	Wanco                  # Wanco Inc
 70:B3:D5:0E:00:00/36	Plcis
@@ -20362,9 +20365,11 @@
 70:B3:D5:29:D0:00/36	Xtech2Si               # XTech2 SIA
 70:B3:D5:30:80:00/36	DsdMicro               # DSD MICROTECHNOLOGY,INC.
 70:B3:D5:35:C0:00/36	AcsElect               # ACS electronics srl
+70:B3:D5:3A:80:00/36	Jamhub                 # JamHub Corp.
 70:B3:D5:3C:20:00/36	Cellular               # Cellular Specialties, Inc.
 70:B3:D5:3D:E0:00/36	ElomacEl               # ELOMAC Elektronik GmbH
 70:B3:D5:3E:D0:00/36	UltraEle               # Ultra Electronics Sonar System Division
+70:B3:D5:3F:10:00/36	OlympusN               # Olympus NDT Canada
 70:B3:D5:40:A0:00/36	MonroeEl               # Monroe Electronics, Inc.
 70:B3:D5:42:F0:00/36	Sintokog               # SINTOKOGIO, LTD
 70:B3:D5:4C:80:00/36	Hosokawa               # Hosokawa Micron Powder Systems
@@ -20381,10 +20386,13 @@
 70:B3:D5:99:40:00/36	KeffNetw               # KeFF Networks
 70:B3:D5:9A:70:00/36	Honeywel               # Honeywell
 70:B3:D5:9F:40:00/36	TbandSrl               # Tband srl
+70:B3:D5:A0:B0:00/36	Ambihome               # ambiHome GmbH
 70:B3:D5:AE:90:00/36	CariElec               # Cari Electronic
 70:B3:D5:B3:D0:00/36	Inras                  # Inras GmbH
+70:B3:D5:B8:A0:00/36	NexusTec               # Nexus Tech. VN
 70:B3:D5:C2:C0:00/36	DromontS               # Dromont S.p.A.
 70:B3:D5:C8:D0:00/36	KstTechn               # KST Technology
+70:B3:D5:CE:90:00/36	Kinemetr               # KINEMETRICS
 70:B3:D5:D8:B0:00/36	LenoxiAu               # Lenoxi Automation s.r.o.
 70:B3:D5:D9:E0:00/36	GrupoEpe               # GRUPO EPELSA S.L.
 70:B3:D5:DD:D0:00/36	BioRadLa               # BIO RAD LABORATORIES
@@ -21935,6 +21943,7 @@ B0:17:43	EdisonGl               # EDISON GLOBAL CIRCUITS LLC
 B0:1B:7C	OntrolAS               # Ontrol A.S.
 B0:1C:91	Elim                   # Elim Co
 B0:24:F3	Progeny                # Progeny Systems
+B0:25:AA	Private
 B0:34:95	Apple
 B0:35:8D	Nokia                  # Nokia Corporation
 B0:38:29	Siliconw               # Siliconware Precision Industries Co., Ltd.
@@ -22458,6 +22467,7 @@ C4:63:54	U-Raku                 # U-Raku, Inc.
 C4:64:13	Cisco                  # CISCO SYSTEMS, INC.
 C4:67:B5	Libraton               # Libratone A/S
 C4:6A:B7	XiaomiTe               # Xiaomi Technology,Inc.
+C4:6B:B4	Myidkey
 C4:6D:F1	Datagrav               # DataGravity
 C4:6E:1F	Tp-LinkT               # TP-LINK TECHNOLOGIES CO.,LTD
 C4:71:30	FonTechn               # Fon Technology S.L.
@@ -22897,6 +22907,7 @@ D4:AC:4E	BodiRsLl               # BODi rS, LLC
 D4:AD:2D	Fiberhom               # Fiberhome Telecommunication Tech.Co.,Ltd.
 D4:AE:52	Dell                   # Dell Inc
 D4:B1:10	HuaweiTe               # HUAWEI TECHNOLOGIES CO.,LTD
+D4:B4:3E	Messcomp               # Messcomp Datentechnik GmbH
 D4:BE:D9	Dell                   # Dell Inc
 D4:BF:2D	SeContro               # SE Controls Asia Pacific Ltd
 D4:BF:7F	Upvel

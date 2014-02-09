@@ -8249,8 +8249,8 @@ lyskom           4894/tcp # LysKOM Protocol A [Per_Cederqvist] [Per_Cederqvist]
 lyskom           4894/udp # LysKOM Protocol A [Per_Cederqvist] [Per_Cederqvist]
 radmin-port      4899/tcp # RAdmin Port [Dmitri_Znosko] [Dmitri_Znosko] 2003-03
 radmin-port      4899/udp # RAdmin Port [Dmitri_Znosko] [Dmitri_Znosko] 2003-03
-hfcs             4900/tcp # HyperFileSQL Client/Server Database Engine [Jerome_AERTS] [Jerome_AERTS] 2010-11-30
-hfcs             4900/udp # HyperFileSQL Client/Server Database Engine [Jerome_AERTS] [Jerome_AERTS] 2010-11-30
+hfcs             4900/tcp # HFSQL Client/Server Database Engine [PC_SOFT] [Jerome_AERTS_2] 2006-03-02 2014-02-02
+hfcs             4900/udp # HFSQL Client/Server Database Engine [PC_SOFT] [Jerome_AERTS_2] 2006-03-02 2014-02-02
 flr-agent        4901/tcp # FileLocator Remote Search AgentIANA assigned this well-formed service name as a replacement for "flr_agent". [David_Vest] [David_Vest] 2008-11-19
 flr_agent        4901/tcp # FileLocator Remote Search Agent [David_Vest] [David_Vest] 2008-11-19 This entry is an alias to "flr-agent".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 magiccontrol     4902/tcp # magicCONROL RF and Data Interface [Andreas_Spalenski] [Andreas_Spalenski] 2008-11-24
@@ -8293,8 +8293,8 @@ busycal          4990/tcp # BusySync Calendar Synch. Protocol [David_Riggle] [Da
 busycal          4990/udp # BusySync Calendar Synch. Protocol [David_Riggle] [David_Riggle] 2008-01-07 Defined TXT keys: Proprietary
 vrt              4991/tcp # VITA Radio Transport [Sam_Bretheim] [Sam_Bretheim] 2009-01-08
 vrt              4991/udp # VITA Radio Transport [Sam_Bretheim] [Sam_Bretheim] 2009-01-08
-hfcs-manager     4999/tcp # HyperFileSQL Client/Server Database Engine Manager [Jerome_AERTS] [Jerome_AERTS] 2010-11-30
-hfcs-manager     4999/udp # HyperFileSQL Client/Server Database Engine Manager [Jerome_AERTS] [Jerome_AERTS] 2010-11-30
+hfcs-manager     4999/tcp # HFSQL Client/Server Database Engine Manager [PC_SOFT] [Jerome_AERTS_2] 2006-03-02 2014-02-02
+hfcs-manager     4999/udp # HFSQL Client/Server Database Engine Manager [PC_SOFT] [Jerome_AERTS_2] 2006-03-02 2014-02-02
 commplex-main    5000/tcp # 
 commplex-main    5000/udp # 
 commplex-link    5001/tcp # 
@@ -9530,6 +9530,7 @@ metalbend        7172/tcp # Port used for MetalBend programmable interface [Mich
 zsecure          7173/tcp # zSecure Server [Hans_Schoone] [Hans_Schoone] 2010-10-01
 clutild          7174/tcp # Clutild [Cheryl_Stoutenburg] [Cheryl_Stoutenburg]
 clutild          7174/udp # Clutild [Cheryl_Stoutenburg] [Cheryl_Stoutenburg]
+janus-disc       7181/udp # Janus Guidewire Enterprise Discovery Service Bus [Guidewire_Software_Inc] [Luca_Debiasi] 2014-02-06
 fodms            7200/tcp # FODMS FLIP [David_Anthony] [David_Anthony]
 fodms            7200/udp # FODMS FLIP [David_Anthony] [David_Anthony]
 dlip             7201/tcp # DLIP [Albert_Manfredi] [Albert_Manfredi]
