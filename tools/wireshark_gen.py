@@ -139,7 +139,7 @@ class wireshark_gen_C:
     c_float       = "gfloat    my_float;"
     c_double      = "gdouble   my_double;"
 
-    c_seq         = "gchar   *seq = NULL;"          # pointer to buffer of gchars
+    c_seq         = "const gchar   *seq = NULL;"          # pointer to buffer of gchars
     c_i           = "guint32   i_";                 # loop index
     c_i_lim       = "guint32   u_octet4_loop_";     # loop limit
     c_u_disc      = "guint32   disc_u_";            # unsigned int union discriminant variable name (enum)

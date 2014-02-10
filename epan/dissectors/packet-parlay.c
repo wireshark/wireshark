@@ -53598,7 +53598,7 @@ decode_org_csapi_TpSimpleAttributeValue_un(tvbuff_t *tvb _U_, packet_info *pinfo
     guint32   u_octet4;
     gint32    disc_s_TpSimpleAttributeValue;
     gint8     s_octet1;
-    gchar   *seq = NULL;
+    const gchar   *seq = NULL;
     /* Operation specific Variable declarations End */
 
     (void)item; /* Avoid coverity param_set_but_unused parse warning */
