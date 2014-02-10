@@ -665,6 +665,37 @@ dissect_dtls_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
   return FALSE;
 }
 
+static gboolean
+dtls_is_null_cipher(guint cipher )
+{
+  switch(cipher) {
+  case 0x0000:
+  case 0x0001:
+  case 0x0002:
+  case 0x002c:
+  case 0x002d:
+  case 0x002e:
+  case 0x003b:
+  case 0x00b0:
+  case 0x00b1:
+  case 0x00b4:
+  case 0x00b5:
+  case 0x00b8:
+  case 0x00b9:
+  case 0xc001:
+  case 0xc006:
+  case 0xc00b:
+  case 0xc010:
+  case 0xc015:
+  case 0xc039:
+  case 0xc03a:
+  case 0xc03b:
+    return TRUE;
+  default:
+    return FALSE;
+  }
+}
+
 static gint
 decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                     guint32 record_length, guint8 content_type, SslDecryptSession* ssl,
@@ -694,7 +725,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     decoder = ssl->client;
   }
 
-  if (!decoder && ssl->cipher != 0x0001 && ssl->cipher != 0x0002) {
+  if (!decoder && !dtls_is_null_cipher(ssl->cipher)) {
     ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
     return ret;
   }
@@ -722,8 +753,8 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                            &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
       ret = 1;
   }
-  else if (ssl->cipher == 0x0001 || ssl->cipher == 0x0002) {
-    /* Non-encrypting cipher RSA-NULL-MD5 or RSA-NULL-SHA */
+  else if (dtls_is_null_cipher(ssl->cipher)) {
+    /* Non-encrypting cipher NULL-XXX */
     memcpy(dtls_decrypted_data.data, tvb_get_ptr(tvb, offset, record_length), record_length);
     dtls_decrypted_data_avail = dtls_decrypted_data.data_len = record_length;
     ret = 1;
