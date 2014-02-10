@@ -99,13 +99,13 @@ static expert_field ei_vp8_startcode = EI_INIT;
 static expert_field ei_vp8_undecoded = EI_INIT;
 
 static void
-dissect_vp8_payload_descriptor(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *vp8_tree _U_, gint *offset, gboolean *hasHeader);
+dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gboolean *hasHeader);
 
 static void
-dissect_vp8_payload_header(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *vp8_tree _U_, gint *offset, gint *frametype, gint *partition1_size);
+dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size);
 
 static void
-dissect_vp8_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *vp8_tree _U_, gint *offset, gint *frametype, gint *partition1_size);
+dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size);
 
 static gint *ett[] = {
         &ett_vp8,
@@ -119,8 +119,7 @@ static const value_string vp8_type_values[] = {
     {  0,   "Keyframe" },
     {  1,   "Interframe" },
     {  2,   "Continuation" },
-    {  3 , NULL }
-    
+    {  0, NULL }
 };
 
 static const true_false_string vp8_x_bit_vals = {
@@ -171,21 +170,21 @@ static const true_false_string vp8_hdr_frametype_vals = {
 void proto_reg_handoff_vp8(void);
 
 static void
-dissect_vp8(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_)
+dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 
-    proto_item *item _U_;
+    proto_item *item;
     gint offset= 0, frametype = 0, partition1_size = -1;
-    proto_tree *vp8_tree, *vp8_payload_tree _U_;
+    proto_tree *vp8_tree;
     gboolean hasHeader = FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "VP8");
-        
+
     item = proto_tree_add_item(tree, proto_vp8, tvb, 0, -1, ENC_NA);
     vp8_tree = proto_item_add_subtree(item, ett_vp8);
 
     frametype=2;/*continuation, will get overridden if there is a payload header*/
-        
+
     dissect_vp8_payload_descriptor(tvb, pinfo, vp8_tree, &offset, &hasHeader);
     if (hasHeader)
     {
@@ -199,9 +198,9 @@ dissect_vp8(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_)
 }
 
 static void
-dissect_vp8_payload_descriptor(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *vp8_tree _U_, gint *offset, gboolean *hasHeader)
+dissect_vp8_payload_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gboolean *hasHeader)
 {
-    proto_item *item_descriptor _U_, *ti _U_= NULL;
+    proto_item *item_descriptor;
     guint8      extended_bit, s_bit, partId;
     proto_tree *vp8_payload_descriptor_tree;
 
@@ -286,9 +285,9 @@ The first octets after the RTP header are the VP8 payload descriptor,
 }
 
 static void
-dissect_vp8_payload_header(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *vp8_tree _U_, gint *offset, gint *frametype, gint *partition1_size)
+dissect_vp8_payload_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size)
 {
-    proto_item *item_header _U_= NULL, *ti _U_;
+    proto_item *item_header;
     proto_tree *vp8_payload_header_tree;
     gint size0, size1, size2;
 
@@ -332,7 +331,7 @@ The first three octets of an encoded VP8 frame are referred to as an
         proto_tree_add_item(vp8_payload_header_tree, hf_vp8_hdr_show_bit, tvb, *offset, 1, ENC_BIG_ENDIAN);
 
         *frametype = tvb_get_guint8(tvb, *offset) & BIT_8_MASK;
-        
+
         size0 = (tvb_get_guint8(tvb, *offset) & BIT_123_MASK) >> 5;
         size1 = tvb_get_guint8(tvb, *offset + 1);
         size2 = tvb_get_guint8(tvb, *offset + 2);
@@ -345,12 +344,12 @@ The first three octets of an encoded VP8 frame are referred to as an
 }
 
 static void
-dissect_vp8_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *vp8_tree _U_, gint *offset, gint *frametype, gint *partition1_size) 
+dissect_vp8_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *vp8_tree, gint *offset, gint *frametype, gint *partition1_size)
 {
-    proto_item *item_payload = NULL;
-    proto_tree *vp8_payload_tree _U_;
+    proto_item *item_payload;
+    proto_tree *vp8_payload_tree;
     gint remainder;
-    
+
     item_payload = proto_tree_add_text(vp8_tree, tvb, *offset, -1, "Payload");
     vp8_payload_tree = proto_item_add_subtree(item_payload, ett_vp8_payload);
 
@@ -358,12 +357,12 @@ dissect_vp8_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *vp8_t
     {
         guint16 width, height;
         gint start1, start2, start3, horizontal_scale, vertical_scale;
-        proto_tree *vp8_keyframe_tree _U_;
-        proto_item *item_keyframe = NULL;
-    
+        proto_tree *vp8_keyframe_tree;
+        proto_item *item_keyframe;
+
         item_keyframe = proto_tree_add_text(vp8_payload_tree, tvb, *offset, -1, "Keyframe header");
         vp8_keyframe_tree = proto_item_add_subtree(item_keyframe, ett_vp8_keyframe);
-        
+
         proto_tree_add_item(vp8_keyframe_tree, hf_vp8_keyframe_start_code, tvb, *offset, 3, ENC_BIG_ENDIAN);
         start1 = tvb_get_guint8(tvb, *offset);
         start2 = tvb_get_guint8(tvb, *offset + 1);
@@ -401,7 +400,7 @@ dissect_vp8_payload(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *vp8_t
         proto_tree_add_text(vp8_payload_tree, tvb, *offset, -1, "Continuation of partition fragment (%d bytes)", remainder);
     }
     else
-    { 
+    {
         if (remainder < *partition1_size)
         {
             /* partition size has already been added to vp8 header tree, but it would be useful to provide additional explanation */
@@ -564,7 +563,7 @@ proto_register_vp8(void)
 
     proto_register_field_array(proto_vp8, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    
+
     vp8_module = prefs_register_protocol(proto_vp8, proto_reg_handoff_vp8);
 
     expert_vp8 = expert_register_protocol(proto_vp8);
@@ -596,8 +595,6 @@ proto_reg_handoff_vp8(void)
     static gboolean  vp8_prefs_initialized     = FALSE;
 
     if (!vp8_prefs_initialized) {
-        dissector_handle_t vp8_name_handle _U_;
-
         vp8_handle = find_dissector("vp8");
         dissector_add_string("rtp_dyn_payload_type","VP8", vp8_handle);
 
