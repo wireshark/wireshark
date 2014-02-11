@@ -597,6 +597,7 @@ DISSECTOR_SRC = \
 	packet-fw1.c		\
 	packet-g723.c		\
 	packet-gadu-gadu.c	\
+	packet-gdb.c		\
 	packet-gdsdb.c		\
 	packet-gearman.c	\
 	packet-ged125.c		\

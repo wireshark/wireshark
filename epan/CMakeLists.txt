@@ -677,6 +677,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-fw1.c
 	dissectors/packet-g723.c
 	dissectors/packet-gadu-gadu.c
+	dissectors/packet-gdb.c
 	dissectors/packet-gdsdb.c
 	dissectors/packet-gearman.c
 	dissectors/packet-ged125.c
