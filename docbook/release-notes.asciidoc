@@ -88,11 +88,19 @@ since version 1.10:
 --sort-and-group--
 
 802.1AE Secure tag
-ATN
+ACR122
+Aruba Instant AP
 ASTERIX
-BT 3DS
+ATN
+Bencode
+Bluetooth 3DS
+Bluetooth HSP
+Bluetooth Linux Monitor Transport
+Bluetooth Low Energy
 CARP
+CFDP
 Cisco MetaData
+DeviceNet
 ELF file format
 EXPORTED PDU
 FINGER
@@ -101,23 +109,31 @@ HTTP2
 IDRP
 ILP
 Kafka
-Kyoto Tycoon binary protocol
+Kyoto Tycoon
+Lightweight Mesh (v1.1.1)
+Linux netlink
 MBIM
 MiNT
 MP4 / ISOBMFF file format
 Novell PKIS certificate extensions
 NXP PN532 HCI
 OpenFlow
+Pathport
 Picture Transfer Protocol Over IP
 QUIC (Quick UDP Internet Connections)
+SAE J1939
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
 Sippy RTPproxy
 STANAG 4607
 STANAG 5066 DTS
 STANAG 5066 SIS
 Tinkerforge
+Ubertooth
 UDT
 URL Encoded Form Data
+USB Communications and CDC Control
+USB Device Firmware Upgrade
+VP8
 WHOIS
 Wi-Fi Display
 
