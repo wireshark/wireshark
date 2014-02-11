@@ -64,7 +64,7 @@
 #include <QToolButton>
 #include <QTreeWidget>
 
-#if defined(QT_MACEXTRAS_LIB) && QT_VERSION <= QT_VERSION_CHECK(5, 2, 1)
+#if defined(QT_MACEXTRAS_LIB) && QT_VERSION < QT_VERSION_CHECK(5, 2, 1)
 #include <QtMacExtras/QMacNativeToolBar>
 #endif
 
@@ -160,7 +160,7 @@ MainWindow::MainWindow(QWidget *parent) :
 #endif
 
 #if defined(Q_OS_MAC)
-#if defined(QT_MACEXTRAS_LIB) && QT_VERSION <= QT_VERSION_CHECK(5, 2, 1)
+#if defined(QT_MACEXTRAS_LIB) && QT_VERSION < QT_VERSION_CHECK(5, 2, 1)
     QMacNativeToolBar *ntb = QtMacExtras::setNativeToolBar(main_ui_->mainToolBar);
     ntb->setIconSize(QSize(24, 24));
 #endif // QT_MACEXTRAS_LIB
