@@ -198,16 +198,16 @@ WSUG_SOURCE =	\
 	$(WSUG_FILES)		\
 	$(WSUG_GRAPHICS)
 
-# developer-guide.xml must be first in the list (to match $<)
 WSDG_DIST =	\
-	developer-guide.xml	\
+	developer-guide.asciidoc	\
 	GPL_appendix.asciidoc	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
 	$(WSDG_FILES)		\
 	$(WSDG_GRAPHICS)
 
-WSDG_SOURCE = $(WSDG_DIST) $(WSDG_GENERATED_SOURCE)
+# developer-guide.xml must be first in the list (to match $<)
+WSDG_SOURCE = $(WSDG_GENERATED_SOURCE) $(WSDG_DIST)
 
 RELEASE_NOTES_SOURCE = \
 	release-notes.asciidoc	\

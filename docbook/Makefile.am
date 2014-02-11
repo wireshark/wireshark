@@ -59,7 +59,7 @@ endif
 # Used for chapter-by-chapter conversion from DocBook to AsciiDoc.
 # Can be removed after the User's Guide is converted.
 # .asciidoc -> whole book (.dbk) -> chapter (.xml)
-.asciidoc.xml:
+wsug_src/%.asciidoc : wsug_src/%.xml
 	$(A2X) --verbose \
 		--asciidoc-opts="--conf-file=asciidoc.conf" \
 		--no-xmllint \
