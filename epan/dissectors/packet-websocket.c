@@ -43,10 +43,12 @@ void proto_reg_handoff_websocket(void);
 
 static dissector_handle_t text_lines_handle;
 static dissector_handle_t json_handle;
+static dissector_handle_t sip_handle;
 
 #define WEBSOCKET_NONE 0
 #define WEBSOCKET_TEXT 1
 #define WEBSOCKET_JSON 2
+#define WEBSOCKET_SIP 3
 
 static gint  pref_text_type             = WEBSOCKET_NONE;
 
@@ -214,6 +216,9 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
           break;
       case WEBSOCKET_JSON:
           call_dissector(json_handle, payload_tvb, pinfo, pl_tree);
+          break;
+      case WEBSOCKET_SIP:
+          call_dissector(sip_handle, payload_tvb, pinfo, pl_tree);
           break;
       case WEBSOCKET_NONE:
           /* falltrough */
@@ -582,6 +587,7 @@ proto_register_websocket(void)
       {"None",            "No subdissection", WEBSOCKET_NONE},
       {"Line based text", "Line based text",  WEBSOCKET_TEXT},
       {"As JSON",         "As json",          WEBSOCKET_JSON},
+      {"As SIP",         "As SIP",          WEBSOCKET_SIP},
       {NULL, NULL, -1}
   };
 
@@ -623,6 +629,7 @@ proto_reg_handoff_websocket(void)
 {
   text_lines_handle = find_dissector("data-text-lines");
   json_handle = find_dissector("json");
+  sip_handle = find_dissector("sip");
 }
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
