@@ -63,6 +63,7 @@ void proto_reg_handoff_epl(void);
 
 /* Allow heuristic dissection */
 static heur_dissector_list_t heur_epl_subdissector_list;
+static heur_dissector_list_t heur_epl_data_subdissector_list;
 
 #if 0
 /* Container for tapping relevant data */
@@ -472,6 +473,8 @@ static value_string_ext epl_sdo_asnd_commands_ext = VALUE_STRING_EXT_INIT(epl_sd
 static const gchar* addr_str_cn  = " (Controlled Node)";
 static const gchar* addr_str_res = " (reserved)";
 
+static dissector_handle_t data_dissector = NULL;
+
 static gint dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
@@ -510,7 +513,6 @@ static gint hf_epl_preq_ea       = -1;
 static gint hf_epl_preq_rd       = -1;
 static gint hf_epl_preq_pdov     = -1;
 static gint hf_epl_preq_size     = -1;
-static gint hf_epl_preq_pl       = -1;
 
 static gint hf_epl_pres_stat_ms  = -1;
 static gint hf_epl_pres_stat_cs  = -1;
@@ -521,7 +523,6 @@ static gint hf_epl_pres_pr       = -1;
 static gint hf_epl_pres_rs       = -1;
 static gint hf_epl_pres_pdov     = -1;
 static gint hf_epl_pres_size     = -1;
-static gint hf_epl_pres_pl       = -1;
 
 static gint hf_epl_soa_stat_ms   = -1;
 static gint hf_epl_soa_stat_cs   = -1;
@@ -645,7 +646,6 @@ static gint hf_epl_asnd_sdo_cmd_data_size                    = -1;
 static gint hf_epl_asnd_sdo_cmd_data_padding                 = -1;
 static gint hf_epl_asnd_sdo_cmd_data_index                   = -1;
 static gint hf_epl_asnd_sdo_cmd_data_subindex                = -1;
-static gint hf_epl_asnd_sdo_cmd_data_data                    = -1;
 /*static gint hf_epl_asnd_sdo_cmd_data_response      = -1;*/
 
 static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
@@ -896,6 +896,29 @@ decode_epl_address (guchar adr)
 }
 
 gint
+dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len )
+{
+	gint off = 0;
+	tvbuff_t * payload_tvb = NULL;;
+
+	off = offset;
+
+	if (len > 0)
+	{
+		if ( data_dissector == NULL )
+			data_dissector = find_dissector ( "data" );
+
+		payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
+		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, NULL))
+			call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
+
+		off += len;
+	}
+
+	return off;
+}
+
+gint
 dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
 	nstime_t nettime;
@@ -949,16 +972,11 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 	len = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(epl_tree, hf_epl_preq_size, tvb, offset, 2, len);
 
-	offset += 2;
-
-	if (len > 0)
-	{
-		proto_tree_add_item(epl_tree, hf_epl_preq_pl, tvb, offset, len, ENC_NA);
-	}
-	offset += len;
-
 	col_append_fstr(pinfo->cinfo, COL_INFO, "RD = %d   size = %d   ver = %d.%d",
-						(EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
+			(EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
+
+	offset += 2;
+	offset += dissect_epl_payload(epl_tree, tvb, pinfo, offset, len);
 
 	return offset;
 }
@@ -1000,19 +1018,14 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 	len = tvb_get_letohs(tvb, offset);
 	proto_tree_add_uint(epl_tree, hf_epl_pres_size, tvb, offset, 2, len);
 
-	offset += 2;
-	if (len > 0)
-	{
-		proto_tree_add_item(epl_tree, hf_epl_pres_pl, tvb, offset, len, ENC_NA);
-	}
-	offset += len;
-
 	col_append_fstr(pinfo->cinfo, COL_INFO, "RD = %d   size = %d   ver = %d.%d",
-						(EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
+			(EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
+
+	offset += 2;
+	offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, len );
 
 	return offset;
 }
-
 
 
 gint
@@ -1613,8 +1626,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 
 		size = tvb_reported_length_remaining(tvb, offset);
 
-		proto_tree_add_item(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_data, tvb, offset, size, ENC_NA);
-		offset += size;
+		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size );
 	}
 	else
 	{
@@ -1696,7 +1708,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 			if ( size > 4 )
 				size = size - padding;
 
-			proto_tree_add_item(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_data, tvb, dataoffset, size, ENC_NA);
+			dissect_epl_payload ( sdo_data_tree, tvb, pinfo, dataoffset, size );
 
 			offset += datalength;
 		}
@@ -1742,7 +1754,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
 
 		size = tvb_reported_length_remaining(tvb, offset);
-		proto_tree_add_item(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_data, tvb, offset, size, ENC_NA);
+		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size );
 
 		offset += size;
 	}
@@ -1815,10 +1827,6 @@ proto_register_epl(void)
 			{ "Size", "epl.preq.size",
 				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
-		{ &hf_epl_preq_pl,
-			{ "Payload", "epl.preq.pl",
-				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
 
 		/* PRes data fields*/
 		{ &hf_epl_pres_stat_ms,
@@ -1856,10 +1864,6 @@ proto_register_epl(void)
 		{ &hf_epl_pres_size,
 			{ "Size", "epl.pres.size",
 				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
-		},
-		{ &hf_epl_pres_pl,
-			{ "Payload", "epl.pres.pl",
-				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 
 		/* SoA data fields*/
@@ -2309,10 +2313,6 @@ proto_register_epl(void)
 			{ "OD SubIndex", "epl.asnd.sdo.cmd.data.subindex",
 				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
 		},
-		{ &hf_epl_asnd_sdo_cmd_data_data,
-			{ "Payload", "epl.asnd.sdo.cmd.data.data",
-				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
 	};
 
 	/* Setup protocol subtree array */
@@ -2337,6 +2337,7 @@ proto_register_epl(void)
 
 	/* subdissector code */
 	register_heur_dissector_list("epl", &heur_epl_subdissector_list);
+	register_heur_dissector_list("epl_data", &heur_epl_data_subdissector_list);
 
 	/* Registering protocol to be called by another dissector */
 	epl_handle = new_register_dissector("epl", dissect_epl, proto_epl);
