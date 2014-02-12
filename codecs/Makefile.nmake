@@ -47,7 +47,7 @@ G722decode.obj: G722\G722decode.c G722\G722decode.h
 G726decode.obj: G726\G726decode.c G726\G726decode.h
 	$(CC) $(CFLAGS) -Fd.\ -c G726\G726decode.c /Fo%|fF.obj
 
-sbc.obj: sbc\sbc.c sbc\sbc.h
+sbc.obj: sbc\sbc.c sbc\sbc_private.h
 	$(CC) $(CFLAGS) -Fd.\ -c sbc\sbc.c /Fo%|fF.obj
 
 clean:
