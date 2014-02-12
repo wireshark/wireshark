@@ -1,18 +1,32 @@
-/*
+/* reedsolomon.c
  *
- * $Id$
- *
- * Reed-Solomon coding and decoding
- * Phil Karn (karn@ka9q.ampr.org) September 1996
+ * Reed-Solomon encoding and decoding,
+ * by Phil Karn (karn@ka9q.ampr.org) September 1996
+ * Copyright 1999 Phil Karn, KA9Q
  * Separate CCSDS version create Dec 1998, merged into this version May 1999
- * 
+ *
  * This file is derived from my generic RS encoder/decoder, which is
  * in turn based on the program "new_rs_erasures.c" by Robert
  * Morelos-Zaragoza (robert@spectra.eng.hawaii.edu) and Hari Thirumoorthy
  * (harit@spectra.eng.hawaii.edu), Aug 1995
- 
- * Copyright 1999 Phil Karn, KA9Q
- * May be used under the terms of the GNU public license
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include <stdio.h>
 #include "reedsolomon.h"
