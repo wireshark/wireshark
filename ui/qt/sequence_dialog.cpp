@@ -184,11 +184,11 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        panAxes(0, -1 * pan_pixels);
+        panAxes(0, pan_pixels);
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        panAxes(0, pan_pixels);
+        panAxes(0, -1 * pan_pixels);
         break;
 
     case Qt::Key_0:
@@ -474,12 +474,12 @@ void SequenceDialog::on_actionMoveLeft10_triggered()
 
 void SequenceDialog::on_actionMoveUp10_triggered()
 {
-    panAxes(0, -10);
+    panAxes(0, 10);
 }
 
 void SequenceDialog::on_actionMoveDown10_triggered()
 {
-    panAxes(0, 10);
+    panAxes(0, -10);
 }
 
 void SequenceDialog::on_actionMoveRight1_triggered()
@@ -494,12 +494,12 @@ void SequenceDialog::on_actionMoveLeft1_triggered()
 
 void SequenceDialog::on_actionMoveUp1_triggered()
 {
-    panAxes(0, -1);
+    panAxes(0, 1);
 }
 
 void SequenceDialog::on_actionMoveDown1_triggered()
 {
-    panAxes(0, 1);
+    panAxes(0, -1);
 }
 
 /*

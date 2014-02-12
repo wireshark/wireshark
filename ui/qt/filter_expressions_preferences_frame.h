@@ -58,7 +58,6 @@ private slots:
     void on_expressionTreeWidget_itemActivated(QTreeWidgetItem *item, int column);
     void lineEditDestroyed();
     void labelEditingFinished();
-    void expressionTextChanged(QString);
     void expressionEditingFinished();
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();

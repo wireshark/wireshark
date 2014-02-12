@@ -24,11 +24,12 @@
 #include <glib.h>
 
 #include <epan/prefs.h>
+#include <epan/proto.h>
+#include <epan/dfilter/dfilter.h>
 
 #include "syntax_line_edit.h"
 
 #include "color_utils.h"
-#include <QDebug>
 
 SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
     QLineEdit(parent)
@@ -69,7 +70,55 @@ QString SyntaxLineEdit::styleSheet() const {
     return style_sheet_;
 }
 
+QString SyntaxLineEdit::deprecatedToken()
+{
+    return deprecated_token_;
+}
+
 void SyntaxLineEdit::setStyleSheet(const QString &style_sheet) {
     style_sheet_ = style_sheet;
     QLineEdit::setStyleSheet(style_sheet_ + state_style_sheet_);
+}
+
+void SyntaxLineEdit::checkDisplayFilter(QString filter)
+{
+    if (filter.isEmpty()) {
+        setSyntaxState(SyntaxLineEdit::Empty);
+        return;
+    }
+
+    deprecated_token_.clear();
+    dfilter_t *dfp = NULL;
+    bool valid = dfilter_compile(filter.toUtf8().constData(), &dfp);
+
+    if (valid) {
+        setSyntaxState(SyntaxLineEdit::Valid);
+    } else {
+        GPtrArray *depr = NULL;
+        if (dfp) {
+            depr = dfilter_deprecated_tokens(dfp);
+        }
+        if (depr) {
+            setSyntaxState(SyntaxLineEdit::Deprecated);
+            deprecated_token_ = (const char *) g_ptr_array_index(depr, 0);
+        } else {
+            setSyntaxState(SyntaxLineEdit::Invalid);
+        }
+    }
+    dfilter_free(dfp);
+}
+
+void SyntaxLineEdit::checkFieldName(QString field)
+{
+    if (field.isEmpty()) {
+        setSyntaxState(SyntaxLineEdit::Empty);
+        return;
+    }
+
+    char invalid_char = proto_check_field_name(field.toUtf8().constData());
+    if (invalid_char) {
+        setSyntaxState(SyntaxLineEdit::Invalid);
+    } else {
+        checkDisplayFilter(field);
+    }
 }

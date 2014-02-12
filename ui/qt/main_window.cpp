@@ -1521,6 +1521,7 @@ void MainWindow::setForCapturedPackets(bool have_captured_packets)
 //                         have_captured_packets);
 //    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
 //                         have_captured_packets);
+    main_ui_->actionStatisticsIOGraph->setEnabled(have_captured_packets);
 }
 
 void MainWindow::setMenusForFileSet(bool enable_list_files) {

@@ -48,7 +48,6 @@ private slots:
 
 private:
     bool plain_;
-    bool field_name_only_;
     QString empty_filter_message_;
     QToolButton *bookmark_button_;
     QToolButton *clear_button_;

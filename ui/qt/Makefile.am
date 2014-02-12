@@ -149,6 +149,8 @@ font_color_preferences_frame.cpp font_color_preferences_frame.h: ui_font_color_p
 
 import_text_dialog.cpp import_text_dialog.h: ui_import_text_dialog.h
 
+io_graph_dialog.cpp io_graph_dialog.h: ui_io_graph_dialog.h
+
 layout_preferences_frame.cpp layout_preferences_frame.h: ui_layout_preferences_frame.h
 
 main_welcome.cpp main_welcome.h: ui_main_welcome.h

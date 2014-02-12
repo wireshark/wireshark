@@ -329,6 +329,7 @@
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
     <addaction name="actionStatisticsPacketLen"/>
+    <addaction name="actionStatisticsIOGraph"/>
     <addaction name="separator"/>
     <addaction name="separator"/>
     <addaction name="actionStatisticsANCP"/>
@@ -1549,6 +1550,14 @@
   <action name="actionFileExportPDU">
    <property name="text">
     <string>Export PDUs to File</string>
+   </property>
+  </action>
+  <action name="actionStatisticsIOGraph">
+   <property name="text">
+    <string>&amp;I/O Graph</string>
+   </property>
+   <property name="toolTip">
+    <string>Create graphs based on display filter fields</string>
    </property>
   </action>
   <action name="actionViewToolbarMainToolbar">

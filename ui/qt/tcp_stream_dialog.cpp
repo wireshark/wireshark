@@ -60,6 +60,7 @@
 #ifndef MA_1_SECOND
 const int moving_avg_period_ = 20;
 #endif
+
 const QRgb graph_color_1 = tango_sky_blue_5;
 const QRgb graph_color_2 = tango_butter_6;
 const QRgb graph_color_3 = tango_chameleon_5;
@@ -256,11 +257,11 @@ void TCPStreamDialog::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_Up:
     case Qt::Key_K:
-        panAxes(0, -1 * pan_pixels);
+        panAxes(0, pan_pixels);
         break;
     case Qt::Key_Down:
     case Qt::Key_J:
-        panAxes(0, pan_pixels);
+        panAxes(0, -1 * pan_pixels);
         break;
 
     case Qt::Key_Space:
@@ -805,7 +806,7 @@ void TCPStreamDialog::graphClicked(QMouseEvent *event)
         on_actionGoToPacket_triggered();
     } else {
         if (!rubber_band_) {
-            rubber_band_ = new QRubberBand(QRubberBand::Rectangle, ui->streamPlot);
+            rubber_band_ = new QRubberBand(QRubberBand::Rectangle, sp);
         }
         rb_origin_ = event->pos();
         rubber_band_->setGeometry(QRect(rb_origin_, QSize()));
@@ -917,7 +918,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
                 .arg(packet_seg->th_ack)
                 .arg(packet_seg->th_win);
         tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));
-        ui->streamPlot->replot();
+        sp->replot();
     } else {
         if (rubber_band_ && rubber_band_->isVisible() && event) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
@@ -1085,12 +1086,12 @@ void TCPStreamDialog::on_actionMoveLeft10_triggered()
 
 void TCPStreamDialog::on_actionMoveUp10_triggered()
 {
-    panAxes(0, -10);
+    panAxes(0, 10);
 }
 
 void TCPStreamDialog::on_actionMoveDown10_triggered()
 {
-    panAxes(0, 10);
+    panAxes(0, -10);
 }
 
 void TCPStreamDialog::on_actionMoveRight1_triggered()
@@ -1105,12 +1106,12 @@ void TCPStreamDialog::on_actionMoveLeft1_triggered()
 
 void TCPStreamDialog::on_actionMoveUp1_triggered()
 {
-    panAxes(0, -1);
+    panAxes(0, 1);
 }
 
 void TCPStreamDialog::on_actionMoveDown1_triggered()
 {
-    panAxes(0, 1);
+    panAxes(0, -1);
 }
 
 void TCPStreamDialog::on_actionNextStream_triggered()

@@ -62,7 +62,6 @@ private slots:
     void comboDestroyed();
     void columnTitleEditingFinished();
     void columnTypeCurrentIndexChanged(int index);
-    void customFieldTextChanged(QString);
     void customFieldEditingFinished();
     void customOccurrenceTextChanged(QString);
     void customOccurrenceEditingFinished();

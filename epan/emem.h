@@ -28,6 +28,10 @@
 
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 /**  Initialize all the memory allocation pools described below.
  *  This function must be called once when *shark initialize to set up the
  *  required structures.
@@ -325,5 +329,9 @@ gboolean ep_verify_pointer(const void *ptr);
  * @return TRUE if the pointer belongs to the seasonal pool.
  */
 gboolean se_verify_pointer(const void *ptr);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* emem.h */

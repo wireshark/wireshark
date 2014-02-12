@@ -231,6 +231,7 @@ FORMS += \
     follow_stream_dialog.ui \
     font_color_preferences_frame.ui \
     import_text_dialog.ui \
+    io_graph_dialog.ui \
     layout_preferences_frame.ui \
     main_welcome.ui \
     main_window.ui \
@@ -529,6 +530,7 @@ HEADERS += \
     file_set_dialog.h \
     import_text_dialog.h \
     interface_tree.h \
+    io_graph_dialog.h \
     label_stack.h \
     main_status_bar.h \
     main_welcome.h \
@@ -583,6 +585,7 @@ SOURCES += \
     font_color_preferences_frame.cpp \
     import_text_dialog.cpp \
     interface_tree.cpp \
+    io_graph_dialog.cpp \
     label_stack.cpp \
     layout_preferences_frame.cpp \
     main.cpp \

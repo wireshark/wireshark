@@ -762,7 +762,7 @@ extern void
 proto_tree_set_fake_protocols(proto_tree *tree, gboolean fake_protocols);
 
 /** Mark a field/protocol ID as "interesting".
- @param tree the tree to be set
+ @param tree the tree to be set (currently ignored)
  @param hfid the interesting field id
  @todo what *does* interesting mean? */
 extern void

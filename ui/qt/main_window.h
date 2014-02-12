@@ -352,6 +352,7 @@ private slots:
     void on_actionStatisticsHTTPRequests_triggered();
     void on_actionStatisticsHTTPLoadDistribution_triggered();
     void on_actionStatisticsPacketLen_triggered();
+    void on_actionStatisticsIOGraph_triggered();
     void on_actionStatisticsSametime_triggered();
 
     void on_actionTelephonyISUPMessages_triggered();

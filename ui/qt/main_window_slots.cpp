@@ -71,6 +71,7 @@
 #include "decode_as_dialog.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
+#include "io_graph_dialog.h"
 #include "packet_comment_dialog.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
@@ -1963,6 +1964,15 @@ void MainWindow::on_actionStatisticsHTTPLoadDistribution_triggered()
 void MainWindow::on_actionStatisticsPacketLen_triggered()
 {
     openStatisticsTreeDialog("plen");
+}
+
+void MainWindow::on_actionStatisticsIOGraph_triggered()
+{
+    IOGraphDialog *iog_dialog = new IOGraphDialog(this, cap_file_);
+    connect(iog_dialog, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            iog_dialog, SLOT(setCaptureFile(capture_file*)));
+    iog_dialog->show();
 }
 
 void MainWindow::on_actionStatisticsSametime_triggered()

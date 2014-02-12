@@ -2382,6 +2382,11 @@ cf_retap_packets(capture_file *cf)
   guint                 tap_flags;
   psp_return_t          ret;
 
+  /* Presumably the user closed the capture file. */
+  if (cf == NULL) {
+    return CF_READ_ABORTED;
+  }
+  
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
 

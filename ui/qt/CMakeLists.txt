@@ -51,6 +51,7 @@ set(WIRESHARK_QT_HEADERS
 	font_color_preferences_frame.h
 	import_text_dialog.h
 	interface_tree.h
+	io_graph_dialog.h
 	label_stack.h
 	layout_preferences_frame.h
 	main_status_bar.h
@@ -126,6 +127,7 @@ set(WIRESHARK_QT_SRC
 	font_color_preferences_frame.cpp
 	import_text_dialog.cpp
 	interface_tree.cpp
+	io_graph_dialog.cpp
 	label_stack.cpp
 	layout_preferences_frame.cpp
 	main.cpp
@@ -195,6 +197,7 @@ set(WIRESHARK_QT_UI
 	follow_stream_dialog.ui
 	font_color_preferences_frame.ui
 	import_text_dialog.ui
+	io_graph_dialog.ui
 	layout_preferences_frame.ui
 	main_welcome.ui
 	main_window.ui

@@ -259,7 +259,7 @@ void ColumnPreferencesFrame::on_columnTreeWidget_itemActivated(QTreeWidgetItem *
         SyntaxLineEdit *syntax_edit = new SyntaxLineEdit();
         saved_col_string_ = item->text(custom_field_col_);
         connect(syntax_edit, SIGNAL(textChanged(QString)),
-                this, SLOT(customFieldTextChanged(QString)));
+                syntax_edit, SLOT(checkFieldName(QString)));
         connect(syntax_edit, SIGNAL(editingFinished()), this, SLOT(customFieldEditingFinished()));
         editor = cur_line_edit_ = syntax_edit;
 
@@ -346,24 +346,6 @@ void ColumnPreferencesFrame::columnTypeCurrentIndexChanged(int index)
         item->setText(custom_field_col_, "");
         item->setText(custom_occurrence_col_, "");
     }
-}
-
-void ColumnPreferencesFrame::customFieldTextChanged(QString)
-{
-    SyntaxLineEdit *syntax_edit = qobject_cast<SyntaxLineEdit *>(cur_line_edit_);
-    QTreeWidgetItem *item = ui->columnTreeWidget->currentItem();
-    if (!syntax_edit || !item) return;
-
-    dfilter_t *dfp = NULL;
-    const char *field_text = syntax_edit->text().toUtf8().constData();
-    if (strlen(field_text) < 1) {
-        syntax_edit->setSyntaxState(SyntaxLineEdit::Empty);
-    } else if (!dfilter_compile(field_text, &dfp)) {
-        syntax_edit->setSyntaxState(SyntaxLineEdit::Invalid);
-    } else {
-        syntax_edit->setSyntaxState(SyntaxLineEdit::Valid);
-    }
-    dfilter_free(dfp);
 }
 
 void ColumnPreferencesFrame::customFieldEditingFinished()

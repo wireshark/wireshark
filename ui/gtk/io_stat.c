@@ -35,8 +35,9 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 
-#include "../stat_menu.h"
+#include "../../stat_menu.h"
 #include "ui/alert_box.h"
+#include "ui/io_graph_item.h"
 #include "ui/simple_dialog.h"
 
 #include "ui/gtk/gtkglobals.h"
@@ -95,6 +96,11 @@ static const char *plot_style_name[MAX_PLOT_STYLES] = {
     "Dot",
 };
 
+/*
+ * XXX - "Count types" and "calc types" are combined in io_graph_item_unit_t
+ * in io_graph_item_t. The Qt port treats these as a single Y Axis "value unit"
+ * type. Should we do the same here?
+ */
 #define DEFAULT_COUNT_TYPE  0
 #define COUNT_TYPE_FRAMES   0
 #define COUNT_TYPE_BYTES    1
@@ -130,36 +136,20 @@ static const char *calc_type_names[MAX_CALC_TYPES] = {
     "AVG(*)",
     "LOAD(*)"};
 
+#define CALC_TYPE_TO_ITEM_UNIT(ct) ((io_graph_item_unit_t)(ct + IOG_ITEM_UNIT_CALC_SUM))
 
+/* Unused? */
+#if 0
 typedef struct _io_stat_calc_type_t {
     struct _io_stat_graph_t *gio;
     int calc_type;
 } io_stat_calc_type_t;
+#endif
 
 #define NUM_IO_ITEMS 100000
-typedef struct _io_item_t {
-    guint32  frames;            /* always calculated, will hold number of frames*/
-    guint64  bytes;             /* always calculated, will hold number of bytes*/
-    guint64  fields;
-    gint64   int_max;
-    gint64   int_min;
-    gint64   int_tot;
-    gfloat   float_max;
-    gfloat   float_min;
-    gfloat   float_tot;
-    gdouble  double_max;
-    gdouble  double_min;
-    gdouble  double_tot;
-    nstime_t time_max;
-    nstime_t time_min;
-    nstime_t time_tot;
-    guint32  first_frame_in_invl;
-    guint32  last_frame_in_invl;
-} io_item_t;
-
 typedef struct _io_stat_graph_t {
     struct _io_stat_t *io;
-    gpointer           items[NUM_IO_ITEMS];
+    io_graph_item_t    items[NUM_IO_ITEMS];
     int                plot_style;
     gboolean           display;
     GtkWidget         *display_button;
@@ -226,32 +216,11 @@ io_stat_set_title(io_stat_t *io)
 static void
 io_stat_reset(io_stat_t *io)
 {
-    int i, j;
+    int i;
 
     io->needs_redraw = TRUE;
     for (i=0; i<MAX_GRAPHS; i++) {
-        for (j=0; j<NUM_IO_ITEMS; j++) {
-            io_item_t *ioi;
-            ioi = (io_item_t *)io->graphs[i].items[j];
-
-            ioi->frames     = 0;
-            ioi->bytes      = 0;
-            ioi->fields     = 0;
-            ioi->int_max    = 0;
-            ioi->int_min    = 0;
-            ioi->int_tot    = 0;
-            ioi->float_max  = 0;
-            ioi->float_min  = 0;
-            ioi->float_tot  = 0;
-            ioi->double_max = 0;
-            ioi->double_min = 0;
-            ioi->double_tot = 0;
-            nstime_set_zero(&ioi->time_max);
-            nstime_set_zero(&ioi->time_min);
-            nstime_set_zero(&ioi->time_tot);
-            ioi->first_frame_in_invl = 0;
-            ioi->last_frame_in_invl  = 0;
-        }
+        reset_io_graph_items((io_graph_item_t *)io->graphs[i].items, NUM_IO_ITEMS);
     }
     io->last_interval    = 0xffffffff;
     io->max_interval     = 0;
@@ -274,8 +243,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 {
     io_stat_graph_t *graph = (io_stat_graph_t *)g;
     io_stat_t       *io;
-    io_item_t       *it;
-    nstime_t         time_delta;
+    epan_dissect_t  *adv_edt = NULL;
     int              idx;
 
     /* we sometimes get called when the graph is disabled.
@@ -287,19 +255,8 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
     io = graph->io;  /* Point up to the parent io_stat_t struct */
     io->needs_redraw = TRUE;
 
-    /*
-     * Find in which interval this is supposed to go and store the interval index as idx
-     */
-    time_delta = pinfo->rel_ts;
-    if (time_delta.nsecs<0) {
-        time_delta.secs--;
-        time_delta.nsecs += 1000000000;
-    }
-    if (time_delta.secs<0) {
-        return FALSE;
-    }
-    idx = (int) ((time_delta.secs*1000 + time_delta.nsecs/1000000) / io->interval);
-
+    idx = get_io_graph_index(pinfo, io->interval);
+    
     /* some sanity checks */
     if ((idx < 0) || (idx >= NUM_IO_ITEMS)) {
         io->num_items = NUM_IO_ITEMS-1;
@@ -316,184 +273,14 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
         nstime_delta(&io->start_time, &pinfo->fd->abs_ts, &pinfo->rel_ts);
     }
 
-    /* Point to the appropriate io_item_t struct */
-    it = (io_item_t *)graph->items[idx];
-
-    /* Set the first and last frame num in current interval matching the target field+filter  */
-    if (it->first_frame_in_invl == 0) {
-        it->first_frame_in_invl = pinfo->fd->num;
-    }
-    it->last_frame_in_invl = pinfo->fd->num;
-
-    /*
-    * For ADVANCED mode we need to keep track of some more stuff than just frame and byte counts */
+    /* For ADVANCED mode we need to keep track of some more stuff than just frame and byte counts */
     if (io->count_type == COUNT_TYPE_ADVANCED) {
-        GPtrArray *gp;
-        guint i;
-
-        gp = proto_get_finfo_ptr_array(edt->tree, graph->hf_index);
-        if (!gp) {
-            return FALSE;
-        }
-
-        /* Update the appropriate counters. If fields == 0, this is the first seen
-         *  value so set any min/max values accordingly. */
-        for (i=0; i<gp->len; i++) {
-            int new_int;
-            gint64 new_int64;
-            float new_float;
-            double new_double;
-            nstime_t *new_time;
-
-            switch (proto_registrar_get_ftype(graph->hf_index)) {
-            case FT_UINT8:
-            case FT_UINT16:
-            case FT_UINT24:
-            case FT_UINT32:
-                new_int = fvalue_get_uinteger(&((field_info *)gp->pdata[i])->value);
-
-                if ((new_int > it->int_max) || (it->fields == 0)) {
-                    it->int_max = new_int;
-                }
-                if ((new_int < it->int_min) || (it->fields == 0)) {
-                    it->int_min = new_int;
-                }
-                it->int_tot += new_int;
-                it->fields++;
-                break;
-            case FT_INT8:
-            case FT_INT16:
-            case FT_INT24:
-            case FT_INT32:
-                new_int = fvalue_get_sinteger(&((field_info *)gp->pdata[i])->value);
-                if ((new_int > it->int_max) || (it->fields == 0)) {
-                    it->int_max = new_int;
-                }
-                if ((new_int < it->int_min) || (it->fields == 0)) {
-                    it->int_min = new_int;
-                }
-                it->int_tot += new_int;
-                it->fields++;
-                break;
-            case FT_UINT64:
-            case FT_INT64:
-                new_int64 = fvalue_get_integer64(&((field_info *)gp->pdata[i])->value);
-                if ((new_int64 > it->int_max) || (it->fields == 0)) {
-                    it->int_max = new_int64;
-                }
-                if ((new_int64 < it->int_min) || (it->fields == 0)) {
-                    it->int_min = new_int64;
-                }
-                it->int_tot += new_int64;
-                it->fields++;
-                break;
-            case FT_FLOAT:
-                new_float = (gfloat)fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-                if ((new_float > it->float_max) || (it->fields == 0)) {
-                    it->float_max = new_float;
-                }
-                if ((new_float < it->float_min) || (it->fields == 0)) {
-                    it->float_min = new_float;
-                }
-                it->float_tot += new_float;
-                it->fields++;
-                break;
-            case FT_DOUBLE:
-                new_double = fvalue_get_floating(&((field_info *)gp->pdata[i])->value);
-                if ((new_double > it->double_max) || (it->fields == 0)) {
-                    it->double_max = new_double;
-                }
-                if ((new_double < it->double_min) || (it->fields == 0)) {
-                    it->double_min = new_double;
-                }
-                it->double_tot += new_double;
-                it->fields++;
-                break;
-            case FT_RELATIVE_TIME:
-                new_time = (nstime_t *)fvalue_get(&((field_info *)gp->pdata[i])->value);
-
-                switch (graph->calc_type) {
-                    guint64 t, pt; /* time in us */
-                    int j;
-                case CALC_TYPE_LOAD:
-                    /*
-                    * Add the time this call spanned each interval according to its contribution
-                    * to that interval.
-                    */
-                    t = new_time->secs;
-                    t = t * 1000000 + new_time->nsecs / 1000;
-                    j = idx;
-                    /*
-                     * Handle current interval */
-                    pt = pinfo->rel_ts.secs * 1000000 + pinfo->rel_ts.nsecs / 1000;
-                    pt = pt % (io->interval * 1000);
-                    if (pt > t) {
-                        pt = t;
-                    }
-                    while (t) {
-                        io_item_t *item;
-
-                        item = (io_item_t*)graph->items[j];
-                        item->time_tot.nsecs += (int) (pt * 1000);
-                        if (item->time_tot.nsecs > 1000000000) {
-                            item->time_tot.secs++;
-                            item->time_tot.nsecs -= 1000000000;
-                        }
-
-                        if (j == 0) {
-                            break;
-                        }
-                        j--;
-                        t -= pt;
-                        if (t > (guint64) io->interval * 1000) {
-                            pt = (guint64) io->interval * 1000;
-                        } else {
-                            pt = t;
-                        }
-                    }
-                    break;
-                default:
-                    if ( (new_time->secs > it->time_max.secs)
-                         || ( (new_time->secs == it->time_max.secs)
-                              && (new_time->nsecs > it->time_max.nsecs))
-                         || (it->fields == 0)) {
-                        it->time_max = *new_time;
-                    }
-                    if ( (new_time->secs<it->time_min.secs)
-                         || ( (new_time->secs == it->time_min.secs)
-                              && (new_time->nsecs < it->time_min.nsecs))
-                         || (it->fields == 0)) {
-                        it->time_min = *new_time;
-                    }
-                    nstime_add(&it->time_tot, new_time);
-                    it->fields++;
-                }
-                break;
-            default:
-                if ((graph->calc_type == CALC_TYPE_COUNT_FRAMES) ||
-                    (graph->calc_type == CALC_TYPE_COUNT_FIELDS)) {
-                    /*
-                     * It's not an integeresque type, but
-                     * all we want to do is count it, so
-                     * that's all right.
-                     */
-                    it->fields++;
-                }
-                else {
-                    /*
-                     * "Can't happen"; see the "check that the
-                     * type is compatible" check in
-                     * filter_callback().
-                     */
-                    g_assert_not_reached();
-                }
-                break;
-            }
-        }
+        adv_edt = edt;
     }
 
-    it->frames++;
-    it->bytes += pinfo->fd->pkt_len;
+    if (!update_io_graph_item((io_graph_item_t*) graph->items, idx, pinfo, adv_edt, graph->hf_index, CALC_TYPE_TO_ITEM_UNIT(graph->calc_type), io->interval)) {
+        return FALSE;
+    }
 
     return TRUE;
 }
@@ -503,13 +290,13 @@ get_it_value(io_stat_t *io, int graph, int idx)
 {
     guint64    value = 0;          /* FIXME: loss of precision, visible on the graph for small values */
     int        adv_type;
-    io_item_t *it;
+    io_graph_item_t *it;
     guint32    interval;
 
     g_assert(graph < MAX_GRAPHS);
     g_assert(idx < NUM_IO_ITEMS);
 
-    it = (io_item_t *)io->graphs[graph].items[idx];
+    it = &io->graphs[graph].items[idx];
 
     switch (io->count_type) {
     case COUNT_TYPE_FRAMES:
@@ -532,7 +319,6 @@ get_it_value(io_stat_t *io, int graph, int idx)
         }
         break;
     }
-
 
     adv_type = proto_registrar_get_ftype(io->graphs[graph].hf_index);
     switch (adv_type) {
@@ -1374,7 +1160,7 @@ static void
 iostat_init(const char *opt_arg _U_, void* userdata _U_)
 {
     io_stat_t *io;
-    int i = 0, j = 0;
+    int i = 0;
     static GdkColor col[MAX_GRAPHS] = {
         {0, 0x0000, 0x0000, 0x0000}, /* Black */
         {0, 0xffff, 0x0000, 0x0000}, /* Red */
@@ -1442,9 +1228,6 @@ iostat_init(const char *opt_arg _U_, void* userdata _U_)
 
         io->graphs[i].filter_bt                 = NULL;
 
-        for (j=0; j<NUM_IO_ITEMS; j++) {
-            io->graphs[i].items[j] = g_new(io_item_t,1);
-        }
         io->graphs[i].follow_smooth = GRAPH_FOLLOWFILTER;
     }
     io_stat_reset(io);
@@ -1477,7 +1260,7 @@ static void
 draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 {
     io_stat_t      *io           = (io_stat_t *)user_data;
-    int             i,j;
+    int             i;
     GtkWidget      *save_bt      = (GtkWidget *)g_object_get_data(G_OBJECT(io->window), "save_bt");
     surface_info_t *surface_info = (surface_info_t *)g_object_get_data(G_OBJECT(save_bt), "surface-info");
 
@@ -1492,10 +1275,6 @@ draw_area_destroy_cb(GtkWidget *widget _U_, gpointer user_data)
 
             g_free(io->graphs[i].args);
             io->graphs[i].args = NULL;
-            for (j=0; j<NUM_IO_ITEMS; j++) {
-                g_free(io->graphs[i].items[j]);
-                io->graphs[i].items[j] = NULL;
-            }
         }
     }
     g_free(io);
@@ -1508,7 +1287,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
 {
     io_stat_t       *io        = (io_stat_t *)g;
     io_stat_graph_t *graph;
-    io_item_t       *it;
+    io_graph_item_t *it;
     guint32          draw_width, interval, last_interval;
     guint32          frame_num = 0;
     int              i;
@@ -1555,7 +1334,7 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer g)
         for (i=0; i<MAX_GRAPHS; i++) {
             graph = &io->graphs[i];
             if (graph->display) {
-                it = (io_item_t *)graph->items[interval];
+                it = &graph->items[interval];
                 if (event->button == 1) {
                     if ((frame_num == 0) || (it->first_frame_in_invl < frame_num))
                         frame_num = it->first_frame_in_invl;
@@ -2023,9 +1802,8 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 {
     io_stat_graph_t   *gio   = (io_stat_graph_t *)user_data;
     const char        *filter;
-    const char        *field = NULL;
-    header_field_info *hfi;
     dfilter_t         *dfilter;
+    const char        *field_name = NULL;
 
     /* this graph is not active, just update display and redraw */
     if (!gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(gio->display_button))) {
@@ -2036,84 +1814,21 @@ filter_callback(GtkWidget *widget, gpointer user_data)
 
     /* first check if the field string is valid */
     if (gio->io->count_type == COUNT_TYPE_ADVANCED) {
-        field = gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
+        GString *err_str;
+        field_name = gtk_entry_get_text(GTK_ENTRY(gio->calc_field));
 
-        /* warn and bail out if there was no field specified */
-        if ((field == NULL) || (field[0] == 0)) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "You didn't specify a field name.");
+        err_str = check_field_unit(field_name, &gio->hf_index, CALC_TYPE_TO_ITEM_UNIT(gio->calc_type));
+
+        if (err_str) {
+            /* warn and bail out */
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str->str);
+            g_string_free(err_str, TRUE);
             disable_graph(gio);
             io_stat_redraw(gio->io);
             return;
-        }
-        /* warn and bail out if the field could not be found */
-        hfi = proto_registrar_get_byname(field);
-        if (hfi == NULL) {
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "There is no field named '%s'.", field);
-            disable_graph(gio);
-            io_stat_redraw(gio->io);
-            return;
-        }
-        gio->hf_index = hfi->id;
-        /* check that the type is compatible */
-        switch (hfi->type) {
-        case FT_UINT8:
-        case FT_UINT16:
-        case FT_UINT24:
-        case FT_UINT32:
-        case FT_UINT64:
-        case FT_INT8:
-        case FT_INT16:
-        case FT_INT24:
-        case FT_INT32:
-        case FT_INT64:
-        case FT_FLOAT:
-        case FT_DOUBLE:
-            /* these values support all calculations except LOAD */
-            switch (gio->calc_type) {
-            case CALC_TYPE_LOAD:
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "LOAD(*) is only supported for relative-time fields.");
-                disable_graph(gio);
-                io_stat_redraw(gio->io);
-                return;
-            }
-            /* these types support all calculations */
-            break;
-        case FT_RELATIVE_TIME:
-            /* this type only supports COUNT, MAX, MIN, AVG */
-            switch (gio->calc_type) {
-            case CALC_TYPE_SUM:
-            case CALC_TYPE_COUNT_FRAMES:
-            case CALC_TYPE_COUNT_FIELDS:
-            case CALC_TYPE_MAX:
-            case CALC_TYPE_MIN:
-            case CALC_TYPE_AVG:
-            case CALC_TYPE_LOAD:
-                break;
-            default:
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "%s is a relative-time field, so %s calculations are not supported on it.",
-                    field,
-                    calc_type_names[gio->calc_type]);
-                disable_graph(gio);
-                io_stat_redraw(gio->io);
-                return;
-            }
-            break;
-        default:
-            if ((gio->calc_type != CALC_TYPE_COUNT_FRAMES) &&
-                (gio->calc_type != CALC_TYPE_COUNT_FIELDS)) {
-                simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                    "%s doesn't have integral or float values, so %s calculations are not supported on it.",
-                    field,
-                    calc_type_names[gio->calc_type]);
-                disable_graph(gio);
-                io_stat_redraw(gio->io);
-                return;
-            }
-            break;
         }
     }
+
 
     /* first check if the filter string is valid. */
     filter = gtk_entry_get_text(GTK_ENTRY(gio->filter_field));
@@ -2134,7 +1849,7 @@ filter_callback(GtkWidget *widget, gpointer user_data)
     remove_tap_listener(gio);
 
     io_stat_reset(gio->io);
-    enable_graph(gio, filter, field);
+    enable_graph(gio, filter, field_name);
     cf_retap_packets(&cfile);
     gdk_window_raise(gtk_widget_get_window(gio->io->window));
     io_stat_redraw(gio->io);

@@ -23,7 +23,6 @@
 
 #include <glib.h>
 
-#include <epan/proto.h>
 #include <epan/dfilter/dfilter.h>
 
 #include "display_filter_edit.h"
@@ -85,7 +84,6 @@ UIMiniCancelButton::UIMiniCancelButton(QWidget *pParent /* = 0 */)
 DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     SyntaxLineEdit(parent),
     plain_(plain),
-    field_name_only_(false),
     apply_button_(NULL)
 
 {
@@ -266,43 +264,34 @@ void DisplayFilterEdit::resizeEvent(QResizeEvent *)
 
 void DisplayFilterEdit::checkFilter(const QString& text)
 {
-    dfilter_t *dfp;
-    guchar c;
-
     clear_button_->setVisible(!text.isEmpty());
 
     popFilterSyntaxStatus();
+    checkDisplayFilter(text);
 
-    if (field_name_only_ && (c = proto_check_field_name(text.toUtf8().constData()))) {
-        setSyntaxState(Invalid);
-        emit pushFilterSyntaxStatus(QString().sprintf("Illegal character in field name: '%c'", c));
-    } else if (dfilter_compile(text.toUtf8().constData(), &dfp)) {
-        GPtrArray *depr = NULL;
-        if (dfp != NULL) {
-            depr = dfilter_deprecated_tokens(dfp);
-        }
-        if (text.isEmpty()) {
-            setSyntaxState(Empty);
-        } else if (depr) {
-            /* You keep using that word. I do not think it means what you think it means. */
-            setSyntaxState(Deprecated);
-            /*
-             * We're being lazy and only printing the first "problem" token.
-             * Would it be better to print all of them?
-             */
-            emit pushFilterSyntaxWarning(QString().sprintf("\"%s\" may have unexpected results (see the User's Guide)",
-                                                          (const char *) g_ptr_array_index(depr, 0)));
-        } else {
-            setSyntaxState(Valid);
-        }
-        dfilter_free(dfp);
-    } else {
-        setSyntaxState(Invalid);
+    switch (syntaxState()) {
+    case Deprecated:
+    {
+        /*
+         * We're being lazy and only printing the first "problem" token.
+         * Would it be better to print all of them?
+         */
+        QString deprecatedMsg(tr("\"%1\" may have unexpected results (see the User's Guide)")
+                .arg(deprecatedToken()));
+        emit pushFilterSyntaxWarning(deprecatedMsg);
+        break;
+    }
+    case Invalid:
+    {
         QString invalidMsg(tr("Invalid filter"));
         if (dfilter_error_msg) {
             invalidMsg.append(QString().sprintf(": %s", dfilter_error_msg));
         }
         emit pushFilterSyntaxStatus(invalidMsg);
+        break;
+    }
+    default:
+        break;
     }
 
     bookmark_button_->setEnabled(syntaxState() == Valid || syntaxState() == Deprecated);
