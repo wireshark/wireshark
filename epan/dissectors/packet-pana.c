@@ -136,7 +136,7 @@ static const value_string msg_subtype_names[] = {
        { 0, NULL }
 };
 
-#define AVP_CODE_MAX 11
+#define AVP_CODE_MAX 13
 static const value_string avp_code_names[] = {
        { 1, "AUTH AVP" },
        { 2, "EAP-Payload AVP" },
@@ -149,6 +149,8 @@ static const value_string avp_code_names[] = {
        { 9, "Termination-Cause" },
        { 10, "PaC-Information" },
        { 11, "Relayed-Message" },
+       { 12, "Encryption-Encap" },
+       { 13, "Encryption-Algorithm" },
        { 0, NULL }
 };
 
@@ -304,6 +306,8 @@ pana_avp_get_type(guint16 avp_code, guint32 vendor_id)
                        case 9:  return PANA_ENUMERATED;         /* Termination-Cause AVP */
                        case 10: return PANA_OCTET_STRING;       /* PaC-Information AVP */
                        case 11: return PANA_ENCAPSULATED;       /* Relayed-Message AVP */
+                       case 12: return PANA_OCTET_STRING;       /* Encryption-Encap AVP */
+                       case 13: return PANA_UNSIGNED32;         /* Encryption-Algorithm AVP */
                        default: return PANA_OCTET_STRING;
                }
        } else {
