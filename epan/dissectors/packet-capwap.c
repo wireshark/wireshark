@@ -223,6 +223,44 @@ static int hf_capwap_msg_element_type_wtp_reboot_statistics_other_failure_count 
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_unknown_failure_count = -1;
 static int hf_capwap_msg_element_type_wtp_reboot_statistics_last_failure_type = -1;
 
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_f = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_p = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_s = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_b = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_m = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_q = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_t = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_d = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_v = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_o = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_k = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_capability_l = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_key_index = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_key_status = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_key_length = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_key = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_group_tsc = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_qos = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_auth_type = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_mac_mode = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_tunnel_mode = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_suppress_ssid = -1;
+static int hf_capwap_msg_element_type_ieee80211_add_wlan_ssid = -1;
+
+static int hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_radio_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_wlan_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_bssid = -1;
+
+static int hf_capwap_msg_element_type_ieee80211_delete_wlan_radio_id = -1;
+static int hf_capwap_msg_element_type_ieee80211_delete_wlan_wlan_id = -1;
+
 static int hf_capwap_msg_element_type_ieee80211_rate_set_radio_id = -1;
 static int hf_capwap_msg_element_type_ieee80211_rate_set_rate_set = -1;
 
@@ -263,6 +301,7 @@ static dissector_handle_t data_handle;
 
 /* Initialize the subtree pointers */
 static gint ett_capwap = -1;
+static gint ett_capwap_element_ieee80211_add_wlan_capability = -1;
 
 static gint ett_msg_fragment = -1;
 static gint ett_msg_fragments = -1;
@@ -712,6 +751,56 @@ static const value_string last_failure_type_vals[] = {
     { 0,     NULL     }
 };
 
+/* ************************************************************************* */
+/*                     Add WLAN : Key Status                                 */
+/* ************************************************************************* */
+static const value_string ieee80211_add_wlan_key_status_vals[] = {
+    { 0, "SN Information Element means that the WLAN uses per-station encryption keys" },
+    { 1, "static WEP Key" },
+    { 2, "Rekeying the GTK with the STA's in the BSS" },
+    { 3, "Rekeying the GTK and broadcast" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
+/*                     Add WLAN : QoS                                        */
+/* ************************************************************************* */
+static const value_string ieee80211_add_wlan_qos_vals[] = {
+    { 0, "Best Effort" },
+    { 1, "Video" },
+    { 2, "Voice" },
+    { 3, "Background" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
+/*                     Add WLAN : Auth Type                                  */
+/* ************************************************************************* */
+static const value_string ieee80211_add_wlan_auth_type_vals[] = {
+    { 0, "Open System" },
+    { 1, "WEP Shared Key" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
+/*                     Add WLAN : MAC Mode                                   */
+/* ************************************************************************* */
+static const value_string ieee80211_add_wlan_mac_mode_vals[] = {
+    { 0, "Local MAC" },
+    { 1, "Split MAC" },
+    { 0,     NULL     }
+};
+
+/* ************************************************************************* */
+/*                     Add WLAN : Tunnel Mode                                */
+/* ************************************************************************* */
+static const value_string ieee80211_add_wlan_tunnel_mode_vals[] = {
+    { 0, "Local Bridging" },
+    { 1, "802.3 Tunnel" },
+    { 1, "802.11 Tunnel" },
+    { 0,     NULL     }
+};
+
 static void capwap_reassemble_init(void)
 {
     reassembly_table_init(&capwap_reassembly_table,
@@ -1131,6 +1220,54 @@ dissect_capwap_message_element_type(tvbuff_t *tvb, proto_tree *msg_element_type_
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_other_failure_count, tvb, offset+14, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_unknown_failure_count, tvb, offset+16, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_wtp_reboot_statistics_last_failure_type, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+        break;
+
+    case IEEE80211_ADD_WLAN:{ /* ieee80211 Add WLAN (1024) */
+        guint16 key_length;
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        msg_element_type_item_flag =  proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        sub_msg_element_type_flag_tree = proto_item_add_subtree(msg_element_type_item_flag, ett_capwap_element_ieee80211_add_wlan_capability);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_f, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_p, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_s, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_b, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_m, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_q, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_t, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_d, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_v, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_o, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_k, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_flag_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_capability_l, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_index, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_status, tvb, offset+9, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key_length, tvb, offset+10, 2, ENC_BIG_ENDIAN);
+        key_length = tvb_get_ntohs(tvb, offset+10);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_key, tvb, offset+12, key_length, ENC_NA);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_group_tsc, tvb, offset+key_length+12, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_qos, tvb, offset+key_length+18, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_auth_type, tvb, offset+key_length+19, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_mac_mode, tvb, offset+key_length+20, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_tunnel_mode, tvb, offset+key_length+21, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_suppress_ssid, tvb, offset+key_length+22, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_add_wlan_ssid, tvb, offset+key_length+23, optlen-(key_length+23-4), ENC_ASCII|ENC_NA);
+        }
+        break;
+
+    case IEEE80211_ASSIGNED_WTP_BSSID: /* ieee80211 Assigned WTP BSSID (1024) */
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_bssid, tvb, offset+6, 6, ENC_NA);
+        break;
+
+    case IEEE80211_DELETE_WLAN: /* ieee80211 Delete WLAN (1025) */
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_delete_wlan_radio_id, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_msg_element_type_tree, hf_capwap_msg_element_type_ieee80211_delete_wlan_wlan_id, tvb, offset+5, 1, ENC_BIG_ENDIAN);
         break;
 
     case IEEE80211_RATE_SET: /* ieee80211 Rate Set (1034) */
@@ -2162,6 +2299,147 @@ proto_register_capwap_control(void)
             FT_UINT8, BASE_DEC, VALS(last_failure_type_vals), 0x0,
             "The failure type of the most recent WTP failure", HFILL }},
 
+        /* Message element type IEEE80211 : RFC 5416 Section 6 */
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_radio_id,
+            { "Radio ID", "capwap.control.message_element.ieee80211_add_wlan.radio_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_wlan_id,
+            { "WLAN ID", "capwap.control.message_element.ieee80211_add_wlan.wlan_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability,
+            { "Capability", "capwap.control.message_element.ieee80211_add_wlan.capability",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_e,
+            { "ESS", "capwap.control.message_element.ieee80211_add_wlan.capability.e",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x8000,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_i,
+            { "IBSS", "capwap.control.message_element.ieee80211_add_wlan.capability.i",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x4000,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_c,
+            { "CF-Pollable", "capwap.control.message_element.ieee80211_add_wlan.capability.c",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x2000,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_f,
+            { "CF-Poll Request", "capwap.control.message_element.ieee80211_add_wlan.capability.f",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x1000,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_p,
+            { "Privacy", "capwap.control.message_element.ieee80211_add_wlan.capability.p",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0800,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_s,
+            { "Short Preamble", "capwap.control.message_element.ieee80211_add_wlan.capability.s",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0400,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_b,
+            { "PBCC", "capwap.control.message_element.ieee80211_add_wlan.capability.b",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0200,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_a,
+            { "Channek Agility", "capwap.control.message_element.ieee80211_add_wlan.capability.a",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_m,
+            { "Spectrum Management", "capwap.control.message_element.ieee80211_add_wlan.capability.m",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_q,
+            { "QoS", "capwap.control.message_element.ieee80211_add_wlan.capability.q",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0040,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_t,
+            { "Short Slot Time", "capwap.control.message_element.ieee80211_add_wlan.capability.t",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0020,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_d,
+            { "APSD", "capwap.control.message_element.ieee80211_add_wlan.capability.d",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0010,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_v,
+            { "Reserved", "capwap.control.message_element.ieee80211_add_wlan.capability.v",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0008,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_o,
+            { "DSSS-OFDM", "capwap.control.message_element.ieee80211_add_wlan.capability.o",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0004,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_k,
+            { "Delayed Block ACK", "capwap.control.message_element.ieee80211_add_wlan.capability.k",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0002,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_capability_l,
+            { "Immediate Block ACK", "capwap.control.message_element.ieee80211_add_wlan.capability.l",
+            FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x00001,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_key_index,
+            { "Key-Index", "capwap.control.message_element.ieee80211_add_wlan.key_index",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_key_status,
+            { "Key Status", "capwap.control.message_element.ieee80211_add_wlan.key_status",
+            FT_UINT8, BASE_DEC, VALS(ieee80211_add_wlan_key_status_vals), 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_key_length,
+            { "Key Length", "capwap.control.message_element.ieee80211_add_wlan.key_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_key,
+            { "Key", "capwap.control.message_element.ieee80211_add_wlan.key",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_group_tsc,
+            { "Group TSC", "capwap.control.message_element.ieee80211_add_wlan.group_tsc",
+            FT_UINT64, BASE_DEC, NULL, 0x00FFFFFF,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_qos,
+            { "QoS", "capwap.control.message_element.ieee80211_add_wlan.qos",
+            FT_UINT8, BASE_DEC, VALS(ieee80211_add_wlan_qos_vals), 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_auth_type,
+            { "Auth Type", "capwap.control.message_element.ieee80211_add_wlan.auth_type",
+            FT_UINT8, BASE_DEC, VALS(ieee80211_add_wlan_auth_type_vals), 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_mac_mode,
+            { "MAC Mode", "capwap.control.message_element.ieee80211_add_wlan.mac_mode",
+            FT_UINT8, BASE_DEC, VALS(ieee80211_add_wlan_mac_mode_vals), 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_tunnel_mode,
+            { "Tunnel Mode", "capwap.control.message_element.ieee80211_add_wlan.tunnel_mode",
+            FT_UINT8, BASE_DEC, VALS(ieee80211_add_wlan_tunnel_mode_vals), 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_suppress_ssid,
+            { "Suppress SSID", "capwap.control.message_element.ieee80211_add_wlan.supress_ssid",
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_add_wlan_ssid,
+            { "SSID", "capwap.control.message_element.ieee80211_add_wlan.ssid",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_radio_id,
+            { "Radio ID", "capwap.control.message_element.ieee80211_assigned_wtp_bssid.radio_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_wlan_id,
+            { "WLAN ID", "capwap.control.message_element.ieee80211_assigned_wtp_bssid.wlan_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_assigned_wtp_bssid_bssid,
+            { "BSSID", "capwap.control.message_element.ieee80211_assigned_wtp_bssid.bssid",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_delete_wlan_radio_id,
+            { "Radio ID", "capwap.control.message_element.ieee80211_delete_wlan.radio_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_capwap_msg_element_type_ieee80211_delete_wlan_wlan_id,
+            { "WLAN ID", "capwap.control.message_element.ieee80211_delete_wlan.wlan_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
         { &hf_capwap_msg_element_type_ieee80211_rate_set_radio_id,
             { "Radio ID", "capwap.control.message_element.ieee80211_rate_set.radio_id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2269,6 +2547,7 @@ proto_register_capwap_control(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_capwap,
+        &ett_capwap_element_ieee80211_add_wlan_capability,
         &ett_msg_fragment,
         &ett_msg_fragments
     };
