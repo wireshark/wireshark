@@ -585,6 +585,9 @@ static const fragment_items oss_frag_items = {
 
 static const char *global_scm_udid = "00:00:00:00:00:00";
 
+static dissector_handle_t data_dissector = NULL;
+
+static gboolean global_display_intergap_data   = FALSE;
 static gboolean global_calculate_crc2          = FALSE;
 static gboolean global_scm_udid_autoset        = TRUE;
 static gboolean global_udp_frame2_first        = FALSE;
@@ -1921,11 +1924,11 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                              gboolean b_frame2First, gboolean do_byte_swap, guint8 force_nr_in_package,
                              tvbuff_t *given_tvb, packet_info *pinfo, proto_tree *tree )
 {
-    tvbuff_t           *next_tvb, *message_tvb = NULL;
-    guint               length, len, frameOffset, frameLength, nodeAddress;
+    tvbuff_t           *next_tvb = NULL, *gap_tvb = NULL, *message_tvb = NULL;
+    guint               length, len, frameOffset, frameLength, nodeAddress, gapStart;
     guint8             *bytes;
     gboolean            handled, dissectorCalled, call_sub_dissector, markAsMalformed;
-    guint8              type, found, packageCounter, i, tempByte;
+    guint8              type, found, i, tempByte;
     guint16             frameStart1, frameStart2, byte_offset;
     gint                reported_len;
     dissector_handle_t  protocol_dissector = NULL;
@@ -1946,20 +1949,28 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     if ( length < OSS_MINIMUM_LENGTH )
         return FALSE;
 
+    /* Determine dissector handle for sub-dissection */
     if ( strlen( sub_diss_handle ) > 0 )
     {
         call_sub_dissector = TRUE;
         protocol_dissector = find_dissector ( sub_diss_handle );
         if ( protocol_dissector == NULL )
-            protocol_dissector = find_dissector ( "data" );
+            protocol_dissector = data_dissector;
     }
 
     reported_len = tvb_reported_length_remaining(given_tvb, 0);
-    bytes = (guint8 *) wmem_alloc(pinfo->pool, length);
-    tvb_memcpy(given_tvb, bytes, 0, length);
 
+    /* This will swap the bytes according to MBTCP encoding */
     if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
     {
+        /* Because of padding bytes at the end of the frame, tvb_memdup could lead
+         * to a "openSAFETY truncated" message. By ensuring, that we have enough
+         * bytes to copy, this will be prevented. */
+        if ( ! tvb_bytes_exist ( given_tvb, 0, length ) )
+            return FALSE;
+
+        bytes = (guint8 *) tvb_memdup( pinfo->pool, given_tvb, 0, length);
+
         /* Wordswapping for modbus detection */
         /* Only a even number of bytes can be swapped */
         len = (length / 2);
@@ -1976,10 +1987,15 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
     frameOffset = 0;
     frameLength = 0;
     found = 0;
-    packageCounter = 0;
+
+    /* Counter to determine gaps between openSAFETY packages */
+    gapStart = 0;
 
     while ( frameOffset < length )
     {
+        /* Reset the next_tvb buffer */
+        next_tvb = NULL;
+
         /* Smallest possible frame size is 11 */
         if ( tvb_length_remaining(message_tvb, frameOffset ) < OSS_MINIMUM_LENGTH )
             break;
@@ -2013,7 +2029,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             if (frameStart1 == frameStart2)
             {
                 found--;
-                frameOffset += frameLength ;
+                frameOffset += frameLength;
                 continue;
             }
 
@@ -2107,19 +2123,22 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
             if ( ( (gint)frameLength - (gint)( frameStart2 > frameStart1 ? frameStart2 : frameLength - frameStart1 ) ) < 0 )
                 return FALSE;
 
-            /* From here on, the package should be correct, therefore adding second frame */
-            if ( do_byte_swap == TRUE && global_mbtcp_big_endian == TRUE )
+            /* From here on, the package should be correct. Even if it is not correct, it will be dissected
+             * anyway and marked as malformed. Therefore it can be assumed, that a gap will end here.
+             */
+            if ( global_display_intergap_data == TRUE && gapStart != frameOffset )
             {
-                next_tvb = tvb_new_child_real_data(message_tvb, &bytes[frameOffset], (frameLength), reported_len);
-                /* Adding a visual aid to the dissector tree */
-                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame (Swapped)");
+                /* Storing the gap data in subset, and calling the data dissector to display it */
+                gap_tvb = tvb_new_subset(message_tvb, gapStart, (frameOffset - gapStart), reported_len);
+                call_dissector(data_dissector, gap_tvb, pinfo, tree);
             }
-            else
-            {
-                next_tvb = tvb_new_subset(message_tvb, frameOffset, frameLength, reported_len);
-                /* Adding a visual aid to the dissector tree */
-                add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
-            }
+            /* Setting the gap to the next offset */
+            gapStart = frameOffset + frameLength;
+
+            /* Adding second data source */
+            next_tvb = tvb_new_subset ( message_tvb, frameOffset, frameLength, reported_len );
+            /* Adding a visual aid to the dissector tree */
+            add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
 
             /* A new subtype for package dissection will need to set the actual nr. for the whole dissected package */
             if ( force_nr_in_package > 0 )
@@ -2151,9 +2170,7 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                 opensafety_tree = NULL;
             }
 
-            if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_item, opensafety_tree, found) == TRUE )
-                packageCounter++;
-            else
+            if ( dissect_opensafety_message(frameStart1, frameStart2, type, next_tvb, pinfo, opensafety_item, opensafety_tree, found) != TRUE )
                 markAsMalformed = TRUE;
 
             if ( tree && markAsMalformed )
@@ -2161,6 +2178,8 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                 if ( OSS_FRAME_ADDR_T(message_tvb, byte_offset + frameStart1) > 1024 )
                     expert_add_info(pinfo, opensafety_item, &ei_message_spdo_address_invalid );
             }
+
+            /* Something is being displayed, therefore this dissector returns true */
             handled = TRUE;
         }
         else
@@ -2169,8 +2188,16 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         frameOffset += frameLength;
     }
 
-    if ( handled == TRUE && packageCounter == 0 )
-        handled = FALSE;
+    if ( handled == TRUE )
+    {
+        /* There might be some undissected data at the end of the frame (e.g. SercosIII) */
+        if ( frameOffset < length && global_display_intergap_data == TRUE && gapStart != frameOffset )
+        {
+            /* Storing the gap data in subset, and calling the data dissector to display it */
+            gap_tvb = tvb_new_subset(message_tvb, gapStart, (length - gapStart), reported_len);
+            call_dissector(data_dissector, gap_tvb, pinfo, tree);
+        }
+    }
 
     return ( handled ? TRUE : FALSE );
 }
@@ -2180,6 +2207,7 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
 {
     gboolean        result     = FALSE;
     guint8          firstByte;
+    proto_tree      *epl_tree = NULL;
 
     if ( ! global_enable_plk )
         return result;
@@ -2196,8 +2224,13 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
         /* No frames can be sent in SoA and SoC messages, therefore those get filtered right away */
         if ( ( firstByte != 0x02 ) && ( firstByte != 0x0A ) )
         {
-            result = opensafety_package_dissector("openSAFETY/Powerlink", "epl",
-                                                  FALSE, FALSE, 0, message_tvb, pinfo, tree);
+            /* Set the tree up, until it is par with the top-level */
+            epl_tree = tree;
+            while ( epl_tree != NULL && epl_tree->parent != NULL )
+                epl_tree = epl_tree->parent;
+
+            result = opensafety_package_dissector("openSAFETY/Powerlink", "",
+                                                  FALSE, FALSE, 0, message_tvb, pinfo, epl_tree);
         }
 
         bDissector_Called_Once_Before = FALSE;
@@ -2733,6 +2766,10 @@ proto_register_opensafety(void)
                 "Enable heuristic dissection for Modbus/TCP", "Enable heuristic dissection for Modbus/TCP",
                 &global_enable_mbtcp);
 
+    prefs_register_bool_preference(opensafety_module, "display_intergap_data",
+                "Display the data between openSAFETY packets", "Display the data between openSAFETY packets",
+                &global_display_intergap_data);
+
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );
     new_register_dissector("opensafety_mbtcp", dissect_opensafety_mbtcp, proto_opensafety );
@@ -2747,8 +2784,12 @@ proto_reg_handoff_opensafety(void)
 
     if ( !opensafety_inited )
     {
+        /* Storing global data_dissector */
+        if ( data_dissector == NULL )
+            data_dissector = find_dissector ( "data" );
+
         /* EPL & SercosIII dissector registration */
-        heur_dissector_add("epl", dissect_opensafety_epl, proto_opensafety);
+        heur_dissector_add("epl_data", dissect_opensafety_epl, proto_opensafety);
         heur_dissector_add("sercosiii", dissect_opensafety_siii, proto_opensafety);
 
         /* If an openSAFETY UDP transport filter is present, add to its

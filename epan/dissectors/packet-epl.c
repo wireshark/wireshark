@@ -905,9 +905,6 @@ dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
 	if (len > 0)
 	{
-		if ( data_dissector == NULL )
-			data_dissector = find_dissector ( "data" );
-
 		payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
 		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, NULL))
 			call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
@@ -2361,7 +2358,11 @@ proto_register_epl(void)
 void
 proto_reg_handoff_epl(void)
 {
-    dissector_handle_t epl_udp_handle = new_create_dissector_handle( dissect_epludp, proto_epl );
+	dissector_handle_t epl_udp_handle = new_create_dissector_handle( dissect_epludp, proto_epl );
+
+	/* Store a pointer to the data_dissector */
+	if ( data_dissector == NULL )
+		data_dissector = find_dissector ( "data" );
 
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
 	dissector_add_uint("udp.port", UDP_PORT_EPL, epl_udp_handle);
