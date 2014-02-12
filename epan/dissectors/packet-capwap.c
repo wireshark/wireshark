@@ -384,6 +384,9 @@ static const value_string message_type[] = {
     { 24, "Clear Configuration Response" },
     { 25, "Station Configuration Request" },
     { 26, "Station Configuration Response" },
+    /* RFC5416 : Section 3 : IEEE 802.11 Specific CAPWAP Control Messages */
+    { 3398913, "IEEE 802.11 WLAN Configuration Request" },
+    { 3398914, "IEEE 802.11 WLAN Configuration Response" },
     { 0,     NULL     }
 };
 /* ************************************************************************* */
@@ -1223,9 +1226,9 @@ dissect_capwap_control_header(tvbuff_t *tvb, proto_tree *capwap_control_tree, gu
     capwap_control_msg_type_tree = proto_item_add_subtree(ti_flag, ett_capwap);
 
     proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_nbr, tvb, offset, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_specific, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(capwap_control_msg_type_tree, hf_capwap_control_header_msg_type_enterprise_specific, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",val_to_str(tvb_get_guint8(tvb, offset+3),message_type,"Unknown Message Type (0x%02x)"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",val_to_str(tvb_get_ntohl(tvb, offset),message_type,"Unknown Message Type (0x%x)"));
 
     plen += 4;
     /* Sequence 8 bits */
@@ -1740,7 +1743,7 @@ proto_register_capwap_control(void)
             NULL, HFILL }},
         { &hf_capwap_control_header_msg_type_enterprise_specific,
         { "Message Type (Enterprise Specific)", "capwap.control.header.message_type.enterprise_specific",
-            FT_UINT8, BASE_DEC, VALS(message_type), 0x00,
+            FT_UINT32, BASE_DEC, VALS(message_type), 0x00,
             NULL, HFILL }},
         { &hf_capwap_control_header_seq_number,
         { "Sequence Number", "capwap.control.header.sequence_number",
