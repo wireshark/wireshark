@@ -56,6 +56,8 @@
 #include <QtGui>
 #include <QTextStream>
 
+#include "wireshark_application.h"
+
 // To do:
 // - Tweat and enhance ui...
 
@@ -143,7 +145,9 @@ AboutDialog::AboutDialog(QWidget *parent) :
     f_authors.setFileName(get_datafile_path("AUTHORS-SHORT"));
     f_authors.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_authors(&f_authors);
+    ReadFile_authors.setCodec("UTF-8");
 
+    ui->pte_Authors->setFont(wsApp->monospaceFont());
     ui->pte_Authors->insertPlainText(ReadFile_authors.readAll());
     ui->pte_Authors->moveCursor(QTextCursor::Start);
 
@@ -243,6 +247,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     f_license.open(QFile::ReadOnly | QFile::Text);
     QTextStream ReadFile_license(&f_license);
 
+    ui->pte_License->setFont(wsApp->monospaceFont());
     ui->pte_License->insertPlainText(ReadFile_license.readAll());
     ui->pte_License->moveCursor(QTextCursor::Start);
 }
