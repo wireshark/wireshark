@@ -12,8 +12,6 @@
 #              [--nocheck-value-string-array-null-termination]
 #              [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
@@ -1982,11 +1980,6 @@ while ($_ = $ARGV[0])
                 # Need to use temporary variables instead.
                 print STDERR "Error: Found %hh in " .$filename."\n";
                 $errorCount++;
-        }
-
-        if (! ($fileContents =~ m{ \$Id .* \$ }xo))
-        {
-                print STDERR "Warning: ".$filename." does not have an SVN Id tag.\n";
         }
 
         # Remove all the C-comments
