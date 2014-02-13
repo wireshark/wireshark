@@ -188,7 +188,7 @@ div.variablelist p.title
 
 div.revhistory table {
   border-collapse: collapse;
-  border: none;
+  border-width: 0;
 }
 div.revhistory th {
   border: none;
