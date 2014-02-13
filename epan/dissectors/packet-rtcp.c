@@ -510,6 +510,12 @@ static int hf_rtcp_fci = -1;
 static int hf_rtcp_psfb_fir_fci_ssrc = -1;
 static int hf_rtcp_psfb_fir_fci_csn = -1;
 static int hf_rtcp_psfb_fir_fci_reserved = -1;
+static int hf_rtcp_psfb_remb_fci_identifier = -1;
+static int hf_rtcp_psfb_remb_fci_number_ssrcs = -1;
+static int hf_rtcp_psfb_remb_fci_ssrc = -1;
+static int hf_rtcp_psfb_remb_fci_exp = -1;
+static int hf_rtcp_psfb_remb_fci_mantissa = -1;
+static int hf_rtcp_psfb_remb_fci_bitrate = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_ssrc = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_exp = -1;
 static int hf_rtcp_rtpfb_tmbbr_fci_mantissa = -1;
@@ -818,6 +824,55 @@ dissect_rtcp_rtpfb_tmmbr( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, prot
 }
 
 static int
+dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item, int num_fci, int *read_fci)
+{
+    guint       exp, indexSsrcs;
+    guint8      numberSsrcs;
+    guint32     mantissa, bitrate;
+    proto_item *ti;
+    proto_tree *fci_tree;
+
+    ti = proto_tree_add_text( rtcp_tree, tvb, offset, 8, "REMB %d", num_fci );
+
+    fci_tree = proto_item_add_subtree( ti, ett_ssrc );
+    /* Uniquie identifier 'REMB' */
+    proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_identifier, tvb, offset, 4, ENC_BIG_ENDIAN );
+    offset += 4;
+
+    /* Number of ssrcs - they will each be parsed below */
+    proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_number_ssrcs, tvb, offset, 1, ENC_BIG_ENDIAN );
+    numberSsrcs = tvb_get_guint8( tvb, offset);
+    offset += 1;
+
+    /* Exp 6 bit*/
+    proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_exp, tvb, offset, 1, ENC_BIG_ENDIAN );
+    exp = (tvb_get_guint8(tvb, offset) & 0xfc) ;
+    exp = exp >> 2;
+
+    /* Mantissa 18 bit*/
+    proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_mantissa, tvb, offset, 3, ENC_BIG_ENDIAN );
+    mantissa = (tvb_get_ntohl( tvb, offset - 1) & 0x0003ffff);
+    bitrate = mantissa << exp;
+    proto_tree_add_string_format_value( fci_tree, hf_rtcp_psfb_remb_fci_bitrate, tvb, offset, 3, "", "%u", bitrate);
+    offset += 3;
+
+    for  (indexSsrcs = 0; indexSsrcs < numberSsrcs; indexSsrcs++)
+    {
+        /* SSRC 32 bit*/
+        proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
+        offset += 4;
+    }
+
+    if (top_item != NULL) {
+        proto_item_append_text(top_item, ": REMB: max bitrate=%u", bitrate);
+    }
+    *read_fci = 2 + (numberSsrcs);
+
+    return offset;
+}
+
+
+static int
 dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item *top_item)
 {
     int           i;
@@ -921,7 +976,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
 }
 static int
 dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
-    int packet_length, packet_info *pinfo _U_)
+    int packet_length, proto_item *top_item, packet_info *pinfo _U_)
 {
     unsigned int  counter;
     unsigned int  num_fci;
@@ -973,6 +1028,9 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
             proto_tree_add_item( fci_tree, hf_rtcp_psfb_fir_fci_reserved, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset   += 3;
             read_fci += 2;
+        } else if (rtcp_psfb_fmt == 15) {
+            /* Handle REMB (Receiver Estimated Maximum Bitrate) - http://tools.ietf.org/html/draft-alvestrand-rmcat-remb-00 */
+            offset = dissect_rtcp_psfb_remb(tvb, offset, rtcp_tree, top_item, counter, &read_fci);
         } else {
             break;
         }
@@ -3039,7 +3097,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
               offset = dissect_rtcp_rtpfb( tvb, offset, rtcp_tree, ti, pinfo );
                 break;
             case RTCP_PSFB:
-              offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length, pinfo );
+              offset = dissect_rtcp_psfb( tvb, offset, rtcp_tree, packet_length, ti, pinfo );
                 break;
             default:
                 /*
@@ -4794,6 +4852,78 @@ proto_register_rtcp(void)
                 "rtcp.psfb.fir.fci.reserved",
                 FT_UINT32,
                 BASE_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+    {
+      &hf_rtcp_psfb_remb_fci_identifier,
+            {
+                "Unique Identifier",
+                "rtcp.psfb.remb.identifier",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                "Unique Identifier", HFILL
+            }
+        },
+    {
+      &hf_rtcp_psfb_remb_fci_ssrc,
+            {
+                "SSRC",
+                "rtcp.psfb.remb.fci.ssrc",
+                FT_UINT32,
+                BASE_HEX_DEC,
+                NULL,
+                0x0,
+                NULL, HFILL
+            }
+        },
+    {
+      &hf_rtcp_psfb_remb_fci_number_ssrcs,
+            {
+                "Number of Ssrcs",
+                "rtcp.psfb.remb.fci.number_ssrcs",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0xff,
+                NULL, HFILL
+            }
+        },
+    {
+      &hf_rtcp_psfb_remb_fci_exp,
+            {
+                "BR Exp",
+                "rtcp.psfb.remb.fci.br_exp",
+                FT_UINT8,
+                BASE_DEC,
+                NULL,
+                0xfc,
+                NULL, HFILL
+            }
+        },
+    {
+      &hf_rtcp_psfb_remb_fci_mantissa,
+            {
+                "Br Mantissa",
+                "rtcp.psfb.remb.fci.br_mantissa",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x03ffff,
+                NULL, HFILL
+            }
+        },
+    {
+      &hf_rtcp_psfb_remb_fci_bitrate,
+            {
+                "Maximum bit rate",
+                "rtcp.psfb.remb.fci.bitrate",
+                FT_STRING,
+                BASE_NONE,
                 NULL,
                 0x0,
                 NULL, HFILL
