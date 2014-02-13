@@ -118,6 +118,7 @@ static const gchar *default_media_types[] = {
     "application/media_control+xml",
     "application/note+xml",
     "application/pidf+xml",
+    "application/pidf-diff+xml"
     "application/poc-settings+xml",
     "application/rdf+xml",
     "application/reginfo+xml",
