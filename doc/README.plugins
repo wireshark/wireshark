@@ -1,5 +1,3 @@
-$Id$
-
 1. Plugins
 
 Writing a "plugin" dissector is not very different from writing a standard

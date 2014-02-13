@@ -1,4 +1,3 @@
-$Id$
 tapping with stats_tree
 
 Let's suppose that you want to write a tap only to keep counters, and you
@@ -43,8 +42,6 @@ A small example of a very basic stats_tree plugin follows.
 /* udpterm_stats_tree.c
  * A small example of stats_tree plugin that counts udp packets by termination
  * 2005, Luis E. G. Ontanon
- *
- * $ ~Id:  $
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

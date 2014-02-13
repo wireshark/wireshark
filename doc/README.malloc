@@ -1,5 +1,3 @@
-$Id$
-
 IMPORTANT NOTE:
       The emem interface (as described in this file) is deprecated.
       Please use wmem (as described in README.wmem) for all new code.

@@ -1,5 +1,3 @@
-$Id$
-
 This document is an attempt, to bring some light to the things done, when 
 packet capturing is performed. There might be things missing, and others 
 maybe wrong :-( The following will concentrate a bit on the win32 gtk 

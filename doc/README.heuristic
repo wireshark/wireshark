@@ -1,8 +1,3 @@
-$Revision$
-$Date$
-$Author$
-
-
 This file is a HOWTO for Wireshark developers. It describes how Wireshark
 heuristic protocol dissectors work and how to write them.
 

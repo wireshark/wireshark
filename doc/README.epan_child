@@ -1,7 +1,5 @@
 EPAN CHILDREN
 
-  $ Id: $
-
   This document is a work in progress.
 
   This document describes a potential interface between a master process and one or more working children.

@@ -1,8 +1,6 @@
 #
 # Wireshark/TShark Regression Testing
 #
-# $Id$
-#
 # This is a sample Makefile for regression testing of the
 # Wireshark engine. These tests use that uses 'tshark -V' to analyze all
 # the frames of a capture file.

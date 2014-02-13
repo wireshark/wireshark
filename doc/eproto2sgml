@@ -7,8 +7,6 @@
 # arg1 is the pod template file. The =insert_dfilter_table token
 #	will be replaced by the pod-formatted glossary
 # STDOUT is the output
-#
-# $Id$
 
 # Read all the data into memory
 while (<STDIN>) {

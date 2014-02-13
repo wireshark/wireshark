@@ -1,5 +1,3 @@
-$Id$
-
 1. Introduction
 
 It is often useful to enhance dissectors for request/response style protocols

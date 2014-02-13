@@ -2,8 +2,6 @@
  * Routines for PROTONAME dissection
  * Copyright 201x, YOUR_NAME <YOUR_EMAIL_ADDRESS>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

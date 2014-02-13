@@ -1,5 +1,3 @@
-$Id$
-
 Unfortunately, the closest thing to a design document is the
 "README.developer" document in the "doc" directory of the Wireshark
 source tree; however, although that's useful for people adding new

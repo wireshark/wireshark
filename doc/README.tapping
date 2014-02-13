@@ -1,5 +1,3 @@
-$Id$
-
 The TAP system in Wireshark is a powerful and flexible mechanism to get event
 driven notification on packets matching certain protocols and/or filters.
 In order to use the tapping system, very little knowledge of Wireshark
