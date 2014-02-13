@@ -1,20 +1,21 @@
 /* packet-evrc.c
- * Routines for EVRC/EVRC-B/EVRC-WB/EVRC-NW RTP RTP payload header dissection
- * (I.e. RFC 3558)
- * (I.e. RFC 3558 and as of draft-zfang-avt-rtp-evrc-nw-02)
+ * Routines for:
+ *      EVRC EVRC-B EVRC-WB EVRC-NW EVRC-NW2K
+ * RTP payload header dissection
  *
  * Copyright 2008, Michael Lum <michael.lum [AT] shaw.ca>
  * In association with Star Solutions
  *
  * Title                3GPP2                   Other
  *
- *   Enhanced Variable Rate Codec, Speech Service Options 3, 68, 70, and 73
+ *   Enhanced Variable Rate Codec, Speech Service Options 3, 68, 70, 73 and 77
  *   for Wideband Spread Spectrum Digital Systems
- *                      3GPP2 C.S0014-D v2.0      TIA-127-?
+ *                      3GPP2 C.S0014-E v1.0      TIA-127-?
  *
  * RFC 3558  http://www.ietf.org/rfc/rfc3558.txt?number=3558
  * RFC 4788  http://www.ietf.org/rfc/rfc4788.txt?number=4788
  * RFC 5188  http://www.ietf.org/rfc/rfc5188.txt?number=5188
+ * draft-agupta-payload-rtp-evrc-nw2k-00
  *
  * $Id$
  *
@@ -42,6 +43,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>
+#include <epan/expert.h>
 
 
 /* PROTOTYPES/FORWARDS */
@@ -123,9 +125,26 @@ static const value_string evrc_nw_mode_request_vals[] = {
     { 0,        NULL }
 };
 
+static const value_string evrc_nw2k_mode_request_vals[] = {
+    { 0,        "Encoder Operating Point 0 (EVRC-WB COP0)" },
+    { 1,        "Encoder Operating Point 1 (EVRC-B COP0/EVRC-WB COP4)" },
+    { 2,        "Encoder Operating Point 2 (EVRC-B COP2)" },
+    { 3,        "Encoder Operating Point 3 (EVRC-B COP3/EVRC-NW2k)" },
+    { 4,        "Encoder Operating Point 4 (EVRC-B COP4)" },
+    { 5,        "Encoder Operating Point 5 (EVRC-B COP5)" },
+    { 6,        "Encoder Operating Point 6 (EVRC-B COP6)" },
+    { 7,        "Encoder Operating Point 7 (EVRC-B COP7/EVRC-WB COP7)" },
+    { 0,        NULL }
+};
+
 static const true_false_string toc_further_entries_bit_vals = {
   "More ToC entries follow",
   "End of ToC entries"
+};
+
+static const true_false_string evrc_nw2k_enc_capability_bit_vals = {
+  "Mode-0 wideband encoding capable",
+  "Mode-0 wideband encoding incapable (i.e. narrowband encoding only)"
 };
 
 typedef enum
@@ -134,6 +153,7 @@ typedef enum
     EVRC_VARIANT_EVRC_B,
     EVRC_VARIANT_EVRC_WB,
     EVRC_VARIANT_EVRC_NW,
+    EVRC_VARIANT_EVRC_NW2k,
     EVRC_VARIANT_EVRC_LEGACY
 }
 evrc_variant_t;
@@ -143,12 +163,15 @@ evrc_variant_t;
 static int proto_evrc = -1;
 
 static int hf_evrc_reserved = -1;
+static int hf_evrc_reserved_2k = -1;
+static int hf_evrc_enc_capability_2k = -1;
 static int hf_evrc_interleave_length = -1;
 static int hf_evrc_interleave_index = -1;
 static int hf_evrc_mode_request = -1;
 static int hf_evrc_b_mode_request = -1;
 static int hf_evrc_wb_mode_request = -1;
 static int hf_evrc_nw_mode_request = -1;
+static int hf_evrc_nw2k_mode_request = -1;
 static int hf_evrc_frame_count = -1;
 static int hf_evrc_toc_frame_type_high = -1;
 static int hf_evrc_toc_frame_type_low = -1;
@@ -162,6 +185,8 @@ static int hf_evrc_legacy_toc_frame_type = -1;
 /* Initialize the subtree pointers */
 static gint ett_evrc = -1;
 static gint ett_toc = -1;
+
+static expert_field ei_evrc_unknown_variant = EI_INIT;
 
 /*
  * Variables to allow for proper deletion of dissector registration when
@@ -228,19 +253,19 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
     len = tvb_reported_length(tvb);
 
-    item = proto_tree_add_item(tree, proto_evrc, tvb, 0, -1, ENC_NA);
+    item = proto_tree_add_item(tree, proto_evrc, tvb, 0, len, ENC_NA);
 
     evrc_tree = proto_item_add_subtree(item, ett_evrc);
-
-    proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(evrc_tree, hf_evrc_interleave_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(evrc_tree, hf_evrc_interleave_index, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-    offset++;
 
     if (evrc_variant == EVRC_VARIANT_EVRC_LEGACY)
     {
         /* legacy 'payload type 60' draft-ietf-avt-evrc-07.txt header format */
+
+        proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(evrc_tree, hf_evrc_interleave_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(evrc_tree, hf_evrc_interleave_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        offset++;
 
         frame_count = 0;
         further_entries = TRUE;
@@ -271,33 +296,56 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
         switch (evrc_variant)
         {
+        default:
+            proto_tree_add_expert(evrc_tree, pinfo, &ei_evrc_unknown_variant, tvb, offset, len);
+            return;
+
         case EVRC_VARIANT_EVRC:
             hf_mode_request = hf_evrc_mode_request;
             hf_toc_frame_type_high = hf_evrc_toc_frame_type_high;
             hf_toc_frame_type_low = hf_evrc_toc_frame_type_low;
+
+            proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
 
         case EVRC_VARIANT_EVRC_B:
             hf_mode_request = hf_evrc_b_mode_request;
             hf_toc_frame_type_high = hf_evrc_b_toc_frame_type_high;
             hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
+
+            proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
 
         case EVRC_VARIANT_EVRC_WB:
             hf_mode_request = hf_evrc_wb_mode_request;
             hf_toc_frame_type_high = hf_evrc_b_toc_frame_type_high;
             hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
+
+            proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
 
         case EVRC_VARIANT_EVRC_NW:
             hf_mode_request = hf_evrc_nw_mode_request;
             hf_toc_frame_type_high = hf_evrc_b_toc_frame_type_high;
             hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
+
+            proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
 
-        default:
-            return;
+        case EVRC_VARIANT_EVRC_NW2k:
+            hf_mode_request = hf_evrc_nw2k_mode_request;
+            hf_toc_frame_type_high = hf_evrc_b_toc_frame_type_high;
+            hf_toc_frame_type_low = hf_evrc_b_toc_frame_type_low;
+
+            proto_tree_add_item(evrc_tree, hf_evrc_reserved_2k, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(evrc_tree, hf_evrc_enc_capability_2k, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
         }
+
+        proto_tree_add_item(evrc_tree, hf_evrc_interleave_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(evrc_tree, hf_evrc_interleave_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+        offset++;
 
         proto_tree_add_item(evrc_tree, hf_mode_request, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(evrc_tree, hf_evrc_frame_count, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -386,6 +434,12 @@ dissect_evrcnw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+dissect_evrcnw2k(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_NW2k);
+}
+
+static void
 dissect_evrc_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     dissect_evrc_aux(tvb, pinfo, tree, EVRC_VARIANT_EVRC_LEGACY);
@@ -406,6 +460,16 @@ proto_register_evrc(void)
             { "Reserved",               "evrc.reserved",
             FT_UINT8, BASE_HEX, NULL, 0xc0,
             "Reserved bits", HFILL }
+        },
+        { &hf_evrc_reserved_2k,
+            { "Reserved",               "evrc.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0x80,
+            "Reserved bits", HFILL }
+        },
+        { &hf_evrc_enc_capability_2k,
+            { "Encoding Capability",               "evrc.enc_capability",
+            FT_BOOLEAN, 8, TFS(&evrc_nw2k_enc_capability_bit_vals), 0x40,
+            "Encoding Capability Identification", HFILL }
         },
         { &hf_evrc_interleave_length,
             { "Interleave Length",      "evrc.interleave_len",
@@ -435,6 +499,11 @@ proto_register_evrc(void)
         { &hf_evrc_nw_mode_request,
             { "Mode Request",           "evrc.nw.mode_request",
             FT_UINT8, BASE_DEC, VALS(evrc_nw_mode_request_vals), 0xe0,
+            "Mode Request bits", HFILL }
+        },
+        { &hf_evrc_nw2k_mode_request,
+            { "Mode Request",           "evrc.nw2k.mode_request",
+            FT_UINT8, BASE_DEC, VALS(evrc_nw2k_mode_request_vals), 0xe0,
             "Mode Request bits", HFILL }
         },
         { &hf_evrc_frame_count,
@@ -484,6 +553,16 @@ proto_register_evrc(void)
         }
     };
 
+    static ei_register_info ei[] = {
+        { &ei_evrc_unknown_variant,
+            { "evrc.unknown_variant", PI_UNDECODED, PI_WARN,
+            "Variant Unknown/Unsupported - dissector bug/later version spec (report to wireshark.org)",
+            EXPFILL }
+        }
+    };
+
+    expert_module_t     *expert_evrc;
+
     /* Setup protocol subtree array */
 
     static gint *ett[] =
@@ -500,6 +579,10 @@ proto_register_evrc(void)
     proto_register_field_array(proto_evrc, hf, array_length(hf));
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_evrc =
+        expert_register_protocol(proto_evrc);
+    expert_register_field_array(expert_evrc, ei, array_length(ei));
 
     /*
      * setup for preferences
@@ -526,11 +609,13 @@ proto_reg_handoff_evrc(void)
         dissector_handle_t evrcb_handle;
         dissector_handle_t evrcwb_handle;
         dissector_handle_t evrcnw_handle;
+        dissector_handle_t evrcnw2k_handle;
 
         evrc_handle        = create_dissector_handle(dissect_evrc, proto_evrc);
         evrcb_handle       = create_dissector_handle(dissect_evrcb, proto_evrc);
         evrcwb_handle      = create_dissector_handle(dissect_evrcwb, proto_evrc);
         evrcnw_handle      = create_dissector_handle(dissect_evrcnw, proto_evrc);
+        evrcnw2k_handle    = create_dissector_handle(dissect_evrcnw2k, proto_evrc);
         evrc_legacy_handle = create_dissector_handle(dissect_evrc_legacy, proto_evrc);
 
         /* header-full mime types */
@@ -538,6 +623,7 @@ proto_reg_handoff_evrc(void)
         dissector_add_string("rtp_dyn_payload_type",  "EVRCB", evrcb_handle);
         dissector_add_string("rtp_dyn_payload_type",  "EVRCWB", evrcwb_handle);
         dissector_add_string("rtp_dyn_payload_type",  "EVRCNW", evrcnw_handle);
+        dissector_add_string("rtp_dyn_payload_type",  "EVRCNW2K", evrcnw2k_handle);
 
         evrc_prefs_initialized = TRUE;
     }
@@ -551,3 +637,16 @@ proto_reg_handoff_evrc(void)
         dissector_add_uint("rtp.pt", 60, evrc_legacy_handle);
     }
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
