@@ -469,7 +469,7 @@ static gboolean show_port_numbers          = TRUE;
 static gint sctp_checksum                  = SCTP_CHECKSUM_NONE;
 static gboolean enable_tsn_analysis        = TRUE;
 static gboolean enable_ulp_dissection      = TRUE;
-static gboolean use_reassembly             = FALSE;
+static gboolean use_reassembly             = TRUE;
 /* FIXME
 static gboolean show_chunk_types           = TRUE;
 */
