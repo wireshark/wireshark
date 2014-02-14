@@ -4866,7 +4866,7 @@ proto_register_rtcp(void)
                 BASE_NONE,
                 NULL,
                 0x0,
-                "Unique Identifier", HFILL
+                NULL, HFILL
             }
         },
     {
