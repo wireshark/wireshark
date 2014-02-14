@@ -25,9 +25,6 @@ http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
 
-$Id$
-
-
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
 Portions Copyright (c) Novell, Inc. 2000-2003.
 

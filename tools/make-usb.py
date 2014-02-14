@@ -1,7 +1,5 @@
 #!/usr/bin/env python
 #
-# $Id$
-#
 # make-usb - Creates a file containing vendor and product ids.
 # It use the databases at
 # http://www.linux-usb.org/usb.ids
@@ -94,8 +92,6 @@ header="""/* usb.c
  * Copyright (C) 2005-2012 Linus Walleij <triad@df.lth.se>
  * Copyright (C) 2007 Ted Bullock
  * Copyright (C) 2012 Sony Mobile Communications AB
- *
- * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

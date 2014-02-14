@@ -28,8 +28,6 @@
 #
 # Based off of convert_proto_tree_add_text.pl
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

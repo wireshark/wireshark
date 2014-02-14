@@ -4,8 +4,6 @@ Test-suite to test wireshark's dfilter mechanism.
 """
 
 #
-# $Id$
-#
 # Copyright (C) 2003-2013 by Gilbert Ramirez <gram@alumni.rice.edu>
 #  
 # This program is free software; you can redistribute it and/or

@@ -1,7 +1,5 @@
 # -*- python -*-
 #
-# $Id$
-#
 #    File      : wireshark_be.py
 #
 #    Author    : Frank Singleton (frank.singleton@ericsson.com)

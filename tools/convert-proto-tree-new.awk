@@ -1,7 +1,5 @@
 #!/usr/bin/gawk -f
 
-# $Id$
-
 function again(i)
 {
  # shift remaining arguments up

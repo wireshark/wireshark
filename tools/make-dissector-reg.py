@@ -8,8 +8,6 @@
 # all the process-launching that goes on --- multiple greps and
 # seds for each input file.  I wrote this python version so that
 # less processes would have to be started.
-#
-# $Id$
 
 import os
 import sys

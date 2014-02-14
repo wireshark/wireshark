@@ -1,6 +1,4 @@
 #!/bin/bash
-#
-# $Id$
 
 # Randpkt testing script for TShark
 #

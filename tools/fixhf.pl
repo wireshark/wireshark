@@ -10,8 +10,6 @@
 # Usage:
 # fixhf.pl file1 [file2 file3 ...]
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

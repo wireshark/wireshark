@@ -19,8 +19,6 @@
 #   - ptvcursor_add_with_subtree   !! ToDo: encoding arg not last arg
 #
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

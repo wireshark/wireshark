@@ -10,8 +10,6 @@
 #
 # Copyright 2011 Vincent Helfre and Erwan Yvin
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
@@ -75,7 +73,6 @@ sub extract_asn1 {
       $output_file_name = "LPP.asn";
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
-      syswrite OUTPUT_FILE,"-- $version-- \$Id\$\n--\n";
       $file_name_found = 1;
     }
 
@@ -84,7 +81,6 @@ sub extract_asn1 {
       $output_file_name = "$output_file_name".".asn";
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
-      syswrite OUTPUT_FILE,"-- $version-- \$Id\$\n--\n";
       $is_asn1 = 1;
       $file_name_found = 1;
     }

@@ -1,7 +1,5 @@
 # -*- python -*-
 #
-# $Id$
-#
 # wireshark_gen.py (part of idl2wrs)
 #
 # Author : Frank Singleton (frank.singleton@ericsson.com)
@@ -2364,8 +2362,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
 
     template_Header = """\
 /* packet-@dissector_name@.c
- *
- * $Id$
  *
  * Routines for IDL dissection
  *

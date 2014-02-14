@@ -1,7 +1,6 @@
 /* make_charset_table.c
  * sample program to generate tables for charsets.c using iconv
  *
- * $Id$
  * public domain
  */
 

@@ -6,8 +6,6 @@
 #
 # A little shell script to make it easy to set the appropriate SVN properties.
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

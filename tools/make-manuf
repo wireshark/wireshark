@@ -1,7 +1,5 @@
 #!/usr/bin/perl -w
 #
-# $Id$
-#
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at IEEE and
 # http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt
@@ -27,12 +25,9 @@ if( $@ ) {
 	" module libwww.  Bailing.\n";
 }
 
-$revision = '$Revision$';
-if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
-
 $agent    = LWP::UserAgent->new;
 $agent->env_proxy;
-$agent->agent("Wireshark make-manuf/$revision");
+$agent->agent("Wireshark make-manuf");
 
 $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";

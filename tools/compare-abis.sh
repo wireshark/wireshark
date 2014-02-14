@@ -4,8 +4,6 @@
 #
 # Copyright 2013 Balint Reczey <balint at balintreczey.hu>
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

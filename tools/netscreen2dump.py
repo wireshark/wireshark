@@ -2,8 +2,6 @@
 """
 Converts netscreen snoop hex-dumps to a hex-dump that text2pcap can read.
 
-$Id$
-
 Copyright (c) 2004 by Gilbert Ramirez <gram@alumni.rice.edu>
 
 This program is free software; you can redistribute it and/or

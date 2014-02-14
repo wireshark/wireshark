@@ -1,10 +1,6 @@
 #! /bin/sh
 
 #
-# $Id$
-#
-
-#
 # The first argument is the directory in which the source files live.
 #
 srcdir="$1"

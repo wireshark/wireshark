@@ -2,8 +2,6 @@
 # create the services file from
 # http://www.iana.org/assignments/enterprise-numbers
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2004 Gerald Combs
@@ -38,9 +36,6 @@ my $iana_port_url = "http://www.iana.org/assignments/service-names-port-numbers/
 # is XML. Perhaps we should parse that instead.
 $in = $iana_port_url unless(defined $in);
 
-my $revision = '$Revision$';
-if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
-
 my $body = "";
 
 if($in =~ m/^http:/i) {
@@ -49,7 +44,7 @@ if($in =~ m/^http:/i) {
 
 	my $agent    = LWP::UserAgent->new;
 	$agent->env_proxy;
-	$agent->agent("Wireshark make-services.pl/$revision");
+	$agent->agent("Wireshark make-services.pl");
 
 	warn "starting to fetch $in ...\n";
 
@@ -117,8 +112,6 @@ open OUT, "> $svc_file";
 
 print OUT <<"_HEADER";
 # This is a local copy of the IANA port-numbers file.
-#
-# \$Id\$
 #
 # Wireshark uses it to resolve port numbers into human readable
 # service names, e.g. TCP port 80 -> http.

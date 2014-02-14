@@ -2,8 +2,6 @@
 #
 # setuid-root - Enable/disable setuid for tshark and dumpcap.
 #
-# $Id$
-#
 # Copyright 2007, Luis Ontanon and Gerald Combs
 #
 # Wireshark - Network traffic analyzer

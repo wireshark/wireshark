@@ -1,8 +1,6 @@
 #!/bin/sh
 # Setup development environment on Debian and derivatives such as Ubuntu
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

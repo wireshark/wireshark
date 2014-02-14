@@ -2,8 +2,6 @@
 # 
 # USAGE: $0 </path/to/libgphoto2/camlibs/ptp2>
 #
-# $Id$
-# 
 # USB PTP Dissector
 #    Extracts USB devices from libgphoto2
 #  This is then parsed by make-usb.py to make epan/dissectors/usb.c

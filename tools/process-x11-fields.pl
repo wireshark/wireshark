@@ -6,8 +6,6 @@
 #
 # Copyright 2000, Christophe Tronche <ch.tronche[AT]computer.org>
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

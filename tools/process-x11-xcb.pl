@@ -6,8 +6,6 @@
 #
 # Copyright 2008, 2009, 2013 Open Text Corporation <pharris[AT]opentext.com>
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

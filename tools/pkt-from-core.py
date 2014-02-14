@@ -4,9 +4,6 @@ Retrieve a packet from a wireshark/tshark core file
 and save it in a packet-capture file.
 """
 
-#
-# $Id$
-#
 # Copyright (C) 2013 by Gilbert Ramirez <gram@alumni.rice.edu>
 #
 # This program is free software; you can redistribute it and/or

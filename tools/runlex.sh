@@ -7,8 +7,6 @@
 # means that neither Flex nor Lex was found, so we report an error and
 # quit.
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2007 Gerald Combs

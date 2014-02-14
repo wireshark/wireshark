@@ -1,8 +1,6 @@
 #!/bin/sh
 # Copyright 2013, Alexis La Goutte (See AUTHORS file)
 #
-# $Id$
-#
 # For git user, copy pre-commit in .git/hook/ folder
 #   to don't launch the script when commit use --no-verify argument
 #
