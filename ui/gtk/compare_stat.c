@@ -122,7 +122,7 @@ typedef struct _compstat_t {
 	GtkWidget *win, *treeview, *scrolled_win, *statis_label;
 	GtkTreeStore *simple_list;
 	GtkTreeIter iter, child;
-	emem_tree_t *packet_tree, *ip_id_tree, *nr_tree;
+	GHashTable *packet_set, *ip_id_set, *nr_set;
 	address eth_dst, eth_src;
 	nstime_t zebra_time, current_time;
 	timestat_t stats;
@@ -213,7 +213,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	computed_cksum=in_cksum(&cksum_vec[0], 3);
 
 	/* Set up the new order to create the zebra effect */
-	fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, pinfo->fd->num);
+	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(pinfo->fd->num));
 	if((fInfoTemp!=NULL)){
 		col_set_time(pinfo->cinfo, COL_INFO, &fInfoTemp->zebra_time, "ZebraTime");
 	}
@@ -232,7 +232,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	/* clean memory */
 	nstime_set_zero(&fInfo->zebra_time);
 	nstime_set_zero(&fInfo->fg->predecessor_time);
-	se_tree_insert32(cs->packet_tree, pinfo->fd->num, fInfo);
+	g_hash_table_insert(cs->packet_set, GINT_TO_POINTER(pinfo->fd->num), fInfo);
 
 	if(cf_get_packet_count(&cfile)==abs(fInfo->num)){
 		nstime_set_unset(&cs->current_time);
@@ -243,8 +243,8 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 }
 
 /* Find equal packets, same IP-Id, count them and make time statistics */
-static gboolean
-call_foreach_count_ip_id(gpointer value, gpointer arg)
+static void
+call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 {
 	compstat_t *cs=(compstat_t*)arg;
 	frame_info *fInfo=(frame_info*)value, *fInfoTemp;
@@ -256,7 +256,7 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 	pinfo->fd=(frame_data*)ep_alloc(sizeof(frame_data));
 	pinfo->fd->num = fInfo->num;
 
-	fInfoTemp=(frame_info *)se_tree_lookup32(cs->ip_id_tree, fInfo->id);
+	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->ip_id_set, GINT_TO_POINTER(fInfo->id));
 	if(fInfoTemp==NULL){
 		/* Detect ongoing package loss */
 		if((cs->last_hit==FALSE)&&(cs->start_ongoing_hits>compare_start)&&(cs->stop_ongoing_hits<compare_stop)){
@@ -269,7 +269,7 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 		cs->last_hit=FALSE;
 
 		fInfo->fg->count=1;
-		se_tree_insert32(cs->ip_id_tree, fInfo->id, fInfo);
+		g_hash_table_insert(cs->ip_id_set, GINT_TO_POINTER(fInfo->id), fInfo);
 	} else {
 		/* Detect ongoing package hits, special behavior if start is set to 0 */
 		if((cs->last_hit||(compare_start==0))&&(cs->start_ongoing_hits<compare_start||(compare_start==0))){
@@ -304,51 +304,49 @@ call_foreach_count_ip_id(gpointer value, gpointer arg)
 			nstime_add(&fInfo->delta, &delta);
 			time_stat_update(&cs->stats, &delta, pinfo);
 		}
-		se_tree_insert32(cs->ip_id_tree, fInfo->id, fInfo);
+		g_hash_table_insert(cs->ip_id_set, GINT_TO_POINTER(fInfo->id), fInfo);
 	}
 
 	/* collect TTL's */
 	if(TTL_method && (fInfo->num<TTL_SEARCH)){
 		for(i=0; i < cs->ip_ttl_list->len; i++){
 			if(g_array_index(cs->ip_ttl_list, guint8, i) == fInfo->ip_ttl){
-				return FALSE;
+				return;
 			}
 		}
 		g_array_append_val(cs->ip_ttl_list, fInfo->ip_ttl);
 	}
-
-	return FALSE;
 }
 
 /*Create new numbering in the Info column, to create a zebra effect */
-static gboolean
-call_foreach_new_order(gpointer value, gpointer arg)
+static void
+call_foreach_new_order(gpointer key _U_, gpointer value, gpointer arg)
 {
 	compstat_t *cs=(compstat_t*)arg;
 	frame_info *fInfo=(frame_info*)value, *fInfoTemp;
 
 	/* overwrite Info column for new ordering */
-	fInfoTemp=(frame_info *)se_tree_lookup32(cs->nr_tree, fInfo->id);
+	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->nr_set, GINT_TO_POINTER(fInfo->id));
 	if(fInfoTemp==NULL){
 		if(TTL_method==FALSE){
 			if((ADDRESSES_EQUAL(&cs->eth_dst, &fInfo->dl_dst)) || (ADDRESSES_EQUAL(&cs->eth_src, &fInfo->dl_dst))){
-				se_tree_insert32(cs->nr_tree, fInfo->id, fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs=cs->zebra_time.nsecs + MERGED_FILES;
 			} else {
 				cs->zebra_time.nsecs++;
-				se_tree_insert32(cs->nr_tree, fInfo->id, fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs++;
 			}
 		} else {
 			if((g_array_index(cs->ip_ttl_list, guint8, 0)==fInfo->ip_ttl) || (g_array_index(cs->ip_ttl_list, guint8, 1)==fInfo->ip_ttl)){
-				se_tree_insert32(cs->nr_tree, fInfo->id, fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs=cs->zebra_time.nsecs + MERGED_FILES;
 			} else {
 				cs->zebra_time.nsecs++;
-				se_tree_insert32(cs->nr_tree, fInfo->id, fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs++;
 			}
@@ -383,13 +381,11 @@ call_foreach_new_order(gpointer value, gpointer arg)
 	}
 
 	cs->current_time.nsecs=fInfo->zebra_time.nsecs;
-
-	return FALSE;
 }
 
 /* calculate scopes if not set yet */
-static gboolean
-call_foreach_merge_settings(gpointer value, gpointer arg)
+static void
+call_foreach_merge_settings(gpointer key _U_, gpointer value, gpointer arg)
 {
 	compstat_t *cs=(compstat_t*)arg;
 	frame_info *fInfo=(frame_info*)value, *fInfoTemp=NULL;
@@ -403,7 +399,7 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 	}
 
 	if((fInfo->num==tot_packet_amount)&&(cs->stop_packet_nr_first==G_MAXINT32)&&(cs->start_packet_nr_first!=G_MAXINT32)){
-		fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
+		fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->start_packet_nr_first));
 		if(fInfoTemp==NULL){
 			fprintf(stderr,"ERROR: Incorrect start number\n");
 		}
@@ -417,10 +413,10 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			if(cs->stop_packet_nr_first>cs->start_packet_nr_second){
 				cs->stop_packet_nr_first=cs->start_packet_nr_second-1;
 			}
-			fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+			fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->stop_packet_nr_first));
 			while((fInfoTemp!=NULL)?fmod(!fInfoTemp->zebra_time.nsecs, 2):TRUE){
 				cs->stop_packet_nr_first--;
-				fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+				fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->stop_packet_nr_first));
 			}
 		} else {
 			/*this only happens if we have too many MAC's or TTL*/
@@ -428,10 +424,10 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			if(cs->stop_packet_nr_first>tot_packet_amount-cs->first_file_amount){
 				cs->stop_packet_nr_first=tot_packet_amount-cs->first_file_amount;
 			}
-			fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+			fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->stop_packet_nr_first));
 			while((fInfoTemp!=NULL)?fmod(fInfoTemp->zebra_time.nsecs, 2):TRUE){
 				cs->stop_packet_nr_first--;
-				fInfoTemp=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+				fInfoTemp=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->stop_packet_nr_first));
 			}
 		}
 		/* set second stop location */
@@ -447,14 +443,12 @@ call_foreach_merge_settings(gpointer value, gpointer arg)
 			report_failure("Start point couldn't be set. Please choose a lower start number.");
 		}
 	}
-
-	return FALSE;
 }
 
 
 /* build gtk-tree of lost, delayed, checksum error and wrong order Packets*/
-static gboolean
-call_foreach_print_ip_tree(gpointer value, gpointer user_data)
+static void
+call_foreach_print_ip_tree(gpointer key _U_, gpointer value, gpointer user_data)
 {
 	frame_info *fInfo=(frame_info*)value;
 	compstat_t *cs=(compstat_t*)user_data;
@@ -519,7 +513,6 @@ call_foreach_print_ip_tree(gpointer value, gpointer user_data)
 			}
 		}
 	}
-	return FALSE;
 }
 
 static void
@@ -531,6 +524,8 @@ win_destroy_cb(GtkWindow *win _U_, gpointer data)
 
 	first_window=TRUE;
 	gtk_tree_store_clear(cs->simple_list);
+	g_hash_table_destroy(cs->packet_set);
+	g_hash_table_destroy(cs->nr_set);
 	g_free(cs);
 }
 
@@ -570,23 +565,22 @@ comparestat_draw(void *arg)
 		return;
 	}
 
-	/* not using g_free, because struct is managed by se binarytrees */
-	cs->ip_id_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "ip_id_tree");
-	emem_tree_foreach(cs->packet_tree, call_foreach_count_ip_id, cs);
+	cs->ip_id_set=g_hash_table_new(NULL, NULL);
+	g_hash_table_foreach(cs->packet_set, call_foreach_count_ip_id, cs);
 
 	/* set up TTL choice if only one number found */
 	if(TTL_method&&cs->ip_ttl_list->len==1){
 		g_array_append_val(cs->ip_ttl_list, g_array_index(cs->ip_ttl_list, guint8, 1));
 	}
 
-	emem_tree_foreach(cs->packet_tree, call_foreach_new_order,cs);
-	emem_tree_foreach(cs->packet_tree, call_foreach_merge_settings, cs);
+	g_hash_table_foreach(cs->packet_set, call_foreach_new_order,cs);
+	g_hash_table_foreach(cs->packet_set, call_foreach_merge_settings, cs);
 
 	/* remembering file amounts */
 	first_file_amount=cs->first_file_amount;
 	second_file_amount=cs->second_file_amount;
 	/* reset after numbering */
-	cs->nr_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nr_tree");
+	g_hash_table_remove_all(cs->nr_set);
 	/* microsecond precision for Info column*/
 	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 	/* reset ordering */
@@ -609,21 +603,22 @@ comparestat_draw(void *arg)
 
 	/* add start and stop of scanning */
 	if(cs->start_packet_nr_first!=G_MAXINT32&&compare_start!=0&&compare_stop!=0){
-		fInfo=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->start_packet_nr_first);
+		fInfo=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->start_packet_nr_first));
 		if(fInfo){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
 			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Start scanning", COUNT, 0, DELTA, 0.0, -1);
 		}
 	}
 	if(cs->stop_packet_nr_first!=G_MAXINT32&&compare_start!=0&&compare_stop!=0){
-		fInfo=(frame_info *)se_tree_lookup32(cs->packet_tree, cs->stop_packet_nr_first);
+		fInfo=(frame_info *)g_hash_table_lookup(cs->packet_set, GINT_TO_POINTER(cs->stop_packet_nr_first));
 		if(fInfo){
 			gtk_tree_store_append(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, NULL);
 			gtk_tree_store_set(GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(cs->treeview))), &cs->iter, IP_ID, fInfo->id, PROBLEM, "Stop scanning", COUNT, 0, DELTA, 0.0, -1);
 		}
 	}
 
-	emem_tree_foreach(cs->ip_id_tree, call_foreach_print_ip_tree, cs);
+	g_hash_table_foreach(cs->ip_id_set, call_foreach_print_ip_tree, cs);
+	g_hash_table_destroy(cs->ip_id_set);
 	g_string_free(filter_str, TRUE);
 	g_array_free(cs->ip_ttl_list, TRUE);
 }
@@ -654,7 +649,7 @@ new_tree_view_selection_changed(GtkTreeSelection *sel, gpointer user_data)
 			cf_goto_frame(&cfile, cs->stop_packet_nr_first);
 			return;
 		}
-		fInfo=(frame_info *)se_tree_lookup32(cs->ip_id_tree, id);
+		fInfo=(frame_info *)g_hash_table_lookup(cs->ip_id_set, GINT_TO_POINTER(id));
 		if(fInfo != NULL){
 			cf_goto_frame(&cfile, fInfo->num);
 		}
@@ -740,7 +735,7 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 
 	cs->zebra_time.secs=0;
 	cs->zebra_time.nsecs=1;
-	cs->nr_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "nr_tree");
+	cs->nr_set=g_hash_table_new(NULL, NULL);
 	/* microsecond precision */
 	timestamp_set_precision(TS_PREC_AUTO_NSEC);
 
@@ -797,13 +792,14 @@ gtk_comparestat_init(const char *opt_arg, void* userdata _U_)
 	gtk_box_pack_start(GTK_BOX(vbox), cs->scrolled_win, TRUE, TRUE, 0);
 
 	/* create a Hash to count the packets with the same ip.id */
-	cs->packet_tree=se_tree_create(EMEM_TREE_TYPE_RED_BLACK, "Packet_info_tree");
+	cs->packet_set=g_hash_table_new(NULL, NULL);
 
 	error_string=register_tap_listener("ip", cs, filter, 0, comparestat_reset, comparestat_packet, comparestat_draw);
 	if(error_string){
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error_string->str);
 		g_string_free(error_string, TRUE);
 		gtk_tree_store_clear(cs->simple_list);
+		g_hash_table_destroy(cs->packet_set);
 		g_free(cs);
 		return;
 	}
@@ -1063,3 +1059,15 @@ register_tap_listener_gtkcomparestat(void)
 	register_stat_cmd_arg("compare", gtk_comparestat_init, NULL);
 }
 
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
