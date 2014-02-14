@@ -617,7 +617,7 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
 WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be used in a protocol. */
 #define WSLUA_ARG_ProtoField_new_NAME 1 /* Actual name of the field (the string that appears in the tree).  */
 #define WSLUA_ARG_ProtoField_new_ABBR 2 /* Filter name of the field (the string that is used in filters).  */
-#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of ftypes.NONE, ftypes.BOOLEAN,
+#define WSLUA_ARG_ProtoField_new_TYPE 3 /* Field Type: one of ftypes.BOOLEAN,
 	ftypes.UINT8, ftypes.UINT16, ftypes.UINT24, ftypes.UINT32, ftypes.UINT64, ftypes.INT8, ftypes.INT16
 	ftypes.INT24, ftypes.INT32, ftypes.INT64, ftypes.FLOAT, ftypes.DOUBLE, ftypes.ABSOLUTE_TIME
 	ftypes.RELATIVE_TIME, ftypes.STRING, ftypes.STRINGZ, ftypes.UINT_STRING, ftypes.ETHER, ftypes.BYTES
@@ -946,7 +946,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     const gchar* abbr = luaL_checkstring(L,1);
     const gchar* name = luaL_optstring(L,2,abbr);
     unsigned base = luaL_optint(L, 3, BASE_NONE);
-    true_false_string* tfs = (lua_gettop(L) > 3) ? true_false_string_from_table(L,4) : NULL;
+    true_false_string* tfs = NULL;
     guint32 mask = (guint32)luaL_optnumber(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
@@ -970,6 +970,10 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     if (proto_check_field_name(abbr)) {
       luaL_argerror(L,1,"Invalid char in abbrev");
       return 0;
+    }
+
+    if (lua_gettop(L) > 3 && !lua_isnil(L,4)) {
+        tfs = true_false_string_from_table(L,4);
     }
 
     f = g_new(wslua_field_t,1);

@@ -246,6 +246,8 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
             const gchar* s = lua_tostring(L,1);
             item = proto_tree_add_text(tree_item->tree, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,"%s",s);
             lua_remove(L,1);
+        } else {
+            luaL_error(L,"Tree item ProtoField/Protocol handle is invalid (ProtoField/Proto not registered?)");
         }
     }
 
@@ -268,20 +270,32 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
 
 WSLUA_METHOD TreeItem_add(lua_State *L) {
     /*
-     Adds an child item to a given item, returning the child.
-     tree_item:add([proto_field | proto], [tvbrange], [label], ...)
-     if the proto_field represents a numeric value (int, uint or float) is to be treated as a Big Endian (network order) Value.
+     Adds a child item to this tree item, returning the new child TreeItem.
+     if the protofield represents a numeric value (int, uint or float), then it's treated as a Big Endian (network order) value.
+     This function has a complicated form: 'treeitem:add(protofield, [tvbrange,] [[value], label]])', such that if the second
+     argument is a tvbrange, and a third argument is given, it's a value; but if the second argument is a non-tvbrange type, then
+     it is the value (as opposed to filling that argument with 'nil', which is invalid for this function).
     */
-    WSLUA_RETURN(TreeItem_add_item_any(L,FALSE)); /* The child item */
+#define WSLUA_ARG_TreeItem_add_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
+#define WSLUA_OPTARG_TreeItem_add_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
+#define WSLUA_OPTARG_TreeItem_add_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
+#define WSLUA_OPTARG_TreeItem_add_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
+    WSLUA_RETURN(TreeItem_add_item_any(L,FALSE)); /* The new child TreeItem */
 }
 
 WSLUA_METHOD TreeItem_add_le(lua_State *L) {
     /*
-     Adds (and returns) an child item to a given item, returning the child.
-     tree_item:add([proto_field | proto], [tvbrange], [label], ...)
-     if the proto_field represents a numeric value (int, uint or float) is to be treated as a Little Endian Value.
+     Adds a child item to this tree item, returning the new child TreeItem.
+     if the protofield represents a numeric value (int, uint or float), then it's treated as a Little Endian value.
+     This function has a complicated form: 'treeitem:add_le(protofield, [tvbrange,] [[value], label]])', such that if the second
+     argument is a tvbrange, and a third argument is given, it's a value; but if the second argument is a non-tvbrange type, then
+     it is the value (as opposed to filling that argument with 'nil', which is invalid for this function).
      */
-    WSLUA_RETURN(TreeItem_add_item_any(L,TRUE)); /* The child item */
+#define WSLUA_ARG_TreeItem_add_le_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
+#define WSLUA_OPTARG_TreeItem_add_le_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
+#define WSLUA_OPTARG_TreeItem_add_le_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
+#define WSLUA_OPTARG_TreeItem_add_le_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
+    WSLUA_RETURN(TreeItem_add_item_any(L,TRUE)); /* The new child TreeItem */
 }
 
 WSLUA_METHOD TreeItem_set_text(lua_State *L) {
