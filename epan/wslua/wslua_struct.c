@@ -428,7 +428,7 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
         if (size == 0) {
           if (!lua_isnumber(L, -1))
             luaL_error(L, "format `c0' needs a previous size");
-          size = lua_tonumber(L, -1);
+          size = (guint32)lua_tonumber(L, -1);
           lua_pop(L, 1);
           luaL_argcheck(L, pos+size <= ld, 2, "data string too short");
         }
