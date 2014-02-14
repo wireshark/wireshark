@@ -166,92 +166,6 @@ struct _emem_chunk_t;
 #define WS_MEM_ALIGN G_MEM_ALIGN
 #endif
 
-/**************************************************************
- * binary trees
- **************************************************************/
-typedef struct _emem_tree_node_t {
-	struct _emem_tree_node_t *parent;
-	struct _emem_tree_node_t *left;
-	struct _emem_tree_node_t *right;
-	struct {
-#define EMEM_TREE_RB_COLOR_RED		0
-#define EMEM_TREE_RB_COLOR_BLACK	1
-		guint32 rb_color:1;
-#define EMEM_TREE_NODE_IS_DATA		0
-#define EMEM_TREE_NODE_IS_SUBTREE	1
-		guint32 is_subtree:1;
-	} u;
-	guint32 key32;
-	void *data;
-} emem_tree_node_t;
-
-/** Right now we only do basic red/black trees   but in the future we might want
- * to try something different, such as a tree where each node keeps track
- * of how many times it has been looked up, and letting often looked up
- * nodes bubble upwards in the tree using rotate_right/left.
- * That would probably be good for things like nfs filehandles
- */
-#define EMEM_TREE_TYPE_RED_BLACK	1
-typedef struct _emem_tree_t {
-	struct _emem_tree_t *next;
-	int type;
-	const char *name;    /**< just a string to make debugging easier */
-	emem_tree_node_t *tree;
-	void *(*malloc)(size_t);
-} emem_tree_t;
-
-/* *******************************************************************
- * Tree functions for SE memory allocation scope
- * ******************************************************************* */
-/** This function is used to create a se based tree with monitoring.
- * When the SE heap is released back to the system the pointer to the
- * tree is automatically reset to NULL.
- *
- * type is : EMEM_TREE_TYPE_RED_BLACK for a standard red/black tree.
- */
-WS_DLL_PUBLIC
-emem_tree_t *se_tree_create(int type, const char *name) G_GNUC_MALLOC;
-
-/** se_tree_insert32
- * Insert data into the tree and key it by a 32bit integer value
- */
-#define se_tree_insert32 emem_tree_insert32
-
-/** se_tree_lookup32
- * Retrieve the data at the search key. The search key is a 32bit integer value
- */
-#define se_tree_lookup32 emem_tree_lookup32
-
-/* ******************************************************************
- * Real tree functions
- * ****************************************************************** */
-
-/** This function is used to insert a node indexed by a guint32 key value.
- * The data pointer should be allocated by the appropriate storage scope
- * so that it will be released at the same time as the tree itself is
- * destroyed.
- */
-WS_DLL_PUBLIC
-void emem_tree_insert32(emem_tree_t *se_tree, guint32 key, void *data);
-
-/** This function will look up a node in the tree indexed by a guint32 integer
- * value.
- */
-WS_DLL_PUBLIC
-void *emem_tree_lookup32(emem_tree_t *se_tree, guint32 key);
-
-typedef struct _emem_tree_key_t {
-	guint32 length;			/**< length in guint32 words */
-	guint32 *key;
-} emem_tree_key_t;
-
-/** traverse a tree. if the callback returns TRUE the traversal will end */
-typedef gboolean (*tree_foreach_func)(void *value, void *userdata);
-
-WS_DLL_PUBLIC
-gboolean emem_tree_foreach(emem_tree_t* emem_tree, tree_foreach_func callback, void *user_data);
-
-
 /* ******************************************************************
  * String buffers - Growable strings similar to GStrings
  * ****************************************************************** */
@@ -378,15 +292,6 @@ emem_strbuf_t *ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c)
  */
 WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
-
-/**
- * Dump the whole tree (of trees) to stdout.
- *
- * @param emem_tree The tree to dump to standard output.
- *
- * 
- */
-void emem_print_tree(emem_tree_t* emem_tree);
 
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 
