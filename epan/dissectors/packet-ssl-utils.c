@@ -318,6 +318,11 @@ static const value_string ssl_20_cipher_suites[] = {
             0xFF,0x00-FF Reserved for Private Use [RFC5246]
             */
 
+    /* http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
+    { 0x00CC13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CC14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0x00CC15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0x00fefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
@@ -945,6 +950,12 @@ static const value_string ssl_31_ciphersuite[] = {
 0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
 0xFF,0x00-FF Reserved for Private Use [RFC5246]
 */
+
+    /* http://tools.ietf.org/html/draft-agl-tls-chacha20poly1305 */
+    { 0xCC13, "TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCC14, "TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305_SHA256" },
+    { 0xCC15, "TLS_DHE_RSA_WITH_CHACHA20_POLY1305_SHA256" },
+
     /* these from http://www.mozilla.org/projects/
          security/pki/nss/ssl/fips-ssl-ciphersuites.html */
     { 0xfefe, "SSL_RSA_FIPS_WITH_DES_CBC_SHA"},
