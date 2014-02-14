@@ -1048,7 +1048,6 @@ if(BUILD_tfshark)
 	)
 	set(tfshark_FILES
 		tfshark.c
-		tshark-tap-register.c
 		${TSHARK_TAP_SRC}
 		${SHARK_COMMON_SRC}
 	)

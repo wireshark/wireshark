@@ -932,10 +932,14 @@ main(int argc, char *argv[])
   /* we register the plugin taps before the other taps because
      stats_tree taps plugins will be registered as tap listeners
      by stats_tree_stat.c and need to registered before that */
+
+  /* XXX Disable tap registration for now until we can get tfshark set up with
+   * its own set of taps and the necessary registration function etc.
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
 #endif
   register_all_tap_listeners();
+  */
 
   /* If invoked with the "-G" flag, we dump out information based on
      the argument to the "-G" flag; if no argument is specified,
