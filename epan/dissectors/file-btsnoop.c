@@ -58,11 +58,16 @@ static int hf_btsnoop_flags_linux_monitor_opcode = -1;
 static int hf_btsnoop_flags_linux_monitor_adapter_id = -1;
 
 static expert_field ei_malformed_frame = EI_INIT;
+static expert_field ei_not_implemented_yet = EI_INIT;
+static expert_field ei_unknown_data = EI_INIT;
 
 static gint ett_btsnoop = -1;
 static gint ett_btsnoop_header = -1;
 static gint ett_btsnoop_frame = -1;
+static gint ett_btsnoop_payload = -1;
 static gint ett_btsnoop_flags = -1;
+
+static gboolean pref_dissect_next_layer = FALSE;
 
 extern value_string_ext hci_mon_opcode_vals_ext;
 
@@ -97,6 +102,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     static const guint8 magic[] = { 'b', 't', 's', 'n', 'o', 'o', 'p', 0};
     gint             offset = 0;
     guint32          datalink;
+    guint32          flags;
     guint32          length;
     proto_tree      *main_tree;
     proto_item      *main_item;
@@ -106,7 +112,10 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     proto_item      *frame_item;
     proto_tree      *flags_tree;
     proto_item      *flags_item;
+    proto_tree      *payload_tree;
+    proto_item      *payload_item;
     static guint32   frame_number = 1;
+    tvbuff_t        *next_tvb;
     nstime_t         timestamp;
     guint64          ts;
 
@@ -150,6 +159,7 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
         flags_item = proto_tree_add_item(frame_tree, hf_btsnoop_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
         flags_tree = proto_item_add_subtree(flags_item, ett_btsnoop_flags);
+        flags = tvb_get_ntohl(tvb, offset);
         switch (datalink) {
         case 1001: /* H1 */
             proto_tree_add_item(flags_tree, hf_btsnoop_flags_h1_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -177,7 +187,55 @@ dissect_btsnoop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         proto_tree_add_time(frame_tree, hf_btsnoop_timestamp_microseconds, tvb, offset, 8, &timestamp);
         offset += 8;
 
-        proto_tree_add_item(frame_tree, hf_btsnoop_payload, tvb, offset, length, ENC_NA);
+        payload_item = proto_tree_add_item(frame_tree, hf_btsnoop_payload, tvb, offset, length, ENC_NA);
+        payload_tree = proto_item_add_subtree(payload_item, ett_btsnoop_payload);
+
+        if (pref_dissect_next_layer) switch (datalink) {\
+            case 1001: /* H1 */
+                pinfo->fd->num = frame_number;
+                pinfo->fd->abs_ts = timestamp;
+
+                pinfo->pseudo_header->bthci.sent = (flags & 0x01) ? FALSE : TRUE;
+                if (flags & 0x02) {
+                    if(pinfo->pseudo_header->bthci.sent)
+                        pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_COMMAND;
+                    else
+                        pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_EVENT;
+                } else {
+                    pinfo->pseudo_header->bthci.channel = BTHCI_CHANNEL_ACL;
+                }
+
+                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                call_dissector(hci_h1_handle, next_tvb, pinfo, payload_tree);
+                break;
+            case 1002: /* H4 */
+                pinfo->fd->num = frame_number;
+                pinfo->fd->abs_ts = timestamp;
+                pinfo->p2p_dir = (flags & 0x01) ? P2P_DIR_RECV : P2P_DIR_SENT;
+
+                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                call_dissector(hci_h4_handle, next_tvb, pinfo, payload_tree);
+                break;
+            case 2001: /* Linux Monitor */
+                pinfo->fd->num = frame_number;
+                pinfo->fd->abs_ts = timestamp;
+
+                pinfo->pseudo_header->btmon.opcode = flags & 0xFFFF;
+                pinfo->pseudo_header->btmon.adapter_id = flags >> 16;
+
+                next_tvb = tvb_new_subset(tvb, offset, length, length);
+                call_dissector(hci_mon_handle, next_tvb, pinfo, payload_tree);
+                break;
+
+            case 1003: /* BCSP */
+            case 1004: /* H5 (3 Wire) */
+            case 2002: /* Simulator */
+                /* Not implemented yet */
+                proto_tree_add_expert(payload_tree, pinfo, &ei_not_implemented_yet, tvb, offset, length);
+            default:
+                /* Unknown */
+                proto_tree_add_expert(payload_tree, pinfo, &ei_unknown_data, tvb, offset, length);
+        }
         offset += length;
 
         proto_item_set_len(frame_item, 4 * 4 + 8 + length);
@@ -294,12 +352,15 @@ proto_register_btsnoop(void)
 
     static ei_register_info ei[] = {
         { &ei_malformed_frame,       { "btsnoop.malformed_frame", PI_PROTOCOL, PI_WARN, "Malformed Frame", EXPFILL }},
+        { &ei_not_implemented_yet,   { "btsnoop.not_implemented_yet", PI_PROTOCOL, PI_UNDECODED, "Not implemented yet", EXPFILL }},
+        { &ei_unknown_data,          { "btsnoop.unknown_data", PI_PROTOCOL, PI_WARN, "Unknown data", EXPFILL }},
     };
 
     static gint *ett[] = {
         &ett_btsnoop,
         &ett_btsnoop_header,
         &ett_btsnoop_frame,
+        &ett_btsnoop_payload,
         &ett_btsnoop_flags,
     };
 
@@ -313,6 +374,11 @@ proto_register_btsnoop(void)
     prefs_register_static_text_preference(module, "version",
             "BTSNOOP version: 1",
             "Version of file-format supported by this dissector.");
+
+    prefs_register_bool_preference(module, "dissect_next_layer",
+            "Dissect next layer",
+            "Dissect next layer",
+            &pref_dissect_next_layer);
 
     expert_module = expert_register_protocol(proto_btsnoop);
     expert_register_field_array(expert_module, ei, array_length(ei));
