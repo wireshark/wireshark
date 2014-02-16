@@ -263,6 +263,8 @@ private slots:
     void on_actionEditConfigurationProfiles_triggered();
     void on_actionEditPreferences_triggered();
 
+    void on_actionViewReload_triggered();
+
     void on_actionGoGoToPacket_triggered();
     void resetPreviousFocus();
 

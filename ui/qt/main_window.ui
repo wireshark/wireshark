@@ -102,7 +102,7 @@
    </property>
    <widget class="QMenu" name="menuFile">
     <property name="title">
-     <string>File</string>
+     <string>&amp;File</string>
     </property>
     <widget class="QMenu" name="menuOpenRecentCaptureFile">
      <property name="title">
@@ -160,7 +160,7 @@
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
-     <string>Edit</string>
+     <string>&amp;Edit</string>
     </property>
     <widget class="QMenu" name="menuEditCopy">
      <property name="title">
@@ -201,7 +201,7 @@
    </widget>
    <widget class="QMenu" name="menuCapture">
     <property name="title">
-     <string>Capture</string>
+     <string>&amp;Capture</string>
     </property>
     <addaction name="actionCaptureInterfaces"/>
     <addaction name="actionCaptureOptions"/>
@@ -214,7 +214,7 @@
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
-     <string>Help</string>
+     <string>&amp;Help</string>
     </property>
     <widget class="QMenu" name="menuHelpManualPages">
      <property name="title">
@@ -247,7 +247,7 @@
    </widget>
    <widget class="QMenu" name="menuGo">
     <property name="title">
-     <string>Go</string>
+     <string>&amp;Go</string>
     </property>
     <addaction name="actionGoGoToPacket"/>
     <addaction name="separator"/>
@@ -258,7 +258,7 @@
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
-     <string>View</string>
+     <string>&amp;View</string>
     </property>
     <addaction name="separator"/>
     <addaction name="actionViewExpandSubtrees"/>
@@ -269,7 +269,7 @@
    </widget>
    <widget class="QMenu" name="menuAnalyze">
     <property name="title">
-     <string>Analyze</string>
+     <string>&amp;Analyze</string>
     </property>
     <widget class="QMenu" name="menuApplyAsFilter">
      <property name="title">
@@ -319,7 +319,7 @@
      <bool>true</bool>
     </property>
     <property name="title">
-     <string>Statistics</string>
+     <string>&amp;Statistics</string>
     </property>
     <widget class="QMenu" name="menuTcpStreamGraphs">
      <property name="title">
@@ -364,7 +364,7 @@
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
-     <string>Telephony</string>
+     <string>Telephon&amp;y</string>
     </property>
     <widget class="QMenu" name="menuRTSP">
      <property name="title">
