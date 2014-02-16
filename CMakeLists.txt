@@ -499,6 +499,10 @@ if(ENABLE_NETLINK)
 	set(PACKAGELIST ${PACKAGELIST} NL)
 endif()
 
+if(ENABLE_SBC)
+	set(PACKAGELIST ${PACKAGELIST} SBC)
+endif()
+
 # Capabilities
 if(ENABLE_CAP)
 	set(PACKAGELIST ${PACKAGELIST} CAP SETCAP)
@@ -589,6 +593,9 @@ if(HAVE_LIBADNS)
 endif()
 if(HAVE_LIBNL AND HAVE_AIRPCAP)
 	message(ERROR "Airpcap and Libnl support are mutually exclusive")
+endif()
+if(HAVE_LIBSBC)
+    set(HAVE_SBC 1)
 endif()
 # No matter which version of GTK is present
 if(GTK2_FOUND OR GTK3_FOUND)
