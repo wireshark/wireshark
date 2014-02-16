@@ -1148,7 +1148,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
             QPushButton *discardButton;
 
             msg_dialog.setIcon(QMessageBox::Question);
-
+            msg_dialog.setWindowTitle("Unsaved packets...");
             /* This file has unsaved data or there's a capture in
                progress; ask the user whether to save the data. */
             if (cap_file_->is_tempfile) {
@@ -1172,6 +1172,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                 if (capture_in_progress) {
                     question.append(tr("Do you want to stop the capture and save the captured packets"));
                     question.append(before_what).append(tr("?"));
+                    msg_dialog.setText(question);
                     msg_dialog.setInformativeText(tr("Your captured packets will be lost if you don't save them."));
                 } else {
                     gchar *display_basename = g_filename_display_basename(cap_file_->filename);
@@ -1180,6 +1181,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                                     .arg(before_what)
                                     );
                     g_free(display_basename);
+                    msg_dialog.setText(question);
                     msg_dialog.setInformativeText(tr("Your changes will be lost if you don't save them."));
                 }
             }
@@ -1211,7 +1213,7 @@ bool MainWindow::testCaptureFileClose(bool from_quit, QString &before_what) {
                     discardButton = msg_dialog.addButton(tr("Stop and Continue without Saving"),
                                                          QMessageBox::DestructiveRole);
                 } else {
-                    discardButton = msg_dialog.addButton(QMessageBox::Discard);
+                    discardButton = msg_dialog.addButton(tr("Continue &without Saving"), QMessageBox::DestructiveRole);
                 }
             }
 
