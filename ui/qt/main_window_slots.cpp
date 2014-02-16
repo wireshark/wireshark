@@ -1565,6 +1565,11 @@ void MainWindow::on_actionEditPreferences_triggered()
 
 // View Menu
 
+void MainWindow::on_actionViewReload_triggered()
+{
+    cf_reload(&cfile);
+}
+
 // Expand / collapse slots in proto_tree
 
 // Go Menu
