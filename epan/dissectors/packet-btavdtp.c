@@ -555,14 +555,14 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
                 val_to_str_const(type, sep_type_vals, "unknown"), i_sep, items);
         sep_tree = proto_item_add_subtree(sep_item, ett_btavdtp_sep);
 
-        proto_tree_add_item(sep_tree, hf_btavdtp_sep_seid , tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sep_tree, hf_btavdtp_sep_inuse, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sep_tree, hf_btavdtp_sep_rfa0 , tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sep_tree, hf_btavdtp_sep_seid , tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sep_tree, hf_btavdtp_sep_inuse, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sep_tree, hf_btavdtp_sep_rfa0 , tvb, offset, 1, ENC_NA);
         offset+=1;
 
-        proto_tree_add_item(sep_tree, hf_btavdtp_sep_media_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sep_tree, hf_btavdtp_sep_type      , tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(sep_tree, hf_btavdtp_sep_rfa1      , tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sep_tree, hf_btavdtp_sep_media_type, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sep_tree, hf_btavdtp_sep_type      , tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(sep_tree, hf_btavdtp_sep_rfa1      , tvb, offset, 1, ENC_NA);
 
         /* save information for later recognizing */
         t_seid = seid;
@@ -611,91 +611,91 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
         case MEDIA_TYPE_AUDIO:
             switch(media_codec_type) {
                 case CODEC_SBC:
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_16000, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_32000, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_44100, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_48000, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_mono, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_dual_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_stereo, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_joint_stereo, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_16000, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_32000, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_44100, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_sampling_frequency_48000, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_mono, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_dual_channel, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_stereo, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_channel_mode_joint_stereo, tvb, offset, 1, ENC_NA);
 
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_4, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_8, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_12, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_16, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_subbands_4, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_subbands_8, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_allocation_method_snr, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_sbc_allocation_method_loudness, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_4, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_8, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_12, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_block_16, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_subbands_4, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_subbands_8, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_allocation_method_snr, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_sbc_allocation_method_loudness, tvb, offset + 1, 1, ENC_NA);
 
-                    pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_min_bitpool, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+                    pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_min_bitpool, tvb, offset + 2, 1, ENC_NA);
                     bitpool = tvb_get_guint8(tvb, offset + 2);
                     if (bitpool < 2 || bitpool > 250) {
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_min_bitpool_out_of_range);
                     }
 
-                    pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_max_bitpool, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
+                    pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_max_bitpool, tvb, offset + 3, 1, ENC_NA);
                     bitpool = tvb_get_guint8(tvb, offset + 3);
                     if (bitpool < 2 || bitpool > 250) {
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_max_bitpool_out_of_range);
                     }
                     break;
                 case CODEC_MPEG12_AUDIO:
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_2, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_3, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_crc_protection, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_mono, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_dual_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_stereo, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_joint_stereo, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_1, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_2, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_3, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_crc_protection, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_mono, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_dual_channel, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_stereo, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_channel_mode_joint_stereo, tvb, offset, 1, ENC_NA);
 
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_rfa, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_mpf_2, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_16000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_22050, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_24000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_32000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_44100, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_48000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_rfa, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_mpf_2, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_16000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_22050, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_24000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_32000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_44100, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg12_sampling_frequency_48000, tvb, offset + 1, 1, ENC_NA);
 
                     proto_tree_add_item(tree, hf_btavdtp_mpeg12_vbr_supported, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_mpeg12_bit_rate, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
                     break;
                 case CODEC_MPEG24_AAC:
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg2_aac_lc, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg4_aac_lc, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg4_aac_ltp, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg4_aac_scalable, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg2_aac_lc, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg4_aac_lc, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg4_aac_ltp, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_mpeg4_aac_scalable, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_object_type_rfa, tvb, offset, 1, ENC_NA);
 
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_8000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_11025, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_12000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_16000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_22050, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_24000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_32000, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_44100, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_8000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_11025, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_12000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_16000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_22050, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_24000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_32000, tvb, offset + 1, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_44100, tvb, offset + 1, 1, ENC_NA);
 
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_48000, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_64000, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_88200, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_96000, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_channels_1, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_channels_2, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_rfa, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_48000, tvb, offset + 2, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_64000, tvb, offset + 2, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_88200, tvb, offset + 2, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_sampling_frequency_96000, tvb, offset + 2, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_channels_1, tvb, offset + 2, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_channels_2, tvb, offset + 2, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg24_rfa, tvb, offset + 2, 1, ENC_NA);
 
                     proto_tree_add_item(tree, hf_btavdtp_mpeg24_vbr_supported, tvb, offset + 3, 3, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_mpeg24_bit_rate, tvb, offset + 3, 3, ENC_BIG_ENDIAN);
                     break;
                 case CODEC_ATRAC:
-                    proto_tree_add_item(tree, hf_btavdtp_atrac_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_atrac_channel_mode_single_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_atrac_channel_mode_dual_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_atrac_channel_mode_joint_stereo, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_atrac_rfa1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_atrac_version, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_atrac_channel_mode_single_channel, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_atrac_channel_mode_dual_channel, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_atrac_channel_mode_joint_stereo, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_atrac_rfa1, tvb, offset, 1, ENC_NA);
 
                     proto_tree_add_item(tree, hf_btavdtp_atrac_rfa2, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_atrac_sampling_frequency_44100, tvb, offset + 1, 3, ENC_BIG_ENDIAN);
@@ -705,11 +705,11 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 
                     proto_tree_add_item(tree, hf_btavdtp_atrac_maximum_sul, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(tree, hf_btavdtp_atrac_rfa3, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_atrac_rfa3, tvb, offset + 6, 1, ENC_NA);
                     break;
                 case CODEC_VENDOR: /* non-A2DP */
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                     break;
                 default:
@@ -721,21 +721,21 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                 case CODEC_H263_BASELINE:
                 case CODEC_H263_PROFILE_3:
                 case CODEC_H263_PROFILE_8:
-                    proto_tree_add_item(tree, hf_btavdtp_h263_level_10, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_h263_level_20, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_h263_level_30, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_h263_level_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_h263_level_10, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_h263_level_20, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_h263_level_30, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_h263_level_rfa, tvb, offset, 1, ENC_NA);
                     break;
                 case CODEC_MPEG4_VSP:
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_0, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_1, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_2, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_3, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_0, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_1, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_2, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_3, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(tree, hf_btavdtp_mpeg4_level_rfa, tvb, offset, 1, ENC_NA);
                     break;
                 case CODEC_VENDOR: /* non-VDP */
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
                     break;
                 default:
@@ -784,10 +784,10 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
         service_item = proto_tree_add_none_format(capabilities_tree, hf_btavdtp_service, tvb, offset, 2 + losc, "Service: %s", val_to_str_const(service_category, service_category_vals, "RFD"));
         service_tree = proto_item_add_subtree(service_item, ett_btavdtp_service);
 
-        proto_tree_add_item(service_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(service_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_NA);
         offset += 1;
 
-        proto_tree_add_item(service_tree, hf_btavdtp_length_of_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(service_tree, hf_btavdtp_length_of_service_category, tvb, offset, 1, ENC_NA);
         offset += 1;
 
         switch (service_category) {
@@ -798,13 +798,13 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case SERVICE_CATEGORY_RECOVERY:
                 recovery_type = tvb_get_guint8(tvb, offset);
-                pitem = proto_tree_add_item(service_tree, hf_btavdtp_recovery_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                pitem = proto_tree_add_item(service_tree, hf_btavdtp_recovery_type, tvb, offset, 1, ENC_NA);
                 proto_item_append_text(pitem, " (%s)", val_to_str_const(recovery_type, recovery_type_vals, "RFD"));
                 offset += 1;
                 losc -= 1;
 
                 maximum_recovery_window_size = tvb_get_guint8(tvb, offset);
-                pitem = proto_tree_add_item(service_tree, hf_btavdtp_maximum_recovery_window_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                pitem = proto_tree_add_item(service_tree, hf_btavdtp_maximum_recovery_window_size, tvb, offset, 1, ENC_NA);
                 if (maximum_recovery_window_size == 0x00) {
                     proto_item_append_text(pitem, " (Forbidden)");
                 } else if (maximum_recovery_window_size >= 0x18) {
@@ -814,8 +814,8 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 losc -= 1;
 
                 maximum_number_of_media_packet_in_parity_code = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(service_tree, hf_btavdtp_maximum_number_of_media_packet_in_parity_code, tvb, offset, 1, ENC_BIG_ENDIAN);
-                pitem = proto_tree_add_item(service_tree, hf_btavdtp_maximum_recovery_window_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_maximum_number_of_media_packet_in_parity_code, tvb, offset, 1, ENC_NA);
+                pitem = proto_tree_add_item(service_tree, hf_btavdtp_maximum_recovery_window_size, tvb, offset, 1, ENC_NA);
                 if (maximum_number_of_media_packet_in_parity_code == 0x00) {
                     proto_item_append_text(pitem, " (Forbidden)");
                 } else if (maximum_number_of_media_packet_in_parity_code >= 0x18) {
@@ -826,8 +826,8 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case SERVICE_CATEGORY_MEDIA_CODEC:
                 media_type = tvb_get_guint8(tvb, offset) >> 4;
-                proto_tree_add_item(service_tree, hf_btavdtp_media_codec_media_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(service_tree, hf_btavdtp_media_codec_rfa , tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_media_codec_media_type, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(service_tree, hf_btavdtp_media_codec_rfa , tvb, offset, 1, ENC_NA);
                 offset += 1;
                 losc -= 1;
 
@@ -837,19 +837,19 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 }
 
                 if (media_type == MEDIA_TYPE_AUDIO) {
-                    proto_tree_add_item(service_tree, hf_btavdtp_media_codec_audio_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(service_tree, hf_btavdtp_media_codec_audio_type, tvb, offset, 1, ENC_NA);
                     proto_item_append_text(service_item, " - Audio %s",
                             val_to_str_const(media_codec_type, media_codec_audio_type_vals, "unknown codec"));
                     col_append_fstr(pinfo->cinfo, COL_INFO, " - Audio %s",
                             val_to_str_const(media_codec_type, media_codec_audio_type_vals, "unknown codec"));
                 } else if (media_type == MEDIA_TYPE_VIDEO) {
-                    proto_tree_add_item(service_tree, hf_btavdtp_media_codec_video_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(service_tree, hf_btavdtp_media_codec_video_type, tvb, offset, 1, ENC_NA);
                     proto_item_append_text(service_item, " - Video %s",
                             val_to_str_const(media_codec_type, media_codec_video_type_vals, "unknown codec"));
                     col_append_fstr(pinfo->cinfo, COL_INFO, " - Video %s",
                             val_to_str_const(media_codec_type, media_codec_video_type_vals, "unknown codec"));
                 } else {
-                    proto_tree_add_item(service_tree, hf_btavdtp_media_codec_unknown_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(service_tree, hf_btavdtp_media_codec_unknown_type, tvb, offset, 1, ENC_NA);
                     proto_item_append_text(service_item, " - Unknown 0x%02x", media_codec_type);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " - Unknown 0x%02x", media_codec_type);
                 }
@@ -860,7 +860,6 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 losc = 0;
                 break;
             case SERVICE_CATEGORY_CONTENT_PROTECTION:
-                /* ENC_LITTLE_ENDIAN is correct here... */
                 proto_tree_add_item(service_tree, hf_btavdtp_content_protection_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 if (content_protection_type) {
                     *content_protection_type = tvb_get_letohs(tvb, offset);
@@ -875,16 +874,16 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 }
                 break;
             case SERVICE_CATEGORY_HEADER_COMPRESSION:
-                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_backch,   tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_media,    tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_recovery, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_rfa,      tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_backch,   tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_media,    tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_recovery, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(service_tree, hf_btavdtp_header_compression_rfa,      tvb, offset, 1, ENC_NA);
                 offset += 1;
                 losc -= 1;
                 break;
             case SERVICE_CATEGORY_MULTIPLEXING:
-                proto_tree_add_item(service_tree, hf_btavdtp_multiplexing_fragmentation, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(service_tree, hf_btavdtp_multiplexing_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(service_tree, hf_btavdtp_multiplexing_fragmentation, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(service_tree, hf_btavdtp_multiplexing_rfa, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 losc -= 1;
 
@@ -892,12 +891,12 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                     pitem = proto_tree_add_none_format(service_tree, hf_btavdtp_service_multiplexing_entry, tvb, offset, 1 + losc, "Entry: Media Transport Session");
                     ptree = proto_item_add_subtree(pitem, ett_btavdtp_service);
 
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     losc -= 1;
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tcid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tcid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     losc -= 1;
                 }
@@ -906,12 +905,12 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                     pitem = proto_tree_add_none_format(service_tree, hf_btavdtp_service_multiplexing_entry, tvb, offset, 1 + losc, "Entry: Reporting Transport Session");
                     ptree = proto_item_add_subtree(pitem, ett_btavdtp_service);
 
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     losc -= 1;
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tcid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tcid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     losc  -= 1;
                 }
@@ -920,12 +919,12 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                     pitem = proto_tree_add_none_format(service_tree, hf_btavdtp_service_multiplexing_entry, tvb, offset, 1 + losc, "Entry: Recovery Transport Session");
                     ptree = proto_item_add_subtree(pitem, ett_btavdtp_service);
 
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tsid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     losc -= 1;
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tcid, tvb, offset, 1, ENC_BIG_ENDIAN);
-                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_tcid, tvb, offset, 1, ENC_NA);
+                    proto_tree_add_item(ptree, hf_btavdtp_multiplexing_entry_rfa, tvb, offset, 1, ENC_NA);
                     offset += 1;
                     losc -= 1;
                 }
@@ -965,7 +964,7 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
         seid_item = proto_tree_add_none_format(tree, hf_btavdtp_acp_seid_item, tvb, offset, 1,
                 "ACP SEID [%u - %s %s]", seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
         seid_tree = proto_item_add_subtree(seid_item, ett_btavdtp_sep);
-        proto_tree_add_item(seid_tree, hf_btavdtp_acp_seid, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(seid_tree, hf_btavdtp_acp_seid, tvb, offset, 1, ENC_NA);
         if (i_item > 0) proto_item_append_text(seid_item, " item %u", i_item);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - ACP SEID [%u - %s %s]",
@@ -974,14 +973,14 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
         seid_item = proto_tree_add_none_format(tree, hf_btavdtp_int_seid_item, tvb, offset, 1,
                 "INT SEID [%u - %s %s]", seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
         seid_tree = proto_item_add_subtree(seid_item, ett_btavdtp_sep);
-        proto_tree_add_item(seid_tree, hf_btavdtp_int_seid, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(seid_tree, hf_btavdtp_int_seid, tvb, offset, 1, ENC_NA);
         if (i_item > 0) proto_item_append_text(seid_item, " item %u", i_item);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - INT SEID [%u - %s %s]",
                 seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
     }
 
-    proto_tree_add_item(seid_tree, hf_btavdtp_rfa_seid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(seid_tree, hf_btavdtp_rfa_seid, tvb, offset, 1, ENC_NA);
     offset += 1;
 
     return offset;
@@ -1156,20 +1155,20 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             (packet_type == PACKET_TYPE_START) ? 3 : 2, ENC_NA);
     signal_tree = proto_item_add_subtree(signal_item, ett_btavdtp_sep);
 
-    proto_tree_add_item(signal_tree, hf_btavdtp_transaction, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(signal_tree, hf_btavdtp_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(signal_tree, hf_btavdtp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(signal_tree, hf_btavdtp_transaction, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(signal_tree, hf_btavdtp_packet_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(signal_tree, hf_btavdtp_message_type, tvb, offset, 1, ENC_NA);
 
     if (packet_type == PACKET_TYPE_START) {
         offset += 1;
-        proto_tree_add_item(signal_tree, hf_btavdtp_number_of_signal_packets, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(signal_tree, hf_btavdtp_number_of_signal_packets, tvb, offset, 1, ENC_NA);
     }
 
     if (packet_type == PACKET_TYPE_CONTINUE || packet_type == PACKET_TYPE_END) goto LABEL_data;
 
     offset += 1;
-    proto_tree_add_item(signal_tree, hf_btavdtp_rfa0,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(signal_tree, hf_btavdtp_signal_id,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(signal_tree, hf_btavdtp_rfa0,         tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(signal_tree, hf_btavdtp_signal_id,    tvb, offset, 1, ENC_NA);
 
     signal_id   = tvb_get_guint8(tvb, offset) & AVDTP_SIGNAL_ID_MASK;
     proto_item_append_text(signal_item, ": %s (%s)",
@@ -1185,7 +1184,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         case SIGNAL_ID_DISCOVER:
             if (message_type == MESSAGE_TYPE_COMMAND) break;
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1198,7 +1197,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1229,10 +1228,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1243,7 +1242,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1273,10 +1272,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_service_category, tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1304,7 +1303,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1320,7 +1319,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1331,7 +1330,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1347,7 +1346,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1358,7 +1357,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1371,7 +1370,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -1391,7 +1390,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
             }
@@ -2411,9 +2410,9 @@ dissect_a2dp_cp_scms_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     main_item = proto_tree_add_item(tree, proto_bta2dp_cph_scms_t, tvb, offset, 1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_bta2dp_cph_scms_t);
 
-    proto_tree_add_item(main_tree, hf_bta2dp_reserved , tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(main_tree, hf_bta2dp_cp_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(main_tree, hf_bta2dp_l_bit , tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(main_tree, hf_bta2dp_reserved , tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(main_tree, hf_bta2dp_cp_bit, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(main_tree, hf_bta2dp_l_bit , tvb, offset, 1, ENC_NA);
     offset += 1;
 
     return offset;
@@ -2461,9 +2460,9 @@ dissect_vdp_cp_scms_t(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, v
     main_item = proto_tree_add_item(tree, proto_btvdp_cph_scms_t, tvb, offset, 1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_btvdp_cph_scms_t);
 
-    proto_tree_add_item(main_tree, hf_btvdp_reserved , tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(main_tree, hf_btvdp_cp_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(main_tree, hf_btvdp_l_bit , tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(main_tree, hf_btvdp_reserved , tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(main_tree, hf_btvdp_cp_bit, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(main_tree, hf_btvdp_l_bit , tvb, offset, 1, ENC_NA);
     offset += 1;
 
     return offset;
