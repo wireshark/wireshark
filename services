@@ -1,7 +1,5 @@
 # This is a local copy of the IANA port-numbers file.
 #
-# $Id$
-#
 # Wireshark uses it to resolve port numbers into human readable
 # service names, e.g. TCP port 80 -> http.
 #
@@ -1808,8 +1806,8 @@ groove-dpp       1211/tcp # Groove DPP [Ken_Moore] [Ken_Moore]
 groove-dpp       1211/udp # Groove DPP [Ken_Moore] [Ken_Moore]
 lupa             1212/tcp # lupa [Barney_Wolff] [Barney_Wolff]
 lupa             1212/udp # lupa [Barney_Wolff] [Barney_Wolff]
-mpc-lifenet      1213/tcp # MPC LIFENET [Ward_Silver] [Ward_Silver]
-mpc-lifenet      1213/udp # MPC LIFENET [Ward_Silver] [Ward_Silver]
+mpc-lifenet      1213/tcp # Medtronic/Physio-Control LIFENET [Physio-Control_Inc] [Kevin_Drew] 2014-02-14
+mpc-lifenet      1213/udp # Medtronic/Physio-Control LIFENET [Physio-Control_Inc] [Kevin_Drew] 2014-02-14
 kazaa            1214/tcp # KAZAA [Ahti_Heinla] [Ahti_Heinla]
 kazaa            1214/udp # KAZAA [Ahti_Heinla] [Ahti_Heinla]
 scanstat-1       1215/tcp # scanSTAT 1.0 [William_Scheding] [William_Scheding]
@@ -9350,6 +9348,7 @@ clever-tcpip     6688/tcp # CleverView for TCP/IP Message Service [David_Cheng] 
 tsa              6689/tcp # Tofino Security Appliance [Scott_Howard] [Scott_Howard] 2009-10-13
 tsa              6689/udp # Tofino Security Appliance [Scott_Howard] [Scott_Howard] 2009-10-13
 babel            6696/udp # Babel Routing Protocol 2011-08-15 [RFC6126]
+ircs-u           6697/tcp # Internet Relay Chat via TLS/SSL 2014-02-11 [RFC-hartmann-default-port-for-irc-via-tls-ssl-09]
 kti-icad-srvr    6701/tcp # KTI/ICAD Nameserver [Stanley_Knutson] [Stanley_Knutson]
 kti-icad-srvr    6701/udp # KTI/ICAD Nameserver [Stanley_Knutson] [Stanley_Knutson]
 e-design-net     6702/tcp # e-Design network [Janos_Lerch] [Janos_Lerch] 2006-02
