@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-02-07)
+(last updated 2014-02-15)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -43367,8 +43367,8 @@ Decimal
       kai.heikola&kuulalaakeri.fi
 10853
   LTC Sp z o.o.
-    Robert Jaros
-      rjaros&finn.pl
+    Przemysław Sztoch
+      psztoch&finn.pl
 10854
   Lviv National Polytechnical University
     Adrian Pavlykevych
@@ -63135,9 +63135,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Alessandro Kenji Urakawa
       alessandro&4linux.com.br
 15896
-  Rostov State University, Computer Center
-    Oleg Sharoiko
-      os&rsu.ru
+  Southern Federal University (previous was 'Rostov State University, Computer Center')
+    Andrey Berezovskiy
+      noc&r61.net
 15897
   Guangzhou GaoU S & T Development Co. Ltd.
     Jiming Pan
@@ -122257,9 +122257,9 @@ Decentralization / Helenic Public Administra
     w.h.v.petersen
       w.vanpetersen&brcontrols.com
 30669
-  RFSAT Ltd
+  Research for Science, Art and Technology (RFSAT) Ltd
     Dr. Artur Krukowski
-      Artur.Krukowski&rfsat.com
+      RTD&rfsat.com
 30670
   Vololink Pty Ltd
     Milan Prosenica
@@ -144803,9 +144803,9 @@ Decentralization / Helenic Public Administra
     Kaoru Miyauchi
       miya&kandcnet.com
 36305
-  WoSign eCommerce Services Ltd.
+  WoSign CA Limited (previous was 'WoSign eCommerce Services Ltd.')
     Richard Wang
-      richard&wosign.com
+      ca&wosign.com
 36306
   University of Teesside
     UNIX Team (Bill Taylor)
@@ -169577,7 +169577,7 @@ Decentralization / Helenic Public Administra
 42498
   Guenter Zimmermann
     Guenter Zimmermann
-      guenter&izimmermann.at
+      guenterzim&gmail.com
 42499
   Orlov-Miller
     Alexander Orlov
@@ -171613,7 +171613,7 @@ Decentralization / Helenic Public Administra
 43007
   Gipen Systems
     Gyula Nemetz
-      nemetz.gyula&gipen.hu
+      info&gipen.hu
 43008
   FRTek
     Doyeon Kim
@@ -172039,7 +172039,7 @@ Decentralization / Helenic Public Administra
     Navid Abdi
       sysadmin&screen9.com
 43114
-  Kantonsapotheke Zürich
+  Kantonsapotheke Zuerich
     Clau Deplazes
       clau.deplazes&kaz.zh.ch
 43115
@@ -172277,7 +172277,7 @@ Decentralization / Helenic Public Administra
 43173
   Elesta Ltd.
     Bykov Dmitry
-      dmitry&elesta.ru
+      elesta&elesta.ru
 43174
   Ubiquity Srl
     Giacomo Olgeni
@@ -172522,6 +172522,202 @@ Decentralization / Helenic Public Administra
   LLC Enistek
     Andrey Tolstoy
       andrey&enistek.com
+43235
+  Stadt Chur
+    Josua Ackermann
+      lizenzen_it&chur.ch
+43236
+  Pilz GmbH & Co. KG
+    Frank Eberle
+      f.eberle&pilz.de
+43237
+  AOC Oost
+    Pascal te Pas
+      ictservicedesk&aoc-oost.nl
+43238
+  Compass Plus Ltd.
+    Alexandra Kochergina
+      a.kochergina&compassplus.com
+43239
+  MindMade sp. z o.o.
+    Tomasz Borkowski
+      office&mindmade.pl
+43240
+  Day & Zimmermann
+    Jason Schrader
+      NetworkInfrastructure&dayzim.com
+43241
+  Guidance Ltd.
+    Peter Varga
+      peter.varga&guidance.hu
+43242
+  Universal Switching Corporation
+    Hans Johansson
+      hj&uswi.com
+43243
+  ShinyByte Web Agency, LLC.
+    Jacob Vancil
+      Jacob&shinybyte.com
+43244
+  Open Information Security Foundation
+    Victor Julien
+      oisf-team&openinfosecfoundation.org
+43245
+  G421 Networks
+    Keith Dube
+      keith.dube&g421networks.com
+43246
+  Bennington-Rutland Supervisory Union
+    Daniel French
+      daniel.french&brsu.org
+43247
+  Rui Pereira (netcloud.pt)
+    Rui Pereira
+      admin&netcloud.pt
+43248
+  3 Turn Productions LLC
+    Judy Tyrer
+      judy3t&3turnproductions.com
+43249
+  THM Consulting Ltd
+    Thorsten Mayr
+      thorstenpm&gmail.com
+43250
+   "Group of companies "POWER ENGINEERING" Ltd
+    Evgeniy Petrov
+      e.petrov&e-pwr.ru
+43251
+  Planet Erde
+    Roland Gsell
+      roland.gsell&gmx.net
+43252
+  CosDay e. V.
+    Alexander Pankow
+      it&cosday.de
+43253
+  ASGraphics
+    Andreas Strobl
+      astrobl&asgraphics.at
+43254
+  Geonov
+    Mathieu Ambrosy
+      mathieu.ambrosy&geonov.info
+43255
+  FISBA Optik AG
+    Joder Philipp
+      Philipp.Joder&fisba.ch
+43256
+  FlouLab (Ioannis Angelakopoulos)
+    Ioannis Angelakopoulos
+      ioangel&floulab.net
+43257
+  webs.bz
+    Rafal Kruk
+      hello&webs.bz
+43258
+  D'Youville College
+    Mary Spence
+      helpdesk&dyc.edu
+43259
+  Cambridge Health Alliance
+    Jeffrey Johnson
+      itd39&challiance.org
+43260
+  WireGeo.com
+    Konstantin Artemev
+      manager&wiregeo.com
+43261
+  Pontis Research Inc.
+    Aditya Bhushan
+      aditya.bhushan&pontisresearch.com
+43262
+  ABVI-Goodwill
+    Randy Overmyer
+      rovermyer&abvi-goodwill.com
+43263
+  SolarCity
+    Todd Tidwell
+      ttidwell&solarcity.com
+43264
+  Opanga Networks, Inc.
+    John Burnette
+      johnb&opanga.com
+43265
+  HongKong Yunlink Technology Co., Ltd
+    WU SHUNQUAN (Jessy)
+      yuncore.jessy&gmail.com
+43266
+  S.Toraighyrov Pavlodar State University
+    Sergey Berendakov
+      admin&psu.kz
+43267
+  JAMESON MEMORIAL HOSPITAL
+    RHONDA GRICKS
+      RGRICKS&JAMESONHEALTH.ORG
+43268
+  TELECO Spa
+    Massimiliano Negretti
+      laboratorio&telecospa.it
+43269
+  DI Kurt Renauer
+    DI Kurt Renauer
+      office&renauer.at
+43270
+  Yoshitaka Yamane
+    Yoshitaka Yamane
+      yoshitaka.yamane&oasis.ocn.ne.jp
+43271
+  Justus-Liebig-Universität Gießen
+    Dr. Oliver Bäumer
+      ldap-admin&hrz.uni-giessen.de
+43272
+  Austria Card Plastikkarten und Ausweissysteme Ges.m.b.H
+    Thomas Aichinger
+      thomas.aichinger&austriacard.at
+43273
+  Control Center Apps GmbH
+    Christoph Knittel
+      christoph.knittel&controlcenterapps.com
+43274
+  "Group of Companies "RosIntegracija" LLC.
+    Dmitriy Gvozdyuk
+      dmitriy.gvozdyuk&rosintegracija.ru
+43275
+  Alex Eggenberger
+    Alex Eggenberger
+      domaxinreg9&gmail.com
+43276
+  Coreline Soft Co.,Ltd
+    Hyungi Seo
+      hyungi.seo&corelinesoft.com
+43277
+  AE Telelink System Limited
+    Rajeev Kumar
+      rajeev&aetelelink.com
+43278
+  zalio
+    Hans Riethmann
+      hans.riethmann&zal.io
+43279
+  R. L. Drake Holdings, LLC
+    Joshua Blanton
+      jblanton&rldrake.com
+43280
+  Vereniging Ons Middelbaar Onderwijs
+    Thijs van Ham
+      ham.t&2college.nl
+43281
+  PAUL HARTMANN AG
+    Falk Nicolaus
+      certificate-admins&hartmann.info
+43282
+  PROVIDENTIA SYSTEMS
+    ROBERT BASSANO
+      robert.bassano&providentiasystems.com
+43283
+  Vado Security
+    Yossi Ben Hagai
+      yossi&vadosecurity.com
 
 
 End of Document
