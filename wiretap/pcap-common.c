@@ -419,7 +419,8 @@ static const struct {
 	{ 252,		WTAP_ENCAP_WIRESHARK_UPPER_PDU},
 	/* Netlink Protocol (nlmon devices) */
 	{ 253,		WTAP_ENCAP_NETLINK },
-
+	/* Bluetooth Linux Monitor */
+	{ 254,      WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR },
 	/*
 	 * To repeat:
 	 *
@@ -698,6 +699,7 @@ wtap_encap_requires_phdr(int encap) {
 		(encap == WTAP_ENCAP_ERF) ||
 		(encap == WTAP_ENCAP_I2C) ||
 		(encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR) ||
+		(encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) ||
 		(encap == WTAP_ENCAP_PPP_WITH_PHDR)
 	) {
 		return TRUE;
@@ -1314,6 +1316,28 @@ pcap_read_bt_pseudoheader(FILE_T fh,
 }
 
 static gboolean
+pcap_read_bt_monitor_pseudoheader(FILE_T fh,
+    union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
+{
+	int	bytes_read;
+	struct libpcap_bt_monitor_phdr phdr;
+
+	errno = WTAP_ERR_CANT_READ;
+	bytes_read = file_read(&phdr,
+	    sizeof (struct libpcap_bt_monitor_phdr), fh);
+	if (bytes_read != sizeof (struct libpcap_bt_monitor_phdr)) {
+		*err = file_error(fh, err_info);
+		if (*err == 0)
+			*err = WTAP_ERR_SHORT_READ;
+		return FALSE;
+	}
+
+	pseudo_header->btmon.adapter_id = g_ntohs(phdr.adapter_id);
+	pseudo_header->btmon.opcode = g_ntohs(phdr.opcode);
+	return TRUE;
+}
+
+static gboolean
 pcap_read_llcp_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info)
 {
@@ -1683,6 +1707,25 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		phdr_len = (int)sizeof (struct libpcap_bt_phdr);
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+		if (check_packet_size &&
+		    packet_size < sizeof (struct libpcap_bt_monitor_phdr)) {
+			/*
+			 * Uh-oh, the packet isn't big enough to even
+			 * have a pseudo-header.
+			 */
+			*err = WTAP_ERR_BAD_FILE;
+			*err_info = g_strdup_printf("pcap: libpcap bluetooth monitor file has a %u-byte packet, too small to have even a pseudo-header",
+			    packet_size);
+			return -1;
+		}
+		if (!pcap_read_bt_monitor_pseudoheader(fh,
+		    &phdr->pseudo_header, err, err_info))
+			return -1;	/* Read error */
+
+		phdr_len = (int)sizeof (struct libpcap_bt_monitor_phdr);
+		break;
+
 	case WTAP_ENCAP_NFC_LLCP:
 		if (check_packet_size && packet_size < LLCP_HEADER_LEN) {
 			*err = WTAP_ERR_BAD_FILE;
@@ -1921,6 +1964,10 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		hdrsize = (int)sizeof (struct libpcap_ppp_phdr);
 		break;
 
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+		hdrsize = (int)sizeof (struct libpcap_bt_monitor_phdr);
+	break;
+
 	default:
 		hdrsize = 0;
 		break;
@@ -1941,6 +1988,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 	guint8 erf_hdr[ sizeof(struct erf_mc_phdr)];
 	struct i2c_file_hdr i2c_hdr;
 	struct libpcap_bt_phdr bt_hdr;
+	struct libpcap_bt_monitor_phdr bt_monitor_hdr;
 	struct libpcap_ppp_phdr ppp_hdr;
 	size_t size;
 
@@ -2117,6 +2165,15 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof bt_hdr;
+		break;
+
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+		bt_monitor_hdr.adapter_id = GUINT16_TO_BE(pseudo_header->btmon.adapter_id);
+		bt_monitor_hdr.opcode = GUINT16_TO_BE(pseudo_header->btmon.opcode);
+
+		if (!wtap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
+			return FALSE;
+		wdh->bytes_dumped += sizeof bt_monitor_hdr;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:

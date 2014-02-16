@@ -684,11 +684,20 @@ struct catapult_dct2000_phdr
 #define LIBPCAP_BT_PHDR_RECV    1
 
 /*
- * Header prepended by libpcap to each bluetooth hci h:4 frame.
+ * Header prepended by libpcap to each bluetooth hci h4 frame.
  * Values in network byte order
  */
 struct libpcap_bt_phdr {
     guint32 direction;     /* Bit 0 hold the frame direction. */
+};
+
+/*
+ * Header prepended by libpcap to each bluetooth monitor frame
+ * Values in network byte order
+ */
+struct libpcap_bt_monitor_phdr {
+    guint16 adapter_id;
+    guint16 opcode;
 };
 
 #define LIBPCAP_PPP_PHDR_RECV    0

@@ -206,6 +206,11 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
         offset = tvb_length(tvb);
     }
 
+   /* NOTE: Oops... HCI_MON have special packet with length 0, but there is a pseudo-header with certain infos,
+            mark it as dissected */
+    if (opcode == 0x01)
+        return 1;
+
     return offset;
 }
 
@@ -258,8 +263,8 @@ proto_register_hci_mon(void)
 
     chandle_to_bdaddr_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, chandle: bdaddr */
     bdaddr_to_name_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* bdaddr: name */
-    localhost_bdaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adaper, frame: bdaddr */
-    localhost_name = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adaper, frame: name */
+    localhost_bdaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, frame: bdaddr */
+    localhost_name = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, frame: name */
 
     proto_hci_mon = proto_register_protocol("Bluetooth Linux Monitor Transport", "HCI_MON", "hci_mon");
     proto_register_field_array(proto_hci_mon, hf, array_length(hf));
