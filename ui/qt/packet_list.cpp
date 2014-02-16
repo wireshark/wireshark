@@ -482,7 +482,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
         // check SCTP
         if (act->objectName().contains("SCTP"))
         {
-            if (cap_file_->edt->pi.ipproto == IP_PROTO_SCTP)
+            if ((cap_file_ != NULL) && (cap_file_->edt != NULL) && (cap_file_->edt->pi.ipproto == IP_PROTO_SCTP))
             {
                 act->setEnabled(true);
             }
