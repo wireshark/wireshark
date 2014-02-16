@@ -256,7 +256,7 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 	pinfo->fd=(frame_data*)ep_alloc(sizeof(frame_data));
 	pinfo->fd->num = fInfo->num;
 
-	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->ip_id_set, GINT_TO_POINTER(fInfo->id));
+	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->ip_id_set, GINT_TO_POINTER((gint)fInfo->id));
 	if(fInfoTemp==NULL){
 		/* Detect ongoing package loss */
 		if((cs->last_hit==FALSE)&&(cs->start_ongoing_hits>compare_start)&&(cs->stop_ongoing_hits<compare_stop)){
@@ -269,7 +269,7 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 		cs->last_hit=FALSE;
 
 		fInfo->fg->count=1;
-		g_hash_table_insert(cs->ip_id_set, GINT_TO_POINTER(fInfo->id), fInfo);
+		g_hash_table_insert(cs->ip_id_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 	} else {
 		/* Detect ongoing package hits, special behavior if start is set to 0 */
 		if((cs->last_hit||(compare_start==0))&&(cs->start_ongoing_hits<compare_start||(compare_start==0))){
@@ -304,7 +304,7 @@ call_foreach_count_ip_id(gpointer key _U_, gpointer value, gpointer arg)
 			nstime_add(&fInfo->delta, &delta);
 			time_stat_update(&cs->stats, &delta, pinfo);
 		}
-		g_hash_table_insert(cs->ip_id_set, GINT_TO_POINTER(fInfo->id), fInfo);
+		g_hash_table_insert(cs->ip_id_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 	}
 
 	/* collect TTL's */
@@ -326,27 +326,27 @@ call_foreach_new_order(gpointer key _U_, gpointer value, gpointer arg)
 	frame_info *fInfo=(frame_info*)value, *fInfoTemp;
 
 	/* overwrite Info column for new ordering */
-	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->nr_set, GINT_TO_POINTER(fInfo->id));
+	fInfoTemp=(frame_info *)g_hash_table_lookup(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id));
 	if(fInfoTemp==NULL){
 		if(TTL_method==FALSE){
 			if((ADDRESSES_EQUAL(&cs->eth_dst, &fInfo->dl_dst)) || (ADDRESSES_EQUAL(&cs->eth_src, &fInfo->dl_dst))){
-				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs=cs->zebra_time.nsecs + MERGED_FILES;
 			} else {
 				cs->zebra_time.nsecs++;
-				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs++;
 			}
 		} else {
 			if((g_array_index(cs->ip_ttl_list, guint8, 0)==fInfo->ip_ttl) || (g_array_index(cs->ip_ttl_list, guint8, 1)==fInfo->ip_ttl)){
-				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs=cs->zebra_time.nsecs + MERGED_FILES;
 			} else {
 				cs->zebra_time.nsecs++;
-				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER(fInfo->id), fInfo);
+				g_hash_table_insert(cs->nr_set, GINT_TO_POINTER((gint)fInfo->id), fInfo);
 				fInfo->zebra_time=cs->zebra_time;
 				cs->zebra_time.nsecs++;
 			}
