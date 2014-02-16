@@ -376,12 +376,12 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 
 	/* Some implementations adds some extra fields.
 	 * As far as I can see, these first add 3 padding bytes and then
-         * up to 4 32-bit values. (0,3,4 have been witnessed)
+	 * up to 4 32-bit values. (0,3,4 have been witnessed)
 	 *
 	 * RX as a protocol seems to be completely nondefined and seems to lack
 	 * any sort of documentation other than "read the source of any of the
 	 * (compatible?) implementations.
-         */
+	 */
 	if (tvb_length_remaining(tvb, offset)>3) {
 		offset += 3;	/* guess. some implementations adds 3 bytes */
 
@@ -782,3 +782,16 @@ proto_reg_handoff_rx(void)
 		dissector_add_uint("udp.port", port, rx_handle);
 	dissector_add_uint("udp.port", UDP_PORT_RX_AFS_BACKUPS, rx_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=yes:
+ */
