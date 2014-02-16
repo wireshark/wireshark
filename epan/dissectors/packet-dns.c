@@ -1435,11 +1435,9 @@ add_opt_rr_to_tree(proto_tree  *rr_tree, tvbuff_t *tvb, int offset,
   proto_tree_add_item(rr_tree, hf_dns_rr_edns0_version, tvb, offset, 1, ENC_NA);
   offset++;
   Z_item = proto_tree_add_item(rr_tree, hf_dns_rr_z, tvb, offset, 2, ENC_BIG_ENDIAN);
-  if (tvb_get_ntohs(tvb, offset) & 0x8000) {
-     Z_tree = proto_item_add_subtree(Z_item, ett_dns_rr);
-     proto_tree_add_item(Z_tree, hf_dns_rr_z_do, tvb, offset, 2, ENC_BIG_ENDIAN);
-     proto_tree_add_item(Z_tree, hf_dns_rr_z_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
+  Z_tree = proto_item_add_subtree(Z_item, ett_dns_rr);
+  proto_tree_add_item(Z_tree, hf_dns_rr_z_do, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(Z_tree, hf_dns_rr_z_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   proto_tree_add_item(rr_tree, hf_dns_rr_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
@@ -4063,7 +4061,7 @@ proto_register_dns(void)
 
     { &hf_dns_rr_z_do,
       { "DO bit", "dns.resp.z.do",
-        FT_BOOLEAN, 16, TFS(&tfs_dns_rr_z_do), 0x0001,
+        FT_BOOLEAN, 16, TFS(&tfs_dns_rr_z_do), 0x8000,
         "DNSSEC OK", HFILL }},
 
     { &hf_dns_rr_z_reserved,
