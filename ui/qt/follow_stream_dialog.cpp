@@ -845,7 +845,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         /* we got ssl so we can follow */
         removeStreamControls();
         if (!epan_dissect_packet_contains_field(cap_file_->edt, "ssl")) {
-            QMessageBox::critical(this, tr("Error following stream"),
+            QMessageBox::critical(this, tr("Error following stream."),
                                tr("Please make sure you have an SSL packet selected."));
             return false;
         }
