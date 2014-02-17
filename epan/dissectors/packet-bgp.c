@@ -5114,7 +5114,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             tlen = alen;
 
             ti_pa = proto_tree_add_item(subtree, hf_bgp_update_path_attribute, tvb, o + i, tlen + aoff, ENC_NA);
-            proto_item_append_text(ti_pa, " - %s", val_to_str_const(bgpa_type, bgpattr_type, "Unknown %d"));
+            proto_item_append_text(ti_pa, " - %s", val_to_str(bgpa_type, bgpattr_type, "Unknown (%u)"));
 
             subtree2 = proto_item_add_subtree(ti_pa, ett_bgp_attr);
 
