@@ -35,11 +35,11 @@
  * RFC4486 Subcodes for BGP Cease Notification Message
  * RFC4724 Graceful Restart Mechanism for BGP
  * RFC5512 BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute
+ * RFC5575 Dissemination of flow specification rules
  * RFC5640 Load-Balancing for Mesh Softwires
  * RFC6608 Subcodes for BGP Finite State Machine Error
- * RFC5575 Dissemination of flow specification rules
- * draft-ietf-idr-as4bytes-06
- * draft-ietf-idr-dynamic-cap-03
+ * RFC6793 BGP Support for Four-Octet Autonomous System (AS) Number Space
+ * draft-ietf-idr-dynamic-cap
  * draft-ietf-idr-bgp-enhanced-route-refresh-02
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
@@ -127,28 +127,33 @@ void proto_reg_handoff_bgp(void);
 #define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 
+/* https://www.iana.org/assignments/capability-codes/ (last updated 2013-11-19) */
 /* BGP capability code */
-#define BGP_CAPABILITY_RESERVED                    0    /* RFC2434 */
-#define BGP_CAPABILITY_MULTIPROTOCOL               1    /* RFC2858 */
-#define BGP_CAPABILITY_ROUTE_REFRESH               2    /* RFC2918 */
-#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING 3    /* draft-ietf-idr-route-filter-04.txt */
-#define BGP_CAPABILITY_GRACEFUL_RESTART            0x40    /* draft-ietf-idr-restart-05  */
-#define BGP_CAPABILITY_4_OCTET_AS_NUMBER           0x41    /* draft-ietf-idr-as4bytes-06 */
-#define BGP_CAPABILITY_DYNAMIC_CAPABILITY          0x42    /* draft-ietf-idr-dynamic-cap-03 */
-#define BGP_CAPABILITY_ADDITIONAL_PATHS            0x45    /* draft-ietf-idr-add-paths */
-#define BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH      0x46    /* draft-ietf-idr-bgp-enhanced-route-refresh-02 */
-#define BGP_CAPABILITY_ORF_CISCO                   0x82    /* Cisco */
-#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         0x80    /* Cisco */
+#define BGP_CAPABILITY_RESERVED                     0   /* RFC2434 */
+#define BGP_CAPABILITY_MULTIPROTOCOL                1   /* RFC2858 */
+#define BGP_CAPABILITY_ROUTE_REFRESH                2   /* RFC2918 */
+#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING  3   /* RFC5291 */
+#define BGP_CAPABILITY_MULTIPLE_ROUTE_DEST          4   /* RFC3107 */
+#define BGP_CAPABILITY_EXTENDED_NEXT_HOP            5   /* RFC5549 */
+#define BGP_CAPABILITY_GRACEFUL_RESTART             64  /* RFC4724 */
+#define BGP_CAPABILITY_4_OCTET_AS_NUMBER            65  /* RFC6793 */
+#define BGP_CAPABILITY_DYNAMIC_CAPABILITY           67  /* draft-ietf-idr-dynamic-cap */
+#define BGP_CAPABILITY_MULTISESSION                 68  /* draft-ietf-idr-bgp-multisession */
+#define BGP_CAPABILITY_ADDITIONAL_PATHS             69  /* draft-ietf-idr-add-paths */
+#define BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH       70  /* draft-ietf-idr-bgp-enhanced-route-refresh */
+#define BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART  71  /* draft-uttaro-idr-bgp-persistence */
+#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         128  /* Cisco */
+#define BGP_CAPABILITY_ORF_CISCO                   130  /* Cisco */
 
 #define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco */
 #define BGP_ORF_COMM_CISCO      0x81 /* Cisco */
 #define BGP_ORF_EXTCOMM_CISCO   0x82 /* Cisco */
 #define BGP_ORF_ASPATH_CISCO    0x83 /* Cisco */
 
-#define BGP_ORF_COMM        0x02 /* draft-ietf-idr-route-filter-06.txt */
-#define BGP_ORF_EXTCOMM     0x03 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_COMM        0x02 /* RFC5291 */
+#define BGP_ORF_EXTCOMM     0x03 /* RFC5291 */
 #define BGP_ORF_ASPATH      0x04 /* draft-ietf-idr-aspath-orf-02.txt */
-/* draft-ietf-idr-route-filter-06.txt */
+/* RFC5291 */
 #define BGP_ORF_ACTION      0xc0
 #define BGP_ORF_ADD         0x00
 #define BGP_ORF_REMOVE      0x01
@@ -929,7 +934,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { 0, NULL }
 };
 
-/* ORF Type, draft-ietf-idr-route-filter-04.txt */
+/* ORF Type, RFC5291 */
 static const value_string orf_type_vals[] = {
     {   2,      "Communities ORF-Type" },
     {   3,      "Extended Communities ORF-Type" },
@@ -940,7 +945,7 @@ static const value_string orf_type_vals[] = {
     { 0,        NULL }
 };
 
-/* ORF Send/Receive, draft-ietf-idr-route-filter-04.txt */
+/* ORF Send/Receive, RFC5291 */
 static const value_string orf_send_recv_vals[] = {
     { 1,        "Receive" },
     { 2,        "Send" },
@@ -948,7 +953,7 @@ static const value_string orf_send_recv_vals[] = {
     { 0,        NULL }
 };
 
-/* ORF Send/Receive, draft-ietf-idr-route-filter-04.txt */
+/* ORF Send/Receive, RFC5291 */
 static const value_string orf_when_vals[] = {
     { 1,        "Immediate" },
     { 2,        "Defer" },
@@ -969,17 +974,21 @@ static const value_string orf_entry_match_vals[] = {
 };
 
 static const value_string capability_vals[] = {
-    { BGP_CAPABILITY_RESERVED,                    "Reserved capability" },
-    { BGP_CAPABILITY_MULTIPROTOCOL,               "Multiprotocol extensions capability" },
-    { BGP_CAPABILITY_ROUTE_REFRESH,               "Route refresh capability" },
-    { BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING, "Cooperative route filtering capability" },
-    { BGP_CAPABILITY_GRACEFUL_RESTART,            "Graceful Restart capability" },
-    { BGP_CAPABILITY_4_OCTET_AS_NUMBER,           "Support for 4-octet AS number capability" },
-    { BGP_CAPABILITY_DYNAMIC_CAPABILITY,          "Support for Dynamic capability" },
-    { BGP_CAPABILITY_ADDITIONAL_PATHS,            "Support for Additional Paths" },
-    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,         "Route refresh capability" },
-    { BGP_CAPABILITY_ORF_CISCO,                   "Cooperative route filtering capability" },
-    { BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH,      "Enhanced route refresh capability" },
+    { BGP_CAPABILITY_RESERVED,                      "Reserved capability" },
+    { BGP_CAPABILITY_MULTIPROTOCOL,                 "Multiprotocol extensions capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH,                 "Route refresh capability" },
+    { BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING,   "Cooperative route filtering capability" },
+    { BGP_CAPABILITY_MULTIPLE_ROUTE_DEST,           "Multiple routes to a destination capability" },
+    { BGP_CAPABILITY_EXTENDED_NEXT_HOP,             "Extended Next Hop Encoding" },
+    { BGP_CAPABILITY_GRACEFUL_RESTART,              "Graceful Restart capability" },
+    { BGP_CAPABILITY_4_OCTET_AS_NUMBER,             "Support for 4-octet AS number capability" },
+    { BGP_CAPABILITY_DYNAMIC_CAPABILITY,            "Support for Dynamic capability" },
+    { BGP_CAPABILITY_MULTISESSION,                  "Multisession BGP Capability" },
+    { BGP_CAPABILITY_ADDITIONAL_PATHS,              "Support for Additional Paths" },
+    { BGP_CAPABILITY_ENHANCED_ROUTE_REFRESH,        "Enhanced route refresh capability" },
+    { BGP_CAPABILITY_LONG_LIVED_GRACEFUL_RESTART,   "Long-Lived Graceful Restart (LLGR) Capability" },
+    { BGP_CAPABILITY_ROUTE_REFRESH_CISCO,           "Route refresh capability" },
+    { BGP_CAPABILITY_ORF_CISCO,                     "Cooperative route filtering capability" },
     { 0, NULL }
 };
 
