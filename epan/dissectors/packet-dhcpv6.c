@@ -160,22 +160,6 @@ static int hf_option_ntpserver_mc_addr = -1;
 static int hf_packetcable_ccc_suboption = -1;
 static int hf_packetcable_ccc_pri_dhcp = -1;
 static int hf_packetcable_ccc_sec_dhcp = -1;
-static int hf_packetcable_ccc_prov_srv_type = -1;
-static int hf_packetcable_ccc_prov_srv_fqdn = -1;
-static int hf_packetcable_ccc_prov_srv_ipv4 = -1;
-static int hf_packetcable_ccc_as_krb_nominal_timeout = -1;
-static int hf_packetcable_ccc_as_krb_max_timeout = -1;
-static int hf_packetcable_ccc_as_krb_max_retry_count = -1;
-static int hf_packetcable_ccc_ap_krb_nominal_timeout = -1;
-static int hf_packetcable_ccc_ap_krb_max_timeout = -1;
-static int hf_packetcable_ccc_ap_krb_max_retry_count = -1;
-static int hf_packetcable_ccc_krb_realm = -1;
-static int hf_packetcable_ccc_tgt_flag = -1;
-static int hf_packetcable_ccc_tgt_flag_fetch = -1;
-static int hf_packetcable_ccc_prov_timer = -1;
-static int hf_packetcable_ccc_sec_tcm = -1;
-static int hf_packetcable_ccc_sec_tcm_provisioning_server = -1;
-static int hf_packetcable_ccc_sec_tcm_call_manager_server = -1;
 static int hf_packetcable_cccV6_suboption = -1;
 static int hf_packetcable_cccV6_pri_dss = -1;
 static int hf_packetcable_cccV6_sec_dss = -1;
@@ -549,7 +533,7 @@ static const value_string lq_query_vals[] = {
 #define CL_OPTION_VENDOR_OUI              0x0008 /* 8 */
 #define CL_OPTION_MODEL_NUMBER            0x0009 /* 9 */
 #define CL_OPTION_VENDOR_NAME             0x000a /* 10 */
-/* 11-32 is currently reserved */
+/* 11-32 are currently reserved */
 #define CL_OPTION_TFTP_SERVERS            0x0020 /* 32 */
 #define CL_OPTION_CONFIG_FILE_NAME        0x0021 /* 33 */
 #define CL_OPTION_SYSLOG_SERVERS          0x0022 /* 34 */
@@ -600,17 +584,17 @@ static const value_string cl_vendor_subopt_values[] = {
     { 0, NULL }
 };
 
+/* 17:2170: CL_OPTION_CCC */
 #define PKT_CCC_PRI_DHCP       0x0001
 #define PKT_CCC_SEC_DHCP       0x0002
-#define PKT_CCC_IETF_PROV_SRV  0x0003
-#define PKT_CCC_IETF_AS_KRB    0x0004
-#define PKT_CCC_IETF_AP_KRB    0x0005
-#define PKT_CCC_KRB_REALM      0x0006
-#define PKT_CCC_TGT_FLAG       0x0007
-#define PKT_CCC_PROV_TIMER     0x0008
-#define PKT_CCC_IETF_SEC_TKT   0x0009
-/** 10 -255 Reserved for future extensions **/
 
+static const value_string pkt_ccc_opt_vals[] = {
+    { PKT_CCC_PRI_DHCP,      "TSP's Primary DHCP Server" },
+    { PKT_CCC_SEC_DHCP,      "TSP's Secondary DHCP Server" },
+    { 0, NULL },
+};
+
+/* 17:2171: CL_OPTION_CCCV6 */
 #define PKT_CCCV6_PRI_DSS       0x0001
 #define PKT_CCCV6_SEC_DSS       0x0002
 #define PKT_CCCV6_IETF_PROV_SRV 0x0003
@@ -621,31 +605,6 @@ static const value_string cl_vendor_subopt_values[] = {
 #define PKT_CCCV6_PROV_TIMER    0x0008
 #define PKT_CCCV6_IETF_SEC_TKT  0x0009
 /** 10 -255 Reserved for future extensions **/
-
-static const value_string pkt_ccc_opt_vals[] = {
-    { PKT_CCC_PRI_DHCP,      "TSP's Primary DHCP Server" },
-    { PKT_CCC_SEC_DHCP,      "TSP's Secondary DHCP Server" },
-    { PKT_CCC_IETF_PROV_SRV, "TSP's Provisioning Server" },
-    { PKT_CCC_IETF_AS_KRB,   "TSP's AS-REQ/AS-REP Backoff and Retry" },
-    { PKT_CCC_IETF_AP_KRB,   "TSP's AP-REQ/AP-REP Backoff and Retry" },
-    { PKT_CCC_KRB_REALM,     "TSP's Kerberos Realm Name" },
-    { PKT_CCC_TGT_FLAG,      "TSP's Ticket Granting Server Utilization" },
-    { PKT_CCC_PROV_TIMER,    "TSP's Provisioning Timer Value" },
-    { PKT_CCC_IETF_SEC_TKT,  "PacketCable Security Ticket Control" },
-    { 0, NULL },
-};
-
-static const value_string pkt_ccc_prov_srv_type_vals[] = {
-    { 0,      "FQDN" },
-    { 1,      "IPv4" },
-    { 0, NULL },
-};
-
-static const value_string pkt_cccV6_prov_srv_type_vals[] = {
-    { 0,      "FQDN" },
-    { 1,      "IPv6" },
-    { 0, NULL },
-};
 
 static const value_string pkt_cccV6_opt_vals[] = {
     { PKT_CCCV6_PRI_DSS,        "TSP's Primary DHCPv6 Server Selector ID" },
@@ -658,6 +617,12 @@ static const value_string pkt_cccV6_opt_vals[] = {
     { PKT_CCCV6_PROV_TIMER,     "TSP's Provisioning Timer Value" },
     { PKT_CCCV6_IETF_SEC_TKT,   "PacketCable Security Ticket Control" },
     { 0, NULL }
+};
+
+static const value_string pkt_cccV6_prov_srv_type_vals[] = {
+    { 0,      "FQDN" },
+    { 1,      "IPv6" },
+    { 0, NULL },
 };
 
 #if 0
@@ -784,14 +749,8 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
         two octets each. **/
     int suboptoff = optoff;
     guint16 subopt, subopt_len;
-    guint8 type;
-    proto_item *vti, *ti;
+    proto_item *vti;
     proto_tree *pkt_s_tree;
-    guchar kr_name;       /** A character in the kerberos realm name option */
-    guint8 kr_value;      /* The integer value of the character currently being tested */
-    int kr_fail_flag = 0; /* Flag indicating an invalid character was found */
-    int kr_pos = 0;       /* The position of the first invalid character */
-    gint i = 0;
 
     subopt = tvb_get_ntohs(tvb, optoff);
     suboptoff += 2;
@@ -828,121 +787,6 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
             expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
         }
 
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_IETF_PROV_SRV :
-        proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-        type = tvb_get_guint8(tvb, suboptoff);
-
-        /** Type 0 is FQDN **/
-        if (type == 0) {
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_srv_fqdn, tvb, suboptoff+1, subopt_len-1, ENC_ASCII|ENC_NA);
-        }
-        /** Type 1 is IPv4 **/
-        else if (type == 1) {
-            if (subopt_len == 5) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_srv_ipv4, tvb, suboptoff+1, 4, ENC_BIG_ENDIAN);
-            }
-            else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-            }
-        }
-        else {
-            expert_add_info_format(pinfo, vti, &ei_dhcpv6_invalid_type, "Invalid type: %u (%u byte%s)",
-                type, subopt_len, plurality(subopt_len, "", "s"));
-        }
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_IETF_AS_KRB :
-        if (subopt_len == 12) {
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_as_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_as_krb_max_timeout, tvb, suboptoff+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_as_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
-        }
-        else {
-            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-        }
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_IETF_AP_KRB :
-        if (subopt_len == 12) {
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_ap_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_ap_krb_max_timeout, tvb, suboptoff+4, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_ap_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
-        }
-        else {
-            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-        }
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_KRB_REALM:
-        if (subopt_len > 0) {
-            /** The only allowable characters are
-                A-Z (upper case only) 65-90
-                '.', 46
-                '/', 47
-                '\', 92
-                '=', 61
-                '"', 34
-                ',', 44
-                and
-                ':' 58
-                so loop through and
-                make sure it conforms to the expected syntax.
-            **/
-            for (i=0; i < subopt_len; i++) {
-                kr_name = tvb_get_guint8(tvb, suboptoff + i);
-                kr_value = (int)kr_name;
-                if ((kr_value >= 65 && kr_value <= 90) ||
-                    kr_value == 34 ||
-                    kr_value == 44 ||
-                    kr_value == 46 ||
-                    kr_value == 47 ||
-                    kr_value == 58 ||
-                    kr_value == 61 ||
-                    kr_value == 92)   {
-                }
-                else if (!kr_fail_flag) {
-                    kr_pos = i;
-                    kr_fail_flag = 1;
-                }
-            }
-
-            ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_krb_realm, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
-            if (kr_fail_flag)
-                expert_add_info_format(pinfo, ti, &ei_dhcpv6_invalid_byte, "Invalid at byte=%d", kr_pos);
-        }
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_TGT_FLAG:
-        if (subopt_len == 1) {
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_tgt_flag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_tgt_flag_fetch, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-        }
-        else {
-            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-        }
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_PROV_TIMER:
-        if (subopt_len == 1) {
-            ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-            if (tvb_get_guint8(tvb, suboptoff ) > 30)
-                expert_add_info(pinfo, ti, &ei_dhcpv6_invalid_time_value);
-        }
-        else {
-            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-        }
-        suboptoff += subopt_len;
-        break;
-    case PKT_CCC_IETF_SEC_TKT :
-        proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
-        if (subopt_len == 2) {
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_tcm_provisioning_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_ccc_sec_tcm_call_manager_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
-        } else {
-            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-        }
         suboptoff += subopt_len;
         break;
     default:
@@ -2425,38 +2269,6 @@ proto_register_dhcpv6(void)
           { "Primary DHCP", "dhcpv6.packetcable.ccc.pri_dhcp", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_ccc_sec_dhcp,
           { "Secondary DHCP", "dhcpv6.packetcable.ccc.sec_dhcp", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_prov_srv_type,
-          { "Type", "dhcpv6.packetcable.ccc.prov_srv.type", FT_UINT8, BASE_DEC, VALS(pkt_ccc_prov_srv_type_vals), 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_prov_srv_fqdn,
-          { "FQDN", "dhcpv6.packetcable.ccc.prov_srv.fqdn", FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_prov_srv_ipv4,
-          { "IPv4 address", "dhcpv6.packetcable.ccc.prov_srv.ipv4", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_as_krb_nominal_timeout,
-          { "Nominal Timeout", "dhcpv6.packetcable.ccc.as_krb.nominal_timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_as_krb_max_timeout,
-          { "Maximum Timeout", "dhcpv6.packetcable.ccc.as_krb.max_timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_as_krb_max_retry_count,
-          { "Maximum Retry Count", "dhcpv6.packetcable.ccc.as_krb.max_retry_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_ap_krb_nominal_timeout,
-          { "Nominal Timeout", "dhcpv6.packetcable.ccc.ap_krb.nominal_timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_ap_krb_max_timeout,
-          { "Maximum Timeout", "dhcpv6.packetcable.ccc.ap_krb.max_timeout", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_ap_krb_max_retry_count,
-          { "Maximum Retry Count", "dhcpv6.packetcable.ccc.ap_krb.max_retry_count", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_krb_realm,
-          { "KRB Realm", "dhcpv6.packetcable.ccc.krb_realm", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_tgt_flag,
-          { "TGT Flags", "dhcpv6.packetcable.ccc.tgt_flag", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_tgt_flag_fetch,
-          { "Fetch TGT", "dhcpv6.packetcable.ccc.tgt_flag.fetch", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, NULL, HFILL }},
-        { &hf_packetcable_ccc_prov_timer,
-          { "Provisioning timer", "dhcpv6.packetcable.ccc.prov_timer", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_sec_tcm,
-          { "SEC TCM Flags", "dhcpv6.packetcable.ccc.sec_tcm", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-        { &hf_packetcable_ccc_sec_tcm_provisioning_server,
-          { "Provisioning Server", "dhcpv6.packetcable.ccc.sec_tcm.provisioning_server", FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x01, NULL, HFILL }},
-        { &hf_packetcable_ccc_sec_tcm_call_manager_server,
-          { "Call Manager Servers", "dhcpv6.packetcable.ccc.tgt_flag.call_manager_server", FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x02, NULL, HFILL }},
         { &hf_packetcable_cccV6_suboption,
           { "Sub element", "dhcpv6.packetcable.cccV6.suboption", FT_UINT16, BASE_DEC, VALS(pkt_cccV6_opt_vals), 0, NULL, HFILL }},
         { &hf_modem_capabilities_encoding_type,
