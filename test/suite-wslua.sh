@@ -169,6 +169,28 @@ wslua_step_args_test() {
 	test_step_ok
 }
 
+unittests_step_globals_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# Tshark catches lua script failures, so we have to parse the output.
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_globals.lua -X lua_script1:$TESTS_DIR/lua/ -X lua_script1:$TESTS_DIR/lua/globals_1.8.txt > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "lua_globals_test test 1 failed"
+	fi
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_globals.lua -X lua_script1:$TESTS_DIR/lua/ -X lua_script1:$TESTS_DIR/lua/globals_1.10.txt > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "lua_globals_test test 2 failed"
+	fi
+	test_step_ok
+}
+
 wslua_step_struct_test() {
 	if [ $HAVE_LUA -ne 0 ]; then
 		test_step_skipped
@@ -195,6 +217,7 @@ wslua_suite() {
 	test_step_set_post wslua_cleanup_step
 	test_step_add "wslua dissector" wslua_step_dissector_test
 	test_step_add "wslua field/fieldinfo" wslua_step_field_test
+	test_step_add "wslua globals" unittests_step_globals_test
 	test_step_add "wslua int64" wslua_step_int64_test
 	test_step_add "wslua listener" wslua_step_listener_test
 	test_step_add "wslua nstime" wslua_step_nstime_test

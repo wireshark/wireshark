@@ -708,6 +708,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 }
 
 WSLUA_METAMETHOD Columns__index(lua_State *L) {
+    /* Gets a specific Column */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname = luaL_checkstring(L,2);
@@ -778,6 +779,7 @@ WSLUA_CLASS_DEFINE(PrivateTable,FAIL_ON_NULL_OR_EXPIRED("PrivateTable"),NOP);
 	/* PrivateTable represents the pinfo->private_table. */
 
 WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
+    /* Gets debugging type information about the private table */
     PrivateTable priv = toPrivateTable(L,1);
     GString *key_string;
     GList *keys, *key;
