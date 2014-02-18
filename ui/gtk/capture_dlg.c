@@ -3055,6 +3055,10 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   gint          indx = -1;
   guint         i;
 
+  /* Initialise device */
+  device.locked = FALSE;
+  device.cfilter = NULL;
+
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter (model, &iter, path);
