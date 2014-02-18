@@ -421,7 +421,21 @@ draw_tap_listeners(gboolean draw_all)
 	}
 }
 
+/* Gets a GList of the tap names. The content of the list
+   is owned by the tap table and should not be modified or freed.
+   Use g_list_free() when done using the list. */
+GList*
+get_tap_names()
+{
+	GList *list = NULL;
+	tap_dissector_t *td;
 
+	for(td=tap_dissector_list; td; td=td->next) {
+		list = g_list_prepend(list, td->name);
+	}
+
+	return g_list_reverse(list);
+}
 
 /* **********************************************************************
  * Functions used by tap to

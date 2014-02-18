@@ -274,10 +274,10 @@ static void correctbytes (gchar *b, int size, int endian) {
 
 WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
   /* Returns a string containing the values arg1, arg2, etc. packed/encoded according to the format string. */
-#define WSLUA_ARG_Struct_unpack_FORMAT 1 /* The format string */
-#define WSLUA_ARG_Struct_unpack_STRUCT 2 /* One or more Lua value(s) to encode, based on the given format. */
+#define WSLUA_ARG_Struct_pack_FORMAT 1 /* The format string */
+#define WSLUA_ARG_Struct_pack_STRUCT 2 /* One or more Lua value(s) to encode, based on the given format. */
   luaL_Buffer b;
-  const char *fmt = luaL_checkstring(L, WSLUA_ARG_Struct_unpack_FORMAT);
+  const char *fmt = luaL_checkstring(L, WSLUA_ARG_Struct_pack_FORMAT);
   Header h;
   int poscnt = 0;
   int posBuf[10];
@@ -350,7 +350,7 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
   luaL_pushresult(&b);
   for (arg = 0; arg < poscnt; arg++)
     lua_pushinteger(L, posBuf[arg]);
-  return poscnt + 1;
+  WSLUA_RETURN(poscnt + 1); /* The packed binary Lua string, plus any positions due to '=' being used in format. */
 }
 
 /* Decodes an integer from a string struct into a Lua number, based on
@@ -476,14 +476,15 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
     pos += size;
   }
   lua_pushinteger(L, pos + 1);
-  return lua_gettop(L) - 2;
+  WSLUA_RETURN(lua_gettop(L) - 2); /* One or more values based on format, plus the posoition it stopped unpacking. */
 }
 
 
 WSLUA_CONSTRUCTOR Struct_size (lua_State *L) {
   /* Returns the length of the binary string struct that would be consumed/handled by the given format string. */
+#define WSLUA_ARG_Struct_size_FORMAT 1 /* The format string */
   Header h;
-  const gchar *fmt = luaL_checkstring(L, 1);
+  const gchar *fmt = luaL_checkstring(L, WSLUA_ARG_Struct_size_FORMAT);
   size_t pos = 0;
   defaultoptions(&h);
   while (*fmt) {
@@ -499,7 +500,48 @@ WSLUA_CONSTRUCTOR Struct_size (lua_State *L) {
     pos += size;
   }
   lua_pushinteger(L, pos);
-  return 1;
+  WSLUA_RETURN(1); /* The size number */
+}
+
+WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
+  /* Converts the passed-in binary string to a hex-ascii string. */
+#define WSLUA_ARG_Struct_tohex_BYTESTRING 1 /* A Lua string consisting of binary bytes */
+#define WSLUA_OPTARG_Struct_tohex_LOWERCASE 2 /* True to use lower-case hex characters (default=false). */
+#define WSLUA_OPTARG_Struct_tohex_SEPARATOR 3 /* A string separator to insert between hex bytes (default=nil). */
+  const gchar* s = NULL;
+  size_t len = 0;
+  gboolean lowercase = FALSE;
+  const gchar* sep = NULL;
+
+  s = luaL_checklstring(L,WSLUA_ARG_Struct_tohex_BYTESTRING,&len);
+
+  if (!s)
+    WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
+
+  lowercase = wslua_optbool(L,WSLUA_OPTARG_Struct_tohex_LOWERCASE,FALSE);
+  sep = luaL_optstring(L,WSLUA_OPTARG_Struct_tohex_SEPARATOR,NULL);
+
+  wslua_bin2hex(L, s, (guint)len, lowercase, sep);
+  WSLUA_RETURN(1); /* The Lua hex-ascii string */
+}
+
+WSLUA_CONSTRUCTOR Struct_fromhex (lua_State *L) {
+  /* Converts the passed-in hex-ascii string to a binary string. */
+#define WSLUA_ARG_Struct_fromhex_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
+#define WSLUA_OPTARG_Struct_fromhex_SEPARATOR 2 /* A string separator between hex bytes/words (default=" "). */
+  const gchar* s = NULL;
+  size_t len = 0;
+  const gchar* sep = NULL;
+
+  s = luaL_checklstring(L,WSLUA_ARG_Struct_fromhex_HEXBYTES,&len);
+
+  if (!s)
+    WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
+
+  sep = luaL_optstring(L,WSLUA_OPTARG_Struct_fromhex_SEPARATOR,NULL);
+
+  wslua_hex2bin(L, s, (guint)len, sep);
+  WSLUA_RETURN(1); /* The Lua binary string */
 }
 
 /* }====================================================== */
@@ -510,9 +552,11 @@ static int Struct__gc(lua_State* L _U_) {
 }
 
 WSLUA_METHODS Struct_methods[] = {
-  {"pack", Struct_pack},
-  {"unpack", Struct_unpack},
-  {"size", Struct_size},
+  WSLUA_CLASS_FNREG(Struct,pack),
+  WSLUA_CLASS_FNREG(Struct,unpack),
+  WSLUA_CLASS_FNREG(Struct,size),
+  WSLUA_CLASS_FNREG(Struct,tohex),
+  WSLUA_CLASS_FNREG(Struct,fromhex),
   { NULL, NULL }
 };
 

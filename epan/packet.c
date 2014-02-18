@@ -2124,6 +2124,15 @@ dissector_handle_get_protocol_index(const dissector_handle_t handle)
 	return proto_get_id(handle->protocol);
 }
 
+/* Get a GList of all registered dissector names. The content of the list
+   is owned by the hash table and should not be modified or freed.
+   Use g_list_free() when done using the list. */
+GList*
+get_dissector_names()
+{
+	return g_hash_table_get_keys(registered_dissectors);
+}
+
 /* Find a registered dissector by name. */
 dissector_handle_t
 find_dissector(const char *name)

@@ -41,39 +41,34 @@ WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"),NOP);
 
 WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a ByteArray Object */
 #define WSLUA_OPTARG_ByteArray_new_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
+#define WSLUA_OPTARG_ByteArray_new_SEPARATOR 2 /* A string separator between hex bytes/words (default=" "); or if the boolean value 'true' is used, then the first arg is treated as raw binary data */
     GByteArray* ba = g_byte_array_new();
     const gchar* s;
-    int nibble[2];
-    int i = 0;
-    gchar c;
+    size_t len = 0;
+    const gchar* sep = " ";
+    gboolean ishex = TRUE;
 
-    if (lua_gettop(L) == 1) {
-        s = luaL_checkstring(L,WSLUA_OPTARG_ByteArray_new_HEXBYTES);
+    if (lua_gettop(L) >= 1) {
+        s = luaL_checklstring(L,WSLUA_OPTARG_ByteArray_new_HEXBYTES,&len);
 
         if (!s)
             WSLUA_OPTARG_ERROR(ByteArray_new,HEXBYTES,"must be a string");
 
-        /* XXX: slow! */
-        for (; (c = *s); s++) {
-            switch(c) {
-                case '0': case '1': case '2': case '3': case '4': case '5' : case '6' : case '7': case '8' : case '9' :
-                    nibble[(i++)%2] = c - '0';
-                    break;
-                case 'a': case 'b': case 'c': case 'd': case 'e': case 'f' :
-                    nibble[(i++)%2] = c - 'a' + 0xa;
-                    break;
-                case 'A': case 'B': case 'C': case 'D': case 'E': case 'F' :
-                    nibble[(i++)%2] = c - 'A' + 0xa;
-                    break;
-                default:
-                    break;
+        if (lua_gettop(L) >= 2) {
+            if (lua_type(L,2) == LUA_TBOOLEAN && lua_toboolean(L,2)) {
+                ishex = FALSE;
+            } else {
+                sep = luaL_optstring(L,WSLUA_OPTARG_ByteArray_new_SEPARATOR," ");
             }
+        }
 
-            if ( i == 2 ) {
-                guint8 b = (guint8)(nibble[0] * 16 + nibble[1]);
-                g_byte_array_append(ba,&b,1);
-                i = 0;
-            }
+        if (ishex) {
+            wslua_hex2bin(L, s, (guint)len, sep);   /* this pushes a new string on top of stack */
+            s = luaL_checklstring(L, -1, &len);     /* get the new binary string */
+            g_byte_array_append(ba,s,(guint)len);   /* copy it into ByteArray */
+            lua_pop(L,1);                           /* pop the newly created string */
+        } else {
+            g_byte_array_append(ba,s,(guint)len);
         }
     }
 
@@ -211,8 +206,8 @@ WSLUA_METHOD ByteArray_len(lua_State* L) {
 }
 
 WSLUA_METHOD ByteArray_subset(lua_State* L) {
-	/* Obtain a segment of a ByteArray */
-#define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* The position of the first byte */
+	/* Obtain a segment of a ByteArray, as a new ByteArray. */
+#define WSLUA_ARG_ByteArray_set_index_OFFSET 2 /* The position of the first byte (0=first) */
 #define WSLUA_ARG_ByteArray_set_index_LENGTH 3 /* The length of the segment */
     ByteArray ba = checkByteArray(L,1);
     int offset = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_OFFSET);
@@ -252,42 +247,54 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     WSLUA_RETURN(1); /* The created ByteArray. */
 }
 
-WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
-	/* Obtain a string containing the bytes in a ByteArray so that it can be used in display filters (e.g. "01FE456789AB") */
-    static const char byte_to_str[][3] = {
-        "00","01","02","03","04","05","06","07","08","09","0A","0B","0C","0D","0E","0F",
-        "10","11","12","13","14","15","16","17","18","19","1A","1B","1C","1D","1E","1F",
-        "20","21","22","23","24","25","26","27","28","29","2A","2B","2C","2D","2E","2F",
-        "30","31","32","33","34","35","36","37","38","39","3A","3B","3C","3D","3E","3F",
-        "40","41","42","43","44","45","46","47","48","49","4A","4B","4C","4D","4E","4F",
-        "50","51","52","53","54","55","56","57","58","59","5A","5B","5C","5D","5E","5F",
-        "60","61","62","63","64","65","66","67","68","69","6A","6B","6C","6D","6E","6F",
-        "70","71","72","73","74","75","76","77","78","79","7A","7B","7C","7D","7E","7F",
-        "80","81","82","83","84","85","86","87","88","89","8A","8B","8C","8D","8E","8F",
-        "90","91","92","93","94","95","96","97","98","99","9A","9B","9C","9D","9E","9F",
-        "A0","A1","A2","A3","A4","A5","A6","A7","A8","A9","AA","AB","AC","AD","AE","AF",
-        "B0","B1","B2","B3","B4","B5","B6","B7","B8","B9","BA","BB","BC","BD","BE","BF",
-        "C0","C1","C2","C3","C4","C5","C6","C7","C8","C9","CA","CB","CC","CD","CE","CF",
-        "D0","D1","D2","D3","D4","D5","D6","D7","D8","D9","DA","DB","DC","DD","DE","DF",
-        "E0","E1","E2","E3","E4","E5","E6","E7","E8","E9","EA","EB","EC","ED","EE","EF",
-        "F0","F1","F2","F3","F4","F5","F6","F7","F8","F9","FA","FB","FC","FD","FE","FF"
-    };
+WSLUA_METHOD ByteArray_raw(lua_State* L) {
+    /* Obtain a Lua string of the binary bytes in a ByteArray. */
+#define WSLUA_OPTARG_ByteArray_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
+#define WSLUA_OPTARG_ByteArray_raw_LENGTH 3 /* The length of the segment to get (default=all). */
     ByteArray ba = checkByteArray(L,1);
-    int i;
-    GString* s;
+    guint offset = (guint) luaL_optint(L,WSLUA_OPTARG_ByteArray_raw_OFFSET,0);
+    int len;
+
+    if (!ba) return 0;
+    if (offset > ba->len)
+        WSLUA_OPTARG_ERROR(ByteArray_raw,OFFSET,"offset beyond end of byte array");
+
+    len = luaL_optint(L,WSLUA_OPTARG_ByteArray_raw_LENGTH, ba->len - offset);
+    if ((len < 0) || ((guint)len > (ba->len - offset)))
+        len = ba->len - offset;
+
+    lua_pushlstring(L, &(ba->data[offset]), len);
+
+    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the ByteArray. */
+}
+
+WSLUA_METHOD ByteArray_tohex(lua_State* L) {
+    /* Obtain a Lua string of the bytes in a ByteArray as hex-ascii, with given separator */
+#define WSLUA_OPTARG_ByteArray_tohex_LOWERCASE 2 /* True to use lower-case hex characters (default=false). */
+#define WSLUA_OPTARG_ByteArray_tohex_SEPARATOR 3 /* A string separator to insert between hex bytes (default=nil). */
+    ByteArray ba = checkByteArray(L,1);
+    gboolean lowercase = FALSE;
+    const gchar* sep = NULL;
 
     if (!ba) return 0;
 
-    s = g_string_new("");
+    lowercase = wslua_optbool(L,WSLUA_OPTARG_ByteArray_tohex_LOWERCASE,FALSE);
+    sep = luaL_optstring(L,WSLUA_OPTARG_ByteArray_tohex_SEPARATOR,NULL);
 
-    for (i = 0; i < (int)ba->len; i++) {
-        g_string_append(s,byte_to_str[(ba->data)[i]]);
-    }
+    wslua_bin2hex(L, ba->data, ba->len, lowercase, sep);
 
-    lua_pushstring(L,s->str);
-    g_string_free(s,TRUE);
+    WSLUA_RETURN(1); /* A hex-ascii string representation of the ByteArray. */
+}
 
-    WSLUA_RETURN(1); /* A hex-ascii string containing a representation of the ByteArray. */
+WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
+	/* Obtain a Lua string containing the bytes in a ByteArray so that it can be used in display filters (e.g. "01FE456789AB") */
+    ByteArray ba = checkByteArray(L,1);
+
+    if (!ba) return 0;
+
+    wslua_bin2hex(L, ba->data, ba->len, FALSE, NULL);
+
+    WSLUA_RETURN(1); /* A hex-ascii string representation of the ByteArray. */
 }
 
 static int ByteArray_tvb (lua_State *L);
@@ -303,6 +310,8 @@ WSLUA_METHODS ByteArray_methods[] = {
     WSLUA_CLASS_FNREG(ByteArray,base64_decode),
     WSLUA_CLASS_FNREG(ByteArray,get_index),
     WSLUA_CLASS_FNREG(ByteArray,set_index),
+    WSLUA_CLASS_FNREG(ByteArray,tohex),
+    WSLUA_CLASS_FNREG(ByteArray,raw),
     { NULL, NULL }
 };
 
@@ -434,7 +443,7 @@ WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
 }
 
 WSLUA_CONSTRUCTOR TvbRange_tvb (lua_State *L) {
-	/* Creates a (sub)Tvb from using a TvbRange */
+	/* Creates a (sub)Tvb from a TvbRange */
 #define WSLUA_ARG_Tvb_new_subset_RANGE 1 /* The TvbRange from which to create the new Tvb. */
 
     TvbRange tvbr = checkTvbRange(L,WSLUA_ARG_Tvb_new_subset_RANGE);
@@ -579,12 +588,46 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
     return 0;
 }
 
+WSLUA_METHOD Tvb_raw(lua_State* L) {
+    /* Obtain a Lua string of the binary bytes in a Tvb. */
+#define WSLUA_OPTARG_Tvb_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
+#define WSLUA_OPTARG_Tvb_raw_LENGTH 3 /* The length of the segment to get (default=all). */
+    Tvb tvb = checkTvb(L,1);
+    int offset = luaL_optint(L,WSLUA_OPTARG_Tvb_raw_OFFSET,0);
+    int len = luaL_optint(L,WSLUA_OPTARG_Tvb_raw_LENGTH,-1);
+
+    if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if ((guint)offset > tvb_length(tvb->ws_tvb))
+        WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
+
+    if (len == -1) {
+        len = tvb_length_remaining(tvb->ws_tvb,offset);
+        if (len < 0) {
+            luaL_error(L,"out of bounds");
+            return FALSE;
+        }
+    } else if ( (guint)(len + offset) > tvb_length(tvb->ws_tvb)) {
+        luaL_error(L,"Range is out of bounds");
+        return FALSE;
+    }
+
+    lua_pushlstring(L, tvb_get_ptr(tvb->ws_tvb, offset, len), len);
+
+    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the Tvb. */
+}
+
 WSLUA_METHODS Tvb_methods[] = {
     WSLUA_CLASS_FNREG(Tvb,range),
     WSLUA_CLASS_FNREG(Tvb,len),
     WSLUA_CLASS_FNREG(Tvb,offset),
     WSLUA_CLASS_FNREG(Tvb,reported_len),
     WSLUA_CLASS_FNREG(Tvb,reported_length_remaining),
+    WSLUA_CLASS_FNREG(Tvb,raw),
     { NULL, NULL }
 };
 
@@ -1360,6 +1403,39 @@ WSLUA_METHOD TvbRange_offset(lua_State* L) {
     return 1;
 }
 
+WSLUA_METHOD TvbRange_raw(lua_State* L) {
+    /* Obtain a Lua string of the binary bytes in a TvbRange. */
+#define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte (default=0/first). */
+#define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get (default=all). */
+    TvbRange tvbr = checkTvbRange(L,1);
+    int offset = luaL_optint(L,WSLUA_OPTARG_TvbRange_raw_OFFSET,0);
+    int len = luaL_optint(L,WSLUA_OPTARG_TvbRange_raw_LENGTH,-1);
+
+    if (!tvbr || !tvbr->tvb) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if ((guint)offset > tvb_length(tvbr->tvb->ws_tvb))
+        WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
+
+    if (len == -1) {
+        len = tvb_length_remaining(tvbr->tvb->ws_tvb,offset);
+        if (len < 0) {
+            luaL_error(L,"out of bounds");
+            return FALSE;
+        }
+    } else if ( (guint)(len + offset) > tvb_length(tvbr->tvb->ws_tvb)) {
+        luaL_error(L,"Range is out of bounds");
+        return FALSE;
+    }
+
+    lua_pushlstring(L, tvb_get_ptr(tvbr->tvb->ws_tvb, offset, len), len);
+
+    WSLUA_RETURN(1); /* A Lua string of the binary bytes in the TvbRange. */
+}
+
 
 WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
 	/* Converts the TvbRange into a string. As the string gets truncated
@@ -1407,6 +1483,7 @@ WSLUA_METHODS TvbRange_methods[] = {
     WSLUA_CLASS_FNREG(TvbRange,le_ustringz),
     WSLUA_CLASS_FNREG(TvbRange,ustringz),
     WSLUA_CLASS_FNREG(TvbRange,uncompress),
+    WSLUA_CLASS_FNREG(TvbRange,raw),
     { NULL, NULL }
 };
 

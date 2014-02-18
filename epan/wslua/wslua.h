@@ -572,4 +572,7 @@ extern int wslua_set_tap_enums(lua_State* L);
 
 extern int wslua_is_field_available(lua_State* L, const char* field_abbr);
 
+extern int wslua_bin2hex(lua_State* L, const guint8* data, const guint len, const gboolean lowercase, const gchar* sep);
+extern int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* sep);
+
 #endif

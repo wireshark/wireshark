@@ -230,6 +230,35 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     WSLUA_RETURN(1); /* The newly created Listener listener object */
 }
 
+/* Allow dissector key names to be sorted alphabetically */
+static gint
+compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
+{
+  return strcmp((const char*)dissector_a, (const char*)dissector_b);
+}
+
+WSLUA_CONSTRUCTOR Listener_list (lua_State *L) {
+    /* Gets a Lua array table of all registered Listener tap names.
+       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+    GList* list = get_tap_names();
+    GList* elist = NULL;
+    int i = 1;
+
+    if (!list) return luaL_error(L,"Cannot retrieve tap name list");
+
+    list = g_list_sort(list, (GCompareFunc)compare_dissector_key_name);
+    elist = g_list_first(list);
+
+    lua_newtable(L);
+    for (i=1; elist; i++, elist = g_list_next(elist)) {
+        lua_pushstring(L,(const char *) elist->data);
+        lua_rawseti(L,1,i);
+    }
+
+    g_list_free(list);
+    WSLUA_RETURN(1); /* The array table of registered tap names */
+}
+
 WSLUA_METHOD Listener_remove(lua_State* L) {
     /* Removes a tap listener */
     Listener tap = checkListener(L,1);
@@ -292,6 +321,7 @@ WSLUA_ATTRIBUTES Listener_attributes[] = {
 WSLUA_METHODS Listener_methods[] = {
     WSLUA_CLASS_FNREG(Listener,new),
     WSLUA_CLASS_FNREG(Listener,remove),
+    WSLUA_CLASS_FNREG(Listener,list),
     { NULL, NULL }
 };
 

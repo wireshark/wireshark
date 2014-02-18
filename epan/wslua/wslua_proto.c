@@ -1683,6 +1683,35 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
         WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
 }
 
+/* Allow dissector key names to be sorted alphabetically */
+static gint
+compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
+{
+  return strcmp((const char*)dissector_a, (const char*)dissector_b);
+}
+
+WSLUA_CONSTRUCTOR Dissector_list (lua_State *L) {
+    /* Gets a Lua array table of all registered Dissector names.
+       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+    GList* list = get_dissector_names();
+    GList* elist = NULL;
+    int i = 1;
+
+    if (!list) return luaL_error(L,"Cannot retrieve Dissector name list");
+
+    list = g_list_sort(list, (GCompareFunc)compare_dissector_key_name);
+    elist = g_list_first(list);
+
+    lua_newtable(L);
+    for (i=1; elist; i++, elist = g_list_next(elist)) {
+        lua_pushstring(L,(const char *) elist->data);
+        lua_rawseti(L,1,i);
+    }
+
+    g_list_free(list);
+    WSLUA_RETURN(1); /* The array table of registered dissector names */
+}
+
 WSLUA_METHOD Dissector_call(lua_State* L) {
     /* Calls a dissector against a given packet (or part of it) */
 #define WSLUA_ARG_Dissector_call_TVB 2 /* The buffer to dissect */
@@ -1727,6 +1756,7 @@ static int Dissector__gc(lua_State* L _U_) {
 WSLUA_METHODS Dissector_methods[] = {
     WSLUA_CLASS_FNREG(Dissector,get),
     WSLUA_CLASS_FNREG(Dissector,call),
+    WSLUA_CLASS_FNREG(Dissector,list),
     { NULL, NULL }
 };
 

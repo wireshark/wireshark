@@ -23,10 +23,17 @@ end
 -- auxiliar function to print an hexadecimal `dump' of a given string
 -- (not used by the test)
 --
-local function bp (s)
+local function tohex(s, sep)
+  local patt = "%02x" .. (sep or "")
   s = string.gsub(s, "(.)", function(c)
-        return string.format("\\%02x", string.byte(c))
+        return string.format(patt, string.byte(c))
       end)
+  if sep then s = s:sub(1,-(sep:len()+1)) end
+  return s
+end
+
+local function bp (s)
+  s = tohex(s)
   print(s)
 end
 
@@ -64,6 +71,18 @@ test("basic_size2", lib.size(fmt1_le) == Struct.size(fmt1_be))
 test("basic_size3", lib.size(fmt1_le) == Struct.size(fmt1_64le))
 test("basic_size4", lib.size(fmt2_be) == Struct.size(fmt1_64le))
 
+testing("tohex")
+local val1hex = "2A:00:00:00:00:00:00:01:00:00:00:02:00:00:00:03:00:00:00:04"
+test("tohex1", Struct.tohex(val1) == tohex(val1):upper())
+test("tohex2", Struct.tohex(val1,true) == tohex(val1))
+test("tohex3", Struct.tohex(val1,false,":") == val1hex)
+test("tohex4", Struct.tohex(val1,true,":") == val1hex:lower())
+
+testing("fromhex")
+test("fromhex1", Struct.fromhex(val1hex,":") == val1)
+local val1hex2 = val1hex:gsub(":","")
+test("fromhex2", Struct.fromhex(val1hex2) == val1)
+test("fromhex3", Struct.fromhex(val1hex2:lower()) == val1)
 
 testing("basic unpack")
 local ret1, ret2, ret3, ret4, ret5, pos = lib.unpack(fmt1_le, val1)

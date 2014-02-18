@@ -167,7 +167,7 @@ local MYDNS_PROTO_UDP_PORT = 65333
 -- some forward "declarations" of helper functions we use in the dissector
 -- I don't usually use this trick, but it'll help reading/grok'ing this script I think
 -- if we don't focus on them.
-local byteArray2String, getQueryName
+local getQueryName
 
 
 ----------------------------------------
@@ -327,19 +327,6 @@ udp_encap_table:add(MYDNS_PROTO_UDP_PORT, dns)
 ----------------------------------------
 
 ----------------------------------------
--- a helper function used later
--- note that it doesn't use "local" because it's already been declared as a local
--- variable way earlier in this script (as a form of forward declaration)
-byteArray2String = function (barray, begin, length)
-    local word = {}
-    for i = 1, length do
-        word[i] = string.char(barray:get_index(begin))
-        begin = begin + 1
-    end
-    return table.concat(word)
-end
-
-----------------------------------------
 -- DNS query names are not just null-terminated strings; they're actually a sequence of
 -- 'labels', with a length octet before each one.  So "foobar.com" is actually the
 -- string "\06foobar\03com\00".  We could create a ProtoField for label_length and label_name
@@ -373,10 +360,8 @@ getQueryName = function (tvbr)
             return nil, "invalid label length of "..label_len
         end
         pos = pos + 1  -- move past label length octet
-        -- sadly, there's no current way to get a raw Lua string from a ByteArray (nor from Tvb for that matter)
-        -- so we need to do it one character at a a time
         -- append the label and a dot to name string
-        name = name .. byteArray2String(barray, pos, label_len) .. "."
+        name = name .. barray:raw(pos, label_len) .. "."
         len_remaining = len_remaining - (label_len + 1) -- subtract label and its length octet
         label_count = label_count + 1
         pos = pos + label_len -- move past label

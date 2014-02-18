@@ -495,6 +495,34 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
     WSLUA_RETURN(1); /* The field extractor */
 }
 
+WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
+    /* Gets a Lua array table of all registered field filter names.
+       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+    void *cookie, *cookie2;
+    int i = -1;
+    int count = 0;
+    header_field_info *hfinfo = NULL;
+
+    lua_newtable(L);
+
+    for (i = proto_get_first_protocol(&cookie); i != -1;
+         i = proto_get_next_protocol(&cookie)) {
+
+        for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
+         hfinfo = proto_get_next_protocol_field(&cookie2)) {
+
+            if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
+                continue;
+
+            count++;
+            lua_pushstring(L,hfinfo->abbrev);
+            lua_rawseti(L,1,count);
+        }
+    }
+
+    WSLUA_RETURN(1); /* The array table of field filter names */
+}
+
 WSLUA_METAMETHOD Field__call (lua_State* L) {
     /* Obtain all values (see FieldInfo) for this field. */
     Field f = checkField(L,1);
@@ -549,6 +577,7 @@ static int Field__gc(lua_State* L _U_) {
 
 WSLUA_METHODS Field_methods[] = {
     WSLUA_CLASS_FNREG(Field,new),
+    WSLUA_CLASS_FNREG(Field,list),
     { NULL, NULL }
 };
 
