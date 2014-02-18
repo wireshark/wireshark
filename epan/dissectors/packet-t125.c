@@ -10,8 +10,6 @@
  * Routines for t125 packet dissection
  * Copyright 2007, Ronnie Sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -84,7 +82,7 @@ static int hf_t125_connect_additional = -1;       /* Connect_Additional */
 static int hf_t125_connect_result = -1;           /* Connect_Result */
 
 /*--- End of included file: packet-t125-hf.c ---*/
-#line 50 "../../asn1/t125/packet-t125-template.c"
+#line 48 "../../asn1/t125/packet-t125-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
@@ -103,7 +101,7 @@ static gint ett_t125_Connect_Result_U = -1;
 static gint ett_t125_ConnectMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
-#line 58 "../../asn1/t125/packet-t125-template.c"
+#line 56 "../../asn1/t125/packet-t125-template.c"
 
 static heur_dissector_list_t t125_heur_subdissector_list;
 
@@ -182,7 +180,7 @@ dissect_t125_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static int
 dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/t125/t125.cnf"
+#line 98 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -259,7 +257,7 @@ dissect_t125_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "../../asn1/t125/t125.cnf"
+#line 107 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
@@ -386,7 +384,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
-#line 62 "../../asn1/t125/packet-t125-template.c"
+#line 60 "../../asn1/t125/packet-t125-template.c"
 
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -590,7 +588,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 161 "../../asn1/t125/packet-t125-template.c"
+#line 159 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -607,7 +605,7 @@ void proto_register_t125(void) {
     &ett_t125_ConnectMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 167 "../../asn1/t125/packet-t125-template.c"
+#line 165 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */

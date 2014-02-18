@@ -4,8 +4,6 @@
 -- Standard ECMA-264, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-264.htm
 --
--- $Id$
---
 
 Call-Interruption-Operations-asn1-97 
 {iso (1) standard (0) pss1-call-interruption (15992) call-interruption-operations-asn1-97 (2) } 

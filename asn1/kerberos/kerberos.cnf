@@ -1,7 +1,6 @@
 # kerberos.cnf
 # kerberos conformation file
 # Copyright 2008 Anders Broman 
-# $Id$
 
 #.FIELD_RENAME
 #EncryptedData/etype encryptedData_etype

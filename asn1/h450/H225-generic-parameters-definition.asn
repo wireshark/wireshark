@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.1/1998/H225-generic-parameters-definition.asn
 --
--- $Id$
---
 
 -- Module H225-generic-parameters-definition (H.450.1:02/1998)
 H225-generic-parameters-definition {itu-t recommendation h 450 1 version1(0)

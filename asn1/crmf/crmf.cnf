@@ -1,8 +1,6 @@
 # CRMF.cnf
 # CRMF conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 PKIX1Explicit88	pkix1explicit
 PKIX1Implicit88	pkix1implicit

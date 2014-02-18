@@ -9,8 +9,6 @@
 /* packet-llc-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -46,6 +44,6 @@ int dissect_lte_rrc_HandoverPreparationInformation_PDU(tvbuff_t *tvb _U_, packet
 int dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lte-rrc-exp.h ---*/
-#line 29 "../../asn1/lte-rrc/packet-lte-rrc-template.h"
+#line 27 "../../asn1/lte-rrc/packet-lte-rrc-template.h"
 
 #endif  /* PACKET_LTE_RRC_H */

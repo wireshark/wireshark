@@ -4,8 +4,6 @@
 -- Standard ECMA-284, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-284.htm
 --
--- $Id$
---
 
 Private-User-Mobility-Call-Handling-Operations-asn1-97
   { iso (1) standard (0) pss1-pum-call-handling (17878) pum-call-handling-operations-asn1-97 (1)}

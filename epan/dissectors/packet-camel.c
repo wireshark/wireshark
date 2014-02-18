@@ -16,8 +16,6 @@
  * Updated to 3GPP TS 29.078 version 7.3.0 Release 7 (2006-06)
  * Built from the gsm-map dissector Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -609,7 +607,7 @@ static int hf_camel_present = -1;                 /* INTEGER */
 static int hf_camel_InvokeId_present = -1;        /* InvokeId_present */
 
 /*--- End of included file: packet-camel-hf.c ---*/
-#line 116 "../../asn1/camel/packet-camel-template.c"
+#line 114 "../../asn1/camel/packet-camel-template.c"
 
 static struct camelsrt_info_t * gp_camelsrt_info;
 
@@ -838,7 +836,7 @@ static gint ett_camel_T_problem = -1;
 static gint ett_camel_InvokeId = -1;
 
 /*--- End of included file: packet-camel-ett.c ---*/
-#line 146 "../../asn1/camel/packet-camel-template.c"
+#line 144 "../../asn1/camel/packet-camel-template.c"
 
 static expert_field ei_camel_unknown_invokeData = EI_INIT;
 static expert_field ei_camel_unknown_returnResultData = EI_INIT;
@@ -1183,7 +1181,7 @@ static const value_string camel_ectTreatmentIndicator_values[] = {
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-camel-val.h ---*/
-#line 306 "../../asn1/camel/packet-camel-template.c"
+#line 304 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table.c ---*/
@@ -1273,7 +1271,7 @@ static const value_string camel_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-camel-table.c ---*/
-#line 308 "../../asn1/camel/packet-camel-template.c"
+#line 306 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * DEBUG fonctions
@@ -7058,7 +7056,7 @@ static void dissect_CAP_U_ABORT_REASON_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
 
 
 /*--- End of included file: packet-camel-fn.c ---*/
-#line 377 "../../asn1/camel/packet-camel-template.c"
+#line 375 "../../asn1/camel/packet-camel-template.c"
 
 
 /*--- Included file: packet-camel-table2.c ---*/
@@ -7265,7 +7263,7 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset,a
 
 
 /*--- End of included file: packet-camel-table2.c ---*/
-#line 379 "../../asn1/camel/packet-camel-template.c"
+#line 377 "../../asn1/camel/packet-camel-template.c"
 
 /*
  * Functions needed for Hash-Table
@@ -8120,7 +8118,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1226 "../../asn1/camel/packet-camel-template.c"
+#line 1224 "../../asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback);
     g_free(ssn_range);
@@ -10234,7 +10232,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1399 "../../asn1/camel/packet-camel-template.c"
+#line 1397 "../../asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10449,7 +10447,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1415 "../../asn1/camel/packet-camel-template.c"
+#line 1413 "../../asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {

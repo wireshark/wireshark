@@ -9,8 +9,6 @@
 /* packet-charging_ase-template.c
  * Copyright 2009 , Anders Broman <anders.broman [AT] ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -117,7 +115,7 @@ static int hf_charging_ase_T_tariffControlIndicators_non_cyclicTariff = -1;
 static int hf_charging_ase_T_tariffControlIndicators_01_non_cyclicTariff = -1;
 
 /*--- End of included file: packet-charging_ase-hf.c ---*/
-#line 46 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 44 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static int ett_charging_ase = -1;
 
@@ -155,7 +153,7 @@ static gint ett_charging_ase_T_tariffControlIndicators_01 = -1;
 static gint ett_charging_ase_ChargingReferenceIdentification = -1;
 
 /*--- End of included file: packet-charging_ase-ett.c ---*/
-#line 49 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 47 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static dissector_handle_t charging_ase_handle;
 
@@ -534,7 +532,7 @@ dissect_charging_ase_CriticalityType(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_charging_ase_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 14 "../../asn1/charging_ase/charging_ase.cnf"
+#line 13 "../../asn1/charging_ase/charging_ase.cnf"
 
 	proto_tree_add_text(tree, tvb, offset, -1, "Extensions not dissected");
 	return tvb_length(tvb);
@@ -841,7 +839,7 @@ int dissect_charging_ase_ChargingMessageType_PDU(tvbuff_t *tvb _U_, packet_info 
 
 
 /*--- End of included file: packet-charging_ase-fn.c ---*/
-#line 53 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 51 "../../asn1/charging_ase/packet-charging_ase-template.c"
 
 static void
 dissect_charging_ase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1113,7 +1111,7 @@ proto_register_charging_ase(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-charging_ase-hfarr.c ---*/
-#line 76 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 74 "../../asn1/charging_ase/packet-charging_ase-template.c"
   };
 
   /* List of subtrees */
@@ -1154,7 +1152,7 @@ proto_register_charging_ase(void)
     &ett_charging_ase_ChargingReferenceIdentification,
 
 /*--- End of included file: packet-charging_ase-ettarr.c ---*/
-#line 82 "../../asn1/charging_ase/packet-charging_ase-template.c"
+#line 80 "../../asn1/charging_ase/packet-charging_ase-template.c"
         };
 
   proto_charging_ase = proto_register_protocol(PNAME, PSNAME, PFNAME);

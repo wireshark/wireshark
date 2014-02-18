@@ -1,6 +1,5 @@
 -- NetScape Certificate Extensions
 -- based on information from http://wp.netscape.com/eng/security/cert-exts.html
--- $Id$
 
 NS-CERT-EXTS { 2 16 840 1 113730 1 } DEFINITIONS EXPLICIT TAGS ::=
 BEGIN

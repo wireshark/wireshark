@@ -10,8 +10,6 @@
  * Routines for ACSE packet dissection
  *   Ronnie Sahlberg 2005
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -50,7 +48,7 @@ int dissect_acse_AE_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *t
 int dissect_acse_AP_invocation_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-acse-exp.h ---*/
-#line 31 "../../asn1/acse/packet-acse-template.h"
+#line 29 "../../asn1/acse/packet-acse-template.h"
 
 #endif  /* PACKET_ACSE_H */
 

@@ -10,8 +10,6 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -49,7 +47,7 @@ int dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 int dissect_h235_SrtpKeys(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-h235-exp.h ---*/
-#line 30 "../../asn1/h235/packet-h235-template.h"
+#line 28 "../../asn1/h235/packet-h235-template.h"
 
 #endif  /* PACKET_H235_H */
 

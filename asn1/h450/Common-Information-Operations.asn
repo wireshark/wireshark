@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.12/2001/Common-Information-Operations.asn
 --
--- $Id$
---
 
 -- Module Common-Information-Operations (H.450.12:07/2001)
 Common-Information-Operations {itu-t recommendation h 450 12 version1(0)

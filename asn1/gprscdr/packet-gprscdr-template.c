@@ -1,8 +1,6 @@
 /* packet-gprscdr-template.c
  * Copyright 2011 , Anders Broman <anders.broman [AT] ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

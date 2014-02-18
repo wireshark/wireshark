@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2005/T38(1998).asn
 --
--- $Id$
---
 -- it is not used for dissector generation
 -- it is here only for information to see difference of the "Pre-Corrigendum" version
 --

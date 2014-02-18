@@ -4,8 +4,6 @@
 -- Standard ECMA-282, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-282.htm
 --
--- $Id$
---
 
 PUM-Registration-Operations-asn1-97 
        { iso (1) standard (0) pss1-pum-registration (17876) pum-registration-operations-asn1-97 (1) } 

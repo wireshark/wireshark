@@ -7,8 +7,6 @@
  *
  * Anders Broman and Ronnie Sahlberg 2005 - 2006
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

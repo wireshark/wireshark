@@ -1,8 +1,6 @@
 # pcap.cnf
 # pcap conformation file
 
-# $Id$
-
 #.OPT
 PER
 ALIGNED

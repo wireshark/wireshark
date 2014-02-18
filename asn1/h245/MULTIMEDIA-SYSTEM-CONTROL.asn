@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/formal-language/itu-t/h/h245/2009v15/MULTIMEDIA-SYSTEM-CONTROL.asn
 --
--- $Id$
---
 
 -- Module MULTIMEDIA-SYSTEM-CONTROL (H.245:12/2009)
 MULTIMEDIA-SYSTEM-CONTROL {itu-t(0) recommendation(0) h(8) h245(245)

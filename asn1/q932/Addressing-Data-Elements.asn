@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/q/q932/1998-Amd1/Addressing-Data-Elements.asn
 --
--- $Id$
---
 
 -- Module Addressing-Data-Elements (Q.932:05/1998)
 Addressing-Data-Elements {itu-t recommendation q 932

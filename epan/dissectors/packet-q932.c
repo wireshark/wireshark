@@ -10,8 +10,6 @@
  * Routines for Q.932 packet dissection
  * 2007  Tomas Kukosa
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -96,7 +94,7 @@ static int hf_q932_destinationEntity = -1;        /* EntityType */
 static int hf_q932_destinationEntityAddress = -1;  /* AddressInformation */
 
 /*--- End of included file: packet-q932-hf.c ---*/
-#line 50 "../../asn1/q932/packet-q932-template.c"
+#line 48 "../../asn1/q932/packet-q932-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_q932 = -1;
@@ -119,7 +117,7 @@ static gint ett_q932_UserSpecifiedSubaddress = -1;
 static gint ett_q932_NetworkFacilityExtension_U = -1;
 
 /*--- End of included file: packet-q932-ett.c ---*/
-#line 55 "../../asn1/q932/packet-q932-template.c"
+#line 53 "../../asn1/q932/packet-q932-template.c"
 
 /* Preferences */
 
@@ -646,7 +644,7 @@ static void dissect_InterpretationComponent_PDU(tvbuff_t *tvb _U_, packet_info *
 
 
 /*--- End of included file: packet-q932-fn.c ---*/
-#line 136 "../../asn1/q932/packet-q932-template.c"
+#line 134 "../../asn1/q932/packet-q932-template.c"
 
 /*--- dissect_q932_facility_ie -------------------------------------------------------*/
 static void
@@ -967,7 +965,7 @@ void proto_register_q932(void) {
         "AddressInformation", HFILL }},
 
 /*--- End of included file: packet-q932-hfarr.c ---*/
-#line 304 "../../asn1/q932/packet-q932-template.c"
+#line 302 "../../asn1/q932/packet-q932-template.c"
   };
 
   /* List of subtrees */
@@ -992,7 +990,7 @@ void proto_register_q932(void) {
     &ett_q932_NetworkFacilityExtension_U,
 
 /*--- End of included file: packet-q932-ettarr.c ---*/
-#line 311 "../../asn1/q932/packet-q932-template.c"
+#line 309 "../../asn1/q932/packet-q932-template.c"
   };
 
    module_t *q932_module;

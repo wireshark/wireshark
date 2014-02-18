@@ -2,8 +2,6 @@
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
  * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/t/t38/2005/T38(2002).asn
 --
--- $Id$
---
 
 -- Module T38(2002) (T.38:09/2005)
 T38 DEFINITIONS AUTOMATIC TAGS ::=

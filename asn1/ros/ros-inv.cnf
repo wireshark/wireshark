@@ -1,8 +1,6 @@
 # ros-inv.cnf
 # ROS Invoke common code
 # Copyright 2007 Tomas Kukosa
-# $Id$
-
 
 #.FN_HDR Invoke
   dissector_handle_t arg_handle = NULL;

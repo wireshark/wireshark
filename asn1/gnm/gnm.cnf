@@ -1,6 +1,5 @@
 # gnm.cnf
 # gnm conformation file
-# $Id$
 
 #.IMPORT ../cmip/cmip-exp.cnf
 #.EXPORTS

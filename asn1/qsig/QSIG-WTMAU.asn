@@ -4,8 +4,6 @@
 -- Standard ECMA-306, 2nd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-306.htm
 --
--- $Id$
---
 
 WTM-Authentication-Operations-asn1-97 
   {iso standard pss1-authentication (15433) authentication-operations-asn1-97 (1)} 

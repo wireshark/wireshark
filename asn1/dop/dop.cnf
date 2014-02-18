@@ -1,5 +1,3 @@
-# $Id$
-
 #.IMPORT ../x509sat/x509sat-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf

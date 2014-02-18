@@ -10,8 +10,6 @@
  * Routines for PKINIT packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -81,7 +79,7 @@ static int hf_pkinit_dhNonce = -1;                /* INTEGER */
 static int hf_pkinit_dhKeyExpiration = -1;        /* KerberosTime */
 
 /*--- End of included file: packet-pkinit-hf.c ---*/
-#line 48 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 46 "../../asn1/pkinit/packet-pkinit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -98,7 +96,7 @@ static gint ett_pkinit_PaPkAsRep = -1;
 static gint ett_pkinit_KDCDHKeyInfo = -1;
 
 /*--- End of included file: packet-pkinit-ett.c ---*/
-#line 51 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 49 "../../asn1/pkinit/packet-pkinit-template.c"
 
 static int dissect_KerberosV5Spec2_KerberosTime(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 static int dissect_KerberosV5Spec2_Checksum(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,  asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
@@ -309,7 +307,7 @@ static void dissect_KDCDHKeyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-pkinit-fn.c ---*/
-#line 58 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 56 "../../asn1/pkinit/packet-pkinit-template.c"
 
 int
 dissect_pkinit_PA_PK_AS_REQ(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_) {
@@ -454,7 +452,7 @@ void proto_register_pkinit(void) {
         "KerberosTime", HFILL }},
 
 /*--- End of included file: packet-pkinit-hfarr.c ---*/
-#line 102 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 100 "../../asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* List of subtrees */
@@ -473,7 +471,7 @@ void proto_register_pkinit(void) {
     &ett_pkinit_KDCDHKeyInfo,
 
 /*--- End of included file: packet-pkinit-ettarr.c ---*/
-#line 107 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 105 "../../asn1/pkinit/packet-pkinit-template.c"
   };
 
   /* Register protocol */
@@ -497,6 +495,6 @@ void proto_reg_handoff_pkinit(void) {
 
 
 /*--- End of included file: packet-pkinit-dis-tab.c ---*/
-#line 122 "../../asn1/pkinit/packet-pkinit-template.c"
+#line 120 "../../asn1/pkinit/packet-pkinit-template.c"
 }
 

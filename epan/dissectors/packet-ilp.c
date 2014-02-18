@@ -10,8 +10,6 @@
  * Routines for OMA Internal Location Protocol packet dissection
  * Copyright 2006, e.yimjia <jy.m12.0@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -453,7 +451,7 @@ static int hf_ilp_GANSSSignals_signal7 = -1;
 static int hf_ilp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ilp-hf.c ---*/
-#line 63 "../../asn1/ilp/packet-ilp-template.c"
+#line 61 "../../asn1/ilp/packet-ilp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ilp = -1;
@@ -597,7 +595,7 @@ static gint ett_ilp_T_lPPPayload = -1;
 static gint ett_ilp_T_tia801Payload = -1;
 
 /*--- End of included file: packet-ilp-ett.c ---*/
-#line 67 "../../asn1/ilp/packet-ilp-template.c"
+#line 65 "../../asn1/ilp/packet-ilp-template.c"
 
 /* Include constants */
 
@@ -614,7 +612,7 @@ static gint ett_ilp_T_tia801Payload = -1;
 #define maxPosSize                     1024
 
 /*--- End of included file: packet-ilp-val.h ---*/
-#line 70 "../../asn1/ilp/packet-ilp-template.c"
+#line 68 "../../asn1/ilp/packet-ilp-template.c"
 
 
 
@@ -3342,7 +3340,7 @@ dissect_ilp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 53 "../../asn1/ilp/ilp.cnf"
+#line 52 "../../asn1/ilp/ilp.cnf"
   tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3362,7 +3360,7 @@ dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ilp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 62 "../../asn1/ilp/ilp.cnf"
+#line 61 "../../asn1/ilp/ilp.cnf"
   tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4033,7 +4031,7 @@ static const per_choice_t IlpMessage_choice[] = {
 
 static int
 dissect_ilp_IlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 43 "../../asn1/ilp/ilp.cnf"
+#line 42 "../../asn1/ilp/ilp.cnf"
 
 guint32 IlpMessage;
 
@@ -4060,7 +4058,7 @@ static const per_sequence_t ILP_PDU_sequence[] = {
 
 static int
 dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 28 "../../asn1/ilp/ilp.cnf"
+#line 27 "../../asn1/ilp/ilp.cnf"
   proto_item *it;
   proto_tree *ilp_tree;
 
@@ -4070,7 +4068,7 @@ dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
 
-#line 39 "../../asn1/ilp/ilp.cnf"
+#line 38 "../../asn1/ilp/ilp.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, ilp_tree, hf_index,
                                    ett_ilp_ILP_PDU, ILP_PDU_sequence);
 
@@ -4092,7 +4090,7 @@ static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ilp-fn.c ---*/
-#line 73 "../../asn1/ilp/packet-ilp-template.c"
+#line 71 "../../asn1/ilp/packet-ilp-template.c"
 
 
 static guint
@@ -5643,7 +5641,7 @@ void proto_register_ilp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ilp-hfarr.c ---*/
-#line 99 "../../asn1/ilp/packet-ilp-template.c"
+#line 97 "../../asn1/ilp/packet-ilp-template.c"
   };
 
   /* List of subtrees */
@@ -5789,7 +5787,7 @@ void proto_register_ilp(void) {
     &ett_ilp_T_tia801Payload,
 
 /*--- End of included file: packet-ilp-ettarr.c ---*/
-#line 105 "../../asn1/ilp/packet-ilp-template.c"
+#line 103 "../../asn1/ilp/packet-ilp-template.c"
   };
 
   module_t *ilp_module;

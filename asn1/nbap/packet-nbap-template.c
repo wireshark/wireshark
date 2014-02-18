@@ -2,8 +2,6 @@
  * Routines for UMTS Node B Application Part(NBAP) packet dissection
  * Copyright 2005, 2009 Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

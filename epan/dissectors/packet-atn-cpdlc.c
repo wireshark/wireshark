@@ -15,8 +15,6 @@
  * By Mathias Guettler <guettler@web.de>
  * Copyright 2013
  *
- * $Id$
-
  * Routines for ATN Cpdlcc protocol packet disassembly
 
  * details see:
@@ -702,7 +700,7 @@ static int hf_atn_cpdlc_windSpeedEnglish = -1;    /* WindSpeedEnglish */
 static int hf_atn_cpdlc_windSpeedMetric = -1;     /* WindSpeedMetric */
 
 /*--- End of included file: packet-atn-cpdlc-hf.c ---*/
-#line 92 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 90 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 
 
 /*--- Included file: packet-atn-cpdlc-ett.c ---*/
@@ -851,7 +849,7 @@ static gint ett_atn_cpdlc_Winds = -1;
 static gint ett_atn_cpdlc_WindSpeed = -1;
 
 /*--- End of included file: packet-atn-cpdlc-ett.c ---*/
-#line 94 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 92 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 static gint ett_atn_cpdlc = -1;
 
 
@@ -5290,7 +5288,7 @@ static void dissect_ProtectedAircraftPDUs_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-atn-cpdlc-fn.c ---*/
-#line 97 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 95 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 
 /* Wireshark ID of CPDLC protocol */
 static int proto_atn_cpdlc = -1;
@@ -7920,7 +7918,7 @@ void proto_register_atn_cpdlc (void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-atn-cpdlc-hfarr.c ---*/
-#line 318 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 316 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 			};
 
 		static gint *ett[] = {
@@ -8071,7 +8069,7 @@ void proto_register_atn_cpdlc (void)
     &ett_atn_cpdlc_WindSpeed,
 
 /*--- End of included file: packet-atn-cpdlc-ettarr.c ---*/
-#line 322 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
+#line 320 "../../asn1/atn-cpdlc/packet-atn-cpdlc-template.c"
 				&ett_atn_cpdlc					
 		};
 

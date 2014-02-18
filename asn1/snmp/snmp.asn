@@ -1,4 +1,3 @@
--- $Id$
 RFC1157-SNMP DEFINITIONS ::= BEGIN
    
 --      IMPORTS

@@ -1,4 +1,3 @@
--- $Id$
 -- Module IN-errorcodes (Q.1248.1:07/2001)
 IN-errorcodes {itu-t recommendation q 1248 modules(1) in-errorcodes(4)
   version1(0)} DEFINITIONS ::=

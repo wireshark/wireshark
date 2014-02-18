@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/formal-language/itu-t/h/h225-0/2009/H323-MESSAGES.asn
 --
--- $Id$
---
 
 -- Module H323-MESSAGES (H.225.0:12/2009)
 H323-MESSAGES {itu-t(0) recommendation(0) h(8) h225-0(2250) version(0)

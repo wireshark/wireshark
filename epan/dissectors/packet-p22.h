@@ -10,8 +10,6 @@
  * Routines for X.420 (X.400 Message Transfer) packet dissection
  * Graeme Lunt 2005
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -51,7 +49,7 @@ int dissect_p22_DiscardReasonField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 int dissect_p22_ReceiptTimeField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-p22-exp.h ---*/
-#line 30 "../../asn1/p22/packet-p22-template.h"
+#line 28 "../../asn1/p22/packet-p22-template.h"
 
 void proto_reg_handoff_p22(void);
 void proto_register_p22(void);

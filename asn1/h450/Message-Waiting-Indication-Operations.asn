@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.7/1999/Message-Waiting-Indication-Operations.asn
 --
--- $Id$
---
 
 -- Module Message-Waiting-Indication-Operations (H.450.7:05/1999)
 Message-Waiting-Indication-Operations {itu-t recommendation h 450 7 version1(0)

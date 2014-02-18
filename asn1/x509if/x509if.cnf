@@ -1,8 +1,6 @@
 # x509if.cnf
 # X509IF conformation file
 
-# $Id$
-
 #.IMPORT ../x509sat/x509sat-exp.cnf
 
 #.MODULE_IMPORT

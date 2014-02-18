@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.11/2001/Call-Intrusion-Operations.asn
 --
--- $Id$
---
 
 -- Module Call-Intrusion-Operations (H.450.11:03/2001)
 Call-Intrusion-Operations {itu-t recommendation h 450 11 version1(0)

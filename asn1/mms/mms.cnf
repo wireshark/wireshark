@@ -1,8 +1,6 @@
 # mms.cnf
 # mms conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 ISO-8650-ACSE-1 acse
 

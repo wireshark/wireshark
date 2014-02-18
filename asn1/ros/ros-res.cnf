@@ -1,7 +1,6 @@
 # ros-res.cnf
 # ROS ReturnResult common code
 # Copyright 2007 Tomas Kukosa
-# $Id$
 
 #.FN_HDR ReturnResult
   dissector_handle_t res_handle = NULL;

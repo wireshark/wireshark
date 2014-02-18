@@ -1,6 +1,3 @@
---
--- $Id$
---
 Embedded-Q931-Types {itu-t identified-organization etsi(0) 196 embedded-q931-types(7)}
 
 DEFINITIONS EXPLICIT TAGS ::=

@@ -1,8 +1,6 @@
 # pkixac.cnf
 # An Internet Attribute Certificate (RFC3281) conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 PKIX1Explicit88 pkix1explicit
 PKIX1Implicit88 pkix1implicit

@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.4/1999/Call-Hold-Operations.asn
 --
--- $Id$
---
 
 -- Module Call-Hold-Operations (H.450.4:05/1999)
 Call-Hold-Operations {itu-t recommendation h 450 4 version1(0)

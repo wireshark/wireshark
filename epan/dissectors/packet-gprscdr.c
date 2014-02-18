@@ -9,8 +9,6 @@
 /* packet-gprscdr-template.c
  * Copyright 2011 , Anders Broman <anders.broman [AT] ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -337,7 +335,7 @@ static int hf_gprscdr_ServiceConditionChange_tAIChange = -1;
 static int hf_gprscdr_ServiceConditionChange_userLocationChange = -1;
 
 /*--- End of included file: packet-gprscdr-hf.c ---*/
-#line 47 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 45 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
@@ -402,7 +400,7 @@ static gint ett_gprscdr_TWANUserLocationInfo = -1;
 static gint ett_gprscdr_UserCSGInformation = -1;
 
 /*--- End of included file: packet-gprscdr-ett.c ---*/
-#line 52 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 50 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 static const value_string gprscdr_daylight_saving_time_vals[] = {
     {0, "No adjustment"},
@@ -597,7 +595,7 @@ dissect_gprscdr_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 54 "../../asn1/gprscdr/gprscdr.cnf"
+#line 53 "../../asn1/gprscdr/gprscdr.cnf"
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
    
@@ -1026,7 +1024,7 @@ dissect_gprscdr_MSISDN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "../../asn1/gprscdr/gprscdr.cnf"
+#line 96 "../../asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [75]
@@ -1267,7 +1265,7 @@ dissect_gprscdr_SubscriptionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 58 "../../asn1/gprscdr/gprscdr.cnf"
+#line 57 "../../asn1/gprscdr/gprscdr.cnf"
 /*
  *
  * The contents of this field are a compact form of the UTCTime format
@@ -1743,7 +1741,7 @@ dissect_gprscdr_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 124 "../../asn1/gprscdr/gprscdr.cnf"
+#line 123 "../../asn1/gprscdr/gprscdr.cnf"
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
 
@@ -2938,7 +2936,7 @@ int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-gprscdr-fn.c ---*/
-#line 62 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 60 "../../asn1/gprscdr/packet-gprscdr-template.c"
 
 
 
@@ -4073,7 +4071,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-gprscdr-hfarr.c ---*/
-#line 72 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 70 "../../asn1/gprscdr/packet-gprscdr-template.c"
   };
 
   /* List of subtrees */
@@ -4141,7 +4139,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_UserCSGInformation,
 
 /*--- End of included file: packet-gprscdr-ettarr.c ---*/
-#line 80 "../../asn1/gprscdr/packet-gprscdr-template.c"
+#line 78 "../../asn1/gprscdr/packet-gprscdr-template.c"
         };
 
   proto_gprscdr = proto_register_protocol(PNAME, PSNAME, PFNAME);

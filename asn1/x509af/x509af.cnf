@@ -1,8 +1,6 @@
 # x509.cnf
 # X509 conformation file
 
-# $Id$
-
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../x509if/x509if-exp.cnf
 #.IMPORT ../x509sat/x509sat-exp.cnf

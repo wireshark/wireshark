@@ -1,4 +1,3 @@
--- $Id$
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/x/x519/2001/index.html
 -- Module DirectoryAccessProtocol (X.519:02/2001)
 DirectoryAccessProtocol {joint-iso-itu-t ds(5) module(1) dap(11) 4} DEFINITIONS

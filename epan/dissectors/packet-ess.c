@@ -12,8 +12,6 @@
  *   Ronnie Sahlberg 2004
  *   Stig Bjorlykke 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -147,7 +145,7 @@ static int hf_ess_issuer = -1;                    /* GeneralNames */
 static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 
 /*--- End of included file: packet-ess-hf.c ---*/
-#line 68 "../../asn1/ess/packet-ess-template.c"
+#line 66 "../../asn1/ess/packet-ess-template.c"
 
 
 /*--- Included file: packet-ess-val.h ---*/
@@ -171,7 +169,7 @@ static int hf_ess_serialNumber = -1;              /* CertificateSerialNumber */
 #define id_sha256                      "2.16.840.1.101.3.4.2.1"
 
 /*--- End of included file: packet-ess-val.h ---*/
-#line 70 "../../asn1/ess/packet-ess-template.c"
+#line 68 "../../asn1/ess/packet-ess-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -210,7 +208,7 @@ static gint ett_ess_ESSCertID = -1;
 static gint ett_ess_IssuerSerial = -1;
 
 /*--- End of included file: packet-ess-ett.c ---*/
-#line 73 "../../asn1/ess/packet-ess-template.c"
+#line 71 "../../asn1/ess/packet-ess-template.c"
 
 static const char *object_identifier_id;
 
@@ -410,7 +408,7 @@ static const ber_sequence_t Receipt_sequence[] = {
 
 static int
 dissect_ess_Receipt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "../../asn1/ess/ess.cnf"
+#line 100 "../../asn1/ess/ess.cnf"
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Signed Receipt");
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -549,7 +547,7 @@ dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "../../asn1/ess/ess.cnf"
+#line 49 "../../asn1/ess/ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -615,7 +613,7 @@ dissect_ess_T_restrictiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "../../asn1/ess/ess.cnf"
+#line 76 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -657,7 +655,7 @@ dissect_ess_T_tagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "../../asn1/ess/ess.cnf"
+#line 67 "../../asn1/ess/ess.cnf"
   guint32 attribute;
   
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -711,7 +709,7 @@ dissect_ess_T_permissiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "../../asn1/ess/ess.cnf"
+#line 85 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -753,7 +751,7 @@ dissect_ess_T_informativeTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "../../asn1/ess/ess.cnf"
+#line 94 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -1128,7 +1126,7 @@ static void dissect_SigningCertificateV2_PDU(tvbuff_t *tvb _U_, packet_info *pin
 
 
 /*--- End of included file: packet-ess-fn.c ---*/
-#line 144 "../../asn1/ess/packet-ess-template.c"
+#line 142 "../../asn1/ess/packet-ess-template.c"
 
 /*--- proto_register_ess ----------------------------------------------*/
 void proto_register_ess(void) {
@@ -1426,7 +1424,7 @@ void proto_register_ess(void) {
         "CertificateSerialNumber", HFILL }},
 
 /*--- End of included file: packet-ess-hfarr.c ---*/
-#line 157 "../../asn1/ess/packet-ess-template.c"
+#line 155 "../../asn1/ess/packet-ess-template.c"
   };
 
   /* List of subtrees */
@@ -1468,7 +1466,7 @@ void proto_register_ess(void) {
     &ett_ess_IssuerSerial,
 
 /*--- End of included file: packet-ess-ettarr.c ---*/
-#line 163 "../../asn1/ess/packet-ess-template.c"
+#line 161 "../../asn1/ess/packet-ess-template.c"
   };
 
   static uat_field_t attributes_flds[] = {
@@ -1535,6 +1533,6 @@ void proto_reg_handoff_ess(void) {
 
 
 /*--- End of included file: packet-ess-dis-tab.c ---*/
-#line 208 "../../asn1/ess/packet-ess-template.c"
+#line 206 "../../asn1/ess/packet-ess-template.c"
 }
 

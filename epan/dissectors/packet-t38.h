@@ -12,8 +12,6 @@
  * 2003 Hans Viens
  * 2004 Alejandro Vaquero, add support to conversation
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -96,7 +94,7 @@ WS_DLL_PUBLIC const value_string t38_T30_indicator_vals[];
 WS_DLL_PUBLIC const value_string t38_T30_data_vals[];
 
 /*--- End of included file: packet-t38-exp.h ---*/
-#line 85 "../../asn1/t38/packet-t38-template.h"
+#line 83 "../../asn1/t38/packet-t38-template.h"
 
 
 

@@ -4,8 +4,6 @@
 -- Standard ECMA-311, 2nd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-311.htm
 --
--- $Id$
---
 
 SS-SD-Operations-asn1-97 
 { iso (1) standard (0) pss1-simple-dialog (21407) simple-dialog-operations-asn1-97 (1)} 

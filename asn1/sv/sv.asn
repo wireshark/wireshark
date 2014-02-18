@@ -1,4 +1,3 @@
--- $Id$
 IEC61850 DEFINITIONS ::= BEGIN
 
 SampledValues ::= CHOICE {

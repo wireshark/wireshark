@@ -4,8 +4,6 @@
  *
  * Copyright 2005, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -20,9 +20,6 @@
  * dissect_acse() based original handwritten dissector by Sid
  *   Yuriy Sidelnikov <YSidelnikov@hotmail.com>
  *
- *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -192,7 +189,7 @@ static int hf_acse_ACSE_requirements_higher_level_association = -1;
 static int hf_acse_ACSE_requirements_nested_association = -1;
 
 /*--- End of included file: packet-acse-hf.c ---*/
-#line 75 "../../asn1/acse/packet-acse-template.c"
+#line 72 "../../asn1/acse/packet-acse-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acse = -1;
@@ -236,7 +233,7 @@ static gint ett_acse_Authentication_value_other = -1;
 static gint ett_acse_Authentication_value = -1;
 
 /*--- End of included file: packet-acse-ett.c ---*/
-#line 79 "../../asn1/acse/packet-acse-template.c"
+#line 76 "../../asn1/acse/packet-acse-template.c"
 
 static expert_field ei_acse_dissector_not_available = EI_INIT;
 
@@ -328,7 +325,7 @@ dissect_acse_T_direct_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_acse_T_indirect_reference(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 71 "../../asn1/acse/acse.cnf"
+#line 69 "../../asn1/acse/acse.cnf"
   char *oid;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*) actx->private_data;
 
@@ -364,7 +361,7 @@ dissect_acse_ObjectDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "../../asn1/acse/acse.cnf"
+#line 88 "../../asn1/acse/acse.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
 
 
@@ -376,7 +373,7 @@ dissect_acse_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_acse_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "../../asn1/acse/acse.cnf"
+#line 91 "../../asn1/acse/acse.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree ? top_tree : tree, actx->private_data);
 
 
@@ -474,7 +471,7 @@ dissect_acse_ASO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_acse_T_AARQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 55 "../../asn1/acse/acse.cnf"
+#line 53 "../../asn1/acse/acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -682,7 +679,7 @@ dissect_acse_T_other_mechanism_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_acse_T_other_mechanism_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 49 "../../asn1/acse/acse.cnf"
+#line 47 "../../asn1/acse/acse.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, top_tree, actx->private_data);
 
 
@@ -962,7 +959,7 @@ dissect_acse_AARQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "../../asn1/acse/acse.cnf"
+#line 94 "../../asn1/acse/acse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Request");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -993,7 +990,7 @@ dissect_acse_T_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 static int
 dissect_acse_T_AARE_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/acse/acse.cnf"
+#line 57 "../../asn1/acse/acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -1194,7 +1191,7 @@ dissect_acse_AARE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_AARE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "../../asn1/acse/acse.cnf"
+#line 99 "../../asn1/acse/acse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "A-Associate-Response");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1217,7 +1214,7 @@ static const value_string acse_Release_request_reason_vals[] = {
 
 static int
 dissect_acse_Release_request_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 114 "../../asn1/acse/acse.cnf"
+#line 112 "../../asn1/acse/acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1253,7 +1250,7 @@ dissect_acse_RLRQ_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_RLRQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "../../asn1/acse/acse.cnf"
+#line 104 "../../asn1/acse/acse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Request");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1276,7 +1273,7 @@ static const value_string acse_Release_response_reason_vals[] = {
 
 static int
 dissect_acse_Release_response_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "../../asn1/acse/acse.cnf"
+#line 128 "../../asn1/acse/acse.cnf"
   int reason = -1;
  
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1312,7 +1309,7 @@ dissect_acse_RLRE_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_RLRE_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 122 "../../asn1/acse/acse.cnf"
+#line 120 "../../asn1/acse/acse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Release-Response");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1334,7 +1331,7 @@ static const value_string acse_ABRT_source_vals[] = {
 
 static int
 dissect_acse_ABRT_source(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "../../asn1/acse/acse.cnf"
+#line 141 "../../asn1/acse/acse.cnf"
   int source = -1;
 
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
@@ -1391,7 +1388,7 @@ dissect_acse_ABRT_apdu_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_acse_ABRT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 138 "../../asn1/acse/acse.cnf"
+#line 136 "../../asn1/acse/acse.cnf"
   col_append_str(actx->pinfo->cinfo, COL_INFO, "Abort");
 
     offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
@@ -1426,7 +1423,7 @@ dissect_acse_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_acse_T_simple_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "../../asn1/acse/acse.cnf"
+#line 50 "../../asn1/acse/acse.cnf"
 /*XXX not implemented yet */
 
 
@@ -1538,7 +1535,7 @@ dissect_acse_A_DT_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_acse_T_ACRQ_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "../../asn1/acse/acse.cnf"
+#line 61 "../../asn1/acse/acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -1580,7 +1577,7 @@ dissect_acse_ACRQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_acse_T_ACRP_aSO_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "../../asn1/acse/acse.cnf"
+#line 65 "../../asn1/acse/acse.cnf"
   offset = dissect_ber_object_identifier_str(FALSE, actx, tree, tvb, offset,
                                          hf_index, &object_identifier_id);
 
@@ -1693,7 +1690,7 @@ dissect_acse_AE_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 
 /*--- End of included file: packet-acse-fn.c ---*/
-#line 155 "../../asn1/acse/packet-acse-template.c"
+#line 152 "../../asn1/acse/packet-acse-template.c"
 
 
 /*
@@ -2241,7 +2238,7 @@ void proto_register_acse(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acse-hfarr.c ---*/
-#line 270 "../../asn1/acse/packet-acse-template.c"
+#line 267 "../../asn1/acse/packet-acse-template.c"
   };
 
   /* List of subtrees */
@@ -2287,7 +2284,7 @@ void proto_register_acse(void) {
     &ett_acse_Authentication_value,
 
 /*--- End of included file: packet-acse-ettarr.c ---*/
-#line 276 "../../asn1/acse/packet-acse-template.c"
+#line 273 "../../asn1/acse/packet-acse-template.c"
   };
 
   static ei_register_info ei[] = {

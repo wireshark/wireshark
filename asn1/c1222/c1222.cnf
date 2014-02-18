@@ -2,8 +2,6 @@
 # C1222 conformation file
 # Copyright 2010, Edward J. Beroset, edward.beroset@elster.com
 
-# $Id$
-
 #.MODULE_IMPORT
 IMPORT ../acse/acse.inf
 

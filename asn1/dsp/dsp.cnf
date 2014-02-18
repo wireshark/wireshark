@@ -1,5 +1,3 @@
-# $Id$
-
 #.MODULE_IMPORT
 DirectoryAccessProtocol		dap
 ServiceAdministration		x509if

@@ -1,8 +1,6 @@
 # pres.cnf
 # pres conformation file
 
-# $Id$
-
 #.IMPORT ../rtse/rtse-exp.cnf
 
 #.EXPORTS

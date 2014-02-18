@@ -11,8 +11,6 @@
  *    Ronnie Sahlberg 2004
  *    Stig Bjorlykke 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -41,7 +39,7 @@
 void dissect_ess_ESSSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-ess-exp.h ---*/
-#line 31 "../../asn1/ess/packet-ess-template.h"
+#line 29 "../../asn1/ess/packet-ess-template.h"
 
 #endif  /* PACKET_ESS_H */
 

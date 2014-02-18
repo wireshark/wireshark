@@ -1,4 +1,3 @@
--- $Id$
 IN-CS-1-Operations-appendix { ccitt recommendation q 1218 modules(0) cs-1-operations-app(4) version1(0) }
 --  This module contains additional type definitions for IN CS-1 operations.
 DEFINITIONS IMPLICIT TAGS ::=

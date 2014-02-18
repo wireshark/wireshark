@@ -10,8 +10,6 @@
  * Routines for GSM MAP packet dissection
  * Copyright 2004 - 2006, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -278,7 +276,7 @@ int dissect_gsm_ss_LocationMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 int dissect_NokiaMAP_Extensions_ServiceKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
-#line 60 "../../asn1/gsm_map/packet-gsm_map-template.h"
+#line 58 "../../asn1/gsm_map/packet-gsm_map-template.h"
 
 
 #endif  /* PACKET_GSM_MAP_H */

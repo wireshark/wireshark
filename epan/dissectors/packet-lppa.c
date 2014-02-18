@@ -10,8 +10,6 @@
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
  * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -189,7 +187,7 @@ static int hf_lppa_oTDOA_Information_Type_Item = -1;  /* OTDOA_Information_Item 
 static int hf_lppa_privateIEs = -1;               /* PrivateIE_Container */
 
 /*--- End of included file: packet-lppa-hf.c ---*/
-#line 48 "../../asn1/lppa/packet-lppa-template.c"
+#line 46 "../../asn1/lppa/packet-lppa-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_lppa = -1;
@@ -250,7 +248,7 @@ static gint ett_lppa_ErrorIndication = -1;
 static gint ett_lppa_PrivateMessage = -1;
 
 /*--- End of included file: packet-lppa-ett.c ---*/
-#line 52 "../../asn1/lppa/packet-lppa-template.c"
+#line 50 "../../asn1/lppa/packet-lppa-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -306,7 +304,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lppa-val.h ---*/
-#line 65 "../../asn1/lppa/packet-lppa-template.c"
+#line 63 "../../asn1/lppa/packet-lppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -404,7 +402,7 @@ dissect_lppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 45 "../../asn1/lppa/lppa.cnf"
+#line 44 "../../asn1/lppa/lppa.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, lppa_ProcedureCode_vals,
                             "unknown message"));
@@ -437,7 +435,7 @@ dissect_lppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 38 "../../asn1/lppa/lppa.cnf"
+#line 37 "../../asn1/lppa/lppa.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -683,7 +681,7 @@ static const per_choice_t LPPA_PDU_choice[] = {
 
 static int
 dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/lppa/lppa.cnf"
+#line 58 "../../asn1/lppa/lppa.cnf"
 	
   proto_tree_add_item(tree, proto_lppa, tvb, 0, -1, ENC_NA);
 
@@ -2306,7 +2304,7 @@ static int dissect_PrivateMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-lppa-fn.c ---*/
-#line 72 "../../asn1/lppa/packet-lppa-template.c"
+#line 70 "../../asn1/lppa/packet-lppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2867,7 +2865,7 @@ void proto_register_lppa(void) {
         "PrivateIE_Container", HFILL }},
 
 /*--- End of included file: packet-lppa-hfarr.c ---*/
-#line 100 "../../asn1/lppa/packet-lppa-template.c"
+#line 98 "../../asn1/lppa/packet-lppa-template.c"
   };
 
   /* List of subtrees */
@@ -2930,7 +2928,7 @@ void proto_register_lppa(void) {
     &ett_lppa_PrivateMessage,
 
 /*--- End of included file: packet-lppa-ettarr.c ---*/
-#line 106 "../../asn1/lppa/packet-lppa-template.c"
+#line 104 "../../asn1/lppa/packet-lppa-template.c"
   };
 
   /* Register protocol */
@@ -2987,5 +2985,5 @@ proto_reg_handoff_lppa(void)
 
 
 /*--- End of included file: packet-lppa-dis-tab.c ---*/
-#line 128 "../../asn1/lppa/packet-lppa-template.c"
+#line 126 "../../asn1/lppa/packet-lppa-template.c"
 }

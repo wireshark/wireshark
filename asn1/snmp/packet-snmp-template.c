@@ -17,8 +17,6 @@
  * See RFC 2578 for Structure of Management Information Version 2 (SMIv2)
  * Copyright (C) 2007 Luis E. Garcia Ontanon <luis@ontanon.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

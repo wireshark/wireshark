@@ -1,5 +1,4 @@
 -- ETSI ES 201 296 V1.3.1 (2003-04)
--- $Id$
 Tariffing-Data-Types {itu-t(0) identified-organization(4) etsi (0) 1296 version3(4)}
 
 DEFINITIONS IMPLICIT TAGS ::= BEGIN

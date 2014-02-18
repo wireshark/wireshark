@@ -5,8 +5,6 @@
 --
 -- B.3 PSS1InformationElement
 --
--- $Id$
---
 
 PSS1-generic-parameters-definition-asn1-97 { iso( 1) standard( 0) 
   pss1-generic-procedures( 11582) pss1-generic-parameters-asn1-97( 17)} DEFINITIONS ::= 

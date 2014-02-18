@@ -1,4 +1,3 @@
--- $Id$
 -- Module CertificateExtensionsCiplus
 --  X.509 certificate extensions defined by CI+ (www.ci-plus.com)
 CertificateExtensionsCiplus DEFINITIONS IMPLICIT TAGS ::=

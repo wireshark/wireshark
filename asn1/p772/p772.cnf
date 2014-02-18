@@ -1,8 +1,6 @@
 # p772.cnf
 # p772 conformation file
 
-# $Id$
-
 #.IMPORT ../p1/p1-exp.cnf
 #.IMPORT ../p22/p22-exp.cnf
 

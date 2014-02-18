@@ -10,8 +10,6 @@
  * Routines for X.519 Internet Directly Mapped Protocol (IDMP) packet dissection
  * Graeme Lunt 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

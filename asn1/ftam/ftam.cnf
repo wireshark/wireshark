@@ -1,8 +1,6 @@
 # FTAM.cnf
 # FTAM conformation file
 
-# $Id$
-
 #.IMPORT ../acse/acse-exp.cnf
 
 #.EXPORTS

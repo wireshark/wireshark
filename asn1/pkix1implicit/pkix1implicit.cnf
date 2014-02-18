@@ -1,8 +1,6 @@
 # pkix1implicit.cnf
 # pkix1implicit conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 PKIX1Explicit93 pkix1explicit
 

@@ -4,8 +4,6 @@
 -- Standard ECMA-214, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-214.htm
 --
--- $Id$
---
 
 Recall-Operations-asn1-97  
   { iso (1) standard (0) pss1-recall (15052) recall-operations-asn1-97 (1) } 

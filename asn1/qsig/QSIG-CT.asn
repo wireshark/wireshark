@@ -4,8 +4,6 @@
 -- Standard ECMA-178, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-178.htm
 --
--- $Id$
---
 
 Call-Transfer-Operations-asn1-97 
   {iso(1)  standard(0) pss1-call-transfer(13869) call-transfer-operations-asn1-97 (1)} 

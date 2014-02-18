@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.2/1998/Call-Transfer-Operations.asn
 --
--- $Id$
---
 
 -- Module Call-Transfer-Operations (H.450.2:02/1998)
 Call-Transfer-Operations {itu-t recommendation h 450 2 version1(0)

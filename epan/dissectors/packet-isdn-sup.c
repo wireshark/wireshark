@@ -11,8 +11,6 @@
  * supplementary services
  * Copyright 2013, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -54,7 +52,7 @@ void proto_reg_handoff_isdn_sup(void);
 #define fPHOID                         "0.4.0.210.1"
 
 /*--- End of included file: packet-isdn-sup-val.h ---*/
-#line 44 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 42 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_isdn_sup = -1;
@@ -121,7 +119,7 @@ static const value_string isdn_sup_str_operation[] = {
   {  46, "partyDISC" },
 
 /*--- End of included file: packet-isdn-sup-table10.c ---*/
-#line 77 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 75 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
@@ -162,7 +160,7 @@ static const value_string isdn_sup_str_error[] = {
   {    2, "rejectedByTheUser" },
 
 /*--- End of included file: packet-isdn-sup-table20.c ---*/
-#line 83 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 81 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   {   0, NULL}
 };
 
@@ -329,7 +327,7 @@ static int hf_isdn_sup_fPHReference = -1;         /* FPHReference */
 static int hf_isdn_sup_calledFreephoneNr = -1;    /* CalledFreephoneNr */
 
 /*--- End of included file: packet-isdn-sup-hf.c ---*/
-#line 89 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 87 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Initialize the subtree pointers */
@@ -404,7 +402,7 @@ static gint ett_isdn_sup_Free_T_FPHArg = -1;
 static gint ett_isdn_sup_Call_T_FPHArg = -1;
 
 /*--- End of included file: packet-isdn-sup-ett.c ---*/
-#line 95 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 93 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 
 /* Preference settings default */
@@ -2500,7 +2498,7 @@ static int dissect_Call_T_FPHArg_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-isdn-sup-fn.c ---*/
-#line 102 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 100 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 
 static const isdn_sup_op_t isdn_sup_op_tab[] = {
 
@@ -2537,7 +2535,7 @@ static const isdn_sup_op_t isdn_sup_op_tab[] = {
   /* userUserService          */ {   1, dissect_UserUserServiceArg_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table11.c ---*/
-#line 105 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 103 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
@@ -2552,7 +2550,7 @@ static const isdn_sup_global_op_t isdn_sup_global_op_tab[] = {
   /* call-T-FPH               */ { fPHOID".4", dissect_Call_T_FPHArg_PDU, NULL },
 
 /*--- End of included file: packet-isdn-sup-table31.c ---*/
-#line 111 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 109 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 static const isdn_sup_err_t isdn_sup_err_tab[] = {
@@ -2591,7 +2589,7 @@ static const isdn_sup_err_t isdn_sup_err_tab[] = {
   /* rejectedByTheUser        */ {    2, NULL },
 
 /*--- End of included file: packet-isdn-sup-table21.c ---*/
-#line 115 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 113 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
 };
 
 
@@ -3453,7 +3451,7 @@ void proto_register_isdn_sup(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-isdn-sup-hfarr.c ---*/
-#line 348 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 346 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* List of subtrees */
@@ -3529,7 +3527,7 @@ void proto_register_isdn_sup(void) {
     &ett_isdn_sup_Call_T_FPHArg,
 
 /*--- End of included file: packet-isdn-sup-ettarr.c ---*/
-#line 355 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
+#line 353 "../../asn1/isdn-sup/packet-isdn-sup-template.c"
   };
 
   /* Register fields and subtrees */

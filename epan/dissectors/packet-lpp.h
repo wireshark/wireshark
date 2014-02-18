@@ -10,8 +10,6 @@
  * Routines for 3GPP LTE Positioning Protocol (LLP) packet dissection
  * Copyright 2011, Pascal Quantin <pascal.quantin@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -67,6 +65,6 @@ int dissect_lpp_HorizontalVelocity_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 int dissect_lpp_Polygon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lpp-exp.h ---*/
-#line 33 "../../asn1/lpp/packet-lpp-template.h"
+#line 31 "../../asn1/lpp/packet-lpp-template.h"
 
 #endif  /* PACKET_LPP_H */

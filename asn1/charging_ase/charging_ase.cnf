@@ -1,7 +1,6 @@
 # charging ase.cnf
 # charging ase conformation file
 # Anders Broman 2009
-# $Id$
 
 #.EXPORTS
 ChargingMessageType

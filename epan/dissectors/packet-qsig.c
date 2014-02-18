@@ -10,8 +10,6 @@
  * Routines for QSIG packet dissection
  * 2007  Tomas Kukosa
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -490,7 +488,7 @@ static const value_string qsig_str_operation[] = {
   { 120, "mIDMailboxID" },
 
 /*--- End of included file: packet-qsig-table10.c ---*/
-#line 273 "../../asn1/qsig/packet-qsig-template.c"
+#line 271 "../../asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -683,7 +681,7 @@ static const value_string qsig_str_error[] = {
   { 1008, "unspecified" },
 
 /*--- End of included file: packet-qsig-table20.c ---*/
-#line 278 "../../asn1/qsig/packet-qsig-template.c"
+#line 276 "../../asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
 
@@ -1578,7 +1576,7 @@ static int hf_qsig_mid_multipleExtension = -1;    /* SEQUENCE_OF_Extension */
 static int hf_qsig_mid_multipleExtension_item = -1;  /* Extension */
 
 /*--- End of included file: packet-qsig-hf.c ---*/
-#line 294 "../../asn1/qsig/packet-qsig-template.c"
+#line 292 "../../asn1/qsig/packet-qsig-template.c"
 
 static int *hf_qsig_ie_type_arr[] = {
   NULL,
@@ -2038,7 +2036,7 @@ static gint ett_qsig_mid_MIDExtensions = -1;
 static gint ett_qsig_mid_SEQUENCE_OF_Extension = -1;
 
 /*--- End of included file: packet-qsig-ett.c ---*/
-#line 311 "../../asn1/qsig/packet-qsig-template.c"
+#line 309 "../../asn1/qsig/packet-qsig-template.c"
 static gint ett_cnq_PSS1InformationElement = -1;
 
 /* Preferences */
@@ -2073,7 +2071,7 @@ dissect_qsig_T_extensionId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_qsig_T_extensionArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "../../asn1/qsig/qsig.cnf"
+#line 144 "../../asn1/qsig/qsig.cnf"
     tvbuff_t *next_tvb;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -2103,7 +2101,7 @@ static const ber_sequence_t qsig_Extension_sequence[] = {
 
 static int
 dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 143 "../../asn1/qsig/qsig.cnf"
+#line 141 "../../asn1/qsig/qsig.cnf"
   extension_oid = NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -2116,7 +2114,7 @@ dissect_qsig_Extension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 168 "../../asn1/qsig/qsig.cnf"
+#line 166 "../../asn1/qsig/qsig.cnf"
   tvbuff_t *out_tvb = NULL;
   proto_tree *data_tree;
 
@@ -9204,7 +9202,7 @@ dissect_qsig_wtmau_DefinedIDs(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_qsig_wtmau_T_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "../../asn1/qsig/qsig.cnf"
+#line 162 "../../asn1/qsig/qsig.cnf"
 
 
 
@@ -11930,7 +11928,7 @@ static int dissect_qsig_mid_Extension_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-qsig-fn.c ---*/
-#line 327 "../../asn1/qsig/packet-qsig-template.c"
+#line 325 "../../asn1/qsig/packet-qsig-template.c"
 
 typedef struct _qsig_op_t {
   gint32 opcode;
@@ -12152,7 +12150,7 @@ static const qsig_op_t qsig_op_tab[] = {
   /* mIDMailboxID             */ { 120, dissect_qsig_mid_MIDMailboxIDArg_PDU, dissect_qsig_mid_MIDDummyRes_PDU },
 
 /*--- End of included file: packet-qsig-table11.c ---*/
-#line 336 "../../asn1/qsig/packet-qsig-template.c"
+#line 334 "../../asn1/qsig/packet-qsig-template.c"
 };
 
 typedef struct _qsig_err_t {
@@ -12349,7 +12347,7 @@ static const qsig_err_t qsig_err_tab[] = {
   /* unspecified              */ { 1008, dissect_qsig_mid_Extension_PDU },
 
 /*--- End of included file: packet-qsig-table21.c ---*/
-#line 345 "../../asn1/qsig/packet-qsig-template.c"
+#line 343 "../../asn1/qsig/packet-qsig-template.c"
 };
 
 static const qsig_op_t *get_op(gint32 opcode) {
@@ -15904,7 +15902,7 @@ void proto_register_qsig(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-qsig-hfarr.c ---*/
-#line 662 "../../asn1/qsig/packet-qsig-template.c"
+#line 660 "../../asn1/qsig/packet-qsig-template.c"
   };
 
   /* List of subtrees */
@@ -16355,7 +16353,7 @@ void proto_register_qsig(void) {
     &ett_qsig_mid_SEQUENCE_OF_Extension,
 
 /*--- End of included file: packet-qsig-ettarr.c ---*/
-#line 670 "../../asn1/qsig/packet-qsig-template.c"
+#line 668 "../../asn1/qsig/packet-qsig-template.c"
     &ett_cnq_PSS1InformationElement,
   };
 

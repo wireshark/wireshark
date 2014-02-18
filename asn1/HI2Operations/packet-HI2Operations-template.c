@@ -2,8 +2,6 @@
  * Routines for HI2 (ETSI TS 101 671 V3.5.1 (2009-11))
  *  Erwin van Eijk 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

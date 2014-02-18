@@ -4,8 +4,6 @@
 -- Standard ECMA-325, (June 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-325.htm
 --
--- $Id$
---
 
 Short-Message-Service-Operations-asn1-97 
 {iso(1) identified-organization(3) icd-ecma(12) standard(0) qsig-short-message-service(325) short-message-service-operations-asn1-97(1)} 

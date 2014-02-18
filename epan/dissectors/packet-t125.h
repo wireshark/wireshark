@@ -10,8 +10,6 @@
  * Routines for t125 packet dissection
  * Copyright 2007, Ronnie Sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -43,7 +41,7 @@
 #line 1 "../../asn1/t125/packet-t125-exp.h"
 
 /*--- End of included file: packet-t125-exp.h ---*/
-#line 34 "../../asn1/t125/packet-t125-template.h"
+#line 32 "../../asn1/t125/packet-t125-template.h"
 
 
 #endif  /* PACKET_T125_H */

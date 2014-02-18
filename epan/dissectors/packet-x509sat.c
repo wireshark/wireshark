@@ -10,8 +10,6 @@
  * Routines for X.509 Selected Attribute Types packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -222,7 +220,7 @@ static int hf_x509sat_T_bitNamedDays_friday = -1;
 static int hf_x509sat_T_bitNamedDays_saturday = -1;
 
 /*--- End of included file: packet-x509sat-hf.c ---*/
-#line 48 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 46 "../../asn1/x509sat/packet-x509sat-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -277,7 +275,7 @@ static gint ett_x509sat_T_between = -1;
 static gint ett_x509sat_LocaleContextSyntax = -1;
 
 /*--- End of included file: packet-x509sat-ett.c ---*/
-#line 51 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 49 "../../asn1/x509sat/packet-x509sat-template.c"
 
 
 /*--- Included file: packet-x509sat-fn.c ---*/
@@ -1507,7 +1505,7 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 380 "../../asn1/x509sat/x509sat.cnf"
+#line 378 "../../asn1/x509sat/x509sat.cnf"
 	tvbuff_t	*wide_tvb = NULL;
 	char		*string;
 
@@ -1515,7 +1513,7 @@ dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                             actx, tree, tvb, offset, hf_index,
                                             &wide_tvb);
 
-#line 385 "../../asn1/x509sat/x509sat.cnf"
+#line 383 "../../asn1/x509sat/x509sat.cnf"
 	if (! wide_tvb) {
 		return offset;
 	}
@@ -1629,7 +1627,7 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 394 "../../asn1/x509sat/x509sat.cnf"
+#line 392 "../../asn1/x509sat/x509sat.cnf"
   gint8 ber_class;
   gboolean pc;
   gint32 tag;
@@ -1846,7 +1844,7 @@ static void dissect_GUID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 
 
 /*--- End of included file: packet-x509sat-fn.c ---*/
-#line 53 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 51 "../../asn1/x509sat/packet-x509sat-template.c"
 
 
 /*--- proto_register_x509sat ----------------------------------------------*/
@@ -2515,7 +2513,7 @@ void proto_register_x509sat(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-x509sat-hfarr.c ---*/
-#line 61 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 59 "../../asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* List of subtrees */
@@ -2572,7 +2570,7 @@ void proto_register_x509sat(void) {
     &ett_x509sat_LocaleContextSyntax,
 
 /*--- End of included file: packet-x509sat-ettarr.c ---*/
-#line 66 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 64 "../../asn1/x509sat/packet-x509sat-template.c"
   };
 
   /* Register protocol */
@@ -2625,7 +2623,7 @@ void proto_register_x509sat(void) {
   register_ber_syntax_dissector("X121Address", proto_x509sat, dissect_X121Address_PDU);
 
 /*--- End of included file: packet-x509sat-syn-reg.c ---*/
-#line 76 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 74 "../../asn1/x509sat/packet-x509sat-template.c"
 
 }
 
@@ -2818,7 +2816,7 @@ void proto_reg_handoff_x509sat(void) {
 
 
 /*--- End of included file: packet-x509sat-dis-tab.c ---*/
-#line 83 "../../asn1/x509sat/packet-x509sat-template.c"
+#line 81 "../../asn1/x509sat/packet-x509sat-template.c"
 
   /* OBJECT CLASSES */
 

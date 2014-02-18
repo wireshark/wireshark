@@ -1,4 +1,3 @@
--- $Id$
 -- Module IN-errortypes (Q.1248.1:07/2001)
 IN-errortypes {itu-t recommendation q 1248 modules(1) in-errortypes(2)
   version1(0)} DEFINITIONS IMPLICIT TAGS ::=

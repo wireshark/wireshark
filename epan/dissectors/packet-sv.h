@@ -10,8 +10,6 @@
  * Routines for IEC 61850 Sampled Vales packet dissection
  * Michael Bernhard 2008
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

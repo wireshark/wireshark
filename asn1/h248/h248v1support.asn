@@ -1,7 +1,5 @@
 -- Required for support for h248v1
 --
--- $Id$
--- 
 -- This file represents the differences between h248v1 and the h248v3, the current version
 -- This file is included in the Makefile generate_dissectors and related tasks necessary
 -- to generate epan/dissectors/packet-h248.[ch]

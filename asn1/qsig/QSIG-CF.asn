@@ -4,8 +4,6 @@
 -- Standard ECMA-174, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-174.htm
 --
--- $Id$
---
 
 Call-Diversion-Operations-asn1-97  
     { iso (1) standard (0) pss1-call-diversion (13873) call-diversion-operations-asn1-97 (1) } 

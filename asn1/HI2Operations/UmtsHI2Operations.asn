@@ -1,6 +1,5 @@
 -- WS Modified UmtsHI2Operations just containing the imported defines
 --
--- $Id$
 UmtsHI2Operations {itu-t(0) identified-organization(4) etsi(0) securityDomain(2) lawfulintercept(2) threeGPP(4) hi2(1) r8(8) version-1(1)}
 
 DEFINITIONS IMPLICIT TAGS ::=

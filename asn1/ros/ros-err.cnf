@@ -1,7 +1,6 @@
 # ros-err.cnf
 # ROS ReturnError common code
 # Copyright 2007 Tomas Kukosa
-# $Id$
 
 #.FN_HDR ReturnError
   dissector_handle_t err_handle = NULL;

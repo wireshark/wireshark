@@ -1,7 +1,3 @@
-#
-# $Id$
-#
-
 #.IMPORT ../p1/p1-exp.cnf
 #.IMPORT ../ros/ros-exp.cnf
 #.IMPORT ../rtse/rtse-exp.cnf

@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h323/2006/RAS-PROTOCOL-TUNNEL.asn
 --
--- $Id$
---
 
 -- Module RAS-PROTOCOL-TUNNEL (H.323:06/2006)
 RAS-PROTOCOL-TUNNEL DEFINITIONS AUTOMATIC TAGS ::=

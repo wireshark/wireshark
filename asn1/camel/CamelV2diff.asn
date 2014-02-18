@@ -1,5 +1,3 @@
--- $Id$--
---
 -- Hand crafted ASN1 file for the differences between latest spec and V2
 -- statments sufixed with V2 to be able to generate this with the latest ASN1 spec.
 -- .cnf and -template is used to call the statmets here.

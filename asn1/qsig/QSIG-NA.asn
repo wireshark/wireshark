@@ -4,8 +4,6 @@
 -- Standard ECMA-164, 4th edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-164.htm
 --
--- $Id$
---
 
 Name-Operations-asn1-97 
         { iso ( 1)  standard ( 0) pss1-name (13868) name-operations-asn1-97( 1)  } 

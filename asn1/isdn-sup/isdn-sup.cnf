@@ -2,8 +2,6 @@
 # isdn_sup conformation file
 # 2013  Anders Broman
 
-# $Id$
-
 #.OPT
 BER
 GROUP_BY_PROT

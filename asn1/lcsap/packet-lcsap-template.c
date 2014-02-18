@@ -3,8 +3,6 @@
  *
  * Copyright (c) 2011 by Spenser Sheng <spenser.sheng@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs

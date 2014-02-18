@@ -13,8 +13,6 @@
  * Updated to RFC4210 CMPv2 and associated "Transport Protocols for CMP" draft
  *   Martin Peylo 2008
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -238,7 +236,7 @@ static int hf_cmp_PKIFailureInfo_systemFailure = -1;
 static int hf_cmp_PKIFailureInfo_duplicateCertReq = -1;
 
 /*--- End of included file: packet-cmp-hf.c ---*/
-#line 71 "../../asn1/cmp/packet-cmp-template.c"
+#line 69 "../../asn1/cmp/packet-cmp-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmp = -1;
@@ -294,7 +292,7 @@ static gint ett_cmp_PollRepContent = -1;
 static gint ett_cmp_PollRepContent_item = -1;
 
 /*--- End of included file: packet-cmp-ett.c ---*/
-#line 75 "../../asn1/cmp/packet-cmp-template.c"
+#line 73 "../../asn1/cmp/packet-cmp-template.c"
 
 /*--- Included file: packet-cmp-fn.c ---*/
 #line 1 "../../asn1/cmp/packet-cmp-fn.c"
@@ -396,7 +394,7 @@ dissect_cmp_T_infoType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_cmp_T_infoValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "../../asn1/cmp/cmp.cnf"
+#line 88 "../../asn1/cmp/cmp.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -495,7 +493,7 @@ const value_string cmp_PKIStatus_vals[] = {
 
 int
 dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 106 "../../asn1/cmp/cmp.cnf"
+#line 104 "../../asn1/cmp/cmp.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1092,7 +1090,7 @@ static const ber_choice_t PKIBody_choice[] = {
 
 int
 dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 96 "../../asn1/cmp/cmp.cnf"
+#line 94 "../../asn1/cmp/cmp.cnf"
   gint branch_taken;
 
     offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -1454,7 +1452,7 @@ static void dissect_SuppLangTagsValue_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 
 
 /*--- End of included file: packet-cmp-fn.c ---*/
-#line 76 "../../asn1/cmp/packet-cmp-template.c"
+#line 74 "../../asn1/cmp/packet-cmp-template.c"
 
 static int
 dissect_cmp_pdu(tvbuff_t *tvb, proto_tree *tree, asn1_ctx_t *actx)
@@ -2339,7 +2337,7 @@ void proto_register_cmp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmp-hfarr.c ---*/
-#line 328 "../../asn1/cmp/packet-cmp-template.c"
+#line 326 "../../asn1/cmp/packet-cmp-template.c"
 	};
 
 	/* List of subtrees */
@@ -2397,7 +2395,7 @@ void proto_register_cmp(void) {
     &ett_cmp_PollRepContent_item,
 
 /*--- End of included file: packet-cmp-ettarr.c ---*/
-#line 334 "../../asn1/cmp/packet-cmp-template.c"
+#line 332 "../../asn1/cmp/packet-cmp-template.c"
 	};
 	module_t *cmp_module;
 
@@ -2491,7 +2489,7 @@ void proto_reg_handoff_cmp(void) {
 
 
 /*--- End of included file: packet-cmp-dis-tab.c ---*/
-#line 406 "../../asn1/cmp/packet-cmp-template.c"
+#line 404 "../../asn1/cmp/packet-cmp-template.c"
 		inited = TRUE;
 	}
 

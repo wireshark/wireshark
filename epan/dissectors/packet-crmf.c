@@ -10,8 +10,6 @@
  * Routines for RFC2511 Certificate Request Message Format packet dissection
  *   Ronnie Sahlberg 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -139,7 +137,7 @@ static int hf_crmf_attributes = -1;               /* Attributes */
 static int hf_crmf_Attributes_item = -1;          /* Attribute */
 
 /*--- End of included file: packet-crmf-hf.c ---*/
-#line 50 "../../asn1/crmf/packet-crmf-template.c"
+#line 48 "../../asn1/crmf/packet-crmf-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -173,7 +171,7 @@ static gint ett_crmf_PrivateKeyInfo = -1;
 static gint ett_crmf_Attributes = -1;
 
 /*--- End of included file: packet-crmf-ett.c ---*/
-#line 53 "../../asn1/crmf/packet-crmf-template.c"
+#line 51 "../../asn1/crmf/packet-crmf-template.c"
 
 /*--- Included file: packet-crmf-fn.c ---*/
 #line 1 "../../asn1/crmf/packet-crmf-fn.c"
@@ -238,7 +236,7 @@ dissect_crmf_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_crmf_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "../../asn1/crmf/crmf.cnf"
+#line 72 "../../asn1/crmf/crmf.cnf"
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -886,7 +884,7 @@ static void dissect_EncKeyWithID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-crmf-fn.c ---*/
-#line 54 "../../asn1/crmf/packet-crmf-template.c"
+#line 52 "../../asn1/crmf/packet-crmf-template.c"
 
 
 /*--- proto_register_crmf ----------------------------------------------*/
@@ -1223,7 +1221,7 @@ void proto_register_crmf(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-crmf-hfarr.c ---*/
-#line 66 "../../asn1/crmf/packet-crmf-template.c"
+#line 64 "../../asn1/crmf/packet-crmf-template.c"
   };
 
   /* List of subtrees */
@@ -1259,7 +1257,7 @@ void proto_register_crmf(void) {
     &ett_crmf_Attributes,
 
 /*--- End of included file: packet-crmf-ettarr.c ---*/
-#line 71 "../../asn1/crmf/packet-crmf-template.c"
+#line 69 "../../asn1/crmf/packet-crmf-template.c"
   };
 
   /* Register protocol */
@@ -1293,6 +1291,6 @@ void proto_reg_handoff_crmf(void) {
 
 
 /*--- End of included file: packet-crmf-dis-tab.c ---*/
-#line 89 "../../asn1/crmf/packet-crmf-template.c"
+#line 87 "../../asn1/crmf/packet-crmf-template.c"
 }
 

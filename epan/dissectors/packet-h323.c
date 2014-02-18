@@ -10,8 +10,6 @@
  * Routines for H.323 packet dissection
  * 2007  Tomas Kukosa
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -131,7 +129,7 @@ static int hf_h323_timeToLive = -1;               /* TimeToLive */
 static int hf_h323_includeFastStart = -1;         /* NULL */
 
 /*--- End of included file: packet-h323-hf.c ---*/
-#line 94 "../../asn1/h323/packet-h323-template.c"
+#line 92 "../../asn1/h323/packet-h323-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -152,7 +150,7 @@ static gint ett_h323_T_fastStart = -1;
 static gint ett_h323_StatusInquiry_RD = -1;
 
 /*--- End of included file: packet-h323-ett.c ---*/
-#line 97 "../../asn1/h323/packet-h323-template.c"
+#line 95 "../../asn1/h323/packet-h323-template.c"
 
 
 /*--- Included file: packet-h323-fn.c ---*/
@@ -443,7 +441,7 @@ static int dissect_RobustnessData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-h323-fn.c ---*/
-#line 99 "../../asn1/h323/packet-h323-template.c"
+#line 97 "../../asn1/h323/packet-h323-template.c"
 
 /*--- proto_register_h323 ----------------------------------------------*/
 void proto_register_h323(void) {
@@ -567,7 +565,7 @@ void proto_register_h323(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h323-hfarr.c ---*/
-#line 106 "../../asn1/h323/packet-h323-template.c"
+#line 104 "../../asn1/h323/packet-h323-template.c"
   };
 
   /* List of subtrees */
@@ -590,7 +588,7 @@ void proto_register_h323(void) {
     &ett_h323_StatusInquiry_RD,
 
 /*--- End of included file: packet-h323-ettarr.c ---*/
-#line 111 "../../asn1/h323/packet-h323-template.c"
+#line 109 "../../asn1/h323/packet-h323-template.c"
   };
 
   /* Register protocol */

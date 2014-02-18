@@ -2,8 +2,6 @@
  * Routines for OMA Internal Location Protocol packet dissection
  * Copyright 2006, e.yimjia <jy.m12.0@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

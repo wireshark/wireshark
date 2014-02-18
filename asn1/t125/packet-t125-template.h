@@ -2,8 +2,6 @@
  * Routines for t125 packet dissection
  * Copyright 2007, Ronnie Sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

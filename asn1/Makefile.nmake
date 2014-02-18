@@ -2,9 +2,6 @@
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 ##  (See 'Logic' below for additional details)
 #
-# $Id$
-#
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs
@@ -40,7 +37,7 @@
 #       copy_files           : generate the dissectors into epan\dissectors
 #                            :  (This is, in effect, the same as invoking this makefile w/o a target).
 
-include Custom.make 
+include Custom.make
 
 BER_LIST= \
 	acp133			\

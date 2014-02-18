@@ -10,8 +10,6 @@
  * Routines for ACP133 specific syntaxes in X.500 packet dissection
  * Graeme Lunt 2005
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -151,7 +149,7 @@ static int hf_acp133_OnSupported_acp127_pn = -1;
 static int hf_acp133_OnSupported_acp127_tn = -1;
 
 /*--- End of included file: packet-acp133-hf.c ---*/
-#line 55 "../../asn1/acp133/packet-acp133-template.c"
+#line 53 "../../asn1/acp133/packet-acp133-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_acp133 = -1;
@@ -180,7 +178,7 @@ static gint ett_acp133_Capability = -1;
 static gint ett_acp133_SET_OF_ExtendedContentType = -1;
 
 /*--- End of included file: packet-acp133-ett.c ---*/
-#line 59 "../../asn1/acp133/packet-acp133-template.c"
+#line 57 "../../asn1/acp133/packet-acp133-template.c"
 
 
 /*--- Included file: packet-acp133-fn.c ---*/
@@ -1173,7 +1171,7 @@ static void dissect_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-acp133-fn.c ---*/
-#line 61 "../../asn1/acp133/packet-acp133-template.c"
+#line 59 "../../asn1/acp133/packet-acp133-template.c"
 
 
 /*--- proto_register_acp133 -------------------------------------------*/
@@ -1531,7 +1529,7 @@ void proto_register_acp133(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-acp133-hfarr.c ---*/
-#line 70 "../../asn1/acp133/packet-acp133-template.c"
+#line 68 "../../asn1/acp133/packet-acp133-template.c"
   };
 
   /* List of subtrees */
@@ -1562,7 +1560,7 @@ void proto_register_acp133(void) {
     &ett_acp133_SET_OF_ExtendedContentType,
 
 /*--- End of included file: packet-acp133-ettarr.c ---*/
-#line 76 "../../asn1/acp133/packet-acp133-template.c"
+#line 74 "../../asn1/acp133/packet-acp133-template.c"
   };
 
   /* Register protocol */
@@ -1634,7 +1632,7 @@ void proto_reg_handoff_acp133(void) {
 
 
 /*--- End of included file: packet-acp133-dis-tab.c ---*/
-#line 92 "../../asn1/acp133/packet-acp133-template.c"
+#line 90 "../../asn1/acp133/packet-acp133-template.c"
 
   /* X.402 Object Classes */
   oid_add_from_string("id-oc-mhs-distribution-list","2.6.5.1.0");

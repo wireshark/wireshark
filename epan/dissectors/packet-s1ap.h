@@ -9,8 +9,6 @@
 /* packet-s1ap.h
  * Routines for E-UTRAN S1 Application Protocol (S1AP) packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -54,6 +52,6 @@ int dissect_s1ap_SONtransferResponseContainer_PDU(tvbuff_t *tvb _U_, packet_info
 int dissect_s1ap_SONtransferCause_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-s1ap-exp.h ---*/
-#line 29 "../../asn1/s1ap/packet-s1ap-template.h"
+#line 27 "../../asn1/s1ap/packet-s1ap-template.h"
 
 #endif  /* PACKET_S1AP_H */

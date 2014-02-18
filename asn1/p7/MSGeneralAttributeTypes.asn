@@ -1,7 +1,3 @@
---
--- $Id$
---
-
 -- Module MSGeneralAttributeTypes (X.413:06/1999)
 MSGeneralAttributeTypes {joint-iso-itu-t mhs(6) ms(4) modules(0)
   general-attribute-types(2) version-1999(1)} DEFINITIONS ::=

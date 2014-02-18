@@ -1,8 +1,6 @@
 # pkcs12.cnf
 # PKCS12 conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 PKCS-7	cms
 PKCS-5	x509af

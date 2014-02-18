@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/q/q932/1998-Amd1/Network-Facility-Extension.asn
 --
--- $Id$
---
 
 -- Module Network-Facility-Extension (Q.932:05/1998)
 Network-Facility-Extension {iso(1) standard(0) pss1-generic-procedures(11582)

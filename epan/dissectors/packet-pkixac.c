@@ -12,8 +12,6 @@
  * 
  * Copyright 2010, Stig Bjorlykke <stig@bjorlykke.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -110,7 +108,7 @@ static int hf_pkixac_ClassList_secret = -1;
 static int hf_pkixac_ClassList_topSecret = -1;
 
 /*--- End of included file: packet-pkixac-hf.c ---*/
-#line 50 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 48 "../../asn1/pkixac/packet-pkixac-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pkixac = -1;
@@ -137,7 +135,7 @@ static gint ett_pkixac_AttrSpec = -1;
 static gint ett_pkixac_ProxyInfo = -1;
 
 /*--- End of included file: packet-pkixac-ett.c ---*/
-#line 54 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 52 "../../asn1/pkixac/packet-pkixac-template.c"
 
 static const char *object_identifier_id;
 
@@ -404,7 +402,7 @@ dissect_pkixac_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_pkixac_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 63 "../../asn1/pkixac/pkixac.cnf"
+#line 61 "../../asn1/pkixac/pkixac.cnf"
    if (object_identifier_id)
       offset = call_ber_oid_callback (object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -422,7 +420,7 @@ static const ber_sequence_t SecurityCategory_sequence[] = {
 
 static int
 dissect_pkixac_SecurityCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "../../asn1/pkixac/pkixac.cnf"
+#line 54 "../../asn1/pkixac/pkixac.cnf"
   object_identifier_id = NULL;
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    SecurityCategory_sequence, hf_index, ett_pkixac_SecurityCategory);
@@ -585,7 +583,7 @@ static void dissect_ProxyInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-pkixac-fn.c ---*/
-#line 58 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 56 "../../asn1/pkixac/packet-pkixac-template.c"
 
 /*--- proto_register_pkixac ----------------------------------------------*/
 void proto_register_pkixac(void) {
@@ -797,7 +795,7 @@ void proto_register_pkixac(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pkixac-hfarr.c ---*/
-#line 65 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 63 "../../asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* List of subtrees */
@@ -826,7 +824,7 @@ void proto_register_pkixac(void) {
     &ett_pkixac_ProxyInfo,
 
 /*--- End of included file: packet-pkixac-ettarr.c ---*/
-#line 71 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 69 "../../asn1/pkixac/packet-pkixac-template.c"
   };
 
   /* Register protocol */
@@ -844,7 +842,7 @@ void proto_register_pkixac(void) {
   register_ber_syntax_dissector("RFC3281Clearance", proto_pkixac, dissect_RFC3281Clearance_PDU);
 
 /*--- End of included file: packet-pkixac-syn-reg.c ---*/
-#line 81 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 79 "../../asn1/pkixac/packet-pkixac-template.c"
 
 }
 
@@ -867,6 +865,6 @@ void proto_reg_handoff_pkixac(void) {
 
 
 /*--- End of included file: packet-pkixac-dis-tab.c ---*/
-#line 88 "../../asn1/pkixac/packet-pkixac-template.c"
+#line 86 "../../asn1/pkixac/packet-pkixac-template.c"
 }
 

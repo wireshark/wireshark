@@ -10,8 +10,6 @@
  * Routines for t124 packet dissection
  * Copyright 2010, Graeme Lunt
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -52,7 +50,7 @@ int dissect_t124_ConnectData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 int dissect_t124_ConnectGCCPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-t124-exp.h ---*/
-#line 40 "../../asn1/t124/packet-t124-template.h"
+#line 38 "../../asn1/t124/packet-t124-template.h"
 
 #endif  /* PACKET_T124_H */
 

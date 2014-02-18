@@ -5,8 +5,6 @@
  *
  * Luis Ontanon 2005 - Context and Transaction Tracing
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

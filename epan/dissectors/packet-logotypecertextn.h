@@ -10,8 +10,6 @@
  * Routines for RFC3907 Logotype Certificate Extensions packet dissection
  *    Ronnie Sahlberg 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

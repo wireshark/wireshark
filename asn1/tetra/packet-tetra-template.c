@@ -1,8 +1,6 @@
 /* packet-tetra.c
  * Routines for TETRA packet dissection
  *
- *$Id$
- *
  * Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
  *    Beijing Institute of Technology, China
  * Copyright (c) 2011 Holger Hans Peter Freyther

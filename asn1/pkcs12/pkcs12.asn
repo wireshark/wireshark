@@ -1,8 +1,6 @@
 PKCS-12 {iso(1) member-body(2) us(840) rsadsi(113549) pkcs(1)
                  pkcs-12(12) modules(0)  pkcs-12(1)}
 
--- $Id$
-
 DEFINITIONS IMPLICIT TAGS ::=
 
 BEGIN

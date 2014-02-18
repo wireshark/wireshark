@@ -10,8 +10,6 @@
  * Routines for X.509 Authentication Framework packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -64,7 +62,7 @@ int dissect_x509af_AttributeCertificateAssertion(gboolean implicit_tag _U_, tvbu
 void dissect_x509af_Certificate_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
 /*--- End of included file: packet-x509af-exp.h ---*/
-#line 30 "../../asn1/x509af/packet-x509af-template.h"
+#line 28 "../../asn1/x509af/packet-x509af-template.h"
 
 extern const char* x509af_get_last_algorithm_id(void);
 

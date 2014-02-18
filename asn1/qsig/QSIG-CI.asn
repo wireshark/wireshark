@@ -4,8 +4,6 @@
 -- Standard ECMA-203, 4th edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-203.htm
 --
--- $Id$
---
 
 Call-Intrusion-Operations-asn1-97 
   {iso(1) standard(0) pss1-call-intrusion(14846) call-intrusion-operations-asn1-97 (2) } 

@@ -2,8 +2,6 @@
  * Routines for Wireless Certificate Extension (RFC3770)
  *  Ronnie Sahlberg 2005
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

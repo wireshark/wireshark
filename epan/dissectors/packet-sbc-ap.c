@@ -9,8 +9,6 @@
 /* packet-sbc-ap.c
  * Routines for SBc Application Part (SBc-AP) packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -104,7 +102,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sbc-ap-val.h ---*/
-#line 57 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 55 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_sbc_ap = -1;
@@ -169,7 +167,7 @@ static int hf_sbc_ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value *
 static int hf_sbc_ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-sbc-ap-hf.c ---*/
-#line 62 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 60 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_sbc_ap = -1;
@@ -202,7 +200,7 @@ static gint ett_sbc_ap_SuccessfulOutcome = -1;
 static gint ett_sbc_ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-sbc-ap-ett.c ---*/
-#line 67 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 65 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 enum{
 	INITIATING_MESSAGE,
@@ -262,7 +260,7 @@ dissect_sbc_ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 64 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 62 "../../asn1/sbc-ap/sbc-ap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
                               "unknown message"));
@@ -313,7 +311,7 @@ dissect_sbc_ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 47 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 45 "../../asn1/sbc-ap/sbc-ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sbc_ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -555,7 +553,7 @@ dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "../../asn1/sbc-ap/sbc-ap.cnf"
+#line 99 "../../asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1131,7 +1129,7 @@ static int dissect_SBC_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-sbc-ap-fn.c ---*/
-#line 94 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 92 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -1418,7 +1416,7 @@ void proto_register_sbc_ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-sbc-ap-hfarr.c ---*/
-#line 156 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 154 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
   /* List of subtrees */
@@ -1452,7 +1450,7 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-sbc-ap-ettarr.c ---*/
-#line 162 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 160 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
   };
 
 
@@ -1510,7 +1508,7 @@ proto_reg_handoff_sbc_ap(void)
 
 
 /*--- End of included file: packet-sbc-ap-dis-tab.c ---*/
-#line 195 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
+#line 193 "../../asn1/sbc-ap/packet-sbc-ap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, sbc_ap_handle);

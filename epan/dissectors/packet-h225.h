@@ -10,8 +10,6 @@
  * Routines for h225 packet dissection
  * Copyright 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -151,7 +149,7 @@ int dissect_h225_TransportQOS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 int dissect_h225_ExtendedAliasAddress_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-h225-exp.h ---*/
-#line 83 "../../asn1/h225/packet-h225-template.h"
+#line 81 "../../asn1/h225/packet-h225-template.h"
 
 #endif  /* PACKET_H225_H */
 

@@ -2,8 +2,6 @@
  * Routines for IEC 61850 GOOSE packet dissection
  * Martin Lutz 2008
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

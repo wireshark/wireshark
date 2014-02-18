@@ -1,8 +1,6 @@
 # HI2Operations.cnf
 # HI2Operations conformation file
 
-# $Id$
-
 #.MODULE
 UmtsHI2Operations UmtsHI2
 PCESP PCESP

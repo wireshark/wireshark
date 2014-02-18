@@ -1,7 +1,5 @@
 /* packet-ansi_tcap.h
  *
- * $Id$
- *
  * Copyright 2007 Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer

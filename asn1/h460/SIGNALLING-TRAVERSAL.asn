@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.18/2005/SIGNALLING-TRAVERSAL.asn
 --
--- $Id$
---
 
 -- Module SIGNALLING-TRAVERSAL (H.460.18:09/2005)
 SIGNALLING-TRAVERSAL {itu-t(0) recommendation(0) h(8) 460 18 version(0) 1}

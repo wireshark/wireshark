@@ -4,7 +4,6 @@ media-gateway-control(0) version3(3)}
 -- Module MEDIA-GATEWAY-CONTROL (H.248.1:09/2005)
 -- See also ITU-T H.248.1 v3 (2005) Amend. 1 (05/2008)
 --
--- $Id$
 --DEFINITIONS AUTOMATIC TAGS ::=
 --BEGIN
 -- Has been modified to pass through the ASN2ETH compiler

@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.1/1998/Manufacturer-specific-service-extension-definition.asn
 --
--- $Id$
---
 
 -- Module Manufacturer-specific-service-extension-definition (H.450.1:02/1998)
 Manufacturer-specific-service-extension-definition {itu-t recommendation 

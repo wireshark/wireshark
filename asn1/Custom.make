@@ -1,7 +1,5 @@
 # Automake file for Wireshark
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2006 Gerald Combs
@@ -23,10 +21,10 @@
 # Add custom asn1 directories here, the file is included by Makefile.am
 # Note you need to add a Cutom.m4 file too.
 #
-CUSTOM_SUBDIRS = 
+CUSTOM_SUBDIRS =
 
 # Add custom dirs here for BER dissectors on Windows
-CUSTOM_BER_LIST = 
+CUSTOM_BER_LIST =
 
 # Add custom dirs here for PER dissectors on Windows
 CUSTOM_PER_LIST =

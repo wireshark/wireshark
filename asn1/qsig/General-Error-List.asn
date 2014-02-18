@@ -2,8 +2,6 @@
 -- See also ITU-T Q.950 (06/2000)
 -- See also the index of all ASN.1 assignments needed in this document
 --
--- $Id$
---
 
 General-Error-List {itu-t recommendation q 950 general-error-list(1)}
 DEFINITIONS ::=

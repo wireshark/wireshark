@@ -1,5 +1,3 @@
-# $Id$
-
 #.IMPORT_TAG
 AlgorithmIdentifier      BER_CLASS_UNI BER_UNI_TAG_SEQUENCE
 Attribute                BER_CLASS_UNI BER_UNI_TAG_SEQUENCE

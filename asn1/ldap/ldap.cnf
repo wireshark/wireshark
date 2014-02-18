@@ -1,7 +1,6 @@
 # ldap.cnf
 # LDAP conformation file
 # Copyright 2005 Anders Broman
-# $Id$
 
 #.OMIT_ASSIGNMENT
 DirSyncFlagsSubEntry

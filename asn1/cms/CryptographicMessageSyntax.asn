@@ -1,6 +1,5 @@
 -- Extracted from RFC5652
 -- and massaged/modified so it passes through our asn2wrs compiler
--- $Id$
 
 CryptographicMessageSyntax { iso(1) member-body(2) us(840) rsadsi(113549)
       pkcs(1) pkcs-9(9) smime(16) modules(0) cms-2004(24) } DEFINITIONS IMPLICIT TAGS ::=

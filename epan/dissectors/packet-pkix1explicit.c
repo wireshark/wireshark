@@ -11,8 +11,6 @@
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -109,7 +107,7 @@ static int hf_pkix1explicit_min_01 = -1;          /* ASId */
 static int hf_pkix1explicit_max_01 = -1;          /* ASId */
 
 /*--- End of included file: packet-pkix1explicit-hf.c ---*/
-#line 57 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 55 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -139,7 +137,7 @@ static gint ett_pkix1explicit_ASIdOrRange = -1;
 static gint ett_pkix1explicit_ASRange = -1;
 
 /*--- End of included file: packet-pkix1explicit-ett.c ---*/
-#line 60 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 58 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 
 static const char *object_identifier_id;
@@ -286,7 +284,7 @@ dissect_pkix1explicit_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static int
 dissect_pkix1explicit_T_extnValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 56 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 54 "../../asn1/pkix1explicit/pkix1explicit.cnf"
   gint8 appclass;
   gboolean pc, ind;
   gint32 tag;
@@ -398,7 +396,7 @@ dissect_pkix1explicit_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 static int
 dissect_pkix1explicit_T_values_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 42 "../../asn1/pkix1explicit/pkix1explicit.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -438,7 +436,7 @@ dissect_pkix1explicit_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pkix1explicit_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 48 "../../asn1/pkix1explicit/pkix1explicit.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -491,7 +489,7 @@ dissect_pkix1explicit_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 int
 dissect_pkix1explicit_DirectoryString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 38 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 36 "../../asn1/pkix1explicit/pkix1explicit.cnf"
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 
 
@@ -549,7 +547,7 @@ dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, t
 
 static int
 dissect_pkix1explicit_T_addressFamily(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "../../asn1/pkix1explicit/pkix1explicit.cnf"
+#line 66 "../../asn1/pkix1explicit/pkix1explicit.cnf"
 	tvbuff_t	*parameter_tvb;
 	proto_tree *subtree;
 
@@ -812,7 +810,7 @@ static void dissect_ASIdentifiers_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 
 /*--- End of included file: packet-pkix1explicit-fn.c ---*/
-#line 104 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 102 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
 
 
 /*--- proto_register_pkix1explicit ----------------------------------------------*/
@@ -1008,7 +1006,7 @@ void proto_register_pkix1explicit(void) {
         "ASId", HFILL }},
 
 /*--- End of included file: packet-pkix1explicit-hfarr.c ---*/
-#line 123 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 121 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* List of subtrees */
@@ -1041,7 +1039,7 @@ void proto_register_pkix1explicit(void) {
     &ett_pkix1explicit_ASRange,
 
 /*--- End of included file: packet-pkix1explicit-ettarr.c ---*/
-#line 129 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 127 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
   };
 
   /* Register protocol */
@@ -1068,6 +1066,6 @@ void proto_reg_handoff_pkix1explicit(void) {
 
 
 /*--- End of included file: packet-pkix1explicit-dis-tab.c ---*/
-#line 146 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
+#line 144 "../../asn1/pkix1explicit/packet-pkix1explicit-template.c"
 }
 

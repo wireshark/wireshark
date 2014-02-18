@@ -2,8 +2,6 @@
  * Routines for LPP Extensions (LLPe) packet dissection
  * Copyright 2012, Pascal Quantin <pascal.quantin@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

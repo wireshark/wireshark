@@ -11,8 +11,6 @@
  * Based on the dissector by
  * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -182,7 +180,7 @@ static int hf_pres_User_session_requirements_symmetric_synchronize = -1;
 static int hf_pres_User_session_requirements_data_separation = -1;
 
 /*--- End of included file: packet-pres-hf.c ---*/
-#line 95 "../../asn1/pres/packet-pres-template.c"
+#line 93 "../../asn1/pres/packet-pres-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_pres           = -1;
@@ -228,7 +226,7 @@ static gint ett_pres_User_session_requirements = -1;
 static gint ett_pres_UD_type = -1;
 
 /*--- End of included file: packet-pres-ett.c ---*/
-#line 100 "../../asn1/pres/packet-pres-template.c"
+#line 98 "../../asn1/pres/packet-pres-template.c"
 
 static expert_field ei_pres_dissector_not_available = EI_INIT;
 
@@ -435,7 +433,7 @@ dissect_pres_Called_presentation_selector(gboolean implicit_tag _U_, tvbuff_t *t
 
 static int
 dissect_pres_Presentation_context_identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 73 "../../asn1/pres/pres.cnf"
+#line 71 "../../asn1/pres/pres.cnf"
   const char *name;
   char *oid;
   struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
@@ -499,13 +497,13 @@ static const ber_sequence_t Context_list_item_sequence[] = {
 
 static int
 dissect_pres_Context_list_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/pres/pres.cnf"
+#line 97 "../../asn1/pres/pres.cnf"
 	abstract_syntax_name_oid=NULL;
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Context_list_item_sequence, hf_index, ett_pres_Context_list_item);
 
-#line 102 "../../asn1/pres/pres.cnf"
+#line 100 "../../asn1/pres/pres.cnf"
 	register_ctx_id_and_oid(actx->pinfo, presentation_context_identifier, abstract_syntax_name_oid);
 
   return offset;
@@ -635,7 +633,7 @@ dissect_pres_Simply_encoded_data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "../../asn1/pres/pres.cnf"
+#line 35 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -658,7 +656,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "../../asn1/pres/pres.cnf"
+#line 49 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
  char *oid; 
@@ -1087,7 +1085,7 @@ static const value_string pres_Abort_reason_vals[] = {
 
 static int
 dissect_pres_Abort_reason(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 92 "../../asn1/pres/pres.cnf"
+#line 90 "../../asn1/pres/pres.cnf"
   guint32 reason;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -1360,7 +1358,7 @@ static void dissect_UD_type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-pres-fn.c ---*/
-#line 227 "../../asn1/pres/packet-pres-template.c"
+#line 225 "../../asn1/pres/packet-pres-template.c"
 
 
 /*
@@ -1846,7 +1844,7 @@ void proto_register_pres(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-pres-hfarr.c ---*/
-#line 400 "../../asn1/pres/packet-pres-template.c"
+#line 398 "../../asn1/pres/packet-pres-template.c"
   };
 
   /* List of subtrees */
@@ -1893,7 +1891,7 @@ void proto_register_pres(void) {
     &ett_pres_UD_type,
 
 /*--- End of included file: packet-pres-ettarr.c ---*/
-#line 406 "../../asn1/pres/packet-pres-template.c"
+#line 404 "../../asn1/pres/packet-pres-template.c"
   };
 
   static ei_register_info ei[] = {

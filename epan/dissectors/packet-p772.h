@@ -10,8 +10,6 @@
  * Routines for STANAG 4406 (X.400 Military Message Extensions)  packet dissection
  * Graeme Lunt 2005
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

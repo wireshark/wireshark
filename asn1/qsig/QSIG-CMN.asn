@@ -4,8 +4,6 @@
 -- Standard ECMA-251, 3rd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-251.htm
 --
--- $Id$
---
 
 Common-Information-Operations-asn1-97 
   {iso (1)  standard (0) pss1-common-information (15772) operations-asn1-97 (1)} 

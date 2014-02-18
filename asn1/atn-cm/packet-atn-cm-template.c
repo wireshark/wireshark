@@ -8,8 +8,6 @@
  * By Mathias Guettler <guettler@web.de>
  * Copyright 2013
  *
- * $Id$
- *
  * Routines for ATN context management protocol packet disassembly.
  * ATN context management allows an aircraft
  * to log on to a ground facility.

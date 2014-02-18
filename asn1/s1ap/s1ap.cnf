@@ -1,8 +1,6 @@
 # s1ap.cnf
 # s1ap conformation file
 
-# $Id$
-
 #.OPT
 PER
 ALIGNED

@@ -1,8 +1,6 @@
 # cdt.cnf
 # Compressed Data Type conformation file
 
-# $Id$
-
 #.EXPORTS
 CompressedData
 

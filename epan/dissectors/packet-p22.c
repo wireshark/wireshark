@@ -10,8 +10,6 @@
  * Routines for X.420 (X.400 Message Transfer)  packet dissection
  * Graeme Lunt 2005
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -338,7 +336,7 @@ static const value_string charsetreg_vals [] = {
 #define ub_telephone_number            32
 
 /*--- End of included file: packet-p22-val.h ---*/
-#line 82 "../../asn1/p22/packet-p22-template.c"
+#line 80 "../../asn1/p22/packet-p22-template.c"
 
 
 /*--- Included file: packet-p22-hf.c ---*/
@@ -723,7 +721,7 @@ static int hf_p22_RecipientSecurityRequest_ipn_non_repudiation = -1;
 static int hf_p22_RecipientSecurityRequest_ipn_proof = -1;
 
 /*--- End of included file: packet-p22-hf.c ---*/
-#line 84 "../../asn1/p22/packet-p22-template.c"
+#line 82 "../../asn1/p22/packet-p22-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p22 = -1;
@@ -857,7 +855,7 @@ static gint ett_p22_T_body_part_token_choice = -1;
 static gint ett_p22_T_choice = -1;
 
 /*--- End of included file: packet-p22-ett.c ---*/
-#line 88 "../../asn1/p22/packet-p22-template.c"
+#line 86 "../../asn1/p22/packet-p22-template.c"
 
 
 /*--- Included file: packet-p22-fn.c ---*/
@@ -1032,7 +1030,7 @@ dissect_p22_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 221 "../../asn1/p22/p22.cnf"
+#line 220 "../../asn1/p22/p22.cnf"
   const char *name = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
@@ -1050,7 +1048,7 @@ dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_p22_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "../../asn1/p22/p22.cnf"
+#line 228 "../../asn1/p22/p22.cnf"
 
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -1227,7 +1225,7 @@ dissect_p22_RelatedIPMsField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 static int
 dissect_p22_SubjectField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 249 "../../asn1/p22/p22.cnf"
+#line 248 "../../asn1/p22/p22.cnf"
   tvbuff_t *subject=NULL;
 
     offset = dissect_ber_constrained_restricted_string(implicit_tag, BER_UNI_TAG_TeletexString,
@@ -1493,7 +1491,7 @@ dissect_p22_G3FacsimileBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_p22_Interchange_Data_Element(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 267 "../../asn1/p22/p22.cnf"
+#line 266 "../../asn1/p22/p22.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1734,7 +1732,7 @@ dissect_p22_BilaterallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p22_NationallyDefinedBodyPart(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 270 "../../asn1/p22/p22.cnf"
+#line 269 "../../asn1/p22/p22.cnf"
 /* XXX Not implemented yet */
 
 
@@ -1848,7 +1846,7 @@ static const ber_sequence_t IPM_sequence[] = {
 
 int
 dissect_p22_IPM(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 233 "../../asn1/p22/p22.cnf"
+#line 232 "../../asn1/p22/p22.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Message");
 
@@ -2119,7 +2117,7 @@ static const ber_sequence_t IPN_set[] = {
 
 int
 dissect_p22_IPN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 240 "../../asn1/p22/p22.cnf"
+#line 239 "../../asn1/p22/p22.cnf"
 
  col_append_str(actx->pinfo->cinfo, COL_INFO, " Notification");
 
@@ -2704,7 +2702,7 @@ dissect_p22_Precedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_p22_CharacterSetRegistration(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 260 "../../asn1/p22/p22.cnf"
+#line 259 "../../asn1/p22/p22.cnf"
   guint32 crs;
     offset = dissect_ber_constrained_integer(implicit_tag, actx, tree, tvb, offset,
                                                             1U, 32767U, hf_index, &crs);
@@ -2945,7 +2943,7 @@ dissect_p22_Document_Type_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p22_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 273 "../../asn1/p22/p22.cnf"
+#line 272 "../../asn1/p22/p22.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -3101,7 +3099,7 @@ dissect_p22_EnvironmentParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 276 "../../asn1/p22/p22.cnf"
+#line 275 "../../asn1/p22/p22.cnf"
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
 
@@ -3113,7 +3111,7 @@ dissect_p22_T_compression_algorithm_id(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 static int
 dissect_p22_T_compression_algorithm_param(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 279 "../../asn1/p22/p22.cnf"
+#line 278 "../../asn1/p22/p22.cnf"
 /* XXX: Not implemented yet */
 
 
@@ -4507,7 +4505,7 @@ static void dissect_ForwardedContentToken_PDU(tvbuff_t *tvb _U_, packet_info *pi
 
 
 /*--- End of included file: packet-p22-fn.c ---*/
-#line 90 "../../asn1/p22/packet-p22-template.c"
+#line 88 "../../asn1/p22/packet-p22-template.c"
 
 /*
 * Dissect P22 PDUs inside a PPDU.
@@ -6052,7 +6050,7 @@ void proto_register_p22(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p22-hfarr.c ---*/
-#line 122 "../../asn1/p22/packet-p22-template.c"
+#line 120 "../../asn1/p22/packet-p22-template.c"
   };
 
   /* List of subtrees */
@@ -6188,7 +6186,7 @@ void proto_register_p22(void) {
     &ett_p22_T_choice,
 
 /*--- End of included file: packet-p22-ettarr.c ---*/
-#line 128 "../../asn1/p22/packet-p22-template.c"
+#line 126 "../../asn1/p22/packet-p22-template.c"
   };
 
   /* Register protocol */
@@ -6308,7 +6306,7 @@ void proto_reg_handoff_p22(void) {
 
 
 /*--- End of included file: packet-p22-dis-tab.c ---*/
-#line 144 "../../asn1/p22/packet-p22-template.c"
+#line 142 "../../asn1/p22/packet-p22-template.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");

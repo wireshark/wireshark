@@ -11,8 +11,6 @@
  * Copyright 2004 - 2005, Tim Endean <endeant@hotmail.com>
  * Built from the gsm-map dissector Copyright 2004 - 2005, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -139,7 +137,7 @@ static int hf_tcap_AARQ_protocol_version_version1 = -1;
 static int hf_tcap_AARE_protocol_version_version1 = -1;
 
 /*--- End of included file: packet-tcap-hf.c ---*/
-#line 63 "../../asn1/tcap/packet-tcap-template.c"
+#line 61 "../../asn1/tcap/packet-tcap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_tcap = -1;
@@ -194,7 +192,7 @@ static gint ett_tcap_ABRT_user_information = -1;
 static gint ett_tcap_Associate_source_diagnostic = -1;
 
 /*--- End of included file: packet-tcap-ett.c ---*/
-#line 79 "../../asn1/tcap/packet-tcap-template.c"
+#line 77 "../../asn1/tcap/packet-tcap-template.c"
 
 /* When several Tcap components are received in a single TCAP message,
    we have to use several buffers for the stored parameters
@@ -290,7 +288,7 @@ dissect_tcap_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_tcap_Dialog1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "../../asn1/tcap/tcap.cnf"
+#line 68 "../../asn1/tcap/tcap.cnf"
 
   offset = dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 
@@ -318,7 +316,7 @@ dissect_tcap_ExternalPDU_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 64 "../../asn1/tcap/tcap.cnf"
+#line 63 "../../asn1/tcap/tcap.cnf"
 
   offset = dissect_ber_tagged_type(implicit_tag, actx, tree, tvb, offset,
                                       hf_index, BER_CLASS_UNI, 8, TRUE, dissect_tcap_ExternalPDU_U);
@@ -333,7 +331,7 @@ dissect_tcap_ExternalPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_tcap_DialogueOC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "../../asn1/tcap/tcap.cnf"
+#line 58 "../../asn1/tcap/tcap.cnf"
 
   offset = dissect_tcap_ExternalPDU(FALSE /*implicit_tag*/, tvb, offset, actx, tree, -1);
 
@@ -398,7 +396,7 @@ dissect_tcap_OPERATION(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_tcap_Parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "../../asn1/tcap/tcap.cnf"
+#line 73 "../../asn1/tcap/tcap.cnf"
 
   offset = dissect_tcap_param(actx,tree,tvb,offset);
 
@@ -670,7 +668,7 @@ static const ber_choice_t Component_choice[] = {
 
 static int
 dissect_tcap_Component(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 79 "../../asn1/tcap/tcap.cnf"
+#line 78 "../../asn1/tcap/tcap.cnf"
 tvbuff_t	*next_tvb;
 gint8 ber_class;
 gboolean pc;
@@ -758,7 +756,7 @@ dissect_tcap_OCTET_STRING_SIZE_1_4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_OrigTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 123 "../../asn1/tcap/tcap.cnf"
+#line 122 "../../asn1/tcap/tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len, i;
 proto_item *tid_item;
@@ -813,7 +811,7 @@ static const ber_sequence_t Begin_sequence[] = {
 
 static int
 dissect_tcap_Begin(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 201 "../../asn1/tcap/tcap.cnf"
+#line 200 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_BEGIN;
 
 /*  Do not change col_add_str() to col_append_str() here: we _want_ this call
@@ -835,7 +833,7 @@ gp_tcapsrt_info->ope=TC_BEGIN;
 
 static int
 dissect_tcap_DestTransactionID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 164 "../../asn1/tcap/tcap.cnf"
+#line 163 "../../asn1/tcap/tcap.cnf"
 tvbuff_t *parameter_tvb;
 guint8 len , i;
 proto_item *tid_item;
@@ -887,7 +885,7 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 215 "../../asn1/tcap/tcap.cnf"
+#line 214 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
@@ -909,7 +907,7 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 222 "../../asn1/tcap/tcap.cnf"
+#line 221 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
@@ -980,7 +978,7 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "../../asn1/tcap/tcap.cnf"
+#line 228 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
 	col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
@@ -1060,7 +1058,7 @@ dissect_tcap_AUDT_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_AUDT_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "../../asn1/tcap/tcap.cnf"
+#line 107 "../../asn1/tcap/tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
 	tcap_private.oid= (const void*) cur_oid;
@@ -1157,7 +1155,7 @@ dissect_tcap_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_AARQ_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 113 "../../asn1/tcap/tcap.cnf"
+#line 112 "../../asn1/tcap/tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
 	tcap_private.oid= (const void*) cur_oid;
@@ -1225,7 +1223,7 @@ dissect_tcap_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 static int
 dissect_tcap_AARE_application_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 118 "../../asn1/tcap/tcap.cnf"
+#line 117 "../../asn1/tcap/tcap.cnf"
   offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &cur_oid);
 
 	tcap_private.oid= (const void*) cur_oid;
@@ -1441,7 +1439,7 @@ static void dissect_DialoguePDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-tcap-fn.c ---*/
-#line 159 "../../asn1/tcap/packet-tcap-template.c"
+#line 157 "../../asn1/tcap/packet-tcap-template.c"
 
 /*
  * DEBUG functions
@@ -3369,7 +3367,7 @@ proto_reg_handoff_tcap(void)
 
 
 /*--- End of included file: packet-tcap-dis-tab.c ---*/
-#line 2079 "../../asn1/tcap/packet-tcap-template.c"
+#line 2077 "../../asn1/tcap/packet-tcap-template.c"
 }
 
 static void init_tcap(void);
@@ -3700,7 +3698,7 @@ proto_register_tcap(void)
         NULL, HFILL }},
 
 /*--- End of included file: packet-tcap-hfarr.c ---*/
-#line 2141 "../../asn1/tcap/packet-tcap-template.c"
+#line 2139 "../../asn1/tcap/packet-tcap-template.c"
     };
 
 /* Setup protocol subtree array */
@@ -3749,7 +3747,7 @@ proto_register_tcap(void)
     &ett_tcap_Associate_source_diagnostic,
 
 /*--- End of included file: packet-tcap-ettarr.c ---*/
-#line 2151 "../../asn1/tcap/packet-tcap-template.c"
+#line 2149 "../../asn1/tcap/packet-tcap-template.c"
     };
 
     /*static enum_val_t tcap_options[] = {

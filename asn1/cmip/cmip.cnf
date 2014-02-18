@@ -1,8 +1,6 @@
 # cmip.cnf
 # CMIP conformation file
 
-# $Id$
-
 #.IMPORT ../acse/acse-exp.cnf
 
 #.MODULE

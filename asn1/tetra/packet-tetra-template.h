@@ -4,8 +4,6 @@
  * Copyright (c) 2007 - 2011 Professional Mobile Communication Research Group,
  *    Beijing Institute of Technology, China
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

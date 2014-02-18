@@ -4,8 +4,6 @@
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2010, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

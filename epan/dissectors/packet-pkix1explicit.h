@@ -9,8 +9,6 @@
 /* packet-pkix1explicit.h
  * Routines for PKIX1Explicit packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -65,7 +63,7 @@ int dissect_pkix1explicit_TerminalType(gboolean implicit_tag _U_, tvbuff_t *tvb 
 int dissect_pkix1explicit_TeletexDomainDefinedAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-pkix1explicit-exp.h ---*/
-#line 40 "../../asn1/pkix1explicit/packet-pkix1explicit-template.h"
+#line 38 "../../asn1/pkix1explicit/packet-pkix1explicit-template.h"
 
 #endif  /* PACKET_PKIX1EXPLICIT_H */
 

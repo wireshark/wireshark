@@ -10,8 +10,6 @@
  * Routines for X.413 (P7) packet dissection
  * Graeme Lunt 2007
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -124,7 +122,7 @@ static int proto_p7 = -1;
 #define ub_ua_restrictions             16
 
 /*--- End of included file: packet-p7-val.h ---*/
-#line 61 "../../asn1/p7/packet-p7-template.c"
+#line 59 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-hf.c ---*/
@@ -496,7 +494,7 @@ static int hf_p7_T_entry_class_problem_entry_class_not_subscribed = -1;
 static int hf_p7_T_entry_class_problem_inappropriate_entry_class = -1;
 
 /*--- End of included file: packet-p7-hf.c ---*/
-#line 63 "../../asn1/p7/packet-p7-template.c"
+#line 61 "../../asn1/p7/packet-p7-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_p7 = -1;
@@ -638,7 +636,7 @@ static gint ett_p7_RTSE_apdus = -1;
 static gint ett_p7_RTABapdu = -1;
 
 /*--- End of included file: packet-p7-ett.c ---*/
-#line 67 "../../asn1/p7/packet-p7-template.c"
+#line 65 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table.c ---*/
@@ -681,7 +679,7 @@ static const value_string p7_err_code_string_vals[] = {
 
 
 /*--- End of included file: packet-p7-table.c ---*/
-#line 69 "../../asn1/p7/packet-p7-template.c"
+#line 67 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-fn.c ---*/
@@ -4084,7 +4082,7 @@ static void dissect_RTSE_apdus_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-p7-fn.c ---*/
-#line 71 "../../asn1/p7/packet-p7-template.c"
+#line 69 "../../asn1/p7/packet-p7-template.c"
 
 
 /*--- Included file: packet-p7-table11.c ---*/
@@ -4116,7 +4114,7 @@ static const ros_opr_t p7_opr_tab[] = {
 
 
 /*--- End of included file: packet-p7-table11.c ---*/
-#line 73 "../../asn1/p7/packet-p7-template.c"
+#line 71 "../../asn1/p7/packet-p7-template.c"
 
 /*--- Included file: packet-p7-table21.c ---*/
 #line 1 "../../asn1/p7/packet-p7-table21.c"
@@ -4155,7 +4153,7 @@ static const ros_err_t p7_err_tab[] = {
 
 
 /*--- End of included file: packet-p7-table21.c ---*/
-#line 74 "../../asn1/p7/packet-p7-template.c"
+#line 72 "../../asn1/p7/packet-p7-template.c"
 
 static const ros_info_t p7_ros_info = {
   "P7",
@@ -5635,7 +5633,7 @@ void proto_register_p7(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-p7-hfarr.c ---*/
-#line 93 "../../asn1/p7/packet-p7-template.c"
+#line 91 "../../asn1/p7/packet-p7-template.c"
   };
 
   /* List of subtrees */
@@ -5779,7 +5777,7 @@ void proto_register_p7(void) {
     &ett_p7_RTABapdu,
 
 /*--- End of included file: packet-p7-ettarr.c ---*/
-#line 99 "../../asn1/p7/packet-p7-template.c"
+#line 97 "../../asn1/p7/packet-p7-template.c"
   };
   module_t *p7_module;
 
@@ -5838,7 +5836,7 @@ void proto_reg_handoff_p7(void) {
 
 
 /*--- End of included file: packet-p7-dis-tab.c ---*/
-#line 125 "../../asn1/p7/packet-p7-template.c"
+#line 123 "../../asn1/p7/packet-p7-template.c"
 
   /* APPLICATION CONTEXT */
 

@@ -4,8 +4,6 @@
 -- Standard ECMA-304, 2nd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-304.htm
 --
--- $Id$
---
 
 Wireless-Terminal-Call-Handling-Operations-asn1-97  
    { iso (1)  standard (0)  pss1-wtm-call-handling (15431)  operations-asn1-97 (1)} 

@@ -8,8 +8,6 @@
 #line 1 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 /* packet-novell_pkis.c
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -95,7 +93,7 @@ static int hf_novell_pkis_amount = -1;            /* INTEGER */
 static int hf_novell_pkis_amtExp10 = -1;          /* INTEGER */
 
 /*--- End of included file: packet-novell_pkis-hf.c ---*/
-#line 41 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 39 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 
 /*--- Included file: packet-novell_pkis-ett.c ---*/
 #line 1 "../../asn1/novell_pkis/packet-novell_pkis-ett.c"
@@ -117,7 +115,7 @@ static gint ett_novell_pkis_RelianceLimits = -1;
 static gint ett_novell_pkis_MonetaryValue = -1;
 
 /*--- End of included file: packet-novell_pkis-ett.c ---*/
-#line 42 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 40 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 
 /*--- Included file: packet-novell_pkis-fn.c ---*/
 #line 1 "../../asn1/novell_pkis/packet-novell_pkis-fn.c"
@@ -511,7 +509,7 @@ static void dissect_RelianceLimits_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-novell_pkis-fn.c ---*/
-#line 43 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 41 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 
 void proto_register_novell_pkis (void);
 void proto_reg_handoff_novell_pkis(void);
@@ -528,7 +526,7 @@ void proto_reg_handoff_novell_pkis(void)
 
 
 /*--- End of included file: packet-novell_pkis-dis-tab.c ---*/
-#line 52 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 50 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
 }
 
 void proto_register_novell_pkis (void)
@@ -719,7 +717,7 @@ void proto_register_novell_pkis (void)
         "INTEGER", HFILL }},
 
 /*--- End of included file: packet-novell_pkis-hfarr.c ---*/
-#line 58 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 56 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
   };
   static gint *ett[] = {
 
@@ -743,7 +741,7 @@ void proto_register_novell_pkis (void)
     &ett_novell_pkis_MonetaryValue,
 
 /*--- End of included file: packet-novell_pkis-ettarr.c ---*/
-#line 61 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
+#line 59 "../../asn1/novell_pkis/packet-novell_pkis-template.c"
   };
 
   /* execute protocol initialization only once */

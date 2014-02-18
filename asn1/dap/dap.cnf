@@ -1,6 +1,3 @@
-# $Id$
-
-
 #.TYPE_ATTR
 # X509AF also exports the type Time. This makes sure asn2wrs uses the locally defined version.
 Time                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(dap_Time_vals)  BITMASK = 0

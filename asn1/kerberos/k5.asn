@@ -1,7 +1,6 @@
 -- Extracted from http://www.h5l.org/dist/src/heimdal-1.2.tar.gz
 -- Id: k5.asn1 22745 2008-03-24 12:07:54Z lha $
 -- Commented out stuff already in KerberosV5Spec2.asn
--- $Id$
 KERBEROS5 DEFINITIONS ::=
 BEGIN
 

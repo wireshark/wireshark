@@ -7,8 +7,6 @@
  * By Mathias Guettler <guettler@web.de>
  * Copyright 2013
  *
- * $Id$
- *
  * Routines for ATN upper layer
  * protocol packet disassembly
 

@@ -1,6 +1,5 @@
 # p22.cnf
 # X.420 (InterPersonal Messaging) conformance file
-# $Id$
 
 #.TYPE_ATTR
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0

@@ -1,8 +1,6 @@
 # logotypecertextn.cnf
 # LogotypeCertExtn conformation file
 
-# $Id$
-
 #.IMPORT ../x509af/x509af-exp.cnf
 
 #.EXPORTS

@@ -3,8 +3,6 @@
 /* packet-pkix1explicit.c
  * Routines for PKIX1Explitic packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -10,8 +10,6 @@
  * Routines for H.235 packet dissection
  * 2004  Tomas Kukosa
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -165,7 +163,7 @@ static int hf_h235_fecBeforeSrtp = -1;            /* NULL */
 static int hf_h235_fecAfterSrtp = -1;             /* NULL */
 
 /*--- End of included file: packet-h235-hf.c ---*/
-#line 55 "../../asn1/h235/packet-h235-template.c"
+#line 53 "../../asn1/h235/packet-h235-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -205,7 +203,7 @@ static gint ett_h235_SEQUENCE_OF_GenericData = -1;
 static gint ett_h235_FecOrder = -1;
 
 /*--- End of included file: packet-h235-ett.c ---*/
-#line 58 "../../asn1/h235/packet-h235-template.c"
+#line 56 "../../asn1/h235/packet-h235-template.c"
 
 
 static int
@@ -558,7 +556,7 @@ static const per_sequence_t ENCRYPTED_sequence[] = {
 
 int
 dissect_h235_ENCRYPTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 65 "../../asn1/h235/h235.cnf"
+#line 63 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -590,7 +588,7 @@ static const per_sequence_t SIGNED_sequence[] = {
 
 int
 dissect_h235_SIGNED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 60 "../../asn1/h235/h235.cnf"
+#line 58 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -755,7 +753,7 @@ static const per_sequence_t ClearToken_sequence[] = {
 
 int
 dissect_h235_ClearToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 76 "../../asn1/h235/h235.cnf"
+#line 74 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -776,7 +774,7 @@ static const per_sequence_t HASHED_sequence[] = {
 
 int
 dissect_h235_HASHED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "../../asn1/h235/h235.cnf"
+#line 68 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -852,7 +850,7 @@ static const per_choice_t CryptoToken_choice[] = {
 
 int
 dissect_h235_CryptoToken(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "../../asn1/h235/h235.cnf"
+#line 80 "../../asn1/h235/h235.cnf"
   proto_item  *hidden_item;
   hidden_item = proto_tree_add_item(tree, proto_h235, tvb, offset>>3, 0, ENC_NA);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -1051,7 +1049,7 @@ static int dissect_SrtpCryptoCapability_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 
 
 /*--- End of included file: packet-h235-fn.c ---*/
-#line 67 "../../asn1/h235/packet-h235-template.c"
+#line 65 "../../asn1/h235/packet-h235-template.c"
 
 
 /*--- proto_register_h235 ----------------------------------------------*/
@@ -1468,7 +1466,7 @@ void proto_register_h235(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h235-hfarr.c ---*/
-#line 75 "../../asn1/h235/packet-h235-template.c"
+#line 73 "../../asn1/h235/packet-h235-template.c"
   };
 
   /* List of subtrees */
@@ -1510,7 +1508,7 @@ void proto_register_h235(void) {
     &ett_h235_FecOrder,
 
 /*--- End of included file: packet-h235-ettarr.c ---*/
-#line 80 "../../asn1/h235/packet-h235-template.c"
+#line 78 "../../asn1/h235/packet-h235-template.c"
   };
 
   /* Register protocol */

@@ -10,8 +10,6 @@
  * Written by Shaun Jackman <sjackman@gmail.com>.
  * Copyright 2007 Shaun Jackman
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -96,7 +94,7 @@ static int hf_mpeg_pes_frame_type = -1;           /* T_frame_type */
 static int hf_mpeg_pes_vbv_delay = -1;            /* BIT_STRING_SIZE_16 */
 
 /*--- End of included file: packet-mpeg-pes-hf.c ---*/
-#line 37 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 35 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 
 /*--- Included file: packet-mpeg-pes-ett.c ---*/
 #line 1 "../../asn1/mpeg-pes/packet-mpeg-pes-ett.c"
@@ -108,7 +106,7 @@ static gint ett_mpeg_pes_Group_of_pictures = -1;
 static gint ett_mpeg_pes_Picture = -1;
 
 /*--- End of included file: packet-mpeg-pes-ett.c ---*/
-#line 38 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 36 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 
 /*--- Included file: packet-mpeg-pes-fn.c ---*/
 #line 1 "../../asn1/mpeg-pes/packet-mpeg-pes-fn.c"
@@ -476,7 +474,7 @@ dissect_mpeg_pes_Picture(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 /*--- End of included file: packet-mpeg-pes-fn.c ---*/
-#line 39 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 37 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 
 void proto_register_mpeg_pes(void);
 void proto_reg_handoff_mpeg_pes(void);
@@ -1204,7 +1202,7 @@ proto_register_mpeg_pes(void)
         "BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 562 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 560 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1322,7 +1320,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 669 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 667 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 		&ett_mpeg_pes_trick_mode

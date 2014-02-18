@@ -1,4 +1,3 @@
--- $Id$
 -- 3GPP TS 32.298 V6.1.0 (2005-09)
 TGPPGenericChargingDataTypes {itu-t identified-organization (4) etsi(0) mobileDomain (0) gsmUmtsNetwork (5) charging (0) asn1Module (0) genericChargingDataTypes (0) version1 (1)}
 -- Editor's Note:  what is the correct structure of the OID?

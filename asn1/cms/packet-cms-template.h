@@ -3,8 +3,6 @@
  *   Ronnie Sahlberg 2004
  *   Stig Bjorlykke 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

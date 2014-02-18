@@ -10,8 +10,6 @@
  * Routines for gprscdr packet dissection
  * Copyright 2011, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -46,7 +44,7 @@ int dissect_gprscdr_GPRSCallEventRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinf
 int dissect_gprscdr_GPRSRecord_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-gprscdr-exp.h ---*/
-#line 31 "../../asn1/gprscdr/packet-gprscdr-template.h"
+#line 29 "../../asn1/gprscdr/packet-gprscdr-template.h"
 
 #endif  /* PACKET_GPRSCDR_H */
 

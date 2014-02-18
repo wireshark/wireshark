@@ -10,8 +10,6 @@
  * Routines for QSIG packet dissection
  * 2007  Tomas Kukosa
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -131,7 +129,7 @@ WS_DLL_PUBLIC int dissect_qsig_na_Name(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 
 /*--- End of included file: packet-qsig-exp.h ---*/
-#line 30 "../../asn1/qsig/packet-qsig-template.h"
+#line 28 "../../asn1/qsig/packet-qsig-template.h"
 
 #endif  /* PACKET_QSIG_H */
 

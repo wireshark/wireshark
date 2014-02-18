@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.9/2000/Call-Completion-Operations.asn
 --
--- $Id$
---
 
 -- Module Call-Completion-Operations (H.450.9:11/2000)
 Call-Completion-Operations {itu-t recommendation h 450 9 version1(0)

@@ -5,8 +5,6 @@
 --
 -- 9.2 Manufacturer specific additions to standardised operations
 --
--- $Id$
---
 
 Manufacturer-specific-service-extension-class-asn1-97 {iso(1) standard(0)
   pss1-generic-procedures(11582) msi-class-asn1-97(11)} DEFINITIONS ::=

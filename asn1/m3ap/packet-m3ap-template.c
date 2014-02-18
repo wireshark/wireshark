@@ -1,8 +1,6 @@
 /* packet-m3ap.c
  * Routines for M3 Application Protocol packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

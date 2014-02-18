@@ -2,8 +2,6 @@
 # H.235.x conformation file
 # 2004  Tomas Kukosa
 
-# $Id$
-
 #.IMPORT ../h225/h225-exp.cnf
 
 #.EXPORTS

@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.8/2000/Name-Operations.asn
 --
--- $Id$
---
 
 -- Module Name-Operations (H.450.8:02/2000)
 Name-Operations {itu-t recommendation h 450 8 version1(0) name-operations(0)}

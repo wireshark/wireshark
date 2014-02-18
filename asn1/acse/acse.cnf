@@ -1,8 +1,6 @@
 # asce.cnf
 # ACSE conformation file
 
-# $Id$
-
 #.IMPORT ../x509if/x509if-exp.cnf
 
 #.OMIT_ASSIGNMENT

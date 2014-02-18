@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.5/1999/Call-Park-Pickup-Operations.asn
 --
--- $Id$
---
 
 -- Module Call-Park-Pickup-Operations (H.450.5:05/1999)
 Call-Park-Pickup-Operations {itu-t recommendation h 450 5 version1(0)

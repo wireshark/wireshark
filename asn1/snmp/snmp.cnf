@@ -1,8 +1,6 @@
 # snmp.cnf
 # snmp conformation file
 
-# $Id$
-
 
 #.PDU
 SMUX-PDUs

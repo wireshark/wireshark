@@ -1,6 +1,5 @@
 # p1.cnf
 # X.411 (MTA Access and Transfer) conformance file
-# $Id$
 
 #.TYPE_ATTR
 CountryName	TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(p1_CountryName_U_vals)  BITMASK = 0

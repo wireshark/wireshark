@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h460.4/2007/CALL-PRIORITY.asn
 --
--- $Id$
---
 
 -- Module CALL-PRIORITY (H.460.4:01/2007)
 CALL-PRIORITY {itu-t(0) recommendation(0) h(8) 460 4 version(1)} DEFINITIONS

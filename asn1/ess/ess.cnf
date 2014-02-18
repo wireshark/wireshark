@@ -1,8 +1,6 @@
 # ess.cnf
 # ExtendedSecurityServices conformation file
 
-# $Id$
-
 #.IMPORT ../x509af/x509af-exp.cnf
 #.IMPORT ../x509ce/x509ce-exp.cnf
 #.IMPORT ../cms/cms-exp.cnf

@@ -9,8 +9,6 @@
 /* packet-rrc-template.h
  * Copyright 2009, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -52,7 +50,7 @@ int dissect_rrc_ToTargetRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
 int dissect_rrc_TargetRNC_ToSourceRNC_Container_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-rrc-exp.h ---*/
-#line 32 "../../asn1/rrc/packet-rrc-template.h"
+#line 30 "../../asn1/rrc/packet-rrc-template.h"
 
 enum rrc_message_type {
   RRC_MESSAGE_TYPE_INVALID    = 0,

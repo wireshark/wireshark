@@ -12,8 +12,6 @@
  *
  * Copyright 2005, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -81,7 +79,7 @@ static int hf_cdt_contentType_OID = -1;           /* T_contentType_OID */
 static int hf_cdt_compressedContent = -1;         /* CompressedContent */
 
 /*--- End of included file: packet-cdt-hf.c ---*/
-#line 63 "../../asn1/cdt/packet-cdt-template.c"
+#line 61 "../../asn1/cdt/packet-cdt-template.c"
 
 static dissector_handle_t data_handle = NULL;
 
@@ -95,7 +93,7 @@ static gint ett_cdt_CompressedContentInfo = -1;
 static gint ett_cdt_T_contentType = -1;
 
 /*--- End of included file: packet-cdt-ett.c ---*/
-#line 68 "../../asn1/cdt/packet-cdt-template.c"
+#line 66 "../../asn1/cdt/packet-cdt-template.c"
 
 static expert_field ei_cdt_unable_compress_content = EI_INIT;
 static expert_field ei_cdt_unable_uncompress_content = EI_INIT;
@@ -112,7 +110,7 @@ static const value_string cdt_AlgorithmID_ShortForm_vals[] = {
 
 static int
 dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 21 "../../asn1/cdt/cdt.cnf"
+#line 19 "../../asn1/cdt/cdt.cnf"
   guint32 value;
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -175,7 +173,7 @@ static const value_string cdt_ContentType_ShortForm_vals[] = {
 
 static int
 dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 36 "../../asn1/cdt/cdt.cnf"
+#line 34 "../../asn1/cdt/cdt.cnf"
 
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &content_type);
@@ -197,7 +195,7 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_cdt_T_contentType_OID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "../../asn1/cdt/cdt.cnf"
+#line 48 "../../asn1/cdt/cdt.cnf"
   const char *obj_id = NULL;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &obj_id);
@@ -245,7 +243,7 @@ dissect_cdt_T_contentType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 69 "../../asn1/cdt/cdt.cnf"
+#line 67 "../../asn1/cdt/cdt.cnf"
   tvbuff_t   *next_tvb = NULL, *compr_tvb = NULL;
   int         save_offset = offset;
 
@@ -316,7 +314,7 @@ static const ber_sequence_t CompressedData_sequence[] = {
 
 int
 dissect_cdt_CompressedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 13 "../../asn1/cdt/cdt.cnf"
+#line 11 "../../asn1/cdt/cdt.cnf"
   content_type = 0;
 
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -338,7 +336,7 @@ static void dissect_CompressedData_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
 
 
 /*--- End of included file: packet-cdt-fn.c ---*/
-#line 73 "../../asn1/cdt/packet-cdt-template.c"
+#line 71 "../../asn1/cdt/packet-cdt-template.c"
 
 
 /*--- proto_register_cdt -------------------------------------------*/
@@ -411,7 +409,7 @@ void proto_register_cdt (void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cdt-hfarr.c ---*/
-#line 105 "../../asn1/cdt/packet-cdt-template.c"
+#line 103 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   /* List of subtrees */
@@ -425,7 +423,7 @@ void proto_register_cdt (void) {
     &ett_cdt_T_contentType,
 
 /*--- End of included file: packet-cdt-ettarr.c ---*/
-#line 110 "../../asn1/cdt/packet-cdt-template.c"
+#line 108 "../../asn1/cdt/packet-cdt-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -455,7 +453,7 @@ void proto_reg_handoff_cdt (void) {
 
 
 /*--- End of included file: packet-cdt-dis-tab.c ---*/
-#line 133 "../../asn1/cdt/packet-cdt-template.c"
+#line 131 "../../asn1/cdt/packet-cdt-template.c"
 
   data_handle = find_dissector ("data");
 }

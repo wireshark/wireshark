@@ -10,8 +10,6 @@
  * Routines for X.509 Certificate Extensions packet dissection
  *  Ronnie Sahlberg 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -100,7 +98,7 @@ int dissect_x509ce_CiplusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 int dissect_x509ce_CicamBrandId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /*--- End of included file: packet-x509ce-exp.h ---*/
-#line 30 "../../asn1/x509ce/packet-x509ce-template.h"
+#line 28 "../../asn1/x509ce/packet-x509ce-template.h"
 
 void x509ce_enable_ciplus(void);
 void x509ce_disable_ciplus(void);

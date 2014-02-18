@@ -1,8 +1,6 @@
 # pkinit.cnf
 # pkinit conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 PKIX1Explicit88              pkix1explicit
 

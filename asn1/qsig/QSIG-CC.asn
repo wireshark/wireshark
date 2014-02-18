@@ -4,8 +4,6 @@
 -- Standard ECMA-186, 4th edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-186.htm
 --
--- $Id$
---
 
 SS-CC-Operations-asn1-97 { iso (1) standard (0)  pss1-call-completion (13870)  operations-asn1-97 (1)} 
 DEFINITIONS  EXPLICIT TAGS ::= 

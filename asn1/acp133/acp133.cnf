@@ -1,6 +1,5 @@
 # acp133.cnf
 # ACP133 conformation file
-# $Id$
 
 #.IMPORT ../p1/p1-exp.cnf
 #.IMPORT ../x509af/x509af-exp.cnf

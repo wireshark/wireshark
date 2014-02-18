@@ -2,8 +2,6 @@
 # T.38 conformation file
 # 2007  Tomas Kukosa
 
-# $Id$
-
 #.EXPORTS ONLY_VALS WS_DLL
 Type-of-msg/t30-indicator
 Type-of-msg/t30-data

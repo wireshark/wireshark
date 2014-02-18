@@ -1,7 +1,5 @@
 /* packet-inap.h
  *
- * $Id$
- *
  * Copyright 2004, Tim Endean <endeant@hotmail.com>
  *
  * Wireshark - Network traffic analyzer

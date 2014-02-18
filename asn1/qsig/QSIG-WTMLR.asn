@@ -4,8 +4,6 @@
 -- Standard ECMA-302, 2nd edition (December 2001)
 -- http://www.ecma-international.org/publications/standards/Ecma-302.htm
 --
--- $Id$
---
 
 WTM-Location-Registration-Operations-asn1-97
   {iso standard pss1-location-registration (15429) wtlr-operations-asn1-97 (1)}

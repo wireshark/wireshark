@@ -10,8 +10,6 @@
  * Routines for HI2 (ETSI TS 101 671 V3.5.1 (2009-11))
  *  Erwin van Eijk 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -369,7 +367,7 @@ static int hf_HI2Operations_cI = -1;              /* CellIdType */
 static int hf_HI2Operations_ssi = -1;             /* SSIType */
 
 /*--- End of included file: packet-HI2Operations-hf.c ---*/
-#line 46 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 44 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
 
 /* Initialize the subtree pointers */
 
@@ -479,7 +477,7 @@ static gint ett_HI2Operations_TETRACGIType = -1;
 static gint ett_HI2Operations_TSIType = -1;
 
 /*--- End of included file: packet-HI2Operations-ett.c ---*/
-#line 49 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 47 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- Included file: packet-HI2Operations-fn.c ---*/
@@ -3768,7 +3766,7 @@ static void dissect_IRIsContent_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
 
 /*--- End of included file: packet-HI2Operations-fn.c ---*/
-#line 51 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 49 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
 
 
 /*--- proto_register_HI2Operations ----------------------------------------------*/
@@ -5037,7 +5035,7 @@ void proto_register_HI2Operations(void) {
         "SSIType", HFILL }},
 
 /*--- End of included file: packet-HI2Operations-hfarr.c ---*/
-#line 59 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 57 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* List of subtrees */
@@ -5149,7 +5147,7 @@ void proto_register_HI2Operations(void) {
     &ett_HI2Operations_TSIType,
 
 /*--- End of included file: packet-HI2Operations-ettarr.c ---*/
-#line 64 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
+#line 62 "../../asn1/HI2Operations/packet-HI2Operations-template.c"
   };
 
   /* Register protocol */

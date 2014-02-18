@@ -3,8 +3,6 @@
 -- Taken from ITU ASN.1 database
 -- http://www.itu.int/ITU-T/asn1/database/itu-t/h/h450.1/1998/H4501-Supplementary-ServiceAPDU-Structure.asn
 --
--- $Id$
---
 
 -- Module H4501-Supplementary-ServiceAPDU-Structure (H.450.1:02/1998)
 H4501-Supplementary-ServiceAPDU-Structure {itu-t recommendation h 450 

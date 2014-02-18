@@ -1,8 +1,6 @@
 # pkixproxy.cnf
 # PKIXProxy conformation file
 
-# $Id$
-
 #.MODULE_IMPORT
 
 #.EXPORTS
