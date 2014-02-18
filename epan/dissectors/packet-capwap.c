@@ -2497,7 +2497,7 @@ proto_register_capwap_control(void)
             FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0002,
             NULL, HFILL }},
         { &hf_capwap_msg_element_type_ieee80211_wtp_radio_info_radio_type_b,
-            { "Radio Type 802.11g", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_b",
+            { "Radio Type 802.11b", "capwap.control.message_element.ieee80211_wtp_info_radio.radio_type_b",
             FT_BOOLEAN, 4, TFS(&tfs_true_false), 0x0001,
             NULL, HFILL }},
 
