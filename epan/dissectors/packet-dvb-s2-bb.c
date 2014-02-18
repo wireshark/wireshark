@@ -72,6 +72,7 @@ void proto_reg_handoff_dvb_s2_modeadapt(void);
 
 /* preferences */
 static gboolean dvb_s2_full_dissection = FALSE;
+static gboolean dvb_s2_df_dissection = FALSE;
 
 /* Initialize the protocol and registered fields */
 static int proto_dvb_s2_modeadapt = -1;
@@ -98,6 +99,7 @@ static int hf_dvb_s2_bb_sync = -1;
 static int hf_dvb_s2_bb_syncd = -1;
 static int hf_dvb_s2_bb_crc = -1;
 static int hf_dvb_s2_bb_crc_status = -1;
+static int hf_dvb_s2_bb_df = -1;
 
 static int hf_dvb_s2_bb_packetized = -1;
 static int hf_dvb_s2_bb_transport = -1;
@@ -592,6 +594,7 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
     proto_tree *dvb_s2_gse_tree, *dvb_s2_gse_ncr_tree;
 
     tvbuff_t   *next_tvb;
+    gboolean   dissected = FALSE;
 
     static int * const gse_header_bitfields[] = {
         &hf_dvb_s2_gse_hdr_start,
@@ -688,43 +691,39 @@ static int dissect_dvb_s2_gse(tvbuff_t *tvb, int cur_off, proto_tree *tree, pack
 
         next_tvb = tvb_new_subset_remaining(tvb, cur_off + new_off);
 
-        if (dvb_s2_full_dissection)
-        {
-            switch (gse_proto) {
-            case ETHERTYPE_IP:
-                new_off += call_dissector(ip_handle, next_tvb, pinfo, tree);
-                break;
-            case ETHERTYPE_IPv6:
-                new_off += call_dissector(ipv6_handle, next_tvb, pinfo, tree);
-                break;
-            default:
-                if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) && BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
-                    data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE) - DVB_S2_GSE_CRC32_LEN;
-                } else
-                    data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE);
-
-                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
-                new_off += data_len;
-                break;
-            }
+        if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) && BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
+            data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE) - DVB_S2_GSE_CRC32_LEN;
+        } else {
+            data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE);
         }
-        else
-        {
-            if (BIT_IS_CLEAR(gse_hdr, DVB_S2_GSE_HDR_START_POS) && BIT_IS_SET(gse_hdr, DVB_S2_GSE_HDR_STOP_POS)) {
-                data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE) - DVB_S2_GSE_CRC32_LEN;
-            } else
-                data_len = (gse_hdr & DVB_S2_GSE_HDR_LENGTH_MASK) - (new_off - DVB_S2_GSE_MINSIZE);
 
-            if (gse_proto == DVB_RCS2_NCR) {
+        switch (gse_proto) {
+            case ETHERTYPE_IP:
+                if (dvb_s2_full_dissection) {
+                    new_off += call_dissector(ip_handle, next_tvb, pinfo, tree);
+                    dissected = TRUE;
+                }
+                break;
+
+            case ETHERTYPE_IPv6:
+                if (dvb_s2_full_dissection) {
+                    new_off += call_dissector(ipv6_handle, next_tvb, pinfo, tree);
+                    dissected = TRUE;
+                }
+                break;
+
+            case DVB_RCS2_NCR:
                 ttf = proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_ncr, tvb, cur_off + new_off, data_len, ENC_NA);
                 dvb_s2_gse_ncr_tree = proto_item_add_subtree(ttf, ett_dvb_s2_gse_ncr);
                 proto_tree_add_item(dvb_s2_gse_ncr_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
                 new_off += data_len;
-            }
-            else {
-                proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
-                new_off += data_len;
-            }
+                dissected = TRUE;
+                break;
+        }
+
+        if (dissected == FALSE) {
+            proto_tree_add_item(dvb_s2_gse_tree, hf_dvb_s2_gse_data, tvb, cur_off + new_off, data_len, ENC_NA);
+            new_off += data_len;
         }
 
         /* add crc32 if last fragment */
@@ -842,18 +841,23 @@ static int dissect_dvb_s2_bb(tvbuff_t *tvb, int cur_off, proto_tree *tree, packe
         }
 
 
-        while (bb_data_len) {
-            /* start DVB-GSE dissector */
-            sub_dissected = dissect_dvb_s2_gse(tvb, cur_off + new_off, tree, pinfo, bb_data_len);
-            new_off += sub_dissected;
+        if (dvb_s2_df_dissection) {
+            while (bb_data_len) {
+                /* start DVB-GSE dissector */
+                sub_dissected = dissect_dvb_s2_gse(tvb, cur_off + new_off, tree, pinfo, bb_data_len);
+                new_off += sub_dissected;
 
-            if ((sub_dissected <= bb_data_len) && (sub_dissected >= DVB_S2_GSE_MINSIZE)) {
-                bb_data_len -= sub_dissected;
-                if (bb_data_len < DVB_S2_GSE_MINSIZE)
+                if ((sub_dissected <= bb_data_len) && (sub_dissected >= DVB_S2_GSE_MINSIZE)) {
+                    bb_data_len -= sub_dissected;
+                    if (bb_data_len < DVB_S2_GSE_MINSIZE)
+                        bb_data_len = 0;
+                } else {
                     bb_data_len = 0;
-            } else {
-                bb_data_len = 0;
+                }
             }
+        } else {
+            proto_tree_add_item(dvb_s2_bb_tree, hf_dvb_s2_bb_df, tvb, cur_off + new_off, bb_data_len, ENC_NA);
+            new_off += bb_data_len;
         }
         break;
 
@@ -1123,6 +1127,11 @@ void proto_register_dvb_s2_modeadapt(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 "Stream of an unknown reserved type", HFILL}
         },
+        {&hf_dvb_s2_bb_df, {
+                "DATA FIELD", "dvb-s2_bb.df",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                "BBFrame user data", HFILL}
+        },
     };
 
     static gint *ett_bb[] = {
@@ -1246,6 +1255,11 @@ void proto_register_dvb_s2_modeadapt(void)
     dvb_s2_modeadapt_module = prefs_register_protocol(proto_dvb_s2_modeadapt, proto_reg_handoff_dvb_s2_modeadapt);
 
     prefs_register_obsolete_preference(dvb_s2_modeadapt_module, "enable");
+
+    prefs_register_bool_preference(dvb_s2_modeadapt_module, "decode_df",
+        "Enable dissection of DATA FIELD",
+        "Check this to enable full protocol dissection of data above BBHeader",
+        &dvb_s2_df_dissection);
 
     prefs_register_bool_preference(dvb_s2_modeadapt_module, "full_decode",
         "Enable dissection of GSE data",
