@@ -1681,6 +1681,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				optoff = dissect_vendor_alcatel_suboption(pinfo, vti, v_tree,
 					tvb, optoff, optend);
 			}
+		} else {
+			/* Default Vendor-Specific Info.. display in bytes */
+			proto_tree_add_item(v_tree, hf_bootp_option43_value, tvb, optoff, optlen, ENC_NA);
 		}
 		break;
 
