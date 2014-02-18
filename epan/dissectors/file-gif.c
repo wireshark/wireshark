@@ -329,7 +329,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (tvb_len < 20)
         return 0;
 
-    str = tvb_get_string(wmem_packet_scope(), tvb, 0, 6);
+    str = tvb_get_string_enc(wmem_packet_scope(), tvb, 0, 6, ENC_ASCII|ENC_NA);
     /* Check whether we're processing a GIF object */
     /* see http://www.w3.org/Graphics/GIF/spec-gif89a.txt section 17 */
     if (strcmp(str, "GIF87a") == 0) {
