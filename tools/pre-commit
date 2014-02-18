@@ -7,7 +7,7 @@
 # From
 # http://mark-story.com/posts/view/using-git-commit-hooks-to-prevent-stupid-mistakes
 #
-for FILE in `git diff-index --cached --name-only HEAD` ; do
+for FILE in `git diff-index --cached --name-only HEAD | grep "\.[ch]$"` ; do
     #Exit immediately if a command exits with a non-zero status.
     set -e
 
