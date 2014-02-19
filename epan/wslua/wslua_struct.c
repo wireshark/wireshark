@@ -509,14 +509,14 @@ static int Struct__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg Struct_methods[] = {
+WSLUA_METHODS Struct_methods[] = {
   {"pack", Struct_pack},
   {"unpack", Struct_unpack},
   {"size", Struct_size},
-  {NULL, NULL}
+  { NULL, NULL }
 };
 
-static const luaL_Reg Struct_meta[] = {
+WSLUA_META Struct_meta[] = {
     { NULL, NULL }
 };
 

@@ -37,7 +37,7 @@
 #include "wslua.h"
 #include "wsutil/base64.h"
 
-WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("null bytearray"),NOP);
+WSLUA_CLASS_DEFINE(ByteArray,FAIL_ON_NULL("ByteArray"),NOP);
 
 WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a ByteArray Object */
 #define WSLUA_OPTARG_ByteArray_new_HEXBYTES 1 /* A string consisting of hexadecimal bytes like "00 B1 A2" or "1a2b3c4d" */
@@ -84,7 +84,7 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a ByteArray Object */
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int ByteArray__gc(lua_State* L) {
-    ByteArray ba = checkByteArray(L,1);
+    ByteArray ba = toByteArray(L,1);
 
     if (!ba) return 0;
 
@@ -101,9 +101,6 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__cat_SECOND);
     ByteArray ba;
 
-    if (! (ba1  && ba2) )
-        WSLUA_ERROR(ByteArray__cat,"Both arguments must be ByteArrays");
-
     ba = g_byte_array_new();
     g_byte_array_append(ba,ba1->data,ba1->len);
     g_byte_array_append(ba,ba2->data,ba2->len);
@@ -118,9 +115,6 @@ WSLUA_METHOD ByteArray_prepend(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_prepend_PREPENDED);
 
-    if (! (ba  && ba2) )
-        WSLUA_ERROR(ByteArray_prepend,"Both arguments must be ByteArrays");
-
     g_byte_array_prepend(ba,ba2->data,ba2->len);
 
     return 0;
@@ -131,9 +125,6 @@ WSLUA_METHOD ByteArray_append(lua_State* L) {
 #define WSLUA_ARG_ByteArray_append_APPENDED 2 /* Array to be appended */
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray_append_APPENDED);
-
-    if (! (ba  && ba2) )
-        WSLUA_ERROR(ByteArray_append,"Both arguments must be ByteArrays");
 
     g_byte_array_append(ba,ba2->data,ba2->len);
 
@@ -148,7 +139,6 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
     int siz = luaL_checkint(L,WSLUA_ARG_ByteArray_set_size_SIZE);
     guint8* padding;
 
-    if (!ba) return 0;
     if (siz < 0)
         WSLUA_ERROR(ByteArray_set_size,"ByteArray size must be non-negative");
 
@@ -169,8 +159,6 @@ WSLUA_METHOD ByteArray_set_index(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_INDEX);
     int v = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_VALUE);
-
-    if (!ba) return 0;
 
     if (idx == 0 && ! g_str_equal(luaL_optstring(L,2,""),"0") ) {
         luaL_argerror(L,2,"bad index");
@@ -199,8 +187,6 @@ WSLUA_METHOD ByteArray_get_index(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     int idx = luaL_checkint(L,WSLUA_ARG_ByteArray_get_index_INDEX);
 
-    if (!ba) return 0;
-
     if (idx == 0 && ! g_str_equal(luaL_optstring(L,2,""),"0") ) {
         luaL_argerror(L,2,"bad index");
         return 0;
@@ -219,8 +205,6 @@ WSLUA_METHOD ByteArray_len(lua_State* L) {
 	/* Obtain the length of a ByteArray */
     ByteArray ba = checkByteArray(L,1);
 
-    if (!ba) return 0;
-
     lua_pushnumber(L,(lua_Number)ba->len);
 
     WSLUA_RETURN(1); /* The length of the ByteArray. */
@@ -234,8 +218,6 @@ WSLUA_METHOD ByteArray_subset(lua_State* L) {
     int offset = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_OFFSET);
     int len = luaL_checkint(L,WSLUA_ARG_ByteArray_set_index_LENGTH);
     ByteArray sub;
-
-    if (!ba) return 0;
 
     if ((offset + len) > (int)ba->len || offset < 0 || len < 1) {
         luaL_error(L,"Out Of Bounds");
@@ -256,8 +238,6 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     ByteArray ba2;
     gchar *data;
     size_t len;
-
-    if (!ba) return 0;
 
     ba2 = g_byte_array_new();
     data = (gchar*)g_malloc (ba->len + 1);
@@ -312,23 +292,23 @@ WSLUA_METAMETHOD ByteArray__tostring(lua_State* L) {
 
 static int ByteArray_tvb (lua_State *L);
 
-static const luaL_Reg ByteArray_methods[] = {
-    {"new", ByteArray_new},
-    {"len", ByteArray_len},
-    {"prepend", ByteArray_prepend},
-    {"append", ByteArray_append},
-    {"subset", ByteArray_subset},
-    {"set_size", ByteArray_set_size},
-    {"tvb", ByteArray_tvb},
-    {"base64_decode", ByteArray_base64_decode},
-    {"get_index", ByteArray_get_index},
-    {"set_index", ByteArray_set_index},
+WSLUA_METHODS ByteArray_methods[] = {
+    WSLUA_CLASS_FNREG(ByteArray,new),
+    WSLUA_CLASS_FNREG(ByteArray,len),
+    WSLUA_CLASS_FNREG(ByteArray,prepend),
+    WSLUA_CLASS_FNREG(ByteArray,append),
+    WSLUA_CLASS_FNREG(ByteArray,subset),
+    WSLUA_CLASS_FNREG(ByteArray,set_size),
+    WSLUA_CLASS_FNREG(ByteArray,tvb),
+    WSLUA_CLASS_FNREG(ByteArray,base64_decode),
+    WSLUA_CLASS_FNREG(ByteArray,get_index),
+    WSLUA_CLASS_FNREG(ByteArray,set_index),
     { NULL, NULL }
 };
 
-static const luaL_Reg ByteArray_meta[] = {
-    {"__tostring", ByteArray__tostring},
-    {"__concat", ByteArray__concat},
+WSLUA_META ByteArray_meta[] = {
+    WSLUA_CLASS_MTREG(ByteArray,tostring),
+    WSLUA_CLASS_MTREG(ByteArray,concat),
     {"__call",ByteArray_subset},
     { NULL, NULL }
 };
@@ -362,7 +342,7 @@ int ByteArray_register(lua_State* L) {
  *
  */
 
-WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL("expired tvb"),NOP);
+WSLUA_CLASS_DEFINE(Tvb,FAIL_ON_NULL_OR_EXPIRED("Tvb"),NOP);
 /* A Tvb represents the packet's buffer. It is passed as an argument to listeners and dissectors,
 and can be used to extract information (via TvbRange) from the packet's data. Beware that Tvbs are usable only by the current
 listener or dissector call and are destroyed as soon as the listener/dissector returns, so references
@@ -435,8 +415,6 @@ WSLUA_CONSTRUCTOR ByteArray_tvb (lua_State *L) {
     guint8* data;
     Tvb tvb;
 
-    if (!ba) return 0;
-
     if (!lua_tvb) {
         luaL_error(L,"Tvbs can only be created and used in dissectors");
         return 0;
@@ -487,12 +465,6 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
     int len;
     gchar* str;
 
-    if (!tvb) return 0;
-    if (tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
     len = tvb_length(tvb->ws_tvb);
     str = ep_strdup_printf("TVB(%i) : %s",len,tvb_bytes_to_ep_str(tvb->ws_tvb,0,len));
     lua_pushstring(L,str);
@@ -501,7 +473,7 @@ WSLUA_METAMETHOD Tvb__tostring(lua_State* L) {
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Tvb__gc(lua_State* L) {
-    Tvb tvb = checkTvb(L,1);
+    Tvb tvb = toTvb(L,1);
 
     free_Tvb(tvb);
 
@@ -513,12 +485,6 @@ WSLUA_METHOD Tvb_reported_len(lua_State* L) {
 	/* Obtain the reported length of a TVB */
     Tvb tvb = checkTvb(L,1);
 
-    if (!tvb) return 0;
-    if (tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
     lua_pushnumber(L,tvb_reported_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The length of the Tvb. */
 }
@@ -526,12 +492,6 @@ WSLUA_METHOD Tvb_reported_len(lua_State* L) {
 WSLUA_METHOD Tvb_len(lua_State* L) {
 	/* Obtain the length of a TVB */
     Tvb tvb = checkTvb(L,1);
-
-    if (!tvb) return 0;
-    if (tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
 
     lua_pushnumber(L,tvb_length(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The length of the Tvb. */
@@ -543,12 +503,6 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
     Tvb tvb = checkTvb(L,1);
     int offset = luaL_optint(L, Tvb_reported_length_remaining_OFFSET, 0);
 
-    if (!tvb) return 0;
-    if (tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
     lua_pushnumber(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
     WSLUA_RETURN(1); /* The length of the Tvb. */
 }
@@ -556,12 +510,6 @@ WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
 WSLUA_METHOD Tvb_offset(lua_State* L) {
 	/* Returns the raw offset (from the beginning of the source Tvb) of a sub Tvb. */
     Tvb tvb = checkTvb(L,1);
-
-    if (!tvb) return 0;
-    if (tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
 
     lua_pushnumber(L,tvb_raw_offset(tvb->ws_tvb));
     WSLUA_RETURN(1); /* The raw offset of the Tvb. */
@@ -575,7 +523,7 @@ WSLUA_METAMETHOD Tvb__call(lua_State* L) {
 }
 #endif
 
-WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("expired tvbrange"),NOP);
+WSLUA_CLASS_DEFINE(TvbRange,FAIL_ON_NULL("TvbRange"),NOP);
 /*
   A TvbRange represents a usable range of a Tvb and is used to extract data from the Tvb that generated it
   TvbRanges are created by calling a tvb (e.g. tvb(offset,length)). If the TvbRange span is outside the
@@ -624,12 +572,6 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
     int offset = luaL_optint(L,WSLUA_OPTARG_Tvb_range_OFFSET,0);
     int len = luaL_optint(L,WSLUA_OPTARG_Tvb_range_LENGTH,-1);
 
-    if (!tvb) return 0;
-    if (tvb->expired) {
-        luaL_error(L,"expired tvb");
-        return 0;
-    }
-
     if (push_TvbRange(L,tvb->ws_tvb,offset,len)) {
         WSLUA_RETURN(1); /* The TvbRange */
     }
@@ -637,18 +579,18 @@ WSLUA_METHOD Tvb_range(lua_State* L) {
     return 0;
 }
 
-static const luaL_Reg Tvb_methods[] = {
-    {"range", Tvb_range},
-    {"len", Tvb_len},
-    {"offset", Tvb_offset},
-    {"reported_len", Tvb_reported_len},
-    {"reported_length_remaining", Tvb_reported_length_remaining},
+WSLUA_METHODS Tvb_methods[] = {
+    WSLUA_CLASS_FNREG(Tvb,range),
+    WSLUA_CLASS_FNREG(Tvb,len),
+    WSLUA_CLASS_FNREG(Tvb,offset),
+    WSLUA_CLASS_FNREG(Tvb,reported_len),
+    WSLUA_CLASS_FNREG(Tvb,reported_length_remaining),
     { NULL, NULL }
 };
 
-static const luaL_Reg Tvb_meta[] = {
+WSLUA_META Tvb_meta[] = {
+    WSLUA_CLASS_MTREG(Tvb,tostring),
     {"__call", Tvb_range},
-    {"__tostring", Tvb__tostring},
     { NULL, NULL }
 };
 
@@ -1435,42 +1377,42 @@ WSLUA_METAMETHOD TvbRange__tostring(lua_State* L) {
     return 1;
 }
 
-static const luaL_Reg TvbRange_methods[] = {
-    {"uint", TvbRange_uint},
-    {"le_uint", TvbRange_le_uint},
-    {"int", TvbRange_int},
-    {"le_int", TvbRange_le_int},
-    {"uint64", TvbRange_uint64},
-    {"le_uint64", TvbRange_le_uint64},
-    {"int64", TvbRange_int64},
-    {"le_int64", TvbRange_le_int64},
-    {"float", TvbRange_float},
-    {"le_float", TvbRange_le_float},
-    {"ether", TvbRange_ether},
-    {"ipv4", TvbRange_ipv4},
-    {"le_ipv4", TvbRange_le_ipv4},
-    {"nstime", TvbRange_nstime},
-    {"le_nstime", TvbRange_le_nstime},
-    {"string", TvbRange_string},
-    {"stringz", TvbRange_stringz},
-    {"strsize", TvbRange_strsize},
-    {"bytes", TvbRange_bytes},
-    {"bitfield", TvbRange_bitfield},
-    {"range", TvbRange_range},
-    {"len", TvbRange_len},
-    {"offset", TvbRange_offset},
-    {"tvb", TvbRange_tvb},
-    {"le_ustring", TvbRange_le_ustring},
-    {"ustring", TvbRange_ustring},
-    {"le_ustringz", TvbRange_le_ustringz},
-    {"ustringz", TvbRange_ustringz},
-    {"uncompress", TvbRange_uncompress},
+WSLUA_METHODS TvbRange_methods[] = {
+    WSLUA_CLASS_FNREG(TvbRange,uint),
+    WSLUA_CLASS_FNREG(TvbRange,le_uint),
+    WSLUA_CLASS_FNREG(TvbRange,int),
+    WSLUA_CLASS_FNREG(TvbRange,le_int),
+    WSLUA_CLASS_FNREG(TvbRange,uint64),
+    WSLUA_CLASS_FNREG(TvbRange,le_uint64),
+    WSLUA_CLASS_FNREG(TvbRange,int64),
+    WSLUA_CLASS_FNREG(TvbRange,le_int64),
+    WSLUA_CLASS_FNREG(TvbRange,float),
+    WSLUA_CLASS_FNREG(TvbRange,le_float),
+    WSLUA_CLASS_FNREG(TvbRange,ether),
+    WSLUA_CLASS_FNREG(TvbRange,ipv4),
+    WSLUA_CLASS_FNREG(TvbRange,le_ipv4),
+    WSLUA_CLASS_FNREG(TvbRange,nstime),
+    WSLUA_CLASS_FNREG(TvbRange,le_nstime),
+    WSLUA_CLASS_FNREG(TvbRange,string),
+    WSLUA_CLASS_FNREG(TvbRange,stringz),
+    WSLUA_CLASS_FNREG(TvbRange,strsize),
+    WSLUA_CLASS_FNREG(TvbRange,bytes),
+    WSLUA_CLASS_FNREG(TvbRange,bitfield),
+    WSLUA_CLASS_FNREG(TvbRange,range),
+    WSLUA_CLASS_FNREG(TvbRange,len),
+    WSLUA_CLASS_FNREG(TvbRange,offset),
+    WSLUA_CLASS_FNREG(TvbRange,tvb),
+    WSLUA_CLASS_FNREG(TvbRange,le_ustring),
+    WSLUA_CLASS_FNREG(TvbRange,ustring),
+    WSLUA_CLASS_FNREG(TvbRange,le_ustringz),
+    WSLUA_CLASS_FNREG(TvbRange,ustringz),
+    WSLUA_CLASS_FNREG(TvbRange,uncompress),
     { NULL, NULL }
 };
 
-static const luaL_Reg TvbRange_meta[] = {
-    {"__tostring", TvbRange__tostring},
-    {"__concat", wslua__concat},
+WSLUA_META TvbRange_meta[] = {
+    WSLUA_CLASS_MTREG(TvbRange,tostring),
+    WSLUA_CLASS_MTREG(wslua,concat),
     {"__call", TvbRange_range},
     { NULL, NULL }
 };

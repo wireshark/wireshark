@@ -36,7 +36,8 @@
 
 #include "wslua.h"
 
-WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL("null FieldInfo"),NOP);
+/* any call to checkFieldInfo() will now error on null or expired, so no need to check again */
+WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"),NOP);
 /*
    An extracted Field
    */
@@ -47,49 +48,34 @@ static GPtrArray* outstanding_FieldInfo = NULL;
 
 CLEAR_OUTSTANDING(FieldInfo,expired,TRUE)
 
+/* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field */
 WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
     /*
        Obtain the Length of the field
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     lua_pushnumber(L,fi->ws_fi->length);
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
 WSLUA_METAMETHOD FieldInfo__unm(lua_State* L) {
     /*
        Obtain the Offset of the field
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     lua_pushnumber(L,fi->ws_fi->start);
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field */
 WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
     /*
        Obtain the Value of the field
        */
     FieldInfo fi = checkFieldInfo(L,1);
-
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
 
     switch(fi->ws_fi->hfinfo->type) {
         case FT_BOOLEAN:
@@ -193,15 +179,10 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
     }
 }
 
+/* WSLUA_ATTRIBUTE FieldInfo_label RO The string representing this field */
 WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     /* The string representation of the field */
     FieldInfo fi = checkFieldInfo(L,1);
-
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
 
     if (fi->ws_fi->value.ftype->val_to_string_repr) {
         gchar* repr = fvalue_to_string_repr(&fi->ws_fi->value,FTREPR_DISPLAY,NULL);
@@ -222,18 +203,13 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     return 1;
 }
 
-static int FieldInfo_display(lua_State* L) {
+/* WSLUA_ATTRIBUTE FieldInfo_display RO The string display of this field as seen in GUI */
+static int FieldInfo_get_display(lua_State* L) {
     /* The display string of this field as seen in GUI */
     FieldInfo fi = checkFieldInfo(L,1);
     gchar         label_str[ITEM_LABEL_LENGTH+1];
     gchar        *label_ptr;
     gchar        *value_ptr;
-
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
 
     if (!fi->ws_fi->rep) {
         label_ptr = label_str;
@@ -255,16 +231,11 @@ static int FieldInfo_display(lua_State* L) {
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE FieldInfo_range RO The TvbRange covering this field */
 static int FieldInfo_get_range(lua_State* L) {
     /* The TvbRange covering this field */
     FieldInfo fi = checkFieldInfo(L,1);
     
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     if (push_TvbRange (L, fi->ws_fi->ds_tvb, fi->ws_fi->start, fi->ws_fi->length)) {
         return 1;
     }
@@ -272,85 +243,28 @@ static int FieldInfo_get_range(lua_State* L) {
     return 0;
 }
 
+/* WSLUA_ATTRIBUTE FieldInfo_generated RO Whether this field was marked as generated (boolean) */
 static int FieldInfo_get_generated(lua_State* L) {
     /* Whether this field was marked as generated. */
     FieldInfo fi = checkFieldInfo(L,1);
     
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     lua_pushboolean(L,FI_GET_FLAG(fi->ws_fi, FI_GENERATED));
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE FieldInfo_name RO The name of this field */
 static int FieldInfo_get_name(lua_State* L) {
     /* The filter name of this field. */
     FieldInfo fi = checkFieldInfo(L,1);
     
-    if (!fi) return 0;
-    if (fi->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     lua_pushstring(L,fi->ws_fi->hfinfo->abbrev);
     return 1;
-}
-
-static const luaL_Reg FieldInfo_get[] = {
-    /*    {"data_source", FieldInfo_get_data_source }, */
-    {"range", FieldInfo_get_range},
-    /*    {"hidden", FieldInfo_get_hidden}, */
-    {"generated", FieldInfo_get_generated},
-
-    /* WSLUA_ATTRIBUTE FieldInfo_name RO The name of this field */
-    {"name", FieldInfo_get_name},
-    /* WSLUA_ATTRIBUTE FieldInfo_label RO The string representing this field */
-    {"label", FieldInfo__tostring},
-    /* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field */
-    {"value", FieldInfo__call},
-    /* WSLUA_ATTRIBUTE FieldInfo_tvb RO A tvbrange covering this field */
-    {"tvb", FieldInfo_get_range},
-    /* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field */
-    {"len", FieldInfo__len},
-    /* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
-    {"offset", FieldInfo__unm},
-    /* WSLUA_ATTRIBUTE FieldInfo_display RO The string display of this field as seen in GUI */
-    {"display", FieldInfo_display},
-    { NULL, NULL }
-};
-
-static int FieldInfo__index(lua_State* L) {
-    /*
-       Other attributes:
-       */
-    const gchar* idx = luaL_checkstring(L,2);
-    const luaL_Reg* r;
-
-    if (!idx) return 0;
-
-    for (r = FieldInfo_get; r->name; r++) {
-        if (g_str_equal(r->name, idx)) {
-            return r->func(L);
-        }
-    }
-
-    return 0;
 }
 
 WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
     /* Checks whether lhs is within rhs */
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
-
-    if (!l || !r) return 0;
-    if (l->expired || r->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
 
     if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
@@ -368,12 +282,6 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (!l || !r) return 0;
-    if (l->expired || r->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__le,"Data source must be the same for both fields");
 
@@ -390,12 +298,6 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (!l || !r) return 0;
-    if (l->expired || r->expired) {
-        luaL_error(L, "expired FieldInfo");
-        return 0;
-    }
-
     if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__lt,"Data source must be the same for both fields");
 
@@ -409,7 +311,7 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_META */
 static int FieldInfo__gc(lua_State* L _U_) {
-    FieldInfo fi = checkFieldInfo(L,1);
+    FieldInfo fi = toFieldInfo(L,1);
 
     if (!fi) return 0;
 
@@ -422,20 +324,37 @@ static int FieldInfo__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg FieldInfo_meta[] = {
-    {"__tostring", FieldInfo__tostring},
-    {"__call", FieldInfo__call},
-    {"__index", FieldInfo__index},
-    {"__len", FieldInfo__len},
-    {"__unm", FieldInfo__unm},
-    {"__eq", FieldInfo__eq},
-    {"__le", FieldInfo__le},
-    {"__lt", FieldInfo__lt},
+/* This table is ultimately registered as a sub-table of the class' metatable,
+ * and if __index/__newindex is invoked then it calls the appropriate function
+ * from this table for getting/setting the members.
+ */
+WSLUA_ATTRIBUTES FieldInfo_attributes[] = {
+    WSLUA_ATTRIBUTE_ROREG(FieldInfo,range),
+    WSLUA_ATTRIBUTE_ROREG(FieldInfo,generated),
+    WSLUA_ATTRIBUTE_ROREG(FieldInfo,name),
+    WSLUA_ATTRIBUTE_ROREG(FieldInfo,display),
+    { "label", FieldInfo__tostring, NULL },
+    { "value", FieldInfo__call, NULL },
+    { "tvb", FieldInfo_get_range, NULL },
+    { "len", FieldInfo__len, NULL },
+    { "offset", FieldInfo__unm, NULL },
+    { NULL, NULL, NULL }
+};
+
+WSLUA_META FieldInfo_meta[] = {
+    WSLUA_CLASS_MTREG(FieldInfo,tostring),
+    WSLUA_CLASS_MTREG(FieldInfo,call),
+    WSLUA_CLASS_MTREG(FieldInfo,len),
+    WSLUA_CLASS_MTREG(FieldInfo,unm),
+    WSLUA_CLASS_MTREG(FieldInfo,eq),
+    WSLUA_CLASS_MTREG(FieldInfo,le),
+    WSLUA_CLASS_MTREG(FieldInfo,lt),
     { NULL, NULL }
 };
 
 int FieldInfo_register(lua_State* L) {
     WSLUA_REGISTER_META(FieldInfo);
+    WSLUA_REGISTER_ATTRIBUTES(FieldInfo);
     return 0;
 }
 
@@ -473,7 +392,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
     return items_found;
 }
 
-WSLUA_CLASS_DEFINE(Field,NOP,NOP);
+WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"),NOP);
 /*
    A Field extractor to to obtain field values.
  */
@@ -614,11 +533,6 @@ WSLUA_METAMETHOD Field__tostring(lua_State* L) {
 	/* Obtain a string with the field name */
     Field f = checkField(L,1);
 
-    if ( !(f && *f) ) {
-        luaL_error(L,"invalid Field");
-        return 0;
-    }
-
     if (wanted_fields) {
         lua_pushstring(L,*((gchar**)f));
     } else {
@@ -633,14 +547,14 @@ static int Field__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg Field_methods[] = {
-    {"new", Field_new},
+WSLUA_METHODS Field_methods[] = {
+    WSLUA_CLASS_FNREG(Field,new),
     { NULL, NULL }
 };
 
-static const luaL_Reg Field_meta[] = {
-    {"__tostring", Field__tostring},
-    {"__call", Field__call},
+WSLUA_META Field_meta[] = {
+    WSLUA_CLASS_MTREG(Field,tostring),
+    WSLUA_CLASS_MTREG(Field,call),
     { NULL, NULL }
 };
 

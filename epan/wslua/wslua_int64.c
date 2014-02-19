@@ -275,8 +275,9 @@ WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
     /* Converts the Int64 into a string of decimal digits */
     gint64 num = getInt64(L,1);
     gchar s[LUATYPE64_STRING_SIZE];
-    if (sprintf(s, "%" G_GINT64_MODIFIER "d", num) < 0)
-        luaL_error(L, "Error writing Int64 to a string");
+    if (sprintf(s, "%" G_GINT64_MODIFIER "d", num) < 0) {
+        return luaL_error(L, "Error writing Int64 to a string");
+    }
     lua_pushstring(L,s);
     WSLUA_RETURN(1); /* The Lua string */
 }
@@ -314,8 +315,9 @@ WSLUA_METAMETHOD Int64__div(lua_State* L) {
        Trying to divide by zero results in a Lua error. */
     Int64 num1 = getInt64(L,1);
     Int64 num2 = getInt64(L,2);
-    if (num2 == 0)
-        luaL_error(L, "Trying to divide Int64 by zero");
+    if (num2 == 0) {
+        return luaL_error(L, "Trying to divide Int64 by zero");
+    }
     pushInt64(L, num1 / num2);
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -325,8 +327,9 @@ WSLUA_METAMETHOD Int64__mod(lua_State* L) {
        Trying to modulo by zero results in a Lua error. */
     Int64 num1 = getInt64(L,1);
     Int64 num2 = getInt64(L,2);
-    if (num2 == 0)
-        luaL_error(L, "Trying to modulo Int64 by zero");
+    if (num2 == 0) {
+        return luaL_error(L, "Trying to modulo Int64 by zero");
+    }
     pushInt64(L, num1 % num2);
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -468,43 +471,43 @@ static int Int64__gc(lua_State* L _U_) {
 }
 
 static const luaL_Reg Int64_methods[] = {
-    { "new", Int64_new },
-    { "max", Int64_max },
-    { "min", Int64_min },
-    { "tonumber", Int64_tonumber },
-    { "fromhex", Int64_fromhex },
-    { "tohex", Int64_tohex },
-    { "higher", Int64_higher },
-    { "lower", Int64_lower },
-    { "encode", Int64_encode },
-    { "decode", Int64_decode },
-    { "bnot", Int64_bnot },
-    { "band", Int64_band },
-    { "bor", Int64_bor },
-    { "bxor", Int64_bxor },
-    { "lshift", Int64_lshift },
-    { "rshift", Int64_rshift },
-    { "arshift", Int64_arshift },
-    { "rol", Int64_rol },
-    { "ror", Int64_ror },
-    { "bswap", Int64_bswap },
+    WSLUA_CLASS_FNREG(Int64,new),
+    WSLUA_CLASS_FNREG(Int64,max),
+    WSLUA_CLASS_FNREG(Int64,min),
+    WSLUA_CLASS_FNREG(Int64,tonumber),
+    WSLUA_CLASS_FNREG(Int64,fromhex),
+    WSLUA_CLASS_FNREG(Int64,tohex),
+    WSLUA_CLASS_FNREG(Int64,higher),
+    WSLUA_CLASS_FNREG(Int64,lower),
+    WSLUA_CLASS_FNREG(Int64,encode),
+    WSLUA_CLASS_FNREG(Int64,decode),
+    WSLUA_CLASS_FNREG(Int64,bnot),
+    WSLUA_CLASS_FNREG(Int64,band),
+    WSLUA_CLASS_FNREG(Int64,bor),
+    WSLUA_CLASS_FNREG(Int64,bxor),
+    WSLUA_CLASS_FNREG(Int64,lshift),
+    WSLUA_CLASS_FNREG(Int64,rshift),
+    WSLUA_CLASS_FNREG(Int64,arshift),
+    WSLUA_CLASS_FNREG(Int64,rol),
+    WSLUA_CLASS_FNREG(Int64,ror),
+    WSLUA_CLASS_FNREG(Int64,bswap),
     { NULL, NULL }
 };
 
 static const luaL_Reg Int64_meta[] = {
-    {"__tostring", Int64__tostring},
-    {"__call", Int64__call},
-    {"__concat", wslua__concat},
-    {"__unm", Int64__unm},
-    {"__add", Int64__add},
-    {"__sub", Int64__sub},
-    {"__mul", Int64__mul},
-    {"__div", Int64__div},
-    {"__mod", Int64__mod},
-    {"__pow", Int64__pow},
-    {"__eq", Int64__eq},
-    {"__lt", Int64__lt},
-    {"__le", Int64__le},
+    WSLUA_CLASS_MTREG(Int64,tostring),
+    WSLUA_CLASS_MTREG(Int64,call),
+    WSLUA_CLASS_MTREG(wslua,concat),
+    WSLUA_CLASS_MTREG(Int64,unm),
+    WSLUA_CLASS_MTREG(Int64,add),
+    WSLUA_CLASS_MTREG(Int64,sub),
+    WSLUA_CLASS_MTREG(Int64,mul),
+    WSLUA_CLASS_MTREG(Int64,div),
+    WSLUA_CLASS_MTREG(Int64,mod),
+    WSLUA_CLASS_MTREG(Int64,pow),
+    WSLUA_CLASS_MTREG(Int64,eq),
+    WSLUA_CLASS_MTREG(Int64,lt),
+    WSLUA_CLASS_MTREG(Int64,le),
     { NULL, NULL }
 };
 
@@ -682,8 +685,9 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
     /* Converts the UInt64 into a string */
     guint64 num = getUInt64(L,1);
     gchar s[LUATYPE64_STRING_SIZE];
-    if (sprintf(s, "%" G_GINT64_MODIFIER "u",(guint64)num) < 0)
-        luaL_error(L, "Error writing UInt64 to a string");
+    if (sprintf(s, "%" G_GINT64_MODIFIER "u",(guint64)num) < 0) {
+        return luaL_error(L, "Error writing UInt64 to a string");
+    }
     lua_pushstring(L,s);
     WSLUA_RETURN(1); /* The Lua string */
 }
@@ -761,8 +765,9 @@ WSLUA_METAMETHOD UInt64__div(lua_State* L) {
        Trying to divide by zero results in a Lua error. */
     UInt64 num1 = getUInt64(L,1);
     UInt64 num2 = getUInt64(L,2);
-    if (num2 == 0)
-        luaL_error(L, "Trying to divide UInt64 by zero");
+    if (num2 == 0) {
+        return luaL_error(L, "Trying to divide UInt64 by zero");
+    }
     pushUInt64(L, num1 / num2);
     WSLUA_RETURN(1); /* The UInt64 result */
 }
@@ -772,8 +777,9 @@ WSLUA_METAMETHOD UInt64__mod(lua_State* L) {
        Trying to modulo by zero results in a Lua error. */
     UInt64 num1 = getUInt64(L,1);
     UInt64 num2 = getUInt64(L,2);
-    if (num2 == 0)
-        luaL_error(L, "Trying to modulo UInt64 by zero");
+    if (num2 == 0) {
+        return luaL_error(L, "Trying to modulo UInt64 by zero");
+    }
     pushUInt64(L, num1 % num2);
     WSLUA_RETURN(1); /* The UInt64 result */
 }
@@ -900,43 +906,43 @@ static int UInt64__gc(lua_State* L _U_) {
 }
 
 static const luaL_Reg UInt64_methods[] = {
-    { "new", UInt64_new },
-    { "max", UInt64_max },
-    { "min", UInt64_min },
-    { "tonumber", UInt64_tonumber },
-    { "fromhex", UInt64_fromhex },
-    { "tohex", UInt64_tohex },
-    { "higher", UInt64_higher },
-    { "lower", UInt64_lower },
-    { "encode", UInt64_encode },
-    { "decode", UInt64_decode },
-    { "bnot", UInt64_bnot },
-    { "band", UInt64_band },
-    { "bor", UInt64_bor },
-    { "bxor", UInt64_bxor },
-    { "lshift", UInt64_lshift },
-    { "rshift", UInt64_rshift },
-    { "arshift", UInt64_arshift },
-    { "rol", UInt64_rol },
-    { "ror", UInt64_ror },
-    { "bswap", UInt64_bswap },
+    WSLUA_CLASS_FNREG(UInt64,new),
+    WSLUA_CLASS_FNREG(UInt64,max),
+    WSLUA_CLASS_FNREG(UInt64,min),
+    WSLUA_CLASS_FNREG(UInt64,tonumber),
+    WSLUA_CLASS_FNREG(UInt64,fromhex),
+    WSLUA_CLASS_FNREG(UInt64,tohex),
+    WSLUA_CLASS_FNREG(UInt64,higher),
+    WSLUA_CLASS_FNREG(UInt64,lower),
+    WSLUA_CLASS_FNREG(UInt64,encode),
+    WSLUA_CLASS_FNREG(UInt64,decode),
+    WSLUA_CLASS_FNREG(UInt64,bnot),
+    WSLUA_CLASS_FNREG(UInt64,band),
+    WSLUA_CLASS_FNREG(UInt64,bor),
+    WSLUA_CLASS_FNREG(UInt64,bxor),
+    WSLUA_CLASS_FNREG(UInt64,lshift),
+    WSLUA_CLASS_FNREG(UInt64,rshift),
+    WSLUA_CLASS_FNREG(UInt64,arshift),
+    WSLUA_CLASS_FNREG(UInt64,rol),
+    WSLUA_CLASS_FNREG(UInt64,ror),
+    WSLUA_CLASS_FNREG(UInt64,bswap),
     { NULL, NULL }
 };
 
 static const luaL_Reg UInt64_meta[] = {
-    {"__tostring", UInt64__tostring},
-    {"__call", UInt64__call},
-    {"__concat", wslua__concat},
-    {"__unm", UInt64__unm},
-    {"__add", UInt64__add},
-    {"__sub", UInt64__sub},
-    {"__mul", UInt64__mul},
-    {"__div", UInt64__div},
-    {"__mod", UInt64__mod},
-    {"__pow", UInt64__pow},
-    {"__eq", UInt64__eq},
-    {"__lt", UInt64__lt},
-    {"__le", UInt64__le},
+    WSLUA_CLASS_MTREG(UInt64,tostring),
+    WSLUA_CLASS_MTREG(UInt64,call),
+    WSLUA_CLASS_MTREG(wslua,concat),
+    WSLUA_CLASS_MTREG(UInt64,unm),
+    WSLUA_CLASS_MTREG(UInt64,add),
+    WSLUA_CLASS_MTREG(UInt64,sub),
+    WSLUA_CLASS_MTREG(UInt64,mul),
+    WSLUA_CLASS_MTREG(UInt64,div),
+    WSLUA_CLASS_MTREG(UInt64,mod),
+    WSLUA_CLASS_MTREG(UInt64,pow),
+    WSLUA_CLASS_MTREG(UInt64,eq),
+    WSLUA_CLASS_MTREG(UInt64,lt),
+    WSLUA_CLASS_MTREG(UInt64,le),
     { NULL, NULL }
 };
 

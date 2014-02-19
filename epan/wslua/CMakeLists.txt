@@ -34,8 +34,9 @@ set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_gui.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_util.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_field.c
-  ${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_struct.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_struct.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_dumper.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_internals.c
 )
 
 set(WSLUA_FILES

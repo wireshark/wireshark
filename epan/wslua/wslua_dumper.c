@@ -452,11 +452,11 @@ WSLUA_METHODS Dumper_methods[] = {
     WSLUA_CLASS_FNREG(Dumper,flush),
     WSLUA_CLASS_FNREG(Dumper,dump),
     WSLUA_CLASS_FNREG(Dumper,dump_current),
-    {0, 0}
+    { NULL, NULL }
 };
 
 WSLUA_META Dumper_meta[] = {
-    {0, 0}
+    { NULL, NULL }
 };
 
 int Dumper_register(lua_State* L) {

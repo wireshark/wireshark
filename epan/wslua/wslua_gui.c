@@ -281,7 +281,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
 
 
-WSLUA_CLASS_DEFINE(ProgDlg,NOP,NOP); /* Manages a progress bar dialog. */
+WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg"),NOP); /* Manages a progress bar dialog. */
 
 WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
 #define WSLUA_OPTARG_ProgDlg_new_TITLE 2 /* Title of the new window, defaults to "Progress". */
@@ -313,10 +313,6 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
         WSLUA_ERROR(ProgDlg_update,"GUI not available");
     }
 
-    if (!pd) {
-        WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
-    }
-
     g_free(pd->task);
     pd->task = g_strdup(task);
 
@@ -337,10 +333,6 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
 WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has pressed the stop button.  */
     ProgDlg pd = checkProgDlg(L,1);
 
-    if (!pd) {
-        WSLUA_ERROR(ProgDlg_stopped,"Cannot be called for something not a ProgDlg");
-    }
-
     lua_pushboolean(L,pd->stopped);
 
     WSLUA_RETURN(1); /* true if the user has asked to stop the progress. */
@@ -355,10 +347,6 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
         WSLUA_ERROR(ProgDlg_close,"GUI not available");
     }
 
-    if (!pd) {
-        WSLUA_ERROR(ProgDlg_update,"Cannot be called for something not a ProgDlg");
-    }
-
     if (pd->pw) {
         ops->destroy_progress_window(pd->pw);
         pd->pw = NULL;
@@ -370,18 +358,14 @@ WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
 static int ProgDlg__tostring(lua_State* L) {
     ProgDlg pd = checkProgDlg(L,1);
 
-    if (pd) {
-        lua_pushstring(L,ep_strdup_printf("%sstopped",pd->stopped?"":"not "));
-    } else {
-        luaL_error(L, "ProgDlg__tostring has being passed something else!");
-    }
+    lua_pushstring(L,ep_strdup_printf("%sstopped",pd->stopped?"":"not "));
 
     return 0;
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int ProgDlg__gc(lua_State* L) {
-    ProgDlg pd = checkProgDlg(L,1);
+    ProgDlg pd = toProgDlg(L,1);
 
     if (pd) {
         if (pd->pw && ops->destroy_progress_window) {
@@ -402,12 +386,12 @@ WSLUA_METHODS ProgDlg_methods[] = {
     WSLUA_CLASS_FNREG(ProgDlg,update),
     WSLUA_CLASS_FNREG(ProgDlg,stopped),
     WSLUA_CLASS_FNREG(ProgDlg,close),
-    {0, 0}
+    { NULL, NULL }
 };
 
 WSLUA_META ProgDlg_meta[] = {
-    {"__tostring", ProgDlg__tostring},
-    {0, 0}
+    WSLUA_CLASS_MTREG(ProgDlg,tostring),
+    { NULL, NULL }
 };
 
 int ProgDlg_register(lua_State* L) {
@@ -421,7 +405,7 @@ int ProgDlg_register(lua_State* L) {
 
 
 
-WSLUA_CLASS_DEFINE(TextWindow,NOP,NOP); /* Manages a text window. */
+WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow"),NOP); /* Manages a text window. */
 
 /* XXX: button and close callback data is being leaked */
 /* XXX: lua callback function and TextWindow are not garbage collected because
@@ -466,9 +450,6 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
         WSLUA_ERROR(TextWindow_set_atclose,"GUI not available");
     }
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_at_close,"Cannot be called for something not a TextWindow");
-
     lua_settop(L,2);
 
     if (! lua_isfunction(L,2))
@@ -494,12 +475,6 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
     if (!ops->set_text)
         WSLUA_ERROR(TextWindow_set,"GUI not available");
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_set,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_set,"Expired TextWindow");
-
     if (!text)
         WSLUA_ARG_ERROR(TextWindow_set,TEXT,"Must be a string");
 
@@ -515,12 +490,6 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 
     if (!ops->append_text)
         WSLUA_ERROR(TextWindow_append,"GUI not available");
-
-    if (!tw)
-        WSLUA_ERROR(TextWindow_append,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_append,"Expired TextWindow");
 
     if (!text)
         WSLUA_ARG_ERROR(TextWindow_append,TEXT,"Must be a string");
@@ -538,12 +507,6 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
     if (!ops->prepend_text)
         WSLUA_ERROR(TextWindow_prepend,"GUI not available");
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_prepend,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_prepend,"Expired TextWindow");
-
      if (!text)
         WSLUA_ARG_ERROR(TextWindow_prepend,TEXT,"Must be a string");
 
@@ -558,12 +521,6 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. 
     if (!ops->clear_text)
         WSLUA_ERROR(TextWindow_clear,"GUI not available");
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_clear,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_clear,"Expired TextWindow");
-
     ops->clear_text(tw->ws_tw);
 
     WSLUA_RETURN(1); /* The TextWindow object. */
@@ -576,12 +533,6 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
     if (!ops->get_text)
         WSLUA_ERROR(TextWindow_get_text,"GUI not available");
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_get_text,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_get_text,"Expired TextWindow");
-
     text = ops->get_text(tw->ws_tw);
 
     lua_pushstring(L,text);
@@ -590,7 +541,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TextWindow__gc(lua_State* L) {
-    TextWindow tw = checkTextWindow(L,1);
+    TextWindow tw = toTextWindow(L,1);
 
     if (!tw)
         return 0;
@@ -604,7 +555,6 @@ static int TextWindow__gc(lua_State* L) {
         g_free(tw);
     }
 
-
     return 0;
 }
 
@@ -617,14 +567,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
     if (!ops->set_editable)
         WSLUA_ERROR(TextWindow_set_editable,"GUI not available");
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_set_editable,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_set_editable,"Expired TextWindow");
-
-    if (ops->set_editable)
-        ops->set_editable(tw->ws_tw,editable);
+    ops->set_editable(tw->ws_tw,editable);
 
     WSLUA_RETURN(1); /* The TextWindow object. */
 }
@@ -674,12 +617,6 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
     if (!ops->add_button)
         WSLUA_ERROR(TextWindow_add_button,"GUI not available");
 
-    if (!tw)
-        WSLUA_ERROR(TextWindow_add_button,"Cannot be called for something not a TextWindow");
-
-    if (tw->expired)
-        WSLUA_ERROR(TextWindow_add_button,"Expired TextWindow");
-
     if (! lua_isfunction(L,WSLUA_ARG_TextWindow_add_button_FUNCTION) )
         WSLUA_ARG_ERROR(TextWindow_add_button,FUNCTION,"must be a function");
 
@@ -716,12 +653,12 @@ WSLUA_METHODS TextWindow_methods[] = {
     WSLUA_CLASS_FNREG(TextWindow,set_editable),
     WSLUA_CLASS_FNREG(TextWindow,get_text),
     WSLUA_CLASS_FNREG(TextWindow,add_button),
-    {0, 0}
+    { NULL, NULL }
 };
 
 WSLUA_META TextWindow_meta[] = {
     {"__tostring", TextWindow_get_text},
-    {0, 0}
+    { NULL, NULL }
 };
 
 int TextWindow_register(lua_State* L) {

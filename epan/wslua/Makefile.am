@@ -41,7 +41,8 @@ wslua_modules = 	\
 	$(srcdir)/wslua_util.c \
 	$(srcdir)/wslua_field.c \
 	$(srcdir)/wslua_struct.c \
-	$(srcdir)/wslua_dumper.c
+	$(srcdir)/wslua_dumper.c \
+	$(srcdir)/wslua_internals.c
 
 libwslua_la_SOURCES = \
 	$(wslua_modules) \

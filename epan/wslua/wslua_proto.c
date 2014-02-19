@@ -253,11 +253,11 @@ WSLUA_METHODS Pref_methods[] = {
     WSLUA_CLASS_FNREG(Pref,enum),
     WSLUA_CLASS_FNREG(Pref,range),
     WSLUA_CLASS_FNREG(Pref,statictext),
-    {0,0}
+    { NULL, NULL }
 };
 
 WSLUA_META Pref_meta[] = {
-    {0,0}
+    { NULL, NULL }
 };
 
 
@@ -420,9 +420,9 @@ static int Prefs__gc(lua_State* L _U_) {
 }
 
 WSLUA_META Prefs_meta[] = {
-    {"__newindex",   Prefs__newindex},
-    {"__index",   Prefs__index},
-    {0,0}
+    WSLUA_CLASS_MTREG(Prefs,newindex),
+    WSLUA_CLASS_MTREG(Prefs,index),
+    { NULL, NULL }
 };
 
 WSLUA_REGISTER Prefs_register(lua_State* L) {
@@ -1297,41 +1297,41 @@ static int ProtoField__gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_Reg ProtoField_methods[] = {
-    {"new",   ProtoField_new},
-    {"uint8",ProtoField_uint8},
-    {"uint16",ProtoField_uint16},
-    {"uint24",ProtoField_uint24},
-    {"uint32",ProtoField_uint32},
-    {"uint64",ProtoField_uint64},
-    {"int8",ProtoField_int8},
-    {"int16",ProtoField_int16},
-    {"int24",ProtoField_int24},
-    {"int32",ProtoField_int32},
-    {"int64",ProtoField_int64},
-    {"framenum",ProtoField_framenum},
-    {"ipv4",ProtoField_ipv4},
-    {"ipv6",ProtoField_ipv6},
-    {"ipx",ProtoField_ipx},
-    {"ether",ProtoField_ether},
-    {"bool",ProtoField_bool},
-    {"float",ProtoField_float},
-    {"double",ProtoField_double},
-    {"absolute_time",ProtoField_absolute_time},
-    {"relative_time",ProtoField_relative_time},
-    {"string",ProtoField_string},
-    {"stringz",ProtoField_stringz},
-    {"bytes",ProtoField_bytes},
-    {"ubytes",ProtoField_ubytes},
-    {"guid",ProtoField_guid},
-    {"oid",ProtoField_oid},
-    {"rel_oid",ProtoField_rel_oid},
-    {"systemid",ProtoField_systemid},
+WSLUA_METHODS ProtoField_methods[] = {
+    WSLUA_CLASS_FNREG(ProtoField,new),
+    WSLUA_CLASS_FNREG(ProtoField,uint8),
+    WSLUA_CLASS_FNREG(ProtoField,uint16),
+    WSLUA_CLASS_FNREG(ProtoField,uint24),
+    WSLUA_CLASS_FNREG(ProtoField,uint32),
+    WSLUA_CLASS_FNREG(ProtoField,uint64),
+    WSLUA_CLASS_FNREG(ProtoField,int8),
+    WSLUA_CLASS_FNREG(ProtoField,int16),
+    WSLUA_CLASS_FNREG(ProtoField,int24),
+    WSLUA_CLASS_FNREG(ProtoField,int32),
+    WSLUA_CLASS_FNREG(ProtoField,int64),
+    WSLUA_CLASS_FNREG(ProtoField,framenum),
+    WSLUA_CLASS_FNREG(ProtoField,ipv4),
+    WSLUA_CLASS_FNREG(ProtoField,ipv6),
+    WSLUA_CLASS_FNREG(ProtoField,ipx),
+    WSLUA_CLASS_FNREG(ProtoField,ether),
+    WSLUA_CLASS_FNREG(ProtoField,bool),
+    WSLUA_CLASS_FNREG(ProtoField,float),
+    WSLUA_CLASS_FNREG(ProtoField,double),
+    WSLUA_CLASS_FNREG(ProtoField,absolute_time),
+    WSLUA_CLASS_FNREG(ProtoField,relative_time),
+    WSLUA_CLASS_FNREG(ProtoField,string),
+    WSLUA_CLASS_FNREG(ProtoField,stringz),
+    WSLUA_CLASS_FNREG(ProtoField,bytes),
+    WSLUA_CLASS_FNREG(ProtoField,ubytes),
+    WSLUA_CLASS_FNREG(ProtoField,guid),
+    WSLUA_CLASS_FNREG(ProtoField,oid),
+    WSLUA_CLASS_FNREG(ProtoField,rel_oid),
+    WSLUA_CLASS_FNREG(ProtoField,systemid),
     { NULL, NULL }
 };
 
-static const luaL_Reg ProtoField_meta[] = {
-    {"__tostring", ProtoField__tostring },
+WSLUA_META ProtoField_meta[] = {
+    WSLUA_CLASS_MTREG(ProtoField,tostring),
     { NULL, NULL }
 };
 
@@ -1340,7 +1340,7 @@ int ProtoField_register(lua_State* L) {
     return 0;
 }
 
-WSLUA_CLASS_DEFINE(Proto,NOP,NOP);
+WSLUA_CLASS_DEFINE(Proto,FAIL_ON_NULL("Proto"),NOP);
 /*
   A new protocol in wireshark. Protocols have more uses, the main one is to dissect
   a protocol. But they can be just dummies used to register preferences for
@@ -1405,7 +1405,14 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
     return 0;
 }
 
-static int Proto_tostring(lua_State* L) {
+WSLUA_METAMETHOD Proto__call(lua_State* L) { /* Creates a Proto object */
+#define WSLUA_ARG_Proto__call_NAME 1 /* The name of the protocol */
+#define WSLUA_ARG_Proto__call_DESC 2 /* A Long Text description of the protocol (usually lowercase) */
+    lua_remove(L,1); /* remove the table */
+    WSLUA_RETURN(Proto_new(L)); /* The new Proto object. */
+}
+
+static int Proto__tostring(lua_State* L) {
     Proto proto = checkProto(L,1);
     gchar* s;
 
@@ -1436,8 +1443,10 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
     return 0;
 }
 
+/* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define.
+   The called dissector function will be given three arguments of (1) a Tvb object, (2) a Pinfo object, and (3) a TreeItem object. */
 static int Proto_get_dissector(lua_State* L) {
-    Proto proto = toProto(L,1);
+    Proto proto = checkProto(L,1);
 
     if (proto->handle) {
         pushDissector(L,proto->handle);
@@ -1449,105 +1458,90 @@ static int Proto_get_dissector(lua_State* L) {
 }
 
 static int Proto_set_dissector(lua_State* L) {
-    Proto proto = toProto(L,1);
+    Proto proto = checkProto(L,1);
 
-    if (lua_isfunction(L,3)) {
+    if (lua_isfunction(L,2)) {
         /* insert the dissector into the dissectors table */
         gchar* loname = g_ascii_strdown(proto->name, -1);
 
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
-        lua_replace(L, 2);
+        lua_insert(L, 2); /* function is now at 3 */
         lua_settable(L,1);
 
         proto->handle = new_create_dissector_handle(dissect_lua, proto->hfid);
 
         new_register_dissector(loname, dissect_lua, proto->hfid);
-
-        return 0;
     } else {
-        luaL_argerror(L,3,"The dissector of a protocol must be a function");
-        return 0;
-    }
-}
-
-static int Proto_get_prefs(lua_State* L) {
-    Proto proto = toProto(L,1);
-    pushPrefs(L,&proto->prefs);
-    return 1;
-}
-
-static int Proto_set_prefs_changed(lua_State* L) {
-    Proto proto = toProto(L,1);
-
-    if (lua_isfunction(L,3)) {
-        /* insert the prefs changed callback into the prefs_changed table */
-        lua_getglobal(L, WSLUA_PREFS_CHANGED);
-        lua_replace(L, 1);
-        lua_pushstring(L,proto->name);
-        lua_replace(L, 2);
-        lua_settable(L,1);
-
-    }  else {
-        luaL_argerror(L,3,"The prefs of a protocol must be a function");
+        luaL_argerror(L,2,"The dissector of a protocol must be a function");
     }
     return 0;
 }
 
-static int Proto_set_init(lua_State* L) {
-    Proto proto = toProto(L,1);
+/* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
+static int Proto_get_prefs(lua_State* L) {
+    Proto proto = checkProto(L,1);
+    pushPrefs(L,&proto->prefs);
+    return 1;
+}
 
-    if (lua_isfunction(L,3)) {
+/* WSLUA_ATTRIBUTE Proto_prefs_changed WO The preferences changed routine of this dissector, a function you define. */
+static int Proto_set_prefs_changed(lua_State* L) {
+    Proto proto = checkProto(L,1);
+
+    if (lua_isfunction(L,2)) {
+        /* insert the prefs changed callback into the prefs_changed table */
+        lua_getglobal(L, WSLUA_PREFS_CHANGED);
+        lua_replace(L, 1);
+        lua_pushstring(L,proto->name);
+        lua_insert(L, 2); /* function is now at 3 */
+        lua_settable(L,1);
+    }  else {
+        luaL_argerror(L,2,"The prefs of a protocol must be a function");
+    }
+    return 0;
+}
+
+/* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define.
+   The called init function is passed no arguments. */
+static int Proto_set_init(lua_State* L) {
+    Proto proto = checkProto(L,1);
+
+    if (lua_isfunction(L,2)) {
         /* insert the init routine into the init_routines table */
         lua_getglobal(L, WSLUA_INIT_ROUTINES);
         lua_replace(L, 1);
         lua_pushstring(L,proto->name);
-        lua_replace(L, 2);
+        lua_insert(L, 2); /* function is now at 3 */
         lua_settable(L,1);
-
-        return 0;
     }  else {
-        luaL_argerror(L,3,"The initializer of a protocol must be a function");
-        return 0;
+        luaL_argerror(L,2,"The initializer of a protocol must be a function");
     }
+    return 0;
 }
 
-static int Proto_get_name(lua_State* L) {
-    Proto proto = toProto(L,1);
-    lua_pushstring(L,proto->name);
-    return 1;
-}
+/* WSLUA_ATTRIBUTE Proto_name RO The name given to this dissector */
+WSLUA_ATTRIBUTE_STRING_GETTER(Proto,name);
 
-static int Proto_get_description(lua_State* L) {
-    Proto proto = toProto(L,1);
-    lua_pushstring(L,proto->desc);
-    return 1;
-}
+/* WSLUA_ATTRIBUTE Proto_description RO The description given to this dissector */
+WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Proto,description,desc);
 
+/* WSLUA_ATTRIBUTE Proto_fields RW The Fields Table of this dissector */
 static int Proto_get_fields(lua_State* L) {
-    Proto proto = toProto(L,1);
+    Proto proto = checkProto(L,1);
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
     return 1;
 }
 
-void wslua_print_stack(char* s, lua_State* L) {
-    int i;
-
-    for (i=1;i<=lua_gettop(L);i++) {
-        printf("%s-%i: %s\n",s,i,lua_typename (L,lua_type(L, i)));
-    }
-    printf("\n");
-}
-
 static int Proto_set_fields(lua_State* L) {
-    Proto proto = toProto(L,1);
+    Proto proto = checkProto(L,1);
 #define FIELDS_TABLE 2
 #define NEW_TABLE 3
 #define NEW_FIELD 3
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
-    lua_replace(L,FIELDS_TABLE);
+    lua_insert(L,FIELDS_TABLE);
 
     if( lua_istable(L,NEW_TABLE)) {
         for (lua_pushnil(L); lua_next(L, NEW_TABLE); ) {
@@ -1570,105 +1564,44 @@ static int Proto_set_fields(lua_State* L) {
     return 1;
 }
 
-typedef struct {
-    const gchar* name;
-    lua_CFunction get;
-    lua_CFunction set;
-} proto_actions_t;
-
-static const proto_actions_t proto_actions[] = {
-    /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define.
-       The called dissector function will be given three arguments of (1) a Tvb object, (2) a Pinfo object, and (3) a TreeItem object. */
-    {"dissector", Proto_get_dissector, Proto_set_dissector},
-
-    /* WSLUA_ATTRIBUTE Proto_fields RO The Fields Table of this dissector */
-    {"fields", Proto_get_fields, Proto_set_fields},
-
-    /* WSLUA_ATTRIBUTE Proto_prefs RO The preferences of this dissector */
-    {"prefs", Proto_get_prefs, NULL},
-
-    /* WSLUA_ATTRIBUTE Proto_prefs_changed WO The preferences changed routine of this dissector, a function you define. */
-    {"prefs_changed", NULL, Proto_set_prefs_changed},
-
-    /* WSLUA_ATTRIBUTE Proto_init WO The init routine of this dissector, a function you define.
-       The called init function is passed no arguments. */
-    {"init", NULL, Proto_set_init},
-
-    /* WSLUA_ATTRIBUTE Proto_name RO The name given to this dissector */
-    {"name", Proto_get_name, NULL},
-
-    /* WSLUA_ATTRIBUTE Proto_description RO The description given to this dissector */
-    {"description", Proto_get_description, NULL},
-
-    {NULL,NULL,NULL}
-};
-
-static int Proto_index(lua_State* L) {
-    Proto proto = checkProto(L,1);
-    const gchar* name = luaL_checkstring(L,2);
-    const proto_actions_t* pa;
-
-    if (! (proto && name) ) return 0;
-
-    for (pa = proto_actions; pa->name; pa++) {
-        if ( g_str_equal(name,pa->name) ) {
-            if (pa->get) {
-                return pa->get(L);
-            } else {
-                luaL_error(L,"You cannot get the `%s' attribute of a protocol",name);
-                return 0;
-            }
-        }
-    }
-
-    luaL_error(L,"A protocol doesn't have a `%s' attribute",name);
-    return 0;
-}
-
-static int Proto_newindex(lua_State* L) {
-    Proto proto = checkProto(L,1);
-    const gchar* name = luaL_checkstring(L,2);
-    const proto_actions_t* pa;
-
-    if (! (proto && name) ) return 0;
-
-    for (pa = proto_actions; pa->name; pa++) {
-        if ( g_str_equal(name,pa->name) ) {
-            if (pa->set) {
-                return pa->set(L);
-            } else {
-                luaL_error(L,"You cannot set the `%s' attribute of a protocol",name);
-                return 0;
-            }
-        }
-    }
-
-    luaL_error(L,"A protocol doesn't have a `%s' attribute",name);
-    return 0;
-}
-
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Proto__gc(lua_State* L _U_) {
     /* do NOT free Proto, it's never free'd */
     return 0;
 }
 
-static const luaL_Reg Proto_meta[] = {
-    {"__tostring", Proto_tostring},
-    {"__index", Proto_index},
-    {"__newindex", Proto_newindex},
+/* This table is ultimately registered as a sub-table of the class' metatable,
+ * and if __index/__newindex is invoked then it calls the appropriate function
+ * from this table for getting/setting the members.
+ */
+WSLUA_ATTRIBUTES Proto_attributes[] = {
+    WSLUA_ATTRIBUTE_RWREG(Proto,dissector),
+    WSLUA_ATTRIBUTE_RWREG(Proto,fields),
+    WSLUA_ATTRIBUTE_ROREG(Proto,prefs),
+    WSLUA_ATTRIBUTE_WOREG(Proto,prefs_changed),
+    WSLUA_ATTRIBUTE_WOREG(Proto,init),
+    WSLUA_ATTRIBUTE_ROREG(Proto,name),
+    WSLUA_ATTRIBUTE_ROREG(Proto,description),
+    { NULL, NULL, NULL }
+};
+
+WSLUA_METHODS Proto_methods[] = {
+    WSLUA_CLASS_FNREG(Proto,new),
+    { NULL, NULL }
+};
+
+WSLUA_META Proto_meta[] = {
+    WSLUA_CLASS_MTREG(Proto,tostring),
+    WSLUA_CLASS_MTREG(Proto,call),
     { NULL, NULL }
 };
 
 int Proto_register(lua_State* L) {
-
-    WSLUA_REGISTER_META(Proto);
+    WSLUA_REGISTER_CLASS(Proto);
+    WSLUA_REGISTER_ATTRIBUTES(Proto);
 
     lua_newtable(L);
     protocols_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
-
-	lua_pushcfunction(L, Proto_new);
-	lua_setglobal(L, "Proto");
 
     return 0;
 }
@@ -1683,9 +1616,9 @@ int wslua_is_field_available(lua_State* L, const char* field_abbr) {
     while (lua_next(L, -2)) {
         Proto proto;
         proto = checkProto(L, -1);
-        
+
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
-        
+
         lua_pushnil(L);
         while (lua_next(L, -2)) {
             ProtoField f = checkProtoField(L, -1);
@@ -1699,7 +1632,7 @@ int wslua_is_field_available(lua_State* L, const char* field_abbr) {
         lua_pop(L, 2); /* proto->fields and table value */
     }
     lua_pop(L, 1); /* protocols_table_ref */
-    
+
     return 0;
 }
 
@@ -1804,14 +1737,14 @@ static int Dissector__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg Dissector_methods[] = {
-    {"get", Dissector_get },
-    {"call", Dissector_call },
+WSLUA_METHODS Dissector_methods[] = {
+    WSLUA_CLASS_FNREG(Dissector,get),
+    WSLUA_CLASS_FNREG(Dissector,call),
     { NULL, NULL }
 };
 
-static const luaL_Reg Dissector_meta[] = {
-    {"__tostring", Dissector__tostring},
+WSLUA_META Dissector_meta[] = {
+    WSLUA_CLASS_MTREG(Dissector,tostring),
     { NULL, NULL }
 };
 
@@ -1904,7 +1837,7 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
 
     if( isProto(L,WSLUA_ARG_DissectorTable_add_DISSECTOR) ) {
         Proto p;
-        p = toProto(L,WSLUA_ARG_DissectorTable_add_DISSECTOR);
+        p = checkProto(L,WSLUA_ARG_DissectorTable_add_DISSECTOR);
         handle = p->handle;
 
         if (! handle)
@@ -1957,7 +1890,7 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
 
     if( isProto(L,WSLUA_ARG_DissectorTable_set_DISSECTOR) ) {
         Proto p;
-        p = toProto(L,WSLUA_ARG_DissectorTable_set_DISSECTOR);
+        p = checkProto(L,WSLUA_ARG_DissectorTable_set_DISSECTOR);
         handle = p->handle;
 
         if (! handle)
@@ -2013,7 +1946,7 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
 
     if( isProto(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR) ) {
         Proto p;
-        p = toProto(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR);
+        p = checkProto(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR);
         handle = p->handle;
 
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR) ) {
@@ -2058,7 +1991,7 @@ WSLUA_METHOD DissectorTable_remove_all (lua_State *L) {
 
     if( isProto(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR) ) {
         Proto p;
-        p = toProto(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR);
+        p = checkProto(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR);
         handle = p->handle;
 
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR) ) {
@@ -2202,20 +2135,20 @@ static int DissectorTable__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg DissectorTable_methods[] = {
-    {"new", DissectorTable_new },
-    {"get", DissectorTable_get },
-    {"add", DissectorTable_add },
-    {"set", DissectorTable_set },
-    {"remove", DissectorTable_remove },
-    {"remove_all", DissectorTable_remove_all },
-    {"try", DissectorTable_try },
-    {"get_dissector", DissectorTable_get_dissector },
+WSLUA_METHODS DissectorTable_methods[] = {
+    WSLUA_CLASS_FNREG(DissectorTable,new),
+    WSLUA_CLASS_FNREG(DissectorTable,get),
+    WSLUA_CLASS_FNREG(DissectorTable,add),
+    WSLUA_CLASS_FNREG(DissectorTable,set),
+    WSLUA_CLASS_FNREG(DissectorTable,remove),
+    WSLUA_CLASS_FNREG(DissectorTable,remove_all),
+    WSLUA_CLASS_FNREG(DissectorTable,try),
+    WSLUA_CLASS_FNREG(DissectorTable,get_dissector),
     { NULL, NULL }
 };
 
-static const luaL_Reg DissectorTable_meta[] = {
-    {"__tostring", DissectorTable__tostring},
+WSLUA_META DissectorTable_meta[] = {
+    WSLUA_CLASS_MTREG(DissectorTable,tostring),
     { NULL, NULL }
 };
 

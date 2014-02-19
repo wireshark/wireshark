@@ -198,7 +198,7 @@ struct _wslua_tap {
     lua_State* L;
     int packet_ref;
     int draw_ref;
-    int init_ref;
+    int reset_ref;
 };
 
 #  define DIRECTORY_T GDir
@@ -312,37 +312,16 @@ C shift##C(lua_State* L,int i) { \
 } \
 typedef int dummy##C
 
-#ifdef HAVE_LUA
+typedef struct _wslua_attribute_table {
+    const gchar  *fieldname;
+    lua_CFunction getfunc;
+    lua_CFunction setfunc;
+} wslua_attribute_table;
+extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean is_getter);
 
-#define WSLUA_REGISTER_CLASS(C) { \
-    /* check for existing class table in global */ \
-    lua_getglobal (L, #C); \
-    if (!lua_isnil (L, -1)) { \
-        fprintf(stderr, "ERROR: Attempt to register class '%s' which already exists in global Lua table\n", #C); \
-        exit(1); \
-    } \
-    lua_pop (L, 1); \
-    /* create new class method table and 'register' the class methods into it */ \
-    lua_newtable (L); \
-    wslua_setfuncs (L, C ## _methods, 0); \
-    /* add a method-table field named '__typeof' = the class name, this is used by the typeof() Lua func */ \
-    lua_pushstring(L, #C); \
-    lua_setfield(L, -2, "__typeof"); \
-    /* create a new metatable and register metamethods into it */ \
-    luaL_newmetatable (L, #C); \
-    wslua_setfuncs (L, C ## _meta, 0); \
-    /* add the '__gc' metamethod with a C-function named Class__gc */ \
-    /* this will force ALL wslua classes to have a Class__gc function defined, which is good */ \
-    lua_pushcfunction(L, C ## __gc); \
-    lua_setfield(L, -2, "__gc"); \
-    /* push a copy of the class methods table, and set it to be the metatable's __index field */ \
-    lua_pushvalue (L, -2); \
-    lua_setfield (L, -2, "__index"); \
-    /* set the metatable to be the class's metatable, so scripts can inspect it, and metamethods work for class tables */ \
-    lua_setmetatable(L, -2); \
-    /* set the class methods table as the global class table */ \
-    lua_setglobal (L, #C); \
-}
+#define WSLUA_TYPEOF_FIELD "__typeof"
+
+#ifdef HAVE_LUA
 
 #define WSLUA_REGISTER_META(C) { \
     /* check for existing metatable in registry */ \
@@ -357,13 +336,53 @@ typedef int dummy##C
     wslua_setfuncs (L, C ## _meta, 0); \
     /* add a metatable field named '__typeof' = the class name, this is used by the typeof() Lua func */ \
     lua_pushstring(L, #C); \
-    lua_setfield(L, -2, "__typeof"); \
+    lua_setfield(L, -2, WSLUA_TYPEOF_FIELD); \
      /* add the '__gc' metamethod with a C-function named Class__gc */ \
     /* this will force ALL wslua classes to have a Class__gc function defined, which is good */ \
     lua_pushcfunction(L, C ## __gc); \
     lua_setfield(L, -2, "__gc"); \
     /* pop the metatable */ \
     lua_pop(L, 1); \
+}
+
+#define WSLUA_REGISTER_CLASS(C) { \
+    /* check for existing class table in global */ \
+    lua_getglobal (L, #C); \
+    if (!lua_isnil (L, -1)) { \
+        fprintf(stderr, "ERROR: Attempt to register class '%s' which already exists in global Lua table\n", #C); \
+        exit(1); \
+    } \
+    lua_pop (L, 1); \
+    /* create new class method table and 'register' the class methods into it */ \
+    lua_newtable (L); \
+    wslua_setfuncs (L, C ## _methods, 0); \
+    /* add a method-table field named '__typeof' = the class name, this is used by the typeof() Lua func */ \
+    lua_pushstring(L, #C); \
+    lua_setfield(L, -2, WSLUA_TYPEOF_FIELD); \
+    /* setup the meta table */ \
+    WSLUA_REGISTER_META(C); \
+    luaL_getmetatable(L, #C); \
+    /* push a copy of the class methods table, and set it to be the metatable's __index field */ \
+    lua_pushvalue (L, -2); \
+    lua_setfield (L, -2, "__index"); \
+    /* set the metatable to be the class's metatable, so scripts can inspect it, and metamethods work for class tables */ \
+    lua_setmetatable(L, -2); \
+    /* set the class methods table as the global class table */ \
+    lua_setglobal (L, #C); \
+}
+
+/* see comments for wslua_reg_attributes and wslua_attribute_dispatcher to see how this attribute stuff works */
+#define WSLUA_REGISTER_ATTRIBUTES(C) { \
+    /* get metatable from Lua registry */ \
+    luaL_getmetatable(L, #C); \
+    if (lua_isnil(L, -1)) { \
+        fprintf(stderr, "ERROR: Attempt to register attributes without a pre-existing metatable for '%s' in Lua registry\n", #C); \
+        exit(1); \
+    } \
+    /* register the getters/setters in their tables */ \
+    wslua_reg_attributes(L, C##_attributes, TRUE); \
+    wslua_reg_attributes(L, C##_attributes, FALSE); \
+    lua_pop(L, 1); /* pop the metatable */ \
 }
 
 #define WSLUA_INIT(L) \
@@ -389,6 +408,68 @@ typedef int dummy##C
 #define WSLUA_META static const luaL_Reg
 #define WSLUA_CLASS_FNREG(class,name) { #name, class##_##name }
 #define WSLUA_CLASS_FNREG_ALIAS(class,aliasname,name) { #aliasname, class##_##name }
+#define WSLUA_CLASS_MTREG(class,name) { "__" #name, class##__##name }
+
+#define WSLUA_ATTRIBUTES static const wslua_attribute_table
+/* following are useful macros for the rows in the array created by above */
+#define WSLUA_ATTRIBUTE_RWREG(class,name) { #name, class##_get_##name, class##_set_##name }
+#define WSLUA_ATTRIBUTE_ROREG(class,name) { #name, class##_get_##name, NULL }
+#define WSLUA_ATTRIBUTE_WOREG(class,name) { #name, NULL, class##_set_##name }
+
+#define WSLUA_ATTRIBUTE_FUNC_SETTER(C,field) \
+    static int C##_set_##field (lua_State* L) { \
+        C obj = check##C (L,1); \
+        if (! lua_isfunction(L,-1) ) \
+            return luaL_error(L, "%s's attribute `%s' must be a function", #C , #field ); \
+        obj->field##_ref = luaL_ref(L, LUA_REGISTRYINDEX); \
+        return 0; \
+    }
+
+#define WSLUA_ATTRIBUTE_GET(C,name,block) \
+    static int C##_get_##name (lua_State* L) { \
+        C obj = check##C (L,1); \
+        block \
+        return 1; \
+    }
+
+#define WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(C,name,member) \
+    WSLUA_ATTRIBUTE_GET(C,name,{lua_pushboolean(L, obj->member );})
+
+#define WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(C,name,member) \
+    WSLUA_ATTRIBUTE_GET(C,name,{lua_pushnumber(L,(lua_Number)(obj->member));})
+
+#define WSLUA_ATTRIBUTE_NUMBER_GETTER(C,member) \
+    WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(C,member,member)
+
+#define WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(C,name,block) \
+    WSLUA_ATTRIBUTE_GET(C,name,{lua_pushnumber(L,(lua_Number)(block));})
+
+#define WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(C,name,member) \
+    WSLUA_ATTRIBUTE_GET(C,name, { \
+        lua_pushstring(L,obj->member); /* this pushes nil if obj->member is null */ \
+    })
+
+#define WSLUA_ATTRIBUTE_STRING_GETTER(C,member) \
+    WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(C,member,member)
+
+
+#define WSLUA_ATTRIBUTE_SET(C,name,block) \
+    static int C##_set_##name (lua_State* L) { \
+        C obj = check##C (L,1); \
+        block; \
+        return 0; \
+    }
+
+#define WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,name,member,cast) \
+    WSLUA_ATTRIBUTE_SET(C,name, { \
+        if (! lua_isnumber(L,-1) ) \
+            return luaL_error(L, "%s's attribute `%s' must be a number", #C , #name ); \
+        obj->member = (cast) lua_tointeger(L,-1); \
+    })
+
+#define WSLUA_ATTRIBUTE_NUMBER_SETTER(C,member,cast) \
+    WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,member,member,cast)
+
 
 #define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); return 0; }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); return 0; }
@@ -403,7 +484,12 @@ typedef int dummy##C
 #define WSLUA_API extern
 
 #define NOP
-#define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,idx,s)
+#define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,idx,"null " s)
+#define FAIL_ON_NULL_OR_EXPIRED(s) if (!*p) { \
+        luaL_argerror(L,idx,"null " s); \
+    } else if ((*p)->expired) { \
+        luaL_argerror(L,idx,"expired " s); \
+    }
 
 /* Clears or marks references that connects Lua to Wireshark structures */
 #define CLEAR_OUTSTANDING(C, marker, marker_val) void clear_outstanding_##C(void) { \
@@ -440,8 +526,12 @@ extern lua_State* wslua_state(void);
 
 extern int wslua__concat(lua_State* L);
 extern gboolean wslua_optbool(lua_State* L, int n, gboolean def);
+extern int wslua_optboolint(lua_State* L, int n, int def);
 extern const gchar* lua_shiftstring(lua_State* L,int idx);
 extern void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup);
+extern const gchar* wslua_typeof_unknown;
+extern const gchar* wslua_typeof(lua_State *L, int idx);
+extern void wslua_assert_table_field_new(lua_State *L, int idx, const gchar *name);
 extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 extern void wslua_prefs_changed(void);
 extern void proto_register_lua(void);

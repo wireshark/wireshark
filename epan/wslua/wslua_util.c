@@ -33,57 +33,6 @@
 #include <epan/stat_cmd_args.h>
 
 
-WSLUA_API int wslua__concat(lua_State* L) {
-    /* Concatenate two objects to a string */
-    if (!luaL_callmeta(L,1,"__tostring"))
-        lua_pushvalue(L,1);
-    if (!luaL_callmeta(L,2,"__tostring"))
-        lua_pushvalue(L,2);
-
-    lua_concat(L,2);
-
-    return 1;
-}
-
-WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
-    gboolean val = FALSE;
-
-    if ( lua_isboolean(L,n) ) {
-        val = lua_toboolean(L,n);
-    } else if ( lua_isnil(L,n) || lua_gettop(L) < n ){
-        val = def;
-    } else {
-        luaL_argerror(L,n,"must be a boolean");
-    }
-
-    return val;
-}
-
-
-WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
-    const gchar* p = luaL_checkstring(L, i);
-
-    if (p) {
-        lua_remove(L,i);
-        return p;
-    } else {
-        return NULL;
-    }
-}
-
-/* following is based on the luaL_setfuncs() from Lua 5.2, so we can use it in pre-5.2 */
-WSLUA_API void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
-  luaL_checkstack(L, nup, "too many upvalues");
-  for (; l->name != NULL; l++) {  /* fill the table with given functions */
-    int i;
-    for (i = 0; i < nup; i++)  /* copy upvalues to the top */
-      lua_pushvalue(L, -nup);
-    lua_pushcclosure(L, l->func, nup);  /* closure with those upvalues */
-    lua_setfield(L, -(nup + 2), l->name);
-  }
-  lua_pop(L, nup);  /* remove upvalues */
-}
-
 WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Get Wireshark version */
     const gchar* str = VERSION;
     lua_pushstring(L,str);
@@ -301,7 +250,7 @@ WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
 }
 
 
-WSLUA_CLASS_DEFINE(Dir,NOP,NOP); /* A Directory */
+WSLUA_CLASS_DEFINE(Dir,FAIL_ON_NULL("Dir"),NOP); /* A Directory */
 
 WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
     /* Usage: for filename in Dir.open(path) do ... end */
@@ -348,11 +297,6 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
     const FILE_T* file;
     const gchar* filename;
     const char* ext;
-
-    if (!dir) {
-        luaL_argerror(L,1,"must be a Dir");
-        return 0;
-    }
 
     if (!dir->dir) {
         return 0;
@@ -401,7 +345,9 @@ WSLUA_METHOD Dir_close(lua_State* L) {
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Dir__gc(lua_State* L) {
-    Dir dir = checkDir(L,1);
+    Dir dir = toDir(L,1);
+
+    if(!dir) return 0;
 
     if (dir->dir) {
         CLOSEDIR_OP(dir->dir);

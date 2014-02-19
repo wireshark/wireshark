@@ -49,7 +49,7 @@ TreeItem* push_TreeItem(lua_State*L, TreeItem t) {
 
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
-WSLUA_CLASS_DEFINE(TreeItem,NOP,NOP);
+WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
 /* TreeItems represent information in the packet-details pane.
    A root TreeItem is passed to dissectors as the third argument. */
 
@@ -306,17 +306,9 @@ WSLUA_METHOD TreeItem_set_text(lua_State *L) {
     /* Sets the text of the label */
 #define WSLUA_ARG_TreeItem_set_text_TEXT 2 /* The text to be used. */
     TreeItem ti = checkTreeItem(L,1);
-    const gchar* s;
+    const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_set_text_TEXT);
 
-    if (ti) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-
-        s = luaL_checkstring(L,WSLUA_ARG_TreeItem_set_text_TEXT);
-        proto_item_set_text(ti->item,"%s",s);
-    }
+    proto_item_set_text(ti->item,"%s",s);
 
     return 0;
 }
@@ -325,17 +317,10 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
     /* Appends text to the label */
 #define WSLUA_ARG_TreeItem_append_text_TEXT 2 /* The text to be appended. */
     TreeItem ti = checkTreeItem(L,1);
-    const gchar* s;
+    const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_append_text_TEXT);
+    
+    proto_item_append_text(ti->item,"%s",s);
 
-    if (ti) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-
-        s = luaL_checkstring(L,WSLUA_ARG_TreeItem_append_text_TEXT);
-        proto_item_append_text(ti->item,"%s",s);
-    }
     return 0;
 }
 
@@ -343,17 +328,10 @@ WSLUA_METHOD TreeItem_prepend_text(lua_State *L) {
     /* Prepends text to the label */
 #define WSLUA_ARG_TreeItem_prepend_text_TEXT 2 /* The text to be prepended */
     TreeItem ti = checkTreeItem(L,1);
-    const gchar* s;
+    const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_prepend_text_TEXT);
 
-    if (ti) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
+    proto_item_prepend_text(ti->item,"%s",s);
 
-        s = luaL_checkstring(L,WSLUA_ARG_TreeItem_prepend_text_TEXT);
-        proto_item_prepend_text(ti->item,"%s",s);
-    }
     return 0;
 }
 
@@ -367,13 +345,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
     int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
     const gchar* str = luaL_optstring(L,WSLUA_OPTARG_TreeItem_add_expert_info_TEXT,"Expert Info");
 
-    if ( ti && ti->item ) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-        expert_add_info_format_internal(lua_pinfo, ti->item, group, severity, "%s", str);
-    }
+    expert_add_info_format_internal(lua_pinfo, ti->item, group, severity, "%s", str);
 
     return 0;
 }
@@ -381,13 +353,9 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
     /* Marks the TreeItem as a generated field (with data infered but not contained in the packet). */
     TreeItem ti = checkTreeItem(L,1);
-    if (ti) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-        PROTO_ITEM_SET_GENERATED(ti->item);
-    }
+
+    PROTO_ITEM_SET_GENERATED(ti->item);
+
     return 0;
 }
 
@@ -395,13 +363,9 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
 WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
     /* Should not be used */
     TreeItem ti = checkTreeItem(L,1);
-    if (ti) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-        PROTO_ITEM_SET_HIDDEN(ti->item);
-    }
+
+    PROTO_ITEM_SET_HIDDEN(ti->item);
+
     return 0;
 }
 
@@ -409,24 +373,16 @@ WSLUA_METHOD TreeItem_set_len(lua_State *L) {
     /* Set TreeItem's length inside tvb, after it has already been created. */
 #define WSLUA_ARG_TreeItem_set_len_LEN 2 /* The length to be used. */
     TreeItem ti = checkTreeItem(L,1);
-    gint len;
+    gint len = luaL_checkint(L,WSLUA_ARG_TreeItem_set_len_LEN);
 
-    if (ti) {
-        if (ti->expired) {
-            luaL_error(L,"expired TreeItem");
-            return 0;
-        }
-
-        len = luaL_checkint(L,WSLUA_ARG_TreeItem_set_len_LEN);
-        proto_item_set_len(ti->item, len);
-    }
+    proto_item_set_len(ti->item, len);
 
     return 0;
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int TreeItem__gc(lua_State* L) {
-    TreeItem ti = checkTreeItem(L,1);
+    TreeItem ti = toTreeItem(L,1);
     if (!ti) return 0;
     if (!ti->expired)
         ti->expired = TRUE;
@@ -435,21 +391,21 @@ static int TreeItem__gc(lua_State* L) {
     return 0;
 }
 
-static const luaL_Reg TreeItem_methods[] = {
-    {"add_packet_field", TreeItem_add_packet_field},
-    {"add",              TreeItem_add},
-    {"add_le",           TreeItem_add_le},
-    {"set_text",         TreeItem_set_text},
-    {"append_text",      TreeItem_append_text},
-    {"prepend_text",     TreeItem_prepend_text},
-    {"add_expert_info",  TreeItem_add_expert_info},
-    {"set_generated",    TreeItem_set_generated},
-    {"set_hidden",       TreeItem_set_hidden},
-    {"set_len",          TreeItem_set_len},
+WSLUA_METHODS TreeItem_methods[] = {
+    WSLUA_CLASS_FNREG(TreeItem,add_packet_field),
+    WSLUA_CLASS_FNREG(TreeItem,add),
+    WSLUA_CLASS_FNREG(TreeItem,add_le),
+    WSLUA_CLASS_FNREG(TreeItem,set_text),
+    WSLUA_CLASS_FNREG(TreeItem,append_text),
+    WSLUA_CLASS_FNREG(TreeItem,prepend_text),
+    WSLUA_CLASS_FNREG(TreeItem,add_expert_info),
+    WSLUA_CLASS_FNREG(TreeItem,set_generated),
+    WSLUA_CLASS_FNREG(TreeItem,set_hidden),
+    WSLUA_CLASS_FNREG(TreeItem,set_len),
     { NULL, NULL }
 };
 
-static const luaL_Reg TreeItem_meta[] = {
+WSLUA_META TreeItem_meta[] = {
     { NULL, NULL }
 };
 
