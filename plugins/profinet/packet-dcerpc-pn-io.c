@@ -157,7 +157,6 @@ static int hf_pn_io_frame_data_properties_FastForwardingMulticastMACAdd = -1;
 static int hf_pn_io_frame_data_properties_FragmentMode = -1;
 static int hf_pn_io_frame_data_properties_reserved_1 = -1;
 static int hf_pn_io_frame_data_properties_reserved_2 = -1;
-static int hf_pn_io_watchdog_factor = -1;
 static int hf_pn_io_data_hold_factor = -1;
 static int hf_pn_io_iocr_tag_header = -1;
 static int hf_pn_io_iocr_multicast_mac_add = -1;
@@ -334,7 +333,6 @@ static int hf_pn_io_length_iops = -1;
 
 static int hf_pn_io_iocs = -1;
 static int hf_pn_io_iops = -1;
-static int hf_pn_io_ioxs = -1;
 static int hf_pn_io_ioxs_extension = -1;
 static int hf_pn_io_ioxs_res14 = -1;
 static int hf_pn_io_ioxs_instance = -1;
@@ -345,6 +343,7 @@ static int hf_pn_io_mci_timeout_factor = -1;
 static int hf_pn_io_provider_station_name = -1;
 
 static int hf_pn_io_user_structure_identifier = -1;
+static int hf_pn_io_user_structure_identifier_manf = -1;
 
 static int hf_pn_io_channel_number = -1;
 static int hf_pn_io_channel_properties = -1;
@@ -617,7 +616,11 @@ static int hf_pn_io_profidrive_param_number = -1;
 static int hf_pn_io_profidrive_param_subindex = -1;
 static int hf_pn_io_profidrive_param_format = -1;
 static int hf_pn_io_profidrive_param_no_of_values = -1;
-static int hf_pn_io_profidrive_param_value = -1;
+static int hf_pn_io_profidrive_param_value_byte = -1;
+static int hf_pn_io_profidrive_param_value_word = -1;
+static int hf_pn_io_profidrive_param_value_dword = -1;
+static int hf_pn_io_profidrive_param_value_float = -1;
+static int hf_pn_io_profidrive_param_value_string = -1;
 
 /* static int hf_pn_io_packedframe_SFCRC = -1; */
 static gint ett_pn_io = -1;
@@ -671,6 +674,7 @@ static gint ett_pn_io_GroupProperties = -1;
 
 static expert_field ei_pn_io_block_version = EI_INIT;
 static expert_field ei_pn_io_block_length = EI_INIT;
+static expert_field ei_pn_io_unsupported = EI_INIT;
 static expert_field ei_pn_io_error_code1 = EI_INIT;
 static expert_field ei_pn_io_localalarmref = EI_INIT;
 static expert_field ei_pn_io_mrp_instances = EI_INIT;
@@ -2244,11 +2248,17 @@ static const value_string pn_io_channel_properties_type[] = {
     { 0, NULL }
 };
 
+static const value_string pn_io_channel_properties_accumulative_vals[] = {
+    { 0x0000, "Channel" },
+    { 0x0001, "ChannelGroup" },
+    { 0, NULL }
+};
+
 static const value_string pn_io_channel_properties_maintenance[] = {
-    { 0x0000, "Diagnosis" },
-    { 0x0001, "Maintenance required" },
-    { 0x0002, "Maintenance demanded" },
-    { 0x0003, "Qualified diagnosis" },
+    { 0x0000, "Failure" },
+    { 0x0001, "Maintenance demanded" },
+    { 0x0002, "Maintenance required" },
+    { 0x0003, "see QualifiedChannelQualifier" },
     { 0, NULL }
 };
 
@@ -2564,7 +2574,7 @@ static const value_string pn_io_profidrive_attribute_vals[] = {
     { 0, NULL }
 };
 
-static const value_string pn_io_profidrive_format_vals[] = {
+static const value_string pn_io_profidrive_format_vals_status[] = {
     { 0x00, "Reserved" },
     { 0x40, "Zero" },
     { 0x41, "Byte" },
@@ -2573,6 +2583,72 @@ static const value_string pn_io_profidrive_format_vals[] = {
     { 0x44, "Error" },
     { 0, NULL }
 };
+
+static const value_string pn_io_profidrive_format_vals[] = {
+    {0x01, "Boolean" },
+    {0x02, "Integer8" },
+    {0x03, "Integer16" },
+    {0x04, "Integer32" },
+    {0x05, "Unsigned8" },
+    {0x06, "Unsigned16" },
+    {0x07, "Unsigned32" },
+    {0x08, "Float32" },
+    {0x09, "VisibleString" },
+    {0x0A, "OctetString" },
+    {0x0C, "TimeOfDay" },
+    {0x0D, "TimeDifference" },
+    {0x32, "Date" },
+    {0x34, "TimeOfDay" },
+    {0x35, "TimeDifference" },
+    {0x36, "TimeDifference" },
+    { 0, NULL }
+};
+
+
+int
+dissect_profidrive_value(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                         proto_tree *tree, guint8 *drep, guint8 format_val)
+{
+    guint32 value32;
+    guint16 value16;
+    guint8  value8;
+
+    switch(format_val)
+    {
+    case 1:
+    case 2:
+    case 5:
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_profidrive_param_value_byte, &value8);
+        break;
+    case 3:
+    case 6:
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_profidrive_param_value_word, &value16);
+        break;
+    case 4:
+    case 7:
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_profidrive_param_value_dword, &value32);
+        break;
+    case 8:
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_profidrive_param_value_float, &value32);
+        break;
+    case 9:
+    case 0x0A:
+        {
+            gint sLen;
+            sLen = (gint)tvb_strnlen( tvb, offset, -1);
+            proto_tree_add_item(tree, hf_pn_io_profidrive_param_value_string, tvb, offset, sLen, ENC_ASCII|ENC_NA);
+            offset = (offset + sLen);
+            break;
+        }
+    default:
+        expert_add_info_format(pinfo, tree, &ei_pn_io_unsupported, "Not supported or invalid format %u!", format_val);
+    }
+    return(offset);
+}
 
 GList *pnio_ars;
 
@@ -6108,6 +6184,7 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
     guint16 u16SubslotNr;
     guint16 u16ChannelNumber;
     guint16 u16UserStructureIdentifier;
+    proto_item *sub_item;
 
 
     if (u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
@@ -6129,16 +6206,39 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
     /* Subslotnumber */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_subslot_nr, &u16SubslotNr);
-    /* ChannelNumber */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_channel_number, &u16ChannelNumber);
+    /* ChannelNumber got new ranges: 0..0x7FFF the source is a channel as specified by the manufacturer */
+    /* fetch u16ChannelNumber */
+    u16ChannelNumber =  ((drep[0] & DREP_LITTLE_ENDIAN)
+                            ? tvb_get_letohs(tvb, offset)
+                            : tvb_get_ntohs(tvb, offset));
+    if (tree) {
+        sub_item = proto_tree_add_item(tree,hf_pn_io_channel_number, tvb, offset, 2, DREP_ENC_INTEGER(drep));
+        if (u16ChannelNumber < 0x8000){ /*  0..0x7FFF the source is a channel  as specified by the manufacturer */
+             proto_item_append_text(sub_item, " channel number of the diagnosis source");
+        }
+        else
+            if (u16ChannelNumber == 0x8000) /* 0x8000 the whole submodule is the source, */
+                proto_item_append_text(sub_item, " (whole) Submodule");
+            else
+                proto_item_append_text(sub_item, " reserved");
+    }
+    offset = offset +2; /* Advance behind ChannelNumber */
     /* ChannelProperties */
     offset = dissect_ChannelProperties(tvb, offset, pinfo, tree, item, drep);
     body_length-=8;
-
     /* UserStructureIdentifier */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_user_structure_identifier, &u16UserStructureIdentifier);
+    u16UserStructureIdentifier = ((drep[0] & DREP_LITTLE_ENDIAN)
+                                        ? tvb_get_letohs(tvb, offset)
+                                        : tvb_get_ntohs(tvb, offset));
+    if (u16UserStructureIdentifier > 0x7FFF){
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                                       hf_pn_io_user_structure_identifier, &u16UserStructureIdentifier);
+    }
+    else
+    { /* range 0x0 to 0x7fff is manufacturer specific */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                                       hf_pn_io_user_structure_identifier_manf, &u16UserStructureIdentifier);
+    }
     proto_item_append_text(item, ", USI:0x%x", u16UserStructureIdentifier);
     body_length-=2;
 
@@ -6147,7 +6247,6 @@ dissect_DiagnosisData_block(tvbuff_t *tvb, int offset,
         offset = dissect_AlarmUserStructure(tvb, offset, pinfo, tree, item, drep,
             &body_length, u16UserStructureIdentifier);
     }
-
     return offset;
 }
 
@@ -6965,7 +7064,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_frame_send_offset, &u32FrameSendOffset);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_watchdog_factor, &u16WatchdogFactor);
+                        hf_pn_io_data_hold_factor, &u16WatchdogFactor);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_data_hold_factor, &u16DataHoldFactor);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
@@ -8651,12 +8750,9 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
                 val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
-            while (no_of_vals--) {
-                guint16 value;
-
-                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                                hf_pn_io_profidrive_param_value, &value);
-
+            while (no_of_vals--) 
+            {
+                offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
             }
         }
     }
@@ -8672,7 +8768,6 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     guint8      response_id;
     guint8      do_id;
     guint8      no_of_parameters;
-    guint8      val_idx;
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
 
@@ -8696,7 +8791,8 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     col_add_fstr(pinfo->cinfo, COL_INFO, "PROFIDrive Read Response, ReqRef:0x%02x, RspId:%s",
                            request_reference,
                            val_to_str(response_id, pn_io_profidrive_response_id_vals, "Unknown response"));
-
+#if 0
+    /* there are no vals within the response! */
     val_idx = 1;
     while (no_of_parameters--) {
         guint8 format;
@@ -8716,14 +8812,12 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
         proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
             val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
-        while (no_of_vals--) {
-            guint16 value;
-
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
-                            hf_pn_io_profidrive_param_value, &value);
+        while (no_of_vals--) 
+        {
+            offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
         }
     }
-
+#endif
     return offset;
 }
 
@@ -9962,12 +10056,6 @@ proto_register_pn_io (void)
         FT_UINT32, BASE_HEX, NULL, 0xFFFF0000,
         NULL, HFILL }
     },
-
-    { &hf_pn_io_watchdog_factor,
-      { "WatchdogFactor", "pn_io.watchdog_factor",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
-    },
     { &hf_pn_io_data_hold_factor,
       { "DataHoldFactor", "pn_io.data_hold_factor",
         FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -10704,11 +10792,6 @@ proto_register_pn_io (void)
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_ioxs,
-      { "IOxS", "pn_io.ioxs",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
-    },
     { &hf_pn_io_ioxs_extension,
       { "Extension (1:another IOxS follows/0:no IOxS follows)", "pn_io.ioxs.extension",
         FT_UINT8, BASE_HEX, NULL, 0x01,
@@ -10748,6 +10831,11 @@ proto_register_pn_io (void)
     { &hf_pn_io_user_structure_identifier,
       { "UserStructureIdentifier", "pn_io.user_structure_identifier",
         FT_UINT16, BASE_HEX, VALS(pn_io_user_structure_identifier), 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_user_structure_identifier_manf,
+      { "UserStructureIdentifier manufacturer specific", "pn_io.user_structure_identifier_manf",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_pn_io_ar_properties_reserved_1,
@@ -10795,7 +10883,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_channel_number,
       { "ChannelNumber", "pn_io.channel_number",
-        FT_UINT16, BASE_HEX, VALS(pn_io_channel_number), 0x0,
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },
 
@@ -10811,7 +10899,7 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_channel_properties_accumulative,
       { "Accumulative", "pn_io.channel_properties.accumulative",
-        FT_UINT16, BASE_HEX, NULL, 0x0100,
+        FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_accumulative_vals), 0x0100,
         NULL, HFILL }
     },
 
@@ -10822,7 +10910,7 @@ proto_register_pn_io (void)
     },
 
     { &hf_pn_io_channel_properties_maintenance,
-      { "Maintenance", "pn_io.channel_properties.maintenance",
+      { "Maintenance (Severity)", "pn_io.channel_properties.maintenance",
         FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_maintenance), 0x0600,
         NULL, HFILL }
     },
@@ -12002,9 +12090,29 @@ proto_register_pn_io (void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_pn_io_profidrive_param_value,
-      { "Value", "pn_io.profidrive.parameter.value",
+    { &hf_pn_io_profidrive_param_value_byte,
+      { "Value", "pn_io.profidrive.parameter.value_b",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_profidrive_param_value_word,
+      { "Value", "pn_io.profidrive.parameter.value_w",
         FT_UINT16, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_profidrive_param_value_dword,
+      { "Value", "pn_io.profidrive.parameter.value_dw",
+        FT_UINT32, BASE_HEX, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_profidrive_param_value_float,
+      { "Value", "pn_io.profidrive.parameter.value_dw",
+        FT_FLOAT, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_pn_io_profidrive_param_value_string,
+      { "Value", "pn_io.profidrive.parameter.value_str",
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
 #if 0
@@ -12072,6 +12180,7 @@ proto_register_pn_io (void)
         { &ei_pn_io_error_code2, { "pn_io.error_code2.expert", PI_UNDECODED, PI_WARN, "Unknown ErrorDecode", EXPFILL }},
         { &ei_pn_io_ar_info_not_found, { "pn_io.ar_info_not_found", PI_UNDECODED, PI_NOTE, "IODWriteReq: AR information not found!", EXPFILL }},
         { &ei_pn_io_block_length, { "pn_io.block_length.invalid", PI_UNDECODED, PI_WARN, "Block length invalid!", EXPFILL }},
+        { &ei_pn_io_unsupported, {"pn_io.profidrive.parameter.format.invalid", PI_UNDECODED, PI_WARN, "Unknown Fomatvalue", EXPFILL }},
         { &ei_pn_io_mrp_instances, { "pn_io.mrp_Number_MrpInstances.invalid", PI_UNDECODED, PI_WARN, "Number of MrpInstances invalid", EXPFILL }},
         { &ei_pn_io_frame_id, { "pn_io.frame_id.changed", PI_UNDECODED, PI_WARN, "FrameID changed", EXPFILL }},
         { &ei_pn_io_iocr_type, { "pn_io.iocr_type.unknown", PI_UNDECODED, PI_WARN, "IOCRType undecoded!", EXPFILL }},
