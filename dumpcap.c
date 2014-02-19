@@ -427,7 +427,7 @@ print_usage(gboolean print_ver)
                 "Dumpcap " VERSION "%s\n"
                 "Capture network packets and dump them into a pcapng file.\n"
                 "See http://www.wireshark.org for more information.\n",
-                wireshark_svnversion);
+                wireshark_gitversion);
     } else {
         output = stderr;
     }
@@ -501,7 +501,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
         "%s\n"
         "%s\n"
         "See http://www.wireshark.org for more information.\n",
-        wireshark_svnversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
+        wireshark_gitversion, get_copyright_info() ,comp_info_str->str, runtime_info_str->str);
 }
 
 /*
@@ -2675,7 +2675,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
             os_info_str = g_string_new("");
             get_os_version_info(os_info_str);
 
-            g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
+            g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_gitversion);
             successful = libpcap_write_session_header_block(ld->pdh,
                                 NULL,                        /* Comment*/
                                 NULL,                        /* HW*/
@@ -3149,7 +3149,7 @@ do_file_switch_or_stop(capture_options *capture_opts,
                 os_info_str = g_string_new("");
                 get_os_version_info(os_info_str);
 
-                g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_svnversion);
+                g_snprintf(appname, sizeof(appname), "Dumpcap " VERSION "%s", wireshark_gitversion);
                 successful = libpcap_write_session_header_block(global_ld.pdh,
                                 NULL,                        /* Comment */
                                 NULL,                        /* HW */

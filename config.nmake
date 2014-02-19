@@ -12,15 +12,15 @@ WIRESHARK_TARGET_PLATFORM=win32
 
 ##### Versions #####
 
-# The SVN revision of our build. Updated by make-version.pl
-SVN_REVISION=0
+# The Git description of our build. Updated by make-version.pl
+GIT_REVISION=0
 
 # The current Wireshark version. Recommended: Leave unchanged.
 # Updated by make-version.pl
 VERSION_MAJOR=1
 VERSION_MINOR=8
 VERSION_MICRO=13
-VERSION_BUILD=$(SVN_REVISION)
+VERSION_BUILD=$(GIT_REVISION)
 
 # Local build information. Recommended: Unique string for your
 # environment, e.g. "-JackStackBarbecue". Updated by make-version.pl
@@ -1103,7 +1103,7 @@ A2X="a2x"
 # The RC_VERSION should be comma-separated, not dot-separated,
 # as per Graham Bloice's message in
 #
-#	http://www.ethereal.com/lists/ethereal-dev/200303/msg00283.html
+#	http://www.wireshark.org/lists/ethereal-dev/200303/msg00283.html
 #
 # "The RC_VERSION variable in config.nmake should be comma separated.
 # This allows the resources to be built correctly and the version

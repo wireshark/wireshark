@@ -66,7 +66,7 @@
 #include <wsutil/privileges.h>
 #include "epan/nstime.h"
 
-#include "svnversion.h"
+#include "version.h"
 
 /*
  * Some globals so we can pass things to various routines
@@ -663,9 +663,9 @@ usage(gboolean is_error)
   else
     output = stderr;
 
-  fprintf(output, "Editcap %s"
-#ifdef SVNVERSION
-    " (" SVNVERSION " from " SVNPATH ")"
+    fprintf(output, "Editcap %s"
+#ifdef GITVERSION
+        " (" GITVERSION " from " GITBRANCH ")"
 #endif
     "\n", VERSION);
   fprintf(output, "Edit and/or translate the format of capture files.\n");

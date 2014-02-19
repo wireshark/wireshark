@@ -45,7 +45,7 @@
 #include "capture-pcap-util.h"
 #include <wsutil/unicode-utils.h>
 
-#include "svnversion.h"
+#include "version.h"
 
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
@@ -59,10 +59,10 @@
 # include <sys/capability.h>
 #endif
 
-#ifdef SVNVERSION
-	const char *wireshark_svnversion = " (" SVNVERSION " from " SVNPATH ")";
+#ifdef GITVERSION
+	const char *wireshark_gitversion = " (" GITVERSION " from " GITBRANCH ")";
 #else
-	const char *wireshark_svnversion = "";
+	const char *wireshark_gitversion = "";
 #endif
 
 /*

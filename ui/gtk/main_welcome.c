@@ -330,7 +330,7 @@ welcome_header_set_message(gchar *msg) {
 
         if (prefs.gui_version_in_start_page) {
             g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
-                                   wireshark_svnversion);
+                                   wireshark_gitversion);
         }
     }
 

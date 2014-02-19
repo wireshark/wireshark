@@ -136,7 +136,7 @@
 #endif
 
 #include "text2pcap.h"
-#include "svnversion.h"
+#include "version.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -1155,8 +1155,8 @@ usage (void)
 {
     fprintf(stderr,
             "Text2pcap %s"
-#ifdef SVNVERSION
-            " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+            " (" GITVERSION " from " GITBRANCH ")"
 #endif
             "\n"
             "Generate a capture file from an ASCII hexdump of packets.\n"

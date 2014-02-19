@@ -498,7 +498,7 @@ AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap \
 # FORCE is the portable version of .PHONY
 FORCE:
 
-svnversion.h: FORCE
+version.h: FORCE
 	$(PERL) $(srcdir)/make-version.pl $(srcdir)
 
 #
@@ -523,7 +523,7 @@ CLEANFILES =		\
 	vgcore.*
 
 #
-# We have to remove svnversion.h with "make distclean", as, otherwise,
+# We have to remove version.h with "make distclean", as, otherwise,
 # "make distcheck" fails.  We still need to make the tarballs work
 # even if you do "make distclean" and try to rebuild; that's a work in
 # progress.
@@ -534,7 +534,7 @@ CLEANFILES =		\
 #
 DISTCLEANFILES = \
 	ps.c			\
-	svnversion.h
+	version.h
 
 MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)	\

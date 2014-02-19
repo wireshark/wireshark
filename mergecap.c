@@ -49,7 +49,7 @@
 #include "wsutil/wsgetopt.h"
 #endif
 
-#include "svnversion.h"
+#include "version.h"
 #include "merge.h"
 #include "wsutil/file_util.h"
 
@@ -110,8 +110,8 @@ usage(void)
 {
 
   fprintf(stderr, "Mergecap %s"
-#ifdef SVNVERSION
-	  " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+	  " (" GITVERSION " from " GITBRANCH ")"
 #endif
 	  "\n", VERSION);
   fprintf(stderr, "Merge two or more capture files into one.\n");

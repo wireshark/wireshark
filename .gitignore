@@ -39,7 +39,7 @@ ui/gtk/wireshark-tap-register.c
 plugin.c
 plugins/mate/mate_parser.c
 ps.c
-svnversion.h
+version.h
 tools/lemon/lemon
 tools/lemon/lemon
 tools/setuid-root.pl

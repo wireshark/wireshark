@@ -507,17 +507,19 @@ link_directories(
 )
 
 ADD_CUSTOM_TARGET(
-	svnversion ALL
-	COMMAND ${PERL}
+	gitversion ALL
+	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 		${CMAKE_CURRENT_SOURCE_DIR}
 	DEPENDS
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 )
 
+set_target_properties(gitversion PROPERTIES FOLDER "Auxiliary")
+
 ADD_CUSTOM_COMMAND(
-	OUTPUT	svnversion.h
-	COMMAND ${PERL}
+	OUTPUT	version.h
+	COMMAND ${PERL_EXECUTABLE}
 		${CMAKE_CURRENT_SOURCE_DIR}/make-version.pl
 		${CMAKE_CURRENT_SOURCE_DIR}
 	DEPENDS
@@ -568,7 +570,7 @@ set(WIRESHARK_COMMON_SRC
 	packet-range.c
 	print.c
 	ps.c
-	svnversion.h
+	version.h
 	sync_pipe_write.c
 	timestats.c
 	tap-megaco-common.c
@@ -713,7 +715,7 @@ if(BUILD_wireshark AND GTK_FOUND)
 	# qtshark and wireshark share wireshark_FILES
 
 	add_executable(wireshark ${wireshark_FILES})
-	add_dependencies(wireshark svnversion)
+	add_dependencies(wireshark gitversion)
 	set_target_properties(wireshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(wireshark ${wireshark_LIBS})
 	install(TARGETS wireshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -733,7 +735,7 @@ if(BUILD_qtshark AND QT_FOUND)
 	# qtshark and wireshark share wireshark_FILES
 
 	add_executable(qtshark ${wireshark_FILES})
-	add_dependencies(qtshark svnversion)
+	add_dependencies(qtshark gitversion)
 	set_target_properties(qtshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(qtshark ${qtshark_LIBS})
 	install(TARGETS qtshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -760,7 +762,7 @@ if(BUILD_tshark)
 	        ${WIRESHARK_COMMON_SRC}
 	)
 	add_executable(tshark ${tshark_FILES})
-	add_dependencies(tshark svnversion)
+	add_dependencies(tshark gitversion)
 	set_target_properties(tshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(tshark ${tshark_LIBS})
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -777,7 +779,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		ui/util.c
 	)
 	add_executable(rawshark ${rawshark_FILES})
-	add_dependencies(rawshark svnversion)
+	add_dependencies(rawshark gitversion)
 	set_target_properties(rawshark PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(rawshark ${rawshark_LIBS})
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -833,7 +835,7 @@ if(BUILD_text2pcap)
 		text2pcap-scanner.l
 	)
 	add_executable(text2pcap ${text2pcap_FILES})
-	add_dependencies(text2pcap svnversion)
+	add_dependencies(text2pcap gitversion)
 	set_target_properties(text2pcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
 	install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -847,10 +849,10 @@ if(BUILD_mergecap)
 	set(mergecap_FILES
 		mergecap.c
 		merge.c
-		svnversion.h
+		version.h
 	)
 	add_executable(mergecap ${mergecap_FILES})
-	add_dependencies(mergecap svnversion)
+	add_dependencies(mergecap gitversion)
 	set_target_properties(mergecap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(mergecap ${mergecap_LIBS})
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -868,7 +870,7 @@ if(BUILD_capinfos)
 		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(capinfos ${capinfos_FILES})
-	add_dependencies(capinfos svnversion)
+	add_dependencies(capinfos gitversion)
 	set_target_properties(capinfos PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -886,7 +888,7 @@ if(BUILD_editcap)
 		${WTAP_PLUGIN_SOURCES}
 	)
 	add_executable(editcap ${editcap_FILES})
-	add_dependencies(editcap svnversion)
+	add_dependencies(editcap gitversion)
 	set_target_properties(editcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(editcap ${editcap_LIBS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -906,7 +908,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${APPLE_COCOA_LIBRARY}
 	)
 	set(dumpcap_FILES
-		svnversion.h
+		version.h
 		capture_opts.c
 		capture-pcap-util.c
 		capture_stop_conditions.c
@@ -921,7 +923,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${PLATFORM_SRC}
 	)
 	add_executable(dumpcap ${dumpcap_FILES})
-	add_dependencies(dumpcap svnversion)
+	add_dependencies(dumpcap gitversion)
 	set_target_properties(dumpcap PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	install(TARGETS dumpcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -1059,6 +1061,7 @@ install(
 		WORLD_EXECUTE WORLD_READ
 	DESTINATION
 		${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}
+	PATTERN ".git" EXCLUDE
 	PATTERN ".svn" EXCLUDE
 	PATTERN "Makefile.*" EXCLUDE
 	PATTERN "faq.py" EXCLUDE
