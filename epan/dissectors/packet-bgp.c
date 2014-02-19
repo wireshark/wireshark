@@ -355,26 +355,6 @@ void proto_reg_handoff_bgp(void);
 #define BGP_EXT_COM_RT_AS2        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_RT_IP4        0x0102  /* Route Target,Format IP address:AN(2bytes) */
 #define BGP_EXT_COM_RT_AS4        0x0202  /* Route Target,Format AS(4bytes):AN(2bytes) */
-#define BGP_EXT_COM_RO_AS2        0x0003  /* Route Origin,Format AS(2bytes):AN(4bytes) */
-#define BGP_EXT_COM_RO_IP4        0x0103  /* Route Origin,Format IP address:AN(2bytes) */
-#define BGP_EXT_COM_RO_AS4        0x0203  /* Route Origin,Format AS(2bytes):AN(4bytes) */
-#define BGP_EXT_COM_LINKBAND    ((BGP_ATTR_FLAG_TRANSITIVE << 8) | 0x0004)
-                                        /* Link Bandwidth,Format AS(2bytes):
-                                         * Bandwidth(4bytes) */
-                                        /* -2 version of the draft */
-#define BGP_EXT_COM_VPN_ORIGIN  0x0005  /* OSPF Domin ID / VPN of Origin  */
-                                        /* draft-rosen-vpns-ospf-bgp-mpls */
-#define BGP_EXT_COM_OSPF_RTYPE  0x8000  /* OSPF Route Type,Format Area(4B):RouteType(1B):Options(1B) */
-#define BGP_EXT_COM_OSPF_RID    0x8001  /* OSPF Router ID,Format RouterID(4B):Unused(2B) */
-#define BGP_EXT_COM_L2INFO      0x800a  /* draft-kompella-ppvpn-l2vpn */
-
-#define BGP_EXT_COM_FLOW_RATE       0x8006  /* RFC 5575 flow spec ext com rate limit */
-#define BGP_EXT_COM_FLOW_ACT        0x8007  /* RFC 5575 flow Spec ext com traffic action */
-#define BGP_EXT_COM_FLOW_RDIR_AS2   0x8008  /* RFC 5575 flow spec ext com redirect action */
-#define BGP_EXT_COM_FLOW_RDIR_AS4   0x8208  /* draft-haas-idr-flowspec-redirect-rt-bis */
-#define BGP_EXT_COM_FLOW_RDIR_IP4   0x8108  /* draft-haas-idr-flowspec-redirect-rt-bis */
-#define BGP_EXT_COM_FLOW_MARK       0x8009  /* RFC 5575 flow spec ext com mark action */
-#define BGP_EXT_COM_FLOW_NH         0x0800  /* draft-simpson-redirect-02 */
 
 /* extended community option flow flec action bit S and T */
 #define BGP_EXT_COM_FSPEC_ACT_S 0x02
@@ -824,26 +804,6 @@ static const value_string bgpext_com_stype_tr_exp[] = {
     { 0, NULL}
 };
 
-static const value_string bgpext_com_type[] = {
-    { BGP_EXT_COM_RT_AS2,           "two-octet AS specific Route Target" },
-    { BGP_EXT_COM_RT_IP4,           "IPv4 address specific Route Target" },
-    { BGP_EXT_COM_RT_AS4,           "four-octet AS specific Route Target" },
-    { BGP_EXT_COM_RO_AS2,           "two-octet AS specific Route Origin" },
-    { BGP_EXT_COM_RO_IP4,           "IPv4 address specific Route Origin" },
-    { BGP_EXT_COM_RO_AS4,           "four-octet AS specific Route Origin" },
-    { BGP_EXT_COM_LINKBAND,         "Link Bandwidth" },
-    { BGP_EXT_COM_VPN_ORIGIN,       "OSPF Domain" },
-    { BGP_EXT_COM_OSPF_RTYPE,       "OSPF Route Type" },
-    { BGP_EXT_COM_OSPF_RID,         "OSPF Router ID" },
-    { BGP_EXT_COM_L2INFO,           "Layer 2 Information" },
-    { BGP_EXT_COM_FLOW_ACT,         "Flow spec traffic action" },
-    { BGP_EXT_COM_FLOW_MARK,        "FLow spec traffic marling" },
-    { BGP_EXT_COM_FLOW_RATE,        "Flow spec traffic rate" },
-    { BGP_EXT_COM_FLOW_RDIR_AS2,    "Flow spec traffic redirect RT AS2" },
-    { BGP_EXT_COM_FLOW_RDIR_AS4,    "Flow spec traffic redirect RT AS4" },
-    { BGP_EXT_COM_FLOW_RDIR_IP4,    "Flow spec traffic redirect RT IP4"},
-    { 0, NULL }
-};
 
 static const value_string flow_spec_op_len_val[] = {
     { 0, "1 byte: 1 <<"  },
@@ -4762,7 +4722,7 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     end = tvb_off + tlen ;
     communities_item = proto_tree_add_item(parent_tree, hf_bgp_ext_communities, tvb, offset, tlen, ENC_NA);
     communities_tree = proto_item_add_subtree(communities_item, ett_bgp_extended_communities);
-
+    proto_item_append_text(communities_item, ": (%u communit%s)", tlen/8, plurality(tlen/8, "y", "ies"));
     while (offset < end) {
         com_type_high_byte = tvb_get_guint8(tvb,offset); /* high community type octet */
         com_stype_low_byte = tvb_get_guint8(tvb,offset+1); /* sur type low community type octet */
