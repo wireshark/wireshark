@@ -1663,6 +1663,8 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 			/* the data is aligned in 4-byte increments, therfore maximum padding is 3 */
 			padding = tvb_get_guint8 ( tvb, offset + 7 ) & 0x03;
 
+			if ((guint32)(offset-pyldoffset) >= offsetincrement)
+				break;
 			datalength = offsetincrement - ( offset - pyldoffset );
 
 			/*
