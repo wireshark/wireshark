@@ -135,7 +135,7 @@
 
 #include "pcapio.h"
 #include "text2pcap.h"
-#include "svnversion.h"
+#include "version.h"
 
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
@@ -788,8 +788,8 @@ write_file_header (void)
     gboolean success;
 
     if (use_pcapng) {
-#ifdef SVNVERSION
-        const char *appname = "text2pcap (" SVNVERSION " from " SVNPATH ")";
+#ifdef GITVERSION
+        const char *appname = "text2pcap (" GITVERSION " from " GITBRANCH ")";
 #else
         const char *appname = "text2pcap";
 #endif
@@ -1278,8 +1278,8 @@ usage (void)
 {
     fprintf(stderr,
             "Text2pcap %s"
-#ifdef SVNVERSION
-            " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+            " (" GITVERSION " from " GITBRANCH ")"
 #endif
             "\n"
             "Generate a capture file from an ASCII hexdump of packets.\n"

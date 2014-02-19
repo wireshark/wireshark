@@ -1549,7 +1549,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${LIBWIRESHARK_ASM_FILES}
 )
 
-add_dependencies(epan svnversion)
+add_dependencies(epan gitversion)
 
 set(FULL_SO_VERSION "3.1.1")
 

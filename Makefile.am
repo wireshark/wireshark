@@ -555,7 +555,7 @@ am__v_PERL_ = $(am__v_PERL_@AM_DEFAULT_V@)
 am__v_PERL_0 = @echo "  PERL    " $@;
 am__v_PERL_1 =
 
-svnversion.h: FORCE
+version.h: FORCE
 	$(AM_V_PERL)$(PERL) $(srcdir)/make-version.pl $(srcdir)
 
 #
@@ -580,7 +580,7 @@ CLEANFILES =		\
 	vgcore.*
 
 #
-# We have to remove svnversion.h with "make distclean", as, otherwise,
+# We have to remove version.h with "make distclean", as, otherwise,
 # "make distcheck" fails.  We still need to make the tarballs work
 # even if you do "make distclean" and try to rebuild; that's a work in
 # progress.
@@ -591,7 +591,7 @@ CLEANFILES =		\
 #
 DISTCLEANFILES = \
 	ps.c			\
-	svnversion.h
+	version.h
 
 MAINTAINERCLEANFILES =		\
 	$(GENERATED_FILES)	\

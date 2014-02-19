@@ -188,7 +188,7 @@ print_usage(gboolean print_ver)
                 "See http://www.wireshark.org for more information.\n"
                 "\n"
                 "%s",
-                wireshark_svnversion, get_copyright_info());
+                wireshark_gitversion, get_copyright_info());
     } else {
         output = stderr;
     }
@@ -417,7 +417,7 @@ show_version(GString *comp_info_str, GString *runtime_info_str)
            "%s"
            "\n"
            "%s",
-           wireshark_svnversion, get_copyright_info(), comp_info_str->str,
+           wireshark_gitversion, get_copyright_info(), comp_info_str->str,
            runtime_info_str->str);
 }
 
@@ -468,7 +468,7 @@ main(int argc, char *argv[])
            "%s"
            "\n"
            "%s",
-        wireshark_svnversion, comp_info_str->str, runtime_info_str->str);
+        wireshark_gitversion, comp_info_str->str, runtime_info_str->str);
 
 #ifdef _WIN32
     arg_list_utf_16to8(argc, argv);

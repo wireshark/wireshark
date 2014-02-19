@@ -493,15 +493,18 @@ ps.c: tools\rdps.py print.ps
 #
 # Build the version string
 #
-!IF EXIST(".svn/wc.db")
-SVNENTRIES = .svn/wc.db
+# XXX - Makefile.am uses FORCE for this.
+!IF EXIST(".git/index")
+GITINDEX = .git/index
+!ELSE IF EXIST(".svn/wc.db")
+GITINDEX = .svn/wc.db
 !ELSE IF EXIST(".svn/entries")
-SVNENTRIES = .svn/entries
+GITINDEX = .svn/entries
 !ELSE
-SVNENTRIES =
+GITINDEX =
 !ENDIF
-svnversion.h: $(SVNENTRIES)
-	rm -f svnversion.h
+version.h: $(GITINDEX)
+	rm -f version.h
 	$(PERL) make-version.pl
 
 
@@ -513,10 +516,9 @@ text2pcap-scanner.obj : text2pcap-scanner.c
 
 #
 # The following targets will rebuild their respective objs
-# if and when svnversion.h should change.
+# if and when version.h should change.
 #
-text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.obj: svnversion.h
-
+text2pcap.obj mergecap.obj capinfos.obj editcap.obj reordercap.obj version_info.obj: version.h
 
 clean-local:
 	rm -f $(wireshark_OBJECTS) $(tshark_OBJECTS) $(dumpcap_OBJECTS) $(rawshark_OBJECTS) \
@@ -744,12 +746,12 @@ codecs::
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
-ui:: help config.h svnversion.h doxygen
+ui:: help config.h version.h doxygen
 	cd ui
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libui.lib
 	cd ..
 
-gtk:: help config.h svnversion.h doxygen
+gtk:: help config.h version.h doxygen
 	cd ui/gtk
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui.lib
 	cd ../..
@@ -759,7 +761,7 @@ win32::
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libgtkui_win32.lib
 	cd ../..
 
-cli:: help config.h svnversion.h doxygen
+cli:: help config.h version.h doxygen
 	cd ui/cli
 	$(MAKE) /$(MAKEFLAGS) /f Makefile.nmake libcliui.lib
 	cd ../..
@@ -853,7 +855,7 @@ check_libs:
 #  If $(CHECK_TAG) is non-null then checktag failed; Exit with an error message. (See beginning of this Makefile).
 #  Otherwise do detailed library package files verification only if Makefile.nmake or config.make have been updated
 #  (or dummy file doesn't exist because of 'make clean' or whatever).
-#  Note that the creation/modification time of a file after an svn update of that file
+#  Note that the creation/modification time of a file after a git pull of that file
 #   is the time of the update (not the time of the file in the repository).
 # touch is only called if libverify succeeds.
 $(LIBS_CHECK):  $(CHECK_TAG) config.nmake Makefile.nmake

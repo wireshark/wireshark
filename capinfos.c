@@ -109,7 +109,7 @@
 #include <wsutil/unicode-utils.h>
 #endif /* _WIN32 */
 
-#include "svnversion.h"
+#include "version.h"
 
 /*
  * By default capinfos now continues processing
@@ -1019,8 +1019,8 @@ usage(gboolean is_error)
   }
 
   fprintf(output, "Capinfos %s"
-#ifdef SVNVERSION
-      " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+      " (" GITVERSION " from " GITBRANCH ")"
 #endif
       "\n", VERSION);
   fprintf(output, "Prints various information (infos) about capture files.\n");

@@ -44,8 +44,8 @@
 static void usage(void)
 {
     fprintf(stderr, "Reordercap %s"
-#ifdef SVNVERSION
-	  " (" SVNVERSION " from " SVNPATH ")"
+#ifdef GITVERSION
+	  " (" GITVERSION " from " GITBRANCH ")"
 #endif
 	  "\n", VERSION);
     fprintf(stderr, "Reorder timestamps of input file frames into output file.\n");

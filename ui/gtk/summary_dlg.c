@@ -697,7 +697,7 @@ summary_to_texbuff(GtkTextBuffer *buffer)
 #endif
 
   /* Add Wireshark version*/
-  g_snprintf(string_buff, SUM_STR_MAX, "Summary created by Wireshark %s\n\n", wireshark_svnversion);
+  g_snprintf(string_buff, SUM_STR_MAX, "Summary created by Wireshark %s\n\n", wireshark_gitversion);
   gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
   /* Info about file */

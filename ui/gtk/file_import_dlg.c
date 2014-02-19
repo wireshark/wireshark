@@ -461,7 +461,7 @@ file_import_open(text_import_info_t *info)
     os_info_str = g_string_new("");
     get_os_version_info(os_info_str);
 
-    g_snprintf(appname, sizeof(appname), "Wireshark " VERSION "%s", wireshark_svnversion);
+    g_snprintf(appname, sizeof(appname), "Wireshark " VERSION "%s", wireshark_gitversion);
 
     shb_hdr = g_new(wtapng_section_t,1);
     shb_hdr->section_length = -1;

@@ -337,7 +337,7 @@ welcome_header_set_message(gchar *msg) {
         if ((prefs.gui_version_placement == version_welcome_only) ||
             (prefs.gui_version_placement == version_both)) {
             g_string_append_printf(message, "</span>\n<span size=\"large\" foreground=\"white\">Version " VERSION "%s",
-                                   wireshark_svnversion);
+                                   wireshark_gitversion);
         }
     }
 

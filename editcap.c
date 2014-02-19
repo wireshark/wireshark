@@ -93,7 +93,7 @@
 #undef WS_BUILD_DLL
 #define RESET_SYMBOL_EXPORT
 
-#include "svnversion.h"
+#include "version.h"
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
@@ -692,9 +692,9 @@ usage(gboolean is_error)
   else
     output = stderr;
 
-  fprintf(output, "Editcap %s"
-#ifdef SVNVERSION
-    " (" SVNVERSION " from " SVNPATH ")"
+    fprintf(output, "Editcap %s"
+#ifdef GITVERSION
+        " (" GITVERSION " from " GITBRANCH ")"
 #endif
     "\n", VERSION);
   fprintf(output, "Edit and/or translate the format of capture files.\n");

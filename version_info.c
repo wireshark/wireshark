@@ -43,7 +43,7 @@
 #include "capture-pcap-util.h"
 #include <wsutil/unicode-utils.h>
 
-#include "svnversion.h"
+#include "version.h"
 
 #ifdef HAVE_WINDOWS_H
 #include <windows.h>
@@ -58,10 +58,10 @@
 # include <sys/capability.h>
 #endif
 
-#ifdef SVNVERSION
-	const char *wireshark_svnversion = " (" SVNVERSION " from " SVNPATH ")";
+#ifdef GITVERSION
+	const char *wireshark_gitversion = " (" GITVERSION " from " GITBRANCH ")";
 #else
-	const char *wireshark_svnversion = "";
+	const char *wireshark_gitversion = "";
 #endif
 
 /*
@@ -615,7 +615,7 @@ do_cpuid(int *CPUInfo, guint32 selector){
 	__cpuid(CPUInfo, selector);
 }
 #elif defined(__GNUC__)
-#if defined(__x86_64__)  
+#if defined(__x86_64__)
 static inline void
 do_cpuid(guint32 *CPUInfo, int selector)
 {
@@ -682,7 +682,7 @@ static void get_mem_info(GString *str _U_)
 	MEMORYSTATUSEX statex;
 
 	statex.dwLength = sizeof (statex);
-	
+
 	if(GlobalMemoryStatusEx (&statex))
 		g_string_append_printf(str, ", with ""%" G_GINT64_MODIFIER "d" "MB of physical memory.\n", statex.ullTotalPhys/(1024*1024));
 #endif

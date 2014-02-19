@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Check for SVN version
+# Check for Git version
 #
 # $Id$
 #
@@ -21,11 +21,16 @@
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
-# 
+#
 
-echo -n '<!ENTITY SvnVersion "' > svn_version_tmp.xml
-[ -x svnversion ] && svnversion -n .                   >> svn_version_tmp.xml
-echo '">'   >> svn_version_tmp.xml
+if [ -d ../.git ] ; then
+    GIT_VERSION=`git describe --tags --dirty`
+fi
+echo '<!ENTITY GitVersion "'${GIT_VERSION}'">' > git_version_tmp.xml
+
+#echo -n '<!ENTITY GitVersion "' > git_version_tmp.xml
+#[ -x svnversion ] && svnversion -n .                   >> git_version_tmp.xml
+#echo '">'   >> git_version_tmp.xml
 
 # /dev/null buries the output of the "cmp" command.
 diff svn_version.xml svn_version_tmp.xml &> /dev/null
