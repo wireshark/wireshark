@@ -362,6 +362,7 @@ static const value_string msgtype_vals[] = {
     { RECONFIGURE_REPLY,       "Reconfigure-reply" },
     { 0, NULL }
 };
+static value_string_ext msgtype_vals_ext = VALUE_STRING_EXT_INIT(msgtype_vals);
 
 static const value_string opttype_vals[] = {
     { OPTION_CLIENTID,         "Client Identifier" },
@@ -453,6 +454,7 @@ static const value_string opttype_vals[] = {
     { OPTION_NAI,              "Network Access Identifier" },
     { 0,        NULL }
 };
+static value_string_ext opttype_vals_ext = VALUE_STRING_EXT_INIT(opttype_vals);
 
 static const value_string statuscode_vals[] =
 {
@@ -470,6 +472,7 @@ static const value_string statuscode_vals[] =
     {11, "QueryTerminated" },
     {0, NULL }
 };
+static value_string_ext statuscode_vals_ext = VALUE_STRING_EXT_INIT(statuscode_vals);
 
 static const value_string duidtype_vals[] =
 {
@@ -585,6 +588,7 @@ static const value_string cl_vendor_subopt_values[] = {
     /* 2172 */ { CL_OPTION_CORRELATION_ID, "CableLabs Correlation ID = " },
     { 0, NULL }
 };
+static value_string_ext cl_vendor_subopt_values_ext = VALUE_STRING_EXT_INIT(cl_vendor_subopt_values);
 
 /* 17:2170: CL_OPTION_CCC */
 #define PKT_CCC_PRI_DHCP       0x0001
@@ -682,6 +686,7 @@ static const value_string modem_capabilities_encoding [] = {
     { 44,      "Energy Management Capabilities" },
     { 0, NULL },
 };
+static value_string_ext modem_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(modem_capabilities_encoding);
 
 static const value_string eue_capabilities_encoding [] = {
     { 1,       "PacketCable Version" },
@@ -713,6 +718,7 @@ static const value_string eue_capabilities_encoding [] = {
     { 38,      "IP Address Provisioning Capability" },
     { 0, NULL },
 };
+static value_string_ext eue_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(eue_capabilities_encoding);
 
 /* May be called recursively */
 static void
@@ -1283,7 +1289,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     }
 
     option_item = proto_tree_add_text(bp_tree, tvb, off, 4 + optlen,
-                             "%s", val_to_str(opttype, opttype_vals, "DHCP option %u"));
+                             "%s", val_to_str_ext(opttype, &opttype_vals_ext, "DHCP option %u"));
 
     subtree = proto_item_add_subtree(option_item, ett_dhcpv6_option);
     proto_tree_add_item(subtree, hf_option_type, tvb, off, 2, ENC_BIG_ENDIAN);
@@ -1921,7 +1927,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     msgtype = tvb_get_guint8(tvb, off);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(msgtype, msgtype_vals, "Message Type %u"));
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_ext(msgtype, &msgtype_vals_ext, "Message Type %u"));
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_dhcpv6, tvb, off, eoff - off, ENC_NA);
@@ -2014,7 +2020,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     offset += 2;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s, Transaction ID: %5u",
-                      val_to_str_const(msg_type, msgtype_vals, "Unknown"), trans_id);
+                      val_to_str_ext_const(msg_type, &msgtype_vals_ext, "Unknown"), trans_id);
 
     ti = proto_tree_add_text(bulk_tree, tvb, offset, -1, "DHCPv6 Options");
     option_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery_options);
@@ -2043,7 +2049,7 @@ proto_register_dhcpv6(void)
 
         /* DHCPv6 header */
         { &hf_dhcpv6_msgtype,
-          { "Message type", "dhcpv6.msgtype", FT_UINT8, BASE_DEC, VALS(msgtype_vals), 0x0, NULL, HFILL }},
+          { "Message type", "dhcpv6.msgtype", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &msgtype_vals_ext, 0x0, NULL, HFILL }},
         { &hf_dhcpv6_hopcount,
           { "Hopcount", "dhcpv6.hopcount", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_dhcpv6_xid,
@@ -2054,7 +2060,7 @@ proto_register_dhcpv6(void)
           { "Peer address", "dhcpv6.peeraddr", FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL}},
         /* Generic option stuff */
         { &hf_option_type,
-          { "Option", "dhcpv6.option.type", FT_UINT16, BASE_DEC, VALS(opttype_vals), 0x0, NULL, HFILL}},
+          { "Option", "dhcpv6.option.type", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &opttype_vals_ext, 0x0, NULL, HFILL}},
         { &hf_option_length,
           { "Length", "dhcpv6.option.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
         { &hf_option_value,
@@ -2103,7 +2109,7 @@ proto_register_dhcpv6(void)
         { &hf_iaaddr_valid_lifetime,
           { "Valid lifetime", "dhcpv6.iaaddr.valid_lifetime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_requested_option_code,
-          { "Requested Option code", "dhcpv6.requested_option_code", FT_UINT16, BASE_DEC, VALS(opttype_vals), 0, NULL, HFILL }},
+          { "Requested Option code", "dhcpv6.requested_option_code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &opttype_vals_ext, 0, NULL, HFILL }},
         { &hf_option_preference,
           { "Pref-value", "dhcpv6.option_preference", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         { &hf_elapsed_time,
@@ -2121,7 +2127,7 @@ proto_register_dhcpv6(void)
         { &hf_opt_unicast,
           { "IPv6 address", "dhcpv6.unicast", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_opt_status_code,
-          { "Status Code", "dhcpv6.status_code", FT_UINT16, BASE_DEC, VALS(statuscode_vals), 0, NULL, HFILL }},
+          { "Status Code", "dhcpv6.status_code", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &statuscode_vals_ext, 0, NULL, HFILL }},
         { &hf_opt_status_msg,
           { "Status Message", "dhcpv6.status_msg", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_vendorclass_enterprise,
@@ -2141,7 +2147,7 @@ proto_register_dhcpv6(void)
         { &hf_interface_id_link_address,
           { "Link Address", "dhcpv6.interface_id_link_address", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_reconf_msg,
-          { "Reconfigure message type", "dhcpv6.reconf_msg", FT_UINT8, BASE_DEC, VALS(msgtype_vals), 0, NULL, HFILL }},
+          { "Reconfigure message type", "dhcpv6.reconf_msg", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &msgtype_vals_ext, 0, NULL, HFILL }},
         { &hf_sip_server_domain_search_fqdn,
           { "SIP Server Domain Search FQDN", "dhcpv6.sip_server_domain_search_fqdn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_sip_server_a,
@@ -2231,9 +2237,9 @@ proto_register_dhcpv6(void)
         { &hf_packetcable_cccV6_suboption,
           { "Sub element", "dhcpv6.packetcable.cccV6.suboption", FT_UINT16, BASE_DEC, VALS(pkt_cccV6_opt_vals), 0, NULL, HFILL }},
         { &hf_modem_capabilities_encoding_type,
-          { "Type", "dhcpv6.docsis.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC, VALS(modem_capabilities_encoding), 0, NULL, HFILL }},
+          { "Type", "dhcpv6.docsis.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &modem_capabilities_encoding_ext, 0, NULL, HFILL }},
         { &hf_eue_capabilities_encoding_type,
-          { "Type", "dhcpv6.packetcable.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC, VALS(eue_capabilities_encoding), 0, NULL, HFILL }},
+          { "Type", "dhcpv6.packetcable.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &eue_capabilities_encoding_ext, 0, NULL, HFILL }},
         { &hf_capabilities_encoding_length,
           { "Length", "dhcpv6.cccV6.tlv5.suboption.length", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_capabilities_encoding_bytes,
@@ -2277,7 +2283,7 @@ proto_register_dhcpv6(void)
         { &hf_packetcable_cccV6_sec_tcm_call_manager_server,
           { "Call Manager Servers", "dhcpv6.packetcable.cccV6.tgt_flag.call_manager_server", FT_BOOLEAN, 16, TFS(&tfs_on_off), 0x02, NULL, HFILL }},
         { &hf_cablelabs_opts,
-          { "Suboption", "dhcpv6.cablelabs.opt", FT_UINT16, BASE_DEC, VALS(cl_vendor_subopt_values), 0, NULL, HFILL }},
+          { "Suboption", "dhcpv6.cablelabs.opt", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &cl_vendor_subopt_values_ext, 0, NULL, HFILL }},
         { &hf_cablelabs_ipv6_server,
           { "IPv6 address", "dhcpv6.cablelabs.ipv6_server", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
     };
@@ -2305,7 +2311,7 @@ proto_register_dhcpv6(void)
         { &hf_dhcpv6_bulk_leasequery_size,
           { "Message size", "dhcpv6.bulk_leasequery.size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dhcpv6_bulk_leasequery_msgtype,
-          { "Message type", "dhcpv6.bulk_leasequery.msgtype", FT_UINT8, BASE_DEC, VALS(msgtype_vals), 0x0, NULL, HFILL }},
+          { "Message type", "dhcpv6.bulk_leasequery.msgtype", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &msgtype_vals_ext, 0x0, NULL, HFILL }},
         { &hf_dhcpv6_bulk_leasequery_reserved,
           { "Reserved", "dhcpv6.bulk_leasequery.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_dhcpv6_bulk_leasequery_trans_id,
