@@ -297,15 +297,17 @@ void SCTPGraphDialog::drawTSNGraph()
 
 void SCTPGraphDialog::drawGraph(int which)
 {
-    guint32 maxTSN;
+    guint32 maxTSN, minTSN;
 
     gIsSackChunkPresent = false;
     gIsNRSackChunkPresent = false;
 
     if (direction == 1) {
         maxTSN = selected_assoc->max_tsn1;
+        minTSN = selected_assoc->min_tsn1;
     } else {
         maxTSN = selected_assoc->max_tsn2;
+        minTSN = selected_assoc->min_tsn2;
     }
     ui->sctpPlot->clearGraphs();
     switch (which) {
@@ -329,8 +331,8 @@ void SCTPGraphDialog::drawGraph(int which)
     ui->sctpPlot->setInteractions(QCP::iRangeZoom | QCP::iRangeDrag | QCP::iSelectPlottables);
     connect(ui->sctpPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,QMouseEvent*)), this, SLOT(graphClicked(QCPAbstractPlottable*, QMouseEvent*)));
     // set axes ranges, so we see all data:
-    QCPRange myXRange(0, (selected_assoc->max_secs+1));
-    QCPRange myYRange(0, maxTSN);
+    QCPRange myXRange(selected_assoc->min_secs, (selected_assoc->max_secs+1));
+    QCPRange myYRange(minTSN, maxTSN);
     ui->sctpPlot->xAxis->setRange(myXRange);
     ui->sctpPlot->yAxis->setRange(myYRange);
     ui->sctpPlot->replot();
@@ -353,7 +355,7 @@ void SCTPGraphDialog::on_pushButton_3_clicked()
 
 void SCTPGraphDialog::on_pushButton_4_clicked()
 {
-    ui->sctpPlot->xAxis->setRange(selected_assoc->min_secs+selected_assoc->min_usecs/1000000.0, selected_assoc->max_secs+selected_assoc->max_usecs/1000000.0);
+    ui->sctpPlot->xAxis->setRange(selected_assoc->min_secs, selected_assoc->max_secs+1);
     if (direction == 1) {
         ui->sctpPlot->yAxis->setRange(selected_assoc->min_tsn1, selected_assoc->max_tsn1);
     } else {
