@@ -58,6 +58,7 @@ Usage: $THIS [-c] [-h] [-s <suite>]
       nameres
       prerequisites
       unittests
+      wslua
 FIN
         exit 0
 fi
@@ -96,6 +97,7 @@ source $TESTS_DIR/suite-unittests.sh
 source $TESTS_DIR/suite-fileformats.sh
 source $TESTS_DIR/suite-decryption.sh
 source $TESTS_DIR/suite-nameres.sh
+source $TESTS_DIR/suite-wslua.sh
 
 test_cleanup() {
 	if [ $TEST_OUTDIR_CLEAN = 1 ]; then
@@ -155,6 +157,7 @@ test_suite() {
 	test_suite_add "File formats" fileformats_suite
 	test_suite_add "Decryption" decryption_suite
 	test_suite_add "Name Resolution" name_resolution_suite
+	test_suite_add "Lua API" wslua_suite
 }
 
 
@@ -199,6 +202,9 @@ if [ -n "$RUN_SUITE" ] ; then
             exit $? ;;
 	  "unittests")
             test_suite_run "Unit tests" unittests_suite
+            exit $? ;;
+	  "wslua")
+            test_suite_run "Lua API" wslua_suite
             exit $? ;;
         esac
 fi
