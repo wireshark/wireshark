@@ -33,12 +33,12 @@ echo '<!ENTITY GitVersion "'${GIT_VERSION}'">' > git_version_tmp.xml
 #echo '">'   >> git_version_tmp.xml
 
 # /dev/null buries the output of the "cmp" command.
-diff svn_version.xml svn_version_tmp.xml &> /dev/null
+diff git_version.xml git_version_tmp.xml &> /dev/null
 
 if [ $? -ne 0 ]
 then
-  cp svn_version_tmp.xml svn_version.xml
+  cp git_version_tmp.xml git_version.xml
 fi
 
-rm svn_version_tmp.xml
+rm git_version_tmp.xml
 

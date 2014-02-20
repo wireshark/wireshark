@@ -170,7 +170,7 @@ text2pcap_INCLUDES = \
 mergecap_SOURCES = \
 	mergecap.c \
 	merge.c \
-	svnversion.h
+	version.h
 
 # editcap specifics
 editcap_SOURCES = \
