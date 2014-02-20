@@ -29,10 +29,10 @@ A2X_TEXT_OPTS=
 .SUFFIXES: .fo .pdf
 
 # On every build, record the working copy revision string
-#   in svn_version.xml (if the svn version has changed).
+#   in git_version.xml (if the svn version has changed).
 # This is done during nmake "preprocessing" so that it's done *before*
 #  nmake gets the date/time of the dependency file(s)].
-!IF [$(SH) ./check_svn_version.sh]
+!IF [$(SH) ./check_git_version.sh]
 !ENDIF
 
 

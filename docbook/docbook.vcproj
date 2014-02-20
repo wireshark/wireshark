@@ -273,7 +273,7 @@
 			>
 		</File>
 		<File
-			RelativePath=".\check_svn_version.sh"
+			RelativePath=".\check_git_version.sh"
 			>
 		</File>
 		<File

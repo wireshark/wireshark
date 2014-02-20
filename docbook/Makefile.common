@@ -189,7 +189,7 @@ WSDG_GRAPHICS =	\
 # user-guide.xml must be first in the list (to match $<)
 WSUG_SOURCE =	\
 	user-guide.xml		\
-	svn_version.xml		\
+	git_version.xml		\
 	GPL_appendix.xml	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
@@ -199,7 +199,7 @@ WSUG_SOURCE =	\
 # developer-guide.xml must be first in the list (to match $<)
 WSDG_SOURCE =	\
 	developer-guide.xml	\
-	svn_version.xml		\
+	git_version.xml		\
 	GPL_appendix.xml	\
 	custom_layer_pdf.xsl	\
 	Makefile.common		\
@@ -228,7 +228,7 @@ CLEANFILES =	\
 	release_notes_chm	\
 	release-notes.html	\
 	release-notes.txt	\
-	svn_version.xml		\
+	git_version.xml		\
 	user-guide.zip		\
 	wsluarm
 
