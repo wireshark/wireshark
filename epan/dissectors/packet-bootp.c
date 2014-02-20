@@ -281,6 +281,11 @@ static int hf_bootp_option43_alcatel_app_type = -1;			/* 43:66 Alcatel  */
 static int hf_bootp_option43_alcatel_sip_url = -1;			/* 43:67 Alcatel  */
 static int hf_bootp_option43_alcatel_end = -1;				/* 43:255 Alcatel */
 
+static int hf_bootp_option43_arubaap_controllerip = -1;			/* 43: ArubaAP*/
+static int hf_bootp_option43_arubaiap = -1;				/* 43: ArubaIAP*/
+static int hf_bootp_option43_arubaiap_nameorg = -1;			/* 43: ArubaIAP: Name Organisation*/
+static int hf_bootp_option43_arubaiap_ampip = -1;			/* 43: ArubaIAP: AMP IP Address*/
+static int hf_bootp_option43_arubaiap_password = -1;			/* 43 :ArubaIAP: Passwod*/
 
 static int hf_bootp_option_netbios_over_tcpip_name_server = -1;		/* 44 */
 static int hf_bootp_option_netbios_over_tcpip_dd_name_server = -1;	/* 45 */
@@ -1669,6 +1674,23 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				optoff = dissect_vendor_cablelabs_suboption(pinfo, vti, v_tree,
 					tvb, optoff, optend);
 			}
+		} else if (*vendor_class_id_p != NULL &&
+			   ((strncmp((const gchar*)*vendor_class_id_p, "ArubaAP", strlen("ArubaAP")) == 0) )) {
+			/* Aruba AP */
+			proto_item_append_text(vti, " (Aruba AP)");
+			proto_tree_add_item(v_tree, hf_bootp_option43_arubaap_controllerip, tvb, optoff, optlen, ENC_ASCII|ENC_NA);
+		} else if (*vendor_class_id_p != NULL &&
+			   ((strncmp((const gchar*)*vendor_class_id_p, "ArubaInstantAP", strlen("ArubaInstantAP")) == 0) )) {
+			gint32 nameorglen, ampiplen;
+			/* Aruba  Instant AP */
+			proto_item_append_text(vti, " (Aruba Instant AP)");
+			vti = proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap, tvb, optoff, optlen, ENC_ASCII|ENC_NA);
+			v_tree = proto_item_add_subtree(vti, ett_bootp_option43_suboption);
+			nameorglen = tvb_find_guint8(tvb, optoff, optlen, ',') - optoff;
+			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_nameorg, tvb, optoff, nameorglen, ENC_ASCII|ENC_NA);
+			ampiplen = tvb_find_guint8(tvb, optoff+nameorglen+1, optlen-nameorglen-1, ',') - (optoff+nameorglen+1);
+			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_ampip, tvb, optoff+nameorglen+1, ampiplen, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(v_tree, hf_bootp_option43_arubaiap_password, tvb, optoff+nameorglen+1+ampiplen+1, optlen-(nameorglen+1+ampiplen+1), ENC_ASCII|ENC_NA);
 		} else if (s_option==58 || s_option==64 || s_option==65
 			|| s_option==66 || s_option==67) {
 			/* Note that this is a rather weak (permissive) heuristic, */
@@ -6118,6 +6140,30 @@ proto_register_bootp(void)
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    "Option 43:Alcatel 255 End", HFILL }},
 
+		{ &hf_bootp_option43_arubaap_controllerip,
+		  { "Aruba Controller IP", "bootp.option.vendor.arubaap.controllerip",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Address IP of Aruba controller", HFILL }},
+
+		{ &hf_bootp_option43_arubaiap,
+		  { "Aruba Instant AP", "bootp.option.vendor.arubaiap",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "nameorg,amp-ip-address,password", HFILL }},
+
+		{ &hf_bootp_option43_arubaiap_nameorg,
+		  { "Name Organisation", "bootp.option.vendor.arubaiap.name_org",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_bootp_option43_arubaiap_ampip,
+		  { "AMP IP Address", "bootp.option.vendor.arubaiap.amp_ip",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Address IP of Airwave server (AMP)", HFILL }},
+
+		{ &hf_bootp_option43_arubaiap_password,
+		  { "Password", "bootp.option.vendor.arubaiap.password",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Password for Instant AP Airwave server (AMP)", HFILL }},
 
 		{ &hf_bootp_option_netbios_over_tcpip_name_server,
 		  { "NetBIOS over TCP/IP Name Server", "bootp.option.netbios_over_tcpip_name_server",
