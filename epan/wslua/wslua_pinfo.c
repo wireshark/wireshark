@@ -1343,7 +1343,7 @@ static const pinfo_method_t Pinfo_methods[] = {
     {"src_port", Pinfo_src_port, Pinfo_set_int,  PARAM_PORT_SRC },
 
 	/* WSLUA_ATTRIBUTE Pinfo_dst_port RW Source Address of this Packet */
-    {"dst_port", Pinfo_dst_port, Pinfo_set_int,  PARAM_PORT_SRC },
+    {"dst_port", Pinfo_dst_port, Pinfo_set_int,  PARAM_PORT_DST },
 
 	/* WSLUA_ATTRIBUTE Pinfo_ipproto RO IP Protocol id */
     {"ipproto", Pinfo_ipproto, pushnil_param,  PARAM_NONE },
