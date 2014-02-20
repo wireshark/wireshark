@@ -322,7 +322,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         wmem_tree_t      *subtree;
         wmem_tree_key_t   key[5];
         client_request_t *client_request;
-        gint32            response_frame = -1;
+        gint64            response_frame = -1;
         gint64            data_in = -1;
         guint8            status = STATUS_UNKNOWN;
 
@@ -419,7 +419,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             sub_item = proto_tree_add_item(main_tree, hf_hex_ascii_version, tvb, offset, 4, ENC_NA | ENC_ASCII);
             sub_tree = proto_item_add_subtree(sub_item, ett_version);
-            version = g_ascii_strtoull(hex_ascii, NULL, 16);
+            version = (guint)g_ascii_strtoull(hex_ascii, NULL, 16);
             proto_tree_add_uint(sub_tree, hf_version, tvb, offset, 4, version);
             offset += 4;
 
