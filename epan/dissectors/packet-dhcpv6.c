@@ -243,97 +243,97 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define RECONFIGURE_REQUEST     18
 #define RECONFIGURE_REPLY       19
 
-#define OPTION_CLIENTID          1
-#define OPTION_SERVERID          2
-#define OPTION_IA_NA             3
-#define OPTION_IA_TA             4
-#define OPTION_IAADDR            5
-#define OPTION_ORO               6
-#define OPTION_PREFERENCE        7
-#define OPTION_ELAPSED_TIME      8
-#define OPTION_RELAY_MSG         9
-/* #define      OPTION_SERVER_MSG       10 */
-#define OPTION_AUTH             11
-#define OPTION_UNICAST          12
-#define OPTION_STATUS_CODE      13
-#define OPTION_RAPID_COMMIT     14
-#define OPTION_USER_CLASS       15
-#define OPTION_VENDOR_CLASS     16
-#define OPTION_VENDOR_OPTS      17
-#define OPTION_INTERFACE_ID     18
-#define OPTION_RECONF_MSG       19
-#define OPTION_RECONF_ACCEPT    20
-#define OPTION_SIP_SERVER_D     21
-#define OPTION_SIP_SERVER_A     22
-#define OPTION_DNS_SERVERS      23
-#define OPTION_DOMAIN_LIST      24      /* RFC 3646 */
-#define OPTION_IA_PD            25      /* RFC 3633 */
-#define OPTION_IAPREFIX         26      /* RFC 3633 */
-#define OPTION_NIS_SERVERS      27
-#define OPTION_NISP_SERVERS     28
-#define OPTION_NIS_DOMAIN_NAME  29
-#define OPTION_NISP_DOMAIN_NAME 30
-#define OPTION_SNTP_SERVERS     31
-#define OPTION_LIFETIME         32
-#define OPTION_BCMCS_SERVER_D   33
-#define OPTION_BCMCS_SERVER_A   34
+#define OPTION_CLIENTID                1
+#define OPTION_SERVERID                2
+#define OPTION_IA_NA                   3
+#define OPTION_IA_TA                   4
+#define OPTION_IAADDR                  5
+#define OPTION_ORO                     6
+#define OPTION_PREFERENCE              7
+#define OPTION_ELAPSED_TIME            8
+#define OPTION_RELAY_MSG               9
+/* #define      OPTION_SERVER_MSG        10 */
+#define OPTION_AUTH                   11
+#define OPTION_UNICAST                12
+#define OPTION_STATUS_CODE            13
+#define OPTION_RAPID_COMMIT           14
+#define OPTION_USER_CLASS             15
+#define OPTION_VENDOR_CLASS           16
+#define OPTION_VENDOR_OPTS            17
+#define OPTION_INTERFACE_ID           18
+#define OPTION_RECONF_MSG             19
+#define OPTION_RECONF_ACCEPT          20
+#define OPTION_SIP_SERVER_D           21
+#define OPTION_SIP_SERVER_A           22
+#define OPTION_DNS_SERVERS            23
+#define OPTION_DOMAIN_LIST            24 /* RFC 3646 */
+#define OPTION_IA_PD                  25 /* RFC 3633 */
+#define OPTION_IAPREFIX               26 /* RFC 3633 */
+#define OPTION_NIS_SERVERS            27
+#define OPTION_NISP_SERVERS           28
+#define OPTION_NIS_DOMAIN_NAME        29
+#define OPTION_NISP_DOMAIN_NAME       30
+#define OPTION_SNTP_SERVERS           31
+#define OPTION_LIFETIME               32
+#define OPTION_BCMCS_SERVER_D         33
+#define OPTION_BCMCS_SERVER_A         34
 /* 35 - Unassigned */
-#define OPTION_GEOCONF_CIVIC    36
-#define OPTION_REMOTE_ID        37
-#define OPTION_SUBSCRIBER_ID    38
-#define OPTION_CLIENT_FQDN      39
-#define OPTION_PANA_AGENT       40
-#define OPTION_TIME_ZONE        41
-#define OPTION_TZDB             42
-#define OPTION_ERO              43
-#define OPTION_LQ_QUERY         44
-#define OPTION_CLIENT_DATA      45
-#define OPTION_CLT_TIME         46
-#define OPTION_LQ_RELAY_DATA    47
-#define OPTION_LQ_CLIENT_LINK   48
-#define OPTION_MIP6_HNIDF       49
-#define OPTION_MIP6_VDINF       50
-#define OPTION_V6_LOST          51
-#define OPTION_CAPWAP_AC_V6     52
-#define OPTION_RELAYID          53
-#define OPTION_IPV6_ADDRESS_MOS 54 /* OPTION-IPv6_Address-MoS */
-#define OPTION_IPV6_FQDN_MOS    55 /* OPTION-IPv6_FQDN-MoS */
-#define OPTION_NTP_SERVER       56
-#define OPTION_V6_ACCESS_DOMAIN 57
-#define OPTION_SIP_UA_CS_LIST   58
-#define OPTION_BOOTFILE_URL     59 /* OPT_BOOTFILE_URL */
-#define OPTION_BOOTFILE_PARAM   60 /* OPT_BOOTFILE_PARAM */
-#define OPTION_CLIENT_ARCH_TYPE 61
-#define OPTION_NII              62
-#define OPTION_GEOLOCATION      63
-#define OPTION_AFTR_NAME        64      /* RFC 6334 */
-#define OPTION_ERP_LOCAL_DOMAIN_NAME 65
-#define OPTION_RSOO             66
-#define OPTION_PD_EXCLUDE       67
-#define OPTION_VSS              68
-#define OPTION_MIP6_IDINF       69
-#define OPTION_MIP6_UDINF       70
-#define OPTION_MIP6_HNP         71
-#define OPTION_MIP6_HAA         72
-#define OPTION_MIP6_HAF         73
-#define OPTION_RDNSS_SELECTION  74
+#define OPTION_GEOCONF_CIVIC          36
+#define OPTION_REMOTE_ID              37
+#define OPTION_SUBSCRIBER_ID          38
+#define OPTION_CLIENT_FQDN            39
+#define OPTION_PANA_AGENT             40
+#define OPTION_TIME_ZONE              41
+#define OPTION_TZDB                   42
+#define OPTION_ERO                    43
+#define OPTION_LQ_QUERY               44
+#define OPTION_CLIENT_DATA            45
+#define OPTION_CLT_TIME               46
+#define OPTION_LQ_RELAY_DATA          47
+#define OPTION_LQ_CLIENT_LINK         48
+#define OPTION_MIP6_HNIDF             49
+#define OPTION_MIP6_VDINF             50
+#define OPTION_V6_LOST                51
+#define OPTION_CAPWAP_AC_V6           52
+#define OPTION_RELAYID                53
+#define OPTION_IPV6_ADDRESS_MOS       54 /* OPTION-IPv6_Address-MoS */
+#define OPTION_IPV6_FQDN_MOS          55 /* OPTION-IPv6_FQDN-MoS */
+#define OPTION_NTP_SERVER             56
+#define OPTION_V6_ACCESS_DOMAIN       57
+#define OPTION_SIP_UA_CS_LIST         58
+#define OPTION_BOOTFILE_URL           59 /* OPT_BOOTFILE_URL */
+#define OPTION_BOOTFILE_PARAM         60 /* OPT_BOOTFILE_PARAM */
+#define OPTION_CLIENT_ARCH_TYPE       61
+#define OPTION_NII                    62
+#define OPTION_GEOLOCATION            63
+#define OPTION_AFTR_NAME              64 /* RFC 6334 */
+#define OPTION_ERP_LOCAL_DOMAIN_NAME  65
+#define OPTION_RSOO                   66
+#define OPTION_PD_EXCLUDE             67
+#define OPTION_VSS                    68
+#define OPTION_MIP6_IDINF             69
+#define OPTION_MIP6_UDINF             70
+#define OPTION_MIP6_HNP               71
+#define OPTION_MIP6_HAA               72
+#define OPTION_MIP6_HAF               73
+#define OPTION_RDNSS_SELECTION        74
 #define OPTION_KRB_PRINCIPAL_NAME     75
 #define OPTION_KRB_REALM_NAME         76
 #define OPTION_KRB_DEFAULT_REALM_NAME 77
 #define OPTION_KRB_KDC                78
 #define OPTION_CLIENT_LINKLAYER_ADDR  79
-#define OPTION_LINK_ADDRESS     80
-#define OPTION_RADIUS           81
-#define OPTION_SOL_MAX_RT       82
-#define OPTION_INF_MAX_RT       83
+#define OPTION_LINK_ADDRESS           80
+#define OPTION_RADIUS                 81
+#define OPTION_SOL_MAX_RT             82
+#define OPTION_INF_MAX_RT             83
 /* drafts */
-#define OPTION_ADDRSEL          84
-#define OPTION_ADDRSEL_TABLE    85
+#define OPTION_ADDRSEL                84
+#define OPTION_ADDRSEL_TABLE          85
 
 /* temporary value until defined by IETF */
-#define OPTION_MIP6_HA          165
-#define OPTION_MIP6_HOA         166
-#define OPTION_NAI              167
+#define OPTION_MIP6_HA               165
+#define OPTION_MIP6_HOA              166
+#define OPTION_NAI                   167
 
 #define DUID_LLT                1
 #define DUID_EN                 2
@@ -341,133 +341,133 @@ static expert_field ei_dhcpv6_bulk_leasequery_bad_msg_type = EI_INIT;
 #define DUID_LL_OLD             4
 
 static const value_string msgtype_vals[] = {
-    { SOLICIT,                 "Solicit" },
-    { ADVERTISE,               "Advertise" },
-    { REQUEST,                 "Request" },
-    { CONFIRM,                 "Confirm" },
-    { RENEW,                   "Renew" },
-    { REBIND,                  "Rebind" },
-    { REPLY,                   "Reply" },
-    { RELEASE,                 "Release" },
-    { DECLINE,                 "Decline" },
-    { RECONFIGURE,             "Reconfigure" },
-    { INFORMATION_REQUEST,     "Information-request" },
-    { RELAY_FORW,              "Relay-forw" },
-    { RELAY_REPLY,             "Relay-reply" },
-    { LEASEQUERY,              "Leasequery" },
-    { LEASEQUERY_REPLY,        "Leasequery-reply" },
-    { LEASEQUERY_DONE,         "Leasequery-done" },
-    { LEASEQUERY_DATA,         "Leasequery-data" },
-    { RECONFIGURE_REQUEST,     "Reconfigure-request" },
-    { RECONFIGURE_REPLY,       "Reconfigure-reply" },
+    { SOLICIT,                       "Solicit" },
+    { ADVERTISE,                     "Advertise" },
+    { REQUEST,                       "Request" },
+    { CONFIRM,                       "Confirm" },
+    { RENEW,                         "Renew" },
+    { REBIND,                        "Rebind" },
+    { REPLY,                         "Reply" },
+    { RELEASE,                       "Release" },
+    { DECLINE,                       "Decline" },
+    { RECONFIGURE,                   "Reconfigure" },
+    { INFORMATION_REQUEST,           "Information-request" },
+    { RELAY_FORW,                    "Relay-forw" },
+    { RELAY_REPLY,                   "Relay-reply" },
+    { LEASEQUERY,                    "Leasequery" },
+    { LEASEQUERY_REPLY,              "Leasequery-reply" },
+    { LEASEQUERY_DONE,               "Leasequery-done" },
+    { LEASEQUERY_DATA,               "Leasequery-data" },
+    { RECONFIGURE_REQUEST,           "Reconfigure-request" },
+    { RECONFIGURE_REPLY,             "Reconfigure-reply" },
     { 0, NULL }
 };
 static value_string_ext msgtype_vals_ext = VALUE_STRING_EXT_INIT(msgtype_vals);
 
 static const value_string opttype_vals[] = {
-    { OPTION_CLIENTID,         "Client Identifier" },
-    { OPTION_SERVERID,         "Server Identifier" },
-    { OPTION_IA_NA,            "Identity Association for Non-temporary Address" },
-    { OPTION_IA_TA,            "Identity Association for Temporary Address" },
-    { OPTION_IAADDR,           "IA Address" },
-    { OPTION_ORO,              "Option Request" },
-    { OPTION_PREFERENCE,       "Preference" },
-    { OPTION_ELAPSED_TIME,     "Elapsed time" },
-    { OPTION_RELAY_MSG,        "Relay Message" },
-/*  { OPTION_SERVER_MSG,       "Server message" }, */
-    { OPTION_AUTH,             "Authentication" },
-    { OPTION_UNICAST,          "Server unicast" },
-    { OPTION_STATUS_CODE,      "Status code" },
-    { OPTION_RAPID_COMMIT,     "Rapid Commit" },
-    { OPTION_USER_CLASS,       "User Class" },
-    { OPTION_VENDOR_CLASS,     "Vendor Class" },
-    { OPTION_VENDOR_OPTS,      "Vendor-specific Information" },
-    { OPTION_INTERFACE_ID,     "Interface-Id" },
-    { OPTION_RECONF_MSG,       "Reconfigure Message" },
-    { OPTION_RECONF_ACCEPT,    "Reconfigure Accept" },
-    { OPTION_SIP_SERVER_D,     "SIP Server Domain Name List" },
-    { OPTION_SIP_SERVER_A,     "SIP Servers IPv6 Address List" },
-    { OPTION_DNS_SERVERS,      "DNS recursive name server" },
-    { OPTION_DOMAIN_LIST,      "Domain Search List" },
-    { OPTION_IA_PD,            "Identity Association for Prefix Delegation" },
-    { OPTION_IAPREFIX,         "IA Prefix" },
-    { OPTION_NIS_SERVERS,      "Network Information Server" },
-    { OPTION_NISP_SERVERS,     "Network Information Server V2" },
-    { OPTION_NIS_DOMAIN_NAME,  "Network Information Server Domain Name" },
-    { OPTION_NISP_DOMAIN_NAME, "Network Information Server V2 Domain Name" },
-    { OPTION_SNTP_SERVERS,     "Simple Network Time Protocol Server" },
-    { OPTION_LIFETIME,         "Lifetime" },
-    { OPTION_BCMCS_SERVER_D,   "BCMCS Server Domain" },
-    { OPTION_BCMCS_SERVER_A,   "BCMCS Servers IPv6 Address List" },
-    { OPTION_GEOCONF_CIVIC,    "Geoconf Civic Address" },
-    { OPTION_REMOTE_ID,        "Remote Identifier" },
-    { OPTION_SUBSCRIBER_ID,    "Subscriber Identifier" },
-    { OPTION_CLIENT_FQDN,      "Fully Qualified Domain Name" },
-    { OPTION_PANA_AGENT,       "PANA Agents IPv6 Address List" },
-    { OPTION_TIME_ZONE,        "Time Zone" },
-    { OPTION_TZDB,             "Time Zone Database" },
-    { OPTION_ERO,              "Echo Request Option" },
-    { OPTION_LQ_QUERY,         "Leasequery Query" },
-    { OPTION_CLIENT_DATA,      "Leasequery Client Data" },
-    { OPTION_CLT_TIME,         "Client Last Transaction Time" },
-    { OPTION_LQ_RELAY_DATA,    "Leasequery Relay Data" },
-    { OPTION_LQ_CLIENT_LINK,   "Leasequery Client Link Address List" },
-    { OPTION_MIP6_HNIDF,       "Home Network Identifier FQDN" },
-    { OPTION_MIP6_VDINF,       "Visited Home Network Information" },
-    { OPTION_V6_LOST,          "LoST Server" },
-    { OPTION_CAPWAP_AC_V6,     "CAPWAP Access Controllers" },
-    { OPTION_RELAYID,          "Relay-ID" },
-    { OPTION_IPV6_ADDRESS_MOS, "MoS IPv6 Address" },
-    { OPTION_IPV6_FQDN_MOS,    "MoS Domain Name List" },
-    { OPTION_NTP_SERVER,       "NTP Server" },
-    { OPTION_V6_ACCESS_DOMAIN, "Access Network Domain Name" },
-    { OPTION_SIP_UA_CS_LIST,   "SIP User Agent Configuration Service Domains" },
-    { OPTION_BOOTFILE_URL,     "Boot File URL" },
-    { OPTION_BOOTFILE_PARAM,   "Boot File Parameters" },
-    { OPTION_CLIENT_ARCH_TYPE, "Client System Architecture Type" },
-    { OPTION_NII,              "Client Network Interface Identifier" },
-    { OPTION_GEOLOCATION,      "Geolocation" },
-    { OPTION_AFTR_NAME,        "Dual-Stack Lite AFTR Name" },
-    { OPTION_ERP_LOCAL_DOMAIN_NAME, "ERP Local Domain Name" },
-    { OPTION_RSOO,             "Relay-Supplied Options" },
-    { OPTION_PD_EXCLUDE,       "Prefix Exclude" },
-    { OPTION_VSS,              "Virtual Subnet Selection" },
-    { OPTION_MIP6_IDINF,       "Identified Home Network Information" },
-    { OPTION_MIP6_UDINF,       "Unrestricted Home Network Information" },
-    { OPTION_MIP6_HNP,         "Home Network Prefix" },
-    { OPTION_MIP6_HAA,         "Home Agent Address" },
-    { OPTION_MIP6_HAF,         "Home Agent FQDN" },
-    { OPTION_RDNSS_SELECTION,  "RDNSS Selection" },
+    { OPTION_CLIENTID,               "Client Identifier" },
+    { OPTION_SERVERID,               "Server Identifier" },
+    { OPTION_IA_NA,                  "Identity Association for Non-temporary Address" },
+    { OPTION_IA_TA,                  "Identity Association for Temporary Address" },
+    { OPTION_IAADDR,                 "IA Address" },
+    { OPTION_ORO,                    "Option Request" },
+    { OPTION_PREFERENCE,             "Preference" },
+    { OPTION_ELAPSED_TIME,           "Elapsed time" },
+    { OPTION_RELAY_MSG,              "Relay Message" },
+/*  { OPTION_SERVER_MSG,             "Server message" }, */
+    { OPTION_AUTH,                   "Authentication" },
+    { OPTION_UNICAST,                "Server unicast" },
+    { OPTION_STATUS_CODE,            "Status code" },
+    { OPTION_RAPID_COMMIT,           "Rapid Commit" },
+    { OPTION_USER_CLASS,             "User Class" },
+    { OPTION_VENDOR_CLASS,           "Vendor Class" },
+    { OPTION_VENDOR_OPTS,            "Vendor-specific Information" },
+    { OPTION_INTERFACE_ID,           "Interface-Id" },
+    { OPTION_RECONF_MSG,             "Reconfigure Message" },
+    { OPTION_RECONF_ACCEPT,          "Reconfigure Accept" },
+    { OPTION_SIP_SERVER_D,           "SIP Server Domain Name List" },
+    { OPTION_SIP_SERVER_A,           "SIP Servers IPv6 Address List" },
+    { OPTION_DNS_SERVERS,            "DNS recursive name server" },
+    { OPTION_DOMAIN_LIST,            "Domain Search List" },
+    { OPTION_IA_PD,                  "Identity Association for Prefix Delegation" },
+    { OPTION_IAPREFIX,               "IA Prefix" },
+    { OPTION_NIS_SERVERS,            "Network Information Server" },
+    { OPTION_NISP_SERVERS,           "Network Information Server V2" },
+    { OPTION_NIS_DOMAIN_NAME,        "Network Information Server Domain Name" },
+    { OPTION_NISP_DOMAIN_NAME,       "Network Information Server V2 Domain Name" },
+    { OPTION_SNTP_SERVERS,           "Simple Network Time Protocol Server" },
+    { OPTION_LIFETIME,               "Lifetime" },
+    { OPTION_BCMCS_SERVER_D,         "BCMCS Server Domain" },
+    { OPTION_BCMCS_SERVER_A,         "BCMCS Servers IPv6 Address List" },
+    { OPTION_GEOCONF_CIVIC,          "Geoconf Civic Address" },
+    { OPTION_REMOTE_ID,              "Remote Identifier" },
+    { OPTION_SUBSCRIBER_ID,          "Subscriber Identifier" },
+    { OPTION_CLIENT_FQDN,            "Fully Qualified Domain Name" },
+    { OPTION_PANA_AGENT,             "PANA Agents IPv6 Address List" },
+    { OPTION_TIME_ZONE,              "Time Zone" },
+    { OPTION_TZDB,                   "Time Zone Database" },
+    { OPTION_ERO,                    "Echo Request Option" },
+    { OPTION_LQ_QUERY,               "Leasequery Query" },
+    { OPTION_CLIENT_DATA,            "Leasequery Client Data" },
+    { OPTION_CLT_TIME,               "Client Last Transaction Time" },
+    { OPTION_LQ_RELAY_DATA,          "Leasequery Relay Data" },
+    { OPTION_LQ_CLIENT_LINK,         "Leasequery Client Link Address List" },
+    { OPTION_MIP6_HNIDF,             "Home Network Identifier FQDN" },
+    { OPTION_MIP6_VDINF,             "Visited Home Network Information" },
+    { OPTION_V6_LOST,                "LoST Server" },
+    { OPTION_CAPWAP_AC_V6,           "CAPWAP Access Controllers" },
+    { OPTION_RELAYID,                "Relay-ID" },
+    { OPTION_IPV6_ADDRESS_MOS,       "MoS IPv6 Address" },
+    { OPTION_IPV6_FQDN_MOS,          "MoS Domain Name List" },
+    { OPTION_NTP_SERVER,             "NTP Server" },
+    { OPTION_V6_ACCESS_DOMAIN,       "Access Network Domain Name" },
+    { OPTION_SIP_UA_CS_LIST,         "SIP User Agent Configuration Service Domains" },
+    { OPTION_BOOTFILE_URL,           "Boot File URL" },
+    { OPTION_BOOTFILE_PARAM,         "Boot File Parameters" },
+    { OPTION_CLIENT_ARCH_TYPE,       "Client System Architecture Type" },
+    { OPTION_NII,                    "Client Network Interface Identifier" },
+    { OPTION_GEOLOCATION,            "Geolocation" },
+    { OPTION_AFTR_NAME,              "Dual-Stack Lite AFTR Name" },
+    { OPTION_ERP_LOCAL_DOMAIN_NAME,  "ERP Local Domain Name" },
+    { OPTION_RSOO,                   "Relay-Supplied Options" },
+    { OPTION_PD_EXCLUDE,             "Prefix Exclude" },
+    { OPTION_VSS,                    "Virtual Subnet Selection" },
+    { OPTION_MIP6_IDINF,             "Identified Home Network Information" },
+    { OPTION_MIP6_UDINF,             "Unrestricted Home Network Information" },
+    { OPTION_MIP6_HNP,               "Home Network Prefix" },
+    { OPTION_MIP6_HAA,               "Home Agent Address" },
+    { OPTION_MIP6_HAF,               "Home Agent FQDN" },
+    { OPTION_RDNSS_SELECTION,        "RDNSS Selection" },
     { OPTION_KRB_PRINCIPAL_NAME,     "Kerberos Principal Name" },
     { OPTION_KRB_REALM_NAME,         "Kerberos Realm Name" },
     { OPTION_KRB_DEFAULT_REALM_NAME, "Kerberos Default Realm Name" },
     { OPTION_KRB_KDC,                "Kerberos KDC" },
     { OPTION_CLIENT_LINKLAYER_ADDR,  "Client Link-Layer Address" },
-    { OPTION_LINK_ADDRESS,     "Link Address" },
-    { OPTION_RADIUS,           "RADIUS" },
-    { OPTION_SOL_MAX_RT,       "SOL_MAX_RT" },
-    { OPTION_INF_MAX_RT,       "INF_MAX_RT" },
-    { OPTION_ADDRSEL,          "Address Selection" },
-    { OPTION_ADDRSEL_TABLE,    "Address Selection table" },
-    { OPTION_MIP6_HA,          "Mobile IPv6 Home Agent" },
-    { OPTION_MIP6_HOA,         "Mobile IPv6 Home Address" },
-    { OPTION_NAI,              "Network Access Identifier" },
+    { OPTION_LINK_ADDRESS,           "Link Address" },
+    { OPTION_RADIUS,                 "RADIUS" },
+    { OPTION_SOL_MAX_RT,             "SOL_MAX_RT" },
+    { OPTION_INF_MAX_RT,             "INF_MAX_RT" },
+    { OPTION_ADDRSEL,                "Address Selection" },
+    { OPTION_ADDRSEL_TABLE,          "Address Selection table" },
+    { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
+    { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
+    { OPTION_NAI,                    "Network Access Identifier" },
     { 0,        NULL }
 };
 static value_string_ext opttype_vals_ext = VALUE_STRING_EXT_INIT(opttype_vals);
 
 static const value_string statuscode_vals[] =
 {
-    {0, "Success" },
-    {1, "UnspecFail" },
-    {2, "NoAddrAvail" },
-    {3, "NoBinding" },
-    {4, "NotOnLink" },
-    {5, "UseMulticast" },
-    {6, "NoPrefixAvail" },
-    {7, "UnknownQueryType" },
-    {8, "MalformedQuery" },
-    {9, "NotConfigured" },
+    { 0, "Success" },
+    { 1, "UnspecFail" },
+    { 2, "NoAddrAvail" },
+    { 3, "NoBinding" },
+    { 4, "NotOnLink" },
+    { 5, "UseMulticast" },
+    { 6, "NoPrefixAvail" },
+    { 7, "UnknownQueryType" },
+    { 8, "MalformedQuery" },
+    { 9, "NotConfigured" },
     {10, "NotAllowed" },
     {11, "QueryTerminated" },
     {0, NULL }
@@ -554,38 +554,38 @@ static const value_string lq_query_vals[] = {
 #define CL_EROUTER_CONTAINER_OPTION 0x403 /* 1027 */
 
 /** CableLabs PacketCable Project Vendor Specific Options **/
-#define CL_OPTION_CCC 0x087a  /* 2170 */
-#define CL_OPTION_CCCV6 0x087b  /* 2171 */
-#define CL_OPTION_CORRELATION_ID 0x087c /*2172 */
+#define CL_OPTION_CCC            0x087a  /* 2170 */
+#define CL_OPTION_CCCV6          0x087b  /* 2171 */
+#define CL_OPTION_CORRELATION_ID 0x087c  /* 2172 */
 
 /** CableLabs TLVs for DOCS_CMTS_CAP Vendor Option **/
 #define CL_OPTION_DOCS_CMTS_TLV_VERS_NUM 0x01 /* 1 */
 
 static const value_string cl_vendor_subopt_values[] = {
-    /*    1 */ { CL_OPTION_ORO, "Option Request = " },
-    /*    2 */ { CL_OPTION_DEVICE_TYPE, "Device Type = " },
+    /*    1 */ { CL_OPTION_ORO,                     "Option Request = " },
+    /*    2 */ { CL_OPTION_DEVICE_TYPE,             "Device Type = " },
     /*    3 */ { CL_OPTION_EMBEDDED_COMPONENT_LIST, "Embedded Components = " },
-    /*    4 */ { CL_OPTION_DEVICE_SERIAL_NUMBER, "Serial Number = " },
+    /*    4 */ { CL_OPTION_DEVICE_SERIAL_NUMBER,    "Serial Number = " },
     /*    5 */ { CL_OPTION_HARDWARE_VERSION_NUMBER, "Hardware Version = " },
     /*    6 */ { CL_OPTION_SOFTWARE_VERSION_NUMBER, "Software Version = " },
-    /*    7 */ { CL_OPTION_BOOT_ROM_VERSION, "Boot ROM Version = " },
-    /*    8 */ { CL_OPTION_VENDOR_OUI, "Organization Unique Identifier = " },
-    /*    9 */ { CL_OPTION_MODEL_NUMBER, "Model Number = " },
-    /*   10 */ { CL_OPTION_VENDOR_NAME, "Vendor Name = " },
-    /*   32 */ { CL_OPTION_TFTP_SERVERS, "TFTP Server Addresses : " },
-    /*   33 */ { CL_OPTION_CONFIG_FILE_NAME, "Configuration File Name = " },
-    /*   34 */ { CL_OPTION_SYSLOG_SERVERS, "Syslog Servers : " },
-    /*   35 */ { CL_OPTION_TLV5, "TLV5 = " },
-    /*   36 */ { CL_OPTION_DEVICE_ID, "Device Identifier = " },
-    /*   37 */ { CL_OPTION_RFC868_SERVERS, "Time Protocol Servers : " },
-    /*   38 */ { CL_OPTION_TIME_OFFSET, "Time Offset = " },
-    /*   39 */ { CL_OPTION_IP_PREF, "IP preference : " },
-    /* 1025 */ { CL_OPTION_DOCS_CMTS_CAP, "CMTS Capabilities Option : " },
-    /* 1026 */ { CL_CM_MAC_ADDR, "CM MAC Address Option = " },
-    /* 1027 */ { CL_EROUTER_CONTAINER_OPTION, "eRouter Container Option : " },
-    /* 2170 */ { CL_OPTION_CCC, "CableLabs Client Configuration : " },
-    /* 2171 */ { CL_OPTION_CCCV6, "CableLabs Client Configuration IPv6 : " },
-    /* 2172 */ { CL_OPTION_CORRELATION_ID, "CableLabs Correlation ID = " },
+    /*    7 */ { CL_OPTION_BOOT_ROM_VERSION,        "Boot ROM Version = " },
+    /*    8 */ { CL_OPTION_VENDOR_OUI,              "Organization Unique Identifier = " },
+    /*    9 */ { CL_OPTION_MODEL_NUMBER,            "Model Number = " },
+    /*   10 */ { CL_OPTION_VENDOR_NAME,             "Vendor Name = " },
+    /*   32 */ { CL_OPTION_TFTP_SERVERS,            "TFTP Server Addresses : " },
+    /*   33 */ { CL_OPTION_CONFIG_FILE_NAME,        "Configuration File Name = " },
+    /*   34 */ { CL_OPTION_SYSLOG_SERVERS,          "Syslog Servers : " },
+    /*   35 */ { CL_OPTION_TLV5,                    "TLV5 = " },
+    /*   36 */ { CL_OPTION_DEVICE_ID,               "Device Identifier = " },
+    /*   37 */ { CL_OPTION_RFC868_SERVERS,          "Time Protocol Servers : " },
+    /*   38 */ { CL_OPTION_TIME_OFFSET,             "Time Offset = " },
+    /*   39 */ { CL_OPTION_IP_PREF,                 "IP preference : " },
+    /* 1025 */ { CL_OPTION_DOCS_CMTS_CAP,           "CMTS Capabilities Option : " },
+    /* 1026 */ { CL_CM_MAC_ADDR,                    "CM MAC Address Option = " },
+    /* 1027 */ { CL_EROUTER_CONTAINER_OPTION,       "eRouter Container Option : " },
+    /* 2170 */ { CL_OPTION_CCC,                     "CableLabs Client Configuration : " },
+    /* 2171 */ { CL_OPTION_CCCV6,                   "CableLabs Client Configuration IPv6 : " },
+    /* 2172 */ { CL_OPTION_CORRELATION_ID,          "CableLabs Correlation ID = " },
     { 0, NULL }
 };
 static value_string_ext cl_vendor_subopt_values_ext = VALUE_STRING_EXT_INIT(cl_vendor_subopt_values);
@@ -624,6 +624,7 @@ static const value_string pkt_cccV6_opt_vals[] = {
     { PKT_CCCV6_IETF_SEC_TKT,   "PacketCable Security Ticket Control" },
     { 0, NULL }
 };
+static value_string_ext pkt_cccV6_opt_vals_ext = VALUE_STRING_EXT_INIT(pkt_cccV6_opt_vals);
 
 static const value_string pkt_cccV6_prov_srv_type_vals[] = {
     { 0,      "FQDN" },
@@ -640,15 +641,15 @@ static const value_string sec_tcm_vals[] = {
 #endif
 
 static const value_string modem_capabilities_encoding [] = {
-    { 1,      "Concatenation Support" },
-    { 2,      "DOCSIS Version" },
-    { 3,      "Fragmentation Support" },
-    { 4,      "Payload Header Suppression Support" },
-    { 5,      "IGMP Support" },
-    { 6,      "Privacy Support" },
-    { 7,      "Downstream SAID Support" },
-    { 8,      "Upstream Service Flow Support" },
-    { 9,      "Optional Filtering Support" },
+    {  1,     "Concatenation Support" },
+    {  2,     "DOCSIS Version" },
+    {  3,     "Fragmentation Support" },
+    {  4,     "Payload Header Suppression Support" },
+    {  5,     "IGMP Support" },
+    {  6,     "Privacy Support" },
+    {  7,     "Downstream SAID Support" },
+    {  8,     "Upstream Service Flow Support" },
+    {  9,     "Optional Filtering Support" },
     { 10,      "Transmit Pre-Equalizer Taps per Modulation Interval" },
     { 11,      "Number of Transmit Equalizer Taps" },
     { 12,      "DCC Support" },
@@ -689,15 +690,15 @@ static const value_string modem_capabilities_encoding [] = {
 static value_string_ext modem_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(modem_capabilities_encoding);
 
 static const value_string eue_capabilities_encoding [] = {
-    { 1,       "PacketCable Version" },
-    { 2,       "Number Of Telephony Endpoints" },
-    { 3,       "TGT Support" },
-    { 4,       "HTTP Download File Access Method Support" },
-    { 5,       "MTA-24 Event SYSLOG Notification Support" },
-    { 6,       "NCS Service Flow Support" },
-    { 7,       "Primary Line Support" },
-    { 8,       "Vendor Specific TLV Type(s)" },
-    { 9,       "NVRAM Ticket/Ticket Information Storage Support" },
+    {  1,      "PacketCable Version" },
+    {  2,      "Number Of Telephony Endpoints" },
+    {  3,      "TGT Support" },
+    {  4,      "HTTP Download File Access Method Support" },
+    {  5,      "MTA-24 Event SYSLOG Notification Support" },
+    {  6,      "NCS Service Flow Support" },
+    {  7,      "Primary Line Support" },
+    {  8,      "Vendor Specific TLV Type(s)" },
+    {  9,      "NVRAM Ticket/Ticket Information Storage Support" },
     { 10,      "Provisioning Event Reporting Support" },
     { 11,      "Supported CODEC(s)" },
     { 12,      "Silence Suppression Support" },
@@ -720,7 +721,6 @@ static const value_string eue_capabilities_encoding [] = {
 };
 static value_string_ext eue_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(eue_capabilities_encoding);
 
-/* May be called recursively */
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                gboolean downstream, int off, int eoff);
@@ -732,8 +732,8 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
     /** THE ENCODING OF THIS SUBOPTION HAS CHANGED FROM DHCPv4
         the code and length fields have grown from a single octet to
         two octets each. **/
-    int suboptoff = optoff;
-    guint16 subopt, subopt_len;
+    int         suboptoff = optoff;
+    guint16     subopt, subopt_len;
     proto_item *vti;
     proto_tree *pkt_s_tree;
 
@@ -790,18 +790,18 @@ dissect_packetcable_ccc_option(proto_tree *v_tree, proto_item *v_item, packet_in
 static void
 dhcpv6_domain(proto_tree *subtree, proto_item *v_item, packet_info *pinfo, int hfindex, tvbuff_t *tvb, int offset, guint16 optlen)
 {
-    int start_offset=offset;
-    char domain[256];
-    int pos;
+    int    start_offset = offset;
+    char   domain[256];
+    int    pos;
     guint8 len;
 
-    pos=0;
-    while(optlen){
+    pos = 0;
+    while (optlen) {
         /* this is the start of the domain name */
-        if(!pos){
-            start_offset=offset;
+        if (!pos) {
+            start_offset = offset;
         }
-        domain[pos]=0;
+        domain[pos] = '\0';
 
         /* read length of the next substring */
         len = tvb_get_guint8(tvb, offset);
@@ -809,43 +809,43 @@ dhcpv6_domain(proto_tree *subtree, proto_item *v_item, packet_info *pinfo, int h
          * ASCII string instead of a DNS record encoded domain name. Catch that case
          * to allow us to continue after such a malformed record.
          */
-        if ( optlen < len ) {
+        if (optlen < len) {
             expert_add_info(pinfo, v_item, &ei_dhcpv6_malformed_dns);
             return;
         }
-        offset++;
-        optlen--;
+        offset += 1;
+        optlen -= 1;
         /* if len==0 and pos>0 we have read an entire domain string */
-        if(!len){
-            if(!pos){
+        if (!len) {
+            if (!pos) {
                 /* empty string, this must be an error? */
                 expert_add_info(pinfo, v_item, &ei_dhcpv6_malformed_option);
                 return;
             } else {
                 proto_tree_add_string(subtree, hfindex, tvb, start_offset, offset-start_offset, domain);
-                pos=0;
+                pos = 0;
                 continue;
             }
         }
 
         /* add the substring to domain */
-        if(pos){
-            domain[pos]='.';
+        if (pos) {
+            domain[pos] = '.';
             pos++;
         }
-        if(pos+len>254){
+        if ((pos + len) > 254) {
             /* too long string, this must be an error? */
             expert_add_info(pinfo, v_item, &ei_dhcpv6_malformed_option);
             return;
         }
         tvb_memcpy(tvb, domain+pos, offset, len);
-        pos+=len;
-        offset+=len;
-        optlen-=len;
+        pos    += len;
+        offset += len;
+        optlen -= len;
     }
 
-    if(pos){
-        domain[pos]=0;
+    if (pos) {
+        domain[pos] = '\0';
         proto_tree_add_string(subtree, hfindex, tvb, start_offset, offset-start_offset, domain);
     }
 }
@@ -854,12 +854,12 @@ static int
 dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_info *pinfo, tvbuff_t *tvb, int optoff,
     int optend)
 {
-    int suboptoff = optoff;
-    guint16 subopt, subopt_len;
-    guint8 type;
+    int         suboptoff = optoff;
+    guint16     subopt, subopt_len;
+    guint8      type;
     proto_item *vti, *ti;
     proto_tree *pkt_s_tree;
-    int i;
+    int         i;
 
     subopt = tvb_get_ntohs(tvb, optoff);
     suboptoff += 2;
@@ -877,104 +877,104 @@ dissect_packetcable_cccV6_option(proto_tree *v_tree, proto_item *v_item, packet_
     pkt_s_tree = proto_item_add_subtree(vti, ett_dhcpv6_pkt_option);
 
     switch (subopt) {
-        case PKT_CCCV6_PRI_DSS:
-            if (subopt_len < 35) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_pri_dss, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
-            } else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_SEC_DSS:
-            if (subopt_len < 35) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_dss, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
-            } else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_IETF_PROV_SRV:
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-            type = tvb_get_guint8(tvb, suboptoff);
+    case PKT_CCCV6_PRI_DSS:
+        if (subopt_len < 35) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_pri_dss, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+        } else {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_SEC_DSS:
+        if (subopt_len < 35) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_dss, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+        } else {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_IETF_PROV_SRV:
+        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+        type = tvb_get_guint8(tvb, suboptoff);
 
-            /** Type 0 is FQDN **/
-            if (type == 0) {
-                dhcpv6_domain(pkt_s_tree, vti, pinfo, hf_packetcable_cccV6_prov_srv_fqdn, tvb, suboptoff+1, subopt_len-1);
+        /** Type 0 is FQDN **/
+        if (type == 0) {
+            dhcpv6_domain(pkt_s_tree, vti, pinfo, hf_packetcable_cccV6_prov_srv_fqdn, tvb, suboptoff+1, subopt_len-1);
 
             /** Type 1 is IPv6 **/
-            } else if (type == 1) {
-                if ((subopt_len % 16) == 0) {
-                    for (i = 0; i < subopt_len/16; i++) {
-                        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_NA);
-                        suboptoff += 16;
-                    }
+        } else if (type == 1) {
+            if ((subopt_len % 16) == 0) {
+                for (i = 0; i < subopt_len/16; i++) {
+                    proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_srv_ipv6, tvb, suboptoff+1, 4, ENC_NA);
+                    suboptoff += 16;
                 }
-            } else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_invalid_type, "Invalid type: %u (%u byte%s)",
-                    type, subopt_len, plurality(subopt_len, "", "s"));
             }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_IETF_AS_KRB:
-            if (subopt_len == 12) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_max_timeout, tvb, suboptoff+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
-            } else {
-                proto_item_append_text(vti, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_IETF_AP_KRB:
-            if (subopt_len == 12) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_max_timeout, tvb, suboptoff+4, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
-            } else {
-                proto_item_append_text(vti, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_KRB_REALM:
-            if (subopt_len > 0) {
-                dhcpv6_domain(pkt_s_tree, vti, pinfo, hf_packetcable_cccV6_krb_realm, tvb, suboptoff, subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_TGT_FLAG:
-            if (subopt_len == 1) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_tgt_flag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_tgt_flag_fetch, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-            }
-            else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_PROV_TIMER:
-            if (subopt_len == 1) {
-                ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
-                if (tvb_get_guint8(tvb, suboptoff ) > 30)
-                    expert_add_info(pinfo, ti, &ei_dhcpv6_invalid_time_value);
-            }
-            else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        case PKT_CCCV6_IETF_SEC_TKT:
-            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
-            if (subopt_len == 2) {
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_provisioning_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
-                proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_call_manager_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
-            } else {
-                expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
-            }
-            suboptoff += subopt_len;
-            break;
-        default:
-            suboptoff += subopt_len;
-            break;
+        } else {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_invalid_type, "Invalid type: %u (%u byte%s)",
+                                   type, subopt_len, plurality(subopt_len, "", "s"));
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_IETF_AS_KRB:
+        if (subopt_len == 12) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_max_timeout, tvb, suboptoff+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_as_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
+        } else {
+            proto_item_append_text(vti, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_IETF_AP_KRB:
+        if (subopt_len == 12) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_nominal_timeout, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_max_timeout, tvb, suboptoff+4, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_ap_krb_max_retry_count, tvb, suboptoff+8, 4, ENC_BIG_ENDIAN);
+        } else {
+            proto_item_append_text(vti, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_KRB_REALM:
+        if (subopt_len > 0) {
+            dhcpv6_domain(pkt_s_tree, vti, pinfo, hf_packetcable_cccV6_krb_realm, tvb, suboptoff, subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_TGT_FLAG:
+        if (subopt_len == 1) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_tgt_flag, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_tgt_flag_fetch, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+        }
+        else {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_PROV_TIMER:
+        if (subopt_len == 1) {
+            ti = proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_prov_timer, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+            if (tvb_get_guint8(tvb, suboptoff) > 30)
+                expert_add_info(pinfo, ti, &ei_dhcpv6_invalid_time_value);
+        }
+        else {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    case PKT_CCCV6_IETF_SEC_TKT:
+        proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
+        if (subopt_len == 2) {
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_provisioning_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(pkt_s_tree, hf_packetcable_cccV6_sec_tcm_call_manager_server, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
+        } else {
+            expert_add_info_format(pinfo, vti, &ei_dhcpv6_bogus_length, "Bogus length: %d", subopt_len);
+        }
+        suboptoff += subopt_len;
+        break;
+    default:
+        suboptoff += subopt_len;
+        break;
     }
     /** Return the number of bytes processed **/
     return (suboptoff - optoff);
@@ -1014,34 +1014,34 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
             /* Values */
             sub_off = off + 4;
 
-            switch(type) {
+            switch (type) {
                 /* String types */
-            case CL_OPTION_DEVICE_TYPE :
+            case CL_OPTION_DEVICE_TYPE:
                 opt_len = tlv_len;
                 field_len = tlv_len;
 
                 device_type = tvb_get_string(wmem_packet_scope(), tvb, sub_off, field_len);
 
-                if (device_type == NULL || strlen(device_type) == 0) {
+                if ((device_type == NULL) || (strlen(device_type) == 0)) {
                     proto_item_append_text(ti, "Packet does not contain Device Type.");
                 } else {
                     proto_item_append_text(ti, "\"%s\"", device_type);
                 }
                 break;
-            case CL_OPTION_DEVICE_SERIAL_NUMBER :
-            case CL_OPTION_HARDWARE_VERSION_NUMBER :
-            case CL_OPTION_SOFTWARE_VERSION_NUMBER :
-            case CL_OPTION_BOOT_ROM_VERSION :
-            case CL_OPTION_MODEL_NUMBER :
-            case CL_OPTION_VENDOR_NAME :
-            case CL_OPTION_CONFIG_FILE_NAME :
-            case CL_OPTION_EMBEDDED_COMPONENT_LIST :
+            case CL_OPTION_DEVICE_SERIAL_NUMBER:
+            case CL_OPTION_HARDWARE_VERSION_NUMBER:
+            case CL_OPTION_SOFTWARE_VERSION_NUMBER:
+            case CL_OPTION_BOOT_ROM_VERSION:
+            case CL_OPTION_MODEL_NUMBER:
+            case CL_OPTION_VENDOR_NAME:
+            case CL_OPTION_CONFIG_FILE_NAME:
+            case CL_OPTION_EMBEDDED_COMPONENT_LIST:
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 proto_item_append_text(ti, "\"%s\"",
                                        tvb_format_stringzpad(tvb, sub_off, field_len));
                 break;
-            case CL_OPTION_VENDOR_OUI :
+            case CL_OPTION_VENDOR_OUI:
                 /* CableLabs specs treat 17.8 inconsistently
                  * as either binary (3b) or string (6b) */
                 opt_len = tlv_len;
@@ -1054,7 +1054,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     expert_add_info_format(pinfo, ti, &ei_dhcpv6_bogus_length, "Suboption %d: suboption length isn't 3 or 6", type);
                 }
                 break;
-            case CL_OPTION_ORO :
+            case CL_OPTION_ORO:
                 field_len = 2;
                 opt_len = tlv_len;
                 if (opt_len > 0) {
@@ -1066,9 +1066,9 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 }
                 break;
             /* List of IPv6 Address */
-            case CL_OPTION_TFTP_SERVERS :
-            case CL_OPTION_SYSLOG_SERVERS :
-            case CL_OPTION_RFC868_SERVERS :
+            case CL_OPTION_TFTP_SERVERS:
+            case CL_OPTION_SYSLOG_SERVERS:
+            case CL_OPTION_RFC868_SERVERS:
                 field_len = 16;
                 opt_len = tlv_len;
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
@@ -1081,7 +1081,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     }
                 }
                 break;
-            case CL_OPTION_DEVICE_ID :
+            case CL_OPTION_DEVICE_ID:
                 opt_len = tlv_len;
                 field_len = tlv_len;
                 if (tlv_len != 6) {
@@ -1092,7 +1092,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                                            tvb_bytes_to_ep_str(tvb, sub_off, field_len));
                 }
                 break;
-            case CL_OPTION_TLV5 :
+            case CL_OPTION_TLV5:
                 /* ToDo: review latest CL docs for updates */
                 opt_len = tlv_len;
 
@@ -1143,11 +1143,11 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     tlv5_counter++;
                 }
                 break;
-            case CL_OPTION_TIME_OFFSET :
+            case CL_OPTION_TIME_OFFSET:
                 opt_len = tlv_len;
                 proto_item_append_text(ti, "%d", tvb_get_ntohl(tvb, sub_off));
                 break;
-            case CL_OPTION_IP_PREF :
+            case CL_OPTION_IP_PREF:
                 opt_len = tlv_len;
                 field_value = tvb_get_guint8(tvb, sub_off);
                 if (field_value == 1) {
@@ -1160,7 +1160,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     proto_item_append_text(ti, "%s%d", "Invalid IP Preference value ", field_value);
                 }
                 break;
-            case CL_OPTION_DOCS_CMTS_CAP :
+            case CL_OPTION_DOCS_CMTS_CAP:
                 opt_len = tlv_len;
                 field_len = 0;
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
@@ -1175,8 +1175,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                         sub_off++;
                         tagLen = tvb_get_guint8(tvb, sub_off);
                         sub_off++;
-                        if (tag == CL_OPTION_DOCS_CMTS_TLV_VERS_NUM &&
-                            tagLen == 2) {
+                        if ((tag == CL_OPTION_DOCS_CMTS_TLV_VERS_NUM) && (tagLen == 2)) {
                             int major = 0;
                             int minor = 0;
                             major = tvb_get_guint8(tvb, sub_off);
@@ -1196,7 +1195,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                 else
                     proto_tree_add_text(subtree, tvb, sub_off, 0, "empty");
                 break;
-            case CL_CM_MAC_ADDR :
+            case CL_CM_MAC_ADDR:
                 opt_len = tlv_len;
                 if (tlv_len != 6) {
                     expert_add_info_format(pinfo, ti, &ei_dhcpv6_bogus_length, "Bogus length: %d", tlv_len);
@@ -1207,12 +1206,12 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     /* tvb_bytes_to_ep_str(tvb, sub_off, opt_len)); */
                 }
                 break;
-            case CL_EROUTER_CONTAINER_OPTION :
+            case CL_EROUTER_CONTAINER_OPTION:
                 opt_len = tlv_len;
                 proto_item_append_text(ti, " %s (len=%d)",
                                        tvb_bytes_to_ep_str(tvb, sub_off, opt_len), tlv_len);
                 break;
-            case CL_OPTION_CCC :
+            case CL_OPTION_CCC:
                 opt_len = tlv_len;
                 field_len = 0;
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
@@ -1224,7 +1223,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     field_len += sub_value;
                 }
                 break;
-            case CL_OPTION_CCCV6 :
+            case CL_OPTION_CCCV6:
                 opt_len = tlv_len;
                 field_len = 0;
                 subtree = proto_item_add_subtree(ti, ett_dhcpv6_vendor_option);
@@ -1236,7 +1235,7 @@ dissect_cablelabs_specific_opts(proto_tree *v_tree, proto_item *v_item, packet_i
                     field_len += sub_value;
                 }
                 break;
-            case CL_OPTION_CORRELATION_ID :
+            case CL_OPTION_CORRELATION_ID:
                 opt_len = tlv_len;
                  if (tlv_len != 4) {
                     proto_item_append_text(ti, "Bogus value length=%d",
@@ -1265,25 +1264,25 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
               gboolean downstream, int off, int eoff, gboolean *at_end, int protocol)
 {
     guint16     opttype, hwtype, subopt_type;
-    int     temp_optlen, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
+    int         temp_optlen, optlen, subopt_len; /* 16-bit values that need 16-bit rollover protection */
     proto_item *ti = NULL, *option_item;
     proto_tree *subtree;
     proto_tree *subtree_2;
-    int i;
-    guint16 duidtype;
-    guint32 enterprise_no;
+    int         i;
+    guint16     duidtype;
+    guint32     enterprise_no;
 
     /* option type and length must be present */
-    if (eoff - off < 4) {
+    if ((eoff - off) < 4) {
         *at_end = TRUE;
         return 0;
     }
 
     opttype = tvb_get_ntohs(tvb, off);
-    optlen = tvb_get_ntohs(tvb, off + 2);
+    optlen  = tvb_get_ntohs(tvb, off + 2);
 
     /* all option data must be present */
-    if (eoff - off < 4 + optlen) {
+    if ((eoff - off) < (4 + optlen)) {
         *at_end = TRUE;
         return 0;
     }
@@ -1325,12 +1324,12 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             proto_tree_add_item(subtree, hf_duidllt_hwtype, tvb, off + 2, 2, ENC_BIG_ENDIAN);
 
             /* Packet specifies seconds since Jan 1 2000, so add 946684800U (30 years) to get back to epoch */
-            llt_time.secs = tvb_get_ntohl(tvb, off + 4)+946684800U;
+            llt_time.secs = tvb_get_ntohl(tvb, off + 4) + 946684800U;
             llt_time.nsecs = 0;
 
             proto_tree_add_time(subtree, hf_duidllt_time, tvb, off + 4, 4, &llt_time);
             if (optlen > 8) {
-                hwtype=tvb_get_ntohs(tvb, off + 2);
+                hwtype = tvb_get_ntohs(tvb, off + 2);
                 proto_tree_add_string(subtree, hf_duidllt_link_layer_addr, tvb, off + 8,
                                     optlen - 8, tvb_arphrdaddr_to_str(tvb, off+8, optlen-8, hwtype));
             }
@@ -1354,7 +1353,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             }
             proto_tree_add_item(subtree, hf_duidll_hwtype, tvb, off + 2, 2, ENC_BIG_ENDIAN);
             if (optlen > 4) {
-                hwtype=tvb_get_ntohs(tvb, off + 2);
+                hwtype = tvb_get_ntohs(tvb, off + 2);
                 proto_tree_add_string(subtree, hf_duidll_link_layer_addr, tvb, off + 4,
                                     optlen - 4, tvb_arphrdaddr_to_str(tvb, off+4, optlen-4, hwtype));
             }
@@ -1368,15 +1367,15 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         temp_optlen = 0;
         while (optlen > temp_optlen) {
-            subopt_type = tvb_get_ntohs(tvb, off+temp_optlen);
-            subopt_len = tvb_get_ntohs(tvb, off+2+temp_optlen);
+            subopt_type = tvb_get_ntohs(tvb, off + temp_optlen);
+            subopt_len = tvb_get_ntohs(tvb,  off + 2 + temp_optlen);
             ti = proto_tree_add_text(subtree, tvb, off+temp_optlen, 4 + subopt_len,
                                      "%s", val_to_str(subopt_type, ntp_server_opttype_vals, "NTP Server suboption %u"));
             subtree_2 = proto_item_add_subtree(ti, ett_dhcpv6_netserver_option);
             proto_tree_add_item(subtree_2, hf_option_ntpserver_type,   tvb, off + temp_optlen,     2, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree_2, hf_option_ntpserver_length, tvb, off + temp_optlen + 2, 2, ENC_BIG_ENDIAN);
             temp_optlen += 4;
-            switch(subopt_type) {
+            switch (subopt_type) {
             case NTP_SUBOPTION_SRV_ADDR:
                 proto_tree_add_item(subtree_2, hf_option_ntpserver_addr,    tvb, off + temp_optlen, 16, ENC_NA);
                 break;
@@ -1403,7 +1402,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_string(subtree, hf_iaid, tvb, off,
-                                    4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAD is opaque ? review ... */
+                                    4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         if (tvb_get_ntohl(tvb, off+4) == DHCPV6_LEASEDURATION_INFINITY) {
             proto_tree_add_uint_format_value(subtree, hf_iaid_t1, tvb, off+4,
                                     4, DHCPV6_LEASEDURATION_INFINITY, "infinity");
@@ -1436,7 +1435,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         proto_tree_add_string(subtree, hf_iata, tvb, off,
-                                    4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAD is opaque ? review ... */
+                                    4, tvb_arphrdaddr_to_str(tvb, off, 4, opttype));  /* XXX: IAID is opaque ? review ... */
         temp_optlen = 4;
         while ((optlen - temp_optlen) > 0) {
             temp_optlen += dhcpv6_option(tvb, pinfo, subtree, downstream,
@@ -1569,7 +1568,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             } else {
                 int optoffset = 0;
 
-                while((optlen - 4 - optoffset) > 0)  {
+                while ((optlen - 4 - optoffset) > 0) {
                     int olen = tvb_get_ntohs(tvb, off + optoffset + 6);
                     ti = proto_tree_add_text(subtree, tvb, off + optoffset + 4,
                                              4 + olen, "option");
@@ -1771,8 +1770,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
         query_type = tvb_get_guint8(tvb, off);
         ti = proto_tree_add_item(subtree, hf_lq_query, tvb, off, 1, ENC_BIG_ENDIAN);
-        if ((protocol == proto_dhcpv6) &&
-            ((query_type == LQ_QUERY_RELAYID) ||
+        if ((protocol == proto_dhcpv6)           &&
+            ((query_type == LQ_QUERY_RELAYID)      ||
              (query_type == LQ_QUERY_LINK_ADDRESS) ||
              (query_type == LQ_QUERY_REMOTEID))) {
             expert_add_info(pinfo, ti, &ei_dhcpv6_bulk_leasequery_bad_query_type);
@@ -1915,15 +1914,16 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 }
 
 
+/* May be called recursively */
 static void
 dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                gboolean downstream, int off, int eoff)
 {
-    proto_tree *bp_tree = NULL;
-    proto_item *ti;
-    guint8 msgtype;
-    gboolean at_end;
-    struct e_in6_addr in6;
+    proto_tree        *bp_tree = NULL;
+    proto_item        *ti;
+    guint8             msgtype;
+    gboolean           at_end;
+    struct e_in6_addr  in6;
 
     msgtype = tvb_get_guint8(tvb, off);
 
@@ -1935,15 +1935,15 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
 
-    if (msgtype == RELAY_FORW || msgtype == RELAY_REPLY) {
+    if ((msgtype == RELAY_FORW) || (msgtype == RELAY_REPLY)) {
         if (tree) {
-            proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2, 16, ENC_NA);
-            tvb_get_ipv6(tvb, off + 2, &in6);
-            col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
+            proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype,  tvb, off,       1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1,   1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2,  16, ENC_NA);
             proto_tree_add_item(bp_tree, hf_dhcpv6_peeraddr, tvb, off + 18, 16, ENC_NA);
         }
+        tvb_get_ipv6(tvb, off + 2, &in6);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
         off += 34;
     } else {
         if (tree) {
@@ -1955,7 +1955,7 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     at_end = FALSE;
-    while (off < eoff && !at_end)
+    while ((off < eoff) && !at_end)
         off += dhcpv6_option(tvb, pinfo, bp_tree, downstream, off, eoff, &at_end, proto_dhcpv6);
 }
 
@@ -1983,14 +1983,14 @@ get_dhcpv6_bulk_leasequery_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int of
 }
 
 static int
-dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *ti;
     proto_tree *bulk_tree, *option_tree;
-    gint offset = 0, end;
-    guint16 size, trans_id;
-    guint8 msg_type;
-    gboolean at_end = FALSE;
+    gint        offset = 0, end;
+    guint16     size, trans_id;
+    guint8      msg_type;
+    gboolean    at_end = FALSE;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DHCPv6 BulkLease");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -2004,16 +2004,16 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     msg_type = tvb_get_guint8( tvb, offset );
     ti = proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
-    if ((msg_type != LEASEQUERY) &&
+    if ((msg_type != LEASEQUERY)       &&
         (msg_type != LEASEQUERY_REPLY) &&
-        (msg_type != LEASEQUERY_DONE) &&
+        (msg_type != LEASEQUERY_DONE)  &&
         (msg_type != LEASEQUERY_DATA))
         expert_add_info_format(pinfo, ti, &ei_dhcpv6_bulk_leasequery_bad_msg_type,
             "Message Type %d not allowed by DHCPv6 Bulk Leasequery", msg_type);
 
-    offset++;
+    offset += 1;
     proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    offset += 1;
 
     trans_id = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(bulk_tree, hf_dhcpv6_bulk_leasequery_trans_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2024,7 +2024,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     ti = proto_tree_add_text(bulk_tree, tvb, offset, -1, "DHCPv6 Options");
     option_tree = proto_item_add_subtree(ti, ett_dhcpv6_bulk_leasequery_options);
-    end = size+2;
+    end = size + 2;
     while ((offset < end) && !at_end)
         offset += dhcpv6_option(tvb, pinfo, option_tree, FALSE, offset,
                                 end, &at_end, proto_dhcpv6_bulk_leasequery);
@@ -2033,7 +2033,7 @@ dissect_dhcpv6_bulk_leasequery_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static int
-dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_dhcpv6_bulk_leasequery(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, dhcpv6_bulk_leasequery_desegment, 2,
                     get_dhcpv6_bulk_leasequery_pdu_len, dissect_dhcpv6_bulk_leasequery_pdu, data);
@@ -2235,7 +2235,7 @@ proto_register_dhcpv6(void)
         { &hf_packetcable_ccc_sec_dhcp,
           { "Secondary DHCP", "dhcpv6.packetcable.ccc.sec_dhcp", FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_packetcable_cccV6_suboption,
-          { "Sub element", "dhcpv6.packetcable.cccV6.suboption", FT_UINT16, BASE_DEC, VALS(pkt_cccV6_opt_vals), 0, NULL, HFILL }},
+          { "Sub element", "dhcpv6.packetcable.cccV6.suboption", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &pkt_cccV6_opt_vals_ext, 0, NULL, HFILL }},
         { &hf_modem_capabilities_encoding_type,
           { "Type", "dhcpv6.docsis.cccV6.tlv5.suboption", FT_UINT16, BASE_DEC | BASE_EXT_STRING, &modem_capabilities_encoding_ext, 0, NULL, HFILL }},
         { &hf_eue_capabilities_encoding_type,
@@ -2329,8 +2329,8 @@ proto_register_dhcpv6(void)
         { &ei_dhcpv6_bulk_leasequery_bad_msg_type, { "dhcpv6.bulk_leasequery.bad_msg_type", PI_MALFORMED, PI_WARN, "Message Type %d not allowed by DHCPv6 Bulk Leasequery", EXPFILL }},
     };
 
-    expert_module_t* expert_dhcpv6;
-    expert_module_t* expert_dhcpv6_bulk_leasequery;
+    expert_module_t *expert_dhcpv6;
+    expert_module_t *expert_dhcpv6_bulk_leasequery;
 
     proto_dhcpv6 = proto_register_protocol("DHCPv6", "DHCPv6", "dhcpv6");
     proto_register_field_array(proto_dhcpv6, hf, array_length(hf));
