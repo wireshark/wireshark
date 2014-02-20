@@ -85,6 +85,7 @@ static int hf_rtpproxy_mediaid = -1;
 static int hf_rtpproxy_reply = -1;
 static int hf_rtpproxy_version_request = -1;
 static int hf_rtpproxy_version_supported = -1;
+static int hf_rtpproxy_ng_bencode = -1;
 
 /* Expert fields */
 static expert_field ei_rtpproxy_timeout = EI_INIT;
@@ -107,6 +108,7 @@ typedef struct _rtpproxy_info {
 static dissector_handle_t rtcp_handle;
 static dissector_handle_t rtp_events_handle;
 static dissector_handle_t rtp_handle;
+static dissector_handle_t bencode_handle;
 
 typedef struct _rtpproxy_conv_info {
 	wmem_tree_t *trans;
@@ -245,6 +247,8 @@ static gint ett_rtpproxy_tag = -1;
 static gint ett_rtpproxy_notify = -1;
 
 static gint ett_rtpproxy_reply = -1;
+
+static gint ett_rtpproxy_ng_bencode = -1;
 
 /* Default values */
 static guint rtpproxy_tcp_port = 22222;
@@ -497,6 +501,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	gint offset = 0;
 	gint new_offset = 0;
 	guint tmp;
+	guint tmp2;
 	gint realsize = 0;
 	guint8* rawstr;
 	guint8* tmpstr;
@@ -511,6 +516,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 	guint16 port;
 	guint32 ipaddr[4]; /* Enough room for IPv4 or IPv6 */
 	rtpproxy_info_t *rtpproxy_info = NULL;
+	tvbuff_t *subtvb;
 
 	/* If it does not start with a printable character it's not RTPProxy */
 	if(!isprint(tvb_get_guint8(tvb, 0)))
@@ -581,6 +587,15 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 		case 'u':
 		case 'l':
 		case 'd':
+			tmp2 = tvb_get_guint8(tvb, offset+1);
+			if(('1' <= tmp2) && (tmp2 <= '9') && (tvb_get_guint8(tvb, offset+2) == ':')){
+				col_add_fstr(pinfo->cinfo, COL_INFO, "RTPproxy-ng: %s", rawstr);
+				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ng_bencode, tvb, offset, -1, ENC_ASCII | ENC_NA);
+				rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_ng_bencode);
+				subtvb = tvb_new_subset(tvb, offset, -1, -1);
+				call_dissector(bencode_handle, subtvb, pinfo, rtpproxy_tree);
+				break;
+			}
 		case 'p':
 		case 'v':
 		case 'r':
@@ -1319,6 +1334,19 @@ proto_register_rtpproxy(void)
 				"The time between the Request and the Reply",
 				HFILL
 			 }
+		},
+		{
+			&hf_rtpproxy_ng_bencode,
+			{
+				"RTPproxy-ng bencode packet",
+				"rtpproxy.ng.bencode",
+				FT_STRING,
+				BASE_NONE,
+				NULL,
+				0x0,
+				"Serialized structure of integers, dictionaries, strings and lists.",
+				HFILL
+			}
 		}
 	};
 
@@ -1346,7 +1374,8 @@ proto_register_rtpproxy(void)
 		&ett_rtpproxy_command_parameters_acc,
 		&ett_rtpproxy_tag,
 		&ett_rtpproxy_notify,
-		&ett_rtpproxy_reply
+		&ett_rtpproxy_reply,
+		&ett_rtpproxy_ng_bencode
 	};
 
 	proto_rtpproxy = proto_register_protocol (
@@ -1421,6 +1450,7 @@ proto_reg_handoff_rtpproxy(void)
 	rtcp_handle   = find_dissector("rtcp");
 	rtp_events_handle    = find_dissector("rtpevent");
 	rtp_handle    = find_dissector("rtp");
+	bencode_handle = find_dissector("bencode");
 
 	/* Calculate nstime_t struct for the timeout from the rtpproxy_timeout value in milliseconds */
 	rtpproxy_timeout_ns.secs = (rtpproxy_timeout - rtpproxy_timeout % 1000) / 1000;
