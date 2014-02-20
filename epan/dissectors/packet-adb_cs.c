@@ -140,7 +140,7 @@ void proto_reg_handoff_adb_cs(void);
 
 
 static gint
-dissect_ascii_data_length(proto_tree *tree, tvbuff_t *tvb, gint offset, gint64 *data_length)
+dissect_ascii_data_length(proto_tree *tree, tvbuff_t *tvb, gint offset, gint *data_length)
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
@@ -153,7 +153,7 @@ dissect_ascii_data_length(proto_tree *tree, tvbuff_t *tvb, gint offset, gint64 *
 
     sub_item = proto_tree_add_item(tree, hf_hex_ascii_length, tvb, offset, 4, ENC_NA | ENC_ASCII);
     sub_tree = proto_item_add_subtree(sub_item, ett_length);
-    *data_length = g_ascii_strtoull(hex_ascii, NULL, 16);
+    *data_length = (gint)g_ascii_strtoull(hex_ascii, NULL, 16);
     proto_tree_add_uint(sub_tree, hf_length, tvb, offset, 4, *data_length);
     offset += 4;
 
@@ -169,7 +169,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     proto_tree  *sub_tree;
     proto_item  *p_item;
     gint         offset = 0;
-    gint64       length = -1;
+    gint         length = -1;
     guint8      *hex_ascii;
     gboolean     client_request_service = FALSE;
 
@@ -229,7 +229,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     g_ascii_xdigit_value(hex_ascii_length[3]) >= 0) {
                 /* probably 4 bytes ascii hex length field */
                 offset = dissect_ascii_data_length(main_tree, tvb, offset, &length);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " Length=%" G_GUINT64_FORMAT, length);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " Length=%u", length);
             }
         }
 
@@ -409,7 +409,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
         if (g_strcmp0(service, "host:version") == 0) {
             guint    version;
-            gint64   data_length;
+            gint     data_length;
 
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
@@ -427,7 +427,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         } else if (g_strcmp0(service, "host:devices") == 0 ||
                 g_strcmp0(service, "host:devices-l") == 0 ||
                 g_strcmp0(service, "host:track-devices") == 0) {
-            gint64 data_length;
+            gint  data_length;
 
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
@@ -440,7 +440,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 g_strcmp0(service, "host:get-devpath") == 0 ||
                 g_str_has_prefix(service, "connect:") ||
                 g_str_has_prefix(service, "disconnect:")) {
-            gint64 data_length;
+            gint  data_length;
 
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
@@ -578,7 +578,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 }
             }
         } else if (g_strcmp0(service, "track-jdwp") == 0) {
-            gint64 data_length;
+            gint  data_length;
 
             offset = dissect_ascii_data_length(main_tree, tvb, offset, &data_length);
 
