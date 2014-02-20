@@ -1842,7 +1842,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
 
     case OPTION_AFTR_NAME:
     {
-        dhcpv6_domain(subtree, option_item, pinfo, hf_aftr_name, tvb, off+1, optlen-1);
+        dhcpv6_domain(subtree, option_item, pinfo, hf_aftr_name, tvb, off, optlen);
         break;
     }
 
