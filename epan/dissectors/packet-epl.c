@@ -49,7 +49,6 @@
 #include "config.h"
 
 #include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
@@ -1008,7 +1007,7 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 	offset += 1;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_ASCII|ENC_NA);
 	offset += 2;
 
 	/* get size of payload */
@@ -1636,51 +1635,76 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 gint
 dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented  _U_, gboolean response)
 {
-	gint pyldoffset, dataoffset;
+	gint dataoffset;
 	guint8 subindx, padding;
 	guint16 indx;
-	guint32 size, offsetincrement, datalength;
+	guint32 size, offsetincrement, datalength, remlength;
 	proto_item* item;
 	proto_item *sdo_data_tree;
 	gboolean lastentry = FALSE;
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
 	* The packet offset is 16, as this is the number of bytes trailing the SDO payload.
-	* 8 has to be removed, because the increment of PLK SDO payloads is calculated, starting
-	* with the byte position AFTER the Sequence Layer.
+	* EPL_SOA_EPLV_OFFSET has to be recognized, because the increment of PLK SDO payloads
+	* is calculated, starting with the byte position AFTER the Sequence Layer.
 	*/
-	pyldoffset = 8;
 
 	if (!response)
 	{   /* request */
 
 		col_append_str(pinfo->cinfo, COL_INFO, "Write Multiple Parameter by Index" );
 
-		while ( !lastentry && tvb_reported_length_remaining(tvb, offset) > 0 )
+		remlength = (guint32)tvb_reported_length_remaining(tvb, offset);
+		/* As long as no lastentry has been detected, and we have still bytes left,
+		 * we start the loop. lastentry is probably not necessary anymore, since
+		 * we now use length_remaining, but it is kept to be on the safe side. */
+		while ( !lastentry && remlength > 0 )
 		{
 			offsetincrement = tvb_get_letohl(tvb, offset);
 
 			/* the data is aligned in 4-byte increments, therfore maximum padding is 3 */
 			padding = tvb_get_guint8 ( tvb, offset + 7 ) & 0x03;
-
-			if ((guint32)(offset-pyldoffset) >= offsetincrement)
+			if ( padding > 3 )
 				break;
-			datalength = offsetincrement - ( offset - pyldoffset );
 
-			/*
-			* 8 is the reduced based on the following calculation:
-			*   - 4 byte for byte position of next data set
-			*   - 2 byte for index
-			*   - 1 byte for subindex
-			*   - 1 byte for reserved and padding
-			*/
-			size = datalength - 8 - padding;
+			datalength = offsetincrement - ( offset - EPL_SOA_EPLV_OFFSET );
+			/* An offset increment of zero usually indicates, that we are at the end
+			 * of the payload. But we cannot ignore the end, because packages are
+			 * stacked up until the last byte */
+			if ( offsetincrement == 0 )
+				datalength = remlength - EPL_SOA_EPLV_OFFSET;
 
+			/* Possible guint overflow */
+			if ( ( datalength + EPL_SOA_EPLV_OFFSET ) > remlength )
+				break;
+
+			/* Last frame detected */
 			if ( offsetincrement == 0 )
 			{
-				datalength = tvb_reported_length_remaining ( tvb, offset );
-				size = tvb_reported_length_remaining ( tvb, offset ) - ( pyldoffset );
+				datalength = remlength;
+
+				/* guarding size against remaining length */
+				if ( remlength < EPL_SOA_EPLV_OFFSET )
+					break;
+
+				size = remlength - EPL_SOA_EPLV_OFFSET;
 				lastentry = TRUE;
+			}
+			else
+			{
+				/* Each entry has a header size of 8, based on the following calculation:
+				 *   - 4 byte for byte position of next data set
+				 *   - 2 byte for index
+				 *   - 1 byte for subindex
+				 *   - 1 byte for reserved and padding */
+
+				/* Guarding against readout of padding. Probaility is nearly zero, as
+				 * padding was checked above, but to be sure, this remains here */
+				if ( (guint32)( padding + 8 ) >= datalength )
+					break;
+
+				/* size of data is datalength - ( entry header size and padding ) */
+				size = datalength - 8 - padding;
 			}
 
 			item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb, offset, datalength, ENC_NA);
@@ -1704,12 +1728,13 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				dataoffset += 1;
 			}
 
-			if ( size > 4 )
-				size = size - padding;
-
+			/* dissect the payload */
 			dissect_epl_payload ( sdo_data_tree, tvb, pinfo, dataoffset, size );
 
 			offset += datalength;
+
+			/* calculating the remaining length, based on the current offset */
+			remlength = (guint32)tvb_reported_length_remaining(tvb, offset);
 		}
 	}
 	else

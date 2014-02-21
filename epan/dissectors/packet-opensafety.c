@@ -852,7 +852,8 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
 
                                             /* At this point frames had been checked for SoC and SoA types of
                                              * EPL. This is no longer necessary and leads to false-negatives.
-                                             * SoC and SoA frames get filtered out at the EPL entry point. */
+                                             * SoC and SoA frames get filtered out at the EPL entry point, cause
+                                             * EPL only provides payload, no longer complete frames. */
                                             found = 1;
                                             break;
                                         }
@@ -1689,6 +1690,7 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     gint        start;
     gint        length;
     gboolean    isSlim = FALSE;
+    gboolean    isSNMT = FALSE;
     GByteArray *scmUDID = NULL;
 
     dataLength = OSS_FRAME_LENGTH_T(message_tvb, frameStart1);
@@ -1701,6 +1703,8 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 
     if ( type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
         isSlim = TRUE;
+    if ( type == OPENSAFETY_SNMT_MESSAGE_TYPE )
+        isSNMT = TRUE;
 
     frame2Length = (isSlim ? 0 : dataLength) + 5;
 
@@ -1733,6 +1737,9 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
     item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb,
             frameStart1, dataLength + 4, (frame1_crc == calc1_crc));
     PROTO_ITEM_SET_GENERATED(item);
+    if ( frame1_crc != calc1_crc )
+        expert_add_info(pinfo, item, &ei_crc_frame_1_invalid );
+
     /* using the defines, as the values can change */
     proto_tree_add_uint(checksum_tree, hf_oss_crc_type, message_tvb, start, length, crcType );
 
@@ -1754,9 +1761,9 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
             dataLength = 0;
 
         scmUDID = g_byte_array_new();
-        if ( hex_str_to_bytes((local_scm_udid != NULL ? local_scm_udid : global_scm_udid), scmUDID, TRUE) && scmUDID->len == 6 )
+        if ( isSNMT || ( hex_str_to_bytes((local_scm_udid != NULL ? local_scm_udid : global_scm_udid), scmUDID, TRUE) && scmUDID->len == 6 ) )
         {
-            if ( type != OPENSAFETY_SNMT_MESSAGE_TYPE )
+            if ( !isSNMT )
             {
                 for ( ctr = 0; ctr < 6; ctr++ )
                     bytes[ctr] = bytes[ctr] ^ (guint8)(scmUDID->data[ctr]);
@@ -1899,11 +1906,6 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
         else
         {
             crcValid = dissect_opensafety_checksum ( message_tvb, pinfo, opensafety_tree, type, frameStart1, frameStart2 );
-        }
-
-        if ( ! crcValid )
-        {
-            expert_add_info(pinfo, opensafety_item, &ei_crc_frame_1_invalid );
         }
 
         /* with SNMT's we can check if the ID's for the frames match. Rare randomized packages do have
@@ -2206,7 +2208,6 @@ static gboolean
 dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
 {
     gboolean        result     = FALSE;
-    guint8          firstByte;
     proto_tree      *epl_tree = NULL;
 
     if ( ! global_enable_plk )
@@ -2219,19 +2220,13 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
     {
         bDissector_Called_Once_Before = TRUE;
 
-        firstByte = ( tvb_get_guint8(message_tvb, 0) << 1 );
+        /* Set the tree up, until it is par with the top-level */
+        epl_tree = tree;
+        while ( epl_tree != NULL && epl_tree->parent != NULL )
+            epl_tree = epl_tree->parent;
 
-        /* No frames can be sent in SoA and SoC messages, therefore those get filtered right away */
-        if ( ( firstByte != 0x02 ) && ( firstByte != 0x0A ) )
-        {
-            /* Set the tree up, until it is par with the top-level */
-            epl_tree = tree;
-            while ( epl_tree != NULL && epl_tree->parent != NULL )
-                epl_tree = epl_tree->parent;
-
-            result = opensafety_package_dissector("openSAFETY/Powerlink", "",
-                                                  FALSE, FALSE, 0, message_tvb, pinfo, epl_tree);
-        }
+        result = opensafety_package_dissector("openSAFETY/Powerlink", "",
+                FALSE, FALSE, 0, message_tvb, pinfo, epl_tree);
 
         bDissector_Called_Once_Before = FALSE;
     }
