@@ -1218,9 +1218,8 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     } else {
         prop = &no_param;
     }
-    if (prop && prop->hfid ) {
-        if (!prop->dissector) prop = &no_param;
-        prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
+    if (prop && prop->hfid && prop->dissector) {
+       prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
     }
 
     return end_offset;

@@ -1693,9 +1693,8 @@ static int dissect_h248_PropertyID(gboolean implicit_tag _U_, tvbuff_t *tvb, int
     } else {
         prop = &no_param;
     }
-    if (prop && prop->hfid ) {
-        if (!prop->dissector) prop = &no_param;
-        prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
+    if (prop && prop->hfid && prop->dissector) {
+       prop->dissector(tree, next_tvb, actx->pinfo, *(prop->hfid), &curr_info, prop->data);
     }
 
     return end_offset;
@@ -5369,7 +5368,7 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 
 /*--- End of included file: packet-h248-fn.c ---*/
-#line 1413 "../../asn1/h248/packet-h248-template.c"
+#line 1412 "../../asn1/h248/packet-h248-template.c"
 
 static void dissect_h248_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     dissect_tpkt_encap(tvb, pinfo, tree, h248_desegment, h248_handle);
@@ -6791,7 +6790,7 @@ void proto_register_h248(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-h248-hfarr.c ---*/
-#line 1578 "../../asn1/h248/packet-h248-template.c"
+#line 1577 "../../asn1/h248/packet-h248-template.c"
 
         GCP_HF_ARR_ELEMS("h248",h248_arrel)
 
@@ -6957,7 +6956,7 @@ void proto_register_h248(void) {
     &ett_h248_SigParameterV1,
 
 /*--- End of included file: packet-h248-ettarr.c ---*/
-#line 1596 "../../asn1/h248/packet-h248-template.c"
+#line 1595 "../../asn1/h248/packet-h248-template.c"
     };
 
     static ei_register_info ei[] = {
