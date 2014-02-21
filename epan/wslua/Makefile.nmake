@@ -26,7 +26,8 @@ MODULES = 	\
 	wslua_util.c \
 	wslua_field.c \
 	wslua_struct.c \
-	wslua_dumper.c
+	wslua_dumper.c \
+	wslua_internals.c
 
 OBJECTS= \
 	init_wslua.obj \
