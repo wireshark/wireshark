@@ -108,6 +108,11 @@ ftypes_initialize(void);
 
 /* ---------------- FTYPE ----------------- */
 
+/* given two types, are they similar - for example can two
+ * duplicate fields be registered of these two types. */
+gboolean
+ftype_similar_types(const enum ftenum ftype_a, const enum ftenum ftype_b);
+
 /* Return a string representing the name of the type */
 WS_DLL_PUBLIC
 const char*

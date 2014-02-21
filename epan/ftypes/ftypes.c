@@ -69,6 +69,69 @@ ftype_register(enum ftenum ftype, ftype_t *ft)
 
 
 
+/* from README.dissector:
+	Note that the formats used must all belong to the same list as defined below:
+	- FT_INT8, FT_INT16, FT_INT24 and FT_INT32
+	- FT_UINT8, FT_UINT16, FT_UINT24, FT_UINT32, FT_IPXNET and FT_FRAMENUM
+	- FT_UINT64 and FT_EUI64
+	- FT_STRING, FT_STRINGZ and FT_UINT_STRING
+	- FT_FLOAT and FT_DOUBLE
+	- FT_BYTES, FT_UINT_BYTES, FT_AX25, FT_ETHER, FT_VINES, FT_OID and FT_REL_OID
+	- FT_ABSOLUTE_TIME and FT_RELATIVE_TIME
+*/
+static enum ftenum
+same_ftype(const enum ftenum ftype)
+{
+	switch (ftype) {
+		case FT_INT8:
+		case FT_INT16:
+		case FT_INT24:
+		case FT_INT32:
+			return FT_INT32;
+
+		case FT_UINT8:
+		case FT_UINT16:
+		case FT_UINT24:
+		case FT_UINT32:
+			return FT_UINT32;
+
+		case FT_STRING:
+		case FT_STRINGZ:
+		case FT_UINT_STRING:
+			return FT_STRING;
+
+		case FT_FLOAT:
+		case FT_DOUBLE:
+			return FT_DOUBLE;
+
+		case FT_BYTES:
+		case FT_UINT_BYTES:
+			return FT_BYTES;
+
+		case FT_OID:
+		case FT_REL_OID:
+			return FT_OID;
+
+		/* XXX: the folowing are unqiue for now */
+		case FT_INT64:
+		case FT_UINT64:
+		case FT_IPv4:
+		case FT_IPv6:
+
+		/* everything else is unique */
+		default:
+			return ftype;
+	}
+}
+
+/* given two types, are they similar - for example can two
+ * duplicate fields be registered of these two types. */
+gboolean
+ftype_similar_types(const enum ftenum ftype_a, const enum ftenum ftype_b)
+{
+	return (same_ftype(ftype_a) == same_ftype(ftype_b));
+}
+
 /* Returns a string representing the name of the type. Useful
  * for glossary production. */
 const char*

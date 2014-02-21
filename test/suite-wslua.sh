@@ -114,6 +114,33 @@ wslua_step_pinfo_test() {
 	fi
 }
 
+
+wslua_step_proto_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# First run tshark with the dissector script.
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -V -X lua_script:$TESTS_DIR/lua/proto.lua > testin.txt 2>&1
+	grep -q "All tests passed!" testin.txt
+	if [ $? -ne 0 ]; then
+		cat ./testin.txt
+		test_step_failed "didn't find pass marker"
+	fi
+
+	# then run tshark again with the verification script. (it internally reads in testin.txt)
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		echo
+		cat ./testin.txt
+		cat ./testout.txt
+		test_step_failed "didn't find pass marker"
+	fi
+}
+
 wslua_step_int64_test() {
 	if [ $HAVE_LUA -ne 0 ]; then
 		test_step_skipped
@@ -222,6 +249,7 @@ wslua_suite() {
 	test_step_add "wslua listener" wslua_step_listener_test
 	test_step_add "wslua nstime" wslua_step_nstime_test
 	test_step_add "wslua pinfo" wslua_step_pinfo_test
+	test_step_add "wslua proto/protofield" wslua_step_proto_test
 	test_step_add "wslua script arguments" wslua_step_args_test
 	test_step_add "wslua struct" wslua_step_struct_test
 }
