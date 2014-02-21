@@ -135,10 +135,9 @@ static int hf_rtsp_session  = -1;
 static int hf_rtsp_transport    = -1;
 static int hf_rtsp_rdtfeaturelevel  = -1;
 static int hf_rtsp_X_Vig_Msisdn = -1;
-/* Generated from convert_proto_tree_add_text.pl */
+static int hf_rtsp_magic = -1;
 static int hf_rtsp_channel = -1;
 static int hf_rtsp_length = -1;
-static int hf_rtsp_magic = -1;
 
 static int voip_tap = -1;
 
@@ -1431,12 +1430,15 @@ proto_register_rtsp(void)
         { &hf_rtsp_X_Vig_Msisdn,
             { "X-Vig-Msisdn", "rtsp.X_Vig_Msisdn", FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }},
-      /* Generated from convert_proto_tree_add_text.pl */
-      { &hf_rtsp_magic, { "Magic", "rtsp.magic", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_rtsp_channel, { "Channel", "rtsp.channel", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-      { &hf_rtsp_length, { "Length", "rtsp.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-
-
+        { &hf_rtsp_magic,
+            { "Magic", "rtsp.magic", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_rtsp_channel,
+            { "Channel", "rtsp.channel", FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_rtsp_length,
+            { "Length", "rtsp.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
     };
     module_t *rtsp_module;
 
