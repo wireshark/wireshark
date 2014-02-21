@@ -3186,7 +3186,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             voffset += align_4(tvb, voffset);
             break;
         case 0x0000000f:        /* File System Path */
-            value1 = tvb_get_letohl(tvb, voffset); /* length of field */
+            /*value1 = tvb_get_letohl(tvb, voffset);*/ /* length of field */
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset); /* Name Space */
             valuestr = val_to_str_const(value2, name_space_type, "Unknown Name Space");
@@ -3209,7 +3209,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             voffset += align_4(tvb, voffset);
             break;
         case 0x00000010:        /* Replica Pointer */
-            value1 = tvb_get_letohl(tvb, voffset); /* length of field */
+            /*value1 = tvb_get_letohl(tvb, voffset);*/ /* length of field */
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset); /* Length of Server name */
             voffset = voffset+4;
@@ -3293,7 +3293,7 @@ print_nds_values(proto_tree *vtree, tvbuff_t *tvb, guint32 syntax_type, nds_val 
             voffset += align_4(tvb, voffset);
             break;
         case 0x00000011:        /* Object ACL */
-            value1 = tvb_get_letohl(tvb, voffset); /* Length of Field */
+            /*value1 = tvb_get_letohl(tvb, voffset);*/ /* Length of Field */
             voffset = voffset + 4;
             value2 = tvb_get_letohl(tvb, voffset);
             voffset = voffset + 4;
@@ -4290,7 +4290,7 @@ process_set_filter(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, nds_v
         }
         break;
     }
-    ioffset = values->voffset;
+    /*ioffset = values->voffset;*/
     return;
 }
 
@@ -5651,7 +5651,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
 
             for (r = 0 ; r < 32; r++ )
             {
-                oldioffset = ioffset;
+                /*oldioffset = ioffset;*/
                 if (values->vflags & bvalue)
                 {
                     switch(bvalue)
@@ -6465,8 +6465,8 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             proto_tree_add_string(ntree, hf_mv_string, tvb, ioffset,
                                   values->vlength, values->vstring);
             values->voffset=ioffset + values->vlength;
-            ioffset = values->voffset;
-            ioffset += align_4(tvb, ioffset);
+            /*ioffset = values->voffset;
+            ioffset += align_4(tvb, ioffset);*/
             break;
         } /* switch (values->vflags) */
         break;
@@ -9405,7 +9405,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 global_eid = pvalues[1].vvalue;
                 pvalues[1].voffset = foffset;
                 pvalues[1].hfname = hf_nds_eid;
-                foffset = foffset+pvalues[1].vlength;
+                /*foffset = foffset+pvalues[1].vlength;*/
                 break;
             case 1:
                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
@@ -9477,7 +9477,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 resolve_eid = TRUE;
                 global_eid = pvalues[3].vvalue;
                 pvalues[3].hfname = hf_nds_eid;
-                foffset = foffset+pvalues[3].vlength;
+                /*foffset = foffset+pvalues[3].vlength;*/
                 break;
             case 2:
                 pvalues[1].vvalue = tvb_get_letohl(tvb, foffset);
@@ -9628,7 +9628,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 resolve_eid = TRUE;
                 global_eid = pvalues[5].vvalue;
                 pvalues[5].hfname = hf_nds_eid;
-                foffset = foffset+pvalues[5].vlength;
+                /*foffset = foffset+pvalues[5].vlength;*/
                 break;
             default:
                 break;
@@ -9786,10 +9786,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[3].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
             pvalues[3].hfname= hf_value_string;
-            foffset = foffset+pvalues[3].vlength;
+            /*foffset = foffset+pvalues[3].vlength;*/
             break;
         case 0x05:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10141,7 +10141,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[8].bit15hfname = hf_bit15infoflagsh;
                 pvalues[8].bit16 = "Not Defined";
                 pvalues[8].bit16hfname = hf_bit16infoflagsh;
-                foffset = foffset+2;
+                /*foffset = foffset+2;*/
             }
             break;
         case 0x07:
@@ -10266,7 +10266,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             global_eid = pvalues[1].vvalue;
             pvalues[1].voffset = foffset;
             pvalues[1].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[1].vlength;
+            /*foffset = foffset+pvalues[1].vlength;*/
             break;
         case 0x09:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10376,10 +10376,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vlength = 256;
             pvalues[3].vlength = tvb_get_letohl(tvb, foffset);
             pvalues[3].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
             pvalues[3].hfname= hf_nds_new_rdn;
-            foffset = foffset+pvalues[3].vlength;
+            /*foffset = foffset+pvalues[3].vlength;*/
             break;
         case 0x0b:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10501,7 +10501,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             }
             pvalues[1].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
             g_strlcpy(global_object_name, pvalues[1].vstring, 256);
             pvalues[1].hfname= hf_nds_attribute_dn;
@@ -10614,7 +10614,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             }
             pvalues[1].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[1].vstring = get_string(tvb, pvalues[1].voffset, pvalues[1].vlength);
             g_strlcpy(global_object_name, pvalues[1].vstring, 256);
             pvalues[1].hfname= hf_nds_base;
@@ -10642,7 +10642,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             global_eid = pvalues[2].vvalue;
             pvalues[2].voffset = foffset;
             pvalues[2].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[2].vlength;
+            /*foffset = foffset+pvalues[2].vlength;*/
             break;
         case 0x13:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10709,11 +10709,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     break;
                 }
                 pvalues[4].voffset = foffset+4;
-                foffset = foffset + 4;
+                /*foffset = foffset + 4;*/
                 pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
                 pvalues[4].hfname= hf_nds_name;
-                foffset = foffset+pvalues[4].vlength;
-                foffset += align_4(tvb, foffset);
+                /*foffset = foffset+pvalues[4].vlength;
+                foffset += align_4(tvb, foffset);*/
             }
             break;
         case 0x14:
@@ -10870,7 +10870,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[5].vlength = 4;
             pvalues[5].voffset = foffset;
             pvalues[5].hfname= hf_nds_partition_root_id;
-            foffset = foffset+pvalues[5].vlength;
+            /*foffset = foffset+pvalues[5].vlength;*/
             break;
         case 0x17:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10893,7 +10893,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].vlength = 4;
             pvalues[2].voffset = foffset;
             pvalues[2].hfname= hf_nds_new_part_id;
-            foffset = foffset+pvalues[2].vlength;
+            /*foffset = foffset+pvalues[2].vlength;*/
             break;
         case 0x18:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10916,7 +10916,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].vlength = 4;
             pvalues[2].voffset = foffset;
             pvalues[2].hfname= hf_nds_child_part_id;
-            foffset = foffset+pvalues[2].vlength;
+            /*foffset = foffset+pvalues[2].vlength;*/
             break;
         case 0x19:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -10961,7 +10961,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             }
             pvalues[4].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
             pvalues[4].hfname= hf_nds_target_name;
             break;
@@ -11004,10 +11004,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             }
             pvalues[3].voffset = foffset+4;
-            foffset += 4;
+            /*foffset += 4;*/
             pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-            foffset += pvalues[3].vlength;
-            foffset += align_4(tvb, foffset);
+            /*foffset += pvalues[3].vlength;
+            foffset += align_4(tvb, foffset);*/
             pvalues[3].hfname= hf_nds_stream_name;
             break;
         case 0x1c:
@@ -11076,10 +11076,10 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     break;
                 }
                 pvalues[3].voffset = foffset+4;
-                foffset += 4;
+                /*foffset += 4;*/
                 pvalues[3].vstring = get_string(tvb, pvalues[3].voffset, pvalues[3].vlength);
-                foffset += pvalues[3].vlength;
-                foffset += align_4(tvb, foffset);
+                /*foffset += pvalues[3].vlength;
+                foffset += align_4(tvb, foffset);*/
                 pvalues[3].hfname= hf_nds_root_name;
             }
             else
@@ -11088,11 +11088,11 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 pvalues[3].vtype = VTYPE_UINT32;
                 pvalues[3].vdesc = "Entry ID: 0x%08x";
                 pvalues[3].vlength = 4;
-                resolve_eid = TRUE;
-                global_eid = pvalues[3].vvalue;
+                /*resolve_eid = TRUE;
+                global_eid = pvalues[3].vvalue;*/
                 pvalues[3].voffset = foffset;
                 pvalues[3].hfname= hf_nds_eid;
-                foffset = foffset+pvalues[3].vlength;
+                /*foffset = foffset+pvalues[3].vlength;*/
                 resolve_eid = TRUE;
                 global_eid = pvalues[3].vvalue;
             }
@@ -11126,7 +11126,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[2].vdesc = "Destination Parent Entry ID: 0x%08x";
             pvalues[2].vlength = 4;
             resolve_eid = TRUE;
-            global_eid = pvalues[2].vvalue;
+            /*global_eid = pvalues[2].vvalue;*/
             pvalues[2].voffset = foffset;
             pvalues[2].hfname= hf_nds_eid;
             foffset = foffset+pvalues[2].vlength;
@@ -11155,7 +11155,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             }
             pvalues[4].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[4].vstring = get_string(tvb, pvalues[4].voffset, pvalues[4].vlength);
             pvalues[4].hfname= hf_nds_target_name;
             break;
@@ -11214,7 +11214,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             }
             pvalues[5].voffset = foffset+4;
-            foffset = foffset + 4;
+            /*foffset = foffset + 4;*/
             pvalues[5].vstring = get_string(tvb, pvalues[5].voffset, pvalues[5].vlength);
             pvalues[5].hfname= hf_nds_target_name;
             break;
@@ -11258,7 +11258,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[3].vlength = 4;
             pvalues[3].voffset = foffset;
             pvalues[3].hfname= hf_mv_string;
-            foffset = foffset+pvalues[3].vlength;
+            /*foffset = foffset+pvalues[3].vlength;*/
             break;
         case 0x33:
             pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
@@ -11342,7 +11342,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             global_eid = pvalues[1].vvalue;
             pvalues[1].voffset = foffset;
             pvalues[1].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[1].vlength;
+            /*foffset = foffset+pvalues[1].vlength;*/
             break;
         case 0x3a:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -11367,7 +11367,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             global_eid = pvalues[2].vvalue;
             pvalues[2].voffset = foffset;
             pvalues[2].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[2].vlength;
+            /*foffset = foffset+pvalues[2].vlength;*/
             break;
         case 0x3b:
             pvalues[0].vvalue = tvb_get_letohl(tvb, foffset);
@@ -11385,7 +11385,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             global_eid = pvalues[1].vvalue;
             pvalues[1].voffset = foffset;
             pvalues[1].hfname= hf_nds_eid;
-            foffset = foffset+pvalues[1].vlength;
+            /*foffset = foffset+pvalues[1].vlength;*/
             break;
         case 0x3c:
             break;
@@ -11518,7 +11518,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
             pvalues[5].voffset = foffset;
             pvalues[5].hfname= hf_nds_iterator;
             pvalues[5].mvtype = MVTYPE_PROCESS_ITERATOR;
-            foffset = foffset+pvalues[5].vlength;
+            /*foffset = foffset+pvalues[5].vlength;*/
             break;
         default:
             pvalues[0].vtype = VTYPE_NONE; /* Not Defined */
