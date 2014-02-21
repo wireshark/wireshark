@@ -1403,8 +1403,6 @@ static int Proto__tostring(lua_State* L) {
     Proto proto = checkProto(L,1);
     gchar* s;
 
-    if (!proto) return 0;
-
     s = ep_strdup_printf("Proto: %s",proto->name);
     lua_pushstring(L,s);
 
@@ -1414,8 +1412,10 @@ static int Proto__tostring(lua_State* L) {
 WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
     /* Make a protocol (with a dissector) a postdissector. It will be called for every frame after dissection */
 #define WSLUA_ARG_register_postdissector_PROTO 1 /* the protocol to be used as postdissector */
+#define WSLUA_OPTARG_register_postdissector_ALLFIELDS 2 /* Whether to generate all fields. Note: this impacts performance (default=false) */
+
     Proto proto = checkProto(L,WSLUA_ARG_register_postdissector_PROTO);
-    if (!proto) return 0;
+    const gboolean all_fields = wslua_optbool(L, WSLUA_OPTARG_register_postdissector_ALLFIELDS, FALSE);
 
     if(!proto->is_postdissector) {
         if (! proto->handle) {
@@ -1425,6 +1425,10 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
         register_postdissector(proto->handle);
     } else {
         luaL_argerror(L,1,"this protocol is already registered as postdissector");
+    }
+
+    if (all_fields) {
+        epan_set_always_visible(TRUE);
     }
 
     return 0;

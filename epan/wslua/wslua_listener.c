@@ -192,9 +192,11 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     /* Creates a new Listener listener */
 #define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap */
 #define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
+#define WSLUA_OPTARG_Listener_new_ALLFIELDS 3 /* Whether to generate all fields. Note: this impacts performance (default=false) */
 
     const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
+    const gboolean all_fields = wslua_optbool(L, WSLUA_OPTARG_Listener_new_ALLFIELDS, FALSE);
     Listener tap;
     GString* error;
 
@@ -207,6 +209,7 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
     tap->packet_ref = LUA_NOREF;
     tap->draw_ref = LUA_NOREF;
     tap->reset_ref = LUA_NOREF;
+    tap->all_fields = all_fields;
 
     /*
      * XXX - do all Lua taps require the protocol tree?  If not, it might
@@ -224,6 +227,10 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         /* WSLUA_ERROR(new_tap,"tap registration error"); */
         luaL_error(L,"Error while registering tap:\n%s",error->str);
         g_string_free(error,TRUE); /* XXX LEAK? */
+    }
+
+    if (all_fields) {
+        epan_set_always_visible(TRUE);
     }
 
     pushListener(L,tap);
@@ -262,6 +269,11 @@ WSLUA_CONSTRUCTOR Listener_list (lua_State *L) {
 WSLUA_METHOD Listener_remove(lua_State* L) {
     /* Removes a tap listener */
     Listener tap = checkListener(L,1);
+
+    if (tap->all_fields) {
+        epan_set_always_visible(FALSE);
+        tap->all_fields = FALSE;
+    }
 
     remove_tap_listener(tap);
 

@@ -229,6 +229,21 @@ epan_circuit_cleanup(void)
 	circuit_cleanup();
 }
 
+/* Overrides proto_tree_visible i epan_dissect_init to make all fields visible.
+ * This is > 0 if a Lua script wanted to see all fields all the time.
+ * This is ref-counted, so clearing it won't override other taps/scripts wanting it.
+ */
+static gint always_visible_refcount = 0;
+
+void
+epan_set_always_visible(gboolean force)
+{
+	if (force)
+		always_visible_refcount++;
+	else if (always_visible_refcount > 0)
+		always_visible_refcount--;
+}
+
 epan_dissect_t*
 epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
@@ -247,7 +262,7 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 
 	if (create_proto_tree) {
 		edt->tree = proto_tree_create_root(&edt->pi);
-		proto_tree_set_visible(edt->tree, proto_tree_visible);
+		proto_tree_set_visible(edt->tree, (always_visible_refcount > 0) ? TRUE : proto_tree_visible);
 	}
 	else {
 		edt->tree = NULL;

@@ -8,6 +8,7 @@ local ETH = "eth"
 local IP = "ip"
 local BOOTP = "bootp"
 local OTHER = "other"
+local PDISS = "postdissector"
 
 local packet_counts = {}
 local function incPktCount(name)
@@ -34,7 +35,7 @@ end
 -- note ip only runs 3 times because it gets removed
 -- and bootp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
-local taptests = { [FRAME]=4, [ETH]=4, [IP]=3, [BOOTP]=2, [OTHER]=15 }
+local taptests = { [FRAME]=4, [ETH]=4, [IP]=3, [BOOTP]=2, [OTHER]=16 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -63,6 +64,49 @@ local function test(type,name, ...)
         error(name.." test failed!")
     end
 end
+
+local pkt_fields = { [FRAME] = {}, [PDISS] = {} }
+local function getAllFieldInfos(type)
+    local fields = { all_field_infos() }
+    local fieldnames = {}
+    for i,v in ipairs(fields) do
+        fieldnames[i] = v.name
+    end
+    local pktnum = getPktCount(type)
+    pkt_fields[type][pktnum] = { ["num"] = #fields, ["fields"] = fieldnames }
+end
+
+local function dumpAllFieldInfos()
+    for i,v in ipairs(pkt_fields[FRAME]) do
+        print("In frame tap for packet ".. i ..":")
+        print("    number of fields = ".. v.num)
+        for _,name in ipairs(v.fields) do
+            print("    field = ".. name)
+        end
+        local w = pkt_fields[PDISS][i]
+        print("In postdissector for packet ".. i ..":")
+        print("    number of fields = ".. w.num)
+        for _,name in ipairs(w.fields) do
+            print("    field = ".. name)
+        end
+    end
+end
+
+local function checkAllFieldInfos()
+    for i,v in ipairs(pkt_fields[FRAME]) do
+        local numfields = v.num
+        if numfields ~= pkt_fields[PDISS][i].num then
+            print("Tap and postdissector do not have same number of fields!")
+            return false
+        end
+        if numfields < 100 then
+            print("Too few fields!")
+            return false
+        end
+    end
+    return true
+end
+
 
 ---------
 -- the following are so we can use pcall (which needs a function to call)
@@ -124,7 +168,7 @@ local f_ip_dst      = Field.new("ip.dst")
 local f_bootp_hw    = Field.new("bootp.hw.mac_addr")
 local f_bootp_opt   = Field.new("bootp.option.type")
 
-local tap_frame = Listener.new()
+local tap_frame = Listener.new(nil,nil,true)
 local tap_eth = Listener.new("eth")
 local tap_ip = Listener.new("ip","bootp")
 local tap_bootp = Listener.new("bootp","bootp.option.dhcp == 1")
@@ -145,6 +189,8 @@ function tap_frame.packet(pinfo,tvb,frame)
     local eth_src1 = tostring(f_eth_src().range)
     local eth_src2 = tostring(tvb:range(6,6))
     test(FRAME,"FieldInfo.range-1", eth_src1 == eth_src2)
+
+    getAllFieldInfos(FRAME)
 
     setPassed(FRAME)
 end
@@ -221,13 +267,34 @@ tap_bootp.packet = bootp_packet
 
 function tap_frame.reset()
     -- reset never gets called in tshark (sadly)
-    error("reset called!!")
+    if not GUI_ENABLED then
+        error("reset called!!")
+    end
 end
 
 function tap_frame.draw()
+    test(OTHER,"all_field_infos", checkAllFieldInfos())
+    setPassed(OTHER)
     getResults()
 end
 
+-- max_gap.lua
+-- create a gap.max field containing the maximum gap between two packets between two ip nodes
 
+-- we create a "protocol" for our tree
+local max_gap_p = Proto("gap","Gap in IP conversations")
+
+-- we create our fields
+local max_gap_field = ProtoField.float("gap.max")
+
+-- we add our fields to the protocol
+max_gap_p.fields = { max_gap_field }
+
+-- then we register max_gap_p as a postdissector
+register_postdissector(max_gap_p,true)
+function max_gap_p.dissector(tvb,pinfo,tree)
+    incPktCount(PDISS)
+    getAllFieldInfos(PDISS)
+end
 
 

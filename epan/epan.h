@@ -145,6 +145,18 @@ WS_DLL_PUBLIC void epan_free(epan_t *session);
 WS_DLL_PUBLIC const gchar*
 epan_get_version(void);
 
+/**
+ * Set/unset the tree to always be visible when epan_dissect_init() is called.
+ * This state change sticks until cleared, rather than being done per function call.
+ * This is currently used when Lua scripts request all fields be generated.
+ * By default it only becomes visible if epan_dissect_init() makes it so, usually
+ * only when a packet is selected.
+ * Setting this overrides that so it's always visible, although it will still not be
+ * created if create_proto_tree is false in the call to epan_dissect_init().
+ * Clearing this reverts the decision to epan_dissect_init() and proto_tree_visible.
+ */
+void epan_set_always_visible(gboolean force);
+
 /** initialize an existing single packet dissection */
 WS_DLL_PUBLIC
 epan_dissect_t*

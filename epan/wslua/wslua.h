@@ -199,6 +199,7 @@ struct _wslua_tap {
     int packet_ref;
     int draw_ref;
     int reset_ref;
+    gboolean all_fields;
 };
 
 #  define DIRECTORY_T GDir
