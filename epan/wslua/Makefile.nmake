@@ -34,17 +34,18 @@ OBJECTS= \
 	register_wslua.obj \
 	taps_wslua.obj \
 	lua_bitop.obj \
-	wslua_dumper.obj \
-	wslua_field.obj \
-	wslua_gui.obj \
-	wslua_pinfo.obj \
-	wslua_proto.obj \
-	wslua_listener.obj \
-	wslua_int64.obj \
-	wslua_struct.obj \
-	wslua_tree.obj \
 	wslua_tvb.obj \
-	wslua_util.obj
+	wslua_proto.obj \
+	wslua_int64.obj \
+	wslua_tree.obj \
+	wslua_pinfo.obj \
+	wslua_listener.obj \
+	wslua_gui.obj \
+	wslua_util.obj \
+	wslua_field.obj \
+	wslua_struct.obj \
+	wslua_dumper.obj \
+	wslua_internals.obj
 
 wslua.lib	: $(OBJECTS) init.lua
 	link /lib /NODEFAULTLIB /out:wslua.lib $(OBJECTS)
