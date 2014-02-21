@@ -1412,6 +1412,7 @@ main(int argc, char *argv[])
       }
       break;
     case 'T':        /* printing Type */
+      print_packet_info = TRUE;
       if (strcmp(optarg, "text") == 0) {
         output_action = WRITE_TEXT;
         print_format = PR_FMT_TEXT;
