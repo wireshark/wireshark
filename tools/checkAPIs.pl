@@ -2073,7 +2073,10 @@ while ($_ = $ARGV[0])
                 print STDERR "Error: Found %hh in " .$filename."\n";
                 $errorCount++;
         }
-
+        if (($fileContents =~ m{ \$Id .* \$ }xo))
+        {
+                print STDERR "Warning: ".$filename." does have an SVN Id tag. Please remove !\n";
+        }
         # Remove all the C-comments
         $fileContents =~ s{ $CComment } []xog;
 
