@@ -333,13 +333,13 @@ flow_graph_dlg_create(void)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);
 
-	bt_ok = gtk_button_new_from_stock(GTK_STOCK_OK);
+	bt_ok = ws_gtk_button_new_from_stock(GTK_STOCK_OK);
 	gtk_box_pack_start(GTK_BOX(hbuttonbox), bt_ok, TRUE, TRUE, 0);
 	gtk_widget_set_tooltip_text (bt_ok, "Show the flow graph");
 	g_signal_connect(bt_ok, "clicked", G_CALLBACK(flow_graph_on_ok), flow_graph_dlg_w);
 	gtk_widget_show(bt_ok);
 
-	bt_cancel = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+	bt_cancel = ws_gtk_button_new_from_stock(GTK_STOCK_CANCEL);
 	gtk_box_pack_start(GTK_BOX(hbuttonbox), bt_cancel, TRUE, TRUE, 0);
 	gtk_widget_set_can_default(bt_cancel, TRUE);
 	gtk_widget_set_tooltip_text (bt_cancel, "Cancel this dialog");

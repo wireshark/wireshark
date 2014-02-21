@@ -440,13 +440,13 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
     gtk_widget_show(list_bb);
 
-    new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
+    new_bt = ws_gtk_button_new_from_stock(GTK_STOCK_NEW);
     g_signal_connect(new_bt, "clicked", G_CALLBACK(filter_new_bt_clicked_cb), filter_list_type_p);
     gtk_widget_show(new_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(new_bt, "Create a new filter at the end of the list (with the current properties)");
 
-    del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+    del_bt = ws_gtk_button_new_from_stock(GTK_STOCK_DELETE);
     gtk_widget_set_sensitive(del_bt, FALSE);
     g_signal_connect(del_bt, "clicked", G_CALLBACK(filter_del_bt_clicked_cb), filter_list_type_p);
     g_object_set_data(G_OBJECT(main_w), E_FILT_DEL_BT_KEY, del_bt);
@@ -552,7 +552,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
         /* Create the "Add Expression..." button, to pop up a dialog
            for constructing filter comparison expressions. */
-        add_expression_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
+        add_expression_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
         g_signal_connect(add_expression_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), main_w);
         gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 0);
         gtk_widget_show(add_expression_bt);

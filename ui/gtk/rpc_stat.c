@@ -470,7 +470,7 @@ gtk_rpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 	filter_box=ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
 
 	/* Filter label */
-	filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+	filter_bt=ws_gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 	g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
 	gtk_box_pack_start(GTK_BOX(filter_box), filter_bt, FALSE, FALSE, 0);
 	gtk_widget_show(filter_bt);

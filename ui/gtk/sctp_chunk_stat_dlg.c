@@ -36,6 +36,7 @@
 #include "ui/gtk/main.h"
 #include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
+#include "ui/gtk/stock_icons.h"
 
 static GtkWidget         *clist           = NULL;
 static GList             *last_list       = NULL;
@@ -635,7 +636,7 @@ gtk_sctpstat_dlg(struct sctp_udata *u_data, unsigned int direction)
     gtk_box_set_spacing(GTK_BOX (hbuttonbox2), 0);
     gtk_widget_show(hbuttonbox2);
 
-    bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+    bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox2), bt_close);
     gtk_widget_show (bt_close);
 
@@ -762,7 +763,7 @@ sctp_chunk_dlg(struct sctp_udata *u_data)
     gtk_box_set_spacing(GTK_BOX (h_button_box), 0);
     gtk_widget_show(h_button_box);
 
-    close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+    close_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
     gtk_widget_show(close_bt);
     g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);

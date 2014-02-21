@@ -2892,7 +2892,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 3, FALSE);
   gtk_box_pack_start(GTK_BOX(capture_vb), filter_hb, FALSE, FALSE, 0);
 
-  filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
+  filter_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
   g_signal_connect(filter_bt, "clicked", G_CALLBACK(capture_filter_construct_cb), NULL);
   g_signal_connect(filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
   gtk_widget_set_tooltip_text(filter_bt,
@@ -4073,13 +4073,13 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
   gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
   gtk_widget_show(list_bb);
 
-  new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
+  new_bt = ws_gtk_button_new_from_stock(GTK_STOCK_NEW);
   g_signal_connect(new_bt, "clicked", G_CALLBACK(pipe_new_bt_clicked_cb), NULL);
   gtk_widget_show(new_bt);
   gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
   gtk_widget_set_tooltip_text (new_bt, "Add a new pipe (with default properties)");
 
-  del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+  del_bt = ws_gtk_button_new_from_stock(GTK_STOCK_DELETE);
   g_signal_connect(del_bt, "clicked", G_CALLBACK(pipe_del_bt_clicked_cb), NULL);
   gtk_widget_show(del_bt);
   gtk_widget_set_sensitive(del_bt, FALSE);
@@ -4141,7 +4141,7 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
      );
   gtk_box_pack_start(GTK_BOX(middle_hb), pipe_te, TRUE, TRUE, 3);
   gtk_widget_set_sensitive(pipe_te, FALSE);
-  pipe_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
+  pipe_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
   gtk_widget_set_tooltip_text(GTK_WIDGET(pipe_bt),
     "Select a pipe from which data should be captured, "
     "instead of entering the pipe name directly. "
@@ -4313,14 +4313,14 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
   gtk_widget_show(help_hbox);
   gtk_box_set_spacing(GTK_BOX(help_hbox), DLG_BUTTON_SPACING);
 
-  add_but = gtk_button_new_from_stock(GTK_STOCK_ADD);
+  add_but = ws_gtk_button_new_from_stock(GTK_STOCK_ADD);
   g_object_set_data(G_OBJECT(bbox), GTK_STOCK_ADD, add_but);
   gtk_box_pack_start(GTK_BOX(help_hbox), add_but, FALSE, FALSE, 0);
   g_signal_connect(add_but, "clicked", G_CALLBACK(show_remote_dialog), NULL);
   gtk_widget_set_tooltip_text(GTK_WIDGET(add_but), "Add a remote host to the list");
   gtk_widget_show(add_but);
 
-  delete_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+  delete_bt = ws_gtk_button_new_from_stock(GTK_STOCK_DELETE);
   g_object_set_data(G_OBJECT(bbox), GTK_STOCK_DELETE, delete_bt);
   gtk_box_pack_start(GTK_BOX(help_hbox), delete_bt, FALSE, FALSE, 0);
   g_signal_connect(delete_bt, "clicked", G_CALLBACK(remove_remote_host), NULL);
@@ -4329,13 +4329,13 @@ show_add_interfaces_dialog(GtkWidget *bt _U_, GtkWidget *parent_win)
   g_object_set_data(G_OBJECT(interface_management_w), E_REMOTE_DEL_BT_KEY, delete_bt);
   gtk_widget_show(delete_bt);
 
-  ok_but = gtk_button_new_from_stock(GTK_STOCK_APPLY);
+  ok_but = ws_gtk_button_new_from_stock(GTK_STOCK_APPLY);
   gtk_box_pack_end(GTK_BOX(button_hbox), ok_but, FALSE, FALSE, 0);
   g_signal_connect(GTK_WIDGET(ok_but), "clicked", G_CALLBACK(ok_remote_cb), NULL);
   gtk_widget_set_tooltip_text(GTK_WIDGET(ok_but), "Apply the changes to the general list of local interfaces");
   gtk_widget_show(ok_but);
 
-  cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+  cancel_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
   gtk_box_pack_end(GTK_BOX(button_hbox), cancel_bt, FALSE, FALSE, 0);
   g_signal_connect(GTK_WIDGET(cancel_bt), "clicked", G_CALLBACK(cancel_pipe_cb), interface_management_w);
   gtk_widget_set_tooltip_text(GTK_WIDGET(cancel_bt), "Cancel and exit dialog.");
@@ -4837,7 +4837,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   all_filter_hb = ws_gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0, FALSE);
   gtk_box_pack_start(GTK_BOX(all_vb), all_filter_hb, FALSE, FALSE, DLG_LABEL_SPACING);
 
-  all_filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
+  all_filter_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY);
   g_signal_connect(all_filter_bt, "clicked", G_CALLBACK(capture_filter_construct_cb), NULL);
   g_signal_connect(all_filter_bt, "destroy", G_CALLBACK(filter_button_destroy_cb), NULL);
   gtk_widget_set_tooltip_text(all_filter_bt,
@@ -4914,7 +4914,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      );
   gtk_box_pack_start(GTK_BOX(file_hb), file_te, TRUE, TRUE, 3);
 
-  file_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
+  file_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
   gtk_widget_set_tooltip_text(file_bt,
     "Select a file to which captured data will be written, "
     "instead of entering the file name directly. "

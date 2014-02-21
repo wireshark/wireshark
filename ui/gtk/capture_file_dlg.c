@@ -565,7 +565,7 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
-  filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+  filter_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
   g_signal_connect(filter_bt, "clicked",
                    G_CALLBACK(display_filter_construct_cb), &args);
   g_signal_connect(filter_bt, "destroy",
@@ -836,7 +836,7 @@ gtk_merge_file(GtkWidget *w, GString *file_name, GString *display_filter, int *m
   gtk_box_pack_start(GTK_BOX(main_vb), filter_hbox, FALSE, FALSE, 0);
   gtk_widget_show(filter_hbox);
 
-  filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+  filter_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
   g_signal_connect(filter_bt, "clicked",
                    G_CALLBACK(display_filter_construct_cb), &args);
   g_signal_connect(filter_bt, "destroy",

@@ -2281,7 +2281,7 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 
 
     /* filter prefs dialog */
-    gio->filter_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+    gio->filter_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
 
     g_snprintf(str, sizeof(str), "Wireshark: Display Filter  IO-Stat (Filter:%d)", num);
     g_free( (gpointer) (gio->args->title) );

@@ -737,19 +737,19 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_box_pack_start(GTK_BOX(stream_vb), hbox, FALSE, FALSE, 0);
 
     /* Create Find Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_FIND);
+    button = ws_gtk_button_new_from_stock(GTK_STOCK_FIND);
     g_signal_connect(button, "clicked", G_CALLBACK(follow_find_cb), follow_info);
     gtk_widget_set_tooltip_text(button, "Find text in the displayed content");
     gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
     /* Create Save As Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+    button = ws_gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
     g_signal_connect(button, "clicked", G_CALLBACK(follow_save_as_cmd_cb), follow_info);
     gtk_widget_set_tooltip_text(button, "Save the content as currently displayed");
     gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
     /* Create Print Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
+    button = ws_gtk_button_new_from_stock(GTK_STOCK_PRINT);
     g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
     gtk_widget_set_tooltip_text(button, "Print the content as currently displayed");
     gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);

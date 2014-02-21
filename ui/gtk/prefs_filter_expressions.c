@@ -42,6 +42,7 @@
 #include "ui/gtk/filter_expression_save_dlg.h"
 #include "ui/gtk/prefs_filter_expressions.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 static void filter_expressions_list_new_cb(GtkWidget *, gpointer);
 static void filter_expressions_list_remove_cb(GtkWidget *, gpointer);
@@ -197,7 +198,7 @@ filter_expressions_prefs_show(void) {
     gtk_box_pack_start(GTK_BOX(bottom_hb), add_remove_hb, FALSE, FALSE, 0);
     gtk_widget_show(add_remove_hb);
 
-    add_bt = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    add_bt = ws_gtk_button_new_from_stock(GTK_STOCK_ADD);
     g_signal_connect(add_bt, "clicked",
             G_CALLBACK(filter_expressions_list_new_cb), column_l);
     gtk_box_pack_start(GTK_BOX(add_remove_hb), add_bt, FALSE, FALSE, 0);
@@ -206,7 +207,7 @@ filter_expressions_prefs_show(void) {
     gtk_widget_show(add_bt);
 
     /* Remove button */
-    remove_bt = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    remove_bt = ws_gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     g_signal_connect(remove_bt, "clicked",
             G_CALLBACK(filter_expressions_list_remove_cb), column_l);
     gtk_box_pack_start(GTK_BOX(add_remove_hb), remove_bt, FALSE, FALSE, 0);

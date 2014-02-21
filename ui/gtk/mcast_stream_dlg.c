@@ -51,6 +51,7 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 void register_tap_listener_mcast_stream_dlg(void);
 
@@ -332,9 +333,9 @@ mcast_on_params(GtkButton *button _U_, gpointer data _U_)
 	/* button row */
 	hbuttonbox = gtk_button_box_new(GTK_ORIENTATION_HORIZONTAL);
 	ws_gtk_grid_attach_defaults(GTK_GRID(grid), hbuttonbox, 0, 5, 2, 1);
-	ok_bt = gtk_button_new_from_stock(GTK_STOCK_OK);
+	ok_bt = ws_gtk_button_new_from_stock(GTK_STOCK_OK);
 	gtk_container_add (GTK_CONTAINER(hbuttonbox), ok_bt);
-	cancel_bt = gtk_button_new_from_stock(GTK_STOCK_CANCEL);
+	cancel_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CANCEL);
 	gtk_container_add (GTK_CONTAINER(hbuttonbox), cancel_bt);
 	gtk_widget_set_can_default(cancel_bt, TRUE);
 	gtk_button_box_set_layout(GTK_BUTTON_BOX(hbuttonbox), GTK_BUTTONBOX_END);
@@ -694,7 +695,7 @@ mcaststream_dlg_create(void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
 	gtk_widget_set_tooltip_text (bt_filter, "Prepare a display filter of the selected stream");
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
 	gtk_widget_set_can_default(bt_close, TRUE);

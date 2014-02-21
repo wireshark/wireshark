@@ -43,6 +43,7 @@
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/filter_autocomplete.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 static GtkWidget *remove_bt, *field_te, *field_lb, *occurrence_te, *occurrence_lb, *fmt_cmb;
 static gulong column_menu_changed_handler_id;
@@ -218,13 +219,13 @@ column_prefs_show(GtkWidget *prefs_window) {
     gtk_box_pack_start (GTK_BOX (bottom_hb), add_remove_vb, FALSE, FALSE, 0);
     gtk_widget_show(add_remove_vb);
 
-    add_bt = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    add_bt = ws_gtk_button_new_from_stock(GTK_STOCK_ADD);
     g_signal_connect(add_bt, "clicked", G_CALLBACK(column_list_new_cb), column_l);
     gtk_box_pack_start (GTK_BOX (add_remove_vb), add_bt, FALSE, FALSE, 0);
     gtk_widget_set_tooltip_text(add_bt, "Add a new column at the end of the list.");
     gtk_widget_show(add_bt);
 
-    remove_bt = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    remove_bt = ws_gtk_button_new_from_stock(GTK_STOCK_REMOVE);
     gtk_widget_set_sensitive(remove_bt, FALSE);
     g_signal_connect(remove_bt, "clicked", G_CALLBACK(column_list_delete_cb), column_l);
     gtk_box_pack_start (GTK_BOX (add_remove_vb), remove_bt, FALSE, FALSE, 0);

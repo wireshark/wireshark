@@ -85,6 +85,7 @@
 #include "ui/gtk/rtp_stream_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/stock_icons.h"
 
 #include "frame_tvbuff.h"
 
@@ -3434,12 +3435,12 @@ create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_show(csv_bt);
 	g_signal_connect(csv_bt, "clicked", G_CALLBACK(save_csv_as_cb), user_data);
 
-	refresh_bt = gtk_button_new_from_stock(GTK_STOCK_REFRESH);
+	refresh_bt = ws_gtk_button_new_from_stock(GTK_STOCK_REFRESH);
 	gtk_container_add(GTK_CONTAINER(box4), refresh_bt);
 	gtk_widget_show(refresh_bt);
 	g_signal_connect(refresh_bt, "clicked", G_CALLBACK(on_refresh_bt_clicked), user_data);
 
-	goto_bt = gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
+	goto_bt = ws_gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
 	gtk_container_add(GTK_CONTAINER(box4), goto_bt);
 	gtk_widget_show(goto_bt);
 	g_signal_connect(goto_bt, "clicked", G_CALLBACK(on_goto_bt_clicked), user_data);
@@ -3454,7 +3455,7 @@ create_iax2_dialog(user_data_t* user_data)
 	gtk_widget_show(next_bt);
 	g_signal_connect(next_bt, "clicked", G_CALLBACK(on_next_bt_clicked), user_data);
 
-	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	close_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(box4), close_bt);
 	gtk_widget_set_can_default(close_bt, TRUE);
 	gtk_widget_show(close_bt);

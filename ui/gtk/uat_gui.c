@@ -1059,26 +1059,26 @@ static GtkWidget *uat_window(void *u) {
 	gtk_box_pack_end(GTK_BOX(vbox), refresh_hbox, TRUE, FALSE, 0);
 
 
-	rep->bt_up = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
+	rep->bt_up = ws_gtk_button_new_from_stock(GTK_STOCK_GO_UP);
 	gtk_widget_set_tooltip_text(rep->bt_up, "Move selected entry up");
 
-	rep->bt_down = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
+	rep->bt_down = ws_gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
 	gtk_widget_set_tooltip_text(rep->bt_down, "Move selected entry down");
 
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_up, TRUE, FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_down, TRUE, FALSE, 5);
 
 
-	rep->bt_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
+	rep->bt_new = ws_gtk_button_new_from_stock(GTK_STOCK_NEW);
 	gtk_widget_set_tooltip_text(rep->bt_new, "Create a new entry");
 
-	rep->bt_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+	rep->bt_edit = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	gtk_widget_set_tooltip_text(rep->bt_edit, "Edit selected entry");
 
-	rep->bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
+	rep->bt_copy = ws_gtk_button_new_from_stock(GTK_STOCK_COPY);
 	gtk_widget_set_tooltip_text(rep->bt_copy, "Copy selected entry");
 
-	rep->bt_delete = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+	rep->bt_delete = ws_gtk_button_new_from_stock(GTK_STOCK_DELETE);
 	gtk_widget_set_tooltip_text(rep->bt_delete, "Delete selected entry");
 
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_new, TRUE, FALSE, 5);
@@ -1086,10 +1086,10 @@ static GtkWidget *uat_window(void *u) {
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_copy, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_delete, TRUE, FALSE, 5);
 
-	rep->bt_refresh = gtk_button_new_from_stock(GTK_STOCK_REFRESH);
+	rep->bt_refresh = ws_gtk_button_new_from_stock(GTK_STOCK_REFRESH);
 	gtk_widget_set_tooltip_text(rep->bt_refresh, "Refresh from system defaults");
 
-	rep->bt_clear = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
+	rep->bt_clear = ws_gtk_button_new_from_stock(GTK_STOCK_CLEAR);
 	gtk_widget_set_tooltip_text(rep->bt_clear, "Delete all entries");
 
 	gtk_box_pack_end(GTK_BOX(refresh_hbox), rep->bt_refresh, TRUE, FALSE, 5);

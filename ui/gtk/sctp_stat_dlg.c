@@ -40,6 +40,7 @@
 #include "ui/gtk/gtkglobals.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 static GtkWidget *sctp_stat_dlg = NULL;
 static GtkWidget *clist		= NULL;
@@ -615,7 +616,7 @@ gtk_sctpstat_dlg(void)
 	gtk_widget_show(bt_analyse);
 	gtk_widget_set_sensitive(bt_analyse,FALSE);
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox2), bt_close);
 	gtk_widget_set_can_default(bt_close, TRUE);
 	window_set_cancel_button(sctp_stat_dlg_w, bt_close, sctp_stat_on_close);

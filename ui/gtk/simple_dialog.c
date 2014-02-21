@@ -63,20 +63,20 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   /* Main window */
   switch (type) {
   case ESD_TYPE_WARN :
-    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+    type_pm = ws_gtk_image_new_from_stock( GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_CONFIRMATION:
-    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_DIALOG);
+    type_pm = ws_gtk_image_new_from_stock( GTK_STOCK_DIALOG_WARNING, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_ERROR:
-    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_DIALOG);
+    type_pm = ws_gtk_image_new_from_stock( GTK_STOCK_DIALOG_ERROR, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_STOP :
-    type_pm = gtk_image_new_from_stock( GTK_STOCK_STOP, GTK_ICON_SIZE_DIALOG);
+    type_pm = ws_gtk_image_new_from_stock( GTK_STOCK_STOP, GTK_ICON_SIZE_DIALOG);
     break;
   case ESD_TYPE_INFO :
   default :
-    type_pm = gtk_image_new_from_stock( GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
+    type_pm = ws_gtk_image_new_from_stock( GTK_STOCK_DIALOG_INFO, GTK_ICON_SIZE_DIALOG);
     break;
   }
 

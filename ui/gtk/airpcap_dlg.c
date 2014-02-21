@@ -2147,31 +2147,31 @@ display_airpcap_key_management_cb(GtkWidget *w _U_, gpointer data)
     gtk_box_pack_start (GTK_BOX (keys_v_sub_box), key_v_button_box, FALSE, TRUE,
                         0);
 
-    add_new_key_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
+    add_new_key_bt = ws_gtk_button_new_from_stock(GTK_STOCK_NEW);
     gtk_widget_set_name (add_new_key_bt, "add_new_key_bt");
     gtk_widget_show (add_new_key_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), add_new_key_bt);
     gtk_widget_set_can_default (add_new_key_bt, TRUE);
 
-    edit_key_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+    edit_key_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
     gtk_widget_set_name (edit_key_bt, "edit_key_bt");
     gtk_widget_show (edit_key_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), edit_key_bt);
     gtk_widget_set_can_default (edit_key_bt, TRUE);
 
-    remove_key_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+    remove_key_bt = ws_gtk_button_new_from_stock(GTK_STOCK_DELETE);
     gtk_widget_set_name (remove_key_bt, "remove_key_bt");
     gtk_widget_show (remove_key_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), remove_key_bt);
     gtk_widget_set_can_default (remove_key_bt, TRUE);
 
-    move_key_up_bt = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
+    move_key_up_bt = ws_gtk_button_new_from_stock(GTK_STOCK_GO_UP);
     gtk_widget_set_name (move_key_up_bt, "move_key_up_bt");
     gtk_widget_show (move_key_up_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_up_bt);
     gtk_widget_set_can_default (move_key_up_bt, TRUE);
 
-    move_key_down_bt = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
+    move_key_down_bt = ws_gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
     gtk_widget_set_name (move_key_down_bt, "move_key_down_bt");
     gtk_widget_show (move_key_down_bt);
     gtk_container_add (GTK_CONTAINER (key_v_button_box), move_key_down_bt);

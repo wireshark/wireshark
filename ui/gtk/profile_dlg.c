@@ -44,6 +44,7 @@
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/help_dlg.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 enum {
   NAME_COLUMN,
@@ -475,19 +476,19 @@ profile_dialog_new(void)
   gtk_container_add(GTK_CONTAINER(edit_fr), list_bb);
   gtk_widget_show(list_bb);
 
-  new_bt = gtk_button_new_from_stock(GTK_STOCK_NEW);
+  new_bt = ws_gtk_button_new_from_stock(GTK_STOCK_NEW);
   g_signal_connect(new_bt, "clicked", G_CALLBACK(profile_new_bt_clicked_cb), NULL);
   gtk_widget_show(new_bt);
   gtk_box_pack_start(GTK_BOX(list_bb), new_bt, FALSE, FALSE, 0);
   gtk_widget_set_tooltip_text(new_bt, "Create a new profile (with default properties)");
 
-  copy_bt = gtk_button_new_from_stock(GTK_STOCK_COPY);
+  copy_bt = ws_gtk_button_new_from_stock(GTK_STOCK_COPY);
   g_signal_connect(copy_bt, "clicked", G_CALLBACK(profile_copy_bt_clicked_cb), NULL);
   gtk_widget_show(copy_bt);
   gtk_box_pack_start(GTK_BOX(list_bb), copy_bt, FALSE, FALSE, 0);
   gtk_widget_set_tooltip_text(copy_bt, "Copy the selected profile");
 
-  del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+  del_bt = ws_gtk_button_new_from_stock(GTK_STOCK_DELETE);
   gtk_widget_set_sensitive(del_bt, FALSE);
   g_signal_connect(del_bt, "clicked", G_CALLBACK(profile_del_bt_clicked_cb), NULL);
   g_object_set_data(G_OBJECT(main_w), E_PROF_DEL_BT_KEY, del_bt);

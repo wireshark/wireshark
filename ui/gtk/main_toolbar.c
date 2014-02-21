@@ -221,7 +221,7 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
 
 
 #define toolbar_item(new_item, toolbar, stock, tooltip_text, callback, user_data) { \
-    new_item = gtk_tool_button_new_from_stock(stock); \
+    new_item = ws_gtk_tool_button_new_from_stock(stock); \
     gtk_widget_set_tooltip_text(GTK_WIDGET(new_item), tooltip_text); \
     g_signal_connect(new_item, "clicked", G_CALLBACK(callback), user_data); \
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), new_item, -1); \
@@ -229,7 +229,7 @@ static void toolbar_append_separator(GtkWidget *toolbar) {
     }
 
 #define toolbar_toggle_button(new_item, window, toolbar, stock, tooltip_text, callback, user_data) { \
-    new_item = gtk_toggle_tool_button_new_from_stock(stock); \
+    new_item = ws_gtk_toggle_tool_button_new_from_stock(stock); \
     gtk_widget_set_tooltip_text(GTK_WIDGET(new_item), tooltip_text);	\
     g_signal_connect(new_item, "toggled", G_CALLBACK(callback), user_data); \
     gtk_toolbar_insert(GTK_TOOLBAR(toolbar), new_item, -1); \

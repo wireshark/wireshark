@@ -887,7 +887,7 @@ file_import_dlg_new(void)
 
     g_object_set_data(G_OBJECT(input_frm), INPUT_FILENAME_TE_KEY, filename_te);
 
-    browse_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
+    browse_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
     gtk_widget_set_tooltip_text(browse_bt, "Browse for text file to import");
     ws_gtk_grid_attach(GTK_GRID(input_grid), browse_bt, 2, 0, 1, 1);
 

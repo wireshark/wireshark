@@ -192,7 +192,7 @@ capture_prefs_show(void)
 	gtk_misc_set_alignment(GTK_MISC(ifopts_lb), 1.0f, 0.5f);
 	gtk_widget_show(ifopts_lb);
 
-	ifopts_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+	ifopts_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	tooltips_text = "Open a dialog box to set various interface options.";
 	gtk_widget_set_tooltip_text(ifopts_lb, tooltips_text);
 	gtk_widget_set_tooltip_text(ifopts_bt, tooltips_text);
@@ -246,7 +246,7 @@ capture_prefs_show(void)
 	gtk_misc_set_alignment(GTK_MISC(colopts_lb), 1.0f, 0.5f);
 	gtk_widget_show(colopts_lb);
 
-	colopts_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+	colopts_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 	tooltips_text = "Open a dialog box to change the visible columns.";
 	gtk_widget_set_tooltip_text(colopts_lb, tooltips_text);
 	gtk_widget_set_tooltip_text(colopts_bt, tooltips_text);

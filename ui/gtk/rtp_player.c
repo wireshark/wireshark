@@ -2385,27 +2385,27 @@ rtp_player_dlg_create(void)
 	gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox), GTK_BUTTONBOX_SPREAD);
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 10);
 
-	bt_decode = gtk_button_new_from_stock(WIRESHARK_STOCK_DECODE);
+	bt_decode = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_DECODE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_decode);
 	g_signal_connect(bt_decode, "clicked", G_CALLBACK(on_bt_decode_clicked), NULL);
 	gtk_widget_set_tooltip_text (bt_decode, "Decode the RTP stream(s)");
 
-	bt_play = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
+	bt_play = ws_gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_play);
 	g_signal_connect(bt_play, "clicked", G_CALLBACK(on_bt_play_clicked), NULL);
 	gtk_widget_set_tooltip_text (bt_play, "Play the RTP channel(s)");
 
-	bt_pause = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
+	bt_pause = ws_gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_pause);
 	g_signal_connect(bt_pause, "clicked", G_CALLBACK(on_bt_pause_clicked), NULL);
 	gtk_widget_set_tooltip_text (bt_pause, "Pause the RTP channel(s)");
 
-	bt_stop = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
+	bt_stop = ws_gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_stop);
 	g_signal_connect(bt_stop, "clicked", G_CALLBACK(on_bt_stop_clicked), NULL);
 	gtk_widget_set_tooltip_text (bt_stop, "Stop the RTP channel(s)");
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
 	gtk_widget_set_can_default(bt_close, TRUE);
 	gtk_widget_set_tooltip_text (bt_close, "Close this dialog");

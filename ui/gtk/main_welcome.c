@@ -276,7 +276,7 @@ welcome_button(const gchar *stock_item,
     g_signal_connect(eb, "button-release-event", G_CALLBACK(welcome_button_callback), welcome_button_callback_data);
 
     /* icon */
-    w = gtk_image_new_from_stock(stock_item, GTK_ICON_SIZE_LARGE_TOOLBAR);
+    w = ws_gtk_image_new_from_stock(stock_item, GTK_ICON_SIZE_LARGE_TOOLBAR);
     gtk_box_pack_start(GTK_BOX(item_hb), w, FALSE, FALSE, 5);
 
     text_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, 3, FALSE);

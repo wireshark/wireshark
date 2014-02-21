@@ -804,7 +804,7 @@ capture_if_refresh_if_list(void)
 
     /* details button */
 #ifdef _WIN32
-    data.details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
+    data.details_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
     gtk_widget_set_tooltip_text(data.details_bt, "Open the capture details dialog of this interface.");
     ws_gtk_grid_attach_extended(GTK_GRID(if_grid), data.details_bt, 8, row, 1, 1, 0, 0, 0, 0);
     if (capture_if_has_details(device.name)) {

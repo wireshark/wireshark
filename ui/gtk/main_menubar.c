@@ -5526,7 +5526,7 @@ rebuild_protocol_prefs_menu(module_t *prefs_module_p, gboolean preferences,
         label = g_strdup_printf ("%s Preferences...", prefs_module_p->description);
         menu_item = gtk_image_menu_item_new_with_label(label);
         gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM(menu_item),
-                                       gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
+                                       ws_gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
         gtk_menu_shell_append(GTK_MENU_SHELL(sub_menu), menu_item);
         g_signal_connect_swapped(G_OBJECT(menu_item), "activate",
                                  G_CALLBACK(properties_cb), (GObject *) menu_item);

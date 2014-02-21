@@ -40,6 +40,7 @@
 #include "ui/tap-sctp-analysis.h"
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/stock_icons.h"
 
 #include "frame_tvbuff.h"
 
@@ -686,7 +687,7 @@ create_analyse_window(struct sctp_analyse *u_data)
 	gtk_widget_show (bt_filter);
 	g_signal_connect(bt_filter, "clicked", G_CALLBACK(sctp_set_filter), u_data);
 
-	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	close_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);
@@ -795,7 +796,7 @@ create_analyse_window(struct sctp_analyse *u_data)
 		gtk_widget_set_sensitive(graph_bt1, FALSE);
 		gtk_widget_set_sensitive(graph_bt2, FALSE);
 	}
-	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	close_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);
@@ -899,7 +900,7 @@ create_analyse_window(struct sctp_analyse *u_data)
 		gtk_widget_set_sensitive(graph_bt1, FALSE);
 		gtk_widget_set_sensitive(graph_bt2, FALSE);
 	}
-	close_bt = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	close_bt = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(h_button_box), close_bt, FALSE, FALSE, 0);
 	gtk_widget_show(close_bt);
 	g_signal_connect(close_bt, "clicked", G_CALLBACK(on_close_dlg), u_data);

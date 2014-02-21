@@ -641,7 +641,7 @@ open_print_dialog(const char *title, output_action_e action, print_args_t *args)
     gtk_widget_grab_focus(file_te);
 
   /* "Browse" button */
-  file_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
+  file_bt = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
   g_object_set_data(G_OBJECT(dest_cb), PRINT_FILE_BT_KEY, file_bt);
   g_object_set_data(G_OBJECT(file_bt), PRINT_TE_PTR_KEY, file_te);
   gtk_widget_set_tooltip_text(file_bt, "Browse output filename in filesystem");

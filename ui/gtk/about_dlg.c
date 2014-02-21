@@ -54,6 +54,7 @@
 #include "ui/gtk/main.h"
 #include "ui/gtk/plugins_dlg.h"
 #include "ui/gtk/gui_utils.h"
+#include "ui/gtk/stock_icons.h"
 #include "ui/gtk/wssplash.h"
 
 #include "webbrowser.h"

@@ -308,7 +308,7 @@ tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
 
         case PARAM_FILTER:
             /* Filter button */
-            filter_bt=gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+            filter_bt=ws_gtk_button_new_from_stock(WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
             g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &(current_dlg->args));
             gtk_box_pack_start(GTK_BOX(item_box), filter_bt, FALSE, TRUE, 0);
             gtk_widget_show(filter_bt);

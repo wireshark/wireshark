@@ -140,7 +140,7 @@ filter_toolbar_new(void)
     gtk_widget_show(filter_tb);
 
     /* Create the "Filter:" button */
-    filter_bt = gtk_tool_button_new_from_stock (WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
+    filter_bt = ws_gtk_tool_button_new_from_stock (WIRESHARK_STOCK_DISPLAY_FILTER_ENTRY);
     g_signal_connect(filter_bt, "clicked", G_CALLBACK(display_filter_construct_cb), &args);
     gtk_widget_show(GTK_WIDGET (filter_bt));
     g_object_set_data(G_OBJECT(top_level), E_FILT_BT_PTR_KEY, filter_bt);
@@ -181,7 +181,7 @@ filter_toolbar_new(void)
 
     /* Create the "Add Expression..." button, to pop up a dialog
        for constructing filter comparison expressions. */
-    filter_add_expr_bt = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
+    filter_add_expr_bt = ws_gtk_tool_button_new_from_stock(WIRESHARK_STOCK_ADD_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_tb), E_FILT_FILTER_TE_KEY, filter_te);
     g_signal_connect(filter_add_expr_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), filter_tb);
     gtk_widget_show(GTK_WIDGET(filter_add_expr_bt));
@@ -193,7 +193,7 @@ filter_toolbar_new(void)
     gtk_widget_set_tooltip_text(GTK_WIDGET(filter_add_expr_bt), "Add an expression to this filter string");
 
     /* Create the "Clear" button */
-    filter_reset = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
+    filter_reset = ws_gtk_tool_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_reset), E_DFILTER_TE_KEY, filter_te);
     g_object_set_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY, filter_reset);
     g_signal_connect(filter_reset, "clicked", G_CALLBACK(filter_reset_cb), NULL);
@@ -206,7 +206,7 @@ filter_toolbar_new(void)
     gtk_widget_set_tooltip_text(GTK_WIDGET(filter_reset), "Clear this filter string and update the display");
 
     /* Create the "Apply" button */
-    filter_apply = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
+    filter_apply = ws_gtk_tool_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
     g_object_set_data(G_OBJECT(filter_apply), E_DFILTER_CM_KEY, filter_cm);
     g_object_set_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY, filter_apply);
     g_signal_connect(filter_apply, "clicked", G_CALLBACK(filter_activate_cb), filter_te);
@@ -220,7 +220,7 @@ filter_toolbar_new(void)
     gtk_widget_set_tooltip_text(GTK_WIDGET(filter_apply), "Apply this filter string to the display");
 
     /* Create the "Save" button */
-    filter_save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
+    filter_save = ws_gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
     g_object_set_data(G_OBJECT(filter_save), E_DFILTER_CM_KEY, filter_cm);
     g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY, filter_save);
     g_signal_connect(filter_save, "clicked", G_CALLBACK(filter_save_cb), filter_te);

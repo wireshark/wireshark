@@ -43,6 +43,7 @@
 #include "ui/gtk/sctp_stat_gtk.h"
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK     4
@@ -1722,7 +1723,7 @@ init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_widget_set_tooltip_text(zoomout_bt, "Zoom out one step");
 	gtk_widget_set_sensitive(zoomout_bt, FALSE);
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbox), bt_close, FALSE, FALSE, 0);
 	gtk_widget_show(bt_close);
 	g_signal_connect(bt_close, "clicked", G_CALLBACK(sctp_graph_close_cb), u_data);

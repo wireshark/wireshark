@@ -712,30 +712,30 @@ voip_calls_dlg_create(void)
 	gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_unselect);
 	gtk_widget_set_tooltip_text (bt_unselect, "Unselect this conversation");*/
 
-	bt_filter = gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
+	bt_filter = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_filter);
 	gtk_widget_set_tooltip_text(bt_filter, "Prepare a display filter of the selected conversation");
 
-	bt_graph = gtk_button_new_from_stock(WIRESHARK_STOCK_VOIP_FLOW);
+	bt_graph = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_VOIP_FLOW);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_graph);
 	gtk_widget_show(bt_graph);
 	g_signal_connect(bt_graph, "clicked", G_CALLBACK(on_graph_bt_clicked), NULL);
 	gtk_widget_set_tooltip_text(bt_graph, "Show a flow graph of the selected calls.");
 
 #ifdef HAVE_LIBPORTAUDIO
-	bt_player = gtk_button_new_from_stock(WIRESHARK_STOCK_AUDIO_PLAYER);
+	bt_player = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_AUDIO_PLAYER);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_player);
 	gtk_widget_show(bt_player);
 	g_signal_connect(bt_player, "clicked", G_CALLBACK(on_player_bt_clicked), NULL);
 	gtk_widget_set_tooltip_text(bt_player, "Launch the RTP player to listen the selected calls.");
 #endif /* HAVE_LIBPORTAUDIO */
 
-	bt_select_all = gtk_button_new_from_stock(GTK_STOCK_SELECT_ALL);
+	bt_select_all = ws_gtk_button_new_from_stock(GTK_STOCK_SELECT_ALL);
 	gtk_container_add(GTK_CONTAINER(hbuttonbox), bt_select_all);
 	gtk_widget_set_can_default(bt_select_all, TRUE);
 	gtk_widget_set_tooltip_text(bt_select_all, "Select all the calls");
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_container_add(GTK_CONTAINER (hbuttonbox), bt_close);
 	gtk_widget_set_can_default(bt_close, TRUE);
 	gtk_widget_set_tooltip_text(bt_close, "Close this dialog");

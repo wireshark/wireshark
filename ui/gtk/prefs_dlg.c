@@ -883,7 +883,7 @@ create_preference_path_entry(GtkWidget *main_grid, int grid_position,
   ws_gtk_grid_attach_defaults(GTK_GRID(main_grid), file_bt_hb, 1, grid_position, 1, 1);
   gtk_widget_show(file_bt_hb);
 
-  button = gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
+  button = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_BROWSE);
   gtk_box_pack_end(GTK_BOX(file_bt_hb), button, FALSE, FALSE, 0);
   gtk_widget_show(button);
 
@@ -930,7 +930,7 @@ create_preference_uat(GtkWidget *main_grid, int grid_position,
 
   set_option_label(main_grid, grid_position, label_text, tooltip_text);
 
-  button = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+  button = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
 
   g_signal_connect(button, "clicked", G_CALLBACK(uat_window_cb), uat);
 

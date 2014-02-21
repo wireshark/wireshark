@@ -525,12 +525,21 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 	const header_field_info *hfinfo = finfo->hfinfo;
 	int finfo_type = (hfinfo) ? hfinfo->type : FT_NONE;
 
+#if !GTK_CHECK_VERSION(3, 10, 0)
 	GtkWidget *dialog = gtk_dialog_new_with_buttons("Editing finfo: ....",
 			GTK_WINDOW(w),
 			(GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
 			GTK_STOCK_OK, GTK_RESPONSE_ACCEPT,
 			GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
 			NULL);
+#else
+	GtkWidget *dialog = gtk_dialog_new_with_buttons("Editing finfo: ....",
+			GTK_WINDOW(w),
+			(GtkDialogFlags) (GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
+			"_OK", GTK_RESPONSE_ACCEPT,
+			"_Cancel", GTK_RESPONSE_REJECT,
+			NULL);
+#endif
 
 	GtkWidget *dialog_vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	GtkWidget *fvalue_edit;

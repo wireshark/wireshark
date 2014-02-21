@@ -62,6 +62,7 @@
 #include "ui/gtk/graph_analysis.h"
 
 #include "ui/gtk/old-gtk-compat.h"
+#include "ui/gtk/stock_icons.h"
 
 #include "../../image/voip_bg.xpm"
 
@@ -1717,13 +1718,13 @@ static void dialog_graph_create_window(graph_analysis_data_t *user_data)
 	gtk_box_set_spacing (GTK_BOX (hbuttonbox), 30);
 	gtk_widget_show(hbuttonbox);
 
-	bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+	bt_save = ws_gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
 	gtk_box_pack_start(GTK_BOX(hbuttonbox), bt_save, TRUE, TRUE, 0);
 	gtk_widget_show(bt_save);
 	g_signal_connect(bt_save, "clicked", G_CALLBACK(on_save_bt_clicked), user_data);
 	gtk_widget_set_tooltip_text(bt_save, "Save an ASCII representation of the graph to a file");
 
-	bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+	bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
 	gtk_box_pack_start(GTK_BOX(hbuttonbox), bt_close, TRUE, TRUE, 0);
 	gtk_widget_set_can_default(bt_close, TRUE);
 	gtk_widget_show(bt_close);

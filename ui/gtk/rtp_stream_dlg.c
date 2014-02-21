@@ -1010,10 +1010,10 @@ rtpstream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_findrev);
     gtk_widget_set_tooltip_text (bt_findrev, "Find the reverse stream matching the selected forward stream");
 /*
-    bt_goto = gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
+    bt_goto = ws_gtk_button_new_from_stock(GTK_STOCK_JUMP_TO);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_goto);
 */
-    bt_save = gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
+    bt_save = ws_gtk_button_new_from_stock(GTK_STOCK_SAVE_AS);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_save);
     gtk_widget_set_tooltip_text (bt_save, "Save stream payload in rtpdump format");
 
@@ -1021,22 +1021,22 @@ rtpstream_dlg_create (void)
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_mark);
     gtk_widget_set_tooltip_text (bt_mark, "Mark packets of the selected stream(s)");
 
-    bt_filter = gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
+    bt_filter = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_PREPARE_FILTER);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_filter);
     gtk_widget_set_tooltip_text (bt_filter, "Prepare a display filter of the selected stream(s)");
 
     /* XXX - maybe we want to have a "Copy as CSV" stock button here? */
     /*bt_copy = gtk_button_new_with_label ("Copy content to clipboard as CSV");*/
-    bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
+    bt_copy = ws_gtk_button_new_from_stock(GTK_STOCK_COPY);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_copy);
     gtk_widget_set_tooltip_text(bt_copy,
         "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
 
-    bt_analyze = gtk_button_new_from_stock(WIRESHARK_STOCK_ANALYZE);
+    bt_analyze = ws_gtk_button_new_from_stock(WIRESHARK_STOCK_ANALYZE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_analyze);
     gtk_widget_set_tooltip_text (bt_analyze, "Open an analyze window of the selected stream(s)");
 
-    bt_close = gtk_button_new_from_stock(GTK_STOCK_CLOSE);
+    bt_close = ws_gtk_button_new_from_stock(GTK_STOCK_CLOSE);
     gtk_container_add (GTK_CONTAINER (hbuttonbox), bt_close);
     gtk_widget_set_tooltip_text (bt_close, "Close this dialog");
     gtk_widget_set_can_default(bt_close, TRUE);

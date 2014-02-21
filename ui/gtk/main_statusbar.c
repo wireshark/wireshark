@@ -54,6 +54,7 @@
 #include "ui/gtk/gui_utils.h"
 #include "ui/gtk/gtkglobals.h"
 #include "ui/gtk/expert_comp_dlg.h"
+#include "ui/gtk/stock_icons.h"
 #include "ui/gtk/profile_dlg.h"
 #include "ui/gtk/main_welcome.h"
 #include "ui/gtk/expert_indicators.h"
@@ -594,7 +595,7 @@ status_expert_new(void)
     gtk_container_add(GTK_CONTAINER(expert_info_chat), expert_image);
     g_signal_connect(expert_info_chat, "button_press_event", G_CALLBACK(expert_comp_dlg_event_cb), NULL);
 
-    expert_image = gtk_image_new_from_stock(GTK_STOCK_YES, GTK_ICON_SIZE_MENU);
+    expert_image = ws_gtk_image_new_from_stock(GTK_STOCK_YES, GTK_ICON_SIZE_MENU);
     gtk_widget_set_tooltip_text(expert_image, "COMMENT is the highest expert info level");
     gtk_widget_show(expert_image);
     expert_info_comment = gtk_event_box_new();

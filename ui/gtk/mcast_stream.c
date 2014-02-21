@@ -53,6 +53,7 @@
 #include "ui/gtk/mcast_stream.h"
 #include "ui/gtk/mcast_stream_dlg.h"
 #include "ui/gtk/main.h"
+#include "ui/gtk/stock_icons.h"
 
 #ifdef HAVE_WINSOCK2_H
 #include <winsock2.h>
