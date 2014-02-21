@@ -5498,11 +5498,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                         break;
                     }
 
-                    /* (o + i + aoff) =
-                       (o + current attribute + aoff bytes to first tuple) */
-                    q = o + i + aoff;
-                    end = q + tlen;
-
                     ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_cluster_list,
                                              tvb, o + i + aoff, tlen, ENC_NA);
                     cluster_list_tree = proto_item_add_subtree(ti,
