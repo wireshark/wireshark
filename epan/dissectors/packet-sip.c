@@ -222,6 +222,7 @@ static gint ett_sip_tc_uri                = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
 static expert_field ei_sip_header_not_terminated = EI_INIT;
+static expert_field ei_sip_sipsec_malformed = EI_INIT;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
 static const char *sip_methods[] = {
@@ -1763,7 +1764,7 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
  *
  */
 static void
-dissect_sip_sec_mechanism(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset){
+dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint start_offset, gint line_end_offset){
 
     gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
 	guint32 spi_c = 0;
@@ -1833,14 +1834,23 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
 			                    ENC_ASCII|ENC_NA);
 
 		}else if (g_ascii_strcasecmp(param_name, "spi-c") == 0){
-			spi_c = (guint32)strtoul(value, NULL, 10);
-			proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_c, tvb,
-								equals_offset+1, semi_colon_offset-equals_offset-1, spi_c);
-
+			if (!value) {
+				proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+										tvb, current_offset, -1);
+			} else {
+				spi_c = (guint32)strtoul(value, NULL, 10);
+				proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_c, tvb,
+									equals_offset+1, semi_colon_offset-equals_offset-1, spi_c);
+			}
 		}else if (g_ascii_strcasecmp(param_name, "spi-s") == 0){
-			spi_s = (guint32)strtoul(value, NULL, 10);
-			proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_s, tvb,
-								equals_offset+1, semi_colon_offset-equals_offset-1, spi_s);
+			if (!value) {
+				proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+										tvb, current_offset, -1);
+			} else {
+				spi_s = (guint32)strtoul(value, NULL, 10);
+				proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_s, tvb,
+									equals_offset+1, semi_colon_offset-equals_offset-1, spi_s);
+			}
 		}
 
 		else{
@@ -3216,7 +3226,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								comma_offset = line_end_offset;
 							}
 							security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_client);
-							dissect_sip_sec_mechanism(tvb, security_client_tree, value_offset, comma_offset);
+							dissect_sip_sec_mechanism(tvb, pinfo, security_client_tree, value_offset, comma_offset);
 							comma_offset = value_offset = comma_offset+1;
 						}
 
@@ -3237,7 +3247,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								comma_offset = line_end_offset;
 							}
 							security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_server);
-							dissect_sip_sec_mechanism(tvb, security_client_tree, value_offset, comma_offset);
+							dissect_sip_sec_mechanism(tvb, pinfo, security_client_tree, value_offset, comma_offset);
 							comma_offset = value_offset = comma_offset+1;
 						}
 
@@ -3258,7 +3268,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								comma_offset = line_end_offset;
 							}
 							security_client_tree = proto_item_add_subtree(sip_element_item, ett_sip_security_verify);
-							dissect_sip_sec_mechanism(tvb, security_client_tree, value_offset, comma_offset);
+							dissect_sip_sec_mechanism(tvb, pinfo, security_client_tree, value_offset, comma_offset);
 							comma_offset = value_offset = comma_offset+1;
 						}
 
@@ -5380,6 +5390,7 @@ void proto_register_sip(void)
 	static ei_register_info ei[] = {
 		{ &ei_sip_unrecognized_header, { "sip.unrecognized_header", PI_UNDECODED, PI_NOTE, "Unrecognised SIP header", EXPFILL }},
 		{ &ei_sip_header_not_terminated, { "sip.header_not_terminated", PI_MALFORMED, PI_WARN, "Header not terminated by empty line (CRLF)", EXPFILL }},
+		{ &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
 	};
 
 	module_t *sip_module;
