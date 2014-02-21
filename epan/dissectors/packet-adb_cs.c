@@ -72,7 +72,6 @@ static int hf_result                                                       = -1;
 
 static gint ett_adb_cs                                                     = -1;
 static gint ett_length                                                     = -1;
-static gint ett_status                                                     = -1;
 static gint ett_version                                                    = -1;
 static gint ett_pixel                                                      = -1;
 static gint ett_data                                                       = -1;
@@ -365,8 +364,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         if (response_frame == -1 || response_frame == (gint64) pinfo->fd->num) {
-            sub_item = proto_tree_add_item(main_tree, hf_status, tvb, offset, 4, ENC_NA | ENC_ASCII);
-            sub_tree = proto_item_add_subtree(sub_item, ett_status);
+            proto_tree_add_item(main_tree, hf_status, tvb, offset, 4, ENC_NA | ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%c%c%c%c", tvb_get_guint8(tvb, offset),
             tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2), tvb_get_guint8(tvb, offset + 3));
             offset += 4;
@@ -964,7 +962,6 @@ proto_register_adb_cs(void)
     static gint *ett[] = {
         &ett_adb_cs,
         &ett_length,
-        &ett_status,
         &ett_version,
         &ett_pixel,
         &ett_data
