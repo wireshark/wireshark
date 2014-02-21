@@ -1162,6 +1162,7 @@ static int hf_bgp_update_path_attribute_as_path_segment_as2 = -1;
 static int hf_bgp_update_path_attribute_as_path_segment_as4 = -1;
 static int hf_bgp_update_path_attribute_origin = -1;
 static int hf_bgp_update_path_attribute_cluster_list = -1;
+static int hf_bgp_update_path_attribute_cluster_id = -1;
 static int hf_bgp_update_path_attribute_originator_id = -1;
 static int hf_bgp_update_path_attribute_local_pref = -1;
 static int hf_bgp_update_path_attribute_multi_exit_disc = -1;
@@ -4998,7 +4999,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     int             i, j, k;                    /* tmp                      */
     guint8          type=0;                     /* AS_PATH segment type     */
     guint8          length=0;                   /* AS_PATH segment length   */
-    wmem_strbuf_t   *cluster_list_emstr = NULL; /* CLUSTER_LIST             */
     wmem_strbuf_t   *junk_emstr;                /* tmp                      */
     guint32         aggregator_as;
     guint16         ssa_type;                   /* SSA T + Type */
@@ -5502,27 +5502,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                        (o + current attribute + aoff bytes to first tuple) */
                     q = o + i + aoff;
                     end = q + tlen;
-                    /* must be freed by second switch!                          */
-                    /* "tlen * 16" (12 digits, 3 dots + space ) should be
-                       a good estimate of how long the cluster_list string could
-                       be                                                       */
-                    if (cluster_list_emstr == NULL)
-                        cluster_list_emstr = wmem_strbuf_sized_new(wmem_packet_scope(), (tlen + 1) * 16, 0);
-                    wmem_strbuf_truncate(cluster_list_emstr, 0);
 
-                    /* snarf each cluster list */
-                    while (q < end) {
-                        wmem_strbuf_append_printf(cluster_list_emstr, "%s ", tvb_ip_to_str(tvb, q));
-                        q += 4;
-                    }
-                    /* cleanup end of string */
-                    wmem_strbuf_truncate(cluster_list_emstr, wmem_strbuf_get_len(cluster_list_emstr) - 1);
-
-                    proto_item_append_text(ti_pa, ": %s", wmem_strbuf_get_str(cluster_list_emstr));
-
-                    ti = proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
-                                             "Cluster list: %s", cluster_list_emstr ?
-                                                 wmem_strbuf_get_str(cluster_list_emstr) : "<none>");
+                    ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_cluster_list,
+                                             tvb, o + i + aoff, tlen, ENC_NA);
                     cluster_list_tree = proto_item_add_subtree(ti,
                                                                ett_bgp_cluster_list);
 
@@ -5530,11 +5512,14 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                        (o + current attribute + aoff bytes to first tuple) */
                     q = o + i + aoff;
                     end = q + tlen;
-
+                    proto_item_append_text(ti, ":");
+                    proto_item_append_text(ti_pa, ":");
                     /* snarf each cluster identifier */
                     while (q < end) {
-                        proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_list,
+                        proto_tree_add_item(cluster_list_tree, hf_bgp_update_path_attribute_cluster_id,
                                             tvb, q - 3 + aoff, 4, ENC_NA);
+                        proto_item_append_text(ti, " %s", tvb_ip_to_str(tvb, q-3+aoff));
+                        proto_item_append_text(ti_pa, " %s", tvb_ip_to_str(tvb, q-3+aoff));
                         q += 4;
                     }
 
@@ -6510,7 +6495,10 @@ proto_register_bgp(void)
         { "Originator identifier", "bgp.update.path_attribute.originator_id", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_cluster_list,
-        { "Cluster List", "bgp.path_attribute.cluster_list", FT_BYTES, BASE_NONE,
+        { "Cluster List", "bgp.path_attribute.cluster_list", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_cluster_id,
+        { "Cluster ID", "bgp.path_attribute.cluster_id", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
 
         /* RFC5512 : BGP Encapsulation SAFI and the BGP Tunnel Encapsulation Attribute  */
