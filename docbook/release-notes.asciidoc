@@ -20,6 +20,7 @@ The following bugs have been fixed:
 * "On-the-wire" packet lengths are limited to 65535 bytes. (ws-buglink:8808[], ws-buglink:9390)
 * "Follow TCP Stream" shows only the first HTTP req+res. (ws-buglink:9044[])
 * Files with pcap-ng Simple Packet Blocks can't be read. (ws-buglink:9200[])
+* MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 
 === New and Updated Features
 
