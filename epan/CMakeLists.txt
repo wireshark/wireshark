@@ -430,6 +430,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bthid.c
 	dissectors/packet-bthsp.c
 	dissectors/packet-btle.c
+	dissectors/packet-btle_rf.c
 	dissectors/packet-btl2cap.c
 	dissectors/packet-btmcap.c
 	dissectors/packet-btobex.c

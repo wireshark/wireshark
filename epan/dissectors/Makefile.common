@@ -350,7 +350,8 @@ DISSECTOR_SRC = \
 	packet-bthid.c		\
 	packet-bthsp.c		\
 	packet-btl2cap.c	\
-	packet-btle.c	\
+	packet-btle.c		\
+	packet-btle_rf.c	\
 	packet-btmcap.c		\
 	packet-btobex.c		\
 	packet-btrfcomm.c	\
@@ -1331,6 +1332,7 @@ DISSECTOR_INCLUDES =	\
 	packet-btavdtp.h	\
 	packet-bthci_acl.h	\
 	packet-btl2cap.h	\
+	packet-btle.h		\
 	packet-btrfcomm.h	\
 	packet-btsdp.h	\
 	packet-c1222.h	\

@@ -697,6 +697,11 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
 	{ "Bluetooth Linux Monitor", "bluetooth-linux-monitor" },
 
+        /* WTAP_ENCAP_BLUETOOTH_BREDR_BB */
+        { "Bluetooth BR/EDR Baseband RF", "bluetooth-bredr-bb-rf" },
+
+        /* WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR */
+        { "Bluetooth Low Energy Link Layer RF", "bluetooth-le-ll-rf" },
 };
 
 WS_DLL_LOCAL

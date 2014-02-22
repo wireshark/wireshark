@@ -4,6 +4,7 @@
  *
  * Copyright 2013, Mike Ryan, mikeryan /at/ isecpartners /dot/ com
  * Copyright 2013, Michal Labedzki for Tieto Corporation
+ * Copyright 2014, Christopher D. Kilgour, techie at whiterocker dot com
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -31,6 +32,7 @@
 #include <epan/expert.h>
 #include <wiretap/wtap.h>
 
+#include "packet-btle.h"
 #include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
 
@@ -117,6 +119,12 @@ static gint ett_channel_map = -1;
 static gint ett_scan_response_data = -1;
 
 static expert_field ei_unknown_data = EI_INIT;
+static expert_field ei_access_address_matched = EI_INIT;
+static expert_field ei_access_address_bit_errors = EI_INIT;
+static expert_field ei_access_address_illegal = EI_INIT;
+static expert_field ei_crc_cannot_be_determined = EI_INIT;
+static expert_field ei_crc_correct = EI_INIT;
+static expert_field ei_crc_incorrect = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
@@ -211,8 +219,95 @@ dissect_bd_addr(gint hf_bd_addr, proto_tree *tree, tvbuff_t *tvb, gint offset)
     return offset;
 }
 
+/*
+ * Implements Bluetooth Vol 6, Part B, Section 3.1.1 (ref Figure 3.2)
+ *
+ * At entry: tvb is entire BTLE packet without preamble
+ *           payload_len is the Length field from the BTLE PDU header
+ *           crc_init as defined in the specifications
+ *
+ * This implementation operates on nibbles and is therefore
+ * endian-neutral.
+ */
+static guint32
+btle_crc(tvbuff_t *tvb, const guint8 payload_len, const guint32 crc_init)
+{
+    static const guint16 btle_crc_next_state_flips[256] = {
+        0x0000, 0x32d8, 0x196c, 0x2bb4, 0x0cb6, 0x3e6e, 0x15da, 0x2702,
+        0x065b, 0x3483, 0x1f37, 0x2def, 0x0aed, 0x3835, 0x1381, 0x2159,
+        0x065b, 0x3483, 0x1f37, 0x2def, 0x0aed, 0x3835, 0x1381, 0x2159,
+        0x0000, 0x32d8, 0x196c, 0x2bb4, 0x0cb6, 0x3e6e, 0x15da, 0x2702,
+        0x0cb6, 0x3e6e, 0x15da, 0x2702, 0x0000, 0x32d8, 0x196c, 0x2bb4,
+        0x0aed, 0x3835, 0x1381, 0x2159, 0x065b, 0x3483, 0x1f37, 0x2def,
+        0x0aed, 0x3835, 0x1381, 0x2159, 0x065b, 0x3483, 0x1f37, 0x2def,
+        0x0cb6, 0x3e6e, 0x15da, 0x2702, 0x0000, 0x32d8, 0x196c, 0x2bb4,
+        0x196c, 0x2bb4, 0x0000, 0x32d8, 0x15da, 0x2702, 0x0cb6, 0x3e6e,
+        0x1f37, 0x2def, 0x065b, 0x3483, 0x1381, 0x2159, 0x0aed, 0x3835,
+        0x1f37, 0x2def, 0x065b, 0x3483, 0x1381, 0x2159, 0x0aed, 0x3835,
+        0x196c, 0x2bb4, 0x0000, 0x32d8, 0x15da, 0x2702, 0x0cb6, 0x3e6e,
+        0x15da, 0x2702, 0x0cb6, 0x3e6e, 0x196c, 0x2bb4, 0x0000, 0x32d8,
+        0x1381, 0x2159, 0x0aed, 0x3835, 0x1f37, 0x2def, 0x065b, 0x3483,
+        0x1381, 0x2159, 0x0aed, 0x3835, 0x1f37, 0x2def, 0x065b, 0x3483,
+        0x15da, 0x2702, 0x0cb6, 0x3e6e, 0x196c, 0x2bb4, 0x0000, 0x32d8,
+        0x32d8, 0x0000, 0x2bb4, 0x196c, 0x3e6e, 0x0cb6, 0x2702, 0x15da,
+        0x3483, 0x065b, 0x2def, 0x1f37, 0x3835, 0x0aed, 0x2159, 0x1381,
+        0x3483, 0x065b, 0x2def, 0x1f37, 0x3835, 0x0aed, 0x2159, 0x1381,
+        0x32d8, 0x0000, 0x2bb4, 0x196c, 0x3e6e, 0x0cb6, 0x2702, 0x15da,
+        0x3e6e, 0x0cb6, 0x2702, 0x15da, 0x32d8, 0x0000, 0x2bb4, 0x196c,
+        0x3835, 0x0aed, 0x2159, 0x1381, 0x3483, 0x065b, 0x2def, 0x1f37,
+        0x3835, 0x0aed, 0x2159, 0x1381, 0x3483, 0x065b, 0x2def, 0x1f37,
+        0x3e6e, 0x0cb6, 0x2702, 0x15da, 0x32d8, 0x0000, 0x2bb4, 0x196c,
+        0x2bb4, 0x196c, 0x32d8, 0x0000, 0x2702, 0x15da, 0x3e6e, 0x0cb6,
+        0x2def, 0x1f37, 0x3483, 0x065b, 0x2159, 0x1381, 0x3835, 0x0aed,
+        0x2def, 0x1f37, 0x3483, 0x065b, 0x2159, 0x1381, 0x3835, 0x0aed,
+        0x2bb4, 0x196c, 0x32d8, 0x0000, 0x2702, 0x15da, 0x3e6e, 0x0cb6,
+        0x2702, 0x15da, 0x3e6e, 0x0cb6, 0x2bb4, 0x196c, 0x32d8, 0x0000,
+        0x2159, 0x1381, 0x3835, 0x0aed, 0x2def, 0x1f37, 0x3483, 0x065b,
+        0x2159, 0x1381, 0x3835, 0x0aed, 0x2def, 0x1f37, 0x3483, 0x065b,
+        0x2702, 0x15da, 0x3e6e, 0x0cb6, 0x2bb4, 0x196c, 0x32d8, 0x0000
+    };
+    gint    offset = 4; /* skip AA, CRC applies over PDU */
+    guint32 state = crc_init;
+    guint8  bytes_to_go = 2+payload_len; /* PDU includes header and payload */
+    while( bytes_to_go-- ) {
+        guint8 byte   = tvb_get_guint8(tvb, offset++);
+        guint8 nibble = (byte & 0xf);
+        guint8 index  = ((state >> 16) & 0xf0) | nibble;
+        state  = ((state << 4) ^ btle_crc_next_state_flips[index]) & 0xffffff;
+        nibble = ((byte >> 4) & 0xf);
+        index  = ((state >> 16) & 0xf0) | nibble;
+        state  = ((state << 4) ^ btle_crc_next_state_flips[index]) & 0xffffff;
+    }
+    return state;
+}
+
+/*
+ * Reverses the bits in each byte of a 32-bit word.
+ *
+ * Needed because CRCs are transmitted in bit-reversed order compared
+ * to the rest of the BTLE packet.  See BT spec, Vol 6, Part B,
+ * Section 1.2.
+ */
+static guint32
+reverse_bits_per_byte(const guint32 val)
+{
+    const guint8 nibble_rev[16] = {
+        0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+        0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf
+    };
+    guint32 retval = 0;
+    unsigned byte_index;
+    for (byte_index=0; byte_index<4; byte_index++) {
+        guint shiftA = byte_index*8;
+        guint shiftB = shiftA+4;
+        retval |= (nibble_rev[((val >> shiftA) & 0xf)] << shiftB);
+        retval |= (nibble_rev[((val >> shiftB) & 0xf)] << shiftA);
+    }
+    return retval;
+}
+
 static gint
-dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item  *btle_item;
     proto_tree  *btle_tree;
@@ -223,27 +318,40 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint8       length;
     guint32      interface_id;
     tvbuff_t    *next_tvb;
+    enum {CRC_INDETERMINATE,
+          CRC_CAN_BE_CALCULATED,
+          CRC_INCORRECT,
+          CRC_CORRECT} crc_status = CRC_INDETERMINATE;
+    guint32      crc_init = 0x555555; /* default to advertising channel's value */
+    guint32      packet_crc;
+    const btle_context_t * btle_context = (const btle_context_t *) data;
+
+    if (btle_context && btle_context->crc_checked_at_capture) {
+        crc_status = btle_context->crc_valid_at_capture ? CRC_CORRECT : CRC_INCORRECT;
+    }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LE LL");
-
-    switch (pinfo->p2p_dir) {
-        case P2P_DIR_SENT:
-            col_add_str(pinfo->cinfo, COL_INFO, "Sent ");
-            break;
-        case P2P_DIR_RECV:
-            col_add_str(pinfo->cinfo, COL_INFO, "Rcvd ");
-            break;
-        default:
-            col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
-                pinfo->p2p_dir);
-            break;
-    }
 
     btle_item = proto_tree_add_item(tree, proto_btle, tvb, offset, -1, ENC_NA);
     btle_tree = proto_item_add_subtree(btle_item, ett_btle);
 
-    proto_tree_add_item(btle_tree, hf_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    sub_item = proto_tree_add_item(btle_tree, hf_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     access_address = tvb_get_letohl(tvb, offset);
+    if (btle_context) {
+        switch(btle_context->aa_category) {
+        case E_AA_MATCHED:
+            expert_add_info(pinfo, sub_item, &ei_access_address_matched);
+            break;
+        case E_AA_ILLEGAL:
+            expert_add_info(pinfo, sub_item, &ei_access_address_illegal);
+            break;
+        case E_AA_BIT_ERRORS:
+            expert_add_info(pinfo, sub_item, &ei_access_address_bit_errors);
+            break;
+        default:
+            break;
+        }
+    }
     offset += 4;
 
     if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
@@ -257,6 +365,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         proto_item  *link_layer_data_item;
         proto_tree  *link_layer_data_tree;
         guint8       pdu_type;
+
+        if (crc_status == CRC_INDETERMINATE) {
+            /* Advertising channel CRCs can aways be calculated, because CRCInit is always known. */
+            crc_status = CRC_CAN_BE_CALCULATED;
+        }
 
         advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
@@ -285,6 +398,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_rfu_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(advertising_header_tree, hf_advertising_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        length = tvb_get_guint8(tvb, offset) & 0x3f;
         offset += 1;
 
         switch (pdu_type) {
@@ -604,10 +718,36 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 offset += tvb_length_remaining(tvb, offset) - 3;
             }
         }
+
+        if ((crc_status == CRC_INDETERMINATE) &&
+            btle_context && btle_context->connection_info_valid) {
+            /* the surrounding context has provided CRCInit */
+            crc_init = btle_context->connection_info.CRCInit;
+            crc_status = CRC_CAN_BE_CALCULATED;
+        }
     }
 
-    proto_tree_add_item(btle_tree, hf_crc, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    /* BT spec Vol 6, Part B, Section 1.2: CRC is big endian and bits in byte are flipped */
+    packet_crc = reverse_bits_per_byte(tvb_get_ntoh24(tvb, offset));
+    sub_item = proto_tree_add_uint(btle_tree, hf_crc, tvb, offset, 3, packet_crc);
     offset += 3;
+    if (crc_status == CRC_CAN_BE_CALCULATED) {
+        guint32 crc = btle_crc(tvb, length, crc_init);
+        crc_status = (packet_crc == crc) ? CRC_CORRECT : CRC_INCORRECT;
+    }
+    switch(crc_status) {
+    case CRC_INDETERMINATE:
+        expert_add_info(pinfo, sub_item, &ei_crc_cannot_be_determined);
+        break;
+    case CRC_INCORRECT:
+        expert_add_info(pinfo, sub_item, &ei_crc_incorrect);
+        break;
+    case CRC_CORRECT:
+        expert_add_info(pinfo, sub_item, &ei_crc_correct);
+        break;
+    default:
+        break;
+    }
 
     return offset;
 }
@@ -978,6 +1118,16 @@ proto_register_btle(void)
 
     static ei_register_info ei[] = {
         { &ei_unknown_data, { "btle.unknown_data", PI_PROTOCOL, PI_NOTE, "Unknown data", EXPFILL }},
+        { &ei_access_address_matched, { "btle.access_address.matched", PI_PROTOCOL, PI_NOTE,
+                                        "matched at capture", EXPFILL }},
+        { &ei_access_address_bit_errors, { "btle.access_address.bit_errors", PI_PROTOCOL, PI_WARN,
+                                           "but errors present at capture", EXPFILL }},
+        { &ei_access_address_illegal, { "btle.access_address.illegal", PI_PROTOCOL, PI_ERROR,
+                                        "illegal value", EXPFILL }},
+        { &ei_crc_cannot_be_determined, { "btle.crc.indeterminate", PI_PROTOCOL, PI_NOTE,
+                                          "unchecked, not all data available", EXPFILL }},
+        { &ei_crc_correct, { "btle.crc.correct", PI_PROTOCOL, PI_CHAT, "correct", EXPFILL }},
+        { &ei_crc_incorrect, { "btle.crc.incorrect", PI_PROTOCOL, PI_WARN,  "incorrect", EXPFILL }},
     };
 
     static gint *ett[] = {
