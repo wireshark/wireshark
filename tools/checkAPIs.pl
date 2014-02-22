@@ -124,10 +124,16 @@ my %APIs = (
                 '_snwprintf'    # use StringCchPrintf
                 ] },
 
-        ### Deprecated emem functions (use wmem instead!)
-        # These will become errors once they've been removed from all the
-        # existing code
-        'emem' => { 'count_errors' => 0, 'functions' => [
+        ### Soft-Deprecated functions that should not be used in new code but
+        # have not been entirely removed from old code. These will become errors
+        # once they've been removed from all existing code.
+        'soft-deprecated' => { 'count_errors' => 0, 'functions' => [
+                'tvb_length', # replaced with tvb_captured_length
+                'tvb_length_remaining', # replaced with tvb_captured_length_remaining
+                'tvb_ensure_length_remaining', # replaced with tvb_ensure_captured_length_remaining
+                'tvb_get_string', # replaced with tvb_get_string_enc
+
+                # wmem calls should replace all emem calls (see doc/README.wmem)
                 'ep_alloc',
                 'ep_new',
                 'ep_alloc0',
@@ -329,7 +335,7 @@ my %APIs = (
 
 );
 
-my @apiGroups = qw(prohibited deprecated emem);
+my @apiGroups = qw(prohibited deprecated soft-deprecated);
 
 # Deprecated GTK+ (and GDK) functions/macros with (E)rror or (W)arning flag:
 # (The list is based upon the GTK+ 2.24.8 documentation;
@@ -1946,7 +1952,10 @@ while ($_ = $ARGV[0])
         my @foundAPIs = ();
         my $line;
 
-        die "No such file: \"$filename\"" if (! -e $filename);
+        if (! -e $filename) {
+                warn "No such file: \"$filename\"";
+                next;
+        }
 
         # delete leading './'
         $filename =~ s{ ^ \. / } {}xo;

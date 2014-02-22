@@ -97,7 +97,7 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < PROTOABBREV_MIN_LENGTH)
+    if (tvb_reported_length(tvb) < PROTOABBREV_MIN_LENGTH)
         return 0;
 
     /* Fetch some values from the packet header using tvb_get_*(). If these
@@ -181,8 +181,8 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * README.dissector for more information. */
 
     /* Return the amount of data this dissector was able to dissect (which may
-     * or may not be the entire packet as we return here). */
-    return tvb_length(tvb);
+     * or may not be the total captured packet as we return here). */
+    return tvb_captured_length(tvb);
 }
 
 /* Register the protocol with Wireshark.

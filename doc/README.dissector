@@ -249,21 +249,12 @@ void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const guint 
 
 String accessors:
 
-guint8 *tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length);
 guint8 *tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
-Returns a null-terminated buffer containing data from the specified
-tvbuff, starting at the specified offset, and containing the specified
-length worth of characters (the length of the buffer will be length+1,
-as it includes a null character to terminate the string).
-
-tvb_get_string() returns a buffer allocated by g_malloc() if scope is set
-to NULL (in that case memory must be explicitely freed), or with the
-allocator lifetime if scope is not NULL.
-
-tvb_get_string_enc() is a version of tvb_get_string() that takes a
-string encoding as an argument.  See below for a list of encoding values
-for strings.
+Returns a null-terminated buffer allocated from the specified scope, containing
+data from the specified tvbuff, starting at the specified offset, and containing
+the specified length worth of characters. Reads data in the specified encoding
+and produces UTF-8 in the buffer. See below for a list of input encoding values.
 
 guint8 *tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp);
 guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
@@ -2005,7 +1996,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Calculate the available data in the packet,
    set this to -1 to use all the data in the tv_buffer
 */
-        available_length = tvb_length(tvb) - IPX_HEADER_LEN;
+        available_length = tvb_captured_length(tvb) - IPX_HEADER_LEN;
 
 /* Create the tvbuffer for the next dissector */
         next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN,
@@ -2886,7 +2877,7 @@ reference to a callback which will be called with reassembled data:
     {
         tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2,
             get_dns_pdu_len, dissect_dns_tcp_pdu, data);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
 (The dissect_dns_tcp_pdu function acts similarly to dissect_dns_udp.)

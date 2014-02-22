@@ -304,7 +304,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	right = 8 - left; /* for right-shifting */
 
 	if (no_of_bits == -1) {
-		datalen = tvb_length_remaining(tvb, byte_offset);
+		datalen = tvb_captured_length_remaining(tvb, byte_offset);
 		remaining_bits = 0;
 	} else {
 		datalen = no_of_bits >> 3;
@@ -326,7 +326,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
  	* if non extra byte is available, the last shifted byte requires
  	* special treatment
  	*/
-	if (tvb_length_remaining(tvb, byte_offset) > datalen) {
+	if (tvb_captured_length_remaining(tvb, byte_offset) > datalen) {
 		data = tvb_get_ptr(tvb, byte_offset, datalen + 1);
 
 		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
@@ -390,7 +390,7 @@ tvb_clone(tvbuff_t *tvb)
 }
 
 guint
-tvb_length(const tvbuff_t *tvb)
+tvb_captured_length(const tvbuff_t *tvb)
 {
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -398,7 +398,7 @@ tvb_length(const tvbuff_t *tvb)
 }
 
 gint
-tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
+tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
 	int exception;
@@ -413,7 +413,7 @@ tvb_length_remaining(const tvbuff_t *tvb, const gint offset)
 }
 
 guint
-tvb_ensure_length_remaining(const tvbuff_t *tvb, const gint offset)
+tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
 	int   exception;
@@ -2475,16 +2475,6 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 /*
- * Get an ASCII string; this should not be used in new code.
- */
-guint8 *
-tvb_get_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
-			     const gint length)
-{
-	return tvb_get_ascii_string(scope, tvb, offset, length);
-}
-
-/*
  * These routines are like the above routines, except that they handle
  * null-terminated strings.  They find the length of that string (and
  * throw an exception if the tvbuff ends before we find the null), and
@@ -2949,7 +2939,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	guchar found_needle = 0;
 
 	if (len == -1)
-		len = tvb_length_remaining(tvb, offset);
+		len = tvb_captured_length_remaining(tvb, offset);
 	/*
 	 * XXX - what if "len" is still -1, meaning "offset is past the
 	 * end of the tvbuff"?
@@ -3065,7 +3055,7 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 	int      linelen;
 
 	if (len == -1)
-		len = tvb_length_remaining(tvb, offset);
+		len = tvb_captured_length_remaining(tvb, offset);
 	/*
 	 * XXX - what if "len" is still -1, meaning "offset is past the
 	 * end of the tvbuff"?
@@ -3203,7 +3193,7 @@ tvb_skip_wsp(tvbuff_t *tvb, const gint offset, const gint maxlength)
 	guint8 tempchar;
 
 	/* Get the length remaining */
-	tvb_len = tvb_length(tvb);
+	tvb_len = tvb_captured_length(tvb);
 	end     = offset + maxlength;
 	if (end >= tvb_len)
 	{
@@ -3238,7 +3228,7 @@ tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch)
 	int end, tvb_len;
 
 	/* Get the length remaining */
-	tvb_len = tvb_length(tvb);
+	tvb_len = tvb_captured_length(tvb);
 	end     = offset + maxlength;
 	if (end >= tvb_len)
 		end = tvb_len;
@@ -3294,7 +3284,7 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
 		dgt = &Dgt1_9_bcd;
 
 	if (len == -1) {
-		length = tvb_length(tvb);
+		length = tvb_captured_length(tvb);
 		if (length < offset) {
 			return "";
 		}
