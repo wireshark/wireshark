@@ -35,6 +35,8 @@ The following bugs have been fixed:
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
 
+* MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
+
 === New and Updated Features
 
 There are no new features in this release.
