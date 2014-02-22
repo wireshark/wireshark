@@ -2727,8 +2727,8 @@ isakmp_dissect_payloads(tvbuff_t *tvb, proto_tree *tree, int isakmp_version,
 		   pinfo, NULL);
 }
 
-static void
-dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   int			offset = 0, len;
   isakmp_hdr_t	hdr;
@@ -2747,6 +2747,14 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISAKMP");
   col_clear(pinfo->cinfo, COL_INFO);
 
+  /* Some simple heuristics to catch non-isakmp packets */
+  if (tvb_reported_length(tvb)==1 && tvb_get_guint8(tvb, offset) !=0xff)
+    return 0;
+  else if (tvb_reported_length(tvb) < ISAKMP_HDR_SIZE)
+    return 0;
+  else if (tvb_get_ntohl(tvb, ISAKMP_HDR_SIZE-4) < ISAKMP_HDR_SIZE)
+    return 0;
+
   if (tree) {
     ti = proto_tree_add_item(tree, proto_isakmp, tvb, offset, -1, ENC_NA);
     isakmp_tree = proto_item_add_subtree(ti, ett_isakmp);
@@ -2755,10 +2763,10 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* RFC3948 2.3 NAT Keepalive packet:
    * 1 byte payload with the value 0xff.
    */
-  if ( (tvb_length(tvb)==1) && (tvb_get_guint8(tvb, offset)==0xff) ){
+  if ( (tvb_reported_length(tvb)==1) && (tvb_get_guint8(tvb, offset)==0xff) ){
     col_set_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
     proto_tree_add_item(isakmp_tree, hf_isakmp_nat_keepalive, tvb, offset, 1, ENC_NA);
-    return;
+    return 1;
   }
 
   hdr.length = tvb_get_ntohl(tvb, offset + ISAKMP_HDR_SIZE - 4);
@@ -2881,7 +2889,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
                                  hdr.length, "(bogus, length is %u, should be at least %lu)",
                                  hdr.length, (unsigned long)ISAKMP_HDR_SIZE);
-      return;
+      return tvb_captured_length(tvb);
     }
 
     len = hdr.length - ISAKMP_HDR_SIZE;
@@ -2890,7 +2898,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
                                  hdr.length, "(bogus, length is %u, which is too large)",
                                  hdr.length);
-      return;
+      return tvb_captured_length(tvb);
     }
     tvb_ensure_bytes_exist(tvb, offset, len);
     proto_tree_add_item(isakmp_tree, hf_isakmp_length, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -2919,6 +2927,8 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		       offset, len, pinfo, decr_data);
 	}
   }
+
+  return tvb_captured_length(tvb);
 }
 
 
@@ -3857,7 +3867,7 @@ dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *t
                                                  NULL, ptree);
 
     if (defrag_isakmp_tvb) { /* take it all */
-      dissect_isakmp(defrag_isakmp_tvb, pinfo, ptree);
+      dissect_isakmp(defrag_isakmp_tvb, pinfo, ptree, NULL);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO,
                       " (%sMessage fragment %u%s)",
@@ -6170,7 +6180,7 @@ proto_register_isakmp(void)
   expert_register_field_array(expert_isakmp, ei, array_length(ei));
   register_init_routine(&isakmp_init_protocol);
 
-  register_dissector("isakmp", dissect_isakmp, proto_isakmp);
+  new_register_dissector("isakmp", dissect_isakmp, proto_isakmp);
 
 #ifdef HAVE_LIBGCRYPT
   isakmp_module = prefs_register_protocol(proto_isakmp, isakmp_prefs_apply_cb);
@@ -6227,3 +6237,16 @@ proto_reg_handoff_isakmp(void)
   dissector_add_uint("udp.port", UDP_PORT_ISAKMP, isakmp_handle);
   dissector_add_uint("tcp.port", TCP_PORT_ISAKMP, isakmp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
