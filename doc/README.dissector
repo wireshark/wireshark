@@ -1959,6 +1959,10 @@ The syntax for creating a new TVBUFF_SUBSET is:
 
 next_tvb = tvb_new_subset(tvb, offset, length, reported_length)
 
+or, in the common case where it should just run to the end of the packet,
+
+next_tvb = tvb_new_subset_remaining(tvb, offset)
+
 Where:
     tvb is the tvbuff that the dissector has been working on. It
     can be a tvbuff of any type.
@@ -1975,36 +1979,6 @@ Where:
     reported_length is the number of bytes that the current protocol
     says should be in the payload. A reported_length of -1 says that
     the protocol doesn't say anything about the size of its payload.
-
-
-An example from packet-ipx.c -
-
-void
-dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-        tvbuff_t        *next_tvb;
-        int             reported_length, available_length;
-
-
-        /* Make the next tvbuff */
-
-/* IPX does have a length value in the header, so calculate report_length */
-   Set this to -1 if there isn't any length information in the protocol
-*/
-        reported_length = ipx_length - IPX_HEADER_LEN;
-
-/* Calculate the available data in the packet,
-   set this to -1 to use all the data in the tv_buffer
-*/
-        available_length = tvb_captured_length(tvb) - IPX_HEADER_LEN;
-
-/* Create the tvbuffer for the next dissector */
-        next_tvb = tvb_new_subset(tvb, IPX_HEADER_LEN,
-                        MIN(available_length, reported_length),
-                        reported_length);
-
-/* call the next dissector */
-    dissector_next( next_tvb, pinfo, tree);
 
 
 1.8 Editing Makefile.common and CMakeLists.txt to add your dissector.

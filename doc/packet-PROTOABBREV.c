@@ -96,17 +96,20 @@ dissect_PROTOABBREV(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * For example:
      */
 
-    /* Check that there's enough data */
+    /* Check that the packet is long enough for it to belong to us */
     if (tvb_reported_length(tvb) < PROTOABBREV_MIN_LENGTH)
         return 0;
 
-    /* Fetch some values from the packet header using tvb_get_*(). If these
-     * values are not valid/possible in your protocol then return 0 to give
-     * some other dissector a chance to dissect it.
-     */
-    if ( TEST_HEURISTICS )
-         /* these values are not possible in PROTONAME */
-        return 0;
+    /* Check that there's enough data present to run the heuristics */
+    if (tvb_captured_length(tvb) > SOME_HEURISTIC_VALUE) {
+        /* Fetch some values from the packet header using tvb_get_*(). If these
+         * values are not valid/possible in your protocol then return 0 to give
+         * some other dissector a chance to dissect it.
+         */
+        if ( TEST_HEURISTICS )
+            /* these values are not possible in PROTONAME */
+            return 0;
+    }
 
     /*** COLUMN DATA ***/
 

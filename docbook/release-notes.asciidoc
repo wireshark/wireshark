@@ -58,12 +58,10 @@ since version 1.10:
 
 * Wireshark now uses the Qt application framework. The new UI should provide
   a significantly better user experience, particularly on Mac OS X and Windows.
-* A more flexible, modular memory manger (wmem) has been added. It was available
-  experimentally in 1.10 but is now mature and has mostly replaced the old API.
-* Expert info is now filterable and now requires a new API.
 * The Windows installer now uninstalls the previous version of Wireshark
   silently.  You can still run the uninstaller manually beforehand if you wish
   to run it interactively.
+* Expert information is now filterable when the new API is in use.
 * The "Number" column shows related packets and protocol conversation spans
   (Qt only).
 * When manipulating packets with editcap using the -C <choplen> and/or
@@ -153,6 +151,18 @@ STANAG 4607
 STANAG 5066 Data Transfer Sublayer
 
 --sort-and-group--
+
+=== Major API Changes
+
+The libwireshark API has undergone some major changes:
+
+* A more flexible, modular memory manger (wmem) has been added. It was available
+  experimentally in 1.10 but is now mature and has mostly replaced the old emem
+  API (which is deprecated).
+* A new API for expert information has been added, replacing the old one.
+* The tvbuff API has been cleaned up: tvb_length has been renamed to
+  tvb_captured_length for clarity, and tvb_get_string has been deprecated in
+  favour of tvb_get_string_enc.
 
 == Getting Wireshark
 
