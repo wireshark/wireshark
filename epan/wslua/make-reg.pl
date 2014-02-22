@@ -76,6 +76,7 @@ for (@classes) {
 print C "\twslua_reg_module(L, \"bit\", luaopen_bit);\n";
 # the bitops library returns a value on the stack - get rid of it
 print C "\tlua_pop(L,1);\n";
+print C "\twslua_reg_module(L, \"GRegex\", luaopen_rex_glib);\n";
 print C "}\n\n";
 
 

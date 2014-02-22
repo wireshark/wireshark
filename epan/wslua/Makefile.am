@@ -31,6 +31,9 @@ noinst_LTLIBRARIES = libwslua.la
 
 wslua_modules = 	\
 	$(srcdir)/lua_bitop.c \
+	$(srcdir)/lrexlib.c \
+	$(srcdir)/lrexlib_glib.c \
+	$(srcdir)/lrexlib_glib_f.c \
 	$(srcdir)/wslua_tvb.c \
 	$(srcdir)/wslua_proto.c \
 	$(srcdir)/wslua_int64.c \
@@ -83,6 +86,8 @@ MAINTAINERCLEANFILES = \
 EXTRA_DIST = \
 	declare_wslua.h		\
 	lua_bitop.h		\
+	lrexlib.h 			\
+	lrexlib_algo.h 		\
 	register_wslua.c	\
 	taps			\
 	make-reg.pl		\
@@ -125,6 +130,8 @@ checkapi:
 	init_wslua.c \
 	register_wslua.c \
 	taps_wslua.c \
+	lrexlib_glib.c \
+	lrexlib_glib_f.c \
 	wslua_dumper.c \
 	wslua_field.c \
 	wslua_gui.c \

@@ -16,6 +16,9 @@ CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
 
 MODULES = 	\
 	lua_bitop.c \
+	lrexlib.c \
+	lrexlib_glib.c \
+	lrexlib_glib_f.c \
 	wslua_tvb.c \
 	wslua_proto.c \
 	wslua_int64.c \
@@ -34,6 +37,9 @@ OBJECTS= \
 	register_wslua.obj \
 	taps_wslua.obj \
 	lua_bitop.obj \
+	lrexlib.obj \
+	lrexlib_glib.obj \
+	lrexlib_glib_f.obj \
 	wslua_tvb.obj \
 	wslua_proto.obj \
 	wslua_int64.obj \

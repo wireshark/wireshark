@@ -25,6 +25,9 @@
 
 set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lua_bitop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lrexlib.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lrexlib_glib.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wslua/lrexlib_glib_f.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_int64.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_tvb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua/wslua_proto.c

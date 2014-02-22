@@ -608,5 +608,6 @@ extern int wslua_is_field_available(lua_State* L, const char* field_abbr);
 
 extern int wslua_bin2hex(lua_State* L, const guint8* data, const guint len, const gboolean lowercase, const gchar* sep);
 extern int wslua_hex2bin(lua_State* L, const char* data, const guint len, const gchar* sep);
+extern int luaopen_rex_glib(lua_State *L);
 
 #endif
