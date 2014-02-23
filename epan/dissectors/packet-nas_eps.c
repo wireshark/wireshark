@@ -3,8 +3,6 @@
  *
  * Copyright 2008 - 2010, Anders Broman <anders.broman@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -258,7 +256,7 @@ static const value_string nas_msg_emm_strings[] = {
     { 0x61, "EMM information"},
     { 0x62, "Downlink NAS transport"},
     { 0x63, "Uplink NAS transport"},
-    { 0x64, "CS Service notification"},
+    { 0x64, "CS service notification"},
     { 0x68, "Downlink generic NAS transport"},
     { 0x69, "Uplink generic NAS transport"},
     { 0,    NULL }
@@ -966,7 +964,9 @@ de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return curr_offset-offset;}
+    return curr_offset-offset;
+}
+
 /*
  * 9.9.3.10 EPS attach result
  */
@@ -1504,9 +1504,9 @@ de_emm_paging_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, curr_offset<<3, 7, ENC_BIG_ENDIAN);
     proto_tree_add_bits_item(tree, hf_nas_eps_emm_paging_id, tvb, (curr_offset<<3)+7, 1, ENC_BIG_ENDIAN);
-    /*curr_offset+=len;*/
+    /*curr_offset+=1;*/
 
-    return(len);
+    return(1);
 }
 /*
  * 9.9.3.26 P-TMSI signature
@@ -3154,7 +3154,7 @@ nas_emm_cs_serv_not(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* Paging identity  Paging identity 9.9.3.25A   M   V   1 */
     ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_PAGING_ID, NULL);
     /* 60   CLI CLI 9.9.3.38    O   TLV 3-12 */
-    ELEM_OPT_TLV(0x60, GSM_A_PDU_TYPE_DTAP, DE_CLD_PARTY_BCD_NUM, " - CLI");
+    ELEM_OPT_TLV(0x60, GSM_A_PDU_TYPE_DTAP, DE_CLG_PARTY_BCD_NUM, " - CLI");
     /* 61   SS Code SS Code 9.9.3.39    O   TV  2 */
     ELEM_OPT_TV(0x61, NAS_PDU_TYPE_EMM, DE_EMM_SS_CODE, NULL);
     /* 62   LCS indicator   LCS indicator 9.9.3.40  O   TV  2 */
