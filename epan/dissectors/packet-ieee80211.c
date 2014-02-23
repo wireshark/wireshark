@@ -13112,7 +13112,6 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         offset += 4;
         break;
       }
-      break;
 
     case TAG_MESH_CHANNEL_SWITCH: /* Mesh Channel Switch Parameters (118) */
       {
