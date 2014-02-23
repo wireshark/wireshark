@@ -1977,12 +1977,14 @@ static const value_string pn_io_user_structure_identifier[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string pn_io_channel_number[] = {
     /*0x0000 - 0x7FFF manufacturer specific */
     { 0x8000, "Submodule" },
     /*0x8001 - 0xFFFF reserved */
     { 0, NULL }
 };
+#endif
 
 static const value_string pn_io_channel_error_type[] = {
     { 0x0000, "reserved" },
@@ -2574,6 +2576,7 @@ static const value_string pn_io_profidrive_attribute_vals[] = {
     { 0, NULL }
 };
 
+#if 0
 static const value_string pn_io_profidrive_format_vals_status[] = {
     { 0x00, "Reserved" },
     { 0x40, "Zero" },
@@ -2583,6 +2586,7 @@ static const value_string pn_io_profidrive_format_vals_status[] = {
     { 0x44, "Error" },
     { 0, NULL }
 };
+#endif
 
 static const value_string pn_io_profidrive_format_vals[] = {
     {0x01, "Boolean" },
