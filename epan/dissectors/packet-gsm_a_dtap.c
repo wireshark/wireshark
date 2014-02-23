@@ -78,8 +78,6 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 11.6.0 Release 11)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -661,8 +659,8 @@ gint ett_gsm_dtap_elem[NUM_GSM_DTAP_ELEM];
 
 static dgt_set_t Dgt_mbcd = {
 	{
-      /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
-	 '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c','?'
+	/* 0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
+	  '0','1','2','3','4','5','6','7','8','9','*','#','a','b','c','?'
 	}
 };
 
@@ -1102,7 +1100,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 		curr_offset++;
 		en_len--;
 
-		poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, en_len);
+		poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, en_len);
 
 		my_dgt_tbcd_unpack(a_bigbuf, poctets, en_len, &Dgt_mbcd);
 
@@ -2206,7 +2204,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	NO_MORE_DATA_CHECK(len);
 
 	num_string_len = len - (curr_offset - offset);
-	poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, num_string_len);
+	poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, num_string_len);
 
 	*address_extracted = TRUE;
 	my_dgt_tbcd_unpack(a_bigbuf, poctets, num_string_len,
@@ -2287,7 +2285,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 		if (afi == 0x50)
 		{
 			ia5_string_len = len - (curr_offset - offset);
-			ia5_string = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, ia5_string_len);
+			ia5_string = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, ia5_string_len);
 
 			invalid_ia5_char = FALSE;
 			for(i = 0; i < ia5_string_len; i++)

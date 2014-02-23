@@ -6,8 +6,6 @@
  *
  * Split from packet-gsm_a.c by Neil Piercy <Neil [AT] littlebriars.co.uk>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -1927,14 +1925,14 @@ guint16 elem_v_short(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gint p
 
 static dgt_set_t Dgt_tbcd = {
     {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','?','B','C','*','#','?'
     }
 };
 
 static dgt_set_t Dgt1_9_bcd = {
     {
-  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e */
+  /*  0   1   2   3   4   5   6   7   8   9   a   b   c   d   e   f */
      '0','1','2','3','4','5','6','7','8','9','?','?','?','?','?','?'
     }
 };
@@ -2288,7 +2286,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
         curr_offset++;
 
-        poctets = tvb_get_string(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
+        poctets = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, curr_offset, len - (curr_offset - offset));
 
         my_dgt_tbcd_unpack(&a_bigbuf[1], poctets, len - (curr_offset - offset),
             &Dgt1_9_bcd);
