@@ -19359,6 +19359,7 @@
 48:71:19	SgbGroup               # SGB GROUP LTD.
 48:74:6E	Apple
 48:76:04	Private
+48:82:44	LifeFitn               # Life Fitness / Div. of Brunswick
 48:8E:42	Digalog                # DIGALOG GmbH
 48:91:53	Weinmann               # Weinmann Geräte für Medizin GmbH + Co. KG
 48:91:F6	Shenzhen               # Shenzhen Reach software technology CO.,LTD
@@ -20366,10 +20367,12 @@
 70:B2:65	HiltronS               # Hiltron s.r.l.
 70:B3:D5	IeeeRegi               # IEEE REGISTRATION AUTHORITY  - Please see OUI36 public listing for more information.
 70:B3:D5:04:40:00/36	DonElect               # Don Electronics Ltd
+70:B3:D5:07:70:00/36	Inaccess               # InAccess Networks SA
 70:B3:D5:09:00:00/36	Powercra               # POWERCRAFT ELECTRONICS PVT. LTD.
 70:B3:D5:0A:90:00/36	Proconne               # ProConnections, Inc.
 70:B3:D5:0A:A0:00/36	Wanco                  # Wanco Inc
 70:B3:D5:0E:00:00/36	Plcis
+70:B3:D5:0F:00:00/36	Avionica
 70:B3:D5:0F:B0:00/36	CygnusLl               # Cygnus LLC
 70:B3:D5:10:90:00/36	DitestFa               # DiTEST Fahrzeugdiagnose GmbH
 70:B3:D5:13:90:00/36	Tunstall               # Tunstall A/S
@@ -20388,6 +20391,8 @@
 70:B3:D5:3F:10:00/36	OlympusN               # Olympus NDT Canada
 70:B3:D5:40:A0:00/36	MonroeEl               # Monroe Electronics, Inc.
 70:B3:D5:42:F0:00/36	Sintokog               # SINTOKOGIO, LTD
+70:B3:D5:43:30:00/36	Flexsolu               # Flexsolution APS
+70:B3:D5:4C:10:00/36	QuercusT               # QUERCUS TECHNOLOGIES, S. L.
 70:B3:D5:4C:80:00/36	Hosokawa               # Hosokawa Micron Powder Systems
 70:B3:D5:5A:80:00/36	Farmobil               # Farmobile
 70:B3:D5:5E:80:00/36	Vitec
@@ -20395,6 +20400,7 @@
 70:B3:D5:6B:60:00/36	Inradios               # INRADIOS GmbH
 70:B3:D5:6D:30:00/36	Deuta-We               # DEUTA-WERKE GmbH
 70:B3:D5:70:20:00/36	SensorHi               # Sensor Highway Ltd
+70:B3:D5:80:F0:00/36	Quickwar               # Quickware Eng & Des LLC
 70:B3:D5:81:40:00/36	Ingenieu               # Ingenieurbuero SOMTRONIK
 70:B3:D5:87:10:00/36	OsoTechn               # Oso Technologies
 70:B3:D5:8B:10:00/36	M-TechIn               # M-Tech Innovations Ltd
@@ -20421,9 +20427,12 @@
 70:B3:D5:ED:C0:00/36	JDKoftin               # J.D. Koftinoff Software, Ltd.
 70:B3:D5:ED:D0:00/36	SolarNet               # Solar Network & Partners
 70:B3:D5:EF:90:00/36	Critical               # Critical Link
+70:B3:D5:F3:40:00/36	MacgrayS               # MacGray Services
 70:B3:D5:F3:80:00/36	Scanvaeg               # Scanvaegt Nordic A/S
+70:B3:D5:F6:10:00/36	PowerDia               # Power Diagnostic Service
 70:B3:D5:F6:20:00/36	Frs                    # FRS GmbH & Co. KG
 70:B3:D5:F6:30:00/36	ArsProdu               # Ars Products
+70:B3:D5:FB:00:00/36	Rohde&Sc               # Rohde&Schwarz Topex SA
 70:B3:D5:FD:10:00/36	Redrat                 # RedRat Ltd
 70:B5:99	Embedded               # Embedded Technologies s.r.o.
 70:B9:21	Fiberhom               # FiberHome Telecommunication Technologies CO.,LTD
@@ -20779,7 +20788,7 @@
 7C:F4:29	Nuuo                   # NUUO Inc.
 7C:FA:DF	Apple
 7C:FE:28	Salutron               # Salutron Inc.
-7C:FE:4E	Shenzhen               # Shenzhen's WeiShi electronics co., LTD
+7C:FE:4E	Shenzhen               # Shenzhen Safe vision Technology Co.,LTD
 7C:FF:62	HuizhouS               # Huizhou Super Electron Technology Co.,Ltd.
 80:00:0B	IntelCor               # Intel Corporate
 80:00:10	AttBellL               # ATT BELL LABORATORIES

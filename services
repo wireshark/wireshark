@@ -1603,8 +1603,8 @@ lmsocialserver   1111/udp # LM Social Server [Ron_Lussier] [Ron_Lussier]
 icp              1112/tcp # Intelligent Communication Protocol [Mark_H_David] [Mark_H_David]
 icp              1112/udp # Intelligent Communication Protocol [Mark_H_David] [Mark_H_David]
 ltp-deepspace    1113/tcp # Licklider Transmission Protocol [RFC5326]
-ltp-deepspace    1113/udp # Licklider Transmission Protocol [RFC5326]
-ltp-deepspace    1113/dccp # Licklider Transmission Protocol [Hans_Kruse] [Hans_Kruse] 2013-11-12 [RFC-irtf-dtnrg-dgram-clayer-05] 7107696
+ltp-deepspace    1113/udp # Licklider Transmission Protocol 2014-02-21 [RFC5326][RFC-irtf-dtnrg-dgram-clayer]
+ltp-deepspace    1113/dccp # Licklider Transmission Protocol 2013-11-12 2014-02-21 [RFC-irtf-dtnrg-dgram-clayer-05] 7107696
 mini-sql         1114/tcp # Mini SQL [David_Hughes] [David_Hughes]
 mini-sql         1114/udp # Mini SQL [David_Hughes] [David_Hughes]
 ardus-trns       1115/tcp # ARDUS Transfer
@@ -5369,8 +5369,8 @@ identify         2987/tcp # identify
 identify         2987/udp # identify
 hippad           2988/tcp # HIPPA Reporting Protocol [William_Randolph_Roy] [William_Randolph_Roy]
 hippad           2988/udp # HIPPA Reporting Protocol [William_Randolph_Roy] [William_Randolph_Roy]
-zarkov           2989/tcp # ZARKOV Intelligent Agent Communication [Robin_Felix] [Robin_Felix]
-zarkov           2989/udp # ZARKOV Intelligent Agent Communication [Robin_Felix] [Robin_Felix]
+zarkov           2989/tcp # ZARKOV Intelligent Agent Communication [Robin_Felix] [Robin_Felix] 2014-02-17
+zarkov           2989/udp # ZARKOV Intelligent Agent Communication [Robin_Felix] [Robin_Felix] 2014-02-17
 boscap           2990/tcp # BOSCAP [Dirk_Hillbrecht] [Dirk_Hillbrecht]
 boscap           2990/udp # BOSCAP [Dirk_Hillbrecht] [Dirk_Hillbrecht]
 wkstn-mon        2991/tcp # WKSTN-MON [William_David] [William_David]
@@ -5870,8 +5870,8 @@ dwmsgserver      3228/tcp # DiamondWave MSG Server [Varma_Bhupatiraju] [Varma_Bh
 dwmsgserver      3228/udp # DiamondWave MSG Server [Varma_Bhupatiraju] [Varma_Bhupatiraju]
 global-cd-port   3229/tcp # Global CD Port [Vitaly_Revsin_2] [Vitaly_Revsin_2]
 global-cd-port   3229/udp # Global CD Port [Vitaly_Revsin_2] [Vitaly_Revsin_2]
-sftdst-port      3230/tcp # Software Distributor Port [Andrea_Lanza] [Andrea_Lanza]
-sftdst-port      3230/udp # Software Distributor Port [Andrea_Lanza] [Andrea_Lanza]
+sftdst-port      3230/tcp # Software Distributor Port [Andrea_Lanza] [Andrea_Lanza] 2014-02-21
+sftdst-port      3230/udp # Software Distributor Port [Andrea_Lanza] [Andrea_Lanza] 2014-02-21
 vidigo           3231/tcp # VidiGo communication (previous was: Delta Solutions Direct) [Peter_Ijkhout] [Peter_Ijkhout]
 vidigo           3231/udp # VidiGo communication (previous was: Delta Solutions Direct) [Peter_Ijkhout] [Peter_Ijkhout]
 mdtp             3232/tcp # MDT port 2012-02-21 [RFC6513]
@@ -8008,8 +8008,8 @@ msfrs            4554/udp # MS FRS Replication [Kev_George] [Kev_George] 2006-09
 rsip             4555/tcp # RSIP Port [RFC3103]
 rsip             4555/udp # RSIP Port [RFC3103]
 dtn-bundle-tcp   4556/tcp # DTN Bundle TCP CL Protocol
-dtn-bundle-udp   4556/udp # DTN Bundle UDP CL Protocol [Michael_Demmer] [Michael_Demmer] 2006-11
-dtn-bundle-dccp  4556/dccp # DTN Bundle DCCP CL Protocol [Hans_Kruse] [Hans_Kruse] 2013-11-12 [RFC-irtf-dtnrg-dgram-clayer-05] 1685351985
+dtn-bundle       4556/udp # DTN Bundle UDP CL Protocol 2006-11 2014-02-21 [RFC-irtf-dtnrg-dgram-clayer]
+dtn-bundle       4556/dccp # DTN Bundle DCCP CL Protocol 2013-11-12 2014-02-21 [RFC-irtf-dtnrg-dgram-clayer] 1685351985
 mtcevrunqss      4557/udp # Marathon everRun Quorum Service Server [David_Schwartz_2] [David_Schwartz_2] 2009-06-18
 mtcevrunqman     4558/udp # Marathon everRun Quorum Service Manager [David_Schwartz_2] [David_Schwartz_2] 2009-06-18
 hylafax          4559/tcp # HylaFAX [Lee_Howard] [Lee_Howard] 2002-03
@@ -9320,6 +9320,7 @@ afesc-mc         6628/tcp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
 afesc-mc         6628/udp # AFE Stock Channel M/C [K_K_Ho] [K_K_Ho] 2004-04
 mxodbc-connect   6632/tcp # eGenix mxODBC Connect [Marc_Andre_Lemburg] [Marc_Andre_Lemburg] 2009-11-13 Unauthorized Use Known on port 6632
 cisco-vpath-tun  6633/udp # Cisco vPath Services Overlay [Cisco2] [Surendra_Kumar] 2012-06-11
+mpls-pm          6634/udp # MPLS Performance Measurement out-of-band response [Cisco_Systems_2] [Sagar_Soni] 2014-02-20
 ovsdb            6640/tcp # Open vSwitch Database protocol [Bruce_Davie_2] [Bruce_Davie_2] 2013-07-31 [RFC7047]
 openflow         6653/tcp # OpenFlow [Open_Networking_Foundation] [Puneet_Agarwal] 2013-07-18
 openflow         6653/udp # OpenFlow [Open_Networking_Foundation] [Puneet_Agarwal] 2013-07-18
@@ -9374,7 +9375,7 @@ plysrv-https     6771/tcp # PolyServe https [Mike_Spitzer] [Mike_Spitzer] 2005-0
 plysrv-https     6771/udp # PolyServe https [Mike_Spitzer] [Mike_Spitzer] 2005-08
 ntz-tracker      6777/tcp # netTsunami Tracker [Tomahawk_Holdings] [Sagara_Wijetunga] 2013-05-01
 ntz-p2p-storage  6778/tcp # netTsunami p2p storage system [Tomahawk_Holdings] [Sagara_Wijetunga] 2013-05-01
-bfd-lag          6784/udp # Bidirectional Forwarding Detection (BFD) on Link Aggregation Group (LAG) Interfaces [IESG] [BFD_Chairs] 2012-11-08 2014-01-09 [RFC-ietf-bfd-on-lags-04]
+bfd-lag          6784/udp # Bidirectional Forwarding Detection (BFD) on Link Aggregation Group (LAG) Interfaces [IESG] [BFD_Chairs] 2012-11-08 2014-01-09 [RFC7130]
 dgpf-exchg       6785/tcp # DGPF Individual Exchange [Thomas_Weise] [Thomas_Weise] 2006-04
 dgpf-exchg       6785/udp # DGPF Individual Exchange [Thomas_Weise] [Thomas_Weise] 2006-04
 smc-jmx          6786/tcp # Sun Java Web Console JMX [Bill_Edwards] [Bill_Edwards] 2005-08
