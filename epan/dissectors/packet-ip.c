@@ -576,7 +576,6 @@ add_geoip_info_entry(proto_item *geoip_info_item, tvbuff_t *tvb, gint offset, gu
         break;
       default:
         continue;
-        break;
     }
 
     if (geoip_str) {
