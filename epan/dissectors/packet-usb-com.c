@@ -2,8 +2,6 @@
  * Routines for USB Communications and CDC Control dissection
  * Copyright 2013, Pascal Quantin <pascal.quantin@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -343,7 +341,7 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                     offset = 3;
                     proto_tree_add_item(subtree, hf_usb_com_control_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
-                    while (tvb_length_remaining(tvb,offset) > 0) {
+                    while (tvb_reported_length_remaining(tvb,offset) > 0) {
                         proto_tree_add_item(subtree, hf_usb_com_subordinate_interface, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
                     }
@@ -361,10 +359,10 @@ dissect_usb_com_descriptor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             break;
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) != 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(subtree, hf_usb_com_descriptor_payload, tvb, offset, -1, ENC_NA);
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -540,7 +538,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(subtree, hf_usb_com_control_payload, tvb, offset, -1, ENC_NA);
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int

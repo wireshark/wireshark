@@ -2,8 +2,6 @@
  * Routines for MBIM dissection
  * Copyright 2013, Pascal Quantin <pascal.quantin@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -3586,7 +3584,6 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     if (!frag_tvb) {
                         /* Fragmentation reassembly not performed yet */
                         proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
-                        offset = tvb_length(tvb);
                         col_append_fstr(pinfo->cinfo, COL_INFO, ": [Fragment #%u out of %u]", current_frag+1, total_frag);
                         break;
                     }
@@ -4118,7 +4115,6 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     if (!frag_tvb) {
                         /* Fragmentation reassembly not performed yet */
                         proto_tree_add_item(mbim_tree, hf_mbim_fragmented_payload, tvb, offset, -1, ENC_NA);
-                        offset = tvb_length(tvb);
                         col_append_fstr(pinfo->cinfo, COL_INFO, ": [Fragment #%u out of %u]", current_frag+1, total_frag);
                         break;
                     }
@@ -4552,7 +4548,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             break;
     }
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static int
@@ -4604,7 +4600,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     const guint32 NTH16 = 0x484D434E;
     const guint32 NTH32 = 0x686D636E;
 
-    if (tvb_length(tvb) < 12) {
+    if (tvb_captured_length(tvb) < 12) {
         return 0;
     }
 
@@ -4644,7 +4640,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (next_index % 4) {
         expert_add_info_format(pinfo, pi, &ei_mbim_alignment_error,
                                "NDP Index is not a multiple of 4 bytes");
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     while (next_index) {
@@ -4652,7 +4648,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         nb = 0;
         ti = proto_tree_add_text(mbim_tree, tvb, offset, 0, "NCM Datagram Pointer");
         subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
-        signature = tvb_get_string(wmem_packet_scope(), tvb, offset, 4);
+        signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
         if ((!is_32bits && !strcmp(signature, "IPS")) ||
             (is_32bits && !strcmp(signature, "ips"))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
@@ -4696,7 +4692,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (length % (is_32bits ? 8 : 4)) {
             expert_add_info_format(pinfo, pi, &ei_mbim_alignment_error, "Length is not a multiple of %u bytes",
                                    is_32bits ? 8 : 4);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
         proto_item_set_len(ti, length);
         offset += 2;
@@ -4720,7 +4716,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         if (next_index % 4) {
             expert_add_info_format(pinfo, pi, &ei_mbim_alignment_error,
                                    "NDP Index is not a multiple of 4 bytes");
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
         while ((offset - base_offset) < length) {
             if (!is_32bits) {
@@ -4762,7 +4758,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                     expert_add_info_format(pinfo, NULL, &ei_mbim_too_many_items,
                                            "More than %u datagrams, dissection seems suspicious",
                                            MBIM_MAX_ITEMS);
-                    return tvb_length(tvb);
+                    return tvb_captured_length(tvb);
                 }
              }
         }
@@ -4772,13 +4768,13 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             expert_add_info_format(pinfo, NULL, &ei_mbim_too_many_items,
                                    "More than %u NCM Datagram Pointers, dissection seems suspicious",
                                    MBIM_MAX_ITEMS);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
     }
     ti = proto_tree_add_uint(mbim_tree, hf_mbim_bulk_total_nb_datagrams, tvb, 0, 0, total);
     PROTO_ITEM_SET_GENERATED(ti);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static gboolean
