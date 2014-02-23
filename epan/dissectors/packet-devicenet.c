@@ -616,7 +616,6 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     break;
                 }
                 break;
-                break;
             case 0x1C0:
                 expert_add_info_format(pinfo, msg_id_item, &ei_devicenet_invalid_msg_id,
                         "Invalid Group 3 Messsage ID (%d)", message_id);
