@@ -920,7 +920,7 @@ void TCPStreamDialog::mouseMoved(QMouseEvent *event)
         tracer_->setGraphKey(ui->streamPlot->xAxis->pixelToCoord(event->pos().x()));
         ui->streamPlot->replot();
     } else {
-        if (rubber_band_ && rubber_band_->isVisible()) {
+        if (rubber_band_ && rubber_band_->isVisible() && event) {
             rubber_band_->setGeometry(QRect(rb_origin_, event->pos()).normalized());
             QRectF zoom_ranges = getZoomRanges(QRect(rb_origin_, event->pos()));
             if (zoom_ranges.width() > 0.0 && zoom_ranges.height() > 0.0) {
