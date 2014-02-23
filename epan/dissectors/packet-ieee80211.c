@@ -13218,6 +13218,11 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_phy_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       offset += 1;
+
+      /* The Optional Subelements field format contains zero or more subelements */
+      if (tag_len == 13){ /* tag_len == 13 => no Subelements */
+        break;
+      }
       sub_tag_id = tvb_get_guint8 (tvb, offset);
       offset += 1;
       sub_tag_length = tvb_get_guint8 (tvb, offset);
