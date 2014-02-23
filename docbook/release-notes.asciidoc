@@ -162,13 +162,14 @@ STANAG 5066 Data Transfer Sublayer
 
 The libwireshark API has undergone some major changes:
 
-* A more flexible, modular memory manger (wmem) has been added. It was available
-  experimentally in 1.10 but is now mature and has mostly replaced the old emem
-  API (which is deprecated).
+* A more flexible, modular memory manager (wmem) has been added. It was
+  available experimentally in 1.10 but is now mature and has mostly
+  replaced the old emem API (which is deprecated).
 * A new API for expert information has been added, replacing the old one.
 * The tvbuff API has been cleaned up: tvb_length has been renamed to
-  tvb_captured_length for clarity, and tvb_get_string has been deprecated in
-  favour of tvb_get_string_enc.
+  tvb_captured_length for clarity, and tvb_get_string and tvb_get_stringz
+  have been deprecated in favour of tvb_get_string_enc and
+  tvb_get_stringz_enc.
 
 == Getting Wireshark
 

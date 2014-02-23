@@ -474,17 +474,21 @@ extern gchar *tvb_format_stringzpad(tvbuff_t *tvb, const gint offset,
 extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
     const gint size);
 
-
 /**
- * Given a tvbuff, an offset, and a length, allocate a buffer big enough
- * to hold a string of length characters plus a trailing '\0'. Copy length
- * characters, starting at offset, from the tvbuff into the buffer and return
- * a pointer to the buffer.
+ * Given an allocator scope, a tvbuff, a byte offset, a byte length, and
+ * a string encoding, with the specified offset and length referring to
+ * a string in the specified encoding:
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    convert the string from the specified encoding to UTF-8, possibly
+ *    mapping some characters or invalid octet sequences to the Unicode
+ *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
+ *    trailing '\0', into that buffer;
+ *
+ *    and return a pointer to the buffer.
  *
  * Throws an exception if the tvbuff ends before the string does.
- *
- * Takes a string encoding as well, and converts to UTF-8 from the encoding,
- * possibly mapping some characters to the Unicode REPLACEMENT CHARACTER.
  *
  * If scope is set to NULL it is the user's responsibility to wmem_free()
  * the memory allocated. Otherwise memory is automatically freed when the scope
@@ -493,16 +497,31 @@ extern gchar *tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
 
-/* DEPRECATED, do not use in new code, call tvb_get_string_enc directly! */
+/*
+ * DEPRECATED, do not use in new code, call tvb_get_string_enc directly with
+ * the appropriate extension!  Do not assume that ENC_ASCII will work
+ * with arbitrary string encodings; it will map all bytes with the 8th
+ * bit set to the Unicode REPLACEMENT CHARACTER, so it won't show non-ASCII
+ * characters as anything other than an ugly blob.
+ */
 #define tvb_get_string(SCOPE, TVB, OFFSET, LENGTH) \
     tvb_get_string_enc(SCOPE, TVB, OFFSET, LENGTH, ENC_ASCII)
 
 /**
- * Given a tvbuff, a bit offset, and a number of characters, allocate
- * a buffer big enough to hold a non-null-terminated string of no_of_chars
- * encoded according to 3GPP TS 23.038 7bits encoding at that offset,
- * plus a trailing zero, copy the string into it, and return a pointer
- * to the string.
+ * Given an allocator scope, a tvbuff, a bit offset, and a length in
+ * 7-bit characters (not octets!), with the specified offset and
+ * length referring to a string in the 3GPP TS 23.038 7bits encoding:
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    convert the string from the specified encoding to UTF-8, possibly
+ *    mapping some characters or invalid octet sequences to the Unicode
+ *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
+ *    trailing '\0', into that buffer;
+ *
+ *    and return a pointer to the buffer.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
  *
  * If scope is set to NULL it is the user's responsibility to g_free()
  * the memory allocated by tvb_memdup(). Otherwise memory is
@@ -512,6 +531,45 @@ WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
 
 /**
+ * Given an allocator scope, a tvbuff, a byte offset, a pointer to a
+ * gint, and a string encoding, with the specified offset referring to
+ * a null-terminated string in the specified encoding:
+ *
+ *    find the length of that string (and throw an exception if the tvbuff
+ *    ends before we find the null);
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    convert the string from the specified encoding to UTF-8, possibly
+ *    mapping some characters or invalid octet sequences to the Unicode
+ *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
+ *    trailing '\0', into that buffer;
+ *
+ *    if the pointer to the gint is non-null, set the gint to which it
+ *    points to the length of the string;
+ *
+ *    and return a pointer to the buffer.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ *
+ * If scope is set to NULL it is the user's responsibility to wmem_free()
+ * the memory allocated. Otherwise memory is automatically freed when the scope
+ * lifetime is reached.
+ */
+WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+
+/*
+ * DEPRECATED, do not use in new code, call tvb_get_string_enc directly with
+ * the appropriate extension!  Do not assume that ENC_ASCII will work
+ * with arbitrary string encodings; it will map all bytes with the 8th
+ * bit set to the Unicode REPLACEMENT CHARACTER, so it won't show non-ASCII
+ * characters as anything other than an ugly blob.
+ */
+#define tvb_get_stringz(SCOPE, TVB, OFFSET, LENGTHP) \
+    tvb_get_stringz_enc(SCOPE, TVB, OFFSET, LENGTHP, ENC_ASCII)
+
+/**
  * Given a tvbuff and an offset, with the offset assumed to refer to
  * a null-terminated string, find the length of that string (and throw
  * an exception if the tvbuff ends before we find the null), allocate
@@ -519,27 +577,16 @@ WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
  * and return a pointer to the string.  Also return the length of the
  * string (including the terminating null) through a pointer.
  *
- * tvb_get_stringz() handles 7-bit ASCII strings, with characters
- *                   with the 8th bit set are converted to the
- *                   Unicode REPLACEMENT CHARACTER.
+ * This returns a constant (unmodifiable) string that does not need
+ * to be freed; instead, it will automatically be freed once the next
+ * packet is dissected.
  *
- * tvb_get_stringz_enc() takes a string encoding as well, and converts to UTF-8
- *                   from the encoding, possibly mapping some characters
- *                   to the REPLACEMENT CHARACTER.
- *
- * tvb_get_const_stringz() returns a constant (unmodifiable) string that does
- *                   not need to be freed, instead it will automatically be
- *                   freed once the next packet is dissected.  It is slightly
- *                   more efficient than the other routines.
- *
- * If scope is set to NULL it is the user's responsibility to g_free()
- * the memory allocated by tvb_memdup(). Otherwise memory is
- * automatically freed when the scope lifetime is reached.
+ * It is slightly more efficient than the other routines, but does *NOT*
+ * do any translation to UTF-8 - the string consists of the raw octets
+ * of the string, in whatever encoding they happen to be in, and, if
+ * the string is not valid in that encoding, with invalid octet sequences
+ * as they are in the packet.
  */
-WS_DLL_PUBLIC guint8 *tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb,
-    const gint offset, gint *lengthp);
-WS_DLL_PUBLIC guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope,
-    tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 WS_DLL_PUBLIC const guint8 *tvb_get_const_stringz(tvbuff_t *tvb,
     const gint offset, gint *lengthp);
 

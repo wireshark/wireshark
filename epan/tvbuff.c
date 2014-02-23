@@ -2770,16 +2770,6 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 	return strptr;
 }
 
-/*
- * Get an ASCII string; this should not be used in new code.
- */
-guint8 *
-tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
-			     gint *lengthp)
-{
-	return tvb_get_ascii_stringz(scope, tvb, offset, lengthp);
-}
-
 /* Looks for a stringz (NUL-terminated string) in tvbuff and copies
  * no more than bufsize number of bytes, including terminating NUL, to buffer.
  * Returns length of string (not including terminating NUL), or -1 if the string was

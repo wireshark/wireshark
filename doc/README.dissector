@@ -256,9 +256,38 @@ data from the specified tvbuff, starting at the specified offset, and containing
 the specified length worth of characters. Reads data in the specified encoding
 and produces UTF-8 in the buffer. See below for a list of input encoding values.
 
-guint8 *tvb_get_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp);
+The buffer is allocated by g_malloc() if scope is set to NULL (in that
+case memory must be explicitely freed), or with the allocator lifetime
+if scope is not NULL.
+
 guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
+
+Returns a null-terminated buffer allocated from the specified scope,
+containing data from the specified tvbuff, starting at the specified
+offset, and containing all characters from the tvbuff up to and
+including a terminating null character in the tvbuff.  Reads data in the
+specified encoding and produces UTF-8 in the buffer.  See below for a
+list of input encoding values.  "*lengthp" will be set to the length of
+the string, including the terminating null.
+
+The buffer is allocated by g_malloc() if scope is set to NULL (in that
+case memory must be explicitely freed), or with the allocator lifetime
+if scope is not NULL.
+
 const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
+
+Returns a null-terminated const buffer containing data from the
+specified tvbuff, starting at the specified offset, and containing all
+bytes from the tvbuff up to and including a terminating null character
+in the tvbuff.  "*lengthp" will be set to the length of the string,
+including the terminating null.
+
+You do not need to free() this buffer; it will happen automatically once
+the next packet is dissected.  This function is slightly more efficient
+than the others because it does not allocate memory and copy the string,
+but it does not do any mapping to UTF-8 or checks for valid octet
+sequences.
+
 gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer);
 
@@ -268,26 +297,15 @@ tvbuff up to and including a terminating null character in the tvbuff.
 "*lengthp" will be set to the length of the string, including the terminating
 null.
 
-tvb_get_stringz() returns a buffer allocated by g_malloc() if scope is set
-to NULL (in that case memory must be explicitely freed), or with the
-allocator lifetime if scope is not NULL.
-
-tvb_get_stringz_enc() is a version of tvb_get_stringz() that takes a
-string encoding as an argument.  See below for a list of encoding values
-for strings.
-
-tvb_get_const_stringz() returns a pointer to the (const) string in the tvbuff.
-You do not need to free() this buffer, it will happen automatically once the
-next packet is dissected.  This function is slightly more efficient than the
-others because it does not allocate memory and copy the string.
-
 gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
 
-tvb_get_ts_23_038_7bits_string() returns a string of a given number of characters
-and encoded according to 3GPP TS 23.038 7 bits alphabet. The buffer allocated by
-g_malloc() if scope is set to NULL (in that case memory must be explicitely freed),
-or with the allocator lifetime if scope is not NULL.
+tvb_get_ts_23_038_7bits_string() returns a string of a given number of
+characters and encoded according to 3GPP TS 23.038 7 bits alphabet.
+
+The buffer is allocated by g_malloc() if scope is set to NULL (in that
+case memory must be explicitely freed), or with the allocator lifetime
+if scope is not NULL.
 
 Byte Array Accessors:
 
