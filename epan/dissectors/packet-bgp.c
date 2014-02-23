@@ -345,11 +345,6 @@ void proto_reg_handoff_bgp(void);
 #define BGP_EXT_COM_STYPE_EXP_F_RED_AS4 0x08
 
 /* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
-#define BGP_EXT_COM_QOS_MARK_T  0x04    /* QoS Marking transitive attribute of regular type (8bit)           */
-#define BGP_EXT_COM_QOS_MARK_NT 0x44    /* QoS Marking non-transitive attribute of regular type (8bit)       */
-                                        /* Format Type(1byte):Flags(1byte):QoS Set(1byte):Tec. Type(1byte):  */
-                                        /*        Marking O(2bytes):Marking A(1byte):Proc.Cnt(1byte)         */
-#define BGP_EXT_COM_COS_CAP_T   0x05    /* CoS Capability - Format Type(1byte):Flags(1byte):remaining '0..0' */
 
                                         /* draft-ietf-idr-bgp-ext-communities */
 #define BGP_EXT_COM_RT_AS2        0x0002  /* Route Target,Format AS(2bytes):AN(4bytes) */
@@ -692,13 +687,6 @@ static const value_string subtlv_type[] = {
     { TUNNEL_SUBTLV_PROTO_TYPE,    "PROTOCOL_TYPE" },
     { TUNNEL_SUBTLV_COLOR,         "COLOR" },
     { TUNNEL_SUBTLV_LOAD_BALANCE,  "LOAD_BALANCE" },
-    { 0, NULL }
-};
-
-static const value_string bgpext_com8_type[] = {
-    { BGP_EXT_COM_QOS_MARK_T,  "QoS Marking - transitive" },
-    { BGP_EXT_COM_QOS_MARK_NT, "QoS Marking - non-transitive" },
-    { BGP_EXT_COM_COS_CAP_T,   "CoS Capability - transitive" },
     { 0, NULL }
 };
 
