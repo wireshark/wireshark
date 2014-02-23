@@ -582,7 +582,6 @@ add_geoip_info_entry(proto_tree *geoip_info_item, tvbuff_t *tvb, gint offset, co
             break;
         default:
             continue;
-            break;
         }
 
         if (geoip_str) {
