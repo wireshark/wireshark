@@ -1965,8 +1965,9 @@ is_cc_item_exportable(guint8 dat_id)
 static gint
 dissect_uri(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
-    gint   offset_start;
-    guint8 uri_ver, emi, rl;
+    gint        offset_start;
+    guint8      uri_ver, emi, rl;
+    proto_item *rl_item;
 
     offset_start = offset;
 
@@ -2001,8 +2002,22 @@ dissect_uri(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
             rl = tvb_get_guint8(tvb, offset) & 0x3F;
         else
             rl = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(tree, hf_dvbci_uri_rl,
-                tvb, offset+2, 1, rl);
+
+        rl_item = proto_tree_add_uint(tree, hf_dvbci_uri_rl,
+                tvb, offset, 1, rl);
+
+        if (rl==0x00)
+            proto_item_append_text(rl_item, " (90 minutes)");
+        else if (rl==0x01)
+            proto_item_append_text(rl_item, " (6 hours)");
+        else if (rl==0x02)
+            proto_item_append_text(rl_item, " (12 hours)");
+        else if (uri_ver>=2 && rl==0xFF)
+            proto_item_append_text(rl_item, " (unlimited)");
+        else {
+            /* no need for a range check, rl 0x3F mask was applied above */
+            proto_item_append_text(rl_item, " (%d days)", rl-2);
+        }
     }
 
     return offset-offset_start;
