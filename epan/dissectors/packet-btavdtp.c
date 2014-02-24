@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
+#include <wiretap/wtap.h>
 
 #include "packet-btl2cap.h"
 #include "packet-btsdp.h"
@@ -452,6 +453,9 @@ typedef struct _sep_entry_t {
 } sep_entry_t;
 
 typedef struct _cid_type_data_t {
+    guint32      interface_id;
+    guint32      adapter_id;
+    guint32      chandle;
     guint32      type;
     guint16      cid;
     sep_entry_t  *sep;
@@ -473,25 +477,29 @@ void proto_reg_handoff_btvdp(void);
 void proto_register_btvdp_content_protection_header_scms_t(void);
 
 static const char *
-get_sep_type(guint32 frame_number, guint seid)
+get_sep_type(guint32 interface_id,
+    guint32 adapter_id, guint32 chandle, guint32 direction, guint32 seid, guint32 frame_number)
 {
+    wmem_tree_key_t   key[6];
+    wmem_tree_t      *subtree;
     sep_entry_t      *sep;
-    wmem_tree_key_t  key[3];
-    guint32          t_seid;
-    guint32          t_frame_number;
-
-    t_seid = seid;
-    t_frame_number = frame_number;
 
     key[0].length = 1;
-    key[0].key = &t_seid;
+    key[0].key    = &interface_id;
     key[1].length = 1;
-    key[1].key = &t_frame_number;
-    key[2].length = 0;
-    key[2].key = NULL;
+    key[1].key    = &adapter_id;
+    key[2].length = 1;
+    key[2].key    = &chandle;
+    key[3].length = 1;
+    key[3].key    = &direction;
+    key[4].length = 1;
+    key[4].key    = &seid;
+    key[5].length = 0;
+    key[5].key    = NULL;
 
-    sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
-    if (sep && sep->seid == seid) {
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+    sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+    if (sep) {
         return val_to_str_const(sep->type, sep_type_vals, "unknown");
     }
 
@@ -499,25 +507,29 @@ get_sep_type(guint32 frame_number, guint seid)
 }
 
 static const char *
-get_sep_media_type(guint32 frame_number, guint seid)
+get_sep_media_type(guint32 interface_id,
+    guint32 adapter_id, guint32 chandle, guint32 direction, guint32 seid, guint32 frame_number)
 {
+    wmem_tree_key_t   key[6];
+    wmem_tree_t      *subtree;
     sep_entry_t      *sep;
-    wmem_tree_key_t  key[3];
-    guint32          t_seid;
-    guint32          t_frame_number;
-
-    t_seid = seid;
-    t_frame_number = frame_number;
 
     key[0].length = 1;
-    key[0].key = &t_seid;
+    key[0].key    = &interface_id;
     key[1].length = 1;
-    key[1].key = &t_frame_number;
-    key[2].length = 0;
-    key[2].key = NULL;
+    key[1].key    = &adapter_id;
+    key[2].length = 1;
+    key[2].key    = &chandle;
+    key[3].length = 1;
+    key[3].key    = &direction;
+    key[4].length = 1;
+    key[4].key    = &seid;
+    key[5].length = 0;
+    key[5].key    = NULL;
 
-    sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
-    if (sep && sep->seid == seid) {
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+    sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+    if (sep) {
         return val_to_str_const(sep->media_type, media_type_vals, "unknown");
     }
 
@@ -526,7 +538,8 @@ get_sep_media_type(guint32 frame_number, guint seid)
 
 
 static gint
-dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+    guint32 interface_id, guint32 adapter_id, guint32 chandle)
 {
     proto_tree       *sep_tree;
     proto_item       *sep_item;
@@ -536,11 +549,12 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     guint            seid;
     guint            in_use;
     guint            items;
-    sep_entry_t      *sep_data;
-    wmem_tree_key_t  key[3];
-    guint32          t_seid;
-    guint32          t_frame_number;
+    guint32          direction;
 
+    /* Reverse direction to avoid mass reversing it, because this is only case
+       when SEP is provided in ACP role, otherwise INT frequently asking for it
+    */
+    direction = (pinfo->p2p_dir == P2P_DIR_SENT) ? P2P_DIR_RECV : P2P_DIR_SENT;
     items = tvb_length_remaining(tvb, offset) / 2;
     while (tvb_length_remaining(tvb, offset) > 0) {
         seid = tvb_get_guint8(tvb, offset);
@@ -562,18 +576,26 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
         proto_tree_add_item(sep_tree, hf_btavdtp_sep_type      , tvb, offset, 1, ENC_NA);
         proto_tree_add_item(sep_tree, hf_btavdtp_sep_rfa1      , tvb, offset, 1, ENC_NA);
 
-        /* save information for later recognizing */
-        t_seid = seid;
-        t_frame_number = pinfo->fd->num;
-
-        key[0].length = 1;
-        key[0].key = &t_seid;
-        key[1].length = 1;
-        key[1].key = &t_frame_number;
-        key[2].length = 0;
-        key[2].key = NULL;
-
         if (!pinfo->fd->flags.visited) {
+            sep_entry_t     *sep_data;
+            wmem_tree_key_t  key[7];
+            guint32          frame_number = pinfo->fd->num;
+
+            key[0].length = 1;
+            key[0].key    = &interface_id;
+            key[1].length = 1;
+            key[1].key    = &adapter_id;
+            key[2].length = 1;
+            key[2].key    = &chandle;
+            key[3].length = 1;
+            key[3].key    = &direction;
+            key[4].length = 1;
+            key[4].key    = &seid;
+            key[5].length = 1;
+            key[5].key    = &frame_number;
+            key[6].length = 0;
+            key[6].key    = NULL;
+
             sep_data = wmem_new(wmem_file_scope(), sep_entry_t);
             sep_data->seid = seid;
             sep_data->type = type;
@@ -947,11 +969,14 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
 
 static gint
 dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
-             gint seid_side, gint i_item, guint32 *sep_seid)
+             gint seid_side, gint i_item, guint32 *sep_seid,
+             guint32 interface_id, guint32 adapter_id, guint32 chandle,
+             guint32 frame_number)
 {
-    guint32     seid;
+    guint32      seid;
     proto_tree  *seid_tree     = NULL;
     proto_item  *seid_item     = NULL;
+    guint32      direction;
 
     seid = tvb_get_guint8(tvb, offset) >> 2;
     if (sep_seid) {
@@ -959,23 +984,31 @@ dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
     }
 
     if (seid_side == SEID_ACP) {
+        direction = pinfo->p2p_dir;
         seid_item = proto_tree_add_none_format(tree, hf_btavdtp_acp_seid_item, tvb, offset, 1,
-                "ACP SEID [%u - %s %s]", seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
+                "ACP SEID [%u - %s %s]", seid,
+                    get_sep_media_type(interface_id, adapter_id, chandle, direction, seid, frame_number),
+                    get_sep_type(interface_id, adapter_id, chandle, direction, seid, frame_number));
         seid_tree = proto_item_add_subtree(seid_item, ett_btavdtp_sep);
         proto_tree_add_item(seid_tree, hf_btavdtp_acp_seid, tvb, offset, 1, ENC_NA);
         if (i_item > 0) proto_item_append_text(seid_item, " item %u", i_item);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - ACP SEID [%u - %s %s]",
-                seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
+                seid, get_sep_media_type(interface_id, adapter_id, chandle, direction, seid, frame_number),
+                get_sep_type(interface_id, adapter_id, chandle, direction, seid, frame_number));
     } else {
+        direction = (pinfo->p2p_dir == P2P_DIR_SENT) ? P2P_DIR_RECV : P2P_DIR_SENT;
         seid_item = proto_tree_add_none_format(tree, hf_btavdtp_int_seid_item, tvb, offset, 1,
-                "INT SEID [%u - %s %s]", seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
+                "INT SEID [%u - %s %s]", seid,
+                    get_sep_media_type(interface_id, adapter_id, chandle, direction, seid, frame_number),
+                    get_sep_type(interface_id, adapter_id, chandle, direction, seid, frame_number));
         seid_tree = proto_item_add_subtree(seid_item, ett_btavdtp_sep);
         proto_tree_add_item(seid_tree, hf_btavdtp_int_seid, tvb, offset, 1, ENC_NA);
         if (i_item > 0) proto_item_append_text(seid_item, " item %u", i_item);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, " - INT SEID [%u - %s %s]",
-                seid, get_sep_media_type(pinfo->fd->num, seid), get_sep_type(pinfo->fd->num, seid));
+                seid, get_sep_media_type(interface_id, adapter_id, chandle, direction, seid, frame_number),
+                get_sep_type(interface_id, adapter_id, chandle, direction, seid, frame_number));
     }
 
     proto_tree_add_item(seid_tree, hf_btavdtp_rfa_seid, tvb, offset, 1, ENC_NA);
@@ -999,21 +1032,26 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gint             message_type  = 0;
     gint             signal_id     = 0;
     guint            delay;
-    wmem_tree_key_t  key[4];
-    guint32          t_type;
-    guint32          t_cid;
-    guint32          t_frame_number;
+    wmem_tree_t      *subtree;
+    wmem_tree_key_t  key[8];
+    guint32          interface_id;
+    guint32          adapter_id;
+    guint32          chandle;
+    guint32          direction;
+    guint32          type;
+    guint32          cid;
+    guint32          frame_number;
     cid_type_data_t  *cid_type_data;
     sep_entry_t      *sep;
     tvbuff_t         *next_tvb;
     guint32          seid;
-    guint32          t_seid;
     gint             codec = -1;
     gint             content_protection_type = 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AVDTP");
 
-    switch (pinfo->p2p_dir) {
+    direction = pinfo->p2p_dir;
+    switch (direction) {
         case P2P_DIR_SENT:
             col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
             break;
@@ -1023,7 +1061,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         default:
             col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
-                pinfo->p2p_dir);
+                direction);
             goto LABEL_data;
             break;
     }
@@ -1034,6 +1072,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (!force_avdtp && !pinfo->fd->flags.visited && (l2cap_data->first_scid_frame == pinfo->fd->num ||
                 l2cap_data->first_dcid_frame == pinfo->fd->num)) {
         cid_type_data = wmem_new(wmem_file_scope(), cid_type_data_t);
+        cid_type_data->interface_id = l2cap_data->interface_id;
+        cid_type_data->adapter_id = l2cap_data->adapter_id;
+        cid_type_data->chandle = l2cap_data->chandle;
         cid_type_data->type = STREAM_TYPE_MEDIA;
         cid_type_data->cid = l2cap_data->cid;
         cid_type_data->sep = NULL;
@@ -1051,47 +1092,81 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* It is AVDTP Signaling rsp side */
             cid_type_data->type = STREAM_TYPE_SIGNAL;
         } else {
-            sep = (sep_entry_t *)wmem_tree_lookup32_le(sep_open, pinfo->fd->num);
+            interface_id = cid_type_data->interface_id;
+            adapter_id = cid_type_data->adapter_id;
+            chandle = cid_type_data->chandle;
+            frame_number = pinfo->fd->num;
 
+            key[0].length = 1;
+            key[0].key    = &interface_id;
+            key[1].length = 1;
+            key[1].key    = &adapter_id;
+            key[2].length = 1;
+            key[2].key    = &chandle;
+            key[3].length = 0;
+            key[3].key    = NULL;
+
+            subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_open, key);
+            sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
             if (sep && sep->state == SEP_STATE_OPEN) {
                 sep->state = SEP_STATE_IN_USE;
                 cid_type_data->sep = sep;
             }
         }
 
-        t_type = cid_type_data->type;
-        t_cid = cid_type_data->cid;
-        t_frame_number = pinfo->fd->num;
+        interface_id = cid_type_data->interface_id;
+        adapter_id = cid_type_data->adapter_id;
+        chandle = cid_type_data->chandle;
+        type = cid_type_data->type;
+        cid = cid_type_data->cid;
+        frame_number = pinfo->fd->num;
 
         key[0].length = 1;
-        key[0].key    = &t_cid;
+        key[0].key    = &interface_id;
         key[1].length = 1;
-        key[1].key    = &t_type;
+        key[1].key    = &adapter_id;
         key[2].length = 1;
-        key[2].key    = &t_frame_number;
-        key[3].length = 0;
-        key[3].key    = NULL;
+        key[2].key    = &chandle;
+        key[3].length = 1;
+        key[3].key    = &cid;
+        key[4].length = 1;
+        key[4].key    = &type;
+        key[5].length = 1;
+        key[5].key    = &frame_number;
+        key[6].length = 0;
+        key[6].key    = NULL;
 
         wmem_tree_insert32_array(cid_to_type_table, key, cid_type_data);
     }
 
+    interface_id = l2cap_data->interface_id;
+    adapter_id = l2cap_data->adapter_id;
+    chandle = l2cap_data->chandle;
+    cid = l2cap_data->cid;
+    frame_number = pinfo->fd->num;
 
     if (!force_avdtp) {
-        t_type = STREAM_TYPE_SIGNAL;
-        t_cid = l2cap_data->cid;
-        t_frame_number = pinfo->fd->num;
-
         key[0].length = 1;
-        key[0].key    = &t_cid;
+        key[0].key    = &interface_id;
         key[1].length = 1;
-        key[1].key    = &t_type;
+        key[1].key    = &adapter_id;
         key[2].length = 1;
-        key[2].key    = &t_frame_number;
-        key[3].length = 0;
-        key[3].key    = NULL;
+        key[2].key    = &chandle;
+        key[3].length = 1;
+        key[3].key    = &cid;
+        key[4].length = 0;
+        key[4].key    = NULL;
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(cid_to_type_table, key);
+        if (subtree) {
+            wmem_tree_t  *type_tree;
 
-        cid_type_data = (cid_type_data_t *)wmem_tree_lookup32_array_le(cid_to_type_table, key);
-        if (cid_type_data && cid_type_data->type == STREAM_TYPE_MEDIA && cid_type_data->cid == l2cap_data->cid) {
+            type_tree = (wmem_tree_t *) wmem_tree_lookup32(subtree, STREAM_TYPE_MEDIA);
+            if (!type_tree)
+                type_tree = (wmem_tree_t *) wmem_tree_lookup32(subtree, STREAM_TYPE_SIGNAL);
+            subtree = type_tree;
+        }
+        cid_type_data = (subtree) ? (cid_type_data_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+        if (cid_type_data && cid_type_data->type == STREAM_TYPE_MEDIA) {
             /* AVDTP Media */
 
             if (!cid_type_data->sep) {
@@ -1102,8 +1177,19 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
             } else {
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream ACP SEID [%u - %s %s]",
-                        cid_type_data->sep->seid, get_sep_media_type(pinfo->fd->num, cid_type_data->sep->seid),
-                        get_sep_type(pinfo->fd->num, cid_type_data->sep->seid));
+                        cid_type_data->sep->seid, get_sep_media_type(
+                                cid_type_data->interface_id,
+                                cid_type_data->adapter_id,
+                                cid_type_data->chandle,
+                                direction,
+                                cid_type_data->sep->seid,
+                                pinfo->fd->num),
+                        get_sep_type(cid_type_data->interface_id,
+                                cid_type_data->adapter_id,
+                                cid_type_data->chandle,
+                                direction,
+                                cid_type_data->sep->seid,
+                                pinfo->fd->num));
 
                 if (cid_type_data->sep->media_type == MEDIA_TYPE_AUDIO) {
                     sep_data_t  sep_data;
@@ -1131,7 +1217,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             return tvb_length(tvb);
-        } else if (!(cid_type_data && cid_type_data->type == STREAM_TYPE_SIGNAL && cid_type_data->cid == l2cap_data->cid)) {
+        } else if (!(cid_type_data && cid_type_data->type == STREAM_TYPE_SIGNAL)) {
             /* AVDTP not signaling - Unknown Media stream */
             ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
             btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
@@ -1186,12 +1272,15 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
-            offset = dissect_sep(tvb, pinfo, btavdtp_tree, offset);
+            offset = dissect_sep(tvb, pinfo, btavdtp_tree, offset,
+                    interface_id, adapter_id, chandle);
             break;
         case SIGNAL_ID_GET_CAPABILITIES:
         case SIGNAL_ID_GET_ALL_CAPABILITIES:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
@@ -1203,22 +1292,30 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_SET_CONFIGURATION:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, &seid);
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_INT, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, &seid, interface_id,
+                        adapter_id, chandle, frame_number);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_INT, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
 
-                t_frame_number = pinfo->fd->num;
-                t_seid = seid;
-
                 key[0].length = 1;
-                key[0].key = &t_seid;
+                key[0].key    = &interface_id;
                 key[1].length = 1;
-                key[1].key = &t_frame_number;
-                key[2].length = 0;
-                key[2].key = NULL;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &chandle;
+                key[3].length = 1;
+                key[3].key    = &direction;
+                key[4].length = 1;
+                key[4].key    = &seid;
+                key[5].length = 0;
+                key[5].key    = NULL;
 
-                sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
-                if (sep && sep->seid == seid) {
+                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+                sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                if (sep) {
                     sep->codec = codec;
                     sep->content_protection_type = content_protection_type;
                 }
@@ -1236,7 +1333,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_GET_CONFIGURATION:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
@@ -1248,21 +1347,27 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_RECONFIGURE:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, &seid);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, &seid, interface_id,
+                        adapter_id, chandle, frame_number);
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
 
-                t_frame_number = pinfo->fd->num;
-                t_seid = seid;
-
                 key[0].length = 1;
-                key[0].key = &t_seid;
+                key[0].key    = &interface_id;
                 key[1].length = 1;
-                key[1].key = &t_frame_number;
-                key[2].length = 0;
-                key[2].key = NULL;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &chandle;
+                key[3].length = 1;
+                key[3].key    = &direction;
+                key[4].length = 1;
+                key[4].key    = &seid;
+                key[5].length = 0;
+                key[5].key    = NULL;
 
-                sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
-                if (sep && sep->seid == seid) {
+                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+                sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                if (sep) {
                     sep->codec = codec;
                     sep->content_protection_type = content_protection_type;
                 }
@@ -1280,24 +1385,37 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_OPEN:
              if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, &seid);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, &seid, interface_id,
+                        adapter_id, chandle, frame_number);
 
-                t_frame_number = pinfo->fd->num;
-                t_seid = seid;
+                if (!pinfo->fd->flags.visited) {
+                    key[0].length = 1;
+                    key[0].key    = &interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &chandle;
+                    key[3].length = 1;
+                    key[3].key    = &direction;
+                    key[4].length = 1;
+                    key[4].key    = &seid;
+                    key[5].length = 0;
+                    key[5].key    = NULL;
 
-                key[0].length = 1;
-                key[0].key = &t_seid;
-                key[1].length = 1;
-                key[1].key = &t_frame_number;
-                key[2].length = 0;
-                key[2].key = NULL;
+                    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_list, key);
+                    sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                    if (sep) {
+                        sep->state = SEP_STATE_OPEN;
 
-                sep = (sep_entry_t *)wmem_tree_lookup32_array_le(sep_list, key);
-                if (sep && sep->seid == seid) {
-                    sep->state = SEP_STATE_OPEN;
+                        key[3].length = 1;
+                        key[3].key    = &frame_number;
+                        key[4].length = 0;
+                        key[4].key    = NULL;
+
+                        wmem_tree_insert32_array(sep_open, key, sep);
+                    }
                 }
-
-                wmem_tree_insert32(sep_open, pinfo->fd->num, sep);
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
@@ -1310,13 +1428,17 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 i_sep = 1;
                 while (tvb_length_remaining(tvb, offset) > 0) {
-                    offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, i_sep, NULL);
+                    offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                            SEID_ACP, i_sep, NULL,
+                            interface_id, adapter_id, chandle, frame_number);
                     i_sep += 1;
                 }
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL,
+                        interface_id, adapter_id, chandle, frame_number);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
@@ -1324,7 +1446,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_CLOSE:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
@@ -1337,13 +1461,17 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 i_sep = 1;
                 while (tvb_length_remaining(tvb, offset) > 0) {
-                    offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, i_sep, NULL);
+                    offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                            SEID_ACP, i_sep, NULL,
+                            interface_id, adapter_id, chandle, frame_number);
                     i_sep += 1;
                 }
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
@@ -1351,7 +1479,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_ABORT:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 break;
             }
             if (message_type == MESSAGE_TYPE_REJECT) {
@@ -1362,7 +1492,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_SECURITY_CONTROL:
             if (message_type == MESSAGE_TYPE_COMMAND) {
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL, interface_id,
+                        adapter_id, chandle, frame_number);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
                 offset += tvb_length_remaining(tvb, offset);
                 break;
@@ -1381,7 +1513,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_item  *pitem;
                 delay = tvb_get_ntohs(tvb, offset + 1);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "(%u.%u ms)", delay/10, delay%10);
-                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset, SEID_ACP, 0, NULL);
+                offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
+                        SEID_ACP, 0, NULL,
+                        interface_id, adapter_id, chandle, frame_number);
                 pitem = proto_tree_add_item(btavdtp_tree, hf_btavdtp_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(pitem, " (1/10 ms)");
                 offset += 2;
