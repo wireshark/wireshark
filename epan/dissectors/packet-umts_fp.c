@@ -595,7 +595,7 @@ static gboolean verify_control_frame_crc(tvbuff_t * tvb, packet_info * pinfo, pr
     guint8 crc = 0;
     guint8 * data = NULL;
     /* Get data. */
-    data = tvb_get_string(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
     /* Include only FT flag bit in CRC calculation. */
     data[0] = data[0] & 1;
     /* Calculate crc7 sum. */
@@ -615,7 +615,7 @@ static gboolean verify_header_crc(tvbuff_t * tvb, packet_info * pinfo, proto_ite
     guint8 crc = 0;
     guint8 * data = NULL;
     /* Get data of header with first byte removed. */
-    data = tvb_get_string(wmem_packet_scope(), tvb, 1, header_length-1);
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 1, header_length-1);
     /* Calculate crc7 sum. */
     crc = crc7update(0, data, header_length-1);
     crc = crc7finalize(crc); /* finalize crc */
@@ -635,7 +635,7 @@ static gboolean verify_header_crc_edch(tvbuff_t * tvb, packet_info * pinfo, prot
     /* First create new subset of header with first byte removed. */
     tvbuff_t * headtvb = tvb_new_subset(tvb, 1, header_length-1, header_length-1);
     /* Get data of header with first byte removed. */
-    data = tvb_get_string(wmem_packet_scope(), headtvb, 0, header_length-1);
+    data = (guint8 *)tvb_memdup(wmem_packet_scope(), headtvb, 0, header_length-1);
     /* Remove first 4 bits of the remaining data which are Header CRC cont. */
     data[0] = data[0] & 0x0f;
     crc = crc11_307_noreflect_noxor(data, header_length-1);
@@ -982,7 +982,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
                             ENC_BIG_ENDIAN);
         if (preferences_payload_checksum) {
             guint16 calc_crc, read_crc;
-            guint8 * data = tvb_get_string(wmem_packet_scope(), tvb, header_length, offset-header_length);
+            guint8 * data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, header_length, offset-header_length);
             calc_crc = crc16_8005_noreflect_noxor(data, offset-header_length);
             read_crc = tvb_get_bits16(tvb, offset*8, 16, FALSE);
 

@@ -4602,7 +4602,7 @@ static const gchar *
 dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
 {
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
-    return tvb_get_string(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
+    return (gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
 }
 
 #define MAX_APN_LENGTH          100

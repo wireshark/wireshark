@@ -278,7 +278,7 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
 
      case SMS_ENCODING_UCS2:
      case SMS_ENCODING_UCS2_LANG:
-     input_string = tvb_get_string(wmem_packet_scope(), tvb, offset, length);
+     input_string = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, length);
      if ((cd = g_iconv_open("UTF-8","UCS-2BE")) != (GIConv) -1)
      {
          utf8_text = g_convert_with_iconv(input_string, length, cd, NULL, NULL, &l_conv_error);
