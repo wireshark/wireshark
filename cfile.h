@@ -133,6 +133,8 @@ extern void cap_file_init(capture_file *cf);
 
 extern const char *cap_file_get_interface_name(void *data, guint32 interface_id);
 
+extern const GArray *cap_file_get_interface_option(void *data, guint32 interface_id, guint16 option_code);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

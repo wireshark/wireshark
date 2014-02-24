@@ -29,8 +29,8 @@
 
 #include "cfile.h"
 
-const char *
-cap_file_get_interface_name(void *data, guint32 interface_id)
+static const wtapng_if_descr_t *
+cap_file_get_interface_desc(void *data, guint32 interface_id)
 {
   capture_file *cf = (capture_file *) data;
   wtapng_iface_descriptions_t *idb_info;
@@ -42,6 +42,13 @@ cap_file_get_interface_name(void *data, guint32 interface_id)
     wtapng_if_descr = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, interface_id);
 
   g_free(idb_info);
+  return wtapng_if_descr;
+}
+
+const char *
+cap_file_get_interface_name(void *data, guint32 interface_id)
+{
+  const wtapng_if_descr_t *wtapng_if_descr = cap_file_get_interface_desc(data, interface_id);
 
   if (wtapng_if_descr) {
     if (wtapng_if_descr->if_name)
@@ -50,6 +57,18 @@ cap_file_get_interface_name(void *data, guint32 interface_id)
       return wtapng_if_descr->if_description;
   }
   return "unknown";
+}
+
+const GArray *
+cap_file_get_interface_option(void *data, guint32 interface_id, guint16 option_code)
+{
+  const wtapng_if_descr_t *wtapng_if_descr = cap_file_get_interface_desc(data, interface_id);
+
+  if (wtapng_if_descr && wtapng_if_descr->if_options) {
+    gint code = (gint) option_code;
+    return (const GArray *) g_hash_table_lookup(wtapng_if_descr->if_options, &code);
+  }
+  return NULL;
 }
 
 void

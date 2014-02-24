@@ -925,6 +925,9 @@ wtap_close(wtap *wth)
 		if(wtapng_if_descr->num_stat_entries != 0){
 			 g_array_free(wtapng_if_descr->interface_statistics, TRUE);
 		}
+		if(wtapng_if_descr->if_options){
+				g_hash_table_destroy(wtapng_if_descr->if_options);
+		}
 	}
 	if(wth->number_of_interfaces != 0){
 		 g_array_free(wth->interface_data, TRUE);

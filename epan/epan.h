@@ -18,7 +18,6 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-
 #ifndef __EPAN_H__
 #define __EPAN_H__
 
@@ -124,7 +123,7 @@ void epan_circuit_cleanup(void);
 /** A client will create one epan_t for an entire dissection session.
  * A single epan_t will be used to analyze the entire sequence of packets,
  * sequentially, in a single session. A session corresponds to a single
- * packet trace file. The reaons epan_t exists is that some packets in
+ * packet trace file. The reason epan_t exists is that some packets in
  * some protocols cannot be decoded without knowledge of previous packets.
  * This inter-packet "state" is stored in the epan_t.
  */
@@ -135,6 +134,8 @@ WS_DLL_PUBLIC epan_t *epan_new(void);
 const char *epan_get_user_comment(const epan_t *session, const frame_data *fd);
 
 const char *epan_get_interface_name(const epan_t *session, guint32 interface_id);
+
+const GArray *epan_get_interface_option(const epan_t *session, guint32 interface_id, guint16 option_code);
 
 const nstime_t *epan_get_frame_ts(const epan_t *session, guint32 frame_num);
 

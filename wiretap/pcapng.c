@@ -344,6 +344,9 @@ typedef struct wtapng_block_s {
                 wtapng_if_stats_t       if_stats;
         } data;
 
+        /* keys are (pointers to) gint, vals are (pointers to) arrays of GByteArray */
+        GHashTable * pcapng_options;
+
         /*
          * XXX - currently don't know how to handle these!
          *
@@ -356,6 +359,69 @@ typedef struct wtapng_block_s {
         Buffer *frame_buffer;
         int *file_encap;
 } wtapng_block_t;
+
+static void
+pcapng_destroy_option_key(gpointer data)
+{
+        g_free(data);
+}
+
+static void
+pcapng_destroy_option_value(gpointer data)
+{
+        GArray * pval = (GArray *) data;
+        if (pval) {
+                guint i;
+                for(i=0; i<pval->len; i++) {
+                        GByteArray * element = g_array_index(pval, GByteArray *, i);
+                        g_byte_array_unref(element);
+                }
+                g_array_unref(pval);
+        }
+}
+
+static void
+pcapng_init_block_options(wtapng_block_t *wblock)
+{
+        wblock->pcapng_options = g_hash_table_new_full(g_int_hash,
+						       g_int_equal,
+						       pcapng_destroy_option_key,
+						       pcapng_destroy_option_value);
+}
+
+static void
+pcapng_unref_block_options(wtapng_block_t *wblock)
+{
+        if (wblock->pcapng_options) {
+                g_hash_table_destroy(wblock->pcapng_options);
+                wblock->pcapng_options = NULL;
+	}
+}
+
+static void
+pcapng_collect_block_option(wtapng_block_t *wblock, guint16 code,
+			    const guint8 *data, gsize len)
+{
+        if (wblock->pcapng_options) {
+                gint tempkey = (gint) code;
+                GArray * pval = (GArray *) g_hash_table_lookup(wblock->pcapng_options, &tempkey);
+                if(!pval) {
+                        /* this key does not yet exist, so create a
+                           new key and new array for its first value,
+                           and insert it into the hash table */
+                        gpointer pkey = g_try_malloc(sizeof(gint));
+                        if (pkey) {
+                            pval = g_array_new(FALSE, TRUE, sizeof(GByteArray *));
+                            g_hash_table_insert(wblock->pcapng_options, pkey, pval);
+                        }
+                }
+                if (pval) {
+                        GByteArray * optionbuf = g_byte_array_new_take(g_strndup(data, len), len);
+                        g_array_append_val(pval, optionbuf);
+                }
+        }
+}
+
 
 /* Interface data in private struct */
 typedef struct interface_data_s {
@@ -607,6 +673,11 @@ pcapng_read_section_header_block(FILE_T fh, gboolean first_block,
                 block_read += bytes_read;
                 to_read -= bytes_read;
 
+                if (oh.option_code) {
+                        /* collect the raw option information */
+                        pcapng_collect_block_option(wblock, oh.option_code, option_content, oh.option_length);
+                }
+
                 /* handle option content */
                 switch (oh.option_code) {
                     case(OPT_EOFOPT):
@@ -778,6 +849,11 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
                 }
                 block_read += bytes_read;
                 to_read -= bytes_read;
+
+                if (oh.option_code) {
+                        /* collect the raw option information */
+                        pcapng_collect_block_option(wblock, oh.option_code, option_content, oh.option_length);
+                }
 
                 /* handle option content */
                 switch (oh.option_code) {
@@ -1205,6 +1281,11 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 }
                 block_read += bytes_read;
                 to_read -= bytes_read;
+
+                if (oh.option_code) {
+                        /* collect the raw option information */
+                        pcapng_collect_block_option(wblock, oh.option_code, option_content, oh.option_length);
+                }
 
                 /* handle option content */
                 switch (oh.option_code) {
@@ -1827,6 +1908,11 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
                 block_read += bytes_read;
                 to_read -= bytes_read;
 
+                if (oh.option_code) {
+                        /* collect the raw option information */
+                        pcapng_collect_block_option(wblock, oh.option_code, option_content, oh.option_length);
+                }
+
                 /* handle option content */
                 switch (oh.option_code) {
                     case(0): /* opt_endofopt */
@@ -2131,6 +2217,9 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
         /* Interface statistics */
         int_data.num_stat_entries = 0;
         int_data.interface_statistics = NULL;
+        /* move the options over */
+        int_data.if_options = wblock->pcapng_options;
+        wblock->pcapng_options = NULL;
 
         g_array_append_val(wth->interface_data, int_data);
         wth->number_of_interfaces++;
@@ -2154,6 +2243,8 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         pcapng_block_header_t bh;
         gint64 saved_offset;
 
+        pcapng_init_block_options(&wblock);
+
         pn.shb_read = FALSE;
         /* we don't know the byte swapping of the file yet */
         pn.byte_swapped = FALSE;
@@ -2174,6 +2265,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         bytes_read = pcapng_read_block(wth->fh, TRUE, &pn, &wblock, err, err_info);
         if (bytes_read <= 0) {
                 pcapng_debug0("pcapng_open: couldn't read first SHB");
+                pcapng_unref_block_options(&wblock);
                 *err = file_error(wth->fh, err_info);
                 if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
                         return -1;
@@ -2188,6 +2280,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                  * binary data?
                  */
                 pcapng_debug1("pcapng_open: first block type %u not SHB", wblock.type);
+                pcapng_unref_block_options(&wblock);
                 return 0;
         }
         pn.shb_read = TRUE;
@@ -2233,6 +2326,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 if (bytes_read != sizeof bh) {
                         *err = file_error(wth->fh, err_info);
                         pcapng_debug3("pcapng_open:  Check for more IDB:s, file_read() returned %d instead of %u, err = %d.", bytes_read, (unsigned int)sizeof bh, *err);
+                        pcapng_unref_block_options(&wblock);
                         if (*err == 0)
                                 *err = WTAP_ERR_SHORT_READ;
                         return -1;
@@ -2258,6 +2352,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 if (bytes_read <= 0) {
                         pcapng_debug0("pcapng_open: couldn't read IDB");
                         *err = file_error(wth->fh, err_info);
+                        pcapng_unref_block_options(&wblock);
                         if (*err == 0)
                                 *err = WTAP_ERR_SHORT_READ;
                         return -1;
@@ -2265,6 +2360,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 pcapng_process_idb(wth, pcapng, &wblock);
                 pcapng_debug2("pcapng_open: Read IDB number_of_interfaces %u, wtap_encap %i", wth->number_of_interfaces, *wblock.file_encap);
         }
+        pcapng_unref_block_options(&wblock);
         return 1;
 }
 
@@ -2278,6 +2374,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         wtapng_block_t wblock;
         wtapng_if_descr_t *wtapng_if_descr;
         wtapng_if_stats_t if_stats;
+
+        pcapng_init_block_options(&wblock);
 
         *data_offset = file_tell(wth->fh);
         pcapng_debug1("pcapng_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
@@ -2295,6 +2393,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 if (bytes_read <= 0) {
                         pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
                         pcapng_debug0("pcapng_read: couldn't read packet block");
+                        pcapng_unref_block_options(&wblock);
                         return FALSE;
                 }
 
@@ -2305,6 +2404,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
                         *err = WTAP_ERR_UNSUPPORTED;
                         *err_info = g_strdup_printf("pcapng: multi-section files not currently supported");
+                        pcapng_unref_block_options(&wblock);
                         return FALSE;
 
                 case(BLOCK_TYPE_PB):
@@ -2373,6 +2473,7 @@ got_packet:
 
         /*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
         pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
+        pcapng_unref_block_options(&wblock);
 
         return TRUE;
 }
@@ -2389,10 +2490,12 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         int bytes_read;
         wtapng_block_t wblock;
 
+        pcapng_init_block_options(&wblock);
 
         /* seek to the right file position */
         bytes_read64 = file_seek(wth->random_fh, seek_off, SEEK_SET, err);
         if (bytes_read64 <= 0) {
+		pcapng_unref_block_options(&wblock);
                 return FALSE;   /* Seek error */
         }
         pcapng_debug1("pcapng_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
@@ -2406,6 +2509,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         if (bytes_read <= 0) {
                 pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
                               *err, errno, bytes_read);
+                pcapng_unref_block_options(&wblock);
                 return FALSE;
         }
 
@@ -2414,9 +2518,11 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         if (wblock.type != BLOCK_TYPE_PB && wblock.type != BLOCK_TYPE_EPB &&
             wblock.type != BLOCK_TYPE_SPB) {
                 pcapng_debug1("pcapng_seek_read: block type %u not PB/EPB/SPB", wblock.type);
+                pcapng_unref_block_options(&wblock);
                 return FALSE;
         }
 
+        pcapng_unref_block_options(&wblock);
         return TRUE;
 }
 
