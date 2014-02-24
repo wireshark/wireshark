@@ -22,19 +22,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-output_fmt="docbook"
-if [ -f release-notes.asciidoc -o -f docbook/release-notes.asciidoc ] ; then
-    output_fmt="asciidoc"
-fi
-
-while getopts "o:" OPT ; do
-    case $OPT in
-        o) output_fmt=$OPTARG
-	;;
-    esac
-done
-shift $(($OPTIND - 1))
-
 bz_url_pfx="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id="
 bug_id="$1"
 
@@ -71,22 +58,8 @@ bug_title=`
         -e 's/[^\.]$/&./' \
     `
 
-case "$output_fmt" in
-    asciidoc)
-        echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
-                | $recode_cmd \
-                | $clipboard_cmd
-    ;;
-    docbook)
-$clipboard_cmd <<Fin
-        <listitem><para>
-          $bug_title
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=$bug_id">Bug
-          $bug_id</ulink>)
-        </para></listitem>
-
-Fin
-    ;;
-esac
+echo -e "* $bug_title (ws-buglink:$bug_id[])\n" \
+        | $recode_cmd \
+        | $clipboard_cmd
 
 echo "Copied $bug_id: $bug_title"
