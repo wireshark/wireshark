@@ -88,6 +88,7 @@ since version 1.10:
 
 802.1AE Secure tag
 ACR122
+ADB CS
 Aruba Instant AP
 ASTERIX
 ATN
@@ -111,6 +112,7 @@ Kafka
 Kyoto Tycoon
 Lightweight Mesh (v1.1.1)
 Linux netlink
+Logcat
 MBIM
 MiNT
 MP4 / ISOBMFF file format
