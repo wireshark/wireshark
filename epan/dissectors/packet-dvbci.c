@@ -1961,6 +1961,54 @@ is_cc_item_exportable(guint8 dat_id)
 }
 
 
+/* dissect the URI, return the number of bytes processed or -1 for error */
+static gint
+dissect_uri(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint   offset_start;
+    guint8 uri_ver, emi, rl;
+
+    offset_start = offset;
+
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "URI");
+
+    uri_ver = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dvbci_uri_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dvbci_uri_aps,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    emi = (tvb_get_guint8(tvb, offset+1) & 0x30) >> 4;
+    proto_tree_add_item(tree, hf_dvbci_uri_emi,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
+            val_to_str_const(emi, dvbci_cc_uri_emi, "unknown"));
+    proto_tree_add_item(tree, hf_dvbci_uri_ict,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (emi==CC_EMI_FREE) {
+        proto_tree_add_item(tree, hf_dvbci_uri_rct,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    if (uri_ver>=2 && emi==CC_EMI_NEVER) {
+        proto_tree_add_item(tree, hf_dvbci_uri_dot,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    offset++;
+
+    if (emi==CC_EMI_NEVER) {
+        if (uri_ver==1)
+            rl = tvb_get_guint8(tvb, offset) & 0x3F;
+        else
+            rl = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(tree, hf_dvbci_uri_rl,
+                tvb, offset+2, 1, rl);
+    }
+
+    return offset-offset_start;
+}
+
+
 /* dissect an item from cc_(sac_)data_req/cc_(sac_)data_cnf,
    returns its length or -1 for error
    if dat_id_ptr is not NULL, fill in the datatype id */
@@ -1975,7 +2023,6 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
     guint8      dat_id;
     asn1_ctx_t  asn1_ctx;
     int         hf_cert_index;
-    guint8      uri_ver, emi, rl;
     guint16     prog_num;
     guint8      status;
 
@@ -2013,34 +2060,7 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             x509ce_disable_ciplus();
             break;
         case CC_ID_URI:
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "URI");
-            uri_ver = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(cc_item_tree, hf_dvbci_uri_ver,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(cc_item_tree, hf_dvbci_uri_aps,
-                    tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            emi = (tvb_get_guint8(tvb, offset+1) & 0x30) >> 4;
-            proto_tree_add_item(cc_item_tree, hf_dvbci_uri_emi,
-                    tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
-                    val_to_str_const(emi, dvbci_cc_uri_emi, "unknown"));
-            proto_tree_add_item(cc_item_tree, hf_dvbci_uri_ict,
-                    tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            if (emi==CC_EMI_FREE) {
-                proto_tree_add_item(cc_item_tree, hf_dvbci_uri_rct,
-                        tvb, offset+1, 1, ENC_BIG_ENDIAN);
-            }
-            if (emi!=CC_EMI_NEVER)
-                break;
-            if (uri_ver==1)
-                rl = tvb_get_guint8(tvb, offset+2) & 0x3F;
-            else {
-                proto_tree_add_item(cc_item_tree, hf_dvbci_uri_dot,
-                        tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                rl = tvb_get_guint8(tvb, offset+2);
-            }
-            proto_tree_add_uint(cc_item_tree, hf_dvbci_uri_rl,
-                    tvb, offset+2, 1, rl);
+            dissect_uri(tvb, offset, pinfo, cc_item_tree);
             break;
         case CC_ID_PROG_NUM:
             prog_num = tvb_get_ntohs(tvb, offset);
