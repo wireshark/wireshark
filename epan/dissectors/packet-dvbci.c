@@ -2112,6 +2112,140 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
 }
 
 
+/* add the CC protocol name and step to the info column */
+static void
+add_cc_protocol_name_step(packet_info *pinfo,
+    guint64 snd_dat_ids, guint64 req_dat_ids)
+{
+    gboolean chk_snd_ids = FALSE;
+
+    switch (req_dat_ids) {
+        case CC_ID_DHPH<<24|CC_ID_SIG_A<<16|CC_ID_HOST_DEV_CERT<<8|CC_ID_HOST_BRAND_CERT:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Authentication Step 1)");
+            break;
+        case CC_ID_STATUS_FIELD:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Authentication Step 3)");
+            break;
+        case CC_ID_AKH:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(AuthKey Step 1)");
+            break;
+        case CC_ID_HOST_ID<<8|CC_ID_STATUS_FIELD:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(CC key calculation Step 1)");
+            break;
+        case CC_ID_HOST_ID<<8|CC_ID_NS_HOST:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(SAC key calculation Step 1)");
+            break;
+        case CC_ID_URI_CNF:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(URI transmission Step 1)");
+            break;
+        case CC_ID_URI_VERSIONS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(URI version negotiation Step 1)");
+            break;
+        case CC_ID_LICENSE_RCV_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(CICAM to Host License Exchange Step 1)");
+            break;
+        case CC_ID_PROG_NUM<<24|CC_ID_LICENSE_STATUS<<16|CC_ID_URI<<8|CC_ID_CICAM_LICENSE:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Playback License Exchange Step 1)");
+            break;
+        case CC_ID_LICENSE_STATUS<<8|CC_ID_PLAY_COUNT:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(License Check Exchange Step 1)");
+            break;
+        case CC_ID_REC_START_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Record Start Step 1)");
+            break;
+        case CC_ID_MODE_CHG_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Change Operating Mode Step 1)");
+            break;
+        case CC_ID_REC_STOP_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Record Stop Step 1)");
+            break;
+        case CC_ID_STATUS_FIELD<<8|CC_ID_SRM_CONFIRM:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(SRM Transmission Step 1)");
+            break;
+        default:
+            /* unable to determine the protocol from the requested ids
+               check the sent ids as well */
+            chk_snd_ids = TRUE;
+            break;
+    }
+    if (!chk_snd_ids)
+        return;
+
+    switch (snd_dat_ids) {
+        case CC_ID_DHPH<<24|CC_ID_SIG_A<<16|CC_ID_HOST_DEV_CERT<<8|CC_ID_HOST_BRAND_CERT:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Authentication Step 2)");
+            break;
+        case CC_ID_STATUS_FIELD:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Authentication Step 4)");
+            break;
+        case CC_ID_AKH:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(AuthKey Step 2)");
+            break;
+        case CC_ID_HOST_ID<<8|CC_ID_STATUS_FIELD:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(CC key calculation Step 2)");
+            break;
+        case CC_ID_HOST_ID<<8|CC_ID_NS_HOST:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(SAC key calculation Step 2)");
+            break;
+        case CC_ID_URI_CNF:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(URI transmission Step 2)");
+            break;
+        case CC_ID_URI_VERSIONS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(URI version negotiation Step 2)");
+            break;
+        case CC_ID_LICENSE_RCV_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(CICAM to Host License Exchange Step 2)");
+            break;
+        case CC_ID_PROG_NUM<<24|CC_ID_LICENSE_STATUS<<16|CC_ID_URI<<8|CC_ID_CICAM_LICENSE:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Playback License Exchange Step 2)");
+            break;
+        case CC_ID_LICENSE_STATUS<<8|CC_ID_PLAY_COUNT:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(License Check Exchange Step 2)");
+            break;
+        case CC_ID_REC_START_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Record Start Step 2)");
+            break;
+        case CC_ID_MODE_CHG_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Change Operating Mode Step 2)");
+            break;
+        case CC_ID_REC_STOP_STATUS:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(Record Stop Step 2)");
+            break;
+        case CC_ID_STATUS_FIELD<<8|CC_ID_SRM_CONFIRM:
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                    "(SRM Transmission Step 2)");
+            break;
+    }
+}
+
+
 /* dissect the payload of a cc message that contains data items
    if not NULL, set exportable_flag to TRUE if the message contains no
     sensitive data and can be passed to the export PDU mechanism */
@@ -2119,10 +2253,12 @@ static gint
 dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean *exportable_flag)
 {
-    gint   offset_start;
-    guint8 i, snd_dat_nbr, req_dat_nbr;
-    guint8 dat_id;
-    gint   item_len;
+    gint        offset_start;
+    guint8      i, snd_dat_nbr, req_dat_nbr;
+    guint8      dat_id;
+    gint        item_len;
+    /* the last 8 sent/requested datatype ids */
+    guint64     snd_dat_ids=0, req_dat_ids=0;
 
     /* we only export cc_sac_data_req and cc_sac_data_cnf
        the only meta info in the exported PDU is the data transfer
@@ -2148,11 +2284,16 @@ dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
         if (item_len < 0)
             return -1;
         offset += item_len;
+        /* for more than 8 sent datatype ids, some ids might get lost by
+         * the shift, that's ok, we're only using the last 8 ids for
+         * protocol detection */
+        snd_dat_ids = snd_dat_ids<<8|dat_id;
         if (!exportable_flag || *exportable_flag==FALSE)
             continue;
         if (!is_cc_item_exportable(dat_id))
             *exportable_flag = FALSE;
     }
+
     if (tag==T_CC_DATA_REQ || tag==T_CC_SAC_DATA_REQ) {
         req_dat_nbr = tvb_get_guint8(tvb, offset);
         proto_tree_add_text(tree, tvb, offset, 1,
@@ -2160,11 +2301,15 @@ dissect_cc_data_payload(guint32 tag, tvbuff_t *tvb, gint offset,
         offset++;
         for(i=0; i<req_dat_nbr &&
                 tvb_reported_length_remaining(tvb, offset)>0; i++) {
+            dat_id = tvb_get_guint8(tvb, offset);
+            req_dat_ids = req_dat_ids<<8|dat_id;
             proto_tree_add_item(
                     tree, hf_dvbci_cc_dat_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
     }
+
+    add_cc_protocol_name_step(pinfo, snd_dat_ids, req_dat_ids);
 
     return offset-offset_start;
 }
