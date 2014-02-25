@@ -136,10 +136,7 @@ function exit_error() {
 
     echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
 
-    if [ -d .svn ] ; then
-        echo -e "\nSubversion revision" >> $TMP_DIR/${ERR_FILE}.header
-        svn log -l 1 >> $TMP_DIR/${ERR_FILE}.header
-    elif [ -d .git ] ; then
+    if [ -d .git ] ; then
         echo -e "\nGit commit" >> $TMP_DIR/${ERR_FILE}.header
         git log -1 >> $TMP_DIR/${ERR_FILE}.header
     fi

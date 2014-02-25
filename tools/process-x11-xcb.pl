@@ -1651,8 +1651,6 @@ sub add_generated_header {
    using $using version $ver */
 eot
     ;
-    # Since this file is checked in, add its SVN revision
-    print $out "/* \$"."Id"."\$ */\n\n";
 
     # Add license text
     print $out <<eot
