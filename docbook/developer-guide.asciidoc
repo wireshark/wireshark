@@ -22,8 +22,6 @@ include::wsdg_src/WSDG_chapter_env_intro.asciidoc[]
 
 include::wsdg_src/WSDG_chapter_quick_setup.asciidoc[]
 
-include::wsdg_src/WSDG_chapter_.asciidoc[]
-
 include::wsdg_src/WSDG_chapter_sources.asciidoc[]
 
 include::wsdg_src/WSDG_chapter_tools.asciidoc[]
