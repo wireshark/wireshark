@@ -1182,6 +1182,7 @@ parse_token (token_t token, char *str)
 
     /* ----- Waiting for new packet -------------------------------------------*/
     case INIT:
+        if (!str && token != T_EOL) goto fail_null_str;
         switch (token) {
         case T_TEXT:
             append_to_preamble(str);
@@ -1211,6 +1212,7 @@ parse_token (token_t token, char *str)
 
     /* ----- Processing packet, start of new line -----------------------------*/
     case START_OF_LINE:
+        if (!str && token != T_EOL) goto fail_null_str;
         switch (token) {
         case T_TEXT:
             append_to_preamble(str);
@@ -1264,6 +1266,7 @@ parse_token (token_t token, char *str)
         case T_BYTE:
             /* Record the byte */
             state = READ_BYTE;
+            if (!str) goto fail_null_str;
             write_byte(str);
             break;
         case T_TEXT:
@@ -1367,6 +1370,12 @@ parse_token (token_t token, char *str)
 
     if (debug >= 2)
         fprintf(stderr, ", %s)\n", state_str[state]);
+
+    return;
+
+fail_null_str:
+    fprintf(stderr, "FATAL ERROR: got NULL str pointer in state (%d)", state);
+    exit(1);
 
 }
 
