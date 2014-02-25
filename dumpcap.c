@@ -1968,7 +1968,7 @@ cap_pipe_open_live(char *pipename,
     wchar_t *err_str;
 #endif
     ssize_t  b;
-    int      fd, sel_ret;
+    int      fd = -1, sel_ret;
     size_t   bytes_read;
     guint32  magic = 0;
 
@@ -2146,6 +2146,11 @@ cap_pipe_open_live(char *pipename,
         /* read the pcap header */
         bytes_read = 0;
         while (bytes_read < sizeof magic) {
+            if (fd == -1) {
+                g_snprintf(errmsg, errmsgl, "Invalid file descriptor");
+                goto error;
+            }
+
             sel_ret = cap_pipe_select(fd);
             if (sel_ret < 0) {
                 g_snprintf(errmsg, errmsgl,
