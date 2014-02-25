@@ -7774,12 +7774,12 @@ oui_base_custom(gchar *result, guint32 oui)
   /* Attempt an OUI lookup. */
   manuf_name = get_manuf_name_if_known(p_oui);
   if (manuf_name == NULL) {
-      /* Could not find an OUI. */
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x", p_oui[0], p_oui[1], p_oui[2]);
+    /* Could not find an OUI. */
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x", p_oui[0], p_oui[1], p_oui[2]);
   }
   else {
-      /* Found an address string. */
-      g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
+   /* Found an address string. */
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%.2x-%.2x-%.2x (%s)", p_oui[0], p_oui[1], p_oui[2], manuf_name);
   }
 }
 
@@ -7854,23 +7854,36 @@ rsn_gmcs_base_custom(gchar *result, guint32 gmcs)
 static void
 rsni_base_custom(gchar *result, guint32 rsni)
 {
-   double temp_double;
+  double temp_double;
 
-   temp_double = (double)rsni;
-   g_snprintf(result, ITEM_LABEL_LENGTH, "%f dB", (temp_double / 2));
+  temp_double = (double)rsni;
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%f dB", (temp_double / 2));
 }
 
 static void
 vht_tpe_custom(gchar *result, guint8 txpwr)
 {
-
   gint8 txpwr_db;
 
   txpwr_db = (gint8)(txpwr);
   g_snprintf(result, ITEM_LABEL_LENGTH, "%3.1f dBm", (txpwr_db/2.0));
-
 }
 
+static void
+channel_number_custom(gchar *result, guint8 channel_number)
+{
+  switch(channel_number){
+    case 0:
+      g_snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on all supported channels in the specified Operating Class)", channel_number);
+    break;
+    case 255:
+      g_snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on all supported channels listed in the AP Channel Report)", channel_number);
+    break;
+    default :
+      g_snprintf(result, ITEM_LABEL_LENGTH, "%u (iterative measurements on that Channel Number)", channel_number);
+    break;
+  }
+}
 /* WPA / WME */
 static const value_string ieee802111_wfa_ie_type_vals[] = {
   { 1, "WPA Information Element" },
@@ -12226,7 +12239,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
                   proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_request, tvb, offset, 1, ENC_BIG_ENDIAN);
                   offset += 1;
                   break;
-                case MEASURE_REQ_BEACON_SUB_APCP: /* Request (51) */
+                case MEASURE_REQ_BEACON_SUB_APCP: /* AP Channel Report (51) */
                   /* TODO */
                   break;
                 default:
@@ -19448,7 +19461,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_request_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.req.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_CUSTOM, channel_number_custom, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_start_time,
@@ -19578,7 +19591,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_measure_report_channel_number,
      {"Measurement Channel Number", "wlan_mgt.measure.rep.channelnumber",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_CUSTOM, channel_number_custom, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_start_time,
@@ -20222,7 +20235,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_neighbor_report_channel_number,
      {"Channel Number", "wlan_mgt.nreport.channumber",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_CUSTOM, channel_number_custom, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_phy_type,
