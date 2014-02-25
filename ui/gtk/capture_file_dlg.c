@@ -553,12 +553,12 @@ gtk_open_file(GtkWidget *w, GString *file_name, gint *type, GString *display_fil
   gtk_widget_set_tooltip_text(format_type_co, "Format type of capture file");
   gtk_box_pack_start(GTK_BOX(main_vb), format_type_co, FALSE, FALSE, 0);
 
-  gtk_combo_box_text_append_text((GtkComboBoxText *) format_type_co, (const gchar *) "Automatic");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(format_type_co), (const gchar *) "Automatic");
   for (i = 0; open_routines[i].name != NULL; i += 1) {
-    gtk_combo_box_text_append_text((GtkComboBoxText *) format_type_co, open_routines[i].name);
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(format_type_co), open_routines[i].name);
   }
 
-  gtk_combo_box_set_active((GtkComboBox *) format_type_co, 0);
+  gtk_combo_box_set_active(GTK_COMBO_BOX(format_type_co), 0);
   gtk_widget_show(format_type_co);
 
   /* Filter row */
