@@ -79,7 +79,7 @@ extern void tap_init(void);
 WS_DLL_PUBLIC int register_tap(const char *name);
 
 /* Gets a GList of the tap names */
-GList* get_tap_names();
+WS_DLL_PUBLIC GList* get_tap_names(void);
 
 /** This function will return the tap_id for the specific protocol tap
  *  or 0 if no such tap was found.

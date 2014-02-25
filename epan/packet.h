@@ -415,7 +415,7 @@ WS_DLL_PUBLIC const char *dissector_handle_get_short_name(const dissector_handle
 WS_DLL_PUBLIC int dissector_handle_get_protocol_index(const dissector_handle_t handle);
 
 /* Get a GList of all registered dissector names. */
-GList* get_dissector_names();
+WS_DLL_PUBLIC GList* get_dissector_names(void);
 
 /* Find a dissector by name. */
 WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);

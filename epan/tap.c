@@ -425,7 +425,7 @@ draw_tap_listeners(gboolean draw_all)
    is owned by the tap table and should not be modified or freed.
    Use g_list_free() when done using the list. */
 GList*
-get_tap_names()
+get_tap_names(void)
 {
 	GList *list = NULL;
 	tap_dissector_t *td;

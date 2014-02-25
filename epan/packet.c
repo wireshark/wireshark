@@ -2128,7 +2128,7 @@ dissector_handle_get_protocol_index(const dissector_handle_t handle)
    is owned by the hash table and should not be modified or freed.
    Use g_list_free() when done using the list. */
 GList*
-get_dissector_names()
+get_dissector_names(void)
 {
 	return g_hash_table_get_keys(registered_dissectors);
 }
