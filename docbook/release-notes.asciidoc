@@ -17,28 +17,50 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-69[]
+* ws-salink:2014-01[]
 +
-A dissector went awry.
-// Fixed in trunk: r00000
-// Fixed in trunk-1.10: r00000
-// Fixed in trunk-1.8: r00000
-(ws-buglink:0000[])
+The NFS dissector could crash. Discovered by Moshe Kaplan.
+// Fixed in trunk: r54875 / gf4ab2b2
+// Fixed in trunk-1.10: g312f7e1
+// Fixed in trunk-1.8: g2fb9848
+(ws-buglink:9672[])
 +
 Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
+//+
+//cve-idlink:2014-0000[]
+
+* ws-salink:2014-02[]
 +
-cve-idlink:2013-0000[]
+The M3UA dissector could crash. Discovered by Laurent Butti.
+Fixed in master: r51608 / ga8f4327
+Fixed in master-1.10: gd3bd396
+(ws-buglink:9699[])
++
+Versions affected: 1.10.0 to 1.10.5
+//+
+//cve-idlink:2014-0000[]
 
 
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
 
+* Customized OUI is not recognized correctly during dissection. (ws-buglink:9122[])
+* Properly decode CAPWAP Data Keep-Alives. (ws-buglink:9165[])
 * Build failure with GTK 3.10 - GTK developers have gone insane. (ws-buglink:9340[])
+* SIGSEGV/SIGABRT during free of TvbRange using a chained dissector in lua. (ws-buglink:9483[])
 * MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
 * Tshark doesn't display the longer data fields (mbtcp). (ws-buglink:9572[])
 * DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
+* Dissector bug, protocol SDP: proto.c:4214: failed assertion "length >= 0". (ws-buglink:9633[])
 * False error: capture file appears to be damaged or corrupt. (ws-buglink:9634[])
+* SMPP field source_telematics_id field length different from spec. (ws-buglink:9649[])
+* Lua: bitop library is missing in Lua 5.2. (ws-buglink:9720[])
+* GTPv1-C / MM Context / Authentication quintuplet / RAND is not correct. (ws-buglink:9722[])
+* Lua: ProtoField.new() is buggy. (ws-buglink:9725[])
+* Lua: ProtoField.bool() VALUESTRING argument is not optional but was supposed to be. (ws-buglink:9728[])
+* Problem with CAPWAP Wireshark Dissector. (ws-buglink:9752[])
+* nas-eps dissector: CS Service notification dissection stops after Paging identity IE. (ws-buglink:9789[])
 
 === New and Updated Features
 
@@ -52,9 +74,21 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+AppleTalk
+CAPWAP
+GTPv1
 DMX-CHAN
+DSI
+DVB-CI
+ESS
+IEEE 802a
+M3UA
 Modbus/TCP
+NAS EPS
+NFS
 OpenSafety
+SDP
+SMPP
 
 --sort-and-group--
 
@@ -63,6 +97,7 @@ OpenSafety
 --sort-and-group--
 
 libpcap
+pcap-ng
 
 --sort-and-group--
 
