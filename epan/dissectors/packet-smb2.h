@@ -91,6 +91,7 @@ typedef struct _smb2_sesid_info_t {
 	char *domain_name;
 	char *host_name;
 	guint16 server_port;
+	guint32 session_key_frame;
 	guint session_key_len;
 	guint8 session_key[NTLMSSP_KEY_LEN*2];
 	guint8 signing_key[NTLMSSP_KEY_LEN];

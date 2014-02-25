@@ -1700,6 +1700,7 @@ smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb
 		ses->fids = wmem_map_new(wmem_file_scope(), smb2_fid_info_hash, smb2_fid_info_equal);
 		ses->files = wmem_map_new(wmem_file_scope(), smb2_eo_files_hash, smb2_eo_files_equal);
 
+		ses->session_key_frame = UINT32_MAX;
 		seskey_find_sid_key(id,
 				    ses->session_key,
 				    &ses->session_key_len,
@@ -1708,6 +1709,9 @@ smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb
 				    ses->client_decryption_key32,
 				    ses->server_decryption_key32);
 		if (pinfo && si) {
+			if (ses->session_key_len != 0) {
+				ses->session_key_frame = pinfo->num;
+			}
 			if (si->flags & SMB2_FLAGS_RESPONSE) {
 				ses->server_port = pinfo->srcport;
 			} else {
@@ -3983,6 +3987,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				if (memcmp(si->session->session_key, zeros, NTLMSSP_KEY_LEN) == 0) {
 					memcpy(si->session->session_key, ntlmssph->session_key, NTLMSSP_KEY_LEN);
 					si->session->session_key_len = NTLMSSP_KEY_LEN;
+					si->session->session_key_frame = pinfo->num;
 				}
 				si->session->auth_frame = pinfo->num;
 			}
@@ -4253,10 +4258,9 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			update_preauth_hash(si->conv->preauth_hash_current, pinfo, tvb);
 		} else {
 			/*
-			 * Session is established, we can generate the keys
+			 * Session is established, remember the last preauth hash
 			 */
 			memcpy(si->session->preauth_hash, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
-			smb2_generate_decryption_keys(si->conv, si->session);
 		}
 
 		/* In all cases, stash the preauth hash */
@@ -4288,7 +4292,10 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	/* If we have found a uid->acct_name mapping, store it */
 #ifdef HAVE_KERBEROS
-	if (!pinfo->fd->visited && si->status == 0) {
+	if (!pinfo->fd->visited &&
+	    ((si->session->session_key_frame == UINT32_MAX) ||
+	     (si->session->session_key_frame < pinfo->num)))
+	{
 		enc_key_t *ek;
 
 		if (krb_decrypt) {
@@ -4296,16 +4303,59 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 
 		for (ek=enc_key_list;ek;ek=ek->next) {
+			if (!ek->is_ap_rep_key) {
+				continue;
+			}
 			if (ek->fd_num == (int)pinfo->num) {
 				break;
 			}
 		}
 
 		if (ek != NULL) {
-			/* TODO: fill in the correct user/dom/host information */
+			/*
+			 * If we remembered information from the PAC content
+			 * from GSSAPI AP exchange we use it, otherwise we
+			 * can only give a hint about the used session key.
+			 */
+			if (ek->pac_names.account_name) {
+				si->session->acct_name = wmem_strdup(wmem_file_scope(),
+								     ek->pac_names.account_name);
+				si->session->domain_name = wmem_strdup(wmem_file_scope(),
+								       ek->pac_names.account_domain);
+				if (ek->pac_names.device_sid) {
+					si->session->host_name = wmem_strdup_printf(wmem_file_scope(),
+										    "DEVICE[%s]",
+										    ek->pac_names.device_sid);
+				} else {
+					si->session->host_name = NULL;
+				}
+			} else {
+				si->session->acct_name = wmem_strdup_printf(wmem_file_scope(),
+									    "KERBEROS[%s]",
+									    ek->key_origin);
+				si->session->domain_name = wmem_strdup_printf(wmem_file_scope(),
+									      "KERBEROS[%s]",
+									      ek->id_str);
+				si->session->host_name = NULL;
+			}
+			/* don't overwrite session key from preferences */
+			if (memcmp(si->session->session_key, zeros, NTLMSSP_KEY_LEN) == 0) {
+				si->session->session_key_len = MIN(NTLMSSP_KEY_LEN*2, ek->keylength);
+				memcpy(si->session->session_key,
+				       ek->keyvalue,
+				       si->session->session_key_len);
+				si->session->session_key_frame = pinfo->num;
+			}
 		}
 	}
 #endif
+
+	if (si->status == 0) {
+		/*
+		 * Session is established, we can generate the keys
+		 */
+		smb2_generate_decryption_keys(si->conv, si->session);
+	}
 
 	return offset;
 }
