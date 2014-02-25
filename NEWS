@@ -19,6 +19,7 @@ What's New
        9044)
      * Files with pcap-ng Simple Packet Blocks can't be read. ([3]Bug
        9200)
+     * MPLS-over-PPP isn't recognized. ([4]Bug 9492)
 
   New and Updated Features
 
@@ -51,13 +52,10 @@ What's New
      * Wireshark now uses the Qt application framework. The new UI should
        provide a significantly better user experience, particularly on Mac
        OS X and Windows.
-     * A more flexible, modular memory manger (wmem) has been added. It
-       was available experimentally in 1.10 but is now mature and has
-       mostly replaced the old API.
-     * Expert info is now filterable and now requires a new API.
      * The Windows installer now uninstalls the previous version of
        Wireshark silently. You can still run the uninstaller manually
        beforehand if you wish to run it interactively.
+     * Expert information is now filterable when the new API is in use.
      * The "Number" column shows related packets and protocol conversation
        spans (Qt only).
      * When manipulating packets with editcap using the -C <choplen>
@@ -81,14 +79,20 @@ What's New
 
   New Protocol Support
 
-   802.1AE Secure tag, ASTERIX, ATN, BT 3DS, CARP, Cisco MetaData, ELF
-   file format, EXPORTED PDU, FINGER, HTTP2, IDRP, ILP, Kafka, Kyoto
-   Tycoon binary protocol, MBIM, MiNT, MP4 / ISOBMFF file format, Novell
-   PKIS certificate extensions, NXP PN532 HCI, OpenFlow, Picture Transfer
-   Protocol Over IP, QUIC (Quick UDP Internet Connections), SEL RTAC (Real
-   Time Automation Controller) EIA-232 Serial-Line Dissection, Sippy
-   RTPproxy, STANAG 4607, STANAG 5066 DTS, STANAG 5066 SIS, Tinkerforge,
-   UDT, URL Encoded Form Data, WHOIS, and Wi-Fi Display
+   802.1AE Secure tag, ACR122, ADB CS, Aruba Instant AP, ASTERIX, ATN,
+   Bencode, Bluetooth 3DS, Bluetooth HSP, Bluetooth Linux Monitor
+   Transport, Bluetooth Low Energy, CARP, CFDP, Cisco MetaData, DeviceNet,
+   ELF file format, EXPORTED PDU, FINGER, HDMI, HTTP2, IDRP, ILP, Kafka,
+   Kyoto Tycoon, Lightweight Mesh (v1.1.1), Linux netlink, Linux netlink
+   netfilter, Linux netlink sock diag, Linux rtnetlink (route netlink),
+   Logcat, MBIM, MiNT, MP4 / ISOBMFF file format, Novell PKIS certificate
+   extensions, NXP PN532 HCI, OpenFlow, Pathport, Picture Transfer
+   Protocol Over IP, QUIC (Quick UDP Internet Connections), SAE J1939, SEL
+   RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection,
+   Sippy RTPproxy, SMB-Direct, STANAG 4607, STANAG 5066 DTS, STANAG 5066
+   SIS, Tinkerforge, Ubertooth, UDT, URL Encoded Form Data, USB
+   Communications and CDC Control, USB Device Firmware Upgrade, VP8,
+   WHOIS, and Wi-Fi Display
 
   Updated Protocol Support
 
@@ -97,19 +101,31 @@ What's New
   New and Updated Capture File Support
 
    Netscaler 2.6, STANAG 4607, and STANAG 5066 Data Transfer Sublayer
+
+  Major API Changes
+
+   The libwireshark API has undergone some major changes:
+     * A more flexible, modular memory manger (wmem) has been added. It
+       was available experimentally in 1.10 but is now mature and has
+       mostly replaced the old emem API (which is deprecated).
+     * A new API for expert information has been added, replacing the old
+       one.
+     * The tvbuff API has been cleaned up: tvb_length has been renamed to
+       tvb_captured_length for clarity, and tvb_get_string has been
+       deprecated in favour of tvb_get_string_enc.
      __________________________________________________________________
 
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [4]http://www.wireshark.org/download.html.
+   [5]http://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [5]download page on the Wireshark web site.
+   found on the [6]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -122,74 +138,75 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([6]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([7]Bug 1419)
 
-   The BER dissector might infinitely loop. ([7]Bug 1516)
+   The BER dissector might infinitely loop. ([8]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
    (ws-buglink:1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([8]Bug 2234)
+   ([9]Bug 2234)
 
    The 64-bit Windows installer does not support Kerberos decryption.
-   ([9]Win64 development page)
+   ([10]Win64 development page)
 
-   Resolving ([10]Bug 9044) reopens ([11]Bug 3528) so that Wireshark no
+   Resolving ([11]Bug 9044) reopens ([12]Bug 3528) so that Wireshark no
    longer automatically decodes gzip data when following a TCP stream.
 
-   Application crash when changing real-time option. ([12]Bug 4035)
+   Application crash when changing real-time option. ([13]Bug 4035)
 
-   Hex pane display issue after startup. ([13]Bug 4056)
+   Hex pane display issue after startup. ([14]Bug 4056)
 
-   Packet list rows are oversized. ([14]Bug 4357)
+   Packet list rows are oversized. ([15]Bug 4357)
 
-   Summary pane selected frame highlighting not maintained. ([15]Bug 4445)
+   Summary pane selected frame highlighting not maintained. ([16]Bug 4445)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([16]Bug 4985)
+   ([17]Bug 4985)
 
-   The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 ([17]Bug
+   The 64-bit Mac OS X installer doesn't support Mac OS X 10.9 ([18]Bug
    9242)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [18]Wireshark's Q&A site and on the
+   Community support is available on [19]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [19]the web site.
+   all of Wireshark's mailing lists can be found on [20]the web site.
 
    Official Wireshark training and certification are available from
-   [20]Wireshark University.
+   [21]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [21]Wireshark web site.
+   A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-01-03 11:21:56 CET
+   Last updated 2014-02-26 00:28:20 CET
 
 References
 
    1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8808
    2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
    3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9200
-   4. http://www.wireshark.org/download.html
-   5. http://www.wireshark.org/download.html#thirdparty
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   9. https://wiki.wireshark.org/Development/Win64
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9242
-  18. http://ask.wireshark.org/
-  19. http://www.wireshark.org/lists/
-  20. http://www.wiresharktraining.com/
-  21. http://www.wireshark.org/faq.html
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9492
+   5. http://www.wireshark.org/download.html
+   6. http://www.wireshark.org/download.html#thirdparty
+   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  10. https://wiki.wireshark.org/Development/Win64
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9044
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3528
+  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4056
+  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4357
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4445
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9242
+  19. http://ask.wireshark.org/
+  20. http://www.wireshark.org/lists/
+  21. http://www.wiresharktraining.com/
+  22. http://www.wireshark.org/faq.html
