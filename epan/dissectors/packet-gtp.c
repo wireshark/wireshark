@@ -4235,7 +4235,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const gchar * qos
         utf8_type = 2;
 
         /* The field in the RADIUS message is the length of the tvb we were given */
-        length = tvb_length(tvb);
+        length = tvb_reported_length(tvb);
         te = proto_tree_add_text(tree, tvb, offset, length, "%s", qos_str);
 
         ext_tree_qos = proto_item_add_subtree(te, ett_gtp_qos);
@@ -4602,7 +4602,7 @@ static const gchar *
 dissect_radius_qos_umts(proto_tree * tree, tvbuff_t * tvb, packet_info* pinfo _U_)
 {
     decode_qos_umts(tvb, 0, tree, "UMTS GTP QoS Profile", 3);
-    return (gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length(tvb));
+    return tvb_get_string_enc(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb), ENC_UTF_8|ENC_NA);
 }
 
 #define MAX_APN_LENGTH          100
