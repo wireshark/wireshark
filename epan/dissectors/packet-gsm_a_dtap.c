@@ -1778,7 +1778,7 @@ bc_octet_6:
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_negotiation, tvb, curr_offset, 1, ENC_NA);
 	proto_tree_add_item(subtree, hf_gsm_a_dtap_number_of_data_bits, tvb, curr_offset, 1, ENC_NA);
 
-	proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_user_rate, 
+	proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_user_rate,
 		tvb, curr_offset, 1, oct, "%s", val_to_str_const(oct & 0xF, gsm_a_dtap_user_rate_vals, "Reserved"));
 
 	curr_offset++;
@@ -1919,7 +1919,7 @@ bc_octet_6:
 	}
 	else
 	{
-		proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_wanted_air_interface_user_rate, tvb, curr_offset, 1, 
+		proto_tree_add_uint_format_value(subtree, hf_gsm_a_dtap_wanted_air_interface_user_rate, tvb, curr_offset, 1,
             oct, "Spare");
 	}
 
@@ -3554,11 +3554,11 @@ de_tp_pdu_description(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 			proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_pdu_description,
                     tvb, curr_offset, 2, value, "Infinite number of PDUs to be transmitted in the TBF");
 		else
-			proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_pdu_description, 
+			proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_pdu_description,
                     tvb, curr_offset, 2, value & 0xfff, "%d PDUs to be transmitted in the TBF", value & 0xfff);
 	}
 	else
-		proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_pdu_description, 
+		proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_tp_pdu_description,
                     tvb, curr_offset, 2, value, "reserved");
 
 	return(curr_offset - offset);
@@ -3623,7 +3623,7 @@ de_tp_ms_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ms_positioning_technology, tvb, curr_offset, 1, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ms_positioning_technology, tvb, curr_offset, 1,
         oct, "%s", val_to_str(oct, gsm_positioning_technology_vals, "Reserved (%d)"));
 	curr_offset+= 1;
 
@@ -3689,7 +3689,7 @@ de_tp_ue_positioning_technology(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
 	oct = tvb_get_guint8(tvb, curr_offset);
 
-	proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ue_positioning_technology, tvb, curr_offset, 1, 
+	proto_tree_add_uint_format_value(tree, hf_gsm_a_dtap_ue_positioning_technology, tvb, curr_offset, 1,
         oct, "%s", val_to_str(oct, gsm_positioning_technology_vals, "Reserved (%d)"));
 	curr_offset+= 1;
 

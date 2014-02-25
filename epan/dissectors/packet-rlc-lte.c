@@ -2845,7 +2845,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         proto_item_append_text(top_ti, "   UEId=%u", p_rlc_lte_info->ueid);
         col_append_fstr(pinfo->cinfo, COL_INFO, "UEId=%-4u ", p_rlc_lte_info->ueid);
     }
-    
+
     /* Append context highlights to info column */
     write_pdu_label_and_info(top_ti, NULL, pinfo,
                              " [%s] [%s] ",

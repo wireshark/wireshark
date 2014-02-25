@@ -6305,8 +6305,8 @@ proto_register_dcerpc(void)
     /* Decode As handling */
     static build_valid_func dcerpc_da_build_value[1] = {dcerpc_value};
     static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
-    static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC", 
-                                    /* XXX - DCE/RPC doesn't have a true (sub)dissector table, so 
+    static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC",
+                                    /* XXX - DCE/RPC doesn't have a true (sub)dissector table, so
                                      provide a "fake" one to fit the Decode As algorithm */
                                     "dcerpc.fake",
                                     1, 0, &dcerpc_da_values, NULL, NULL,

@@ -1373,7 +1373,7 @@ void set_pdcp_lte_security_algorithms_failed(guint16 ueid)
         /* Go back to previous state */
         ue_security->configuration_frame = ue_security->previous_configuration_frame;
         ue_security->integrity = ue_security->previous_integrity;
-        ue_security->ciphering = ue_security->previous_ciphering;        
+        ue_security->ciphering = ue_security->previous_ciphering;
     }
 }
 
@@ -1440,32 +1440,32 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         ctr_block[2] = (pdu_security_settings->count & 0x0000ff00) >> 8;
         ctr_block[3] = (pdu_security_settings->count & 0x000000ff);
         ctr_block[4] = (pdu_security_settings->bearer << 3) + (pdu_security_settings->direction << 2);
-    
+
         /* Open gcrypt handle */
         gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0);
         if (gcrypt_err != 0) {
             return tvb;
         }
-    
+
         /* Set the key */
         gcrypt_err = gcry_cipher_setkey(cypher_hd, pdu_security_settings->cipherKey, 16);
         if (gcrypt_err != 0) {
             gcry_cipher_close(cypher_hd);
             return tvb;
         }
-    
+
         /* Set the CTR */
         gcrypt_err = gcry_cipher_setctr(cypher_hd, ctr_block, 16);
         if (gcrypt_err != 0) {
             gcry_cipher_close(cypher_hd);
             return tvb;
         }
-    
+
         /* Extract the encrypted data into a buffer */
         payload_length = tvb_length_remaining(tvb, *offset);
         decrypted_data = (guint8 *)g_malloc0(payload_length);
         tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
-    
+
         /* Decrypt the actual data */
         gcrypt_err = gcry_cipher_decrypt(cypher_hd,
                                          decrypted_data, payload_length,
@@ -1475,7 +1475,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
             g_free(decrypted_data);
             return tvb;
         }
-    
+
         /* Close gcrypt handle */
         gcry_cipher_close(cypher_hd);
     }
@@ -1550,7 +1550,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                                      pdu_security_settings->direction,
                                      message_data,
                                      (message_length+1)*8);
-                          
+
                 *calculated = TRUE;
                 g_free(message_data);
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);

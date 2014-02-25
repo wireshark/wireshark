@@ -84,7 +84,7 @@ typedef enum {
 /* Structure that gets passed between dissectors.  Since it's just a simple 32-bit
    value, no sense in creating a header file for it.  Just expect subdissectors
    to provide their own.
- */ 
+ */
 struct can_identifier
 {
 	guint32 id;
@@ -170,7 +170,7 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			call_dissector_with_data(canopen_handle, next_tvb, pinfo, tree, &can_id);
 			break;
 		case CAN_DEVICENET_DISSECTOR:
-			/* XXX - Not sure this is correct.  But the capture provided in 
+			/* XXX - Not sure this is correct.  But the capture provided in
              * bug 8564 provides CAN ID in little endian format, so this makes it work */
 			can_id.id = GUINT32_SWAP_LE_BE(can_id.id);
 

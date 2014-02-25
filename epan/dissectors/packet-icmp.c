@@ -1076,9 +1076,9 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 			it = proto_tree_add_item(tree, hf_icmp_no_resp, NULL, 0, 0,
 						 ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_GENERATED(it);
-	
+
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
-	
+
 			/* Expert info.  TODO: add to _icmp_transaction_t type and sequence number
 			   so can report here (and in taps) */
 			expert_add_info_format(pinfo, it, &ei_icmp_resp_not_found,

@@ -1778,7 +1778,7 @@ void proto_reg_handoff_zbee_zcl_part(void)
 #define ZBEE_ZCL_OTA_ZB_STACK_VER_IP                        0x0003  /* ZigBee IP */
 #define ZBEE_ZCL_OTA_ZB_STACK_VER_RESERVED_LO               0x0004  /* Reserved Low */
 #define ZBEE_ZCL_OTA_ZB_STACK_VER_RESERVED_HI               0xffff  /* Reserved High */
-  
+
 /* Image Upgrade Status */
 #define ZBEE_ZCL_OTA_STATUS_NORMAL                            0x00  /* Normal */
 #define ZBEE_ZCL_OTA_STATUS_DOWNLOAD_IN_PROGRESS              0x01  /* Download in progress */
@@ -1786,7 +1786,7 @@ void proto_reg_handoff_zbee_zcl_part(void)
 #define ZBEE_ZCL_OTA_STATUS_WAITING_TO_UPGRADE                0x03  /* Waiting to upgrade */
 #define ZBEE_ZCL_OTA_STATUS_COUNT_DOWN                        0x04  /* Count down */
 #define ZBEE_ZCL_OTA_STATUS_WAIT_FOR_MORE                     0x05  /* Wait for more */
-                                                                    /* 0x06-0xff - Reserved */                                                        
+                                                                    /* 0x06-0xff - Reserved */
 /* File Version mask */
 #define ZBEE_ZCL_OTA_FILE_VERS_APPL_RELEASE             0x000000FF  /* Application Release */
 #define ZBEE_ZCL_OTA_FILE_VERS_APPL_BUILD               0x0000FF00  /* Application Build */
@@ -2031,7 +2031,7 @@ dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offse
     proto_tree  *sub_tree = NULL;
     proto_item  *ti;
     guint32     file_version;
-    
+
     /* 'File Version' field present, retrieves it */
     file_version = tvb_get_ntohl(tvb, *offset);
     ti = proto_tree_add_text(tree, tvb, *offset, 4, "File Version: 0x%08x", file_version);
@@ -2062,7 +2062,7 @@ dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree  *sub_tree = NULL;
     proto_item  *ti;
     guint8      field_ctrl;
-    
+
     /* Retrieve 'Field Control' field */
     field_ctrl = tvb_get_guint8(tvb, *offset);
     ti = proto_tree_add_text(tree, tvb, *offset, 1, "Field Control: 0x%02x", field_ctrl);
@@ -2070,7 +2070,7 @@ dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_field_ctrl_hw_ver_present, tvb, *offset, 1, ENC_NA);
     proto_tree_add_item(sub_tree, hf_zbee_zcl_ota_field_ctrl_reserved, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     return field_ctrl;
 } /*dissect_zcl_ota_field_ctrl_field*/
 
@@ -2096,30 +2096,30 @@ dissect_zcl_ota_imagenotify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     payload_type = tvb_get_guint8(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_ota_payload_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     /* Retrieve 'Query Jitter' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_query_jitter, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Check if there are optional fields */
-    
+
     if (payload_type >= ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC) {
         /* 'Manufacturer Code' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
     }
-    
+
     if (payload_type >= ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT) {
         /* 'Image Type' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
     }
-    
+
     if (payload_type >= ZBEE_ZCL_OTA_PAYLOAD_TYPE_QJ_MC_IT_FV) {
         /* 'File Version' field present, retrieves it */
         dissect_zcl_ota_file_version_field(tvb, tree, offset);
     }
-    
+
 } /*dissect_zcl_ota_imagenotify*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2139,10 +2139,10 @@ static void
 dissect_zcl_ota_querynextimagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8  field_ctrl;
-    
+
     /* Retrieve 'Field Control' field */
     field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
-    
+
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2150,18 +2150,18 @@ dissect_zcl_ota_querynextimagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset
     /* Retrieve 'Image Type' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Retrieve 'File Version' field */
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
-        
+
     /* Check if there are optional fields */
-    
-    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT) { 
+
+    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT) {
         /* 'Hardware Version' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_hw_version, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
     }
-    
+
 } /*dissect_zcl_ota_querynextimagereq*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2186,7 +2186,7 @@ dissect_zcl_ota_querynextimagersp(tvbuff_t *tvb, proto_tree *tree, guint *offset
     status = tvb_get_guint8(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     /* Check if there are optional fields */
     if (status == ZBEE_ZCL_STAT_SUCCESS) {
         /* Retrieve 'Manufacturer Code' field */
@@ -2196,7 +2196,7 @@ dissect_zcl_ota_querynextimagersp(tvbuff_t *tvb, proto_tree *tree, guint *offset
         /* Retrieve 'Image Type' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
-      
+
         /* Retrieve 'File Version' field */
         dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
@@ -2204,7 +2204,7 @@ dissect_zcl_ota_querynextimagersp(tvbuff_t *tvb, proto_tree *tree, guint *offset
         proto_tree_add_item(tree, hf_zbee_zcl_ota_image_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
     }
-    
+
 } /*dissect_zcl_ota_querynextimagersp*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2224,10 +2224,10 @@ static void
 dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8  field_ctrl;
-    
+
     /* Retrieve 'Field Control' field */
     field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
-    
+
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2235,26 +2235,26 @@ dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Retrieve 'Image Type' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Retrieve 'File Version' field */
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
     /* Retrieve 'File Offset' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_file_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
-    
+
     /* Retrieve 'Maximum Data Size' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_max_data_size, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     /* Check if there are optional fields */
-    
-    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) { 
+
+    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) {
         /* 'Requerst Node Address' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
     }
-    
+
 } /*dissect_zcl_ota_imageblockreq*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2274,10 +2274,10 @@ static void
 dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8  field_ctrl;
-    
+
     /* Retrieve 'Field Control' field */
     field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
-    
+
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2285,34 +2285,34 @@ dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Retrieve 'Image Type' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Retrieve 'File Version' field */
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
     /* Retrieve 'File Offset' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_file_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
-    
+
     /* Retrieve 'Maximum Data Size' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_max_data_size, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     /* Retrieve 'Page Size' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_page_size, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
- 
+
     /* Retrieve 'Response Spacing' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_rsp_spacing, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Check if there are optional fields */
-    
-    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) { 
+
+    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) {
         /* 'Requerst Node Address' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
     }
-    
+
 } /*dissect_zcl_ota_imagepagereq*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2339,7 +2339,7 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     status = tvb_get_guint8(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     if (status == ZBEE_ZCL_STAT_SUCCESS) {
         /* Retrieve 'Manufacturer Code' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -2348,19 +2348,19 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         /* Retrieve 'Image Type' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
-        
+
         /* Retrieve 'File Version' field */
         dissect_zcl_ota_file_version_field(tvb, tree, offset);
-        
+
         /* Retrieve 'File Offset' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_file_offset, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
-        
+
         /* Retrieve 'Data Size' field */
         data_size = tvb_get_guint8(tvb, *offset);
         proto_tree_add_item(tree, hf_zbee_zcl_ota_data_size, tvb, *offset, 1, ENC_NA);
         *offset += 1;
-        
+
         /* Retrieve 'Image Data' field */
         image_data = tvb_bytes_to_ep_str_punct(tvb, *offset, data_size, ':');
         proto_tree_add_string(tree, hf_zbee_zcl_ota_image_data, tvb, *offset, data_size, image_data);
@@ -2370,7 +2370,7 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         /* Retrieve 'Current Time' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
-        
+
         /* Retrieve 'Request Time' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_request_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
@@ -2378,7 +2378,7 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     else {
       /* */
     }
-    
+
 } /*dissect_zcl_ota_imageblockrsp*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2396,11 +2396,11 @@ dissect_zcl_ota_imageblockrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  */
 static void
 dissect_zcl_ota_upgradeendreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
-{    
+{
     /* Retrieve 'Status' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2408,7 +2408,7 @@ dissect_zcl_ota_upgradeendreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Retrieve 'Image Type' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Retrieve 'File Version' field */
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
@@ -2429,7 +2429,7 @@ dissect_zcl_ota_upgradeendreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  */
 static void
 dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
-{    
+{
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2437,10 +2437,10 @@ dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Retrieve 'Image Type' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Retrieve 'File Version' field */
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
-    
+
     /* Retrieve 'Current Time' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_current_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -2466,11 +2466,11 @@ dissect_zcl_ota_upgradeendrsp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
  */
 static void
 dissect_zcl_ota_queryspecfilereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
-{    
+{
     /* 'Requerst Node Address' field present, retrieves it */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
     *offset += 8;
-    
+
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2478,10 +2478,10 @@ dissect_zcl_ota_queryspecfilereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     /* Retrieve 'Image Type' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
-    
+
     /* Retrieve 'File Version' field */
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
-    
+
     /* Retrieve 'ZigBee Stack Version' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_zb_stack_ver, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
@@ -2505,12 +2505,12 @@ static void
 dissect_zcl_ota_queryspecfilersp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     guint8  status;
-    
+
     /* Retrieve 'Status' field */
     status = tvb_get_guint8(tvb, *offset);
     proto_tree_add_item(tree, hf_zbee_zcl_ota_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
-    
+
     if (status == ZBEE_ZCL_STAT_SUCCESS) {
         /* Retrieve 'Manufacturer Code' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -2519,15 +2519,15 @@ dissect_zcl_ota_queryspecfilersp(tvbuff_t *tvb, proto_tree *tree, guint *offset)
         /* Retrieve 'Image Type' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
-        
+
         /* Retrieve 'File Version' field */
         dissect_zcl_ota_file_version_field(tvb, tree, offset);
-        
+
         /* Retrieve 'Image Size' field */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_image_size, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-        *offset += 4; 
+        *offset += 4;
     }
-    
+
 } /*dissect_zcl_ota_queryspecfilersp*/
 
 /*FUNCTION:------------------------------------------------------
@@ -2588,17 +2588,17 @@ dissect_zcl_ota_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
             proto_tree_add_item(tree, hf_zbee_zcl_ota_image_upgrade_status, tvb, *offset, 1, ENC_NA);
             *offset += 1;
             break;
-            
+
         case ZBEE_ZCL_ATTR_ID_OTA_MANUFACTURER_ID:
             proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
             break;
-            
+
         case ZBEE_ZCL_ATTR_ID_OTA_IMAGE_TYPE_ID:
             proto_tree_add_item(tree, hf_zbee_zcl_ota_image_type, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
             *offset += 2;
             break;
-        
+
         case ZBEE_ZCL_ATTR_ID_OTA_MIN_BLOCK_REQ_DELAY:
         default:
             dissect_zcl_attr_data(tvb, tree, offset, data_type);
@@ -2681,7 +2681,7 @@ dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 case ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_REQ:
                     dissect_zcl_ota_querynextimagereq(tvb, payload_tree, &offset);
                     break;
-                
+
                 case ZBEE_ZCL_CMD_ID_OTA_IMAGE_BLOCK_REQ:
                     dissect_zcl_ota_imageblockreq(tvb, payload_tree, &offset);
                     break;
@@ -2689,7 +2689,7 @@ dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 case ZBEE_ZCL_CMD_ID_OTA_IMAGE_PAGE_REQ:
                     dissect_zcl_ota_imagepagereq(tvb, payload_tree, &offset);
                     break;
-                    
+
                 case ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_REQ:
                     dissect_zcl_ota_upgradeendreq(tvb, payload_tree, &offset);
                     break;
@@ -2697,7 +2697,7 @@ dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 case ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_REQ:
                     dissect_zcl_ota_queryspecfilereq(tvb, payload_tree, &offset);
                     break;
-                
+
                 default:
                     break;
             }
@@ -2723,7 +2723,7 @@ dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 case ZBEE_ZCL_CMD_ID_OTA_IMAGE_NOTIFY:
                     dissect_zcl_ota_imagenotify(tvb, payload_tree, &offset);
                     break;
-                
+
                 case ZBEE_ZCL_CMD_ID_OTA_QUERY_NEXT_IMAGE_RSP:
                     dissect_zcl_ota_querynextimagersp(tvb, payload_tree, &offset);
                     break;
@@ -2735,17 +2735,17 @@ dissect_zbee_zcl_ota(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 case ZBEE_ZCL_CMD_ID_OTA_UPGRADE_END_RSP:
                     dissect_zcl_ota_upgradeendrsp(tvb, payload_tree, &offset);
                     break;
-                    
+
                 case ZBEE_ZCL_CMD_ID_OTA_QUERY_SPEC_FILE_RSP:
                     dissect_zcl_ota_queryspecfilersp(tvb, payload_tree, &offset);
-                    break;              
+                    break;
 
                 default:
                     break;
             }
         }
     }
-    
+
     return tvb_length(tvb);
 } /*dissect_zbee_zcl_ota*/
 
@@ -2780,36 +2780,36 @@ void proto_register_zbee_zcl_ota(void)
         { &hf_zbee_zcl_ota_srv_rx_cmd_id,
             { "Command", "zbee_zcl_general.ota.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_srv_rx_cmd_names),
             0x0, NULL, HFILL } },
-        
+
         { &hf_zbee_zcl_ota_image_upgrade_status,
             { "Image Upgrade Status", "zbee_zcl_general.ota.status_attr", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_image_upgrade_attr_status_names),
             0x0, NULL, HFILL } },
-  
+
         { &hf_zbee_zcl_ota_zb_stack_ver,
-            { "ZigBee Stack Version", "zbee_zcl_general.ota.zb_stack.ver", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, 
+            { "ZigBee Stack Version", "zbee_zcl_general.ota.zb_stack.ver", FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
             RVALS(zbee_zcl_ota_zb_stack_ver_names), 0x0, NULL, HFILL } },
-   
+
         { &hf_zbee_zcl_ota_payload_type,
             { "Payload Type", "zbee_zcl_general.ota.payload.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ota_paylaod_type_names),
             0x0, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_query_jitter,
             { "Query Jitter", "zbee_zcl_general.ota.query_jitter", FT_UINT16, BASE_CUSTOM, decode_zcl_time_in_seconds,
-            0x0, NULL, HFILL } }, 
-            
+            0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_ota_manufacturer_code,
             { "Manufacturer Code", "zbee_zcl_general.ota.manufacturer_code", FT_UINT16, BASE_HEX, VALS(zbee_mfr_code_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_image_type,
-            { "Image Type", "zbee_zcl_general.ota.image.type", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, 
+            { "Image Type", "zbee_zcl_general.ota.image.type", FT_UINT16, BASE_HEX | BASE_RANGE_STRING,
             RVALS(zbee_zcl_ota_image_type_names), 0x0, NULL, HFILL } },
 
 /* Begin FileVersion fields */
         { &hf_zbee_zcl_ota_file_version_appl_release,
             { "Application Release", "zbee_zcl_general.ota.file.version.appl.release", FT_UINT32, BASE_DEC, NULL,
             ZBEE_ZCL_OTA_FILE_VERS_APPL_RELEASE, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_file_version_appl_build,
             { "Application Build", "zbee_zcl_general.ota.file.version.appl.build", FT_UINT32, BASE_DEC, NULL,
             ZBEE_ZCL_OTA_FILE_VERS_APPL_BUILD, NULL, HFILL } },
@@ -2817,7 +2817,7 @@ void proto_register_zbee_zcl_ota(void)
         { &hf_zbee_zcl_ota_file_version_stack_release,
             { "Stack Release", "zbee_zcl_general.ota.file.version.stack.release", FT_UINT32, BASE_DEC, NULL,
             ZBEE_ZCL_OTA_FILE_VERS_STACK_RELEASE, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_file_version_stack_build,
             { "Stack Build", "zbee_zcl_general.ota.file.version.stack.build", FT_UINT32, BASE_DEC, NULL,
             ZBEE_ZCL_OTA_FILE_VERS_STACK_BUILD, NULL, HFILL } },
@@ -2827,56 +2827,56 @@ void proto_register_zbee_zcl_ota(void)
         { &hf_zbee_zcl_ota_field_ctrl_hw_ver_present,
             { "Hardware Version", "zbee_zcl_general.ota.field_ctrl_hw_ver_present",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT, NULL, HFILL } },
-            
-        { &hf_zbee_zcl_ota_field_ctrl_reserved, 
-            { "Reserved", "zbee_zcl_general.ota.field_ctrl_reserved", FT_UINT8, BASE_HEX, NULL, 
+
+        { &hf_zbee_zcl_ota_field_ctrl_reserved,
+            { "Reserved", "zbee_zcl_general.ota.field_ctrl_reserved", FT_UINT8, BASE_HEX, NULL,
             ZBEE_ZCL_OTA_FIELD_CTRL_RESERVED, NULL, HFILL } },
 /* End FieldControl fields */
-        
+
         { &hf_zbee_zcl_ota_hw_version,
-            { "Hardware Version", "zbee_zcl_general.ota.hw_ver", FT_UINT16, BASE_HEX, NULL, 
+            { "Hardware Version", "zbee_zcl_general.ota.hw_ver", FT_UINT16, BASE_HEX, NULL,
             0x0, NULL, HFILL } },
-        
+
         { &hf_zbee_zcl_ota_status,
             { "Status", "zbee_zcl_general.ota.status", FT_UINT8, BASE_HEX, VALS(zbee_zcl_status_names),
-            0x0, NULL, HFILL } },    
-            
+            0x0, NULL, HFILL } },
+
         { &hf_zbee_zcl_ota_image_size,
             { "Image Size", "zbee_zcl_general.ota.image.size", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_size_in_bytes,
             0x0, NULL, HFILL } },
- 
+
         { &hf_zbee_zcl_ota_file_offset,
-            { "File Offset", "zbee_zcl_general.ota.file.offset", FT_UINT32, BASE_HEX, NULL, 
+            { "File Offset", "zbee_zcl_general.ota.file.offset", FT_UINT32, BASE_HEX, NULL,
             0x0, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_max_data_size,
             { "Max Data Size", "zbee_zcl_general.ota.max_data_size", FT_UINT8, BASE_DEC, NULL,
             0x0, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_req_node_addr,
-            { "Ieee Address", "zbee_zcl_general.ota.ieee_addr", FT_UINT64, BASE_HEX, NULL, 
+            { "Ieee Address", "zbee_zcl_general.ota.ieee_addr", FT_UINT64, BASE_HEX, NULL,
             0x0, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_page_size,
             { "Page Size", "zbee_zcl_general.ota.page.size", FT_UINT16, BASE_CUSTOM, decode_zcl_ota_size_in_bytes,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_rsp_spacing,
-            { "Response Spacing", "zbee_zcl_general.ota.rsp_spacing", FT_UINT16, BASE_HEX, NULL, 
+            { "Response Spacing", "zbee_zcl_general.ota.rsp_spacing", FT_UINT16, BASE_HEX, NULL,
             0x0, NULL, HFILL } },
-            
+
         { &hf_zbee_zcl_ota_current_time,
             { "Current Time", "zbee_zcl_general.ota.current_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_curr_time,
             0x0, NULL, HFILL }},
-            
+
         { &hf_zbee_zcl_ota_request_time,
             { "Request Time", "zbee_zcl_general.ota.request_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_req_time,
             0x0, NULL, HFILL }},
-            
+
         { &hf_zbee_zcl_ota_upgrade_time,
             { "Upgrade Time", "zbee_zcl_general.ota.upgrade_time", FT_UINT32, BASE_CUSTOM, decode_zcl_ota_upgr_time,
             0x0, NULL, HFILL }},
-            
+
         { &hf_zbee_zcl_ota_data_size,
             { "Data Size", "zbee_zcl_general.ota.data_size", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },

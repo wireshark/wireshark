@@ -3160,7 +3160,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
 
     if (eit != EIT_BILATERAL && body_len > 0) {
       field_tree = proto_item_add_subtree (tf, ett_message_body);
-      proto_tree_add_item (field_tree, hf_message_body_plain, body_tvb, 
+      proto_tree_add_item (field_tree, hf_message_body_plain, body_tvb,
                            body_offset, body_len, ENC_ASCII|ENC_NA);
     }
   }

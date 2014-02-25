@@ -931,9 +931,9 @@ proto_register_dsmcc(void)
 
         { &hf_dsmcc_un_sess_uu_data, {
             "User data", "mpeg_dsmcc.un_sess.uu_data",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL 
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
- 
+
         { &hf_dsmcc_un_sess_priv_data_len, {
             "Private data length", "mpeg_dsmcc.un_sess.priv_data_len",
             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
@@ -941,14 +941,14 @@ proto_register_dsmcc(void)
 
         { &hf_dsmcc_un_sess_priv_data, {
             "Private data", "mpeg_dsmcc.un_sess.priv_data",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL 
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
         /* table 4-6 U-N user data format - end */
 
         /* other tables in section 4.2 - start */
         { &hf_dsmcc_un_sess_id, {
             "Session ID", "mpeg_dsmcc.un_sess.session_id",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL 
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_dsmcc_un_sess_response, {

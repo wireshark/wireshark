@@ -256,7 +256,7 @@ json_tvb_memcpy_utf8(char *buf, tvbuff_t *tvb, int offset, int offset_max)
 	int len = ws_utf8_char_len((guint8) *buf);
 
 	/* XXX, before moving to core API check if it's off-by-one safe.
-	 * For JSON analyzer it's not a problem 
+	 * For JSON analyzer it's not a problem
 	 * (string always terminated by ", which is not valid UTF-8 continuation character) */
 	if (len == -1 || ((guint) (offset + len)) >= (guint) offset_max) {
 		*buf = '?';

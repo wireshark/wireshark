@@ -9809,7 +9809,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   offset += 2;
 
   /* Bits 53 - 76 */
-  value_mcs_53_76 = tvb_get_letohl(tvb, offset); 
+  value_mcs_53_76 = tvb_get_letohl(tvb, offset);
   if ((value_mcs_53_76 & (0x1fffffe0))) {
     /*
      * At least one MCS from 53-76 is supported, so we have at least 4
@@ -9827,7 +9827,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   /* Follow table 8-126 from 802.11-2012 */
   tx_mcs_set = tvb_get_letohs(tvb,offset);
 
-  if (!(tx_mcs_set & 0x0001) && !(tx_mcs_set & 0x0002))  
+  if (!(tx_mcs_set & 0x0001) && !(tx_mcs_set & 0x0002))
   {
     /* TX MCS Set is not defined
      * so there is no interpretation for Max Tx Spatial Streams
@@ -9835,10 +9835,10 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
      tx_nss = 4; /* Not Defined*/
   }
 
-  if ((tx_mcs_set & 0x0001) && !(tx_mcs_set & 0x0002))  
+  if ((tx_mcs_set & 0x0001) && !(tx_mcs_set & 0x0002))
   {
     /* TX MCS Set is defined to be equal to Rx MCS Set
-     * So, get the Max Spatial Streams from Rx 
+     * So, get the Max Spatial Streams from Rx
      * MCS set
      */
      tx_nss = rx_nss;

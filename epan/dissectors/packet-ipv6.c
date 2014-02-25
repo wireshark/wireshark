@@ -2118,8 +2118,8 @@ again:
         /* COL_INFO was filled in by "dissect_frag6()" */
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
         return;
-    } 
-  
+    }
+
     /* First fragment, not fragmented, or already reassembled.  Dissect what we have here. */
 
     /* Get a tvbuff for the payload. */

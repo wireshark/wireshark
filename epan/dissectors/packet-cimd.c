@@ -4,7 +4,7 @@
  *
  * Copyright : 2005 Viorel Suman <vsuman[AT]avmob.ro>, Lucian Piros <lpiros[AT]avmob.ro>
  *             In association with Avalanche Mobile BV, http://www.avmob.com
- *  
+ *
  * Updates :
  *            Sub routines for further dissection of Status and Error codes added by Vineeth <vineethvijaysv@gmail.com>
  *
@@ -757,7 +757,7 @@ static void dissect_cimd_error_code( tvbuff_t *tvb, proto_tree *tree, gint pinde
     proto_tree_add_item(param_tree, hf_cimd_pcode_indicator, tvb, startOffset + 1, CIMD_PC_LENGTH, ENC_ASCII|ENC_NA);
 
     err_code = (guint32) strtoul(tvb_get_string(wmem_packet_scope(), tvb,
-                                       startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1)), 
+                                       startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1)),
                                        NULL, 10);
     proto_tree_add_uint(param_tree, (*vals_hdr_PC[pindex].hf_p), tvb, startOffset + 1 + CIMD_PC_LENGTH + 1, endOffset - (startOffset + 1 + CIMD_PC_LENGTH + 1), err_code);
 }
@@ -1134,7 +1134,7 @@ proto_register_cimd(void)
     },
     { &hf_index[35],
       { "Error Code Description", "cimd.errcode",
-        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cimd_error_vals_ext, 0x00, 
+        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &cimd_error_vals_ext, 0x00,
         NULL, HFILL }
     },
     { &hf_index[36],

@@ -133,7 +133,7 @@ enum ws_ifla_attr_type {
 };
 
 /* values for rta_type (ip address) from <linux/if_addr.h> */
-enum ws_ifa_attr_type { 
+enum ws_ifa_attr_type {
 	WS_IFA_UNSPEC     = 0,
 	WS_IFA_ADDRESS    = 1,
 	WS_IFA_LOCAL      = 2,
@@ -305,7 +305,7 @@ static int
 dissect_netlink_route_attributes(tvbuff_t *tvb, header_field_info *hfi_type, struct netlink_route_info *info, proto_tree *tree, int offset, netlink_route_attributes_cb_t cb)
 {
 	/* XXX, it's *almost* the same:
-	 *  - rtnetlink is using struct rtattr with shorts 
+	 *  - rtnetlink is using struct rtattr with shorts
 	 *  - generic netlink is using struct nlattr with __u16
 	 */
 
@@ -782,7 +782,7 @@ dissect_netlink_route_ndmsg(tvbuff_t *tvb, struct netlink_route_info *info, prot
 {
 	proto_tree_add_item(tree, &hfi_netlink_route_nd_family, tvb, offset, 1, ENC_NA);
 	offset += 1;
-	
+
 	/* XXX, 3B padding */
 	offset += 3;
 

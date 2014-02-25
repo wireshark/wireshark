@@ -513,7 +513,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_item *dsap_item;
 		gchar label[ITEM_LABEL_LENGTH];
-		
+
 		ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
 		llc_tree = proto_item_add_subtree(ti, ett_llc);
 		dsap_item = proto_tree_add_item(llc_tree, hf_llc_dsap, tvb, 0, 1, ENC_NA);
@@ -528,7 +528,7 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		proto_item *ssap_item;
 		gchar label[ITEM_LABEL_LENGTH];
-		
+
 		ssap_item = proto_tree_add_item(llc_tree, hf_llc_ssap, tvb, 1, 1, ENC_NA);
 		field_tree = proto_item_add_subtree(ssap_item, ett_llc_ssap);
 		proto_tree_add_text(field_tree, tvb, 1, 1, "%s",
@@ -920,7 +920,7 @@ proto_register_llc(void)
 	static gint *ett[] = {
 		&ett_llc,
 		&ett_llc_dsap,
-		&ett_llc_ssap,		
+		&ett_llc_ssap,
 		&ett_llc_ctrl,
 	};
 

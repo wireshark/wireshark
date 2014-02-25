@@ -1889,7 +1889,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                 offset++;
                 break;
             case MAC_LTE_CARRIER_ID_TAG:
-                p_mac_lte_info->carrierId = 
+                p_mac_lte_info->carrierId =
                     (mac_lte_carrier_id)tvb_get_guint8(tvb, offset);
                 offset++;
                 break;
@@ -1903,55 +1903,55 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                         if (len < 10)
                             goto next;
                         p_mac_lte_info->detailed_phy_info.dl_info.present = TRUE;
-                        p_mac_lte_info->detailed_phy_info.dl_info.dci_format = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.dci_format =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.resource_allocation_type =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.aggregation_level =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.mcs_index = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.mcs_index =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.redundancy_version_index =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.resource_block_length =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.harq_id = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.harq_id =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.ndi = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.ndi =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.dl_info.transport_block = 
+                        p_mac_lte_info->detailed_phy_info.dl_info.transport_block =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->dl_retx = 
+                        p_mac_lte_info->dl_retx =
                             (mac_lte_dl_retx)tvb_get_guint8(tvb, offset);
                     } else {
                         if (len < 6)
                             goto next;
                         p_mac_lte_info->detailed_phy_info.ul_info.present = TRUE;
-                        p_mac_lte_info->detailed_phy_info.ul_info.modulation_type = 
+                        p_mac_lte_info->detailed_phy_info.ul_info.modulation_type =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.ul_info.tbs_index = 
+                        p_mac_lte_info->detailed_phy_info.ul_info.tbs_index =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length = 
+                        p_mac_lte_info->detailed_phy_info.ul_info.resource_block_length =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start = 
+                        p_mac_lte_info->detailed_phy_info.ul_info.resource_block_start =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.ul_info.harq_id = 
+                        p_mac_lte_info->detailed_phy_info.ul_info.harq_id =
                             tvb_get_guint8(tvb, offset);
                         offset++;
-                        p_mac_lte_info->detailed_phy_info.ul_info.ndi = 
+                        p_mac_lte_info->detailed_phy_info.ul_info.ndi =
                             tvb_get_guint8(tvb, offset);
                     }
                 next:

@@ -996,7 +996,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 			while (len>0) {
 				rt_block = tvb_get_ntohs(tvb, offset);
 
-				proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id, tvb, offset, 2, 
+				proto_tree_add_uint_format(rt_tree, hf_isis_lsp_rt_capable_vlan_group_nth_secondary_vlan_id, tvb, offset, 2,
                                            rt_block, "%dth secondary vlan id: %x", sec_vlan_id, rt_block);
 
 				length -= 2;

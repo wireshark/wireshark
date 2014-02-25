@@ -3299,7 +3299,7 @@ proto_register_dtls(void)
       { "Reassembled DTLS length", "dtls.reassembled.length",
         FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
     },
-    SSL_COMMON_HF_LIST(dissect_dtls_hf, "dtls")  
+    SSL_COMMON_HF_LIST(dissect_dtls_hf, "dtls")
   };
 
   /* Setup protocol subtree array */

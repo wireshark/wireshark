@@ -342,7 +342,7 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 			"packet header length %d went beyond packet", header_length );
 		return;
 	}
-	
+
 	isis_dissect_clvs(tvb, pinfo, csnp_tree, offset,
 			opts, &ei_isis_csnp_short_packet, len, id_length, ett_isis_csnp_clv_unknown );
 }

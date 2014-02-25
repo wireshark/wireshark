@@ -57,7 +57,7 @@ enum {
 	WS_DCCPDIAG_GETSOCK    = 19,
 
 /* <linux/sock_diag.h> */
-	WS_SOCK_DIAG_BY_FAMILY = 20	
+	WS_SOCK_DIAG_BY_FAMILY = 20
 };
 
 enum {
@@ -1170,8 +1170,8 @@ proto_register_netlink_sock_diag(void)
 		&hfi_netlink_sock_diag_inet_interface,
 
 	/* AF_NETLINK */
-		&hfi_netlink_sock_diag_netlink_show, 
-		&hfi_netlink_sock_diag_netlink_show_meminfo, 
+		&hfi_netlink_sock_diag_netlink_show,
+		&hfi_netlink_sock_diag_netlink_show_meminfo,
 		&hfi_netlink_sock_diag_netlink_show_groups,
 		&hfi_netlink_sock_diag_netlink_show_ring_cfg,
 		&hfi_netlink_sock_diag_netlink_proto,

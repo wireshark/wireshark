@@ -6001,7 +6001,7 @@ dissect_openflow_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
 
 
-/* 
+/*
  * Register the protocol with Wireshark.
  */
 void

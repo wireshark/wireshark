@@ -172,7 +172,7 @@ dissect_hdmi_edid(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tr
     return tvb_reported_length(tvb);
 }
 
- 
+
 static int
 dissect_hdmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {

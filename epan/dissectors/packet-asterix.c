@@ -5027,7 +5027,7 @@ static const AsterixField *I062_v0_17_uap[] = { &I062_010, &I062_015, &I062_070,
 static const AsterixField **I062_v1_16[] = { I062_v1_16_uap, NULL };
 static const AsterixField **I062_v0_17[] = { I062_v0_17_uap, NULL };
 static const AsterixField ***I062[] = { I062_v1_16, I062_v0_17 };
-                                            
+
 static const enum_val_t I062_versions[] = {
     { "I062_v1_16", "Version 1.16", 0 },
     { "I062_v0_17", "Version 0.17", 1 },

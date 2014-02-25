@@ -32,7 +32,7 @@
 
 /* The CFDP standard can be found here:
  * http://public.ccsds.org/publications/archive/727x0b4.pdf
- * 
+ *
  * The Store and Forward Overlay Operations are not included.
  */
 
@@ -468,13 +468,13 @@ dissect_cfdp_tseq_num(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint8 le
 
 /* Dissect the Filestore Request TLV */
 static guint32 dissect_cfdp_filestore_req_tlv(tvbuff_t *tvb, proto_tree *tree, guint32 ext_offset){
-	
+
 	guint8 aux_byte, tlv_len;
 	proto_item  *cfdp_filestore_req = NULL;
 	proto_tree	*cfdp_filestore_req_tree;
-	
+
 	guint32 offset = ext_offset;
-	
+
 	/* Get field length */
 	tlv_len = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -838,7 +838,7 @@ static guint32 dissect_cfdp_msg_to_user_tlv(tvbuff_t *tvb, proto_tree *tree, gui
 				len_ent_id = ((aux_byte & HDR_LEN_ENT_ID) >> 4) + 1;
 				dissect_cfdp_src_entity_id(tvb, cfdp_msg_to_user_tree, offset, len_ent_id);
 				offset += len_ent_id;
-				
+
 				len_tseq_num = (aux_byte & HDR_LEN_TSEQ_NUM) +1;
 				dissect_cfdp_tseq_num(tvb, cfdp_msg_to_user_tree, offset, len_tseq_num);
 				offset += len_tseq_num;
@@ -1043,12 +1043,12 @@ static guint32 dissect_cfdp_metadata_pdu(tvbuff_t *tvb, proto_tree *tree, guint3
 
 				case FAULT_HDL_OVERR:
 					offset = dissect_cfdp_fault_handler_overr_tlv(tvb, tree, offset);
-					break;						
+					break;
 
 				case FLOW_LABEL:
 					offset = dissect_cfdp_flow_label_tlv(tvb, tree, offset);
 					break;
-			
+
 				default:
 					break;
 		}
@@ -1559,7 +1559,7 @@ proto_register_cfdp(void)
 			NULL, HFILL}
 		},
 		{ &hf_cfdp_listing_resp_code,
-			{"Listing Response Code", "cfdp.listing_resp_code", 
+			{"Listing Response Code", "cfdp.listing_resp_code",
 			FT_UINT8, BASE_DEC, VALS(cfdp_listing_resp_code), 0x80,
 			NULL, HFILL}
 		},
@@ -1568,12 +1568,12 @@ proto_register_cfdp(void)
 			NULL, HFILL}
 		},
 		{ &hf_cfdp_rep_resp_code,
-			{"Report Response Code", "cfdp.rep_resp_code", 
+			{"Report Response Code", "cfdp.rep_resp_code",
 			FT_UINT8, BASE_DEC, VALS(cfdp_rep_resp_code), 0x01,
 			NULL, HFILL}
 		},
 		{ &hf_cfdp_suspension_ind,
-			{"Suspension indicator", "cfdp.suspension_ind", 
+			{"Suspension indicator", "cfdp.suspension_ind",
 			FT_UINT8, BASE_DEC, VALS(cfdp_suspension_ind), 0x80,
 			NULL, HFILL}
 		}
@@ -1627,4 +1627,4 @@ proto_reg_handoff_cfdp(void)
  *
  * vi: set shiftwidth=4 tabstop=4 noexpandtab:
  * :indentSize=4:tabSize=4:noTabs=false:
- */ 
+ */

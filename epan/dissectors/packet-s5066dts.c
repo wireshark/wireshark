@@ -10,8 +10,8 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * $Id$ 
- * 
+ * $Id$
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -407,7 +407,7 @@ static void dissect_s5066dts_eow_hdr_drc_request(tvbuff_t *tvb, packet_info * pi
 }
 
 /* {15, "HFTRP FRAME CONTROL"}, */
-static void dissect_s5066dts_eow_hftrp(tvbuff_t *tvb,  packet_info * pinfo, guint offset, 
+static void dissect_s5066dts_eow_hftrp(tvbuff_t *tvb,  packet_info * pinfo, guint offset,
         proto_tree *tree, guint pdu_type)
 {
     if (pdu_type != S5066_DPDU_MANAGEMENT)
@@ -564,7 +564,7 @@ static guint dissect_s5066dts_data_only(tvbuff_t *tvb, guint offset, proto_tree 
 
     return offset;
 }
- 
+
 /* { 1, "ACK_ONLY"}, */
 static guint dissect_s5066dts_ack_only(tvbuff_t *tvb, guint offset, proto_tree *tree,
         guint header_size)
@@ -648,7 +648,7 @@ static guint dissect_s5066dts_management(tvbuff_t *tvb, guint offset, proto_tree
     guint8 eow_content;
     proto_item *hftrp_proto_item = NULL;
     proto_tree *hftrp_token_tree = NULL;
-    guint eow_type;  
+    guint eow_type;
     guint extended_message_size;
 
     eow_type = tvb_get_guint8(tvb, offset) & 0x0F;

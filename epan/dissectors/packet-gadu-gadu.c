@@ -603,7 +603,7 @@ dissect_gadu_gadu_stringz_cp1250(tvbuff_t *tvb, header_field_info *hfi, proto_tr
 	int len = gadu_gadu_strsize(tvb, offset);
 
 	proto_tree_add_item(tree, hfi, tvb, offset, len, ENC_WINDOWS_1250 | ENC_NA);
- 
+
 	return offset + len;
 }
 
