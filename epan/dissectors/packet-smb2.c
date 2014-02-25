@@ -1360,7 +1360,7 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	 * retransmissions triggered by the expiry of the rexmit timer (RTOs). Only calculating SRT
 	 * for the last received response accomplishes this goal without requiring the TCP pref
 	 * "Do not call subdissectors for error packets" to be set. */
-	if ((si->saved->frame_req == 0) || (si->saved->frame_res != pinfo->num))
+	if (si->saved->frame_res != pinfo->num)
 		return TAP_PACKET_DONT_REDRAW;
 
 	smb2_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
@@ -11637,6 +11637,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					ssi                  = wmem_new0(wmem_file_scope(), smb2_saved_info_t);
 					ssi->msg_id          = ssi_key.msg_id;
 					ssi->frame_req       = pinfo->num;
+					ssi->frame_res       = UINT32_MAX;
 					ssi->req_time        = pinfo->abs_ts;
 					ssi->extra_info_type = SMB2_EI_NONE;
 					g_hash_table_insert(si->conv->unmatched, ssi, ssi);
@@ -11683,13 +11684,13 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 			}
 
 			if (!(si->flags & SMB2_FLAGS_RESPONSE)) {
-				if (ssi->frame_res) {
+				if (ssi->frame_res != UINT32_MAX) {
 					proto_item *tmp_item;
 					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0, ssi->frame_res);
 					proto_item_set_generated(tmp_item);
 				}
 			} else {
-				if (ssi->frame_req) {
+				if (ssi->frame_req != UINT32_MAX) {
 					proto_item *tmp_item;
 					nstime_t    t, deltat;
 
