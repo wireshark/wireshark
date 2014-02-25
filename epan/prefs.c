@@ -3605,6 +3605,7 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
             if (cfmt->fmt != cfmt_hidden.fmt) {
                 /* No. */
                 g_free(cfmt_hidden.custom_field);
+                cfmt_hidden.custom_field = NULL;
                 continue;
             }
             if (cfmt->fmt == COL_CUSTOM) {
@@ -3612,16 +3613,20 @@ prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt)
                  * A custom column has to have the
                  * same custom field and occurrence.
                  */
-                if (strcmp(cfmt->custom_field,
-                           cfmt_hidden.custom_field) != 0) {
-                    /* Different fields. */
-                    g_free(cfmt_hidden.custom_field);
-                    continue;
-                }
-                if (cfmt->custom_occurrence != cfmt_hidden.custom_occurrence) {
-                    /* Different occurrences. */
-                    g_free(cfmt_hidden.custom_field);
-                    continue;
+                if (cfmt_hidden.custom_field && cfmt->custom_field) {
+                    if (strcmp(cfmt->custom_field,
+                               cfmt_hidden.custom_field) != 0) {
+                        /* Different fields. */
+                        g_free(cfmt_hidden.custom_field);
+                        cfmt_hidden.custom_field = NULL;
+                        continue;
+                    }
+                    if (cfmt->custom_occurrence != cfmt_hidden.custom_occurrence) {
+                        /* Different occurrences. */
+                        g_free(cfmt_hidden.custom_field);
+                        cfmt_hidden.custom_field = NULL;
+                        continue;
+                    }
                 }
             }
 
