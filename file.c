@@ -1629,10 +1629,10 @@ cf_merge_files(char **out_filenamep, int in_file_count,
          * the file type and subtype we're writing; note that, and report
          * the frame number and file type/subtype.
          */
-        display_basename = g_filename_display_basename(in_file->filename);
+        display_basename = g_filename_display_basename(in_file ? in_file->filename : "UNKNOWN");
         simple_error_message_box(
                       "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.",
-                      in_file->packet_num, display_basename,
+                      in_file ? in_file->packet_num : 0, display_basename,
                       wtap_file_type_subtype_string(file_type));
         g_free(display_basename);
         break;
@@ -1643,10 +1643,10 @@ cf_merge_files(char **out_filenamep, int in_file_count,
          * the file type and subtype we're writing; note that, and report
          * the frame number and file type/subtype.
          */
-        display_basename = g_filename_display_basename(in_file->filename);
+        display_basename = g_filename_display_basename(in_file ? in_file->filename : "UNKNOWN");
         simple_error_message_box(
                       "Frame %u of \"%s\" is too large for a \"%s\" file.",
-                      in_file->packet_num, display_basename,
+                      in_file ? in_file->packet_num : 0, display_basename,
                       wtap_file_type_subtype_string(file_type));
         g_free(display_basename);
         break;
