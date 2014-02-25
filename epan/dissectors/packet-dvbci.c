@@ -4760,7 +4760,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     const gchar *event_str;
     guint16      len_field;
     proto_item  *ti, *ti_hdr;
-    proto_tree  *dvbci_tree         = NULL, *hdr_tree = NULL;
+    proto_tree  *dvbci_tree, *hdr_tree;
     tvbuff_t    *payload_tvb;
     guint16      cor_addr;
     guint8       cor_value;
@@ -4791,17 +4791,15 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DVB-CI");
     col_set_str(pinfo->cinfo, COL_INFO, event_str);
 
-    if (tree) {
-        ti = proto_tree_add_protocol_format(tree, proto_dvbci,
-                tvb, 0, packet_len, "DVB Common Interface: %s", event_str);
-        dvbci_tree = proto_item_add_subtree(ti, ett_dvbci);
-        ti_hdr = proto_tree_add_text(dvbci_tree, tvb, 0, offset, "Pseudo header");
-        hdr_tree = proto_item_add_subtree(ti_hdr, ett_dvbci_hdr);
-        proto_tree_add_text(hdr_tree, tvb, offset_ver, 1, "Version: %d", version);
-        proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_text(hdr_tree, tvb, offset_len_field, 2,
-                "Length field: %d", len_field);
-    }
+    ti = proto_tree_add_protocol_format(tree, proto_dvbci,
+            tvb, 0, packet_len, "DVB Common Interface: %s", event_str);
+    dvbci_tree = proto_item_add_subtree(ti, ett_dvbci);
+    ti_hdr = proto_tree_add_text(dvbci_tree, tvb, 0, offset, "Pseudo header");
+    hdr_tree = proto_item_add_subtree(ti_hdr, ett_dvbci_hdr);
+    proto_tree_add_text(hdr_tree, tvb, offset_ver, 1, "Version: %d", version);
+    proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_text(hdr_tree, tvb, offset_len_field, 2,
+            "Length field: %d", len_field);
 
     if (IS_DATA_TRANSFER(event)) {
         dvbci_set_addrs(event, pinfo);
