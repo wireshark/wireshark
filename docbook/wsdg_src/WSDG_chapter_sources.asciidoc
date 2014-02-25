@@ -167,6 +167,7 @@ https://pypi.python.org/pypi/git-review[Python package]. (This step
 isn't strictly necessary but it makes working with Gerrit much easier.)
 
 . Now on to the command line. First, make sure `git` works:
++
 --
 ----
 $ git --version
@@ -176,6 +177,7 @@ $ git --version
 . If this is your first time using Git, make sure your username and
 email address are configured. This is particularly important if you
 plan on uploading changes.
++
 --
 ----
 $ git config --global user.name "Henry Perry"
@@ -184,11 +186,11 @@ $ git config --global user.email henry.perry@example.com
 --
 
 . Next, clone the Wireshark master:
++
 --
 ----
 $ git clone ssh://henry.perry@code.wireshark.org:29418/wireshark
 ----
-+
 The checkout only has to be done once. This will copy all the sources
 of the latest version (including directories) from the server to
 your machine. This may take some time depending on the speed of your
@@ -196,12 +198,12 @@ internet connection.
 --
 
 . Change to the Wireshark directory and initialize git-review.
++
 --
 ----
 $ cd wireshark
 $ git review -s
 ----
-+
 This prepares your local repository for use with Gerrit, including
 installing the `commit-msg` hook script.
 --
