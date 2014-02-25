@@ -2385,7 +2385,6 @@ static void
 dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 {
 	gint	len;
-	guint8	*buf;
 
 	if (!tree)
 		return;
@@ -2396,9 +2395,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 	if (len <= 0)
 		return;
 
-	buf = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 3, len);
-	EBCDIC_to_ASCII(buf, len);
-	proto_tree_add_string(tree, hf_sna_control_0e_value, tvb, 3, len, (char *)buf);
+	proto_tree_add_item(tree, hf_sna_control_0e_value, tvb, 3, len, ENC_EBCDIC|ENC_NA);
 }
 
 static void
