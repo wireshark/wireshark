@@ -243,7 +243,7 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     data = (gchar*)g_malloc (ba->len + 1);
     memcpy(data, ba->data, ba->len);
     data[ba->len] = '\0';
-    
+
     len = ws_base64_decode_inplace(data);
     g_byte_array_append(ba2,data,(int)len);
     g_free(data);
@@ -1303,7 +1303,7 @@ static int TvbRange_uncompress(lua_State* L) {
     tvbuff_t *uncompr_tvb;
 
     if (!(tvbr && tvbr->tvb)) return 0;
-    
+
     if (tvbr->tvb->expired) {
         luaL_error(L,"expired tvb");
         return 0;

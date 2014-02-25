@@ -1115,7 +1115,7 @@ prefs_register_uat_preference_qt(module_t *module, const char *name,
     pref_t* preference = register_preference(module, name, title, description, PREF_UAT);
 
     preference->varp.uat = uat;
-    
+
     preference->gui = GUI_QT;
 }
 
@@ -2529,7 +2529,7 @@ prefs_register_modules(void)
             "measured. Longer window relative to burst rate resolution increases "
             "processing overhead. Will be truncated to a multiple of burst resolution.",
             10,&prefs.st_burst_windowlen);
-            
+
     prefs_register_enum_preference(stats_module, "st_sort_defcolflag",
             "Default sort column for stats_tree stats",
             "Sets the default column by which stats based on the stats_tree "
@@ -2548,7 +2548,7 @@ prefs_register_modules(void)
             "system will be sorted taking case into account. Else the case of the name "
             "will be ignored.",
             &prefs.st_sort_casesensitve);
-            
+
      prefs_register_bool_preference(stats_module, "st_sort_rng_nameonly",
             "Always sort 'range' nodes by name",
             "When selected, the stats_tree nodes representing a range of values "
@@ -2564,7 +2564,7 @@ prefs_register_modules(void)
             "the sort direction of the tree. Only effective if \"Always sort "
             "'range' nodes by name\" is also selected.",
             &prefs.st_sort_rng_fixorder);
-            
+
      prefs_register_bool_preference(stats_module, "st_sort_showfullname",
             "Display the full stats_tree plug-in name",
             "When selected, the full name (including menu path) of the stats_tree "

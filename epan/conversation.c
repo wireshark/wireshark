@@ -180,7 +180,7 @@ conversation_create_from_template(conversation_t *conversation, const address *a
  * Compute the hash value for two given address/port pairs if the match
  * is to be exact.
  */
-/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing 
+/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
 static guint
@@ -691,7 +691,7 @@ conversation_new(const guint32 setup_frame, const address *addr1, const address 
 	new_key->port1 = port1;
 	new_key->port2 = port2;
 
-	conversation = se_new(conversation_t); 
+	conversation = se_new(conversation_t);
 	memset(conversation, 0, sizeof(conversation_t));
 
 	conversation->index = new_index;

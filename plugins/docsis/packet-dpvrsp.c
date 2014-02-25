@@ -58,7 +58,7 @@ dissect_dpvrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   dschan = tvb_get_guint8 (tvb, 2);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-	    "DOCSIS Path Verify Response: Transaction-Id = %u DS-Ch %d", 
+	    "DOCSIS Path Verify Response: Transaction-Id = %u DS-Ch %d",
 		transid, dschan);
 
   if (tree)
@@ -67,23 +67,23 @@ dissect_dpvrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree_add_protocol_format (tree, proto_docsis_dpvrsp, tvb, 0, -1,
 					"DPV Response");
       dpvrsp_tree = proto_item_add_subtree (it, ett_docsis_dpvrsp);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_tranid, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_tranid, tvb,
 			  0, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_dschan, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_dschan, tvb,
 			  2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_flags, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_flags, tvb,
 			  3, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_us_sf, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_us_sf, tvb,
 			  4, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_n, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_n, tvb,
 			  8, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_start, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_start, tvb,
 			  10, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_end, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_end, tvb,
 			  11, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_ts_start, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_ts_start, tvb,
 			  12, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_ts_end, tvb, 
+      proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_ts_end, tvb,
 			  16, 4, ENC_BIG_ENDIAN);
     }
 }

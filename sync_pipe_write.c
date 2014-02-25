@@ -62,8 +62,8 @@ pipe_write_header(int pipe_fd, char indicator, int length)
 }
 
 
-/* write a message to the recipient pipe in the standard format 
-   (3 digit message length (excluding length and indicator field), 
+/* write a message to the recipient pipe in the standard format
+   (3 digit message length (excluding length and indicator field),
    1 byte message indicator and the rest is the message).
    If msg is NULL, the message has only a length and indicator. */
 void

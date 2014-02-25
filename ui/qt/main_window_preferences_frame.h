@@ -35,11 +35,11 @@ class MainWindowPreferencesFrame;
 class MainWindowPreferencesFrame : public QFrame
 {
     Q_OBJECT
-    
+
 public:
     explicit MainWindowPreferencesFrame(QWidget *parent = 0);
     ~MainWindowPreferencesFrame();
-    
+
 protected:
     void showEvent(QShowEvent *evt);
 

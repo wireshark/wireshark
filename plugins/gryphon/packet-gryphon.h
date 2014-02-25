@@ -151,14 +151,14 @@
 
 /* USDT (SD_IOPWR) target commands: */
 
-#define CMD_IOPWR_GETINP        (SD_IOPWR * 256 + 0x40) /*  Read current digital inputs  */   
-#define CMD_IOPWR_GETLATCH      (SD_IOPWR * 256 + 0x41) /*  Read latched digital inputs  */   
-#define CMD_IOPWR_CLRLATCH      (SD_IOPWR * 256 + 0x42) /*  Read & clear latched inputs  */   
-#define CMD_IOPWR_GETOUT        (SD_IOPWR * 256 + 0x43) /*  Read digital outputs         */   
-#define CMD_IOPWR_SETOUT        (SD_IOPWR * 256 + 0x44) /*  Write digital outputs        */   
-#define CMD_IOPWR_SETBIT        (SD_IOPWR * 256 + 0x45) /*  Set indicated output bit(s)  */   
-#define CMD_IOPWR_CLRBIT        (SD_IOPWR * 256 + 0x46) /*  Clear indicated output bit(s)*/   
-#define CMD_IOPWR_GETPOWER      (SD_IOPWR * 256 + 0x47) /*  Read inputs at power on time */   
+#define CMD_IOPWR_GETINP        (SD_IOPWR * 256 + 0x40) /*  Read current digital inputs  */
+#define CMD_IOPWR_GETLATCH      (SD_IOPWR * 256 + 0x41) /*  Read latched digital inputs  */
+#define CMD_IOPWR_CLRLATCH      (SD_IOPWR * 256 + 0x42) /*  Read & clear latched inputs  */
+#define CMD_IOPWR_GETOUT        (SD_IOPWR * 256 + 0x43) /*  Read digital outputs         */
+#define CMD_IOPWR_SETOUT        (SD_IOPWR * 256 + 0x44) /*  Write digital outputs        */
+#define CMD_IOPWR_SETBIT        (SD_IOPWR * 256 + 0x45) /*  Set indicated output bit(s)  */
+#define CMD_IOPWR_CLRBIT        (SD_IOPWR * 256 + 0x46) /*  Clear indicated output bit(s)*/
+#define CMD_IOPWR_GETPOWER      (SD_IOPWR * 256 + 0x47) /*  Read inputs at power on time */
 
 /* Miscellaneous (SD_UTIL) target commands: */
 

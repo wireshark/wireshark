@@ -4,7 +4,7 @@
  * $Id$
  *
  * Copied from gtk/graph_analysis.h
- * 
+ *
  * Copyright 2004, Verso Technologies Inc.
  * By Alejandro Vaquero <alejandrovaquero@yahoo.com>
  *

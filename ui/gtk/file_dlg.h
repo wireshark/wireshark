@@ -24,7 +24,7 @@
 
 /** @defgroup filesel_dialog_group File Selection Dialogs
  *
- * Dialogs are specially created windows and are related to their parent windows (usually the main window). 
+ * Dialogs are specially created windows and are related to their parent windows (usually the main window).
  * See: @ref howto_window_page for details.
  *
  * File selection dialogs are created using file_selection_new().
@@ -39,7 +39,7 @@
  * - "Save Data As CSV" save_csv_as_cb()
  * - "Save Payload As ..." on_save_bt_clicked()
  * - "Save selected stream in rtpdump" rtpstream_on_save()
- * 
+ *
  */
 
 /** @file
@@ -57,7 +57,7 @@ typedef enum {
 	FILE_SELECTION_READ_BROWSE,     /**< browse for a file to read */
 	FILE_SELECTION_SAVE,            /**< save/export a file */
 	FILE_SELECTION_WRITE_BROWSE,    /**< browse for a file to write to */
-	FILE_SELECTION_CREATE_FOLDER    /**< browse for a dir. to save in */  
+	FILE_SELECTION_CREATE_FOLDER    /**< browse for a dir. to save in */
 } file_selection_action_t;
 
 /** Create a file selection dialog box window that belongs to a top-level
@@ -88,7 +88,7 @@ extern gboolean file_selection_set_current_folder(GtkWidget *fs, const gchar *fi
 #define file_selection_set_current_file(chooser, filename) \
 	gtk_file_chooser_set_filename(chooser, filename)
 
-/** Set the "extra" widget for a file selection dialog. This is needed to support 
+/** Set the "extra" widget for a file selection dialog. This is needed to support
  *  user-supplied options.
  *
  * @param fs the file selection dialog from file_selection_new()

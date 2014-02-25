@@ -1019,7 +1019,7 @@ color_clear_cb(GtkWidget *widget, gpointer data _U_) {
 }
 
 
-static void 
+static void
 overwrite_existing_colorfilters_cb(gpointer dialog _U_, gint btn, gpointer data _U_)
 {
 	switch (btn) {

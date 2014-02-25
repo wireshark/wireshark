@@ -259,7 +259,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case REG_UL_TRANSPORT_CIDS_SUPPORTED:
 			add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_ul_cids, tvb, offset, ENC_BIG_ENDIAN);
 			break;
-			
+
 		case REG_POWER_SAVING_CLASS_CAPABILITY:
 			tlv_item = add_tlv_subtree(&tlv_info, reg_req_tree, hf_reg_power_saving_class_capability, tvb, offset, ENC_BIG_ENDIAN);
 			tlv_tree = proto_item_add_subtree(tlv_item, ett_mac_mgmt_msg_reg_req_decoder);

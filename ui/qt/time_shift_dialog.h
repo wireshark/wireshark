@@ -42,7 +42,7 @@ class TimeShiftDialog;
 class TimeShiftDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit TimeShiftDialog(QWidget *parent = 0, capture_file *cf = NULL);
     ~TimeShiftDialog();

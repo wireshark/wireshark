@@ -44,13 +44,13 @@ class SequenceDialog;
 class SequenceDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     enum SequenceType { any, tcp, voip };
 
     explicit SequenceDialog(QWidget *parent = 0, capture_file *cf = NULL, SequenceType type = any);
     ~SequenceDialog();
-    
+
 signals:
     void goToPacket(int packet_num);
 

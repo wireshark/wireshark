@@ -12,12 +12,12 @@
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
 * of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -59,10 +59,10 @@ int codec_g722_decode(void *context, const void *input, int inputSizeBytes, void
   short *speech = (short*)output;
   int decodedBytes = 0;
   int i;
- 
+
   if (!ctx) return 0;
 
-  if ((inputSizeBytes % L_G722_FRAME_COMPRESSED) != 0) 
+  if ((inputSizeBytes % L_G722_FRAME_COMPRESSED) != 0)
     return 0;
 
   if (!output)
@@ -72,13 +72,13 @@ int codec_g722_decode(void *context, const void *input, int inputSizeBytes, void
          ((*outputSizeBytes - decodedBytes) >= L_G722_FRAME / 2 * sizeof(short))) {
     if (EasyG722_decoder(ctx->handle, (unsigned char*)bitstream, ctx->speach_buffer)) {
       int write_index = 0;
-      
+
       for(i = 0; i < L_G722_FRAME; i+=2) {
         ctx->speach_buffer[write_index] = ctx->speach_buffer[i];
         write_index++;
       }
       memcpy(speech, ctx->speach_buffer, L_G722_FRAME / 2 * sizeof(short));
-      
+
       speech += L_G722_FRAME / 2;
       decodedBytes += L_G722_FRAME / 2 * sizeof(short);
 

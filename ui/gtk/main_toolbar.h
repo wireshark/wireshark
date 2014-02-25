@@ -35,8 +35,8 @@
 /** Redraw the main toolbar. Used, when user changes preferences. */
 void toolbar_redraw_all(void);
 
-/** Set object data of some buttons (where needed). It's needed so callback 
- *  functions can read back their required data. Acts like g_object_set_data() 
+/** Set object data of some buttons (where needed). It's needed so callback
+ *  functions can read back their required data. Acts like g_object_set_data()
  *  on multiple buttons.
  *
  * @param key the key

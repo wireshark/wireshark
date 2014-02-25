@@ -77,7 +77,7 @@ static GtkToolItem *resize_columns_button;
 static GtkToolItem *color_display_button, *prefs_button, *help_button;
 
 /*
- * Redraw all toolbars 
+ * Redraw all toolbars
  */
 void
 toolbar_redraw_all(void)

@@ -318,7 +318,7 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
 #define WSLUA_ARG_TreeItem_append_text_TEXT 2 /* The text to be appended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_append_text_TEXT);
-    
+
     proto_item_append_text(ti->item,"%s",s);
 
     return 0;

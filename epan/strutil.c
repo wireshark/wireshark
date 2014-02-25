@@ -381,13 +381,13 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
         fmtbuf_len[idx] = INITIAL_FMTBUF_SIZE;
     }
     column = 0;
-    while (string < stringend) 
+    while (string < stringend)
     {
         /*
-         * Is there enough room for this character, 
+         * Is there enough room for this character,
          * and also enough room for a terminating '\0'?
          */
-        if (column+1 >= fmtbuf_len[idx]) 
+        if (column+1 >= fmtbuf_len[idx])
         {
             /*
              * Double the buffer's size if it's not big enough.
@@ -400,17 +400,17 @@ format_text_chr(const guchar *string, const size_t len, const guchar chr)
         }
         c = *string++;
 
-        if (g_ascii_isprint(c)) 
+        if (g_ascii_isprint(c))
         {
             fmtbuf[idx][column] = c;
             column++;
-        } 
-        else if  (isspace(c)) 
+        }
+        else if  (isspace(c))
         {
             fmtbuf[idx][column] = ' ';
             column++;
-        } 
-        else 
+        }
+        else
         {
             fmtbuf[idx][column] =  chr;
             column++;

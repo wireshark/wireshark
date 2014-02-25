@@ -2,7 +2,7 @@
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * 
+ *
  * Copyright 2006 Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * This program is free software; you can redistribute it and/or

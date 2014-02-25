@@ -508,7 +508,7 @@ dissect_unistim_message(proto_tree *unistim_tree,packet_info *pinfo,tvbuff_t *tv
          offset+=(msg_len-2);
    }
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
    return offset;
@@ -599,7 +599,7 @@ dissect_basic_phone(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -676,7 +676,7 @@ dissect_basic_switch(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -754,7 +754,7 @@ dissect_broadcast_switch(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -1402,7 +1402,7 @@ dissect_display_switch(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -1513,7 +1513,7 @@ dissect_display_phone(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -1631,7 +1631,7 @@ dissect_key_indicator_switch(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -1725,7 +1725,7 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -1869,7 +1869,7 @@ dissect_network_switch(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -2052,7 +2052,7 @@ dissect_network_phone(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -2486,7 +2486,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 
@@ -2710,7 +2710,7 @@ dissect_audio_phone(proto_tree *msg_tree,
    }
 
    if(msg_len){
-    /* TODO: add Expert info to indicate there is unknown data ! 
+    /* TODO: add Expert info to indicate there is unknown data !
       For the moment, this code only remove Clang Warnings about not used msg_len... */
    }
 

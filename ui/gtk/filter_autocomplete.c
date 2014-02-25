@@ -76,7 +76,7 @@ is_protocol_name_being_typed(GtkWidget *filter_te, int str_len)
   int op_len, cursor_pos;
   gchar *start;
   gchar *pos;
-  static const gchar *logic_ops[] = 
+  static const gchar *logic_ops[] =
               { "!", "not",
                 "||", "or",
                 "&&", "and",

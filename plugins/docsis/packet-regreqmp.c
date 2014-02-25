@@ -49,7 +49,7 @@ static gint ett_docsis_regreqmp = -1;
 static void
 dissect_regreqmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-	
+
 	proto_item *it;
 	proto_tree *regreqmp_tree = NULL;
 	tvbuff_t *next_tvb;
@@ -60,7 +60,7 @@ dissect_regreqmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		{
 			it = proto_tree_add_protocol_format (tree, proto_docsis_regreqmp, tvb, 0, -1,"REG-REQ-MP Message");
 			regreqmp_tree = proto_item_add_subtree (it, ett_docsis_regreqmp);
-			
+
 			proto_tree_add_item (regreqmp_tree, hf_docsis_regreqmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item (regreqmp_tree, hf_docsis_regreqmp_number_of_fragments, tvb, 2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item (regreqmp_tree, hf_docsis_regreqmp_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN);

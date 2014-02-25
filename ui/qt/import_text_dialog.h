@@ -45,12 +45,12 @@ class ImportTextDialog;
 class ImportTextDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit ImportTextDialog(QWidget *parent = 0);
     ~ImportTextDialog();
     QString &capfileName();
-    
+
 private:
     void convertTextFile();
     void enableHeaderWidgets(bool enable_buttons = true);

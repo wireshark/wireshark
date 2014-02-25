@@ -320,7 +320,7 @@ proto_hier_tree_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 
 	int p_id;
 	void *cookie;
-	
+
 	g_return_val_if_fail(PROTOHIER_IS_TREE(tree_model), NULL);
 	model = (ProtoHierTreeModel *) tree_model;
 
@@ -438,7 +438,7 @@ proto_hier_tree_class_init(ProtoHierTreeModelClass *klass)
 	object_class->finalize = _class_finalize;
 }
 
-GType 
+GType
 proto_hier_tree_get_type(void)
 {
 	static GType proto_hier_tree_type = 0;

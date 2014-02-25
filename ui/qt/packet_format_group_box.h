@@ -34,7 +34,7 @@ class PacketFormatGroupBox;
 class PacketFormatGroupBox : public QGroupBox
 {
     Q_OBJECT
-    
+
 public:
     explicit PacketFormatGroupBox(QWidget *parent = 0);
     ~PacketFormatGroupBox();

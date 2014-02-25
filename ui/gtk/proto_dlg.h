@@ -33,14 +33,14 @@
  */
 
 /** Show the enabled protocols dialog.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */
 void proto_cb(GtkWidget *widget, gpointer data);
 
 /** Disable (temporarily) the selected protocol.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */

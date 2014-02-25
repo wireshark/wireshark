@@ -24,7 +24,7 @@
  */
 
 #ifndef __T35_H__
-#define __T35_H__ 
+#define __T35_H__
 
 #include <epan/value_string.h>
 

@@ -34,7 +34,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** @file 
+/** @file
  */
 
 #define MAX_DECODE_AS_PROMPT_LEN    200

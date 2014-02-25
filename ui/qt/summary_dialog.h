@@ -58,7 +58,7 @@ class SummaryDialog;
 class SummaryDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit SummaryDialog(QWidget *parent = 0);
     ~SummaryDialog();
@@ -79,7 +79,7 @@ protected slots:
     void CopyComment();
     void on_tabWidget_currentChanged(int index);
 
-    
+
 private:
     Ui::SummaryDialog   *ui;
 

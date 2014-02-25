@@ -37,7 +37,7 @@
 #include <epan/packet_info.h>
 
 /** @file
- *  ??? 
+ *  ???
  *  @todo what's this?
  */
 
@@ -61,7 +61,7 @@ typedef struct _bw_history_item {
         guint32 bytes;
 } bw_history_item;
 
-#define BUFF_BW 300 
+#define BUFF_BW 300
 
 typedef struct _tap_rtp_stat_t {
 	gboolean first_packet;     /**< do not use in code that is called after rtp_packet_analyse */

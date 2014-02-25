@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -49,18 +49,18 @@ static funnel_text_window_t* new_text_window(const gchar* title) {
     funnel_text_window_t* tw = g_new(funnel_text_window_t,1);
     tw->title = g_strdup(title);
     tw->text = g_string_new("");
-    
+
     if (!text_windows)
         text_windows = g_ptr_array_new();
-    
+
     g_ptr_array_add(text_windows,tw);
-    
+
     return tw;
 }
 
 static void text_window_clear(funnel_text_window_t*  tw) {
     g_string_free(tw->text,TRUE);
-    tw->text = g_string_new("");    
+    tw->text = g_string_new("");
 }
 
 static void text_window_append(funnel_text_window_t*  tw, const char *text ) {
@@ -73,7 +73,7 @@ static void text_window_set_text(funnel_text_window_t*  tw, const char* text) {
 }
 
 static void text_window_prepend(funnel_text_window_t*  tw, const char *text) {
-    g_string_prepend(tw->text,text);    
+    g_string_prepend(tw->text,text);
 }
 
 static const gchar* text_window_get_text(funnel_text_window_t*  tw) {
@@ -127,18 +127,18 @@ void initialize_funnel_ops(void) {
 
 void funnel_dump_all_text_windows(void) {
     guint i;
-    
+
     if (!text_windows) return;
-    
+
     for ( i = 0 ; i < text_windows->len; i++) {
         funnel_text_window_t*  tw = (funnel_text_window_t*)g_ptr_array_index(text_windows,i);
         printf("\n========================== %s "
                "==========================\n%s\n",tw->title,tw->text->str);
-        
+
         g_ptr_array_remove_index(text_windows,i);
         g_free(tw->title);
         g_string_free(tw->text,TRUE);
-        g_free(tw);        
+        g_free(tw);
     }
 }
 
@@ -152,18 +152,18 @@ typedef struct _menu_cb_t {
 
 
 static void  init_funnel_cmd(const char *opt_arg, void* data ) {
-    gchar** args = g_strsplit(opt_arg,",",0); 
+    gchar** args = g_strsplit(opt_arg,",",0);
     gchar** arg;
     menu_cb_t* mcb = data;
-    
+
     for(arg = args; *arg ; arg++) {
         g_strstrip(*arg);
     }
-    
+
     if (mcb->callback) {
         mcb->callback(mcb->callback_data);
     }
-    
+
 }
 
 static void register_menu_cb(const char *name,
@@ -172,7 +172,7 @@ static void register_menu_cb(const char *name,
                              gpointer callback_data,
                              gboolean retap _U_) {
     menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
-    
+
     mcb->callback = callback;
     mcb->callback_data = callback_data;
 
@@ -180,7 +180,7 @@ static void register_menu_cb(const char *name,
         menus = g_hash_table_new(g_str_hash,g_str_equal);
 
     g_hash_table_insert(menus,g_strdup(name),mcb);
-    
+
     register_stat_cmd_arg(name,init_funnel_cmd,mcb);
 }
 

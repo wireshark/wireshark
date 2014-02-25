@@ -1815,7 +1815,7 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 /*
  * All string functions below take a scope as an argument.
  *
- * 
+ *
  * If scope is NULL, memory is allocated with g_malloc() and user must
  * explicitly free it with g_free().
  * If scope is not NULL, memory is allocated with the corresponding pool
@@ -2054,7 +2054,7 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 			} else {
 				/*
 				 * Not a trail surrogate.
-				 * Ignore the entire pair. 
+				 * Ignore the entire pair.
 				 * XXX - insert "substitute" character?
 				 * Report the error in some other
 				 * fashion?

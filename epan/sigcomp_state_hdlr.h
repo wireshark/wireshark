@@ -1,5 +1,5 @@
 /* sigcomp_state_hdlr.c
- * Routines making up the State handler of the Univerasl Decompressor Virtual Machine (UDVM) 
+ * Routines making up the State handler of the Univerasl Decompressor Virtual Machine (UDVM)
  * used for Signaling Compression (SigComp) dissection.
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  *
@@ -13,12 +13,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -34,7 +34,7 @@
 #define SIGCOMP_STATE_HDLR_H
 
 extern const value_string result_code_vals[];
-extern int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length, 
+extern int udvm_state_access(tvbuff_t *tvb, proto_tree *tree,guint8 *buff,guint16 p_id_start, guint16 p_id_length, guint16 state_begin, guint16 *state_length,
 								guint16 *state_address, guint16 *state_instruction, gint hf_id);
 
 extern void udvm_state_create(guint8 *state_buff,guint8 *state_identifier_buff,guint16 p_id_length);
@@ -45,5 +45,5 @@ extern void sigcomp_init_udvm(void);
 #define STATE_BUFFER_SIZE 20
 #define STATE_MIN_ACCESS_LEN 6
 
-#endif 
+#endif
 /* SIGCOMP_STATE_HDLR_H */

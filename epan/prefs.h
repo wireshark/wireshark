@@ -128,7 +128,7 @@ typedef enum {
     pref_current
 } pref_source_t;
 
-/* 
+/*
  * Update channel.
  */
 typedef enum {
@@ -209,7 +209,7 @@ typedef struct _e_prefs {
   software_update_channel_e gui_update_channel;
   gint         gui_update_interval;
   gchar       *saved_at_version;
-  gboolean     unknown_prefs;         /* unknown or obsolete pref(s) */ 
+  gboolean     unknown_prefs;         /* unknown or obsolete pref(s) */
   gboolean     unknown_colorfilters;  /* unknown or obsolete color filter(s) */
   guint        gui_qt_language;       /* Qt Translation language selection */
   gboolean     gui_packet_editor;     /* Enable Packet Editor */
@@ -471,8 +471,8 @@ WS_DLL_PUBLIC void prefs_register_uat_preference_qt(module_t *module,
 
 /*
  * Register a color preference.  Currently does not have any "GUI Dialog" support
- * so the color data needs to be managed independently.  Currently used by the 
- * "GUI preferences" to aid in reading/writing the preferences file, but the 
+ * so the color data needs to be managed independently.  Currently used by the
+ * "GUI preferences" to aid in reading/writing the preferences file, but the
  * "data" is still managed by the specific "GUI preferences" dialog.
  */
 void prefs_register_color_preference(module_t *module, const char *name,
@@ -480,8 +480,8 @@ void prefs_register_color_preference(module_t *module, const char *name,
 
 /*
  * Register a custom preference.  Currently does not have any "GUI Dialog" support
- * so data needs to be managed independently.  Currently used by the 
- * "GUI preferences" to aid in reading/writing the preferences file, but the 
+ * so data needs to be managed independently.  Currently used by the
+ * "GUI preferences" to aid in reading/writing the preferences file, but the
  * "data" is still managed by the specific "GUI preferences" dialog.
  */
 void prefs_register_custom_preference(module_t *module, const char *name,

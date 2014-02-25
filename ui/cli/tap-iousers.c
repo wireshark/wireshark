@@ -129,7 +129,7 @@ iousers_process_name_packet_with_conv_id(
 }
 
 static void
-iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len, 
+iousers_process_address_packet(io_users_t *iu, const address *src, const address *dst, guint64 pkt_len,
 								nstime_t *ts)
 {
 	const address *addr1, *addr2;
@@ -209,7 +209,7 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	}
 
 	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts);
-	
+
 	return 1;
 }
 

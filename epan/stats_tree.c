@@ -811,7 +811,7 @@ stats_tree_create_range_node(stats_tree *st, const gchar *name, int parent_id, .
 	return rng_root->id;
 }
 
-extern int 
+extern int
 stats_tree_create_range_node_string(stats_tree *st, const gchar *name,
 				    int parent_id, int num_str_ranges,
 				    gchar** str_ranges)

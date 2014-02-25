@@ -1066,7 +1066,7 @@ load_cap_file(capture_file *cf)
 }
 
 static gboolean
-process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, 
+process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
                struct wtap_pkthdr *whdr, const guchar *pd)
 {
     frame_data fdata;

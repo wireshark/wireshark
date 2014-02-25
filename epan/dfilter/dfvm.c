@@ -99,7 +99,7 @@ dfvm_dump(FILE *f, dfilter_t *df)
 	char		*value_str;
 	GSList		*range_list;
 	drange_node	*range_item;
-        
+
         /* First dump the constant initializations */
         fprintf(f, "Constants:\n");
 	length = df->consts->len;

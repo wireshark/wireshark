@@ -35,11 +35,11 @@ class CapturePreferencesFrame;
 class CapturePreferencesFrame : public QFrame
 {
     Q_OBJECT
-    
+
 public:
     explicit CapturePreferencesFrame(QWidget *parent = 0);
     ~CapturePreferencesFrame();
-    
+
 protected:
     void showEvent(QShowEvent *evt);
 

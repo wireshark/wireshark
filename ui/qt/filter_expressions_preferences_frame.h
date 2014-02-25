@@ -35,7 +35,7 @@ class FilterExpressionsPreferencesFrame;
 class FilterExpressionsPreferencesFrame : public QFrame
 {
     Q_OBJECT
-    
+
 public:
     explicit FilterExpressionsPreferencesFrame(QWidget *parent = 0);
     ~FilterExpressionsPreferencesFrame();

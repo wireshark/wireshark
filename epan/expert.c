@@ -324,7 +324,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 		expert_set_item_flags(pi, group, severity);
 	}
 
-	if ((pi == NULL) || (PITEM_FINFO(pi) == NULL) || 
+	if ((pi == NULL) || (PITEM_FINFO(pi) == NULL) ||
 		((guint)severity >= FI_GET_FLAG(PITEM_FINFO(pi), PI_SEVERITY_MASK))) {
 		col_add_str(pinfo->cinfo, COL_EXPERT, val_to_str(severity, expert_severity_vals, "Unknown (%u)"));
 	}

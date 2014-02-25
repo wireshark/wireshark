@@ -108,7 +108,7 @@ build_follow_conv_filter( packet_info *pi ) {
     } else if (!strcmp(proto_name, "udp")) {
         is_udp = TRUE;
     }
-            
+
     protos = wmem_list_frame_next(protos);
   }
 
@@ -249,8 +249,8 @@ static guint src_port[2] = { 0, 0 };
 
 void
 reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
-                guint32 length, const char* data, guint32 data_length, 
-                int synflag, address *net_src, address *net_dst, 
+                guint32 length, const char* data, guint32 data_length,
+                int synflag, address *net_src, address *net_dst,
                 guint srcport, guint dstport, guint32 packet_num) {
   guint8 srcx[MAX_IPADDR_LEN], dstx[MAX_IPADDR_LEN];
   int src_index, j, first = 0, len;
@@ -337,7 +337,7 @@ reassemble_tcp( guint32 tcp_stream, guint32 sequence, guint32 acknowledgement,
 
   /* Before adding data for this flow to the data_out_file, check whether
    * this frame acks fragments that were already seen. This happens when
-   * frames are not in the capture file, but were actually seen by the 
+   * frames are not in the capture file, but were actually seen by the
    * receiving host (Fixes bug 592).
    */
   if( frags[1-src_index] ) {
@@ -453,7 +453,7 @@ check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
           guint32 new_pos;
 
           /* this one has more than we have seen. let's get the
-             payload that we have not seen. This happens when 
+             payload that we have not seen. This happens when
              part of this frame has been retransmitted */
 
           new_pos = seq[idx] - current->seq;
@@ -464,10 +464,10 @@ check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
           }
 
           seq[idx] += (current->len - new_pos);
-        } 
+        }
 
         /* Remove the fragment from the list as the "new" part of it
-         * has been processed or its data has been seen already in 
+         * has been processed or its data has been seen already in
          * another packet. */
         if( prev ) {
           prev->next = current->next;
@@ -511,7 +511,7 @@ check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
       seq[idx] = lowest_seq;
       return 1;
     }
-  } 
+  }
   return 0;
 }
 
@@ -551,7 +551,7 @@ write_packet_data( int idx, tcp_stream_chunk *sc, const char *data )
 
   ret = fwrite( sc, 1, sizeof(tcp_stream_chunk), data_out_file );
   DISSECTOR_ASSERT(sizeof(tcp_stream_chunk) == ret);
-  
+
   ret = fwrite( data, 1, sc->dlen, data_out_file );
   DISSECTOR_ASSERT(sc->dlen == ret);
 

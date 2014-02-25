@@ -108,7 +108,7 @@ range_convert_str_work(range_t **rangep, const gchar *es, guint32 max_value,
 
    if ( (rangep == NULL) || (es == NULL) )
        return CVT_SYNTAX_ERROR;
-   
+
    /* Allocate a range; this has room for one subrange. */
    range = (range_t *)g_malloc(RANGE_HDR_SIZE + sizeof (range_admin_t));
    range->nranges = 0;
@@ -293,7 +293,7 @@ ranges_are_equal(range_t *a, range_t *b)
 
    if ( (a == NULL) || (b == NULL) )
        return FALSE;
-   
+
    if (a->nranges != b->nranges)
       return FALSE;
 
@@ -316,7 +316,7 @@ void
 range_foreach(range_t *range, void (*callback)(guint32 val))
 {
    guint32 i, j;
-   
+
    if (range && callback) {
       for (i=0; i < range->nranges; i++) {
          for (j = range->ranges[i].low; j <= range->ranges[i].high; j++)
@@ -357,7 +357,7 @@ range_copy(range_t *src)
 
    if (src == NULL)
        return NULL;
-   
+
    range_size = RANGE_HDR_SIZE + src->nranges*sizeof (range_admin_t);
    dst = (range_t *)g_malloc(range_size);
    memcpy(dst, src, range_size);

@@ -161,7 +161,7 @@ static void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	proto_item_append_text(proto_tree_get_parent(tree), ", %s", mgt_msg_str);
 
 	/* Decode and display the MAC payload */
-	if (!dissector_try_uint(subdissector_message_table, message_type, 
+	if (!dissector_try_uint(subdissector_message_table, message_type,
 		tvb_new_subset_remaining(tvb, 1), pinfo, tree))
 	{
 		proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, -1, ENC_NA);

@@ -31,13 +31,13 @@
    Returns TRUE on success, FALSE on failure.
    Sets "*err" to an error code, or 0 for a short write, on failure*/
 extern gboolean
-libpcap_write_file_header(FILE* pfile, int linktype, int snaplen, 
+libpcap_write_file_header(FILE* pfile, int linktype, int snaplen,
                           gboolean ts_nsecs, guint64 *bytes_written, int *err);
 
 /** Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 extern gboolean
-libpcap_write_packet(FILE* pfile, 
+libpcap_write_packet(FILE* pfile,
                      time_t sec, guint32 usec,
                      guint32 caplen, guint32 len,
                      const guint8 *pd,

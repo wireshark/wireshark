@@ -814,7 +814,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     guint16  data_length  = 0;
     guint16  fpga_version;
     int      valid_but_empty_file = -1;
- 
+
     filePos = file_tell(wth->fh);
     if (filePos == -1) {
         *err = file_error(wth->fh, err_info);

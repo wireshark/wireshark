@@ -152,7 +152,7 @@ dcerpcstat_draw(void *prs)
 	printf("%s Major Version %u SRT Statistics:\n", rs->prog, rs->ver);
 	printf("Filter: %s\n",rs->filter?rs->filter:"");
 	printf("Procedure                        Calls    Min SRT    Max SRT    Avg SRT\n");
-	
+
 	for(i=0;i<rs->num_procedures;i++){
 		/* Only display procs with non-zero calls */
 		if(rs->procedures[i].num==0){

@@ -109,7 +109,7 @@ static void prepopulate_oids(void) {
 	}
 }
 
-	
+
 
 static oid_info_t* add_oid(const char* name, oid_kind_t kind, const oid_value_type_t* type, oid_key_t* key, guint oid_len, guint32 *subids) {
 	guint i = 0;
@@ -1085,7 +1085,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 		} else {
 			bytelen += 5;
 		}
-	} 
+	}
 
 	*bytes_p = b = (guint8 *)ep_alloc(bytelen);
 
@@ -1107,7 +1107,7 @@ guint oid_subid2encoded(guint subids_len, guint32* subids, guint8** bytes_p) {
 			case 2: *(b++) = ((subid & 0x00003F80) >> 7)  | 0x80;
 			case 1: *(b++) =   subid & 0x0000007F ; break;
 		}
-	} 
+	}
 
 	return bytelen;
 }

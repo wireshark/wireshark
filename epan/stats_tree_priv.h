@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -69,7 +69,7 @@ struct _burst_bucket {
 struct _stat_node {
 	gchar*			name;
 	int			id;
-	
+
 	/** the counter it keeps */
 	gint			counter;
 	/** total of all values submitted - for computing averages */
@@ -86,10 +86,10 @@ struct _stat_node {
 
 	/** children nodes by name */
 	GHashTable		*hash;
-	
+
 	/** the owner of this node */
 	stats_tree		*st;
-	
+
 	/** relatives */
 	stat_node		*parent;
 	stat_node		*children;
@@ -97,7 +97,7 @@ struct _stat_node {
 
 	/** used to check if value is within range */
 	range_pair_t		*rng;
-	
+
 	/** node presentation data */
 	st_node_pres		*pr;
 };
@@ -105,9 +105,9 @@ struct _stat_node {
 struct _stats_tree {
 	/** the "class" from which it's derived */
 	stats_tree_cfg		*cfg;
-	
+
 	char			*filter;
-	
+
 	/* times */
 	double			start;
 	double			elapsed;
@@ -122,16 +122,16 @@ struct _stats_tree {
 	*  value: parent node
 	*/
 	GHashTable		*names;
-	
+
    /** used for quicker lookups of parent nodes */
 	GPtrArray		*parents;
-		
+
 	/**
 	 *  tree representation
 	 * 	to be defined (if needed) by the implementations
 	 */
 	tree_pres		*pr;
-	
+
 	/** every tree in nature has one */
 	stat_node		root;
 };
@@ -141,7 +141,7 @@ struct _stats_tree_cfg {
 	gchar*			name;
 	gchar*			tapname;
 	register_stat_group_t	stat_group;
-	
+
 	gboolean in_use;
 	gboolean plugin;
 
@@ -152,27 +152,27 @@ struct _stats_tree_cfg {
 
 	/** tap listener flags for the per-packet callback */
 	guint flags;
-	
+
 	/*
 	 * node presentation callbacks
 	 */
 
 	/** last to be called at node creation */
 	void (*setup_node_pr)(stat_node*);
-	
+
 	/** last to be called at node destruction */
 	void (*free_node_pr)(stat_node*);
-	
+
 	/** to be called for every node in the tree */
 	void (*draw_node)(stat_node*);
 	void (*reset_node)(stat_node*);
-	
+
 	/**
 	 * tree presentation callbacks
 	 */
 	tree_cfg_pres *pr;
-	
-	
+
+
 	tree_pres *(*new_tree_pr)(stats_tree*);
 	void (*free_tree_pr)(stats_tree*);
 	void (*draw_tree)(stats_tree*);
@@ -215,7 +215,7 @@ WS_DLL_PUBLIC gchar *stats_tree_get_abbr(const gchar *optarg);
 /** obtains a stats tree from the registry given its abbr */
 WS_DLL_PUBLIC stats_tree_cfg *stats_tree_get_cfg_by_abbr(const char *abbr);
 
-/** obtains a stats tree list from the registry 
+/** obtains a stats tree list from the registry
     caller should free returned list with  g_list_free() */
 WS_DLL_PUBLIC GList *stats_tree_get_cfg_list(void);
 

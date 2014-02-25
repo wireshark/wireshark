@@ -122,7 +122,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
     return -1;
   }
 
-  rb_data.fd = ws_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT, 
+  rb_data.fd = ws_open(rfile->name, O_RDWR|O_BINARY|O_TRUNC|O_CREAT,
                             rb_data.group_read_access ? 0640 : 0600);
 
   if (rb_data.fd == -1 && err != NULL) {

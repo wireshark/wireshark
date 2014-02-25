@@ -322,7 +322,7 @@ rlc_lte_stat_draw(void *phs)
            hs->common_stats.pcch_frames, hs->common_stats.pcch_bytes);
 
     /* Per-UE table entries */
-    
+
 
     /* Set title that shows how many UEs currently in table */
     for (tmp = list; (tmp!=NULL); tmp=tmp->next, number_of_ues++);

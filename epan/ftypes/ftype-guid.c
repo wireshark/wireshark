@@ -62,17 +62,17 @@ get_guid(const char *s, e_guid_t *guid)
                 return FALSE;
         }
     }
-    
+
     p = s;
-    strncpy(digits, p, 8); 
+    strncpy(digits, p, 8);
     digits[8] = '\0';
     guid->data1 = (guint32)strtoul(digits, NULL, 16);
     p += 9;
-    strncpy(digits, p, 4); 
+    strncpy(digits, p, 4);
     digits[4] = '\0';
     guid->data2 = (guint16)strtoul(digits, NULL, 16);
     p += 5;
-    strncpy(digits, p, 4); 
+    strncpy(digits, p, 4);
     digits[4] = '\0';
     guid->data3 = (guint16)strtoul(digits, NULL, 16);
     p += 5;

@@ -209,35 +209,35 @@ void proto_register_mac_mgmt_msg_dsd(void)
 		{
 			&hf_dsd_confirmation_code,
 			{
-				"Confirmation code", "wmx.dsd.confirmation_code", 
+				"Confirmation code", "wmx.dsd.confirmation_code",
 				FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsd_service_flow_id,
 			{
-				"Service Flow ID", "wmx.dsd.service_flow_id", 
+				"Service Flow ID", "wmx.dsd.service_flow_id",
 				FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsd_transaction_id,
 			{
-				"Transaction ID", "wmx.dsd.transaction_id", 
+				"Transaction ID", "wmx.dsd.transaction_id",
 				FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsd_invalid_tlv,
 			{
-				"Invalid TLV", "wmx.dsd.invalid_tlv", 
+				"Invalid TLV", "wmx.dsd.invalid_tlv",
 				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		},
 		{
 			&hf_dsd_unknown_type,
 			{
-				"Unknown type", "wmx.dsd.unknown_type", 
+				"Unknown type", "wmx.dsd.unknown_type",
 				FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL
 			}
 		}

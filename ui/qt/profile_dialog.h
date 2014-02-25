@@ -35,7 +35,7 @@ class ProfileDialog;
 class ProfileDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     enum ProfileAction { ShowProfiles, NewProfile, EditCurrentProfile, DeleteCurrentProfile };
 

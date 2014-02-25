@@ -31,7 +31,7 @@
 extern "C" {
 #endif /* __cplusplus */
 
-/** @file 
+/** @file
  */
 
 /** callback function definition: is a filter available for this packet? */

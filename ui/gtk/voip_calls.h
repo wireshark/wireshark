@@ -100,7 +100,7 @@ typedef struct _h245_address {
 typedef struct _h323_calls_info {
 	e_guid_t *guid;	/* Call ID to identify a H225 */
 	GList*  h245_list;				/**< list of H245 Address and ports for tunneling off calls*/
-	address h225SetupAddr;			/**< we use the SETUP H225 IP to determine if packets are forward or reverse */					
+	address h225SetupAddr;			/**< we use the SETUP H225 IP to determine if packets are forward or reverse */
 	gboolean is_h245;
 	gboolean is_faststart_Setup;	/**< if faststart field is included in Setup*/
 	gboolean is_faststart_Proc;		/**< if faststart field is included in Proce, Alerting, Progress or Connect*/
@@ -149,7 +149,7 @@ typedef struct _voip_calls_info {
 	gchar *call_comment;
 	guint16 call_num;
 	/**> The frame_data struct holds the frame number and timing information needed. */
-	frame_data *start_fd; 
+	frame_data *start_fd;
 	nstime_t start_rel_ts;
 	frame_data *stop_fd;
 	nstime_t stop_rel_ts;
@@ -157,7 +157,7 @@ typedef struct _voip_calls_info {
 
 } voip_calls_info_t;
 
-/** 
+/**
  * structure that holds the information about all detected calls */
 /* struct holding all information of the tap */
 
@@ -174,7 +174,7 @@ typedef struct _voip_calls_tapinfo {
 	seq_analysis_info_t* graph_analysis;
 	gboolean reversed;
 	gboolean redraw;
-	/* 
+	/*
 	 * Now add dummy variables, one for each tap listener.
 	 * Their address will be used to distinguish between them.
 	 */

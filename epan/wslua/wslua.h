@@ -233,7 +233,7 @@ typedef struct _wslua_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
 typedef GByteArray* ByteArray;
 typedef struct _wslua_tvb* Tvb;
-typedef struct _wslua_tvbrange* TvbRange; 
+typedef struct _wslua_tvbrange* TvbRange;
 typedef struct _wslua_col_info* Column;
 typedef struct _wslua_cols* Columns;
 typedef struct _wslua_pinfo* Pinfo;
@@ -392,19 +392,19 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
 
 #endif
 
-#define WSLUA_FUNCTION extern int 
+#define WSLUA_FUNCTION extern int
 
 #define WSLUA_REGISTER_FUNCTION(name)     { lua_pushcfunction(L, wslua_## name); lua_setglobal(L, #name); }
 
 #define WSLUA_REGISTER extern int
 
-#define WSLUA_METHOD static int 
-#define WSLUA_CONSTRUCTOR static int 
-#define WSLUA_ATTR_SET static int 
-#define WSLUA_ATTR_GET static int 
+#define WSLUA_METHOD static int
+#define WSLUA_CONSTRUCTOR static int
+#define WSLUA_ATTR_SET static int
+#define WSLUA_ATTR_GET static int
 #define WSLUA_METAMETHOD static int
 
-#define WSLUA_METHODS static const luaL_Reg 
+#define WSLUA_METHODS static const luaL_Reg
 #define WSLUA_META static const luaL_Reg
 #define WSLUA_CLASS_FNREG(class,name) { #name, class##_##name }
 #define WSLUA_CLASS_FNREG_ALIAS(class,aliasname,name) { #aliasname, class##_##name }
@@ -502,7 +502,7 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
                 g_free(p); \
         } \
     } \
-} 
+}
 
 #define WSLUA_CLASS_DECLARE(C) \
 extern C to##C(lua_State* L, int idx); \

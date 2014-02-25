@@ -214,7 +214,7 @@ static int FieldInfo_get_display(lua_State* L) {
     if (!fi->ws_fi->rep) {
         label_ptr = label_str;
         proto_item_fill_label(fi->ws_fi, label_str);
-    } else 
+    } else
         label_ptr = fi->ws_fi->rep->representation;
 
     if (!label_ptr) return 0;
@@ -235,7 +235,7 @@ static int FieldInfo_get_display(lua_State* L) {
 static int FieldInfo_get_range(lua_State* L) {
     /* The TvbRange covering this field */
     FieldInfo fi = checkFieldInfo(L,1);
-    
+
     if (push_TvbRange (L, fi->ws_fi->ds_tvb, fi->ws_fi->start, fi->ws_fi->length)) {
         return 1;
     }
@@ -247,7 +247,7 @@ static int FieldInfo_get_range(lua_State* L) {
 static int FieldInfo_get_generated(lua_State* L) {
     /* Whether this field was marked as generated. */
     FieldInfo fi = checkFieldInfo(L,1);
-    
+
     lua_pushboolean(L,FI_GET_FLAG(fi->ws_fi, FI_GENERATED));
     return 1;
 }
@@ -256,7 +256,7 @@ static int FieldInfo_get_generated(lua_State* L) {
 static int FieldInfo_get_name(lua_State* L) {
     /* The filter name of this field. */
     FieldInfo fi = checkFieldInfo(L,1);
-    
+
     lua_pushstring(L,fi->ws_fi->hfinfo->abbrev);
     return 1;
 }
@@ -381,7 +381,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
             FieldInfo fi = (FieldInfo)g_malloc(sizeof(struct _wslua_field_info));
             fi->ws_fi = (field_info *)g_ptr_array_index(found,i);
             fi->expired = FALSE;
-            
+
             PUSH_FIELDINFO(L,fi);
             items_found++;
         }
@@ -400,9 +400,9 @@ WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"),NOP);
 static GPtrArray* wanted_fields = NULL;
 static dfilter_t* wslua_dfilter = NULL;
 
-/* We use a fake dfilter for Lua field extractors, so that 
+/* We use a fake dfilter for Lua field extractors, so that
  * epan_dissect_run() will populate the fields.  This won't happen
- * if the passed-in edt->tree is NULL, which it will be if the 
+ * if the passed-in edt->tree is NULL, which it will be if the
  * proto_tree isn't created by epan_dissect_init().  But that's by
  * design - if shark doesn't pass in a proto_tree, it's probably for
  * a good reason and we shouldn't override that. (right?)
@@ -518,7 +518,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
                 FieldInfo fi = (FieldInfo)g_malloc(sizeof(struct _wslua_field_info));
                 fi->ws_fi = (field_info *)g_ptr_array_index(found,i);
                 fi->expired = FALSE;
-            
+
                 PUSH_FIELDINFO(L,fi);
                 items_found++;
             }

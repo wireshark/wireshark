@@ -361,7 +361,7 @@ stream_t *find_stream_conv ( const struct conversation *conv, int p2p_dir )
 
 /* cleanup the stream routines */
 /* Note: stream_cleanup must only be called when seasonal memory
- *       is also freed since the hash tables countain pointers to 
+ *       is also freed since the hash tables countain pointers to
  *       se_alloc'd memory.
  */
 void stream_cleanup( void )

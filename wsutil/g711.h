@@ -1,4 +1,4 @@
-/* 
+/*
  * g711.h
  *
  * Definitions for routines for u-law, A-law and linear PCM conversions

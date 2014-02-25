@@ -211,7 +211,7 @@ void voip_calls_reset(voip_calls_tapinfo_t *tapinfo)
 		g_free(graph_item->comment);
 		g_free((void *)graph_item->src_addr.data);
 		g_free((void *)graph_item->dst_addr.data);
-		g_free(graph_item->time_str);        
+		g_free(graph_item->time_str);
 		g_free(list->data);
 		list = g_list_next(list);
 	}

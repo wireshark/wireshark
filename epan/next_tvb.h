@@ -21,8 +21,8 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
-/* The buffers returned by these functions are all allocated with a 
- * packet lifetime or are static buffers and does not have have to be freed. 
+/* The buffers returned by these functions are all allocated with a
+ * packet lifetime or are static buffers and does not have have to be freed.
  * However, take into account that when the packet dissection
  * completes, these buffers will be automatically reclaimed/freed.
  * If you need the buffer to remain for a longer scope than packet lifetime

@@ -54,7 +54,7 @@ static GtkWidget *conversation_hastables_dlg_w = NULL;
  * Compute the hash value for two given address/port pairs if the match
  * is to be exact.
  */
-/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing 
+/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
 static guint
@@ -152,7 +152,7 @@ conversation_info_to_texbuff(GtkTextBuffer *buffer)
 
 	conversation_hashtable_exact = get_conversation_hashtable_exact();
 	if(conversation_hashtable_exact){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_exact %i entries\n#\n", 
+		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_exact %i entries\n#\n",
 			g_hash_table_size(conversation_hashtable_exact));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 		g_hash_table_foreach( conversation_hashtable_exact, conversation_hashtable_exact_to_texbuff, buffer);
@@ -160,7 +160,7 @@ conversation_info_to_texbuff(GtkTextBuffer *buffer)
 
 	conversation_hashtable_no_addr2 = get_conversation_hashtable_no_addr2();
 	if(conversation_hashtable_no_addr2){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2 %i entries\n#\n", 
+		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2 %i entries\n#\n",
 			g_hash_table_size(conversation_hashtable_no_addr2));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
@@ -168,7 +168,7 @@ conversation_info_to_texbuff(GtkTextBuffer *buffer)
 
 	conversation_hashtable_no_port2 = get_conversation_hashtable_no_port2();
 	if(conversation_hashtable_no_port2){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_port2 %i entries\n#\n", 
+		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_port2 %i entries\n#\n",
 			g_hash_table_size(conversation_hashtable_no_port2));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 
@@ -176,7 +176,7 @@ conversation_info_to_texbuff(GtkTextBuffer *buffer)
 
 	conversation_hashtable_no_addr2_or_port2 = get_conversation_hashtable_no_addr2_or_port2();
 	if(conversation_hashtable_no_addr2_or_port2){
-		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2_or_port2 %i entries\n#\n", 
+		g_snprintf(string_buff, CONV_STR_BUF_MAX, "conversation_hashtable_no_addr2_or_port2 %i entries\n#\n",
 			g_hash_table_size(conversation_hashtable_no_addr2_or_port2));
 		gtk_text_buffer_insert_at_cursor (buffer, string_buff, -1);
 

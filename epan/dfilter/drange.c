@@ -48,7 +48,7 @@ drange_node_dup(drange_node *org)
 
   if (!org)
     return NULL;
-	
+
   new_range_node = g_new(drange_node,1);
   new_range_node->start_offset = org->start_offset;
   new_range_node->length = org->length;

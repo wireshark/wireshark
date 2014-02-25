@@ -1779,13 +1779,13 @@ save_as_statstree_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_par
         case WM_INITDIALOG:
             g_sf_hwnd = sf_hwnd;
             break;
-			
+
         case WM_COMMAND:
             break;
-			
+
         case WM_NOTIFY:
             break;
-			
+
         default:
             break;
     }

@@ -50,7 +50,7 @@ static gboolean pong(echld_msg_type_t type, GByteArray* ba _U_, void* data) {
 	long ret = -1;
 	gettimeofday(&t,NULL);
 
-	
+
 	switch (type) {
 		case ECHLD_PONG:
 			ret = timevaldiff(&(p->tv),&t);
@@ -95,7 +95,7 @@ static gboolean got_param(echld_msg_type_t type, GByteArray* ba _U_, void* data)
 	char* err_msg;
 
 	switch (type) {
-		case ECHLD_PARAM: 
+		case ECHLD_PARAM:
 			if (g->cb) {
 				char* param;
 				char* value;
@@ -123,7 +123,7 @@ static gboolean got_param(echld_msg_type_t type, GByteArray* ba _U_, void* data)
 
 extern echld_state_t echld_get_param(int chld_id, const char* param, echld_param_cb_t acb, void* cb_data) {
 	struct _get_param* g = g_new0(struct _get_param,1);
-	echld_parent_encoder_t* enc; 
+	echld_parent_encoder_t* enc;
 	parent_decoder_t* dec;
 	enc_msg_t* em;
 
@@ -142,7 +142,7 @@ extern echld_state_t echld_get_param(int chld_id, const char* param, echld_param
 
 extern echld_state_t echld_set_param(int chld_id, const char* param, const char* value, echld_param_cb_t acb, void* cb_data) {
 	struct _get_param* g = g_new0(struct _get_param,1);
-	echld_parent_encoder_t* enc; 
+	echld_parent_encoder_t* enc;
 	parent_decoder_t* dec;
 	enc_msg_t* em;
 
@@ -200,7 +200,7 @@ static gboolean closed(echld_msg_type_t type, GByteArray* ba, void* data) {
 	return TRUE;
 
 }
- 
+
 echld_state_t echld_close(int child_id, echld_close_cb_t pcb, void* cb_data) {
 	close_t* c = g_new0(close_t,1);
 	c->cb = pcb;

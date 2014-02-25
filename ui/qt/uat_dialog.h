@@ -45,13 +45,13 @@ class UatDialog;
 class UatDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit UatDialog(QWidget *parent = 0, uat_t *uat = NULL);
     ~UatDialog();
 
     void setUat(uat_t *uat = NULL);
-    
+
 protected:
     void keyPressEvent(QKeyEvent *evt);
 

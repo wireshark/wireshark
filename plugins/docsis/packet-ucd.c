@@ -147,7 +147,7 @@ value_string iuc_vals[] = {
      {IUC_RESERVED14, "Reserved"},
      {IUC_EXPANSION, "Expanded IUC"},
      {0, NULL}
-   
+
 };
 
 static const value_string last_cw_len_vals[] = {
@@ -168,10 +168,10 @@ static void
   proto_item *tlv_item;
   gint len;
   guint8 upchid, symrate;
-   
+
   len = tvb_reported_length_remaining (tvb, 0);
    upchid = tvb_get_guint8 (tvb, 0);
-   
+
    /* if the upstream Channel ID is 0 then this is for Telephony Return) */
 	if (upchid > 0)
 	  col_add_fstr (pinfo->cinfo, COL_INFO,
@@ -181,7 +181,7 @@ static void
 	  col_add_fstr (pinfo->cinfo, COL_INFO,
 			"UCD Message:  Channel ID = %u (Telephony Return)",
 			upchid);
-   
+
    if (tree)
      {
 	ucd_item =
@@ -196,7 +196,7 @@ static void
 			     ENC_BIG_ENDIAN);
 	proto_tree_add_item (ucd_tree, hf_docsis_ucd_down_chid, tvb, 3, 1,
 			     ENC_BIG_ENDIAN);
-	
+
 	pos = 4;
 	while (pos < len)
 	  {
@@ -204,7 +204,7 @@ static void
 	  tlv_item = proto_tree_add_text (ucd_tree, tvb, pos, -1,
 					  "%s",
 					  val_to_str(type, channel_tlv_vals,
-						     "Unknown TLV (%u)"));  
+						     "Unknown TLV (%u)"));
 	  tlv_tree = proto_item_add_subtree (tlv_item, ett_tlv);
 	  proto_tree_add_uint (tlv_tree, hf_docsis_ucd_type,
 			       tvb, pos, 1, type);
@@ -635,7 +635,7 @@ static void
 	       }                   /* switch(type) */
 	  }                       /* while (pos < len) */
      }                           /* if (tree) */
-   
+
 }
 
 /* Register the protocol with Wireshark */
@@ -648,7 +648,7 @@ static void
 void
 proto_register_docsis_ucd (void)
 {
-   
+
    /* Setup list of header fields  See Section 1.6.1 for details*/
    static hf_register_info hf[] = {
     {&hf_docsis_ucd_upstream_chid,
@@ -792,22 +792,22 @@ proto_register_docsis_ucd (void)
       "TCM Enabled", HFILL}
     },
    };
-   
+
    /* Setup protocol subtree array */
    static gint *ett[] = {
       &ett_docsis_ucd,
 	&ett_tlv,
    };
-   
+
    /* Register the protocol name and description */
    proto_docsis_ucd =
      proto_register_protocol ("DOCSIS Upstream Channel Descriptor",
 			      "DOCSIS UCD", "docsis_ucd");
-   
+
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array (proto_docsis_ucd, hf, array_length (hf));
    proto_register_subtree_array (ett, array_length (ett));
-   
+
    register_dissector ("docsis_ucd", dissect_ucd, proto_docsis_ucd);
 }
 
@@ -820,8 +820,8 @@ void
 proto_reg_handoff_docsis_ucd (void)
 {
    dissector_handle_t docsis_ucd_handle;
-   
+
    docsis_ucd_handle = find_dissector ("docsis_ucd");
    dissector_add_uint ("docsis_mgmt", 0x02, docsis_ucd_handle);
-   
+
 }

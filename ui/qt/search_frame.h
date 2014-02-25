@@ -37,7 +37,7 @@ class SearchFrame;
 class SearchFrame : public AccordionFrame
 {
     Q_OBJECT
-    
+
 public:
     explicit SearchFrame(QWidget *parent = 0);
     ~SearchFrame();
@@ -48,7 +48,7 @@ public:
 public slots:
     void setCaptureFile(capture_file *cf);
     void findFrameWithFilter(QString &filter);
-    
+
 signals:
     void pushFilterSyntaxStatus(QString&);
 

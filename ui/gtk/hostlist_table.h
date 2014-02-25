@@ -44,8 +44,8 @@ typedef struct _hostlist_talker_t {
 	guint64 rx_bytes;       /**< number of received bytes */
 	guint64 tx_bytes;       /**< number of transmitted bytes */
 
-        gboolean modified;      /**< new to redraw the row */   
-        GtkTreeIter iter; 
+        gboolean modified;      /**< new to redraw the row */
+        GtkTreeIter iter;
         gboolean iter_valid;    /**< not a new row */
 
 } hostlist_talker_t;

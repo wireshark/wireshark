@@ -1,5 +1,5 @@
 /* audio.h
-  * header field declarations, value_string definitions and true_false_string 
+  * header field declarations, value_string definitions and true_false_string
   * definitions for audio manager messages
   * Copyright 2007 Don Newton <dnewton@cypresscom.net>
   *
@@ -283,15 +283,15 @@ static const true_false_string opt_rpt_enable_max_tone_vol={
  "Maximum tone volume is set equal to the physical maximum",
  "Maximum tone volume is one level lower than physical maximum"
 };
-static const true_false_string opt_rpths_on_air_feature={  
+static const true_false_string opt_rpths_on_air_feature={
  "Single tone frequency sent to HS port while call in progress",
  "Single tone frequency NOT sent to HS port while call in progress"
 };
-static const true_false_string opt_rpt_hd_on_air_feature={  
+static const true_false_string opt_rpt_hd_on_air_feature={
  "Single tone frequency sent to HD port while call in progress",
  "Single tone frequency NOT sent to HD port while call in progress"
 };
-static const true_false_string opt_rpt_noise_sqlch_disable={ 
+static const true_false_string opt_rpt_noise_sqlch_disable={
  "Automatic noise squelching enabled",
  "Automatic noise squelching disabled"
 };
@@ -440,7 +440,7 @@ static const value_string apb_op_codes[]={
  {0x54,"Change Default Volume setting"},
  {0x55,"Change Current Volume setting"},
  {0x56,"Sampling Rate setting"},
- {0x57,"The filter(s) to be used when the HIP is enabled"}, 
+ {0x57,"The filter(s) to be used when the HIP is enabled"},
  {0x58,"The threshold that should be used when AGC is enabled"},
  {0x59,"The threshold that should be used when Listener Sidetone (LST) is enabled"},
  {0,NULL}
@@ -536,7 +536,7 @@ static const true_false_string audio_opts_hs_on_air_feature={
 static const true_false_string audio_opts_hd_on_air_feature={
  "Single tone frequency sent to Headset (HD) port while call in progress",
  "Single tone frequency NOT sent to Headset (HD) port while call in progress"
-}; 
+};
 static const true_false_string noise_sqlch_disable={
  "Automatic noise squelching enabled",
  "Automatic noise squelching disabled"

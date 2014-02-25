@@ -26,7 +26,7 @@
 #define __MAIN_TITLEBAR_H__
 
 /** Construct the main window's title with the current main_window_name optionally appended
- *  with the user-specified title and/or wireshark version. 
+ *  with the user-specified title and/or wireshark version.
  *  Display the result in the main window's title bar and in its icon title
  */
 extern void main_titlebar_update(void);

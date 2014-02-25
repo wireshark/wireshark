@@ -421,7 +421,7 @@ static char *get_file_extension(const char *pathname)
 	extensionp = g_strdup(extensionp);
 	g_strfreev(components);
 	return extensionp;
-}	
+}
 
 static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
 {

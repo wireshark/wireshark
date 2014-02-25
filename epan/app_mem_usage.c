@@ -1,4 +1,4 @@
-/* 
+/*
  * app_mem_usage.c
  *
  * $Id$
@@ -161,7 +161,7 @@ static const ws_mem_usage_t total_usage = { "Total", get_total_mem_used_by_app, 
 static const ws_mem_usage_t rss_usage = { "RSS", get_rss_mem_used_by_app, NULL };
 #endif
 
-static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = { 
+static const ws_mem_usage_t *memory_components[MAX_COMPONENTS] = {
 #ifdef get_total_mem_used_by_app
 	&total_usage,
 #endif

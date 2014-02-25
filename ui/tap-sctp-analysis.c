@@ -465,7 +465,7 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 			info->sort_tsn2         = g_ptr_array_new();
 			info->sort_sack1        = g_ptr_array_new();
 			info->sort_sack2        = g_ptr_array_new();
-			
+
 			for (i=0; i < NUM_CHUNKS; i++)
 			{
 				info->chunk_count[i] = 0;

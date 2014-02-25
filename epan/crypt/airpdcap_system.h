@@ -126,7 +126,7 @@ typedef struct _AIRPDCAP_SEC_ASSOCIATION_ID {
 } AIRPDCAP_SEC_ASSOCIATION_ID, *PAIRPDCAP_SEC_ASSOCIATION_ID;
 
 typedef struct _AIRPDCAP_SEC_ASSOCIATION {
-    /* This is for reassociations. A linked list of old security 
+    /* This is for reassociations. A linked list of old security
      * associations is kept.  GCS
      */
     struct _AIRPDCAP_SEC_ASSOCIATION* next;

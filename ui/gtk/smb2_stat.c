@@ -88,11 +88,11 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 	/* SMB2 SRT can be very inaccurate in the presence of retransmissions. Retransmitted responses
 	 * not only add additional (bogus) transactions but also the latency associated with them.
 	 * This can greatly inflate the maximum and average SRT stats especially in the case of
-	 * retransmissions triggered by the expiry of the rexmit timer (RTOs). Only calculating SRT 
-	 * for the last received response accomplishes this goal without requiring the TCP pref 
+	 * retransmissions triggered by the expiry of the rexmit timer (RTOs). Only calculating SRT
+	 * for the last received response accomplishes this goal without requiring the TCP pref
 	 * "Do not call subdissectors for error packets" to be set. */
 	if(si->saved->frame_req
-	&& si->saved->frame_res==pinfo->fd->num) 
+	&& si->saved->frame_res==pinfo->fd->num)
 		add_srt_table_data(&ss->smb2_srt_table, si->opcode, &si->saved->req_time, pinfo);
 	else
 		return 0;

@@ -251,7 +251,7 @@ edit_capture_comment_dlg_launch (void)
   gtk_widget_show (edit_or_add_capture_comment_dlg);
 
 }
-    
+
 
 void
 edit_capture_comment_dlg_hide(void)

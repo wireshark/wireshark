@@ -1280,7 +1280,7 @@ colorize_filter_te_as_empty(GtkWidget *w)
     gtk_widget_override_color(w, GTK_STATE_FLAG_NORMAL, NULL);
     gtk_widget_override_background_color(w, GTK_STATE_FLAG_NORMAL, NULL);
     gtk_widget_override_cursor(w, NULL, NULL);
-#else    
+#else
     /* use defaults */
     gtk_widget_modify_text(w, GTK_STATE_NORMAL, NULL);
     gtk_widget_modify_base(w, GTK_STATE_NORMAL, NULL);

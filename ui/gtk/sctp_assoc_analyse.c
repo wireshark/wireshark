@@ -355,7 +355,7 @@ update_analyse_dlg(struct sctp_analyse *u_data)
 			GtkListStore *list_store;
 
 			store = (address *)(list->data);
-			if (store->type != AT_NONE) {			
+			if (store->type != AT_NONE) {
 				if (store->type == AT_IPv4)
 				{
 					g_snprintf(field[0], 30, "%s", ip_to_str((const guint8 *)(store->data)));

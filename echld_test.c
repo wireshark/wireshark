@@ -98,7 +98,7 @@ static char* psadd_cmd(char** params _U_, char** err) {
 	echld_new_child_params_add_params(paramsets[ps_id], params[2], params[3], NULL);
 
 	return g_strdup_printf("PSAdd ps_id=%d %s='%s'", ps_id, params[2], params[3]);
-} 
+}
 
 static char* psmerge_cmd(char** params, char** err) {
 	int ps1_id = (int) strtol(params[1], NULL, 10);
@@ -352,12 +352,12 @@ static int invoke_cmd(FILE* in_fp) {
 					fprintf(stdout, "%s\n", str);
 					g_free(str);
 				}
-				
+
 				g_strfreev(params);
 				return TRUE;
 			}
 		}
-		
+
 		fprintf(stdout, "Error: no such command %s\n", cmd_line);
 		return TRUE;
 	} else {
@@ -380,7 +380,7 @@ int main(int argc _U_, char** argv _U_) {
 	struct timeval tv;
 	int tot_cycles = 0;
 	echld_init_t init = {ECHLD_ENCODING_JSON,argv[0],main,NULL,NULL,NULL,NULL};
-	
+
 
 	tv.tv_sec = 5;
 	tv.tv_usec = 0;

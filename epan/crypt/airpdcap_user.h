@@ -211,7 +211,7 @@ typedef struct _AIRPDCAP_KEYS_COLLECTION {
  * - 01020304... (WPA + 256-bit raw key)
  * @param key_type [IN] Type of key used for string. Possibilities include:
  * - AIRPDCAP_KEY_TYPE_WEP (40/64-bit and 104/128-bit WEP)
- * - AIRPDCAP_KEY_TYPE_WPA_PWD (WPA + plaintext password + "wildcard" SSID or 
+ * - AIRPDCAP_KEY_TYPE_WPA_PWD (WPA + plaintext password + "wildcard" SSID or
  * WPA + plaintext password + specific SSID)
  * - AIRPDCAP_KEY_TYPE_WPA_PSK (WPA + 256-bit raw key)
  * @return A pointer to a freshly-g_malloc()ed decryption_key_t struct on

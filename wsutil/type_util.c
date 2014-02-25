@@ -38,7 +38,7 @@
  * gstutils.h: Header for various utility functions
  *
  * GNU GPL v2
- * 
+ *
  */
 
 /* work around error C2520: conversion from unsigned __int64 to double

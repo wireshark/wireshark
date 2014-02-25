@@ -36,7 +36,7 @@ public:
     void animatedHide();
 
 signals:
-    
+
 public slots:
 
 private:
@@ -45,7 +45,7 @@ private:
 
 private slots:
     void animationFinished();
-    
+
 };
 
 #endif // ACCORDION_FRAME_H

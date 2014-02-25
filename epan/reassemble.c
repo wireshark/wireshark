@@ -589,7 +589,7 @@ fragment_delete(reassembly_table *table, const packet_info *pinfo,
 		return NULL;
 	}
 
-	fd_tvb_data=fd_head->tvb_data; 
+	fd_tvb_data=fd_head->tvb_data;
 	/* loop over all partial fragments and free any tvbuffs */
 	for(fd=fd_head->next;fd;){
 		fragment_item *tmp_fd;
@@ -920,7 +920,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 				 * or later).
 				 */
 				g_slice_free(fragment_item, fd);
-				 
+
 				/*
 				 * This is an attempt to add a fragment to a
 				 * reassembly that had already completed.
@@ -1795,7 +1795,7 @@ fragment_add_seq_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 static fragment_head *
 fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 			const int offset, const packet_info *pinfo,
-			const guint32 id, const void *data, 
+			const guint32 id, const void *data,
 			guint32 frag_number, const guint32 frag_data_len,
 			const gboolean more_frags, const guint32 flags,
 			gpointer *orig_keyp)
@@ -1922,7 +1922,7 @@ fragment_add_seq_common(reassembly_table *table, tvbuff_t *tvb,
 
 fragment_head *
 fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
-		 const packet_info *pinfo, const guint32 id, const void *data, 
+		 const packet_info *pinfo, const guint32 id, const void *data,
 		 const guint32 frag_number, const guint32 frag_data_len,
 		 const gboolean more_frags, const guint32 flags)
 {
@@ -1968,7 +1968,7 @@ fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
 static fragment_head *
 fragment_add_seq_check_work(reassembly_table *table, tvbuff_t *tvb,
 			    const int offset, const packet_info *pinfo,
-			    const guint32 id, const void *data, 
+			    const guint32 id, const void *data,
 			    const guint32 frag_number,
 			    const guint32 frag_data_len,
 			    const gboolean more_frags, const guint32 flags)
@@ -1987,7 +1987,7 @@ fragment_add_seq_check_work(reassembly_table *table, tvbuff_t *tvb,
 		return (fragment_head *)g_hash_table_lookup(table->reassembled_table, &reass_key);
 	}
 
-	fd_head = fragment_add_seq_common(table, tvb, offset, pinfo, id, data, 
+	fd_head = fragment_add_seq_common(table, tvb, offset, pinfo, id, data,
 					  frag_number, frag_data_len,
 					  more_frags,
 					  flags|REASSEMBLE_FLAGS_CHECK_DATA_PRESENT,
@@ -2062,7 +2062,7 @@ fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
 
 void
 fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
-			 const guint32 id, const void *data, 
+			 const guint32 id, const void *data,
 			 const guint32 tot_len)
 {
 	fragment_head *fd_head;

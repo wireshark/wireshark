@@ -37,7 +37,7 @@ char *get_args_as_string(int argc, char **argv, int optindex);
 /* Compute the difference between two seconds/microseconds time stamps.
  * Beware: we're using nanosecond resolution now and function is currently unused
  */
-void compute_timestamp_diff(gint *diffsec, gint *diffusec, 
+void compute_timestamp_diff(gint *diffsec, gint *diffusec,
                             guint32 sec1, guint32 usec1, guint32 sec2, guint32 usec2);
 
 /* Try to figure out if we're remotely connected, e.g. via ssh or

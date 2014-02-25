@@ -45,7 +45,7 @@ private:
     QString state_style_sheet_;
 
 signals:
-    
+
 public slots:
     void setStyleSheet(const QString &style_sheet);
 };

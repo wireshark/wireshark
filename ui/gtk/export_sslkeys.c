@@ -127,7 +127,7 @@ gtk_export_sslkeys_file(guint keylist_len)
      * Build the dialog box we need.
      */
     savesslkeys_dlg = file_selection_new("Wireshark: Export SSL Session Keys",
-                                         GTK_WINDOW(top_level), 
+                                         GTK_WINDOW(top_level),
                                          FILE_SELECTION_SAVE);
 
     /* label */

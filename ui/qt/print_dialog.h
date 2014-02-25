@@ -42,7 +42,7 @@ class PrintDialog;
 class PrintDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit PrintDialog(QWidget *parent = 0, capture_file *cf = NULL);
     ~PrintDialog();

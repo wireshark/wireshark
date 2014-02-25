@@ -43,7 +43,7 @@ private:
     void updateText();
 
 signals:
-    
+
 public slots:
     void clear();
     void setText(const QString &text);

@@ -241,7 +241,7 @@ fragment_add_check(reassembly_table *table, tvbuff_t *tvb, const int offset,
  */
 WS_DLL_PUBLIC fragment_head *
 fragment_add_seq(reassembly_table *table, tvbuff_t *tvb, const int offset,
-		 const packet_info *pinfo, const guint32 id, const void *data, 
+		 const packet_info *pinfo, const guint32 id, const void *data,
 		 const guint32 frag_number, const guint32 frag_data_len,
 		 const gboolean more_frags, const guint32 flags);
 
@@ -275,7 +275,7 @@ fragment_add_seq_next(reassembly_table *table, tvbuff_t *tvb, const int offset,
 
 WS_DLL_PUBLIC void
 fragment_start_seq_check(reassembly_table *table, const packet_info *pinfo,
-			 const guint32 id, const void *data, 
+			 const guint32 id, const void *data,
 			 const guint32 tot_len);
 
 WS_DLL_PUBLIC fragment_head *

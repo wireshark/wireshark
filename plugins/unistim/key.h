@@ -1,5 +1,5 @@
 /* key.h
-  * header field declarations, value_string def and true_false_string 
+  * header field declarations, value_string def and true_false_string
   * definitions for key manager messages
   * Copyright 2007 Don Newton <dnewton@cypresscom.net>
   *
@@ -108,7 +108,7 @@ static const value_string key_phone_msgs[]={
  {0,NULL}
 };
 
- 
+
 static const true_false_string key_release={
  "The Key code will be sent when a valid key release occurs",
  "No command will be sent when a key is released"
@@ -125,7 +125,7 @@ static const true_false_string acd_supervisor={
  "ACD supervisor path and indicator controlled by the Switch",
  "ACD supervisor path and indicator controlled by the Phone"
 };
-   
+
 static const value_string local_dialpad_feedback[]={
  {0x00,"No tone feedback provided when a dial pad key is depressed"},
  {0x01,"Short 'click' provided when a dial pad key is depressed"},
@@ -149,7 +149,7 @@ static const value_string led_ids[]={
  {0x03,"Mute LED"},
  {0,NULL}
 };
- 
+
 static const value_string led_cadences[]={
  {0x00,"Off"},
  {0x01,"On"},

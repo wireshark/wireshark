@@ -95,7 +95,7 @@ add_plugin_type(const char *type, plugin_callback callback)
         report_failure("At most 32 plugin types can be supported, so the plugin type '%s' won't be supported.",
                        type);
         return;
-    }        
+    }
     new_type = (plugin_type *)g_malloc(sizeof (plugin_type));
     new_type->type = type;
     new_type->callback = callback;
@@ -368,7 +368,7 @@ plugins_get_descriptions(plugin_description_callback callback, void *user_data)
          info.pt_plug = info.pt_plug->next)
     {
         info.sep = "";
-        info.types = g_string_new(""); 
+        info.types = g_string_new("");
 
         /*
          * Build a list of all the plugin types.

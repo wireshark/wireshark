@@ -360,8 +360,8 @@ scan_local_interfaces(void (*update_cb)(void))
 }
 
 /*
- * Get the global interface list.  Generate it if we haven't done so 
- * already.  This can be quite time consuming the first time, so 
+ * Get the global interface list.  Generate it if we haven't done so
+ * already.  This can be quite time consuming the first time, so
  * record how long it takes in the info log.
  */
 void
@@ -375,7 +375,7 @@ fill_in_local_interfaces(void(*update_cb)(void))
 	/* record the time we started, so we can log total time later */
 	g_get_current_time(&start_time);
 	g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
-	
+
     if (!initialized) {
 		/* do the actual work */
         scan_local_interfaces(update_cb);

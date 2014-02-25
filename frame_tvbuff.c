@@ -212,7 +212,7 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.wth && cfile.wth->random_fh 
+	if (cfile.wth && cfile.wth->random_fh
 #ifdef WANT_PACKET_EDITOR
 		&& fd->file_off != -1 /* generic clone for modified packets */
 #endif
@@ -317,7 +317,7 @@ file_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.wth && cfile.wth->random_fh 
+	if (cfile.wth && cfile.wth->random_fh
 #ifdef WANT_PACKET_EDITOR
 		&& fd->file_off != -1 /* generic clone for modified packets */
 #endif

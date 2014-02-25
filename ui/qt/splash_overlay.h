@@ -42,11 +42,11 @@ class SplashOverlay;
 class SplashOverlay : public QWidget
 {
     Q_OBJECT
-    
+
 public:
     explicit SplashOverlay(QWidget *parent = 0);
     ~SplashOverlay();
-    
+
 protected:
     void paintEvent(QPaintEvent *event);
 

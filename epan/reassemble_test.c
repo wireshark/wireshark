@@ -99,8 +99,8 @@ static char *data;
 static tvbuff_t *tvb;
 static packet_info pinfo;
 
-/* fragment_table maps from datagram ids to fragment_head 
-   reassembled_table maps from <packet number,datagram id> to 
+/* fragment_table maps from datagram ids to fragment_head
+   reassembled_table maps from <packet number,datagram id> to
    fragment_head */
 static reassembly_table test_reassembly_table;
 

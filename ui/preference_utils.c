@@ -317,7 +317,7 @@ column_prefs_remove_link(GList *col_link)
     fmt_data *cfmt;
 
     if (!col_link || !col_link->data) return;
-    
+
     cfmt = (fmt_data *) col_link->data;
 
     g_free(cfmt->title);

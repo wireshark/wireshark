@@ -2,7 +2,7 @@
  * helper functions for TPG
  *
  *  (c) 2005, Luis E. Garcia Ontanon <luis@ontanon.org>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -31,7 +31,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/packet.h>
 
-extern guint32 tpg_ipv4(tvbparse_elem_t* e _U_) {    
+extern guint32 tpg_ipv4(tvbparse_elem_t* e _U_) {
     /* XXX TO DO */
     return 0;
 }

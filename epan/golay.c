@@ -169,7 +169,7 @@ gint32 golay_errors(guint32 codeword)
 
     syndrome = received_parity ^ (golay_coding(received_data));
     w = weight12(syndrome);
-    
+
     /*
      * The properties of the golay code are such that the Hamming distance (ie,
      * the minimum distance between codewords) is 8; that means that one bit of
@@ -184,14 +184,14 @@ gint32 golay_errors(guint32 codeword)
     if( w <= 3 ) {
 	return ((gint32) syndrome)<<12;
     }
-    
+
     /* the next thing to try is one error in the data bits.
      * we try each bit in turn and see if an error in that bit would have given
      * us anything like the parity bits we got. At this point, we tolerate two
      * errors in the parity bits, but three or more errors would give a total
      * error weight of 4 or more, which means it's actually uncorrectable or
      * closer to another codeword. */
-     
+
     for( i = 0; i<12; i++ ) {
 	guint error = 1<<i;
 	guint coding_error = golay_encode_matrix[i];
@@ -237,7 +237,7 @@ gint32 golay_errors(guint32 codeword)
     /* uncorrectable error */
     return -1;
 }
-    
+
 
 
 /* decode a received codeword. Up to 3 errors are corrected for; 4
@@ -249,7 +249,7 @@ gint golay_decode(guint32 w)
     guint data = (guint)w & 0xfff;
     gint32 errors = golay_errors(w);
     guint data_errors;
-    
+
     if( errors == -1 )
 	return -1;
     data_errors = (guint)errors & 0xfff;

@@ -74,7 +74,7 @@ typedef struct serv_port {
 } serv_port_t;
 
 /*
- * 
+ *
  */
 #define DUMMY_ADDRESS_ENTRY      1<<0
 #define TRIED_RESOLVE_ADDRESS    1<<1

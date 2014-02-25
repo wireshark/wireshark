@@ -2,7 +2,7 @@
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * 
+ *
  * Copyright 2006 Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * This program is free software; you can redistribute it and/or
@@ -62,7 +62,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
 
     arg1 = arg1list;
     while (arg1) {
-        arg_fvalue = (fvalue_t *)arg1->data; 
+        arg_fvalue = (fvalue_t *)arg1->data;
         switch (fvalue_type_ftenum(arg_fvalue)) {
             case FT_STRING:
             case FT_STRINGZ:
@@ -82,7 +82,7 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
 
             default:
                 break;
-        } 
+        }
         arg1 = arg1->next;
     }
 
@@ -113,7 +113,7 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
 
     arg1 = arg1list;
     while (arg1) {
-        arg_fvalue = (fvalue_t *)arg1->data; 
+        arg_fvalue = (fvalue_t *)arg1->data;
         switch (fvalue_type_ftenum(arg_fvalue)) {
             case FT_STRING:
             case FT_STRINGZ:
@@ -127,7 +127,7 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
 
             default:
                 break;
-        } 
+        }
         arg1 = arg1->next;
     }
 
@@ -144,7 +144,7 @@ df_func_size(GList* arg1list, GList *arg2junk _U_, GList **retval)
 
     arg1 = arg1list;
     while (arg1) {
-        arg_fvalue = (fvalue_t *)arg1->data; 
+        arg_fvalue = (fvalue_t *)arg1->data;
 
         ft_len = fvalue_new(FT_UINT32);
         fvalue_set_uinteger(ft_len, fvalue_length(arg_fvalue));

@@ -47,11 +47,11 @@ extern guint16 crc16_table[256];
 
   DESCRIPTION:  Generate the table of CRC remainders
                 for all possible bytes
-  
+
   ARGS:
 
   RETURNS:
-  
+
   SIDE EFFECTS:
 
 */
@@ -62,16 +62,16 @@ void wimax_mac_gen_crc32_table(void)
 
   /* little-endian (reflected) algorithm */
   for ( index = 0;  index < G_N_ELEMENTS(crc32_table);  index++ )
-  { 
+  {
     crc = ( index << 24 );
     for ( bit = 0;  bit < 8;  bit++ )
     {
       if ( crc & 0x80000000U )
         crc = ( crc << 1 ) ^ WMAX_MAC_CRC32_POLYNOMIAL;
       else
-        crc = ( crc << 1 ); 
+        crc = ( crc << 1 );
     }
-    crc32_table[index] = crc; 
+    crc32_table[index] = crc;
   }
 }
 
@@ -94,18 +94,18 @@ void wimax_mac_gen_crc8_table(void)
 {
   guint  index, bit;
   guint8 crc;
-  
+
   for ( index = 0;  index < G_N_ELEMENTS(crc8_table);  index++ )
-  { 
+  {
     crc = index;
     for ( bit = 0;  bit < 8;  bit++ )
     {
       if ( crc & 0x80 )
         crc = ( crc << 1 ) ^ WMAX_MAC_CRC8_POLYNOMIAL;
       else
-        crc = ( crc << 1 ); 
+        crc = ( crc << 1 );
     }
-    crc8_table[index] = crc; 
+    crc8_table[index] = crc;
   }
 }
 #endif
@@ -122,7 +122,7 @@ void wimax_mac_gen_crc8_table(void)
          data_len - length of data (in bytes)
 
   RETURNS:  calculated crc32
-  
+
   SIDE EFFECTS:
 
 */
@@ -132,9 +132,9 @@ guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
   guint i, j;
 
   for ( j = 0;  j < data_len;  j++ )
-  { 
+  {
     i = ( (guint8)(crc>>24) ^ data[j] ) & 0xff;
-    crc = ( crc<<8 ) ^ crc32_table[i]; 
+    crc = ( crc<<8 ) ^ crc32_table[i];
   }
   return ~crc;
 }
@@ -151,7 +151,7 @@ guint32 wimax_mac_calc_crc32(const guint8 *data, guint data_len)
          data_len - length of data (in bytes)
 
   RETURNS:  calculated crc16
-  
+
   SIDE EFFECTS:
 
 */
@@ -161,7 +161,7 @@ guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
   guint j;
 
   for ( j = 0;  j < data_len;  j++ )
-  { 
+  {
     crc ^= data[j] << 8;
     crc = (crc << 8) ^ crc16_table[(crc & 0xff00) >> 8];
   }
@@ -182,7 +182,7 @@ guint16 wimax_mac_calc_crc16(const guint8 *data, guint data_len)
          data_len - length of data (in bytes)
 
   RETURNS:  calculated crc8
-  
+
   SIDE EFFECTS:
 
 */

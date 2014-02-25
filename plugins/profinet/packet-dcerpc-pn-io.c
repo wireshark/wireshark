@@ -8754,7 +8754,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
             proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
                 val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
-            while (no_of_vals--) 
+            while (no_of_vals--)
             {
                 offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
             }
@@ -8816,7 +8816,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
         proto_item_append_text(sub_item, "Format:%s, NoOfVals:%u",
             val_to_str(format, pn_io_profidrive_format_vals, "Unknown"), no_of_vals);
 
-        while (no_of_vals--) 
+        while (no_of_vals--)
         {
             offset = dissect_profidrive_value(tvb, offset, pinfo, sub_tree, drep, format);
         }

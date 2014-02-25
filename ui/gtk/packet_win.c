@@ -919,7 +919,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 		  *bv_nb_ptr;
 	struct PacketWinData *DataPtr;
 	frame_data *fd;
-	
+
 	if(reference) {
 		guint32            framenum;
 		header_field_info *hfinfo;

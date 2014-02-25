@@ -55,7 +55,7 @@
 #define BER_UNI_TAG_EMBEDDED_PDV	    11
 #define BER_UNI_TAG_UTF8String		    12
 #define BER_UNI_TAG_RELATIVE_OID	    13
-/* UNIVERSAL 14-15	
+/* UNIVERSAL 14-15
  * Reserved for future editions of this
  * Recommendation | International Standard
  */

@@ -99,7 +99,7 @@ value_get(fvalue_t *fv)
 	return fv->value.ipv6.addr.bytes;
 }
 
-static const guint8 bitmasks[9] = 
+static const guint8 bitmasks[9] =
 	{ 0x00, 0x80, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc, 0xfe, 0xff };
 
 static gint

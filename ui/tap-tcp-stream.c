@@ -297,7 +297,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
 
     if (!cf || !hdrs)
         return NULL;
-    
+
     fdata = cf->current_frame;
 
     /* no real filter yet */

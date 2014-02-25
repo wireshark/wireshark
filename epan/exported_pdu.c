@@ -1,4 +1,4 @@
-/* 
+/*
  * exported_pdu.c
  * exported_pdu helper functions
  * Copyright 2013, Anders Broman <anders-broman@ericsson.com>

@@ -417,7 +417,7 @@ asn1_null_decode ( ASN1_SCK *asn1, int enc_len)
 
     asn1->offset += enc_len;
     /*
-     * Check for integer overflows.  
+     * Check for integer overflows.
      * XXX - ASN1_ERR_LENGTH_MISMATCH seemed like the most appropriate
      *       error from the ones available.  Should we make a new one?
      */

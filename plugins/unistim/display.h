@@ -1,5 +1,5 @@
 /*display.h
-  * header field declarations, value_string def and true_false_string 
+  * header field declarations, value_string def and true_false_string
   * definitions for display manager messages
   * Copyright 2007 Don Newton <dnewton@cypresscom.net>
   *

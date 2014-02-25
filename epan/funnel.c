@@ -23,7 +23,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA. 
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #include "config.h"
@@ -57,7 +57,7 @@ void funnel_register_menu(const char *name,
     m->callback_data = callback_data;
     m->retap = retap;
     m->next = NULL;
-    
+
     if (!menus)  {
         menus = m;
     } else {

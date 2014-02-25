@@ -117,10 +117,10 @@ proto_register_docsis_dccack (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dccack_tran_id ,
       {
-      "Transaction ID", 
+      "Transaction ID",
       "docsis_dccack.tran_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },

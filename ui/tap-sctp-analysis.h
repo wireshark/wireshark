@@ -27,7 +27,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif /* __cplusplus */ 
+#endif /* __cplusplus */
 
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>

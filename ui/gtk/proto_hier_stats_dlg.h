@@ -30,7 +30,7 @@
  */
 
 /** Show protocol hierarchy statistics.
- * 
+ *
  * @param widget parent widget (unused)
  * @param data unused
  */

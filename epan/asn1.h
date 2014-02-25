@@ -92,11 +92,11 @@ typedef struct _asn1_ctx_t {
     tvbuff_t *data_value_descriptor;
     const char *direct_reference;
     gint32 indirect_reference;
-    gint encoding;  
-      /* 
-         0 : single-ASN1-type, 
-         1 : octet-aligned, 
-         2 : arbitrary 
+    gint encoding;
+      /*
+         0 : single-ASN1-type,
+         1 : octet-aligned,
+         2 : arbitrary
       */
     tvbuff_t *single_asn1_type;
     tvbuff_t *octet_aligned;
@@ -120,9 +120,9 @@ typedef struct _asn1_ctx_t {
     gboolean data_value_descr_present;
     tvbuff_t *data_value_descriptor;
     gint identification;
-      /* 
-         0 : syntaxes, 
-         1 : syntax, 
+      /*
+         0 : syntaxes,
+         1 : syntax,
          2 : presentation-context-id,
          3 : context-negotiation,
          4 : transfer-syntax,
@@ -149,11 +149,11 @@ typedef struct _asn1_ctx_t {
 typedef struct _rose_ctx_t {
   guint32 signature;
   dissector_table_t arg_global_dissector_table;
-  dissector_table_t arg_local_dissector_table; 
+  dissector_table_t arg_local_dissector_table;
   dissector_table_t res_global_dissector_table;
-  dissector_table_t res_local_dissector_table; 
+  dissector_table_t res_local_dissector_table;
   dissector_table_t err_global_dissector_table;
-  dissector_table_t err_local_dissector_table; 
+  dissector_table_t err_local_dissector_table;
   /* filling in description into tree, info column, any buffer */
   int apdu_depth;
   gboolean fillin_info;
@@ -161,17 +161,17 @@ typedef struct _rose_ctx_t {
   gsize fillin_buf_size;
   struct {  /* "dynamic" data */
     gint pdu;
-      /* 
-         1 : invoke, 
-         2 : returnResult, 
+      /*
+         1 : invoke,
+         2 : returnResult,
          3 : returnError,
          4 : reject
       */
-    gint code;  
-      /* 
+    gint code;
+      /*
         -1 : none (optional in ReturnResult)
-         0 : local, 
-         1 : global 
+         0 : local,
+         1 : global
       */
     gint32 code_local;
     const char *code_global;

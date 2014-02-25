@@ -169,7 +169,7 @@ static const value_string mdd_tlv_vals[] = {
 	 {CM_STATUS_EVENT_CONTROL  , "CM-STATUS Event Control"},
 	 {UPSTREAM_TRANSMIT_POWER_REPORTING  , "Upstream Transmit Power Reporting"},
 	 {DSG_DA_TO_DSID_ASSOCIATION_ENTRY  , "DSG DA-to-DSID Association Entry"},
-	 {CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS  , 
+	 {CM_STATUS_EVENT_ENABLE_NON_CHANNEL_SPECIFIC_EVENTS  ,
 		"CM-STATUS Event Enable for Non-Channel-Specific-Events"},
 	{0, NULL}
 };

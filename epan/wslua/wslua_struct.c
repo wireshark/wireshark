@@ -26,7 +26,7 @@
 ** $Id: struct.c,v 1.4 2012/07/04 18:54:29 roberto Exp $
 ** See Copyright Notice above.
 **
-** Small changes were made by Hadriel Kaplan - those changes 
+** Small changes were made by Hadriel Kaplan - those changes
 ** are in the Public Domain.
 **
 ** Some changes are based on a patch to struct.h from
@@ -94,8 +94,8 @@
 
 /* The following line is here so that make-reg.pl does the right thing.  This 'Struct' class
   isn't really a class, so it doesn't have the checkStruct/pushStruct/etc. functions
-  the following macro would generate; but it does need to be registered and such. 
-  WSLUA_CLASS_DEFINE_BASE(Struct,NOP,NOP,0); 
+  the following macro would generate; but it does need to be registered and such.
+  WSLUA_CLASS_DEFINE_BASE(Struct,NOP,NOP,0);
   */
 
 /* basic integer type - yes this is system-specific size - it's meant to be */
@@ -257,7 +257,7 @@ static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
   luaL_addlstring(b, buff, size);
 }
 
-/* corrects endiannes - usually done by other functions themselves, but is 
+/* corrects endiannes - usually done by other functions themselves, but is
  * used for float/doubles, since on some platforms they're endian'ed as well
  */
 static void correctbytes (gchar *b, int size, int endian) {
@@ -353,7 +353,7 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
   return poscnt + 1;
 }
 
-/* Decodes an integer from a string struct into a Lua number, based on 
+/* Decodes an integer from a string struct into a Lua number, based on
  * given endianess and size. If the integer type is signed, this makes
  * the Lua number be +/- correctly as well.
  */
@@ -386,7 +386,7 @@ static lua_Number getinteger (const gchar *buff, int endian,
 #define b_pushnumber(n) { if (!h.noassign) lua_pushnumber(L, (lua_Number)(n)); }
 
 WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
-  /*  Unpacks/decodes multiple Lua values from a given struct-like binary Lua string. 
+  /*  Unpacks/decodes multiple Lua values from a given struct-like binary Lua string.
       The number of returned values depends on the format given, plus an addtional value of the position where it stopped reading is returned. */
 #define WSLUA_ARG_Struct_unpack_FORMAT 1 /* The format string */
 #define WSLUA_ARG_Struct_unpack_STRUCT 2 /* The binary Lua string to unpack */

@@ -383,7 +383,7 @@ st_sort_func(GtkTreeModel *model,
 	gint result;
 
 	gtk_tree_sortable_get_sort_column_id (GTK_TREE_SORTABLE (user_data), &sort_column, &order);
-														
+
 	gtk_tree_model_get(model, a, NODEPTR_COLUMN, &node_a, -1);
 	gtk_tree_model_get(model, b, NODEPTR_COLUMN, &node_b, -1);
 
@@ -589,7 +589,7 @@ register_tap_listener_stats_tree_stat(void)
 
 void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
 {
-	const gchar *action_name; 
+	const gchar *action_name;
 	gchar *abbr;
 	stats_tree_cfg* cfg = NULL;
 

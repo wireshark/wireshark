@@ -4,7 +4,7 @@
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
- * Copyright 1998 Gerald Combs	
+ * Copyright 1998 Gerald Combs
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -77,7 +77,7 @@ guint16 update_crc10_by_bytes(guint16 crc10, const guint8 *data_blk_ptr,
 {
     register int i;
     guint16 crc10_accum = 0;
-	
+
     for (i = 0;  i < data_blk_size; i++) {
 		crc10_accum = ((crc10_accum << 8) & 0x3ff)
 		^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
@@ -89,7 +89,7 @@ guint16 update_crc10_by_bytes(guint16 crc10, const guint8 *data_blk_ptr,
     crc10_accum = ((crc10_accum << 8) & 0x3ff)
 		^ byte_crc10_table[( crc10_accum >> 2) & 0xff]
 		^ ((crc10<<6) & 0xFF);
-    
+
     return crc10_accum;
 }
 

@@ -83,7 +83,7 @@ uat_plen_record_update_cb(void *r, const char **err)
 static void uat_plen_record_free_cb(void*r) {
 	uat_plen_record_t* record = (uat_plen_record_t*)r;
 
-	if (record->packet_range) 
+	if (record->packet_range)
 		g_free(record->packet_range);
 }
 

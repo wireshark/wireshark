@@ -1,4 +1,4 @@
-/* 
+/*
  * Definitions to provide some functions that are not present in older
  * GTK versions (down to 2.12.0)
  *

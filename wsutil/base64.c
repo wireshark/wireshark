@@ -59,7 +59,7 @@ size_t ws_base64_decode_inplace(char *s)
 			}
 			i++;
 		}
-		s++; 
+		s++;
 	}
 
 	d[i*3/4] = 0;

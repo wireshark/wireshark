@@ -7,17 +7,17 @@
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -46,7 +46,7 @@ struct _tree_pres {
 };
 
 struct _tree_cfg_pres {
-	gchar *init_string;	
+	gchar *init_string;
 };
 
 static void
@@ -54,12 +54,12 @@ draw_stats_tree(void *psp)
 {
 	stats_tree *st = (stats_tree *)psp;
 	GString *s;
-	
+
 	s= stats_tree_format_as_str(st, ST_FORMAT_PLAIN, stats_tree_get_default_sort_col(st),
 				stats_tree_is_default_sort_DESC(st));
 
 	printf("%s",s->str);
-	g_string_free(s,TRUE);	
+	g_string_free(s,TRUE);
 }
 
 static void
@@ -69,7 +69,7 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 	GString	*error_string;
 	stats_tree_cfg *cfg = NULL;
 	stats_tree *st = NULL;
-	
+
 	if (abbr) {
 		cfg = stats_tree_get_cfg_by_abbr(abbr);
 
@@ -84,14 +84,14 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 			report_failure("no such stats_tree (%s) found in stats_tree registry",abbr);
 			return;
 		}
-		
+
 		g_free(abbr);
-		
+
 	} else {
-		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'",abbr,opt_arg);		
+		report_failure("could not obtain stats_tree abbr (%s) from arg '%s'",abbr,opt_arg);
 		return;
 	}
-	
+
 	error_string = register_tap_listener(st->cfg->tapname,
 					     st,
 					     st->filter,
@@ -99,7 +99,7 @@ init_stats_tree(const char *opt_arg, void *userdata _U_)
 					     stats_tree_reset,
 					     stats_tree_packet,
 					     draw_stats_tree);
-	
+
 	if (error_string) {
 		report_failure("stats_tree for: %s failed to attach to the tap: %s",cfg->name,error_string->str);
 		return;
@@ -113,12 +113,12 @@ static void
 register_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 {
 	stats_tree_cfg *cfg = (stats_tree_cfg *)v;
-	
+
 	cfg->pr = (tree_cfg_pres *)g_malloc(sizeof(tree_cfg_pres));
 	cfg->pr->init_string = g_strdup_printf("%s,tree", cfg->abbr);
 
 	register_stat_cmd_arg(cfg->pr->init_string, init_stats_tree, NULL);
-	
+
 }
 
 static void

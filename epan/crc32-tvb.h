@@ -103,14 +103,14 @@ WS_DLL_PUBLIC guint32 crc32_mpeg2_tvb_offset_seed(tvbuff_t *tvb, guint offset,
 /** Compute CRC32 checksum of a tv buffer using the parameters
  *    Width        = 32 bits
  *    Poly         = 0x0AA725CF
- *    Reflection   = true 
- *    Algorithm    = table-driven       
+ *    Reflection   = true
+ *    Algorithm    = table-driven
  @param tvb The tv buffer containing the data.
  @param offset The offset into the tv buffer.
  @param len The number of bytes to include in the computation.
- @param seed The seed to use. 
+ @param seed The seed to use.
  @return The CRC32 checksum. */
-WS_DLL_PUBLIC guint32 crc32_0x0AA725CF_tvb_offset_seed(tvbuff_t *tvb, 
+WS_DLL_PUBLIC guint32 crc32_0x0AA725CF_tvb_offset_seed(tvbuff_t *tvb,
                                             guint offset, guint len, guint32 seed);
 
 #ifdef __cplusplus

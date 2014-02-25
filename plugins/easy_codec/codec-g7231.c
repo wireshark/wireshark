@@ -12,12 +12,12 @@
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2
 * of the License, or (at your option) any later version.
-* 
+*
 * This program is distributed in the hope that it will be useful,
 * but WITHOUT ANY WARRANTY; without even the implied warranty of
 * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 * GNU General Public License for more details.
-* 
+*
 * You should have received a copy of the GNU General Public License
 * along with this program; if not, write to the Free Software
 * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
@@ -59,9 +59,9 @@ int codec_g7231_decode(void *context, const void *input, int inputSizeBytes, voi
   const unsigned char *bitstream = (const unsigned char*)input;
   short *speech = (short*)output;
   int decodedBytes = 0;
-  
+
   if (!ctx) return 0;
-  
+
   if ( ctx->handle == -1) {
   	if ( bitstream[0] & 0x03 ) {
   	   ctx->handle=EasyG7231_init_decoder(FALSE);
@@ -69,10 +69,10 @@ int codec_g7231_decode(void *context, const void *input, int inputSizeBytes, voi
   	} else {
   	   ctx->handle=EasyG7231_init_decoder(TRUE);
   	   ctx->l_g7231_frame_compressed = L_G7231_FRAME_COMPRESSED_63;
-  	}  
+  	}
   }
-  
-  if ((inputSizeBytes % ctx->l_g7231_frame_compressed) != 0) 
+
+  if ((inputSizeBytes % ctx->l_g7231_frame_compressed) != 0)
     return 0;
 
   if (!output)
@@ -86,7 +86,7 @@ int codec_g7231_decode(void *context, const void *input, int inputSizeBytes, voi
       memcpy(speech, ctx->speach_buffer, L_G7231_FRAME * sizeof(short));
       speech += L_G7231_FRAME;
       decodedBytes += L_G7231_FRAME * sizeof(short);
-    
+
     }
     bitstream += ctx->l_g7231_frame_compressed;
     inputSizeBytes -= ctx->l_g7231_frame_compressed;

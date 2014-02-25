@@ -1111,7 +1111,7 @@ mouse_scrolled(GtkWidget *widget _U_, GdkEventScroll *event, gpointer data)
 	GtkAdjustment *adjustment;
 	gdouble v_scroll_items;
 	GtkAllocation draw_area_alloc, scroll_window_alloc;
-	
+
 	if (event->direction == GDK_SCROLL_UP) {
 		adjustment = user_data->dlg.v_scrollbar_adjustment;
 		v_scroll_items = pow(gtk_adjustment_get_page_size(adjustment), 2.0/3.0);
@@ -1122,7 +1122,7 @@ mouse_scrolled(GtkWidget *widget _U_, GdkEventScroll *event, gpointer data)
 			gtk_adjustment_set_value(adjustment, gtk_adjustment_get_value(adjustment) - v_scroll_items);
 		}
 	}
-	
+
 	else if (event->direction == GDK_SCROLL_DOWN) {
 		adjustment = user_data->dlg.v_scrollbar_adjustment;
 		v_scroll_items = pow (gtk_adjustment_get_page_size(adjustment), 2.0/3.0);
@@ -1133,7 +1133,7 @@ mouse_scrolled(GtkWidget *widget _U_, GdkEventScroll *event, gpointer data)
 			gtk_adjustment_set_value(adjustment, gtk_adjustment_get_value(adjustment) + v_scroll_items);
 		}
 	}
-	
+
 	else if (event->direction == GDK_SCROLL_LEFT) {
 		if (widget == user_data->dlg.scroll_window) {
 			scroll_window = user_data->dlg.scroll_window;
@@ -1151,7 +1151,7 @@ mouse_scrolled(GtkWidget *widget _U_, GdkEventScroll *event, gpointer data)
 		}
 		gtk_scrolled_window_set_hadjustment(GTK_SCROLLED_WINDOW(scroll_window), adjustment);
 	}
-	
+
 	else if (event->direction == GDK_SCROLL_RIGHT) {
 		if (widget == user_data->dlg.scroll_window) {
 			scroll_window = user_data->dlg.scroll_window;
@@ -1519,7 +1519,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	/* creating time scroll window to enable mouse scroll */
 	user_data->dlg.scroll_window_time = gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_set_size_request(user_data->dlg.scroll_window_time, TIME_WIDTH, user_data->dlg.surface_height);
-	
+
 	/* create "comments" draw area */
 	user_data->dlg.draw_area_comments = gtk_drawing_area_new();
 	gtk_widget_set_size_request(user_data->dlg.draw_area_comments, COMMENT_WIDTH, user_data->dlg.surface_height);
@@ -1529,12 +1529,12 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	 * Set the scrollbar policy for the horizontal and vertical scrollbars
 	 * The policy determines when the scrollbar should appear
 	 */
-	
+
 	/* we only want mouse scroll from this window */
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (user_data->dlg.scroll_window_time),
 		GTK_POLICY_NEVER, /* Policy for horizontal bar. */
 		GTK_POLICY_NEVER); /* Policy for vertical bar */
-	
+
 	gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW (user_data->dlg.scroll_window_comments),
 		GTK_POLICY_ALWAYS, /* Policy for horizontal bar. */
 		GTK_POLICY_NEVER); /* Policy for vertical bar */
@@ -1542,7 +1542,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	/* Changes the type of shadow drawn around the contents of scrolled_window. */
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_time),
 		GTK_SHADOW_ETCHED_IN);
-	
+
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window_comments),
 		GTK_SHADOW_ETCHED_IN);
 

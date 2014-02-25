@@ -40,7 +40,7 @@ class PacketRangeGroupBox;
 class PacketRangeGroupBox : public QGroupBox
 {
     Q_OBJECT
-    
+
 public:
     explicit PacketRangeGroupBox(QWidget *parent = 0);
     ~PacketRangeGroupBox();

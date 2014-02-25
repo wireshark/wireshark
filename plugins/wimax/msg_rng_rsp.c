@@ -513,11 +513,11 @@ static void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pin
 						add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_tlv_type, tvb, offset, ENC_NA);
 					}
 					break;
-			
+
 				default:
 					add_tlv_subtree(&tlv_info, rng_rsp_tree, hf_tlv_type, tvb, offset, ENC_NA);
 					break;
-					
+
 			}
 			offset = tlv_len + tlv_offset;
 		}	/* end of TLV process while loop */
@@ -752,7 +752,7 @@ void proto_register_mac_mgmt_msg_rng_rsp(void)
 		{
 			&hf_rng_invalid_tlv,
 			{
-				"Invalid TLV", "wmx.rng_rsp.invalid_tlv", 
+				"Invalid TLV", "wmx.rng_rsp.invalid_tlv",
 				FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
 			}
 		},

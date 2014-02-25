@@ -159,7 +159,7 @@ fi_get_string(field_info *fi)
 	if (!fi->rep) {
 		label_ptr = label_str;
 		proto_item_fill_label(fi, label_str);
-	} else 
+	} else
 		label_ptr = fi->rep->representation;
 
 	if (FI_GET_FLAG(fi, FI_GENERATED)) {
@@ -415,7 +415,7 @@ proto_tree_model_class_init(ProtoTreeModelClass *klass)
 	object_class->finalize = _class_finalize;
 }
 
-GType 
+GType
 proto_tree_model_get_type(void)
 {
 	static GType proto_tree_type = 0;
@@ -453,7 +453,7 @@ proto_tree_model_get_type(void)
 	return proto_tree_type;
 }
 
-void 
+void
 proto_tree_model_force_resolv(ProtoTreeModel *model, const e_addr_resolve *flags)
 {
 	model->resolv_forced = TRUE;

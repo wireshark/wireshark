@@ -35,13 +35,13 @@ class ColumnPreferencesFrame;
 class ColumnPreferencesFrame : public QFrame
 {
     Q_OBJECT
-    
+
 public:
     explicit ColumnPreferencesFrame(QWidget *parent = 0);
     ~ColumnPreferencesFrame();
 
     void unstash();
-    
+
 protected:
     void keyPressEvent(QKeyEvent *evt);
 

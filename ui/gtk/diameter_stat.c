@@ -184,11 +184,11 @@ gtk_diameterstat_init(const char *opt_arg, void *userdata _U_)
 	init_srt_table_row(&diameter->diameter_srt_table, 0, "Unknown");
 
 	error_string=register_tap_listener(
-		"diameter", 
-		diameter, filter, 
-		TL_REQUIRES_PROTO_TREE, 
-		diameterstat_reset, 
-		diameterstat_packet, 
+		"diameter",
+		diameter, filter,
+		TL_REQUIRES_PROTO_TREE,
+		diameterstat_reset,
+		diameterstat_packet,
 		diameterstat_draw);
 
 	if(error_string){

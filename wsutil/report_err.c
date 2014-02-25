@@ -58,7 +58,7 @@ void
 report_failure(const char *msg_format, ...)
 {
 	va_list ap;
-	
+
 	va_start(ap, msg_format);
 	(*report_failure_func)(msg_format, ap);
 	va_end(ap);

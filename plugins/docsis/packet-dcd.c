@@ -134,16 +134,16 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
   proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
-   
+
   pos = start;
   dcd_item = proto_tree_add_text ( tree, tvb, start, len, "51 DCD DSG Config Encodings (Length = %u)", len);
   dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_cfg);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 	    case DCD_CFG_CHAN_LST:
@@ -163,7 +163,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg1, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -174,7 +174,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg2, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -185,7 +185,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg3, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -196,7 +196,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg4, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -217,16 +217,16 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
   proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
-   
+
   pos = start;
   dcd_item = proto_tree_add_text ( tree, tvb, start, len, "23.9 DCD_CFR_IP Encodings (Length = %u)", len);
   dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_cfr_ip);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 	    case DCD_CFR_IP_SOURCE_ADDR:
@@ -328,16 +328,16 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
   proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
-   
+
   pos = start;
   dcd_item = proto_tree_add_text ( tree, tvb, start, len, "50.4 DCD Rule ClientID Encodings (Length = %u)", len);
   dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_clid);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 		case DCD_CLID_BCAST_ID:
@@ -394,16 +394,16 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
   proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
-   
+
   pos = start;
   dcd_item = proto_tree_add_text ( tree, tvb, start, len, "50 DCD DSG Rule Encodings (Length = %u)", len);
   dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_rule);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 	    case DCD_RULE_ID:
@@ -423,7 +423,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_pri, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -441,7 +441,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_tunl_addr, tvb,
 				   pos, length, ENC_NA);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -452,7 +452,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_cfr_id, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -473,16 +473,16 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint
   proto_item *dcd_item;
   proto_tree *dcd_tree;
   int pos;
-   
+
   pos = start;
   dcd_item = proto_tree_add_text ( tree, tvb, start, len, "23 DCD_CFR Encodings (Length = %u)", len);
   dcd_tree = proto_item_add_subtree ( dcd_item , ett_docsis_dcd_cfr);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 	    case DCD_CFR_ID:
@@ -502,7 +502,7 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_rule_pri, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -575,145 +575,145 @@ proto_register_docsis_dcd (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dcd_config_ch_cnt,
       {
-      "Configuration Change Count", 
+      "Configuration Change Count",
       "docsis_dcd.config_ch_cnt",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_num_of_frag,
       {
-      "Number of Fragments", 
+      "Number of Fragments",
       "docsis_dcd.num_of_frag",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_frag_sequence_num,
       {
-      "Fragment Sequence Number", 
+      "Fragment Sequence Number",
       "docsis_dcd.frag_sequence_num",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_id,
       {
-      "Downstream Classifier Id", 
+      "Downstream Classifier Id",
       "docsis_dcd.cfr_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_rule_pri,
       {
-      "Downstream Classifier Rule Priority", 
+      "Downstream Classifier Rule Priority",
       "docsis_dcd.cfr_rule_pri",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_ip_source_addr,
       {
-      "Downstream Classifier IP Source Address", 
+      "Downstream Classifier IP Source Address",
       "docsis_dcd.cfr_ip_source_addr",
       FT_IPv4, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_ip_source_mask,
       {
-      "Downstream Classifier IP Source Mask", 
+      "Downstream Classifier IP Source Mask",
       "docsis_dcd.cfr_ip_source_mask",
       FT_IPv4, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_ip_dest_addr,
       {
-      "Downstream Classifier IP Destination Address", 
+      "Downstream Classifier IP Destination Address",
       "docsis_dcd.cfr_ip_dest_addr",
       FT_IPv4, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_ip_dest_mask,
       {
-      "Downstream Classifier IP Destination Mask", 
+      "Downstream Classifier IP Destination Mask",
       "docsis_dcd.cfr_ip_dest_mask",
       FT_IPv4, BASE_NONE, NULL, 0x0,
-      "Downstream Classifier IP Destination Address", 
+      "Downstream Classifier IP Destination Address",
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_tcpudp_srcport_start,
       {
-      "Downstream Classifier IP TCP/UDP Source Port Start", 
+      "Downstream Classifier IP TCP/UDP Source Port Start",
       "docsis_dcd.cfr_ip_tcpudp_srcport_start",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_tcpudp_srcport_end,
       {
-      "Downstream Classifier IP TCP/UDP Source Port End", 
+      "Downstream Classifier IP TCP/UDP Source Port End",
       "docsis_dcd.cfr_ip_tcpudp_srcport_end",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_tcpudp_dstport_start,
       {
-      "Downstream Classifier IP TCP/UDP Destination Port Start", 
+      "Downstream Classifier IP TCP/UDP Destination Port Start",
       "docsis_dcd.cfr_ip_tcpudp_dstport_start",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfr_tcpudp_dstport_end,
       {
-      "Downstream Classifier IP TCP/UDP Destination Port End", 
+      "Downstream Classifier IP TCP/UDP Destination Port End",
       "docsis_dcd.cfr_ip_tcpudp_dstport_end",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_id,
       {
-      "DSG Rule Id", 
+      "DSG Rule Id",
       "docsis_dcd.rule_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_pri,
       {
-      "DSG Rule Priority", 
+      "DSG Rule Priority",
       "docsis_dcd.rule_pri",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_ucid_list,
       {
-      "DSG Rule UCID Range", 
+      "DSG Rule UCID Range",
       "docsis_dcd.rule_ucid_list",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
@@ -728,109 +728,109 @@ proto_register_docsis_dcd (void)
 	},
     {&hf_docsis_dcd_clid_known_mac_addr,
       {
-      "DSG Rule Client ID Known MAC Address", 
+      "DSG Rule Client ID Known MAC Address",
       "docsis_dcd.clid_known_mac_addr",
       FT_ETHER, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_clid_ca_sys_id,
       {
-      "DSG Rule Client ID CA System ID", 
+      "DSG Rule Client ID CA System ID",
       "docsis_dcd.clid_ca_sys_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_clid_app_id,
       {
-      "DSG Rule Client ID Application ID", 
+      "DSG Rule Client ID Application ID",
       "docsis_dcd.clid_app_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_tunl_addr,
       {
-      "DSG Rule Tunnel MAC Address", 
+      "DSG Rule Tunnel MAC Address",
       "docsis_dcd.rule_tunl_addr",
       FT_ETHER, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_cfr_id,
       {
-      "DSG Rule Classifier ID", 
+      "DSG Rule Classifier ID",
       "docsis_dcd.rule_cfr_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_rule_vendor_spec,
       {
-      "DSG Rule Vendor Specific Parameters", 
+      "DSG Rule Vendor Specific Parameters",
       "docsis_dcd.rule_vendor_spec",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_chan,
       {
-      "DSG Configuration Channel", 
+      "DSG Configuration Channel",
       "docsis_dcd.cfg_chan",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg1,
       {
-      "DSG Initialization Timeout (Tdsg1)", 
+      "DSG Initialization Timeout (Tdsg1)",
       "docsis_dcd.cfg_tdsg1",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg2,
       {
-      "DSG Operational Timeout (Tdsg2)", 
+      "DSG Operational Timeout (Tdsg2)",
       "docsis_dcd.cfg_tdsg2",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg3,
       {
-      "DSG Two-Way Retry Timer (Tdsg3)", 
+      "DSG Two-Way Retry Timer (Tdsg3)",
       "docsis_dcd.cfg_tdsg3",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_tdsg4,
       {
-      "DSG One-Way Retry Timer (Tdsg4)", 
+      "DSG One-Way Retry Timer (Tdsg4)",
       "docsis_dcd.cfg_tdsg4",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dcd_cfg_vendor_spec,
       {
-      "DSG Configuration Vendor Specific Parameters", 
+      "DSG Configuration Vendor Specific Parameters",
       "docsis_dcd.cfg_vendor_spec",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },

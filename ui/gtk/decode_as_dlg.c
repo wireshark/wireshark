@@ -161,7 +161,7 @@ write_da_entry(gpointer item, gpointer user_data)
   da_entry_t *entry = (da_entry_t *)item;
   FILE *daf = (FILE *)user_data;
   gchar *selector_str = g_strdup_printf("%d", entry->selector);
-  
+
   decode_as_write_entry(daf, entry->table, selector_str, entry->initial, entry->current);
   g_free(selector_str);
 }
@@ -456,7 +456,7 @@ decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
   FILE        *daf = decode_as_open();
 
   if (!daf) return;
-  
+
   g_slist_foreach(da_entries, write_da_entry, daf);
 
   fclose(daf);
@@ -977,7 +977,7 @@ decode_add_multivalue_combo_box (GtkWidget *page, decode_as_t *entry)
     gchar prompt[MAX_DECODE_AS_PROMPT_LEN];
 
     combo_box = ws_combo_box_new_text_and_pointer();
-    
+
     for (value = 0; value < entry->num_items; value++)
     {
         entry->values[value].label_func(&cfile.edt->pi, prompt);
@@ -1219,7 +1219,7 @@ decode_add_simple_menu (GtkWidget *page, decode_as_t *entry)
  * @return GtkWidget * A pointer to the notebook page created by this
  * routine.
  */
-static GtkWidget *    
+static GtkWidget *
 decode_add_simple_page (decode_as_t *entry)
 {
     GtkWidget  *page, *label, *scrolled_window, *combo_box;

@@ -256,7 +256,7 @@ gen_ldec(void)
         a(0) + a(1) @ + a(2) @^2 + ... + a(m-1) @^(m-1)
    we consider the integer "i" whose binary representation with a(0) being LSB
    and a(m-1) MSB is (a(0),a(1),...,a(m-1)) and locate the entry
-   "index_of[i]". Now, @^index_of[i] is that element whose polynomial 
+   "index_of[i]". Now, @^index_of[i] is that element whose polynomial
     representation is (a(0),a(1),a(2),...,a(m-1)).
    NOTE:
         The element alpha_to[2^m-1] = 0 always signifying that the
@@ -264,7 +264,7 @@ gen_ldec(void)
         Similarily, the element index_of[0] = A0 always signifying
    that the power of alpha which has the polynomial representation
    (0,0,...,0) is "infinity".
- 
+
 */
 
 static void
@@ -404,7 +404,7 @@ encode_rs(dtype data[KK], dtype bb[NN-KK])
  * Return number of symbols corrected, or -1 if codeword is illegal
  * or uncorrectable. If eras_pos is non-null, the detected error locations
  * are written back. NOTE! This array must be at least NN-KK elements long.
- * 
+ *
  * First "no_eras" erasures are declared by the calling program. Then, the
  * maximum # of errors correctable is t_after_eras = floor((NN-KK-no_eras)/2).
  * If the number of channel errors is not greater than "t_after_eras" the
@@ -453,7 +453,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     if(RECEIVED(j) == 0)
       continue;
     tmp = Index_of[RECEIVED(j)];
-    
+
     /*	s[i] ^= Alpha_to[modnn(tmp + (B0+i-1)*j)]; */
     for(i=1;i<=NN-KK;i++)
       s[i] ^= Alpha_to[modnn(tmp + (B0+i-1)*PRIM*j)];
@@ -465,7 +465,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
 	/*printf("syndrome %d = %x\n",i,s[i]);*/
     s[i] = Index_of[s[i]];
   }
-  
+
   if (!syn_error) {
     /* if syndrome is zero, data[] is a codeword and there are no
      * errors to correct. So return data[] unmodified
@@ -490,7 +490,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
 #if DEBUG >= 1
     /* Test code that verifies the erasure locator polynomial just constructed
        Needed only for decoder debugging. */
-    
+
     /* find roots of the erasure location polynomial */
     for(i=1;i<=no_eras;i++)
       reg[i] = Index_of[lambda[i]];
@@ -524,7 +524,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
   }
   for(i=0;i<NN-KK+1;i++)
     b[i] = Index_of[lambda[i]];
-  
+
   /*
    * Begin Berlekamp-Massey algorithm to determine error+erasure
    * locator polynomial
@@ -627,7 +627,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     omega[i] = Index_of[tmp];
   }
   omega[NN-KK] = A0;
-  
+
   /*
    * Compute error values in poly-form. num1 = omega(inv(X(l))), num2 =
    * inv(X(l))**(B0-1) and den = lambda_pr(inv(X(l))) all in poly-form
@@ -640,7 +640,7 @@ eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
     }
     num2 = Alpha_to[modnn(root[j] * (B0 - 1) + NN)];
     den = 0;
-    
+
     /* lambda[i+1] for i even is the formal derivative lambda_pr of lambda[i] */
     for (i = min_(deg_lambda,NN-KK-1) & ~1; i >= 0; i -=2) {
       if(lambda[i+1] != A0)

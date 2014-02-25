@@ -36,11 +36,11 @@ class FontColorPreferencesFrame;
 class FontColorPreferencesFrame : public QFrame
 {
     Q_OBJECT
-    
+
 public:
     explicit FontColorPreferencesFrame(QWidget *parent = 0);
     ~FontColorPreferencesFrame();
-    
+
 protected:
     void showEvent(QShowEvent *evt);
 

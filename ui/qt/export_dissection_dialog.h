@@ -44,11 +44,11 @@
 class ExportDissectionDialog : public QFileDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit ExportDissectionDialog(QWidget *parent, capture_file *cap_file, export_type_e export_type);
     ~ExportDissectionDialog();
-    
+
 public slots:
     int exec();
 

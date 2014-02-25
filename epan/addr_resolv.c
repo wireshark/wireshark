@@ -302,10 +302,10 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(const guint32 port);
 
 
-/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing 
+/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
-static guint32 
+static guint32
 ipv6_oat_hash(gconstpointer key)
 {
     int len = 16;

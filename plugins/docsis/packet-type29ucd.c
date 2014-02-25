@@ -270,7 +270,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				   pos, length, ENC_NA);
 	      pos = pos + length;
 	      break;
-/* DOCSIS 2.0 UCD TLV definitions 
+/* DOCSIS 2.0 UCD TLV definitions
  * #define type29ucd_EXT_PREAMBLE 6
  * #define type29ucd_SCDMA_MODE_ENABLE 7
  * #define type29ucd_SCDMA_SPREADING_INTERVAL 8
@@ -407,7 +407,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		  THROW (ReportedBoundsError);
 		}
 	      pos = pos + length;
-	      break;	       
+	      break;
 /* DOCSIS 1.1 BURST DESCRIPTOR */
 	     case type29ucd_BURST_DESCR:
 	      it =

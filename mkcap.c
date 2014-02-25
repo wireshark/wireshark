@@ -4,7 +4,7 @@
  *
  * $Id$
  *
- * By Ronnie Sahlberg and Richard Sharpe. From a program initially 
+ * By Ronnie Sahlberg and Richard Sharpe. From a program initially
  * written by Ronnie.
  * Copyright 2003 Ronnie Sahlberg and Richard Sharpe
  *
@@ -86,7 +86,7 @@ int ack_delay = 5000;
 int tcp_nodelay = 0;
 int tcp_delay_time = 1000; /* What is the real time here? */
 /*
- * If tcp_nodelay is set, then this is the amount of data left ... 
+ * If tcp_nodelay is set, then this is the amount of data left ...
  */
 int remaining_data = 0;
 int snap_len = 1500;
@@ -106,7 +106,7 @@ struct seg_hist_s {
   int seg_num;           /* Segment number sent. This can change */
                          /* but a retransmit will have a new seg */
   int flags;             /* Flags as above for ack and seg loss  */
-  int acks_first_seq;    /* How many times we have seen an ack 
+  int acks_first_seq;    /* How many times we have seen an ack
 			    for the first seq number in this seg */
 };
 
@@ -127,7 +127,7 @@ makeseg(char *eth1, char *eth2, char *ip1, char *ip2, char *p1, char *p2, int *s
 	printf("2002/01/07 00:00:%02d.%06d\n", ts/1000000, ts%1000000);
 	printf("0000 %s %s 08 00\n", eth1, eth2);
 	printf("000e 45 00 %02x %02x 00 00 00 00 40 06 00 00 %s %s\n", (len+40)>>8, (len+40)&0xff, ip1, ip2);
-	printf("0022 %s %s %02x %02x %02x %02x %02x %02x %02x %02x 50 %s 80 00 00 00 00 00", p1, p2, 
+	printf("0022 %s %s %02x %02x %02x %02x %02x %02x %02x %02x 50 %s 80 00 00 00 00 00", p1, p2,
 		((*s1)>>24)&0xff,
 		((*s1)>>16)&0xff,
 		((*s1)>>8)&0xff,
@@ -154,13 +154,13 @@ int next_ack_due()
   int slot = next_slot;
   int ack_lost = 0, seg_lost = 0;
 
-  if (next_slot == first_slot) 
+  if (next_slot == first_slot)
     return (((unsigned int)(1<<31)) - 1);
 
   /*
    * Figure out if we need to issue an ACK. We skip all outstanding packets
    * that are marked as ack lost or packet lost.
-   * 
+   *
    * We would not usually come in here with a frame marked as lost or ack lost
    * rather, we will come in here and specify that the ack was due at a
    * certain time, and gen_next_ack would then determine that the ack
@@ -179,10 +179,10 @@ int next_ack_due()
     slot = (slot + 1) % SEG_HIST_SIZE;
   }
 
-  if (slot == next_slot) 
+  if (slot == next_slot)
     return (((unsigned int)(1<<31)) - 1);
 
-  /* 
+  /*
    * If there is only one slot occupied, or a segment was lost then
    * an ACK is due after the last [good] segment left plus ack_delay
    */
@@ -190,7 +190,7 @@ int next_ack_due()
   if (slot == first_slot && next_slot == ((first_slot + 1) % SEG_HIST_SIZE))
     return (seg_hist[first_slot].ts + ack_delay + jitter);
 
-  if (seg_lost) 
+  if (seg_lost)
     return (seg_hist[slot].ts + ack_delay + jitter);
 
   /*
@@ -209,7 +209,7 @@ int next_ack_due()
 	/* XXX: FIXME, what about when the window is closed */
 	/* XXX: FIXME, use the correct value for this       */
 	return (((unsigned int)(1<<31)) - 1);
-      else 
+      else
 	return seg_hist[(first_slot + 1 + 2 * ack_lost) % SEG_HIST_SIZE].ts +
 	  ack_delay + jitter;
     }
@@ -230,7 +230,7 @@ int next_ack_due()
 add_seg_sent(int seq, int len)
 {
 
-  /* 
+  /*
    * Should check we have not wrapped around and run into the unacked
    * stuff ...
    */
@@ -250,7 +250,7 @@ add_seg_sent(int seq, int len)
    */
 
   next_slot = (next_slot + 1) % SEG_HIST_SIZE;
-  
+
 }
 
 /*
@@ -269,7 +269,7 @@ gen_next_ack(int force, int spacing)
 {
   int seq_to_ack, new_ts, data_acked;
 
-  /* 
+  /*
    * We need to check if the segment that we are about to generate an
    * ack for is a segment that should be dropped ... or an ack that should
    * be dropped.
@@ -299,7 +299,7 @@ gen_next_ack(int force, int spacing)
    */
   if (new_ts + jitter <= ts)
     ts++;
-  else 
+  else
     ts = new_ts + jitter;
 
   jitter = (rand() % 10 - 5);  /* Update jitter ... */
@@ -311,13 +311,13 @@ gen_next_ack(int force, int spacing)
   if (cwnd >= ssthresh)
     cwnd += (1460*data_acked)/cwnd;      /* is this right? */
   else
-    cwnd = cwnd + data_acked; 
-  if (verbose) fprintf(stderr, "Ack rcvd. ts: %d, data_acked: %d, cwnd: %d, window: %d\n", 
+    cwnd = cwnd + data_acked;
+  if (verbose) fprintf(stderr, "Ack rcvd. ts: %d, data_acked: %d, cwnd: %d, window: %d\n",
 	  ts, data_acked, cwnd, window);
   if (cwnd > window) cwnd = window;
 }
 
-void 
+void
 makeackedrun(int len, int spacing, int ackdelay)
 {
 	int next_ack_ts=0;
@@ -351,7 +351,7 @@ makeackedrun(int len, int spacing, int ackdelay)
 		 * Now, if the window is closed, then we have to eject an
 		 * ack, otherwise we can eject more data.
 		 * Also, the other end will tend to ack two segments at
-		 * a time ... and that ack might fall between two 
+		 * a time ... and that ack might fall between two
 		 * outgoing segments
 		 */
 		jitter = (rand()%10) - 5; /* What if spacing too small */
@@ -369,7 +369,7 @@ makeackedrun(int len, int spacing, int ackdelay)
 		  if (verbose) fprintf(stderr, "Non forced ACK ...ts + spacing + jitter:%d, jitter: %d\n", ts + spacing + jitter, jitter);
 		  gen_next_ack(NO_FORCE_ACK, spacing);
 		  /*
-		   * We don't want time to go backwards ... 
+		   * We don't want time to go backwards ...
 		   */
 		  if (old_ts + spacing + jitter <= ts)
 		    ts++;
@@ -377,9 +377,9 @@ makeackedrun(int len, int spacing, int ackdelay)
 		    ts = old_ts + spacing + jitter;
 
 		} else if (used_win == cwnd) {
-		  
+
 		  /*
-		   * We need an ACK, so generate it and retire the 
+		   * We need an ACK, so generate it and retire the
 		   * segments and advance the ts to the time of the ack
 		   */
 
@@ -399,7 +399,7 @@ makeackedrun(int len, int spacing, int ackdelay)
 }
 
 
-void 
+void
 makeackedrundroppedtail8kb(int len, int spacing, int ackdelay)
 {
 	int old_seq1;
@@ -508,7 +508,7 @@ all_digits(char *str)
   if (!str || !(*str)) {
     return 0;
   }
-   
+
   for (i = 0; str[i]; i++) {
     if (!isdigit(str[i]))
       return 0;
@@ -522,7 +522,7 @@ all_digits(char *str)
  *
  * first_seg,seg_count[,first_seg,seg_count]*
  */
-void 
+void
 process_drop_list(char *drop_list)
 {
   int commas=0;
@@ -566,17 +566,17 @@ process_drop_list(char *drop_list)
       return;
     }
     if (num == 0) num = 1;
-    if (commas % 2) 
+    if (commas % 2)
       drops[commas / 2].drop_seg_count = num;
     else
       drops[commas / 2].drop_seg_start = num;
   }
-  
+
   g_free(save);
 
 }
 
-int 
+int
 main(int argc, char *argv[])
 {
 	int i;

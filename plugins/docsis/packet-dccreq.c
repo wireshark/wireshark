@@ -122,12 +122,12 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, proto_tree * tree, int start, guint16 
   pos = start;
   dcc_item = proto_tree_add_text ( tree, tvb, start, len, "2 DCC-REQ Downstream Params Encodings (Length = %u)", len);
   dcc_tree = proto_item_add_subtree ( dcc_item , ett_docsis_dccreq_ds_params);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 	    case DCCREQ_DS_FREQ:
@@ -147,7 +147,7 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, proto_tree * tree, int start, guint16 
 	          proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_mod_type, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -158,7 +158,7 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, proto_tree * tree, int start, guint16 
 	          proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_sym_rate, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -171,7 +171,7 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, proto_tree * tree, int start, guint16 
 	          proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_intlv_depth_j, tvb,
 				   pos + 1, 1, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -182,7 +182,7 @@ dissect_dccreq_ds_params (tvbuff_t * tvb, proto_tree * tree, int start, guint16 
 	          proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ds_chan_id, tvb,
 				   pos, length, ENC_BIG_ENDIAN);
 		}
-              else 
+              else
 		{
 		  THROW (ReportedBoundsError);
 		}
@@ -203,16 +203,16 @@ dissect_dccreq_sf_sub (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len
   proto_item *dcc_item;
   proto_tree *dcc_tree;
   int pos;
-   
+
   pos = start;
   dcc_item = proto_tree_add_text ( tree, tvb, start, len, "7 DCC-REQ Service Flow Substitution Encodings (Length = %u)", len);
   dcc_tree = proto_item_add_subtree ( dcc_item , ett_docsis_dccreq_sf_sub);
-  
-  while ( pos < ( start + len) ) 
+
+  while ( pos < ( start + len) )
     {
 	type = tvb_get_guint8 (tvb, pos++);
 	length = tvb_get_guint8 (tvb, pos++);
-	
+
 	switch (type)
 	  {
 	    case DCCREQ_SF_SFID:
@@ -384,64 +384,64 @@ proto_register_docsis_dccreq (void)
   static hf_register_info hf[] = {
     {&hf_docsis_dccreq_tran_id ,
       {
-      "Transaction ID", 
+      "Transaction ID",
       "docsis_dccreq.tran_id",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_up_chan_id ,
       {
-      "Up Channel ID", 
+      "Up Channel ID",
       "docsis_dccreq.up_chan_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_ds_freq ,
       {
-      "Frequency", 
+      "Frequency",
       "docsis_dccreq.ds_freq",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_ds_mod_type ,
       {
-      "Modulation Type", 
+      "Modulation Type",
       "docsis_dccreq.ds_mod_type",
       FT_UINT8, BASE_DEC, VALS (ds_mod_type_vals), 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_ds_sym_rate ,
       {
-      "Symbol Rate", 
+      "Symbol Rate",
       "docsis_dccreq.ds_sym_rate",
       FT_UINT8, BASE_DEC, VALS (ds_sym_rate_vals), 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_ds_intlv_depth_i ,
       {
-      "Interleaver Depth I Value", 
+      "Interleaver Depth I Value",
       "docsis_dccreq.ds_intlv_depth_i",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_ds_intlv_depth_j ,
       {
-      "Interleaver Depth J Value", 
+      "Interleaver Depth J Value",
       "docsis_dccreq.ds_intlv_depth_j",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
@@ -465,19 +465,19 @@ proto_register_docsis_dccreq (void)
     },
     {&hf_docsis_dccreq_init_tech ,
       {
-      "Initialization Technique", 
+      "Initialization Technique",
       "docsis_dccreq.init_tech",
       FT_UINT8, BASE_DEC, VALS (init_tech_vals), 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },
     {&hf_docsis_dccreq_ucd_sub ,
       {
-      "UCD Substitution", 
+      "UCD Substitution",
       "docsis_dccreq.ucd_sub",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, 
+      NULL,
       HFILL
       }
     },

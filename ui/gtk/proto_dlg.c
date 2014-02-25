@@ -364,7 +364,7 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   GtkWidget *main_vb, *main_nb, *page_lb, *protocols_page;
 #if defined(HEUR_DISSECTOR_LIST)
   GtkWidget *heur_dissectors_page;
-#endif            
+#endif
   if (proto_w != NULL) {
     reactivate_window(proto_w);
     return;

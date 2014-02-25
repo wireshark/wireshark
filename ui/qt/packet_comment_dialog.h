@@ -33,12 +33,12 @@ class PacketCommentDialog;
 class PacketCommentDialog : public QDialog
 {
     Q_OBJECT
-    
+
 public:
     explicit PacketCommentDialog(QWidget *parent = 0, QString comment = QString());
     ~PacketCommentDialog();
     QString text();
-    
+
 private slots:
     void on_buttonBox_helpRequested();
 

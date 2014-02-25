@@ -492,7 +492,7 @@ get_if_name(const char *if_text)
         */
        if ((strncmp(if_name, "://", 3) != 0) && !isdigit(if_name[1])) {
          /*
-          * OK, we've found a colon followed neither by "//" nor by digit.  
+          * OK, we've found a colon followed neither by "//" nor by digit.
           * Skip blanks following it.
           */
          if_name++;

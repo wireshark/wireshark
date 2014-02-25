@@ -1,4 +1,4 @@
-/* 
+/*
  * exported_pdu.h
  * Routines for exported_pdu dissection
  * Copyright 2013, Anders Broman <anders-broman@ericsson.com>
@@ -72,10 +72,10 @@
 #define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
 #define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV */
-#define EXP_PDU_TAG_LINKTYPE          11 /**< The value part is the linktype value defined by tcpdump 
+#define EXP_PDU_TAG_LINKTYPE          11 /**< The value part is the linktype value defined by tcpdump
                                           * http://www.tcpdump.org/linktypes.html
-                                          */ 
-#define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string 
+                                          */
+#define EXP_PDU_TAG_PROTO_NAME        12 /**< The value part should be an ASCII non NULL terminated string
                                           * of the short protocol name used by Wireshark e.g "sip"
                                           * Will be used to call the next dissector.
                                           */
@@ -140,7 +140,7 @@ typedef struct _exp_pdu_data_t {
  *
  * The tags in the tag buffer SHOULD be added in numerical order.
  */
-WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, 
+WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo,
                                 const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);
 
 #endif /* EXPORTED_PDU_H */

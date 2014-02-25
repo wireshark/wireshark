@@ -304,24 +304,24 @@ const value_string H221ManufacturerCode_vals[] = {
 	{  0xb4001d00, "GPT Video Systems" },                               /* From Ref. 2 */
 	{  0xb4001e00, "GPT Video Systems" },                               /* From Ref. 2 */
 	{  0xb4001f00, "GPT Video Systems" },                               /* From Ref. 2 */
-	{  0xb4002000, "Marconi Communications" },                          /* From Ref. 2 */ 
-	{  0xb4002100, "Indigo Active Vision Systems" },                    /* From Ref. 2 */ 
-	{  0xb4002200, "LiveWorks Limited" },                               /* From Ref. 2 */ 
-	{  0xb4002300, "ATL Telecom Limited" },                             /* From Ref. 2 */ 
-	{  0xb4002a00, "Network Alchemy Limited" },                         /* From Ref. 2 */ 
-	{  0xb4004200, "Motion Media Technology" },                         /* From Ref. 2 */ 
-	{  0xb4004400, "Data Connection" },                                 /* From Ref. 2 */ 
-	{  0xb4004500, "Westbay Engineers" },                               /* From Ref. 2 */ 
-	{  0xb4004600, "FarSite Communications" },                               /* From Ref. 2 */ 
-	{  0xb4004900, "ImageCom" },                                        /* From Ref. 2 */ 
-	{  0xb4004d00, "Madge Networks" },                                  /* From Ref. 2 */ 
-	{  0xb4005200, "Ridgeway Systems and Software" },                   /* From Ref. 2 */ 
-	{  0xb4005300, "SpliceCom" },                                       /* From Ref. 2 */ 
-	{  0xb4005400, "TeleWare" },                                        /* From Ref. 2 */ 
-	{  0xb4005600, "Vegastream" },                                      /* From Ref. 2 */ 
-	{  0xb4006600, "Westell" },                                         /* From Ref. 2 */ 
-	{  0xb4006900, "ISDN Communications" },                             /* From Ref. 2 */ 
-	{  0xb400c000, "Codian" },                                          /* From Ref. 2 */ 
+	{  0xb4002000, "Marconi Communications" },                          /* From Ref. 2 */
+	{  0xb4002100, "Indigo Active Vision Systems" },                    /* From Ref. 2 */
+	{  0xb4002200, "LiveWorks Limited" },                               /* From Ref. 2 */
+	{  0xb4002300, "ATL Telecom Limited" },                             /* From Ref. 2 */
+	{  0xb4002a00, "Network Alchemy Limited" },                         /* From Ref. 2 */
+	{  0xb4004200, "Motion Media Technology" },                         /* From Ref. 2 */
+	{  0xb4004400, "Data Connection" },                                 /* From Ref. 2 */
+	{  0xb4004500, "Westbay Engineers" },                               /* From Ref. 2 */
+	{  0xb4004600, "FarSite Communications" },                               /* From Ref. 2 */
+	{  0xb4004900, "ImageCom" },                                        /* From Ref. 2 */
+	{  0xb4004d00, "Madge Networks" },                                  /* From Ref. 2 */
+	{  0xb4005200, "Ridgeway Systems and Software" },                   /* From Ref. 2 */
+	{  0xb4005300, "SpliceCom" },                                       /* From Ref. 2 */
+	{  0xb4005400, "TeleWare" },                                        /* From Ref. 2 */
+	{  0xb4005600, "Vegastream" },                                      /* From Ref. 2 */
+	{  0xb4006600, "Westell" },                                         /* From Ref. 2 */
+	{  0xb4006900, "ISDN Communications" },                             /* From Ref. 2 */
+	{  0xb400c000, "Codian" },                                          /* From Ref. 2 */
 
 	{  0xb5000000, "Compression Labs" },                                /* From Ref. 1 */
 	{  0xb5000001, "PictureTel" },                                      /* From Ref. 1 */

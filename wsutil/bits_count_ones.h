@@ -31,9 +31,9 @@
 #include <glib.h>
 
 /*
- * The variable-precision SWAR algorithm is an interesting way to count 
- * the number of bits set in an integer. While its performance is very 
- * good (two times faster than gcc's __builtin_popcount [1] and 
+ * The variable-precision SWAR algorithm is an interesting way to count
+ * the number of bits set in an integer. While its performance is very
+ * good (two times faster than gcc's __builtin_popcount [1] and
  * 16 instructions when compiled with gcc -O3)
  * http://playingwithpointers.com/swar.html
  */

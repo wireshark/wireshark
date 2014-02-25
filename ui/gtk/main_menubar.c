@@ -4227,7 +4227,7 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
     gchar          *stat_name_buf;
     gchar          *stat_name;
     gchar          *sep;
-        
+
     action_group = gtk_action_group_new ("tap-plugins-group");
 
     submenu_statistics = gtk_ui_manager_get_widget(ui_manager_main_menubar, MENU_STATISTICS_PATH);
@@ -4280,7 +4280,7 @@ add_tap_plugins (guint merge_id, GtkUIManager *ui_manager)
                     stat_name= sep;
                 }
             }
-        
+
             action_name = g_strdup_printf("%s/%s", submenu_path, cfg->abbr);
             action = (GtkAction *)g_object_new (GTK_TYPE_ACTION,
                  "name", action_name,
@@ -5003,7 +5003,7 @@ set_menus_for_selected_packet(capture_file *cf)
             } else if (!strcmp(proto_name, "sctp")) {
                 is_sctp = TRUE;
             }
-            
+
             protos = wmem_list_frame_next(protos);
         }
     }

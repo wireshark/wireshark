@@ -61,7 +61,7 @@ static void dissect_mac_mgmt_msg_dsa_req_decoder(tvbuff_t *tvb, packet_info *pin
 	{	/* we are being asked for details */
 
 		/* display MAC message type */
-		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, -1, 
+		dsa_item = proto_tree_add_protocol_format(tree, proto_mac_mgmt_msg_dsa_decoder, tvb, offset, -1,
 							  "Dynamic Service Addition Request (DSA-REQ)");
 		/* add MAC DSx subtree */
 		dsa_tree = proto_item_add_subtree(dsa_item, ett_mac_mgmt_msg_dsa_req_decoder);

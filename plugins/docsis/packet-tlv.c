@@ -4499,7 +4499,7 @@ proto_register_docsis_tlv (void)
      "Ranging Hold-Off (ePS or eRouter)", HFILL}
     },
     {&hf_docsis_tlv_mcap_rnghoff_emta,
-     {".16 Ranging Hold-Off (eMTA or EDVA)", 
+     {".16 Ranging Hold-Off (eMTA or EDVA)",
       "docsis_tlv.mcap.rnghoffemta",
      FT_UINT32, BASE_DEC, VALS (on_off_vals), 0x4,
      "Ranging Hold-Off (eMTA or EDVA)", HFILL}
