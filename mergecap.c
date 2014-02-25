@@ -512,7 +512,7 @@ main(int argc, char *argv[])
        * report the frame number and file type/subtype.
        */
       fprintf(stderr, "mergecap: Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-              in_file->packet_num, in_file->filename,
+              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
               wtap_file_type_subtype_string(file_type));
       break;
 
@@ -523,7 +523,7 @@ main(int argc, char *argv[])
        * report the frame number and file type/subtype.
        */
       fprintf(stderr, "mergecap: Frame %u of \"%s\" is too large for a \"%s\" file\n.",
-              in_file->packet_num, in_file->filename,
+              in_file ? in_file->packet_num : 0, in_file ? in_file->filename : "UNKNOWN",
               wtap_file_type_subtype_string(file_type));
       break;
 
