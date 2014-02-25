@@ -24,7 +24,7 @@
 #ifndef CAPTURE_FILE_DIALOG_H
 #define CAPTURE_FILE_DIALOG_H
 
-#ifndef Q_QS_WIN
+#ifndef Q_OS_WIN
 #include "display_filter_edit.h"
 #include "packet_range_group_box.h"
 #include "ui/help_url.h"

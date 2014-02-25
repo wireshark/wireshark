@@ -232,6 +232,7 @@ bool CaptureFileDialog::isCompressed() {
 }
 
 int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
+    Q_UNUSED(type) // XXX Remove when type supporte is added to win32_open_file.
     GString *fname = g_string_new(file_name.toUtf8().constData());
     GString *dfilter = g_string_new(display_filter_.toUtf8().constData());
     gboolean wof_status;
@@ -239,7 +240,7 @@ int CaptureFileDialog::open(QString &file_name, unsigned int &type) {
     // XXX Add a widget->HWND routine to qt_ui_utils and use it instead.
     wof_status = win32_open_file((HWND)parentWidget()->effectiveWinId(), fname, dfilter);
     file_name = fname->str;
-    type = format_type_.currentIndex();
+    //type = format_type_.currentIndex();
     display_filter_ = dfilter->str;
 
     g_string_free(fname, TRUE);
