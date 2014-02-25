@@ -524,7 +524,7 @@ enum fixed_field {
   FIELD_TRANSACTION_ID,
   FIELD_TDLS_ACTION_CODE,
   FIELD_TARGET_CHANNEL,
-  FIELD_REGULATORY_CLASS,
+  FIELD_OPERATING_CLASS,
   FIELD_MESH_ACTION,
   FIELD_MULTIHOP_ACTION,
   FIELD_MESH_CONTROL,
@@ -594,7 +594,7 @@ enum fixed_field {
 #define TAG_TIMEOUT_INTERVAL          56  /* IEEE Std 802.11r-2008 */
 #define TAG_RIC_DATA                  57  /* IEEE Std 802.11r-2008 */
 #define TAG_DSE_REG_LOCATION          58
-#define TAG_SUPPORTED_REGULATORY_CLASSES            59 /* IEEE Std 802.11w-2009 */
+#define TAG_SUPPORTED_OPERATING_CLASSES             59 /* IEEE Std 802.11w-2009 */
 #define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
 #define TAG_HT_INFO                   61  /* IEEE Stc 802.11n/D2.0 */
 #define TAG_SECONDARY_CHANNEL_OFFSET  62  /* IEEE Stc 802.11n/D1.10/D2.0 */
@@ -728,7 +728,7 @@ static const value_string tag_num_vals[] = {
   { TAG_TIMEOUT_INTERVAL,                     "Timeout Interval" },
   { TAG_RIC_DATA,                             "RIC Data" },
   { TAG_DSE_REG_LOCATION,                     "DSE Registered Location" },
-  { TAG_SUPPORTED_REGULATORY_CLASSES,         "Supported Regulatory Classes" },
+  { TAG_SUPPORTED_OPERATING_CLASSES,          "Supported Operating Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
   { TAG_HT_INFO,                              "HT Information (802.11n D1.10)" },
   { TAG_SECONDARY_CHANNEL_OFFSET,             "Secondary Channel Offset (802.11n D1.10)" },
@@ -2833,7 +2833,7 @@ static int hf_ieee80211_ff_anqp_domain_name_len = -1;
 static int hf_ieee80211_ff_anqp_domain_name = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
-static int hf_ieee80211_ff_regulatory_class = -1;
+static int hf_ieee80211_ff_operating_class = -1;
 static int hf_ieee80211_ff_wnm_action_code = -1;
 static int hf_ieee80211_ff_key_data_length = -1;
 static int hf_ieee80211_ff_key_data = -1;
@@ -3028,13 +3028,13 @@ static const int *ieee80211_ff_ant_selection_fields[] = {
 
 static int hf_ieee80211_ff_ext_channel_switch_announcement = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode = -1;
-static int hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class = -1;
+static int hf_ieee80211_ff_ext_channel_switch_announcement_new_ope_class = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_count = -1;
 
 static const int *ieee80211_ff_ext_channel_switch_announcement_fields[] = {
   &hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode,
-  &hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class,
+  &hf_ieee80211_ff_ext_channel_switch_announcement_new_ope_class,
   &hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number,
   &hf_ieee80211_ff_ext_channel_switch_announcement_switch_count,
   NULL
@@ -3195,8 +3195,8 @@ static int hf_ieee80211_tag_country_info_fnm_fcn = -1;
 static int hf_ieee80211_tag_country_info_fnm_nc = -1;
 static int hf_ieee80211_tag_country_info_fnm_mtpl = -1;
 static int hf_ieee80211_tag_country_info_rrc = -1;
-static int hf_ieee80211_tag_country_info_rrc_rei = -1;
-static int hf_ieee80211_tag_country_info_rrc_rc = -1;
+static int hf_ieee80211_tag_country_info_rrc_oei = -1;
+static int hf_ieee80211_tag_country_info_rrc_oc = -1;
 static int hf_ieee80211_tag_country_info_rrc_cc = -1;
 static int hf_ieee80211_tag_fh_hopping_parameter_prime_radix = -1;
 static int hf_ieee80211_tag_fh_hopping_parameter_nb_channels = -1;
@@ -3353,7 +3353,7 @@ static int hf_ieee80211_ht_info_pco_phase = -1;
 static int hf_ieee80211_ht_info_reserved_3 = -1;
 /*** End: 802.11n D1.10 - HT Information IE  ***/
 
-static int hf_ieee80211_tag_ap_channel_report_regulatory_class = -1;
+static int hf_ieee80211_tag_ap_channel_report_operating_class = -1;
 static int hf_ieee80211_tag_ap_channel_report_channel_list = -1;
 
 static int hf_ieee80211_tag_secondary_channel_offset = -1;
@@ -3457,7 +3457,7 @@ static int hf_ieee80211_tag_measure_request_channel_number = -1;
 static int hf_ieee80211_tag_measure_request_start_time = -1;
 static int hf_ieee80211_tag_measure_request_duration = -1;
 
-static int hf_ieee80211_tag_measure_request_regulatory_class = -1;
+static int hf_ieee80211_tag_measure_request_operating_class = -1;
 static int hf_ieee80211_tag_measure_request_randomization_interval = -1;
 
 static int hf_ieee80211_tag_measure_report_measurement_token = -1;
@@ -3491,7 +3491,7 @@ static int hf_ieee80211_tag_measure_rpi_histogram_report_5 = -1;
 static int hf_ieee80211_tag_measure_rpi_histogram_report_6 = -1;
 static int hf_ieee80211_tag_measure_rpi_histogram_report_7 = -1;
 
-static int hf_ieee80211_tag_measure_report_regulatory_class = -1;
+static int hf_ieee80211_tag_measure_report_operating_class = -1;
 static int hf_ieee80211_tag_measure_report_channel_load = -1;
 static int hf_ieee80211_tag_measure_report_frame_info = -1;
 static int hf_ieee80211_tag_measure_report_frame_info_phy_type = -1;
@@ -3682,12 +3682,12 @@ static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reserved = -1;
-static int hf_ieee80211_tag_neighbor_report_reg_class = -1;
+static int hf_ieee80211_tag_neighbor_report_ope_class = -1;
 static int hf_ieee80211_tag_neighbor_report_channel_number = -1;
 static int hf_ieee80211_tag_neighbor_report_phy_type = -1;
 
-static int hf_ieee80211_tag_supported_reg_classes_current = -1;
-static int hf_ieee80211_tag_supported_reg_classes_alternate = -1;
+static int hf_ieee80211_tag_supported_ope_classes_current = -1;
+static int hf_ieee80211_tag_supported_ope_classes_alternate = -1;
 
 /* IEEE Std 802.11r-2008 7.3.2.47 */
 static int hf_ieee80211_tag_mobility_domain_mdid = -1;
@@ -7264,7 +7264,7 @@ add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offs
     break;
   case TDLS_CHANNEL_SWITCH_REQUEST:
     offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_TARGET_CHANNEL);
-    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_REGULATORY_CLASS);
+    offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_OPERATING_CLASS);
     break;
   case TDLS_CHANNEL_SWITCH_RESPONSE:
     offset += add_fixed_field(tree, tvb, pinfo, offset, FIELD_STATUS_CODE);
@@ -7509,9 +7509,9 @@ add_ff_target_channel(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, i
 }
 
 static guint
-add_ff_regulatory_class(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+add_ff_operating_class(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
-  proto_tree_add_item(tree, hf_ieee80211_ff_regulatory_class, tvb, offset, 1,
+  proto_tree_add_item(tree, hf_ieee80211_ff_operating_class, tvb, offset, 1,
                       ENC_BIG_ENDIAN);
   return 1;
 }
@@ -7704,7 +7704,7 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(TRANSACTION_ID                        , transaction_id),
   FF_FIELD(TDLS_ACTION_CODE                      , tdls_action_code),
   FF_FIELD(TARGET_CHANNEL                        , target_channel),
-  FF_FIELD(REGULATORY_CLASS                      , regulatory_class),
+  FF_FIELD(OPERATING_CLASS                       , operating_class),
   FF_FIELD(WNM_ACTION_CODE                       , wnm_action_code),
   FF_FIELD(KEY_DATA_LENGTH                       , key_data_length),
   FF_FIELD(WNM_NOTIFICATION_TYPE                 , wnm_notification_type),
@@ -10347,9 +10347,9 @@ dissect_ap_channel_report(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
   }
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_ap_channel_report_regulatory_class, tvb,
+  proto_tree_add_item(tree, hf_ieee80211_tag_ap_channel_report_operating_class, tvb,
                       offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(ti, ": Regulatory Class %u, Channel List :", tvb_get_guint8(tvb, offset));
+  proto_item_append_text(ti, ": Operating Class %u, Channel List :", tvb_get_guint8(tvb, offset));
   offset += 1;
 
   while (offset < tag_end)
@@ -11564,15 +11564,15 @@ ieee80211_tag_country_info(packet_info *pinfo, proto_tree *tree,
                                      tvb, offset, 3, ENC_NA);
       sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_rcc_tree);
 
-      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rei,
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_oei,
                           tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_item_append_text(sub_item,
-                             ": Regulatory Extension Identifier: %d",
+                             ": Operating Extension Identifier: %d",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
-      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rc,
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_oc,
                           tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_item_append_text(sub_item, ", Regulatory Class: %d",
+      proto_item_append_text(sub_item, ", Operating Class: %d",
                              tvb_get_guint8(tvb, offset));
       offset += 1;
       proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_cc,
@@ -12161,7 +12161,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           case 3: /* Channel Load Request */
           case 4: /* Noise Histogram Request */
           {
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
@@ -12177,7 +12177,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           }
           case 5: /* Beacon Request */
           {
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
@@ -12246,7 +12246,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           }
           case 6: /* Frame Request */
           {
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_channel_number, tvb, offset, 1, ENC_NA);
@@ -12403,7 +12403,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             break;
           case 3: /* Channel Load Report */
           {
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
@@ -12422,7 +12422,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             break;
           }
           case 4: /* Noise Histogram Report */
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
@@ -12479,7 +12479,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           {
             proto_tree *sub_tree_frame_info;
 
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
@@ -12515,7 +12515,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             break;
           }
           case 6: /* Frame Report */
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_regulatory_class, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_operating_class, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_report_channel_number, tvb, offset, 1, ENC_NA);
@@ -13208,7 +13208,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       /*** End: BSSID Information ***/
 
       offset += 4;
-      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_reg_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_ope_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -13289,25 +13289,25 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       }
       break;
     }
-    case TAG_SUPPORTED_REGULATORY_CLASSES:
+    case TAG_SUPPORTED_OPERATING_CLASSES:
     {
       guint8 current_field;
       guint i;
 
       if (tag_len < 2) {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Supported Regulatory Classes: Error: Tag length must be at least 2 bytes long");
+            "Supported Operating Classes: Error: Tag length must be at least 2 bytes long");
         break;
       } else if (tag_len > 32) {
         proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Supported Regulatory Classes: Error: Tag length must be no more than 32 bytes long");
+            "Supported Operating Classes: Error: Tag length must be no more than 32 bytes long");
         break;
       }
 
       offset += 2;
 
       current_field = tvb_get_guint8 (tvb, offset);
-      proto_tree_add_uint(tree, hf_ieee80211_tag_supported_reg_classes_current, tvb, offset, 1, current_field);
+      proto_tree_add_uint(tree, hf_ieee80211_tag_supported_ope_classes_current, tvb, offset, 1, current_field);
 
       offset += 1;
       /* Partially taken from the ssid section */
@@ -13320,7 +13320,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
         }
         n += ret;
       }
-      proto_tree_add_string (tree, hf_ieee80211_tag_supported_reg_classes_alternate, tvb, offset, tag_len, print_buff);
+      proto_tree_add_string (tree, hf_ieee80211_tag_supported_ope_classes_alternate, tvb, offset, tag_len, print_buff);
 
       break;
     }
@@ -16136,8 +16136,8 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_regulatory_class,
-     {"Regulatory Class", "wlan_mgt.fixed.regulatory_class",
+    {&hf_ieee80211_ff_operating_class,
+     {"Operating Class", "wlan_mgt.fixed.operating_class",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
@@ -16703,8 +16703,8 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_HEX, VALS(ieee80211_tag_ext_channel_switch_announcement_switch_mode_flags), 0x000000FF,
       NULL, HFILL }},
 
-    {&hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class,
-     {"New Regulatory Class", "wlan_mgt.fixed.extchansw.new.regclass",
+    {&hf_ieee80211_ff_ext_channel_switch_announcement_new_ope_class,
+     {"New Operating Class", "wlan_mgt.fixed.extchansw.new.opeclass",
       FT_UINT32, BASE_HEX, NULL, 0x0000FF00,
       NULL, HFILL }},
 
@@ -17801,13 +17801,13 @@ proto_register_ieee80211 (void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_country_info_rrc_rei,
-     {"Regulatory Extension Identifier", "wlan_mgt.country_info.rrc.rei",
+    {&hf_ieee80211_tag_country_info_rrc_oei,
+     {"Operating Extension Identifier", "wlan_mgt.country_info.rrc.oei",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_country_info_rrc_rc,
-     {"Regulatory Class", "wlan_mgt.country_info.rrc.rc",
+    {&hf_ieee80211_tag_country_info_rrc_oc,
+     {"Operating Class", "wlan_mgt.country_info.rrc.oc",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
@@ -19031,8 +19031,8 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0xf000,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_ap_channel_report_regulatory_class,
-     {"Regulatory Class", "wlan_mgt.ap_channel_report.regulatory_class",
+    {&hf_ieee80211_tag_ap_channel_report_operating_class,
+     {"Operating Class", "wlan_mgt.ap_channel_report.operating_class",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
@@ -19461,9 +19461,9 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "in TU (1 TU = 1024 us)", HFILL }},
 
-    {&hf_ieee80211_tag_measure_request_regulatory_class,
-     {"Measurement Channel Number", "wlan_mgt.measure.req.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0,
+    {&hf_ieee80211_tag_measure_request_operating_class,
+     {"Operating Class", "wlan_mgt.measure.req.operatingclass",
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_request_randomization_interval,
@@ -19676,9 +19676,9 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0,
       "Receive Power Indicator (RPI) 7 Density", HFILL }},
 
-    {&hf_ieee80211_tag_measure_report_regulatory_class,
-     {"Regulatory Class", "wlan_mgt.measure.rep.regclass",
-      FT_UINT8, BASE_HEX, NULL, 0,
+    {&hf_ieee80211_tag_measure_report_operating_class,
+     {"Operating Class", "wlan_mgt.measure.rep.operatingclass",
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_channel_load,
@@ -20215,8 +20215,8 @@ proto_register_ieee80211 (void)
       FT_UINT32, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_neighbor_report_reg_class,
-     {"Regulatory Class", "wlan_mgt.nreport.regclass",
+    {&hf_ieee80211_tag_neighbor_report_ope_class,
+     {"Operating Class", "wlan_mgt.nreport.opeclass",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
@@ -20230,13 +20230,13 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_supported_reg_classes_current,
-     {"Current Regulatory Class", "wlan_mgt.supregclass.current",
+    {&hf_ieee80211_tag_supported_ope_classes_current,
+     {"Current Operating Class", "wlan_mgt.supopeclass.current",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_supported_reg_classes_alternate,
-     {"Alternate Regulatory Classes", "wlan_mgt.supregclass.alt",
+    {&hf_ieee80211_tag_supported_ope_classes_alternate,
+     {"Alternate Operating Classes", "wlan_mgt.supopeclass.alt",
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
