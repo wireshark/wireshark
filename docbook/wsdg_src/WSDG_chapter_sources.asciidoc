@@ -1,13 +1,6 @@
-
 ++++++++++++++++++++++++++++++++++++++
 <!-- WSDG Chapter Sources -->
 ++++++++++++++++++++++++++++++++++++++
-
-++++++++++++++++++++++++++++++++++++++
-<!-- $Id$ -->
-++++++++++++++++++++++++++++++++++++++
-    
-[[ChapterSources]]
 
 == Work with the Wireshark sources
 
@@ -36,28 +29,24 @@ http://git-scm.com/[Git] is used to keep track of the changes made to the
 Wireshark source code. The code is stored inside Wireshark project's Git
 repository located at a server at the wireshark.org domain.
 
-
-// Why Git?
-//
-// - Allows much more flexible development
-//
-// Why Gerrit?
-//
-// - Easy to contribute. Sign in with any OpenID provider and push your changes.
-// - Usable from the web and command line.
-// - Integrated with many popular tools.
+Changes to the official repository are managed using the
+https://code.google.com/p/gerrit/[Gerrit] code review sytem. Gerrit
+makes it easy to test and disucss changes before they are
+pushed to the main repository. For an overview of Gerrit see the
+https://code.wireshark.org/review/Documentation/intro-quick.html[Quick
+Introduction].
 
 
-// To quote the Subversion book about "What is Subversion?":
+.Why Git?
 
-// "Subversion is a free/open-source version control system. That is,
-//     Subversion manages files and directories over time. A tree of files is
-//     placed into a central repository. The repository is much like an ordinary
-//     file server, except that it remembers every change ever made to your files
-//     and directories. This allows you to recover older versions of your data,
-//     or examine the history of how your data changed. In this regard, many
-//     people think of a version control system as a sort of "time machine".
-//     "
+Git is a fast, flexible way of managing source code. It allows large
+scale distributed development and ensures data integrity.
+
+.Why Gerrit?
+
+Gerrit makes it easy to contribute. You can sign in with any OpenID
+provider and push your changes. It's usable from both the web and
+command line and is integrated with many popular tools.
 
 .Git is our *third* revision conrol system
 [NOTE]
@@ -70,39 +59,11 @@ The Subversion repository was subsequently migrated to Git in January 2014.
 Using Wireshark's Git repository you can:
 
 * Keep your private sources up to date with very little effort
-
 * Get a mail notification when the official source code changes
-
 * Get the source files from any previous release (or any other point in time)
-
 * Have a quick look at the sources using a web interface
-
 * See which person changed a specific piece of code
-
 * and much more
-
-Changes to the official repository are managed using the
-https://code.google.com/p/gerrit/[Gerrit] code review sytem. Gerrit
-makes it easy to test and disucss changes before they are pushed to the
-main repository. For an overview of Gerrit see the
-https://code.wireshark.org/review/Documentation/intro-quick.html[Quick Introduction].
-
-// Subversion is divided into a client and a server part.
-// Thanks to Gerald Combs (the maintainer of the Subversion server),
-// no user has to deal with the maintenance of the Subversion server.
-// You will only need a Subversion client, which is available as
-// both a command-line and a GUI tool for many different platforms.
-//
-// For further reference about Subversion, have a look at the homepage of the
-// Subversion project: http://subversion.apache.org/[]. There
-// is a good and free book about it available at: http://svnbook.red-bean.com/[].
-//
-// Please note that Wireshark's public (anonymous) Subversion repository is
-// separate from the main repository.
-// It may take several minutes for committed changes to appear in the
-// public repository - so please be patient for a few minutes if you
-// desperately need a code change that was committed to the repository
-// very recently.
 
 [[ChSrcWebInterface]]
 
@@ -126,27 +87,6 @@ Wireshark uses the following branches for official releases:
 * 'master-x.y': Stable release maintenance. For example, master-1.10 is used
   to manage the 1.10.x official releases.
 
-// wireshark-code-browse-url:[]
-//
-// you only need a Web browser.
-//
-// A _simple view_ of the latest developer version can be
-// found at:
-//
-// http://anonsvn.wireshark.org/wireshark/trunk/[].
-//
-// A _comprehensive view_ of all source versions
-// (e.g. including the capability to show differences between versions)
-// is available at:
-//
-// http://anonsvn.wireshark.org/viewvc/viewvc.cgi/[].
-//
-// Of special interest might be the subdirectories:
-//
-// * 'trunk': the very latest source files
-//
-// * 'releases': the source files of all released versions
-
 [[ChSrcObtain]]
 
 === Obtain the Wireshark sources
@@ -158,7 +98,7 @@ repository.
 .Check out from the master branch using Git.
 ====
 Using Git is much easier than synchronizing your source tree by hand
-using any of the zip file methods mentioned below.
+using any of the snapshot methods mentioned below.
 Git merges of changes into your personal source tree in a
 very comfortable and quick way. So you can update your source tree several
 times a day without much effort.
@@ -169,19 +109,19 @@ times a day without much effort.
 .Keep your sources up to date
 ====
 The following ways to retrieve the Wireshark sources are sorted in
-decreasing source timeliness.
-If you plan to commit changes you've made to the sources,
-it's a good idea to keep your private source tree as current as possible.
+decreasing source timeliness.  If you plan to commit changes you've
+made to the sources, it's a good idea to keep your private source
+tree as current as possible.
 ====
 
 The age mentioned in the following sections indicates the age of the
 most recent change in that set of the sources.
 
-
 [[ChSrcAnon]]
+// Retain ChSrcAnon for backward compatibility
+[[ChSrcGit]]
 
-
-==== Git over HTTPS or SSH
+==== Git over SSH or HTTPS
 
 Recommended for development purposes.
 
@@ -194,147 +134,185 @@ review system. Anyone can clone from the anonymous URL:
 
 If you create a Gerrit account you can clone from an authenticated URL:
 
-* wireshark-git-http-url:[]
 * wireshark-git-ssh-url:[]
+* wireshark-git-http-url:[]
 
 SSH lets you use Gerrit on the
 https://code.wireshark.org/review/Documentation/cmd-index.html#_server[command line].
 HTTP lets you access the repository in environments that block the Gerrit SSH
-port (29418). Command line access isn't available over HTTP.
+port (29418). At the time of this writing (early 2014) we recommend that
+you use the SSH interface. However, this may change as more tools take
+advantage of Gerrit's HTTP REST API.
 
-See <<ChToolsGit>> for information on installing and configuring a Git
-client.
+The following example shows how to get up and running on the command
+line. See <<ChToolsGit>> for information on installing and configuring
+graphical Git and Gerrit clients.
 
-For example, to check out using the command-line Git client you
-would type:
+. Sign in to wireshark-code-review-url:[] using OpenID. In the upper
+right corner of the web page, click on your account name and select
+_Settings_.
 
+. Under _Profile_ set a username. This will be the username that
+you use for SSH access. For the steps below we'll assume that your
+username is +henry.perry+.
+
+. Select _SSH Public Keys_ and add one or more keys. You will typically
+upload a key for each computer that you use.
+
+. Install git-review. This is an installable package
+in many Linux distributions. You can also install it as a
+https://pypi.python.org/pypi/git-review[Python package]. (This step
+isn't strictly necessary but it makes working with Gerrit much easier.)
+
+. Now on to the command line. First, make sure `git` works:
+--
 ----
-$ git clone wireshark-git-anonhttp-url:[]
+$ git --version
 ----
+--
 
-The checkout has to be only done once. This will copy all the sources of the
-latest version (including directories) from the server to your machine. This
-may take some time, depending on the speed of your internet connection.
+. If this is your first time using Git, make sure your username and
+email address are configured. This is particularly important if you
+plan on uploading changes.
+--
+----
+$ git config --global user.name "Henry Perry"
+$ git config --global user.email henry.perry@example.com
+----
+--
+
+. Next, clone the Wireshark master:
+--
+----
+$ git clone ssh://henry.perry@code.wireshark.org:29418/wireshark
+----
++
+The checkout only has to be done once. This will copy all the sources
+of the latest version (including directories) from the server to
+your machine. This may take some time depending on the speed of your
+internet connection.
+--
+
+. Change to the Wireshark directory and initialize git-review.
+--
+----
+$ cd wireshark
+$ git review -s
+----
++
+This prepares your local repository for use with Gerrit, including
+installing the `commit-msg` hook script.
+--
 
 [[ChSrcSVNWeb]]
+// Retain ChSrcSVNWeb for backward compatibility
+[[ChSrcGitWeb]]
 
-==== Anonymous Subversion web interface
+==== Git web interface
 
 Recommended for informational purposes only, as only individual files can
 be downloaded.
 
-
 Age: a few minutes (same as anonymous Subversion access).
 
-
-The entire source tree of the Subversion repository is available via a
-web interface at:
-wireshark-code-browse-url:[].
-You can view each revision of a particular file, as well as diffs between
-different revisions.
-You can also download individual files but not entire directories.
+The entire source tree of the Subversion repository is available via
+a web interface at wireshark-code-browse-url:[].  You can view each
+revision of a particular file, as well as diffs between different
+revisions. You can also download individual files but not entire
+directories.
 
 
 [[ChSrcBuildbot]]
 
-
 ==== Buildbot Snapshots
 
-Recommended for development purposes, if direct Subversion access isn't
+Recommended for development purposes, if direct Git access isn't
 possible (e.g. because of a restrictive firewall).
 
-
-Age: some number of minutes (a bit older than the anonymous Subversion access).
-
+Age: some number of minutes (a bit older than the Git access).
 
 The buildbot server will automatically start to generate a snapshot of
 Wireshark's source tree after a source code change is committed.
-These snapshots can be found at: wireshark-download-page:[]automated/src/[].
+These snapshots can be found at wireshark-download-page:[]automated/src/[].
 
-
-If anonymous Subversion access isn't possible, e.g. if the connection to
-the server isn't possible because of a corporate firewall, the sources
-can be obtained by downloading the buildbot snapshots. However, if you are
+If Git access isn't possible, e.g. if the connection to the server
+isn't possible because of a corporate firewall, the sources can be
+obtained by downloading the buildbot snapshots. However, if you are
 going to maintain your sources in parallel to the "official" sources
-for some time, it's recommended to use the anonymous Subversion access if
-possible (believe it, it will save you a lot of time).
-
+for some time, it's recommended to use the anonymous Subversion access
+if possible (believe it, it will save you a lot of time).
 
 [[ChSrcReleased]]
 
-
 ==== Released sources
 
-Recommended for productive purposes.
-
+Recommended for building pristine packages.
 
 Age: from days to weeks.
 
+The official source releases can be found at
+wireshark-download-page:[].  You should use these sources if you want
+to build Wireshark on your platform for with minimal or no changes,
+such Linux distribution packages.
 
-The officially released source files can be found at: wireshark-download-page:[][].
-You should use these sources if you want to build Wireshark on your
-platform for productive use.
-
-
-The differences between the released sources and the sources stored at
-the Subversion repository will keep on growing until the next release is
-done (at the release time, the released and latest Subversion repository
-versions are then identical again :-).
-
+The differences between the released sources and the sources in the
+Git repository will keep on growing until the next release is made.
+(At the release time, the released and latest Git repository
+versions are identical again :-).
 
 [[ChSrcUpdating]]
 
 
 === Update the Wireshark sources
 
-After you've obtained the Wireshark sources for the first time, you
-might want to keep them in sync with the sources at the Subversion
-repository.
-
-
+After you've obtained the Wireshark sources for the first time,
+you might want to keep them in sync with the sources at the upstream
+Git repository.
 
 [TIP]
-.Take a look at the buildbot first!
+.Take a look at the buildbot first
 ====
-As development evolves, the Wireshark sources are compilable most of the
-time - but not always.
-You may take a look at the <<ChIntroAutomated>>first,
-to see if the sources are currently in a good shape.
-
-
+As development evolves, the Wireshark sources are compilable
+most of the time -- but not always. You should take a look at
+wireshark-buildbot-url:[] before fetching or pulling to make
+sure the builds are in good shape.
 ====
 
 [[ChSrcAnonUpdate]]
+// Retain ChSrcAnonUpdate for backward compatibility
+[[ChSrcGitUpdate]]
 
+==== Update Using Git
 
-==== ... with Anonymous Subversion access
+After you clone Wireshark's Git repository you can update
+by running
 
-After the first time checkout is done, updating your
-sources is simply done by typing (in the Wireshark source dir):
+----
+$ git status
+$ git pull
+----
 
+Depending on your preferences and work habits you might want to run
+`git pull --rebase` or `git checkout -b my-topic-branch origin/master`
+instead.
 
-$**`svn update`**
-
-This will only take a few seconds, even on a slow internet connection. It will
-replace old file versions by new ones. If you and someone else have
-changed the same file since the last update, Subversion will try to merge
-the changes into your private file (this works remarkably well).
-
+Fetching should only take a few seconds, even on a slow internet
+connection. It will update your local repository history with changes
+from the official repository. If you and someone else have changed
+the same file since the last update, Git will try to merge the changes
+into your private file (this works remarkably well).
 
 [[ChSrcZipUpdate]]
 
 
-==== ... from zip files
+==== Update Using Source Archives
 
-Independent of the way you retrieve the zip file of the Wireshark sources
-(as described in <<ChSrcObtain>>), the way to
-bring the changes from the official sources into your personal source tree
-is identical.
+There are several ways to download the Wireshark source code (as
+described in <<ChSrcObtain>>), but bringing the changes from the
+official sources into your personal source tree is identical.
 
-
-First of all, you will download the new zip file of the official sources
-the way you did it the first time.
-
+First of all, you will download the new `.tar.bz2` file of the official
+sources the way you did it the first time.
 
 If you haven't changed anything in the sources, you could simply throw
 away your old sources and reinstall everything just like the first time.
@@ -342,17 +320,16 @@ But be sure, that you really haven't changed anything. It might be a good
 idea to simply rename the "old" dir to have it around, just in case you
 remember later that you really did change something before.
 
-
-Well, if you did change something in your source tree, you have to merge
-the official changes
-since the last update into your source tree. You will install the content
-of the zip file into a new directory and use a good merge tool (e.g.
-http://winmerge.sourceforge.net/[]for Win32) to bring
+If you have changed your source tree, you have to merge the official
+changes since the last update into your source tree. You will install
+the content of the `.tar.bz2` file into a new directory and use a good
+merge tool (e.g. http://winmerge.sourceforge.net/[]for Win32) to bring
 your personal source tree in sync with the official sources again.
 
+This method can be problematic and can be much more difficult and
+error-prone than using Git.
 
 [[ChSrcBuildFirstTime]]
-
 
 === Build Wireshark
 
@@ -1136,4 +1113,5 @@ the 'packaging/nsis' directory.
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Sources -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
+// vim: set syntax=asciidoc:    

@@ -158,10 +158,14 @@ wsluarm: make-wsluarm.pl $(WSLUA_MODULES)
 
 
 # Wireshark Developer Guide
+if HAVE_A2X
 if HAVE_FOP
 WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html developer-guide-a4.pdf developer-guide-us.pdf
 else
 WSDG_TARGETS=wsdg.validated wsdg_html_chunked wsdg_html
+endif
+else
+WSDG_TARGETS=
 endif
 
 wsdg: $(WSDG_TARGETS)
