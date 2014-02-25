@@ -981,7 +981,7 @@ sync_pipe_run_command_actual(char** argv, gchar **data, gchar **primary_msg,
     gchar *msg;
     int data_pipe_read_fd, sync_pipe_read_fd, fork_child, ret;
     char *wait_msg;
-    gchar buffer[PIPE_BUF_SIZE+1];
+    gchar buffer[PIPE_BUF_SIZE+1] = {0};
     ssize_t nread;
     char indicator;
     int  primary_msg_len;
@@ -1331,7 +1331,7 @@ sync_interface_stats_open(int *data_read_fd, int *fork_child, gchar **msg, void 
     char **argv;
     int message_read_fd, ret;
     char *wait_msg;
-    gchar buffer[PIPE_BUF_SIZE+1];
+    gchar buffer[PIPE_BUF_SIZE+1] = {0};
     ssize_t nread;
     char indicator;
     int  primary_msg_len;
@@ -1691,7 +1691,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 {
     capture_session *cap_session = (capture_session *)user_data;
     int  ret;
-    char buffer[SP_MAX_MSG_LEN+1];
+    char buffer[SP_MAX_MSG_LEN+1] = {0};
     ssize_t nread;
     char indicator;
     int  primary_len;
