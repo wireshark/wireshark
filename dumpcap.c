@@ -193,7 +193,7 @@ enable_kernel_bpf_jit_compiler(void)
     ssize_t written _U_;
     static const char file[] = "/proc/sys/net/core/bpf_jit_enable";
 
-    fd = open(file, O_WRONLY);
+    fd = ws_open(file, O_WRONLY);
     if (fd < 0)
         return;
 
@@ -1373,7 +1373,9 @@ print_machine_readable_interfaces(GList *if_list)
             printf("\tloopback");
         else
             printf("\tnetwork");
-
+#ifdef HAVE_EXTCAP
+        printf("\t%s", if_info->extcap);
+#endif
         printf("\n");
     }
 }
@@ -1864,14 +1866,14 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
     goto fail_invalid;
   }
 
-  strncpy(buf, sockname, len);
+  g_snprintf ( buf,(gulong)len + 1, "%s", sockname );
   buf[len] = '\0';
   if (inet_pton(AF_INET, buf, &sa.sin_addr) <= 0) {
     goto fail_invalid;
   }
 
   sa.sin_family = AF_INET;
-  sa.sin_port = htons((u_short)port);
+  sa.sin_port = g_htons((u_short)port);
 
   if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
       (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
@@ -1893,7 +1895,7 @@ cap_open_socket(char *pipename, pcap_options *pcap_opts, char *errmsg, int errms
       if (errorText)
           LocalFree(errorText);
 #else
-      "         %d: %s", errno, strerror(errno));
+      "         %d: %s", errno, g_strerror(errno));
 #endif
       pcap_opts->cap_pipe_err = PIPERR;
 
@@ -1947,12 +1949,12 @@ cap_pipe_open_live(char *pipename,
 #else /* _WIN32 */
     char    *pncopy, *pos;
     wchar_t *err_str;
+    interface_options interface_opts;
 #endif
     ssize_t  b;
     int      fd = -1, sel_ret;
     size_t   bytes_read;
     guint32  magic = 0;
-
     pcap_opts->cap_pipe_fd = -1;
 #ifdef _WIN32
     pcap_opts->cap_pipe_h = INVALID_HANDLE_VALUE;
@@ -2083,10 +2085,16 @@ cap_pipe_open_live(char *pipename,
             return;
         }
 
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+
         /* Wait for the pipe to appear */
         while (1) {
-            pcap_opts->cap_pipe_h = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
-                                               OPEN_EXISTING, 0, NULL);
+
+            if(strncmp(interface_opts.name,"\\\\.\\pipe\\",9)== 0)
+                pcap_opts->cap_pipe_h = GetStdHandle(STD_INPUT_HANDLE);
+            else
+                pcap_opts->cap_pipe_h = CreateFile(utf_8to16(pipename), GENERIC_READ, 0, NULL,
+                                                   OPEN_EXISTING, 0, NULL);
 
             if (pcap_opts->cap_pipe_h != INVALID_HANDLE_VALUE)
                 break;
@@ -2105,7 +2113,7 @@ cap_pipe_open_live(char *pipename,
 
             if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
                 FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                              NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
+                             NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, errmsgl,
                            "The capture session on \"%s\" timed out during "
                            "pipe open: %s (error %d)",
@@ -4526,7 +4534,6 @@ main(int argc, char *argv[])
     /* Set the initial values in the capture options. This might be overwritten
        by the command line parameters. */
     capture_opts_init(&global_capture_opts);
-
     /* We always save to a file - if no file was specified, we save to a
        temporary file. */
     global_capture_opts.saving_to_file      = TRUE;
@@ -4857,6 +4864,7 @@ main(int argc, char *argv[])
             interface_options interface_opts;
 
             interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, ii);
+
             caps = get_if_capabilities(interface_opts.name,
                                        interface_opts.monitor_mode, &err_str);
             if (caps == NULL) {
@@ -4900,7 +4908,6 @@ main(int argc, char *argv[])
     fflush(stderr);
 
     /* Now start the capture. */
-
     if (capture_loop_start(&global_capture_opts, &stats_known, &stats) == TRUE) {
         /* capture ok */
         exit_main(0);

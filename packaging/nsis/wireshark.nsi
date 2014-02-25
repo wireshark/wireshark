@@ -886,6 +886,8 @@ SetOutPath $INSTDIR
 File "${STAGING_DIR}\${PROGRAM_NAME_PATH_GTK}"
 File "${STAGING_DIR}\${GDK_DLL}"
 File "${STAGING_DIR}\libgdk_pixbuf-2.0-0.dll"
+File "${STAGING_DIR}\gspawn-${WIRESHARK_TARGET_PLATFORM}-helper.exe"
+File "${STAGING_DIR}\gspawn-${WIRESHARK_TARGET_PLATFORM}-helper-console.exe"
 File "${STAGING_DIR}\${GTK_DLL}"
 File "${STAGING_DIR}\libatk-1.0-0.dll"
 File "${STAGING_DIR}\libpango-1.0-0.dll"

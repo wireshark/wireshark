@@ -18,6 +18,12 @@
 /* Build wsutil with SIMD optimization */
 #cmakedefine HAVE_SSE4_2 1
 
+/* Directory where extcap hooks reside */
+#define EXTCAP_DIR "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${CPACK_PACKAGE_NAME}/extcap/"
+
+/* Define to 1 if we want to enable extcap */
+#cmakedefine HAVE_EXTCAP 1
+
 /* Define to 1 if we want to enable plugins */
 #cmakedefine HAVE_PLUGINS 1
 

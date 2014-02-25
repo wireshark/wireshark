@@ -136,6 +136,9 @@ scan_local_interfaces(void (*update_cb)(void))
         temp->vendor_description = g_strdup(if_info->vendor_description);
         temp->loopback = if_info->loopback;
         temp->type = if_info->type;
+#ifdef HAVE_EXTCAP
+        temp->extcap = g_strdup(if_info->extcap);
+#endif
         /* Is this interface hidden and, if so, should we include it anyway? */
 
         /* Do we have a user-supplied description? */
@@ -318,6 +321,11 @@ scan_local_interfaces(void (*update_cb)(void))
                 }
             }
         }
+
+#ifdef HAVE_EXTCAP
+        /* Extcap devices start with no cached args */
+        device.external_cap_args_settings = NULL;
+#endif
         if (global_capture_opts.all_ifaces->len <= count) {
             g_array_append_val(global_capture_opts.all_ifaces, device);
             count = global_capture_opts.all_ifaces->len;
@@ -374,6 +382,9 @@ scan_local_interfaces(void (*update_cb)(void))
             device.if_info.vendor_description = g_strdup(interface_opts.descr);
             device.if_info.addrs = NULL;
             device.if_info.loopback = FALSE;
+#ifdef HAVE_EXTCAP
+            device.if_info.extcap = g_strdup(interface_opts.extcap);
+#endif
 
             g_array_append_val(global_capture_opts.all_ifaces, device);
             global_capture_opts.num_selected++;

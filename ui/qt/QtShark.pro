@@ -192,6 +192,8 @@ SOURCES_WS_C = \
     ../../capture_opts.c \
     ../../cfile.c \
     ../../color_filters.c \
+    ../../extcap.c \
+    ../../extcap_parser.c \
     ../../file.c  \
     ../../fileset.c \
     ../../frame_tvbuff.c \

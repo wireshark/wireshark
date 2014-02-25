@@ -484,6 +484,18 @@ about_folders_page_new(void)
   g_free(path);
 #endif
 
+#ifdef HAVE_EXTCAP
+  /* extcap */
+  constpath = get_extcap_dir();
+
+  resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+
+  for(i = 0; resultArray[i]; i++)
+    about_folders_row(table, "Extcap path", g_strstrip(resultArray[i]),
+		      "Extcap Plugins search path");
+  g_strfreev(resultArray);
+#endif
+
   gtk_container_add(GTK_CONTAINER(scrolledwindow), table);
 
   return scrolledwindow;

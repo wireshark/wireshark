@@ -55,6 +55,13 @@ WS_DLL_PUBLIC const char *get_progfile_dir(void);
 WS_DLL_PUBLIC const char *get_plugin_dir(void);
 
 /*
+ * Get the directory in which extcap hooks are stored; this must not be called
+ * before init_progfile_dir() is called, as they might be stored in a
+ * subdirectory of the program file directory.
+ */
+WS_DLL_PUBLIC const char *get_extcap_dir(void);
+
+/*
  * Get the flag indicating whether we're running from a build
  * directory.
  */

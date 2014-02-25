@@ -1,0 +1,78 @@
+
+=head1 NAME
+
+extcap - Extcap grammar elements
+
+=head1 SYNOPSIS
+
+Suggested config grammar elements:
+arg (options)       argument for CLI calling
+number  Reference # of argument for other values, display order
+call        Literal argument to call (--call=...)
+display     Displayed name
+default     Default value, in proper form for type
+range       Range of valid values for UI checking (min,max) in proper form
+type        Argument type for UI filtering for raw, or UI type for selector:
+        integer
+        unsigned
+        long (may include scientific / special notation)
+float
+menu (display popup menu in UI)
+selector (display selector table, all values as strings)
+boolean (display checkbox)
+radio (display group of radio buttons with provided values, all values as strings)
+
+value (options) Values for argument selection
+    arg     Argument # this value applies to
+value       Passed value
+display     Displayed value
+default     Boolean (true if default, all others ignored, ie default=true)
+
+flag (options)      external-capture level flags
+    dedicated   Bypass dumpcap & mux for high speed
+    failure     Failure message
+
+
+Possible grammar example:
+
+arg {number=0}{call=channel}{display=Wi-Fi Channel}{type=integer}
+arg {number=1}{call=chanflags}{display=Channel Flags}{type=radio}
+arg {number=2}{call=interface}{display=Interface}{type=selector}
+value {arg=0}{range=1,11}
+value {arg=1}{value=ht40p}{display=HT40+}
+value {arg=1}{value=ht40m}{display=HT40-}
+value {arg=1}{value=ht20}{display=HT20}
+value {arg=2}{value=wlan0}{display=wlan0}
+
+Example 2
+arg {number=0}{call=usbdevice}{USB Device}{type=selector}
+value {arg=0}{call=/dev/sysfs/usb/foo/123}{display=Ubertooth One sn 1234}
+value {arg=0}{call=”/dev/sysfs/usb/foo/456}{display=Ubertooth One sn 8901}
+
+Example 3
+arg {number=0}{call=usbdevice}{USB Device}{type=selector}
+flag {failure=Permission denied opening Ubertooth device}
+
+
+Security awareness:
+
+- Users running wireshark as root, we can’t save you
+- Dumpcap retains suid/setgid and group+x permissions to allow users in wireshark group only
+- Third-party capture programs run w/ whatever privs they’re installed with
+- If an attacker can write to a system binary directory, we’re game over anyhow
+- Don’t let wireshark be told to look for capture binaries somewhere else?
+
+Notes:
+- daemonized dumpcap?
+- multiuser?
+- sync_pipe.h commands
+- expand pipe commands to have status notifications, etc?
+- Wireshark->dumpcap options for channel control, etc?
+
+TODO
+define grammar
+write grammar to HTML mockup
+sketch interface with dumpcap
+launch external-pcap from wireshark, bypass dumpcap
+launch external-pcap from wireshark, hand fd to dumpcap
+extract netif capture as first cap source

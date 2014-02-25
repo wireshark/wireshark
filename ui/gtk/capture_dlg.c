@@ -80,6 +80,11 @@
 #include "airpcap_dlg.h"
 #endif
 
+#ifdef HAVE_EXTCAP
+#include "extcap.h"
+#include "ui/gtk/extcap_gtk.h"
+#endif
+
 /*
  * Symbolic names for column indices.
  */
@@ -164,6 +169,10 @@ enum
 #define E_CAP_N_RESOLVE_KEY             "cap_n_resolve"
 #define E_CAP_T_RESOLVE_KEY             "cap_t_resolve"
 #define E_CAP_E_RESOLVE_KEY             "cap_e_resolve"
+
+#ifdef HAVE_EXTCAP
+#define E_CAP_EXTCAP_KEY                "cap_extcap_vbox"
+#endif
 
 #define E_CAP_IFTYPE_CBX_KEY            "cap_iftype_cbx"
 #ifdef HAVE_PCAP_REMOTE
@@ -2382,6 +2391,9 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   GtkWidget *buffer_size_sb;
 #endif
+#ifdef HAVE_EXTCAP
+  GtkWidget *extcap_vbox;
+#endif
 
   interface_t device;
   gpointer   ptr = NULL;
@@ -2402,6 +2414,10 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   filter_cm  = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
 
   linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
+
+#ifdef HAVE_EXTCAP
+  extcap_vbox  = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_EXTCAP_KEY);
+#endif
 
   if (device.links != NULL) {
      if (ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
@@ -2436,6 +2452,19 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
     g_free(device.cfilter);
   g_assert(filter_text != NULL);
   device.cfilter = filter_text;
+
+#ifdef HAVE_EXTCAP
+  if (device.external_cap_args_settings != NULL)
+    g_hash_table_unref(device.external_cap_args_settings);
+
+  device.external_cap_args_settings = extcap_gtk_get_state(extcap_vbox);
+
+  /* Destroy the args data linked in the gtk widget */
+#if 0
+  extcap_gtk_free_args(extcap_vbox);
+#endif
+#endif
+
 #ifdef HAVE_PCAP_CREATE
   /* if dumpcap reported that the interface does not support monitor
      mode, we disable monitor mode even if the user explicitly selected it */
@@ -2472,6 +2501,36 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
   g_array_insert_val(global_capture_opts.all_ifaces, marked_interface, device);
 }
 
+#ifdef HAVE_EXTCAP
+void
+extcap_free_arglist(gpointer data, gpointer user_data _U_)
+{
+  extcap_free_arg ( (extcap_arg *) data );
+}
+
+static GtkWidget *build_extcap_options(const gchar *name, GHashTable *hash) {
+  GtkWidget *ret_box = NULL;
+  GList *arglist = NULL;
+  GList *elem = NULL;
+
+  arglist = extcap_get_if_configuration( name );
+  for ( elem = g_list_first(arglist); elem; elem = elem->next )
+  {
+      GSList *widget_list;
+
+#if GTK_CHECK_VERSION(3, 0, 0)
+      ret_box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 3);
+#else
+      ret_box = gtk_vbox_new(FALSE, 3);
+#endif
+      widget_list = extcap_populate_gtk_vbox((GList *) elem->data, ret_box, hash);
+      g_object_set_data(G_OBJECT(ret_box), EXTCAP_GTK_DATA_KEY_WIDGETLIST, widget_list);
+  }
+
+  return ret_box;
+}
+#endif
+
 void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
 {
   GtkWidget       *caller, *window, *swindow = NULL, *if_view,
@@ -2494,7 +2553,11 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
                   *compile_bt,
 #endif
                   *bbox, *ok_but, *cancel_bt,
+#ifdef HAVE_EXTCAP
+                  *extcap_vbox,
+#endif
                   *help_bt;
+
   GList           *cf_entry, *list, *cfilter_list;
   GtkAdjustment   *snap_adj;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
@@ -2518,6 +2581,9 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   GtkCellRenderer *renderer;
   GtkListStore    *store;
   const gchar     *new_cfilter;
+#ifdef HAVE_EXTCAP
+  GHashTable      *extcap_hash;
+#endif
 
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
@@ -2543,6 +2609,9 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   device.cfilter = NULL;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   device.buffer = DEFAULT_CAPTURE_BUFFER_SIZE;
+#endif
+#ifdef HAVE_EXTCAP
+  device.external_cap_args_settings = NULL;
 #endif
 
   model = gtk_tree_view_get_model(view);
@@ -2911,6 +2980,14 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
     gtk_box_pack_start(GTK_BOX(right_vb), advanced_bt, FALSE, FALSE, 0);
     gtk_widget_show(advanced_bt);
   }
+#endif
+
+#ifdef HAVE_EXTCAP
+  extcap_hash = device.external_cap_args_settings;
+  extcap_vbox = build_extcap_options(device.name, extcap_hash);
+  gtk_box_pack_start(GTK_BOX(capture_vb), extcap_vbox, FALSE, FALSE, 5);
+  gtk_widget_show(extcap_vbox);
+  g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_EXTCAP_KEY, extcap_vbox);
 #endif
 
 /* Button row: "Start", "Cancel" and "Help" buttons */

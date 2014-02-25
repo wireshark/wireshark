@@ -98,6 +98,9 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/report_err.h>
+#ifdef HAVE_EXTCAP
+#include "extcap.h"
+#endif
 #include "log.h"
 
 #ifdef _WIN32
@@ -391,6 +394,14 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
 
     cap_session->fork_child = -1;
 
+#ifdef HAVE_EXTCAP
+    if (!extcaps_init_initerfaces(capture_opts)) {
+        report_failure("Unable to init extcaps. (tmp fifo already exists?)");
+        return FALSE;
+    }
+
+#endif
+
     argv = init_pipe_args(&argc);
     if (!argv) {
         /* We don't know where to find dumpcap. */
@@ -463,7 +474,12 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
         interface_opts = g_array_index(capture_opts->ifaces, interface_options, j);
 
         argv = sync_pipe_add_arg(argv, &argc, "-i");
-        argv = sync_pipe_add_arg(argv, &argc, interface_opts.name);
+#ifdef HAVE_EXTCAP
+        if (interface_opts.extcap_fifo != NULL)
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts.extcap_fifo);
+        else
+#endif
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts.name);
 
         if (interface_opts.cfilter != NULL && strlen(interface_opts.cfilter) != 0) {
             argv = sync_pipe_add_arg(argv, &argc, "-f");
@@ -476,8 +492,12 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
         }
 
         if (interface_opts.linktype != -1) {
-            argv = sync_pipe_add_arg(argv, &argc, "-y");
-            argv = sync_pipe_add_arg(argv, &argc, linktype_val_to_name(interface_opts.linktype));
+            const char *linktype = linktype_val_to_name(interface_opts.linktype);
+            if ( linktype != NULL )
+            {
+                argv = sync_pipe_add_arg(argv, &argc, "-y");
+                argv = sync_pipe_add_arg(argv, &argc, linktype);
+            }
         }
 
         if (!interface_opts.promisc_mode) {
@@ -487,6 +507,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         if (interface_opts.buffer_size != DEFAULT_CAPTURE_BUFFER_SIZE) {
             argv = sync_pipe_add_arg(argv, &argc, "-B");
+            if(interface_opts.buffer_size == 0x00)
+                interface_opts.buffer_size = DEFAULT_CAPTURE_BUFFER_SIZE;
             g_snprintf(buffer_size, ARGV_NUMBER_LEN, "%d", interface_opts.buffer_size);
             argv = sync_pipe_add_arg(argv, &argc, buffer_size);
         }
@@ -591,7 +613,20 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, voi
 #else
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
-    si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+#if defined(_WIN32)
+    /* needs first a check if NULL *
+     * otherwise wouldnt work with non extcap interfaces */
+    if(interface_opts.extcap_fifo != NULL)
+    {
+       if(strncmp(interface_opts.extcap_fifo,"\\\\.\\pipe\\",9)== 0)
+       {
+         si.hStdInput = extcap_get_win32_handle();
+       }
+    }
+    else
+#endif
+       si.hStdInput = GetStdHandle(STD_INPUT_HANDLE);
+
     si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
     si.hStdError = sync_pipe_write;
     /*si.hStdError = (HANDLE) _get_osfhandle(2);*/
@@ -805,7 +840,8 @@ sync_pipe_open_command(char** argv, int *data_read_fd,
 #else
     si.dwFlags = STARTF_USESTDHANDLES|STARTF_USESHOWWINDOW;
     si.wShowWindow  = SW_HIDE;  /* this hides the console window */
-    si.hStdInput = NULL;
+    si.hStdInput = NULL; /* handle for named pipe*/
+
     si.hStdOutput = data_pipe[PIPE_WRITE];
     si.hStdError = sync_pipe[PIPE_WRITE];
 #endif
@@ -1741,6 +1777,10 @@ sync_pipe_input_cb(gint source, gpointer user_data)
 #ifdef _WIN32
         ws_close(cap_session->signal_pipe_write_fd);
 #endif
+#ifdef HAVE_EXTCAP
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: cleaning extcap pipe");
+        extcap_cleanup(cap_session->capture_opts);
+#endif
         capture_input_closed(cap_session, primary_msg);
         g_free(primary_msg);
         return FALSE;
@@ -2047,7 +2087,6 @@ sync_pipe_stop(capture_session *cap_session)
     DWORD childstatus;
     gboolean terminate = TRUE;
 #endif
-
     if (cap_session->fork_child != -1) {
 #ifndef _WIN32
         /* send the SIGINT signal to close the capture child gracefully. */
@@ -2116,6 +2155,7 @@ sync_pipe_kill(int fork_child)
          * And this also will require to have the process id.
          */
         TerminateProcess((HANDLE) (fork_child), 0);
+
 #endif
     }
 }

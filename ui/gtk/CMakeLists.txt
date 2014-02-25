@@ -119,6 +119,13 @@ set(WIRESHARK_GTK_SRC
 	webbrowser.c
 )
 
+if(HAVE_EXTCAP)
+	set(WIRESHARK_GTK_SRC
+		${WIRESHARK_GTK_SRC}
+		extcap_gtk.c
+	)
+endif()
+
 set(WIRESHARK_DIRTY_TAP_SRC
 )
 

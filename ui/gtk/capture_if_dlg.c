@@ -426,6 +426,9 @@ GtkWidget * capture_get_if_icon(interface_t *device)
     return pixbuf_to_widget(network_wired_pb_data);
   case IF_PIPE:
   case IF_STDIN:
+#ifdef HAVE_EXTCAP
+  case IF_EXTCAP:
+#endif
     return pixbuf_to_widget(pipe_pb_data);
   default:
     printf("unknown device type\n");

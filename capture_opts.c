@@ -66,6 +66,12 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->default_options.linktype        = -1; /* use interface default */
   capture_opts->default_options.promisc_mode    = TRUE;
   capture_opts->default_options.if_type         = IF_WIRED;
+#ifdef HAVE_EXTCAP
+  capture_opts->default_options.extcap          = NULL;
+  capture_opts->default_options.extcap_fifo     = NULL;
+  capture_opts->default_options.extcap_args     = NULL;
+  capture_opts->default_options.extcap_pid      = (GPid)-1;
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
@@ -138,6 +144,11 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
         g_log(log_domain, log_level, "Snap length[%02d] (%u) : %d", i, interface_opts.has_snaplen, interface_opts.snaplen);
         g_log(log_domain, log_level, "Link Type[%02d]       : %d", i, interface_opts.linktype);
         g_log(log_domain, log_level, "Promiscuous Mode[%02d]: %s", i, interface_opts.promisc_mode?"TRUE":"FALSE");
+#ifdef HAVE_EXTCAP
+        g_log(log_domain, log_level, "Extcap[%02d]          : %s", i, interface_opts.extcap ? interface_opts.extcap : "(unspecified)");
+        g_log(log_domain, log_level, "Extcap FIFO[%02d]     : %s", i, interface_opts.extcap_fifo ? interface_opts.extcap_fifo : "(unspecified)");
+        g_log(log_domain, log_level, "Extcap PID[%02d]      : %d", i, interface_opts.extcap_pid);
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         g_log(log_domain, log_level, "Buffer size[%02d]     : %d (MB)", i, interface_opts.buffer_size);
 #endif
@@ -174,6 +185,10 @@ capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_optio
     g_log(log_domain, log_level, "Snap length[df] (%u) : %d", capture_opts->default_options.has_snaplen, capture_opts->default_options.snaplen);
     g_log(log_domain, log_level, "Link Type[df]       : %d", capture_opts->default_options.linktype);
     g_log(log_domain, log_level, "Promiscuous Mode[df]: %s", capture_opts->default_options.promisc_mode?"TRUE":"FALSE");
+#ifdef HAVE_EXTCAP
+    g_log(log_domain, log_level, "Extcap[df]          : %s", capture_opts->default_options.extcap ? capture_opts->default_options.extcap : "(unspecified)");
+    g_log(log_domain, log_level, "Extcap FIFO[df]     : %s", capture_opts->default_options.extcap_fifo ? capture_opts->default_options.extcap_fifo : "(unspecified)");
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     g_log(log_domain, log_level, "Buffer size[df]     : %d (MB)", capture_opts->default_options.buffer_size);
 #endif
@@ -591,6 +606,12 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.linktype = capture_opts->default_options.linktype;
     interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
     interface_opts.if_type = capture_opts->default_options.if_type;
+#ifdef HAVE_EXTCAP
+    interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
+    interface_opts.extcap_fifo = g_strdup(capture_opts->default_options.extcap_fifo);
+    interface_opts.extcap_args = NULL;
+    interface_opts.extcap_pid = (GPid)-1;
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
@@ -1020,6 +1041,14 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     if (interface_opts.console_display_name != NULL)
         g_free(interface_opts.console_display_name);
     g_free(interface_opts.cfilter);
+#ifdef HAVE_EXTCAP
+    g_free(interface_opts.extcap);
+    g_free(interface_opts.extcap_fifo);
+    if (interface_opts.extcap_args)
+        g_hash_table_unref(interface_opts.extcap_args);
+    if (interface_opts.extcap_pid > 0)
+        g_spawn_close_pid(interface_opts.extcap_pid);
+#endif
 #ifdef HAVE_PCAP_REMOTE
     if (interface_opts.src_type == CAPTURE_IFREMOTE) {
       g_free(interface_opts.remote_host);
@@ -1061,6 +1090,13 @@ collect_ifaces(capture_options *capture_opts)
       interface_opts.has_snaplen = device.has_snaplen;
       interface_opts.promisc_mode = device.pmode;
       interface_opts.if_type = device.if_info.type;
+#ifdef HAVE_EXTCAP
+      interface_opts.extcap = g_strdup(device.if_info.extcap);
+      interface_opts.extcap_fifo = NULL;
+      interface_opts.extcap_args = device.external_cap_args_settings;
+      interface_opts.extcap_pid = (GPid)-1;
+      g_hash_table_ref(interface_opts.extcap_args);
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size =  device.buffer;
 #endif

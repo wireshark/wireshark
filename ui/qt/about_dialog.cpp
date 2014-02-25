@@ -239,6 +239,19 @@ AboutDialog::AboutDialog(QWidget *parent) :
     g_free(path);
 #endif
 
+#ifdef HAVE_EXTCAP
+    /* Extcap */
+    constpath = get_extcap_dir();
+
+    resultArray = g_strsplit(constpath, G_SEARCHPATH_SEPARATOR_S, 10);
+
+    for(i = 0; resultArray[i]; i++) {
+        message += about_folders_row("Extcap path", g_strstrip(resultArray[i]),
+                                     "Extcap Plugins search path");
+    }
+    g_strfreev(resultArray);
+#endif
+
     message += "</table>";
     ui->label_folders->setText(message);
 
