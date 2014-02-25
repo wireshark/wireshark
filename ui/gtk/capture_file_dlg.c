@@ -51,6 +51,7 @@
 #include "ui/ui_util.h"
 
 #include "ui/gtk/gtkglobals.h"
+#include "ui/gtk/old-gtk-compat.h"
 #include "ui/gtk/keys.h"
 #include "ui/gtk/filter_dlg.h"
 #include "ui/gtk/gui_utils.h"
