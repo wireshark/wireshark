@@ -199,16 +199,18 @@ http://www.parashift.com/c++-faq/mixing-c-and-cpp.html
   where appropriate.
 
 3. Translations (i18n)
-For make your own translation of QtShark ! it is easy !
+
+Qt makes translating the Wireshark UI into different languages easy.
 
 - Add your translation (qtshark_XX.ts) in QtShark.pro, i18n.qrc, ui/qt/Makefile.common
-    and ui/qt/CMakeList.txt
+    and ui/qt/CMakeList.txt .
 - Add also in epan/prefs.c, in ui/qt/main.cpp add case in switch(prefs_p->gui_qt_language)
-    and in main_windows_preferences_frame.ui (use qt-design) to add in prefs
-- Launch "lupdate QtShark.pro" to generate/update your translation file
-- Translate with Qt Linguist
-- Launch "lrelease QtShark.pro" to create/update qtshark_xx.qm file
-- Attach your modification ("svn diff") in Wireshark Bug Tracker
+    and in main_windows_preferences_frame.ui (use qt-design) to add in prefs.
+- Run "lupdate QtShark.pro" to generate/update your translation file.
+- Translate with Qt Linguist.
+- Run "lrelease QtShark.pro" to create/update qtshark_xx.qm file.
+- Push your translation to Gerrit for review ("git push").
 
 More information about Qt Linguist
 http://qt-project.org/doc/qt-4.8/linguist-manual.html
+

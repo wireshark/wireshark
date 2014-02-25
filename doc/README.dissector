@@ -2000,38 +2000,9 @@ In addition to the above, you should add your dissector source file name
 to the DISSECTOR_SRC section of epan/CMakeLists.txt
 
 
-1.9 Using the SVN source code tree.
+1.9 Using the git source code tree.
 
   See <http://www.wireshark.org/develop.html>
-
-
-1.9a Using git with the SVN source code tree.
-
-  Install git and the git-svn package.
-  A probably incomplete list for various OSes of git GUIs can be found at
-  "http://delicious.com/matthew.mccullough/git+gui".
-  Run "mkdir git; cd git; git svn clone <svn-url>", e.g. if you are using
-  the anonymous svn tree, run
-  "git svn clone http://anonsvn.wireshark.org/wireshark/trunk/"
-
-  After that, a typical workflow may look like this (from "man git-svn"):
-
-  # Clone a repo (like git clone):
-          git svn clone http://svn.example.com/project/trunk
-  # Enter the newly cloned directory:
-          cd trunk
-  # You should be on master branch, double-check with ´git branch´
-          git branch
-  # Do some work and commit locally to git:
-          git commit ...
-  # Something is committed to SVN, rebase your local changes against the
-  # latest changes in SVN:
-          git svn rebase
-  # Now commit your changes (that were committed previously using git) to SVN
-  # as well as automatically updating your working HEAD:
-          git svn dcommit
-  # Append svn:ignore settings to the default git exclude file:
-          git svn show-ignore >> .git/info/exclude
 
 
 1.10 Submitting code for your new dissector.
@@ -2061,17 +2032,17 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
     <mailto:wireshark-dev-request[AT]wireshark.org?body="help"> or visiting
     <http://www.wireshark.org/lists/>.
 
-  - 'svn add' all the files of your new dissector.
+  - 'git diff' to verify all your changes look good.
 
-  - 'svn diff' the workspace and save the result to a file.
+  - 'git add' all the files you changed.
 
-  - Edit the diff file - remove any changes unrelated to your new dissector,
-    e.g. changes in config.nmake
+  - 'git commit' to commit (locally) your changes. First line of commit message
+    should be a summary of the changes followed by an empty line and a more
+    verbose description.
 
-  - Submit a bug report to the Wireshark bug database, found at
-    <http://bugs.wireshark.org>, qualified as an enhancement and attach your
-    diff file there. Set the review request flag to '?' so it will pop up in
-    the patch review list.
+  - 'git push origin HEAD:refs/for/master' to push the changes to Gerrit.  (If
+    you previously ran 'git config --add remote.origin.push HEAD:refs/for/master'
+    then only 'git push' is needed.)
 
   - Create a Wiki page on the protocol at <http://wiki.wireshark.org>.
     A template is provided so it is easy to setup in a consistent style.
@@ -2082,9 +2053,12 @@ to the DISSECTOR_SRC section of epan/CMakeLists.txt
     <http://wiki.wireshark.org/SampleCaptures>.  These files are used by
     the automated build system for fuzz testing.
 
-  - If you find that you are contributing a lot to wireshark on an ongoing
-    basis you can request to become a committer which will allow you to
-    commit files to subversion directly.
+  - If you don't think the wiki is the right place for your sample capture,
+    submit a bug report to the Wireshark bug database, found at
+    <https://bugs.wireshark.org>, qualified as an enhancement and attach your
+    sample capture there.  Normally a new dissector won't be accepted without
+    a sample capture!  If you open a bug be sure to cross-link your Gerrit
+    change and bug.
 
 2. Advanced dissector topics.
 

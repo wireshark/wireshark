@@ -885,7 +885,7 @@ built in or via an additional module.
 
 You might get one of the following responses to your patch request:
 
-* Your patch is checked into the SVN repository. Congratulations!
+* Your patch is checked into the repository. Congratulations!
 
 * You are asked to provide additional information, capture files, or other
   material. If you haven't fuzzed your code, you may be asked to do so.
