@@ -201,6 +201,7 @@ ui/qt/config.pri
 .DS_Store
 cscope.*
 tags
+macosx-support-libs
 packaging/macosx/COPYING.txt
 packaging/macosx/Info.plist
 packaging/macosx/osx-dmg.sh

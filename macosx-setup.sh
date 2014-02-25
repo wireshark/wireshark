@@ -111,9 +111,8 @@ LIBGPG_ERROR_VERSION=1.10
 #
 LIBGCRYPT_VERSION=1.5.0
 GNUTLS_VERSION=2.12.19
-# Stay with Lua 5.1 when updating until the code has been changed
-# to support 5.2
-LUA_VERSION=5.1.5
+# Default to 5.2 now, unless user overrides it later
+LUA_VERSION=5.2.3
 PORTAUDIO_VERSION=pa_stable_v19_20111121
 #
 # XXX - they appear to have an unversioned gzipped tarball for the
@@ -1181,7 +1180,7 @@ fi
 
 if [ "$LIBSMI_VERSION" -a ! -f libsmi-$LIBSMI_VERSION-done ] ; then
     echo "Downloading, building, and installing libsmi:"
-    [ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl -L -O ftp://ftp.ibr.cs.tu-bs.de/pub/local/libsmi/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
+    [ -f libsmi-$LIBSMI_VERSION.tar.gz ] || curl -L -O https://www.ibr.cs.tu-bs.de/projects/libsmi/download/libsmi-$LIBSMI_VERSION.tar.gz || exit 1
     gzcat libsmi-$LIBSMI_VERSION.tar.gz | tar xf - || exit 1
     cd libsmi-$LIBSMI_VERSION
     CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
