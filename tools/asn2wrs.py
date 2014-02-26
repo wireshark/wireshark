@@ -1576,7 +1576,7 @@ class EthCtx:
         for nb in self.named_bit:
             fx.write("static int %s = -1;\n" % (nb['ethname']))
         if (self.dummy_eag_field):
-            fx.write("static int %s = -1; /* never registered */ \n" % (self.dummy_eag_field))
+            fx.write("static int %s = -1; /* never registered */\n" % (self.dummy_eag_field))
         self.output.file_close(fx)
 
     #--- eth_output_hf_arr ------------------------------------------------------
