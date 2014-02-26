@@ -125,6 +125,7 @@ static print_args_t    print_args;
  */
 static HWND  g_sf_hwnd = NULL;
 static char *g_dfilter_str = NULL;
+static unsigned int g_format_type = WTAP_TYPE_AUTO;
 
 static int
 win32_get_ofnsize()
@@ -192,7 +193,7 @@ win32_get_ofnsize()
  */
 
 gboolean
-win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
+win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *display_filter) {
     OPENFILENAME *ofn;
     TCHAR file_name16[MAX_PATH] = _T("");
     int ofnsize;
@@ -243,6 +244,7 @@ win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter) {
     if (gofn_ok) {
         g_string_printf(file_name, "%s", utf_16to8(file_name16));
         g_string_printf(display_filter, "%s", g_dfilter_str ? g_dfilter_str : "");
+        *type = g_format_type;
     }
 
     g_free( (void *) ofn->lpstrFilter);
@@ -1334,6 +1336,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     HWND      cur_ctrl, parent;
     OFNOTIFY *notify = (OFNOTIFY *) l_param;
     TCHAR     sel_name[MAX_PATH];
+    gint      i;
 
     switch(msg) {
         case WM_INITDIALOG:
@@ -1342,6 +1345,13 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                 cur_ctrl = GetDlgItem(of_hwnd, EWFD_FILTER_EDIT);
                 SetWindowText(cur_ctrl, utf_8to16(g_dfilter_str));
             }
+
+            cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
+            SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) _T("Automatic"));
+            for (i = 0; open_routines[i].name != NULL; i += 1) {
+                SendMessage(cur_ctrl, CB_ADDSTRING, 0, (WPARAM) utf_8to16(open_routines[i].name));
+            }
+            SendMessage(cur_ctrl, CB_SETCURSEL, 0, 0);
 
             /* Fill in our resolution values */
             cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
@@ -1363,6 +1373,9 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     if (g_dfilter_str)
                         g_free(g_dfilter_str);
                     g_dfilter_str = filter_tb_get(cur_ctrl);
+
+                    cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
+                    g_format_type = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
 
                     /* Fetch our resolution values */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);

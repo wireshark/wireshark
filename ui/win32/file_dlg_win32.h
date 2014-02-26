@@ -33,9 +33,10 @@ extern "C" {
  *
  * @param h_wnd HWND of the parent window.
  * @param file_name File name
+ * @param type File type
  * @param display_filter a display filter
  */
-gboolean win32_open_file (HWND h_wnd, GString *file_name, GString *display_filter);
+gboolean win32_open_file (HWND h_wnd, GString *file_name, unsigned int *type, GString *display_filter);
 
 /** Verify that our proposed capture file format supports comments. If it can't
  *  ask the user what to do and return his or her response.
@@ -166,6 +167,8 @@ void file_set_save_marked_sensitive();
 #define EWFD_PTX_PACKETS   1013
 #define EWFD_PTX_FIRST_PKT 1014
 #define EWFD_PTX_ELAPSED   1015
+
+#define EWFD_FORMAT_TYPE   1016
 
 /* Save as and export dialog defines */
 #define EWFD_GZIP_CB     1040

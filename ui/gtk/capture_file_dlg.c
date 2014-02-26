@@ -692,7 +692,7 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
    */
   for (;;) {
 #ifdef USE_WIN32_FILE_DIALOGS
-    if (win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), file_name, display_filter)) {
+    if (win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), file_name, &type, display_filter)) {
 #else /* USE_WIN32_FILE_DIALOGS */
     if (gtk_open_file(top_level, file_name, &type, display_filter)) {
 #endif /* USE_WIN32_FILE_DIALOGS */
