@@ -524,8 +524,8 @@ WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
  * Throws an exception if the tvbuff ends before the string does.
  *
  * If scope is set to NULL it is the user's responsibility to wmem_free()
- * the memory allocated by tvb_memdup(). Otherwise memory is
- * automatically freed when the scope lifetime is reached.
+ * the memory allocated. Otherwise memory is automatically freed when the
+ * scope lifetime is reached.
  */
 WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
