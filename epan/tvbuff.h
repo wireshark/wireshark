@@ -371,10 +371,21 @@ WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
 WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset,
     size_t length);
 
-/** If scope is set to NULL it is the user's responsibility to wmem_free()
- * the memory allocated by tvb_memdup(). Otherwise memory is
- * automatically freed when the scope lifetime is reached.
- * Calls tvb_memcpy() */
+/** Given an allocator scope, a tvbuff, a byte offset, a byte length:
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    copy the data from the tvbuff specified by the offset and length
+ *    into that buffer, using tvb_memcpy();
+ *
+ *    and return a pointer to the buffer.
+ *
+ * Throws an exception if the tvbuff ends before the data being copied does.
+ *
+ * If scope is set to NULL it is the user's responsibility to wmem_free()
+ * the memory allocated. Otherwise memory is automatically freed when the
+ * scope lifetime is reached.
+ */
 WS_DLL_PUBLIC void *tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb,
     const gint offset, size_t length);
 
