@@ -271,9 +271,13 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
 
    case SMS_ENCODING_8BIT:
       /*
-       * XXX - encoding is "user-defined".  Use ASCII?
+       * XXX - encoding is "user-defined".  Have a preference?
        */
-      tvb_out = tvb_new_subset(tvb, offset, length, length);
+      utf8_text = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII|ENC_NA);
+      utf8_out = g_strdup(utf8_text);
+      tvb_out = tvb_new_child_real_data(tvb, utf8_out, (guint)strlen(utf8_out), (guint)strlen(utf8_out));
+      tvb_set_free_cb(tvb_out, g_free);
+      add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
       break;
 
    case SMS_ENCODING_UCS2:
