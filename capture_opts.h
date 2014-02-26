@@ -147,6 +147,7 @@ typedef struct interface_options_tag {
     int snaplen;
     int linktype;
     gboolean promisc_mode;
+    interface_type if_type;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     int buffer_size;
 #endif

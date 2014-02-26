@@ -116,6 +116,7 @@ scan_local_interfaces(void (*update_cb)(void))
         temp->friendly_name = g_strdup(if_info->friendly_name);
         temp->vendor_description = g_strdup(if_info->vendor_description);
         temp->loopback = if_info->loopback;
+        temp->type = if_info->type;
         /* Is this interface hidden and, if so, should we include it anyway? */
 
         /* Do we have a user-supplied description? */

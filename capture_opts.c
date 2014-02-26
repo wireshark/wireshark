@@ -67,6 +67,7 @@ capture_opts_init(capture_options *capture_opts)
   capture_opts->default_options.snaplen         = WTAP_MAX_PACKET_SIZE;
   capture_opts->default_options.linktype        = -1; /* use interface default */
   capture_opts->default_options.promisc_mode    = TRUE;
+  capture_opts->default_options.if_type         = IF_WIRED;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   capture_opts->default_options.buffer_size     = DEFAULT_CAPTURE_BUFFER_SIZE;
 #endif
@@ -597,6 +598,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
     interface_opts.linktype = capture_opts->default_options.linktype;
     interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
+    interface_opts.if_type = capture_opts->default_options.if_type;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
@@ -1055,6 +1057,7 @@ collect_ifaces(capture_options *capture_opts)
       interface_opts.snaplen = device.snaplen;
       interface_opts.has_snaplen = device.has_snaplen;
       interface_opts.promisc_mode = device.pmode;
+      interface_opts.if_type = device.if_info.type;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size =  device.buffer;
 #endif
