@@ -1007,33 +1007,37 @@ value_string_ext mpeg_descr_service_type_vals_ext = VALUE_STRING_EXT_INIT(mpeg_d
 static void
 proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    guint8          descr_len, name_len;
+    guint8          prov_len, name_len;
     guint           enc_len;
     dvb_encoding_e  encoding;
 
     proto_tree_add_item(tree, hf_mpeg_descr_service_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    descr_len = tvb_get_guint8(tvb, offset);
+    prov_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_service_provider_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    enc_len = dvb_analyze_string_charset(tvb, offset, descr_len, &encoding);
-    dvb_add_chartbl(tree, hf_mpeg_descr_service_provider_name_encoding, tvb, offset, enc_len, encoding);
+    if (prov_len>0) {
+        enc_len = dvb_analyze_string_charset(tvb, offset, prov_len, &encoding);
+        dvb_add_chartbl(tree, hf_mpeg_descr_service_provider_name_encoding, tvb, offset, enc_len, encoding);
 
-    proto_tree_add_item(tree, hf_mpeg_descr_service_provider,
-            tvb, offset+enc_len, descr_len-enc_len, dvb_enc_to_item_enc(encoding));
-    offset += descr_len;
+        proto_tree_add_item(tree, hf_mpeg_descr_service_provider,
+                tvb, offset+enc_len, prov_len-enc_len, dvb_enc_to_item_enc(encoding));
+    }
+    offset += prov_len;
 
     name_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_mpeg_descr_service_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    enc_len = dvb_analyze_string_charset(tvb, offset, name_len, &encoding);
-    dvb_add_chartbl(tree, hf_mpeg_descr_service_name_encoding, tvb, offset, enc_len, encoding);
+    if (name_len>0) {
+        enc_len = dvb_analyze_string_charset(tvb, offset, name_len, &encoding);
+        dvb_add_chartbl(tree, hf_mpeg_descr_service_name_encoding, tvb, offset, enc_len, encoding);
 
-    proto_tree_add_item(tree, hf_mpeg_descr_service_name,
-            tvb, offset+enc_len, name_len-enc_len, dvb_enc_to_item_enc(encoding));
+        proto_tree_add_item(tree, hf_mpeg_descr_service_name,
+                tvb, offset+enc_len, name_len-enc_len, dvb_enc_to_item_enc(encoding));
+    }
 
 }
 
