@@ -68,7 +68,7 @@ static gint g_facility_encoding = 0; /* Default to QSIG */
 
 void proto_reg_handoff_q932(void);
 /* Subdissectors */
-static dissector_handle_t q932_ros_handle; 
+static dissector_handle_t q932_ros_handle;
 
 #define	Q932_IE_EXTENDED_FACILITY   0x0D
 #define	Q932_IE_FACILITY            0x1C
@@ -252,7 +252,7 @@ dissect_q932_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   ti_ie = proto_tree_add_text(tree, tvb, offset, -1, "%s",
             val_to_str(ie_type, VALS(q932_str_ie_type), "unknown (0x%02X)"));
-  ie_tree = proto_item_add_subtree(ti_ie, ett_q932_ie); 
+  ie_tree = proto_item_add_subtree(ti_ie, ett_q932_ie);
   proto_tree_add_item(ie_tree, hf_q932_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(ie_tree, hf_q932_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
@@ -331,13 +331,13 @@ void proto_register_q932(void) {
   q932_rose_ctx.res_global_dissector_table = register_dissector_table("q932.ros.global.res", "Q.932 Operation Result (global opcode)", FT_STRING, BASE_NONE);
   q932_rose_ctx.err_global_dissector_table = register_dissector_table("q932.ros.global.err", "Q.932 Error (global opcode)", FT_STRING, BASE_NONE);
 
-  qsig_arg_local_dissector_table = register_dissector_table("q932.ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
-  qsig_res_local_dissector_table = register_dissector_table("q932.ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
-  qsig_err_local_dissector_table = register_dissector_table("q932.ros.local.err", "Q.932 Error (local opcode)", FT_UINT32, BASE_HEX); 
+  qsig_arg_local_dissector_table = register_dissector_table("q932.ros.local.arg", "Q.932 Operation Argument (local opcode)", FT_UINT32, BASE_HEX);
+  qsig_res_local_dissector_table = register_dissector_table("q932.ros.local.res", "Q.932 Operation Result (local opcode)", FT_UINT32, BASE_HEX);
+  qsig_err_local_dissector_table = register_dissector_table("q932.ros.local.err", "Q.932 Error (local opcode)", FT_UINT32, BASE_HEX);
 
-  etsi_arg_local_dissector_table = register_dissector_table("q932.ros.etsi.local.arg", "Q.932 ETSI Operation Argument (local opcode)", FT_UINT32, BASE_HEX); 
-  etsi_res_local_dissector_table = register_dissector_table("q932.ros.etsi.local.res", "Q.932 ETSI Operation Result (local opcode)", FT_UINT32, BASE_HEX); 
-  etsi_err_local_dissector_table = register_dissector_table("q932.ros.etsi.local.err", "Q.932 ETSI Error (local opcode)", FT_UINT32, BASE_HEX); 
+  etsi_arg_local_dissector_table = register_dissector_table("q932.ros.etsi.local.arg", "Q.932 ETSI Operation Argument (local opcode)", FT_UINT32, BASE_HEX);
+  etsi_res_local_dissector_table = register_dissector_table("q932.ros.etsi.local.res", "Q.932 ETSI Operation Result (local opcode)", FT_UINT32, BASE_HEX);
+  etsi_err_local_dissector_table = register_dissector_table("q932.ros.etsi.local.err", "Q.932 ETSI Error (local opcode)", FT_UINT32, BASE_HEX);
 
   q932_module = prefs_register_protocol(proto_q932, proto_reg_handoff_q932);
 
@@ -356,7 +356,7 @@ void proto_reg_handoff_q932(void) {
   if (!q931_prefs_initialized) {
     q932_ie_handle = create_dissector_handle(dissect_q932_ie, proto_q932);
     /* Facility */
-    dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle); 
+    dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_FACILITY, q932_ie_handle);
     /* Notification indicator */
     dissector_add_uint("q931.ie", (0x00 << 8) | Q932_IE_NOTIFICATION_INDICATOR, q932_ie_handle);
     q932_ros_handle = find_dissector("q932.ros");
@@ -371,7 +371,7 @@ void proto_reg_handoff_q932(void) {
     q932_rose_ctx.res_local_dissector_table = etsi_res_local_dissector_table;
     q932_rose_ctx.err_local_dissector_table = etsi_err_local_dissector_table;
   }
-  
+
 }
 
 /*---------------------------------------------------------------------------*/

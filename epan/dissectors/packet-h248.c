@@ -1381,7 +1381,7 @@ static gboolean is_pkg_default(guint16 pkgid) {
 void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
     h248_package_t *pkg_found = NULL, *pkg_high = NULL, *pkg_low = NULL;
     s_h248_package_t *s_pkg = NULL;
-    value_string *vst; 
+    value_string *vst;
     gboolean pkg_default = FALSE;
     gint j = 0, idx = 0, i = 0, k = 0;
     if (! packages) {
@@ -1401,7 +1401,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
             if (j != -1) {
                 j++; idx=j;
                 while((base_event_name_vals[j].strptr!=NULL) && (((base_event_name_vals[j].value)>>16) == (pkg_found->id))) {
-                    j++; 
+                    j++;
                 };
                 if (idx < j) {
                     vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
@@ -1486,7 +1486,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
     proto_tree *package_tree=NULL;
     guint16 name_major, name_minor;
     const h248_package_t* pkg = NULL;
-    
+
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
     if (new_tvb) {
@@ -2085,13 +2085,13 @@ dissect_h248_T_errorCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 #line 300 "../../asn1/h248/h248.cnf"
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index, &error_code);
     expert_add_info(actx->pinfo, actx->created_item, &ei_h248_errored_command);
-    
+
     if (curr_info.cmd) {
         gcp_cmd_set_error(curr_info.cmd,error_code);
     } else if (curr_info.trx) {
         gcp_trx_set_error(curr_info.trx,error_code);
     }
-    
+
     return offset;
 
 
@@ -2198,7 +2198,7 @@ dissect_h248_WildcardField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
     wild_term = tvb_get_guint8(new_tvb,0) & 0x80 ? GCP_WILDCARD_CHOOSE : GCP_WILDCARD_ALL;
     /* limitation: assume only one wildcard is used */
     wild_card = tvb_get_guint8(new_tvb,0);
-    
+
 
 
   return offset;
@@ -2224,7 +2224,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 332 "../../asn1/h248/h248.cnf"
 	tvbuff_t* new_tvb;
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
-	
+
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
@@ -2238,7 +2238,7 @@ dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
 		if (h248_term_handle) {
 			call_dissector_with_data(h248_term_handle, new_tvb, actx->pinfo, tree, &wild_card);
-			wild_card = 0xFF;		
+			wild_card = 0xFF;
 		}
 	} else {
 		curr_info.term->len = 0;
@@ -4392,16 +4392,16 @@ static int
 dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 358 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
-	if ( h248_version > 1 ) {	
+	if ( h248_version > 1 ) {
 		/* Not V1, so call "standard" function */
   offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
                                       SCreasonValue_sequence_of, hf_index, ett_h248_SCreasonValue);
-	
+
 } else {
 	/* V1 so Value == octet string */
 	offset = dissect_h248_ValueV1( implicit_tag, tvb, offset, actx, tree, hf_index);
 };
-	
+
 
 
   return offset;
@@ -5225,7 +5225,7 @@ dissect_h248_Message(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 #line 99 "../../asn1/h248/h248.cnf"
     col_add_str(actx->pinfo->cinfo, COL_INFO, gcp_msg_to_str(curr_info.msg,keep_persistent_data));
-        
+
     if (keep_persistent_data)
         gcp_analyze_msg(h248_tree, actx->pinfo, h248_tvb, curr_info.msg, &h248_arrel, &ei_h248_errored_command);
 
@@ -5348,19 +5348,19 @@ dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 		for( i=0;i<len;i++) {
 			if(!isascii(tvb_get_guint8(tvb, offset+i)) || tvb_get_guint8(tvb, offset+i) == 0) {
 				/* not ascii or NULL character so do string as hex string */
-				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s", 
+				proto_tree_add_text(tree, tvb, offset, len,"%s: 0x%s",
 					(proto_registrar_get_nth(hf_index))->name,
 					tvb_bytes_to_ep_str(tvb, 0, len));
 				return len;
 			};
 		};
 		/* if here, then string is ascii */
-		proto_tree_add_text(tree, tvb, offset, len,"%s: %s", 
+		proto_tree_add_text(tree, tvb, offset, len,"%s: %s",
 					(proto_registrar_get_nth(hf_index))->name,
 					tvb_format_text(tvb, 0, len));
 	}
 	offset = len;
-	
+
 
 
   return offset;
@@ -6978,7 +6978,7 @@ void proto_register_h248(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_h248 = expert_register_protocol(proto_h248);
     expert_register_field_array(expert_h248, ei, array_length(ei));
-    
+
     subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", FT_UINT32, BASE_HEX);
 
     h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);

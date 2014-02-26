@@ -185,7 +185,7 @@ dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
 
-    if(next_tvb) 
+    if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
 	     actx->pinfo, top_tree, NULL);
 
@@ -262,7 +262,7 @@ dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
 
-    if(next_tvb) 
+    if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
 	     actx->pinfo, top_tree, NULL);
 

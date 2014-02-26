@@ -70,14 +70,14 @@ typedef struct _h225_packet_info {
 
 /*
  * the following allows TAP code access to the messages
- * without having to duplicate it. With MSVC and a 
+ * without having to duplicate it. With MSVC and a
  * libwireshark.dll, we need a special declaration.
  */
 
 #include <epan/asn1.h>
 #include <epan/dissectors/packet-per.h>
 
-#include "packet-h225-exp.h" 
+#include "packet-h225-exp.h"
 
 #endif  /* PACKET_H225_H */
 

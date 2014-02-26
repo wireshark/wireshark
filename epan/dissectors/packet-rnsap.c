@@ -43149,7 +43149,7 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* create the rnsap protocol tree */
 	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, ENC_NA);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
-	
+
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);
 }
 
@@ -55347,7 +55347,7 @@ void proto_register_rnsap(void) {
   /* Register fields and subtrees */
   proto_register_field_array(proto_rnsap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
- 
+
   /* Register dissector */
   register_dissector("rnsap", dissect_rnsap, proto_rnsap);
 

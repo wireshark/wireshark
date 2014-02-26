@@ -458,13 +458,13 @@ dissect_ansi_tcap_T_national(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
  int start_offset = offset;
  guint8 family;
  guint8 specifier;
- 
+
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &ansi_tcap_private.d.OperationCode_national);
 
   /* mask off the H bit */
   ansi_tcap_private.d.OperationCode_national = (ansi_tcap_private.d.OperationCode_national&0x7fff);
- 
+
   subtree = proto_item_add_subtree(actx->created_item, ett_ansi_tcap_op_code_nat);
   /* Bit H is used to distinguish between Operations that require a reply and those that do not. A value of 1
    * indicates that a reply is required; a value of 0 indicates that a reply is not required.
@@ -516,7 +516,7 @@ dissect_ansi_tcap_T_national(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 	default:
 		break;
   }
-  
+
 
 
 
@@ -616,10 +616,10 @@ guint8 len;
 if(next_tvb) {
 	len = tvb_length_remaining(next_tvb, 0);
 	if(len !=0){
-		/* 0 octets for the Unidirectional, 
+		/* 0 octets for the Unidirectional,
 		 * 4 octets for Query, Response & Abort
 		 * 8 octets for Conversation in the order Originating then Responding TID
-		 * 
+		 *
 		 * In order to match this it seems like we should only use the last 4 octets
 		 * in the 8 octets case.
 		 */
@@ -876,7 +876,7 @@ dissect_ansi_tcap_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   if(find_tcap_subdissector(tvb, actx, tree))
     offset = tvb_length(tvb);
-  
+
 
 
 

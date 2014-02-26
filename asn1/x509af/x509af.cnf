@@ -50,7 +50,7 @@ AttributeCertificateInfo/subject	InfoSubject
 AttributeCertificateAssertion/subject	AssertionSubject
 
 #.FIELD_RENAME
-AttributeCertificateInfo/issuer		issuerName	
+AttributeCertificateInfo/issuer		issuerName
 AttributeCertificateInfo/subject info_subject
 AttributeCertificateAssertion/subject assertion_subject
 
@@ -58,7 +58,7 @@ AttributeCertificateAssertion/issuer assertionIssuer
 
 AttributeCertificateInfo/subject/subjectName      infoSubjectName
 AttributeCertificateAssertion/subject/subjectName assertionSubjectName
-IssuerSerial/issuer			issuerName	
+IssuerSerial/issuer			issuerName
 CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate		revokedUserCertificate
 #.END
 
@@ -75,7 +75,7 @@ CertificateList/signedCertificateList/revokedCertificates/_item/userCertificate	
   if(actx->external.direct_reference) {
     name = oid_resolved_from_string(actx->external.direct_reference);
 
-    proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference); 
+    proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
   }
 
 #.FN_BODY AlgorithmIdentifier/parameters

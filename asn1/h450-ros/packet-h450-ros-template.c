@@ -41,17 +41,17 @@ void proto_reg_handoff_h450_ros(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_h450_ros = -1;
-#include "packet-h450-ros-hf.c" 
+#include "packet-h450-ros-hf.c"
 
 /* Initialize the subtree pointers */
-#include "packet-h450-ros-ett.c" 
+#include "packet-h450-ros-ett.c"
 
 static expert_field ei_ros_undecoded = EI_INIT;
 
 /* Preferences */
 
 /* Subdissectors */
-static dissector_handle_t data_handle = NULL; 
+static dissector_handle_t data_handle = NULL;
 
 /* Gloabl variables */
 static gint32 problem_val;
@@ -73,19 +73,19 @@ error_cb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_) {
   err_next_tvb = tvb;
 }
 
-#include "packet-h450-ros-fn.c" 
+#include "packet-h450-ros-fn.c"
 
 /*--- proto_register_h450_ros -----------------------------------------------*/
 void proto_register_h450_ros(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-#include "packet-h450-ros-hfarr.c" 
+#include "packet-h450-ros-hfarr.c"
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-#include "packet-h450-ros-ettarr.c" 
+#include "packet-h450-ros-ettarr.c"
   };
 
   static ei_register_info ei[] = {

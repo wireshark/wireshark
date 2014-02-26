@@ -39,7 +39,7 @@
 typedef struct _gef_ctx_t {
   guint32 signature;
   struct _gef_ctx_t *parent;
-  /* 
+  /*
     H323-MESSAGES
       FeatureDescriptor/<id>
         <id>

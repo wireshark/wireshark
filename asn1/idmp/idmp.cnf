@@ -1,10 +1,10 @@
 #.IMPORT ../x509ce/x509ce-exp.cnf
 
 
-#.CLASS OPERATION 
-&ArgumentType          
+#.CLASS OPERATION
+&ArgumentType
 &argumentTypeOptional  BooleanType
-&ResultType            
+&ResultType
 &resultTypeOptional    BooleanType
 &Errors                _FixedTypeValueSetFieldSpec
 &errorsOptional	 	BooleanType

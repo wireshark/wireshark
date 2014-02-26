@@ -6648,7 +6648,7 @@ dissect_h245_T_subMessageIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
       hf_index = hf_h245_subMessageIdentifier_standard;
     }
   }
-  
+
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, &subMessageIdentifer, FALSE);
 
@@ -8487,7 +8487,7 @@ dissect_h245_OLC_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OLC_reverseLogicalChannelParameters, OLC_reverseLogicalChannelParameters_sequence);
 
-	
+
   if (upcoming_channel && codec_type) {
     g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
@@ -8718,8 +8718,8 @@ dissect_h245_OpenLogicalChannel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
     if (fast_start) {
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
-      g_hash_table_insert(h245_pending_olc_reqs, 
-        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)), 
+      g_hash_table_insert(h245_pending_olc_reqs,
+        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &actx->pinfo->dst, &actx->pinfo->src)),
         upcoming_olc);
     }
   }
@@ -11025,7 +11025,7 @@ dissect_h245_T_forwardMultiplexAckParameters(tvbuff_t *tvb _U_, int offset _U_, 
                                  ett_h245_T_forwardMultiplexAckParameters, T_forwardMultiplexAckParameters_choice,
                                  NULL);
 
-	
+
   upcoming_channel = NULL;
 
 
@@ -11056,14 +11056,14 @@ dissect_h245_OpenLogicalChannelAck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
-	
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h245_OpenLogicalChannelAck, OpenLogicalChannelAck_sequence);
 
 
   temp = h223_fw_lc_num;
   p2p_dir = actx->pinfo->p2p_dir;
-  
+
   if(actx->pinfo->p2p_dir == P2P_DIR_SENT)
 	actx->pinfo->p2p_dir = P2P_DIR_RECV;
   else

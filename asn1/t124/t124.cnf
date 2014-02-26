@@ -52,43 +52,43 @@ RegistryItem
 RegistryEntryOwner
 RequestPDU
 DomainParameters
-DynamicTokenID                          
-NodeProperties                                
-AlternativeNodeID                             
-ChannelType                                   
-CapabilityID                                  
-CapabilityClass                               
-ConferenceAddRequest                          
-ConferenceLockRequest                         
-ConferenceUnlockRequest                       
-ConferenceTerminateRequest                    
-ConferenceEjectUserRequest                    
-ConferenceTransferRequest                     
-RegistryRegisterChannelRequest                
-RegistryAssignTokenRequest                    
-RegistrySetParameterRequest                   
-RegistryRetrieveEntryRequest                  
-RegistryDeleteEntryRequest                    
-RegistryMonitorEntryRequest                   
-RegistryAllocateHandleRequest                 
+DynamicTokenID
+NodeProperties
+AlternativeNodeID
+ChannelType
+CapabilityID
+CapabilityClass
+ConferenceAddRequest
+ConferenceLockRequest
+ConferenceUnlockRequest
+ConferenceTerminateRequest
+ConferenceEjectUserRequest
+ConferenceTransferRequest
+RegistryRegisterChannelRequest
+RegistryAssignTokenRequest
+RegistrySetParameterRequest
+RegistryRetrieveEntryRequest
+RegistryDeleteEntryRequest
+RegistryMonitorEntryRequest
+RegistryAllocateHandleRequest
 NonStandardPDU
-NetworkAddressV2                              
-EntityID                                      
-RegistryKey                                   
+NetworkAddressV2
+EntityID
+RegistryKey
 RegistryModificationRights
-MediaList                                      
-ChannelAggregationMethod                       
-Profile                                        
-NetworkConnection                             
+MediaList
+ChannelAggregationMethod
+Profile
+NetworkConnection
 SessionKey
-ChannelID                                
-GSTNConnection                                 
-ISDNConnection                                 
-CSDNConnection                                 
-PSDNConnection                                 
+ChannelID
+GSTNConnection
+ISDNConnection
+CSDNConnection
+PSDNConnection
 ATMConnection
 ExtendedE164NetworkAddress
-TransportAddress 
+TransportAddress
 #.PDU
 #----------------------------------------------------------------------------------------
 
@@ -131,7 +131,7 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
       /* This length MUST be ignored by the client." */
 
       /* Not sure why - but lets ignore the length. */
-      /* We assume the OCTET STRING is all of the remaining bytes */	 
+      /* We assume the OCTET STRING is all of the remaining bytes */
 
       if(tvb_length(next_tvb) == 42) {
          /* this is perhaps a naive ... */
@@ -222,9 +222,9 @@ RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
 
     %(DEFAULT_BODY)s
 
-    if(hf_index == hf_t124_channelId_03) 
+    if(hf_index == hf_t124_channelId_03)
         col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%d", channelId);
-    	
+
 
 #.OMIT_ASSIGNMENT
 StaticChannelID

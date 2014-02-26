@@ -92,15 +92,15 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-  /* Look for SEQUENCE, CONTEXT 0, and INTEGER 2 */  
+  /* Look for SEQUENCE, CONTEXT 0, and INTEGER 2 */
   if(tvb_length(tvb) > 7) {
-    offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+    offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
     if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_SEQUENCE) && (pc == TRUE)) {
       offset = get_ber_length(tvb, offset, NULL, NULL);
-      offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+      offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
       if((ber_class == BER_CLASS_CON) && (tag == 0)) {
         offset = get_ber_length(tvb, offset, NULL, NULL);
-        offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag); 
+        offset = get_ber_identifier(tvb, offset, &ber_class, &pc, &tag);
         if((ber_class == BER_CLASS_UNI) && (tag == BER_UNI_TAG_INTEGER)) {
           offset = get_ber_length(tvb, offset, &length, NULL);
           if((length == 1) && (tvb_get_guint8(tvb, offset) == 2)) {
@@ -111,7 +111,7 @@ dissect_credssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
                                                   (EXP_PDU_TAG_IP_SRC_BIT | EXP_PDU_TAG_IP_DST_BIT | EXP_PDU_TAG_SRC_PORT_BIT |
                                                    EXP_PDU_TAG_DST_PORT_BIT | EXP_PDU_TAG_ORIG_FNO_BIT));
 
-              exp_pdu_data->tvb_length = tvb_length(tvb); 
+              exp_pdu_data->tvb_length = tvb_length(tvb);
               exp_pdu_data->pdu_tvb = tvb;
 
               tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);

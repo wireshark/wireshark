@@ -11,7 +11,7 @@ ALIGNED
 LCTPDU
 #.END
 
-#.FN_PARS LCTPDU/pduType 
+#.FN_PARS LCTPDU/pduType
   VAL_PTR = &pdu_type
 #.FN_HDR
   gint32 pdu_type = -1;
@@ -24,7 +24,7 @@ LCTPDU
   }
 #.END
 
-#.FN_PARS RDCData/dataType 
+#.FN_PARS RDCData/dataType
   VAL_PTR = &data_type
 #.FN_HDR
   gint32 data_type = -1;
@@ -37,7 +37,7 @@ LCTPDU
   }
 #.END
 
-#.FN_PARS LCTMessage 
+#.FN_PARS LCTMessage
   VAL_PTR = &msg_type
 #.FN_HDR
   gint32 msg_type = -1;
@@ -50,7 +50,7 @@ LCTPDU
   }
 #.END
 
-#.FN_PARS LCTRequest 
+#.FN_PARS LCTRequest
   VAL_PTR = &msg_type
 #.FN_HDR
   gint32 msg_type = -1;
@@ -63,7 +63,7 @@ LCTPDU
   }
 #.END
 
-#.FN_PARS LCTResponse 
+#.FN_PARS LCTResponse
   VAL_PTR = &msg_type
 #.FN_HDR
   gint32 msg_type = -1;
@@ -76,7 +76,7 @@ LCTPDU
   }
 #.END
 
-#.FN_PARS LCTIndication 
+#.FN_PARS LCTIndication
   VAL_PTR = &msg_type
 #.FN_HDR
   gint32 msg_type = -1;

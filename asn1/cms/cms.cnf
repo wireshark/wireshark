@@ -144,7 +144,7 @@ RevocationInfoChoice/other		otherRIC
   int old_offset = offset;
 
   %(DEFAULT_BODY)s
- 
+
   pi = actx->created_item;
 
   /* move past TLV */

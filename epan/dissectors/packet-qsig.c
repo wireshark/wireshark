@@ -2121,7 +2121,7 @@ dissect_qsig_PSS1InformationElement_U(gboolean implicit_tag _U_, tvbuff_t *tvb _
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &out_tvb);
 
-  data_tree = proto_item_add_subtree(actx->created_item, ett_cnq_PSS1InformationElement); 
+  data_tree = proto_item_add_subtree(actx->created_item, ett_cnq_PSS1InformationElement);
   if (out_tvb && (tvb_length(out_tvb) > 0) && q931_ie_handle)
     call_dissector(q931_ie_handle, out_tvb, actx->pinfo, data_tree);
 

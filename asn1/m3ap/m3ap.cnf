@@ -228,7 +228,7 @@ ProtocolIE-Field/value ie_field_value
 	col_set_str(actx->pinfo->cinfo, COL_INFO,"Private Message ");
 #.FN_HDR MCEConfigurationUpdate
 	col_set_str(actx->pinfo->cinfo, COL_INFO,"MCE Configuration Update ");
-#.FN_HDR MCEConfigurationUpdateAcknowledge	
+#.FN_HDR MCEConfigurationUpdateAcknowledge
 	col_set_str(actx->pinfo->cinfo, COL_INFO,"MCE Configuration Update Acknowledge ");
 #.FN_HDR MCEConfigurationUpdateFailure
 	col_set_str(actx->pinfo->cinfo, COL_INFO,"MCE Configuration Update Failure ");
@@ -281,7 +281,7 @@ id-Time-ofMBMS-DataStop										ProtocolIE-ID
 #M3AP-PROTOCOL-IES
 MME-MBMS-M3AP-ID											N m3ap.ies id-MME-MBMS-M3AP-ID
 MCE-MBMS-M3AP-ID											N m3ap.ies id-MCE-MBMS-M3AP-ID
-TMGI														N m3ap.ies id-TMGI	
+TMGI														N m3ap.ies id-TMGI
 MBMS-Session-ID												N m3ap.ies id-MBMS-Session-ID
 MBMS-E-RAB-QoS-Parameters									N m3ap.ies id-MBMS-E-RAB-QoS-Parameters
 MBMS-Session-Duration										N m3ap.ies id-MBMS-Session-Duration
@@ -301,7 +301,7 @@ Global-MCE-ID												N m3ap.ies id-Global-MCE-ID
 MCEname														N m3ap.ies id-MCEname
 MBMSServiceAreaListItem										N m3ap.ies id-MBMSServiceAreaList
 Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataTransfer
-Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataStop	
+Absolute-Time-ofMBMS-Data									N m3ap.ies id-Time-ofMBMS-DataStop
 
 #M3AP-ELEMENTARY-PROCEDURE
 MBMSSessionStartRequest										N m3ap.proc.imsg id-mBMSsessionStart
@@ -323,13 +323,13 @@ ResetAcknowledge											N m3ap.proc.sout id-Reset
 PrivateMessage												N m3ap.proc.imsg id-privateMessage
 
 MCEConfigurationUpdate										N m3ap.proc.imsg id-mCEConfigurationUpdate
-MCEConfigurationUpdateAcknowledge							N m3ap.proc.sout id-mCEConfigurationUpdate	
+MCEConfigurationUpdateAcknowledge							N m3ap.proc.sout id-mCEConfigurationUpdate
 MCEConfigurationUpdateFailure								N m3ap.proc.uout id-mCEConfigurationUpdate
 
 M3SetupRequest												N m3ap.proc.imsg id-m3Setup
 M3SetupResponse												N m3ap.proc.sout id-m3Setup
 M3SetupFailure												N m3ap.proc.uout id-m3Setup
 
-#.TYPE_ATTR 
+#.TYPE_ATTR
 BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
 #.END

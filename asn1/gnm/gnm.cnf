@@ -81,7 +81,7 @@ ListOfCharacteristicInformation	B "0.0.13.3100.0.7.26" "listOfCharacteristicInfo
 Replaceable						B "0.0.13.3100.0.7.27" "locationName(27)"
 NameType						B "0.0.13.3100.0.7.28" "managedElementId(28)"
 NameType						B "0.0.13.3100.0.7.29" "mpCrossConnectionId(29)"
-	
+
 NameType						B "0.0.13.3100.0.7.30" "networkId(30)"
 #ObjectInstance					B "0.0.13.3100.0.7.31" "networkLevelPointer(31)"
 Boolean							B "0.0.13.3100.0.7.32" "protected(32)"

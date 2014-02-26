@@ -107,7 +107,7 @@ RTABapdu
   %(DEFAULT_BODY)s
 
 #.END
-  
+
 #.FN_BODY CallingSSuserReference/t61String  VAL_PTR=&string
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
@@ -123,7 +123,7 @@ RTABapdu
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.END
-  
+
 #.FN_BODY CallingSSuserReference/octetString  VAL_PTR=&string
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s

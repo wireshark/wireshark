@@ -1,4 +1,4 @@
-#.OPT 
+#.OPT
 -b
 #-d satcom
 #-s packet-gsm_map-tmp
@@ -863,7 +863,7 @@ if (!actx->value_ptr)
 
 
 # APN ::=  OCTET STRING (SIZE (2..63))
-# Octets are coded according to TS 3GPP TS 23.003 
+# Octets are coded according to TS 3GPP TS 23.003
 # 9.1 Structure of APN
 # :
 # The APN consists of one or more labels. Each label is coded as a one octet length field followed by that number of

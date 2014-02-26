@@ -906,7 +906,7 @@ static gboolean is_pkg_default(guint16 pkgid) {
 void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
     h248_package_t *pkg_found = NULL, *pkg_high = NULL, *pkg_low = NULL;
     s_h248_package_t *s_pkg = NULL;
-    value_string *vst; 
+    value_string *vst;
     gboolean pkg_default = FALSE;
     gint j = 0, idx = 0, i = 0, k = 0;
     if (! packages) {
@@ -926,7 +926,7 @@ void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action) {
             if (j != -1) {
                 j++; idx=j;
                 while((base_event_name_vals[j].strptr!=NULL) && (((base_event_name_vals[j].value)>>16) == (pkg_found->id))) {
-                    j++; 
+                    j++;
                 };
                 if (idx < j) {
                     vst = (value_string *)wmem_alloc0(wmem_epan_scope(), sizeof(value_string)*(j-idx+1));
@@ -1011,7 +1011,7 @@ static int dissect_h248_PkgdName(gboolean implicit_tag, tvbuff_t *tvb, int offse
     proto_tree *package_tree=NULL;
     guint16 name_major, name_minor;
     const h248_package_t* pkg = NULL;
-    
+
     offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
     if (new_tvb) {
@@ -1613,7 +1613,7 @@ void proto_register_h248(void) {
     proto_register_subtree_array(ett, array_length(ett));
     expert_h248 = expert_register_protocol(proto_h248);
     expert_register_field_array(expert_h248, ei, array_length(ei));
-    
+
     subdissector_table = register_dissector_table("h248.magic_num", "H248 Magic Num", FT_UINT32, BASE_HEX);
 
     h248_module = prefs_register_protocol(proto_h248, proto_reg_handoff_h248);

@@ -13,7 +13,7 @@ UDC-type
 
 #.TYPE_RENAME
 CPA-PPDU/normal-mode-parameters	T_CPA_PPDU_normal_mode_parameters
-CPR-PPDU/normal-mode-parameters	T_CPR_PPDU_normal_mode_parameters	
+CPR-PPDU/normal-mode-parameters	T_CPR_PPDU_normal_mode_parameters
 ARU-PPDU/normal-mode-parameters	T_ARU_PPDU_normal_mode_parameters
 
 #.FIELD_RENAME
@@ -34,7 +34,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 #.FN_BODY PDV-list/presentation-data-values/single-ASN1-type
 
  tvbuff_t	*next_tvb;
- char *oid; 
+ char *oid;
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
@@ -48,7 +48,7 @@ CPR-PPDU/normal-mode-parameters/provider-reason cPR_PPDU__provider-reason
 #.FN_BODY PDV-list/presentation-data-values/octet-aligned
 
  tvbuff_t	*next_tvb;
- char *oid; 
+ char *oid;
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){

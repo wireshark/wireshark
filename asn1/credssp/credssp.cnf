@@ -25,7 +25,7 @@ TSRequest
 
 	%(DEFAULT_BODY)s
 
-	if((decr_tvb != NULL) && 
+	if((decr_tvb != NULL) &&
 	((creds_type == TS_PASSWORD_CREDS) || (creds_type == TS_SMARTCARD_CREDS))) {
 
 		      switch(creds_type) {
@@ -47,7 +47,7 @@ TSRequest
 	%(DEFAULT_BODY)s
 
 	if(token_tvb != NULL)
-		      dissector_try_heuristic(credssp_heur_subdissector_list, 
+		      dissector_try_heuristic(credssp_heur_subdissector_list,
 		      token_tvb, actx->pinfo, proto_tree_get_root(tree), NULL);
 
 

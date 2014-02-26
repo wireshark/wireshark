@@ -1380,7 +1380,7 @@ void proto_register_lpp(void) {
   proto_register_field_array(proto_lpp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
 }
 
 

@@ -86,7 +86,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 		return offset;
 	}
 
-	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding, 
+	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding,
 			tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
 	if(hf_index >= 0)
 	{
@@ -108,7 +108,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 
 	if(len != 8)
 	{
-		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding, 
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding,
 				tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
 		if(hf_index >= 0)
 		{

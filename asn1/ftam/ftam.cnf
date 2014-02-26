@@ -91,7 +91,7 @@ Legal-Qualification-Attribute/actual-values	actual_values9
   gint branch_taken;
 
   %(DEFAULT_BODY)s
-  
+
   if( (branch_taken!=-1) && ftam_FTAM_Regime_PDU_vals[branch_taken].strptr ){
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s:", ftam_FTAM_Regime_PDU_vals[branch_taken].strptr);
   }

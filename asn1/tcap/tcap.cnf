@@ -64,7 +64,7 @@ ABRT-apdu/_untag/user-information abrt_user_information
 %(DEFAULT_BODY)s
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY Dialog1 
+#.FN_BODY Dialog1
 
   offset = dissect_tcap_DialoguePDU(TRUE, tvb, offset, actx, tree, -1);
 

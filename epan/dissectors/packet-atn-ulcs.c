@@ -69,7 +69,7 @@ why not using existing ses, pres and acse dissectors ?
 		and ommitted otherwise.
 		Instead of adapting existing dissectors it seemed simpler and cleaner
 		to implement everything the new atn-ulcs dissector.
-		
+
 why using conversations ?
 		PER encoded user data is ambigous; the same encoding may apply to a CM or
 		CPDLC PDU. The workaround is to decode on a transport connection basis.
@@ -98,7 +98,7 @@ which ATN standard is supported ?
 		note:
 		The ATN upper layers are derived from OSI standards (ICAO DOC 9705)
 		while ATN/IPS (ICAO DOC 9896) which is entirely based on IPV6.
-		
+
 */
 
 /*
@@ -115,8 +115,8 @@ which ATN standard is supported ?
 		This means that after some time these references get reused for
 		new conversations. This almost certain happens for traces longer
 		than one day rendering this dissector unsuitable for captures exceeding
-		this one day. 
-		
+		this one day.
+
 */
 
 #include "config.h"
@@ -179,12 +179,12 @@ static int dissect_atn_ulcs_T_externalt_encoding_arbitrary(
 		asn1_ctx_t *actx _U_,
 		proto_tree *tree _U_,
 		int hf_index _U_);
-		
+
 static void dissect_ACSE_apdu_PDU(
 		tvbuff_t *tvb _U_,
 		packet_info *pinfo _U_,
 		proto_tree *tree _U_);
-		
+
 guint32 dissect_per_object_descriptor_t(
 		tvbuff_t *tvb,
 		guint32 offset,
@@ -1765,7 +1765,7 @@ static guint32	atn_per_external_type(
 				&actx->external,
 				'\0',
 				sizeof(actx->external));
-				
+
 		actx->external.hf_index = -1;
 		actx->external.encoding = -1;
 
@@ -1781,7 +1781,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 		const guint8* addr = NULL;
 		guint32 ars =0;
 		guint32 adr_prefix =0;
-	
+
 		/* check NSAP address type*/
 		if( (pinfo->src.type != AT_OSI) ||
 				(pinfo->dst.type != AT_OSI)) {
@@ -1796,7 +1796,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 		/* first try source address */
 		/* if the src address originates */
 		/* from an aircraft it's downlink */
-		
+
 		/* convert addr into 32-bit integer */
 		addr = (const guint8 *)pinfo->src.data;
 		adr_prefix =
@@ -1829,7 +1829,7 @@ guint32 get_aircraft_24_bit_address_from_nsap(
 				(addr[1]<<16) |
 				(addr[2]<<8) |
 				addr[3] );
-				
+
 		/* according to ICAO doc9507 Ed2 SV5  */
 		/* clause 5.4.3.8.1.5 and  5.4.3.8.1.3 */
 		/* mobile addresses contain "c1" of "41" */
@@ -1974,7 +1974,7 @@ dissect_atn_ulcs(
 		proto_tree *atn_ulcs_tree = NULL;
 		guint8 value_pres = 0;
 		guint8 value_ses = 0;
-		guint16 value_ses_pres = 0; 
+		guint16 value_ses_pres = 0;
 
 		root_tree = tree;
 
@@ -1989,26 +1989,26 @@ dissect_atn_ulcs(
 						0,
 						0 ,
 						FALSE);
-						
+
 				atn_ulcs_tree = proto_item_add_subtree(
 						ti,
 						ett_atn_ulcs);
-		
+
 				dissect_Fully_encoded_data_PDU(
 						tvb,
 						pinfo,
 						atn_ulcs_tree);
-						
+
 				return offset +
 					tvb_reported_length_remaining(tvb, offset ) ;
 		}
-		
+
 		/* decode as SPDU, PPDU and ACSE PDU */
 		if ( (int)(intptr_t)  data == TRUE )
 		{
 				/* get session and presentation PDU's */
 				value_ses_pres = tvb_get_ntohs(tvb, offset);
-		
+
 				/* SPDU: dissect session layer */
 				ti = proto_tree_add_text(
 						tree,
@@ -2067,7 +2067,7 @@ dissect_atn_ulcs(
 							break;
 				}
 				offset++;
-		
+
 				/* PPDU: dissect presentation layer */
 				ti = proto_tree_add_text(
 						tree,
@@ -2075,7 +2075,7 @@ dissect_atn_ulcs(
 						offset,
 						0,
 						ATN_PRES_PROTO );
-						
+
 				atn_ulcs_tree = proto_item_add_subtree(ti, ett_atn_pres);
 
 				value_pres = tvb_get_guint8(tvb, offset);
@@ -2092,7 +2092,7 @@ dissect_atn_ulcs(
 						"%s (0x%02x)",
 						val_to_str( value_ses_pres & ATN_SES_PRES_MASK , atn_pres_vals, "?"),
 						value_pres);
-			
+
 				/* PPDU errorcode in case of SRF/CPR */
 				switch(value_ses & SES_PDU_TYPE_MASK){
 						case SES_ATN_SRF:
@@ -2118,7 +2118,7 @@ dissect_atn_ulcs(
 						offset,
 						0,
 						ATN_ACSE_PROTO );
-				
+
 				atn_ulcs_tree = proto_item_add_subtree(
 						ti,
 						ett_atn_acse);
@@ -2139,12 +2139,12 @@ static gboolean dissect_atn_ulcs_heur(
 		packet_info *pinfo,
 		proto_tree *tree,
 		void *data _U_)
-{	
+{
 		/* do we have enough data*/
 		/* at least session + presentation data or pdv-list */
 		if (tvb_reported_length_remaining(tvb, 0) < 2){
 				return FALSE; }
-	
+
 		/* check for session/presentation/ACSE PDU's  */
 		/* SPDU and PPDU are one octet each */
 		switch( tvb_get_ntohs(tvb, 0) & 0xf8ff ){

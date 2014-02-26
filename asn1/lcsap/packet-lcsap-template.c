@@ -105,7 +105,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 
-/* 7.4.13 Positioning Data 
+/* 7.4.13 Positioning Data
  * Coding of positioning method (bits 8-4)
  */
 static const value_string lcsap_pos_method_vals[] = {

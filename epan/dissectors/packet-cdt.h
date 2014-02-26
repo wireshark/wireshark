@@ -10,7 +10,7 @@
  *
  * Routines for Compressed Data Type packet dissection.
  *
- * Copyright 2005, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS 
+ * Copyright 2005, Stig Bjorlykke <stig@bjorlykke.org>, Thales Norway AS
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

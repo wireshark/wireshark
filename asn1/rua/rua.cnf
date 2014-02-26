@@ -43,7 +43,7 @@ ProtocolIE-Single-Container
   }
 #.END
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
@@ -60,33 +60,33 @@ ProtocolIE-Single-Container
 
 #.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
 
-#.FN_BODY Connect 
+#.FN_BODY Connect
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "CONNECT ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY DirectTransfer 
+#.FN_BODY DirectTransfer
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "DIRECT_TRANSFER ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY Disconnect 
+#.FN_BODY Disconnect
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "DISCONNECT ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY ConnectionlessTransfer 
+#.FN_BODY ConnectionlessTransfer
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "CONNECTIONLESS_TRANSFER ");
 %(DEFAULT_BODY)s
 
-#.FN_BODY ErrorIndication 
+#.FN_BODY ErrorIndication
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "ERROR_INDICATION ");
     col_set_fence(actx->pinfo->cinfo, COL_INFO); /* Protect info from CriticalityDiagnostics decodes */
 %(DEFAULT_BODY)s
 
-#.FN_BODY PrivateMessage 
+#.FN_BODY PrivateMessage
     col_set_str(actx->pinfo->cinfo, COL_INFO,
              "PRIVATE_MESSAGE ");
 %(DEFAULT_BODY)s
@@ -96,8 +96,8 @@ ProtocolIE-Single-Container
 %(DEFAULT_BODY)s
  if ((tvb_length(ranap_message_tvb)>0)&&(ranap_handle)) {  /* RUA has a RANAP-PDU */
      col_set_str(actx->pinfo->cinfo, COL_INFO,
-             "(RUA) ");                                    /* Set info to (RUA) to make room for RANAP */ 
-     col_set_fence(actx->pinfo->cinfo, COL_INFO);  
+             "(RUA) ");                                    /* Set info to (RUA) to make room for RANAP */
+     col_set_fence(actx->pinfo->cinfo, COL_INFO);
      call_dissector(ranap_handle,ranap_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
   }
 #.END

@@ -2844,7 +2844,7 @@ void proto_reg_handoff_x509sat(void) {
   oid_add_from_string("dmd","2.5.6.20");
   oid_add_from_string("pkiUser","2.5.6.21");
   oid_add_from_string("pkiCA","2.5.6.22");
-  
+
   oid_add_from_string("parent","2.5.6.28");
   oid_add_from_string("child","2.5.6.29");
 

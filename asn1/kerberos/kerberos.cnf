@@ -1,6 +1,6 @@
 # kerberos.cnf
 # kerberos conformation file
-# Copyright 2008 Anders Broman 
+# Copyright 2008 Anders Broman
 
 #.FIELD_RENAME
 #EncryptedData/etype encryptedData_etype
@@ -70,7 +70,7 @@ guint32 msgtype;
 	/* append the application type to the tree */
 	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
 
-	
+
 #.FN_BODY ERROR-CODE VAL_PTR = &krb5_errorcode
 %(DEFAULT_BODY)s
 
@@ -369,7 +369,7 @@ guint32 msgtype;
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
 
-	
+
 #.FN_BODY KDC-REQ-BODY
 	conversation_t *conversation;
 

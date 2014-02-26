@@ -1334,9 +1334,9 @@ dissect_x2ap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                        3, 3, FALSE, &parameter_tvb);
 
 
-	if(tvb_length(tvb)==0) 
+	if(tvb_length(tvb)==0)
 		return offset;
-		
+
 	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
@@ -2403,7 +2403,7 @@ dissect_x2ap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
-  
+
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      1, 160, TRUE, &parameter_tvb, NULL);
 
@@ -3523,15 +3523,15 @@ static int
 dissect_x2ap_TargeteNBtoSource_eNBTransparentContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 90 "../../asn1/x2ap/x2ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
-  
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
 
 	if (!parameter_tvb)
 		return offset;
-	  
+
      dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree, NULL);
-	
+
 
 
   return offset;

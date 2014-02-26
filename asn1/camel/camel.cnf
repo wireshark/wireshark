@@ -535,7 +535,7 @@ proto_tree *subtree;
 #.END
 
 #----------------------------------------------------------------------------------------
-#.FN_BODY LocationInformationGPRS/cellGlobalIdOrServiceAreaIdOrLAI 
+#.FN_BODY LocationInformationGPRS/cellGlobalIdOrServiceAreaIdOrLAI
 	proto_tree *subtree;
 	int start_offset;
 
@@ -548,7 +548,7 @@ proto_tree *subtree;
 	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
  }else{
 	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_locationAreaId);
- }			
+ }
 #.END
 
 #----------------------------------------------------------------------------------------
@@ -567,7 +567,7 @@ proto_tree *subtree;
 
 #.FN_BODY FCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
@@ -576,8 +576,8 @@ proto_tree *subtree;
  dissect_camel_CAMEL_FCIBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCIBillingChargingCharacteristics);
 
 #.FN_BODY FCIGPRSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
- tvbuff_t	*parameter_tvb; 
- proto_tree *subtree; 
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
@@ -587,17 +587,17 @@ proto_tree *subtree;
 
 #.FN_BODY FCISMSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
-	return offset; 
+	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_FCISMSBillingChargingCharacteristics);
  dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCISMSBillingChargingCharacteristics);
 
 #.FN_BODY SCIBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
@@ -607,17 +607,17 @@ proto_tree *subtree;
 
 #.FN_BODY SCIGPRSBillingChargingCharacteristics VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
-	return offset; 
+	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
  dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
 
 #.FN_BODY CallResult VAL_PTR = &parameter_tvb
- tvbuff_t	*parameter_tvb; 
- proto_tree *subtree; 
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
  if (!parameter_tvb)
@@ -641,15 +641,15 @@ proto_tree *subtree;
  * identification' and 'number digit' fields defined in 3GPP TS 24.008 [9];
  * it does not carry the 'called party BCD number IEI' or 'length of called
  * party BCD number contents'.
- * In the context of the DestinationSubscriberNumber field in ConnectSMSArg or 
- * InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric 
- * character string. In this case, type-of-number '101'B is used, in accordance 
- * with 3GPP TS 23.040 [6]. The address is coded in accordance with the 
- * GSM 7-bit default alphabet definition and the SMS packing rules 
+ * In the context of the DestinationSubscriberNumber field in ConnectSMSArg or
+ * InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric
+ * character string. In this case, type-of-number '101'B is used, in accordance
+ * with 3GPP TS 23.040 [6]. The address is coded in accordance with the
+ * GSM 7-bit default alphabet definition and the SMS packing rules
  * as specified in 3GPP TS 23.038 [15] in this case.
  */
- tvbuff_t	*parameter_tvb; 
- proto_tree *subtree; 
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
 %(DEFAULT_BODY)s
 

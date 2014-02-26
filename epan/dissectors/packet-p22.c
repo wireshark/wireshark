@@ -1035,9 +1035,9 @@ dissect_p22_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_index, &actx->external.direct_reference);
 
-  
+
   name = oid_resolved_from_string(actx->external.direct_reference);
-  proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference); 
+  proto_item_append_text(tree, " (%s)", name ? name : actx->external.direct_reference);
 
 
 

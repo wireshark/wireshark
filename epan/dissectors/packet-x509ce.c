@@ -410,7 +410,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
                                             NULL);
 
 #line 182 "../../asn1/x509ce/x509ce.cnf"
-  
+
 	PROTO_ITEM_SET_URL(actx->created_item);
 
 
@@ -1925,7 +1925,7 @@ void proto_register_x509ce(void) {
       { "invalidityDate", "x509ce.id_ce_invalidityDate",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_x509ce_object_identifier_id, 
+    { &hf_x509ce_object_identifier_id,
       { "Id", "x509ce.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
     { &hf_x509ce_IPAddress,

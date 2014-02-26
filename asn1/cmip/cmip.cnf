@@ -80,7 +80,7 @@ static const value_string cmip_Opcode_vals[] = {
 /* CMIP ERRORS */
 static const value_string cmip_error_code_vals[] = {
 #.TABLE_BODY ERROR
-	{ %(&errorCode)s, "%(_ident)s" },  
+	{ %(&errorCode)s, "%(_ident)s" },
 #.TABLE_FTR
   { 0, NULL }
 };
@@ -106,7 +106,7 @@ CorrelatedNotifications			B "2.9.3.2.7.12"	"correlatedNotifications(12)"
 EventTime						B "2.9.3.2.7.13"	"eventTime(13)"
 EventTypeId						B "2.9.3.2.7.14"	"eventType(14)"
 MonitoredAttributes				B "2.9.3.2.7.15"	"monitoredAttributes(15)"
-NotificationIdentifier			B "2.9.3.2.7.16"	"notificationIdentifier(16)"      
+NotificationIdentifier			B "2.9.3.2.7.16"	"notificationIdentifier(16)"
 PerceivedSeverity				B "2.9.3.2.7.17"	"perceivedSeverity(17)"
 ProbableCause					B "2.9.3.2.7.18"	"probableCause(18)"
 ProposedRepairActions			B "2.9.3.2.7.19"	"proposedRepairActions(19)"
@@ -130,15 +130,15 @@ ProceduralStatus				B "2.9.3.2.7.36"	"proceduralStatus(36)"
 StandbyStatus					B "2.9.3.2.7.37"	"standbyStatus(37)"
 UnknownStatus					B "2.9.3.2.7.38"	"unknownStatus(38)"
 UsageState						B "2.9.3.2.7.39"	"usageState(39)"
-BackUpRelationshipObject		B "2.9.3.2.7.40"	"backUpObject(40)"    
-BackUpRelationshipObject		B "2.9.3.2.7.41"	"backedUpObject(41)"      
-GroupObjects					B "2.9.3.2.7.42"	"member(42)"      
-GroupObjects					B "2.9.3.2.7.43"	"owner(43)"      
-BackUpRelationshipObject		B "2.9.3.2.7.44"	"peer(44)"      
-PrioritisedObject				B "2.9.3.2.7.45"	"primary(45)"      
-PrioritisedObject				B "2.9.3.2.7.46"	"providerObject(46)"      
-PrioritisedObject				B "2.9.3.2.7.47"	"secondary(47)"      
-PrioritisedObject				B "2.9.3.2.7.48"	"userObject(48)"      
+BackUpRelationshipObject		B "2.9.3.2.7.40"	"backUpObject(40)"
+BackUpRelationshipObject		B "2.9.3.2.7.41"	"backedUpObject(41)"
+GroupObjects					B "2.9.3.2.7.42"	"member(42)"
+GroupObjects					B "2.9.3.2.7.43"	"owner(43)"
+BackUpRelationshipObject		B "2.9.3.2.7.44"	"peer(44)"
+PrioritisedObject				B "2.9.3.2.7.45"	"primary(45)"
+PrioritisedObject				B "2.9.3.2.7.46"	"providerObject(46)"
+PrioritisedObject				B "2.9.3.2.7.47"	"secondary(47)"
+PrioritisedObject				B "2.9.3.2.7.48"	"userObject(48)"
 ActiveDestination				B "2.9.3.2.7.49"	"activeDestination(49)"
 Allomorphs						B "2.9.3.2.7.50"	"allomorphs(50)"
 BackUpDestinationList			B "2.9.3.2.7.51"	"backUpDestinationList(51)"
@@ -162,38 +162,38 @@ StartTime						B "2.9.3.2.7.68"	"startTime(68)"
 StopTime						B "2.9.3.2.7.69"	"stopTime(69)"
 SupportedFeatures				B "2.9.3.2.7.70"	"supportedFeatures(70)"
 WeekMask						B "2.9.3.2.7.71"	"weekMask(71)"
-# corruptedPDUsReceivedCounter(72)    -- corruptedPDUsReceivedCounter attribute type  
-# incomingConnectionRejectErrorCounter(73)    -- incomingConnectionRejectErrorCounte...  
-# incomingConnectionRequestsCounter(74)    -- incomingConnectionRequestsCounter attr...  
-# incomingDisconnectCounter(75)    -- incomingDisconnectCounter attribute type  
-# ncomingDisconnectErrorCounter(76)    -- ncomingDisconnectErrorCounter attribute ty...  
-# incomingProtocolErrorCounter(77)    -- incomingProtocolErrorCounter attribute type  
-# octetsReceivedCounter(78)    -- octetsReceivedCounter attribute type  
-# octetsRetransmittedErrorCounter(79)    -- octetsRetransmittedErrorCounter attribut...  
-# octetsSentCounter(80)    -- octetsSentCounter attribute type  
-# outgoingConnectionRejectErrorCounter(81)    -- outgoingConnectionRejectErrorCounte...  
-# outgoingConnectionRequestsCounter(82)    -- outgoingConnectionRequestsCounter attr...  
-# outgoingDisconnectCounter(83)    -- outgoingDisconnectCounter attribute type  
-# outgoingDisconnectErrorCounter(84)    -- outgoingDisconnectErrorCounter attribute ...  
-# outgoingProtocolErrorCounter(85)    -- outgoingProtocolErrorCounter attribute type  
-# pdusReceivedCounter(86)    -- pdusReceivedCounter attribute type (PDU: Protocol Da...  
-# pdusRetransmittedErrorCounter(87)    -- pdusRetransmittedErrorCounter attribute ty...  
-# pdusSentCounter(88)    -- pdusSentCounter attribute type (PDU: Protocol Data Unit)  
-# corruptedPDUsReceivedThreshold(89)    -- corruptedPDUsReceivedThreshold attribute ...  
-# incomingConnectionRejectErrorThreshold(90)    -- incomingConnectionRejectErrorThre...  
-# incomingConnectionRequestsThreshold(91)    -- incomingConnectionRequestsThreshold ...  
-# incomingDisconnectErrorThreshold(92)    -- incomingDisconnectErrorThreshold attrib...  
-# incomingProtocolErrorThreshold(93)    -- incomingProtocolErrorThreshold attribute ...  
-# octetsReceivedThreshold(94)    -- octetsReceivedThreshold attribute type  
-# octetsRetransmittedThreshold(95)    -- octetsRetransmittedThreshold attribute type  
-# octetsSentThreshold(96)    -- octetsSentThreshold attribute type  
-# outgoingConnectionRejectErrorThreshold(97)    -- outgoingConnectionRejectErrorThre...  
-# outgoingConnectionRequestsThreshold(98)    -- outgoingConnectionRequestsThreshold ...  
-# outgoingDisconnectErrorThreshold(99)    -- outgoingDisconnectErrorThreshold attrib...  
-# outgoingProtocolErrorThreshold(100)    -- outgoingProtocolErrorThreshold attribute...  
-# pdusReceivedThreshold(101)    -- pdusReceivedThreshold attribute type (PDU: Protoc...  
-# pdusRetransmittedErrorThreshold(102)    -- pdusRetransmittedErrorThreshold attribu...  
-# pdusSentThreshold(103)    -- pdusSentThreshold attribute type (PDU: Protocol Data ...  
+# corruptedPDUsReceivedCounter(72)    -- corruptedPDUsReceivedCounter attribute type
+# incomingConnectionRejectErrorCounter(73)    -- incomingConnectionRejectErrorCounte...
+# incomingConnectionRequestsCounter(74)    -- incomingConnectionRequestsCounter attr...
+# incomingDisconnectCounter(75)    -- incomingDisconnectCounter attribute type
+# ncomingDisconnectErrorCounter(76)    -- ncomingDisconnectErrorCounter attribute ty...
+# incomingProtocolErrorCounter(77)    -- incomingProtocolErrorCounter attribute type
+# octetsReceivedCounter(78)    -- octetsReceivedCounter attribute type
+# octetsRetransmittedErrorCounter(79)    -- octetsRetransmittedErrorCounter attribut...
+# octetsSentCounter(80)    -- octetsSentCounter attribute type
+# outgoingConnectionRejectErrorCounter(81)    -- outgoingConnectionRejectErrorCounte...
+# outgoingConnectionRequestsCounter(82)    -- outgoingConnectionRequestsCounter attr...
+# outgoingDisconnectCounter(83)    -- outgoingDisconnectCounter attribute type
+# outgoingDisconnectErrorCounter(84)    -- outgoingDisconnectErrorCounter attribute ...
+# outgoingProtocolErrorCounter(85)    -- outgoingProtocolErrorCounter attribute type
+# pdusReceivedCounter(86)    -- pdusReceivedCounter attribute type (PDU: Protocol Da...
+# pdusRetransmittedErrorCounter(87)    -- pdusRetransmittedErrorCounter attribute ty...
+# pdusSentCounter(88)    -- pdusSentCounter attribute type (PDU: Protocol Data Unit)
+# corruptedPDUsReceivedThreshold(89)    -- corruptedPDUsReceivedThreshold attribute ...
+# incomingConnectionRejectErrorThreshold(90)    -- incomingConnectionRejectErrorThre...
+# incomingConnectionRequestsThreshold(91)    -- incomingConnectionRequestsThreshold ...
+# incomingDisconnectErrorThreshold(92)    -- incomingDisconnectErrorThreshold attrib...
+# incomingProtocolErrorThreshold(93)    -- incomingProtocolErrorThreshold attribute ...
+# octetsReceivedThreshold(94)    -- octetsReceivedThreshold attribute type
+# octetsRetransmittedThreshold(95)    -- octetsRetransmittedThreshold attribute type
+# octetsSentThreshold(96)    -- octetsSentThreshold attribute type
+# outgoingConnectionRejectErrorThreshold(97)    -- outgoingConnectionRejectErrorThre...
+# outgoingConnectionRequestsThreshold(98)    -- outgoingConnectionRequestsThreshold ...
+# outgoingDisconnectErrorThreshold(99)    -- outgoingDisconnectErrorThreshold attrib...
+# outgoingProtocolErrorThreshold(100)    -- outgoingProtocolErrorThreshold attribute...
+# pdusReceivedThreshold(101)    -- pdusReceivedThreshold attribute type (PDU: Protoc...
+# pdusRetransmittedErrorThreshold(102)    -- pdusRetransmittedErrorThreshold attribu...
+# pdusSentThreshold(103)    -- pdusSentThreshold attribute type (PDU: Protocol Data ...
 LifecycleState					B "2.9.3.2.7.115"	"lifecycleState(115)"
 
 
@@ -319,7 +319,7 @@ RejectProblem
       offset = dissect_cmip_InvokeIDType(FALSE, tvb,  offset, actx, tree, -1);
       break;
     }
-    
+
 
 #.FN_BODY ReturnResult/result/result
 
@@ -354,7 +354,7 @@ RejectProblem
       break; /* doe this one return any data? */
     }
   /*XXX add more types here */
- 
+
 #.FN_BODY ReturnError/parameter
 
     switch(opcode){
@@ -373,23 +373,23 @@ RejectProblem
 	case 15: /* invalidArgumentValue */
 		dissect_cmip_InvalidArgumentValue(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 6: /* invalidAttributeValue */ 
+	case 6: /* invalidAttributeValue */
 		dissect_cmip_Attribute(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 4: /* invalidFilter */ 
+	case 4: /* invalidFilter */
 		dissect_cmip_CMISFilter(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 17: /* invalidObjectInstance */
 		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 16: /* invalidScope */ 
+	case 16: /* invalidScope */
 		dissect_cmip_Scope(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 18: /* missingAttributeValue */
 		/* Hmmm  SET OF AttributeId */
 		dissect_cmip_PAR_missingAttributeValue(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 9: /* noSuchAction */ 
+	case 9: /* noSuchAction */
 		dissect_cmip_NoSuchAction(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 14: /* noSuchArgument */
@@ -455,7 +455,7 @@ RejectProblem
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }
-  
+
 #.FN_PARS SpecificErrorInfo/errorId
   FN_VARIANT = _str  HF_INDEX = hf_cmip_errorId_OID  VAL_PTR = &object_identifier_id
 

@@ -38,7 +38,7 @@ AOCECurrencyInfo/cc  AOCECurrencyCc
 AOCECurrencyInfo/cc/specificCurrency    AOCECcSpecificCurrency
 AOCSCurrencyInfo/chargingtype/specificCurrency    AOCSChargingTypeSpecificCurrency
 RecordedUnits/cc    RecoredUnitsCc
-#.END                           
+#.END
 
 #.FIELD_RENAME
 AOCDChargingUnitInfo/specificChargingUnits    aocdspecificchargingunits
@@ -53,7 +53,7 @@ PresentedAddressScreened/presentationRestrictedAddress  presentationrestrictedad
 PresentedNumberScreened/presentationAllowedNumber  presentationallowednumberscreened
 PresentedNumberScreened/presentationRestrictedNumber  presentationrestrictednumberscreened
 RecordedUnits/cc    recoredunitscc
-#.END                                
+#.END
 
 #.TABLE10_BODY OPERATION.#&operationCode.local
   { %(&operationCode)3s, "%(_name)s" },

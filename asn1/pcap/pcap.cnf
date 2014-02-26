@@ -72,7 +72,7 @@ ProtocolIE-Field/value ie_field_value
 
 
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
@@ -216,7 +216,7 @@ id-GANSS-CommonAssistanceData					ProtocolIE-ID
 id-GANSS-GenericAssistanceDataList				ProtocolIE-ID
 id-GANSS-MeasuredResultsList					ProtocolIE-ID
 id-GANSS-UTRAN-TRU								ProtocolIE-ID
-id-GANSSPositioning								ProtocolIE-ID 
+id-GANSSPositioning								ProtocolIE-ID
 id-GANSS-PositioningDataSet						ProtocolIE-ID
 id-GNSS-PositioningMethod						ProtocolIE-ID
 id-NetworkAssistedGANSSSuport					ProtocolIE-ID

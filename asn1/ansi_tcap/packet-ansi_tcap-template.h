@@ -36,16 +36,16 @@ struct ansi_tcap_private_t {
   gchar *TransactionID_str;
   struct {  /* "dynamic" data */
     gint pdu;
-      /* 
-         1 : invoke, 
-         2 : returnResult, 
+      /*
+         1 : invoke,
+         2 : returnResult,
          3 : returnError,
          4 : reject
       */
-    gint OperationCode;  
-      /* 
-         0 : national, 
-         1 : private 
+    gint OperationCode;
+      /*
+         0 : national,
+         1 : private
       */
     gint32 OperationCode_national;
     gint32 OperationCode_private;

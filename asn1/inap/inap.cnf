@@ -207,7 +207,7 @@ static const inap_err_t inap_err_tab[] = {
 
 #.FN_HDR ExtensionField
 	obj_id = NULL;
-	
+
 #.FN_PARS Code/global FN_VARIANT = _str  VAL_PTR = &obj_id
 
 #.FN_BODY ExtensionField/value
@@ -217,7 +217,7 @@ static const inap_err_t inap_err_tab[] = {
   }else{
 	 call_dissector(data_handle, tvb, actx->pinfo, tree);
 	 offset = tvb_length_remaining(tvb,offset);
-  }	
+  }
 
 
 

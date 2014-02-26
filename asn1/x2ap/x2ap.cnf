@@ -1,6 +1,6 @@
 # x2ap.cnf
 # x2ap conformation file
-# Copyright 2007 Anders Broman 
+# Copyright 2007 Anders Broman
 
 #.OPT
 PER
@@ -30,11 +30,11 @@ UnsuccessfulOutcome/value  UnsuccessfulOutcome_value
 #.FIELD_RENAME
 ProtocolExtensionField/id extension_id
 PrivateIE-Field/id private_id
-InitiatingMessage/value initiatingMessage_value 
+InitiatingMessage/value initiatingMessage_value
 
-ProtocolIE-Field/value protocolIE_Field_value 
-SuccessfulOutcome/value successfulOutcome_value 
-PrivateIE-Field/value privateIE_Field_value 
+ProtocolIE-Field/value protocolIE_Field_value
+SuccessfulOutcome/value successfulOutcome_value
+PrivateIE-Field/value privateIE_Field_value
 
 #.OMIT_ASSIGNMENT
 Presence
@@ -51,7 +51,7 @@ ProtocolIE-ContainerPairList
   }
 #.END
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
@@ -78,9 +78,9 @@ ProtocolIE-ContainerPairList
 
 %(DEFAULT_BODY)s
 
-	if(tvb_length(tvb)==0) 
+	if(tvb_length(tvb)==0)
 		return offset;
-		
+
 	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
@@ -88,13 +88,13 @@ ProtocolIE-ContainerPairList
 
 #.FN_BODY TargeteNBtoSource-eNBTransparentContainer  VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
-  
+
 %(DEFAULT_BODY)s
 	if (!parameter_tvb)
 		return offset;
-	  
+
      dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree, NULL);
-	
+
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_ProtocolIE_ID_vals)
 #.END
@@ -110,7 +110,7 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_Prot
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   gint tvb_len;
-  
+
 %(DEFAULT_BODY)s
   if (!parameter_tvb)
     return offset;
@@ -233,7 +233,7 @@ id-CSG-Id																	ProtocolIE-ID
 id-CSGMembershipStatus														ProtocolIE-ID
 id-MDTConfiguration															ProtocolIE-ID
 id-ManagementBasedMDTallowed												ProtocolIE-ID
-id-RRCConnSetupIndicator													ProtocolIE-ID 
+id-RRCConnSetupIndicator													ProtocolIE-ID
 
 #.REGISTER_NEW
 
@@ -243,8 +243,8 @@ E-RABs-Admitted-List						N x2ap.ies id-E-RABs-Admitted-List
 E-RAB-Item									N x2ap.ies id-E-RAB-Item
 E-RAB-List									N x2ap.ies id-E-RABs-NotAdmitted-List
 E-RABs-ToBeSetup-Item						N x2ap.ies id-E-RABs-ToBeSetup-Item
-Cause										N x2ap.ies id-Cause		
-CellInformation-List						N x2ap.ies id-CellInformation	
+Cause										N x2ap.ies id-Cause
+CellInformation-List						N x2ap.ies id-CellInformation
 CellInformation-Item						N x2ap.ies id-CellInformation-Item
 UE-X2AP-ID									N x2ap.ies id-New-eNB-UE-X2AP-ID
 UE-X2AP-ID									N x2ap.ies id-Old-eNB-UE-X2AP-ID
@@ -300,7 +300,7 @@ MeasurementFailureCause-Item				N x2ap.ies id-MeasurementFailureCause-Item
 CompleteFailureCauseInformation-List		N x2ap.ies id-CompleteFailureCauseInformation-List
 CompleteFailureCauseInformation-Item		N x2ap.ies id-CompleteFailureCauseInformation-Item
 CSGMembershipStatus							N x2ap.ies id-CSGMembershipStatus
-RRCConnSetupIndicator						N x2ap.ies id-RRCConnSetupIndicator 
+RRCConnSetupIndicator						N x2ap.ies id-RRCConnSetupIndicator
 
 
 #X2AP-PROTOCOL-EXTENSION

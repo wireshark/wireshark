@@ -86,7 +86,7 @@ MCMNewMsgArg/argumentExt        MCMNewArgumentExt
 MCMNoNewMsgArg/argumentExt      MCMNoNewArgumentExt
 MCMUpdateReqArg/argumentExt     MCMUpdArgArgumentExt
 MCMUpdateReqResElt/argumentExt  MCMUpdResArgumentExt
-#.END                           
+#.END
 
 #.FIELD_RENAME
 NameArg/nameSequence/extension extensionNA
@@ -115,7 +115,7 @@ DNDOverrideArg/argumentExtension     argumentExtensionDNDO
 SSCTInitiateArg/argumentExtension   argumentExtensionSSCTI
 SSCTSetupArg/argumentExtension      argumentExtensionSSCTS
 SSCTDigitInfoArg/argumentExtension  argumentExtensionSSCTD
-PumRegistrArg/pumUserId   pumRUserId                 
+PumRegistrArg/pumUserId   pumRUserId
 PumDelRegArg/pumUserId    pumXUserId
 PumDe-regArg/pumUserId    pumDUserId
 PumInterrogArg/pumUserId  pumIUserId
@@ -130,7 +130,7 @@ KeypadArg/extension   sdextension
 AddressHeader/priority ahpriority
 WtmoArg/extension  wtmoaextension
 PumoArg/extension  pumoaextension
-#.END                                
+#.END
 
 
 #.TYPE_ATTR
@@ -167,7 +167,7 @@ NameData TYPE = FT_STRING  DISPLAY = BASE_NONE
   proto_tree *data_tree;
 
 %(DEFAULT_BODY)s
-  data_tree = proto_item_add_subtree(%(ACTX)s->created_item, ett_cnq_PSS1InformationElement); 
+  data_tree = proto_item_add_subtree(%(ACTX)s->created_item, ett_cnq_PSS1InformationElement);
   if (out_tvb && (tvb_length(out_tvb) > 0) && q931_ie_handle)
     call_dissector(q931_ie_handle, out_tvb, %(ACTX)s->pinfo, data_tree);
 #.END

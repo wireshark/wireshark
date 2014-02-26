@@ -68,7 +68,7 @@ typedef struct _h248_pkg_sig_t {
 	guint32 id;
 	int* hfid;
 	gint* ett;
-	const h248_pkg_param_t* parameters;	
+	const h248_pkg_param_t* parameters;
 	const value_string* param_names;
 } h248_pkg_sig_t;
 
@@ -76,7 +76,7 @@ typedef struct _h248_pkg_evt_t {
 	guint32 id;
 	int* hfid;
 	gint* ett;
-	const h248_pkg_param_t* parameters;	
+	const h248_pkg_param_t* parameters;
 	const value_string* param_names;
 } h248_pkg_evt_t;
 
@@ -84,7 +84,7 @@ typedef struct _h248_pkg_stat_t {
 	guint32 id;
 	int* hfid;
 	gint* ett;
-	const h248_pkg_param_t* parameters;	
+	const h248_pkg_param_t* parameters;
 	const value_string* param_names;
 } h248_pkg_stat_t;
 

@@ -207,7 +207,7 @@ void proto_register_t124(void) {
 	  &ett_t124_connectGCCPDU,
 #include "packet-t124-ettarr.c"
   };
-  
+
   /* Register protocol */
   proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */

@@ -87,7 +87,7 @@
 #define C1222_CMD_WAIT 0x70
 #define C1222_CMD_TIMING_SETUP 0x71
 
-void proto_register_c1222(void); 
+void proto_register_c1222(void);
 
 static dissector_handle_t c1222_handle=NULL;
 static dissector_handle_t c1222_udp_handle=NULL;
@@ -2022,7 +2022,7 @@ void proto_register_c1222(void) {
         "Reassemble all C12.22 messages spanning multiple TCP segments",
         "Whether the C12.22 dissector should reassemble all messages spanning multiple TCP segments",
         &c1222_desegment);
-  prefs_register_string_preference(c1222_module, "baseoid", "Base OID to use for relative OIDs", 
+  prefs_register_string_preference(c1222_module, "baseoid", "Base OID to use for relative OIDs",
         "Base object identifier for use in resolving relative object identifiers",
         &c1222_baseoid_str);
 #ifdef HAVE_LIBGCRYPT

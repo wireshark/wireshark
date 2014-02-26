@@ -120,8 +120,8 @@ dissect_cdt_AlgorithmID_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                           val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
                                       "unknown"));
 
-  col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", 
-                   val_to_str (value, cdt_AlgorithmID_ShortForm_vals, 
+  col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str (value, cdt_AlgorithmID_ShortForm_vals,
                                "unknown"));
 
 
@@ -179,11 +179,11 @@ dissect_cdt_ContentType_ShortForm(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
                                                 &content_type);
 
   proto_item_append_text (cdt_item, ", %s",
-                          val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
+                          val_to_str (content_type, cdt_ContentType_ShortForm_vals,
                                       "unknown"));
 
-  col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ", 
-                   val_to_str (content_type, cdt_ContentType_ShortForm_vals, 
+  col_append_fstr (actx->pinfo->cinfo, COL_INFO, "%s ",
+                   val_to_str (content_type, cdt_ContentType_ShortForm_vals,
                                "unknown"));
 
 
@@ -253,17 +253,17 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (compr_tvb == NULL) {
     proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_compress_content,
 							tvb, save_offset, -1);
-    col_append_str (actx->pinfo->cinfo, COL_INFO, 
+    col_append_str (actx->pinfo->cinfo, COL_INFO,
                     "[Error: Unable to get compressed content]");
     return offset;
   }
-  
+
   next_tvb = tvb_child_uncompress (tvb, compr_tvb, 0, tvb_length (compr_tvb));
 
   if (next_tvb == NULL) {
     proto_tree_add_expert(top_tree, actx->pinfo, &ei_cdt_unable_uncompress_content,
 							tvb, save_offset, -1);
-    col_append_str (actx->pinfo->cinfo, COL_INFO, 
+    col_append_str (actx->pinfo->cinfo, COL_INFO,
                     "[Error: Unable to uncompress content]");
     return offset;
   }
@@ -284,7 +284,7 @@ dissect_cdt_CompressedContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
      call_dissector (data_handle, next_tvb, actx->pinfo, top_tree);
      break;
    }
-  
+
 
 
   return offset;

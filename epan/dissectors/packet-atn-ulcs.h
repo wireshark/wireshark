@@ -61,7 +61,7 @@ enum msg_type {
 };
 
 enum ae_qualifier {
-		ads = 0, 
+		ads = 0,
 		cma =1, /* contact management (CM) */
 		cpdlc = 2, /* "plain old" CPDLC */
 		ati = 3 ,

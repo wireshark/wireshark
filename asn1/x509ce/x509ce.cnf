@@ -9,26 +9,26 @@
 # Forward declaration
 #.CLASS CERT-POLICY-QUALIFIER
 &id         ObjectIdentifierType
-&Qualifier  
+&Qualifier
 #.END
 
 # InformationFramework classes
 ##.CLASS ATTRIBUTE
 #&derivation            ClassReference ATTRIBUTE
-#&Type                  
+#&Type
 #&equality-match        ClassReference MATCHING-RULE
 #&ordering-match        ClassReference MATCHING-RULE
 #&substrings-match      ClassReference MATCHING-RULE
 #&single-valued         BooleanType
 #&collective            BooleanType
 #&no-user-modification  BooleanType
-#&usage                 
+#&usage
 #&id                    ObjectIdentifierType
 ##.END
 
 #.CLASS MATCHING-RULE
 &ParentMatchingRules   ClassReference MATCHING-RULE
-&AssertionType         
+&AssertionType
 &uniqueMatchIndicator  ClassReference ATTRIBUTE
 &id                    ObjectIdentifierType
 #.END
@@ -161,7 +161,7 @@ CertificatePairExactAssertion/issuedByThisCAAssertion	cpea_issuedByThisCAAsserti
 CertificateGroup/serialNumberRange			certificateGroupNumberRange
 CertificateAssertion/subjectAltName			subjectAltNameType
 EnhancedCertificateAssertion/pathToName			enhancedPathToName
-	
+
 #.FN_PARS PolicyQualifierInfo/policyQualifierId
   FN_VARIANT = _str  HF_INDEX = hf_x509ce_object_identifier_id  VAL_PTR = &actx->external.direct_reference
 
@@ -179,7 +179,7 @@ EnhancedCertificateAssertion/pathToName			enhancedPathToName
   offset=call_ber_oid_callback(actx->external.direct_reference, tvb, offset, actx->pinfo, tree, NULL);
 
 #.FN_FTR GeneralName/uniformResourceIdentifier
-  
+
 	PROTO_ITEM_SET_URL(actx->created_item);
 
 #.END

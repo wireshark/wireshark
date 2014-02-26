@@ -109,7 +109,7 @@ void proto_register_x509ce(void) {
       { "invalidityDate", "x509ce.id_ce_invalidityDate",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_x509ce_object_identifier_id, 
+    { &hf_x509ce_object_identifier_id,
       { "Id", "x509ce.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
     { &hf_x509ce_IPAddress,

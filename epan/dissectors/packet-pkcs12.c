@@ -798,23 +798,23 @@ dissect_pkcs12_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 139 "../../asn1/pkcs12/pkcs12.cnf"
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
-	
+
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &encrypted_tvb);
 
 #line 145 "../../asn1/pkcs12/pkcs12.cnf"
 
-	
+
 
 	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
-	
+
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);
-	
+
 	/* restore the original dissector */
 	dissector_reset_string("ber.oid", object_identifier_id);
-	
+
 
   return offset;
 }
@@ -942,7 +942,7 @@ dissect_pkcs12_T_secretValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 124 "../../asn1/pkcs12/pkcs12.cnf"
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-		
+
 
 
   return offset;

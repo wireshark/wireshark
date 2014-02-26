@@ -2079,15 +2079,15 @@ dissect_camel_CalledPartyBCDNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
  * identification' and 'number digit' fields defined in 3GPP TS 24.008 [9];
  * it does not carry the 'called party BCD number IEI' or 'length of called
  * party BCD number contents'.
- * In the context of the DestinationSubscriberNumber field in ConnectSMSArg or 
- * InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric 
- * character string. In this case, type-of-number '101'B is used, in accordance 
- * with 3GPP TS 23.040 [6]. The address is coded in accordance with the 
- * GSM 7-bit default alphabet definition and the SMS packing rules 
+ * In the context of the DestinationSubscriberNumber field in ConnectSMSArg or
+ * InitialDPSMSArg, a CalledPartyBCDNumber may also contain an alphanumeric
+ * character string. In this case, type-of-number '101'B is used, in accordance
+ * with 3GPP TS 23.040 [6]. The address is coded in accordance with the
+ * GSM 7-bit default alphabet definition and the SMS packing rules
  * as specified in 3GPP TS 23.038 [15] in this case.
  */
- tvbuff_t	*parameter_tvb; 
- proto_tree *subtree; 
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -2146,8 +2146,8 @@ dissect_isup_calling_party_number_parameter(parameter_tvb, subtree, NULL);
 
 static int
 dissect_camel_CallResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
- tvbuff_t	*parameter_tvb; 
- proto_tree *subtree; 
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -3984,7 +3984,7 @@ dissect_camel_EventTypeSMS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_camel_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4002,8 +4002,8 @@ dissect_camel_FCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 
 static int
 dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
- tvbuff_t	*parameter_tvb; 
- proto_tree *subtree; 
+ tvbuff_t	*parameter_tvb;
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4022,13 +4022,13 @@ dissect_camel_FCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, t
 static int
 dissect_camel_FCISMSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
-	return offset; 
+	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_FCISMSBillingChargingCharacteristics);
  dissect_camel_CAMEL_FCISMSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_FCISMSBillingChargingCharacteristics);
 
@@ -4458,7 +4458,7 @@ dissect_camel_T_cellGlobalIdOrServiceAreaIdOrLAI(gboolean implicit_tag _U_, tvbu
 	dissect_gsm_map_CellGlobalIdOrServiceAreaIdFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_cellGlobalIdOrServiceAreaIdFixedLength);
  }else{
 	dissect_gsm_map_LAIFixedLength(TRUE, tvb, start_offset, actx, subtree, hf_camel_locationAreaId);
- }			
+ }
 
   return offset;
 }
@@ -4909,7 +4909,7 @@ proto_tree *subtree;
 static int
 dissect_camel_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4928,13 +4928,13 @@ dissect_camel_SCIBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuf
 static int
 dissect_camel_SCIGPRSBillingChargingCharacteristics(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
  tvbuff_t	*parameter_tvb;
- proto_tree *subtree; 
+ proto_tree *subtree;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
  if (!parameter_tvb)
-	return offset; 
+	return offset;
  subtree = proto_item_add_subtree(actx->created_item, ett_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
  dissect_camel_CAMEL_SCIGPRSBillingChargingCharacteristics(FALSE, parameter_tvb, 0, actx, subtree, hf_camel_CAMEL_SCIGPRSBillingChargingCharacteristics);
 

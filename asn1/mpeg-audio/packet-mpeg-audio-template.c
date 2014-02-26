@@ -66,7 +66,7 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return FALSE;
 	if (!MPA_LAYER_VALID(&mpa))
 		return FALSE;
-		
+
 	col_add_fstr(pinfo->cinfo, COL_PROTOCOL,
 			"MPEG-%s", version_names[mpa_version(&mpa)]);
 	col_add_fstr(pinfo->cinfo, COL_INFO,

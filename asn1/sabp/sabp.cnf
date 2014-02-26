@@ -1,6 +1,6 @@
 # sabp.cnf
 # sabp conformation file
-# Copyright 2007 Tomas Kukosa 
+# Copyright 2007 Tomas Kukosa
 
 #.OPT
 PER
@@ -47,7 +47,7 @@ MessageStructure/_item/repetitionNumber repetitionNumber1
 #.END
 
 
-#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
 
 #.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
 #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
@@ -98,7 +98,7 @@ id-MessageStructure						ProtocolIE-ID
 id-TypeOfError							ProtocolIE-ID
 id-Paging-ETWS-Indicator				ProtocolIE-ID
 id-Warning-Type							ProtocolIE-ID
-id-WarningSecurityInfo					ProtocolIE-ID 
+id-WarningSecurityInfo					ProtocolIE-ID
 id-Broadcast-Message-Content-Validity-Indicator	ProtocolIE-ID
 
 #.END
@@ -128,7 +128,7 @@ MessageStructure					N sabp.extension id-MessageStructure
 TypeOfError							N sabp.extension id-TypeOfError
 Paging-ETWS-Indicator				N sabp.extension id-Paging-ETWS-Indicator
 Warning-Type						N sabp.extension id-Warning-Type
-WarningSecurityInfo					N sabp.extension id-WarningSecurityInfo 
+WarningSecurityInfo					N sabp.extension id-WarningSecurityInfo
 Broadcast-Message-Content-Validity-Indicator	N sabp.extension id-Broadcast-Message-Content-Validity-Indicator
 
 #SABP-ELEMENTARY-PROCEDURE

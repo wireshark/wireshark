@@ -53,9 +53,9 @@ typedef struct rrc_ciph_info_
   GTree * /*guint32*/ start_ps;    /*Start value for PS counter*/
   guint32 conf_algo_indicator;    /*Indicates which type of ciphering algorithm used*/
   guint32 int_algo_indiccator;    /*Indicates which type of integrity algorithm used*/
-  unsigned int setup_frame;    /*Store which frame contained this information*/    
+  unsigned int setup_frame;    /*Store which frame contained this information*/
   guint32 ps_conf_counters[31][2];    /*This should also be made for CS*/
-  
+
 } rrc_ciphering_info;
 
 extern GTree * hsdsch_muxed_flows;

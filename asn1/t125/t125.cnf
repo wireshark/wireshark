@@ -57,13 +57,13 @@ TokenAttributes
 TokenGrabRequest
 Reason
 Diagnostic
-StaticChannelId                         
-UserId                                  
-PrivateChannelId                        
-AssignedChannelId                       
+StaticChannelId
+UserId
+PrivateChannelId
+AssignedChannelId
 TokenId
 DynamicChannelId
-ChannelId                                                           
+ChannelId
 #.PDU
 #----------------------------------------------------------------------------------------
 
@@ -97,7 +97,7 @@ ConnectMCSPDU
 #.FN_BODY Connect-Initial/_untag/userData
     tvbuff_t	*next_tvb = NULL;
 %(DEFAULT_BODY)s
-    if(next_tvb) 
+    if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
 	     actx->pinfo, top_tree, NULL);
 #.END
@@ -106,7 +106,7 @@ ConnectMCSPDU
 #.FN_BODY Connect-Response/_untag/userData
     tvbuff_t	*next_tvb = NULL;
 %(DEFAULT_BODY)s
-    if(next_tvb) 
+    if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
 	     actx->pinfo, top_tree, NULL);
 #.END

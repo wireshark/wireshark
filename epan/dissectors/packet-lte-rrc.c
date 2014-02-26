@@ -2322,7 +2322,7 @@ static int hf_lte_rrc_key_eNodeB_Star = -1;       /* Key_eNodeB_Star */
 static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 static int hf_lte_rrc_candidateCellInfoList_r10 = -1;  /* CandidateCellInfoList_r10 */
 static int hf_lte_rrc_CandidateCellInfoList_r10_item = -1;  /* CandidateCellInfo_r10 */
-static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
+static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
 #line 83 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
@@ -5641,7 +5641,7 @@ dissect_lte_rrc_T_systemFrameNumber(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   /* Show SFN in info column */
   sfn = tvb_get_guint8(value_tvb, 0);
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (SFN=%u)", sfn);
-  
+
 
   return offset;
 }
@@ -10192,7 +10192,7 @@ dissect_lte_rrc_T_timeInfoUTC_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */ 
+  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
   ts.nsecs = (int)(timeInfo%100)*10000000;
   proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
                       "UTC   time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
@@ -27959,7 +27959,7 @@ dissect_lte_rrc_SecurityModeFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   }
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
-  
+
 
 
   return offset;
@@ -30601,7 +30601,7 @@ static int
 dissect_lte_rrc_MBMSInterestIndication_r11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
-  
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_MBMSInterestIndication_r11, MBMSInterestIndication_r11_sequence);
 

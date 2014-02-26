@@ -94,7 +94,7 @@ void read_keytab_file_from_preferences(void);
 #endif /* HAVE_KERBEROS */
 
 
-#include "packet-kerberos-exp.h" 
+#include "packet-kerberos-exp.h"
 
 #endif  /* __PACKET_KERBEROS_H */
 

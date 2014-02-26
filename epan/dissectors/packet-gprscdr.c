@@ -598,7 +598,7 @@ dissect_gprscdr_T_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 #line 53 "../../asn1/gprscdr/gprscdr.cnf"
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
-   
+
 
 
   return offset;
@@ -1045,14 +1045,14 @@ dissect_gprscdr_MSTimeZone(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 	data = (data >> 4) + (data & 0x07) * 10;
 
 	data2 = tvb_get_guint8(tvb, 1) & 0x3;
-	
-	proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)", 
-			sign, 
-			data / 4, 
+
+	proto_item_append_text(actx->created_item, " (GMT %c %d hours %d minutes %s)",
+			sign,
+			data / 4,
 			data % 4 * 15,
 			val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
 			);
-			
+
 
 
   return offset;
@@ -1286,7 +1286,7 @@ dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
  */
 
  tvbuff_t	*parameter_tvb;
- 
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
 
@@ -1305,7 +1305,7 @@ dissect_gprscdr_TimeStamp(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 			tvb_get_guint8(parameter_tvb,7),                        /* Hour */
 			tvb_get_guint8(parameter_tvb,8)                         /* Minute */
 			);
- 
+
 
 
   return offset;
@@ -1751,10 +1751,10 @@ dissect_gprscdr_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
  if (!parameter_tvb)
 	return offset;
-	   
- subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);	   
+
+ subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
- 
+
 
 
   return offset;

@@ -38,7 +38,7 @@ AudioCapability TYPE_PREFIX
 G723AnnexCAudioMode  G7231AnnexCCapability/g723AnnexCAudioMode  G7231AnnexCMode/g723AnnexCAudioMode
 Application  DataApplicationCapability/application
 Nlpid  Application/nlpid  DataMode/application/nlpid
-Al3 H223LogicalChannelParameters/adaptationLayerType/al3  H223ModeParameters/adaptationLayerType/al3  
+Al3 H223LogicalChannelParameters/adaptationLayerType/al3  H223ModeParameters/adaptationLayerType/al3
 ArqType  H223AL1MParameters/arqType  H223AL3MParameters/arqType
 Restriction  FlowControlCommand/restriction  FlowControlIndication/restriction
 Scope  FlowControlCommand/scope  FlowControlIndication/scope  JitterIndication/scope
@@ -148,8 +148,8 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
     if (fast_start) {
       h245_setup_channels(actx->pinfo, &upcoming_olc->rev_lc);
     } else {
-      g_hash_table_insert(h245_pending_olc_reqs, 
-        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->dst, &%(ACTX)s->pinfo->src)), 
+      g_hash_table_insert(h245_pending_olc_reqs,
+        wmem_strdup(wmem_file_scope(), gen_olc_key(upcoming_olc->fwd_lc_num, &%(ACTX)s->pinfo->dst, &%(ACTX)s->pinfo->src)),
         upcoming_olc);
     }
   }
@@ -195,7 +195,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   upcoming_channel = (upcoming_olc) ? &upcoming_olc->rev_lc : NULL;
 
 %(DEFAULT_BODY)s
-	
+
   if (upcoming_channel && codec_type) {
     g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
@@ -225,12 +225,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
   h223_fw_lc_num = 0;
   h223_rev_lc_num = 0;
-	
+
 %(DEFAULT_BODY)s
 
   temp = h223_fw_lc_num;
   p2p_dir = %(ACTX)s->pinfo->p2p_dir;
-  
+
   if(%(ACTX)s->pinfo->p2p_dir == P2P_DIR_SENT)
 	%(ACTX)s->pinfo->p2p_dir = P2P_DIR_RECV;
   else
@@ -280,7 +280,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
   upcoming_channel = (upcoming_olc) ? &upcoming_olc->fwd_lc : NULL;
 
 %(DEFAULT_BODY)s
-	
+
   upcoming_channel = NULL;
 #.END
 #----------------------------------------------------------------------------------------
@@ -611,7 +611,7 @@ if (h245_pi != NULL)
     gefx = gef_ctx_alloc(NULL, "GenericMessage");
     actx->private_data = gefx;
   }
-#.FN_FTR 
+#.FN_FTR
   actx->private_data = priv_data;
 #.END
 
@@ -628,7 +628,7 @@ if (h245_pi != NULL)
       hf_index = hf_h245_subMessageIdentifier_standard;
     }
   }
-  
+
 %(DEFAULT_BODY)s
   if (gefx) {
     gefx->subid = wmem_strdup_printf(wmem_packet_scope(), "%%u", subMessageIdentifer);
@@ -655,7 +655,7 @@ if (h245_pi != NULL)
 #.FN_HDR GenericInformation
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "GenericInformation");
-#.FN_FTR 
+#.FN_FTR
   actx->private_data = priv_data;
 #.END
 
@@ -681,7 +681,7 @@ if (h245_pi != NULL)
 
   parent_gefx = gef_ctx_get(actx->private_data);
   actx->private_data = gef_ctx_alloc(parent_gefx, "nonCollapsing");
-#.FN_FTR 
+#.FN_FTR
   actx->private_data = parent_gefx;
 #.END
 
@@ -705,7 +705,7 @@ if (h245_pi != NULL)
 #.FN_HDR EncryptionSync
   void *priv_data = actx->private_data;
   actx->private_data = gef_ctx_alloc(NULL, "EncryptionSync");
-#.FN_FTR 
+#.FN_FTR
   actx->private_data = priv_data;
 #.END
 #----------------------------------------------------------------------------------------
@@ -969,7 +969,7 @@ NonStandardIdentifier/object  FN_VARIANT = _str  VAL_PTR = &nsiOID
 #.FN_FTR NonStandardIdentifier/h221NonStandard
   h221NonStandard = ((t35CountryCode * 256) + t35Extension) * 65536 + manufacturerCode;
   proto_tree_add_uint(tree, hf_h245Manufacturer, tvb, (offset>>3)-4, 4, h221NonStandard);
-#.FN_PARS 
+#.FN_PARS
 NonStandardIdentifier/h221NonStandard/t35CountryCode    VAL_PTR = &t35CountryCode
 NonStandardIdentifier/h221NonStandard/t35Extension      VAL_PTR = &t35Extension
 NonStandardIdentifier/h221NonStandard/manufacturerCode  VAL_PTR = &manufacturerCode
@@ -1061,7 +1061,7 @@ FunctionNotSupported/cause                       FunctionNotSupportedCause
 AudioMode/g7231 Mode_g7231
 
 DataMode/application DataModeApplication
-DataMode/application/t38fax T38faxApp 
+DataMode/application/t38fax T38faxApp
 
 DepFECData/rfc2733 RFC2733Data
 
@@ -1222,7 +1222,7 @@ H262VideoMode/profileAndLevel/profileAndLevel-SpatialatH-14 profileAndLevel_Spat
 H262VideoMode/profileAndLevel/profileAndLevel-HPatML        profileAndLevel_HPatMLMode
 H262VideoMode/profileAndLevel/profileAndLevel-HPatH-14      profileAndLevel_HPatH-14Mode
 H262VideoMode/profileAndLevel/profileAndLevel-HPatHL        profileAndLevel_HPatHLMode
-                    
+
 RedundancyEncodingMode/secondaryEncoding/audioData audioMode
 RedundancyEncodingMode/secondaryEncoding  secondaryEncodingMode
 RedundancyEncodingCapability/secondaryEncoding  secondaryEncodingCapability
@@ -1231,7 +1231,7 @@ UnicastAddress/iPAddress/network ip4_network
 UnicastAddress/iP6Address/network ip6_network
 MulticastAddress/iP6Address/network mip6_network
 MulticastAddress/iPAddress mIPAddress
-MulticastAddress/iP6Address mIP6Address 
+MulticastAddress/iP6Address mIP6Address
 MulticastAddress/iPAddress/network mip4_network
 
 RTPPayloadType/payloadType  rtpPayloadType
@@ -1260,36 +1260,36 @@ VCCapability/aal1/srtsClockRecovery srtsClockRecovery_bool
 VCCapability/aal1ViaGateway/srtsClockRecovery srtsClockRecoveryflag
 DataMode/application/t84 t84DataProtocolCapability
 DataMode/application/t38fax t38faxDataProtocolCapability
-H2250LogicalChannelParameters/sessionID sessionID_0_255 
+H2250LogicalChannelParameters/sessionID sessionID_0_255
 H223Capability/mobileOperationTransmitCapability/h223AnnexADoubleFlag h223AnnexADoubleFlagFlag
 SendTerminalCapabilitySet/genericRequest genericRequestFlag
 H2250LogicalChannelParameters/mediaPacketization/h261aVideoPacketization h261aVideoPacketizationFlag
 RemoteMCResponse/reject/functionNotSupported functionNotSupportedFlag
-NewATMVCCommand/aal/aal1/errorCorrection/longInterleaver longInterleaverFlag 
+NewATMVCCommand/aal/aal1/errorCorrection/longInterleaver longInterleaverFlag
 NewATMVCIndication/aal/aal1/errorCorrection/longInterleaver longInterleaverFlag
 MiscellaneousCommand/type/videoFastUpdateMB/firstGOB firstGOB_0_255
-H263VideoCapability/sqcifMPI sqcifMPI_1_32 
+H263VideoCapability/sqcifMPI sqcifMPI_1_32
 EnhancementOptions/sqcifMPI sqcifMPI_1_32
 NewATMVCCommand/aal/aal1/errorCorrection/shortInterleaver shortInterleaverFlag
 NewATMVCIndication/aal/aal1/errorCorrection/shortInterleaver shortInterleaverFlag
-NewATMVCCommand/multiplex/programStream programStreamFlag 
+NewATMVCCommand/multiplex/programStream programStreamFlag
 NewATMVCCommand/reverseParameters/multiplex/programStream programStreamFlag
 NewATMVCIndication/multiplex/programStream programStreamFlag
 NewATMVCIndication/reverseParameters/multiplex/programStream programStreamFlag
 H263ModeComboFlags/enhancedReferencePicSelect enhancedReferencePicSelectBool
-NewATMVCCommand/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag 
+NewATMVCCommand/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag
 NewATMVCIndication/aal/aal1/errorCorrection/errorCorrectionOnly errorCorrectionOnlyFlag
 UserInputCapability/extendedAlphanumeric extendedAlphanumericFlag
 MultiplexElement/repeatCount/finite  me_repeatCount_finite
 MiscellaneousCommand/type/videoFastUpdateMB/firstMB firstMB_1_8192
 MiscellaneousIndication/type/videoNotDecodedMBs/firstMB firstMB_1_8192
 H261VideoCapability/cifMPI cifMPI_1_4
-CustomPictureClockFrequency/cifMPI cifMPI2_1_2048         
+CustomPictureClockFrequency/cifMPI cifMPI2_1_2048
 H263VideoCapability/cif16MPI  cif16MPI_1_32
 EnhancementOptions/cif16MPI  cif16MPI_1_32
 H263VideoCapability/cif4MPI cif4MPI_1_32
 EnhancementOptions/cif4MPI  cif4MPI_1_32
-H263Version3Options/pictureNumber pictureNumberBoolean       
+H263Version3Options/pictureNumber pictureNumberBoolean
 MiscellaneousCommand/type/videoBadMBs/numberOfMBs numberOfMBs1_1_9216
 MiscellaneousCommand/type/lostPartialPicture/numberOfMBs numberOfMBs1_1_9216
 DataApplicationCapability/maxBitRate maxBitRate2_0_4294967295
@@ -1297,18 +1297,18 @@ GenericCapability/maxBitRate maxBitRate2_0_4294967295
 H261VideoCapability/maxBitRate maxBitRate_1_19200
 IS13818AudioCapability/bitRate bitRate2_1_1130
 IS13818AudioMode/bitRate bitRate2_1_1130
-IS11172AudioCapability/bitRate bitRate_1_448 
+IS11172AudioCapability/bitRate bitRate_1_448
 IS11172AudioMode/bitRate  bitRate_1_448
 DataMode/bitRate bitRate_0_4294967295
 H223Capability/bitRate bitRate_1_19200
 H261VideoMode/bitRate bitRate_1_19200
 H263VideoMode/bitRate bitRate_1_19200
 DialingInformationNumber/networkAddress networkAddressNum
-NewATMVCCommand/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag 
+NewATMVCCommand/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag
 NewATMVCIndication/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag
-NewATMVCCommand/aal/aal1/clockRecovery/nullClockRecovery nullClockRecoveryflag 
+NewATMVCCommand/aal/aal1/clockRecovery/nullClockRecovery nullClockRecoveryflag
 NewATMVCIndication/aal/aal1/clockRecovery/nullClockRecovery nullClockRecoveryflag
-NewATMVCCommand/aal/aal1/errorCorrection/nullErrorCorrection nullErrorCorrectionFlag 
+NewATMVCCommand/aal/aal1/errorCorrection/nullErrorCorrection nullErrorCorrectionFlag
 NewATMVCIndication/aal/aal1/errorCorrection/nullErrorCorrection nullErrorCorrectionFlag
 H223AL2MParameters/headerFEC aL2HeaderFEC
 H223AL1MParameters/headerFEC aL1HeaderFEC
@@ -1367,8 +1367,8 @@ VBDCapability/type vbd_cap_type
 OpenLogicalChannelAck/reverseLogicalChannelParameters olc_ack_reverseLogicalChannelParameters
 H2250LogicalChannelAckParameters/mediaChannel ack_mediaChannel
 H2250LogicalChannelAckParameters/mediaControlChannel ack_mediaControlChannel
-UnicastAddress/iP6Address/tsapIdentifier ipv6_tsapIdentifier 
-UnicastAddress/iPSourceRouteAddress/tsapIdentifier iPSrcRoute_tsapIdentifier 
+UnicastAddress/iP6Address/tsapIdentifier ipv6_tsapIdentifier
+UnicastAddress/iPSourceRouteAddress/tsapIdentifier iPSrcRoute_tsapIdentifier
 MulticastAddress/iPAddress/tsapIdentifier multicast_tsapIdentifier
 MulticastAddress/iP6Address/tsapIdentifier multicast_IPv6_tsapIdentifier
 CommunicationModeTableEntry/mediaChannel cm_mediaChannel

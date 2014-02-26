@@ -503,30 +503,30 @@ static const value_string cmip_Opcode_vals[] = {
 
 /* CMIP ERRORS */
 static const value_string cmip_error_code_vals[] = {
-	{ 2, "accessDenied" },  
-	{ 19, "classInstanceConflict" },  
-	{ 20, "complexityLimitation" },  
-	{ 11, "duplicateManagedObjectInstance" },  
-	{ 7, "getListError" },  
-	{ 15, "invalidArgumentValue" },  
-	{ 6, "invalidAttributeValue" },  
-	{ 4, "invalidFilter" },  
-	{ 17, "invalidObjectInstance" },  
-	{ 16, "invalidScope" },  
-	{ 18, "missingAttributeValue" },  
-	{ 21, "mistypedOperation" },  
-	{ 9, "noSuchAction" },  
-	{ 14, "noSuchArgument" },  
-	{ 5, "noSuchAttribute" },  
-	{ 13, "noSuchEventType" },  
-	{ 22, "noSuchInvokeId" },  
-	{ 0, "noSuchObjectClass" },  
-	{ 1, "noSuchObjectInstance" },  
-	{ 12, "noSuchReferenceObject" },  
-	{ 23, "operationCancelled" },  
-	{ 10, "processingFailure" },  
-	{ 8, "setListError" },  
-	{ 3, "syncNotSupported" },  
+	{ 2, "accessDenied" },
+	{ 19, "classInstanceConflict" },
+	{ 20, "complexityLimitation" },
+	{ 11, "duplicateManagedObjectInstance" },
+	{ 7, "getListError" },
+	{ 15, "invalidArgumentValue" },
+	{ 6, "invalidAttributeValue" },
+	{ 4, "invalidFilter" },
+	{ 17, "invalidObjectInstance" },
+	{ 16, "invalidScope" },
+	{ 18, "missingAttributeValue" },
+	{ 21, "mistypedOperation" },
+	{ 9, "noSuchAction" },
+	{ 14, "noSuchArgument" },
+	{ 5, "noSuchAttribute" },
+	{ 13, "noSuchEventType" },
+	{ 22, "noSuchInvokeId" },
+	{ 0, "noSuchObjectClass" },
+	{ 1, "noSuchObjectInstance" },
+	{ 12, "noSuchReferenceObject" },
+	{ 23, "operationCancelled" },
+	{ 10, "processingFailure" },
+	{ 8, "setListError" },
+	{ 3, "syncNotSupported" },
   { 0, NULL }
 };
 
@@ -2109,7 +2109,7 @@ dissect_cmip_T_attributevalue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   } else {
     offset=dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
   }
-  
+
 
 
   return offset;
@@ -3720,7 +3720,7 @@ dissect_cmip_InvokeArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
       offset = dissect_cmip_InvokeIDType(FALSE, tvb,  offset, actx, tree, -1);
       break;
     }
-    
+
 
 
 
@@ -3785,7 +3785,7 @@ dissect_cmip_ResultArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
       break; /* doe this one return any data? */
     }
   /*XXX add more types here */
- 
+
 
 
   return offset;
@@ -3847,23 +3847,23 @@ dissect_cmip_T_parameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 	case 15: /* invalidArgumentValue */
 		dissect_cmip_InvalidArgumentValue(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 6: /* invalidAttributeValue */ 
+	case 6: /* invalidAttributeValue */
 		dissect_cmip_Attribute(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 4: /* invalidFilter */ 
+	case 4: /* invalidFilter */
 		dissect_cmip_CMISFilter(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 17: /* invalidObjectInstance */
 		dissect_cmip_ObjectInstance(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 16: /* invalidScope */ 
+	case 16: /* invalidScope */
 		dissect_cmip_Scope(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 18: /* missingAttributeValue */
 		/* Hmmm  SET OF AttributeId */
 		dissect_cmip_PAR_missingAttributeValue(FALSE, tvb,  offset, actx, tree, -1);
 		break;
-	case 9: /* noSuchAction */ 
+	case 9: /* noSuchAction */
 		dissect_cmip_NoSuchAction(FALSE, tvb,  offset, actx, tree, -1);
 		break;
 	case 14: /* noSuchArgument */

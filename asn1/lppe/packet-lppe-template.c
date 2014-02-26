@@ -84,7 +84,7 @@ void proto_register_lppe(void) {
   proto_register_field_array(proto_lppe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
 }
 
 

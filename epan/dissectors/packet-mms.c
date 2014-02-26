@@ -1874,7 +1874,7 @@ dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 		return offset;
 	}
 
-	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding, 
+	proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_timeofday_encoding,
 			tvb, offset, len, "BER Error: malformed TimeOfDay encoding, length must be 4 or 6 bytes");
 	if(hf_index >= 0)
 	{
@@ -1925,7 +1925,7 @@ dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 	if(len != 8)
 	{
-		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding, 
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_mms_mal_utctime_encoding,
 				tvb, offset, len, "BER Error: malformed IEC61850 UTCTime encoding, length must be 8 bytes");
 		if(hf_index >= 0)
 		{

@@ -29,7 +29,7 @@
 # include "packet-ses.h"
 
 /* for use in the SESSION_DATA_STRUCTURE ros_op argument
-   top byte indicates ROS invocation 
+   top byte indicates ROS invocation
    bottom three bytes indicate operation code */
 
 # define ROS_OP_MASK    0xff000000

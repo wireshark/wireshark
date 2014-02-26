@@ -1,6 +1,6 @@
 # lppe.cnf
 # llpe conformation file
-# Copyright 2012 Pascal Quantin 
+# Copyright 2012 Pascal Quantin
 
 #.OPT
 PER
@@ -14,7 +14,7 @@ OMA-LPPe-MessageExtension
 #.END
 
 #.FN_HDR OMA-LPPe-MessageExtension
-	
+
   proto_tree_add_item(tree, proto_lppe, tvb, 0, -1, ENC_NA);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPe");

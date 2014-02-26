@@ -68,6 +68,6 @@ guint32 IlpMessage;
 
 
 #.TYPE_ATTR
-IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL  
-IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL  
+IPAddress/ipv4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE  STRINGS = NULL
+IPAddress/ipv6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE  STRINGS = NULL
 #.END

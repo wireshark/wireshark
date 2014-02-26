@@ -1,6 +1,6 @@
 # rrlp.cnf
 # rrlp conformation file
-# Copyright 2006 Anders Broman 
+# Copyright 2006 Anders Broman
 
 #.OPT
 PER
@@ -22,7 +22,7 @@ SLR-Arg-PCS-Extensions
 #.END
 
 #.FN_HDR PDU
-	
+
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, ENC_NA);
 
 	col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "RRLP");

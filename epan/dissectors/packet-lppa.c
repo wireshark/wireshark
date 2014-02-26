@@ -682,7 +682,7 @@ static const per_choice_t LPPA_PDU_choice[] = {
 static int
 dissect_lppa_LPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 58 "../../asn1/lppa/lppa.cnf"
-	
+
   proto_tree_add_item(tree, proto_lppa, tvb, 0, -1, ENC_NA);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPa");

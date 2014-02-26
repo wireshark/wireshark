@@ -7131,7 +7131,7 @@ static const per_sequence_t PDU_sequence[] = {
 static int
 dissect_rrlp_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 25 "../../asn1/rrlp/rrlp.cnf"
-	
+
 	proto_tree_add_item(tree, proto_rrlp, tvb, 0, -1, ENC_NA);
 
 	col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "RRLP");
@@ -10721,7 +10721,7 @@ void proto_register_rrlp(void) {
   proto_register_field_array(proto_rrlp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
 }
 
 

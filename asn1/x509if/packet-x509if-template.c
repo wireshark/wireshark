@@ -109,7 +109,7 @@ gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
 
     return TRUE;
 
-  } else 
+  } else
     return FALSE; /* couldn't register it */
 
 }
@@ -124,13 +124,13 @@ void proto_register_x509if(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509if_object_identifier_id, 
+    { &hf_x509if_object_identifier_id,
       { "Id", "x509if.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
-    { &hf_x509if_any_string, 
+    { &hf_x509if_any_string,
       { "AnyString", "x509if.any.String", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is any String", HFILL }},
-			 
+
 #include "packet-x509if-hfarr.c"
   };
 

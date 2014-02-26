@@ -615,13 +615,13 @@ static int
 dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 76 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
-  
+
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
-  
+
 
 
   return offset;
@@ -657,12 +657,12 @@ static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 67 "../../asn1/ess/ess.cnf"
   guint32 attribute;
-  
+
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &attribute);
 
   ess_dissect_attribute (attribute, actx);
-  
+
 
 
   return offset;
@@ -711,13 +711,13 @@ static int
 dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 85 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
-  
+
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
-  
+
 
 
   return offset;
@@ -753,13 +753,13 @@ static int
 dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 94 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
-  
+
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
                                     NULL, hf_index, -1,
                                     &attributes);
 
   ess_dissect_attribute_flags (attributes, actx);
-  
+
 
 
   return offset;

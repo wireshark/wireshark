@@ -56,46 +56,46 @@ FreeFormField/bitSetAttributes  informativeAttributeFlags
 
 #.FN_PARS PermissiveTag/tagName
   FN_VARIANT = _str  VAL_PTR = &object_identifier_id
-  
+
 #.FN_PARS InformativeTag/tagName
   FN_VARIANT = _str  VAL_PTR = &object_identifier_id
 
 #.FN_PARS SecurityAttribute
   VAL_PTR = &attribute
-  
+
 #.FN_BODY SecurityAttribute
   guint32 attribute;
-  
+
   %(DEFAULT_BODY)s
   ess_dissect_attribute (attribute, actx);
-  
+
 #.FN_PARS RestrictiveTag/attributeFlags
   VAL_PTR = &attributes
-  
+
 #.FN_BODY RestrictiveTag/attributeFlags
   tvbuff_t *attributes;
-  
+
   %(DEFAULT_BODY)s
   ess_dissect_attribute_flags (attributes, actx);
-  
+
 #.FN_PARS PermissiveTag/attributeFlags
   VAL_PTR = &attributes
-  
+
 #.FN_BODY PermissiveTag/attributeFlags
   tvbuff_t *attributes;
-  
+
   %(DEFAULT_BODY)s
   ess_dissect_attribute_flags (attributes, actx);
-  
+
 #.FN_PARS FreeFormField/bitSetAttributes
   VAL_PTR = &attributes
-  
+
 #.FN_BODY FreeFormField/bitSetAttributes
   tvbuff_t *attributes;
-  
+
   %(DEFAULT_BODY)s
   ess_dissect_attribute_flags (attributes, actx);
-  
+
 #.FN_BODY Receipt
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Signed Receipt");

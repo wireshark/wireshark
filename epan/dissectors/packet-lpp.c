@@ -904,7 +904,7 @@ static int hf_lpp_T_requestedMeasurements_ueRxTxReq = -1;
 static int hf_lpp_T_ecid_MeasSupported_rsrpSup = -1;
 static int hf_lpp_T_ecid_MeasSupported_rsrqSup = -1;
 static int hf_lpp_T_ecid_MeasSupported_ueRxTxSup = -1;
-static int hf_lpp_dummy_eag_field = -1; /* never registered */ 
+static int hf_lpp_dummy_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-lpp-hf.c ---*/
 #line 48 "../../asn1/lpp/packet-lpp-template.c"
@@ -14303,7 +14303,7 @@ void proto_register_lpp(void) {
   proto_register_field_array(proto_lpp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
 }
 
 

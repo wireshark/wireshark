@@ -14,7 +14,7 @@ ALIGNED
 Message
 #.END
 
-#.FN_PARS MessageBody 
+#.FN_PARS MessageBody
   VAL_PTR = &msg_type
 #.FN_HDR
   gint32 msg_type = -1;

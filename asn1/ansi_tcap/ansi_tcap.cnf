@@ -21,11 +21,11 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
  int start_offset = offset;
  guint8 family;
  guint8 specifier;
- 
+
   %(DEFAULT_BODY)s
   /* mask off the H bit */
   ansi_tcap_private.d.OperationCode_national = (ansi_tcap_private.d.OperationCode_national&0x7fff);
- 
+
   subtree = proto_item_add_subtree(actx->created_item, ett_ansi_tcap_op_code_nat);
   /* Bit H is used to distinguish between Operations that require a reply and those that do not. A value of 1
    * indicates that a reply is required; a value of 0 indicates that a reply is not required.
@@ -77,14 +77,14 @@ OperationCode/private    VAL_PTR = &ansi_tcap_private.d.OperationCode_private
 	default:
 		break;
   }
-  
+
 #--- INVOKE ---
 
 #.FN_BODY Invoke/parameter
 
   if(find_tcap_subdissector(tvb, actx, tree))
     offset = tvb_length(tvb);
-  
+
 
 #.FN_HDR Invoke
   ansi_tcap_private.d.pdu = 1;
@@ -157,10 +157,10 @@ guint8 len;
 if(next_tvb) {
 	len = tvb_length_remaining(next_tvb, 0);
 	if(len !=0){
-		/* 0 octets for the Unidirectional, 
+		/* 0 octets for the Unidirectional,
 		 * 4 octets for Query, Response & Abort
 		 * 8 octets for Conversation in the order Originating then Responding TID
-		 * 
+		 *
 		 * In order to match this it seems like we should only use the last 4 octets
 		 * in the 8 octets case.
 		 */

@@ -722,7 +722,7 @@ dissect_x509if_AttributeTypeAssertion(gboolean implicit_tag _U_, tvbuff_t *tvb _
 static int
 dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 190 "../../asn1/x509if/x509if.cnf"
-  const char *fmt; 
+  const char *fmt;
   const char *name;
 
     offset = dissect_ber_object_identifier_str(implicit_tag, actx, tree, tvb, offset, hf_x509if_object_identifier_id, &actx->external.direct_reference);
@@ -731,7 +731,7 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
   if(actx->external.direct_reference) {
     /* see if we can find a nice name */
     name = oid_resolved_from_string(actx->external.direct_reference);
-    if(!name) name = actx->external.direct_reference;    
+    if(!name) name = actx->external.direct_reference;
 
     if(last_rdn) { /* append it to the RDN */
       g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
@@ -769,7 +769,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   int old_offset = offset;
   tvbuff_t	*out_tvb;
   char  	*value = NULL;
-  const char 	*fmt; 
+  const char 	*fmt;
   const char	*name = NULL;
   const char    *orig_oid = actx->external.direct_reference;
 
@@ -781,7 +781,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 
   /* try and dissect as a string */
   dissect_ber_octet_string(FALSE, actx, NULL, tvb, old_offset, hf_x509if_any_string, &out_tvb);
-  
+
   /* should also try and dissect as an OID and integer */
   /* of course, if I can look up the syntax .... */
 
@@ -884,7 +884,7 @@ dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_
     top_of_rdn = tree;
   } else {
 
-   if(last_rdn)  
+   if(last_rdn)
      /* this is an additional value - delimit */
      g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
   }
@@ -949,7 +949,7 @@ dissect_x509if_RDNSequence_item(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   if(!dn_one_rdn)  {
     /* this is the first element - record the top */
     top_of_dn = tree;
-  } 
+  }
 
     offset = dissect_x509if_RelativeDistinguishedName(implicit_tag, tvb, offset, actx, tree, hf_index);
 
@@ -969,7 +969,7 @@ static const ber_sequence_t RDNSequence_sequence_of[1] = {
 int
 dissect_x509if_RDNSequence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 373 "../../asn1/x509if/x509if.cnf"
-  const char *fmt; 
+  const char *fmt;
 
   dn_one_rdn = FALSE; /* reset */
   last_dn = (char *)wmem_alloc(wmem_packet_scope(), MAX_DN_STR_LEN); *last_dn = '\0';
@@ -2120,7 +2120,7 @@ gboolean x509if_register_fmt(int hf_index, const gchar *fmt)
 
     return TRUE;
 
-  } else 
+  } else
     return FALSE; /* couldn't register it */
 
 }
@@ -2135,13 +2135,13 @@ void proto_register_x509if(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
-    { &hf_x509if_object_identifier_id, 
+    { &hf_x509if_object_identifier_id,
       { "Id", "x509if.id", FT_OID, BASE_NONE, NULL, 0,
 	"Object identifier Id", HFILL }},
-    { &hf_x509if_any_string, 
+    { &hf_x509if_any_string,
       { "AnyString", "x509if.any.String", FT_BYTES, BASE_NONE,
 	    NULL, 0, "This is any String", HFILL }},
-			 
+
 
 /*--- Included file: packet-x509if-hfarr.c ---*/
 #line 1 "../../asn1/x509if/packet-x509if-hfarr.c"

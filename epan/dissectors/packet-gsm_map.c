@@ -20740,7 +20740,7 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     offset=dissect_gsm_map_om_DeactivateTraceModeArg(FALSE, tvb, offset, actx, tree, -1);
     break;
     /* reserved traceSubscriberActivity (52) */
-    
+
   case 53: /* UpdateVcsgLocation 53 */
     offset=dissect_gsm_map_ms_UpdateVcsgLocationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -22192,7 +22192,7 @@ void proto_reg_handoff_gsm_map(void) {
 	range_foreach(ssn_range, range_delete_callback);
         g_free(ssn_range);
     }
-    
+
     ssn_range = range_copy(global_ssn_range);
     range_foreach(ssn_range, range_add_callback);
 

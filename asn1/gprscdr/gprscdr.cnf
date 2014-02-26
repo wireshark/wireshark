@@ -52,7 +52,7 @@ GPRSRecord
 #.FN_BODY ManagementExtension/information
 
    proto_tree_add_text(tree, tvb, offset, -1, "Not dissected");
-   
+
 #.FN_BODY TimeStamp VAL_PTR = &parameter_tvb
 /*
  *
@@ -74,7 +74,7 @@ GPRSRecord
  */
 
  tvbuff_t	*parameter_tvb;
- 
+
 %(DEFAULT_BODY)s
 
  if (!parameter_tvb)
@@ -91,7 +91,7 @@ GPRSRecord
 			tvb_get_guint8(parameter_tvb,7),                        /* Hour */
 			tvb_get_guint8(parameter_tvb,8)                         /* Minute */
 			);
- 
+
 #.FN_BODY MSTimeZone VAL_PTR = &parameter_tvb
 /*
  *
@@ -111,14 +111,14 @@ GPRSRecord
 	data = (data >> 4) + (data & 0x07) * 10;
 
 	data2 = tvb_get_guint8(tvb, 1) & 0x3;
-	
-	proto_item_append_text(actx->created_item, " (GMT %%c %%d hours %%d minutes %%s)", 
-			sign, 
-			data / 4, 
+
+	proto_item_append_text(actx->created_item, " (GMT %%c %%d hours %%d minutes %%s)",
+			sign,
+			data / 4,
 			data %% 4 * 15,
 			val_to_str_const(data2, gprscdr_daylight_saving_time_vals, "Unknown")
 			);
-			
+
 #.FN_BODY PLMN-Id VAL_PTR = &parameter_tvb
  tvbuff_t	*parameter_tvb;
  proto_tree *subtree;
@@ -127,11 +127,11 @@ GPRSRecord
 
  if (!parameter_tvb)
 	return offset;
-	   
- subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);	   
+
+ subtree = proto_item_add_subtree(actx->created_item, ett_gprscdr_plmn_id);
  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, TRUE);
- 
+
 #.TYPE_ATTR
-IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE   
-IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE   
+IPBinaryAddress/iPBinV4Address TYPE = FT_IPv4  DISPLAY = BASE_NONE
+IPBinaryAddress/iPBinV6Address TYPE = FT_IPv6  DISPLAY = BASE_NONE
 #.END

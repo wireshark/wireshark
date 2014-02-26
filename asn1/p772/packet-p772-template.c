@@ -32,8 +32,8 @@
 #include "packet-x509if.h"
 
 #include "packet-p772.h"
-#include "packet-p1.h" 
-#include "packet-p22.h" 
+#include "packet-p1.h"
+#include "packet-p22.h"
 
 #define PNAME  "STANAG 4406 Message"
 #define PSNAME "P772"
@@ -105,7 +105,7 @@ void proto_register_p772(void) {
   proto_register_field_array(proto_p772, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772); 
+  register_ber_syntax_dissector("STANAG 4406", proto_p772, dissect_p772);
   register_ber_oid_syntax(".p772", NULL, "STANAG 4406");
 }
 

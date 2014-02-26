@@ -19,7 +19,7 @@ AE-invocation-identifier
 #.TYPE_RENAME
 AARQ-apdu/_untag/protocol-version	T_AARQ_protocol_version
 AARE-apdu/_untag/protocol-version	T_AARE_protocol_version
-AARQ-apdu/_untag/aSO-context-name	T_AARQ_aSO_context_name		
+AARQ-apdu/_untag/aSO-context-name	T_AARQ_aSO_context_name
 AARE-apdu/_untag/aSO-context-name	T_AARE_aSO_context_name
 ACRQ-apdu/_untag/aSO-context-name	T_ACRQ_aSO_context_name
 ACRP-apdu/_untag/aSO-context-name	T_ACRP_aSO_context_name
@@ -40,7 +40,7 @@ AARE-apdu/_untag/aSO-context-name	aARE_aSO_context_name
 ACRQ-apdu/_untag/aSO-context-name	aCRQ_aSO_context_name
 PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
-#.FN_PARS Authentication-value-other/other-mechanism-name  
+#.FN_PARS Authentication-value-other/other-mechanism-name
   FN_VARIANT = _str VAL_PTR = &object_identifier_id
 
 #.FN_BODY Authentication-value-other/other-mechanism-value
@@ -110,7 +110,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY Release-request-reason
   int reason = -1;
- 
+
   %(DEFAULT_BODY)s
 
   if(reason != -1)
@@ -126,7 +126,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FN_BODY Release-response-reason
   int reason = -1;
- 
+
   %(DEFAULT_BODY)s
 
   if(reason != -1)
@@ -144,7 +144,7 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
   if(source != -1)
    col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%s)", val_to_str(source, acse_ABRT_source_vals, "source(%%d)"));
-  
+
 #.FIELD_ATTR
 Association-data/_item NAME = "Association-data"
 

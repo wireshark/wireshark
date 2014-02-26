@@ -51,7 +51,7 @@ typedef struct _snmp_usm_auth_model_t {
 
 typedef struct _snmp_user_t {
 	snmp_usm_key_t userName;
-	
+
 	snmp_usm_auth_model_t* authModel;
 	snmp_usm_key_t authPassword;
 	snmp_usm_key_t authKey;
@@ -79,7 +79,7 @@ struct _snmp_usm_params_t {
 	gboolean encrypted;
 	guint start_offset;
 	guint auth_offset;
-	
+
 	guint32 boots;
 	guint32 time;
 	tvbuff_t* engine_tvb;

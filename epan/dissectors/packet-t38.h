@@ -46,7 +46,7 @@ typedef struct _t38_packet_info {
 	guint8	t30_Facsimile_Control;
 	gchar   desc[MAX_T38_DESC]; /* Description used to be displayed in the frame label Graph Anlaysis */
 	gchar   desc_comment[MAX_T38_DESC]; /* Description used to be displayed in the Comment Graph Anlaysis */
-	double time_first_t4_data; 
+	double time_first_t4_data;
 	guint32 frame_num_first_t4_data;
 } t38_packet_info;
 
@@ -57,17 +57,17 @@ typedef struct _t38_packet_info {
 /* Info to save the State to reassemble Data (e.g. HDLC) and the Setup (e.g. SDP) in T38 conversations */
 typedef struct _t38_conv_info
 {
-	
+
 	guint32 reass_ID;
 	int reass_start_seqnum;
 	guint32 reass_data_type;
 	gint32 last_seqnum; /* used to avoid duplicated seq num shown in the Graph Analysis */
 	guint32 packet_lost;
 	guint32 burst_lost;
-	double time_first_t4_data; 
+	double time_first_t4_data;
 	guint32 additional_hdlc_data_field_counter;
 	gint32 seqnum_prev_data_field;
-	
+
 } t38_conv_info;
 
 /* Info to save the State to reassemble Data (e.g. HDLC) and the Setup (e.g. SDP) in T38 conversations */

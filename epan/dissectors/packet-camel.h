@@ -31,8 +31,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  * References: ETSI 300 374
  */
-/* 
- * Indentation logic: this file is indented with 2 spaces indentation. 
+/*
+ * Indentation logic: this file is indented with 2 spaces indentation.
  *                    there are no tabs.
  */
 
@@ -56,7 +56,7 @@ WS_DLL_PUBLIC const value_string camel_opr_code_strings[];
 */
 #define NB_CAMELSRT_CATEGORY 9+1 /**< Number of type of message */
 /* for example TC_BEGIN with InitalDP, and TC_CONT with RequestReportBCSMEvent
-   is a category, we want to measure the delay between the two messages */ 
+   is a category, we want to measure the delay between the two messages */
 
 #define CAMELSRT_SESSION 1
 
@@ -75,7 +75,7 @@ WS_DLL_PUBLIC const value_string  camelSRTtype_naming[];
 
 /** If we have a request message and its response,
    (eg: ApplyCharging, ApplyChargingReport)
-   the frames numbers are stored in this structure */ 
+   the frames numbers are stored in this structure */
 
 struct camelsrt_category_t {
   guint32 req_num;		/**< frame number request seen */
@@ -96,7 +96,7 @@ struct camelsrt_call_t {
 };
 
 
-/** The Key for the hash table is the TCAP origine transaction identifier 
+/** The Key for the hash table is the TCAP origine transaction identifier
    of the TC_BEGIN containing the InitialDP */
 
 struct camelsrt_call_info_key_t {
@@ -104,8 +104,8 @@ struct camelsrt_call_info_key_t {
 };
 
 /** Info for a couple of messages (or category)
-   The request must be available, not duplicated, 
-   and once the corresponding response received, 
+   The request must be available, not duplicated,
+   and once the corresponding response received,
    we can deduce the Delta Time between Request/response */
 
 struct camelsrt_msginfo_t {
@@ -118,7 +118,7 @@ struct camelsrt_msginfo_t {
 
 /** List of infos to store for the analyse */
 
-struct camelsrt_info_t { 
+struct camelsrt_info_t {
   guint32 tcap_session_id;
   void * tcap_context;
   guint8 opcode; /**< operation code of message received */

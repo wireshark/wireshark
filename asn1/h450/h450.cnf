@@ -1,6 +1,6 @@
 # h450.cnf
 # H.450 conformation file
-# Copyright 2004 Anders Broman 
+# Copyright 2004 Anders Broman
 
 #.OPT
 PER
@@ -10,7 +10,7 @@ GROUP_BY_PROT
 #.END
 
 #.IMPORT ../h225/h225-exp.cnf
-#.IMPORT ../h450-ros/h450-ros-exp.cnf 
+#.IMPORT ../h450-ros/h450-ros-exp.cnf
 
 #.MODULE
 
@@ -86,11 +86,11 @@ IntResult/extension IntResult_extension
 #PresentedNumberUnscreened/presentationRestrictedAddress numberUnscreened_presentationRestrictedAddress
 #PresentedAddressUnscreened/presentationRestrictedAddress addressUnscreened_presentationRestrictedAddress
 
-CTInitiateArg/argumentExtension cTInitiateArg_argumentExtension 
-CTSetupArg/argumentExtension cTSetupArg_argumentExtension 
+CTInitiateArg/argumentExtension cTInitiateArg_argumentExtension
+CTSetupArg/argumentExtension cTSetupArg_argumentExtension
 CTUpdateArg/argumentExtension cTUpdateArg_argumentExtension
-SubaddressTransferArg/argumentExtension subaddressTransferArg_argumentExtension 
-CTCompleteArg/argumentExtension cTCompleteArg_argumentExtension 
+SubaddressTransferArg/argumentExtension subaddressTransferArg_argumentExtension
+CTCompleteArg/argumentExtension cTCompleteArg_argumentExtension
 CTActiveArg/argumentExtension cTActiveArg_argumentExtension
 MixedExtension/extension mixedExtension_extension
 PAR-unspecified/extension unspecified_extension
@@ -105,21 +105,21 @@ CoReqOptArg/extension coReqOptArg_extension
 RUAlertOptArg/extension rUAlertOptArg_extension
 CfbOvrOptArg/extension cfbOvrOptArg_extension
 CmnArg/extension cmnArg_extension
-ARG-activateDiversionQ/extension activateDiversionQArg_extension 
+ARG-activateDiversionQ/extension activateDiversionQArg_extension
 ARG-interrogateDiversionQ/extension interrogateDiversionQ_extension
-ARG-callRerouting/extension callReroutingArg_extension 
-ARG-divertingLegInformation4/extension divertingLegInformation4Arg_extension 
-ARG-divertingLegInformation3/extension divertingLegInformation3Arg_extension 
-ARG-deactivateDiversionQ/extension deactivateDiversionQArg_extension 
+ARG-callRerouting/extension callReroutingArg_extension
+ARG-divertingLegInformation4/extension divertingLegInformation4Arg_extension
+ARG-divertingLegInformation3/extension divertingLegInformation3Arg_extension
+ARG-deactivateDiversionQ/extension deactivateDiversionQArg_extension
 IntResult/extension intResult_extension
 
-MWIActivateArg/extensionArg mWIActivateArg_extensionArg 
-MWIDeactivateArg/extensionArg mWIDeactivateArg_extensionArg 
-MWIInterrogateArg/extensionArg mWIInterrogateArg_extensionArg 
+MWIActivateArg/extensionArg mWIActivateArg_extensionArg
+MWIDeactivateArg/extensionArg mWIDeactivateArg_extensionArg
+MWIInterrogateArg/extensionArg mWIInterrogateArg_extensionArg
 MWIInterrogateResElt/extensionArg mWIInterrogateResElt_extensionArg
 
-HoldNotificArg/extensionArg holdNotificArg_extensionArg 
-RetrieveNotificArg/extensionArg retrieveNotificArg_extensionArg 
+HoldNotificArg/extensionArg holdNotificArg_extensionArg
+RetrieveNotificArg/extensionArg retrieveNotificArg_extensionArg
 
 RemoteHoldArg/extensionArg remoteHoldArg_extensionArg
 RemoteRetrieveArg/extensionArg remoteRetrieveArg_extensionArg
@@ -133,7 +133,7 @@ PickExeArg/extensionArg pickExeArg_extensionArg
 CpNotifyArg/extensionArg cpNotifyArg_extensionArg
 CpickupNotifyArg/extensionArg cpickupNotifyArg_extensionArg
 CallWaitingArg/extensionArg callWaitingArg_extensionArg
-CIRequestArg/argumentExtension cIRequestArg_argumentExtension 
+CIRequestArg/argumentExtension cIRequestArg_argumentExtension
 CIGetCIPLOptArg/argumentExtension cIGetCIPLOptArg_argumentExtension
 CIIsOptArg/argumentExtension cIIsOptArg_argumentExtension
 CIFrcRelArg/argumentExtension cIFrcRelArg_argumentExtension

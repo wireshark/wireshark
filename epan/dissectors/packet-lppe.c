@@ -14935,7 +14935,7 @@ static const per_sequence_t OMA_LPPe_MessageExtension_sequence[] = {
 static int
 dissect_lppe_OMA_LPPe_MessageExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 17 "../../asn1/lppe/lppe.cnf"
-	
+
   proto_tree_add_item(tree, proto_lppe, tvb, 0, -1, ENC_NA);
 
   col_append_sep_str(actx->pinfo->cinfo, COL_PROTOCOL, "/", "LPPe");
@@ -21720,7 +21720,7 @@ void proto_register_lppe(void) {
   proto_register_field_array(proto_lppe, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
 }
 
 

@@ -636,7 +636,7 @@ dissect_pres_T_single_ASN1_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 #line 35 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
- char *oid; 
+ char *oid;
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){
@@ -659,7 +659,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 #line 49 "../../asn1/pres/pres.cnf"
 
  tvbuff_t	*next_tvb;
- char *oid; 
+ char *oid;
 
 	oid=find_oid_by_pres_ctx_id(actx->pinfo, presentation_context_identifier);
 	if(oid){

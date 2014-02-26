@@ -1774,7 +1774,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	nr_pages = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(tree, hf_sabp_no_of_pages, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	/*  
+	/*
 	 * NOTE: n equal to or less than 15
 	 */
 	if(nr_pages > 15){
@@ -1803,7 +1803,7 @@ dissect_sabp_cb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 	}
 
-	
+
 }
 
 static guint

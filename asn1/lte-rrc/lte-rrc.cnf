@@ -668,7 +668,7 @@ SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11 TYPE = FT_UINT64
 
 #.FN_FTR SystemInformationBlockType16-r11/timeInfo-r11/timeInfoUTC-r11
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_timeInfo);
-  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */ 
+  ts.secs = (time_t)(timeInfo/100)-2208988800U; /* epoch is 00:00:00 (midnight) UTC on 1900-01-01 */
   ts.nsecs = (int)(timeInfo%100)*10000000;
   proto_tree_add_text(subtree, tvb, old_offset>>3, (old_offset&0x07) ? 6 : 5,
                       "UTC   time: %s", abs_time_to_ep_str(&ts, ABSOLUTE_TIME_UTC, FALSE));
@@ -1103,7 +1103,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   }
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "SecurityModeFailure");
-  
+
 
 #.FN_HDR UECapabilityInformation
 
@@ -1152,7 +1152,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 #.FN_HDR MBMSInterestIndication-r11
 
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSInterestIndication-r11");
-  
+
 #.FN_BODY Paging/systemInfoModification
 %(DEFAULT_BODY)s
   col_append_str(actx->pinfo->cinfo, COL_INFO, " (systemInfoModification)");
@@ -1171,7 +1171,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   /* Show SFN in info column */
   sfn = tvb_get_guint8(value_tvb, 0);
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (SFN=%%u)", sfn);
-  
+
 #.FN_BODY SystemInformationBlockType1/systemInfoValueTag VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s

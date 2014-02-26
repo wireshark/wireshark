@@ -3,7 +3,7 @@
 
 #.TYPE_ATTR
 Time			TYPE = FT_STRING  DISPLAY = BASE_NONE  STRING = NULL BITMASK = 0
-# Permitted-Actions-Attribute is exported from FTAM as DISPLAY = BASE_HEX - 
+# Permitted-Actions-Attribute is exported from FTAM as DISPLAY = BASE_HEX -
 # but this causes a runtime error.
 # We override the definition here until we can identify the fix correct fix
 Permitted-Actions-Attribute TYPE = FT_BYTES   DISPLAY = BASE_NONE   STRINGS = NULL  BITMASK = 0
@@ -220,9 +220,9 @@ IpnSecurityResponse			B	"2.6.1.18.1"	"id-sec-security-common-fields"
   const char *name = NULL;
 
   %(DEFAULT_BODY)s
-  
+
   name = oid_resolved_from_string(actx->external.direct_reference);
-  proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference); 
+  proto_item_append_text(tree, " (%%s)", name ? name : actx->external.direct_reference);
 
 #.FN_BODY IPMSExtension/value
 

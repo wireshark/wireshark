@@ -86,7 +86,7 @@ void proto_register_acp133(void) {
 /*--- proto_reg_handoff_acp133 --- */
 void proto_reg_handoff_acp133(void) {
 
-#include "packet-acp133-dis-tab.c" 
+#include "packet-acp133-dis-tab.c"
 
   /* X.402 Object Classes */
   oid_add_from_string("id-oc-mhs-distribution-list","2.6.5.1.0");

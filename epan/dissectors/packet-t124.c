@@ -1513,7 +1513,7 @@ dissect_t124_T_connectPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
       /* This length MUST be ignored by the client." */
 
       /* Not sure why - but lets ignore the length. */
-      /* We assume the OCTET STRING is all of the remaining bytes */	 
+      /* We assume the OCTET STRING is all of the remaining bytes */
 
       if(tvb_length(next_tvb) == 42) {
          /* this is perhaps a naive ... */
@@ -1589,9 +1589,9 @@ dissect_t124_ChannelId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
                                                             0U, 65535U, &channelId, FALSE);
 
 
-    if(hf_index == hf_t124_channelId_03) 
+    if(hf_index == hf_t124_channelId_03)
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%d", channelId);
-    	
+
 
 
 
@@ -4016,7 +4016,7 @@ void proto_register_t124(void) {
 /*--- End of included file: packet-t124-ettarr.c ---*/
 #line 209 "../../asn1/t124/packet-t124-template.c"
   };
-  
+
   /* Register protocol */
   proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
   /* Register fields and subtrees */

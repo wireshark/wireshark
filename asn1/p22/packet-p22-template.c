@@ -138,7 +138,7 @@ void proto_register_p22(void) {
 /*--- proto_reg_handoff_p22 --- */
 void proto_reg_handoff_p22(void) {
 
-#include "packet-p22-dis-tab.c" 
+#include "packet-p22-dis-tab.c"
 
   register_ber_oid_dissector("2.6.1.10.0", dissect_p22, proto_p22, "InterPersonal Message (1984)");
   register_ber_oid_dissector("2.6.1.10.1", dissect_p22, proto_p22, "InterPersonal Message (1988)");

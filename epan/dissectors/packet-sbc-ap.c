@@ -558,9 +558,9 @@ dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
-	if(tvb_length(tvb)==0) 
+	if(tvb_length(tvb)==0)
 		return offset;
-		
+
 	if (!parameter_tvb)
 		return offset;
 	dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, tree, 0, FALSE);
@@ -1460,7 +1460,7 @@ void proto_register_sbc_ap(void) {
   proto_register_field_array(proto_sbc_ap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
- 
+
   /* Register dissector tables */
   sbc_ap_ies_dissector_table = register_dissector_table("sbc_ap.ies", "SBC-AP-PROTOCOL-IES", FT_UINT32, BASE_DEC);
   sbc_ap_extension_dissector_table = register_dissector_table("sbc_ap.extension", "SBC-AP-PROTOCOL-EXTENSION", FT_UINT32, BASE_DEC);

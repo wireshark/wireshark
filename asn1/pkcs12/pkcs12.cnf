@@ -21,7 +21,7 @@ SafeContents		B "1.2.840.113549.1.12.10.1.6"	"safeContentsBag"
 
 # PKCS#9 Attributes - see master list in x509sat.cnf
 PFX			B "2.16.840.1.113730.3.1.216"   "pkcs-9-at-PKCS12"
-EncryptedPrivateKeyInfo	B "1.2.840.113549.1.9.25.2"	"pkcs-9-at-encryptedPrivateKeyInfo" 
+EncryptedPrivateKeyInfo	B "1.2.840.113549.1.9.25.2"	"pkcs-9-at-encryptedPrivateKeyInfo"
 
 # Password Based Encryption
 PBEParameter		B "1.2.840.113549.1.12.1.1" "pbeWithSHAAnd128BitRC4"
@@ -104,11 +104,11 @@ PrivateKeyInfo
   append_oid(tree, object_identifier_id);
 #.END
 
-#.FN_BODY SafeBag/bagValue	
+#.FN_BODY SafeBag/bagValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
-#.FN_BODY PKCS12Attribute/attrValues/_item	
+#.FN_BODY PKCS12Attribute/attrValues/_item
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
@@ -123,7 +123,7 @@ PrivateKeyInfo
 #.FN_BODY SecretBag/secretValue
 	if(object_identifier_id)
 		offset = call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
-		
+
 #.FN_HDR PBEParameter
 	/* initialise the encryption parameters */
 	PBE_reset_parameters();
@@ -138,21 +138,21 @@ PrivateKeyInfo
 #.FN_HDR EncryptedData
 	tvbuff_t *encrypted_tvb;
 	dissector_handle_t dissector_handle;
-	
+
 #.END
 
 #.FN_FTR EncryptedData
 
-	
+
 
 	dissector_handle=create_dissector_handle(dissect_PrivateKeyInfo_PDU, proto_pkcs12);
 	dissector_change_string("ber.oid", object_identifier_id, dissector_handle);
-	
+
 	PBE_decrypt_data(object_identifier_id, encrypted_tvb, actx, actx->created_item);
-	
+
 	/* restore the original dissector */
 	dissector_reset_string("ber.oid", object_identifier_id);
-	
+
 #.END
 
 

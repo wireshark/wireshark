@@ -649,7 +649,7 @@ dissect_atn_cm(
 		int 	type = no_msg;
 		proto_item *ti = NULL;
 		proto_tree *sub_tree = NULL;
-	
+
 		ti = proto_tree_add_text(
 			tree,
 			tvb,
@@ -660,10 +660,10 @@ dissect_atn_cm(
 		sub_tree = proto_item_add_subtree(
 			ti,
 			ett_atn_cm);
-		
+
 		/* ti = proto_tree_add_item(tree, proto_atn_cm, tvb, 0, 0 , FALSE); */
 		/* sub_tree = proto_item_add_subtree(ti, ett_atn_cm_pdu); */
-		
+
 		/* determine whether it is uplink or downlink */
 		type = check_heur_msg_type(pinfo);
 
@@ -703,7 +703,7 @@ dissect_atn_cm_heur(
 		/* heuristically decode message */
 		switch(type){
 				case um:
-						TRY { 
+						TRY {
 								dissect_CMGroundMessage_PDU(
 									tvb,
 									pinfo,
@@ -729,13 +729,13 @@ dissect_atn_cm_heur(
 				default:
 						break;
 		}
-		
+
 		if (is_atn_cm  == TRUE) {
 				/* note: */
 				/* all subsequent PDU's belonging to this conversation are considered CM */
 				/* if the first CM PDU has been decoded succesfully */
 				/* (This is done in "atn-ulcs" by using "call_dissector_with_data()") */
-		
+
 				/* DT: dstref present, srcref is always zero */
 				if((pinfo->clnp_dstref) &&
 						(!pinfo->clnp_srcref)){
@@ -971,7 +971,7 @@ void proto_register_atn_cm (void)
 #line 220 "../../asn1/atn-cm/packet-atn-cm-template.c"
 			&ett_atn_cm
 		};
-		
+
 		/* register CM application */
 		proto_atn_cm = proto_register_protocol(
 				ATN_CM_PROTO ,

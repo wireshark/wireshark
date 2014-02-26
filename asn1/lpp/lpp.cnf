@@ -1,6 +1,6 @@
 # lpp.cnf
 # llp conformation file
-# Copyright 2011-2013 Pascal Quantin 
+# Copyright 2011-2013 Pascal Quantin
 
 #.OPT
 PER
@@ -23,13 +23,13 @@ GNSS-SystemTime
 SV-ID
 ECID-SignalMeasurementInformation
 CellGlobalIdGERAN
-CellGlobalIdEUTRA-AndUTRA  
+CellGlobalIdEUTRA-AndUTRA
 OTDOA-ReferenceCellInfo
 OTDOA-NeighbourCellInfoElement
 ARFCN-ValueEUTRA
 Ellipsoid-Point
 EllipsoidPointWithAltitude
-EllipsoidPointWithAltitudeAndUncertaintyEllipsoid  
+EllipsoidPointWithAltitudeAndUncertaintyEllipsoid
 NetworkTime
 GNSS-ID-Bitmap
 ARFCN-ValueUTRA
