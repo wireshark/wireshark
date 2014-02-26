@@ -256,9 +256,8 @@ data from the specified tvbuff, starting at the specified offset, and containing
 the specified length worth of characters. Reads data in the specified encoding
 and produces UTF-8 in the buffer. See below for a list of input encoding values.
 
-The buffer is allocated by g_malloc() if scope is set to NULL (in that
-case memory must be explicitely freed), or with the allocator lifetime
-if scope is not NULL.
+The buffer is allocated in the given wmem scope (see README.wmem for more
+information).
 
 guint8 *tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding);
 
@@ -270,9 +269,8 @@ specified encoding and produces UTF-8 in the buffer.  See below for a
 list of input encoding values.  "*lengthp" will be set to the length of
 the string, including the terminating null.
 
-The buffer is allocated by g_malloc() if scope is set to NULL (in that
-case memory must be explicitely freed), or with the allocator lifetime
-if scope is not NULL.
+The buffer is allocated in the given wmem scope (see README.wmem for more
+information).
 
 const guint8 *tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp);
 
@@ -303,9 +301,8 @@ gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
 tvb_get_ts_23_038_7bits_string() returns a string of a given number of
 characters and encoded according to 3GPP TS 23.038 7 bits alphabet.
 
-The buffer is allocated by g_malloc() if scope is set to NULL (in that
-case memory must be explicitely freed), or with the allocator lifetime
-if scope is not NULL.
+The buffer is allocated in the given wmem scope (see README.wmem for more
+information).
 
 Byte Array Accessors:
 
@@ -341,7 +338,8 @@ from the specified tvbuff, starting at the specified offset.
 
 guint8* tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length);
 
-Returns a buffer, allocated with "g_malloc()" if scope is NULL, or with the specified pool.
+Returns a buffer containing a copy of the given TVB bytes. The buffer is
+allocated in the given wmem scope (see README.wmem for more information).
 
 Pointer-retrieval:
 /* WARNING! Don't use this function.  There is almost always a better way.
