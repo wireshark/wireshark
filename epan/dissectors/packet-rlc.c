@@ -357,7 +357,7 @@ rlc_sdu_create(void)
 {
 	struct rlc_sdu *sdu;
 
-	sdu = se_alloc0(sizeof(struct rlc_sdu));
+	sdu = g_malloc0(sizeof(struct rlc_sdu));
 	return sdu;
 }
 
@@ -418,7 +418,7 @@ rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
 {
 	struct rlc_frag *frag;
 
-	frag = se_alloc0(sizeof(struct rlc_frag));
+	frag = g_malloc0(sizeof(struct rlc_frag));
 	rlc_frag_assign(frag, mode, pinfo, seq, li);
 	rlc_frag_assign_data(frag, tvb, offset, length);
 
@@ -461,6 +461,7 @@ free_sequence_table_entry_data(gpointer data)
 		g_list_free(list->list);
 		list->list = NULL;   /* for good measure */
 	}
+        g_free(list);
 }
 
 static void
@@ -872,7 +873,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
 	list = g_hash_table_lookup(sequence_table, &lookup.ch);
 	if (!list) {
 		/* we see this channel for the first time */
-		list = se_alloc0(sizeof(*list));
+		list = g_malloc0(sizeof(*list));
 		rlc_channel_assign(&list->ch, mode, pinfo);
 		g_hash_table_insert(sequence_table, &list->ch, list);
 	}
