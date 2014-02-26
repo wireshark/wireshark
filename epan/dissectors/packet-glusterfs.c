@@ -68,6 +68,7 @@ static gint hf_glusterfs_dict = -1;
 static gint hf_glusterfs_fd = -1;
 static gint hf_glusterfs_offset = -1;
 static gint hf_glusterfs_size = -1;
+static gint hf_glusterfs_size64 = -1;
 static gint hf_glusterfs_volume = -1;
 static gint hf_glusterfs_cmd = -1;
 static gint hf_glusterfs_type = -1;
@@ -1693,6 +1694,18 @@ glusterfs_gfs3_3_op_fallocate_call(tvbuff_t *tvb, int offset,
 	return offset;
 }
 
+static int
+glusterfs_gfs3_3_op_zerofill_call(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_fd, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_offset, offset);
+	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_size64, offset);
+
+	return offset;
+}
+
 /* This function is for common replay. RELEASE , RELEASEDIR and some other function use this method */
 
 int
@@ -1800,7 +1813,7 @@ static const vsff glusterfs3_1_fop_proc[] = {
 static const vsff glusterfs3_3_fop_proc[] = {
 	{ GFS3_OP_NULL, "NULL", NULL, NULL },
 	{
-	 	GFS3_OP_STAT, "STAT",
+		GFS3_OP_STAT, "STAT",
 		glusterfs_gfs3_3_op_stat_call, glusterfs_gfs3_3_op_stat_reply
 	},
 	{
@@ -1823,7 +1836,8 @@ static const vsff glusterfs3_3_fop_proc[] = {
 		GFS3_OP_RMDIR, "RMDIR",
 		glusterfs_gfs3_3_op_rmdir_call, glusterfs_gfs3_3_op_unlink_reply
 	},
-	{ 	GFS3_OP_SYMLINK, "SYMLINK",
+	{
+		GFS3_OP_SYMLINK, "SYMLINK",
 		glusterfs_gfs3_3_op_symlink_call, glusterfs_gfs3_3_op_mknod_reply
 	},
 	{
@@ -1963,19 +1977,23 @@ static const vsff glusterfs3_3_fop_proc[] = {
 	},
 	{
 		GFS3_OP_RELEASEDIR, "RELEASEDIR",
- 		glusterfs_gfs3_3_op_releasedir_call, glusterfs_gfs3_3_op_common_reply
+		glusterfs_gfs3_3_op_releasedir_call, glusterfs_gfs3_3_op_common_reply
 	},
 	{
 		GFS3_OP_FREMOVEXATTR, "FREMOVEXATTR",
- 		glusterfs_gfs3_3_op_fremovexattr_call, glusterfs_gfs3_3_op_common_reply
+		glusterfs_gfs3_3_op_fremovexattr_call, glusterfs_gfs3_3_op_common_reply
 	},
 	{
 		GFS3_OP_FALLOCATE, "FALLOCATE",
- 		glusterfs_gfs3_3_op_fallocate_call, glusterfs_gfs3_3_op_setattr_reply
+		glusterfs_gfs3_3_op_fallocate_call, glusterfs_gfs3_3_op_setattr_reply
 	},
 	{
 		GFS3_OP_DISCARD, "DISCARD",
- 		glusterfs_gfs3_3_op_readdirp_call, glusterfs_gfs3_3_op_setattr_reply
+		glusterfs_gfs3_3_op_readdirp_call, glusterfs_gfs3_3_op_setattr_reply
+	},
+	{
+		GFS3_OP_ZEROFILL, "ZEROFILL",
+		glusterfs_gfs3_3_op_zerofill_call, glusterfs_gfs3_3_op_setattr_reply
 	},
 	{ 0, NULL, NULL, NULL }
 };
@@ -2028,6 +2046,7 @@ static const value_string glusterfs3_1_fop_proc_vals[] = {
 	{ GFS3_OP_FREMOVEXATTR, "FREMOVEXATTR" },
 	{ GFS3_OP_FALLOCATE,    "FALLOCATE" },
 	{ GFS3_OP_DISCARD,      "DISCARD" },
+	{ GFS3_OP_ZEROFILL,     "ZEROFILL" },
 	{ 0, NULL }
 };
 static value_string_ext glusterfs3_1_fop_proc_vals_ext = VALUE_STRING_EXT_INIT(glusterfs3_1_fop_proc_vals);
@@ -2136,6 +2155,10 @@ proto_register_glusterfs(void)
 		},
 		{ &hf_glusterfs_size,
 			{ "Size", "glusterfs.size", FT_UINT32, BASE_DEC,
+				NULL, 0, NULL, HFILL }
+		},
+		{ &hf_glusterfs_size64,
+			{ "Size", "glusterfs.size64", FT_UINT64, BASE_DEC,
 				NULL, 0, NULL, HFILL }
 		},
 		{ &hf_glusterfs_type,
