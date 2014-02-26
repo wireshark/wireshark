@@ -2322,8 +2322,8 @@ parse_IETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset)
 * IN/OUT: offset - The current and updated offset
 * IN: length - Length of Payload */
 static void parse_PAYLOAD(proto_tree *parentTree,
-			  packet_info *pinfo, struct infinibandinfo *info,
-			  tvbuff_t *tvb, gint *offset, gint length)
+                          packet_info *pinfo, struct infinibandinfo *info,
+                          tvbuff_t *tvb, gint *offset, gint length)
 {
     gint                local_offset    = *offset;
     /* Payload - Packet Payload */
