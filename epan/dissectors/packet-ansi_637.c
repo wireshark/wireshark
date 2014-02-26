@@ -522,6 +522,27 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             offset, ia5_637_bigbuf);
         break;
 
+    case 0x04: /* UNICODE */
+
+        offset = 0;
+
+        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields*2, ENC_UCS_2|ENC_BIG_ENDIAN);
+        break;
+
+    case 0x07: /* Latin/Hebrew */
+
+        offset = 0;
+
+        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields, ENC_ISO_8859_8|ENC_NA);
+        break;
+
+    case 0x08: /* Latin */
+
+        offset = 0;
+
+        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields, ENC_ISO_8859_1|ENC_NA);
+        break;
+
     case 0x09: /* GSM 7-bit default alphabet */
 
         offset = 0;
@@ -530,32 +551,11 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         proto_tree_add_ts_23_038_7bits_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, (offset << 3) + bit, num_fields);
         break;
 
-    case 0x04: /* UNICODE */
-
-        offset = 0;
-
-        proto_tree_add_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, offset, num_fields*2, ENC_UCS_2|ENC_BIG_ENDIAN);
-        break;
-
     case 0x10: /* KSC5601 (Korean) */
 
-        if (str == NULL) str = "EUC-KR";
-
-        /* FALLTHROUGH */
-
-    case 0x07: /* Latin/Hebrew */
-
-        if (str == NULL) str = "iso-8859-8";
-
-        /* FALLTHROUGH */
-
-    case 0x08: /* Latin */
-
-        if (str == NULL) str = "iso-8859-1";
-
         offset = 0;
 
-        if ((cd = g_iconv_open("UTF-8", str)) != (GIConv) -1)
+        if ((cd = g_iconv_open("UTF-8", "EUC-KR")) != (GIConv) -1)
         {
             ustr = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, required_octs), required_octs , cd , NULL , NULL , &l_conv_error);
             if (!l_conv_error)
