@@ -371,7 +371,7 @@ WS_DLL_PUBLIC guint32 tvb_get_bits(tvbuff_t *tvb, const guint bit_offset,
 WS_DLL_PUBLIC void *tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset,
     size_t length);
 
-/** If scope is set to NULL it is the user's responsibility to g_free()
+/** If scope is set to NULL it is the user's responsibility to wmem_free()
  * the memory allocated by tvb_memdup(). Otherwise memory is
  * automatically freed when the scope lifetime is reached.
  * Calls tvb_memcpy() */
@@ -523,7 +523,7 @@ WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
  *
  * Throws an exception if the tvbuff ends before the string does.
  *
- * If scope is set to NULL it is the user's responsibility to g_free()
+ * If scope is set to NULL it is the user's responsibility to wmem_free()
  * the memory allocated by tvb_memdup(). Otherwise memory is
  * automatically freed when the scope lifetime is reached.
  */
