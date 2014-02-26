@@ -967,6 +967,7 @@ proto_mpeg_descriptor_dissect_bouquet_name(tvbuff_t *tvb, guint offset, guint le
 /* 0x48 Service Descriptor */
 static int hf_mpeg_descr_service_type = -1;
 static int hf_mpeg_descr_service_provider_name_length = -1;
+static int hf_mpeg_descr_service_provider_name_encoding = -1;
 static int hf_mpeg_descr_service_provider = -1;
 static int hf_mpeg_descr_service_name_length = -1;
 static int hf_mpeg_descr_service_name_encoding = -1;
@@ -1017,7 +1018,11 @@ proto_mpeg_descriptor_dissect_service(tvbuff_t *tvb, guint offset, proto_tree *t
     proto_tree_add_item(tree, hf_mpeg_descr_service_provider_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_mpeg_descr_service_provider, tvb, offset, descr_len, ENC_ASCII|ENC_NA);
+    enc_len = dvb_analyze_string_charset(tvb, offset, descr_len, &encoding);
+    dvb_add_chartbl(tree, hf_mpeg_descr_service_provider_name_encoding, tvb, offset, enc_len, encoding);
+
+    proto_tree_add_item(tree, hf_mpeg_descr_service_provider,
+            tvb, offset+enc_len, descr_len-enc_len, dvb_enc_to_item_enc(encoding));
     offset += descr_len;
 
     name_len = tvb_get_guint8(tvb, offset);
@@ -3411,9 +3416,14 @@ proto_register_mpeg_descriptor(void)
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
         } },
 
+        { &hf_mpeg_descr_service_provider_name_encoding, {
+            "Provider Name Encoding", "mpeg_descr.svc.provider_name_enc",
+            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+        } },
+
         { &hf_mpeg_descr_service_provider, {
             "Service Provider Name", "mpeg_descr.svc.provider_name",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_service_name_length, {
