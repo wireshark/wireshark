@@ -31,7 +31,6 @@
 #include <epan/llcsaps.h>
 #include <epan/ppptypes.h>
 #include <epan/sna-utils.h>
-#include <epan/charsets.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 
