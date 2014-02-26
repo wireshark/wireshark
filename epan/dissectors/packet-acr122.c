@@ -149,6 +149,7 @@ static const value_string command_vals[] = {
     { CMD_SET_BUZZER_OUTPUT_FOR_CARD_DETECTION,  "Set Buzzer Output for Card Detection" },
     { 0, NULL }
 };
+static value_string_ext command_vals_ext = VALUE_STRING_EXT_INIT(command_vals);
 
 static const range_string status_word_rvals[] = {
     { 0x6300, 0x6300,   "Operation Fail" },
@@ -323,7 +324,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (command == CMD_UNKNOWN)
             proto_tree_add_expert(sub_item, pinfo, &ei_unknown_command_or_invalid_parameters, tvb, offset, 4 + length);
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Command: %s", val_to_str_const(command, command_vals, "Unknown"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Command: %s", val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
 
         proto_tree_add_item(main_tree, hf_class, tvb, offset, 1, ENC_NA);
         offset += 1;
@@ -507,7 +508,7 @@ dissect_acr122(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         sub_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, tvb_length_remaining(tvb, offset), command);
         PROTO_ITEM_SET_GENERATED(sub_item);
 
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s", val_to_str_const(command, command_vals, "Unknown"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Response: %s", val_to_str_ext_const(command, &command_vals_ext, "Unknown"));
 
         if (command != CMD_UNKNOWN) {
             sub_item = proto_tree_add_uint(main_tree, hf_response_for, tvb, offset, tvb_length_remaining(tvb, offset), command_frame_number);
@@ -658,12 +659,12 @@ proto_register_acr122(void)
         },
         { &hf_command,
             { "Command",                         "acr122.command",
-            FT_UINT8, BASE_HEX, VALS(command_vals), 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &command_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_response,
             { "Response",                         "acr122.response",
-            FT_UINT8, BASE_HEX, VALS(command_vals), 0x00,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &command_vals_ext, 0x00,
             NULL, HFILL }
         },
         { &hf_response_for,
