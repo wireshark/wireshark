@@ -75,7 +75,7 @@ static gboolean ip_defragment = TRUE;
 static gboolean ip_summary_in_tree = TRUE;
 
 /* Perform IP checksum */
-static gboolean ip_check_checksum = TRUE;
+static gboolean ip_check_checksum = FALSE;
 
 /* Assume TSO and correct zero-length IP packets */
 static gboolean ip_tso_supported = TRUE;
