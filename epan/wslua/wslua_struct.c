@@ -450,7 +450,7 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
         if (size == 0) {
           if (!lua_isnumber(L, -1))
             luaL_error(L, "format `c0' needs a previous size");
-          size = (guint32)lua_tonumber(L, -1);
+          size = wslua_toguint32(L, -1);
           lua_pop(L, 1);
           luaL_argcheck(L, pos+size <= ld, 2, "data string too short");
         }
@@ -515,8 +515,10 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
 
   s = luaL_checklstring(L,WSLUA_ARG_Struct_tohex_BYTESTRING,&len);
 
-  if (!s)
+  if (!s) {
     WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
+    return 0;
+  }
 
   lowercase = wslua_optbool(L,WSLUA_OPTARG_Struct_tohex_LOWERCASE,FALSE);
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_tohex_SEPARATOR,NULL);
@@ -535,8 +537,10 @@ WSLUA_CONSTRUCTOR Struct_fromhex (lua_State *L) {
 
   s = luaL_checklstring(L,WSLUA_ARG_Struct_fromhex_HEXBYTES,&len);
 
-  if (!s)
+  if (!s) {
     WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
+    return 0;
+  }
 
   sep = luaL_optstring(L,WSLUA_OPTARG_Struct_fromhex_SEPARATOR,NULL);
 

@@ -100,13 +100,13 @@ WSLUA_API void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
 }
 
 /* identical to lua_getfield but without triggering metamethods */
-WSLUA_API void lua_rawgetfield(lua_State *L, int idx, const char *k) {
+static void lua_rawgetfield(lua_State *L, int idx, const char *k) {
     lua_pushstring(L, k);
     lua_rawget(L, idx);
 }
 
 /* identical to lua_setfield but without triggering metamethods */
-WSLUA_API void lua_rawsetfield (lua_State *L, int idx, const char *k) {
+static void lua_rawsetfield (lua_State *L, int idx, const char *k) {
     lua_pushstring(L, k);
     lua_insert(L, -2);
     lua_rawset(L, idx);

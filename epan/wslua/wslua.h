@@ -36,6 +36,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <math.h>
 #include <lua.h>
 #include <lualib.h>
 #include <lauxlib.h>
@@ -67,6 +68,31 @@
 #define WSLUA_INIT_ROUTINES "init_routines"
 #define WSLUA_PREFS_CHANGED "prefs_changed"
 #define LOG_DOMAIN_LUA "wslua"
+
+/* type conversion macros - lua_Number is a double, so casting isn't kosher; and
+   using Lua's already-available lua_tointeger() and luaL_checkint() might be different
+   on different machines; so use these instead please! */
+#define wslua_togint(L,i)       (gint)            ( lua_tointeger(L,i) )
+#define wslua_togint32(L,i)     (gint32)  lround  ( lua_tonumber(L,i) )
+#define wslua_togint64(L,i)     (gint64)  llround ( lua_tonumber(L,i) )
+#define wslua_toguint(L,i)      (guint)           ( lua_tointeger(L,i) )
+#define wslua_toguint32(L,i)    (guint32) lround  ( lua_tonumber(L,i) )
+#define wslua_toguint64(L,i)    (guint64) llround ( lua_tonumber(L,i) )
+
+#define wslua_checkgint(L,i)    (gint)            ( luaL_checkint(L,i) )
+#define wslua_checkgint32(L,i)  (gint32)  lround  ( luaL_checknumber(L,i) )
+#define wslua_checkgint64(L,i)  (gint64)  llround ( luaL_checknumber(L,i) )
+#define wslua_checkguint(L,i)   (guint)           ( luaL_checkint(L,i) )
+#define wslua_checkguint32(L,i) (guint32) lround  ( luaL_checknumber(L,i) )
+#define wslua_checkguint64(L,i) (guint64) llround ( luaL_checknumber(L,i) )
+
+#define wslua_optgint(L,i,d)    (gint)            ( luaL_optint(L,i,d) )
+#define wslua_optgint32(L,i,d)  (gint32)  lround  ( luaL_optnumber(L,i,d) )
+#define wslua_optgint64(L,i,d)  (gint64)  llround ( luaL_optnumber(L,i,d) )
+#define wslua_optguint(L,i,d)   (guint)           ( luaL_optint(L,i,d) )
+#define wslua_optguint32(L,i,d) (guint32) lround  ( luaL_optnumber(L,i,d) )
+#define wslua_optguint64(L,i,d) (guint64) llround ( luaL_optnumber(L,i,d) )
+
 
 struct _wslua_tvb {
     tvbuff_t* ws_tvb;
@@ -124,7 +150,7 @@ typedef struct _wslua_pref_t {
     union {
         gboolean b;
         guint u;
-        const gchar* s;
+        gchar* s;
         gint e;
         range_t *r;
         void* p;
@@ -424,14 +450,18 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
             return luaL_error(L, "%s's attribute `%s' must be a function", #C , #field ); \
         obj->field##_ref = luaL_ref(L, LUA_REGISTRYINDEX); \
         return 0; \
-    }
+    } \
+    /* silly little trick so we can add a semicolon after this macro */ \
+    static int C##_set_##field(lua_State*)
 
 #define WSLUA_ATTRIBUTE_GET(C,name,block) \
     static int C##_get_##name (lua_State* L) { \
         C obj = check##C (L,1); \
         block \
         return 1; \
-    }
+    } \
+    /* silly little trick so we can add a semicolon after this macro */ \
+    static int C##_get_##name(lua_State*)
 
 #define WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(C,name,member) \
     WSLUA_ATTRIBUTE_GET(C,name,{lua_pushboolean(L, obj->member );})
@@ -459,22 +489,26 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
         C obj = check##C (L,1); \
         block; \
         return 0; \
-    }
+    } \
+    /* silly little trick so we can add a semicolon after this macro */ \
+    static int C##_set_##name(lua_State*)
 
+/* to make this integral-safe, we treat it as int32 and then cast
+   Note: this will truncate 64-bit integers (but then Lua itself only has doubles */
 #define WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,name,member,cast) \
     WSLUA_ATTRIBUTE_SET(C,name, { \
         if (! lua_isnumber(L,-1) ) \
             return luaL_error(L, "%s's attribute `%s' must be a number", #C , #name ); \
-        obj->member = (cast) lua_tointeger(L,-1); \
+        obj->member = (cast) wslua_togint32(L,-1); \
     })
 
 #define WSLUA_ATTRIBUTE_NUMBER_SETTER(C,member,cast) \
     WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,member,member,cast)
 
 
-#define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); return 0; }
-#define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); return 0; }
-#define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); return 0; }
+#define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); }
+#define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); }
+#define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); }
 
 #define WSLUA_REG_GLOBAL_BOOL(L,n,v) { lua_pushboolean(L,v); lua_setglobal(L,n); }
 #define WSLUA_REG_GLOBAL_STRING(L,n,v) { lua_pushstring(L,v); lua_setglobal(L,n); }
@@ -484,7 +518,8 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
 
 #define WSLUA_API extern
 
-#define NOP
+/* empty macro arguments trigger ISO C90 warnings, so do this */
+#define NOP (void)p
 #define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,idx,"null " s)
 #define FAIL_ON_NULL_OR_EXPIRED(s) if (!*p) { \
         luaL_argerror(L,idx,"null " s); \

@@ -51,8 +51,10 @@ WSLUA_CONSTRUCTOR ByteArray_new(lua_State* L) { /* Creates a ByteArray Object */
     if (lua_gettop(L) >= 1) {
         s = luaL_checklstring(L,WSLUA_OPTARG_ByteArray_new_HEXBYTES,&len);
 
-        if (!s)
+        if (!s) {
             WSLUA_OPTARG_ERROR(ByteArray_new,HEXBYTES,"must be a string");
+            return 0;
+        }
 
         if (lua_gettop(L) >= 2) {
             if (lua_type(L,2) == LUA_TBOOLEAN && lua_toboolean(L,2)) {
@@ -134,8 +136,10 @@ WSLUA_METHOD ByteArray_set_size(lua_State* L) {
     int siz = luaL_checkint(L,WSLUA_ARG_ByteArray_set_size_SIZE);
     guint8* padding;
 
-    if (siz < 0)
+    if (siz < 0) {
         WSLUA_ERROR(ByteArray_set_size,"ByteArray size must be non-negative");
+        return 0;
+    }
 
     if (ba->len >= (guint)siz) { /* truncate */
         g_byte_array_set_size(ba,siz);
@@ -256,8 +260,10 @@ WSLUA_METHOD ByteArray_raw(lua_State* L) {
     int len;
 
     if (!ba) return 0;
-    if (offset > ba->len)
+    if (offset > ba->len) {
         WSLUA_OPTARG_ERROR(ByteArray_raw,OFFSET,"offset beyond end of byte array");
+        return 0;
+    }
 
     len = luaL_optint(L,WSLUA_OPTARG_ByteArray_raw_LENGTH, ba->len - offset);
     if ((len < 0) || ((guint)len > (ba->len - offset)))
@@ -602,8 +608,10 @@ WSLUA_METHOD Tvb_raw(lua_State* L) {
         return 0;
     }
 
-    if ((guint)offset > tvb_length(tvb->ws_tvb))
+    if ((guint)offset > tvb_length(tvb->ws_tvb)) {
         WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
+        return 0;
+    }
 
     if (len == -1) {
         len = tvb_length_remaining(tvb->ws_tvb,offset);
@@ -696,7 +704,7 @@ WSLUA_METHOD TvbRange_le_uint(lua_State* L) {
     switch (tvbr->len) {
         case 1:
             /* XXX unsigned anyway */
-            lua_pushnumber(L,(lua_Number)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
+            lua_pushnumber(L,(lua_Number)(guint)tvb_get_guint8(tvbr->tvb->ws_tvb,tvbr->offset));
             return 1;
         case 2:
             lua_pushnumber(L,tvb_get_letohs(tvbr->tvb->ws_tvb,tvbr->offset));
@@ -954,8 +962,10 @@ WSLUA_METHOD TvbRange_ipv4(lua_State* L) {
         return 0;
     }
 
-    if (tvbr->len != 4)
+    if (tvbr->len != 4) {
         WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
+        return 0;
+    }
 
     addr = (address *)g_malloc(sizeof(address));
 
@@ -980,8 +990,10 @@ WSLUA_METHOD TvbRange_le_ipv4(lua_State* L) {
         return 0;
     }
 
-    if (tvbr->len != 4)
+    if (tvbr->len != 4) {
         WSLUA_ERROR(TvbRange_ipv4,"The range must be 4 octets long");
+        return 0;
+    }
 
     addr = (address *)g_malloc(sizeof(address));
 
@@ -1007,8 +1019,10 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
         return 0;
     }
 
-    if (tvbr->len != 6)
+    if (tvbr->len != 6) {
         WSLUA_ERROR(TvbRange_ether,"The range must be 6 bytes long");
+        return 0;
+    }
 
     addr = g_new(address,1);
 
@@ -1291,7 +1305,7 @@ WSLUA_METHOD TvbRange_bitfield(lua_State* L) {
     }
 
     if (len <= 8) {
-        lua_pushnumber(L,(lua_Number)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
+        lua_pushnumber(L,(lua_Number)(guint)tvb_get_bits8(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len));
         return 1;
     } else if (len <= 16) {
         lua_pushnumber(L,tvb_get_bits16(tvbr->tvb->ws_tvb,tvbr->offset*8 + pos, len, FALSE));
@@ -1417,8 +1431,10 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
         return 0;
     }
 
-    if ((guint)offset > tvb_length(tvbr->tvb->ws_tvb))
+    if ((guint)offset > tvb_length(tvbr->tvb->ws_tvb)) {
         WSLUA_OPTARG_ERROR(Tvb_raw,OFFSET,"offset beyond end of Tvb");
+        return 0;
+    }
 
     if (len == -1) {
         len = tvb_length_remaining(tvbr->tvb->ws_tvb,offset);

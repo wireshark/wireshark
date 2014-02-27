@@ -86,20 +86,20 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
         case FT_UINT24:
         case FT_UINT32:
         case FT_FRAMENUM:
-                lua_pushnumber(L,(lua_Number)fvalue_get_uinteger(&(fi->ws_fi->value)));
+                lua_pushnumber(L,(lua_Number)(fvalue_get_uinteger(&(fi->ws_fi->value))));
                 return 1;
         case FT_INT8:
         case FT_INT16:
         case FT_INT24:
         case FT_INT32:
-                lua_pushnumber(L,(lua_Number)fvalue_get_sinteger(&(fi->ws_fi->value)));
+                lua_pushnumber(L,(lua_Number)(fvalue_get_sinteger(&(fi->ws_fi->value))));
                 return 1;
         case FT_FLOAT:
         case FT_DOUBLE:
-                lua_pushnumber(L,(lua_Number)fvalue_get_floating(&(fi->ws_fi->value)));
+                lua_pushnumber(L,(lua_Number)(fvalue_get_floating(&(fi->ws_fi->value))));
                 return 1;
         case FT_INT64: {
-                pushInt64(L,(Int64)fvalue_get_integer64(&(fi->ws_fi->value)));
+                pushInt64(L,(Int64)(fvalue_get_integer64(&(fi->ws_fi->value))));
                 return 1;
             }
         case FT_UINT64: {
@@ -266,8 +266,10 @@ WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
+    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb) {
         WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+        return 0;
+    }
 
     if (l->ws_fi->start <= r->ws_fi->start && r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + r->ws_fi->length) {
         lua_pushboolean(L,1);
@@ -298,8 +300,10 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
-    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
+    if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb) {
         WSLUA_ERROR(FieldInfo__lt,"Data source must be the same for both fields");
+        return 0;
+    }
 
     if (r->ws_fi->start + r->ws_fi->length < l->ws_fi->start) {
         lua_pushboolean(L,1);
@@ -372,6 +376,7 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 
     if (! lua_tree || ! lua_tree->tree ) {
         WSLUA_ERROR(wslua_all_field_infos,"Cannot be called outside a listener or dissector");
+        return 0;
     }
 
     found = proto_all_finfos(lua_tree->tree);
@@ -480,14 +485,18 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
 
     if (!name) return 0;
 
-    if (!proto_registrar_get_byname(name) && !wslua_is_field_available(L, name))
+    if (!proto_registrar_get_byname(name) && !wslua_is_field_available(L, name)) {
         WSLUA_ARG_ERROR(Field_new,FIELDNAME,"a field with this name must exist");
+        return 0;
+    }
 
-    if (!wanted_fields)
+    if (!wanted_fields) {
         WSLUA_ERROR(Field_new,"A Field extractor must be defined before Taps or Dissectors get called");
+        return 0;
+    }
 
     f = (Field)g_malloc(sizeof(void*));
-    *f = (header_field_info*)g_strdup(name); /* cheating */
+    *f = (header_field_info*)(void*)g_strdup(name); /* cheating */
 
     g_ptr_array_add(wanted_fields,f);
 
@@ -536,6 +545,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
 
     if (! lua_pinfo ) {
         WSLUA_ERROR(Field__call,"Fields cannot be used outside dissectors or taps");
+        return 0;
     }
 
     while (in) {

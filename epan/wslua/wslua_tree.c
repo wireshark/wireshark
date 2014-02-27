@@ -93,7 +93,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
         tvbr->len = 0;
     }
 
-    encoding = (guint)luaL_checknumber(L,1);
+    encoding = wslua_checkguint(L,1);
     lua_remove(L,1);
     if (type == FT_STRINGZ) {
         switch (encoding & ENC_CHARENCODING_MASK) {
@@ -176,20 +176,20 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     lua_insert(L,1);
                     break;
                 case FT_BOOLEAN:
-                    item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(guint32)luaL_checknumber(L,1));
+                    item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,wslua_checkguint32(L,1));
                     break;
                 case FT_UINT8:
                 case FT_UINT16:
                 case FT_UINT24:
                 case FT_UINT32:
                 case FT_FRAMENUM:
-                    item = proto_tree_add_uint(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(guint32)luaL_checknumber(L,1));
+                    item = proto_tree_add_uint(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,wslua_checkguint32(L,1));
                     break;
                 case FT_INT8:
                 case FT_INT16:
                 case FT_INT24:
                 case FT_INT32:
-                    item = proto_tree_add_int(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(gint32)luaL_checknumber(L,1));
+                    item = proto_tree_add_int(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,wslua_checkguint32(L,1));
                     break;
                 case FT_FLOAT:
                     item = proto_tree_add_float(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(float)luaL_checknumber(L,1));

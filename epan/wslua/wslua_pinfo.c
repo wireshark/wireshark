@@ -389,8 +389,8 @@ static int Address__gc(lua_State* L) {
     Address addr = toAddress(L,1);
 
     if (addr) {
-        g_free((void*)addr->data);
-        g_free((void*)addr);
+        g_free((void*)(addr->data));
+        g_free((void*)(addr));
     }
 
     return 0;
@@ -578,7 +578,10 @@ WSLUA_METHOD Column_set(lua_State *L) {
     if (!(c->cinfo))
         return 0;
 
-    if (!s) WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
+    if (!s) {
+        WSLUA_ARG_ERROR(Column_set,TEXT,"must be a string");
+        return 0;
+    }
 
     col_add_str(c->cinfo, c->col, s);
 
@@ -594,7 +597,10 @@ WSLUA_METHOD Column_append(lua_State *L) {
     if (!(c->cinfo))
         return 0;
 
-    if (!s) WSLUA_ARG_ERROR(Column_append,TEXT,"must be a string");
+    if (!s) {
+        WSLUA_ARG_ERROR(Column_append,TEXT,"must be a string");
+        return 0;
+    }
 
     col_append_str(c->cinfo, c->col, s);
 
@@ -610,7 +616,10 @@ WSLUA_METHOD Column_prepend(lua_State *L) {
     if (!(c->cinfo))
         return 0;
 
-    if (!s) WSLUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
+    if (!s) {
+        WSLUA_ARG_ERROR(Column_prepend,TEXT,"must be a string");
+        return 0;
+    }
 
     col_prepend_fstr(c->cinfo, c->col, "%s",s);
 
@@ -705,6 +714,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
     }
 
     WSLUA_ARG_ERROR(Columns__newindex,COLUMN,"the column name must be a valid column");
+    return 0;
 }
 
 WSLUA_METAMETHOD Columns__index(lua_State *L) {
@@ -811,7 +821,7 @@ static int PrivateTable__index(lua_State* L) {
     const gchar* name = luaL_checkstring(L,2);
     const gchar* string;
 
-    string = (const gchar *)g_hash_table_lookup (priv->table, (gpointer) name);
+    string = (const gchar *)(g_hash_table_lookup (priv->table, (gpointer) name));
 
     if (string) {
         lua_pushstring(L, string);
@@ -842,7 +852,7 @@ static int PrivateTable__newindex(lua_State* L) {
     if (string) {
       g_hash_table_replace (priv->table, (gpointer) ep_strdup(name), (gpointer) ep_strdup(string));
     } else {
-      g_hash_table_remove (priv->table, (gpointer) name);
+      g_hash_table_remove (priv->table, (gconstpointer) name);
     }
 
     return 1;

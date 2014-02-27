@@ -45,7 +45,7 @@ WSLUA_FUNCTION wslua_format_date(lua_State* LS) { /* Formats an absolute timesta
     nstime_t then;
     gchar* str;
 
-    then.secs = (guint32)floor(timestamp);
+    then.secs = (guint32)(floor(timestamp));
     then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
     str = abs_time_to_ep_str(&then, ABSOLUTE_TIME_LOCAL, TRUE);
     lua_pushstring(LS,str);
@@ -59,7 +59,7 @@ WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestam
     nstime_t then;
     gchar* str;
 
-    then.secs = (guint32)floor(timestamp);
+    then.secs = (guint32)(floor(timestamp));
     then.nsecs = (guint32) ( (timestamp-(double)(then.secs))*1000000000);
     str = rel_time_to_ep_str(&then);
     lua_pushstring(LS,str);
@@ -186,7 +186,10 @@ WSLUA_FUNCTION wslua_loadfile(lua_State* L) {
 
     filename = wslua_get_actual_filename(given_fname);
 
-    if (!filename) WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
+    if (!filename) {
+        WSLUA_ARG_ERROR(loadfile,FILENAME,"file does not exist");
+        return 0;
+    }
 
     if (luaL_loadfile(L, filename) == 0) {
         g_free(filename);
@@ -207,11 +210,17 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
     char* filename;
     int n;
 
-    if (!given_fname) WSLUA_ARG_ERROR(dofile,FILENAME,"must be a string");
+    if (!given_fname) {
+        WSLUA_ARG_ERROR(dofile,FILENAME,"must be a string");
+        return 0;
+    }
 
     filename = wslua_get_actual_filename(given_fname);
 
-    if (!filename)  WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");
+    if (!filename) {
+        WSLUA_ARG_ERROR(dofile,FILENAME,"file does not exist");
+        return 0;
+    }
 
     n = lua_gettop(L);
     if (luaL_loadfile(L, filename) != 0) lua_error(L);
@@ -262,14 +271,21 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
     Dir dir;
     char* dirname_clean;
 
-    if (!dirname) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
+    if (!dirname) {
+        WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
+        return 0;
+    }
 
     dirname_clean = wslua_get_actual_filename(dirname);
-    if (!dirname_clean) WSLUA_ARG_ERROR(Dir_open,PATHNAME,"directory does not exist");
+    if (!dirname_clean) {
+        WSLUA_ARG_ERROR(Dir_open,PATHNAME,"directory does not exist");
+        return 0;
+    }
 
     if (!test_for_directory(dirname_clean))  {
         g_free(dirname_clean);
         WSLUA_ARG_ERROR(Dir_open,PATHNAME, "must be a directory");
+        return 0;
     }
 
     dir = (Dir)g_malloc(sizeof(struct _wslua_dir));
@@ -284,6 +300,7 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
         g_free(dir);
 
         WSLUA_ARG_ERROR(Dir_open,PATHNAME,"could not open directory");
+        return 0;
     }
 
     pushDir(L,dir);

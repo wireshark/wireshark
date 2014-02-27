@@ -225,8 +225,9 @@ WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
         g_free(tap->name);
         g_free(tap);
         /* WSLUA_ERROR(new_tap,"tap registration error"); */
-        luaL_error(L,"Error while registering tap:\n%s",error->str);
-        g_string_free(error,TRUE); /* XXX LEAK? */
+        lua_pushfstring(L,"Error while registering tap:\n%s",error->str);
+        g_string_free(error,TRUE);
+        luaL_error(L,lua_tostring(L,-1));
     }
 
     if (all_fields) {

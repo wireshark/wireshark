@@ -253,8 +253,10 @@ WSLUA_METHOD Dumper_close(lua_State* L) {
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
 
-    if (! *dp)
+    if (! *dp) {
         WSLUA_ERROR(Dumper_close,"Cannot operate on a closed dumper");
+        return 0;
+    }
 
     g_hash_table_remove(dumper_encaps,*dp);
 
@@ -303,16 +305,22 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
     ts = luaL_checknumber(L,WSLUA_ARG_Dumper_dump_TIMESTAMP);
     ph = checkPseudoHeader(L,WSLUA_ARG_Dumper_dump_PSEUDOHEADER);
 
-    if (!ph) WSLUA_ARG_ERROR(Dumper_dump,TIMESTAMP,"need a PseudoHeader");
+    if (!ph) {
+        WSLUA_ARG_ERROR(Dumper_dump,TIMESTAMP,"need a PseudoHeader");
+        return 0;
+    }
 
     ba = checkByteArray(L,WSLUA_ARG_Dumper_dump_BYTEARRAY);
 
-    if (! ba) WSLUA_ARG_ERROR(Dumper_dump,BYTEARRAY,"must be a ByteArray");
+    if (! ba) {
+        WSLUA_ARG_ERROR(Dumper_dump,BYTEARRAY,"must be a ByteArray");
+        return 0;
+    }
 
     memset(&pkthdr, 0, sizeof(pkthdr));
 
-    pkthdr.ts.secs  = (unsigned)floor(ts);
-    pkthdr.ts.nsecs = (unsigned)floor((ts - (double)pkthdr.ts.secs) * 1000000000);
+    pkthdr.ts.secs  = (unsigned int)(floor(ts));
+    pkthdr.ts.nsecs = (unsigned int)(floor((ts - (double)pkthdr.ts.secs) * 1000000000));
 
     pkthdr.len       = ba->len;
     pkthdr.caplen    = ba->len;
@@ -347,8 +355,10 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     filename = cross_plat_fname(fname);
 
-    if (! lua_pinfo )
+    if (! lua_pinfo ) {
         WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
+        return 0;
+    }
 
     encap = lua_pinfo->fd->lnk_t;
 
@@ -394,7 +404,10 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 
     if (!d) return 0;
 
-    if (! lua_pinfo ) WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
+    if (! lua_pinfo ) {
+        WSLUA_ERROR(Dumper_new_for_current,"Cannot be used outside a tap or a dissector");
+        return 0;
+    }
 
     data_src = (struct data_source*) (lua_pinfo->data_src->data);
     if (!data_src)

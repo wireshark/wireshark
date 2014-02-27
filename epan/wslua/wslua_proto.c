@@ -94,7 +94,7 @@ static enum_val_t* get_enum(lua_State *L, int idx)
 
     g_array_append_val(es,last);
 
-    ret = (enum_val_t*)es->data;
+    ret = (enum_val_t*)(void*)es->data;
 
     g_array_free(es,FALSE);
 
@@ -120,7 +120,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_UINT: {
-            guint32 def = (guint32)luaL_optnumber(L,2,0);
+            guint32 def = wslua_optgint32(L,2,0);
             pref->value.u = def;
             break;
         }
@@ -130,7 +130,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         case PREF_ENUM: {
-            guint32 def = (guint32)luaL_optnumber(L,2,0);
+            guint32 def = wslua_optgint32(L,2,0);
             enum_val_t *enum_val = get_enum(L,4);
             gboolean radio = lua_toboolean(L,5);
             pref->value.e = def;
@@ -140,7 +140,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
         }
         case PREF_RANGE: {
             range_t *range = get_range(L,2,4);
-            guint32 max = (guint32)luaL_optnumber(L,4,0);
+            guint32 max = wslua_optgint32(L,4,0);
             pref->value.r = range;
             pref->info.max_value = max;
             break;
@@ -212,23 +212,22 @@ WSLUA_CONSTRUCTOR Pref_statictext(lua_State* L) {
 static range_t* get_range(lua_State *L, int idx_r, int idx_m)
 {
     static range_t *ret = NULL;
-    gchar *pattern = g_strdup(luaL_checkstring(L, idx_r));
+    const gchar *pattern = luaL_checkstring(L, idx_r);
 
-    switch (range_convert_str(&ret, pattern, (guint32)lua_tonumber(L, idx_m))) {
-    case CVT_NO_ERROR:
-      break;
-    case CVT_SYNTAX_ERROR:
-      WSLUA_ARG_ERROR(Pref_range,DEFAULT,"syntax error in default range");
-      break;
-    case CVT_NUMBER_TOO_BIG:
-      WSLUA_ARG_ERROR(Pref_range,DEFAULT,"value too large in default range");
-      break;
-    default:
-      WSLUA_ARG_ERROR(Pref_range,DEFAULT,"unknown error in default range");
-      break;
+    switch (range_convert_str(&ret, pattern, wslua_togint32(L, idx_m))) {
+        case CVT_NO_ERROR:
+          break;
+        case CVT_SYNTAX_ERROR:
+          WSLUA_ARG_ERROR(Pref_range,DEFAULT,"syntax error in default range");
+          return 0;
+        case CVT_NUMBER_TOO_BIG:
+          WSLUA_ARG_ERROR(Pref_range,DEFAULT,"value too large in default range");
+          return 0;
+        default:
+          WSLUA_ARG_ERROR(Pref_range,DEFAULT,"unknown error in default range");
+          return 0;
     }
 
-    g_free (pattern);
     return ret;
 }
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
@@ -281,17 +280,25 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
 
     if (! prefs_p ) return 0;
 
-    if (! name )
+    if (! name ) {
         WSLUA_ARG_ERROR(Prefs__newindex,NAME,"must be a string");
+        return 0;
+    }
 
-    if (! pref )
+    if (! pref ) {
         WSLUA_ARG_ERROR(Prefs__newindex,PREF,"must be a valid Pref");
+        return 0;
+    }
 
-    if (pref->name)
+    if (pref->name) {
         WSLUA_ARG_ERROR(Prefs__newindex,NAME,"cannot change existing preference");
+        return 0;
+    }
 
-    if (pref->proto)
+    if (pref->proto) {
         WSLUA_ARG_ERROR(Prefs__newindex,PREF,"cannot be added to more than one protocol");
+        return 0;
+    }
 
     p = prefs_p;
 
@@ -345,7 +352,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                                                      pref->name,
                                                      pref->label,
                                                      pref->desc,
-                                                     &(pref->value.s));
+                                                     (const char **)(&(pref->value.s)));
                     break;
                 case PREF_ENUM:
                     prefs_register_enum_preference(prefs_p->proto->prefs_module,
@@ -372,6 +379,7 @@ WSLUA_METAMETHOD Prefs__newindex(lua_State* L) {
                     break;
                 default:
                     WSLUA_ERROR(Prefs__newindex,"Unknow Pref type");
+                    break;
             }
 
             pref->proto = p->proto;
@@ -404,13 +412,14 @@ WSLUA_METAMETHOD Prefs__index(lua_State* L) {
                 case PREF_STRING: lua_pushstring(L,prefs_p->value.s); break;
                 case PREF_ENUM: lua_pushnumber(L,(lua_Number)prefs_p->value.e); break;
                 case PREF_RANGE: lua_pushstring(L,range_convert_range(prefs_p->value.r)); break;
-                default: WSLUA_ERROR(Prefs__index,"Unknow Pref type");
+                default: WSLUA_ERROR(Prefs__index,"Unknow Pref type"); return 0;
             }
             WSLUA_RETURN(1); /* The current value of the preference */
         }
     } while (( prefs_p = prefs_p->next ));
 
     WSLUA_ARG_ERROR(Prefs__index,NAME,"no preference named like this");
+    return 0;
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
@@ -556,7 +565,7 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
             return NULL;
         }
 
-        v.value = (guint32)lua_tonumber(L,-2);
+        v.value = wslua_toguint32(L,-2);
         v.strptr = g_strdup(lua_tostring(L,-1));
 
         g_array_append_val(vs,v);
@@ -564,7 +573,7 @@ static value_string* value_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    ret = (value_string*)vs->data;
+    ret = (value_string*)(void*)vs->data;
 
     g_array_free(vs,FALSE);
 
@@ -600,7 +609,7 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
             return NULL;
         }
 
-        v.value = (guint64)lua_tonumber(L, -2);
+        v.value = wslua_toguint64(L, -2);
         v.strptr = g_strdup(lua_tostring(L,-1));
 
         g_array_append_val(vs,v);
@@ -608,7 +617,7 @@ static val64_string* val64_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    ret = (val64_string*)vs->data;
+    ret = (val64_string*)(void*)vs->data;
 
     g_array_free(vs,FALSE);
 
@@ -645,10 +654,10 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
         }
 
         /* arrays in LUA start with index number 1 */
-        if ((guint32)lua_tonumber(L,-2) == 1)
+        if (lua_tointeger(L,-2) == 1)
             tf.true_string = g_strdup(lua_tostring(L,-1));
 
-        if ((guint32)lua_tonumber(L,-2) == 2)
+        if (lua_tointeger(L,-2) == 2)
             tf.false_string = g_strdup(lua_tostring(L,-1));
 
         lua_pop(L, 1);
@@ -656,7 +665,7 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
 
     g_array_append_val(tfs,tf);
 
-    ret = (true_false_string*)tfs->data;
+    ret = (true_false_string*)(void*)tfs->data;
 
     g_array_free(tfs,FALSE);
 
@@ -710,7 +719,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     val64_string *vs64 = NULL;
     true_false_string *tfs = NULL;
     unsigned base;
-    guint32 mask = (guint32)luaL_optnumber(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
+    guint32 mask = wslua_optguint32(L, WSLUA_OPTARG_ProtoField_new_MASK, 0x0);
     const gchar *blob = luaL_optstring(L,WSLUA_OPTARG_ProtoField_new_DESCR,NULL);
 
     if (lua_isnumber(L,WSLUA_ARG_ProtoField_new_TYPE)) {
@@ -731,9 +740,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     case FT_FRAMENUM:
         if (base != BASE_NONE) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"FRAMENUM must use base.NONE");
+            return 0;
         }
         if (mask) {
             WSLUA_OPTARG_ERROR(ProtoField_new,MASK,"FRAMENUM can not have a bitmask");
+            return 0;
         }
         break;
     case FT_UINT8:
@@ -751,11 +762,13 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
         } else if (base < BASE_DEC || base > BASE_HEX_DEC) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either base.DEC, base.HEX, base.OCT,"
                                " base.DEC_HEX, base.DEC_HEX or base.HEX_DEC");
+            return 0;
         }
         if ((base == BASE_HEX || base == BASE_OCT) &&
             (type == FT_INT8 || type == FT_INT16 || type == FT_INT24 || type == FT_INT32 || type == FT_INT64))
         {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"This type does not display as hexadecimal");
+            return 0;
         }
         if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING && !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING)) {
             if (type == FT_UINT64 || type == FT_INT64) {
@@ -768,9 +781,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     case FT_BOOLEAN:
         if (mask == 0x0 && base != BASE_NONE) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.NONE if bitmask is zero.");
+            return 0;
         }
         if (mask != 0x0 && (base < 1 || base > 64)) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be between 1 and 64 if bitmask is non-zero.");
+            return 0;
         }
         if (nargs >= WSLUA_OPTARG_ProtoField_new_VALUESTRING && !lua_isnil(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING)) {
             tfs = true_false_string_from_table(L,WSLUA_OPTARG_ProtoField_new_VALUESTRING);
@@ -781,9 +796,11 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
             base = ABSOLUTE_TIME_LOCAL;  /* Default base for FT_ABSOLUTE_TIME */
         } else if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be either LOCAL, UTC, or DOY_UTC");
+            return 0;
         }
         if (mask) {
             WSLUA_OPTARG_ERROR(ProtoField_new,MASK,"ABSOLUTE_TIME can not have a bitmask");
+            return 0;
         }
         break;
     case FT_IPv4:
@@ -803,14 +820,17 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) { /* Creates a new field to be us
     case FT_REL_OID:
         if (base != BASE_NONE) {
             WSLUA_OPTARG_ERROR(ProtoField_new,BASE,"Base must be base.NONE");
+            return 0;
         }
         if (mask) {
             WSLUA_OPTARG_ERROR(ProtoField_new,MASK,"This type can not have a bitmask");
+            return 0;
         }
         break;
     case FT_NONE:
     default:
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"Invalid field type");
+        break;
     }
 
     f = g_new(wslua_field_t,1);
@@ -851,7 +871,7 @@ static int ProtoField_integer(lua_State* L, enum ftenum type) {
     unsigned base = luaL_optint(L, 3, BASE_DEC);
     value_string* vs32 = NULL;
     val64_string* vs64 = NULL;
-    guint32 mask = (guint32)luaL_optnumber(L,5,0);
+    guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (lua_gettop(L) > 3) {
@@ -1022,7 +1042,7 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
     const gchar* name = luaL_optstring(L,2,abbr);
     unsigned base = luaL_optint(L, 3, BASE_NONE);
     true_false_string* tfs = NULL;
-    guint32 mask = (guint32)luaL_optnumber(L,5,0);
+    guint32 mask = wslua_optguint32(L,5,0);
     const gchar* blob = luaL_optstring(L,6,NULL);
 
     if (mask == 0x0 && base != BASE_NONE) {
@@ -1351,6 +1371,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
         g_free(loname_a);
         if ( proto_id > 0 ) {
             WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
+            return 0;
         } else {
             Proto proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
             gchar* loname = g_ascii_strdown(name, -1);
@@ -1386,9 +1407,9 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
             WSLUA_RETURN(1); /* The newly created protocol */
         }
-    } else
-        WSLUA_ARG_ERROR(Proto_new,NAME,"must be a string");
+    }
 
+    WSLUA_ARG_ERROR(Proto_new,NAME,"must be a string");
     return 0;
 }
 
@@ -1642,8 +1663,17 @@ int Proto_commit(lua_State* L) {
 
         for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
             ProtoField f = checkProtoField(L,6);
-            hf_register_info hfri = { &(f->hfid), {f->name,f->abbr,f->type,f->base,VALS(f->vs),f->mask,f->blob,HFILL}};
+            hf_register_info hfri = { NULL, { NULL, NULL, 0, 0, NULL, 0, NULL, HFILL } };
             gint* ettp = &(f->ett);
+
+            hfri.p_id = &(f->hfid);
+            hfri.hfinfo.name = f->name;
+            hfri.hfinfo.abbrev = f->abbr;
+            hfri.hfinfo.type = f->type;
+            hfri.hfinfo.display = f->base;
+            hfri.hfinfo.strings = VALS(f->vs);
+            hfri.hfinfo.bitmask = f->mask;
+            hfri.hfinfo.blurb = f->blob;
 
             if (f->hfid != -2) {
                 return luaL_error(L,"fields can be registered only once");
@@ -1654,8 +1684,8 @@ int Proto_commit(lua_State* L) {
             g_array_append_val(etta,ettp);
         }
 
-        proto_register_field_array(proto->hfid,(hf_register_info*)hfa->data,hfa->len);
-        proto_register_subtree_array((gint**)etta->data,etta->len);
+        proto_register_field_array(proto->hfid,(hf_register_info*)(void*)hfa->data,hfa->len);
+        proto_register_subtree_array((gint**)(void*)etta->data,etta->len);
 
         g_array_free(hfa,FALSE);
         g_array_free(etta,FALSE);
@@ -1677,14 +1707,18 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Dissector_get_NAME);
     Dissector d;
 
-    if (!name)
+    if (!name) {
         WSLUA_ARG_ERROR(Dissector_get,NAME,"must be a string");
+        return 0;
+    }
 
     if ((d = find_dissector(name))) {
         pushDissector(L, d);
         WSLUA_RETURN(1); /* The Dissector reference */
-    } else
-        WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
+    }
+
+    WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
+    return 0;
 }
 
 /* Allow dissector key names to be sorted alphabetically */
@@ -1738,7 +1772,7 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
         error = "Malformed frame";
     } ENDTRY;
 
-     if (error) { WSLUA_ERROR(Dissector_call,error); }
+    if (error) { WSLUA_ERROR(Dissector_call,error); }
 
     return 0;
 }
@@ -1814,6 +1848,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
             WSLUA_RETURN(1); /* The newly created DissectorTable */
         default:
             WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be ftypes.UINT{8,16,24,32} or ftypes.STRING");
+            break;
     }
     return 0;
 }
@@ -1838,9 +1873,10 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
         pushDissectorTable(L, dt);
 
         WSLUA_RETURN(1); /* The DissectorTable */
-    } else
-        WSLUA_ARG_ERROR(DissectorTable_get,TABLENAME,"no such dissector_table");
+    }
 
+    WSLUA_ARG_ERROR(DissectorTable_get,TABLENAME,"no such dissector_table");
+    return 0;
 }
 
 WSLUA_METHOD DissectorTable_add (lua_State *L) {
@@ -1861,13 +1897,17 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
         p = checkProto(L,WSLUA_ARG_DissectorTable_add_DISSECTOR);
         handle = p->handle;
 
-        if (! handle)
+        if (! handle) {
             WSLUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"a Protocol that does not have a dissector cannot be added to a table");
+            return 0;
+        }
 
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_add_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_add_DISSECTOR);
-    } else
+    } else {
         WSLUA_ARG_ERROR(DissectorTable_add,DISSECTOR,"must be either Proto or Dissector");
+        return 0;
+    }
 
     type = get_dissector_table_selector_type(dt->name);
 
@@ -1881,13 +1921,16 @@ WSLUA_METHOD DissectorTable_add (lua_State *L) {
             dissector_add_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
-	    gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN));
+            gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_add_PATTERN));
             range_t *range;
-            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
-	        dissector_add_uint_range(dt->name, range, handle);
-	    else
-	        WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid integer or range");
-	    g_free (pattern);
+            if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
+                dissector_add_uint_range(dt->name, range, handle);
+            } else {
+                g_free (pattern);
+                WSLUA_ARG_ERROR(DissectorTable_add,PATTERN,"invalid integer or range");
+                return  0;
+            }
+            g_free (pattern);
         }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -1914,21 +1957,24 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
         p = checkProto(L,WSLUA_ARG_DissectorTable_set_DISSECTOR);
         handle = p->handle;
 
-        if (! handle)
+        if (! handle) {
             WSLUA_ARG_ERROR(DissectorTable_set,DISSECTOR,"a Protocol that does not have a dissector cannot be set to a table");
+            return 0;
+        }
 
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_set_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_set_DISSECTOR);
-    } else
+    } else {
         WSLUA_ARG_ERROR(DissectorTable_set,DISSECTOR,"must be either Proto or Dissector");
+        return 0;
+    }
 
     type = get_dissector_table_selector_type(dt->name);
 
     if (type == FT_STRING) {
-        gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN));
+        const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN);
         dissector_delete_all(dt->name, handle);
         dissector_add_string(dt->name, pattern,handle);
-        g_free (pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
         if (lua_isnumber(L, WSLUA_ARG_DissectorTable_set_PATTERN)) {
             int port = luaL_checkint(L, WSLUA_ARG_DissectorTable_set_PATTERN);
@@ -1936,15 +1982,15 @@ WSLUA_METHOD DissectorTable_set (lua_State *L) {
             dissector_add_uint(dt->name, port, handle);
         } else {
             /* Not a number, try as range */
-            gchar* pattern = g_strdup(luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN));
+            const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_set_PATTERN);
             range_t *range;
             if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR) {
                 dissector_delete_all(dt->name, handle);
                 dissector_add_uint_range(dt->name, range, handle);
             } else {
                 WSLUA_ARG_ERROR(DissectorTable_set,PATTERN,"invalid integer or range");
+                return 0;
             }
-            g_free (pattern);
         }
     } else {
         luaL_error(L,"Strange type %d for a DissectorTable",type);
@@ -1972,8 +2018,10 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
 
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_remove_DISSECTOR);
-    } else
+    } else {
         WSLUA_ARG_ERROR(DissectorTable_remove,DISSECTOR,"must be either Proto or Dissector");
+        return 0;
+    }
 
     type = get_dissector_table_selector_type(dt->name);
 
@@ -1991,8 +2039,11 @@ WSLUA_METHOD DissectorTable_remove (lua_State *L) {
             range_t *range;
             if (range_convert_str(&range, pattern, G_MAXUINT32) == CVT_NO_ERROR)
                 dissector_delete_uint_range(dt->name, range, handle);
-            else
+            else {
+                g_free (pattern);
                 WSLUA_ARG_ERROR(DissectorTable_remove,PATTERN,"invalid integer or range");
+                return 0;
+            }
             g_free (pattern);
         }
     }
@@ -2017,8 +2068,10 @@ WSLUA_METHOD DissectorTable_remove_all (lua_State *L) {
 
     } else if ( isDissector(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR) ) {
         handle = toDissector(L,WSLUA_ARG_DissectorTable_remove_all_DISSECTOR);
-    } else
+    } else {
         WSLUA_ARG_ERROR(DissectorTable_remove_all,DISSECTOR,"must be either Proto or Dissector");
+        return 0;
+    }
 
     dissector_delete_all (dt->name, handle);
 
@@ -2097,7 +2150,10 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
     if (type == FT_STRING) {
         const gchar* pattern = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_PATTERN);
 
-        if (!pattern) WSLUA_ARG_ERROR(DissectorTable_try,PATTERN,"must be a string");
+        if (!pattern) {
+            WSLUA_ARG_ERROR(DissectorTable_try,PATTERN,"must be a string");
+            return 0;
+        }
 
         handle = dissector_get_string_handle(dt->table,pattern);
     } else if ( type == FT_UINT32 || type == FT_UINT16 || type ==  FT_UINT8 || type ==  FT_UINT24 ) {
