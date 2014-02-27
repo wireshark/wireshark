@@ -1483,7 +1483,7 @@ const value_string atm_pt_vals[] = {
 /*
  * Charles Michael Heard's CRC-10 code, from
  *
- *      http://www.cell-relay.com/cell-relay/publications/software/CRC/crc10.html
+ *      http://web.archive.org/web/20061005231950/http://cell-relay.indiana.edu/cell-relay/publications/software/CRC/crc10.html
  *
  * with the CRC table initialized with values computed by
  * his "gen_byte_crc10_table()" routine, rather than by calling that
