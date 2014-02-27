@@ -626,7 +626,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     const char              *saved_proto;
     ws_decrypt_status       status;
 
-    ieee802154_packet      *packet = wmem_new(wmem_packet_scope(), ieee802154_packet);
+    ieee802154_packet      *packet = wmem_new0(wmem_packet_scope(), ieee802154_packet);
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
 
