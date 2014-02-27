@@ -1663,7 +1663,7 @@ int Proto_commit(lua_State* L) {
 
         for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
             ProtoField f = checkProtoField(L,6);
-            hf_register_info hfri = { NULL, { NULL, NULL, 0, 0, NULL, 0, NULL, HFILL } };
+            hf_register_info hfri = { NULL, { NULL, NULL, FT_NONE, 0, NULL, 0, NULL, HFILL } };
             gint* ettp = &(f->ett);
 
             hfri.p_id = &(f->hfid);
