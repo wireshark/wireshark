@@ -6201,19 +6201,11 @@
 
 		<!--
 		Note: The AVP codes from 2322 to 2399 are reserved for TS 32.299
-
-		2400	LMSI	OctetString
-		2401	Serving-Node	Grouped
-		2402	MME-Name	DiameterIdentity
-		2403	MSC-Number	OctetString
-		2404	LCS-Capabilities-Sets	Unsigned32
-		2405	GMLC-Address	Address
-		2406	Additional-Serving-Node	Grouped
-		2407	PPR-Address	Address
-		2408 MME-Realm DiameterIdentity
-		Note: The AVP codes from 2409 to 2499 are reserved for TS 29.173
 		-->
 
+		<avp name="LMSI" code="2400" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<avp name="Serving-Node" code="2401" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SGSN-Number"/>
@@ -6236,6 +6228,9 @@
 		<avp name="LCS-Capabilities-Sets" code="2404" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
+		<avp name="GMLC-Address" code="2405" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
 		<avp name="Additional-Serving-Node" code="2406" mandatory="must" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SGSN-Number"/>
@@ -6244,9 +6239,26 @@
 				<gavp name="MSC-Number"/>
 			</grouped>
 		</avp>
+		<avp name="PSR-Address" code="2407" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="IPAddress"/>
+		</avp>
 		<avp name="MME-Realm" code="2408" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="DiameterIdentity"/>
 		</avp>
+		<avp name="SGSN-Name" code="2409" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="SGSN-Realm" code="2410" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="DiameterIdentity"/>
+		</avp>
+		<avp name="RIA-Flags" code="2411" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+
+		<!--
+		Note: The AVP codes from 2412 to 2499 are reserved for TS 29.173
+		-->
+
 
 		<avp name="Location-Type" code="2500" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Enumerated"/>
