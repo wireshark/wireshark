@@ -1404,7 +1404,7 @@ dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor, guint home
          ptvcursor_add(cursor, hf_homeplug_av11_nw_info_sta_cpling_rx, 1, ENC_BIG_ENDIAN);
          ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
          ptvcursor_add(cursor, hf_homeplug_av11_nw_info_sta_phy_dr_rx, 2, ENC_LITTLE_ENDIAN);
-         ptvcursor_add(cursor, hf_homeplug_av_reserved, 1, ENC_NA);
+         ptvcursor_add(cursor, hf_homeplug_av_reserved, 2, ENC_NA);
       }
    }
    ptvcursor_pop_subtree(cursor);
