@@ -2385,7 +2385,8 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 /* dissect an elementary stream entry in the ca_pmt */
 static gint
-dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+dissect_es(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree, gboolean *scrambled)
 {
     proto_item *ti      = NULL;
     proto_tree *es_tree = NULL;
@@ -2420,11 +2421,13 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
                 return -1;
             offset += ca_desc_len;
         }
+        *scrambled = TRUE;
     }
     else {
         proto_tree_add_text(
                 es_tree, tvb, 0, 0,
                 "No CA descriptors for this elementary stream");
+        *scrambled = FALSE;
     }
 
     proto_item_set_len(ti, offset-offset_start);
@@ -2606,6 +2609,8 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
     guint        prog_info_len;
     gint         es_info_len, all_len;
     gint         ca_desc_len;
+    gboolean     scrambled = FALSE;
+    gboolean     es_scrambled;
     proto_tree  *es_tree = NULL;
     gboolean     desc_ok = FALSE;
 
@@ -2657,6 +2662,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
                     return;
                 offset += ca_desc_len;
             }
+            scrambled = TRUE;
         }
         else {
             proto_tree_add_text(
@@ -2664,11 +2670,16 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
         }
 
         while (tvb_reported_length_remaining(tvb, offset) > 0) {
-            es_info_len = dissect_es(tvb, offset, pinfo, tree);
+            es_info_len = dissect_es(tvb, offset, pinfo, tree, &es_scrambled);
             if (es_info_len <= 0)
                 return;
             offset += es_info_len;
+            if (es_scrambled)
+                scrambled = TRUE;
         }
+
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                scrambled ? "scrambled service" : "free service");
     }
     else if (tag==T_CA_PMT_REPLY) {
         prog_num = tvb_get_ntohs(tvb, offset);
