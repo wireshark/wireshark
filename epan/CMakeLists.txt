@@ -776,6 +776,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-idrp.c
 	dissectors/packet-iec104.c
 	dissectors/packet-ieee1722.c
+	dissectors/packet-ieee1722a.c
 	dissectors/packet-ieee17221.c
 	dissectors/packet-ieee80211-airopeek.c
 	dissectors/packet-ieee80211-netmon.c
