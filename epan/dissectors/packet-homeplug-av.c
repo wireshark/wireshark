@@ -1387,7 +1387,7 @@ dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor, guint home
       if (vendor) {
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_tei, 1, ENC_BIG_ENDIAN);
 
-         if (homeplug_av_mmver == 1)
+         if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
             ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
 
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_bda, 6, ENC_NA);
@@ -1397,7 +1397,7 @@ dissect_homeplug_av_nw_info_sta(ptvcursor_t *cursor, gboolean vendor, guint home
          ptvcursor_add(cursor, hf_homeplug_av10_nw_info_sta_phy_dr_tx, 1, ENC_BIG_ENDIAN);
          ptvcursor_add(cursor, hf_homeplug_av10_nw_info_sta_phy_dr_rx, 1, ENC_BIG_ENDIAN);
       }
-      else if (homeplug_av_mmver == 1)
+      else if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
       {
          ptvcursor_add(cursor, hf_homeplug_av11_nw_info_sta_phy_dr_tx, 2, ENC_LITTLE_ENDIAN);
          ptvcursor_add_no_advance(cursor, hf_homeplug_av11_nw_info_sta_cpling_tx, 1, ENC_BIG_ENDIAN);
@@ -1424,13 +1424,13 @@ dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor, guint8 hom
    {
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_nid, 7, ENC_NA);
 
-      if (homeplug_av_mmver == 1)
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
          ptvcursor_add(cursor, hf_homeplug_av_reserved, 2, ENC_NA);
 
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_snid, 1, ENC_BIG_ENDIAN);
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_tei, 1, ENC_BIG_ENDIAN);
 
-      if (homeplug_av_mmver == 1)
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
          ptvcursor_add(cursor, hf_homeplug_av_reserved, 4, ENC_NA);
 
       ptvcursor_add(cursor, hf_homeplug_av_nw_info_sta_role, 1, ENC_BIG_ENDIAN);
@@ -1438,7 +1438,7 @@ dissect_homeplug_av_nw_info_net(ptvcursor_t *cursor, gboolean vendor, guint8 hom
       if (vendor) {
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_cco_tei, 1, ENC_BIG_ENDIAN);
 
-         if (homeplug_av_mmver == 1)
+         if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
             ptvcursor_add(cursor, hf_homeplug_av_reserved, 3, ENC_NA);
       }
       else
@@ -2352,7 +2352,7 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
 
    ptvcursor_push_subtree(cursor, it, ett_homeplug_av_nw_info_cnf);
    {
-      if (homeplug_av_mmver == 1)
+      if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
          ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
 
       num_avlns = tvb_get_guint8(ptvcursor_tvbuff(cursor),
@@ -2365,7 +2365,7 @@ dissect_homeplug_av_nw_info_cnf(ptvcursor_t *cursor, guint8 homeplug_av_mmver)
                                    ptvcursor_current_offset(cursor));
          ptvcursor_add(cursor, hf_homeplug_av_nw_info_num_stas, 1, ENC_BIG_ENDIAN);
 
-         if (homeplug_av_mmver == 1)
+         if (homeplug_av_mmver == HOMEPLUG_AV_MMVER_1_1)
             ptvcursor_add(cursor, hf_homeplug_av_reserved, 5, ENC_NA);
 
          for (sta = 0; sta < num_stas; sta++) {
