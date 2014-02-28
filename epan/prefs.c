@@ -735,6 +735,7 @@ register_preference(module_t *module, const char *name, const char *title,
     preference->title = title;
     preference->description = description;
     preference->type = type;
+    preference->gui = GUI_ALL;  /* default */
     if (title != NULL)
         preference->ordinal = module->numprefs;
     else
