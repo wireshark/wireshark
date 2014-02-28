@@ -5,8 +5,6 @@
  *
  * Copyright 2001, Heinz Prantner <heinz.prantner[AT]radisys.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -34,7 +32,8 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/sctpppids.h>
+
+#define M2TP_PAYLOAD_PROTOCOL_ID                       99    /* s-link, not IANA-registered */
 
 void proto_register_m2tp(void);
 void proto_reg_handoff_m2tp(void);

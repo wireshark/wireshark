@@ -1,8 +1,6 @@
 /* sctpppids.h
  * Declarations of SCTP payload protocol IDs.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -27,8 +25,11 @@
 
 /*
  * SCTP payload protocol IDs.
- * Based on http://www.iana.org/assignments/sctp-parameters
- * as of September 22nd, 2013
+ * From http://www.iana.org/assignments/sctp-parameters
+ * as of 2014/02/28
+ *
+ * Please do not put non-IANA-registered PPIDs here.  Put them in the dissector
+ * using them instead (and consider registering them!).
  */
 #define NOT_SPECIFIED_PROTOCOL_ID                       0
 #define IUA_PAYLOAD_PROTOCOL_ID                         1
@@ -85,5 +86,6 @@
 #define WEBRTC_BINARY_DATA_PARTIAL_PAYLOAD_PROTOCOL_ID 52
 #define WEBRTC_BINARY_DATA_LAST_PAYLOAD_PROTOCOL_ID    53
 #define WEBRTC_DOMSTRING_PARTIAL_PAYLOAD_PROTOCOL_ID   54
-#define M2TP_PAYLOAD_PROTOCOL_ID                       99    /* s-link */
+#define TGPP_PUA_PAYLOAD_PROTOCOL_ID                   55
+
 #endif /* sctpppids.h */
