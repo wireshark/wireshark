@@ -186,80 +186,6 @@ typedef struct {
 /* Manufacturer specific device. */
 #define GPD_DEVICE_ID_MANUFACTURER_SPECIFIC                     0xFE
 
-/* Payloadless GPDF commands sent by GPD. */
-#define ZB_GP_CMD_ID_IDENTIFY             0x00
-#define ZB_GP_CMD_ID_SCENE0               0x10
-#define ZB_GP_CMD_ID_SCENE1               0x11
-#define ZB_GP_CMD_ID_SCENE2               0x12
-#define ZB_GP_CMD_ID_SCENE3               0x13
-#define ZB_GP_CMD_ID_SCENE4               0x14
-#define ZB_GP_CMD_ID_SCENE5               0x15
-#define ZB_GP_CMD_ID_SCENE6               0x16
-#define ZB_GP_CMD_ID_SCENE7               0x17
-#define ZB_GP_CMD_ID_SCENE8               0x18
-#define ZB_GP_CMD_ID_SCENE9               0x19
-#define ZB_GP_CMD_ID_SCENE10              0x1A
-#define ZB_GP_CMD_ID_SCENE11              0x1B
-#define ZB_GP_CMD_ID_SCENE12              0x1C
-#define ZB_GP_CMD_ID_SCENE13              0x1D
-#define ZB_GP_CMD_ID_SCENE14              0x1E
-#define ZB_GP_CMD_ID_SCENE15              0x1F
-#define ZB_GP_CMD_ID_OFF                  0x20
-#define ZB_GP_CMD_ID_ON                   0x21
-#define ZB_GP_CMD_ID_TOGGLE               0x22
-#define ZB_GP_CMD_ID_RELEASE              0x23
-#define ZB_GP_CMD_ID_LEVEL_CONTROL_STOP   0x34
-#define ZB_GP_CMD_ID_MOVE_HUE_STOP        0x40
-#define ZB_GP_CMD_ID_MOVE_SATURATION_STOP 0x45
-#define ZB_GP_CMD_ID_LOCK_DOOR            0x50
-#define ZB_GP_CMD_ID_UNLOCK_DOOR          0x51
-#define ZB_GP_CMD_ID_PRESS11              0x60
-#define ZB_GP_CMD_ID_RELEASE11            0x61
-#define ZB_GP_CMD_ID_PRESS12              0x62
-#define ZB_GP_CMD_ID_RELEASE12            0x63
-#define ZB_GP_CMD_ID_PRESS22              0x64
-#define ZB_GP_CMD_ID_RELEASE22            0x65
-#define ZB_GP_CMD_ID_SHORT_PRESS11        0x66
-#define ZB_GP_CMD_ID_SHORT_PRESS12        0x67
-#define ZB_GP_CMD_ID_SHORT_PRESS22        0x68
-#define ZB_GP_CMD_ID_DECOMMISSIONING      0xE1
-#define ZB_GP_CMD_ID_SUCCESS              0xE2
-
-/* GPDF commands with payload sent by GPD. */
-#define ZB_GP_CMD_ID_MOVE_UP                                  0x30
-#define ZB_GP_CMD_ID_MOVE_DOWN                                0x31
-#define ZB_GP_CMD_ID_STEP_UP                                  0x32
-#define ZB_GP_CMD_ID_STEP_DOWN                                0x33
-#define ZB_GP_CMD_ID_MOVE_UP_WITH_ON_OFF                      0x35
-#define ZB_GP_CMD_ID_MOVE_DOWN_WITH_ON_OFF                    0x36
-#define ZB_GP_CMD_ID_STEP_UP_WITH_ON_OFF                      0x37
-#define ZB_GP_CMD_ID_STEP_DOWN_WITH_ON_OFF                    0x38
-#define ZB_GP_CMD_ID_MOVE_HUE_UP                              0x41
-#define ZB_GP_CMD_ID_MOVE_HUE_DOWN                            0x42
-#define ZB_GP_CMD_ID_STEP_HUE_UP                              0x43
-#define ZB_GP_CMD_ID_STEP_HUW_DOWN                            0x44
-#define ZB_GP_CMD_ID_MOVE_SATUREATION_UP                      0x46
-#define ZB_GP_CMD_ID_MOVE_SATUREATION_DOWN                    0x47
-#define ZB_GP_CMD_ID_STEP_SATURATION_UP                       0x48
-#define ZB_GP_CMD_ID_STEP_SATURATION_DOWN                     0x49
-#define ZB_GP_CMD_ID_MOVE_COLOR                               0x4A
-#define ZB_GP_CMD_ID_STEP_COLOR                               0x4B
-#define ZB_GP_CMD_ID_ATTRIBUTE_REPORTING                      0xA0
-#define ZB_GP_CMD_ID_MANUFACTURE_SPECIFIC_ATTR_REPORTING      0xA1
-#define ZB_GP_CMD_ID_MULTI_CLUSTER_REPORTING                  0xA2
-#define ZB_GP_CMD_ID_MANUFACTURER_SPECIFIC_MCLUSTER_REPORTING 0xA3
-#define ZB_GP_CMD_ID_REQUEST_ATTRIBUTES                       0xA4
-#define ZB_GP_CMD_ID_READ_ATTRIBUTES_RESPONSE                 0xA5
-#define ZB_GP_CMD_ID_ANY_SENSOR_COMMAND_A0_A3                 0xAF
-#define ZB_GP_CMD_ID_COMMISSIONING                            0xE0
-#define ZB_GP_CMD_ID_CHANNEL_REQUEST                          0xE3
-
-/* GPDF commands sent to GPD. */
-#define ZB_GP_CMD_ID_COMMISSIONING_REPLY    0xF0
-#define ZB_GP_CMD_ID_WRITE_ATTRIBUTES       0xF1
-#define ZB_GP_CMD_ID_READ_ATTRIBUTES        0xF2
-#define ZB_GP_CMD_ID_CHANNEL_CONFIGURATION  0xF3
-
 /* GPD manufacturers. */
 #define ZBEE_NWK_GP_MANUF_ID_GREENPEAK      0x10D0
 
@@ -409,110 +335,122 @@ static const value_string zbee_nwk_gp_app_id_names[] = {
 };
 
 /* Green Power commands. */
-static const value_string zbee_nwk_gp_cmd_names[] = {
-    { ZB_GP_CMD_ID_ANY_SENSOR_COMMAND_A0_A3, "Any GPD sensor command (0xA0 - 0xA3)" },
-    { ZB_GP_CMD_ID_ATTRIBUTE_REPORTING, "Attribute reporting" },
-    { ZB_GP_CMD_ID_CHANNEL_CONFIGURATION, "Channel Configuration" },
-    { ZB_GP_CMD_ID_CHANNEL_REQUEST, "Channel Request" },
-    { ZB_GP_CMD_ID_COMMISSIONING, "Commissioning" },
-    { ZB_GP_CMD_ID_COMMISSIONING_REPLY, "Commissioning Reply" },
-    { ZB_GP_CMD_ID_DECOMMISSIONING, "Decommissioning" },
-    { ZB_GP_CMD_ID_IDENTIFY, "Identify" },
-    { ZB_GP_CMD_ID_LEVEL_CONTROL_STOP, "Level Control/Stop" },
-    { ZB_GP_CMD_ID_LOCK_DOOR, "Lock Door" },
-    { ZB_GP_CMD_ID_MANUFACTURER_SPECIFIC_MCLUSTER_REPORTING, "Manufacturer-specific multi-cluster reporting" },
-    { ZB_GP_CMD_ID_MANUFACTURE_SPECIFIC_ATTR_REPORTING, "Manufacturer-specific attribute reporting" },
-    { ZB_GP_CMD_ID_MOVE_COLOR, "Move Color" },
-    { ZB_GP_CMD_ID_MOVE_DOWN, "Move Down" },
-    { ZB_GP_CMD_ID_MOVE_DOWN_WITH_ON_OFF, "Move Down (with On/Off)" },
-    { ZB_GP_CMD_ID_MOVE_HUE_DOWN, "Move Hue Down" },
-    { ZB_GP_CMD_ID_MOVE_HUE_STOP, "Move Hue Stop" },
-    { ZB_GP_CMD_ID_MOVE_HUE_UP, "Move Hue Up" },
-    { ZB_GP_CMD_ID_MOVE_SATURATION_STOP, "Move Saturation Stop" },
-    { ZB_GP_CMD_ID_MOVE_SATUREATION_DOWN, "Move Saturation Down" },
-    { ZB_GP_CMD_ID_MOVE_SATUREATION_UP, "Move Saturation Up" },
-    { ZB_GP_CMD_ID_MOVE_UP, "Move Up" },
-    { ZB_GP_CMD_ID_MOVE_UP_WITH_ON_OFF, "Move Up (with On/Off)" },
-    { ZB_GP_CMD_ID_MULTI_CLUSTER_REPORTING, "Multi-cluster reporting" },
-    { ZB_GP_CMD_ID_OFF, "Off" },
-    { ZB_GP_CMD_ID_ON, "On" },
-    { ZB_GP_CMD_ID_PRESS11, "Press 1 of 1" },
-    { ZB_GP_CMD_ID_PRESS12, "Press 1 of 2" },
-    { ZB_GP_CMD_ID_PRESS22, "Press 2 of 2" },
-    { ZB_GP_CMD_ID_READ_ATTRIBUTES, "Read Attributes" },
-    { ZB_GP_CMD_ID_READ_ATTRIBUTES_RESPONSE, "Read Attributes Response" },
-    { ZB_GP_CMD_ID_RELEASE11, "Release 1 of 1" },
-    { ZB_GP_CMD_ID_RELEASE12, "Release 1 of 2" },
-    { ZB_GP_CMD_ID_RELEASE22, "Release 2 of 2" },
-    { ZB_GP_CMD_ID_RELEASE, "Release" },
-    { ZB_GP_CMD_ID_REQUEST_ATTRIBUTES, "Request Attributes" },
-    { ZB_GP_CMD_ID_SCENE0, "Scene 0" },
-    { ZB_GP_CMD_ID_SCENE10, "Scene 10" },
-    { ZB_GP_CMD_ID_SCENE11, "Scene 11" },
-    { ZB_GP_CMD_ID_SCENE12, "Scene 12" },
-    { ZB_GP_CMD_ID_SCENE13, "Scene 13" },
-    { ZB_GP_CMD_ID_SCENE14, "Scene 14" },
-    { ZB_GP_CMD_ID_SCENE15, "Scene 15" },
-    { ZB_GP_CMD_ID_SCENE1, "Scene 1" },
-    { ZB_GP_CMD_ID_SCENE2, "Scene 2" },
-    { ZB_GP_CMD_ID_SCENE3, "Scene 3" },
-    { ZB_GP_CMD_ID_SCENE4, "Scene 4" },
-    { ZB_GP_CMD_ID_SCENE5, "Scene 5" },
-    { ZB_GP_CMD_ID_SCENE6, "Scene 6" },
-    { ZB_GP_CMD_ID_SCENE7, "Scene 7" },
-    { ZB_GP_CMD_ID_SCENE8, "Scene 8" },
-    { ZB_GP_CMD_ID_SCENE9, "Scene 9" },
-    { ZB_GP_CMD_ID_SHORT_PRESS11, "Short press 1 of 1" },
-    { ZB_GP_CMD_ID_SHORT_PRESS12, "Short press 1 of 2" },
-    { ZB_GP_CMD_ID_SHORT_PRESS22, "Short press 2 of 2" },
-    { ZB_GP_CMD_ID_STEP_COLOR, "Step Color" },
-    { ZB_GP_CMD_ID_STEP_DOWN, "Step Down" },
-    { ZB_GP_CMD_ID_STEP_DOWN_WITH_ON_OFF, "Step Down (with On/Off)" },
-    { ZB_GP_CMD_ID_STEP_HUE_UP, "Step Hue Up" },
-    { ZB_GP_CMD_ID_STEP_HUW_DOWN, "Step Hue Down" },
-    { ZB_GP_CMD_ID_STEP_SATURATION_DOWN, "Step Saturation Down" },
-    { ZB_GP_CMD_ID_STEP_SATURATION_UP, "Step Saturation Up" },
-    { ZB_GP_CMD_ID_STEP_UP, "Step Up" },
-    { ZB_GP_CMD_ID_STEP_UP_WITH_ON_OFF, "Step Up (with On/Off)" },
-    { ZB_GP_CMD_ID_SUCCESS, "Success" },
-    { ZB_GP_CMD_ID_TOGGLE, "Toggle" },
-    { ZB_GP_CMD_ID_UNLOCK_DOOR, "Unlock Door" },
-    { ZB_GP_CMD_ID_WRITE_ATTRIBUTES, "Write Attributes" },
 
-    { 0, NULL }
-};
+/* Abbreviations:
+ * GPDF commands sent:
+ *   From GPD w/o payload: "F "
+ *   From GPD w   payload: "FP"
+ *   To GPD:               "T "
+ */
+
+#define zbee_nwk_gp_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX( /*F */ ZB_GP_CMD_ID_IDENTIFY                                 , 0x00, "Identify" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE0                                   , 0x10, "Scene 0" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE1                                   , 0x11, "Scene 1" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE2                                   , 0x12, "Scene 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE3                                   , 0x13, "Scene 3" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE4                                   , 0x14, "Scene 4" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE5                                   , 0x15, "Scene 5" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE6                                   , 0x16, "Scene 6" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE7                                   , 0x17, "Scene 7" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE8                                   , 0x18, "Scene 8" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE9                                   , 0x19, "Scene 9" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE10                                  , 0x1A, "Scene 10" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE11                                  , 0x1B, "Scene 11" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE12                                  , 0x1C, "Scene 12" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE13                                  , 0x1D, "Scene 13" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE14                                  , 0x1E, "Scene 14" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SCENE15                                  , 0x1F, "Scene 15" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_OFF                                      , 0x20, "Off" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_ON                                       , 0x21, "On" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_TOGGLE                                   , 0x22, "Toggle" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RELEASE                                  , 0x23, "Release" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_UP                                  , 0x30, "Move Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_DOWN                                , 0x31, "Move Down" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_UP                                  , 0x32, "Step Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_DOWN                                , 0x33, "Step Down" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_LEVEL_CONTROL_STOP                       , 0x34, "Level Control/Stop" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_UP_WITH_ON_OFF                      , 0x35, "Move Up (with On/Off)" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_DOWN_WITH_ON_OFF                    , 0x36, "Move Down (with On/Off)" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_UP_WITH_ON_OFF                      , 0x37, "Step Up (with On/Off)" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_DOWN_WITH_ON_OFF                    , 0x38, "Step Down (with On/Off)" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_MOVE_HUE_STOP                            , 0x40, "Move Hue Stop" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_HUE_UP                              , 0x41, "Move Hue Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_HUE_DOWN                            , 0x42, "Move Hue Down" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_HUE_UP                              , 0x43, "Step Hue Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_HUW_DOWN                            , 0x44, "Step Hue Down" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_MOVE_SATURATION_STOP                     , 0x45, "Move Saturation Stop" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_SATUREATION_UP                      , 0x46, "Move Saturation Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_SATUREATION_DOWN                    , 0x47, "Move Saturation Down" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_SATURATION_UP                       , 0x48, "Step Saturation Up" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_SATURATION_DOWN                     , 0x49, "Step Saturation Down" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MOVE_COLOR                               , 0x4A, "Move Color" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_STEP_COLOR                               , 0x4B, "Step Color" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_LOCK_DOOR                                , 0x50, "Lock Door" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_UNLOCK_DOOR                              , 0x51, "Unlock Door" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_PRESS11                                  , 0x60, "Press 1 of 1" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RELEASE11                                , 0x61, "Release 1 of 1" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_PRESS12                                  , 0x62, "Press 1 of 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RELEASE12                                , 0x63, "Release 1 of 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_PRESS22                                  , 0x64, "Press 2 of 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_RELEASE22                                , 0x65, "Release 2 of 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SHORT_PRESS11                            , 0x66, "Short press 1 of 1" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SHORT_PRESS12                            , 0x67, "Short press 1 of 2" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SHORT_PRESS22                            , 0x68, "Short press 2 of 2" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_ATTRIBUTE_REPORTING                      , 0xA0, "Attribute reporting" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MANUFACTURE_SPECIFIC_ATTR_REPORTING      , 0xA1, "Manufacturer-specific attribute reporting" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MULTI_CLUSTER_REPORTING                  , 0xA2, "Multi-cluster reporting" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_MANUFACTURER_SPECIFIC_MCLUSTER_REPORTING , 0xA3, "Manufacturer-specific multi-cluster reporting" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_REQUEST_ATTRIBUTES                       , 0xA4, "Request Attributes" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_READ_ATTRIBUTES_RESPONSE                 , 0xA5, "Read Attributes Response" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_ANY_SENSOR_COMMAND_A0_A3                 , 0xAF, "Any GPD sensor command (0xA0 - 0xA3)" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_COMMISSIONING                            , 0xE0, "Commissioning" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_DECOMMISSIONING                          , 0xE1, "Decommissioning" ) \
+    XXX( /*F */ ZB_GP_CMD_ID_SUCCESS                                  , 0xE2, "Success" ) \
+    XXX( /*FP*/ ZB_GP_CMD_ID_CHANNEL_REQUEST                          , 0xE3, "Channel Request" ) \
+    XXX( /*T */ ZB_GP_CMD_ID_COMMISSIONING_REPLY                      , 0xF0, "Commissioning Reply" ) \
+    XXX( /*T */ ZB_GP_CMD_ID_WRITE_ATTRIBUTES                         , 0xF1, "Write Attributes" ) \
+    XXX( /*T */ ZB_GP_CMD_ID_READ_ATTRIBUTES                          , 0xF2, "Read Attributes" ) \
+    XXX( /*T */ ZB_GP_CMD_ID_CHANNEL_CONFIGURATION                    , 0xF3, "Channel Configuration" )
+
+VALUE_STRING_ENUM(zbee_nwk_gp_cmd_names);
+
+VALUE_STRING_ARRAY(zbee_nwk_gp_cmd_names);
+static value_string_ext zbee_nwk_gp_cmd_names_ext = VALUE_STRING_EXT_INIT(zbee_nwk_gp_cmd_names);
+
 
 /* Green Power devices. */
 static const value_string zbee_nwk_gp_device_ids_names[] = {
 
     /* GP GENERIC */
+    { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_GENERIC_1STATE_SWITCH,   "Generic: GP Simple Generic 1-state Switch" },
+    { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_GENERIC_2STATE_SWITCH,   "Generic: GP Simple Generic 2-state Switch" },
+    { GPD_DEVICE_ID_GENERIC_GP_ON_OFF_SWITCH,                  "Generic: GP On/Off Switch" },
+    { GPD_DEVICE_ID_GENERIC_GP_LEVEL_CONTROL_SWITCH,           "Generic: GP Level Control Switch" },
+    { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_SENSOR,                  "Generic: GP Simple Sensor" },
     { GPD_DEVICE_ID_GENERIC_GP_ADVANCED_GENERIC_1STATE_SWITCH, "Generic: GP Advanced Generic 1-state Switch" },
     { GPD_DEVICE_ID_GENERIC_GP_ADVANCED_GENERIC_2STATE_SWITCH, "Generic: GP Advanced Generic 2-state Switch" },
-    { GPD_DEVICE_ID_GENERIC_GP_LEVEL_CONTROL_SWITCH, "Generic: GP Level Control Switch" },
-    { GPD_DEVICE_ID_GENERIC_GP_ON_OFF_SWITCH, "Generic: GP On/Off Switch" },
-    { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_GENERIC_1STATE_SWITCH, "Generic: GP Simple Generic 1-state Switch" },
-    { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_GENERIC_2STATE_SWITCH, "Generic: GP Simple Generic 2-state Switch" },
-    { GPD_DEVICE_ID_GENERIC_GP_SIMPLE_SENSOR, "Generic: GP Simple Sensor" },
 
     /* GP LIGHTING */
-    { GPD_DEVICE_ID_LIGHTING_GP_COLOR_DIMMER_SWITCH, "Lighting: GP Color Dimmer Switch" },
-    { GPD_DEVICE_ID_LIGHTING_GP_LIGHT_SENSOR, "Lighting: GP Light Sensor" },
-    { GPD_DEVICE_ID_LIGHTING_GP_OCCUPANCY_SENSOR, "Lighting: GP Occupancy Sensor" },
+    { GPD_DEVICE_ID_LIGHTING_GP_COLOR_DIMMER_SWITCH,           "Lighting: GP Color Dimmer Switch" },
+    { GPD_DEVICE_ID_LIGHTING_GP_LIGHT_SENSOR,                  "Lighting: GP Light Sensor" },
+    { GPD_DEVICE_ID_LIGHTING_GP_OCCUPANCY_SENSOR,              "Lighting: GP Occupancy Sensor" },
 
     /* GP CLOSURES */
-    { GPD_DEVICE_ID_CLOSURES_GP_DOOR_LOCK_CONTROLLER, "Closures: GP Door Lock Controller" },
+    { GPD_DEVICE_ID_CLOSURES_GP_DOOR_LOCK_CONTROLLER,          "Closures: GP Door Lock Controller" },
 
     /* HVAC */
-    { GPD_DEVICE_ID_HVAC_GP_FLOW_SENSOR, "HVAC: GP Flow Sensor" },
-    { GPD_DEVICE_ID_HVAC_GP_INDOOR_ENVIRONMENT_SENSOR, "HVAC: GP Indoor Environment Sensor" },
-    { GPD_DEVICE_ID_HVAC_GP_PRESSURE_SENSOR, "HVAC: GP Pressure Sensor" },
-    { GPD_DEVICE_ID_HVAC_GP_TEMPERATURE_SENSOR, "HVAC: GP Temperature Sensor" },
+    { GPD_DEVICE_ID_HVAC_GP_TEMPERATURE_SENSOR,                "HVAC: GP Temperature Sensor" },
+    { GPD_DEVICE_ID_HVAC_GP_PRESSURE_SENSOR,                   "HVAC: GP Pressure Sensor" },
+    { GPD_DEVICE_ID_HVAC_GP_FLOW_SENSOR,                       "HVAC: GP Flow Sensor" },
+    { GPD_DEVICE_ID_HVAC_GP_INDOOR_ENVIRONMENT_SENSOR,         "HVAC: GP Indoor Environment Sensor" },
 
     /* CUSTOM */
-    { GPD_DEVICE_ID_MANUFACTURER_SPECIFIC, "Manufacturer Specific" },
+    { GPD_DEVICE_ID_MANUFACTURER_SPECIFIC,                     "Manufacturer Specific" },
 
     { 0, NULL }
 };
+static value_string_ext zbee_nwk_gp_device_ids_names_ext = VALUE_STRING_EXT_INIT(zbee_nwk_gp_device_ids_names);
 
 /* GP directions. */
 static const value_string zbee_nwk_gp_directions[] = {
@@ -524,7 +462,7 @@ static const value_string zbee_nwk_gp_directions[] = {
 
 /* Frame types for Green Power profile. */
 static const value_string zbee_nwk_gp_frame_types[] = {
-    { ZBEE_NWK_GP_FCF_DATA, "Data" },
+    { ZBEE_NWK_GP_FCF_DATA,        "Data" },
     { ZBEE_NWK_GP_FCF_MAINTENANCE, "Maintenance" },
 
     { 0, NULL }
@@ -532,9 +470,9 @@ static const value_string zbee_nwk_gp_frame_types[] = {
 
 /* GreenPeak Green Power devices. */
 static const value_string zbee_nwk_gp_manufacturer_greenpeak_dev_names[] = {
-    { ZBEE_NWK_GP_MANUF_GREENPEAK_IZDS, "IAS Zone Door Sensor" },
+    { ZBEE_NWK_GP_MANUF_GREENPEAK_IZDS,  "IAS Zone Door Sensor" },
     { ZBEE_NWK_GP_MANUF_GREENPEAK_IZDWS, "IAS Zone Door/Window Sensor" },
-    { ZBEE_NWK_GP_MANUF_GREENPEAK_IZLS, "IAS Zone Leakage Sensor" },
+    { ZBEE_NWK_GP_MANUF_GREENPEAK_IZLS,  "IAS Zone Leakage Sensor" },
     { ZBEE_NWK_GP_MANUF_GREENPEAK_IZRHS, "IAS Zone Relative Humidity Sensor" },
 
     { 0, NULL }
@@ -549,7 +487,7 @@ static const value_string zbee_nwk_gp_manufacturers_ids_names[] = {
 
 /* GP Src ID names. */
 static const value_string zbee_nwk_gp_src_id_names[] = {
-    { ZBEE_NWK_GP_ZGPD_SRCID_ALL, "All" },
+    { ZBEE_NWK_GP_ZGPD_SRCID_ALL,     "All" },
     { ZBEE_NWK_GP_ZGPD_SRCID_UNKNOWN, "Unspecified" },
 
     { 0, NULL }
@@ -557,22 +495,22 @@ static const value_string zbee_nwk_gp_src_id_names[] = {
 
 /* GP security key type names. */
 static const value_string zbee_nwk_gp_src_sec_keys_type_names[] = {
-    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_DERIVED_INDIVIDUAL_GPD_KEY, "Derived individual GPD key" },
-    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_GPD_GROUP_KEY, "GPD group key" },
-    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_NO_KEY, "No key" },
+    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_DERIVED_INDIVIDUAL_GPD_KEY,        "Derived individual GPD key" },
+    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_GPD_GROUP_KEY,                     "GPD group key" },
+    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_NO_KEY,                            "No key" },
     { ZBEE_NWK_GP_SECURITY_KEY_TYPE_NWK_KEY_DERIVED_GPD_KEY_GROUP_KEY, "NWK key derived GPD group key" },
-    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_PRECONFIGURED_INDIVIDUAL_GPD_KEY, "Individual, out of the box GPD key" },
-    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_ZB_NWK_KEY, "ZigBee NWK key" },
+    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_PRECONFIGURED_INDIVIDUAL_GPD_KEY,  "Individual, out of the box GPD key" },
+    { ZBEE_NWK_GP_SECURITY_KEY_TYPE_ZB_NWK_KEY,                        "ZigBee NWK key" },
 
     { 0, NULL }
 };
 
 /* GP security levels. */
 static const value_string zbee_nwk_gp_src_sec_levels_names[] = {
-    { ZBEE_NWK_GP_SECURITY_LEVEL_1LSB, "1 LSB of frame counter and short MIC only" },
-    { ZBEE_NWK_GP_SECURITY_LEVEL_FULL, "Full frame counter and full MIC only" },
+    { ZBEE_NWK_GP_SECURITY_LEVEL_1LSB,     "1 LSB of frame counter and short MIC only" },
+    { ZBEE_NWK_GP_SECURITY_LEVEL_FULL,     "Full frame counter and full MIC only" },
     { ZBEE_NWK_GP_SECURITY_LEVEL_FULLENCR, "Encryption with full frame counter and full MIC" },
-    { ZBEE_NWK_GP_SECURITY_LEVEL_NO, "No security" },
+    { ZBEE_NWK_GP_SECURITY_LEVEL_NO,       "No security" },
 
     { 0, NULL }
 };
@@ -1097,15 +1035,17 @@ dissect_zbee_nwk_gp_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     /* Create a subtree for the command. */
     if (tree) {
-        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s", val_to_str(cmd_id,
-            zbee_nwk_gp_cmd_names, "Unknown Command Frame"));
+        cmd_root = proto_tree_add_text(tree, tvb, offset, tvb_length(tvb), "Command Frame: %s",
+                                       val_to_str_ext_const(cmd_id,
+                                                            &zbee_nwk_gp_cmd_names_ext,
+                                                            "Unknown Command Frame"));
         cmd_tree = proto_item_add_subtree(cmd_root, ett_zbee_nwk_cmd);
         /* Add the command ID. */
         proto_tree_add_uint(cmd_tree, hf_zbee_nwk_gp_command_id, tvb, offset, 1, cmd_id);
     }
     offset += 1;
     /* Add the command name to the info column. */
-    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(cmd_id, zbee_nwk_gp_cmd_names, "Unknown command"));
+    col_set_str(pinfo->cinfo, COL_INFO, val_to_str_ext_const(cmd_id, &zbee_nwk_gp_cmd_names_ext, "Unknown command"));
     /* Handle the command for one of the following devices:
      * - Door Lock Controller (IDs: 0x50 - 0x51);
      * - GP Flow Sensor (IDs: 0xE0, 0xA0 - 0xA3);
@@ -1244,12 +1184,12 @@ zbee_gp_make_nonce(zbee_nwk_green_power_packet *packet, gchar *nonce)
         nonce[2] = (guint8)((packet->source_id) >> 16 & 0xff);
         nonce[3] = (guint8)((packet->source_id) >> 24 & 0xff);
     }
-    nonce[4] = (guint8)((packet->source_id) & 0xff);
-    nonce[5] = (guint8)((packet->source_id) >> 8 & 0xff);
-    nonce[6] = (guint8)((packet->source_id) >> 16 & 0xff);
-    nonce[7] = (guint8)((packet->source_id) >> 24 & 0xff);
-    nonce[8] = (guint8)((packet->security_frame_counter) & 0xff);
-    nonce[9] = (guint8)((packet->security_frame_counter) >> 8 & 0xff);
+    nonce[4]  = (guint8)((packet->source_id) & 0xff);
+    nonce[5]  = (guint8)((packet->source_id) >> 8 & 0xff);
+    nonce[6]  = (guint8)((packet->source_id) >> 16 & 0xff);
+    nonce[7]  = (guint8)((packet->source_id) >> 24 & 0xff);
+    nonce[8]  = (guint8)((packet->security_frame_counter) & 0xff);
+    nonce[9]  = (guint8)((packet->security_frame_counter) >> 8 & 0xff);
     nonce[10] = (guint8)((packet->security_frame_counter) >> 16 & 0xff);
     nonce[11] = (guint8)((packet->security_frame_counter) >> 24 & 0xff);
     if ((packet->application_id == ZBEE_NWK_GP_APP_ID_ZGP) && (packet->direction !=
@@ -1322,7 +1262,7 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree *nwk_tree = NULL;
     proto_item *proto_root = NULL;
     proto_item *ti = NULL;
-    tvbuff_t *payload_tvb = NULL;
+    tvbuff_t *payload_tvb;
     zbee_nwk_green_power_packet packet;
 
     memset(&packet, 0, sizeof(packet));
@@ -1552,7 +1492,7 @@ gp_init_zbee_security(void)
 void
 proto_register_zbee_nwk_gp(void)
 {
-    module_t *gp_zbee_prefs = NULL;
+    module_t *gp_zbee_prefs;
 
     static hf_register_info hf[] = {
         { &hf_zbee_nwk_gp_auto_commissioning,
@@ -1606,11 +1546,11 @@ proto_register_zbee_nwk_gp(void)
             { "Security MIC", "zbee_nwk_gp.security_mic4", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_command_id,
-            { "ZGPD Command ID", "zbee_nwk_gp.command_id", FT_UINT8, BASE_HEX, VALS(zbee_nwk_gp_cmd_names), 0x0, NULL,
+            { "ZGPD Command ID", "zbee_nwk_gp.command_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &zbee_nwk_gp_cmd_names_ext, 0x0, NULL,
                 HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_device_id,
-            { "ZGPD Device ID", "zbee_nwk_gp.cmd.comm.dev_id", FT_UINT8, BASE_HEX, VALS(zbee_nwk_gp_device_ids_names),
+            { "ZGPD Device ID", "zbee_nwk_gp.cmd.comm.dev_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &zbee_nwk_gp_device_ids_names_ext,
                 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_comm_ext_opt_gpd_key_encr,
@@ -1779,9 +1719,7 @@ proto_register_zbee_nwk_gp(void)
     proto_zbee_nwk_gp = proto_register_protocol("ZigBee Green Power Profile", "ZigBee Green Power",
         ZBEE_PROTOABBREV_NWK_GP);
 
-    if (gp_zbee_prefs == NULL) {
-        gp_zbee_prefs = prefs_register_protocol(proto_zbee_nwk_gp, NULL);
-    }
+    gp_zbee_prefs = prefs_register_protocol(proto_zbee_nwk_gp, NULL);
 
     zbee_gp_sec_key_table_uat = uat_new("ZigBee GP Security Keys", sizeof(uat_key_record_t), "zigbee_gp_keys", TRUE,
         &gp_uat_key_records, &num_uat_key_records, UAT_AFFECTS_DISSECTION, NULL, uat_key_record_copy_cb,
@@ -1819,3 +1757,16 @@ proto_reg_handoff_zbee_nwk_gp(void)
     /* Register our dissector with IEEE 802.15.4. */
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur_gp, proto_zbee_nwk_gp);
 } /* proto_reg_handoff_zbee */
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
