@@ -26,17 +26,14 @@ bash -c "$BUILD_COMMAND"
 cd `git rev-parse --show-toplevel`
 # we are at top level
 
-# Stable branches with releases
+# e.g. "v1.10.6-rc1"
 LAST_TAG=`git describe --tags --abbrev=0`
-LAST_TAG_DIR=$LAST_TAG
+# Add extra directory levels to keep '-I../..' + '#include "../some_file.h"
+# from matching top-level files.
+LAST_TAG_DIR="compare-abis/build/$LAST_TAG"
 
-# Unstable branches, e.g. master don't have usable tags. Use a commit instead.
-# git rev-list --first-parent --max-count=1 master-1.10
-#LAST_TAG=75d3bda29c72f9673fa08dcc53159833b95a7dcc
-#LAST_TAG_DIR=master-1.10
-
-rm -rf $LAST_TAG_DIR
-mkdir $LAST_TAG_DIR
+rm -rf compare-abis
+mkdir -p $LAST_TAG_DIR
 git archive $LAST_TAG | tar -x -C $LAST_TAG_DIR
 
 # build latest tag
