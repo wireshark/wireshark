@@ -136,6 +136,9 @@ struct ptvcursor {
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 
+static void label_mark_truncated(char *label_str, gsize name_pos);
+#define LABEL_MARK_TRUNCATED_START(label_str) label_mark_truncated(label_str, 0)
+
 static void fill_label_boolean(field_info *fi, gchar *label_str);
 static void fill_label_bitfield(field_info *fi, gchar *label_str, gboolean is_signed);
 static void fill_label_number(field_info *fi, gchar *label_str, gboolean is_signed);
@@ -3685,16 +3688,6 @@ alloc_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, con
 	return new_field_info(tree, hfinfo, tvb, start, item_length);
 }
 
-static void
-label_mark_truncated_start(char *label_str)
-{
-	static const char trunc_str[] = "[truncated] ";
-	const size_t trunc_len = sizeof(trunc_str)-1;
-
-	memmove(label_str + trunc_len, label_str, ITEM_LABEL_LENGTH - trunc_len);
-	memcpy(label_str, trunc_str, trunc_len);
-	label_str[ITEM_LABEL_LENGTH-1] = '\0';
-}
 
 /* If the protocol tree is to be visible, set the representation of a
    proto_tree entry with the name of the field for the item and with
@@ -3740,8 +3733,7 @@ proto_tree_set_representation_value(proto_item *pi, const char *format, va_list 
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
-			/* XXX, label_mark_truncated() ? */
-			label_mark_truncated_start(fi->rep->representation);
+			LABEL_MARK_TRUNCATED_START(fi->rep->representation);
 		}
 	}
 }
@@ -3765,7 +3757,7 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 			/* Uh oh, we don't have enough room.  Tell the user
 			 * that the field is truncated.
 			 */
-			label_mark_truncated_start(fi->rep->representation);
+			LABEL_MARK_TRUNCATED_START(fi->rep->representation);
 		}
 	}
 }
@@ -5426,7 +5418,10 @@ label_mark_truncated(char *label_str, gsize name_pos)
 	 *                 |
 	 *                 ^^^^^ name_pos
 	 *
-	 * ..... field_name [truncated]: dataaaaaaaaaaaaa */
+	 * ..... field_name [truncated]: dataaaaaaaaaaaaa
+	 *
+	 * name_pos==0 means that we have only data or only a field_name
+	 */
 
 	if (name_pos < ITEM_LABEL_LENGTH - trunc_len) {
 		memmove(label_str + name_pos + trunc_len, label_str + name_pos, ITEM_LABEL_LENGTH - name_pos - trunc_len);
