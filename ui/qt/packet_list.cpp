@@ -505,7 +505,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
         }
 
 
-        if (act->text().contains("SSL"))
+        if ((cap_file_ != NULL) && act->text().contains("SSL"))
         {
             if (epan_dissect_packet_contains_field(cap_file_->edt, "ssl"))
             {

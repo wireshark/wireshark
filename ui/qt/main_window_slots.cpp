@@ -102,7 +102,7 @@ void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter)
     QString file_name = "";
     dfilter_t *rfcode = NULL;
     int err;
-    unsigned int type;
+    unsigned int type = WTAP_TYPE_AUTO;
 
     testCaptureFileClose(false);
 

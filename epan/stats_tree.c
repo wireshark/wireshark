@@ -1362,6 +1362,6 @@ WS_DLL_PUBLIC void stats_tree_format_node_as_str(const stat_node *node,
  * indent-tabs-mode: t
  * End:
  *
- * vi: ex: set shiftwidth=4 tabstop=8 noexpandtab:
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
  * :indentSize=4:tabSize=8:noTabs=false:
  */

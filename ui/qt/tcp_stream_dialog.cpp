@@ -101,6 +101,7 @@ TCPStreamDialog::TCPStreamDialog(QWidget *parent, capture_file *cf, tcp_graph_ty
     struct tcpheader *header = select_tcpip_session(cap_file_, &current);
     if (!header) {
         done(QDialog::Rejected);
+        return;
     }
 
 //#ifdef Q_OS_MAC
