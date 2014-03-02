@@ -507,7 +507,7 @@ typedef struct _infodata_t {
   guint16 direction;
 } infodata_t;
 
-static GList *assoc_info_list = NULL;
+static GSList *assoc_info_list = NULL;
 static guint num_assocs = 0;
 
 UAT_CSTRING_CB_DEF(type_fields, type_name, type_field_t)
@@ -650,11 +650,11 @@ static infodata_t
 find_assoc_index(assoc_info_t* tmpinfo)
 {
   assoc_info_t *info = NULL;
-  GList* list;
+  GSList* list;
   gboolean cmp = FALSE;
   infodata_t inf;
 
-  if ((list = g_list_last(assoc_info_list))!=NULL) {
+  if ((list = assoc_info_list) != NULL) {
     while (list) {
       cmp = sctp_assoc_vtag_cmp(tmpinfo, (assoc_info_t*)(list->data));
       if (cmp < ASSOC_NOT_FOUND) {
@@ -676,7 +676,7 @@ find_assoc_index(assoc_info_t* tmpinfo)
         inf.direction = info->direction;
         return inf;
       }
-      list = g_list_previous(list);
+      list = g_slist_next(list);
     }
   }
   info = wmem_new0(wmem_file_scope(), assoc_info_t);
@@ -687,7 +687,7 @@ find_assoc_index(assoc_info_t* tmpinfo)
   info->verification_tag2 = tmpinfo->verification_tag2;
   info->initiate_tag = tmpinfo->initiate_tag;
   num_assocs++;
-  assoc_info_list = g_list_append(assoc_info_list, info);
+  assoc_info_list = g_slist_prepend(assoc_info_list, info);
   inf.assoc_index = info->assoc_index;
   inf.direction = 1;
   return inf;
