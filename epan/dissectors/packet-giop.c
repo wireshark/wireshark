@@ -3926,7 +3926,8 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                           stream_is_be, boundary,
                                           &encapsulation_is_be , &encapsulation_boundary);
 
-    proto_item_set_len(tf_st1, 8 + context_data_len);
+    if ((int)(8 + context_data_len) >= 8)
+      proto_item_set_len(tf_st1, 8 + context_data_len);
     sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
 
     if (context_data_len == 0)
