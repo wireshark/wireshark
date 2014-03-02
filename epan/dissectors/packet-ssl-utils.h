@@ -334,7 +334,6 @@ typedef struct {
 typedef struct _SslDecryptSession {
     guchar _master_secret[48];
     guchar _session_id[256];
-    guchar _session_ticket[1024];
     guchar _client_random[32];
     guchar _server_random[32];
     StringInfo session_id;

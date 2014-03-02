@@ -3715,7 +3715,7 @@ ssl_session_init(SslDecryptSession* ssl_session)
     ssl_session->session_id.data = ssl_session->_session_id;
     ssl_session->client_random.data = ssl_session->_client_random;
     ssl_session->server_random.data = ssl_session->_server_random;
-    ssl_session->session_ticket.data = ssl_session->_session_ticket;
+    ssl_session->session_ticket.data = NULL;
     ssl_session->session_ticket.data_len = 0;
     ssl_session->master_secret.data_len = 48;
     ssl_session->server_data_for_iv.data_len = 0;
@@ -4855,6 +4855,8 @@ ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb
     if(is_client && ssl && ext_len != 0)
     {
         /*save the ticket on the ssl opaque so that we can use it as key on server hello */
+        ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
+                                    ssl->session_ticket.data, ext_len);
         tvb_memcpy(tvb,ssl->session_ticket.data, offset, ext_len);
         ssl->session_ticket.data_len = ext_len;
     }

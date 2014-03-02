@@ -2533,6 +2533,8 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
 
     /* save the session ticket to cache */
     if(ssl){
+        ssl->session_ticket.data = (guchar*)wmem_realloc(wmem_file_scope(),
+                                    ssl->session_ticket.data, session_ticket_length);
         tvb_memcpy(tvb,ssl->session_ticket.data, offset, session_ticket_length);
         ssl->session_ticket.data_len = session_ticket_length;
         ssl_save_session_ticket(ssl, ssl_session_hash);
