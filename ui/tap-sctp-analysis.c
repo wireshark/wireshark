@@ -949,10 +949,10 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 					datachunk = TRUE;
 				if (((tvb_get_guint8(sctp_info->tvb[chunk_number],0)) == SCTP_FORWARD_TSN_CHUNK_ID))
 					forwardchunk = TRUE;
-				if (datachunk || forwardchunk)
+				if ((datachunk || forwardchunk) && tsn != NULL)
 				{
 					tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], DATA_CHUNK_TSN_OFFSET);
-					if (tsn && tsn->first_tsn == 0)
+					if (tsn->first_tsn == 0)
 						tsn->first_tsn = tsnumber;
 					if (datachunk)
 					{
@@ -1080,12 +1080,13 @@ packet(void *tapdata _U_, packet_info *pinfo , epan_dissect_t *edt _U_ , const v
 						info->n_array_tsn2++;
 					}
 				}
-				else if ((tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_SACK_CHUNK_ID) ||
-				         (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_NR_SACK_CHUNK_ID))
+				else if (((tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_SACK_CHUNK_ID) ||
+				         (tvb_get_guint8(sctp_info->tvb[chunk_number],0) == SCTP_NR_SACK_CHUNK_ID)) &&
+					 sack != NULL)
 				{
 					tsnumber = tvb_get_ntohl((sctp_info->tvb)[chunk_number], SACK_CHUNK_CUMULATIVE_TSN_ACK_OFFSET);
 					length = tvb_get_ntohs(sctp_info->tvb[chunk_number], CHUNK_LENGTH_OFFSET);
-					if (sack && sack->first_tsn == 0)
+					if (sack->first_tsn == 0)
 						sack->first_tsn = tsnumber;
 					t_s_n = (guint8 *)g_malloc(length);
 					tvb_memcpy(sctp_info->tvb[chunk_number], (guint8 *)(t_s_n),0, length);
