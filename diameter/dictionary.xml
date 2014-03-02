@@ -24,6 +24,7 @@
 	<!ENTITY Ericsson		SYSTEM "Ericsson.xml">
 	<!ENTITY mobileipv6		SYSTEM "mobileipv6.xml">
 	<!ENTITY Cisco			SYSTEM "Cisco.xml">
+	<!ENTITY Starent		SYSTEM "Starent.xml">
 	<!ENTITY Vodafone		SYSTEM "Vodafone.xml">
 	<!ENTITY AlcatelLucent		SYSTEM "AlcatelLucent.xml">
 	<!ENTITY Nokia			SYSTEM "Nokia.xml">
@@ -199,6 +200,7 @@
 		<vendor vendor-id="TGPP2" code="5535" name="3GPP2"/>
 		<vendor vendor-id="Cisco" code="5771" name="Cisco"/>
 		<vendor vendor-id="SKT" code="5806" name="SK Telecom"/>
+		<vendor vendor-id="Starent" code="8164" name="Starent"/>
 		<vendor vendor-id="TGPP"  code="10415" name="3GPP"/>
 		<vendor vendor-id="Vodafone" code="12645" name="Vodafone"/>
 		<vendor vendor-id="VerizonWireless" code="12951" name="Verizon Wireless"/>
@@ -6727,6 +6729,7 @@
 	&Ericsson;
 	&mobileipv6;
 	&Cisco;
+	&Starent;
 	&Vodafone;
 	&AlcatelLucent;
 	&Nokia;

@@ -91,6 +91,7 @@ dist_diameter_DATA = $(_CUSTOM_diameter_xml_files_) \
 	diameter/mobileipv6.xml \
 	diameter/nasreq.xml \
 	diameter/sip.xml \
+	diameter/Starent.xml \
 	diameter/sunping.xml \
 	diameter/TGPPGmb.xml \
 	diameter/TGPPRx.xml \

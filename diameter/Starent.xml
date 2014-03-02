@@ -1,0 +1,2230 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Cisco ASR 5x00 AAA Interface Administration and Reference, Version 14.0 -->
+
+<application id="16777238" name="3GPP Gx" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-cc-06.txt">
+
+    <avp name="Access-Network-Charging-Physical-Access-Id" code="1472" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="Access-Network-Charging-Physical-Access-Id-Value"/>
+            <gavp name="Access-Network-Charging-Physical-Access-Id-Realm"/>
+        </grouped>
+    </avp>
+
+    <avp name="Access-Network-Charging-Physical-Access-Id-Realm" code="1474" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="Access-Network-Charging-Physical-Access-Id-Value" code="1473" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="Customer-Id" code="1146" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Absolute-Validity-Time" code="505" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Time"/>
+    </avp>
+
+    <avp name="SN-Bandwidth-Control" code="512" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="HIGH" code="0"/>
+        <enum name="LOW" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Policy-ID" code="529" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Charging-Collection-Function-Name" code="530" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Charging-Id" code="525" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Fast-Reauth-Username" code="11010" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Firewall-Policy" code="515" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Monitoring-Key" code="518" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Phase0-PSAPName" code="523" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Pseudonym-Username" code="11011" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Remaining-Service-Unit" code="526" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="Tariff-Change-Usage"/>
+            <gavp name="CC-Time"/>
+            <gavp name="CC-Total-Octets"/>
+            <gavp name="CC-Input-Octets"/>
+            <gavp name="CC-Output-Octets"/>
+            <gavp name="CC-Service-Specific-Units"/>
+            <gavp name="3GPP-Reporting-Reason"/>
+        </grouped>
+    </avp>
+
+    <avp name="SN-Rulebase-Id" code="528" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Service-Flow-Detection" code="520" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="ENABLE_DETECTION" code="0"/>
+    </avp>
+
+    <avp name="SN-Service-Start-Timestamp" code="527" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Time"/>
+    </avp>
+
+    <avp name="SN-Time-Quota-Threshold" code="503" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Total-Used-Service-Unit" code="504" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name=""/>
+            <gavp name=""/>
+            <gavp name=""/>
+            <gavp name=""/>
+            <gavp name=""/>
+            <gavp name=""/>
+            <gavp name=""/>
+            XXX
+        </grouped>
+    </avp>
+
+    <avp name="SN-Traffic-Policy" code="514" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Transparent-Data" code="513" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Unit-Quota-Threshold" code="502" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Usage-Monitoring" code="521" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="USAGE_MONITORING_DISABLED" code="0"/>
+        <enum name="USAGE_MONITORING_ENABLED" code="1"/>
+    </avp>
+
+    <avp name="SN-Usage-Monitoring-Control" code="517" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="SN-Monitoring-Key"/>
+            <gavp name="SN-Usage-Monitoring"/>
+            <gavp name="SN-Usage-Volume"/>
+        </grouped>
+    </avp>
+
+    <avp name="SN-Usage-Volume" code="519" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned64"/>
+    </avp>
+
+    <avp name="SN-Volume-Quota-Threshold" code="501" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="Session-Start-Indicator" code="522" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="Starent-Subscriber-Permission" code="20" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="Simple-IP" code="1"/>
+        <enum name="Mobile-IP" code="2"/>
+        <enum name="Simple-IP-Mobile-IP" code="3"/>
+        <enum name="HA-Mobile-IP" code="4"/>
+        <enum name="Simple-IP-HA-Mobile-IP" code="5"/>
+        <enum name="Mobile-IP-HA-Mobile-IP" code="6"/>
+        <enum name="SIP-MIP-HA-MIP" code="7"/>
+        <enum name="GGSN-PDP-TYPE-IP" code="8"/>
+        <enum name="GGSN-PDP-TYPE-PPP" code="16"/>
+        <enum name="Network-Mobility" code="32"/>
+        <enum name="FA-HA-NEMO" code="38"/>
+        <enum name="All" code="63"/>
+    </avp>
+
+    <avp name="Prohibit-Payload-Compression" code="237" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Allowed" code="0"/>
+        <enum name="Prohibited" code="1"/>
+    </avp>
+
+    <avp name="SN-Access-link-IP-Frag" code="63" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal" code="0"/>
+        <enum name="DF-Ignore" code="1"/>
+        <enum name="DF-Fragment-ICMP-Notify" code="2"/>
+    </avp>
+
+    <avp name="SN-Acct-Input-Giga-Dropped" code="230" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Acct-Input-Octets-Dropped" code="228" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Acct-Input-Packets-Dropped" code="226" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Acct-Output-Giga-Dropped" code="231" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Acct-Output-Octets-Dropped" code="229" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Acct-Output-Packets-Dropped" code="227" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Acs-Credit-Control-Group" code="301" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Admin-Expiry" code="204" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Integer32"/>
+    </avp>
+
+    <avp name="SN-Admin-Permission" code="21" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="CLI" code="1"/>
+        <enum name="FTP" code="2"/>
+        <enum name="CLI-FTP" code="3"/>
+        <enum name="Intercept" code="4"/>
+        <enum name="CLI-Intercept" code="5"/>
+        <enum name="CLI-Intercept-FTP" code="7"/>
+        <enum name="ECS" code="8"/>
+        <enum name="CLI-ECS" code="9"/>
+        <enum name="CLI-FTP-ECS" code="11"/>
+        <enum name="CLI-Intercept-ECS" code="13"/>
+        <enum name="CLI-Intercept-FTP-ECS" code="15"/>
+    </avp>
+
+    <avp name="SN-Assigned-VLAN-ID" code="152" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Authorised-Qos" code="266" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Bandwidth-Policy" code="300" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Call-Id" code="251" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Cause-Code" code="267" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal_End_Of_Session" code="0"/>
+        <enum name="Successful_Transaction" code="1"/>
+        <enum name="End_Of_Subscriber_Dialog" code="2"/>
+        <enum name="3XX_Redirection" code="3"/>
+        <enum name="4XX_Request_Failure" code="4"/>
+        <enum name="5XX_Server_Failure" code="5"/>
+        <enum name="6XX_Global_Failure" code="6"/>
+        <enum name="Unspecified_Error" code="7"/>
+        <enum name="Unsuccessful_Session_Setup" code="8"/>
+        <enum name="Internal_Error" code="9"/>
+    </avp>
+
+    <avp name="SN-Cause-For-Rec-Closing" code="139" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-CBB-Policy" code="302" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-CF-Call-International" code="293" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Call-Local" code="291" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Call-LongDistance" code="292" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Call-Premium" code="294" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Call-RoamingInternatnl" code="298" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Call-Transfer" code="285" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Call-Waiting" code="284" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-CId-Display" code="282" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-CId-Display-Blocked" code="283" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-CF-Follow-Me" code="281" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-CF-Forward-Busy-Line" code="279" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-CF-Forward-No-Answer" code="278" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-CF-Forward-Not-Regd" code="280" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-CF-Forward-Unconditional" code="277" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-CFPolicy-ID" code="220" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Change-Condition" code="140" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="QOSCHANGE" code="0"/>
+        <enum name="TARIFFTIMECHANGE" code="1"/>
+        <enum name="SGSNCHANGE" code="500"/>
+    </avp>
+
+    <avp name="SN-Charging-VPN-Name" code="137" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Chrg-Char-Selection-Mode" code="138" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Content-Disposition" code="272" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Content-Length" code="271" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Content-Type" code="270" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-CR-International-Cid" code="295" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-CR-LongDistance-Cid" code="296" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-CSCF-App-Server-Info" code="275" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-CSCF-Rf-SDP-Media-Components" code="273" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Cscf-Subscriber-Ip-Address" code="287" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+			<type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Data-Tunnel-Ignore-DF-Bit" code="49" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-DHCP-Lease-Expiry-Policy" code="157" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="auto-renew" code="0"/>
+        <enum name="disconnect" code="1"/>
+    </avp>
+
+    <avp name="SN-DHCP-Options" code="309" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Direction" code="153" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Any" code="0"/>
+        <enum name="Uplink" code="1"/>
+        <enum name="Downlink" code="2"/>
+    </avp>
+
+    <avp name="SN-Disconnect-Reason" code="3" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Not-Defined" code="0"/>
+        <enum name="Admin-Disconnect" code="1"/>
+        <enum name="Remote-Disconnect" code="2"/>
+        <enum name="Local-Disconnect" code="3"/>
+        <enum name="Disc-No-Resource" code="4"/>
+        <enum name="Disc-Excd-Service-Limit" code="5"/>
+        <enum name="PPP-LCP-Neg-Failed" code="6"/>
+        <enum name="PPP-LCP-No-Response" code="7"/>
+        <enum name="PPP-LCP-Loopback" code="8"/>
+        <enum name="PPP-LCP-Max-Retry" code="9"/>
+        <enum name="PPP-Echo-Failed" code="10"/>
+        <enum name="PPP-Auth-Failed" code="11"/>
+        <enum name="PPP-Auth-Failed-No-AAA-Resp" code="12"/>
+        <enum name="PPP-Auth-No-Response" code="13"/>
+        <enum name="PPP-Auth-Max-Retry" code="14"/>
+        <enum name="Invalid-AAA-Attr" code="15"/>
+        <enum name="Failed-User-Filter" code="16"/>
+        <enum name="Failed-Provide-Service" code="17"/>
+        <enum name="Invalid-IP-Address-AAA" code="18"/>
+        <enum name="Invalid-IP-Pool-AAA" code="19"/>
+        <enum name="PPP-IPCP-Neg-Failed" code="20"/>
+        <enum name="PPP-IPCP-No-Response" code="21"/>
+        <enum name="PPP-IPCP-Max-Retry" code="22"/>
+        <enum name="PPP-No-Rem-IP-Address" code="23"/>
+        <enum name="Inactivity-Timeout" code="24"/>
+        <enum name="Session-Timeout" code="25"/>
+        <enum name="Max-Data-Excd" code="26"/>
+        <enum name="Invalid-IP-Source-Address" code="27"/>
+        <enum name="MSID-Auth-Failed" code="28"/>
+        <enum name="MSID-Auth-Failed-No-AAA-Resp" code="29"/>
+        <enum name="A11-Max-Retry" code="30"/>
+        <enum name="A11-Lifetime-Expired" code="31"/>
+        <enum name="A11-Message-Integrity-Failure" code="32"/>
+        <enum name="PPP-lcp-remote-disc" code="33"/>
+        <enum name="Session-setup-timeout" code="34"/>
+        <enum name="PPP-keepalive-failure" code="35"/>
+        <enum name="Flow-add-failed" code="36"/>
+        <enum name="Call-type-detection-failed" code="37"/>
+        <enum name="Wrong-ipcp-params" code="38"/>
+        <enum name="MIP-remote-dereg" code="39"/>
+        <enum name="MIP-lifetime-expiry" code="40"/>
+        <enum name="MIP-proto-error" code="41"/>
+        <enum name="MIP-auth-failure" code="42"/>
+        <enum name="MIP-reg-timeout" code="43"/>
+        <enum name="Invalid-dest-context" code="44"/>
+        <enum name="Source-context-removed" code="45"/>
+        <enum name="Destination-context-removed" code="46"/>
+        <enum name="Req-service-addr-unavailable" code="47"/>
+        <enum name="Demux-mgr-failed" code="48"/>
+        <enum name="Internal-error" code="49"/>
+        <enum name="AAA-context-removed" code="50"/>
+        <enum name="invalid-service-type" code="51"/>
+        <enum name="mip-relay-req-failed" code="52"/>
+        <enum name="mip-rcvd-relay-failure" code="53"/>
+        <enum name="ppp-restart-inter-pdsn-handoff" code="54"/>
+        <enum name="gre-key-mismatch" code="55"/>
+        <enum name="invalid_tunnel_context" code="56"/>
+        <enum name="no_peer_lns_address" code="57"/>
+        <enum name="failed_tunnel_connect" code="58"/>
+        <enum name="l2tp-tunnel-disconnect-remote" code="59"/>
+        <enum name="l2tp-tunnel-timeout" code="60"/>
+        <enum name="l2tp-protocol-error-remote" code="61"/>
+        <enum name="l2tp-protocol-error-local" code="62"/>
+        <enum name="l2tp-auth-failed-remote" code="63"/>
+        <enum name="l2tp-auth-failed-local" code="64"/>
+        <enum name="l2tp-try-another-lns-from-remote" code="65"/>
+        <enum name="l2tp-no-resource-local" code="66"/>
+        <enum name="l2tp-no-resource-remote" code="67"/>
+        <enum name="l2tp-tunnel-disconnect-local" code="68"/>
+        <enum name="l2tp-admin-disconnect_remote" code="69"/>
+        <enum name="l2tpmgr-reached-max-capacity" code="70"/>
+        <enum name="MIP-reg-revocation" code="71"/>
+        <enum name="path-failure" code="72"/>
+        <enum name="dhcp-relay-ip-validation-failed" code="73"/>
+        <enum name="gtp-unknown-pdp-addr-or-pdp-type" code="74"/>
+        <enum name="gtp-all-dynamic-pdp-addr-occupied" code="75"/>
+        <enum name="gtp-no-memory-is-available" code="76"/>
+        <enum name="dhcp-relay-static-ip-addr-not-allowed" code="77"/>
+        <enum name="dhcp-no-ip-addr-allocated" code="78"/>
+        <enum name="dhcp-ip-addr-allocation-tmr-exp" code="79"/>
+        <enum name="dhcp-ip-validation-failed" code="80"/>
+        <enum name="dhcp-static-addr-not-allowed" code="81"/>
+        <enum name="dhcp-ip-addr-not-available-at-present" code="82"/>
+        <enum name="dhcp-lease-expired" code="83"/>
+        <enum name="lpool-ip-validation-failed" code="84"/>
+        <enum name="lpool-static-ip-addr-not-allowed" code="85"/>
+        <enum name="static-ip-validation-failed" code="86"/>
+        <enum name="static-ip-addr-not-present" code="87"/>
+        <enum name="static-ip-addr-not-allowed" code="88"/>
+        <enum name="radius-ip-validation-failed" code="89"/>
+        <enum name="radius-ip-addr-not-provided" code="90"/>
+        <enum name="invalid-ip-addr-from-sgsn" code="91"/>
+        <enum name="no-more-sessions-in-aaa" code="92"/>
+        <enum name="ggsn-aaa-auth-req-failed" code="93"/>
+        <enum name="conflict-in-ip-addr-assignment" code="94"/>
+        <enum name="apn-removed" code="95"/>
+        <enum name="credits-used-bytes-in" code="96"/>
+        <enum name="credits-used-bytes-out" code="97"/>
+        <enum name="credits-used-bytes-total" code="98"/>
+        <enum name="prepaid-failed" code="99"/>
+        <enum name="l2tp-ipsec-tunnel-failure" code="100"/>
+        <enum name="l2tp-ipsec-tunnel-disconnected" code="101"/>
+        <enum name="mip-ipsec-sa-inactive" code="102"/>
+        <enum name="Long-Duration-Timeout" code="103"/>
+        <enum name="proxy-mip-registration-failure" code="104"/>
+        <enum name="proxy-mip-binding-update" code="105"/>
+        <enum name="proxy-mip-inter-pdsn-handoff-require-ip-address" code="106"/>
+        <enum name="proxy-mip-inter-pdsn-handoff-mismatched-address" code="107"/>
+        <enum name="Local-purge" code="108"/>
+        <enum name="failed-update-handoff" code="109"/>
+        <enum name="closed_rp-handoff-complete" code="110"/>
+        <enum name="closed_rp-duplicate-session" code="111"/>
+        <enum name="closed_rp-handoff-session-not-found" code="112"/>
+        <enum name="closed_rp-handoff-failed" code="113"/>
+        <enum name="pcf-monitor-keep-alive-failed" code="114"/>
+        <enum name="call-internal-reject" code="115"/>
+        <enum name="call-restarted" code="116"/>
+        <enum name="a11-mn-ha-auth-failure" code="117"/>
+        <enum name="a11-badly-formed" code="118"/>
+        <enum name="a11-t-bit-not-set" code="119"/>
+        <enum name="a11-unsupported-vendor-id" code="120"/>
+        <enum name="a11-mismatched-id" code="121"/>
+        <enum name="mipha-dup-home-addr-req" code="122"/>
+        <enum name="mipha-dup-imsi-session" code="123"/>
+        <enum name="ha-unreachable" code="124"/>
+        <enum name="IPSP-addr-in-use" code="125"/>
+        <enum name="mipfa-dup-home-addr-req" code="126"/>
+        <enum name="mipha-ip-pool-busyout" code="127"/>
+        <enum name="inter-pdsn-handoff" code="128"/>
+        <enum name="active-to-dormant" code="129"/>
+        <enum name="ppp-renegotiation" code="130"/>
+        <enum name="active-start-param-change" code="131"/>
+        <enum name="tarrif-boundary" code="132"/>
+        <enum name="a11-disconnect-no-active-stop" code="133"/>
+        <enum name="nw-reachability-failed-reject" code="134"/>
+        <enum name="nw-reachability-failed-redirect" code="135"/>
+        <enum name="container-max-exceeded" code="136"/>
+        <enum name="static-addr-not-allowed-in-apn" code="137"/>
+        <enum name="static-addr-required-by-radius" code="138"/>
+        <enum name="static-addr-not-allowed-by-radius" code="139"/>
+        <enum name="mip-registration-dropped" code="140"/>
+        <enum name="counter-rollover" code="141"/>
+        <enum name="constructed-nai-auth-fail" code="142"/>
+        <enum name="inter-pdsn-service-optimize-handoff-disabled" code="143"/>
+        <enum name="gre-key-collision" code="144"/>
+        <enum name="inter-pdsn-service-optimize-handoff-triggered" code="145"/>
+        <enum name="intra-pdsn-handoff-triggered" code="146"/>
+        <enum name="delayed-abort-timer-expired" code="147"/>
+        <enum name="Admin-AAA-disconnect" code="148"/>
+        <enum name="Admin-AAA-disconnect-handoff" code="149"/>
+        <enum name="PPP-IPV6CP-Neg-Failed" code="150"/>
+        <enum name="PPP-IPV6CP-No-Response" code="151"/>
+        <enum name="PPP-IPV6CP-Max-Retry" code="152"/>
+        <enum name="PPP-Restart-Invalid-source-IPV4-address" code="153"/>
+        <enum name="a11-disconnect-handoff-no-active-stop" code="154"/>
+        <enum name="call-restarted-inter-pdsn-handoff" code="155"/>
+        <enum name="call-restarted-ppp-termination" code="156"/>
+        <enum name="mipfa-resource-conflict" code="157"/>
+        <enum name="failed-auth-with-charging-svc" code="158"/>
+        <enum name="mipha-dup-imsi-session-purge" code="159"/>
+        <enum name="mipha-rev-pending-newcall" code="160"/>
+        <enum name="volume-quota-reached" code="161"/>
+        <enum name="duration-quota-reached" code="162"/>
+        <enum name="gtp-user-authentication-failed" code="163"/>
+        <enum name="MIP-reg-revocation-no-lcp-term" code="164"/>
+        <enum name="MIP-private-ip-no-rev-tunnel" code="165"/>
+        <enum name="Invalid-Prepaid-AAA-attr-in-auth-response" code="166"/>
+        <enum name="mipha-prepaid-reset-dynamic-newcall" code="167"/>
+        <enum name="gre-flow-control-timeout" code="168"/>
+        <enum name="mip-paaa-bc-query-not-found" code="169"/>
+        <enum name="mipha-dynamic-ip-addr-not-available" code="170"/>
+        <enum name="a11-mismatched-id-on-handoff" code="171"/>
+        <enum name="a11-badly-formed-on-handoff" code="172"/>
+        <enum name="a11-unsupported-vendor-id-on-handoff" code="173"/>
+        <enum name="a11-t-bit-not-set-on-handoff" code="174"/>
+        <enum name="MIP-reg-revocation-i-bit-on" code="175"/>
+        <enum name="A11-RRQ-Deny-Max-Count" code="176"/>
+        <enum name="Dormant-Transition-During-Session-Setup" code="177"/>
+        <enum name="PPP-Rem-Reneg-Disc-Always-Cfg" code="178"/>
+        <enum name="PPP-Rem-Reneg-Disc-NAI-MSID-Mismatch" code="179"/>
+        <enum name="mipha-subscriber-ipsec-tunnel-down" code="180"/>
+        <enum name="mipha-subscriber-ipsec-tunnel-failed" code="181"/>
+        <enum name="mipha-subscriber-ipsecmgr-death" code="182"/>
+        <enum name="flow-is-deactivated" code="183"/>
+        <enum name="ecsv2-license-exceeded" code="184"/>
+        <enum name="IPSG-Auth-Failed" code="185"/>
+        <enum name="driver-initiated" code="186"/>
+        <enum name="ims-authorization-failed" code="187"/>
+        <enum name="service-instance-released" code="188"/>
+        <enum name="flow-released" code="189"/>
+        <enum name="ppp-renego-no-ha-addr" code="190"/>
+        <enum name="intra-pdsn-handoff" code="191"/>
+        <enum name="overload-disconnect" code="192"/>
+        <enum name="css-service-not-found" code="193"/>
+        <enum name="Auth-Failed" code="194"/>
+        <enum name="dhcp-client-sent-release" code="195"/>
+        <enum name="dhcp-client-sent-nak" code="196"/>
+        <enum name="msid-dhcp-chaddr-mismatch" code="197"/>
+        <enum name="link-broken" code="198"/>
+        <enum name="prog-end-timeout" code="199"/>
+        <enum name="qos-update-wait-timeout" code="200"/>
+        <enum name="css-synch-cause" code="201"/>
+        <enum name="Gtp-context-replacement" code="202"/>
+        <enum name="PDIF-Auth-failed" code="203"/>
+        <enum name="l2tp-unknown-apn" code="204"/>
+        <enum name="ms-unexpected-network-reentry" code="205"/>
+        <enum name="r6-invalid-nai" code="206"/>
+        <enum name="eap-max-retry-reached" code="207"/>
+        <enum name="vbm-hoa-session-disconnected" code="208"/>
+        <enum name="vbm-voa-session-disconnected" code="209"/>
+        <enum name="in-acl-disconnect-on-violation" code="210"/>
+        <enum name="eap-msk-lifetime-expiry" code="211"/>
+        <enum name="eap-msk-lifetime-too-low" code="212"/>
+        <enum name="mipfa-inter-tech-handoff" code="213"/>
+        <enum name="r6-max-retry-reached" code="214"/>
+        <enum name="r6-nwexit-recd" code="215"/>
+        <enum name="r6-dereg-req-recd" code="216"/>
+        <enum name="r6-remote-failure" code="217"/>
+        <enum name="r6r4-protocol-errors" code="218"/>
+        <enum name="wimax-qos-invalid-aaa-attr" code="219"/>
+        <enum name="npu-gre-flows-not-available" code="220"/>
+        <enum name="r4-max-retry-reached" code="221"/>
+        <enum name="r4-nwexit-recd" code="222"/>
+        <enum name="r4-dereg-req-recd" code="223"/>
+        <enum name="r4-remote-failure" code="224"/>
+        <enum name="ims-authorization-revoked" code="225"/>
+        <enum name="ims-authorization-released" code="226"/>
+        <enum name="ims-auth-decision-invalid" code="227"/>
+        <enum name="mac-addr-validation-failed" code="228"/>
+        <enum name="excessive-wimax-pd-flows-cfgd" code="229"/>
+        <enum name="sgsn-canc-loc-sub" code="230"/>
+        <enum name="sgsn-canc-loc-upd" code="231"/>
+        <enum name="sgsn-mnr-exp" code="232"/>
+        <enum name="sgsn-ident-fail" code="233"/>
+        <enum name="sgsn-sec-fail" code="234"/>
+        <enum name="sgsn-auth-fail" code="235"/>
+        <enum name="sgsn-glu-fail" code="236"/>
+        <enum name="sgsn-imp-det" code="237"/>
+        <enum name="sgsn-smgr-purge" code="238"/>
+        <enum name="sgsn-subs-handed-to-peer" code="239"/>
+        <enum name="sgsn-dns-fail-inter-rau" code="240"/>
+        <enum name="sgsn-cont-rsp-fail" code="241"/>
+        <enum name="sgsn-hlr-not-found-for-imsi" code="242"/>
+        <enum name="sgsn-ms-init-det" code="243"/>
+        <enum name="sgsn-opr-policy-fail" code="244"/>
+        <enum name="sgsn-duplicate-context" code="245"/>
+        <enum name="hss-profile-update-failed" code="246"/>
+        <enum name="sgsn-no-pdp-activated" code="247"/>
+        <enum name="asnpc-idle-mode-timeout" code="248"/>
+        <enum name="asnpc-idle-mode-exit" code="249"/>
+        <enum name="asnpc-idle-mode-auth-failed" code="250"/>
+        <enum name="asngw-invalid-qos-configuration" code="251"/>
+        <enum name="sgsn-dsd-allgprswithdrawn" code="252"/>
+        <enum name="r6-pmk-key-change-failure" code="253"/>
+        <enum name="sgsn-illegal-me" code="254"/>
+        <enum name="sess-termination-timeout" code="255"/>
+        <enum name="sgsn-sai-fail" code="256"/>
+        <enum name="sgsn-rnc-removal" code="257"/>
+        <enum name="sgsn-rai-removal" code="258"/>
+        <enum name="sgsn-init-deact" code="259"/>
+        <enum name="ggsn-init-deact" code="260"/>
+        <enum name="hlr-init-deact" code="261"/>
+        <enum name="ms-init-deact" code="262"/>
+        <enum name="sgsn-detach-init-deact" code="263"/>
+        <enum name="sgsn-rab-rel-init-deact" code="264"/>
+        <enum name="sgsn-iu-rel-init-deact" code="265"/>
+        <enum name="sgsn-gtpu-path-failure" code="266"/>
+        <enum name="sgsn-gtpc-path-failure" code="267"/>
+        <enum name="sgsn-local-handoff-init-deact" code="268"/>
+        <enum name="sgsn-remote-handoff-init-deact" code="269"/>
+        <enum name="sgsn-gtp-no-resource" code="270"/>
+        <enum name="sgsn-rnc-no-resource" code="271"/>
+        <enum name="sgsn-odb-init-deact" code="272"/>
+        <enum name="sgsn-invalid-ti" code="273"/>
+        <enum name="sgsn-ggsn-ctxt-non-existent" code="274"/>
+        <enum name="sgsn-apn-restrict-vio" code="275"/>
+        <enum name="sgsn-regular-deact" code="276"/>
+        <enum name="sgsn-abnormal-deact" code="277"/>
+        <enum name="sgsn-actv-rejected-by-peer" code="278"/>
+        <enum name="sgsn-err-ind" code="279"/>
+        <enum name="asngw-non-anchor-prohibited" code="280"/>
+        <enum name="asngw-im-entry-prohibited" code="281"/>
+        <enum name="session-idle-mode-entry-timeout" code="282"/>
+        <enum name="session-idle-mode-exit-timeout" code="283"/>
+        <enum name="asnpc-ms-power-down-nwexit" code="284"/>
+        <enum name="asnpc-r4-nwexit-recd" code="285"/>
+        <enum name="sgsn-iu-rel-before-call-est" code="286"/>
+        <enum name="ikev2-subscriber-ipsecmgr-death" code="287"/>
+        <enum name="All-dynamic-pool-addr-occupied" code="288"/>
+        <enum name="mip6ha-ip-addr-not-available" code="289"/>
+        <enum name="bs-monitor-keep-alive-failed" code="290"/>
+        <enum name="sgsn-att-in-reg-state" code="291"/>
+        <enum name="sgsn-inbound-srns-in-reg-state" code="292"/>
+        <enum name="dt-ggsn-tun-reestablish-failed" code="293"/>
+        <enum name="sgsn-unknown-pdp" code="294"/>
+        <enum name="sgsn-pdp-auth-failure" code="295"/>
+        <enum name="sgsn-duplicate-pdp-context" code="296"/>
+        <enum name="sgsn-no-rsp-from-ggsn" code="297"/>
+        <enum name="sgsn-failure-rsp-from-ggsn" code="298"/>
+        <enum name="sgsn-apn-unknown" code="299"/>
+        <enum name="sgsn-serv-req-init-deact" code="300"/>
+        <enum name="sgsn-attach-on-attch-init-abort" code="301"/>
+        <enum name="sgsn-iu-rel-in-israu-init-abort" code="302"/>
+        <enum name="sgsn-smgr-init-abort" code="303"/>
+        <enum name="sgsn-mm-ctx-cleanup-init-abort" code="304"/>
+        <enum name="sgsn-unknown-abort" code="305"/>
+        <enum name="sgsn-guard-timeout-abort" code="306"/>
+        <enum name="vpn-bounce-dhcpip-validate-req" code="307"/>
+        <enum name="mipv6-id-mismatch" code="308"/>
+        <enum name="aaa-session-id-not-found" code="309"/>
+        <enum name="x1-max-retry-reached" code="310"/>
+        <enum name="x1-nwexit-recd" code="311"/>
+        <enum name="x1-dereg-req-recd" code="312"/>
+        <enum name="x1-remote-failure" code="313"/>
+        <enum name="x1x2-protocol-errors" code="314"/>
+        <enum name="x2-max-retry-reached" code="315"/>
+        <enum name="x2-nwexit-recd" code="316"/>
+        <enum name="x2-dereg-req-recd" code="317"/>
+        <enum name="x2-remote-failure" code="318"/>
+        <enum name="x1-pmk-key-change-failure" code="319"/>
+        <enum name="sa-rekeying-failure" code="320"/>
+        <enum name="sess-sleep-mode-entry-timeout" code="321"/>
+        <enum name="phsgw-non-anchor-prohibited" code="322"/>
+        <enum name="asnpc-pc-relocation-failed" code="323"/>
+        <enum name="asnpc-pc-relocation" code="324"/>
+        <enum name="auth_policy_mismatch" code="325"/>
+        <enum name="sa-lifetime-expiry" code="326"/>
+        <enum name="asnpc-del-ms-entry-recd" code="327"/>
+        <enum name="phspc-sleep-mode-timeout" code="328"/>
+        <enum name="phspc-sleep-mode-exit" code="329"/>
+        <enum name="phspc-sleep-mode-auth-failed" code="330"/>
+        <enum name="phspc-ms-power-down-nwexit" code="331"/>
+        <enum name="phspc-x2-nwexit-recd" code="332"/>
+        <enum name="invalid-nat-config" code="333"/>
+        <enum name="asngw-tid-entry-not-found" code="334"/>
+        <enum name="No-NAT-IP-Address" code="335"/>
+        <enum name="excessive-phs-pd-flows-cfgd" code="336"/>
+        <enum name="phsgw-invalid-qos-configuration" code="337"/>
+        <enum name="Interim-Update" code="338"/>
+        <enum name="sgsn-attach-abrt-rad-lost" code="339"/>
+        <enum name="sgsn-inbnd-irau-abrt-rad-lost" code="340"/>
+        <enum name="ike-keepalive-failed" code="341"/>
+        <enum name="sgsn-attach-abrt-ms-suspend" code="342"/>
+        <enum name="sgsn-inbnd-irau-abrt-ms-suspend" code="343"/>
+        <enum name="duplicate-session-detected" code="344"/>
+        <enum name="sgsn-xid-response-failure" code="345"/>
+        <enum name="sgsn-nse-cleanup" code="346"/>
+        <enum name="sgsn-gtp-req-failure" code="347"/>
+        <enum name="sgsn-imsi-mismatch" code="348"/>
+        <enum name="sgsn-bvc-blocked" code="349"/>
+        <enum name="sgsn-attach-on-inbound-irau" code="350"/>
+        <enum name="sgsn-attach-on-outbound-irau" code="351"/>
+        <enum name="sgsn-incorrect-state" code="352"/>
+        <enum name="sgsn-t3350-expiry" code="353"/>
+        <enum name="sgsn-page-timer-expiry" code="354"/>
+        <enum name="phsgw-tid-entry-not-found" code="355"/>
+        <enum name="phspc-del-ms-entry-recd" code="356"/>
+        <enum name="sgsn-pdp-local-purge" code="357"/>
+        <enum name="phs-invalid-nai" code="358"/>
+        <enum name="session-sleep-mode-exit-timeout" code="359"/>
+        <enum name="sgsn-offload-phase2" code="360"/>
+        <enum name="phs-thirdparty-auth-fail" code="361"/>
+        <enum name="remote-error-notify" code="362"/>
+        <enum name="no-response" code="363"/>
+        <enum name="PDG-Auth-failed" code="364"/>
+        <enum name="mme-s1AP-send-failed=365"/>
+        <enum name="mme-egtpc-connection-failed=366"/>
+        <enum name="mme-egtpc-create-session-failed=367"/>
+        <enum name="mme-authentication-failure=368"/>
+        <enum name="mme-ue-detach=369"/>
+        <enum name="mme-mme-detach=370"/>
+        <enum name="mme-hss-detach=371"/>
+        <enum name="mme-pgw-detach=372"/>
+        <enum name="mme-sub-validation-failure=373"/>
+        <enum name="mme-hss-connection-failure=374"/>
+        <enum name="mme-hss-user-unknown=375"/>
+        <enum name="dhcp-lease-mismatch-detected=376"/>
+        <enum name="nemo-link-layer-down=377"/>
+        <enum name="eapol-max-retry-reached" code="378"/>
+        <enum name="sgsn-offload-phase3" code="379"/>
+        <enum name="mbms-bearer-service-disconnect" code="380"/>
+        <enum name="disconnect-on-violation-odb" code="381"/>
+        <enum name="disconn-on-violation-focs-odb" code="382"/>
+        <enum name="CSCF-REG-Admin-disconnect" code="383"/>
+        <enum name="CSCF-REG-User-disconnect" code="384"/>
+        <enum name="CSCF-REG-Inactivity-timeout" code="385"/>
+        <enum name="CSCF-REG-Network-disconnect" code="386"/>
+        <enum name="CSCF-Call-Admin-disconnect" code="387"/>
+        <enum name="CSCF-CAll-User-disconnect" code="388"/>
+        <enum name="CSCF-CALL-Local-disconnect" code="389"/>
+        <enum name="CSCF-CALL-No-Resource" code="390"/>
+        <enum name="CSCF-CALL-No-Respone" code="391"/>
+        <enum name="CSCF-CALL-Inactivity-timeout" code="392"/>
+        <enum name="CSCF-CALL-Media-Auth-Failure" code="393"/>
+        <enum name="CSCF-REG-No-Resource" code="394"/>
+        <enum name="ms-unexpected-idle-mode-entry" code="395"/>
+        <enum name="re-auth-failed" code="396"/>
+        <enum name="sgsn-pdp-nse-cleanup" code="397"/>
+        <enum name="sgsn-mm-ctxt-gtp-no-resource" code="398"/>
+        <enum name="unknown-apn" code="399"/>
+        <enum name="gtpc-path-failure" code="400"/>
+        <enum name="gtpu-path-failure" code="401"/>
+        <enum name="actv-rejected-by-sgsn" code="402"/>
+        <enum name="sgsn-pdp-gprs-camel-release" code="403"/>
+        <enum name="sgsn-check-imei-failure" code="404"/>
+        <enum name="sgsn-sndcp-init-deact" code="405"/>
+        <enum name="sgsn-pdp-inactivity-timeout" code="406"/>
+        <enum name="fw-and-nat-policy-removed" code="407"/>
+        <enum name="FNG-Auth-failed" code="408"/>
+        <enum name="ha-stale-key-disconnect" code="409"/>
+        <enum name="No-IPV6-address-for-subscriber" code="410"/>
+        <enum name="prefix-registration-failure" code="411"/>
+        <enum name="disconnect-from-policy-server" code="412"/>
+        <enum name="s6b-auth-failed" code="413"/>
+        <enum name="gtpc-err-ind" code="414"/>
+        <enum name="gtpu-err-ind" code="415"/>
+        <enum name="invalid-pdn-type" code="416"/>
+        <enum name="aaa-auth-req-failed" code="417"/>
+        <enum name="apn-denied-no-subscription" code="418"/>
+        <enum name="Sgw-context-replacement" code="419"/>
+        <enum name="dup-static-ip-addr-req" code="420"/>
+        <enum name="apn-restrict-violation" code="421"/>
+        <enum name="invalid-wapn" code="422"/>
+        <enum name="ttg-nsapi-allocation-failed" code="423"/>
+        <enum name="mandatory-gtp-ie-missing" code="424"/>
+        <enum name="aaa-unreachable" code="425"/>
+        <enum name="asngw-service-flow-deletion" code="426"/>
+        <enum name="CT-PMIP-RRQ-NVSE-Value-Change" code="427"/>
+        <enum name="tcp-read-failed" code="428"/>
+        <enum name="tcp-write-failed" code="429"/>
+        <enum name="ssl-handshake-failed" code="430"/>
+        <enum name="ssl-renegotiate-failed" code="431"/>
+        <enum name="ssl-bad-message" code="432"/>
+        <enum name="ssl-alert-received" code="433"/>
+        <enum name="ssl-disconnect" code="434"/>
+        <enum name="ssl-migration" code="435"/>
+        <enum name="sgsn-ard-failure" code="436"/>
+        <enum name="sgsn-camel-release" code="437"/>
+        <enum name="Hotlining-Status-Change=447"/>
+        <enum name="ggsn-no-rsp-from-sgsn" code="448"/>
+        <enum name="diameter-protocol-error=449"/>
+        <enum name="diameter-request-timeout=450"/>
+        <enum name="operator-policy=451"/>
+        <enum name="spr-connection-timeout=452"/>
+        <enum name="mipha-dup-wimax-session" code="453"/>
+        <enum name="invalid-version-attr" code="454"/>
+        <enum name="sgsn-zone-code-failure" code="455"/>
+        <enum name="invalid-qci" code="456"/>
+        <enum name="no_rules" code="457"/>
+        <enum name="mme-init-ctxt-setup-failure" code="459"/>
+        <enum name="mme-driver-initiated" code="460"/>
+        <enum name="mme-s1ap-connection-down" code="461"/>
+        <enum name="mme-s1ap-reset-recd" code="462"/>
+        <enum name="mme-s6a-response-timeout" code="463"/>
+        <enum name="mme-s13-response-timeout" code="464"/>
+        <enum name="mme-Illegal-equipment" code="465"/>
+        <enum name="mme-unexpected-attach" code="466"/>
+        <enum name="mme-sgw-selection-failure" code="467"/>
+        <enum name="mme-pgw-selection-failure" code="468"/>
+        <enum name="mme-reselection-to-sgsn" code="469"/>
+        <enum name="mme-relocation-to-sgsn" code="470"/>
+        <enum name="mme-reselection-to-mme" code="471"/>
+        <enum name="mme-relocation-to-mme" code="472"/>
+        <enum name="mme-tau-attach-collision" code="473"/>
+        <enum name="mme-old-sgsn-resolution-failure" code="474"/>
+        <enum name="mme-old-mme-resolution-failure" code="475"/>
+        <enum name="mme-reloc-ho-notify-timeout" code="476"/>
+        <enum name="mme-reloc-ho-req-ack-timeout" code="477"/>
+        <enum name="mme-create-session-timeout" code="478"/>
+        <enum name="mme-create-session-failure" code="479"/>
+        <enum name="mme-s11-path-failure" code="480"/>
+        <enum name="mme-policy-no-ue-irat" code="481"/>
+        <enum name="mme-x2-handover-failed" code="482"/>
+        <enum name="mme-attach-restrict" code="483"/>
+        <enum name="mme-regional-zone-code" code="484"/>
+        <enum name="mme-no-response-from-ue" code="485"/>
+        <enum name="mme-sgw-relocation-failed" code="486"/>
+        <enum name="mme-implicit-detach" code="487"/>
+        <enum name="sgsn-detach-notify" code="488"/>
+        <enum name="emergency-inactivity-timeout" code="489"/>
+        <enum name="policy-initiated-release" code="490"/>
+        <enum name="gy-result-code-system-failure" code="491"/>
+        <enum name="mme-zone-code-validation-failed" code="492"/>
+        <enum name="sgsn-pgw-init-deact" code="493"/>
+        <enum name="s6b-ip-validation-failed" code="494"/>
+        <enum name="sgsn-failure-rsp-from-sgw" code="495"/>
+        <enum name="tcp-remote-close" code="496"/>
+        <enum name="tcp-reset-received" code="497"/>
+        <enum name="tcp-socket-error" code="498"/>
+        <enum name="ptmsi-signature-mismatch" code="499"/>
+        <enum name="camel-invalid-configuration" code="500"/>
+        <enum name="4Gto3G-context-replacement" code="501"/>
+        <enum name="mme-isr-sgsn-init-detach" code="502"/>
+        <enum name="sgsn-isr-addl-ptmsi-rai" code="503"/>
+        <enum name="sgsn-sgw-dbr-cause-isr-deact" code="504"/>
+        <enum name="sgsn-isr-mme-init-detach" code="505"/>
+        <enum name="mme-sgw-dbr-cause-isr-deact" code="506"/>
+        <enum name="sgsn-ptmsi-crunch" code="507"/>
+        <enum name="3Gto4G-context-replacement" code="508"/>
+        <enum name="mme-no-eps-bearers-activated=509"/>
+        <enum name="intra-ggsn-handoff=510"/>
+        <enum name="WSG-Auth-failed=511"/>
+        <enum name="Gtp-non-existent-pdp-context=512"/>
+        <enum name="sgsn-cancel-loc-inital-attach" code="513"/>
+        <enum name="Local-fallback-timeout" code="514"/>
+        <enum name="sgsn-nrspca-actv-rej-by-sgsn" code="515"/>
+        <enum name="sgsn-nrspca-actv-rej-by-ms" code="516"/>
+        <enum name="ims-authorization-config-delete" code="517"/>
+        <enum name="sgsn-no-ptmsi-signature" code="518"/>
+        <enum name="ePDG-dns-server-not-reachable" code="519"/>
+        <enum name="ePDG-dns-no-resource-records" code="520"/>
+        <enum name="ePDG-dns-no-service-params" code="521"/>
+        <enum name="ePDG-Auth-failed" code="522"/>
+        <enum name="ePDG-pgw-sel-failure-initial" code="523"/>
+        <enum name="ePDG-pgw-sel-failure-handoff" code="524"/>
+        <enum name="sgsn-ho-sgw-reloc-collision" code="525"/>
+        <enum name="ePDG-dbr-from-pgw" code="526"/>
+        <enum name="ePDG-gtpc-abort-session" code="527"/>
+        <enum name="ePDG-gtpu-abort-session" code="528"/>
+        <enum name="ePDG-gtpu-error-ind" code="529"/>
+        <enum name="ePDG-pgw-not-reachable" code="530"/>
+        <enum name="ePDG-reject-from-pgw" code="531"/>
+        <enum name="ipsg-session-replacement" code="532"/>
+        <enum name="ePDG-rel-due-to-handoff" code="533"/>
+        <enum name="mme-foreign-plmn-guti-rejected" code="534"/>
+        <enum name="sgsn-dsd-allepswithdrawn" code="535"/>
+    </avp>
+
+    <avp name="SN-DNS-Proxy-Intercept-List" code="214" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-DNS-Proxy-Use-Subscr-Addr" code="25" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-Dynamic-Addr-Alloc-Ind-Flag" code="141" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Ecs-Data-Volume" code="176" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Enable-QoS-Renegotiation" code="144" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-Event" code="255" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Ext-Inline-Srvr-Context" code="41" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Ext-Inline-Srvr-Down-Addr" code="56" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Ext-Inline-Srvr-Down-VLAN" code="59" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Ext-Inline-Srvr-Preference" code="57" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Ext-Inline-Srvr-Up-Addr" code="55" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Ext-Inline-Srvr-Up-VLAN" code="58" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Fast-Reauth-Username" code="304" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Firewall-Enabled" code="198" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="False" code="0"/>
+        <enum name="True" code="1"/>
+    </avp>
+
+    <avp name="SN-Firewall-Policy" code="239" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-FMC-Location" code="171" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-GGSN-Address" code="264" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-GGSN-MIP-Required" code="68" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Gratuitous-ARP-Aggressive" code="54" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-GTP-Version" code="62" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="GTP_VERSION_0" code="0"/>
+        <enum name="GTP_VERSION_1" code="1"/>
+        <enum name="GTP_VERSION_2" code="2"/>
+    </avp>
+
+    <avp name="SN-HA-Send-DNS-ADDRESS" code="47" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Handoff-Indicator" code="310" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Active-Handoff" code="0"/>
+        <enum name="Location-Update" code="1"/>
+    </avp>
+
+    <avp name="SN-Home-Behavior" code="119" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Home-Profile" code="109" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Home-Sub-Use-GGSN" code="106" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Deny" code="0"/>
+        <enum name="Accept" code="1"/>
+    </avp>
+
+    <avp name="SN-IMS-AM-Address" code="167" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-IMS-AM-Domain-Name" code="168" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IMS-Charging-Identifier" code="260" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-IMSI" code="252" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Inactivity-Time" code="232" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Integer32"/>
+    </avp>
+
+    <avp name="SN-Internal-SM-Index" code="122" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-IP-Alloc-Method" code="53" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Alloc_Local_Pool" code="0"/>
+        <enum name="Alloc_Dhcp_Client" code="1"/>
+        <enum name="Alloc_Radius" code="2"/>
+        <enum name="Alloc_No_Alloc" code="3"/>
+        <enum name="Alloc_Static_Alloc" code="4"/>
+        <enum name="Alloc_Dhcp_Relay" code="5"/>
+    </avp>
+
+    <avp name="SN-IPv6-Alloc-Method" code="314" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Alloc_Local_Pool" code="0"/>
+        <enum name="Alloc_Dhcp_Client" code="1"/>
+        <enum name="Alloc_No_Alloc" code="2"/>
+        <enum name="Alloc_Static_Alloc" code="3"/>
+    </avp>
+
+    <avp name="SN-IP-Filter-In" code="10" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IP-Filter-Out" code="11" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IP-Header-Compression" code="150" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="VJ" code="1"/>
+        <enum name="ROHC" code="2"/>
+        <enum name="VJ_ROHC" code="3"/>
+    </avp>
+
+    <avp name="SN-IP-Hide-Service-Address" code="60" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-IP-In-ACL" code="17" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-IP-In-Plcy-Grp" code="193" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IP-Out-ACL" code="18" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-IP-Out-Plcy-Grp" code="194" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IP-Pool-Name" code="8" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-IP-Source-Validation" code="14" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-IP-Source-Violate-No-Acct" code="196" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-IP-Src-Validation-Drop-Limit" code="110" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-IPv6-DNS-Proxy" code="126" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-IPv6-Egress-Filtering" code="103" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-IPv6-Min-Link-MTU" code="136" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-IPv6-num-rtr-advt" code="97" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-IPv6-Primary-DNS" code="101" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-IPv6-rtr-advt-interval" code="96" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-IPv6-Secondary-DNS" code="102" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IPv6-Sec-Pool" code="124" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-IPv6-Sec-Prefix" code="125" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-ISC-Template-Name" code="276" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Is-Unregistered-Subscriber" code="269" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-L3-to-L2-Tun-Addr-Policy" code="43" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="no-local-alloc-validate" code="0"/>
+        <enum name="local-alloc" code="1"/>
+        <enum name="local-alloc-validate" code="2"/>
+    </avp>
+
+    <avp name="SN-LI-Dest-Address" code="240" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Local-IP-Address" code="13" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Long-Duration-Action" code="45" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Detection" code="1"/>
+        <enum name="Disconnection" code="2"/>
+        <enum name="Dormant-Only-Disconnection" code="3"/>
+        <enum name="Dormant-Only-Detection" code="4"/>
+    </avp>
+
+    <avp name="SN-Long-Duration-Notification" code="253" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Suppress" code="0"/>
+        <enum name="Send" code="1"/>
+    </avp>
+
+    <avp name="SN-Long-Duration-Timeout" code="44" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Integer32"/>
+    </avp>
+
+    <avp name="SN-Max-Sec-Contexts-Per-Subs" code="290" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Mediation-Acct-Rsp-Action" code="105" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="No_Early_PDUs" code="1"/>
+        <enum name="Delay_GTP_Response" code="2"/>
+    </avp>
+
+    <avp name="SN-Mediation-Enabled" code="123" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Mediation-No-Interims" code="146" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Mediation-VPN-Name" code="104" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Min-Compress-Size" code="23" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-MIP-AAA-Assign-Addr" code="50" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-MIP-ANCID" code="166" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-MIP-Dual-Anchor" code="165" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-MIP-HA-Assignment-Table" code="154" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-MIP-Match-AAA-Assign-Addr" code="51" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-MIP-Reg-Lifetime-Realm" code="175" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-MIP-Send-Ancid" code="163" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-MIP-Send-Correlation-Info" code="188" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+        <enum name="NVSE_CUstom1" code="2"/>
+        <enum name="NVSE_CUstom2" code="3"/>
+    </avp>
+
+    <avp name="SN-MIP-Send-Host-Config" code="311" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-MIP-Send-Imsi" code="164" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="NVSE_Starent" code="1"/>
+        <enum name="NVSE_Custom1" code="2"/>
+    </avp>
+
+    <avp name="SN-MIP-Send-Term-Verification" code="48" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="NVSE_Custom1" code="1"/>
+        <enum name="NVSE_Custom2" code="2"/>
+        <enum name="NVSE_Starent" code="3"/>
+    </avp>
+
+    <avp name="SN-MN-HA-Hash-Algorithm" code="99" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="MD5" code="1"/>
+        <enum name="MD5-RFC2002" code="2"/>
+        <enum name="HMAC-MD5" code="3"/>
+    </avp>
+
+    <avp name="SN-MN-HA-Timestamp-Tolerance" code="30" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Mode" code="151" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Reliable" code="0"/>
+        <enum name="Optimistic" code="1"/>
+        <enum name="Unidirectional" code="2"/>
+    </avp>
+
+    <avp name="SN-MS-ISDN" code="248" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-NAI-Construction-Domain" code="37" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-NAT-IP-Address" code="297" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Node-Functionality" code="268" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="S-CSCF" code="0"/>
+        <enum name="P-CSCF" code="1"/>
+        <enum name="I-CSCF" code="2"/>
+    </avp>
+
+    <avp name="SN-NPU-Qos-Priority" code="98" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best_Effort" code="0"/>
+        <enum name="Bronze" code="1"/>
+        <enum name="Silver" code="2"/>
+        <enum name="Gold" code="3"/>
+        <enum name="From_DSCP" code="4"/>
+    </avp>
+
+    <avp name="SN-Ntk-Initiated-Ctx-Ind-Flag" code="142" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Ntk-Session-Disconnect-Flag" code="143" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Session-Disconnect" code="0"/>
+    </avp>
+
+    <avp name="SN-Nw-Reachability-Server-Name" code="65" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Originating-IOI" code="261" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Overload-Disc-Connect-Time" code="233" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Overload-Disc-Inact-Time" code="234" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Overload-Disconnect" code="235" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-PDG-TTG-Required" code="299" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-PDIF-MIP-Release-TIA" code="172" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-PDIF-MIP-Required" code="170" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-PDIF-MIP-Simple-IP-Fallback" code="173" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-PDSN-Correlation-Id" code="8" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-PDSN-Handoff-Req-IP-Addr" code="46" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-PDSN-NAS-Id" code="190" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-PDSN-NAS-IP-Address" code="191" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+			<type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Permit-User-Mcast-PDUs" code="134" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-PPP-Accept-Peer-v6Ifid" code="95" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-PPP-Always-On-Vse" code="130" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-PPP-Data-Compression" code="9" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="Stac-LZS" code="1"/>
+        <enum name="MPPC" code="2"/>
+        <enum name="Deflate" code="3"/>
+    </avp>
+
+    <avp name="SN-PPP-Data-Compression-Mode" code="19" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal" code="0"/>
+        <enum name="Stateless" code="1"/>
+    </avp>
+
+    <avp name="SN-PPP-Keepalive" code="16" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-PPP-NW-Layer-IPv4" code="92" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+        <enum name="Passive" code="2"/>
+    </avp>
+
+    <avp name="SN-PPP-NW-Layer-IPv6" code="93" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+        <enum name="Passive" code="2"/>
+    </avp>
+
+    <avp name="SN-PPP-Outbound-Password" code="15" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-PPP-Outbound-Username" code="61" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-PPP-Progress-Code" code="4" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Not-Defined" code="0"/>
+        <enum name="Call-Lcp-Down" code="10"/>
+        <enum name="Call-Disconnecting" code="20"/>
+        <enum name="Call-Ppp-Renegotiating" code="30"/>
+        <enum name="Call-Arrived" code="40"/>
+        <enum name="Call-Pdg-Tcp-Connecting" code="45"/>
+        <enum name="Call-Pdg-Ssl-Connecting" code="46"/>
+        <enum name="Call-Lcp-Up" code="50"/>
+        <enum name="Call-Authenticating" code="60"/>
+        <enum name="Call-Bcmcs-Authenticating" code="70"/>
+        <enum name="Call-Authenticated" code="80"/>
+        <enum name="Call-Tunnel-Connecting" code="85"/>
+        <enum name="Call-Ipcp-Up" code="90"/>
+        <enum name="Call-Imsa-Authorizing" code="95"/>
+        <enum name="Call-Imsa-Authorized" code="97"/>
+        <enum name="Call-MBMS-UE-Authorizing" code="98"/>
+        <enum name="Call-MBMS-Bearer-Authorizing" code="99"/>
+        <enum name="Call-Simple-IP-Connected" code="100"/>
+        <enum name="Call-Mobile-IP-Connected" code="110"/>
+        <enum name="Call-Tunnel-Connected" code="115"/>
+        <enum name="Call-Pdp-Type-IP-Connected" code="120"/>
+        <enum name="Call-Pdp-Type-IPv6-Connected" code="125"/>
+        <enum name="Call-Pdp-Type-PPP-Connected" code="130"/>
+        <enum name="Call-Proxy-Mobile-IP-Connected" code="140"/>
+        <enum name="Call-Pdg-Connected" code="142"/>
+        <enum name="Call-Pdg-Ssl-Connected" code="141"/>
+        <enum name="Call-Pdg-Connected" code="142"/>
+        <enum name="Call-Pdg-Connected" code="142"/>
+        <enum name="Call-Ipsg-Connected" code="145"/>
+        <enum name="Call-Bcmcs-Connected" code="150"/>
+        <enum name="Call-MBMS-UE-Connected" code="155"/>
+        <enum name="Call-MBMS-Bearer-Connected" code="156"/>
+        <enum name="Call-Pending-Addr-From-DHCP" code="160"/>
+        <enum name="Call-Got-Addr-From-DHCP" code="170"/>
+        <enum name="Call-HA-IPSEC-Tunnel-Connecting" code="180"/>
+        <enum name="Call-HA-IPSEC-Connected" code="190"/>
+        <enum name="Call-ASN-Non-Anchor-Connected" code="200"/>
+        <enum name="Call-ASNPC-Connected" code="210"/>
+        <enum name="Call-Mobile-IPv6-Connected" code="220"/>
+        <enum name="Call-PMIPv6-Connected" code="221"/>
+        <enum name="Call-PHSPC-Connected" code="230"/>
+        <enum name="Call-GTP-IPv4-Connected" code="235"/>
+        <enum name="Call-GTP-IPv6-Connected" code="236"/>
+        <enum name="Call-GTP-IPv4-IPv6-Connected" code="237"/>
+        <enum name="Call-SGW-Connected" code="245"/>
+        <enum name="Call-MME-Attached" code="246"/>
+        <enum name="Call-Auth-Only-Connected" code="247"/>
+    </avp>
+
+    <avp name="SN-PPP-Reneg-Disc" code="187" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Never" code="0"/>
+        <enum name="Always" code="1"/>
+        <enum name="NAI_Prefix_MSID_Mismatch" code="2"/>
+    </avp>
+
+    <avp name="SN-Prepaid" code="128" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="no_prepaid" code="0"/>
+        <enum name="custom_prepaid" code="1"/>
+        <enum name="standard_prepaid" code="2"/>
+        <enum name="wimax_prepaid" code="4"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Compressed-Count" code="31" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Uncompressed" code="0"/>
+        <enum name="Compressed" code="1"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Final-Duration-Alg" code="135" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="current_time" code="0"/>
+        <enum name="last-user-layer3-activity-time" code="1"/>
+        <enum name="last-airlink-activity-time" code="2"/>
+        <enum name="last-airlink-activity-time-last-reported" code="3"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Inbound-Octets" code="32" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Outbound-Octets" code="33" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Preference" code="129" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="prepaid_duration" code="0"/>
+        <enum name="prepaid_volume" code="1"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Timeout" code="35" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Total-Octets" code="34" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Prepaid-Watermark" code="36" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Primary-DCCA-Peer" code="223" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Primary-DNS-Server" code="5" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Primary-NBNS-Server" code="148" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Proxy-MIP" code="52" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Proxy-MIPV6" code="65530" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Pseudonym-Username" code="305" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Background-Class" code="91" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Class-Background-PHB" code="113" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best-Effort" code="0"/>
+        <enum name="Pass-Through" code="1"/>
+        <enum name="AF11" code="10"/>
+        <enum name="AF12" code="12"/>
+        <enum name="AF13" code="14"/>
+        <enum name="AF21" code="18"/>
+        <enum name="AF22" code="20"/>
+        <enum name="AF22" code="22"/>
+        <enum name="AF31" code="26"/>
+        <enum name="AF32" code="28"/>
+        <enum name="AF33" code="30"/>
+        <enum name="AF41" code="34"/>
+        <enum name="AF42" code="36"/>
+        <enum name="AF43" code="38"/>
+        <enum name="EF" code="46"/>
+    </avp>
+
+    <avp name="SN-QoS-Class-Conversational-PHB" code="111" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best-Effort" code="0"/>
+        <enum name="Pass-Through" code="1"/>
+        <enum name="AF11" code="10"/>
+        <enum name="AF12" code="12"/>
+        <enum name="AF13" code="14"/>
+        <enum name="AF21" code="18"/>
+        <enum name="AF22" code="20"/>
+        <enum name="AF22" code="22"/>
+        <enum name="AF31" code="26"/>
+        <enum name="AF32" code="28"/>
+        <enum name="AF33" code="30"/>
+        <enum name="AF41" code="34"/>
+        <enum name="AF42" code="36"/>
+        <enum name="AF43" code="38"/>
+        <enum name="EF" code="46"/>
+    </avp>
+
+    <avp name="SN-QoS-Class-Interactive-1-PHB" code="114" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best-Effort" code="0"/>
+        <enum name="Pass-Through" code="1"/>
+        <enum name="AF11" code="10"/>
+        <enum name="AF12" code="12"/>
+        <enum name="AF13" code="14"/>
+        <enum name="AF21" code="18"/>
+        <enum name="AF22" code="20"/>
+        <enum name="AF22" code="22"/>
+        <enum name="AF31" code="26"/>
+        <enum name="AF32" code="28"/>
+        <enum name="AF33" code="30"/>
+        <enum name="AF41" code="34"/>
+        <enum name="AF42" code="36"/>
+        <enum name="AF43" code="38"/>
+        <enum name="EF" code="46"/>
+    </avp>
+
+    <avp name="SN-QoS-Class-Interactive-2-PHB" code="115" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best-Effort" code="0"/>
+        <enum name="Pass-Through" code="1"/>
+        <enum name="AF11" code="10"/>
+        <enum name="AF12" code="12"/>
+        <enum name="AF13" code="14"/>
+        <enum name="AF21" code="18"/>
+        <enum name="AF22" code="20"/>
+        <enum name="AF22" code="22"/>
+        <enum name="AF31" code="26"/>
+        <enum name="AF32" code="28"/>
+        <enum name="AF33" code="30"/>
+        <enum name="AF41" code="34"/>
+        <enum name="AF42" code="36"/>
+        <enum name="AF43" code="38"/>
+        <enum name="EF" code="46"/>
+    </avp>
+
+    <avp name="SN-QoS-Class-Interactive-3-PHB" code="116" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best-Effort" code="0"/>
+        <enum name="Pass-Through" code="1"/>
+        <enum name="AF11" code="10"/>
+        <enum name="AF12" code="12"/>
+        <enum name="AF13" code="14"/>
+        <enum name="AF21" code="18"/>
+        <enum name="AF22" code="20"/>
+        <enum name="AF22" code="22"/>
+        <enum name="AF31" code="26"/>
+        <enum name="AF32" code="28"/>
+        <enum name="AF33" code="30"/>
+        <enum name="AF41" code="34"/>
+        <enum name="AF42" code="36"/>
+        <enum name="AF43" code="38"/>
+        <enum name="EF" code="46"/>
+    </avp>
+
+    <avp name="SN-QoS-Class-Streaming-PHB" code="112" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Best-Effort" code="0"/>
+        <enum name="Pass-Through" code="1"/>
+        <enum name="AF11" code="10"/>
+        <enum name="AF12" code="12"/>
+        <enum name="AF13" code="14"/>
+        <enum name="AF21" code="18"/>
+        <enum name="AF22" code="20"/>
+        <enum name="AF22" code="22"/>
+        <enum name="AF31" code="26"/>
+        <enum name="AF32" code="28"/>
+        <enum name="AF33" code="30"/>
+        <enum name="AF41" code="34"/>
+        <enum name="AF42" code="36"/>
+        <enum name="AF43" code="38"/>
+        <enum name="EF" code="46"/>
+    </avp>
+
+    <avp name="SN-QoS-Conversation-Class" code="86" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QOS-HLR-Profile" code="303" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Interactive1-Class" code="88" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Interactive2-Class" code="89" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Interactive3-Class" code="90" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Negotiated" code="147" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-QoS-Renegotiation-Timeout" code="145" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-QoS-Streaming-Class" code="87" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-QoS-Tp-Dnlk" code="73" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Policing" code="1"/>
+        <enum name="Shaping" code="2"/>
+    </avp>
+
+    <avp name="SN-QoS-Tp-Uplk" code="79" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Policing" code="1"/>
+        <enum name="Shaping" code="2"/>
+    </avp>
+
+    <avp name="SN-QoS-Traffic-Policy" code="177" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Rad-APN-Name" code="162" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Radius-Returned-Username" code="236" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="No" code="0"/>
+        <enum name="Yes" code="1"/>
+    </avp>
+
+    <avp name="SN-Re-CHAP-Interval" code="7" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Roaming-Behavior" code="121" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Roaming-Profile" code="118" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Roaming-Sub-Use-GGSN" code="108" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Deny" code="0"/>
+        <enum name="Accept" code="1"/>
+    </avp>
+
+    <avp name="SN-ROHC-Flow-Marking-Mode" code="274" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="False" code="0"/>
+        <enum name="True" code="1"/>
+    </avp>
+
+    <avp name="SN-ROHC-Mode" code="151" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Reliable" code="0"/>
+        <enum name="Optimistic" code="1"/>
+        <enum name="Unidirectional" code="2"/>
+    </avp>
+
+    <avp name="SN-ROHC-Profile-Name" code="238" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Role-Of-Node" code="256" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="ORIGINATING_ROLE" code="0"/>
+        <enum name="TERMINATING_ROLE" code="1"/>
+    </avp>
+
+    <avp name="SN-Routing-Area-Id" code="249" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Rulebase" code="250" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-SDP-Session-Description" code="263" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Sec-IP-Pool-Name" code="265" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Secondary-DCCA-Peer" code="224" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Secondary-DNS-Server" code="6" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Secondary-NBNS-Server" code="149" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Service-Address" code="169" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Service-Type" code="24" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="PDSN" code="1"/>
+        <enum name="Management" code="2"/>
+        <enum name="HA" code="3"/>
+        <enum name="GGSN" code="4"/>
+        <enum name="LNS" code="5"/>
+        <enum name="IPSG" code="6"/>
+        <enum name="CSCF" code="7"/>
+        <enum name="ASNGW" code="8"/>
+        <enum name="PDIF" code="9"/>
+        <enum name="STANDALONE_FA" code="10"/>
+        <enum name="SGSN" code="11"/>
+        <enum name="PHSGW" code="12"/>
+        <enum name="PDG" code="13"/>
+        <enum name="MIPV6HA" code="14"/>
+        <enum name="PGW" code="15"/>
+        <enum name="SGW" code="16"/>
+        <enum name="FNG" code="17"/>
+        <enum name="MSEG" code="18"/>
+        <enum name="HNBGW" code="19"/>
+        <enum name="BNG" code="20"/>
+    </avp>
+
+    <avp name="SN-Session-Id" code="257" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Simultaneous-SIP-MIP" code="22" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-SIP-Method" code="254" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-SIP-Request-Time-Stamp" code="258" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-SIP-Response-Time-Stamp" code="259" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Software-Version" code="288" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Subs-Acc-Flow-Traffic-Valid" code="225" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disable" code="0"/>
+        <enum name="Enable" code="1"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Accounting" code="64" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="Radius" code="1"/>
+        <enum name="GTPP" code="2"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Acct-Interim" code="70" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal" code="0"/>
+        <enum name="Suppress" code="1"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Acct-Mode" code="192" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="flow-based-auxilliary" code="0"/>
+        <enum name="flow-based-all" code="1"/>
+        <enum name="flow-based-none" code="2"/>
+        <enum name="session-based" code="3"/>
+        <enum name="main-a10-only" code="4"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Acct-Rsp-Action" code="100" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="No_Early_PDUs" code="1"/>
+        <enum name="Delay_GTP_Response" code="2"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Acct-Start" code="69" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal" code="0"/>
+        <enum name="Suppress" code="1"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Acct-Stop" code="71" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal" code="0"/>
+        <enum name="Suppress" code="1"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Class" code="219" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Normal_Subscriber" code="0"/>
+        <enum name="Ting_100" code="1"/>
+        <enum name="Ting_500" code="2"/>
+        <enum name="Ting_Buddy" code="3"/>
+        <enum name="Ting_Star" code="4"/>
+        <enum name="Ting_Nolimit_SMS" code="5"/>
+        <enum name="Kids_Locator" code="6"/>
+        <enum name="Ting_2000" code="7"/>
+        <enum name="Handicapped_Welfare" code="8"/>
+        <enum name="Reserved" code="9"/>
+    </avp>
+
+    <avp name="SN-Subscriber-IP-Hdr-Neg-Mode" code="67" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Force" code="0"/>
+        <enum name="Detect" code="1"/>
+    </avp>
+
+    <avp name="SN-Subscriber-IP-TOS-Copy" code="85" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="Access-Tunnel" code="1"/>
+        <enum name="Data-Tunnel" code="2"/>
+        <enum name="Both" code="3"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Nexthop-Address" code="127" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="IPAddress"/>
+    </avp>
+
+    <avp name="SN-Subscriber-No-Interims" code="133" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Permission" code="20" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="Simple-IP" code="1"/>
+        <enum name="Mobile-IP" code="2"/>
+        <enum name="Simple-IP-Mobile-IP" code="3"/>
+        <enum name="HA-Mobile-IP" code="4"/>
+        <enum name="Simple-IP-HA-Mobile-IP" code="5"/>
+        <enum name="Mobile-IP-HA-Mobile-IP" code="6"/>
+        <enum name="SIP-MIP-HA-MIP" code="7"/>
+        <enum name="GGSN-PDP-TYPE-IP" code="8"/>
+        <enum name="GGSN-PDP-TYPE-PPP" code="16"/>
+        <enum name="Network-Mobility" code="32"/>
+        <enum name="FA-HA-NEMO" code="38"/>
+        <enum name="All" code="63"/>
+    </avp>
+
+    <avp name="SN-Subscriber-Template-Name" code="158" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Subs-IMSA-Service-Name" code="159" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Subs-VJ-Slotid-Cmp-Neg-Mode" code="221" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="None" code="0"/>
+        <enum name="Receive" code="1"/>
+        <enum name="Transmit" code="2"/>
+        <enum name="Both" code="3"/>
+    </avp>
+
+    <avp name="SN-Tp-Dnlk-Burst-Size" code="76" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tp-Dnlk-Committed-Data-Rate" code="74" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tp-Dnlk-Exceed-Action" code="77" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Transmit" code="0"/>
+        <enum name="Drop" code="1"/>
+        <enum name="Lower-IP-Precedence" code="2"/>
+        <enum name="Buffer" code="3"/>
+        <enum name="Transmit-On-Buffer-Full" code="4"/>
+    </avp>
+
+    <avp name="SN-Tp-Dnlk-Peak-Data-Rate" code="75" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tp-Dnlk-Violate-Action" code="78" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Transmit" code="0"/>
+        <enum name="Drop" code="1"/>
+        <enum name="Lower-IP-Precedence" code="2"/>
+        <enum name="Buffer" code="3"/>
+        <enum name="Transmit-On-Buffer-Full" code="4"/>
+    </avp>
+
+    <avp name="SN-Tp-Uplk-Burst-Size" code="82" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tp-Uplk-Committed-Data-Rate" code="80" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tp-Uplk-Exceed-Action" code="83" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Transmit" code="0"/>
+        <enum name="Drop" code="1"/>
+        <enum name="Lower-IP-Precedence" code="2"/>
+        <enum name="Buffer" code="3"/>
+        <enum name="Transmit-On-Buffer-Full" code="4"/>
+    </avp>
+
+    <avp name="SN-Tp-Uplk-Peak-Data-Rate" code="81" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tp-Uplk-Violate-Action" code="84" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Transmit" code="0"/>
+        <enum name="Drop" code="1"/>
+        <enum name="Lower-IP-Precedence" code="2"/>
+        <enum name="Buffer" code="3"/>
+        <enum name="Transmit-On-Buffer-Full" code="4"/>
+    </avp>
+
+    <avp name="SN-TPO-Policy" code="308" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Traffic-Group" code="161" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-TrafficSelector-Class" code="307" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Tun-Addr-Policy" code="156" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="no-local-alloc-validate" code="0"/>
+        <enum name="local-alloc" code="1"/>
+        <enum name="local-alloc-validate" code="2"/>
+    </avp>
+
+    <avp name="SN-Tunnel-Gn" code="174" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-Tunnel-ISAKMP-Crypto-Map" code="38" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Tunnel-ISAKMP-Secret" code="39" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Tunnel-Load-Balancing" code="27" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="random" code="1"/>
+        <enum name="balanced" code="2"/>
+        <enum name="prioritized" code="3"/>
+    </avp>
+
+    <avp name="SN-Tunnel-Password" code="26" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Unclassify-List-Name" code="132" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-User-Privilege" code="313" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Administrative" code="6"/>
+        <enum name="NAS_Prompt" code="7"/>
+        <enum name="Inspector" code="19650516"/>
+        <enum name="Security_Admin" code="19660618"/>
+    </avp>
+
+    <avp name="SN-Virtual-APN-Name" code="94" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-Visiting-Behavior" code="120" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Visiting-Profile" code="117" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-Visiting-Sub-Use-GGSN" code="107" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Deny" code="0"/>
+        <enum name="Accept" code="1"/>
+    </avp>
+
+    <avp name="SN-Voice-Push-List-Name" code="131" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-VPN-ID" code="1" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="SN-VPN-Name" code="2" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SN-WiMAX-Auth-Only" code="306" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+        <enum name="Disabled" code="0"/>
+        <enum name="Enabled" code="1"/>
+    </avp>
+
+    <avp name="SN-WLAN-AP-Identifier" code="319" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-WLAN-UE-Identifier" code="320" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="OctetString"/>
+    </avp>
+
+    <avp name="SN-Home-Behavior" code="119" vendor-id="Starent" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+</application>
