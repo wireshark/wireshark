@@ -68,7 +68,7 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     }
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IAP");
-
+    col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_aruba_iap, tvb, 0, 0, ENC_NA);
@@ -79,23 +79,23 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     offset += 2;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset +=1;
+    offset += 1;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset +=4;
+    offset += 4;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset +=4;
+    offset += 4;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Aruba Instant AP IP: %s", tvb_ip_to_str(tvb, offset));
     offset += 4;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset +=4;
+    offset += 4;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset +=4;
+    offset += 4;
 
     proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, -1, ENC_NA);
     offset += tvb_reported_length(tvb);
