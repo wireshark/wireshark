@@ -598,8 +598,6 @@ proto_reg_handoff_vp8(void)
         vp8_handle = find_dissector("vp8");
         dissector_add_string("rtp_dyn_payload_type","VP8", vp8_handle);
 
-        vp8_handle = create_dissector_handle(dissect_vp8, proto_vp8);
-
     } else {
         range_foreach(dynamic_payload_type_range, range_delete_vp8_rtp_pt_callback);
         g_free(dynamic_payload_type_range);
