@@ -35,6 +35,7 @@
 
 #define PATHPORT_HEADER_OFFSET 0
 #define PATHPORT_HEADER_SRCID_OFFSET (PATHPORT_HEADER_OFFSET + 12)
+
 #define PATHPORT_HEADER_DSTID_OFFSET (PATHPORT_HEADER_OFFSET + 16)
 #define PATHPORT_HEADER_LENGTH 20
 #define PATHPORT_HEADER_END (PATHPORT_HEADER_OFFSET + PATHPORT_HEADER_LENGTH)
@@ -82,54 +83,54 @@ static int hf_pp_pid_value = -1;
 /* Begin field and enum declarations */
 enum
 {
-   PP_ID_BCAST = 0xffffffff,
-   PP_ID_MCAST_ALL = 0xefffedff,
-   PP_ID_MCAST_DATA = 0xefffed01,
-   PP_ID_MCAST_MANAGE = 0xefffed02
+    PP_ID_BCAST        = 0xffffffff,
+    PP_ID_MCAST_ALL    = 0xefffedff,
+    PP_ID_MCAST_DATA   = 0xefffed01,
+    PP_ID_MCAST_MANAGE = 0xefffed02
 };
 
 /* Top Level PDU Types */
 enum
 {
     PP_ARP_REQUEST = 0x0301,
-    PP_ARP_REPLY = 0x0302,
-    PP_ARP_INFO = 0x0303,
-    PP_GET = 0x0222,
-    PP_GET_REPLY = 0x0223,
-    PP_DATA = 0x0100,
-    PP_SET = 0x0400
+    PP_ARP_REPLY   = 0x0302,
+    PP_ARP_INFO    = 0x0303,
+    PP_GET         = 0x0222,
+    PP_GET_REPLY   = 0x0223,
+    PP_DATA        = 0x0100,
+    PP_SET         = 0x0400
 };
 
 static const value_string pp_pdu_vals[] = {
     {PP_ARP_REQUEST, "ARP Request"},
-    {PP_ARP_REPLY, "ARP Reply"},
-    {PP_ARP_INFO, "ARP Extend Info"},
-    {PP_GET, "Get"},
-    {PP_GET_REPLY, "Get Reply"},
-    {PP_DATA, "XDMX Data"},
-    {PP_SET, "Set"},
+    {PP_ARP_REPLY,   "ARP Reply"},
+    {PP_ARP_INFO,    "ARP Extend Info"},
+    {PP_GET,         "Get"},
+    {PP_GET_REPLY,   "Get Reply"},
+    {PP_DATA,        "XDMX Data"},
+    {PP_SET,         "Set"},
     {0, NULL}
 };
 
 /* XDMX Data Transport Encodings */
 enum
 {
-    PP_DATA_FLAT = 0x0101,
+    PP_DATA_FLAT    = 0x0101,
     PP_DATA_RELEASE = 0x0103
 };
 
 /** Data encoding strings. */
 static const value_string pp_data_encoding_vals[] = {
-  {PP_DATA_FLAT, "Flat"},
-  {PP_DATA_RELEASE, "Release"},
-  {0, NULL}
+    {PP_DATA_FLAT,    "Flat"},
+    {PP_DATA_RELEASE, "Release"},
+    {0, NULL}
 };
 
 /** ID strings. */
 static const value_string ednet_id_vals[] = {
-    {PP_ID_BCAST, "Broadcast"},
-    {PP_ID_MCAST_ALL, "All"},
-    {PP_ID_MCAST_DATA, "Data"},
+    {PP_ID_BCAST,        "Broadcast"},
+    {PP_ID_MCAST_ALL,    "All"},
+    {PP_ID_MCAST_DATA,   "Data"},
     {PP_ID_MCAST_MANAGE, "Manage"},
     {0, NULL}
 };
@@ -137,219 +138,227 @@ static const value_string ednet_id_vals[] = {
 /* Configuration Property IDs */
 enum
     {
-    PP_PAD = 0x0000,
-    PP_NODE_NAME = 0x0401,
-    PP_PORT_NAME = 0x0411,
-    PP_PATCH_NAME = 0x0412,
-    PP_PORT_SPEED = 0x0413,
-    PP_IS_BIDIRECTIONAL = 0x0414,
-    PP_IS_PHYSICAL = 0x0415,
-    PP_IS_MALE = 0x0416,
-    PP_IS_SINK = 0x0417,
-    PP_XDMX_COUNT = 0x0418,
-    PP_ALT_START_CODE = 0x041A,
-    PP_MAX_PATCHES = 0x041B,
-    PP_NUM_PATCHES = 0x041C,
-    PP_TERMINATED = 0x041E,
-    PP_INPUT_PRIORITY = 0x041F,
-    PP_INPUT_PRIORITY_CHANNEL = 0x0420,
-    PP_MAC = 0x0421,
-    PP_IP = 0x0422,
-    PP_NETMASK = 0x0423,
-    PP_ROUTER = 0x0424,
-    PP_PP_ID = 0x0461,
-    PP_PP_ID_MASK = 0x0462,
-    PP_PP_TX_DATA_DST = 0x0463,
-    PP_BACKLIGHT = 0x0481,
-    PP_SW_VERSION = 0x0482,
-    PP_HW_TYPE = 0x0483,
-    PP_LOADER_VERSION = 0x0484,
-    PP_IDENTIFY = 0x0485,
-    PP_IRENABLE = 0x0486,
-    PP_SERIAL = 0x0487,
-    PP_KEYPAD_LOCKOUT = 0x0488,
-    PP_ARTNET_RX_ENABLE = 0x0489,
-    PP_TX_PROTOCOL = 0x048a,
-    PP_SHOWNET_RX_ENABLE = 0x048b,
-    PP_LED_INTENSITY = 0x048c,
-    PP_JUMPER_CONFIGURED = 0x048d,
-    PP_SACN_RX_ENABLE = 0x048e,
-    PP_NET2_RX_ENABLE = 0x048f,
-    PP_PATHPORT_RX_ENABLE = 0x0490,
-    PP_SACN_IS_DRAFT = 0x0491,
-    PP_REBOOT = 0x04a1,
-    PP_BOOTORDER = 0x04a2,
-    PP_FACTORY_DEFAULT = 0x04a4,
-    PP_TEST_LCD = 0x04c1,
-    PP_IS_TERMINAL_BLOCK = 0x4c2,
-    PP_IS_RACK_MOUNTED = 0x4c3,
-    PP_IS_ENABLED = 0x4c4,
-    PP_IS_DMX_ACTIVE = 0x4c5,
-    PP_IS_XDMX_ACTIVE = 0x4c6,
-    PP_SIGNAL_LOSS_HOLD_TIME = 0x4c7,
-    PP_SIGNAL_LOSS_HOLD_FOREVER = 0x4c8,
-    PP_SIGNAL_LOSS_FADE_ENABLE = 0x4c9,
-    PP_SIGNAL_LOSS_FADE_TIME = 0x4ca,
-    PP_SIGNAL_LOSS_PORT_SHUTDOWN = 0x4cb,
-    PP_NET2_ADMIN_MCAST = 0x4ce,
-    PP_NET2_DATA_MCAST = 0x4cf,
-    PP_ROOMS_FEATURES = 0x4d0,
-    PP_CROSSFADE_ENABLE = 0x4d3,
-    PP_CROSSFADE_TIME = 0x4d2,
-    PP_IGNORE_INPUT_PRI = 0x4d4,
-    PP_ARTNET_ALT_MAP = 0x4d5,
-    PP_TB_MODE = 0x0605,
-    PP_ET_PARAM_1 = 0x1101,
-    PP_UNIVERSE_TEMP = 0x4d1,
-    PP_PATCH_CRC = 0x4d6,
-    PP_CONF_CHANGE = 0x4d7,
-    PP_PORT_ACTIVE_SUMMARY = 0x4d8,
-    PP_SUPPORTED_UNIV = 0x4d9,
-    PP_INPUT_HLL_TIME = 0x4da,
-    PP_PCP_ENABLE = 0x4db,
-    PP_INPUT_UNIVERSE = 0x4dc,
-    PP_MODEL_NAME = 0x4dd,
-    PP_MANUF_NAME = 0x4de,
-    PP_VER_STR =  0x4df,
-    PP_SERIAL_STR = 0x4e0,
-    PP_NODE_NOTES = 0x4e1,
-    PP_PORT_NOTES = 0x4e2,
-    PP_USER_NODE_ID = 0x4e3,
-    PP_LINK_MODE = 0x0701,
-    PP_LINK_STATUS = 0x0702,
-    PP_CONNECTED_COUNT = 0x703,
-    PP_POE_STATUS = 0x704,
-    PP_POE_EXTERN_WATT = 0x705,
-    PP_POE_CURRENT_WATT = 0x706,
-    PP_SFP_MODULE_TYPE = 0x707,
-    PP_POE_EXTERN_PRESENT = 0x708,
-    PP_POE_CAPABLE = 0x709,
-    PP_SWITCH_PORT_TYPE = 0x70a,
-    PP_POE_MAX_ALLOC_MW = 0x70b,
-    PP_POE_CURRENT_ALLOC_MW = 0x70c,
-    PP_VLAN_RANGE_START = 0x70d,
-    PP_VLAN_RANGE_END = 0x70e,
-    PP_VLAN_IS_TAGGED = 0x70f,
-    PP_VLAN_PORT_VID = 0x710,
-    PP_VLAN_MGMT_VID = 0x711,
-    PP_VLAN_ENABLE = 0x712,
-    PP_EAPS_MODE = 0x713,
-    PP_EAPS_VLAN = 0x714,
-    PP_EAPS_PRI_PORT = 0x715,
-    PP_EAPS_SEC_PORT = 0x716,
-    PP_LLDP_PARTNER_MAC = 0x717,
-    PP_LLDP_PARTNER_PORT = 0x718,
-    PP_MDG_GEN_STATE = 0x0601,
-    PP_EMBEDDED_ID = 0x0602,
-    PP_SLAVE_DMX_START = 0x0603,
-    PP_END = 0xffff
+    PP_PAD                       = 0x0000,
+    PP_NODE_NAME                 = 0x0401,
+    PP_PORT_NAME                 = 0x0411,
+    PP_PATCH_NAME                = 0x0412,
+    PP_PORT_SPEED                = 0x0413,
+    PP_IS_BIDIRECTIONAL          = 0x0414,
+    PP_IS_PHYSICAL               = 0x0415,
+    PP_IS_MALE                   = 0x0416,
+    PP_IS_SINK                   = 0x0417,
+    PP_XDMX_COUNT                = 0x0418,
+    PP_ALT_START_CODE            = 0x041A,
+    PP_MAX_PATCHES               = 0x041B,
+    PP_NUM_PATCHES               = 0x041C,
+    PP_TERMINATED                = 0x041E,
+    PP_INPUT_PRIORITY            = 0x041F,
+    PP_INPUT_PRIORITY_CHANNEL    = 0x0420,
+    PP_MAC                       = 0x0421,
+    PP_IP                        = 0x0422,
+    PP_NETMASK                   = 0x0423,
+    PP_ROUTER                    = 0x0424,
+    PP_PP_ID                     = 0x0461,
+    PP_PP_ID_MASK                = 0x0462,
+    PP_PP_TX_DATA_DST            = 0x0463,
+    PP_BACKLIGHT                 = 0x0481,
+    PP_SW_VERSION                = 0x0482,
+    PP_HW_TYPE                   = 0x0483,
+    PP_LOADER_VERSION            = 0x0484,
+    PP_IDENTIFY                  = 0x0485,
+    PP_IRENABLE                  = 0x0486,
+    PP_SERIAL                    = 0x0487,
+    PP_KEYPAD_LOCKOUT            = 0x0488,
+    PP_ARTNET_RX_ENABLE          = 0x0489,
+    PP_TX_PROTOCOL               = 0x048a,
+    PP_SHOWNET_RX_ENABLE         = 0x048b,
+    PP_LED_INTENSITY             = 0x048c,
+    PP_JUMPER_CONFIGURED         = 0x048d,
+    PP_SACN_RX_ENABLE            = 0x048e,
+    PP_NET2_RX_ENABLE            = 0x048f,
+    PP_PATHPORT_RX_ENABLE        = 0x0490,
+    PP_SACN_IS_DRAFT             = 0x0491,
+    PP_REBOOT                    = 0x04a1,
+    PP_BOOTORDER                 = 0x04a2,
+    PP_FACTORY_DEFAULT           = 0x04a4,
+    PP_TEST_LCD                  = 0x04c1,
+    PP_IS_TERMINAL_BLOCK         = 0x04c2,
+    PP_IS_RACK_MOUNTED           = 0x04c3,
+    PP_IS_ENABLED                = 0x04c4,
+    PP_IS_DMX_ACTIVE             = 0x04c5,
+    PP_IS_XDMX_ACTIVE            = 0x04c6,
+    PP_SIGNAL_LOSS_HOLD_TIME     = 0x04c7,
+    PP_SIGNAL_LOSS_HOLD_FOREVER  = 0x04c8,
+    PP_SIGNAL_LOSS_FADE_ENABLE   = 0x04c9,
+    PP_SIGNAL_LOSS_FADE_TIME     = 0x04ca,
+    PP_SIGNAL_LOSS_PORT_SHUTDOWN = 0x04cb,
+    PP_NET2_ADMIN_MCAST          = 0x04ce,
+    PP_NET2_DATA_MCAST           = 0x04cf,
+    PP_ROOMS_FEATURES            = 0x04d0,
+    PP_UNIVERSE_TEMP             = 0x04d1,
+    PP_CROSSFADE_TIME            = 0x04d2,
+    PP_CROSSFADE_ENABLE          = 0x04d3,
+    PP_IGNORE_INPUT_PRI          = 0x04d4,
+    PP_ARTNET_ALT_MAP            = 0x04d5,
+    PP_PATCH_CRC                 = 0x04d6,
+    PP_CONF_CHANGE               = 0x04d7,
+    PP_PORT_ACTIVE_SUMMARY       = 0x04d8,
+    PP_SUPPORTED_UNIV            = 0x04d9,
+    PP_INPUT_HLL_TIME            = 0x04da,
+    PP_PCP_ENABLE                = 0x04db,
+    PP_INPUT_UNIVERSE            = 0x04dc,
+    PP_MODEL_NAME                = 0x04dd,
+    PP_MANUF_NAME                = 0x04de,
+    PP_VER_STR                   = 0x04df,
+    PP_SERIAL_STR                = 0x04e0,
+    PP_NODE_NOTES                = 0x04e1,
+    PP_PORT_NOTES                = 0x04e2,
+    PP_USER_NODE_ID              = 0x04e3,
+    PP_MDG_GEN_STATE             = 0x0601,
+    PP_EMBEDDED_ID               = 0x0602,
+    PP_SLAVE_DMX_START           = 0x0603,
+    PP_TB_MODE                   = 0x0605,
+    PP_LINK_MODE                 = 0x0701,
+    PP_LINK_STATUS               = 0x0702,
+    PP_CONNECTED_COUNT           = 0x0703,
+    PP_POE_STATUS                = 0x0704,
+    PP_POE_EXTERN_WATT           = 0x0705,
+    PP_POE_CURRENT_WATT          = 0x0706,
+    PP_SFP_MODULE_TYPE           = 0x0707,
+    PP_POE_EXTERN_PRESENT        = 0x0708,
+    PP_POE_CAPABLE               = 0x0709,
+    PP_SWITCH_PORT_TYPE          = 0x070a,
+    PP_POE_MAX_ALLOC_MW          = 0x070b,
+    PP_POE_CURRENT_ALLOC_MW      = 0x070c,
+    PP_VLAN_RANGE_START          = 0x070d,
+    PP_VLAN_RANGE_END            = 0x070e,
+    PP_VLAN_IS_TAGGED            = 0x070f,
+    PP_VLAN_PORT_VID             = 0x0710,
+    PP_VLAN_MGMT_VID             = 0x0711,
+    PP_VLAN_ENABLE               = 0x0712,
+    PP_EAPS_MODE                 = 0x0713,
+    PP_EAPS_VLAN                 = 0x0714,
+    PP_EAPS_PRI_PORT             = 0x0715,
+    PP_EAPS_SEC_PORT             = 0x0716,
+    PP_LLDP_PARTNER_MAC          = 0x0717,
+    PP_LLDP_PARTNER_PORT         = 0x0718,
+    PP_ET_PARAM_1                = 0x1101,
+    PP_END                       = 0xffff
 };
 
 /** Property strings. */
 static const value_string pp_pid_vals[] = {
-    {PP_PAD, "Pad"},
-    {PP_NODE_NAME, "Node Name"},
-    {PP_PORT_NAME, "Port Name"},
-    {PP_PATCH_NAME, "Patch Name"},
-    {PP_PORT_SPEED, "Port Speed"},
-    {PP_IS_BIDIRECTIONAL, "Bi Directional"},
-    {PP_IS_PHYSICAL, "Physical"},
-    {PP_IS_MALE, "Is Male"},
-    {PP_IS_SINK, "Is Sink"},
-    {PP_XDMX_COUNT, "XDMX Channel Count"},
-    {PP_ALT_START_CODE, "Alt Start Code List"},
-    {PP_MAX_PATCHES, "Max # Patches"},
-    {PP_NUM_PATCHES, "Current # Patches"},
-    {PP_TERMINATED, "Is Terminated"},
-    {PP_INPUT_PRIORITY, "Input Priority (Static)"},
-    {PP_INPUT_PRIORITY_CHANNEL, "Input Priority Channel"},
-    {PP_MAC, "Ethernet Address"},
-    {PP_IP, "IP Address"},
-    {PP_NETMASK, "IP Netmask"},
-    {PP_ROUTER, "Default Router"},
-    {PP_PP_ID, "Pathport ID"},
-    {PP_PP_ID_MASK, "Pathport ID Mask"},
-    {PP_PP_TX_DATA_DST, "Pathport Data Transmit Offset"},
-    {PP_BACKLIGHT, "Backlight"},
-    {PP_SW_VERSION, "Software Version"},
-    {PP_HW_TYPE, "Hardware Type"},
-    {PP_LOADER_VERSION, "Loader Version"},
-    {PP_IDENTIFY, "Identify"},
-    {PP_IRENABLE, "IR Enable"},
-    {PP_SERIAL, "Serial Number"},
-    {PP_KEYPAD_LOCKOUT, "Front Panel Lockout"},
-    {PP_ARTNET_RX_ENABLE, "ArtNet Rx Enable"},
-    {PP_TX_PROTOCOL, "Data Tx Proto"},
-    {PP_SHOWNET_RX_ENABLE, "Shownet Rx Enable"},
-    {PP_JUMPER_CONFIGURED, "Universe Patched By Jumper"},
-    {PP_SACN_RX_ENABLE, "sACN (E1.31) Rx Enable"},
-    {PP_NET2_RX_ENABLE, "ETCNet2 Rx Enable"},
-    {PP_PATHPORT_RX_ENABLE, "xDMX Rx Enable"},
-    {PP_SACN_IS_DRAFT, "sACN TX is Draft"},
-    {PP_REBOOT, "Reboot"},
-    {PP_BOOTORDER, "Boot Order"},
-    {PP_FACTORY_DEFAULT, "Factory Default"},
-    {PP_TEST_LCD, "Test LCD"},
-    {PP_IS_ENABLED, "Port Enable"},
-    {PP_IS_DMX_ACTIVE , "DMX Active"},
-    {PP_IS_XDMX_ACTIVE , "xDMX Active"},
-    {PP_SIGNAL_LOSS_HOLD_TIME, "Signal Loss Hold Time (DMX OUT)"},
+    {PP_PAD,                       "Pad"},
+    {PP_NODE_NAME,                 "Node Name"},
+    {PP_PORT_NAME,                 "Port Name"},
+    {PP_PATCH_NAME,                "Patch Name"},
+    {PP_PORT_SPEED,                "Port Speed"},
+    {PP_IS_BIDIRECTIONAL,          "Bi Directional"},
+    {PP_IS_PHYSICAL,               "Physical"},
+    {PP_IS_MALE,                   "Is Male"},
+    {PP_IS_SINK,                   "Is Sink"},
+    {PP_XDMX_COUNT,                "XDMX Channel Count"},
+    {PP_ALT_START_CODE,            "Alt Start Code List"},
+    {PP_MAX_PATCHES,               "Max # Patches"},
+    {PP_NUM_PATCHES,               "Current # Patches"},
+    {PP_TERMINATED,                "Is Terminated"},
+    {PP_INPUT_PRIORITY,            "Input Priority (Static)"},
+    {PP_INPUT_PRIORITY_CHANNEL,    "Input Priority Channel"},
+    {PP_MAC,                       "Ethernet Address"},
+    {PP_IP,                        "IP Address"},
+    {PP_NETMASK,                   "IP Netmask"},
+    {PP_ROUTER,                    "Default Router"},
+    {PP_PP_ID,                     "Pathport ID"},
+    {PP_PP_ID_MASK,                "Pathport ID Mask"},
+    {PP_PP_TX_DATA_DST,            "Pathport Data Transmit Offset"},
+    {PP_BACKLIGHT,                 "Backlight"},
+    {PP_SW_VERSION,                "Software Version"},
+    {PP_HW_TYPE,                   "Hardware Type"},
+    {PP_LOADER_VERSION,            "Loader Version"},
+    {PP_IDENTIFY,                  "Identify"},
+    {PP_IRENABLE,                  "IR Enable"},
+    {PP_SERIAL,                    "Serial Number"},
+    {PP_KEYPAD_LOCKOUT,            "Front Panel Lockout"},
+    {PP_ARTNET_RX_ENABLE,          "ArtNet Rx Enable"},
+    {PP_TX_PROTOCOL,               "Data Tx Proto"},
+    {PP_SHOWNET_RX_ENABLE,         "Shownet Rx Enable"},
+    /* XXX: PP_LED_INTENSITY ?? */
+    {PP_JUMPER_CONFIGURED,         "Universe Patched By Jumper"},
+    {PP_SACN_RX_ENABLE,            "sACN (E1.31) Rx Enable"},
+    {PP_NET2_RX_ENABLE,            "ETCNet2 Rx Enable"},
+    {PP_PATHPORT_RX_ENABLE,        "xDMX Rx Enable"},
+    {PP_SACN_IS_DRAFT,             "sACN TX is Draft"},
+    {PP_REBOOT,                    "Reboot"},
+    {PP_BOOTORDER,                 "Boot Order"},
+    {PP_FACTORY_DEFAULT,           "Factory Default"},
+    {PP_TEST_LCD,                  "Test LCD"},
+    /* XXX: PP_IS_TERMINAL_BLOCK ?? */
+    /* XXX: PP_IS_RACK_MOUNTED   ?? */
+    {PP_IS_ENABLED,                "Port Enable"},
+    {PP_IS_DMX_ACTIVE ,            "DMX Active"},
+    {PP_IS_XDMX_ACTIVE ,           "xDMX Active"},
+    {PP_SIGNAL_LOSS_HOLD_TIME,     "Signal Loss Hold Time (DMX OUT)"},
     {PP_SIGNAL_LOSS_HOLD_FOREVER , "Signal Loss Infinite Hold"},
-    {PP_SIGNAL_LOSS_FADE_ENABLE, "Signal Loss Fade Enable"},
-    {PP_SIGNAL_LOSS_FADE_TIME, "Signal Loss Fade Time"},
+    {PP_SIGNAL_LOSS_FADE_ENABLE,   "Signal Loss Fade Enable"},
+    {PP_SIGNAL_LOSS_FADE_TIME,     "Signal Loss Fade Time"},
     {PP_SIGNAL_LOSS_PORT_SHUTDOWN, "Signal Loss Port Shutdown"},
-    {PP_UNIVERSE_TEMP, "xDMX Universe"},
-    {PP_CROSSFADE_TIME, "Crossfade Time(ms)"},
-    {PP_CROSSFADE_ENABLE, "Crossfade Enable"},
-    {PP_IGNORE_INPUT_PRI, "Ignore Input Priority"},
-    {PP_ARTNET_ALT_MAP, "ArtNet Alternate Univ Mapping"},
-    {PP_PATCH_CRC, "Output Patch File CRC"},
-    {PP_CONF_CHANGE, "Config Change Notify"},
-    {PP_PORT_ACTIVE_SUMMARY, "Port Active Bitmap"},
-    {PP_SUPPORTED_UNIV, "Number Supported Univ"},
-    {PP_INPUT_HLL_TIME, "Signal Loss Hold Time (DMX IN)"},
-    {PP_PCP_ENABLE, "Per Channel Priorty Enable"},
-    {PP_INPUT_UNIVERSE, "Input Universe"},
-    {PP_MODEL_NAME, "Model Name"},
-    {PP_MANUF_NAME, "Manufacturer Name"},
-    {PP_VER_STR, "Firmware Ver (String)"},
-    {PP_SERIAL_STR, "Serial Number (String)"},
-    {PP_NODE_NOTES, "Node User Notes"},
-    {PP_PORT_NOTES, "Port User Notes"},
-    {PP_USER_NODE_ID, "User Node ID"},
-    {PP_MDG_GEN_STATE, "MDG Generator Status"},
-    {PP_EMBEDDED_ID, "Embedded Device ID"},
-    {PP_SLAVE_DMX_START, "Embedded Device DMX Address"},
-    {PP_TB_MODE, "RDM Discovery Enable"},
-    {PP_LINK_MODE, "Ethernet Link Mode"},
-    {PP_LINK_STATUS, "Ethernet Link Status"},
-    {PP_CONNECTED_COUNT, "Connected PP Devices"},
-    {PP_POE_STATUS, "PoE Status"},
-    {PP_POE_EXTERN_WATT, "PoE External Supply Wattage"},
-    {PP_POE_CURRENT_WATT, "PoE Current Supply Wattage"},
-    {PP_SFP_MODULE_TYPE, "SFP Module Type"},
-    {PP_POE_EXTERN_PRESENT, "PoE External Supply Present"},
-    {PP_POE_CAPABLE, "PoE Capable Port"},
-    {PP_SWITCH_PORT_TYPE, "Ethernet Port Type"},
-    {PP_POE_MAX_ALLOC_MW, "PoE Max Alloc mW"},
-    {PP_POE_CURRENT_ALLOC_MW, "PoE Current Alloc mW"},
-    {PP_VLAN_RANGE_START, "VLAN Range Start"},
-    {PP_VLAN_RANGE_END, "VLAN Range End"},
-    {PP_VLAN_IS_TAGGED, "VLAN Port is Tagged"},
-    {PP_VLAN_PORT_VID, "VLAN Port VID"},
-    {PP_VLAN_MGMT_VID, "VLAN Management VID"},
-    {PP_VLAN_ENABLE, "VLAN Enable"},
-    {PP_EAPS_MODE, "EAPS Mode"},
-    {PP_EAPS_VLAN, "EAPS Control VLAN"},
-    {PP_EAPS_PRI_PORT, "EAPS Primary Port"},
-    {PP_EAPS_SEC_PORT, "EAPS Secondary Port"},
-    {PP_LLDP_PARTNER_MAC, "LLDP Partner MAC"},
-    {PP_LLDP_PARTNER_PORT,"LLDP Partner Port"},
-    {PP_END, "End"},
+    /* XXX: PP_NET2_ADMIN_MCAST ?? */
+    /* XXX: PP_NET2_DATA_MCAST  ?? */
+    /* XXX: PP_ROOMS_FEATURES   ?? */
+    {PP_UNIVERSE_TEMP,             "xDMX Universe"},
+    {PP_CROSSFADE_TIME,            "Crossfade Time(ms)"},
+    {PP_CROSSFADE_ENABLE,          "Crossfade Enable"},
+    {PP_IGNORE_INPUT_PRI,          "Ignore Input Priority"},
+    {PP_ARTNET_ALT_MAP,            "ArtNet Alternate Univ Mapping"},
+    {PP_PATCH_CRC,                 "Output Patch File CRC"},
+    {PP_CONF_CHANGE,               "Config Change Notify"},
+    {PP_PORT_ACTIVE_SUMMARY,       "Port Active Bitmap"},
+    {PP_SUPPORTED_UNIV,            "Number Supported Univ"},
+    {PP_INPUT_HLL_TIME,            "Signal Loss Hold Time (DMX IN)"},
+    {PP_PCP_ENABLE,                "Per Channel Priorty Enable"},
+    {PP_INPUT_UNIVERSE,            "Input Universe"},
+    {PP_MODEL_NAME,                "Model Name"},
+    {PP_MANUF_NAME,                "Manufacturer Name"},
+    {PP_VER_STR,                   "Firmware Ver (String)"},
+    {PP_SERIAL_STR,                "Serial Number (String)"},
+    {PP_NODE_NOTES,                "Node User Notes"},
+    {PP_PORT_NOTES,                "Port User Notes"},
+    {PP_USER_NODE_ID,              "User Node ID"},
+    {PP_MDG_GEN_STATE,             "MDG Generator Status"},
+    {PP_EMBEDDED_ID,               "Embedded Device ID"},
+    {PP_SLAVE_DMX_START,           "Embedded Device DMX Address"},
+    {PP_TB_MODE,                   "RDM Discovery Enable"},
+    {PP_LINK_MODE,                 "Ethernet Link Mode"},
+    {PP_LINK_STATUS,               "Ethernet Link Status"},
+    {PP_CONNECTED_COUNT,           "Connected PP Devices"},
+    {PP_POE_STATUS,                "PoE Status"},
+    {PP_POE_EXTERN_WATT,           "PoE External Supply Wattage"},
+    {PP_POE_CURRENT_WATT,          "PoE Current Supply Wattage"},
+    {PP_SFP_MODULE_TYPE,           "SFP Module Type"},
+    {PP_POE_EXTERN_PRESENT,        "PoE External Supply Present"},
+    {PP_POE_CAPABLE,               "PoE Capable Port"},
+    {PP_SWITCH_PORT_TYPE,          "Ethernet Port Type"},
+    {PP_POE_MAX_ALLOC_MW,          "PoE Max Alloc mW"},
+    {PP_POE_CURRENT_ALLOC_MW,      "PoE Current Alloc mW"},
+    {PP_VLAN_RANGE_START,          "VLAN Range Start"},
+    {PP_VLAN_RANGE_END,            "VLAN Range End"},
+    {PP_VLAN_IS_TAGGED,            "VLAN Port is Tagged"},
+    {PP_VLAN_PORT_VID,             "VLAN Port VID"},
+    {PP_VLAN_MGMT_VID,             "VLAN Management VID"},
+    {PP_VLAN_ENABLE,               "VLAN Enable"},
+    {PP_EAPS_MODE,                 "EAPS Mode"},
+    {PP_EAPS_VLAN,                 "EAPS Control VLAN"},
+    {PP_EAPS_PRI_PORT,             "EAPS Primary Port"},
+    {PP_EAPS_SEC_PORT,             "EAPS Secondary Port"},
+    {PP_LLDP_PARTNER_MAC,          "LLDP Partner MAC"},
+    {PP_LLDP_PARTNER_PORT,         "LLDP Partner Port"},
+    /* XXX: ET_PARAM ?? */
+    {PP_END,                       "End"},
     {0, NULL}
 };
 
 value_string_ext pp_pid_vals_ext = VALUE_STRING_EXT_INIT(pp_pid_vals);
+
 /** Unknown type format. */
 #define TYPE_UNKNOWN "Unknown (%04x)"
 
@@ -357,17 +366,17 @@ value_string_ext pp_pid_vals_ext = VALUE_STRING_EXT_INIT(pp_pid_vals);
 
 
 /* Code to actually dissect the packets */
-static guint dissect_one_tlv(tvbuff_t* tvb, proto_tree* tree,
+static guint dissect_one_tlv(tvbuff_t *tvb, proto_tree *tree,
                 guint offset)
 {
-    proto_item* ti = proto_tree_add_text(tree, tvb, offset, 0, "Property");
-    proto_tree* tlv_tree = proto_item_add_subtree(ti, ett_pp_tlv);
+    proto_item *ti = proto_tree_add_text(tree, tvb, offset, 0, "Property");
+    proto_tree *tlv_tree = proto_item_add_subtree(ti, ett_pp_tlv);
 
     guint len;
     guint pad_len;
 
     guint type = tvb_get_ntohs(tvb, offset);
-    const char* name = val_to_str_ext(type, &pp_pid_vals_ext, TYPE_UNKNOWN);
+    const char *name = val_to_str_ext(type, &pp_pid_vals_ext, TYPE_UNKNOWN);
     proto_item_append_text(ti, " : %s", name);
 
     proto_tree_add_item(tlv_tree, hf_pp_pid_type, tvb, offset, 2, ENC_NA);
@@ -393,7 +402,7 @@ static guint dissect_one_tlv(tvbuff_t* tvb, proto_tree* tree,
 
 
 static guint
-dissect_multiple_tlvs(tvbuff_t* tvb, proto_item* ti,
+dissect_multiple_tlvs(tvbuff_t *tvb, proto_item *ti,
                 guint offset, guint len)
 {
     guint end = offset + len;
@@ -404,7 +413,7 @@ dissect_multiple_tlvs(tvbuff_t* tvb, proto_item* ti,
 }
 
 static guint
-dissect_multiple_get_pids(tvbuff_t* tvb, proto_item* tree, guint offset, guint len)
+dissect_multiple_get_pids(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
 {
     guint end = offset + len;
 
@@ -417,7 +426,7 @@ dissect_multiple_get_pids(tvbuff_t* tvb, proto_item* tree, guint offset, guint l
 }
 
 static guint
-dissect_data_payload(tvbuff_t* tvb, proto_item* tree, guint offset, guint len)
+dissect_data_payload(tvbuff_t *tvb, proto_item *tree, guint offset, guint len)
 {
     guint end = offset + len;
     guint blklen = 0;
@@ -425,8 +434,8 @@ dissect_data_payload(tvbuff_t* tvb, proto_item* tree, guint offset, guint len)
 
     while(offset < end)
     {
-        proto_item* ti = proto_tree_add_text(tree, tvb, offset, 0, "xDMX Data: ");
-        proto_tree* data_tree = proto_item_add_subtree(ti, ett_pp_data);
+        proto_item *ti = proto_tree_add_text(tree, tvb, offset, 0, "xDMX Data: ");
+        proto_tree *data_tree = proto_item_add_subtree(ti, ett_pp_data);
         proto_tree_add_item(data_tree, hf_pp_data_encoding, tvb, offset, 2, ENC_NA);
         offset += 2;
         blklen = tvb_get_ntohs(tvb, offset);
@@ -460,15 +469,15 @@ dissect_arp_reply(tvbuff_t *tvb, proto_tree *tree, guint offset, guint len)
 }
 
 static guint
-dissect_one_pdu(tvbuff_t* tvb, proto_tree* tree, guint offset)
+dissect_one_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    proto_item* ti = proto_tree_add_text(tree, tvb, offset, 0, "PDU");
-    proto_tree* pdu_tree = proto_item_add_subtree(ti, ett_pp_pdu);
+    proto_item *ti = proto_tree_add_text(tree, tvb, offset, 0, "PDU");
+    proto_tree *pdu_tree = proto_item_add_subtree(ti, ett_pp_pdu);
 
     guint len;
 
     guint type = tvb_get_ntohs(tvb, offset);
-    const char* name = val_to_str(type, pp_pdu_vals, TYPE_UNKNOWN);
+    const char *name = val_to_str(type, pp_pdu_vals, TYPE_UNKNOWN);
     proto_item_append_text(ti, " : %s", name);
 
     proto_tree_add_item(pdu_tree, hf_pp_pdu_type, tvb, offset, 2, ENC_NA);
@@ -505,7 +514,7 @@ dissect_one_pdu(tvbuff_t* tvb, proto_tree* tree, guint offset)
 }
 
 static guint
-dissect_multiple_pdus(tvbuff_t* tvb, proto_item* ti,
+dissect_multiple_pdus(tvbuff_t *tvb, proto_item *ti,
                 guint offset, guint len)
 {
     guint end = offset + len;
@@ -518,21 +527,21 @@ dissect_multiple_pdus(tvbuff_t* tvb, proto_item* ti,
 static int
 dissect_header(tvbuff_t *tvb, proto_tree *parent, guint offset)
 {
-    proto_item* ti = proto_tree_add_item(parent, proto_pathport, tvb, offset, PATHPORT_HEADER_LENGTH, ENC_NA);
-    proto_tree* tree = proto_item_add_subtree(ti, ett_pathport);
+    proto_item *ti = proto_tree_add_item(parent, proto_pathport, tvb, offset, PATHPORT_HEADER_LENGTH, ENC_NA);
+    proto_tree *tree = proto_item_add_subtree(ti, ett_pathport);
     proto_item_set_text(ti, "Header");
 
-    proto_tree_add_item(tree, hf_pp_prot, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_prot,     tvb, offset, 2, ENC_NA);
     offset += 2;
-    proto_tree_add_item(tree, hf_pp_version, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_version,  tvb, offset, 2, ENC_NA);
     offset += 2;
-    proto_tree_add_item(tree, hf_pp_seq, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_seq,      tvb, offset, 2, ENC_NA);
     offset += 2;
     proto_tree_add_item(tree, hf_pp_reserved, tvb, offset, 6, ENC_NA);
     offset += 6;
-    proto_tree_add_item(tree, hf_pp_src, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_src,      tvb, offset, 4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(tree, hf_pp_dst, tvb, offset, 4, ENC_NA);
+    proto_tree_add_item(tree, hf_pp_dst,      tvb, offset, 4, ENC_NA);
     offset += 4;
     return offset;
 }
@@ -540,18 +549,18 @@ dissect_header(tvbuff_t *tvb, proto_tree *parent, guint offset)
 static gboolean
 packet_is_pathport(tvbuff_t *tvb)
 {
-    if (tvb_length(tvb) < PATHPORT_MIN_LENGTH)
+    if(tvb_length(tvb) < PATHPORT_MIN_LENGTH)
         return FALSE;
 
-    if (tvb_get_ntohs(tvb, 0) != PATHPORT_PROTO_MAGIC)
-        return 0;
+    if(tvb_get_ntohs(tvb, 0) != PATHPORT_PROTO_MAGIC)
+        return FALSE;
     /* could also check that the first PDU is in our list of supported PDUs */
 
     return TRUE;
 }
 
 /** Resolves the specified ID to a name. */
-static const char*
+static const char *
 resolve_pp_id(guint32 id)
 {
     return val_to_str(id, ednet_id_vals, "%X");
@@ -564,12 +573,12 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     proto_tree *pathport_tree;
     guint offset = 0;
     guint remaining_len;
-    guint len = 0;
+    guint len;
     guint16 type;
     guint32 srcid;
     guint32 dstid;
 
-    len = tvb_length(tvb);
+    len = tvb_reported_length(tvb);
 
     /* Set the Protocol column to the constant string of Pathport */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Pathport");
@@ -605,14 +614,14 @@ static int dissect_pathport_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         }
     }
     if(tree == NULL)
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
 
     /* create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_pathport, tvb, 0, -1, ENC_NA);
 
     pathport_tree = proto_item_add_subtree(ti, ett_pathport);
     offset = dissect_header(tvb, pathport_tree, PATHPORT_HEADER_OFFSET);
-    remaining_len = tvb_length(tvb) - PATHPORT_HEADER_LENGTH;
+    remaining_len = tvb_reported_length(tvb) - PATHPORT_HEADER_LENGTH;
     offset = dissect_multiple_pdus(tvb, tree, offset, remaining_len);
 
     return offset;
@@ -631,7 +640,7 @@ static gboolean
 dissect_pathport_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
    if(!packet_is_pathport(tvb))
-        return 0;
+        return FALSE;
 
     dissect_pathport_common(tvb, pinfo, tree);
     return (TRUE);
