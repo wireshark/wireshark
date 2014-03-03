@@ -4635,7 +4635,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   swindow = gtk_scrolled_window_new (NULL, NULL);
-  gtk_widget_set_size_request(swindow, 676, 180);
+  gtk_widget_set_size_request(swindow, 676, 100);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
 
   view = gtk_tree_view_new ();
@@ -5042,30 +5042,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   row++;
 
-  /* Files row */
-  stop_files_cb = gtk_check_button_new_with_label("Stop capture after");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_files_cb),
-                               global_capture_opts.has_autostop_files);
-  g_signal_connect(stop_files_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
-  gtk_widget_set_tooltip_text(stop_files_cb, "Stop capturing after the given number of \"file switches\" have been done.");
-  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), stop_files_cb, 0, row, 1, 1,
-                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
-
-  stop_files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)global_capture_opts.autostop_files,
-    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
-  stop_files_sb = gtk_spin_button_new (stop_files_adj, 0, 0);
-  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_files_sb), TRUE);
-  gtk_widget_set_size_request(stop_files_sb, 80, -1);
-  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), stop_files_sb, 1, row, 1, 1,
-                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
-
-  stop_files_lb = gtk_label_new("file(s)");
-  gtk_misc_set_alignment(GTK_MISC(stop_files_lb), 0, 0.5f);
-  ws_gtk_grid_attach_extended(GTK_GRID (multi_grid), stop_files_lb, 2, row, 1, 1,
-                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
-
-  row++;
-
   /* Capture limits frame */
   limit_fr = frame_new("Stop Capture Automatically After...");
   gtk_box_pack_start(GTK_BOX (left_vb), limit_fr, TRUE, TRUE, 0);
@@ -5105,15 +5081,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_packets_lb, 2, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
-  row++;
-
   /* Filesize row */
   stop_filesize_cb = gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_filesize_cb),
                                global_capture_opts.has_autostop_filesize);
   g_signal_connect(stop_filesize_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(stop_filesize_cb, "Stop capturing after the specified amount of data has been captured.");
-  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cb, 0, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cb, 3, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_filesize_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
@@ -5121,11 +5095,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_filesize_sb = gtk_spin_button_new (stop_filesize_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_filesize_sb), TRUE);
   gtk_widget_set_size_request(stop_filesize_sb, 80, -1);
-  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_sb, 1, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_sb, 4, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_filesize_cbx = size_unit_combo_box_new(global_capture_opts.autostop_filesize);
-  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cbx, 2, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_filesize_cbx, 5, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = size_unit_combo_box_set_value(global_capture_opts.autostop_filesize);
@@ -5133,13 +5107,35 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   row++;
 
+  /* Files row */
+  stop_files_cb = gtk_check_button_new();
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_files_cb),
+                               global_capture_opts.has_autostop_files);
+  g_signal_connect(stop_files_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
+  gtk_widget_set_tooltip_text(stop_files_cb, "Stop capturing after the given number of \"file switches\" have been done.");
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_files_cb, 0, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
+
+  stop_files_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat)global_capture_opts.autostop_files,
+    1, (gfloat)INT_MAX, 1.0, 10.0, 0.0);
+  stop_files_sb = gtk_spin_button_new (stop_files_adj, 0, 0);
+  gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_files_sb), TRUE);
+  gtk_widget_set_size_request(stop_files_sb, 80, -1);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_files_sb, 1, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
+
+  stop_files_lb = gtk_label_new("file(s)");
+  gtk_misc_set_alignment(GTK_MISC(stop_files_lb), 0, 0.5f);
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_files_lb, 2, row, 1, 1,
+                              (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
+
   /* Duration row */
   stop_duration_cb = gtk_check_button_new();
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(stop_duration_cb),
                                global_capture_opts.has_autostop_duration);
   g_signal_connect(stop_duration_cb, "toggled", G_CALLBACK(capture_prep_adjust_sensitivity), cap_open_w);
   gtk_widget_set_tooltip_text(stop_duration_cb, "Stop capturing after the specified amount of time has passed.");
-  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cb, 0, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cb, 3, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_duration_adj = (GtkAdjustment *) gtk_adjustment_new(0.0,
@@ -5147,11 +5143,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   stop_duration_sb = gtk_spin_button_new (stop_duration_adj, 0, 0);
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (stop_duration_sb), TRUE);
   gtk_widget_set_size_request(stop_duration_sb, 80, -1);
-  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_sb, 1, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_sb, 4, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   stop_duration_cbx = time_unit_combo_box_new(global_capture_opts.autostop_duration);
-  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cbx, 2, row, 1, 1,
+  ws_gtk_grid_attach_extended(GTK_GRID (limit_grid), stop_duration_cbx, 5, row, 1, 1,
                               (GtkAttachOptions)(GTK_FILL), (GtkAttachOptions)(GTK_FILL), 0, 0);
 
   value = time_unit_combo_box_convert_value(global_capture_opts.autostop_duration);
@@ -5162,7 +5158,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   display_fr = frame_new("Display Options");
   gtk_box_pack_start(GTK_BOX (right_vb), display_fr, TRUE, TRUE, 0);
 
-  display_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
+  display_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(display_vb), DLG_OUTER_MARGIN);
   gtk_container_add(GTK_CONTAINER(display_fr), display_vb);
 
@@ -5175,7 +5171,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(sync_cb,
     "Using this option will show the captured packets immediately on the main screen. "
     "Please note: this will slow down capturing, so increased packet drops might appear.");
-  gtk_box_pack_start(GTK_BOX (display_vb), sync_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (display_vb), sync_cb, FALSE, TRUE, 0);
 
   /* "Auto-scroll live update" row */
   auto_scroll_cb = gtk_check_button_new_with_mnemonic("_Automatically scroll during live capture");
@@ -5183,19 +5179,19 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(auto_scroll_cb,
     "This will scroll the \"Packet List\" automatically to the latest captured packet, "
     "when the \"Update List of packets in real time\" option is used.");
-  gtk_box_pack_start(GTK_BOX (display_vb), auto_scroll_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (display_vb), auto_scroll_cb, FALSE, TRUE, 0);
 
   /* "Hide capture info" row */
   hide_info_cb = gtk_check_button_new_with_mnemonic("_Hide capture info dialog");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(hide_info_cb), !global_capture_opts.show_info);
   gtk_widget_set_tooltip_text(hide_info_cb, "Hide the capture info dialog while capturing.");
-  gtk_box_pack_start(GTK_BOX (display_vb), hide_info_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (display_vb), hide_info_cb, FALSE, TRUE, 0);
 
   /* Name Resolution frame */
   resolv_fr = frame_new("Name Resolution");
   gtk_box_pack_start(GTK_BOX (right_vb), resolv_fr, TRUE, TRUE, 0);
 
-  resolv_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_UNRELATED_SPACING, FALSE);
+  resolv_vb = ws_gtk_box_new(GTK_ORIENTATION_VERTICAL, DLG_LABEL_SPACING, FALSE);
   gtk_container_set_border_width(GTK_CONTAINER(resolv_vb), DLG_OUTER_MARGIN);
   gtk_container_add(GTK_CONTAINER(resolv_fr), resolv_vb);
 
@@ -5204,14 +5200,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(m_resolv_cb),
                 gbl_resolv_flags.mac_name);
   gtk_widget_set_tooltip_text(m_resolv_cb, "Perform MAC layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), m_resolv_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), m_resolv_cb, FALSE, TRUE, 0);
 
   n_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Resolve _network-layer names");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(n_resolv_cb),
                 gbl_resolv_flags.network_name);
   gtk_widget_set_tooltip_text(n_resolv_cb, "Perform network layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), n_resolv_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), n_resolv_cb, FALSE, TRUE, 0);
 
   t_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Resolve _transport-layer name");
@@ -5219,7 +5215,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 gbl_resolv_flags.transport_name);
   gtk_widget_set_tooltip_text(t_resolv_cb,
     "Perform transport layer name resolution while capturing.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), t_resolv_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), t_resolv_cb, FALSE, TRUE, 0);
 
   e_resolv_cb = gtk_check_button_new_with_mnemonic(
                 "Use _external network name resolver");
@@ -5227,7 +5223,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                 gbl_resolv_flags.use_external_net_name_resolver);
   gtk_widget_set_tooltip_text(e_resolv_cb,
                 "Use the (system's) configured name resolver (e.g., DNS) to resolve network names.");
-  gtk_box_pack_start(GTK_BOX (resolv_vb), e_resolv_cb, TRUE, TRUE, 0);
+  gtk_box_pack_start(GTK_BOX (resolv_vb), e_resolv_cb, FALSE, TRUE, 0);
 
   /* Button row: "Start", "Cancel" and "Help" buttons */
   bbox = dlg_button_row_new(WIRESHARK_STOCK_CAPTURE_START, GTK_STOCK_CLOSE, GTK_STOCK_HELP, NULL);
