@@ -1404,12 +1404,11 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
             }
         }
-        offset += tvb_length_remaining(tvb, offset);
+        offset = tvb_captured_length(tvb);
     } else {
-        if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {
+        if (!dissector_try_uint_new(l2cap_cid_dissector_table, (guint32) cid, next_tvb, pinfo, tree, TRUE, l2cap_data))
             proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
-            offset += tvb_length_remaining(tvb, offset);
-        }
+        offset = tvb_captured_length(tvb);
     }
     return offset;
 }
@@ -1825,13 +1824,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 /* unknown protocol. declare as data */
                 proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
             }
+            offset = tvb_captured_length(tvb);
         }
     }
     else if (cid <= BTL2CAP_FIXED_CID_LAST) {
         if (cid == BTL2CAP_FIXED_CID_AMP_MAN) {
             control = tvb_get_letohs(tvb, offset);
             if (control & 0x1) {
-                dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, 0 /* unused */, length, offset, NULL /* unused */);
+                offset = dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, 0 /* unused */, length, offset, NULL /* unused */);
             } else {
                 proto_item* ti_control;
                 proto_tree* ti_control_subtree;
@@ -1863,6 +1863,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* unknown protocol. declare as data */
             proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
         }
+        offset = tvb_captured_length(tvb);
     }
     else /* if (cid > BTL2CAP_FIXED_CID_LAST) */ { /* Connection oriented channel */
         wmem_tree_key_t    key[6];
@@ -1933,18 +1934,18 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             else
                 config_data = &(psm_data->out);
             if (config_data->mode == 0) {
-                dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
+                offset = dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, psm_data->local_service, length, offset, l2cap_data);
             } else {
                 control = tvb_get_letohs(tvb, offset);
                 if (control & 0x1) {
-                    dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset, config_data);
+                    offset = dissect_s_frame(tvb, pinfo, tree, btl2cap_tree, psm, length, offset, config_data);
                 } else {
-                    dissect_i_frame(tvb, pinfo, tree, btl2cap_tree, psm_data, length, offset, config_data, l2cap_data);
+                    offset = dissect_i_frame(tvb, pinfo, tree, btl2cap_tree, psm_data, length, offset, config_data, l2cap_data);
                 }
             }
         } else {
             psm = 0;
-            dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, FALSE, length, offset, l2cap_data);
+            offset = dissect_b_frame(tvb, pinfo, tree, btl2cap_tree, cid, psm, FALSE, length, offset, l2cap_data);
         }
     }
 
