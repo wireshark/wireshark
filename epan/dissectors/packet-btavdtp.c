@@ -255,6 +255,8 @@ static gint ett_bta2dp                          = -1;
 static gint proto_bta2dp_cph_scms_t             = -1;
 static gint ett_bta2dp_cph_scms_t               = -1;
 
+static int hf_bta2dp_acp_seid                           = -1;
+static int hf_bta2dp_int_seid                           = -1;
 static int hf_bta2dp_codec                              = -1;
 static int hf_bta2dp_content_protection                 = -1;
 static int hf_bta2dp_l_bit                              = -1;
@@ -284,6 +286,8 @@ static gint ett_btvdp                           = -1;
 static gint proto_btvdp_cph_scms_t              = -1;
 static gint ett_btvdp_cph_scms_t                = -1;
 
+static int hf_btvdp_acp_seid                           = -1;
+static int hf_btvdp_int_seid                           = -1;
 static int hf_btvdp_codec                              = -1;
 static int hf_btvdp_content_protection                 = -1;
 static int hf_btvdp_l_bit                              = -1;
@@ -449,6 +453,7 @@ typedef struct _sep_entry_t {
     guint8 media_type;
     gint   codec;
     gint   content_protection_type;
+    guint8 int_seid;
     enum sep_state state;
 } sep_entry_t;
 
@@ -464,6 +469,8 @@ typedef struct _cid_type_data_t {
 
 typedef struct _sep_data_t {
     gint   codec;
+    guint8 acp_seid;
+    guint8 int_seid;
     gint   content_protection_type;
 } sep_data_t;
 
@@ -1194,7 +1201,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (cid_type_data->sep->media_type == MEDIA_TYPE_AUDIO) {
                     sep_data_t  sep_data;
 
-                    sep_data.codec = cid_type_data->sep->codec;
+                    sep_data.codec    = cid_type_data->sep->codec;
+                    sep_data.acp_seid = cid_type_data->sep->seid;
+                    sep_data.int_seid = cid_type_data->sep->int_seid;
                     sep_data.content_protection_type = cid_type_data->sep->content_protection_type;
 
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1202,7 +1211,9 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 } else if (cid_type_data->sep->media_type == MEDIA_TYPE_VIDEO) {
                     sep_data_t  sep_data;
 
-                    sep_data.codec = cid_type_data->sep->codec;
+                    sep_data.codec    = cid_type_data->sep->codec;
+                    sep_data.acp_seid = cid_type_data->sep->seid;
+                    sep_data.int_seid = cid_type_data->sep->int_seid;
                     sep_data.content_protection_type = cid_type_data->sep->content_protection_type;
 
                     next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -1292,11 +1303,13 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case SIGNAL_ID_SET_CONFIGURATION:
             if (message_type == MESSAGE_TYPE_COMMAND) {
+                guint32  int_seid;
+
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                         SEID_ACP, 0, &seid, interface_id,
                         adapter_id, chandle, frame_number);
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
-                        SEID_INT, 0, NULL, interface_id,
+                        SEID_INT, 0, &int_seid, interface_id,
                         adapter_id, chandle, frame_number);
                 offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
 
@@ -1318,6 +1331,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (sep) {
                     sep->codec = codec;
                     sep->content_protection_type = content_protection_type;
+                    sep->int_seid = int_seid;
                 }
 
                 break;
@@ -2234,6 +2248,8 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     sep_data.codec = CODEC_SBC;
     sep_data.content_protection_type = 0;
+    sep_data.acp_seid = 0;
+    sep_data.int_seid = 0;
 
     if (force_a2dp_scms_t || force_a2dp_codec) {
         if (force_a2dp_scms_t)
@@ -2278,11 +2294,17 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     bta2dp_tree = proto_item_add_subtree(ti, ett_bta2dp);
 
-    pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_codec, tvb, offset, 0, sep_data.codec);
+    pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_acp_seid, tvb, 0, 0, sep_data.acp_seid);
+    PROTO_ITEM_SET_GENERATED(pitem);
+
+    pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_int_seid, tvb, 0, 0, sep_data.int_seid);
+    PROTO_ITEM_SET_GENERATED(pitem);
+
+    pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_codec, tvb, 0, 0, sep_data.codec);
     PROTO_ITEM_SET_GENERATED(pitem);
 
     if (sep_data.content_protection_type > 0) {
-        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_content_protection, tvb, offset, 0, sep_data.content_protection_type);
+        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
@@ -2317,6 +2339,16 @@ proto_register_bta2dp(void)
     module_t *module;
 
     static hf_register_info hf[] = {
+        { &hf_bta2dp_acp_seid,
+            { "ACP SEID",                        "bta2dp.acp_seid",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_int_seid,
+            { "INT SEID",                        "bta2dp.int_seid",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_bta2dp_codec,
             { "Codec",                           "bta2dp.codec",
             FT_UINT8, BASE_HEX, VALS(media_codec_audio_type_vals), 0x00,
@@ -2326,7 +2358,7 @@ proto_register_bta2dp(void)
             { "Content Protection",              "bta2dp.content_protection",
             FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
             NULL, HFILL }
-        }
+        },
     };
 
     static gint *ett[] = {
@@ -2385,6 +2417,8 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     sep_data.codec = CODEC_H263_BASELINE;
     sep_data.content_protection_type = 0;
+    sep_data.acp_seid = 0;
+    sep_data.int_seid = 0;
 
     if (force_vdp_scms_t || force_vdp_codec) {
         if (force_vdp_scms_t)
@@ -2429,11 +2463,17 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     btvdp_tree = proto_item_add_subtree(ti, ett_btvdp);
 
-    pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_codec, tvb, offset, 0, sep_data.codec);
+    pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_acp_seid, tvb, 0, 0, sep_data.acp_seid);
+    PROTO_ITEM_SET_GENERATED(pitem);
+
+    pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_int_seid, tvb, 0, 0, sep_data.int_seid);
+    PROTO_ITEM_SET_GENERATED(pitem);
+
+    pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_codec, tvb, 0, 0, sep_data.codec);
     PROTO_ITEM_SET_GENERATED(pitem);
 
     if (sep_data.content_protection_type > 0) {
-        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_content_protection, tvb, offset, 0, sep_data.content_protection_type);
+        pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
@@ -2465,6 +2505,16 @@ proto_register_btvdp(void)
     expert_module_t* expert_btavdtp;
 
     static hf_register_info hf[] = {
+        { &hf_btvdp_acp_seid,
+            { "ACP SEID",                        "btvdp.acp_seid",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btvdp_int_seid,
+            { "INT SEID",                        "btvdp.int_seid",
+            FT_UINT8, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_btvdp_codec,
             { "Codec",                           "btvdp.codec",
             FT_UINT8, BASE_HEX, VALS(media_codec_video_type_vals), 0x00,
