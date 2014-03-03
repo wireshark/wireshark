@@ -247,6 +247,288 @@ static const true_false_string tfs_fcels_estat_seq_init = {
 #define FC_ESB_ST_SEQ_INIT  (1 << 30)   /* holds sequence initiative */
 #define FC_ESB_ST_COMPLETE  (1 << 29)   /* exchange is complete */
 
+static const value_string fc_els_proto_val[] = {
+    {FC_ELS_LSRJT        , "LS_RJT"},
+    {FC_ELS_ACC          , "ACC"},
+    {FC_ELS_PLOGI        , "PLOGI"},
+    {FC_ELS_FLOGI        , "FLOGI"},
+    {FC_ELS_LOGOUT       , "LOGO"},
+    {FC_ELS_ABTX         , "ABTX"},
+    {FC_ELS_RSI          , "RSI"},
+    {FC_ELS_RTV          , "RTV"},
+    {FC_ELS_RLS          , "RLS"},
+    {FC_ELS_ECHO         , "ECHO"},
+    {FC_ELS_TEST         , "TEST"},
+    {FC_ELS_RRQ          , "RRQ"},
+    {FC_ELS_REC          , "REC"},
+    {FC_ELS_SRR          , "SRR"},
+    {FC_ELS_PRLI         , "PRLI"},
+    {FC_ELS_PRLO         , "PRLO"},
+    {FC_ELS_TPRLO        , "TPRLO"},
+    {FC_ELS_PDISC        , "PDISC"},
+    {FC_ELS_FDISC        , "FDISC"},
+    {FC_ELS_ADISC        , "ADISC"},
+    {FC_ELS_FARP_REQ     , "FARP-REQ"},
+    {FC_ELS_FARP_RPLY    , "FARP-REPLY"},
+    {FC_ELS_RPS          , "RPS"},
+    {FC_ELS_RPL          , "RPL"},
+    {FC_ELS_FAN          , "FAN"},
+    {FC_ELS_RSCN         , "RSCN"},
+    {FC_ELS_SCR          , "SCR"},
+    {FC_ELS_RNFT         , "RNFT"},
+    {FC_ELS_LINIT        , "LINIT"},
+    {FC_ELS_LSTS         , "LSTS"},
+    {FC_ELS_RNID         , "RNID"},
+    {FC_ELS_RLIR         , "RLIR"},
+    {FC_ELS_LIRR         , "LIRR"},
+    {FC_ELS_SRL          , "SRL"},
+    {FC_ELS_RPSC         , "RPSC"},
+    {FC_ELS_LKA          , "LKA"},
+    {FC_ELS_AUTH         , "AUTH"},
+    {FC_ELS_CBIND        , "CBIND"},
+    {FC_ELS_UNBIND       , "UNBIND"},
+    {0, NULL}
+};
+value_string_ext fc_els_proto_val_ext = VALUE_STRING_EXT_INIT(fc_els_proto_val);
+
+/* Reject Reason Codes */
+#define FC_ELS_RJT_INVCMDCODE   0x01
+#define FC_ELS_RJT_LOGERR       0x03
+#define FC_ELS_RJT_LOGBSY       0x05
+#define FC_ELS_RJT_PROTERR      0x07
+#define FC_ELS_RJT_GENFAIL      0x09
+#define FC_ELS_RJT_CMDNOTSUPP   0x0B
+#define FC_ELS_RJT_GENFAIL2     0x0D
+#define FC_ELS_RJT_CMDINPROG    0x0E
+#define FC_ELS_RJT_FIP          0x20
+#define FC_ELS_RJT_VENDOR       0xFF
+
+static const value_string fc_els_rjt_val[] = {
+    {FC_ELS_RJT_INVCMDCODE, "Invalid Cmd Code"},
+    {FC_ELS_RJT_LOGERR    , "Logical Error"},
+    {FC_ELS_RJT_LOGBSY    , "Logical Busy"},
+    {FC_ELS_RJT_PROTERR   , "Protocol Error"},
+    {FC_ELS_RJT_GENFAIL   , "Unable to Perform Cmd"},
+    {FC_ELS_RJT_CMDNOTSUPP, "Command Not Supported"},
+    {FC_ELS_RJT_GENFAIL2  , "Unable to Perform Cmd"},
+    {FC_ELS_RJT_CMDINPROG , "Command in Progress Already"},
+    {FC_ELS_RJT_FIP       , "FIP Error"},
+    {FC_ELS_RJT_VENDOR    , "Vendor Unique Error"},
+    {0, NULL}
+};
+static value_string_ext fc_els_rjt_val_ext = VALUE_STRING_EXT_INIT(fc_els_rjt_val);
+
+#define FC_ELS_RJT_DET_NODET             0x00
+#define FC_ELS_RJT_DET_SVCPARM_OPT       0x01
+#define FC_ELS_RJT_DET_SVCPARM_INITCTL   0x03
+#define FC_ELS_RJT_DET_SVCPARM_RCPTCTL   0x05
+#define FC_ELS_RJT_DET_SVCPARM_RCVSZE    0x07
+#define FC_ELS_RJT_DET_SVCPARM_CSEQ      0x09
+#define FC_ELS_RJT_DET_SVCPARM_CREDIT    0x0B
+#define FC_ELS_RJT_DET_INV_PFNAME        0x0D
+#define FC_ELS_RJT_DET_INV_NFNAME        0x0E
+#define FC_ELS_RJT_DET_INV_CMNSVCPARM    0x0F
+#define FC_ELS_RJT_DET_INV_ASSOCHDR      0x11
+#define FC_ELS_RJT_DET_ASSOCHDR_REQD     0x13
+#define FC_ELS_RJT_DET_INV_OSID          0x15
+#define FC_ELS_RJT_DET_EXCHG_COMBO       0x17
+#define FC_ELS_RJT_DET_CMDINPROG         0x19
+#define FC_ELS_RJT_DET_PLOGI_REQ         0x1E
+#define FC_ELS_RJT_DET_INV_NPID          0x1F
+#define FC_ELS_RJT_DET_INV_SEQID         0x21
+#define FC_ELS_RJT_DET_INV_EXCHG         0x23
+#define FC_ELS_RJT_DET_INACTIVE_EXCHG    0x25
+#define FC_ELS_RJT_DET_RQUAL_REQD        0x27
+#define FC_ELS_RJT_DET_OORSRC            0x29
+#define FC_ELS_RJT_DET_SUPPLYFAIL        0x2A
+#define FC_ELS_RJT_DET_REQNOTSUPP        0x2C
+#define FC_ELS_RJT_DET_INV_PLEN          0x2D
+#define FC_ELS_RJT_DET_INV_ALIASID       0x30
+#define FC_ELS_RJT_DET_OORSRC_ALIASID    0x31
+#define FC_ELS_RJT_DET_INACTIVE_ALIASID  0x32
+#define FC_ELS_RJT_DET_DEACT_ALIAS_FAIL1 0x33
+#define FC_ELS_RJT_DET_DEACT_ALIAS_FAIL2 0x34
+#define FC_ELS_RJT_DET_SVCPARM_CONFLICT  0x35
+#define FC_ELS_RJT_DET_INV_ALIASTOK      0x36
+#define FC_ELS_RJT_DET_UNSUPP_ALIASTOK   0x37
+#define FC_ELS_RJT_DET_GRPFORM_FAIL      0x38
+#define FC_ELS_RJT_DET_QOSPARM_ERR       0x40
+#define FC_ELS_RJT_DET_INV_VCID          0x41
+#define FC_ELS_RJT_DET_OORSRC_C4         0x42
+#define FC_ELS_RJT_DET_INV_PNNAME        0x44
+#define FC_ELS_RJT_DET_AUTH_REQD         0x48
+#define FC_ELS_RJT_DET_NOT_NEIGHBOR      0x62
+
+static const value_string fc_els_rjt_det_val[] = {
+    {FC_ELS_RJT_DET_NODET            , "No further details"},
+    {FC_ELS_RJT_DET_SVCPARM_OPT      , "Svc Param - Options Error"},
+    {FC_ELS_RJT_DET_SVCPARM_INITCTL  , "Svc Param - Initiator Ctl Error"},
+    {FC_ELS_RJT_DET_SVCPARM_RCPTCTL  , "Svc Param - Recipient Ctl Error"},
+    {FC_ELS_RJT_DET_SVCPARM_RCVSZE   , "Svc Param - Recv Size Error"},
+    {FC_ELS_RJT_DET_SVCPARM_CSEQ     , "Svc Param - Concurrent Seq Error"},
+    {FC_ELS_RJT_DET_SVCPARM_CREDIT   , "Svc Param - Credit Error"},
+    {FC_ELS_RJT_DET_INV_PFNAME       , "Invalid N_/F_Port Name"},
+    {FC_ELS_RJT_DET_INV_NFNAME       , "Invalid Node/Fabric Name"},
+    {FC_ELS_RJT_DET_INV_CMNSVCPARM   , "Invalid Common Svc Param"},
+    {FC_ELS_RJT_DET_INV_ASSOCHDR     , "Invalid Association Header"},
+    {FC_ELS_RJT_DET_ASSOCHDR_REQD    , "Association Header Reqd"},
+    {FC_ELS_RJT_DET_INV_OSID         , "Invalid Orig S_ID"},
+    {FC_ELS_RJT_DET_EXCHG_COMBO      , "Invalid OXID-RXID Combo"},
+    {FC_ELS_RJT_DET_CMDINPROG        , "Cmd Already in Progress"},
+    {FC_ELS_RJT_DET_PLOGI_REQ        , "N_Port Login Required"},
+    {FC_ELS_RJT_DET_INV_NPID         , "Invalid N_Port Id"},
+    {FC_ELS_RJT_DET_INV_SEQID        , "Invalid SeqID"},
+    {FC_ELS_RJT_DET_INV_EXCHG        , "Attempt to Abort Invalid Exchg"},
+    {FC_ELS_RJT_DET_INACTIVE_EXCHG   , "Attempt to Abort Inactive Exchg"},
+    {FC_ELS_RJT_DET_RQUAL_REQD       , "Resource Qualifier Required"},
+    {FC_ELS_RJT_DET_OORSRC           , "Insufficient Resources for Login"},
+    {FC_ELS_RJT_DET_SUPPLYFAIL       , "Unable to Supply Req Data"},
+    {FC_ELS_RJT_DET_REQNOTSUPP       , "Command Not Supported"},
+    {FC_ELS_RJT_DET_INV_PLEN         , "Invalid Payload Length"},
+    {FC_ELS_RJT_DET_INV_ALIASID      , "No Alias IDs available"},
+    {FC_ELS_RJT_DET_OORSRC_ALIASID   , "Alias_ID Cannot be Activated (Out of Rsrc)"},
+    {FC_ELS_RJT_DET_INACTIVE_ALIASID , "Alias_ID Cannot be Activated (Inv AID)"},
+    {FC_ELS_RJT_DET_DEACT_ALIAS_FAIL1, "Alias_ID Cannot be Deactivated"},
+    {FC_ELS_RJT_DET_DEACT_ALIAS_FAIL2, "Alias_ID Cannot be Deactivated"},
+    {FC_ELS_RJT_DET_SVCPARM_CONFLICT , "Svc Parameter Conflict"},
+    {FC_ELS_RJT_DET_INV_ALIASTOK     , "Invalid Alias Token"},
+    {FC_ELS_RJT_DET_UNSUPP_ALIASTOK  , "Unsupported Alias Token"},
+    {FC_ELS_RJT_DET_GRPFORM_FAIL     , "Alias Grp Cannot be Formed"},
+    {FC_ELS_RJT_DET_QOSPARM_ERR      , "QoS Param Error"},
+    {FC_ELS_RJT_DET_INV_VCID         , "VC_ID Not Found"},
+    {FC_ELS_RJT_DET_OORSRC_C4        , "No Resources to Support Class 4 Conn"},
+    {FC_ELS_RJT_DET_INV_PNNAME       , "Invalid Port/Node Name"},
+    {FC_ELS_RJT_DET_AUTH_REQD        , "Authentication Required"},
+    {FC_ELS_RJT_DET_NOT_NEIGHBOR     , "VN2VN_Port not in Neighbor Set"},
+    {0, NULL}
+};
+static value_string_ext fc_els_rjt_det_val_ext = VALUE_STRING_EXT_INIT(fc_els_rjt_det_val);
+
+static const value_string fc_els_flacompliance_val[] = {
+    {1, "FC-FLA Level 1"},
+    {2, "FC-FLA Level 2"},
+    {0, NULL}
+};
+
+static const value_string fc_els_loopstate_val[] = {
+    {1, "Online"},
+    {2, "Loop Failure"},
+    {3, "Initialization Failure"},
+    {4, "Initializing"},
+    {0, NULL}
+};
+
+static const value_string fc_els_scr_reg_val[] = {
+    {1, "Fabric Detected Regn"},
+    {2, "N_Port Detected Regn"},
+    {3, "Full Regn"},
+    {255, "Clear All Regn"},
+    {0, NULL}
+};
+
+static const value_string fc_els_farp_respaction_val[] = {
+    {0, "No Action"},
+    {1, "Login Using Requesting Port ID"},
+    {2, "Respond with FARP-REPLY"},
+    {3, "Login & send FARP-REPLY"},
+    {0, NULL}
+};
+
+static const value_string fc_els_portstatus_val[] = {
+    {0x01, "Link Reset Protocol in Progress"},
+    {0x02, "Loss of Synchronization"},
+    {0x04, "Loss of Signal"},
+    {0x10, "AL Connection | No Fabric"},
+    {0x14, "AL Connection | Loss of Signal"},
+    {0x18, "AL Connection | Fabric Detected"},
+    {0x1C, "AL Connection | Fabric Detected | Loss of Signal"},
+    {0x20, "Point-to-Point Connection | No Fabric"},
+    {0x24, "Point-to-Point Connection | Loss of Signal"},
+    {0x28, "Point-to-Point Connection | Fabric Detected"},
+    {0x2C, "Point-to-Point Connection | Fabric Detected | Loss of Signal"},
+    {0, NULL}
+};
+static value_string_ext fc_els_portstatus_val_ext = VALUE_STRING_EXT_INIT(fc_els_portstatus_val);
+
+static const value_string fc_els_portspeed_val[] = {
+    {0x8000, "1 Gb"},
+    {0x4000, "2 Gb"},
+    {0x2000, "4 Gb"},
+    {0x1000, "10 Gb"},
+    {0x0002, "Unknown"},
+    {0x0001, "Speed Not Estd."},
+    {0, NULL}
+};
+
+static const value_string fc_els_lirr_regfunc_val[] = {
+    {0x1, "Set Reg: Conditionally Receive"},
+    {0x2, "Set Reg: Always Receive"},
+    {0xFF, "Clear Reg"},
+    {0, NULL}
+};
+
+static const value_string fc_els_rscn_evqual_val[] = {
+    {0x00, "Event is not specified"},
+    {0x01, "Changed Name Server Object"},
+    {0x02, "Changed Port Attribute"},
+    {0x03, "Changed Service Object"},
+    {0x04, "Changed Switch Config"},
+    {0, NULL}
+};
+
+static const value_string fc_els_rscn_addrfmt_val[] = {
+    {0, "Port Addr (single N/L Port or service)"},
+    {1, "Area Addr Group (area of E/L/N Port addresses)"},
+    {2, "Domain Addr Group"},
+    {3, "Fabric Addr Group"},
+    {0, NULL}
+};
+
+static const value_string fc_els_nodeid_val[] = {
+    {0x00, "Common Identification Data Only"},
+    {0x05, "IP Specific Data"},
+    {0x08, "FCP-Specific Data"},
+    {0x20, "FC_CT Specific Data"},
+    {0x22, "SW_ILS Specific Data"},
+    {0x23, "AL Specific Data"},
+    {0x24, "SNMP Specific Data"},
+    {0xDF, "Common ID Data + General Topology Discovery Format"},
+    {0, NULL}
+};
+
+static const value_string fc_els_rnid_asstype_val[] = {
+    {0x0, "Reserved"},
+    {0x1, "Unknown"},
+    {0x2, "Other"},
+    {0x3, "Hub"},
+    {0x4, "Switch"},
+    {0x5, "Gateway"},
+    {0x6, "Converter"},
+    {0x7, "HBA"},
+    {0x9, "Storage Device"},
+    {0xA, "Host"},
+    {0xB, "Storage Subsystem"},
+    {0xE, "Storage Access Device"},
+    {0x11, "NAS Device"},
+    {0, NULL}
+};
+static value_string_ext fc_els_rnid_asstype_val_ext = VALUE_STRING_EXT_INIT(fc_els_rnid_asstype_val);
+
+static const value_string fc_els_rnid_mgmt_val[] = {
+    {0, "IP/UDP/SNMP"},
+    {1, "IP/TCP/Telnet"},
+    {2, "IP/TCP/HTTP"},
+    {3, "IP/TCP/HTTPS"},
+    {0, NULL}
+};
+
+static const value_string fc_els_rnid_ipvers_val[] = {
+    {0, "None"},
+    {1, "IPv4"},
+    {2, "IPv6"},
+    {0, NULL}
+};
+
 static const value_string fc_prli_fc4_val[] = {
     {FC_TYPE_SCSI    , "FCP"},
     {FC_TYPE_IP      , "IP/FC"},
@@ -1857,13 +2139,14 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC ELS");
+    /* col_clear(pinfo->cinfo, COL_INFO);  XXX: It seems to me that COL_INFO should be cleared here ?? */
 
     /* decoding of this is done by each individual opcode handler */
     opcode = tvb_get_guint8 (tvb, 0);
 
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fcels, tvb, 0,
-                                             tvb_length (tvb), "FC ELS");
+                                             -1, "FC ELS");
     }
 
     /* Register conversation in case this is not a response */
@@ -1963,7 +2246,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (tree && (opcode == FC_ELS_ACC)) {
                     /* No record of what this accept is for. Can't decode */
                     acc_tree = proto_item_add_subtree (ti, ett_fcels_acc);
-                    proto_tree_add_text (acc_tree, tvb, offset, tvb_length (tvb),
+                    proto_tree_add_text (acc_tree, tvb, offset, -1,
                                          "No record of Exchange. Unable to decode ACC");
                     return 0;
                 }
@@ -1983,8 +2266,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         /* No record of what this accept is for. Can't decode */
                         acc_tree = proto_item_add_subtree (ti,
                                                            ett_fcels_acc);
-                        proto_tree_add_text (acc_tree, tvb, offset,
-                                             tvb_length (tvb),
+                        proto_tree_add_text (acc_tree, tvb, offset, -1,
                                              "No record of Exchg. Unable to decode ACC");
                         return 0;
                     }
@@ -1999,7 +2281,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if ((cdata == NULL) && (opcode != FC_ELS_LSRJT)) {
                     /* No record of what this accept is for. Can't decode */
                     acc_tree = proto_item_add_subtree (ti, ett_fcels_acc);
-                    proto_tree_add_text (acc_tree, tvb, offset, tvb_length (tvb),
+                    proto_tree_add_text (acc_tree, tvb, offset, -1,
                                          "No record of ELS Req. Unable to decode ACC");
                     return 0;
                 }
@@ -2009,15 +2291,15 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (isreq == FC_ELS_REQ) {
         col_add_str (pinfo->cinfo, COL_INFO,
-                        val_to_str (opcode, fc_els_proto_val, "0x%x"));
+                        val_to_str_ext (opcode, &fc_els_proto_val_ext, "0x%x"));
     }
     else if (opcode == FC_ELS_LSRJT) {
         col_add_fstr (pinfo->cinfo, COL_INFO, "LS_RJT (%s)",
-                        val_to_str (failed_opcode, fc_els_proto_val, "0x%x"));
+                        val_to_str_ext (failed_opcode, &fc_els_proto_val_ext, "0x%x"));
     }
     else {
         col_add_fstr (pinfo->cinfo, COL_INFO, "ACC (%s)",
-                        val_to_str (opcode, fc_els_proto_val, "0x%x"));
+                        val_to_str_ext (opcode, &fc_els_proto_val_ext, "0x%x"));
     }
 
     switch (opcode) {
@@ -2121,7 +2403,7 @@ dissect_fcels (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         break;
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 void
@@ -2129,14 +2411,14 @@ proto_register_fcels (void)
 {
     static hf_register_info hf[] = {
         { &hf_fcels_opcode,
-          {"Cmd Code", "fcels.opcode", FT_UINT8, BASE_HEX,
-           VALS (fc_els_proto_val), 0x0, NULL, HFILL}},
+          {"Cmd Code", "fcels.opcode", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &fc_els_proto_val_ext, 0x0, NULL, HFILL}},
         { &hf_fcels_rjtcode,
-          {"Reason Code", "fcels.rjt.reason", FT_UINT8, BASE_HEX,
-           VALS (fc_els_rjt_val), 0x0, NULL, HFILL}},
+          {"Reason Code", "fcels.rjt.reason", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &fc_els_rjt_val_ext, 0x0, NULL, HFILL}},
         { &hf_fcels_rjtdetcode,
-          {"Reason Explanation", "fcels.rjt.detail", FT_UINT8, BASE_HEX,
-           VALS (fc_els_rjt_det_val), 0x0, NULL, HFILL}},
+          {"Reason Explanation", "fcels.rjt.detail", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+           &fc_els_rjt_det_val_ext, 0x0, NULL, HFILL}},
         { &hf_fcels_vnduniq,
           {"Vendor Unique", "fcels.rjt.vnduniq", FT_UINT8, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
@@ -2268,8 +2550,8 @@ proto_register_fcels (void)
           {"Physical Port Number", "fcels.portnum", FT_UINT32, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
         { &hf_fcels_rps_portstatus,
-          {"Port Status", "fcels.portstatus", FT_UINT16, BASE_HEX,
-           VALS(fc_els_portstatus_val), 0x0, NULL, HFILL}},
+          {"Port Status", "fcels.portstatus", FT_UINT16, BASE_HEX | BASE_EXT_STRING,
+           &fc_els_portstatus_val_ext, 0x0, NULL, HFILL}},
         { &hf_fcels_rnft_fc4type,
           {"FC-4 Type", "fcels.rnft.fc4type", FT_UINT8, BASE_HEX,
            VALS (fc_fc4_val), 0x0, NULL, HFILL}},
@@ -2319,8 +2601,8 @@ proto_register_fcels (void)
           {"Vendor Specific", "fcels.rnid.vendorsp", FT_UINT16, BASE_HEX, NULL,
            0x0, NULL, HFILL}},
         { &hf_fcels_asstype,
-          {"Associated Type", "fcels.rnid.asstype", FT_UINT32, BASE_HEX,
-           VALS (fc_els_rnid_asstype_val), 0x0, NULL, HFILL}},
+          {"Associated Type", "fcels.rnid.asstype", FT_UINT32, BASE_HEX | BASE_EXT_STRING,
+           &fc_els_rnid_asstype_val_ext, 0x0, NULL, HFILL}},
         { &hf_fcels_physport,
           {"Physical Port Number", "fcels.rnid.physport", FT_UINT32, BASE_HEX,
            NULL, 0x0, NULL, HFILL}},
@@ -2344,7 +2626,7 @@ proto_register_fcels (void)
            NULL, 0x0, "Liveness Test Interval in seconds", HFILL}},
         { &hf_fcels_cbind_addr_mode,
           {"Addressing Mode", "fcels.cbind.addr_mode", FT_UINT8, BASE_HEX,
-           VALS(cbind_addr_mode_vals), 0x0, NULL, HFILL}},
+           VALS (cbind_addr_mode_vals), 0x0, NULL, HFILL}},
         { &hf_fcels_cbind_ifcp_version,
           {"iFCP version", "fcels.cbind.ifcp_version", FT_UINT8, BASE_DEC,
            NULL, 0x0, "Version of iFCP protocol", HFILL}},
@@ -2359,13 +2641,13 @@ proto_register_fcels (void)
            NULL, HFILL}},
         { &hf_fcels_cbind_status,
           {"Status", "fcels.cbind.status", FT_UINT16, BASE_DEC,
-           VALS(cbind_status_vals), 0x0, "Cbind status", HFILL}},
+           VALS (cbind_status_vals), 0x0, "Cbind status", HFILL}},
         { &hf_fcels_chandle,
           {"Connection Handle", "fcels.cbind.handle", FT_UINT16, BASE_HEX,
            NULL, 0x0, "Cbind/Unbind connection handle", HFILL}},
         { &hf_fcels_unbind_status,
           {"Status", "fcels.unbind.status", FT_UINT16, BASE_DEC,
-           VALS(unbind_status_vals), 0x0, "Unbind status", HFILL}},
+           VALS (unbind_status_vals), 0x0, "Unbind status", HFILL}},
         { &hf_fcels_cmn_cios,
           {"Cont. Incr. Offset Supported", "fcels.cmn.cios", FT_BOOLEAN, 16,
            TFS(&tfs_supported_not_supported), 0x8000, NULL, HFILL}},
@@ -2422,7 +2704,7 @@ proto_register_fcels (void)
            NULL, 0x0, NULL, HFILL}},
         { &hf_fcels_initctl_initial_pa,
           {"Initial P_A", "fcels.logi.initctl.initial_pa", FT_UINT16, BASE_HEX,
-           VALS(initial_pa_vals), 0x3000, NULL, HFILL}},
+           VALS (initial_pa_vals), 0x3000, NULL, HFILL}},
         { &hf_fcels_initctl_ack0,
           {"ACK0 Capable", "fcels.logi.initctl.ack0", FT_BOOLEAN, 16,
            TFS(&tfs_capable_not_capable), 0x0800, NULL, HFILL}},
@@ -2443,10 +2725,10 @@ proto_register_fcels (void)
            TFS(&tfs_requested_not_requested), 0x2000, NULL, HFILL}},
         { &hf_fcels_rcptctl_policy,
           {"Policy", "fcels.logi.rcptctl.policy", FT_UINT16, BASE_HEX,
-           VALS(rcptctl_policy_vals), 0x1800, NULL, HFILL}},
+           VALS (rcptctl_policy_vals), 0x1800, NULL, HFILL}},
         { &hf_fcels_rcptctl_category,
           {"Category", "fcels.logi.rcptctl.category", FT_UINT16, BASE_HEX,
-           VALS(rcptctl_category_vals), 0x0030, NULL, HFILL}},
+           VALS (rcptctl_category_vals), 0x0030, NULL, HFILL}},
         { &hf_fcels_rcptctl_sync,
           {"Clock Sync", "fcels.logi.rcptctl.sync", FT_BOOLEAN, 16,
            TFS(&tfs_supported_not_supported), 0x0008, NULL, HFILL}},
@@ -2591,3 +2873,17 @@ proto_reg_handoff_fcels (void)
     data_handle = find_dissector ("data");
     fcsp_handle = find_dissector ("fcsp");
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

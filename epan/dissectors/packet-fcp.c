@@ -701,9 +701,9 @@ dissect_fcp_els(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, fc_hdr *fch
     guint8 op;
 
     op = tvb_get_guint8(tvb, 0);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(op, fc_els_proto_val, "0x%x"));
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(op, &fc_els_proto_val_ext, "0x%x"));
     proto_tree_add_text(tree, tvb, 0, 1, "Opcode: %s",
-                                   val_to_str(op, fc_els_proto_val,
+                                   val_to_str_ext(op, &fc_els_proto_val_ext,
                                               "ELS 0x%02x"));
 
     switch (op) {   /* XXX should switch based on conv for LS_ACC */
