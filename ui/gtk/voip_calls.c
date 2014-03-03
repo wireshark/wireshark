@@ -646,7 +646,7 @@ static void RTP_packet_draw(void *prs _U_)
 										(rtp_listinfo->is_srtp)?"SRTP":"RTP",
 										rtp_listinfo->pt_str,
 										(rtp_listinfo->rtp_event == -1)?
-										    "":val_to_str_const(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event"));
+										    "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
 				new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 													(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
 													duration/1000,(duration%1000), rtp_listinfo->ssrc);
@@ -722,7 +722,7 @@ static void RTP_packet_draw(void *prs _U_)
 										       (rtp_listinfo->is_srtp)?"SRTP":"RTP",
 										       rtp_listinfo->pt_str,
 										       (rtp_listinfo->rtp_event == -1)?
-										         "":val_to_str_const(rtp_listinfo->rtp_event, rtp_event_type_values, "Unknown RTP Event"));
+										         "":val_to_str_ext_const(rtp_listinfo->rtp_event, &rtp_event_type_values_ext, "Unknown RTP Event"));
 						new_gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 															(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
 															duration/1000,(duration%1000), rtp_listinfo->ssrc);
