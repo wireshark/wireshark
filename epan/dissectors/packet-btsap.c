@@ -84,6 +84,7 @@ static expert_field ei_unexpected_data = EI_INIT;
 
 static gint top_dissect = TOP_DISSECT_INTERNAL;
 
+static dissector_handle_t btsap_handle;
 static dissector_handle_t gsm_sim_cmd_handle;
 static dissector_handle_t gsm_sim_resp_handle;
 static dissector_handle_t iso7816_atr_handle;
@@ -711,7 +712,7 @@ proto_register_btsap(void)
     };
 
     proto_btsap = proto_register_protocol("Bluetooth SAP Profile", "BT SAP", "btsap");
-    new_register_dissector("btsap", dissect_btsap, proto_btsap);
+    btsap_handle = new_register_dissector("btsap", dissect_btsap, proto_btsap);
 
     proto_register_field_array(proto_btsap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -732,9 +733,6 @@ proto_register_btsap(void)
 void
 proto_reg_handoff_btsap(void)
 {
-    dissector_handle_t btsap_handle;
-
-    btsap_handle = find_dissector("btsap");
     gsm_sim_cmd_handle = find_dissector("gsm_sim.command");
     gsm_sim_resp_handle = find_dissector("gsm_sim.response");
     iso7816_atr_handle = find_dissector("iso7816.atr");

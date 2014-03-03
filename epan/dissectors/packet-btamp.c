@@ -63,6 +63,9 @@ static gint ett_btamp_caps = -1;
 static gint ett_btamp_controller_entry = -1;
 static gint ett_btamp_controller_list = -1;
 
+static dissector_handle_t btamp_handle;
+
+
 static const value_string command_code_vals[] = {
     { 0x01, "AMP Command Reject" },
     { 0x02, "AMP Discover Request" },
@@ -636,7 +639,7 @@ proto_register_btamp(void)
     /* Register the protocol name and description */
     proto_btamp = proto_register_protocol("Bluetooth AMP Packet", "BT AMP", "btamp");
 
-    new_register_dissector("btamp", dissect_btamp, proto_btamp);
+    btamp_handle = new_register_dissector("btamp", dissect_btamp, proto_btamp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btamp, hf, array_length(hf));
@@ -646,9 +649,6 @@ proto_register_btamp(void)
 void
 proto_reg_handoff_btamp(void)
 {
-    dissector_handle_t btamp_handle;
-
-    btamp_handle = find_dissector("btamp");
     dissector_add_uint("btl2cap.cid", BTL2CAP_FIXED_CID_AMP_MAN, btamp_handle);
 }
 

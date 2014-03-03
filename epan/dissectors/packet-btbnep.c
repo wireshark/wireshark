@@ -70,6 +70,8 @@ static gint ett_addr                                                       = -1;
 
 static expert_field ei_btbnep_src_not_group_address = EI_INIT;
 
+static dissector_handle_t btbnep_handle;
+
 static gboolean top_dissect                                              = TRUE;
 
 static dissector_handle_t eth_handle;
@@ -522,7 +524,7 @@ proto_register_btbnep(void)
     };
 
     proto_btbnep = proto_register_protocol("Bluetooth BNEP Protocol", "BT BNEP", "btbnep");
-    new_register_dissector("btbnep", dissect_btbnep, proto_btbnep);
+    btbnep_handle = new_register_dissector("btbnep", dissect_btbnep, proto_btbnep);
 
     proto_register_field_array(proto_btbnep, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -542,9 +544,6 @@ proto_register_btbnep(void)
 void
 proto_reg_handoff_btbnep(void)
 {
-    dissector_handle_t btbnep_handle;
-
-    btbnep_handle = find_dissector("btbnep");
     eth_handle    = find_dissector("eth");
     data_handle   = find_dissector("data");
     ethertype_handle = find_dissector("ethertype");

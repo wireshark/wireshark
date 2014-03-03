@@ -52,6 +52,7 @@ static int hf_bthci_acl_dst_name = -1;
 /* Initialize the subtree pointers */
 static gint ett_bthci_acl = -1;
 
+static dissector_handle_t bthci_acl_handle;
 static dissector_handle_t btl2cap_handle = NULL;
 
 static gboolean acl_reassembly = TRUE;
@@ -493,7 +494,7 @@ proto_register_bthci_acl(void)
 
     /* Register the protocol name and description */
     proto_bthci_acl = proto_register_protocol("Bluetooth HCI ACL Packet", "HCI_ACL", "bthci_acl");
-    new_register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
+    bthci_acl_handle = new_register_dissector("bthci_acl", dissect_bthci_acl, proto_bthci_acl);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_acl, hf, array_length(hf));
@@ -513,9 +514,6 @@ proto_register_bthci_acl(void)
 void
 proto_reg_handoff_bthci_acl(void)
 {
-    dissector_handle_t bthci_acl_handle;
-
-    bthci_acl_handle = find_dissector("bthci_acl");
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_ACL, bthci_acl_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_ACL, bthci_acl_handle);
 

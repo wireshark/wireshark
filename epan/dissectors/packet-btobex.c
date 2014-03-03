@@ -204,6 +204,8 @@ static gint ett_btobex_fragments = -1;
 
 static expert_field ei_application_parameter_length_bad = EI_INIT;
 
+static dissector_handle_t btobex_handle;
+
 static reassembly_table btobex_reassembly_table;
 
 static const fragment_items btobex_frag_items = {
@@ -2520,7 +2522,7 @@ proto_register_btobex(void)
 
     proto_btobex = proto_register_protocol("Bluetooth OBEX Protocol", "BT OBEX", "btobex");
 
-    new_register_dissector("btobex", dissect_btobex, proto_btobex);
+    btobex_handle = new_register_dissector("btobex", dissect_btobex, proto_btobex);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btobex, hf, array_length(hf));
@@ -2534,10 +2536,6 @@ proto_register_btobex(void)
 void
 proto_reg_handoff_btobex(void)
 {
-    dissector_handle_t btobex_handle;
-
-    btobex_handle = find_dissector("btobex");
-
     /* register in rfcomm and l2cap the profiles/services this dissector should handle */
     dissector_add_uint("btrfcomm.service", BTSDP_OPP_SERVICE_UUID,                          btobex_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_FTP_SERVICE_UUID,                          btobex_handle);

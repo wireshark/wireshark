@@ -1,5 +1,5 @@
 /* packet-hci_h1.c
- * Routines for the Bluetooth HCI h1 dissection
+ * Routines for the Bluetooth HCI H1 dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -36,6 +36,8 @@ static int hf_hci_h1_direction = -1;
 static gint ett_hci_h1 = -1;
 
 static dissector_table_t hci_h1_table;
+
+static dissector_handle_t hci_h1_handle;
 static dissector_handle_t data_handle;
 
 static wmem_tree_t *chandle_to_bdaddr_table = NULL;
@@ -149,7 +151,7 @@ proto_register_hci_h1(void)
     proto_hci_h1 = proto_register_protocol("Bluetooth HCI H1",
             "HCI_H1", "hci_h1");
 
-    new_register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
+    hci_h1_handle = new_register_dissector("hci_h1", dissect_hci_h1, proto_hci_h1);
 
     proto_register_field_array(proto_hci_h1, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -166,10 +168,8 @@ proto_register_hci_h1(void)
 void
 proto_reg_handoff_hci_h1(void)
 {
-    dissector_handle_t hci_h1_handle;
-
     data_handle = find_dissector("data");
-    hci_h1_handle = find_dissector("hci_h1");
+
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_HCI, hci_h1_handle);
 }
 

@@ -41,6 +41,8 @@ static int hf_hci_h4_direction = -1;
 
 static gint ett_hci_h4 = -1;
 
+static dissector_handle_t hci_h4_handle;
+
 static dissector_table_t hci_h4_table;
 static dissector_handle_t data_handle;
 
@@ -155,7 +157,7 @@ proto_register_hci_h4(void)
     proto_hci_h4 = proto_register_protocol("Bluetooth HCI H4",
             "HCI_H4", "hci_h4");
 
-    new_register_dissector("hci_h4", dissect_hci_h4, proto_hci_h4);
+    hci_h4_handle = new_register_dissector("hci_h4", dissect_hci_h4, proto_hci_h4);
 
     proto_register_field_array(proto_hci_h4, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -172,10 +174,8 @@ proto_register_hci_h4(void)
 void
 proto_reg_handoff_hci_h4(void)
 {
-    dissector_handle_t hci_h4_handle;
-
     data_handle = find_dissector("data");
-    hci_h4_handle = find_dissector("hci_h4");
+
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4, hci_h4_handle);
     dissector_add_uint("wtap_encap", WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR, hci_h4_handle);
 }

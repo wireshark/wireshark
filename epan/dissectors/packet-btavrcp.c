@@ -212,6 +212,8 @@ static gint ett_btavrcp_path                                               = -1;
 static expert_field ei_btavrcp_item_length_bad = EI_INIT;
 static expert_field ei_btavrcp_unexpected_data = EI_INIT;
 
+static dissector_handle_t btavrcp_handle;
+
 #define OPCODE_VENDOR_DEPENDANT 0x00
 #define OPCODE_UNIT             0x30
 #define OPCODE_SUBUNIT          0x31
@@ -3147,7 +3149,7 @@ proto_register_btavrcp(void)
     timing       = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btavrcp = proto_register_protocol("Bluetooth AVRCP Profile", "BT AVRCP", "btavrcp");
-    new_register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
+    btavrcp_handle = new_register_dissector("btavrcp", dissect_btavrcp, proto_btavrcp);
 
     proto_register_field_array(proto_btavrcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -3163,10 +3165,6 @@ proto_register_btavrcp(void)
 void
 proto_reg_handoff_btavrcp(void)
 {
-    dissector_handle_t btavrcp_handle;
-
-    btavrcp_handle = find_dissector("btavrcp");
-
     dissector_add_uint("btavctp.service", BTSDP_AVRCP_TG_SERVICE_UUID, btavrcp_handle);
     dissector_add_uint("btavctp.service", BTSDP_AVRCP_CT_SERVICE_UUID, btavrcp_handle);
     dissector_add_uint("btavctp.service", BTSDP_AVRCP_SERVICE_UUID, btavrcp_handle);

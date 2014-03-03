@@ -345,6 +345,8 @@ static expert_field ei_btsdp_continuation_state_none = EI_INIT;
 static expert_field ei_btsdp_continuation_state_large = EI_INIT;
 static expert_field ei_data_element_value_large = EI_INIT;
 
+static dissector_handle_t btsdp_handle;
+
 static wmem_tree_t *tid_requests           = NULL;
 static wmem_tree_t *continuation_states    = NULL;
 static wmem_tree_t *record_handle_services = NULL;
@@ -5641,7 +5643,7 @@ proto_register_btsdp(void)
     };
 
     proto_btsdp = proto_register_protocol("Bluetooth SDP Protocol", "BT SDP", "btsdp");
-    new_register_dissector("btsdp", dissect_btsdp, proto_btsdp);
+    btsdp_handle = new_register_dissector("btsdp", dissect_btsdp, proto_btsdp);
 
     proto_register_field_array(proto_btsdp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -5664,9 +5666,6 @@ proto_register_btsdp(void)
 void
 proto_reg_handoff_btsdp(void)
 {
-    dissector_handle_t btsdp_handle;
-
-    btsdp_handle = find_dissector("btsdp");
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_SDP, btsdp_handle);
     dissector_add_handle("btl2cap.cid", btsdp_handle);
 }

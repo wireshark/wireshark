@@ -87,6 +87,9 @@ static gint ett_bthid             = -1;
 static expert_field ei_bthid_parameter_control_operation_deprecated = EI_INIT;
 static expert_field ei_bthid_transaction_type_deprecated = EI_INIT;
 
+static dissector_handle_t bthid_handle;
+
+
 static gboolean show_deprecated = FALSE;
 
 static const value_string transaction_type_vals[] = {
@@ -1083,7 +1086,7 @@ proto_register_bthid(void)
     };
 
     proto_bthid = proto_register_protocol("Bluetooth HID Profile", "BT HID", "bthid");
-    new_register_dissector("bthid", dissect_bthid, proto_bthid);
+    bthid_handle = new_register_dissector("bthid", dissect_bthid, proto_bthid);
 
     proto_register_field_array(proto_bthid, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1104,10 +1107,6 @@ proto_register_bthid(void)
 void
 proto_reg_handoff_bthid(void)
 {
-    dissector_handle_t bthid_handle;
-
-    bthid_handle = find_dissector("bthid");
-
     dissector_add_uint("btl2cap.service", BTSDP_HID_SERVICE_UUID, bthid_handle);
     dissector_add_uint("btl2cap.service", BTSDP_HIDP_PROTOCOL_UUID, bthid_handle);
 

@@ -2056,7 +2056,7 @@ proto_register_btavdtp(void)
     };
 
     proto_btavdtp = proto_register_protocol("Bluetooth AVDTP Protocol", "BT AVDTP", "btavdtp");
-    new_register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
+    btavdtp_handle = new_register_dissector("btavdtp", dissect_btavdtp, proto_btavdtp);
 
     proto_register_field_array(proto_btavdtp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -2079,10 +2079,6 @@ proto_register_btavdtp(void)
 void
 proto_reg_handoff_btavdtp(void)
 {
-    btavdtp_handle = find_dissector("btavdtp");
-    bta2dp_handle  = find_dissector("bta2dp");
-    btvdp_handle   = find_dissector("btvdp");
-
     dissector_add_uint("btl2cap.service", BTSDP_AVDTP_PROTOCOL_UUID, btavdtp_handle);
 
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVDTP, btavdtp_handle);
@@ -2207,7 +2203,7 @@ proto_register_bta2dp(void)
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    new_register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
+    bta2dp_handle = new_register_dissector("bta2dp", dissect_bta2dp, proto_bta2dp);
 
     module = prefs_register_protocol(proto_bta2dp, NULL);
     prefs_register_static_text_preference(module, "a2dp.version",
@@ -2234,7 +2230,6 @@ proto_reg_handoff_bta2dp(void)
 /* TODO: ATRAC dissector does not exist yet */
     atrac_handle = find_dissector("atrac");
 
-    bta2dp_handle = find_dissector("bta2dp");
     rtp_handle   = find_dissector("rtp");
 
     dissector_add_uint("btl2cap.service", BTSDP_A2DP_SOURCE_SERVICE_UUID, bta2dp_handle);
@@ -2359,7 +2354,7 @@ proto_register_btvdp(void)
     };
 
     proto_btvdp = proto_register_protocol("Bluetooth VDP Profile", "BT VDP", "btvdp");
-    new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
+    btvdp_handle = new_register_dissector("btvdp", dissect_btvdp, proto_btvdp);
     proto_register_field_array(proto_bta2dp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_btavdtp = expert_register_protocol(proto_btvdp);
@@ -2388,7 +2383,6 @@ proto_reg_handoff_btvdp(void)
     mp4v_es_handle = find_dissector("mp4v-es");
 
     rtp_handle   = find_dissector("rtp");
-    btvdp_handle   = find_dissector("btvdp");
 
     dissector_add_uint("btl2cap.service", BTSDP_VDP_SOURCE_SERVICE_UUID, btvdp_handle);
     dissector_add_uint("btl2cap.service", BTSDP_VDP_SINK_SERVICE_UUID, btvdp_handle);

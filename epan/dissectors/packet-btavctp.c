@@ -56,6 +56,7 @@ static expert_field ei_btavctp_unexpected_frame = EI_INIT;
 
 static dissector_table_t avctp_service_dissector_table;
 
+static dissector_handle_t btavctp_handle;
 static dissector_handle_t data_handle    = NULL;
 
 typedef struct _fragment_t {
@@ -468,7 +469,7 @@ proto_register_btavctp(void)
     avctp_service_dissector_table = register_dissector_table("btavctp.service", "BT AVCTP Service", FT_UINT16, BASE_HEX);
 
     proto_btavctp = proto_register_protocol("Bluetooth AVCTP Protocol", "BT AVCTP", "btavctp");
-    new_register_dissector("btavctp", dissect_btavctp, proto_btavctp);
+    btavctp_handle = new_register_dissector("btavctp", dissect_btavctp, proto_btavctp);
 
     proto_register_field_array(proto_btavctp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -487,9 +488,6 @@ proto_register_btavctp(void)
 void
 proto_reg_handoff_btavctp(void)
 {
-    dissector_handle_t btavctp_handle;
-
-    btavctp_handle = find_dissector("btavctp");
     data_handle    = find_dissector("data");
 
     dissector_add_uint("btl2cap.service", BTSDP_AVCTP_PROTOCOL_UUID, btavctp_handle);

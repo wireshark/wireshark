@@ -49,7 +49,6 @@ static int hf_btmcap_bluetooth_clock_access_resolution                     = -1;
 static int hf_btmcap_sync_lead_time                                        = -1;
 static int hf_btmcap_timestamp_native_resolution                           = -1;
 static int hf_btmcap_timestamp_native_accuracy                             = -1;
-
 static int hf_btmcap_data                                                  = -1;
 
 static gint ett_btmcap = -1;
@@ -57,6 +56,8 @@ static gint ett_btmcap = -1;
 static expert_field ei_btmcap_mdl_id_ffff = EI_INIT;
 static expert_field ei_btmcap_response_parameters_bad = EI_INIT;
 static expert_field ei_btmcap_unexpected_data = EI_INIT;
+
+static dissector_handle_t btmcap_handle;
 
 static const value_string op_code_vals[] = {
     { 0x00,   "ERROR_RSP" },
@@ -418,7 +419,7 @@ proto_register_btmcap(void)
     };
 
     proto_btmcap = proto_register_protocol("Bluetooth MCAP Protocol", "BT MCAP", "btmcap");
-    new_register_dissector("btmcap", dissect_btmcap, proto_btmcap);
+    btmcap_handle = new_register_dissector("btmcap", dissect_btmcap, proto_btmcap);
 
     proto_register_field_array(proto_btmcap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -435,10 +436,6 @@ proto_register_btmcap(void)
 void
 proto_reg_handoff_btmcap(void)
 {
-    dissector_handle_t btmcap_handle;
-
-    btmcap_handle = find_dissector("btmcap");
-
     dissector_add_uint("btl2cap.service", BTSDP_MCAP_CONTROL_CHANNEL_PROTOCOL_UUID, btmcap_handle);
     dissector_add_uint("btl2cap.service", BTSDP_MCAP_DATA_CHANNEL_PROTOCOL_UUID, btmcap_handle);
 

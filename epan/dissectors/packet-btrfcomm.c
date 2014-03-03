@@ -1,8 +1,9 @@
 /* packet-btrfcomm.c
  * Routines for Bluetooth RFCOMM protocol dissection
  * and RFCOMM based profile dissection:
- *    - Dial-Up Networking (DUN) Profile
+ *    - Dial-Up Networking Profile (DUN)
  *    - Serial Port Profile (SPP)
+ *    - Global Navigation Satellite System (GNSS)
  *
  * Copyright 2002, Wolfgang Hansmann <hansmann@cs.uni-bonn.de>
  *
@@ -118,6 +119,11 @@ static gint ett_btspp = -1;
 static gint ett_btgnss = -1;
 
 static expert_field ei_btrfcomm_mcc_length_bad = EI_INIT;
+
+static dissector_handle_t btrfcomm_handle;
+static dissector_handle_t btdun_handle;
+static dissector_handle_t btspp_handle;
+static dissector_handle_t btgnss_handle;
 
 static dissector_table_t rfcomm_service_dissector_table;
 static dissector_table_t rfcomm_channel_dissector_table;
@@ -1058,7 +1064,7 @@ proto_register_btrfcomm(void)
 
     /* Register the protocol name and description */
     proto_btrfcomm = proto_register_protocol("Bluetooth RFCOMM Protocol", "BT RFCOMM", "btrfcomm");
-    new_register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
+    btrfcomm_handle = new_register_dissector("btrfcomm", dissect_btrfcomm, proto_btrfcomm);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btrfcomm, hf, array_length(hf));
@@ -1104,9 +1110,6 @@ proto_register_btrfcomm(void)
 void
 proto_reg_handoff_btrfcomm(void)
 {
-    dissector_handle_t btrfcomm_handle;
-
-    btrfcomm_handle = find_dissector("btrfcomm");
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_RFCOMM, btrfcomm_handle);
     dissector_add_handle("btl2cap.cid", btrfcomm_handle);
 
@@ -1176,7 +1179,7 @@ proto_register_btdun(void)
     };
 
     proto_btdun = proto_register_protocol("Bluetooth DUN Packet", "BT DUN", "btdun");
-    new_register_dissector("btdun", dissect_btdun, proto_btdun);
+    btdun_handle = new_register_dissector("btdun", dissect_btdun, proto_btdun);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btdun, hf, array_length(hf));
@@ -1186,10 +1189,6 @@ proto_register_btdun(void)
 void
 proto_reg_handoff_btdun(void)
 {
-    dissector_handle_t btdun_handle;
-
-    btdun_handle = find_dissector("btdun");
-
     dissector_add_uint("btrfcomm.service", BTSDP_DUN_SERVICE_UUID, btdun_handle);
     dissector_add_handle("btrfcomm.channel", btdun_handle);
 
@@ -1245,7 +1244,7 @@ proto_register_btspp(void)
     };
 
     proto_btspp = proto_register_protocol("Bluetooth SPP Packet", "BT SPP", "btspp");
-    new_register_dissector("btspp", dissect_btspp, proto_btspp);
+    btspp_handle = new_register_dissector("btspp", dissect_btspp, proto_btspp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btspp, hf, array_length(hf));
@@ -1255,10 +1254,6 @@ proto_register_btspp(void)
 void
 proto_reg_handoff_btspp(void)
 {
-    dissector_handle_t btspp_handle;
-
-    btspp_handle = find_dissector("btspp");
-
     dissector_add_uint("btrfcomm.service", BTSDP_SPP_SERVICE_UUID, btspp_handle);
     dissector_add_handle("btrfcomm.channel", btspp_handle);
 }
@@ -1302,7 +1297,7 @@ proto_register_btgnss(void)
     };
 
     proto_btgnss = proto_register_protocol("Bluetooth GNSS Profile", "BT GNSS", "btgnss");
-    new_register_dissector("btgnss", dissect_btgnss, proto_btgnss);
+    btgnss_handle = new_register_dissector("btgnss", dissect_btgnss, proto_btgnss);
 
     proto_register_field_array(proto_btgnss, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1311,10 +1306,6 @@ proto_register_btgnss(void)
 void
 proto_reg_handoff_btgnss(void)
 {
-    dissector_handle_t btgnss_handle;
-
-    btgnss_handle = find_dissector("btgnss");
-
     dissector_add_uint("btrfcomm.service", BTSDP_GNSS_UUID, btgnss_handle);
     dissector_add_uint("btrfcomm.service", BTSDP_GNSS_SERVER_UUID, btgnss_handle);
     dissector_add_handle("btrfcomm.channel", btgnss_handle);

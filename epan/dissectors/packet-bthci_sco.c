@@ -42,6 +42,8 @@ static int hf_bthci_sco_data = -1;
 /* Initialize the subtree pointers */
 static gint ett_bthci_sco = -1;
 
+static dissector_handle_t bthci_sco_handle;
+
 void proto_register_bthci_sco(void);
 void proto_reg_handoff_bthci_sco(void);
 
@@ -257,7 +259,7 @@ proto_register_bthci_sco(void)
 
     /* Register the protocol name and description */
     proto_bthci_sco = proto_register_protocol("Bluetooth HCI SCO Packet", "HCI_SCO", "bthci_sco");
-    new_register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
+    bthci_sco_handle = new_register_dissector("bthci_sco", dissect_bthci_sco, proto_bthci_sco);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_bthci_sco, hf, array_length(hf));
@@ -268,9 +270,6 @@ proto_register_bthci_sco(void)
 void
 proto_reg_handoff_bthci_sco(void)
 {
-    dissector_handle_t bthci_sco_handle;
-
-    bthci_sco_handle = find_dissector("bthci_sco");
     dissector_add_uint("hci_h4.type", HCI_H4_TYPE_SCO, bthci_sco_handle);
     dissector_add_uint("hci_h1.type", BTHCI_CHANNEL_SCO, bthci_sco_handle);
 }

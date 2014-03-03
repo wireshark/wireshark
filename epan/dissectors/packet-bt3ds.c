@@ -46,6 +46,8 @@ static expert_field ei_unexpected_data                                = EI_INIT;
 
 static gint ett_bt3ds                                                      = -1;
 
+static dissector_handle_t b3ds_handle;
+
 static const value_string message_opcode_vals[] = {
     { 0x00,   "3DG Connection Announcement" },
     { 0, NULL }
@@ -161,7 +163,7 @@ proto_register_bt3ds(void)
     };
 
     proto_bt3ds = proto_register_protocol("Bluetooth 3DS Profile", "BT 3DS", "bt3ds");
-    new_register_dissector("bt3ds", dissect_bt3ds, proto_bt3ds);
+    b3ds_handle = new_register_dissector("bt3ds", dissect_bt3ds, proto_bt3ds);
 
     proto_register_field_array(proto_bt3ds, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -179,10 +181,6 @@ proto_register_bt3ds(void)
 void
 proto_reg_handoff_bt3ds(void)
 {
-    dissector_handle_t b3ds_handle;
-
-    b3ds_handle = find_dissector("bt3ds");
-
     dissector_add_uint("btl2cap.service", BTSDP_3D_SYNCHRONIZATION_UUID, b3ds_handle);
     dissector_add_uint("btl2cap.service", BTSDP_3D_DISPLAY_UUID, b3ds_handle);
     dissector_add_uint("btl2cap.service", BTSDP_3D_GLASSES_UUID, b3ds_handle);
