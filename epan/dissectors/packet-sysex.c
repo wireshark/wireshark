@@ -249,6 +249,8 @@ static const value_string digitech_procedures[] = {
     {DIGITECH_PROCEDURE_NACK, "NACK"},
     {0, NULL}
 };
+static value_string_ext digitech_procedures_ext =
+    VALUE_STRING_EXT_INIT(digitech_procedures);
 
 static const value_string digitech_os_modes[] = {
     {0, "Normal"},
@@ -315,6 +317,8 @@ static const value_string digitech_parameter_ids_gnx3k_whammy[] = {
     {2818, "Whammy/IPS Talker Mic Level"},
     {0, NULL}
 };
+static value_string_ext digitech_parameter_ids_gnx3k_whammy_ext =
+    VALUE_STRING_EXT_INIT(digitech_parameter_ids_gnx3k_whammy);
 
 static const value_string digitech_parameter_ids_distortion[] = {
     {2433, "Distortion On/Off"},
@@ -393,6 +397,8 @@ static const value_string digitech_parameter_ids_distortion[] = {
     {2572, "Distortion Amp Driver Level"},
     {0, NULL}
 };
+static value_string_ext digitech_parameter_ids_distortion_ext =
+    VALUE_STRING_EXT_INIT(digitech_parameter_ids_distortion);
 
 static const value_string digitech_parameter_ids_amp_channel[] = {
     {260, "Amp Channel Amp Channel"},
@@ -419,6 +425,8 @@ static const value_string digitech_parameter_ids_amp[] = {
     {2509, "Amplifier Treble"},
     {0, NULL}
 };
+static value_string_ext digitech_parameter_ids_amp_ext =
+    VALUE_STRING_EXT_INIT(digitech_parameter_ids_amp);
 
 static const value_string digitech_parameter_ids_amp_cabinet[] = {
     {2561, "Channel 1 Tuning"},
@@ -574,6 +582,8 @@ static const value_string digitech_parameter_ids_chorusfx[] = {
     {3013, "Chorus/FX Sample/Hold Intensity"},
     {0, NULL}
 };
+static value_string_ext digitech_parameter_ids_chorusfx_ext =
+    VALUE_STRING_EXT_INIT(digitech_parameter_ids_chorusfx);
 
 static const value_string digitech_parameter_ids_delay[] = {
     {1857, "Delay On/Off"},
@@ -605,6 +615,8 @@ static const value_string digitech_parameter_ids_delay[] = {
     {1905, "Delay 2-tap Ratio"},
     {0, NULL}
 };
+static value_string_ext digitech_parameter_ids_delay_ext =
+    VALUE_STRING_EXT_INIT(digitech_parameter_ids_delay);
 
 static const value_string digitech_parameter_ids_reverb[] = {
     {1921, "Reverb On/Off"},
@@ -695,36 +707,38 @@ static const value_string digitech_parameter_ids_amp_loop[] = {
 #define DIGITECH_POSITION_WAH_PEDAL 132
 
 static const value_string digitech_parameter_positions[] = {
-    {DIGITECH_POSITION_GLOBAL, "Global"},
-    {DIGITECH_POSITION_PICKUP, "Pickup"},
-    {DIGITECH_POSITION_WAH, "Wah"},
-    {DIGITECH_POSITION_COMPRESSOR, "Compressor"},
-    {DIGITECH_POSITION_GNX3K_WHAMMY, "GNX3K Whammy"},
-    {DIGITECH_POSITION_DISTORTION, "Distortion"},
-    {DIGITECH_POSITION_AMP_CHANNEL, "Amp Channel"},
-    {DIGITECH_POSITION_AMP, "Amp"},
-    {DIGITECH_POSITION_AMP_CABINET, "Amp Cabinet"},
-    {DIGITECH_POSITION_AMP_B, "Amp B"},
-    {DIGITECH_POSITION_AMP_CABINET_B, "Amp Cabinet B"},
-    {DIGITECH_POSITION_NOISEGATE, "Noisegate"},
-    {DIGITECH_POSITION_VOLUME_PRE_FX, "Volume Pre Fx"},
-    {DIGITECH_POSITION_CHORUS_FX, "Chorus/FX"},
-    {DIGITECH_POSITION_DELAY, "Delay"},
-    {DIGITECH_POSITION_REVERB, "Reverb"},
-    {DIGITECH_POSITION_VOLUME_POST_FX, "Volume Post Fx"},
-    {DIGITECH_POSITION_PRESET, "Preset"},
-    {DIGITECH_POSITION_EXPRESSION, "Expression"},
-    {DIGITECH_POSITION_WAH_MIN_MAX, "Wah Min-Max"},
+    {DIGITECH_POSITION_GLOBAL,          "Global"},
+    {DIGITECH_POSITION_PICKUP,          "Pickup"},
+    {DIGITECH_POSITION_WAH,             "Wah"},
+    {DIGITECH_POSITION_COMPRESSOR,      "Compressor"},
+    {DIGITECH_POSITION_GNX3K_WHAMMY,    "GNX3K Whammy"},
+    {DIGITECH_POSITION_DISTORTION,      "Distortion"},
+    {DIGITECH_POSITION_AMP_CHANNEL,     "Amp Channel"},
+    {DIGITECH_POSITION_AMP,             "Amp"},
+    {DIGITECH_POSITION_AMP_CABINET,     "Amp Cabinet"},
+    {DIGITECH_POSITION_AMP_B,           "Amp B"},
+    {DIGITECH_POSITION_AMP_CABINET_B,   "Amp Cabinet B"},
+    {DIGITECH_POSITION_NOISEGATE,       "Noisegate"},
+    {DIGITECH_POSITION_VOLUME_PRE_FX,   "Volume Pre Fx"},
+    {DIGITECH_POSITION_CHORUS_FX,       "Chorus/FX"},
+    {DIGITECH_POSITION_DELAY,           "Delay"},
+    {DIGITECH_POSITION_REVERB,          "Reverb"},
+    {DIGITECH_POSITION_VOLUME_POST_FX,  "Volume Post Fx"},
+    {DIGITECH_POSITION_PRESET,          "Preset"},
+    {DIGITECH_POSITION_EXPRESSION,      "Expression"},
+    {DIGITECH_POSITION_WAH_MIN_MAX,     "Wah Min-Max"},
     {DIGITECH_POSITION_V_SWITCH_ASSIGN, "V-Switch Assign"},
-    {DIGITECH_POSITION_LFO_1, "LFO 1"},
-    {DIGITECH_POSITION_LFO_2, "LFO 2"},
-    {DIGITECH_POSITION_EQUALIZER, "Equalizer"},
-    {DIGITECH_POSITION_EQUALIZER_B, "Equalizer B"},
-    {DIGITECH_POSITION_LIBRARY, "Library"},
-    {DIGITECH_POSITION_AMP_LOOP, "Amp Loop"},
-    {DIGITECH_POSITION_WAH_PEDAL, "Wah Pedal"},
+    {DIGITECH_POSITION_LFO_1,           "LFO 1"},
+    {DIGITECH_POSITION_LFO_2,           "LFO 2"},
+    {DIGITECH_POSITION_EQUALIZER,       "Equalizer"},
+    {DIGITECH_POSITION_EQUALIZER_B,     "Equalizer B"},
+    {DIGITECH_POSITION_LIBRARY,         "Library"},
+    {DIGITECH_POSITION_AMP_LOOP,        "Amp Loop"},
+    {DIGITECH_POSITION_WAH_PEDAL,       "Wah Pedal"},
     {0, NULL}
 };
+static value_string_ext digitech_parameter_positions_ext =
+    VALUE_STRING_EXT_INIT(digitech_parameter_positions);
 
 static tvbuff_t *
 unpack_digitech_message(tvbuff_t *tvb, gint offset)
@@ -1247,8 +1261,8 @@ proto_register_sysex(void)
             { "Product ID", "sysex.digitech.product_id", FT_UINT8, BASE_HEX,
               VALS(digitech_rp_product_id), 0, NULL, HFILL }},
         { &hf_digitech_procedure_id,
-            { "Procedure ID", "sysex.digitech.procedure_id", FT_UINT8, BASE_HEX,
-              VALS(digitech_procedures), 0, NULL, HFILL }},
+            { "Procedure ID", "sysex.digitech.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+              &digitech_procedures_ext, 0, NULL, HFILL }},
 
         { &hf_digitech_desired_device_id,
             { "Desired Device ID", "sysex.digitech.desired_device_id", FT_UINT8, BASE_HEX,
@@ -1306,17 +1320,17 @@ proto_register_sysex(void)
             { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_compressor), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_gnx3k_whammy,
-            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
-              VALS(digitech_parameter_ids_gnx3k_whammy), 0, NULL, HFILL }},
+            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              &digitech_parameter_ids_gnx3k_whammy_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_distortion,
-            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
-              VALS(digitech_parameter_ids_distortion), 0, NULL, HFILL }},
+            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              &digitech_parameter_ids_distortion_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_channel,
             { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_channel), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp,
-            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
-              VALS(digitech_parameter_ids_amp), 0, NULL, HFILL }},
+            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              &digitech_parameter_ids_amp_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_amp_cabinet,
             { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_amp_cabinet), 0, NULL, HFILL }},
@@ -1333,11 +1347,11 @@ proto_register_sysex(void)
             { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_volume_pre_fx), 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_chorusfx,
-            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
-              VALS(digitech_parameter_ids_chorusfx), 0, NULL, HFILL }},
+            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              &digitech_parameter_ids_chorusfx_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_delay,
-            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
-              VALS(digitech_parameter_ids_delay), 0, NULL, HFILL }},
+            { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC | BASE_EXT_STRING,
+              &digitech_parameter_ids_delay_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_id_reverb,
             { "Parameter ID", "sysex.digitech.parameter_id", FT_UINT16, BASE_DEC,
               VALS(digitech_parameter_ids_reverb), 0, NULL, HFILL }},
@@ -1362,8 +1376,8 @@ proto_register_sysex(void)
 
 
         { &hf_digitech_parameter_position,
-            { "Parameter position", "sysex.digitech.parameter_position", FT_UINT8, BASE_DEC,
-              VALS(digitech_parameter_positions), 0, NULL, HFILL }},
+            { "Parameter position", "sysex.digitech.parameter_position", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
+              &digitech_parameter_positions_ext, 0, NULL, HFILL }},
         { &hf_digitech_parameter_data,
             { "Parameter data", "sysex.digitech.parameter_data", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
@@ -1378,11 +1392,11 @@ proto_register_sysex(void)
               NULL, 0, NULL, HFILL }},
 
         { &hf_digitech_ack_request_proc_id,
-            { "Requesting Procedure ID", "sysex.digitech.ack.procedure_id", FT_UINT8, BASE_HEX,
-              VALS(digitech_procedures), 0, "Procedure ID of the request being ACKed", HFILL }},
+            { "Requesting Procedure ID", "sysex.digitech.ack.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+              &digitech_procedures_ext, 0, "Procedure ID of the request being ACKed", HFILL }},
         { &hf_digitech_nack_request_proc_id,
-            { "Requesting Procedure ID", "sysex.digitech.ack.procedure_id", FT_UINT8, BASE_HEX,
-              VALS(digitech_procedures), 0, "Procedure ID of the request being NACKed", HFILL }},
+            { "Requesting Procedure ID", "sysex.digitech.ack.procedure_id", FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+              &digitech_procedures_ext, 0, "Procedure ID of the request being NACKed", HFILL }},
 
         { &hf_digitech_checksum,
             { "Checksum", "sysex.digitech.checksum", FT_UINT8, BASE_HEX,

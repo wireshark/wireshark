@@ -176,6 +176,8 @@ static const value_string destination_address_encoding_vals[] = {
     { 0x0F, "1024" },
     { 0,    NULL }
 };
+static value_string_ext destination_address_encoding_vals_ext =
+    VALUE_STRING_EXT_INIT(destination_address_encoding_vals);
 
 static const value_string udvm_instruction_code_vals[] = {
     {  0,   "DECOMPRESSION-FAILURE" },
@@ -216,6 +218,9 @@ static const value_string udvm_instruction_code_vals[] = {
     { 35,   "END-MESSAGE" },
     { 0,    NULL }
 };
+static value_string_ext udvm_instruction_code_vals_ext =
+    VALUE_STRING_EXT_INIT(udvm_instruction_code_vals);
+
     /* RFC3320
      * Figure 10: Bytecode for a multitype (%) operand
      * Bytecode:                       Operand value:      Range:               HEX val
@@ -308,6 +313,8 @@ static const value_string sigcomp_nack_reason_code_vals[] = {
     { 25,   "FRAMING_ERROR" },
     { 0,    NULL }
 };
+static value_string_ext sigcomp_nack_reason_code_vals_ext =
+    VALUE_STRING_EXT_INIT(sigcomp_nack_reason_code_vals);
 
 
 static void dissect_udvm_bytecode(tvbuff_t *udvm_tvb, proto_tree *sigcomp_udvm_tree, guint destination);
@@ -828,8 +835,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             /* Add expert item for NACK */
             expert_add_info_format(pinfo, reason_ti, &ei_sigcomp_nack_failed_op_code,
                                    "SigComp NACK (reason=%s, opcode=%s)",
-                                   val_to_str_const(octet, sigcomp_nack_reason_code_vals, "Unknown"),
-                                   val_to_str_const(opcode, udvm_instruction_code_vals, "Unknown"));
+                                   val_to_str_ext_const(octet, &sigcomp_nack_reason_code_vals_ext, "Unknown"),
+                                   val_to_str_ext_const(opcode, &udvm_instruction_code_vals_ext, "Unknown"));
 
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
@@ -838,8 +845,8 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             /* Add NACK info to info column */
             col_append_fstr(pinfo->cinfo, COL_INFO, "  NACK reason=%s, opcode=%s",
-                            val_to_str_const(octet, sigcomp_nack_reason_code_vals, "Unknown"),
-                            val_to_str_const(opcode, udvm_instruction_code_vals, "Unknown"));
+                            val_to_str_ext_const(octet, &sigcomp_nack_reason_code_vals_ext, "Unknown"),
+                            val_to_str_ext_const(opcode, &udvm_instruction_code_vals_ext, "Unknown"));
 
             switch ( octet){
             case SIGCOMP_NACK_STATE_NOT_FOUND:
@@ -2289,7 +2296,7 @@ proto_register_sigcomp(void)
         },
         { &hf_sigcomp_destination,
             { "Destination","sigcomp.destination",
-            FT_UINT8, BASE_HEX, VALS(destination_address_encoding_vals), 0xf,
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &destination_address_encoding_vals_ext, 0xf,
             NULL, HFILL }
         },
         { &hf_sigcomp_udvm_bytecode,
@@ -2299,7 +2306,7 @@ proto_register_sigcomp(void)
         },
         { &hf_sigcomp_udvm_instr,
             { "UDVM instruction code","sigcomp.udvm.instr",
-            FT_UINT8, BASE_DEC, VALS(udvm_instruction_code_vals), 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &udvm_instruction_code_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_udvm_execution_trace,
@@ -2532,12 +2539,12 @@ proto_register_sigcomp(void)
         },
         { &hf_sigcomp_nack_reason_code,
             { "Reason Code", "sigcomp.nack.reason",
-            FT_UINT8, BASE_DEC, VALS(sigcomp_nack_reason_code_vals), 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sigcomp_nack_reason_code_vals_ext, 0x0,
             "NACK Reason Code", HFILL }
         },
         { &hf_sigcomp_nack_failed_op_code,
             { "OPCODE of failed instruction", "sigcomp.nack.failed_op_code",
-            FT_UINT8, BASE_DEC, VALS(udvm_instruction_code_vals), 0x0,
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &udvm_instruction_code_vals_ext, 0x0,
             "NACK OPCODE of failed instruction", HFILL }
         },
         { &hf_sigcomp_nack_pc,
@@ -2701,3 +2708,16 @@ proto_reg_handoff_sigcomp(void)
     dissector_add_uint("tcp.port", SigCompTCPPort2, sigcomp_tcp_handle);
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

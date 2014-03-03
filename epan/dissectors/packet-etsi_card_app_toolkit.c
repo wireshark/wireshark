@@ -272,6 +272,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0xbb, "Surrounding macrocells" },
 	{ 0, NULL }
 };
+static value_string_ext comp_tlv_tag_vals_ext = VALUE_STRING_EXT_INIT(comp_tlv_tag_vals);
 
 /* TS 102 223 Chapter 8.6 */
 static const value_string cmd_qual_refresh_vals[] = {
@@ -286,10 +287,12 @@ static const value_string cmd_qual_refresh_vals[] = {
 	{ 0x08, "Steering of Roaming for I-WLAN" },
 	{ 0, NULL }
 };
+
 static const true_false_string cmd_qual_send_short_msg_value = {
 	"SMS packing by the terminal required",
 	"Packing not required"
 };
+
 static const value_string cmd_qual_loci_vals[] = {
 	{ 0x00,	"Location Information (MCC, MNC, LAC/TAC, Cell Identity and Extended Cell Identity)" },
 	{ 0x01,	"IMEI of the terminal" },
@@ -313,12 +316,15 @@ static const value_string cmd_qual_loci_vals[] = {
 	{ 0x13, "H(e)NB surrounding macrocells" },
 	{ 0, NULL }
 };
+static value_string_ext cmd_qual_loci_vals_ext = VALUE_STRING_EXT_INIT(cmd_qual_loci_vals);
+
 static const value_string cmd_qual_timer_mgmt_vals[] = {
 	{ 0x00, "Start" },
 	{ 0x01, "Deactivate" },
 	{ 0x02, "Get current value" },
 	{ 0, NULL }
 };
+
 static const true_false_string cmd_qual_send_data_value = {
 	"Send data immediately",
 	"Store data in Tx buffer"
@@ -349,6 +355,7 @@ static const value_string dev_id_vals[] = {
 	{ 0x83, "Network" },
 	{ 0, NULL }
 };
+static value_string_ext dev_id_vals_ext = VALUE_STRING_EXT_INIT(dev_id_vals);
 
 /* TS 102 223 Chapter 9.4 */
 static const value_string cmd_type_vals[] = {
@@ -397,6 +404,7 @@ static const value_string cmd_type_vals[] = {
 	{ 0x81, "End of the proactive session" },
 	{ 0, NULL }
 };
+static value_string_ext cmd_type_vals_ext = VALUE_STRING_EXT_INIT(cmd_type_vals);
 
 /* TS 102 223 Chapter 8.8 */
 static const value_string time_unit_vals[] = {
@@ -447,6 +455,8 @@ static const value_string result_vals[] = {
 	{ 0x3d, "MMS error" },
 	{ 0, NULL }
 };
+static value_string_ext result_vals_ext = VALUE_STRING_EXT_INIT(result_vals);
+
 static const value_string result_term_vals[] = {
 	{ 0x00, "No specific cause can be given" },
 	{ 0x01, "Screen is busy" },
@@ -461,6 +471,8 @@ static const value_string result_term_vals[] = {
 	{ 0x0a, "No NAA active" },
 	{ 0, NULL }
 };
+static value_string_ext result_term_vals_ext = VALUE_STRING_EXT_INIT(result_term_vals);
+
 static const value_string result_launch_browser_vals[] = {
 	{ 0x00, "No specific cause can be given" },
 	{ 0x01, "Bearer unavailable" },
@@ -468,6 +480,7 @@ static const value_string result_launch_browser_vals[] = {
 	{ 0x03, "Terminal unable to read the provisioning data" },
 	{ 0, NULL }
 };
+
 static const value_string result_multiplecard_vals[] = {
 	{ 0x00, "No specific cause can be given" },
 	{ 0x01, "Card reader removed or not present" },
@@ -481,12 +494,15 @@ static const value_string result_multiplecard_vals[] = {
 	{ 0x09, "Specified reader not valid" },
 	{ 0, NULL }
 };
+static value_string_ext result_multiplecard_vals_ext = VALUE_STRING_EXT_INIT(result_multiplecard_vals);
+
 static const value_string result_cc_ctrl_mo_sm_ctrl_vals[] = {
 	{ 0x00, "No specific cause can be given" },
 	{ 0x01, "Action not allowed" },
 	{ 0x02, "The type of request has changed" },
 	{ 0, NULL }
 };
+
 static const value_string result_bip_vals[] = {
 	{ 0x00, "No specific cause can be given" },
 	{ 0x01, "No channel available" },
@@ -503,6 +519,8 @@ static const value_string result_bip_vals[] = {
 	{ 0x12, "Application launch failed" },
 	{ 0, NULL }
 };
+static value_string_ext result_bip_vals_ext = VALUE_STRING_EXT_INIT(result_bip_vals);
+
 static const value_string result_frames_cmd_vals[] = {
 	{ 0x00, "No specific cause can be given" },
 	{ 0x01, "Frame identifier is not valid" },
@@ -559,6 +577,7 @@ static const value_string tone_vals[] = {
 	{ 0x47, "Melody 8" },
 	{ 0, NULL }
 };
+static value_string_ext tone_vals_ext = VALUE_STRING_EXT_INIT(tone_vals);
 
 /* TS 102 223 - Chapter 8.25 */
 static const value_string event_list_vals[] = {
@@ -591,6 +610,7 @@ static const value_string event_list_vals[] = {
 	{ 0x1a, "Void" },
 	{ 0, NULL }
 };
+static value_string_ext event_list_vals_ext = VALUE_STRING_EXT_INIT(event_list_vals);
 
 /* TS 102 223 - Chapter 8.27 */
 static const value_string loc_status_vals[] = {
@@ -632,6 +652,7 @@ static const value_string bearer_descr_vals[] = {
 	{ 0x10, "USB" },
 	{ 0, NULL }
 };
+static value_string_ext bearer_descr_vals_ext = VALUE_STRING_EXT_INIT(bearer_descr_vals);
 
 /* 3GPP 31.111 - Chapter 8.52 */
 static const value_string csd_data_rate_vals[] = {
@@ -681,6 +702,8 @@ static const value_string csd_data_rate_vals[] = {
 	{ 134, "64000 bps (multimedia)" },
 	{   0, NULL }
 };
+static value_string_ext csd_data_rate_vals_ext = VALUE_STRING_EXT_INIT(csd_data_rate_vals);
+
 static const value_string csd_bearer_serv_vals[] = {
 	{ 0, "Data circuit asynchronous (UDI or 3.1 kHz modem)" },
 	{ 1, "Data circuit synchronous (UDI or 3.1 kHz modem)" },
@@ -798,6 +821,7 @@ static const value_string upd_attach_type_vals[] = {
 	{ 0x0E, "\"Periodic updating\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
 	{ 0, NULL }
 };
+static value_string_ext upd_attach_type_vals_ext = VALUE_STRING_EXT_INIT(upd_attach_type_vals);
 
 /* 3GPP 31.111 - Chapter 8.112 */
 static const string_string ims_status_code[] = {
@@ -943,12 +967,12 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 #if 1
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s: %s",
-					    val_to_str(tag, comp_tlv_tag_vals, "%02x"),
+					    val_to_str_ext(tag, &comp_tlv_tag_vals_ext, "%02x"),
 					    (const guint8 *)tvb_bytes_to_ep_str(tvb, pos, len));
 #else
 		ti = proto_tree_add_bytes_format(cat_tree, hf_cat_tlv, tvb, pos,
 					    len, ptr, "%s:   ",
-					    val_to_str(tag, comp_tlv_tag_vals, "%02x"));
+					    val_to_str_ext(tag, &comp_tlv_tag_vals_ext, "%02x"));
 #endif
 		elem_tree = proto_item_add_subtree(ti, ett_elem);
 
@@ -961,7 +985,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			/* append command type to INFO column */
 			g8 = tvb_get_guint8(tvb, pos+1);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-					val_to_str(g8, cmd_type_vals, "%02x "));
+					val_to_str_ext(g8, &cmd_type_vals_ext, "%02x "));
 			switch (g8) {
 			case 0x01:
 				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_NA);
@@ -1035,7 +1059,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			new_tvb = tvb_new_subset(tvb, pos, len, len);
 			if (new_tvb) {
 				int p2p_dir_save = pinfo->p2p_dir;
-                if (data) {
+				if (data) {
 					if (GPOINTER_TO_INT(data) == 0xd0) {
 						/* Proactive command */
 						pinfo->p2p_dir = P2P_DIR_RECV;
@@ -1106,7 +1130,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				}
 				proto_tree_add_uint(elem_tree, hf_ctlv_event, tvb, pos+i, 1, event);
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
-						val_to_str(event, event_list_vals, "%02x "));
+						val_to_str_ext(event, &event_list_vals_ext, "%02x "));
 			}
 			break;
 		case 0x1b:	/* location status */
@@ -1327,12 +1351,12 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_devid_src,
 			{ "Source Device ID", "etsi_cat.comp_tlv.src_dev",
-			  FT_UINT8, BASE_HEX, VALS(dev_id_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &dev_id_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_devid_dst,
 			{ "Destination Device ID", "etsi_cat.comp_tlv.dst_dev",
-			  FT_UINT8, BASE_HEX, VALS(dev_id_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &dev_id_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_cmd_nr,
@@ -1342,7 +1366,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_cmd_type,
 			{ "Command Type", "etsi_cat.comp_tlv.cmd_type",
-			  FT_UINT8, BASE_HEX, VALS(cmd_type_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &cmd_type_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_cmd_qual_refresh,
@@ -1357,7 +1381,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_cmd_qual_loci,
 			{ "Command Qualifier", "etsi_cat.comp_tlv.cmd_qual.loci",
-			  FT_UINT8, BASE_HEX, VALS(cmd_qual_loci_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &cmd_qual_loci_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_cmd_qual_timer_mgmt,
@@ -1387,12 +1411,12 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_result_gen,
 			{ "Result", "etsi_cat.comp_tlv.result",
-			  FT_UINT8, BASE_HEX, VALS(result_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &result_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_result_term,
 			{ "Additional information", "etsi_cat.comp_tlv.result.term",
-			  FT_UINT8, BASE_HEX, VALS(result_term_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &result_term_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_result_launch_browser,
@@ -1402,7 +1426,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_result_multiplecard,
 			{ "Additional information", "etsi_cat.comp_tlv.result.multiplecard",
-			  FT_UINT8, BASE_HEX, VALS(result_multiplecard_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &result_multiplecard_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_result_cc_ctrl_mo_sm_ctrl,
@@ -1412,7 +1436,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_result_bip,
 			{ "Additional information", "etsi_cat.comp_tlv.result.bip",
-			  FT_UINT8, BASE_HEX, VALS(result_bip_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &result_bip_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_result_frames_cmd,
@@ -1432,12 +1456,12 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_event,
 			{ "Event", "etsi_cat.comp_tlv.event",
-			  FT_UINT8, BASE_HEX, VALS(event_list_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &event_list_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_tone,
 			{ "Tone", "etsi_cat.comp_tlv.tone",
-			  FT_UINT8, BASE_HEX, VALS(tone_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &tone_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_loc_status,
@@ -1567,12 +1591,12 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_bearer_descr,
 			{ "Bearer Description", "etsi_cat.comp_tlv.bearer.descr",
-			  FT_UINT8, BASE_HEX, VALS(bearer_descr_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bearer_descr_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer_csd_data_rate,
 			{ "Data Rate", "etsi_cat.comp_tlv.bearer.csd.data_rate",
-			  FT_UINT8, BASE_DEC, VALS(csd_data_rate_vals), 0,
+			  FT_UINT8, BASE_DEC | BASE_EXT_STRING, &csd_data_rate_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_bearer_csd_bearer_serv,
@@ -1727,7 +1751,7 @@ proto_register_card_app_toolkit(void)
 		},
 		{ &hf_ctlv_upd_attach_type,
 			{ "UTRAN/E-UTRAN Measurement Qualifier", "etsi_cat.comp_tlv.upd_attach_type",
-			  FT_UINT8, BASE_HEX, VALS(upd_attach_type_vals), 0,
+			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &upd_attach_type_vals_ext, 0,
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_loci_lac,
@@ -1783,3 +1807,17 @@ proto_reg_handoff_card_app_toolkit(void)
 {
 	gsm_sms_handle = find_dissector("gsm_sms");
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

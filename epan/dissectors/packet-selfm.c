@@ -530,144 +530,146 @@ static const value_string selfm_ser_status_vals[] = {
 /* Fast Operate Remote Bit Lookup */
 static const value_string selfm_fo_rb_vals[] = {
     { 0x00,  "RB01 Clear" },
-    { 0x20,  "RB01 Set" },
-    { 0x40,  "RB01 Pulse" },
     { 0x01,  "RB02 Clear" },
-    { 0x21,  "RB02 Set" },
-    { 0x41,  "RB02 Pulse" },
     { 0x02,  "RB03 Clear" },
-    { 0x22,  "RB03 Set" },
-    { 0x42,  "RB03 Pulse" },
     { 0x03,  "RB04 Clear" },
-    { 0x23,  "RB04 Set" },
-    { 0x43,  "RB04 Pulse" },
     { 0x04,  "RB05 Clear" },
-    { 0x24,  "RB05 Set" },
-    { 0x44,  "RB05 Pulse" },
     { 0x05,  "RB06 Clear" },
-    { 0x25,  "RB06 Set" },
-    { 0x45,  "RB06 Pulse" },
     { 0x06,  "RB07 Clear" },
-    { 0x26,  "RB07 Set" },
-    { 0x46,  "RB07 Pulse" },
     { 0x07,  "RB08 Clear" },
-    { 0x27,  "RB08 Set" },
-    { 0x47,  "RB08 Pulse" },
     { 0x08,  "RB09 Clear" },
-    { 0x28,  "RB09 Set" },
-    { 0x48,  "RB09 Pulse" },
     { 0x09,  "RB10 Clear" },
-    { 0x29,  "RB10 Set" },
-    { 0x49,  "RB10 Pulse" },
     { 0x0A,  "RB11 Clear" },
-    { 0x2A,  "RB11 Set" },
-    { 0x4A,  "RB11 Pulse" },
     { 0x0B,  "RB12 Clear" },
-    { 0x2B,  "RB12 Set" },
-    { 0x4B,  "RB12 Pulse" },
     { 0x0C,  "RB13 Clear" },
-    { 0x2C,  "RB13 Set" },
-    { 0x4C,  "RB13 Pulse" },
     { 0x0D,  "RB14 Clear" },
-    { 0x2D,  "RB14 Set" },
-    { 0x4D,  "RB14 Pulse" },
     { 0x0E,  "RB15 Clear" },
-    { 0x2E,  "RB15 Set" },
-    { 0x4E,  "RB15 Pulse" },
     { 0x0F,  "RB16 Clear" },
-    { 0x2F,  "RB16 Set" },
-    { 0x4F,  "RB16 Pulse" },
     { 0x10,  "RB17 Clear" },
-    { 0x30,  "RB17 Set" },
-    { 0x50,  "RB17 Pulse" },
     { 0x11,  "RB18 Clear" },
-    { 0x31,  "RB18 Set" },
-    { 0x51,  "RB18 Pulse" },
     { 0x12,  "RB19 Clear" },
-    { 0x32,  "RB19 Set" },
-    { 0x52,  "RB19 Pulse" },
     { 0x13,  "RB20 Clear" },
-    { 0x33,  "RB20 Set" },
-    { 0x53,  "RB20 Pulse" },
     { 0x14,  "RB21 Clear" },
-    { 0x34,  "RB21 Set" },
-    { 0x54,  "RB21 Pulse" },
     { 0x15,  "RB22 Clear" },
-    { 0x35,  "RB22 Set" },
-    { 0x55,  "RB22 Pulse" },
     { 0x16,  "RB23 Clear" },
-    { 0x36,  "RB23 Set" },
-    { 0x56,  "RB23 Pulse" },
     { 0x17,  "RB24 Clear" },
-    { 0x37,  "RB24 Set" },
-    { 0x57,  "RB24 Pulse" },
     { 0x18,  "RB25 Clear" },
-    { 0x38,  "RB25 Set" },
-    { 0x58,  "RB25 Pulse" },
     { 0x19,  "RB26 Clear" },
-    { 0x39,  "RB26 Set" },
-    { 0x59,  "RB26 Pulse" },
     { 0x1A,  "RB27 Clear" },
-    { 0x3A,  "RB27 Set" },
-    { 0x5A,  "RB27 Pulse" },
     { 0x1B,  "RB28 Clear" },
-    { 0x3B,  "RB28 Set" },
-    { 0x5B,  "RB28 Pulse" },
     { 0x1C,  "RB29 Clear" },
-    { 0x3C,  "RB29 Set" },
-    { 0x5C,  "RB29 Pulse" },
     { 0x1D,  "RB30 Clear" },
-    { 0x3D,  "RB30 Set" },
-    { 0x5D,  "RB30 Pulse" },
     { 0x1E,  "RB31 Clear" },
-    { 0x3E,  "RB31 Set" },
-    { 0x5E,  "RB31 Pulse" },
     { 0x1F,  "RB32 Clear" },
+    { 0x20,  "RB01 Set" },
+    { 0x21,  "RB02 Set" },
+    { 0x22,  "RB03 Set" },
+    { 0x23,  "RB04 Set" },
+    { 0x24,  "RB05 Set" },
+    { 0x25,  "RB06 Set" },
+    { 0x26,  "RB07 Set" },
+    { 0x27,  "RB08 Set" },
+    { 0x28,  "RB09 Set" },
+    { 0x29,  "RB10 Set" },
+    { 0x2A,  "RB11 Set" },
+    { 0x2B,  "RB12 Set" },
+    { 0x2C,  "RB13 Set" },
+    { 0x2D,  "RB14 Set" },
+    { 0x2E,  "RB15 Set" },
+    { 0x2F,  "RB16 Set" },
+    { 0x30,  "RB17 Set" },
+    { 0x31,  "RB18 Set" },
+    { 0x32,  "RB19 Set" },
+    { 0x33,  "RB20 Set" },
+    { 0x34,  "RB21 Set" },
+    { 0x35,  "RB22 Set" },
+    { 0x36,  "RB23 Set" },
+    { 0x37,  "RB24 Set" },
+    { 0x38,  "RB25 Set" },
+    { 0x39,  "RB26 Set" },
+    { 0x3A,  "RB27 Set" },
+    { 0x3B,  "RB28 Set" },
+    { 0x3C,  "RB29 Set" },
+    { 0x3D,  "RB30 Set" },
+    { 0x3E,  "RB31 Set" },
     { 0x3F,  "RB32 Set" },
+    { 0x40,  "RB01 Pulse" },
+    { 0x41,  "RB02 Pulse" },
+    { 0x42,  "RB03 Pulse" },
+    { 0x43,  "RB04 Pulse" },
+    { 0x44,  "RB05 Pulse" },
+    { 0x45,  "RB06 Pulse" },
+    { 0x46,  "RB07 Pulse" },
+    { 0x47,  "RB08 Pulse" },
+    { 0x48,  "RB09 Pulse" },
+    { 0x49,  "RB10 Pulse" },
+    { 0x4A,  "RB11 Pulse" },
+    { 0x4B,  "RB12 Pulse" },
+    { 0x4C,  "RB13 Pulse" },
+    { 0x4D,  "RB14 Pulse" },
+    { 0x4E,  "RB15 Pulse" },
+    { 0x4F,  "RB16 Pulse" },
+    { 0x50,  "RB17 Pulse" },
+    { 0x51,  "RB18 Pulse" },
+    { 0x52,  "RB19 Pulse" },
+    { 0x53,  "RB20 Pulse" },
+    { 0x54,  "RB21 Pulse" },
+    { 0x55,  "RB22 Pulse" },
+    { 0x56,  "RB23 Pulse" },
+    { 0x57,  "RB24 Pulse" },
+    { 0x58,  "RB25 Pulse" },
+    { 0x59,  "RB26 Pulse" },
+    { 0x5A,  "RB27 Pulse" },
+    { 0x5B,  "RB28 Pulse" },
+    { 0x5C,  "RB29 Pulse" },
+    { 0x5D,  "RB30 Pulse" },
+    { 0x5E,  "RB31 Pulse" },
     { 0x5F,  "RB32 Pulse" },
     { 0,             NULL }
 };
+static value_string_ext selfm_fo_rb_vals_ext = VALUE_STRING_EXT_INIT(selfm_fo_rb_vals);
 
 /* Fast Operate Breaker Bit Lookup */
 static const value_string selfm_fo_br_vals[] = {
-    { 0x31, "Breaker Bit 1 Open (OC/OC1)" },
     { 0x11, "Breaker Bit 1 Close (CC/CC1)" },
-    { 0x32, "Breaker Bit 2 Open (OC2)" },
     { 0x12, "Breaker Bit 2 Close (CC2)" },
-    { 0x33, "Breaker Bit 3 Open (OC3)" },
     { 0x13, "Breaker Bit 3 Close (CC3)" },
-    { 0x34, "Breaker Bit 4 Open (OC4)" },
     { 0x14, "Breaker Bit 4 Close (CC4)" },
-    { 0x35, "Breaker Bit 5 Open (OC5)" },
     { 0x15, "Breaker Bit 5 Close (CC5)" },
-    { 0x36, "Breaker Bit 6 Open (OC6)" },
     { 0x16, "Breaker Bit 6 Close (CC6)" },
-    { 0x37, "Breaker Bit 7 Open (OC7)" },
     { 0x17, "Breaker Bit 7 Close (CC7)" },
-    { 0x38, "Breaker Bit 8 Open (OC8)" },
     { 0x18, "Breaker Bit 8 Close (CC8)" },
-    { 0x39, "Breaker Bit 9 Open (OC9)" },
     { 0x19, "Breaker Bit 9 Close (CC9)" },
-    { 0x3A, "Breaker Bit 10 Open (OC10)" },
     { 0x1A, "Breaker Bit 10 Close (CC10)" },
-    { 0x3B, "Breaker Bit 11 Open (OC11)" },
     { 0x1B, "Breaker Bit 11 Close (CC11)" },
-    { 0x3C, "Breaker Bit 12 Open (OC12)" },
     { 0x1C, "Breaker Bit 12 Close (CC12)" },
-    { 0x3D, "Breaker Bit 13 Open (OC13)" },
     { 0x1D, "Breaker Bit 13 Close (CC13)" },
-    { 0x3E, "Breaker Bit 14 Open (OC14)" },
     { 0x1E, "Breaker Bit 14 Close (CC14)" },
-    { 0x3F, "Breaker Bit 15 Open (OC15)" },
     { 0x1F, "Breaker Bit 15 Close (CC15)" },
-    { 0x40, "Breaker Bit 16 Open (OC16)" },
     { 0x20, "Breaker Bit 16 Close (CC16)" },
-    { 0x41, "Breaker Bit 17 Open (OC17)" },
     { 0x21, "Breaker Bit 17 Close (CC17)" },
-    { 0x42, "Breaker Bit 18 Open (OC18)" },
     { 0x22, "Breaker Bit 18 Close (CC18)" },
+    { 0x31, "Breaker Bit 1 Open (OC/OC1)" },
+    { 0x32, "Breaker Bit 2 Open (OC2)" },
+    { 0x33, "Breaker Bit 3 Open (OC3)" },
+    { 0x34, "Breaker Bit 4 Open (OC4)" },
+    { 0x35, "Breaker Bit 5 Open (OC5)" },
+    { 0x36, "Breaker Bit 6 Open (OC6)" },
+    { 0x37, "Breaker Bit 7 Open (OC7)" },
+    { 0x38, "Breaker Bit 8 Open (OC8)" },
+    { 0x39, "Breaker Bit 9 Open (OC9)" },
+    { 0x3A, "Breaker Bit 10 Open (OC10)" },
+    { 0x3B, "Breaker Bit 11 Open (OC11)" },
+    { 0x3C, "Breaker Bit 12 Open (OC12)" },
+    { 0x3D, "Breaker Bit 13 Open (OC13)" },
+    { 0x3E, "Breaker Bit 14 Open (OC14)" },
+    { 0x3F, "Breaker Bit 15 Open (OC15)" },
+    { 0x40, "Breaker Bit 16 Open (OC16)" },
+    { 0x41, "Breaker Bit 17 Open (OC17)" },
+    { 0x42, "Breaker Bit 18 Open (OC18)" },
     { 0,                           NULL }
 };
+static value_string_ext selfm_fo_br_vals_ext = VALUE_STRING_EXT_INIT(selfm_fo_br_vals);
 
 /* Alternate Fast Operate Function Code Lookup */
 static const value_string selfm_foconfig_alt_funccode_vals[] = {
@@ -683,68 +685,72 @@ static const value_string selfm_foconfig_alt_funccode_vals[] = {
 /* Fast SER Message Function Codes */
 static const value_string selfm_fastser_func_code_vals[] = {
     { FAST_SER_MESSAGE_DEF,       "Fast SER Message Definition Block" },
-    { FAST_SER_MESSAGE_DEF_ACK,   "Fast SER Message Definition Block ACK" },
     { FAST_SER_EN_UNS_DATA,       "Enable Unsolicited Data" },
-    { FAST_SER_EN_UNS_DATA_ACK,   "Enable Unsolicited Data ACK" },
     { FAST_SER_DIS_UNS_DATA,      "Disable Unsolicited Data" },
-    { FAST_SER_DIS_UNS_DATA_ACK,  "Disable Unsolicited Data ACK" },
     { FAST_SER_PING,              "Ping Message" },
-    { FAST_SER_PING_ACK,          "Ping Message ACK" },
     { FAST_SER_READ_REQ,          "Read Request" },
-    { FAST_SER_READ_RESP,         "Read Response" },
     { FAST_SER_GEN_UNS_DATA,      "Generic Unsolicited Data" },
     { FAST_SER_SOE_STATE_REQ,     "SOE Present State Request" },
-    { FAST_SER_SOE_STATE_RESP,    "SOE Present State Response" },
     { FAST_SER_UNS_RESP,          "Unsolicited Fast SER Data Response" },
-    { FAST_SER_UNS_RESP_ACK,      "Unsolicited Fast SER Data Response ACK" },
     { FAST_SER_UNS_WRITE,         "Unsolicited Write" },
     { FAST_SER_UNS_WRITE_REQ,     "Unsolicited Write Request" },
     { FAST_SER_DEVDESC_REQ,       "Device Description Request" },
-    { FAST_SER_DEVDESC_RESP,      "Device Description Response" },
     { FAST_SER_DATAFMT_REQ,       "Data Format Request" },
-    { FAST_SER_DATAFMT_RESP,      "Data Format Response" },
     { FAST_SER_UNS_DATAFMT_RESP,  "Unsolicited Data Format Response" },
     { FAST_SER_BITLABEL_REQ,      "Bit Label Request" },
-    { FAST_SER_BITLABEL_RESP,     "Bit Label Response" },
     { FAST_SER_MGMT_REQ,          "Management Request" },
+    { FAST_SER_MESSAGE_DEF_ACK,   "Fast SER Message Definition Block ACK" },
+    { FAST_SER_EN_UNS_DATA_ACK,   "Enable Unsolicited Data ACK" },
+    { FAST_SER_DIS_UNS_DATA_ACK,  "Disable Unsolicited Data ACK" },
+    { FAST_SER_PING_ACK,          "Ping Message ACK" },
+    { FAST_SER_READ_RESP,         "Read Response" },
+    { FAST_SER_SOE_STATE_RESP,    "SOE Present State Response" },
+    { FAST_SER_UNS_RESP_ACK,      "Unsolicited Fast SER Data Response ACK" },
+    { FAST_SER_DEVDESC_RESP,      "Device Description Response" },
+    { FAST_SER_DATAFMT_RESP,      "Data Format Response" },
+    { FAST_SER_BITLABEL_RESP,     "Bit Label Response" },
     { 0,                           NULL }
 };
+static value_string_ext selfm_fastser_func_code_vals_ext =
+    VALUE_STRING_EXT_INIT(selfm_fastser_func_code_vals);
 
 static const value_string selfm_fastser_tagtype_vals[] = {
-  { FAST_SER_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },
-  { FAST_SER_TAGTYPE_CHAR16,       "2 x 8-bit characters per item" },
-  { FAST_SER_TAGTYPE_DIGWORD8_BL,  "8-bit binary item, with labels" },
-  { FAST_SER_TAGTYPE_DIGWORD8,     "8-bit binary item, without labels" },
-  { FAST_SER_TAGTYPE_DIGWORD16_BL, "16-bit binary item, with labels" },
-  { FAST_SER_TAGTYPE_DIGWORD16,    "16-bit binary item, without labels" },
-  { FAST_SER_TAGTYPE_INT16,        "16-bit Signed Integer" },
-  { FAST_SER_TAGTYPE_UINT16,       "16-bit Unsigned Integer" },
-  { FAST_SER_TAGTYPE_INT32,        "32-bit Signed Integer" },
-  { FAST_SER_TAGTYPE_UINT32,       "32-bit Unsigned Integer" },
-  { FAST_SER_TAGTYPE_FLOAT,        "IEEE Floating Point" },
-  { 0,  NULL }
+    { FAST_SER_TAGTYPE_CHAR8,        "1 x 8-bit character per item" },
+    { FAST_SER_TAGTYPE_CHAR16,       "2 x 8-bit characters per item" },
+    { FAST_SER_TAGTYPE_DIGWORD8_BL,  "8-bit binary item, with labels" },
+    { FAST_SER_TAGTYPE_DIGWORD8,     "8-bit binary item, without labels" },
+    { FAST_SER_TAGTYPE_DIGWORD16_BL, "16-bit binary item, with labels" },
+    { FAST_SER_TAGTYPE_DIGWORD16,    "16-bit binary item, without labels" },
+    { FAST_SER_TAGTYPE_INT16,        "16-bit Signed Integer" },
+    { FAST_SER_TAGTYPE_UINT16,       "16-bit Unsigned Integer" },
+    { FAST_SER_TAGTYPE_INT32,        "32-bit Signed Integer" },
+    { FAST_SER_TAGTYPE_UINT32,       "32-bit Unsigned Integer" },
+    { FAST_SER_TAGTYPE_FLOAT,        "IEEE Floating Point" },
+    { 0,  NULL }
 };
 
 
 /* Fast Message Unsolicited Write COM Port Codes */
 static const value_string selfm_fastser_unswrite_com_vals[] = {
-  { 0x0100,   "COM01" },
-  { 0x0200,   "COM02" },
-  { 0x0300,   "COM03" },
-  { 0x0400,   "COM04" },
-  { 0x0500,   "COM05" },
-  { 0x0600,   "COM06" },
-  { 0x0700,   "COM07" },
-  { 0x0800,   "COM08" },
-  { 0x0900,   "COM09" },
-  { 0x0A00,   "COM10" },
-  { 0x0B00,   "COM11" },
-  { 0x0C00,   "COM12" },
-  { 0x0D00,   "COM13" },
-  { 0x0E00,   "COM14" },
-  { 0x0F00,   "COM15" },
-  { 0,  NULL }
+    { 0x0100,   "COM01" },
+    { 0x0200,   "COM02" },
+    { 0x0300,   "COM03" },
+    { 0x0400,   "COM04" },
+    { 0x0500,   "COM05" },
+    { 0x0600,   "COM06" },
+    { 0x0700,   "COM07" },
+    { 0x0800,   "COM08" },
+    { 0x0900,   "COM09" },
+    { 0x0A00,   "COM10" },
+    { 0x0B00,   "COM11" },
+    { 0x0C00,   "COM12" },
+    { 0x0D00,   "COM13" },
+    { 0x0E00,   "COM14" },
+    { 0x0F00,   "COM15" },
+    { 0,  NULL }
 };
+static value_string_ext selfm_fastser_unswrite_com_vals_ext =
+    VALUE_STRING_EXT_INIT(selfm_fastser_unswrite_com_vals);
 
 /* Tables for reassembly of fragments. */
 static reassembly_table selfm_reassembly_table;
@@ -766,21 +772,21 @@ static gint ett_selfm_fragment  = -1;
 static gint ett_selfm_fragments = -1;
 
 static const fragment_items selfm_frag_items = {
-  &ett_selfm_fragment,
-  &ett_selfm_fragments,
-  &hf_selfm_fragments,
-  &hf_selfm_fragment,
-  &hf_selfm_fragment_overlap,
-  &hf_selfm_fragment_overlap_conflict,
-  &hf_selfm_fragment_multiple_tails,
-  &hf_selfm_fragment_too_long_fragment,
-  &hf_selfm_fragment_error,
-  &hf_selfm_fragment_count,
-  &hf_selfm_fragment_reassembled_in,
-  &hf_selfm_fragment_reassembled_length,
-  /* Reassembled data field */
-  NULL,
-  "SEL Fast Message fragments"
+    &ett_selfm_fragment,
+    &ett_selfm_fragments,
+    &hf_selfm_fragments,
+    &hf_selfm_fragment,
+    &hf_selfm_fragment_overlap,
+    &hf_selfm_fragment_overlap_conflict,
+    &hf_selfm_fragment_multiple_tails,
+    &hf_selfm_fragment_too_long_fragment,
+    &hf_selfm_fragment_error,
+    &hf_selfm_fragment_count,
+    &hf_selfm_fragment_reassembled_in,
+    &hf_selfm_fragment_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "SEL Fast Message fragments"
 };
 
 /**********************************************************************************************************/
@@ -790,40 +796,40 @@ static const fragment_items selfm_frag_items = {
 static tvbuff_t *
 clean_telnet_iac(packet_info *pinfo, tvbuff_t *tvb, int offset, int len)
 {
-  tvbuff_t     *telnet_tvb;
-  guint8       *buf;
-  const guint8 *spos;
-  guint8       *dpos;
-  int           skip_byte, len_remaining;
+    tvbuff_t     *telnet_tvb;
+    guint8       *buf;
+    const guint8 *spos;
+    guint8       *dpos;
+    int           skip_byte, len_remaining;
 
-  spos=tvb_get_ptr(tvb, offset, len);
-  buf=(guint8 *)g_malloc(len);
-  dpos=buf;
-  skip_byte = 0;
-  len_remaining = len;
-  while(len_remaining > 0){
+    spos=tvb_get_ptr(tvb, offset, len);
+    buf=(guint8 *)g_malloc(len);
+    dpos=buf;
+    skip_byte = 0;
+    len_remaining = len;
+    while(len_remaining > 0){
 
-    /* Only analyze two sequential bytes of source tvb if we have at least two bytes left */
-    if (len_remaining > 1) {
-        /* If two sequential 0xFF's exist, increment skip_byte counter, decrement  */
-        /* len_remaining by 2 and copy a single 0xFF to dest tvb. */
-        if((spos[0]==0xff) && (spos[1]==0xff)){
-            skip_byte++;
-            len_remaining -= 2;
-            *(dpos++)=0xff;
-            spos+=2;
-            continue;
+        /* Only analyze two sequential bytes of source tvb if we have at least two bytes left */
+        if (len_remaining > 1) {
+            /* If two sequential 0xFF's exist, increment skip_byte counter, decrement  */
+            /* len_remaining by 2 and copy a single 0xFF to dest tvb. */
+            if((spos[0]==0xff) && (spos[1]==0xff)){
+                skip_byte++;
+                len_remaining -= 2;
+                *(dpos++)=0xff;
+                spos+=2;
+                continue;
+            }
         }
+        /* If we only have a single byte left, or there were no sequential 0xFF's, copy byte from src tvb to dest tvb */
+        *(dpos++)=*(spos++);
+        len_remaining--;
     }
-    /* If we only have a single byte left, or there were no sequential 0xFF's, copy byte from src tvb to dest tvb */
-    *(dpos++)=*(spos++);
-    len_remaining--;
-  }
-  telnet_tvb = tvb_new_child_real_data(tvb, buf, len-skip_byte, len-skip_byte);
-  tvb_set_free_cb(telnet_tvb, g_free);
-  add_new_data_source(pinfo, telnet_tvb, "Processed Telnet Data");
+    telnet_tvb = tvb_new_child_real_data(tvb, buf, len-skip_byte, len-skip_byte);
+    tvb_set_free_cb(telnet_tvb, g_free);
+    add_new_data_source(pinfo, telnet_tvb, "Processed Telnet Data");
 
-  return telnet_tvb;
+    return telnet_tvb;
 }
 
 /******************************************************************************************************/
@@ -1520,13 +1526,13 @@ dissect_fastop_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
         proto_tree_add_item(fastop_tree, hf_selfm_fastop_rb_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Append Column Info w/ Control Code Code */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(opcode, selfm_fo_rb_vals, "Unknown Control Code"));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_ext_const(opcode, &selfm_fo_rb_vals_ext, "Unknown Control Code"));
     }
     else if (msg_type == CMD_FASTOP_BR_CTRL) {
         proto_tree_add_item(fastop_tree, hf_selfm_fastop_br_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Append Column Info w/ Control Code Code */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(opcode, selfm_fo_br_vals, "Unknown Control Code"));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_ext_const(opcode, &selfm_fo_br_vals_ext, "Unknown Control Code"));
     }
     offset += 1;
 
@@ -1862,7 +1868,7 @@ dissect_fastser_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int o
     proto_tree_add_item(fastser_tree, hf_selfm_fastser_funccode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Append Column Info w/ Function Code */
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_const(funccode, selfm_fastser_func_code_vals, "Unknown Function Code"));
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", val_to_str_ext_const(funccode, &selfm_fastser_func_code_vals_ext, "Unknown Function Code"));
 
     offset += 1;
 
@@ -2435,7 +2441,7 @@ dissect_selfm(tvbuff_t *selfm_tvb, packet_info *pinfo, proto_tree *tree, void* d
         selfm_tree = proto_item_add_subtree(selfm_item, ett_selfm);
 
         /* Set INFO column with SEL Protocol Message Type */
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_const(msg_type, selfm_msgtype_vals, "Unknown Message Type"));
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str_ext_const(msg_type, &selfm_msgtype_vals_ext, "Unknown Message Type"));
 
         /* Add Message Type to Protocol Tree */
         proto_tree_add_item(selfm_tree, hf_selfm_msgtype, selfm_tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2570,8 +2576,8 @@ static void
 selfm_init(void)
 {
 
-  reassembly_table_init(&selfm_reassembly_table,
-                        &addresses_reassembly_table_functions);
+    reassembly_table_init(&selfm_reassembly_table,
+                          &addresses_reassembly_table_functions);
 }
 
 /******************************************************************************************************/
@@ -2701,11 +2707,11 @@ proto_register_selfm(void)
         { &hf_selfm_foconfig_reserved,
         { "Reserved Bit (Future)", "selfm.foconfig.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_foconfig_brkr_open,
-        { "Breaker Bit Open Command", "selfm.foconfig.brkr_open", FT_UINT8, BASE_HEX, VALS(selfm_fo_br_vals), 0x0, NULL, HFILL }},
+        { "Breaker Bit Open Command", "selfm.foconfig.brkr_open", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fo_br_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_foconfig_brkr_close,
-        { "Breaker Bit Close Command", "selfm.foconfig.brkr_close", FT_UINT8, BASE_HEX, VALS(selfm_fo_br_vals), 0x0, NULL, HFILL }},
+        { "Breaker Bit Close Command", "selfm.foconfig.brkr_close", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fo_br_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_foconfig_rb_cmd,
-        { "Remote Bit Command", "selfm.foconfig.rb_cmd", FT_UINT8, BASE_HEX, VALS(selfm_fo_rb_vals), 0x0, NULL, HFILL }},
+        { "Remote Bit Command", "selfm.foconfig.rb_cmd", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fo_rb_vals_ext, 0x0, NULL, HFILL }},
         /* "Alternate Fast Operate Configuration" specific fields */
         { &hf_selfm_alt_foconfig_len,
         { "Length", "selfm.alt_foconfig.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2721,9 +2727,9 @@ proto_register_selfm(void)
         { &hf_selfm_fastop_len,
         { "Length", "selfm.fastop.len", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastop_rb_code,
-        { "Remote Bit Operate Code", "selfm.fastop.rb_code", FT_UINT8, BASE_HEX, VALS(selfm_fo_rb_vals), 0x0, NULL, HFILL }},
+        { "Remote Bit Operate Code", "selfm.fastop.rb_code", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fo_rb_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastop_br_code,
-        { "Breaker Bit Operate Code", "selfm.fastop.br_code", FT_UINT8, BASE_HEX, VALS(selfm_fo_br_vals), 0x0, NULL, HFILL }},
+        { "Breaker Bit Operate Code", "selfm.fastop.br_code", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fo_br_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastop_valid,
         { "Operate Code Validation", "selfm.fastop.valid", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         /* "Alternate Fast Operate Command" specific fields */
@@ -2741,7 +2747,7 @@ proto_register_selfm(void)
         { &hf_selfm_fastser_status,
         { "Status Byte", "selfm.fastser.status", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_funccode,
-        { "Function Code", "selfm.fastser.funccode", FT_UINT8, BASE_HEX, VALS(selfm_fastser_func_code_vals), 0x0, NULL, HFILL }},
+        { "Function Code", "selfm.fastser.funccode", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_seq,
         { "Sequence Byte", "selfm.fastser.seq", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_seq_fir,
@@ -2767,17 +2773,17 @@ proto_register_selfm(void)
         { &hf_selfm_fastser_def_rx_num_fc,
         { "Number of Supported RX Function Codes", "selfm.fastser.def_rx_num_fc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_def_rx_fc,
-        { "Receive Function Code", "selfm.fastser.def_rx_fc", FT_UINT8, BASE_HEX, VALS(selfm_fastser_func_code_vals), 0x0, NULL, HFILL }},
+        { "Receive Function Code", "selfm.fastser.def_rx_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_def_tx_num_fc,
         { "Number of Supported TX Function Codes", "selfm.fastser.def_tx_num_fc", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_def_tx_fc,
-        { "Transmit Function Code", "selfm.fastser.def_tx_fc", FT_UINT8, BASE_HEX, VALS(selfm_fastser_func_code_vals), 0x0, NULL, HFILL }},
+        { "Transmit Function Code", "selfm.fastser.def_tx_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_uns_en_fc,
-        { "Function Code to Enable", "selfm.fastser.uns_en_fc", FT_UINT8, BASE_HEX, VALS(selfm_fastser_func_code_vals), 0x0, NULL, HFILL }},
+        { "Function Code to Enable", "selfm.fastser.uns_en_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_uns_en_fc_data,
         { "Function Code Data", "selfm.fastser.uns_en_fc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_uns_dis_fc,
-        { "Function Code to Disable", "selfm.fastser.uns_dis_fc", FT_UINT8, BASE_HEX, VALS(selfm_fastser_func_code_vals), 0x0, NULL, HFILL }},
+        { "Function Code to Disable", "selfm.fastser.uns_dis_fc", FT_UINT8, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_func_code_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_uns_dis_fc_data,
         { "Function Code Data", "selfm.fastser.uns_dis_fc_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_unsresp_orig,
@@ -2801,7 +2807,7 @@ proto_register_selfm(void)
         { &hf_selfm_fastser_unsresp_elmt_statword,
         { "SER Element Status Word", "selfm.fastser.unsresp_elmt_statword", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_unswrite_addr1,
-        { "Write Address Region #1", "selfm.fastser.unswrite_addr1", FT_UINT16, BASE_HEX, VALS(selfm_fastser_unswrite_com_vals), 0x0, NULL, HFILL }},
+        { "Write Address Region #1", "selfm.fastser.unswrite_addr1", FT_UINT16, BASE_HEX | BASE_EXT_STRING, &selfm_fastser_unswrite_com_vals_ext, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_unswrite_addr2,
         { "Write Address Region #2", "selfm.fastser.unswrite_addr2", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastser_unswrite_num_reg,

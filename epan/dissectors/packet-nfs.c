@@ -6569,6 +6569,8 @@ static const value_string  acemask4_perms_8_and_above[] = {
 	{	ACE4_SYNCHRONIZE,          "Synchronize" },
 	{	0, NULL }
 };
+static value_string_ext acemask4_perms_8_and_above_ext = VALUE_STRING_EXT_INIT(acemask4_perms_8_and_above);
+
 /* Abbreviated ACE4 permissions for object types 0x8 and above */
 static const value_string  acemask4_abbrev_perms_8_and_above[] = {
 	{	ACE4_READ_NAMED_ATTRS,     "RdNamAt" },
@@ -6586,6 +6588,7 @@ static const value_string  acemask4_abbrev_perms_8_and_above[] = {
 	{	ACE4_SYNCHRONIZE,          "Sync" },
 	{	0, NULL }
 };
+static value_string_ext acemask4_abbrev_perms_8_and_above_ext = VALUE_STRING_EXT_INIT(acemask4_abbrev_perms_8_and_above);
 
 static int
 dissect_nfs4_acemask(tvbuff_t *tvb, int offset, proto_tree *ace_tree, guint32 acetype4, guint32 obj_type)
@@ -6619,8 +6622,8 @@ dissect_nfs4_acemask(tvbuff_t *tvb, int offset, proto_tree *ace_tree, guint32 ac
 					atype = val_to_str(acemask_bit, acemask4_abbrev_perms_unkwn, "Unknown: %u");
 				}
 			} else {
-				type = val_to_str(acemask_bit, acemask4_perms_8_and_above, "Unknown: %u");
-				atype = val_to_str(acemask_bit, acemask4_abbrev_perms_8_and_above, "Unknown: %u");
+				type = val_to_str_ext(acemask_bit, &acemask4_perms_8_and_above_ext, "Unknown: %u");
+				atype = val_to_str_ext(acemask_bit, &acemask4_abbrev_perms_8_and_above_ext, "Unknown: %u");
 			}
 			proto_tree_add_uint_format(acemask_tree, hf_nfs4_ace_permission, tvb, offset, 4,
 				acemask_bit, "%s: %s (0x%08x)", val_to_str(acetype4, names_acetype4, "Unknown: %u"), type, acemask_bit);
