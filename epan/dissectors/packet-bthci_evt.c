@@ -1782,9 +1782,11 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 proto_tree_add_item(tree, hf_bthci_evt_data_length,               tvb, offset, 1, ENC_NA);
                 offset += 1;
 
-                call_dissector(btcommon_ad_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
-                save_remote_device_name(tvb, offset, pinfo, length, bd_addr, hci_data);
-                offset += length;
+                if (length > 0) {
+                    call_dissector(btcommon_ad_handle, tvb_new_subset(tvb, offset, length, length), pinfo, tree);
+                    save_remote_device_name(tvb, offset, pinfo, length, bd_addr, hci_data);
+                    offset += length;
+                }
 
                 proto_tree_add_item(tree, hf_bthci_evt_rssi,                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
