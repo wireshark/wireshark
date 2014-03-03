@@ -939,6 +939,7 @@ DISSECTOR_SRC = \
 	packet-opensafety.c	\
 	packet-openvpn.c	\
 	packet-openwire.c	\
+	packet-osc.c	\
 	packet-osi-options.c	\
 	packet-osi.c		\
 	packet-ositp.c		\
