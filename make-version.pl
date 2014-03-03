@@ -118,7 +118,7 @@ sub read_repo_info {
 	my $do_hack = 1;
 	my $info_source = "Unknown";
 
-	if ($version_pref{"pkg_enable"}) {
+	if ($version_pref{"pkg_enable"} > 0) {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
@@ -630,7 +630,7 @@ sub get_config {
 	}
 
 	while (<FILE>) {
-		chomp;
+		s/^\s+|\s+$//g; # chomp() may not handle CR
 		next if (/^#/);
 		next unless (/^(\w+)(:|=)\s*(\S.*)/);
 		$version_pref{$1} = $3;
