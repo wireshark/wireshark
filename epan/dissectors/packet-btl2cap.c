@@ -32,6 +32,7 @@
 #include <epan/expert.h>
 #include <epan/wmem/wmem.h>
 #include <epan/decode_as.h>
+#include <wiretap/wtap.h>
 
 #include "packet-bluetooth-hci.h"
 #include "packet-bthci_acl.h"
@@ -577,7 +578,10 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         psm_data_t        *psm_data;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
 
@@ -810,7 +814,10 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            cid;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
         cid          = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
@@ -1000,7 +1007,10 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            cid;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
         cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
@@ -1085,7 +1095,10 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            chandle;
         guint32            cid;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
         cid          = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
@@ -1276,7 +1289,10 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         guint32            key_scid;
         guint32            key_dcid;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
         key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
@@ -1651,7 +1667,10 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     l2cap_data = wmem_new(wmem_packet_scope(), btl2cap_data_t);
 
-    l2cap_data->interface_id     = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+        l2cap_data->interface_id = pinfo->phdr->interface_id;
+    else
+        l2cap_data->interface_id = HCI_INTERFACE_DEFAULT;
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
     l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
@@ -1857,7 +1876,10 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         guint32            chandle;
         guint32            key_cid;
 
-        interface_id = (acl_data) ? acl_data->interface_id : HCI_INTERFACE_AMP;
+        if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+            interface_id = pinfo->phdr->interface_id;
+        else
+            interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
         key_cid      = cid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);

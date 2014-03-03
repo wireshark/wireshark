@@ -84,14 +84,16 @@ extern const value_string bthci_cmd_notification_types[];
    AVDTP, BNEP etc. RFCOMM channel has end-protocol like OBEX, HFP, etc.
    Important note: correct payload decoding should store needed data using
    key contain interface_id, adapter_id, ..., last_channel_type (for example
-   RFCOMM channel, transaction_id, frame number etc. ) */
-#define HCI_INTERFACE_H1   0
-#define HCI_INTERFACE_H4   1
-#define HCI_INTERFACE_USB  2
-#define HCI_INTERFACE_AMP  3
-#define HCI_INTERFACE_MON  4
+   RFCOMM channel, transaction_id, frame number etc. )
 
-#define HCI_ADAPTER_DEFAULT 0
+   interface_id - interface id provided by Wireshark, see "frame.interface_id",
+                  in case where is only one interface id HCI_INTERFACE_DEFAULT
+                  is used (for example open BTSNOOP file with HCI H4 protocol)
+   adapter_id   - identified Bluetooth device (interface, for example Linux
+                  hci0, hci1, etc.)
+*/
+#define HCI_INTERFACE_DEFAULT  0
+#define HCI_ADAPTER_DEFAULT    0
 
 /* chandle_to_bdaddr_table:  interface_id + adapter_id + connection_handle + frame_number -> bd_addr[6] */
 /* bdaddr_to_name_table:     bd_addr[6] + frame_number -> name */

@@ -221,6 +221,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     gint         offset = 0;
     guint32      access_address;
     guint8       length;
+    guint32      interface_id;
     tvbuff_t    *next_tvb;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LE LL");
@@ -244,6 +245,11 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_item(btle_tree, hf_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     access_address = tvb_get_letohl(tvb, offset);
     offset += 4;
+
+    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+        interface_id = pinfo->phdr->interface_id;
+    else
+        interface_id = HCI_INTERFACE_DEFAULT;
 
     if (access_address == ACCESS_ADDRESS_ADVERTISING) {
         proto_item  *advertising_header_item;
@@ -411,7 +417,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                     col_append_str(pinfo->cinfo, COL_INFO, "L2CAP Data");
 /* TODO: Temporary solution while chandle source/bd_addrs is unknown  */
                     acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
-                    acl_data->interface_id = HCI_INTERFACE_USB;
+                    acl_data->interface_id = interface_id;
                     acl_data->adapter_id   = 0;
                     acl_data->chandle      = 0;
                     acl_data->remote_bd_addr_oui = 0;

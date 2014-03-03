@@ -31,6 +31,7 @@
 #include <epan/packet.h>
 #include <wiretap/wtap.h>
 #include <epan/wmem/wmem.h>
+#include <wiretap/wtap.h>
 
 #include "packet-bluetooth-hci.h"
 
@@ -102,7 +103,10 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     }
 
     hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
-    hci_data->interface_id = HCI_INTERFACE_H4;
+    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+        hci_data->interface_id = pinfo->phdr->interface_id;
+    else
+        hci_data->interface_id = HCI_INTERFACE_DEFAULT;
     hci_data->adapter_id = HCI_ADAPTER_DEFAULT;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;

@@ -146,7 +146,10 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             adapter_id, val_to_str_ext_const(opcode, &opcode_vals_ext, "Unknown"));
 
     hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
-    hci_data->interface_id = HCI_INTERFACE_MON;
+    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+        hci_data->interface_id = pinfo->phdr->interface_id;
+    else
+        hci_data->interface_id = HCI_INTERFACE_DEFAULT;
     hci_data->adapter_id = adapter_id;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;

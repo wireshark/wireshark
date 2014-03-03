@@ -28,6 +28,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/wmem/wmem.h>
+#include <wiretap/wtap.h>
 
 #include "packet-usb.h"
 #include "packet-bluetooth-hci.h"
@@ -170,12 +171,10 @@ dissect_hci_usb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     session_id = usb_conv_info->bus_id << 16 | usb_conv_info->device_address << 8 | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 1 : 0 ) << 7 | usb_conv_info->endpoint;
 
     hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
-
-    if (usb_conv_info->device_protocol == 0xE00104)
-        hci_data->interface_id = HCI_INTERFACE_AMP;
+    if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
+        hci_data->interface_id = pinfo->phdr->interface_id;
     else
-        hci_data->interface_id = HCI_INTERFACE_USB;
-
+        hci_data->interface_id = HCI_INTERFACE_DEFAULT;
     hci_data->adapter_id = usb_conv_info->bus_id << 8 | usb_conv_info->device_address;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
