@@ -306,8 +306,10 @@ static const value_string sbus_block_types[] = {
        {0x03, "FB"},                         /* Function block */
        {0x04, "ST"},                         /* Step of Graftec structure*/
        {0x05, "TR"},                         /* Transition of Graftec structure*/
+#if 0  /* XXX: Dup vals: should be 0x06 & 0x07 ?? */
        {0x04, "TEXT"},                       /* Text*/
        {0x05, "DB"},                         /* Data Block*/
+#endif
        {0x08, "SB"},                         /* Sequential Block (Graftec)*/
        {0x09, "DBX"},                        /* Special Data Block*/
        {0x10, "BACnet"},                     /* BACnet configuration block */
@@ -319,6 +321,8 @@ static const value_string sbus_block_types[] = {
        {0xFF, "All blocks"},                 /* all blocks (incl. program blocks) (delete blocks only) */
        {0, NULL}
 };
+static value_string_ext sbus_block_types_ext = VALUE_STRING_EXT_INIT(sbus_block_types);
+
 /* ACK NAK values*/
 static const value_string sbus_CPU_status[] = {
        {0x43, "C"},
@@ -459,6 +463,7 @@ static const value_string sbus_command_vals[] = {
        {0xAF, "Web server serial communication*"},
        {0, NULL}
 };
+static value_string_ext sbus_command_vals_ext = VALUE_STRING_EXT_INIT(sbus_command_vals);
 
 static const value_string webserver_aid_vals[] = {
        {0x01, "Partial request"},
@@ -485,6 +490,7 @@ static const value_string rdwrblock_vals[] = {
        {0x22, "Get program block list"},
        {0, NULL}
 };
+static value_string_ext rdwrblock_vals_ext = VALUE_STRING_EXT_INIT(rdwrblock_vals);
 
 static const value_string rdwrblock_sts[] = {
        {0x00, "ACK (Acknowledged)"},
@@ -506,6 +512,7 @@ static const value_string rdwrblock_sts[] = {
        {0xFF, "Abort (stream)"},
        {0, NULL}
 };
+static value_string_ext rdwrblock_sts_ext = VALUE_STRING_EXT_INIT(rdwrblock_sts);
 
 static const value_string rdwrblock_list_type_vals[] = {
        {0x40, "Start request of program block"},
@@ -677,14 +684,18 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
        nstime_t ns; /*we use this for the response time*/
 
 /* Set up conversations*/
-       conversation_t *conversation = NULL;
+       conversation_t *conversation;
        sbus_request_key request_key, *new_request_key;
-       sbus_request_val *request_val = NULL;
+       sbus_request_val *request_val;
 
        /* does this look like an sbus pdu? */
        if(!is_sbus_pdu(tvb)){
            return 0;
        }
+
+/* Make entries in Protocol column and Info column on summary display */
+       col_set_str(pinfo->cinfo, COL_PROTOCOL, "S-Bus");
+       col_clear(pinfo->cinfo, COL_INFO);
 
        conversation = find_or_create_conversation(pinfo);
 
@@ -740,40 +751,39 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                      request_val->sysinfo=0x0;
                      request_val->block_tlg=(tvb_get_guint8(tvb,12));
               } else {
-                     request_val->sysinfo=0x0;
-                     request_val->block_tlg=0x0;
+                     request_val->sysinfo   = 0x0;
+                     request_val->block_tlg = 0x0;
               }
 
               g_hash_table_insert(sbus_request_hash, new_request_key, request_val);
        }
 /* End of attaching data to hash table*/
 
-/* Make entries in Protocol column and Info column on summary display */
-       col_set_str(pinfo->cinfo, COL_PROTOCOL, "S-Bus");
-
-       col_clear(pinfo->cinfo, COL_INFO);
        offset = 0;
 
        switch (sbus_attribut){
                 case SBUS_REQUEST:
-                    sbus_cmd_code = tvb_get_guint8(tvb,10);
+                    sbus_cmd_code = tvb_get_guint8(tvb, 10);
                     switch (sbus_cmd_code){
                             case SBUS_WEB_SERVER_SERIAL_COMM:
                                     /* Special treatment of web server request
                                     * as is is very helpful to see more information in the packetlist */
-                                    sbus_web_aid = tvb_get_guint8(tvb,12);
-                                    sbus_web_seq = tvb_get_guint8(tvb,13);
+                                    sbus_web_aid = tvb_get_guint8(tvb, 12);
+                                    sbus_web_seq = tvb_get_guint8(tvb, 13);
                                     col_add_fstr(pinfo->cinfo, COL_INFO,
-                                                "Web Server Request: %s (Seq No: %d)",
-                                                val_to_str_const(sbus_web_aid,
-                                                                webserver_aid_vals, "Unknown Request!"),
-                                                sbus_web_seq);
+                                                 "Web Server Request: %s (Seq No: %d)",
+                                                 val_to_str_const(sbus_web_aid,
+                                                                  webserver_aid_vals,
+                                                                  "Unknown Request!"),
+                                                 sbus_web_seq);
                                     break;
                             case SBUS_RD_WR_PCD_BLOCK:
                                     sbus_rdwr_type = tvb_get_guint8(tvb, 12);
                                     col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                "Request:  %s", val_to_str_const( sbus_rdwr_type, rdwrblock_vals,
-                                                                                    "This RD/WR block telegram is not implemented"));
+                                                  "Request:  %s",
+                                                  val_to_str_ext_const(sbus_rdwr_type,
+                                                                       &rdwrblock_vals_ext,
+                                                                       "This RD/WR block telegram is not implemented"));
                                     /* Add name of file to be written in case of start of file stream */
                                     if (sbus_rdwr_type == SBUS_WR_START_OF_STREAM) {
                                             sbus_rdwr_block_type = tvb_get_guint8(tvb, 14);
@@ -817,8 +827,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             default:
                                     /* All other requests */
                                     col_add_fstr(pinfo->cinfo, COL_INFO,
-                                                "Request: %s", val_to_str_const(sbus_cmd_code,
-                                                                                sbus_command_vals, "Unknown Command!"));
+                                                "Request: %s",
+                                                 val_to_str_ext_const(sbus_cmd_code,
+                                                                      &sbus_command_vals_ext,
+                                                                      "Unknown Command!"));
                                     break;
                     }
                     /*mark retries*/
@@ -837,7 +849,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                             col_add_fstr(pinfo->cinfo, COL_INFO,
                                     "Response: %s",
                                     val_to_str_const(sbus_web_aid,
-                                                    webserver_aid_vals, "Unknown Request!"));
+                                                     webserver_aid_vals, "Unknown Request!"));
                             if (sbus_web_size > 1) {
                                     sbus_web_seq = tvb_get_guint8(tvb,11);
                                     col_append_fstr(pinfo->cinfo, COL_INFO,
@@ -856,8 +868,10 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                     case SBUS_RD_ABORT_BLOCK_STREAM:
                                             sbus_rdwr_ack_nak = tvb_get_guint8(tvb, 10);
                                             col_add_fstr( pinfo->cinfo, COL_INFO,
-                                                        "Response: %s", val_to_str_const(sbus_rdwr_ack_nak,
-                                                                                        rdwrblock_sts, "Unknown response!"));
+                                                          "Response: %s",
+                                                          val_to_str_ext_const(sbus_rdwr_ack_nak,
+                                                                               &rdwrblock_sts_ext,
+                                                                               "Unknown response!"));
                                             break;
                                     default:
                                             sbus_rdwr_type = tvb_get_guint8(tvb, 9);
@@ -1942,7 +1956,7 @@ proto_register_sbus(void)
 
               { &hf_sbus_command,
                      { "Command",           "sbus.cmd",
-                     FT_UINT8, BASE_HEX, VALS(sbus_command_vals), 0,
+                     FT_UINT8, BASE_HEX | BASE_EXT_STRING, &sbus_command_vals_ext, 0,
                      "SAIA S-Bus command", HFILL }
               },
 
@@ -2008,7 +2022,7 @@ proto_register_sbus(void)
 
               { &hf_sbus_block_type,
                      { "Block type",           "sbus.block_type",
-                     FT_UINT8, BASE_HEX, VALS(sbus_block_types), 0,
+                     FT_UINT8, BASE_HEX | BASE_EXT_STRING, &sbus_block_types_ext, 0,
                      "Program block type", HFILL }
               },
 
@@ -2200,7 +2214,7 @@ proto_register_sbus(void)
 
               { &hf_sbus_rdwr_telegram_type,
                      { "Read/write block telegram type",      "sbus.block.tlgtype",
-                     FT_UINT8, BASE_HEX, VALS(rdwrblock_vals), 0,
+                     FT_UINT8, BASE_HEX | BASE_EXT_STRING, &rdwrblock_vals_ext, 0,
                      "Type of RD/WR block telegram", HFILL }
               },
 
@@ -2237,7 +2251,7 @@ proto_register_sbus(void)
 
               { &hf_sbus_rdwr_acknakcode,
                      { "ACK/NAK code",      "sbus.block.nakcode",
-                     FT_UINT8, BASE_HEX, VALS(rdwrblock_sts), 0,
+                     FT_UINT8, BASE_HEX | BASE_EXT_STRING, &rdwrblock_sts_ext, 0,
                      "ACK/NAK response for block write requests", HFILL }
               },
 
