@@ -189,7 +189,7 @@ sub read_repo_info {
 				$repo_branch = basename($line);
 			}
 
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --dirty --match "v*"});
+			chomp($line = qx{git --git-dir=$srcdir/.git describe --match "v*"});
 			if (defined($line)) {
 				$git_description = $line;
 			}
