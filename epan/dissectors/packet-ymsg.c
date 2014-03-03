@@ -421,7 +421,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		if (content_len) {
 			/* Create content subtree */
 			content_item = proto_tree_add_item(ymsg_tree, hf_ymsg_content, tvb,
-			                                   offset, -1, ENC_ASCII|ENC_NA);
+			                                   offset, -1, ENC_NA);
 			content_tree = proto_item_add_subtree(content_item, ett_ymsg_content);
 
 			/* Each entry consists of:
@@ -515,11 +515,11 @@ proto_register_ymsg(void)
 				NULL, 0, "Connection ID", HFILL }},
 
 		{ &hf_ymsg_content, {
-				"Content", "ymsg.content", FT_STRING, BASE_NONE,
+				"Content", "ymsg.content", FT_BYTES, BASE_NONE,
 				NULL, 0, "Data portion of the packet", HFILL }},
 		{ &hf_ymsg_content_line, {
 				"Content-line", "ymsg.content-line", FT_STRING, BASE_NONE,
-				NULL, 0, "Data portion of the packet", HFILL }},
+				NULL, 0, "Content line", HFILL }},
 		{ &hf_ymsg_content_line_key, {
 				"Key", "ymsg.content-line.key", FT_STRING, BASE_NONE,
 				NULL, 0, "Content line key", HFILL }},
