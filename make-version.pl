@@ -168,7 +168,7 @@ sub read_repo_info {
 
 			# Commits in current (master-1.10) branch. We may want to use
 			# a different number.
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --tags 2de75568bd635494cd75ee446d61eb1f111b806f});
+			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --match v1.10.0-rc1});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$num_commits = $parts[-2];
@@ -180,8 +180,9 @@ sub read_repo_info {
 				$repo_url = $line;
 			}
 
-			# Probably not quite what we're looking for
-			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name origin});
+			# This will break in some cases. Hopefully not during
+			# official package builds.
+			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
