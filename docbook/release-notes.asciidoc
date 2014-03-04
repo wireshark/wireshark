@@ -1,5 +1,4 @@
 = Wireshark wireshark-version:[] Release Notes
-// $Id$
 
 == What is Wireshark?
 
@@ -40,6 +39,17 @@ Versions affected: 1.10.0 to 1.10.5
 //+
 //cve-idlink:2014-0000[]
 
+* ws-salink:2014-03[]
++
+The RLC dissector could crash.
+// Fixed in trunk: n/a
+// Fixed in trunk-1.10: gd8075e7
+// Fixed in trunk-1.8: g217293b
+(ws-buglink:9730[])
++
+Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
+//+
+//cve-idlink:2014-0000[]
 
 The following bugs have been fixed:
 
@@ -49,7 +59,7 @@ The following bugs have been fixed:
 * Properly decode CAPWAP Data Keep-Alives. (ws-buglink:9165[])
 * Build failure with GTK 3.10 - GTK developers have gone insane. (ws-buglink:9340[])
 * SIGSEGV/SIGABRT during free of TvbRange using a chained dissector in lua. (ws-buglink:9483[])
-* MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
+* MPLS dissector no longer registers itself in "ppp.protocol" table. (ws-buglink:9492[])
 * Tshark doesn't display the longer data fields (mbtcp). (ws-buglink:9572[])
 * DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
 * Dissector bug, protocol SDP: proto.c:4214: failed assertion "length >= 0". (ws-buglink:9633[])
@@ -64,7 +74,7 @@ The following bugs have been fixed:
 
 === New and Updated Features
 
-There are no new features in this release.
+IPv4 checksum verfification is now disabled by default.
 
 === New Protocol Support
 
@@ -84,7 +94,7 @@ ESS
 IEEE 802a
 M3UA
 Modbus/TCP
-NAS EPS
+NAS-EPS
 NFS
 OpenSafety
 SDP
