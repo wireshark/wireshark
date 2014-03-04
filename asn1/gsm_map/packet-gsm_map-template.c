@@ -225,7 +225,7 @@ static guint8 sms_encoding;
 static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
 static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
-const gchar* gsm_map_opr_code(guint32 val);
+const gchar* gsm_map_opr_code(guint32 val, proto_item *item);
 
 /* Value strings */
 
@@ -918,13 +918,14 @@ static const true_false_string gsm_map_Ss_Status_a_values = {
  * Translate the MAP operation code value to a text string
  * Take into account the MAP version for ForwardSM
  */
-const gchar* gsm_map_opr_code(guint32 val) {
+const gchar* gsm_map_opr_code(guint32 val, proto_item *item) {
   switch (val) {
   case 44: /*mt-forwardSM*/
 	  /* FALLTHRU */
   case 46: /*mo-forwardSM*/
 	  /* FALLTHRU */
     if (application_context_version < 3) {
+      proto_item_set_text(item, "%s (%d)", val_to_str_const(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP opcode"), val);
       return val_to_str_const(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP opcode");
     }
     /* Else use the default map operation translation */

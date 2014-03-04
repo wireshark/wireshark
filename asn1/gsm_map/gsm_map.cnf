@@ -215,9 +215,12 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
   VAL_PTR = &opcode
 
 #.FN_BODY  GSMMAPOperationLocalvalue
+  const char *opcode_string;
 
 %(DEFAULT_BODY)s
-  col_append_str(actx->pinfo->cinfo, COL_INFO, gsm_map_opr_code(opcode));
+  /* Retrieve opcode string and eventually update item value */
+  opcode_string = gsm_map_opr_code(opcode, actx->created_item);
+  col_append_str(actx->pinfo->cinfo, COL_INFO, opcode_string);
   col_append_str(actx->pinfo->cinfo, COL_INFO, " ");
 
 #.FN_PARS  GSMMAPLocalErrorcode
