@@ -1493,6 +1493,8 @@ void wtap_register_heuristic_open_info(const struct heuristic_open_info *oi);
 WS_DLL_PUBLIC
 void wtap_register_open_info(const struct open_info *oi);
 WS_DLL_PUBLIC
+unsigned int open_info_name_to_type(const char *name);
+WS_DLL_PUBLIC
 int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char* name, const char* short_name);

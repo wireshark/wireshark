@@ -245,6 +245,28 @@ list_capture_types(void) {
 }
 
 static void
+list_read_capture_types(void) {
+  int                 i;
+  struct string_elem *captypes;
+  GSList             *list = NULL;
+  const char *magic = "Magic-value-based";
+  const char *heuristic = "Heuristics-based";
+
+  /* this is a hack, but WTAP_NUM_FILE_TYPES_SUBTYPES is always >= number of open routines so we're safe */
+  captypes = g_new(struct string_elem, WTAP_NUM_FILE_TYPES_SUBTYPES);
+
+  fprintf(stderr, "tshark: The available read file types for the \"-X read_format:\" option are:\n");
+  for (i = 0; open_routines[i].name != NULL; i++) {
+    captypes[i].sstr = open_routines[i].name;
+    captypes[i].lstr = (open_routines[i].type == OPEN_INFO_MAGIC) ? magic : heuristic;
+    list = g_slist_insert_sorted(list, &captypes[i], string_compare);
+  }
+  g_slist_foreach(list, string_elem_print, NULL);
+  g_slist_free(list);
+  g_free(captypes);
+}
+
+static void
 print_usage(gboolean print_ver)
 {
   FILE *output;
@@ -930,6 +952,7 @@ main(int argc, char *argv[])
   volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAP;
 #endif
   volatile gboolean    out_file_name_res = FALSE;
+  volatile int         in_file_type = WTAP_TYPE_AUTO;
   gchar               *volatile cf_name = NULL;
   gchar               *rfilter = NULL;
   gchar               *dfilter = NULL;
@@ -1894,6 +1917,16 @@ main(int argc, char *argv[])
   }
 #endif
 
+  if (ex_opt_count("read_format") > 0) {
+    const gchar* name = ex_opt_get_next("read_format");
+    in_file_type = open_info_name_to_type(name);
+    if (in_file_type == WTAP_TYPE_AUTO) {
+      cmdarg_err("\"%s\" isn't a valid read file format type", name? name : "");
+      list_read_capture_types();
+      return 1;
+    }
+  }
+
   /* disabled protocols as per configuration file */
   if (gdp_path == NULL && dp_path == NULL) {
     set_disabled_protos_list();
@@ -1999,7 +2032,7 @@ main(int argc, char *argv[])
     relinquish_special_privs_perm();
     print_current_user();
 
-    if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
+    if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) != CF_OK) {
       epan_cleanup();
       return 2;
     }

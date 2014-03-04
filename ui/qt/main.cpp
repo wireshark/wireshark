@@ -481,6 +481,8 @@ int main(int argc, char *argv[])
 
     QString locale;
     QString *cf_name = NULL;
+    QString *display_filter = NULL;
+    unsigned int in_file_type = WTAP_TYPE_AUTO;
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
     // QStrings; in Qt 4, the codec must be set to make that happen
@@ -497,8 +499,8 @@ int main(int argc, char *argv[])
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&)),
-            main_w, SLOT(openCaptureFile(QString&)));
+    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
+            main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifdef HAVE_LIBPCAP
@@ -872,6 +874,10 @@ int main(int argc, char *argv[])
 
     register_all_tap_listeners();
 
+    if (ex_opt_count("read_format") > 0) {
+        in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
+    }
+
     splash_update(RA_PREFERENCES, NULL, NULL);
     prefs_p = ws_app.readConfigurationFiles (&gdp_path, &dp_path);
 
@@ -990,8 +996,13 @@ int main(int argc, char *argv[])
     wsApp->allSystemsGo();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "Wireshark is up and ready to go");
 
-    if (cf_name != NULL) {
-        main_w->openCaptureFile(*cf_name);
+    /* user could specify filename, or display filter, or both */
+    if (cf_name != NULL || display_filter != NULL) {
+        if (display_filter == NULL)
+            display_filter = new QString();
+        if (cf_name == NULL)
+            cf_name = new QString();
+        main_w->openCaptureFile(*cf_name, *display_filter, in_file_type);
     }
 
     g_main_loop_new(NULL, FALSE);

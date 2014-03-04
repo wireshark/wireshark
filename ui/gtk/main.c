@@ -2149,6 +2149,7 @@ main(int argc, char *argv[])
     search_direction     jump_backwards = SD_FORWARD;
     dfilter_t           *jump_to_filter = NULL;
     int                  optind_initial;
+    unsigned int         in_file_type = WTAP_TYPE_AUTO;
 #ifdef HAVE_GTKOSXAPPLICATION
     GtkosxApplication   *theApp;
 #endif
@@ -3087,8 +3088,11 @@ main(int argc, char *argv[])
                 rfilter_parse_failed = TRUE;
             }
         }
+        if (ex_opt_count("read_format") > 0) {
+            in_file_type = open_info_name_to_type(ex_opt_get_next("read_format"));
+        }
         if (!rfilter_parse_failed) {
-            if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) == CF_OK) {
+            if (cf_open(&cfile, cf_name, in_file_type, FALSE, &err) == CF_OK) {
                 /* "cf_open()" succeeded, so it closed the previous
                  capture file, and thus destroyed any previous read filter
                  attached to "cf". */

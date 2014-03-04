@@ -412,6 +412,27 @@ void wtap_register_open_info(const struct open_info *oi) {
 #define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
 #endif
 
+/* returns the 'type' number to use for wtap_open_offline based on the
+   passed-in name (the name in the open_info struct). It returns WTAP_TYPE_AUTO
+   on failure, which is the number 0. The 'type' number is the entry's index+1,
+   because that's what wtap_open_offline() expects it to be. */
+unsigned int open_info_name_to_type(const char *name)
+{
+	unsigned int i;
+    init_open_routines();
+
+	if (!name)
+		return WTAP_TYPE_AUTO;
+
+	for (i = 0; i < open_info_arr->len - 1; i++) {
+		if (open_routines[i].name != NULL &&
+			strcmp(name, open_routines[i].name) == 0)
+			return i+1;
+	}
+
+	return WTAP_TYPE_AUTO; /* no such file type */
+}
+
 static char *get_file_extension(const char *pathname)
 {
 	gchar *filename;
