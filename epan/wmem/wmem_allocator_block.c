@@ -144,8 +144,8 @@
  * we don't need to do better than malloc.
  */
 #define WMEM_ALIGN_AMOUNT (2 * sizeof (gsize))
-#define WMEM_ALIGN_SIZE(SIZE) ((SIZE) + WMEM_ALIGN_AMOUNT - \
-        ((SIZE) & (WMEM_ALIGN_AMOUNT - 1)))
+#define WMEM_ALIGN_SIZE(SIZE) ((~(WMEM_ALIGN_AMOUNT-1)) & \
+        ((SIZE) + (WMEM_ALIGN_AMOUNT-1)))
 
 /* When required, allocate more memory from the OS in chunks of this size.
  * 8MB is a pretty arbitrary value - it's big enough that it should last a while
