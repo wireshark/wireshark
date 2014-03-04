@@ -640,6 +640,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 if(ENABLE_PLUGINS)
 	set(HAVE_PLUGINS 1)
 	set(PLUGIN_DIR="${DATAFILE_DIR}/plugins/${CPACK_PACKAGE_VERSION}")
+	set(PLUGIN_INSTALL_DIR="${CMAKE_INSTALL_LIBDIR}/@CPACK_PACKAGE_NAME@/plugins/${CPACK_PACKAGE_VERSION}")
 	set(PLUGIN_SRC_DIRS
 		plugins/docsis
 		plugins/ethercat
@@ -735,6 +736,7 @@ else()
 endif()
 
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
+configure_file(${CMAKE_SOURCE_DIR}/wireshark.pc.in ${CMAKE_BINARY_DIR}/wireshark.pc @ONLY)
 if( ENABLE_GUIDES )
 	configure_file(
 		${CMAKE_SOURCE_DIR}/doxygen_global.cfg
@@ -1428,6 +1430,13 @@ install(
 		${MAN4_FILES}
 	DESTINATION
 		${CMAKE_INSTALL_MANDIR}/man4
+)
+
+install(
+	FILES
+		"${CMAKE_BINARY_DIR}/wireshark.pc"
+	DESTINATION
+	         ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 
 install(
