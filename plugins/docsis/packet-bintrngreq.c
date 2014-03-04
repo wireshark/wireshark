@@ -2,8 +2,6 @@
  * Routines for DOCSIS 3.0 Bonded Intial Ranging Request Message dissection.
  * Copyright 2009, Geoffrey Kimball <gekimbal[AT]cisco.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

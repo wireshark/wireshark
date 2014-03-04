@@ -3,8 +3,6 @@
  * IETF draft draft-zimmermann-avt-zrtp-22
  * Copyright 2007, Sagar Pai <sagar@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

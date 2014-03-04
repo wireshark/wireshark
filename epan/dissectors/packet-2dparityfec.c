@@ -1,8 +1,6 @@
 /* packet-2dparityfec.c
  * Mark Lewis <mlewis@altera.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

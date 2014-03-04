@@ -3,8 +3,6 @@
  *
  * Copyright 2011, Mike Morrin <mike.morrin [AT] ipaccess.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

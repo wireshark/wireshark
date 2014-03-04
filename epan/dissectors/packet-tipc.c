@@ -1,8 +1,6 @@
 /* packet-tipc.c
  * Routines for Transparent Inter Process Communication packet dissection
  *
- * $Id$
- *
  * Copyright 2005-2006, Anders Broman <anders.broman@ericsson.com>
  *
  * TIPCv2 protocol updates

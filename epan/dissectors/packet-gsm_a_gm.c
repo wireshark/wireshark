@@ -47,8 +47,6 @@
  *   Stage 3
  *   (3GPP TS 24.008 version 11.7.0 Release 11)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

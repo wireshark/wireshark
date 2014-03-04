@@ -1,7 +1,5 @@
 /* packet-opensafety.c
  *
- * $Id$
- *
  *   openSAFETY is a machine-safety protocol, encapsulated in modern fieldbus
  *   and industrial ethernet solutions.
  *

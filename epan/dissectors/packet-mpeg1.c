@@ -2,8 +2,6 @@
  *
  * Routines for RFC 2250 MPEG-1 dissection
  *
- * $Id$
- *
  * Copyright 2001,
  * Francisco Javier Cabello Torres, <fjcabello@vtools.es>
  *

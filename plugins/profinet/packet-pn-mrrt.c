@@ -2,8 +2,6 @@
  * Routines for PN-MRRT (PROFINET Media Redundancy for cyclic realtime data)
  * packet dissection.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

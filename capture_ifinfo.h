@@ -1,8 +1,6 @@
 /* capture_ifinfo.h
  * Definitions for routines to get information about capture interfaces
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

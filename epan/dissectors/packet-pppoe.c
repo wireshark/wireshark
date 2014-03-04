@@ -2,8 +2,6 @@
  * Routines for PPP Over Ethernet (PPPoE) packet disassembly (RFC2516)
  * Up to date with http://www.iana.org/assignments/pppoe-parameters (2008-04-30)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

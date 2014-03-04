@@ -1,8 +1,6 @@
 /* packet-raw.c
  * Routines for raw packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

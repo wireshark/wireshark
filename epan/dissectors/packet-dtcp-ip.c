@@ -4,8 +4,6 @@
  *
  * Copyright 2012, Martin Kaiser <martin@kaiser.cx>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

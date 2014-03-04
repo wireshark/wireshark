@@ -1,7 +1,5 @@
 /* decode_as_dlg.c
  *
- * $Id$
- *
  * Routines to modify dissector tables on the fly.
  *
  * By David Hampton <dhampton@mac.com>

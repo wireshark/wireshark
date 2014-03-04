@@ -1,8 +1,6 @@
 /* packet-l2tp.h
  * Routines for Layer Two Tunnelling Protocol (L2TP) packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

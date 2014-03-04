@@ -3,8 +3,6 @@
  * Rolf Fiedler <rolf.fiedler@innoventif.de> using the LAPD code of
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

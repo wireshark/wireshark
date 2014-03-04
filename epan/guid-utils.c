@@ -1,8 +1,6 @@
 /* guid-utils.c
  * GUID handling
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

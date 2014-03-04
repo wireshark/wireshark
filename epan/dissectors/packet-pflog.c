@@ -1,8 +1,6 @@
 /* packet-pflog.c
  * Routines for pflog (OpenBSD Firewall Logging) packet disassembly
  *
- * $Id$
- *
  * Copyright 2001 Mike Frantzen
  * All rights reserved.
  *

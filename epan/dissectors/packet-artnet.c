@@ -1,8 +1,6 @@
 /* packet-artnet.c
  * Routines for Art-Net packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2003, 2011 by Erwin Rol <erwin@erwinrol.com>
  *
  * Wireshark - Network traffic analyzer

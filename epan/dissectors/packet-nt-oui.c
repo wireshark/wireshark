@@ -1,8 +1,6 @@
 /* packet-nt-oui.c
  * Register an LLC dissector table for Nortel's OUI 00:00:0c
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

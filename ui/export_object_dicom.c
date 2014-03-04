@@ -1,10 +1,7 @@
 /* export_object_dicom.c
- * $Id$
  * Routines for tracking & saving objects found in DICOM streams
  * See also: export_object.c / export_object.h for common code
  * Copyright 2008, David Aggeler <david_aggeler@hispeed.ch>
- *
- * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

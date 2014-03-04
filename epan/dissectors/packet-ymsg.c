@@ -3,8 +3,6 @@
  * Copyright 2003, Wayne Parrott <wayne_p@pacific.net.au>
  * Copied from packet-yhoo.c and updated
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* print_mswin.h
  * Printing support for MSWindows
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2002, Jeffrey C. Foster <jfoste@woodward.com>

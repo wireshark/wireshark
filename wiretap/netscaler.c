@@ -1,7 +1,5 @@
 /* netscaler.c
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 2006 by Ravi Kondamuru <Ravi.Kondamuru@citrix.com>
  *

@@ -4,8 +4,6 @@
  * Copyright (c) 2007, Mikael Magnusson <mikma@users.sourceforge.net>
  * Copyright (c) 2013, Hauke Mehrtens <hauke@hauke-m.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

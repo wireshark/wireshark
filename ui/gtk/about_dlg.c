@@ -1,7 +1,5 @@
 /* about_dlg.c
  *
- * $Id$
- *
  * Ulf Lamping <ulf.lamping@web.de>
  *
  * Wireshark - Network traffic analyzer

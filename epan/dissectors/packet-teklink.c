@@ -2,8 +2,6 @@
  * Routines for TEKLINK dissection
  * Copyright (c)2010 Sven Schnelle <svens@stackframe.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for kismet packet dissection
  * Copyright 2006, Krzysztof Burghardt <krzysztof@burghardt.pl>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

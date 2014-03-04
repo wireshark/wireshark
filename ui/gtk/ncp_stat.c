@@ -1,8 +1,6 @@
 /* ncp_stat.c
  * ncp_stat   2005 Greg Morris
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

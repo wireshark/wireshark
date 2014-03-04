@@ -3,8 +3,6 @@
  * This decoder is for FC-SP version 1.1
  * Copyright 2003, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for NASDAQ SOUP 2.0 Protocol dissection
  * Copyright 2007,2008 Didier Gautheron <dgautheron@magic.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

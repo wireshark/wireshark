@@ -4,8 +4,6 @@
  *
  * http://www.nato.int/structur/AC/224/standard/4607/4607e_JAS_ED3.pdf
  *
- * $Id$
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2

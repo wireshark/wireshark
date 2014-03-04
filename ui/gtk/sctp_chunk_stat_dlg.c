@@ -2,8 +2,6 @@
  * Copyright 2004, Irene Ruengeler <i.ruengeler [AT] fh-muenster.de>
  * Copyright 2009, Varun Notibala <nbvarun [AT] gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

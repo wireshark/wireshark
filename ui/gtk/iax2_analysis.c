@@ -1,8 +1,6 @@
 /* iax2_analysis.c
  * IAX2 analysis addition for Wireshark
  *
- * $Id$
- *
  * based on rtp_analysis.c
  * Copyright 2003, Alcatel Business Systems
  * By Lars Ruoff <lars.ruoff@gmx.net>

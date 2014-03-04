@@ -4,8 +4,6 @@
  *   Copyright 2003  Ronnie Sahlberg, exchange first/last matching and
  *                                    tap listener and misc updates
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

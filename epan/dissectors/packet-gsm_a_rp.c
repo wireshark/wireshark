@@ -11,8 +11,6 @@
  *   support on mobile radio interface
  *   (3GPP TS 24.011 version 4.1.1 Release 4)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

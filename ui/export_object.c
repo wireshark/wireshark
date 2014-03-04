@@ -2,8 +2,6 @@
  * Common routines for tracking & saving objects found in streams of data
  * Copyright 2007, Stephen Fisher (see AUTHORS file)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

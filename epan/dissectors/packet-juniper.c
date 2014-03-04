@@ -2,8 +2,6 @@
  * Routines for Juniper Networks, Inc. packet disassembly
  * Copyright 2005 Hannes Gredler <hannes@juniper.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

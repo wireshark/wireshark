@@ -2,8 +2,6 @@
  * Routines for roofnet dissection
  * Copyright 2006, Sebastien Tandel (sebastien@tandel.be)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -7,8 +7,6 @@
  * Torrey Atcitty <tatcitty[AT]harman.com> and Craig Gunther <craig.gunther[AT]harman.com>
  * Copyright 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for FC Link Control Frames
  * Copyright 2001, Dinesh G Dutt <ddutt@cisco.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

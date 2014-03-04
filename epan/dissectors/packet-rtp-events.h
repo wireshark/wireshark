@@ -3,8 +3,6 @@
  * Defines for RFC 2833 RTP Events dissection
  * Copyright 2003, Kevin A. Noll <knoll[AT]poss.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

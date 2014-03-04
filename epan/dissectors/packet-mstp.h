@@ -2,8 +2,6 @@
  * Routines for BACnet MS/TP datalink dissection
  * Copyright 2008 Steve Karg <skarg@users.sourceforge.net> Alabama
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

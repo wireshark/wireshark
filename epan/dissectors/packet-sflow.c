@@ -7,8 +7,6 @@
  *
  * By Yi Yu <yiyu.inbox@gmail.com>
  *
- * $Id$
- *
  * TODO:
  *   802.11 aggregation data dissection                         (sFlow v5)
  *

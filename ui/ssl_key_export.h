@@ -1,7 +1,5 @@
 /* export_sslkeys.h
  *
- * $Id$
- *
  * SSL session key utilities. Copied from ui/gkt/export_sslkeys.c
  * by Sake Blok <sake@euronet.nl> (20110526)
  *

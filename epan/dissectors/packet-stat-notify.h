@@ -2,8 +2,6 @@
  * Async callback to notify NSM servers of changes in client status
  * 2001 Ronnie Sahlberg <See AUTHORS for email>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

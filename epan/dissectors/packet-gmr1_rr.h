@@ -11,8 +11,6 @@
  *  [5] ETSI TS 101 376-4-12 V3.2.1 - GMR-1 3G 44.060
  *  [6] ETSI TS 101 376-5-6 V1.3.1 - GMR-1 05.008
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

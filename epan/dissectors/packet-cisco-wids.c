@@ -2,8 +2,6 @@
  * Routines for dissecting wireless ids packets sent from a Cisco
  * access point to the WLSE (or whatever)
  *
- * $Id$
- *
  * Copyright 2006 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

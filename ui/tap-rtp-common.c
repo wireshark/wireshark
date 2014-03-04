@@ -1,8 +1,6 @@
 /* tap-rtp-common.c
  * RTP stream handler functions used by tshark and wireshark
  *
- * $Id$
- *
  * Copyright 2008, Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *

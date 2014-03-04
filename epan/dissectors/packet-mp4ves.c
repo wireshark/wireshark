@@ -3,8 +3,6 @@
  * Routines for MPEG4 dissection
  * Copyright 2007-2008, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

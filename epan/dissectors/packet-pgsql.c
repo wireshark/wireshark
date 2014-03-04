@@ -3,8 +3,6 @@
  * <http://www.postgresql.org/docs/current/static/protocol.html>
  * Copyright 2004 Abhijit Menon-Sen <ams@oryx.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

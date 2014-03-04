@@ -2,8 +2,6 @@
  * Routines for the disassembly of Foundry LLC messages (currently
  * Foundry Discovery Protocol - FDP only)
  *
- * $Id$
- *
  * Copyright 2012 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

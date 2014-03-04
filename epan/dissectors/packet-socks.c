@@ -3,8 +3,6 @@
  * Copyright 2000, Jeffrey C. Foster <jfoste@woodward.com>
  * Copyright 2008, Jelmer Vernooij <jelmer@samba.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

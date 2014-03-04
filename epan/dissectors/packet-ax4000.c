@@ -2,8 +2,6 @@
  * Routines for Spirent AX/4000 Test Block dissection
  * Copyright 2004, SEKINE Hideki <sekineh@gf7.so-net.ne.jp>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

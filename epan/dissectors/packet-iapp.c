@@ -2,8 +2,6 @@
  * Routines for IAPP dissection
  * Copyright 2002, Alfred Arnold <aarnold@elsa.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This source code is a product of Sun Microsystems, Inc. and is provided
  * for unrestricted use.  Users may copy or modify this source code without
  * charge.

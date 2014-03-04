@@ -1,8 +1,6 @@
 /* geoip_db.h
  * GeoIP database support
  *
- * $Id$
- *
  * Copyright 2008, Gerald Combs <gerald@wireshark.org>
  *
  * Wireshark - Network traffic analyzer

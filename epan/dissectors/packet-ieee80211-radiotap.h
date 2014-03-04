@@ -2,8 +2,6 @@
  * packet-ieee80211-radiotap.h
  *	Declarations for packet-ieee80211-radiotap.c
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

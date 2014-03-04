@@ -2,8 +2,6 @@
  * Routines for OUCH 4.x protocol dissection
  * Copyright 2013 David Arnold <davida@pobox.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

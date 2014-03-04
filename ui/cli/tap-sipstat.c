@@ -1,8 +1,6 @@
 /* tap_sipstat.c
  * sip message counter for wireshark
  *
- * $Id$
- * Copied from ui/gtk/sip_stat.c and tap-httpstat.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

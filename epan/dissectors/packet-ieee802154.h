@@ -1,7 +1,5 @@
 /* packet-ieee802154.h
  *
- * $Id$
- *
  * IEEE 802.15.4 Dissectors for Wireshark
  * By Owen Kirby <osk@exegin.com>
  * Copyright 2007 Exegin Technologies Limited

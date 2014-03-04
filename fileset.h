@@ -1,8 +1,6 @@
 /* fileset.h
  * Definitions for routines for file sets.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

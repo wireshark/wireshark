@@ -1,8 +1,6 @@
 /* tap_export_pdu.h
  * Routines for exporting PDU:s to file
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

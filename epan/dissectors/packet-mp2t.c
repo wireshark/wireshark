@@ -2,8 +2,6 @@
  *
  * Routines for RFC 2250 MPEG2 (ISO/IEC 13818-1) Transport Stream dissection
  *
- * $Id$
- *
  * Copyright 2006, Erwin Rol <erwin@erwinrol.com>
  * Copyright 2012, Guy Martin <gmsoft@tuxicoman.be>
  *

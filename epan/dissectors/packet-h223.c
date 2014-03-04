@@ -2,8 +2,6 @@
  * Routines for H.223 packet dissection
  * Copyright (c) 2004-5 MX Telecom Ltd <richardv@mxtelecom.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

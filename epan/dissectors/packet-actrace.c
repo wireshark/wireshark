@@ -3,8 +3,6 @@
  *
  * Copyright (c) 2005 by Alejandro Vaquero <alejandro.vaquero@verso.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs

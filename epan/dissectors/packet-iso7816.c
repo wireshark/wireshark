@@ -2,8 +2,6 @@
  * Routines for packet dissection of generic ISO 7816 smart card messages
  * Copyright 2012-2013 by Martin Kaiser <martin@kaiser.cx>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-erspan.c
  * Routines for the disassembly of Cisco's ERSPAN protocol
  *
- * $Id$
- *
  * Copyright 2005 Joerg Mayer (see AUTHORS file)
  * Updates for newer versions by Jason Masker <jason at masker.net>
  *

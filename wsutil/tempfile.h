@@ -1,8 +1,6 @@
 /* tempfile.h
  * Declarations of routines to create temporary files
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

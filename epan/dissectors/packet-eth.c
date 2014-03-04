@@ -1,8 +1,6 @@
 /* packet-eth.c
  * Routines for ethernet packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

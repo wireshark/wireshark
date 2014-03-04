@@ -3,8 +3,6 @@
  * Copyright 2005, Tim Hentenaar < tim at hentenaar dot com >
  * Copyright 2008, Mohammad Ebrahim Mohammadi Panah < mebrahim at gmail dot com >
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

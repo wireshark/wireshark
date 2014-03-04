@@ -1,8 +1,6 @@
 /* software_update.h
  * Wrappers and routines to check for software updates.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

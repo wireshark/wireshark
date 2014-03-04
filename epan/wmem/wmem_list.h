@@ -2,8 +2,6 @@
  * Definitions for the Wireshark Memory Manager Doubly-Linked List
  * Copyright 2012, Evan Huus <eapache@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

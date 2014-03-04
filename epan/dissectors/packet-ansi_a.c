@@ -18,8 +18,6 @@
  *   RTP Payload Format for the Enhanced Variable Rate Wideband Codec (EVRC-WB)
  *   and the Media Subtype Updates for EVRC-B Codec
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

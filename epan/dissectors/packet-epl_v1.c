@@ -10,8 +10,6 @@
  *                     - David Buechi <bhd@zhwin.ch>
  *
  *
- * $Id$
- *
  * A dissector for:
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

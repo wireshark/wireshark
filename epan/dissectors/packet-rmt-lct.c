@@ -17,8 +17,6 @@
  * References:
  *     RFC 3451, Layered Coding Transport (LCT) Building Block
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

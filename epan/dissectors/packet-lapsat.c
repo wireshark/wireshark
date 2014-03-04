@@ -12,8 +12,6 @@
  * References:
  *  [1] ETSI TS 101 376-4-6 V1.2.1 - GMR-1 04.006
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

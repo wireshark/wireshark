@@ -2,8 +2,6 @@
  * Dissector  routines for the ATMEL Lightweight Mesh 1.1.1
  * Copyright 2013 Martin Leixner <info@sewio.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

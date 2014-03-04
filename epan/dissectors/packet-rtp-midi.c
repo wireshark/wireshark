@@ -3,8 +3,6 @@
  * Routines for RFC 4695/6295 RTP-MIDI dissection
  * Copyright 2006-2012, Tobias Erichsen <t.erichsen@gmx.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>'
  * Copyright 1998 Gerald Combs

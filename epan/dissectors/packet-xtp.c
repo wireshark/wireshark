@@ -2,8 +2,6 @@
  * Routines for Xpress Transport Protocol dissection
  * Copyright 2008, Shigeo Nakamura <naka_shigeo@yahoo.co.jp>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* frequency-utils.c
  * Frequency conversion utility definitions
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2007 Gerald Combs

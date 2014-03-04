@@ -2,8 +2,6 @@
  * Routines for lapb frame disassembly
  * Olivier Abad <oabad@noos.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

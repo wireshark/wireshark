@@ -2,8 +2,6 @@
  * Routines for Wellfleet HDLC packet disassembly
  * Copied from the Cisco HDLC packet disassembly routines
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -3,8 +3,6 @@
  * Routines for RDT dissection
  * RDT = Real Data Transport
  *
- * $Id$
- *
  * Written by Martin Mathieson
  *
  * Wireshark - Network traffic analyzer

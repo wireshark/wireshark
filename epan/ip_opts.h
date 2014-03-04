@@ -2,8 +2,6 @@
  * Definitions of structures and routines for dissection of options that
  * work like IPv4 options
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

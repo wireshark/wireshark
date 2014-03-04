@@ -17,8 +17,6 @@
  *
  * Copyright 2012, Jerome LAFORGE <jerome.laforge [AT] gmail.com>
  *
- * $Id$
- *
  * The information used comes from:
  * RFC	951: Bootstrap Protocol
  * RFC 1035: Domain Names - Implementation And Specification

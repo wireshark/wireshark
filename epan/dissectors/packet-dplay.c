@@ -2,8 +2,6 @@
  * This is a dissector for the DirectPlay protocol.
  * Copyright 2006 - 2008 by Kai Blin
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

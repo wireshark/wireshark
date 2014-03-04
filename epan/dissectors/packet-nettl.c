@@ -4,8 +4,6 @@
  * Original Author Mark C. Brown <mbrown@hp.com>
  * Copyright (C) 2005 Hewlett-Packard Development Company, L.P.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

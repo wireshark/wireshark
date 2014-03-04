@@ -1,8 +1,6 @@
 /* packet-clnp.c
  * Routines for ISO/OSI network protocol packet disassembly
  *
- * $Id$
- * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Wireshark - Network traffic analyzer

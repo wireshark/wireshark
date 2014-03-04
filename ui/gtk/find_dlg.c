@@ -1,8 +1,6 @@
 /* find_dlg.c
  * Routines for "find frame" window
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

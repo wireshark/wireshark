@@ -2,8 +2,6 @@
  * Definitions for the "Capture Options" dialog and dialog windows popped
  * up from it
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

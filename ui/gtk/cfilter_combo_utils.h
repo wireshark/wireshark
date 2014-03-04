@@ -1,8 +1,6 @@
 /* cfilter_combo_utils.h
  * Capture filter combo box routines
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

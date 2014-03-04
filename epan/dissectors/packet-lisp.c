@@ -2,8 +2,6 @@
  * Routines for Locator/ID Separation Protocol (LISP) Control Message dissection
  * Copyright 2011, Lorand Jakab <lj@lispmon.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

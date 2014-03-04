@@ -4,8 +4,6 @@
  * Copyright 2006, Sebastien Tandel <sebastien[AT]tandel.be>
  * Copyright 2009, Luca Ceresoli <luca[AT]lucaceresoli.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for Babel dissection (RFC 6126)
  * Copyright 2011 by Juliusz Chroboczek <jch@pps.jussieu.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

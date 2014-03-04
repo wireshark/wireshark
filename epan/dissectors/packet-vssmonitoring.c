@@ -5,8 +5,6 @@
  *
  * 20111205 - First edition by Sake Blok (sake.blok@SYN-bit.nl)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -9,8 +9,6 @@
  *      the data of a backing tvbuff, or can be a composite of
  *      other tvbuffs.
  *
- * $Id$
- *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Wireshark - Network traffic analyzer

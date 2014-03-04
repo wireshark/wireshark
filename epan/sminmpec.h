@@ -1,8 +1,6 @@
 /* sminmpec.h
  * SMI Network Management Private Enterprise Codes for organizations
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2004 Gerald Combs

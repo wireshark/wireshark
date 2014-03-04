@@ -2,8 +2,6 @@
  * Dialog to setup for import of a text file, like text2pcap
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

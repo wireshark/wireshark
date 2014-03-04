@@ -1,8 +1,6 @@
 /* packet-slowprotocols.c
  * Routines for EtherType (0x8809) Slow Protocols disassembly.
  *
- * $Id$
- *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
  * Copyright 2005 Dominique Bastien <dbastien@accedian.com>
  * Copyright 2009 Artem Tamazov <artem.tamazov@telllabs.com>

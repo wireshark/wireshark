@@ -5,8 +5,6 @@
 /* packet-dcerpc-budb.h
  * Routines for BUDB packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

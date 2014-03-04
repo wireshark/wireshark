@@ -2,8 +2,6 @@
  * Routines for HP extended IEEE 802.2 LLC layer
  * Jochen Friedrich <jochen@scram.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

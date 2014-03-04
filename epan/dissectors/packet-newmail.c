@@ -2,8 +2,6 @@
  * Routines for Exchange New Mail Notification dissection
  * Copyright 2006, Stephen Fisher (see AUTHORS file)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

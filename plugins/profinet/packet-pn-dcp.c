@@ -2,8 +2,6 @@
  * Routines for PN-DCP (PROFINET Discovery and basic Configuration Protocol)
  * packet dissection.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs

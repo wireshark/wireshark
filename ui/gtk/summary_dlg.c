@@ -1,8 +1,6 @@
 /* summary_dlg.c
  * Routines for capture file summary window
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

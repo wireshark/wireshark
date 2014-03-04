@@ -7,8 +7,6 @@
  * http://www.dgs.monash.edu.au/~timf/bottim/
  * http://www.opt-sci.Arizona.EDU/Pandora/default.asp
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

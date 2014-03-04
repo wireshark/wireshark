@@ -2,8 +2,6 @@
  * Routines for MBMS synchronisation protocol dissection
  * Copyright 2012, David Wei <davidwei@lavabit.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

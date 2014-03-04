@@ -1,7 +1,5 @@
 /* i4btrace.c
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 1999 by Bert Driehuis <driehuis@playbeing.org>
  *

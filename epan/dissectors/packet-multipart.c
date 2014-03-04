@@ -3,8 +3,6 @@
  * Copyright 2004, Anders Broman.
  * Copyright 2004, Olivier Biot.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

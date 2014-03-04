@@ -1,8 +1,6 @@
 /* capture_opts.h
  * Capture options (all parameters needed to do the actual capture)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

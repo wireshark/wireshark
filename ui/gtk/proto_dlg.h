@@ -1,7 +1,5 @@
 /* proto_dlg.h
  *
- * $Id$
- *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Wireshark - Network traffic analyzer

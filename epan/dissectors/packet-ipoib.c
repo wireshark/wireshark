@@ -2,8 +2,6 @@
  * Routines for decoding IP over InfiniBand (IPoIB) packet disassembly
  * See: http://tools.ietf.org/html/rfc4391#section-6
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

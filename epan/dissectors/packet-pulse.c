@@ -3,8 +3,6 @@
  * Copyright 2013, Masatake YAMATO <yamato@redhat.com>
  * Copyright 2013, Red Hat, Inc.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

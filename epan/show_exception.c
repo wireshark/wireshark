@@ -2,8 +2,6 @@
  *
  * Routines to put exception information into the protocol tree
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs

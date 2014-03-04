@@ -2,8 +2,6 @@
  * Routines for SSCF-NNI (Q.2140) frame disassembly
  * Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

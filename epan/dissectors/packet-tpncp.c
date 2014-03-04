@@ -3,8 +3,6 @@
  *
  * Copyright (c) 2007 by Valery Sigalov <valery.sigalov@audiocodes.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.com>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Declaration of routine for dissecting 802.3 (as opposed to D/I/X Ethernet)
  * packets.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

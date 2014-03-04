@@ -2,8 +2,6 @@
  *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs

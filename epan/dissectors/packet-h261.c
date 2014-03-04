@@ -2,8 +2,6 @@
  *
  * Routines for ITU-T Recommendation H.261 dissection
  *
- * $Id$
- *
  * Copyright 2000, Philips Electronics N.V.
  * Andreas Sikkema <h323@ramdyne.nl>
  *

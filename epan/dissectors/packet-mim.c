@@ -2,8 +2,6 @@
  * Routines for analyzing Cisco FabricPath MiM packets
  * Copyright 2011, Leonard Tracy <letracy@cisco.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

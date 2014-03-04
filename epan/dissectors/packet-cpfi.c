@@ -5,8 +5,6 @@
  *
  * Copyright 2003, Dave Sclarsky <dave_sclarsky[AT]cnt.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

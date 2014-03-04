@@ -1,7 +1,5 @@
 /* packet-gtp.c
  *
- * $Id$
- *
  * Routines for GTP dissection
  * Copyright 2001, Michal Melerowicz <michal.melerowicz@nokia.com>
  *                 Nicolas Balkota <balkota@mac.com>

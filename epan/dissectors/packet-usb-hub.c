@@ -2,8 +2,6 @@
  * Routines for USB HUB dissection
  * Copyright 2009, Marton Nemeth <nm127@freemail.hu>
  *
- * $Id$
- *
  * USB HUB Specification can be found in the Universal Serial Bus
  * Specification 2.0, Chapter 11 Hub Specification.
  * http://www.usb.org/developers/docs/usb_20_052709.zip

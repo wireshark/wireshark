@@ -1,8 +1,6 @@
 /* in_cksum.h
  * Declaration of Internet checksum routine.
  *
- * $Id$
- */
 
 /*
  * Copyright (c) 1988, 1992, 1993

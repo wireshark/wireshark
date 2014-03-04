@@ -2,8 +2,6 @@
  * Basic Fibre Channel Header definitions
  * Copyright 2002 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

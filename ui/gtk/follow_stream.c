@@ -1,8 +1,6 @@
 /* follow_stream.c
  * Common routines for following data streams
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

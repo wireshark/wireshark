@@ -1,8 +1,6 @@
 /* oids.h
  * Object IDentifier Support
  *
- * $Id$
- *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * Wireshark - Network traffic analyzer

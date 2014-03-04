@@ -5,8 +5,6 @@
  *
  *  Copyright (c) 2005, Luis E. Garia Ontanon <luis@ontanon.org>
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

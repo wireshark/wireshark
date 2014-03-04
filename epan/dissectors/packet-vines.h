@@ -1,8 +1,6 @@
 /* packet-vines.h
  * Definitions for packet disassembly structures and routines
  *
- * $Id$
- *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Wireshark - Network traffic analyzer

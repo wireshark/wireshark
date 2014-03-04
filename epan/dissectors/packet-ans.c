@@ -1,8 +1,6 @@
 /* packet-ans.c
  * Routines for Intel ANS probe dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2003 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for Firebird/Interbase dissection
  * Copyright 2007, Moshe van der Sterre <moshevds@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

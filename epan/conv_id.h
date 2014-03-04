@@ -1,8 +1,6 @@
 /* conv_id.h
  * conv_id   2011 Robert Bullen
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

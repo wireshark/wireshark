@@ -6,8 +6,6 @@
  * Enhanced by Felix Kraemer, 2010, <sauter-cumulus[AT]de.sauter-bc.com>,
  *  Sauter-Cumulus GmbH, Freiburg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

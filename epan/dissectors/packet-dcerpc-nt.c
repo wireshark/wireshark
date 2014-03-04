@@ -6,8 +6,6 @@
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
  * Copyright 2011-2013, Matthieu Patou <mat@matws.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

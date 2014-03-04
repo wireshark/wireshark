@@ -1,8 +1,6 @@
 /* iax2_codec_type.h
  * Defines IAX2 codec types
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for WaveAgent dissection
  * Copyright 2009-2011, Tom Cook <tcook@ixiacom.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

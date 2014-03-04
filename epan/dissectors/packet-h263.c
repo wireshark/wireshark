@@ -8,8 +8,6 @@
  * Copyright 2008 Richard van der Hoff, MX Telecom
  * <richardv@mxtelecom.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

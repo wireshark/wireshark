@@ -2,8 +2,6 @@
  * Routines to fetch the last directory in which a file was opened;
  * its implementation is GUI-dependent, but the API isn't
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

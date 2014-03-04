@@ -1,8 +1,6 @@
 /* unicode-utils.h
  * Unicode utility definitions
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2006 Gerald Combs

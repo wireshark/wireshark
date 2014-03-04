@@ -8,8 +8,6 @@
  * Dissection of multiple SMPP PDUs within one packet
  * provided by Chris Wilson.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

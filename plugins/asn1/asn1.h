@@ -1,8 +1,6 @@
 /* asn1.h
  * Definitions for ASN.1 BER dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

@@ -2,8 +2,6 @@
  * Routines for the Armagetronad packet dissection
  * Copyright 2005, Guillaume Chazarain <guichaz@yahoo.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

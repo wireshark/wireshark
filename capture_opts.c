@@ -1,8 +1,6 @@
 /* capture_opts.c
  * Routines for capture options setting
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

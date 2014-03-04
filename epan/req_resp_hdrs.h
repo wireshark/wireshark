@@ -2,8 +2,6 @@
  * Declarations of routines handling protocols with a request/response line,
  * headers, a blank line, and an optional body.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

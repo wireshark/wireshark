@@ -1,8 +1,6 @@
 /* packet-telkonet.c
  * Routines for ethertype 0x88A1 tunneling dissection
  *
- * $Id$
- *
  * Copyright 2006 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

@@ -9,8 +9,6 @@
  * Added support for Connection Configuration Object
  *   ryan wamsley * Copyright 2007
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

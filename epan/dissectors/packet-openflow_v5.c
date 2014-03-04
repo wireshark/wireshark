@@ -3,8 +3,6 @@
  * Copyright 2013, Anders Broman <anders.broman@ericsson.com>
  * Copyright 2013, Zoltan Lajos Kis <zoltan.lajos.kis@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

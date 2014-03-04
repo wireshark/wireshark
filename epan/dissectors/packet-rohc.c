@@ -4,8 +4,6 @@
  * Copyright 2011, Anders Broman <anders.broman[at]ericsson.com>
  *                 Per Liedberg  <per.liedberg [at]ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

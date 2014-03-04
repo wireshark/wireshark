@@ -3,8 +3,6 @@
  *
  * Copyright 2012, Allan M. Madsen <allan.m@madsen.dk>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

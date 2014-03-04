@@ -12,8 +12,6 @@
  * 1.0 and later.  They also say it'll be used by future WildPackets
  * products.
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

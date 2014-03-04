@@ -7,8 +7,6 @@
  * OMG mars/2008-12-20
  * http://www.omg.org/docs/ptc/09-01-03.pdf
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

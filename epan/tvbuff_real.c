@@ -1,7 +1,5 @@
 /* tvbuff_real.c
  *
- * $Id$
- *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Wireshark - Network traffic analyzer

@@ -1,8 +1,6 @@
 /* packet-skype.c
  * Routines for the disassembly of Skype
  *
- * $Id$
- *
  * Copyright 2009 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

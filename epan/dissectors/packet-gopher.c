@@ -2,8 +2,6 @@
  * Routines for RFC 1436 Gopher protocol dissection
  * Copyright 2010, Gerald Combs <gerald@wireshark.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

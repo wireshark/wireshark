@@ -2,8 +2,6 @@
  * Routines for OPSI protocol dissection
  * Copyright 2004, Laurent Rabret (France Telecom R&D) <laurent.rabret@i.hate.spams.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

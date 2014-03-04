@@ -1,8 +1,6 @@
 /* main_80211_toolbar.c
  * The 802.11 toolbar by Pontus Fuchs <pontus.fuchs@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

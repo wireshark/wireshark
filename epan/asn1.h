@@ -2,8 +2,6 @@
  * Common data for ASN.1
  * 2007  Anders Broman
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

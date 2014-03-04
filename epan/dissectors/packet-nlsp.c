@@ -1,8 +1,6 @@
 /* packet-nlsp.c
  * Routines for NetWare Link Services Protocol
  *
- * $Id$
- *
  * Based on ISIS dissector by Stuart Stanley <stuarts@mxmail.net>
  *
  * Wireshark - Network traffic analyzer

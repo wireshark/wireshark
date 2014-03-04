@@ -3,8 +3,6 @@
  * Routines for IDRP packet dissection.
  * Copyright 2013, Mathias Guettler <guettler@web.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

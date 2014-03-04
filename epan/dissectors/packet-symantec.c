@@ -3,8 +3,6 @@
  * Symantec Enterprise Firewall/Symantec Gateway Security appliance
  * v2/Symantec Gateway Security appliance v3.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

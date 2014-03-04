@@ -3,8 +3,6 @@
  * Routines for RTP dissection
  * RTP = Real time Transport Protocol
  *
- * $Id$
- *
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <andreas.sikkema@philips.com>
  *

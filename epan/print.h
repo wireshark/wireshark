@@ -1,8 +1,6 @@
 /* print.h
  * Definitions for printing packet analysis trees.
  *
- * $Id$
- *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Wireshark - Network traffic analyzer

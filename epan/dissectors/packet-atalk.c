@@ -2,8 +2,6 @@
  * Routines for AppleTalk packet disassembly: LLAP, DDP, NBP, ATP, ASP,
  * RTMP, PAP.
  *
- * $Id$
- *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
  * Wireshark - Network traffic analyzer

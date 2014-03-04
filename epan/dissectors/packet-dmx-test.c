@@ -1,8 +1,6 @@
 /* packet-dmx-test.c
  * DMX Test packet disassembly.
  *
- * $Id$
- *
  * This dissector is written by
  *
  *  Erwin Rol <erwin@erwinrol.com>

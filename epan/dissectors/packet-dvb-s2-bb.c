@@ -9,8 +9,6 @@
  *
  * Copyright 2012, Tobias Rutz <tobias.rutz@work-microwave.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -5,8 +5,6 @@
  *
  * MySQL 4.1+ protocol by Axel Schwenke <axel@mysql.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

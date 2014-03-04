@@ -28,8 +28,6 @@
  *     reassembled table.
  *     #define debug  to enable the code.
  *
- * $Id$
- *
  * Copyright (c) 2007 MX Telecom Ltd. <richardv@mxtelecom.com>
  *
  * Wireshark - Network traffic analyzer

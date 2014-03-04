@@ -12,8 +12,6 @@
  * Modified and added on the basis of information and names from the eMule 0.50 source code
  * found at http://www.emule-project.net
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

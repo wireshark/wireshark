@@ -1,8 +1,6 @@
 /* packet-imf.c
  * Routines for Internet Message Format (IMF) packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2007 by Graeme Lunt
  *
  * Wireshark - Network traffic analyzer

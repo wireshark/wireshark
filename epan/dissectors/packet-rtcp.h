@@ -1,7 +1,5 @@
 /* packet-rtcp.h
  *
- * $Id$
- *
  * Routines for RTCP dissection
  * RTCP = Real-time Transport Control Protocol
  *

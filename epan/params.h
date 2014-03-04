@@ -1,8 +1,6 @@
 /* params.h
  * Definitions for parameter handling routines
  *
- * $Id$
- *
  * Ethereal - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

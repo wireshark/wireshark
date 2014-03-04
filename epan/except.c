@@ -2,8 +2,6 @@
  * Portable Exception Handling for ANSI C.
  * Copyright (C) 1999 Kaz Kylheku <kaz@ashi.footprints.net>
  *
- * $Id$
- *
  * Free Software License:
  *
  * All rights are reserved by the author, with the following exceptions:

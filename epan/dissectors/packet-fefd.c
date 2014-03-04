@@ -1,8 +1,6 @@
 /* packet-fefd.c
  * Routines for the disassembly of the "Far End Failure Detection"
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

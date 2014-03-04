@@ -2,8 +2,6 @@
  * Routines to dissect STANAG 5066 Subnetwork Interface Sublayer (SIS)
  * packets, as described in Annex A of STANAG 5066.
  *
- * $Id$
- *
  * Copyright (c) 2005 by Menno Andriesse <s5066 [AT] nc3a.nato.int>
  *
  * Wireshark - Network traffic analyzer

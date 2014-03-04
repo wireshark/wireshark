@@ -2,8 +2,6 @@
  * Routines for Honeypot Protocol Feeds packet disassembly
  * Copyright 2013, Sebastiano DI PAOLA - <sebastiano.dipaola@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

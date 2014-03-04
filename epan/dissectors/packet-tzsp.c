@@ -1,7 +1,5 @@
 /* packet-tzsp.c
  *
- * $Id$
- *
  * Copyright 2002, Tazmen Technologies Inc
  *
  * Tazmen Sniffer Protocol for encapsulating the packets across a network

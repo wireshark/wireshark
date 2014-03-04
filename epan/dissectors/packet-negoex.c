@@ -4,8 +4,6 @@
  * Copyright 2012 Richard Sharpe <realrichardsharpe@gmail.com>
  * Routines for SPNEGO Extended Negotiation Security Mechanism
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

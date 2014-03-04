@@ -2,8 +2,6 @@
  * Routines for RPKI-Router Protocol dissection (RFC6810)
  * Copyright 2013, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

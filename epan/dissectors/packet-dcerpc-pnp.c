@@ -2,8 +2,6 @@
  * Routines for the pnp (Plug and Play) MSRPC interface
  * Copyright 2005 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

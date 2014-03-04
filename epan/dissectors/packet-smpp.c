@@ -20,8 +20,6 @@
  * Enhanced error code handling
  * provided by Stipe Tolj from Kannel.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

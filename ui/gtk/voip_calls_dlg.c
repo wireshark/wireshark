@@ -1,8 +1,6 @@
 /* voip_calls_dlg.c
  * VoIP calls summary addition for Wireshark
  *
- * $Id$
- *
  * Copyright 2004, Ericsson , Spain
  * By Francisco Alcoba <francisco.alcoba@ericsson.com>
  *

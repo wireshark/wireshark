@@ -1,8 +1,6 @@
 /* packet-isis-clv.h
  * Declares for common clv decoding functions.
  *
- * $Id$
- * Stuart Stanley <stuarts@mxmail.net>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

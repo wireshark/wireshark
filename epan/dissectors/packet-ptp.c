@@ -24,8 +24,6 @@
  *   - allow multiple TLVs
  *   - bugfix in logInterMessagePeriod guint8 -> gint8
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

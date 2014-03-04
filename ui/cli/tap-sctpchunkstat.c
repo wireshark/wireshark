@@ -2,8 +2,6 @@
  * SCTP chunk counter for wireshark
  * Copyright 2005 Oleg Terletsky <oleg.terletsky@comverse.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

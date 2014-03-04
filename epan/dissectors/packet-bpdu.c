@@ -1,8 +1,6 @@
 /* packet-bpdu.c
  * Routines for BPDU (Spanning Tree Protocol) disassembly
  *
- * $Id$
- *
  * Copyright 1999 Christophe Tronche <ch.tronche@computer.org>
  *
  * Wireshark - Network traffic analyzer

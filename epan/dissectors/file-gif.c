@@ -3,8 +3,6 @@
  * Routines for image/gif media dissection
  * Copyright 2003, 2004, Olivier Biot.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

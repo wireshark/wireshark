@@ -2,8 +2,6 @@
  * Routines for LGE Monitor packet dissection
  * Copyright 2006, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

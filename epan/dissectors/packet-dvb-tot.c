@@ -2,8 +2,6 @@
  * Routines for DVB (ETSI EN 300 468) Time Offset Table (TOT) dissection
  * Copyright 2012, Guy Martin <gmsoft@tuxicoman.be>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -10,8 +10,6 @@
  * provided by the EIA-485 physical layer."  See section 9.3 for the
  * frame format.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

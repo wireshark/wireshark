@@ -3,8 +3,6 @@
  * Daniel Willmann <daniel@totalueberwachung.de>
  * (c) 2011 Daniel Willmann
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

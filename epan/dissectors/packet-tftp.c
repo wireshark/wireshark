@@ -7,8 +7,6 @@
  * Joerg Mayer (see AUTHORS file)
  *      RFC2348 TFTP Blocksize Option
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

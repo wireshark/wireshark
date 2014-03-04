@@ -1,8 +1,6 @@
 /* packet-esl.c
  * Routines for EtherCAT Switch Link disassembly
  *
- * $Id$
- *
  * Copyright (c) 2007 by Beckhoff Automation GmbH
  *
  * Wireshark - Network traffic analyzer

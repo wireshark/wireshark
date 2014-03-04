@@ -11,8 +11,6 @@
  * Updated to HCI specification 3.0+HS & 4.0
  *   Allan M. Madsen 2012
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

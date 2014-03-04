@@ -1,8 +1,6 @@
 /* prefs_layout.h
  * Definitions for layout preferences window
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

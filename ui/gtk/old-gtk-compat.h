@@ -2,8 +2,6 @@
  * Definitions to provide some functions that are not present in older
  * GTK versions (down to 2.12.0)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

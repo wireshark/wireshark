@@ -1,8 +1,6 @@
 /* packet-null.c
  * Routines for null packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

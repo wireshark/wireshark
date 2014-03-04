@@ -6,8 +6,6 @@
  * Copyright 2008, Gael Breard <gael@breard.org>
  * Copyright 2013, Media5 Corporation, David Bergeron <dbergeron@media5corp.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

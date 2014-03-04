@@ -2,8 +2,6 @@
  *
  * Defintion of SCTP specific structures used by tap listeners.
  *
- * $Id$
- * Copyright 2004 Michael Tuexen <tuexen [AT] fh-muenster.de>
 
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

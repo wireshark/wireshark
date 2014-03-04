@@ -2,8 +2,6 @@
  * Routines for dissection of Cisco's MetaData protocol.
  * Copyright 2013 by Vaibhav Katkade (vkatkade[AT]cisco.com)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

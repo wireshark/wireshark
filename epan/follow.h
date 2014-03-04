@@ -1,7 +1,5 @@
 /* follow.h
  *
- * $Id$
- *
  * Copyright 1998 Mike Hall <mlh@io.com>
  *
  * Wireshark - Network traffic analyzer

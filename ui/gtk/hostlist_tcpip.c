@@ -1,8 +1,6 @@
 /* hostlist_tcpip.c   2004 Ian Schorr
  * modified from endpoint_talkers_tcpip.c   2003 Ronnie Sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

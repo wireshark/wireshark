@@ -1,8 +1,6 @@
 /* packet-vines.c
  * Routines for Banyan VINES protocol packet disassembly
  *
- * $Id$
- *
  * Don Lafontaine <lafont02@cn.ca>
  *
  * Wireshark - Network traffic analyzer

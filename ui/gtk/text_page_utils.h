@@ -1,8 +1,6 @@
 /* text_page.h
  * Declarations of routine to construct a simple text page from a file.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

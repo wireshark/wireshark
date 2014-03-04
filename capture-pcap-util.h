@@ -1,8 +1,6 @@
 /* capture-pcap-util.h
  * Utility definitions for packet capture
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

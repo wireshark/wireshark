@@ -4,8 +4,6 @@
  * By Fabio Tarabelloni <fabio.tarabelloni@reloc.it>
  * Copyright 2013 RELOC s.r.l.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

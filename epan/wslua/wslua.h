@@ -7,8 +7,6 @@
  * (c) 2007, Tamas Regos <tamas.regos@ericsson.com>
  * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

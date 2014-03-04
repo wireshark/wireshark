@@ -3,8 +3,6 @@
  * Copyright 2010, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  * BSON dissection added 2011, Thomas Buchanan <tom at thomasbuchanan dot com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

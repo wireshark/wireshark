@@ -1,8 +1,6 @@
 /* fileset_dlg.c
  * Routines for the file set dialog
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

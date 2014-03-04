@@ -6,8 +6,6 @@
  * Copyright 2003, Vincent JARDIN - 6WIND - <vincent.jardin@6wind.com>
  * Copyright 2004, Remi DENIS-COURMONT
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

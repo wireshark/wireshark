@@ -2,8 +2,6 @@
  * Routines for eXtensible Messaging Client Protocol (XMCP) dissection
  * Copyright 2011, Glenn Matthews <glenn.matthews@cisco.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

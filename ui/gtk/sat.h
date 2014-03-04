@@ -2,8 +2,6 @@
  * 2003 Ronnie Sahlberg
  * Sub-address types for MAC/URI addresses
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

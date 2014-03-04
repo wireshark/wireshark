@@ -1,8 +1,6 @@
 /* u3.c
  * u3   2006 Graeme Lunt
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

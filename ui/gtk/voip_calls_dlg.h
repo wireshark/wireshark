@@ -1,8 +1,6 @@
 /* voip_calls_dlg.h
  * VoIP conversations addition for Wireshark
  *
- * $Id$
- *
  * Copyright 2004, Ericsson , Spain
  * By Francisco Alcoba <francisco.alcoba@ericsson.com>
  *

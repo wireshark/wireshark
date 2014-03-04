@@ -1,7 +1,5 @@
 /* packet-usb-audio.c
  *
- * $Id$
- *
  * usb audio dissector
  * Tomasz Mon 2012
  *

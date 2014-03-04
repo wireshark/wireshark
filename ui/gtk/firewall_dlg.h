@@ -1,8 +1,6 @@
 /* firewall_dlg.h
  * Produce ACL rules for various products from a packet.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2006 Gerald Combs

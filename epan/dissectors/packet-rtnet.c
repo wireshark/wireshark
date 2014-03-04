@@ -1,8 +1,6 @@
 /* packet-rtnet.c
  * Routines for RTnet packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  * Copyright (c) 2004 by Jan Kiszka <jan.kiszka@web.de>
  *

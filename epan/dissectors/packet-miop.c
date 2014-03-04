@@ -8,8 +8,6 @@
  * Chapter 29: Unreliable Multicast Inter-ORB Protocol (MIOP)
  * http://www.omg.org/technology/documents/specialized_corba.htm
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

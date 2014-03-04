@@ -3,8 +3,6 @@
  * Copyright 2001, Todd Sabin <tas@webspan.net>
  * Copyright 2011, Matthieu Patou <mat@matws.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

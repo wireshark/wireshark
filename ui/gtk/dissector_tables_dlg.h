@@ -1,8 +1,6 @@
 /* dissector_tables_dlg.h
  * dissector_tables_dlg   2010 Anders Broman
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

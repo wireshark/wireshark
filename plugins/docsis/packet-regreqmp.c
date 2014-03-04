@@ -1,6 +1,4 @@
 /* packet-regreqmp.c
- * $Id$
- * Routines for REG-REQ-MP Message dissection
  * Copyright 2007, Bruno Verstuyft  <bruno.verstuyft@excentis.com>
  *
  * Based on packet-regreq.c (by Anand V. Narwani <anand[AT]narwani.org>)

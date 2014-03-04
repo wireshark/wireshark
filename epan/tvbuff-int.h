@@ -2,8 +2,6 @@
  *
  * Structures that most TVB users should not be accessing directly.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

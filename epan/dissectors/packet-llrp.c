@@ -5,8 +5,6 @@
  *
  * http://www.gs1.org/gsmp/kc/epcglobal/llrp
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

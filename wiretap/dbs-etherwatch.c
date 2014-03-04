@@ -1,7 +1,5 @@
 /* dbs-etherwatch.c
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 2001 by Marc Milgram <ethereal@mmilgram.NOSPAMmail.net>
  *

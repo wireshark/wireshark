@@ -3,8 +3,6 @@
  * such as the lack of a routine to convert a CFString to a C string of
  * arbitrary size.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs

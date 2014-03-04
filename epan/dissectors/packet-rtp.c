@@ -6,8 +6,6 @@
  * Copyright 2000, Philips Electronics N.V.
  * Written by Andreas Sikkema <h323@ramdyne.nl>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

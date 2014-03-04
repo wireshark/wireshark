@@ -8,8 +8,6 @@
  * reversed from this code:
  * http://code.google.com/p/hazelcast/source/browse/branches/1.9.4/hazelcast/src/main/java/com/hazelcast/nio/Packet.java
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-dmx-sip.c
  * DMX SIP packet disassembly.
  *
- * $Id$
- *
  * This dissector is written by
  *
  *  Erwin Rol <erwin@erwinrol.com>

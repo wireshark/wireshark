@@ -2,8 +2,6 @@
  * Routines for the disassembly of Extreme Networks specific
  * protocols (EDP/ESRP/EAPS(including ESL)/ELSM)
  *
- * $Id$
- *
  * Copyright 2005 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

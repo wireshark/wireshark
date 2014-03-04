@@ -1,7 +1,5 @@
 /* iseries.c
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 2011 by Martin Warnes <Martin_Warnes@uk.ibm.com>
  *

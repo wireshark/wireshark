@@ -1,8 +1,6 @@
 /* packet-dec-bpdu.c
  * Routines for DEC BPDU (DEC Spanning Tree Protocol) disassembly
  *
- * $Id$
- *
  * Copyright 2001 Paul Ionescu <paul@acorp.ro>
  *
  * Wireshark - Network traffic analyzer

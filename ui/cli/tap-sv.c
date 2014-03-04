@@ -1,8 +1,6 @@
 /* tap-sv.c
  * Copyright 2008 Michael Bernhard
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

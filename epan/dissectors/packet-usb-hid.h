@@ -1,7 +1,5 @@
 /* packet-usb-hid.h
  *
- * $Id$
- *
  * USB HID dissector
  * By Adam Nielsen <a.nielsen@shikadi.net> 2009
  *

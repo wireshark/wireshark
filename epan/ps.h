@@ -1,8 +1,6 @@
 /* ps.h
  * Definitions for generating PostScript(R) packet output.
  *
- * $Id$
- *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Wireshark - Network traffic analyzer

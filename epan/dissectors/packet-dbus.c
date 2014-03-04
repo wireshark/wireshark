@@ -2,8 +2,6 @@
  * Routines for D-Bus dissection
  * Copyright 2012, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
- * $Id$
- *
  * Protocol specification available at http://dbus.freedesktop.org/doc/dbus-specification.html
  *
  * Wireshark - Network traffic analyzer

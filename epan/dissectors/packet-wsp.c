@@ -2,8 +2,6 @@
  *
  * Routines to dissect WSP component of WAP traffic.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

@@ -3,8 +3,6 @@
  * pointers/lengths giving the pieces to be checksummed.  Also using
  * Tahoe/CGI version of ADDCARRY(x) macro instead of from portable version.
  *
- * $Id$
- */
 
 /*
  * Copyright (c) 1988, 1992, 1993

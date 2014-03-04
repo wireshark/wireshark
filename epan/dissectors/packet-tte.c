@@ -7,8 +7,6 @@
  * TTTech Computertechnik AG, Austria.
  * http://www.tttech.com/solutions/ttethernet/
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

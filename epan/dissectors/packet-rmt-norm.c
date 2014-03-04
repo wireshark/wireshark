@@ -18,8 +18,6 @@
  * References:
  *     RFC 3940, Negative-acknowledgment (NACK)-Oriented Reliable Multicast (NORM) Protocol
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

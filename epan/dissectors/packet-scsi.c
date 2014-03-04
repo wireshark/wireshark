@@ -6,8 +6,6 @@
  * Routines for decoding SCSI CDBs and responsess
  * Author: Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2002 Gerald Combs

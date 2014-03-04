@@ -1,7 +1,5 @@
 /* hcidump.h
  *
- * $Id$
- *
  * Copyright (c) 2003 by Marcel Holtmann <marcel@holtmann.org>
  *
  * This program is free software; you can redistribute it and/or

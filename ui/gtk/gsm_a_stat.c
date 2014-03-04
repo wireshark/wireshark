@@ -5,8 +5,6 @@
  *
  * MUCH code modified from service_response_time_table.c.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

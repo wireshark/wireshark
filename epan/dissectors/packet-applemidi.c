@@ -2,8 +2,6 @@
  * Routines for dissection of Apple network-midi session establishment.
  * Copyright 2006-2012, Tobias Erichsen <t.erichsen@gmx.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

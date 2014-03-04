@@ -2,8 +2,6 @@
  * Routines for Agent Extensibility (AgentX) Protocol disassembly
  * RFC 2257
  *
- * $Id$
- *
  * Copyright (c) 2005 by Oleg Terletsky <oleg.terletsky@comverse.com>
  *
  * Wireshark - Network traffic analyzer

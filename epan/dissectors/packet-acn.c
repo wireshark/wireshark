@@ -1,8 +1,6 @@
 /* packet-acn.c
  * Routines for ACN packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2003 by Erwin Rol <erwin@erwinrol.com>
  * Copyright (c) 2006 by Electronic Theatre Controls, Inc.
  *                    Bill Florac <bflorac@etcconnect.com>

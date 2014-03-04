@@ -1,7 +1,5 @@
 /* packet-dcm.h
  *
- * $Id$
- * Routines for DICOM packet dissection
  * Copyright 2009, David Aggeler <david_aggeler@hispeed.ch>
  *
  * Wireshark - Network traffic analyzer

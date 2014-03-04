@@ -2,8 +2,6 @@
  * Routines for SAMETIME dissection
  * Copyright 2010, Toralf Foerster <toralf.foerster [AT] gmx.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

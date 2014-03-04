@@ -1,8 +1,6 @@
 /* packet-smb2.h
  * Defines for SMB2 packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998, 1999 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for the disassembly of  HP ProCurve encapsulated remote mirroring frames
  * (Adapted from packet-cisco-erspan.c and packet-vlan.c)
  *
- * $Id$
- *
  * Copyright 2010 2012 William Meier <wmeier [AT] newsguy.com>,
  *                     Zdravko Velinov <z.velinov [AT] vkv5.com>
  *

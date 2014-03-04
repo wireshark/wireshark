@@ -5,8 +5,6 @@
  * Copyright 2006, Stephen Fisher (see AUTHORS file)
  * Copyright 2007, Kevin A. Noll <maillistnoll@earthlink.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

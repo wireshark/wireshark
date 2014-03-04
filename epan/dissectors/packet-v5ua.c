@@ -15,8 +15,6 @@
  *
  * Routines for V5.2-User Adaptation Layer dissection
  *
- * $Id$
- *
  * Extension of ISDN Q.921-User Adaptation Layer dissection
  * Copyright 2002, Michael Tuexen <Michael.Tuexen[AT]siemens.com>
  *

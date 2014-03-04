@@ -2,8 +2,6 @@
  * Routines for DOCSIS 3.0 CM-STATUS Report Message dissection.
  * Copyright 2011, Hendrik Robbel <hendrik.robbel[AT]kabeldeutschland.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

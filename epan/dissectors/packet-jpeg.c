@@ -2,8 +2,6 @@
  *
  * Routines for RFC 2435 JPEG dissection
  *
- * $Id$
- *
  * Copyright 2006
  * Erwin Rol <erwin@erwinrol.com>
  * Copyright 2001,

@@ -5,8 +5,6 @@
  * R3 is an electronic lock management protocol for configuring operational
  *  parameters, adding/removing/altering users, dumping log files, etc.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

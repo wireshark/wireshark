@@ -3,8 +3,6 @@
  * Copyright 2010, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
  * Real name of PAPI : Protocol Application Program Interface
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

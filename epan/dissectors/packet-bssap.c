@@ -10,8 +10,6 @@
  * Added BSSAP+ according to ETSI TS 129 018 V6.3.0 (2005-3GPP TS 29.018 version 6.3.0 Release 6)
  * Copyright 2006, Anders Broman <Anders.Broman [AT] ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

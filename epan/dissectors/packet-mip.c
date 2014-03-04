@@ -5,8 +5,6 @@
  * Copyright 2009, Ohuchi Munenori <ohuchi_at_iij.ad.jp>
  * Copyright 2010, Yi Ren          <yi_ren1@agilent.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

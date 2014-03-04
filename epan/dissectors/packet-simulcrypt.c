@@ -11,8 +11,6 @@
  * EIS <-> SCS support, (P)SIG <-> MUX support, MUX <-> CiM support and (P) <-> CiP support
  * Copyright 2010, Giuliano Fabris <giuliano.fabris@appeartv.com> / AppearTV
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

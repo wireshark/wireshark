@@ -7,8 +7,6 @@
  * facility) to the MTP3 dissector by Abhik Sarkar <sarkar.abhik[AT]gmail.com>
  * with some rework by Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

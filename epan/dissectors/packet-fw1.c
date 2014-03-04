@@ -2,8 +2,6 @@
  * Routines for Ethernet header disassembly of FW1 "monitor" files
  * Copyright 2002,2003, Alfred Koebler <ako@icon.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Alfred Koebler <ako@icon.de>
  * Copyright 2002,2003 Alfred Koebler

@@ -3,8 +3,6 @@
  *
  * Copied from airpdcap_rijndael.c and broken out into its own file
  *
- * $Id$
- *
  * @version 3.0 (December 2000)
  *
  * Optimised ANSI C code for the Rijndael cipher (now AES)

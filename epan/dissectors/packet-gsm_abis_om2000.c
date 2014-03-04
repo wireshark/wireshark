@@ -2,8 +2,6 @@
  * Routines for packet dissection of Ericsson A-bis OML (OM 2000)
  * Copyright 2010-2012 by Harald Welte <laforge@gnumonks.org>
  *
- * $Id$
- *
  * This dissector is not 100% complete, i.e. there are a number of FIXMEs
  * indicating where portions of the protocol are not dissected completely.
  * However, even a partial protocol decode is much more useful than no protocol

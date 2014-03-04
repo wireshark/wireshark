@@ -2,8 +2,6 @@
  *
  * v150fw = v.150.1 SSE messages, contained in RTP packets
  *
- * $Id$
- *
  * Written by Jamison Adcock <jamison.adcock@cobham.com>
  * for Sparta Inc., dba Cobham Analytic Solutions
  * This code is largely based on the RTP parsing code

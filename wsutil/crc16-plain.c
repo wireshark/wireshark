@@ -1,7 +1,5 @@
 /*
  * crc16-plain.c
- * $Id$
- *
  * http://www.tty1.net/pycrc/faq_en.html#code-ownership
  *
  * Wireshark - Network traffic analyzer
@@ -24,7 +22,6 @@
  */
 
 /**
- * $Id$
  * \file crc16-plain.c
  * Functions and types for CRC checks.
  *

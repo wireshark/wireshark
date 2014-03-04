@@ -9,8 +9,6 @@
  * Last Updated to:
  * http://www.3gpp2.org/Public_html/specs/C.S0016-C_v2.0_081031.pdf
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

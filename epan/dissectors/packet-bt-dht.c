@@ -3,8 +3,6 @@
  * Routines for BT-DHT dissection
  * Copyright 2011, Xiao Xiangquan <xiaoxiangquan@gmail.com>
  *
- * $Id$
- *
  * A plugin for BT-DHT packet:
  *
  * Wireshark - Network traffic analyzer

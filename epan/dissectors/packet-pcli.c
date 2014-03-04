@@ -4,8 +4,6 @@
  * http://www.cablelabs.com/specifications/archives/PKT-SP-ESP-I01-991229.pdf
  * Chapter 4 ( Call Content Connection Interface )
  *
- * $Id$
- *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  *
  * Wireshark - Network traffic analyzer

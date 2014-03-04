@@ -2,8 +2,6 @@
  * Routines for Aruba IAP header disassembly
  * Copyright 2014, Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -4,8 +4,6 @@
  * Copyright 2003, Tim Potter <tpot[AT]samba.org>
  * Copyright 2010, Julien Kerihuel <j.kerihuel[AT]openchange.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

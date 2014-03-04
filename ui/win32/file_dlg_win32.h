@@ -1,8 +1,6 @@
 /* file_dlg_win32.h
  * Native Windows file dialog routines
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2006 Gerald Combs

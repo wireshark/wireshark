@@ -1,8 +1,6 @@
 /* follow_tcp.h
  * TCP specific routines for following traffic streams
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs

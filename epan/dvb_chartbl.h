@@ -1,8 +1,6 @@
 /* dvb_chartbl.h
  * Routines for handling DVB-SI character tables (as defined in EN 300 468)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

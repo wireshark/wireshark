@@ -9,8 +9,6 @@
  * http://www.asterisk.org for more information; see RFC 5456 for the
  * protocol.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

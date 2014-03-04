@@ -2,8 +2,6 @@
  * Definitions for extracting and translating integers safely and portably
  * via pointers.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

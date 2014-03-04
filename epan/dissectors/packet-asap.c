@@ -17,8 +17,6 @@
  * Copyright 2004, 2005, 2006, 2007 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Copyright 2008 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

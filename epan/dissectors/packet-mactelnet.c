@@ -2,8 +2,6 @@
  * Routines for MAC-Telnet dissection
  * Copyright 2010, Haakon Nessjoen <haakon.nessjoen@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,7 +1,5 @@
 /* airpcap_gui_utils.c
  *
- * $Id$
- *
  * Giorgio Tino <giorgio.tino@cacetech.com>
  * Copyright (c) CACE Technologies, LLC 2006
  *

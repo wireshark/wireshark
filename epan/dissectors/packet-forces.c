@@ -3,8 +3,6 @@
  * Routines for dissecting IETF ForCES protocol layer messages.Now support the following TML types:TCP+UDP,SCTP.
  * Copyright 2009, NDSC & Zhejiang Gongshang University,Fenggen Jia <fgjia@mail.zjgsu.edu.cn or fenggen.jia@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

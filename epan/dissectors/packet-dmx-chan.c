@@ -1,8 +1,6 @@
 /* packet-dmx-chan.c
  * DMX Channel Data packet disassembly.
  *
- * $Id$
- *
  * This dissector is written by
  *
  *  Erwin Rol <erwin@erwinrol.com>

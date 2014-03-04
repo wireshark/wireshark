@@ -5,8 +5,6 @@
  *
  * Copyright 2009 by Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

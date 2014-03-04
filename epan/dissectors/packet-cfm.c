@@ -5,8 +5,6 @@
  * Copyright 2012, Wim Leflere <wim.leflere-ext@oneaccess-net.com>
  * Copyright 2013, Andreas Urke <arurke@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

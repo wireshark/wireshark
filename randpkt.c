@@ -4,8 +4,6 @@
  * Creates random packet traces. Useful for debugging sniffers by testing
  * assumptions about the veracity of the data found in the packet.
  *
- * $Id$
- *
  * Copyright (C) 1999 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * This program is free software; you can redistribute it and/or

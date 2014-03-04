@@ -1,7 +1,5 @@
 /* hostlist_sctp.c    2008 Stig Bjorlykke
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

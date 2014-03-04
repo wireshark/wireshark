@@ -2,8 +2,6 @@
  * AF_ values on various OSes; they're used in some network protocols, as
  * well as in BSD DLT_NULL and DLT_LOOP headers.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

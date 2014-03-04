@@ -1,8 +1,6 @@
 /* text_page_utils.c
  *  Construct a simple text page widget from a file.
  *
- * $Id$
- *
  * Ulf Lamping
  *
  * Wireshark - Network traffic analyzer

@@ -11,8 +11,6 @@
  *          Laboratories, Inc., http://www.PacketCable.com/
  * www.iana.org/assignments/mgcp-localconnectionoptions
  *
- * $Id$
- *
  * Copyright (c) 2000 by Ed Warnicke <hagbard@physics.rutgers.edu>
  * Copyright (c) 2004 by Thomas Anders <thomas.anders [AT] blue-cable.de>
  *

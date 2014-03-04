@@ -7,8 +7,6 @@
  * Johannes Jochen <johannes.jochen[AT]belden.com>
  * Copyright 2011
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

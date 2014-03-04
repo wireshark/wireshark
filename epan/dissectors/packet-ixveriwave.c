@@ -1,8 +1,6 @@
 /* packet-ixveriwave-common.c
  * Routines for calling the right protocol for the ethertype.
  *
- * $Id$
- *
  * Tom Cook <tcook@ixiacom.com>
  *
  * Wireshark - Network traffic analyzer

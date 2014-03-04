@@ -2,8 +2,6 @@
  *  packet-ieee80211-radiotap.c
  *	Decode packets with a Radiotap header
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

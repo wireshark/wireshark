@@ -2,8 +2,6 @@
  * Routines for nstrace dissection
  * Copyright 2006, Ravi Kondamuru <Ravi.Kondamuru@citrix.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

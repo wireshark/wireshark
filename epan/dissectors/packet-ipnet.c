@@ -1,8 +1,6 @@
 /* packet-ipnet.c
  * Routines for decoding Solaris IPNET packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

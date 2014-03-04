@@ -1,7 +1,5 @@
  /* rtp_player.c
  *
- * $Id$
- *
  *  Copyright 2006, Alejandro Vaquero <alejandrovaquero@yahoo.com>
  *
  * Wireshark - Network traffic analyzer

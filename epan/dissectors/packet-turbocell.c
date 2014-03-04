@@ -2,8 +2,6 @@
  * Routines for Turbocell Header dissection
  * Copyright 2004, Colin Slater <kiltedtaco@xxxxxxxxx>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

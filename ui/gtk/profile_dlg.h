@@ -2,8 +2,6 @@
  * Definitions for dialog box for profiles editing.
  * Stig Bjorlykke <stig@bjorlykke.org>, 2008
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

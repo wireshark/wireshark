@@ -1,8 +1,6 @@
 /* tvbuff_base64.c
  * Base-64 tvbuff implementation (based on real tvb)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

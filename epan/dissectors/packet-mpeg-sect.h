@@ -2,8 +2,6 @@
  * Declarations of exported routines from mpeg-sect dissector
  * Copyright 2012, Weston Schmidt <weston_schmidt@alumni.purdue.edu>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

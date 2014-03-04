@@ -2,8 +2,6 @@
  * Routines for 9P dissection
  * Copyright 2005, Nils O. Selaasdal
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* prefs_font_color.h
  * Definitions for stream preferences window
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs

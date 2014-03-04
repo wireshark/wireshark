@@ -1,8 +1,6 @@
 /* G711udecode.c
  * mu-law G.711 codec
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

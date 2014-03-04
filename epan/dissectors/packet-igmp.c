@@ -4,8 +4,6 @@
  * 2007 Thomas Morin
  * <See AUTHORS for emails>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

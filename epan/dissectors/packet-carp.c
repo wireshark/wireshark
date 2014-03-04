@@ -3,8 +3,6 @@
  * Copyright 2013, Uli Heilmeier <uh@heilmeier.eu>
  * Based on packet-vrrp.c by Heikki Vatiainen <hessu@cs.tut.fi>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

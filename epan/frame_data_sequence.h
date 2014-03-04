@@ -1,8 +1,6 @@
 /* frame_data_sequence.h
  * Implements a sequence of frame_data structures
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

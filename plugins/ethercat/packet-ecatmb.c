@@ -1,8 +1,6 @@
 /* packet-ecatmb.c
  * Routines for EtherCAT packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2007 by Beckhoff Automation GmbH
  *
  * Wireshark - Network traffic analyzer

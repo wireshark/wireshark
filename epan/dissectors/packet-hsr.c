@@ -2,8 +2,6 @@
  * Routines for HSR dissection (IEC62439 Part 3)
  * Copyright 2009, Florian Reichert <refl[AT]zhaw.ch>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

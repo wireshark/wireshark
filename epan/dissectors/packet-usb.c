@@ -1,7 +1,5 @@
 /* packet-usb.c
  *
- * $Id$
- *
  * USB basic dissector
  * By Paolo Abeni <paolo.abeni@email.it>
  * Ronnie Sahlberg 2006

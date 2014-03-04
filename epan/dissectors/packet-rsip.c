@@ -4,8 +4,6 @@
  *
  * Copyright (c) 2006, 2010 Cray Inc. All Rights Reserved.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

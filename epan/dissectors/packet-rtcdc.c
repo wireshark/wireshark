@@ -10,8 +10,6 @@
  * in the future, but I'll leave it in for now.
  * Copyright 2012 - 2013, Michael Tuexen <tuexen@wireshark.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for CCSDS File Delivery Protocol (CFDP) dissection
  * Copyright 2013, Juan Antonio Montesinos juan.mondl@gmail.com
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

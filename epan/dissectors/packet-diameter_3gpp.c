@@ -2,8 +2,6 @@
  * Routines for dissecting 3GPP OctetSting AVP:s
  * Copyright 2008, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

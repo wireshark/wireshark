@@ -2,8 +2,6 @@
  * Routines for UTS WAN protocol dissection
  * Copyright 2007, Fulko Hew, SITA INC Canada, Inc.
  *
- * $Id$
- *
  * Copied from packet-ipars.c
  *
  * Wireshark - Network traffic analyzer

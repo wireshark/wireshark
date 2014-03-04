@@ -11,8 +11,6 @@
  * Copyright 2001, Eurologic and Mark Burton <markb@ordern.com>
  *  2004 Request/Response matching and Service Response Time: ronnie sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

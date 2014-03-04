@@ -1,8 +1,6 @@
 /* str_util.h
  * String utility definitions
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

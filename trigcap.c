@@ -2,8 +2,6 @@
  * trigcap
  * a simple triggered libpcap-based capture agent
  *
- * $Id$
- *
  * (c) 2007, Luis E. Garcia Ontanon <luis@ontanon.org>
  *
  * This program is free software; you can redistribute it and/or

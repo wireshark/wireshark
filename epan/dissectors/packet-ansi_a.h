@@ -1,7 +1,5 @@
 /* packet-ansi_a.h
  *
- * $Id$
- *
  * Copyright 2003, Michael Lum <mlum [AT] telostech.com>,
  * In association with Telos Technology Inc.
  *

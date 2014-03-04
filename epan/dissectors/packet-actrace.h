@@ -1,8 +1,6 @@
 /* packet-actrace.h
  * Routines for AudioCodes Trunk traces packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2005 by Alejandro Vaquero <alejandro.vaquero@verso.com>
  *
  * Wireshark - Network traffic analyzer

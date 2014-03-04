@@ -3,8 +3,6 @@
  * By Ishraq Ibne Ashraf <ishraq@tinkerforge.com>
  * Copyright 2013 Ishraq Ibne Ashraf
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for ISC DHCP Server failover protocol dissection
  * Copyright 2004, M. Ortega y Strupp <moys@loplof.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

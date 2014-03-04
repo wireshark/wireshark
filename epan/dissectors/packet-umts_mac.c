@@ -1,7 +1,5 @@
 /* Routines for UMTS MAC (3GPP TS 25.321) disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* conversation_hastables_dlg.h
  * Show current addres resolution as a hosts file
  *
- * $Id$
- *
  * Copyright 2013 Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer

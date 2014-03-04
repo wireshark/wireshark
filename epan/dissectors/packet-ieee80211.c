@@ -2,8 +2,6 @@
  * Routines for Wireless LAN (IEEE 802.11) dissection
  * Copyright 2000, Axis Communications AB
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

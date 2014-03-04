@@ -2,8 +2,6 @@
  * Routines for synergy dissection
  * Copyright 2005, Vasanth Manickam <vasanthm@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

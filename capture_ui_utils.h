@@ -1,8 +1,6 @@
 /* capture_ui_utils.c
  * Declarations of utilities for capture user interfaces
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

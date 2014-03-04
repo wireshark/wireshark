@@ -2,8 +2,6 @@
  * Routines for V5 envelope function frame disassembly
  * Rolf Fiedler <rolf.fiedler@innoventif.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

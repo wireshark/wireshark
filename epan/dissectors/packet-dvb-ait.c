@@ -2,8 +2,6 @@
  * Routines for DVB Application Information Table (AIT) dissection
  * Copyright 2012-2013, Martin Kaiser <martin@kaiser.cx>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

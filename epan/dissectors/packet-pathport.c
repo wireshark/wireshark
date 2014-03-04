@@ -2,8 +2,6 @@
  * Routines for Pathport Protocol dissection
  * Copyright 2014, Kevin Loewen <kloewen@pathwayconnect.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

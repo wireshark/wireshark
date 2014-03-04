@@ -4,8 +4,6 @@
  *    Mijo Safradin <mijo at linux.vnet.ibm.com>
  * Copyright 2011,2012  IBM Corp.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

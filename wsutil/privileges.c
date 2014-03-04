@@ -1,8 +1,6 @@
 /* privileges.c
  * Routines for handling privileges, e.g. set-UID and set-GID on UNIX.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2006 Gerald Combs

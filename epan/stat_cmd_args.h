@@ -2,8 +2,6 @@
  * Declarations of routines to register "-z" command-line argument handlers
  * for stats
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

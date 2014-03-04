@@ -3,8 +3,6 @@
  * Copyright 2010 by Holger Hans Peter Freyther <zecke@selfish.org>
  * Copyright 2010 by On-Waves
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

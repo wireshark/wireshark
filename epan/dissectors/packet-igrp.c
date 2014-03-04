@@ -6,8 +6,6 @@
  *
  *	http://www.cisco.com/en/US/tech/tk365/technologies_white_paper09186a00800c8ae1.shtml
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

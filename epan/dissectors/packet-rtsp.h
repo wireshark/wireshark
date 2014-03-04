@@ -1,7 +1,5 @@
 /* packet-rtsp.h
  *
- * $Id$
- * Liberally copied from packet-http.h,
  * by Stephane GORSE (Orange Labs / France Telecom)
  *
  * Wireshark - Network traffic analyzer

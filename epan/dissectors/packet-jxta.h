@@ -10,8 +10,6 @@
  * packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
  * Copied from packet-pop.c, packet-jabber.c, packet-udp.c, packet-http.c
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2000 Gerald Combs

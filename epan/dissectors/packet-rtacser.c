@@ -3,8 +3,6 @@
  * By Chris Bontje (cbontje[AT]gmail.com)
  * Copyright May 2013
  *
- * $Id$
- *
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

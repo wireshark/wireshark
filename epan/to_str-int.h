@@ -1,8 +1,6 @@
 /* to_str-int.h
  * Definitions for utilities to convert various other types to strings.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

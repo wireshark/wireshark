@@ -2,8 +2,6 @@
  * Routines for the disassembly of Aruba encapsulated remote mirroring frames
  * (Adapted from packet-hp-erm.c and packet-cisco-erspan.c)
  *
- * $Id$
- *
  * Copyright 2010  Alexis La Goutte <alexis.lagoutte at gmail dot com>
  *
  * Wireshark - Network traffic analyzer

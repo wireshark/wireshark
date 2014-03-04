@@ -1,8 +1,6 @@
 /* filter_dlg.c
  * Dialog boxes for (display and capture) filter editing
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

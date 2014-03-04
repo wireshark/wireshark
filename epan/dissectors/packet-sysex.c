@@ -1,7 +1,5 @@
 /* packet-sysex.c
  *
- * $Id$
- *
  * MIDI SysEx dissector
  * Tomasz Mon 2012
  *

@@ -2,8 +2,6 @@
  * Routines called to write stuff to the recent file; their implementations
  * are GUI-dependent, but the API's aren't
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

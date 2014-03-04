@@ -2,8 +2,6 @@
  * Routines for rsh (Remote Shell) dissection
  * Copyright 2012, Stephen Fisher (see AUTHORS file)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

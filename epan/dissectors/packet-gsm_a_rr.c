@@ -23,8 +23,6 @@
  *   (GSM 04.18 version 8.4.1 Release 1999)
  *   (3GPP TS 04.18 version 8.26.0 Release 1999)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

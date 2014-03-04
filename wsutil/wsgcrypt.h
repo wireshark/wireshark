@@ -5,8 +5,6 @@
  * compiler warnings about deprecated definitions.
  * Try to work around these warnings to ensure a clean build with -Werror.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2007 Gerald Combs

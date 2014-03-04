@@ -4,8 +4,6 @@
  * By Peter Torvals
  * Copyright 1999 Peter Torvals
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

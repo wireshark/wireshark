@@ -1,8 +1,6 @@
 /*
  * crc7.h
  *
- * $Id$
- *
  * Functions and types for CRC checks.
  *
  * Wireshark - Network traffic analyzer

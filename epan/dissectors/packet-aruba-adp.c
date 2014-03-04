@@ -1,8 +1,6 @@
 /* packet-aruba-adp.c
  * Routines for Aruba ADP header disassembly
  *
- * $Id$
- *
  * Giles Scott < gscott <at> arubanetworks dot com>
  *
  * Wireshark - Network traffic analyzer

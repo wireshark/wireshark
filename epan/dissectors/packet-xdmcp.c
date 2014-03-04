@@ -2,8 +2,6 @@
  * Routines for XDMCP message dissection
  * Copyright 2002, Pasi Eronen <pasi.eronen@nixu.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

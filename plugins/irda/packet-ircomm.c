@@ -2,8 +2,6 @@
  * Routines for IrCOMM dissection
  * Copyright 2003 Jan Kiszka <jan.kiszka@web.de>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-aarp.c
  * Routines for Appletalk ARP packet disassembly
  *
- * $Id$
- *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
  * Wireshark - Network traffic analyzer

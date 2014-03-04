@@ -2,8 +2,6 @@
  * Routines for Q.931 frame disassembly
  * Guy Harris <guy@alum.mit.edu>
  *
- * $Id$
- *
  * Modified by Andreas Sikkema for possible use with H.323
  *
  * Wireshark - Network traffic analyzer

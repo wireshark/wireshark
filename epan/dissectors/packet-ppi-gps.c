@@ -2,8 +2,6 @@
  * Routines for PPI-GEOLOCATION-GPS  dissection
  * Copyright 2010, Harris Corp, jellch@harris.com
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

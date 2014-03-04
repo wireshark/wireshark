@@ -5,8 +5,6 @@
  * Joe Breher 2006
  * Javier Godoy 2013 (OSD-2 dissector)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2002 Gerald Combs

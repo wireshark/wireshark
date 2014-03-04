@@ -6,8 +6,6 @@
  *
  * Copyright 2010, David Perez & Jose Pico from TADDONG S.L.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * conversations_table   2003 Ronnie Sahlberg
  * Helper routines common to all endpoint conversations tap.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

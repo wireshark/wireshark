@@ -1,7 +1,5 @@
 /* airpcap_dlg.c
  *
- * $Id$
- *
  * Giorgio Tino <giorgio.tino@cacetech.com>
  * Copyright (c) CACE Technologies, LLC 2006
  *

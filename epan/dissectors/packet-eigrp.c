@@ -6,8 +6,6 @@
  *    Copyright 2009, Jochen Bartl <jochen.bartl@gmail.co
  *    Copyright 2000, Paul Ionescu <paul@acorp.ro>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

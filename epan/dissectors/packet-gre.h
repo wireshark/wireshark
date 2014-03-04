@@ -2,8 +2,6 @@
  * Routines and data exported by the dissection code for the
  * Generic Routing Encapsulation (GRE) protocol
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

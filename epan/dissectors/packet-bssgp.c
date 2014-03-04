@@ -2,8 +2,6 @@
  * Routines for Base Station Subsystem GPRS Protocol dissection
  * Copyright 2000, Susanne Edlund <susanne.edlund@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

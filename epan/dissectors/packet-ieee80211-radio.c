@@ -1,8 +1,6 @@
 /* packet-ieee80211-radio.c
  * Routines for pseudo 802.11 header dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

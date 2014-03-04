@@ -9,8 +9,6 @@
  * names of its contributors may be used to endorse or promote products
  * derived from this software without specific prior written permission.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

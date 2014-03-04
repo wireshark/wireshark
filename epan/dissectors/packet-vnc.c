@@ -3,8 +3,6 @@
  * Copyright 2005, Ulf Lamping <ulf.lamping@web.de>
  * Copyright 2006-2007, Stephen Fisher (see AUTHORS file)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for LTP dissection
  * Copyright 2009, Mithun Roy <mithunroy13@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

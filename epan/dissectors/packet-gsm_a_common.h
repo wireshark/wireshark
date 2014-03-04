@@ -1,7 +1,5 @@
 /* packet-gsm_a_common.h
  *
- * $Id$
- *
  *   Reference [3]
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;

@@ -1,7 +1,5 @@
 /* epan.c
  *
- * $Id$
- *
  * Wireshark Protocol Analyzer Library
  *
  * Copyright (c) 2001 by Gerald Combs <gerald@wireshark.org>

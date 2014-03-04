@@ -4,8 +4,6 @@
  * time, so that we only need one Wireshark binary and one TShark binary
  * for Windows, regardless of whether WinPcap is installed or not.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2001 Gerald Combs

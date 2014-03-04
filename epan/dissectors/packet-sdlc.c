@@ -1,8 +1,6 @@
 /* packet-sdlc.c
  * Routines for SDLC frame disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

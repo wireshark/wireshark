@@ -6,8 +6,6 @@
  * More information on the P3 frame protocol can be found on page 66 of:
  * http://koin.org/files/aol.aim/aol/fdo/manuals/WAOL.doc
  *
- * $Id$
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2

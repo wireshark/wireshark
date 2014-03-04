@@ -6,8 +6,6 @@
  * Based on the code from packet-mmrp.c (MMRP) from
  * Markus Seehofer <mseehofe@nt.hirschmann.de> Copyright 2001
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

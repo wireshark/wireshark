@@ -1,8 +1,6 @@
 /* packet_history.h
  * packet history related functions   2004 Ulf Lamping
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

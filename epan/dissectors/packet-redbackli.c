@@ -1,7 +1,5 @@
 /* packet-redbackli.c
  *
- * $Id$
- *
  * Redback Lawful Intercept Packet dissector
  *
  * Copyright 2008 Florian Lohoff <flo[AT]rfc822.org>

@@ -3,8 +3,6 @@
  *
  * (C) 2005, Luis E. Garcia Ontanon.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

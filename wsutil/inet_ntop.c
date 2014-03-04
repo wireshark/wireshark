@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Copyright (c) 1996-1999 by Internet Software Consortium.
  *
  * Permission to use, copy, modify, and distribute this software for any

@@ -1,8 +1,6 @@
 /* echld_child-int.h
  *  epan working child API internals
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

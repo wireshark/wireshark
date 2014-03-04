@@ -1,8 +1,6 @@
 /* packet-mndp.c
  * Routines for the disassembly of the Mikrotik Neighbor Discovery Protocol
  *
- * $Id$
- *
  * Copyright 2011 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

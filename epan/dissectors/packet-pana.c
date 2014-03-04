@@ -2,8 +2,6 @@
  * Routines for Protocol for carrying Authentication for Network Access dissection
  * Copyright 2006, Peter Racz <racz@ifi.unizh.ch>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

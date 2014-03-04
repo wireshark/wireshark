@@ -1,8 +1,6 @@
 /* packet-sscop.h
  * definitions for SSCOP (Q.2110, Q.SAAL) frame disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998

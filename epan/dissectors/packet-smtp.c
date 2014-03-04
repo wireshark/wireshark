@@ -1,8 +1,6 @@
 /* packet-smtp.c
  * Routines for SMTP packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
  * Added RFC 4954 SMTP Authentication

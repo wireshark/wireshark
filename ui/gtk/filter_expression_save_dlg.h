@@ -1,8 +1,6 @@
 /* filter_expression_save_dlg.h
  * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,7 +1,5 @@
 /* decode_as_utils.h
  *
- * $Id$
- *
  * "Decode As" UI utility routines.
  *
  * By David Hampton <dhampton@mac.com>

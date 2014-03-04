@@ -10,8 +10,6 @@
  * definition for them; when this file is empty, get rid of all includes
  * of it, and get rid of it.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

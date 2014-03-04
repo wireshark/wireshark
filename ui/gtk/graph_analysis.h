@@ -1,8 +1,6 @@
 /* graph_analysis.h
  * Graphic Analysis addition for Wireshark
  *
- * $Id$
- *
  * Copyright 2004, Verso Technologies Inc.
  * By Alejandro Vaquero <alejandrovaquero@yahoo.com>
  *

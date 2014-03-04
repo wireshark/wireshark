@@ -1,8 +1,6 @@
 /* nstime.h
  * Definition of data structure to hold time values with nanosecond resolution
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -24,8 +24,6 @@
  *                       - Straighten text formatting
  *                       - Remove unneccessary if(tree) checks
  *
- * $Id$
- *
  * A dissector for:
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

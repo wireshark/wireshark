@@ -1,7 +1,5 @@
 /* packet-usb-masstorage.c
  *
- * $Id$
- *
  * usb mass storage dissector
  * Ronnie Sahlberg 2006
  *

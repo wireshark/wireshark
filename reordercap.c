@@ -1,8 +1,6 @@
 /* Reorder the frames from an input dump file, and write to output dump file.
  * Martin Mathieson and Jakub Jawadzki
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

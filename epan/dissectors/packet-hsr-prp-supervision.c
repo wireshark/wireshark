@@ -3,8 +3,6 @@
  * Copyright 2009, Florian Reichert <refl[AT]zhaw.ch>
  * Copyright 2011, Martin Renold <reld[AT]zhaw.ch>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

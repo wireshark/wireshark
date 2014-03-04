@@ -3,8 +3,6 @@
  * payloads (i.e., payloads when there could be an Ethernet trailer and
  * possibly an FCS).
  *
- * $Id$
- *
  * Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * Wireshark - Network traffic analyzer

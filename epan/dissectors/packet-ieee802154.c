@@ -1,7 +1,5 @@
 /* packet-ieee802154.c
  *
- * $Id$
- *
  * Auxiliary Security Header support and
  * option to force TI CC24xx FCS format
  * By Jean-Francois Wauthy <jfw@info.fundp.ac.be>

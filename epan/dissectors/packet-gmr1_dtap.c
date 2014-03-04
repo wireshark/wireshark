@@ -8,8 +8,6 @@
  *  [2] ETSI TS 101 376-4-8 V2.2.1 - GMPRS-1 04.008
  *  [3] ETSI TS 101 376-4-8 V3.1.1 - GMR-1 3G 44.008
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

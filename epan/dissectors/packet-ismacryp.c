@@ -4,8 +4,6 @@
  * David Castleford, Orange Labs / France Telecom R&D
  * March 2009
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

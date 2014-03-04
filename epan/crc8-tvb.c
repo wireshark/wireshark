@@ -10,8 +10,6 @@
  * 2011 Hans-Christoph Schemmel <hans-christoph.schemmel[AT]cinterion.com>
  *
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Routines for whois dissection (see http://tools.ietf.org/html/rfc3912)
  * Copyright 2013, Christopher Maynard <Christopher.Maynard@gtech.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

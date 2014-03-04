@@ -12,8 +12,6 @@
  * Copyright 2007, Michael Lum <michael.lum [AT] utstar.com>
  * In association with UTStarcom Inc.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * Packet list display utilities
  * Copied from gtk/packet_list.c
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

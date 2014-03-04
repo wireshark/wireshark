@@ -2,8 +2,6 @@
  * Routines for China Mobile Point to Point dissection
  * Copyright 2007, Andy Chu <chu.dev@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -17,8 +17,6 @@
  *   TIA-1149.1 or
  *   (520-10030206__Editor_TIA-1149-0-1_CMASoverCDMA_Publication.pdf)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

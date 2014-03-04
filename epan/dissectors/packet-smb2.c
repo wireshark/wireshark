@@ -9,8 +9,6 @@
  *
  * If you edit this file, keep the wiki updated as well.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

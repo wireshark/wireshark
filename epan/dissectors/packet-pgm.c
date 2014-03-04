@@ -1,8 +1,6 @@
 /* packet-pgm.c
  * Routines for PGM packet disassembly, RFC 3208
  *
- * $Id$
- *
  * Copyright (c) 2000 by Talarian Corp
  * Rewritten by Jaap Keuter
  *

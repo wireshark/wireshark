@@ -2,8 +2,6 @@
  * packet-ppi.c
  * Routines for PPI Packet Header dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 2007 Gerald Combs

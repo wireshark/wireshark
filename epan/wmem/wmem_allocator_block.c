@@ -2,8 +2,6 @@
  * Wireshark Memory Manager Large-Block Allocator (version 3)
  * Copyright 2013, Evan Huus <eapache@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

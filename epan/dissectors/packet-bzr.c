@@ -4,8 +4,6 @@
  *
  * http://doc.bazaar.canonical.com/developers/network-protocol.html
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

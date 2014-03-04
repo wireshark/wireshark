@@ -2,8 +2,6 @@
  * Routines for Ether-S-Bus dissection
  * Copyright 2010, Christian Durrer <christian.durrer@sensemail.ch>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

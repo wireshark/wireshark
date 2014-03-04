@@ -2,8 +2,6 @@
  * Routines for Media Resource Control Protocol Version 2 (MRCPv2) dissection
  * Copyright 2012, Zeljko Ancimer  <zancimer[AT]gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

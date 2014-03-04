@@ -1,8 +1,6 @@
 /* range_utils.c
  * Packet range routines (save, print, ...) for GTK things
  *
- * $Id$
- *
  * Ulf Lamping <ulf.lamping@web.de>
  *
  * Wireshark - Network traffic analyzer

@@ -2,8 +2,6 @@
  * Routines for Multimedia Internet KEYing dissection
  * Copyright 2007, Mikael Magnusson <mikma@users.sourceforge.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-3com-njack.c
  * Routines for the disassembly of the 3com NetworkJack management protocol
  *
- * $Id$
- *
  * Copyright 2005 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

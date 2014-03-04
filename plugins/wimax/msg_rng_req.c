@@ -5,8 +5,6 @@
  *
  * Author: John R. Underwood <junderx@yahoo.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs

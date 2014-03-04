@@ -1,7 +1,5 @@
 /* packet-rpc.h
  *
- * $Id$
- *
  * (c) 1999 Uwe Girlich
  *
  * Wireshark - Network traffic analyzer

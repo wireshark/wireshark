@@ -3,8 +3,6 @@
  * Routines for ETV-AM EISS (OC-SP-ETV-AM1.0-I05)
  * Copyright 2012, Weston Schmidt <weston_schmidt@alumni.purdue.edu>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

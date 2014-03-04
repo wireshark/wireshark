@@ -2,8 +2,6 @@
  * Routines for Gadu-Gadu dissection
  * Copyright 2011,2012, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
- * $Id$
- *
  * Protocol documentation available at http://toxygen.net/libgadu/protocol/
  *
  * Wireshark - Network traffic analyzer

@@ -1,7 +1,5 @@
 /* Standalone program to test functionality of exceptions.
  *
- * $Id$
- *
  * Copyright (c) 2004 MX Telecom Ltd. <richardv@mxtelecom.com>
  *
  * This program is free software; you can redistribute it and/or

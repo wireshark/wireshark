@@ -7,8 +7,6 @@
  *
  * Copyright 2011, Christophe Paletou <c.paletou@free.fr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

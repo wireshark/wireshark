@@ -1,8 +1,6 @@
 /* packet-e100.c
  * Routines for Arbor Networks E100 packet encapsulation disassembly
  *
- * $Id$
- *
  * Copyright (c) 2009 by Bradley Higgins <bhiggins@arbor.net>
  *
  * Wireshark - Network traffic analyzer

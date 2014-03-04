@@ -1,8 +1,6 @@
 /* packet-beep.c
  * Routines for BEEP packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  * Modified 2001 Darren New <dnew@invisible.net> for BEEP.
  *

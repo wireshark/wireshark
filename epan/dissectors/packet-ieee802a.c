@@ -1,8 +1,6 @@
 /* packet-ieee802a.c
  * Routines for IEEE 802a
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

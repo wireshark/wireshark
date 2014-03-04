@@ -1,6 +1,4 @@
 /* packet-mdd.c
- * $Id$
- * Routines for MDD Message dissection
  * Copyright 2007, Bruno Verstuyft  <bruno.verstuyft@excentis.com>
  *
  *

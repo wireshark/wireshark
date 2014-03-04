@@ -7,8 +7,6 @@
  * http://medical.nema.org/dicom/2008
  *   DICOM Part 8: Network Communication Support for Message Exchange
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

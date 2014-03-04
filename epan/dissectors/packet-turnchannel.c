@@ -3,8 +3,6 @@
  * in the STUN2 dissector
  * Copyright 2008, 8x8 Inc. <petithug@8x8.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

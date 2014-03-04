@@ -17,8 +17,6 @@
  *   3GPP TS 48.008 version 8.4.0 Release 8
  *   3GPP TS 48.008 version 9.8.0 Release 9
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

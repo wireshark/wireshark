@@ -1,8 +1,6 @@
 /* bitswap.h
  * Macro to bitswap a byte by looking it up in a table
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

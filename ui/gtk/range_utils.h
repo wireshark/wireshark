@@ -1,8 +1,6 @@
 /* range_utils.h
  * Declarations of utilities to with range_utils.c (packet range dialog)
  *
- * $Id$
- *
  * Ulf Lamping <ulf.lamping@web.de>
  *
  * Wireshark - Network traffic analyzer

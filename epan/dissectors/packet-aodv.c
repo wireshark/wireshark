@@ -2,8 +2,6 @@
  * Routines for AODV dissection
  * Copyright 2000, Erik Nordstrom <erik.nordstrom@it.uu.se>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -4,8 +4,6 @@
  *
  * Copyright 2013 (c) chas williams <chas@cmf.nrl.navy.mil>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

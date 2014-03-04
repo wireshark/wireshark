@@ -3,8 +3,6 @@
  * Copyright 2008-2009, Stephen Fisher (see AUTHORS file)
  * * Co-authors Anders Broman and Kovarththanan Rajaratnam.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

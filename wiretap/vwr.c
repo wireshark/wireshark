@@ -1,8 +1,6 @@
 /* vwr.c
  * Copyright (c) 2011 by Tom Alexander <talexander@ixiacom.com>
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

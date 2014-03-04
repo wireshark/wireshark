@@ -2,8 +2,6 @@
  *
  * Routines for PNG (Portable Network Graphics) image file dissection
  *
- * $Id$
- *
  * Copyright 2006 Ronnie Sahlberg
  *
  * Wireshark - Network traffic analyzer

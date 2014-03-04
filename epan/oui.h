@@ -1,8 +1,6 @@
 /* oui.h
  * Definitions of OUIs
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 - 2000 Gerald Combs

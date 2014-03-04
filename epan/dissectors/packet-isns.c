@@ -8,8 +8,6 @@
  * (c) 2004 Ronnie Sahlberg   updates
  * (c) 2004 Ming Zhang   updates
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

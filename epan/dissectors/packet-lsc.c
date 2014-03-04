@@ -2,8 +2,6 @@
  * Routines for Pegasus LSC packet disassembly
  * Copyright 2006, Sean Sheedy <seansh@users.sourceforge.net>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

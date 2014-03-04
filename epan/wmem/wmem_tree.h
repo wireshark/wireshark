@@ -3,8 +3,6 @@
  * Based on the red-black tree implementation in epan/emem.*
  * Copyright 2013, Evan Huus <eapache@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

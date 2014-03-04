@@ -1,8 +1,6 @@
 /* addr_resolv.c
  * Routines for network object lookup
  *
- * $Id$
- *
  * Laurent Deniel <laurent.deniel@free.fr>
  *
  * Wireshark - Network traffic analyzer

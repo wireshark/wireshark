@@ -6,8 +6,6 @@
  * Copyright 2003-2005 Fred Hoekstra, Philips Medical Systems.
  *                (fred.hoekstra@philips.com)
  *
- * $Id$
- *
  * Use was made of the following documentation:
  *
  *         DECnet DIGITAL Network Architecture

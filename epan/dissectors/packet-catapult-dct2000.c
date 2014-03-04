@@ -1,8 +1,6 @@
 /* packet-catapult-dct2000.c
  * Routines for Catapult DCT2000 packet stub header disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

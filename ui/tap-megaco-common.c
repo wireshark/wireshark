@@ -4,8 +4,6 @@
  * Copyright 2008 Ericsson AB
  * By Balint Reczey <balint.reczey@ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

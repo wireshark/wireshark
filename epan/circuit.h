@@ -1,8 +1,6 @@
 /* circuit.h
  * Routines for building lists of packets that are part of a "circuit"
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

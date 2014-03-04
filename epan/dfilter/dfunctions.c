@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  *
  * Copyright 2006 Gilbert Ramirez <gram@alumni.rice.edu>

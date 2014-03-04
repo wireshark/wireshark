@@ -28,8 +28,6 @@
  *      in Heimdal:
  *      http://loka.it.su.se/source/xref/heimdal/heimdal/lib/asn1/k5.asn1
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

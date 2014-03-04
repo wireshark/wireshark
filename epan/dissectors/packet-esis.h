@@ -1,8 +1,6 @@
 /* packet-esis.h
  * Defines and such for ESIS protocol decode.
  *
- * $Id$
- * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

@@ -17,8 +17,6 @@
  *
  * Tested with frames captured from a Cisco WCS.
  *
- * $Id$
- *
  * Copyright 2007 Joerg Mayer (see AUTHORS file)
  *
  * Wireshark - Network traffic analyzer

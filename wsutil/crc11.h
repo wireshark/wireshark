@@ -1,7 +1,5 @@
 /*
  * crc11.h
- * $Id$
- *
  * http://www.tty1.net/pycrc/faq_en.html#code-ownership
  *
  * Wireshark - Network traffic analyzer

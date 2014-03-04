@@ -6,8 +6,6 @@
  * Copyright 2005
  * Written by Martin Mathieson and Tom Marshall
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

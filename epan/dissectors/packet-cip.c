@@ -17,8 +17,6 @@
  * Heuristic object support for common services
  *   Michael Mann * Copyright 2011
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

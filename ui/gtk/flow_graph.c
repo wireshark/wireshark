@@ -1,6 +1,4 @@
 /* flow_graph.c
- * $Id$
- * Allows to display a flow graph of the currently displayed packets
  *
  * Copyright 2004, Ericsson , Spain
  * By Francisco Alcoba <francisco.alcoba@ericsson.com>

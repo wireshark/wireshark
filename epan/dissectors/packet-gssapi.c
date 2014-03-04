@@ -4,8 +4,6 @@
  * Copyright 2002, Richard Sharpe <rsharpe@samba.org> Added a few
  *		   bits and pieces ...
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

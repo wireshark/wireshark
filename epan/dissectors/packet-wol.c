@@ -2,8 +2,6 @@
  * Routines for WOL dissection
  * Copyright 2007, Christopher Maynard <Chris.Maynard[AT]gtech.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

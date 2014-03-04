@@ -22,8 +22,6 @@
  *
  * Implemented in wireshark at April 7-8, 2004
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

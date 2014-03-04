@@ -1,8 +1,6 @@
 /* pcap-common.h
  * Declarations for code common to libpcap and pcap-NG file formats
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

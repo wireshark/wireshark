@@ -2,8 +2,6 @@
  *
  * Routines for Virtual eXtensible Local Area Network (VXLAN) packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

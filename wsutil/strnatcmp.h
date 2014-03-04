@@ -1,7 +1,5 @@
 /* strnatcmp.h
  *
- * $Id$
- *
  * Original code downloaded from: http://sourcefrog.net/projects/natsort/
 
   strnatcmp.c -- Perform 'natural order' comparisons of strings in C.

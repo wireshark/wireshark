@@ -2,8 +2,6 @@
  * Routines for DCC Request Message  dissection
  * Copyright 2004, Darryl Hymel <darryl.hymel[AT]arrisi.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

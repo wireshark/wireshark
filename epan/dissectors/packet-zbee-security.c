@@ -3,8 +3,6 @@
  * By Owen Kirby <osk@exegin.com>; portions by Fred Fierling <fff@exegin.com>
  * Copyright 2009 Exegin Technologies Limited
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

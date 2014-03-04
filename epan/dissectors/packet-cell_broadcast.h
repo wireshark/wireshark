@@ -1,7 +1,5 @@
 /* packet-cell_broadcast.h
  *
- * $Id$
- *
  * Copyright 2011, Mike Morrin <mike.morrin [AT] ipaccess.com>,
  *
  * Wireshark - Network traffic analyzer

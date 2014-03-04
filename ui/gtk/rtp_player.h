@@ -1,8 +1,6 @@
 /* player_rtp.h
  * RTP Player for Wireshark
  *
- * $Id$
- *
  * Copyright 2006, Alejandro Vaquero
  * By Alejandro Vaquero <alejandro.vaquero@yahoo.com>
  *

@@ -1,6 +1,4 @@
 /*
- * $Id$
- *
  * This code was copied from http://www.gromacs.org/
  * and its toplevel COPYING file starts with:
  *

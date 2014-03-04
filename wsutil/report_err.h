@@ -9,8 +9,6 @@
  * doesn't itself know whether to pop up a dialog or print something
  * to the standard error.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

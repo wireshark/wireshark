@@ -4,8 +4,6 @@
  * Written by Weston Schmidt <weston_schmidt@alumni.purdue.edu>
  * Copyright 2012 Weston Schmidt
  *
- * $Id$
- *
  * Wiretap Library
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License

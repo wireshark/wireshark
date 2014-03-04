@@ -3,8 +3,6 @@
  * Copyright holders: Digital, The Open Group
  * (see below for their copyright statement)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

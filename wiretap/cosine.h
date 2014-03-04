@@ -1,7 +1,5 @@
 /* cosine.h
  *
- * $Id$
- *
  * CoSine IPNOS L2 debug output parsing
  * Copyright (c) 2002 by Motonori Shindo <motonori@shin.do>
  *

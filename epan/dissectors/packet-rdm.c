@@ -1,8 +1,6 @@
 /* packet-rdm.c
  * RDM (Remote Device Management) packet disassembly.
  *
- * $Id$
- *
  * This dissector is written by
  *
  *  Erwin Rol <erwin@erwinrol.com>

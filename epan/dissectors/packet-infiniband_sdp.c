@@ -3,8 +3,6 @@
  * Copyright 2010, Mellanox Technologies Ltd.
  * Code by Amir Vadai and Slava Koyfman.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

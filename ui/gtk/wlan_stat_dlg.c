@@ -1,8 +1,6 @@
 /* wlan_stat_dlg.c
  * Copyright 2008 Stig Bjorlykke <stig@bjorlykke.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

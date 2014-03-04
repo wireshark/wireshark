@@ -1,8 +1,6 @@
 /* atalk-utils.c
  * Routines for Appletalk utilities (DDP, currently).
  *
- * $Id$
- *
  * Simon Wilkinson <sxw@dcs.ed.ac.uk>
  *
  * This program is free software; you can redistribute it and/or

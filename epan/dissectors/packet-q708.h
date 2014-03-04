@@ -2,8 +2,6 @@
  * Routine and tables for analyzing an ISPC according to Q.708
  * Copyright 2010, Gerasimos Dimitriadis <dimeg [AT] intracom.gr>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

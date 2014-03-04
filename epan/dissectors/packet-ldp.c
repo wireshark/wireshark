@@ -1,8 +1,6 @@
 /* packet-ldp.c
  * Routines for LDP (RFC 3036) packet disassembly
  *
- * $Id$
- *
  * Copyright (c) November 2000 by Richard Sharpe <rsharpe@ns.aus.com>
  *
  * CRLDP (RFC3212) is now supported

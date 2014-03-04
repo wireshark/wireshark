@@ -1,8 +1,6 @@
 /* capture_info_dlg.c
  * Routines for packet capture info dialog
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

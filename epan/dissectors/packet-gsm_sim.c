@@ -5,8 +5,6 @@
  * 	3GPP TS 31.102
  * Copyright 2010-2011 by Harald Welte <laforge@gnumonks.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

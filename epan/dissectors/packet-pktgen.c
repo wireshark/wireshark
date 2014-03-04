@@ -3,8 +3,6 @@
  * Copyright 2006 _FF_
  * Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

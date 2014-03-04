@@ -2,8 +2,6 @@
  * Routines for dlm3 dissection
  * Copyright 2007, Masatake YAMATO <jet@gyve.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

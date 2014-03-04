@@ -1,8 +1,6 @@
 /* packet-h221_nonstd.c
  * Routines for H.221 nonstandard parameters disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -3,8 +3,6 @@
  *
  * Copyright (c) 2003 by Matthijs Melchior <matthijs.melchior@xs4all.nl>
  *
- * $Id$
- *
  * A plugin for:
  *
  * Wireshark - Network traffic analyzer

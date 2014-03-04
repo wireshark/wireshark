@@ -1,8 +1,6 @@
 /* packet-range.h
  * Packet range routines (save, print, ...)
  *
- * $Id$
- *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
  *

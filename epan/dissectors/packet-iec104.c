@@ -2,8 +2,6 @@
  * Routines for IEC-60870-5-104 (iec104) Protocol disassembly
  *
  *
- * $Id$
- *
  * Copyright (c) 2008 by Joan Ramio <joan@ramio.cat>
  * Joan is a masculine catalan name. Search the Internet for Joan Pujol (alias Garbo).
  *

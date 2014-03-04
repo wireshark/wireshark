@@ -2,8 +2,6 @@
  * Routines for Simple Traversal of UDP Through NAT dissection
  * Copyright 2003, Shiang-Ming Huang <smhuang@pcs.csie.nctu.edu.tw>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

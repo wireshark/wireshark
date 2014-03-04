@@ -3,8 +3,6 @@
  * This decoder is for FC-SB3 version 1.4
  * Copyright 2003 Dinesh G Dutt (ddutt@cisco.com)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

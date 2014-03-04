@@ -1,8 +1,6 @@
 /* sip_stat.c
  * sip_stat   2004 Martin Mathieson
  *
- * $Id$
- * Copied from http_stat.c
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

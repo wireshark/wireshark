@@ -2,8 +2,6 @@
  * Routines for 802.3 MAC Address Allocation Protocol defined by IEEE1722
  * Copyright 2012, Jason Damori, Biamp Systems <jdamori at biamp dot com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

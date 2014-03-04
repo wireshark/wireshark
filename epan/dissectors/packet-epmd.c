@@ -8,8 +8,6 @@
  *
  * (c) 2007 Joost Yervante Damad <joost[AT]teluna.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald[AT]wireshark.org>
  * Copyright 1998 Gerald Combs

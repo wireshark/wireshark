@@ -2,8 +2,6 @@
  * Routines for MSN Messenger Service packet dissection
  * Copyright 2003, Chris Waters <chris@waters.co.nz>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

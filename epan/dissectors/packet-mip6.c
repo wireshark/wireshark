@@ -1,7 +1,5 @@
 /* packet-mip6.c
  *
- * $Id$
- *
  * Definitions and Routines for Mobile IPv6 dissection (RFC 3775)
  * Copyright 2003 Oy L M Ericsson Ab <teemu.rinta-aho@ericsson.fi>
  *

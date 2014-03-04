@@ -4,8 +4,6 @@
  *     RFC 2520: NHRP with Mobile NHCs
  *     RFC 2735: NHRP Support for Virtual Private Networks
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

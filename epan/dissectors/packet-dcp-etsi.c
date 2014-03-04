@@ -2,8 +2,6 @@
  * Routines for ETSI Distribution & Communication Protocol
  * Copyright 2006, British Broadcasting Corporation
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

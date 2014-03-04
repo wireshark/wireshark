@@ -1,8 +1,6 @@
 /* expert_comp_dlg.h
  * expert_comp_dlg   2005 Greg Morris
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

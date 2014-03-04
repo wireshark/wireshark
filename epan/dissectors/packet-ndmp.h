@@ -1,7 +1,5 @@
 /* packet-ndmp.h
  *
- * $Id$
- *
  * (c) 2007 Ronnie Sahlberg
  *
  * Wireshark - Network traffic analyzer

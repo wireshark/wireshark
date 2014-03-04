@@ -1,7 +1,5 @@
 /* pppdump.c
  *
- * $Id$
- *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
  * This program is free software; you can redistribute it and/or

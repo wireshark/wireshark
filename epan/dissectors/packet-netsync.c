@@ -1,8 +1,6 @@
 /* packet-netsync.c
  * Routines for Monotone Netsync packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2005 by Erwin Rol <erwin@erwinrol.com>
  *
  * Wireshark - Network traffic analyzer

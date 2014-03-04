@@ -5,8 +5,6 @@
  * with the gracious authorization of STE
  * Copyright (c) 2011 ST-Ericsson
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

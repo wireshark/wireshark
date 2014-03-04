@@ -1,7 +1,5 @@
 /* file_util.c
  *
- * $Id$
- *
  * (Originally part of the Wiretap Library, now part of the Wireshark
  *  utility library)
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>

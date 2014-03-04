@@ -1,8 +1,6 @@
 /* tap-sequence-analysis.c
  * Flow sequence analysis
  *
- * $Id$
- *
  * Some code from from gtk/flow_graph.c
  *
  * Wireshark - Network traffic analyzer

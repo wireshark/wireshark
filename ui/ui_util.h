@@ -3,8 +3,6 @@
  * APIs, but GUI-dependent implementations, so that they can be called by
  * GUI-independent code to affect the GUI.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

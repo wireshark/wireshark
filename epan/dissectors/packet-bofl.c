@@ -2,8 +2,6 @@
  * Routines for Wellfleet BOFL dissection
  * Author: Endoh Akira (endoh@netmarks.co.jp)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@unicom.net>
  * Copyright 1998 Gerald Combs

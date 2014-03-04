@@ -1,8 +1,6 @@
 /* packet-x29.c
  * Routines for X.29 packet dissection
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

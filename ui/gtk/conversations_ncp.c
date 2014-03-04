@@ -1,8 +1,6 @@
 /* conversations_ncp.c 2005 Greg Morris
  * modified from conversations_eth.c   2003 Ronnie Sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

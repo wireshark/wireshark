@@ -3,8 +3,6 @@
  * Routines for GTPv2 dissection
  * Copyright 2009 - 2012, Anders Broman <anders.broman [at] ericcsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-dmx-text.c
  * DMX Text packet disassembly.
  *
- * $Id$
- *
  * This dissector is written by
  *
  *  Erwin Rol <erwin@erwinrol.com>

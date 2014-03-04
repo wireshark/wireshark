@@ -2,8 +2,6 @@
  * Declarations of routines to fetch IPv4 and IPv6 addresses from a tvbuff
  * and then mask out bits other than those covered by a prefix length
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

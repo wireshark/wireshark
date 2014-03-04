@@ -3,8 +3,6 @@
  * Copyright 2007, Collabora Ltd.
  *   @author: Sjoerd Simons <sjoerd.simons@collabora.co.uk>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

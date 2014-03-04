@@ -3,8 +3,6 @@
  * and some with GUI-independent APIs, with this file containing the GTK+
  * implementations of them (declared in ui_util.h)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

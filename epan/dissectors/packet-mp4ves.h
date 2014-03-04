@@ -1,7 +1,5 @@
 /* packet-mp4ves.h
  *
- * $Id$
- *
  * Copyright 2008, Anders Broman <anders.broman[at]ericsson.com>
  *
  * Wireshark - Network traffic analyzer

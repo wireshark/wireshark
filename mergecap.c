@@ -1,7 +1,5 @@
 /* Combine dump files, either by appending or by merging by timestamp
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

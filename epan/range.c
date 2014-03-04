@@ -1,8 +1,6 @@
 /* range.c
  * Range routines
  *
- * $Id$
- *
  * Dick Gooris <gooris@lucent.com>
  * Ulf Lamping <ulf.lamping@web.de>
  *

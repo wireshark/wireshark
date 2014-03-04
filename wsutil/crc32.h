@@ -1,8 +1,6 @@
 /* crc32.h
  * Declaration of CRC-32 routine and table
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -3,8 +3,6 @@
  * Used to dissect XID compression parameters negotiated in GSM (TS44.065)
  * Copyright 2008, Vincent Helfre <vincent.helfre [AT] ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

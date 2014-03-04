@@ -3,8 +3,6 @@
  * Routines for FCoE dissection - Fibre Channel over Ethernet
  * Copyright (c) 2006 Nuova Systems, Inc. (jre@nuovasystems.com)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

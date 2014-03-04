@@ -3,8 +3,6 @@
  * Routines for SPRT dissection
  * SPRT = Simple Packet Relay Transport
  *
- * $Id$
- *
  * Written by Jamison Adcock <jamison.adcock@cobham.com>
  * for Sparta Inc., dba Cobham Analytic Solutions
  * This code is largely based on the RTP parsing code

@@ -1,8 +1,6 @@
 /* packet-cosine.c
  * Routines for decoding CoSine IPNOS L2 debug output
  *
- * $Id$
- *
  * Motonori Shindo <motonori@shin.do>
  *
  * Wireshark - Network traffic analyzer

@@ -2,8 +2,6 @@
  * Definitions and routines for HIP control packet disassembly
  * Samu Varjonen <samu.varjonen@hiit.fi>
  *
- * $Id$
- *
  * Based on dissector originally created by
  *   Jeff Ahrenholz <jeffrey.m.ahrenholz@boeing.com>
  *   Thomas Henderson <thomas.r.henderson@boeing.com>

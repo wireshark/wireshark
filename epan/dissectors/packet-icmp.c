@@ -1,8 +1,6 @@
 /* packet-icmp.c
  * Routines for ICMP - Internet Control Message Protocol
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -3,8 +3,6 @@
  * By Mike Frisch <mfrisch@platform.com>
  * Joint and Several Copyright 2005, Mike Frisch and Platform Computing Inc.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

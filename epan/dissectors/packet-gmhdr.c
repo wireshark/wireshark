@@ -4,8 +4,6 @@
  * Dissector for Gigamon Header and Trailer
  * Copyright Gigamon 2010
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

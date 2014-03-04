@@ -6,8 +6,6 @@
  *
  * Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
- * $Id$
- *
  * template taken from packet-udp.c
  *
  * Wireshark - Network traffic analyzer

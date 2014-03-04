@@ -1,8 +1,6 @@
 /* prefs_font_color.c
  * Font and Color preferences widget
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

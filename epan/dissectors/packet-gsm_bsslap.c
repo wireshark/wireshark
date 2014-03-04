@@ -2,8 +2,6 @@
  * Routines for Location Services (LCS) Serving Mobile Location Centre - Base Station System (SMLC-BSS) dissection
  * Copyright 2008, Anders Broman <anders.broman[at]ericsson.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

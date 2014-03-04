@@ -1,8 +1,6 @@
 /* filters.c
  * Code for reading and writing the filters file.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

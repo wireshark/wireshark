@@ -2,8 +2,6 @@
  * Routines for 3GPP RTP Multiplex dissection, 3GPP TS 29.414
  * Copyright 2009, ip.access ltd <amp@ipaccess.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

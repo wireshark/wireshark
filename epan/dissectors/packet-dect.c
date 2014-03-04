@@ -3,8 +3,6 @@
  * Dissector for the Digital Enhanced Cordless Telecommunications
  * protocol.
  *
- * $Id$
- *
  * Copyright 2008-2009:
  * - Andreas Schuler <andreas (A) schulerdev.de>
  * - Matthias Wenzel <dect (A) mazzoo.de>

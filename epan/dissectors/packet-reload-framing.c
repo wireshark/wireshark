@@ -3,8 +3,6 @@
  * Author: Stephane Bryant <sbryant@glycon.org>
  * Copyright 2010 Stonyfish Inc.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-mrdisc.h   2001 Ronnie Sahlberg <See AUTHORS for email>
  * Declarations of routines for IGMP/MRDISC packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

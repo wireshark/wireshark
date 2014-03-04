@@ -2,8 +2,6 @@
  * Routines for BT-UTP dissection
  * Copyright 2011, Xiao Xiangquan <xiaoxiangquan@gmail.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs

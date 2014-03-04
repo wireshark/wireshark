@@ -2,8 +2,6 @@
  * Routines for IGMP/IGAP packet disassembly
  * 2003, Endoh Akria (see AUTHORS for email)
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,7 +1,5 @@
 /* csids.c
  *
- * $Id$
- *
  * Copyright (c) 2000 by Mike Hall <mlh@io.com>
  * Copyright (c) 2000 by Cisco Systems
  *

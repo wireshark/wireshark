@@ -1,8 +1,6 @@
 /* packet-ipv6.h
  * Definitions for IPv6 packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

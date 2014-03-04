@@ -6,8 +6,6 @@
  * Routines for WV-CSP 1.3 dissection
  * Copyright 2007, Andrei Rubaniuk.
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

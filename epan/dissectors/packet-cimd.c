@@ -8,8 +8,6 @@
  * Updates :
  *            Sub routines for further dissection of Status and Error codes added by Vineeth <vineethvijaysv@gmail.com>
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

@@ -4,8 +4,6 @@
  * 2003 Hans Viens
  * 2004 Alejandro Vaquero, add support to conversation
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

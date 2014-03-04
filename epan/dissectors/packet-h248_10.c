@@ -1,8 +1,6 @@
 /*
  *  packet-h248_10.c
  *
- * $Id$
- *
  *  H.248.10
  *  Gateway control protocol: Media gateway
  *  resource congestion handling package

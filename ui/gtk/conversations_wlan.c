@@ -1,8 +1,6 @@
 /* conversations_wlan.c 2004 Giles Scott
  * modified from conversations_eth.c   2003 Ronnie Sahlberg
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

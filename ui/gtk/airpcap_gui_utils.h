@@ -1,8 +1,6 @@
 /* airpcap_utils.h
  * Declarations of utility routines for the "Airpcap" dialog widgets
  *
- * $Id$
- *
  * Giorgio Tino <giorgio.tino@cacetech.com>
  * Copyright (c) CACE Technologies, LLC 2006
  *

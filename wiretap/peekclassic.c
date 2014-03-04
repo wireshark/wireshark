@@ -15,8 +15,6 @@
  *
  * Copyright (c) 2001, Daniel Thompson <d.thompson@gmx.net>
  *
- * $Id$
- *
  * Wiretap Library
  * Copyright (c) 1998 by Gilbert Ramirez <gram@alumni.rice.edu>
  *

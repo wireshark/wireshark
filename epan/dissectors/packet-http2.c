@@ -3,8 +3,6 @@
  * Copyright 2013, Alexis La Goutte <alexis.lagoutte@gmail.com>
  * Copyright 2013, Stephen Ludin <sludin@ludin.org>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

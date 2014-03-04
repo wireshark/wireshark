@@ -1,7 +1,5 @@
 /* help_dlg.h
  *
- * $Id$
- *
  * Some content from gtk/help_dlg.h by Laurent Deniel <laurent.deniel@free.fr>
  *
  * Wireshark - Network traffic analyzer

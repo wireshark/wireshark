@@ -2,8 +2,6 @@
  * Routines for ppp packet disassembly
  * RFC 1661, RFC 1662
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  *

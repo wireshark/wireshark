@@ -11,8 +11,6 @@
  * Kademlia dissector based on source code inspection of aMule 2.1.3 and eMule 0.48a
  * Modified and added on the basis of information and names from the eMule 0.49a source code
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

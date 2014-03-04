@@ -5,8 +5,6 @@
 /* packet-dcerpc-drsuapi.h
  * Routines for DRSUAPI packet disassembly
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -6,8 +6,6 @@
  * Portions Copyright (c) by Gilbert Ramirez 2000-2002
  * Portions Copyright (c) Novell, Inc. 2002-2003
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -1,8 +1,6 @@
 /* packet-gsm_sms_ud.c
  * Routines for GSM SMS TP-UD (GSM 03.40) dissection
  *
- * $Id$
- *
  * Refer to the AUTHORS file or the AUTHORS section in the man page
  * for contacting the author(s) of this file.
  *

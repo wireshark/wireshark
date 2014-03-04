@@ -3,8 +3,6 @@
  * Copyright 2010, Pawel Korbut
  * Copyright 2012, Jakub Zawadzki <darkjames-ws@darkjames.pl>
  *
- * $Id$
- *
  * Protocol documentation available at http://www.inspirel.com/yami4/book/B-2.html
  *
  * Wireshark - Network traffic analyzer

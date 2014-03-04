@@ -17,8 +17,6 @@
  * RFC 5188  http://www.ietf.org/rfc/rfc5188.txt?number=5188
  * draft-agupta-payload-rtp-evrc-nw2k-00
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

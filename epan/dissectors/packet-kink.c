@@ -4,8 +4,6 @@
  *
  * Copyright 2004, Takeshi Nakashima <T.Nakashima@jp.yokogawa.com>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

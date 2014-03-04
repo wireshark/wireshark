@@ -2,8 +2,6 @@
  * Definitions of protocol IDs for the 00-80-C2 OUI, used for
  * bridging various networks over ATM (RFC 2684) or Frame Relay (RFC 2427).
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 - 2000 Gerald Combs

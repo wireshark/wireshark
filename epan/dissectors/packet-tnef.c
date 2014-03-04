@@ -1,8 +1,6 @@
 /* packet-tnef.c
  * Routines for Transport-Neutral Encapsulation Format (TNEF) packet disassembly
  *
- * $Id$
- *
  * Copyright (c) 2007 by Graeme Lunt
  *
  * Wireshark - Network traffic analyzer

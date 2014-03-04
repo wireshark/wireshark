@@ -3,8 +3,6 @@
  * Routines for LWAPP encapsulated packet disassembly
  * draft-ohara-capwap-lwapp-N (the current draft is 0)
  *
- * $Id$
- *
  * Copyright (c) 2003 by David Frascone <dave@frascone.com>
  *
  * Wireshark - Network traffic analyzer

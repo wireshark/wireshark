@@ -5,8 +5,6 @@
  * Liberally copied from packet-http.c, by Guy Harris <guy@alum.mit.edu>
  * 2005 Alejandro Vaquero <alejandro.vaquero@verso.com>, add support for tap
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

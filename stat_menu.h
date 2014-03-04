@@ -1,8 +1,6 @@
 /* stat_menu.h
  * Menu definitions for use by stats
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
  * A small program to generate the ASCII form of a capture with TCP
  * segments of a reasonable nature. The payload is all zeros.
  *
- * $Id$
- *
  * By Ronnie Sahlberg and Richard Sharpe. From a program initially
  * written by Ronnie.
  * Copyright 2003 Ronnie Sahlberg and Richard Sharpe
