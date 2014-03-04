@@ -81,6 +81,7 @@ dftest
 dumpcap
 editcap
 exntest
+gitversion.h
 install-sh
 libtool
 ltmain.sh
