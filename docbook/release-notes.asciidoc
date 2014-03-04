@@ -1,5 +1,4 @@
 = Wireshark wireshark-version:[] Release Notes
-// $Id$
 
 == What is Wireshark?
 
@@ -17,17 +16,29 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2013-68[]
+* ws-salink:2014-01[]
 +
-A dissector could go awry.
-// Fixed in trunk: r00000
-// Fixed in trunk-1.10: r00000
-// Fixed in trunk-1.8: r00000
-(ws-buglink:0000[])
+The NFS dissector could crash. Discovered by Moshe Kaplan.
+// Fixed in trunk: r54875 / gf4ab2b2
+// Fixed in trunk-1.10: g312f7e1
+// Fixed in trunk-1.8: g2fb9848
+(ws-buglink:9672[])
 +
-Versions affected: 1.10.0 to 1.10.4, 1.8.0 to 1.8.12
+Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
+//+
+//cve-idlink:2014-0000[]
+
+* ws-salink:2014-03[]
 +
-cve-idlink:2013-0000[]
+The RLC dissector could crash.
+// Fixed in trunk: n/a
+// Fixed in trunk-1.10: gd8075e7
+// Fixed in trunk-1.8: g217293b
+(ws-buglink:9730[])
++
+Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
+//+
+//cve-idlink:2014-0000[]
 
 The following bugs have been fixed:
 
@@ -35,8 +46,15 @@ The following bugs have been fixed:
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
 
-* MPLS-over-PPP isn't recognized. (ws-buglink:9492[])
+* Customized OUI is not recognized correctly during dissection. (ws-buglink:9122[])
+* MPLS dissector no longer registers itself in "ppp.protocol" table. (ws-buglink:9492[])
+* Wireshark stops showing new packets but dumpcap keeps writing them to the temp file. (ws-buglink:9571[])
+* Homeplug dissector bug: STATUS_ACCESS_VIOLATION: dissector accessed an invalid memory address. (ws-buglink:9578[])
 * DMX-CHAN disector does not clear strbuf between rows. (ws-buglink:9598[])
+* Dissector bug, protocol SDP: proto.c:4214: failed assertion "length >= 0". (ws-buglink:9633[])
+* SMPP field source_telematics_id field length different from spec. (ws-buglink:9649[])
+* GTPv1-C / MM Context / Authentication quintuplet / RAND is not correct. (ws-buglink:9722[])
+* nas-eps dissector: CS Service notification dissection stops after Paging identity IE. (ws-buglink:9789[])
 
 === New and Updated Features
 
@@ -50,13 +68,24 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
+AppleTalk
 BSSGP
 DMX-CHAN
+DSI
+DVB-CI
+ESS
 GSM BSSMAP
 GSM BSSMAP LE
+GSM CBS
 GSM SMS
+GTPv1
+HomePlug
+IEEE 802a
+MPLS
 NAS-EPS
+NFS
 SGSAP
+SMPP
 T.124
 TETRA
 
@@ -66,7 +95,8 @@ TETRA
 
 --sort-and-group--
 
-.
+NG Sniffer
+pcap-ng
 
 --sort-and-group--
 
