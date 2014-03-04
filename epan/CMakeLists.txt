@@ -635,6 +635,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-etv.c
 	dissectors/packet-evrc.c
 	dissectors/packet-exec.c
+	dissectors/packet-exported_pdu.c
 	dissectors/packet-extreme.c
 	dissectors/packet-fc.c
 	dissectors/packet-fcct.c
