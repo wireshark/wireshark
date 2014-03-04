@@ -1375,7 +1375,7 @@ open_file_hook_proc(HWND of_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
                     g_dfilter_str = filter_tb_get(cur_ctrl);
 
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_FORMAT_TYPE);
-                    g_format_type = SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
+                    g_format_type = (unsigned int) SendMessage(cur_ctrl, CB_GETCURSEL, 0, 0);
 
                     /* Fetch our resolution values */
                     cur_ctrl = GetDlgItem(of_hwnd, EWFD_MAC_NR_CB);
