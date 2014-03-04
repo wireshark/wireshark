@@ -776,7 +776,7 @@ CYGWIN_PATH=c:\cygwin\bin
 SH_PROG=bash
 
 # bash versions after 3.1.6 need the 'igncr' shell option to be able to
-#  process scripts in windows 'native format' (dos crlf format).
+#  process scripts in Windows 'native format' (dos crlf format).
 # The following !IF results in the option being used only if it is available
 #  since using it on bash version 3.1.6 (or earlier) is not required and
 #  will cause an error message.
@@ -952,12 +952,12 @@ APPVER=5.02
 # /DWIN32_LEAN_AND_MEAN             Don't include unnecessary Windows include files (see windows.h).
 # /MANIFEST:no                      Don't create a SxS manifest. Makes sure our plugins don't load
 #                                     a second copy of the CRT.
-# -DPSAPI_VERSION=1                 Programs that must run on earlier versions of Windows as well as Windows 7 and later 
-#                                   versions should always call this function as GetProcessMemoryInfo. To ensure correct resolution of symbols, 
-#                                   add Psapi.lib to the TARGETLIBS macro and compile the program with -DPSAPI_VERSION=1. 
-#                                   To use run-time dynamic linking, load Psapi.dll.
+# -DPSAPI_VERSION=1                 Programs that must run on earlier versions of Windows as well as Windows 7 and later
+#                                   versions should always call this function as GetProcessMemoryInfo. To ensure correct
+#                                   resolution of symbols, add Psapi.lib to the TARGETLIBS macro and compile the program
+#                                   with -DPSAPI_VERSION=1.To use run-time dynamic linking, load Psapi.dll.
 #                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
-# -DBUILD_WINDOWS                   Starting from VS2103, GetVersionEx is deprecated and we are recommended to use
+# -DBUILD_WINDOWS                   Starting from VS2013, GetVersionEx is deprecated and we are recommended to use
 #                                   VerifyVersionInfo instead
 #                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms724429(v=vs.85).aspx
 #                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms725491(v=vs.85).aspx
