@@ -52,6 +52,10 @@
 #include "packet-h264.h"
 #include "packet-mp4ves.h"
 
+/* un-comment the following as well as this line in conversation.c, to enable debug printing */
+/* #define DEBUG_CONVERSATION */
+#include "conversation_debug.h"
+
 void proto_register_sdp(void);
 void proto_reg_handoff_sdp(void);
 
@@ -247,6 +251,153 @@ typedef struct {
 
 } disposable_media_info_t;
 
+
+/* here lie the debugging dumper functions */
+#ifdef DEBUG_CONVERSATION
+/* Called for each entry in the rtp_dyn_payload hash table. */
+static void
+rtp_dyn_payload_table_foreach_func (gpointer key, gpointer value, gpointer user_data _U_) {
+    gint* pt = (gint*) key;
+    encoding_name_and_rate_t *encoding = (encoding_name_and_rate_t*) value;
+
+    DPRINT2(("pt=%d",*pt));
+    DINDENT();
+        if (encoding) {
+            DPRINT2(("encoding_name=%s",
+                    encoding->encoding_name ? encoding->encoding_name : "NULL"));
+            DPRINT2(("sample_rate=%d", encoding->sample_rate));
+        } else {
+            DPRINT2(("encoding=NULL"));
+        }
+    DENDENT();
+}
+
+static void sdp_dump_transport_media(const transport_media_pt_t* media) {
+    int i;
+    DPRINT2(("transport_media contents:"));
+    DINDENT();
+        if (!media) {
+            DPRINT2(("null transport_media_pt_t*"));
+            DENDENT();
+            return;
+        }
+        DPRINT2(("pt_count=%hhu",media->pt_count));
+        DINDENT();
+            for (i=0; i < media->pt_count; i++) {
+                DPRINT2(("pt=%d", media->pt[i]));
+            }
+        DENDENT();
+        DPRINT2(("rtp_dyn_payload hashtable=%s", media->rtp_dyn_payload ? "YES" : "NO"));
+        if (media->rtp_dyn_payload) {
+            DPRINT2(("rtp_dyn_payload hash table contents:"));
+            DINDENT();
+                if (g_hash_table_size(media->rtp_dyn_payload) == 0) {
+                    DPRINT2(("rtp_dyn_payload is empty"));
+                } else {
+                    g_hash_table_foreach(media->rtp_dyn_payload, rtp_dyn_payload_table_foreach_func, NULL);
+                }
+            DENDENT();
+        }
+        DPRINT2(("set_rtp=%s", media->set_rtp ? "TRUE" : "FALSE"));
+    DENDENT();
+}
+
+static const value_string sdp_exchange_type_vs[] = {
+    { SDP_EXCHANGE_OFFER,         "SDP_EXCHANGE_OFFER" },
+    { SDP_EXCHANGE_ANSWER_ACCEPT, "SDP_EXCHANGE_ANSWER_ACCEPT" },
+    { SDP_EXCHANGE_ANSWER_REJECT, "SDP_EXCHANGE_ANSWER_REJECT" },
+    { 0, NULL }
+};
+
+static void sdp_dump_transport_info(const transport_info_t* info) {
+    int i;
+    DPRINT2(("transport_info contents:"));
+    DINDENT();
+        if (!info) {
+            DPRINT2(("null transport_info_t*"));
+            DENDENT();
+            return;
+        }
+        DPRINT2(("sdp_status=%s",
+                 val_to_str(info->sdp_status, sdp_exchange_type_vs, "SDP_EXCHANGE_UNKNOWN")));
+        DPRINT2(("payload type contents:"));
+        DINDENT();
+            for (i=0; i < SDP_NO_OF_PT; i++) {
+                /* don't print out unknown encodings */
+                if (info->encoding_name[i] &&
+                    strcmp(UNKNOWN_ENCODING,info->encoding_name[i]) != 0) {
+                    DPRINT2(("payload type #%d:",i));
+                    DINDENT();
+                        DPRINT2(("encoding_name=%s", info->encoding_name[i]));
+                        DPRINT2(("sample_rate=%d", info->sample_rate[i]));
+                    DENDENT();
+                }
+            }
+        DENDENT();
+        DPRINT2(("media_count=%hhd", info->media_count));
+        DPRINT2(("rtp channels:"));
+        DINDENT();
+            for (i=0; i <= info->media_count; i++) {
+                DPRINT2(("channel #%d:",i));
+                DINDENT();
+                    DPRINT2(("src_addr=%s",
+                            address_to_str(wmem_packet_scope(), &(info->src_addr[i]))));
+                    DPRINT2(("media_port=%d", info->media_port[i]));
+                    DPRINT2(("proto_bitmask=%x", info->proto_bitmask[i]));
+                    sdp_dump_transport_media(&(info->media[i]));
+                DENDENT();
+            }
+        DENDENT();
+        DPRINT2(("encryption_algorithm=%u", info->encryption_algorithm));
+        DPRINT2(("auth_algorithm=%u", info->auth_algorithm));
+        if (info->encryption_algorithm || info->auth_algorithm) {
+            DPRINT2(("mki_len=%u", info->mki_len));
+            if (info->auth_algorithm) {
+                DPRINT2(("auth_tag_len=%u", info->auth_tag_len));
+            }
+        }
+    DENDENT();
+}
+
+static void sdp_dump_disposable_media_info(const disposable_media_info_t* info) {
+    int i;
+    DPRINT2(("disposable_media_info contents:"));
+    DINDENT();
+        if (!info) {
+            DPRINT2(("null disposable_media_info_t*"));
+            DENDENT();
+            return;
+        }
+        DPRINT2(("connection_address=%s",
+                info->connection_address ? info->connection_address : "NULL"));
+        DPRINT2(("connection_type=%s",
+                info->connection_type ? info->connection_type : "NULL"));
+        DPRINT2(("media_count=%hhu",info->media_count));
+        DINDENT();
+            for (i=0; i < info->media_count; i++) {
+                DPRINT2(("media #%d:",i));
+                DINDENT();
+                    DPRINT2(("media_type=%s", info->media_type[i] ? info->media_type[i] : "NULL"));
+                    DPRINT2(("media_port=%s", info->media_port[i] ? info->media_port[i] : "NULL"));
+                    DPRINT2(("media_proto=%s", info->media_proto[i] ? info->media_proto[i] : "NULL"));
+                DENDENT();
+            }
+        DENDENT();
+        DPRINT2(("msrp_transport_address_set=%s",
+                info->msrp_transport_address_set ? "TRUE" : "FALSE"));
+        if (info->msrp_transport_address_set) {
+            DINDENT();
+                DPRINT2(("msrp_ipaddr=%u.%u.%u.%u",
+                        info->msrp_ipaddr[0],info->msrp_ipaddr[1],
+                        info->msrp_ipaddr[2],info->msrp_ipaddr[3]));
+                DPRINT2(("msrp_port_number=%hu",info->msrp_port_number));
+            DENDENT();
+        }
+    DENDENT();
+}
+#endif /* DEBUG_CONVERSATION */
+
+
 /* key-mgmt dissector
  * IANA registry:
  * http://www.iana.org/assignments/sdp-parameters
@@ -351,6 +502,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     /* Save connection address type */
     media_info->connection_type = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
+    DPRINT(("parsed connection line type=%s", media_info->connection_type));
 
     proto_tree_add_item(sdp_connection_info_tree,
                         hf_connection_info_address_type, tvb, offset, tokenlen,
@@ -370,6 +522,8 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
         /* Save connection address */
         media_info->connection_address = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
     }
+
+    DPRINT(("parsed connection line address=%s", media_info->connection_address));
 
     proto_tree_add_item(sdp_connection_info_tree,
                         hf_connection_info_connection_address, tvb, offset,
@@ -698,6 +852,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
     media_info->media_type[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
+    DPRINT(("parsed media_type=%s, for media_count=%d",
+            media_info->media_type[media_info->media_count],
+            media_info->media_count));
+
     offset = next_offset + 1;
 
     next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
@@ -710,6 +868,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
         tokenlen = next_offset - offset;
         /* Save port info */
         media_info->media_port[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
+
+        DPRINT(("parsed media_port=%s, for media_count=%d",
+                media_info->media_port[media_info->media_count],
+                media_info->media_count));
 
         proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
                             atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen)));
@@ -729,6 +891,9 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
         tokenlen = next_offset - offset;
         /* Save port info */
         media_info->media_port[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
+        DPRINT(("parsed media_port=%s, for media_count=%d",
+                media_info->media_port[media_info->media_count],
+                media_info->media_count));
         /* XXX Remember Port */
         proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
                             atoi((char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen)));
@@ -743,6 +908,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
     tokenlen = next_offset - offset;
     /* Save port protocol */
     media_info->media_proto[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
+
+    DPRINT(("parsed media_proto=%s, for media_count=%d",
+            media_info->media_proto[media_info->media_count],
+            media_info->media_count));
 
     /* XXX Remember Protocol */
     proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
@@ -766,7 +935,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                                   tokenlen, val_to_str_ext((guint32)strtoul((char*)media_format, NULL, 10), &rtp_payload_type_vals_ext, "%u"));
             idx = transport_info->media[transport_info->media_count].pt_count;
             transport_info->media[transport_info->media_count].pt[idx] = (gint32)strtol((char*)media_format, NULL, 10);
-            if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
+            DPRINT(("parsed media codec pt=%d, for media_count=%d",
+                    transport_info->media[transport_info->media_count].pt[idx],
+                    transport_info->media_count));
+           if (idx < (SDP_MAX_RTP_PAYLOAD_TYPES-1))
                 transport_info->media[transport_info->media_count].pt_count++;
         } else {
             proto_tree_add_item(sdp_media_tree, hf_media_format, tvb, offset,
@@ -1592,6 +1764,8 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         transport_index = n+start_transport_info_count;
         if (media_info->media_port[n] != NULL) {
             transport_info->media_port[transport_index] = (int)strtol(media_info->media_port[n], NULL, 10);
+            DPRINT(("set transport_info media port number=%d, for transport_index=%d",
+                    transport_info->media_port[transport_index], transport_index));
         }
 
         if (media_info->media_proto[n] != NULL) {
@@ -1606,28 +1780,38 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
                 if (!strcmp(media_info->media_proto[n],"RTP/AVP")) {
                     transport_info->proto_bitmask[transport_index] |= SDP_RTP_PROTO;
                     proto_bitmask |= SDP_RTP_PROTO;
+                    DPRINT(("set SDP_RTP_PROTO bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
                 }
                 /* Check if media protocol is SRTP */
                 else if (!strcmp(media_info->media_proto[n],"RTP/SAVP")) {
                     transport_info->proto_bitmask[transport_index] |= SDP_SRTP_PROTO;
                     proto_bitmask |= SDP_SRTP_PROTO;
+                    DPRINT(("set SDP_SRTP_PROTO bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
                 }
                 /* Check if media protocol is T38 */
                 else if ((!strcmp(media_info->media_proto[n],"UDPTL")) ||
                     (!strcmp(media_info->media_proto[n],"udptl"))) {
                     transport_info->proto_bitmask[transport_index] |= SDP_T38_PROTO;
                     proto_bitmask |= SDP_T38_PROTO;
+                    DPRINT(("set SDP_T38_PROTO bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
                 }
                 /* Check if media protocol is MSRP/TCP */
                 else if (!strcmp(media_info->media_proto[n],"msrp/tcp")) {
                     transport_info->proto_bitmask[transport_index] |= SDP_MSRP_PROTO;
                     proto_bitmask |= SDP_MSRP_PROTO;
+                    DPRINT(("set SDP_MSRP_PROTO bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
                 }
                 /* Check if media protocol is SPRT */
                 else if ((!strcmp(media_info->media_proto[n],"UDPSPRT")) ||
                     (!strcmp(media_info->media_proto[n],"udpsprt"))) {
                     transport_info->proto_bitmask[transport_index] |= SDP_SPRT_PROTO;
                     proto_bitmask |= SDP_SPRT_PROTO;
+                    DPRINT(("set SDP_SPRT_PROTO bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
                 }
 
                 /* now check if this stream's port==0, in which case we need to disable its paired stream */
@@ -1639,6 +1823,8 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
                        answer have a non-port=0 (though that would be illegal per the RFCs). */
                     if (start_transport_info_count > 0 && (proto_bitmask & transport_info->proto_bitmask[n])) {
                         transport_info->media_port[n] = 0;
+                        DPRINT(("disabled media_port=%d, for transport_index=%d",
+                                n, transport_index));
                     }
                 }
             }
@@ -1646,23 +1832,27 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
 
         if ((media_info->connection_address != NULL) &&
             (media_info->connection_type != NULL)) {
-          if (strcmp(media_info->connection_type, "IP4") == 0) {
-            transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 4);
-            if (str_to_ip(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
-              /* connection_address could be converted to a valid ipv4 address*/
-              transport_info->proto_bitmask[transport_index] |= SDP_IPv4;
-              transport_info->src_addr[transport_index].type = AT_IPv4;
-              transport_info->src_addr[transport_index].len  = 4;
+            if (strcmp(media_info->connection_type, "IP4") == 0) {
+                transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 4);
+                if (str_to_ip(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
+                    /* connection_address could be converted to a valid ipv4 address*/
+                    transport_info->proto_bitmask[transport_index] |= SDP_IPv4;
+                    transport_info->src_addr[transport_index].type = AT_IPv4;
+                    transport_info->src_addr[transport_index].len  = 4;
+                    DPRINT(("set SDP_IPv4 bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
+                }
+            } else if (strcmp(media_info->connection_type, "IP6") == 0) {
+                transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 16);
+                if (str_to_ip6(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
+                    /* connection_address could be converted to a valid ipv6 address*/
+                    transport_info->proto_bitmask[transport_index] |= SDP_IPv6;
+                    transport_info->src_addr[transport_index].type = AT_IPv6;
+                    transport_info->src_addr[transport_index].len  = 16;
+                    DPRINT(("set SDP_IPv6 bitmask=%x, for transport_index=%d",
+                            transport_info->proto_bitmask[transport_index], transport_index));
+                }
             }
-          } else if (strcmp(media_info->connection_type, "IP6") == 0) {
-              transport_info->src_addr[transport_index].data = wmem_alloc(wmem_file_scope(), 16);
-              if (str_to_ip6(media_info->connection_address, (void*)transport_info->src_addr[transport_index].data)) {
-                /* connection_address could be converted to a valid ipv6 address*/
-                transport_info->proto_bitmask[transport_index] |= SDP_IPv6;
-                transport_info->src_addr[transport_index].type = AT_IPv6;
-                transport_info->src_addr[transport_index].len  = 16;
-              }
-          }
         }
 
         /* MSRP uses addresses discovered in attribute
@@ -1679,6 +1869,8 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         if ((media_info->media_type[transport_index] != NULL) &&
             (strcmp(media_info->media_type[transport_index], "video") == 0)) {
             transport_info->proto_bitmask[transport_index] |= SDP_VIDEO;
+            DPRINT(("set SDP_VIDEO bitmask=%x, for transport_index=%d",
+                    transport_info->proto_bitmask[transport_index], transport_index));
         }
     }
 }
@@ -1699,9 +1891,13 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
     struct srtp_info *srtp_info = NULL;
 
+    DPRINT2(("-------------------- setup_sdp_transport -------------------"));
+
     /* Only do this once during first pass */
-    if (pinfo->fd->flags.visited)
-      return;
+    if (pinfo->fd->flags.visited) {
+        DPRINT(("already visited"));
+        return;
+    }
 
     memset(&media_info, 0, sizeof(media_info));
 
@@ -1723,6 +1919,12 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         if (request_frame != 0)
             wmem_tree_insert32(sdp_transport_reqs, request_frame, (void *)transport_info);
     }
+#ifdef DEBUG_CONVERSATION
+    else {
+        DPRINT(("found previous transport_info:"));
+        sdp_dump_transport_info(transport_info);
+    }
+#endif
 
     if (exchange_type != SDP_EXCHANGE_OFFER)
         wmem_tree_insert32(sdp_transport_rsps, pinfo->fd->num, (void *)transport_info);
@@ -1736,6 +1938,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
     if (transport_info->media_count > 0)
         start_transport_info_count = transport_info->media_count;
+
+    DPRINT(("start_transport_info_count=%d", start_transport_info_count));
 
     /* if we don't delay, and this is an answer after a previous offer, then
        we free'd the unused media rtp_dyn_payload last time while processing
@@ -1789,6 +1993,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                     media_info.media_count++;
 
                 in_media_description = TRUE;
+                DPRINT(("in media description, transport_info->media_count=%d, "
+                        "media_info.media_count=%d",
+                        transport_info->media_count, media_info.media_count));
                 break;
             case 'a':
                 if (in_media_description) {
@@ -1804,11 +2011,13 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
         if (hf != hf_unknown)
         {
+            DINDENT();
             call_sdp_subdissector(tvb_new_subset(tvb, offset + tokenoffset,
                                                    linelen - tokenoffset,
                                                    linelen - tokenoffset),
                                     pinfo,
                                     hf, NULL, linelen-tokenoffset, transport_info, &media_info);
+            DENDENT();
         }
 
         offset = next_offset;
@@ -1834,10 +2043,23 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             media_info.media_count++;
     }
 
+#ifdef DEBUG_CONVERSATION
+    sdp_dump_disposable_media_info(&media_info);
+#endif
+
+    DPRINT(("calling convert_disposable_media(), transport_info->media_count=%d, "
+            "media_info.media_count=%d, start_transport_info_count=%d",
+            transport_info->media_count, media_info.media_count, start_transport_info_count));
+    DINDENT();
     /* Take all of the collected strings and convert them into something permanent
      * for the life of the capture
      */
     convert_disposable_media(transport_info, &media_info, start_transport_info_count);
+    DENDENT();
+
+#ifdef DEBUG_CONVERSATION
+    sdp_dump_transport_info(transport_info);
+#endif
 
     /* We have a successful negotiation, apply data to their respective protocols */
     if (!delay || ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
@@ -1860,26 +2082,42 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
                         srtp_info->auth_tag_len         = transport_info->auth_tag_len;
 
                     }
+                    DPRINT(("calling srtp_add_address, channel=%d, media_port=%d",
+                            n, transport_info->media_port[n]));
+                    DINDENT();
                     /* srtp_add_address and rtp_add_address are given the request_frame's not this frame's number,
                        because that's where the RTP flow started, and thus conversation needs to check against */
                     srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", request_frame,
                                     (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                      transport_info->media[n].rtp_dyn_payload, srtp_info);
+                    DENDENT();
                 } else {
+                    DPRINT(("calling rtp_add_address, channel=%d, media_port=%d",
+                            n, transport_info->media_port[n]));
+                    DINDENT();
                     rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", request_frame,
                                     (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                     transport_info->media[n].rtp_dyn_payload);
-                }
+                    DENDENT();
+                 }
                 transport_info->media[n].set_rtp = TRUE;
                 /* SPRT might use the same port... */
                 current_rtp_port = transport_info->media_port[n];
 
                 if (rtcp_handle) {
                     if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
+                        DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
+                                n, transport_info->media_port[n]+1));
+                        DINDENT();
                         srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", request_frame, srtp_info);
-                    } else {
+                        DENDENT();
+                     } else {
+                        DPRINT(("calling rtcp_add_address, channel=%d, media_port=%d",
+                                n, transport_info->media_port[n]+1));
+                        DINDENT();
                         rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", request_frame);
-                    }
+                        DENDENT();
+                     }
                 }
             }
 
@@ -1916,6 +2154,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             /* Free the hash table if we did't assigned it to a conv use it */
             if (!transport_info->media[n].set_rtp)
             {
+                DPRINT(("set_rtp is not set, calling rtp_free_hash_dyn_payload, "
+                        "channel=%d, media_port=%d",
+                        n, transport_info->media_port[n]));
                 rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
                 transport_info->media[n].rtp_dyn_payload = NULL;
             }
@@ -1929,6 +2170,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             {
                 if (!transport_info->media[n].set_rtp)
                 {
+                    DPRINT(("media_count == -1, calling rtp_free_hash_dyn_payload, "
+                            "channel=%d, media_port=%d",
+                            n, transport_info->media_port[n]));
                     rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
                     transport_info->media[n].rtp_dyn_payload = NULL;
                 }
@@ -1940,6 +2184,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             {
                 if (!transport_info->media[n].set_rtp)
                 {
+                    DPRINT(("media_count != -1, calling rtp_free_hash_dyn_payload, "
+                            "channel=%d, media_port=%d",
+                            n, transport_info->media_port[n]));
                     rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
                     transport_info->media[n].rtp_dyn_payload = NULL;
                 }
@@ -1995,6 +2242,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sdp_packet_info  *sdp_pi;
     struct srtp_info *srtp_info = NULL;
 
+    DPRINT2(("----------------------- dissect_sdp ------------------------"));
+
     /* Initialise packet info for passing to tap */
     sdp_pi = wmem_new(wmem_packet_scope(), sdp_packet_info);
     sdp_pi->summary_str[0] = '\0';
@@ -2011,6 +2260,12 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (transport_info == NULL) {
       transport_info = &local_transport_info;
     }
+#ifdef DEBUG_CONVERSATION
+    else {
+        DPRINT(("found previous transport_info:"));
+        sdp_dump_transport_info(transport_info);
+    }
+#endif
 
     /* Initialize local transport info */
     memset(&local_transport_info, 0, sizeof(local_transport_info));
@@ -2178,8 +2433,21 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Take all of the collected strings and convert them into something permanent
      * for the life of the capture
      */
-    if (transport_info == &local_transport_info)
+    if (transport_info == &local_transport_info) {
+        DPRINT(("no previous transport_info saved, calling convert_disposable_media()"));
+        DINDENT();
         convert_disposable_media(transport_info, &media_info, 0);
+        DENDENT();
+#ifdef DEBUG_CONVERSATION
+        sdp_dump_transport_info(transport_info);
+#endif
+    }
+#ifdef DEBUG_CONVERSATION
+    else {
+        DPRINT(("not overwriting previous transport_info, local_transport_info contents:"));
+        sdp_dump_transport_info(&local_transport_info);
+    }
+#endif
 
     for (n = 0; n < local_transport_info.media_count; n++)
     {
@@ -2203,13 +2471,21 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     srtp_info->mki_len              = transport_info->mki_len;
                     srtp_info->auth_tag_len         = transport_info->auth_tag_len;
                 }
+                DPRINT(("calling srtp_add_address for media_port=%d, for channel=%d",
+                        transport_info->media_port[n],n));
+                DINDENT();
                 srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                                 (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                  transport_info->media[n].rtp_dyn_payload, srtp_info);
+                DENDENT();
             } else {
+                DPRINT(("calling rtp_add_address for media_port=%d, for channel=%d",
+                        transport_info->media_port[n],n));
+                DINDENT();
                 rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                                 (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                                 transport_info->media[n].rtp_dyn_payload);
+                DENDENT();
             }
             transport_info->media[n].set_rtp = TRUE;
             /* SPRT might use the same port... */
@@ -2217,9 +2493,17 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if (rtcp_handle) {
                 if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
+                    DPRINT(("calling srtcp_add_address for media_port=%d, for channel=%d",
+                            transport_info->media_port[n],n));
+                    DINDENT();
                     srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num, srtp_info);
+                    DENDENT();
                 } else {
+                    DPRINT(("calling rtcp_add_address for media_port=%d, for channel=%d",
+                            transport_info->media_port[n],n));
+                    DINDENT();
                     rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num);
+                    DENDENT();
                 }
             }
         }
@@ -2265,6 +2549,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             for (i = 0; i < local_transport_info.media[n].pt_count; i++)
             {
+                DPRINT(("in for-loop for voip call analysis setting for media #%d, pt=%d",
+                        i, local_transport_info.media[n].pt[i]));
                 /* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
                 if ((local_transport_info.media[n].pt[i] >= 96) && (local_transport_info.media[n].pt[i] <= 127)) {
                     encoding_name_and_rate_t *encoding_name_and_rate_pt =

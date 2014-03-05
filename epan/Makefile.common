@@ -163,6 +163,7 @@ LIBWIRESHARK_INCLUDES =		\
 	column-info.h		\
 	column-utils.h		\
 	conversation.h		\
+	conversation_debug.h		\
 	conv_id.h		\
 	crc16-tvb.h		\
 	crc32-tvb.h		\

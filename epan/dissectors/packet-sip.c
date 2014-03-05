@@ -57,6 +57,10 @@
 
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
 
+/* un-comment the following as well as this line in conversation.c, to enable debug printing */
+/* #define DEBUG_CONVERSATION */
+#include "conversation_debug.h"
+
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
 #define TLS_PORT_SIP 5061
@@ -2414,6 +2418,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
 
+    DPRINT2(("------------------------------ dissect_sip_common ------------------------------"));
+
     switch (line_type) {
 
     case REQUEST_LINE:
@@ -2422,6 +2428,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
                      descr,
                      tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1));
+        DPRINT(("got %s: %s", descr,
+                tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case STATUS_LINE:
@@ -2429,12 +2437,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
                      tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
         stat_info->reason_phrase = tvb_get_string(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5, linelen - (SIP2_HDR_LEN + 5));
+        DPRINT(("got Response: %s",
+                tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case OTHER_LINE:
     default: /* Squelch compiler complaints */
         descr = "Continuation";
         col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+        DPRINT(("got continuation"));
         break;
     }
 
@@ -3509,41 +3520,74 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
                 /* Resends don't count */
                 if (resend_for_packet == 0) {
                     if (line_type == REQUEST_LINE) {
+                        DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_OFFER frame=%d",
+                                pinfo->fd->num));
+                        DINDENT();
                         setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num, sip_delay_sdp_changes);
+                        DENDENT();
                     } else if (line_type == STATUS_LINE) {
                         if (stat_info->response_code >= 400) {
+                            DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_ANSWER_REJECT "
+                                    "request_frame=%d, this=%d",
+                                    request_for_response, pinfo->fd->num));
+                            DINDENT();
                             /* SIP client request failed, so SDP offer should fail */
                             setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response, sip_delay_sdp_changes);
+                            DENDENT();
                         }
                         else if ((stat_info->response_code >= 200) && (stat_info->response_code <= 299)) {
+                            DPRINT(("calling setup_sdp_transport() SDP_EXCHANGE_ANSWER_ACCEPT "
+                                    "request_frame=%d, this=%d",
+                                    request_for_response, pinfo->fd->num));
+                            DINDENT();
                             /* SIP success request, so SDP offer should be accepted */
                             setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response, sip_delay_sdp_changes);
+                            DENDENT();
                         }
                     }
                 } else {
+                    DPRINT(("calling setup_sdp_transport() resend_for_packet "
+                            "request_frame=%d, this=%d",
+                            request_for_response, pinfo->fd->num));
+                    DINDENT();
                     setup_sdp_transport_resend(pinfo->fd->num, resend_for_packet);
+                    DENDENT();
                 }
             }
 
             /* XXX: why is this called even if setup_sdp_transport() was called before? That will
                     parse the SDP a second time, for 'application/sdp' media MIME bodies */
+            DPRINT(("calling dissector_try_string()"));
+            DINDENT();
             found_match = dissector_try_string(media_type_dissector_table,
                                                media_type_str_lower_case,
                                                next_tvb, pinfo,
                                                message_body_tree, NULL);
+            DENDENT();
+            DPRINT(("done calling dissector_try_string() with found_match=%s",
+                    found_match?"TRUE":"FALSE"));
+
             if (!found_match &&
                 !strncmp(media_type_str_lower_case, "multipart/", sizeof("multipart/")-1)) {
+                DPRINT(("calling dissector_try_string() for multipart"));
+                DINDENT();
                 /* Try to decode the unknown multipart subtype anyway */
                 found_match = dissector_try_string(media_type_dissector_table,
                                                    "multipart/",
                                                    next_tvb, pinfo,
                                                    message_body_tree, NULL);
+                DENDENT();
+                DPRINT(("done calling dissector_try_string() with found_match=%s",
+                        found_match?"TRUE":"FALSE"));
             }
             pinfo->private_data = save_private_data;
             /* If no match dump as text */
         }
         if ( found_match != TRUE )
         {
+            DPRINT(("calling dissector_try_heuristic() with found_match=%s",
+                    found_match?"TRUE":"FALSE"));
+            DINDENT();
             if (!(dissector_try_heuristic(heur_subdissector_list,
                               next_tvb, pinfo, message_body_tree, NULL))) {
                 int tmp_offset = 0;
@@ -3558,6 +3602,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
                     tmp_offset = next_offset;
                 }/* end while */
             }
+            DENDENT();
         }
         offset += datalen;
     }

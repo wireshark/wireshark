@@ -70,7 +70,12 @@
 #include <epan/wmem/wmem.h>
 #include <epan/strutil.h>
 
+/* un-comment the following as well as this line in conversation.c, to enable debug printing */
+/* #define DEBUG_CONVERSATION */
+#include "conversation_debug.h"
+
 /* uncomment this to enable debugging of fragment reassembly */
+/* #define DEBUG   1 */
 /* #define DEBUG_FRAGMENTS   1 */
 
 typedef struct _rfc2198_hdr {
@@ -801,6 +806,39 @@ static const value_string srtp_auth_alg_vals[] =
 };
 #endif
 
+#ifdef DEBUG_CONVERSATION
+/* Called for each entry in the rtp_dyn_payload hash table. */
+static void
+rtp_dyn_payload_table_foreach_func (gpointer key, gpointer value, gpointer user_data _U_) {
+    gint* pt = (gint*) key;
+    encoding_name_and_rate_t *encoding = (encoding_name_and_rate_t*) value;
+
+    DPRINT2(("pt=%d",*pt));
+    if (encoding) {
+        DPRINT2(("encoding_name=%s",
+                encoding->encoding_name ? encoding->encoding_name : "NULL"));
+        DPRINT2(("sample_rate=%d", encoding->sample_rate));
+    } else {
+        DPRINT2(("encoding=NULL"));
+    }
+}
+static void rtp_dump_dyn_payload(GHashTable *rtp_dyn_payload) {
+    DPRINT2(("rtp_dyn_payload hash table contents:"));
+    DINDENT();
+    if (!rtp_dyn_payload) {
+        DPRINT2(("null rtp_dyn_payload"));
+        DENDENT();
+        return;
+    }
+    if (g_hash_table_size(rtp_dyn_payload) == 0) {
+        DPRINT2(("rtp_dyn_payload is empty"));
+    } else {
+        g_hash_table_foreach(rtp_dyn_payload, rtp_dyn_payload_table_foreach_func, NULL);
+    }
+    DENDENT();
+}
+#endif /* DEBUG_CONVERSATION */
+
 /* initialisation routine */
 static void
 rtp_fragment_init(void)
@@ -920,11 +958,10 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
         return;
     }
 
-#ifdef DEBUG
-    printf("#%u: %srtp_add_address(%s, %u, %u, %s, %u\n",
-        pinfo->fd->num, (srtp_info)?"s":"", ep_address_to_str(addr), port,
-        other_port, setup_method, setup_frame_number);
-#endif
+    DPRINT(("#%u: %srtp_add_address(%s, %u, %u, %s, %u)",
+            pinfo->fd->num, (srtp_info)?"s":"", ep_address_to_str(addr), port,
+            other_port, setup_method, setup_frame_number));
+    DINDENT();
 
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
 
@@ -934,6 +971,9 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
      */
     p_conv = find_conversation(setup_frame_number, addr, &null_addr, PT_UDP, port, other_port,
                    NO_ADDR_B | (!other_port ? NO_PORT_B : 0));
+
+    DENDENT();
+    DPRINT(("did %sfind conversation", p_conv?"":"NOT "));
 
     /*
      * If not, create a new conversation.
@@ -956,6 +996,8 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
      * If not, add a new data item.
      */
     if (! p_conv_data) {
+        DPRINT(("creating new conversation data"));
+
         /* Create conversation data */
         p_conv_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
         p_conv_data->rtp_dyn_payload = NULL;
@@ -966,8 +1008,15 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
         p_conv_data->extended_seqno = 0x10000;
         p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
         p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
+        DINDENT();
         conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
+        DENDENT();
     }
+#ifdef DEBUG_CONVERSATION
+    else {
+        DPRINT(("conversation already exists"));
+    }
+#endif
 
     /*
      * Update the conversation data.
@@ -1779,8 +1828,20 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     if ( (payload_type>95) && (payload_type<128) ) {
         if (p_conv_data && p_conv_data->rtp_dyn_payload){
             encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
+
+#ifdef DEBUG_CONVERSATION
+            rtp_dump_dyn_payload(p_conv_data->rtp_dyn_payload);
+#endif
+            DPRINT(("looking up conversation data for dyn_pt=%d", payload_type));
+
             encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
+
+            DPRINT(("did %sfind conversation data for dyn_pt=%d",
+                    encoding_name_and_rate_pt?"":"not ", payload_type));
+
             if (encoding_name_and_rate_pt) {
+                DPRINT(("found conversation data for dyn_pt=%d, enc_name=%s",
+                        payload_type,encoding_name_and_rate_pt->encoding_name));
                 rtp_info->info_payload_type_str = payload_type_str = encoding_name_and_rate_pt->encoding_name;
                 rtp_info->info_payload_rate = encoding_name_and_rate_pt->sample_rate;
             }
