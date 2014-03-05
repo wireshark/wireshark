@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
 
 <?type-proto key="MIPRegistrationRequest" value="mip" ?>
 <?avp-proto key="Example-AVP" value="data" ?>
@@ -156,23 +155,23 @@
     <command name="3GPP-Device-Trigger"		code="8388643" vendor-id="None"/>     <!-- 3GPP TS 29.337 -->
     <command name="3GPP-Delivery-Report"		code="8388644" vendor-id="None"/>   <!-- 3GPP TS 29.337 -->
     <!--
-    8388645 MO-Forward-Short-Message Request/Answer (OFR/OFA) [3GPP TS 29.338][Kimmo_Kymalainen] 
-    8388646 MT-Forward-Short-Message Request/Answer (TFR/TFA) [3GPP TS 29.338][Kimmo_Kymalainen] 
-    8388647 Send-Routing-Info-for-SM-Request/Answer (SRR/SRA) [3GPP TS 29.338][Kimmo_Kymalainen] 
-    8388648 Alert-Service-Centre-Request/Answer (ALR/ALA) [3GPP TS 29.338][Kimmo_Kymalainen] 
-    8388649 Report-SM-Delivery-Status-Request/Answer (RDR/RDA) [3GPP TS 29.338][Kimmo_Kymalainen] 
-    8388650 NSN Cancel-LocationMS-Request/Answer (CLR/CLA) [Hannes_Tschofenig] 
-    8388651 NSN User-DataMS-Request/Answer (UDR/UDA) [Hannes_Tschofenig] 
-    8388652 NSN Profile-UpdateMS-Request/Answer (PUR/PUA) [Hannes_Tschofenig] 
-    8388653 NSN Subscribe-NotificationsMS-Request/Answer (SNR/SNA) [Hannes_Tschofenig] 
-    8388654 NSN Push-NotificationMS-Request/Answer (PNR/PNA) [Hannes_Tschofenig] 
-    8388655 Get Gateway Request/Answer (GGR/GGA) [Steve_Donovan] 
-    8388656 Trigger-Establishment-Request/Answer (TER/TEA) [3GPP TS 29.215][Kimmo_Kymalainen] 
+    8388645 MO-Forward-Short-Message Request/Answer (OFR/OFA) [3GPP TS 29.338][Kimmo_Kymalainen]
+    8388646 MT-Forward-Short-Message Request/Answer (TFR/TFA) [3GPP TS 29.338][Kimmo_Kymalainen]
+    8388647 Send-Routing-Info-for-SM-Request/Answer (SRR/SRA) [3GPP TS 29.338][Kimmo_Kymalainen]
+    8388648 Alert-Service-Centre-Request/Answer (ALR/ALA) [3GPP TS 29.338][Kimmo_Kymalainen]
+    8388649 Report-SM-Delivery-Status-Request/Answer (RDR/RDA) [3GPP TS 29.338][Kimmo_Kymalainen]
+    8388650 NSN Cancel-LocationMS-Request/Answer (CLR/CLA) [Hannes_Tschofenig]
+    8388651 NSN User-DataMS-Request/Answer (UDR/UDA) [Hannes_Tschofenig]
+    8388652 NSN Profile-UpdateMS-Request/Answer (PUR/PUA) [Hannes_Tschofenig]
+    8388653 NSN Subscribe-NotificationsMS-Request/Answer (SNR/SNA) [Hannes_Tschofenig]
+    8388654 NSN Push-NotificationMS-Request/Answer (PNR/PNA) [Hannes_Tschofenig]
+    8388655 Get Gateway Request/Answer (GGR/GGA) [Steve_Donovan]
+    8388656 Trigger-Establishment-Request/Answer (TER/TEA) [3GPP TS 29.215][Kimmo_Kymalainen]
     -->
     <command name="Ericsson Binding-Data"		code="8388657" vendor-id="None"/>
     <!-- 3GPP TS 29.337 -->
     <!--
-    8388658-16777213 Unassigned  
+    8388658-16777213 Unassigned
 		16777214 Experimental code [RFC3588]
 		16777215 Experimental code [RFC3588]
 		-->
@@ -4046,7 +4045,7 @@
 		<avp name="Max-Supported-Bandwidth-UL" code="1084" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-<!-- 
+<!--
 1085 Redirect-Information Grouped
 1086 Redirect- Support Enumerated
 1087 TDF-Information Grouped
@@ -5252,7 +5251,7 @@
 		<avp name="MIP-FA-RK-SPI" code="1507" may-encrypt="yes" vendor-id="TGPP" vendor-bit="must" mandatory="must">
 			<type type-name="Unsigned32"/>
 		</avp>
-    <!-- 
+    <!--
 1508 PPR-Flags Unsigned32
 1509 WLAN-Identifier Grouped
 1510 TWAN-Access-Info Grouped
@@ -5575,10 +5574,10 @@
     <avp name="Restoration-Priority" code="1662" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
-    <!-- 
+    <!--
 1663 Restoration-Priority Unsigned32
 1664 Reserved -
-1665 Reserved -    
+1665 Reserved -
     -->
     <!--
 		Note: The AVP codes from 1663 to 1699 are reserved for TS 29.272.
@@ -6211,14 +6210,16 @@
 		<avp name="Serving-Node" code="2401" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SGSN-Number"/>
+				<gavp name="SGSN-Name"/>
+				<gavp name="SGSN-Realm"/>
 				<gavp name="MME-Name"/>
 				<gavp name="MME-Realm"/>
 				<gavp name="MSC-Number"/>
-				<gavp name="IP-SM-GW-Number"/>
-				<gavp name="IP-SM-GW-Name"/>
 				<gavp name="3GPP-AAA-Server-Name"/>
 				<gavp name="LCS-Capabilities-Sets"/>
 				<gavp name="GMLC-Address"/>
+				<gavp name="IP-SM-GW-Number"/>
+				<gavp name="IP-SM-GW-Name"/>
 			</grouped>
 		</avp>
 		<avp name="MME-Name" code="2402" vendor-bit="must" vendor-id="TGPP">
@@ -6237,8 +6238,13 @@
 			<grouped>
 				<gavp name="SGSN-Number"/>
 				<gavp name="MME-Name"/>
+				<gavp name="SGSN-Name"/>
+				<gavp name="SGSN-Realm"/>
 				<gavp name="MME-Realm"/>
 				<gavp name="MSC-Number"/>
+				<gavp name="3GPP-AAA-Server-Name"/>
+				<gavp name="LCS-Capabilities-Sets"/>
+				<gavp name="GMLC-Address"/>
 			</grouped>
 		</avp>
 		<avp name="PSR-Address" code="2407" vendor-bit="must" vendor-id="TGPP">
@@ -6712,7 +6718,7 @@
 	<application id="16777304"	name="Ericsson Sy"		uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
   <application id="16777315"  name="Ericsson Diameter Signalling Controller Application (DSC)"            uri="http://www.iana.org/assignments/aaa-parameters/aaa-parameters.xml"></application>
   <application id="4294967295" name="Relay"  uri="http://www.ietf.org/rfc/rfc6733.txt?number=6733"></application>
-  
+
 	&nasreq;
 	&eap;
 	&mobileipv4;
