@@ -4065,6 +4065,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 th_urp;
     proto_tree *tcp_tree = NULL, *field_tree = NULL;
     proto_item *ti = NULL, *tf, *hidden_item;
+    proto_item *options_item;
+    proto_tree *options_tree;
     int        offset = 0;
     wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
     static const gchar *flags[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS"};
@@ -4609,42 +4611,29 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
     }
 
-    /* If there's more than just the fixed-length header (20 bytes), decode the options. */
-    tcph->num_sack_ranges = 0;
-    if (tcph->th_hlen > TCPH_MIN_LEN) {
+    /* If there's more than just the fixed-length header (20 bytes), create
+       a protocol tree item for the options.  (We already know there's
+       not less than the fixed-length header - we checked that above.)
+
+       We ensure that we don't throw an exception here, so that we can
+       do some analysis before we dissect the options and possibly
+       throw an exception.  (Trying to avoid throwing an exception when
+       dissecting options is not something we should do.) */
+    optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
+    options_item = NULL;
+    options_tree = NULL;
+    if (optlen != 0) {
         guint bc = (guint)MAX(0, tvb_length_remaining(tvb, offset + 20));
 
-        optlen = tcph->th_hlen - TCPH_MIN_LEN; /* length of options, in bytes */
-
         if (tcp_tree != NULL) {
-            /* If the frame has been sliced but the options field is at least 4 bytes, decode as much
-             * of it as possible; otherwise, set optlen to zero. */
-            if (bc < optlen) {
-                if (bc >= 4) {
-                    guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, bc);
-
-                    tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset + 20,
-                            bc, p_options, "Options: (%u bytes but truncated to %u bytes)", optlen, bc);
-                    optlen = bc;
-                } else {
-                    optlen = 0;
-                }
-            } else {
-                guint8 *p_options = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset + 20, optlen);
-
-                tf = proto_tree_add_bytes_format(tcp_tree, hf_tcp_options, tvb, offset +  20,
-                                                 optlen, p_options, "Options: (%u bytes)", optlen);
-            }
-            field_tree = proto_item_add_subtree(tf, ett_tcp_options);
-        } else {
-            tf = NULL;
-            field_tree = NULL;
-        }
-        if (optlen)
-            dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS, TCPOPT_EOL,
-                &TCP_OPT_TYPES, &ei_tcp_opt_len_invalid, pinfo, field_tree, tf, tcph);
+            options_item = proto_tree_add_item(tcp_tree, hf_tcp_options, tvb, offset + 20,
+                                               bc < optlen ? bc : optlen, ENC_NA);
+            proto_item_set_text(options_item, "Options: (%u bytes)", optlen);
+            options_tree = proto_item_add_subtree(options_item, ett_tcp_options);
+	}
     }
 
+    tcph->num_sack_ranges = 0;
     if(!pinfo->fd->flags.visited) {
         if((tcph->th_flags & TH_SYN)==TH_SYN) {
             /* Check the validity of the window scale value
@@ -4662,6 +4651,33 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 verify_scps(pinfo, tf_syn, tcpd);
             }
         }
+    }
+
+    /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
+    if(tcp_analyze_seq) {
+        guint32 use_seq = tcph->th_seq;
+        guint32 use_ack = tcph->th_ack;
+        /* May need to recover absolute values here... */
+        if (tcp_relative_seq) {
+            use_seq += tcpd->fwd->base_seq;
+            if (tcph->th_flags & TH_ACK) {
+                use_ack += tcpd->rev->base_seq;
+            }
+        }
+        tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
+    }
+
+    /* handle conversation timestamps */
+    if(tcp_calculate_ts) {
+        tcp_print_timestamps(pinfo, tvb, tcp_tree, tcpd, tcppd);
+    }
+
+    /* Now dissect the options. */
+    if (options_tree != NULL) {
+        dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS,
+                               TCPOPT_EOL, &TCP_OPT_TYPES,
+                               &ei_tcp_opt_len_invalid, pinfo, options_tree,
+                               options_item, tcph);
     }
 
     /* Skip over header + options */
@@ -4688,27 +4704,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
     }
 
-    /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
-    if(tcp_analyze_seq) {
-        guint32 use_seq = tcph->th_seq;
-        guint32 use_ack = tcph->th_ack;
-        /* May need to recover absolute values here... */
-        if (tcp_relative_seq) {
-            use_seq += tcpd->fwd->base_seq;
-            if (tcph->th_flags & TH_ACK) {
-                use_ack += tcpd->rev->base_seq;
-            }
-        }
-        tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
-    }
-
-    /* handle conversation timestamps */
-    if(tcp_calculate_ts) {
-        tcp_print_timestamps(pinfo, tvb, tcp_tree, tcpd, tcppd);
-    }
-
     tap_queue_packet(tcp_tap, pinfo, tcph);
-
 
     /* If we're reassembling something whose length isn't known
      * beforehand, and that runs all the way to the end of
