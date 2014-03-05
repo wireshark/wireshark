@@ -4700,7 +4700,7 @@ proto_register_btsdp(void)
         },
         { &hf_sdp_protocol_psm,
             { "L2CAP PSM",                       "btsdp.protocol.psm",
-            FT_UINT16, BASE_DEC_HEX, &ext_psm_vals, 0,
+            FT_UINT16, BASE_DEC_HEX|BASE_EXT_STRING, &ext_psm_vals, 0,
             NULL, HFILL }
         },
         { &hf_sdp_protocol_channel,
