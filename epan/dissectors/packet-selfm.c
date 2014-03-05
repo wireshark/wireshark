@@ -212,12 +212,7 @@ static gint ett_selfm_fastser_element       = -1;
 #define CMD_FASTOP_RESET        0xA5ED
 
 #define RELAYDEF_PROTO_SEL          0x0000
-#define RELAYDEF_PROTO_SEL_FO       0x0100
-#define RELAYDEF_PROTO_SEL_FM       0x0200
-#define RELAYDEF_PROTO_SEL_FO_FM    0x0300
 #define RELAYDEF_PROTO_LMD          0x0001
-#define RELAYDEF_PROTO_LMD_FO       0x0101
-#define RELAYDEF_PROTO_LMD_FO_FM    0x0301
 #define RELAYDEF_PROTO_MODBUS       0x0002
 #define RELAYDEF_PROTO_SYMAX        0x0003
 #define RELAYDEF_PROTO_R2R          0x0004
@@ -225,6 +220,11 @@ static gint ett_selfm_fastser_element       = -1;
 #define RELAYDEF_PROTO_MB           0x0006
 #define RELAYDEF_PROTO_C37_118      0x0007
 #define RELAYDEF_PROTO_61850        0x0008
+#define RELAYDEF_PROTO_SEL_FO       0x0100
+#define RELAYDEF_PROTO_LMD_FO       0x0101
+#define RELAYDEF_PROTO_SEL_FM       0x0200
+#define RELAYDEF_PROTO_SEL_FO_FM    0x0300
+#define RELAYDEF_PROTO_LMD_FO_FM    0x0301
 
 #define FM_CONFIG_SF_LOC_FM             0
 #define FM_CONFIG_SF_LOC_CFG            1
@@ -482,33 +482,28 @@ typedef struct {
 } fastser_config_frame;
 
 static const value_string selfm_msgtype_vals[] = {
-    { CMD_CLEAR_STATBIT,         "Clear Status Bits Command" },
     { CMD_FAST_SER,              "Fast SER Block" },
-    { CMD_FASTOP_BR_CTRL,        "Fast Operate Breaker Bit Control" },
-    { CMD_FASTOP_RB_CTRL,        "Fast Operate Remote Bit Control" },
-    { CMD_FASTOP_CONFIG,         "Fast Operate Configuration" },
-    { CMD_FASTOP_CONFIG_ALT,     "Fast Operate Configuration (alt)" },
-    { CMD_FASTOP_RESET,          "Fast Operate Reset" },
-    { CMD_FASTOP_RESETDEF,       "Fast Operate Reset Definition" },
+    { CMD_CLEAR_STATBIT,         "Clear Status Bits Command" },
     { CMD_RELAY_DEF,             "Relay Definition Block" },
     { CMD_FM_CONFIG,             "Fast Meter Configuration Block" },
-    { CMD_FM_DATA,               "Fast Meter Data Block" },
     { CMD_DFM_CONFIG,            "Demand Fast Meter Configuration Block" },
-    { CMD_DFM_DATA,              "Demand Fast Meter Data Block" },
     { CMD_PDFM_CONFIG,           "Peak Demand Fast Meter Configuration Block" },
+    { CMD_FASTOP_RESETDEF,       "Fast Operate Reset Definition" },
+    { CMD_FASTOP_CONFIG,         "Fast Operate Configuration" },
+    { CMD_FASTOP_CONFIG_ALT,     "Fast Operate Configuration (alt)" },
+    { CMD_FM_DATA,               "Fast Meter Data Block" },
+    { CMD_DFM_DATA,              "Demand Fast Meter Data Block" },
     { CMD_PDFM_DATA,             "Peak Demand Fast Meter Data Block" },
+    { CMD_FASTOP_RB_CTRL,        "Fast Operate Remote Bit Control" },
+    { CMD_FASTOP_BR_CTRL,        "Fast Operate Breaker Bit Control" },
+    { CMD_FASTOP_RESET,          "Fast Operate Reset" },
     { 0,                         NULL }
 };
 static value_string_ext selfm_msgtype_vals_ext = VALUE_STRING_EXT_INIT(selfm_msgtype_vals);
 
 static const value_string selfm_relaydef_proto_vals[] = {
     { RELAYDEF_PROTO_SEL,        "SEL Fast Meter" },
-    { RELAYDEF_PROTO_SEL_FO,     "SEL Fast Meter w/ Fast Operate" },
-    { RELAYDEF_PROTO_SEL_FM,     "SEL Fast Meter w/ Fast SER" },
-    { RELAYDEF_PROTO_SEL_FO_FM,  "SEL Fast Meter w/ Fast Operate and Fast SER" },
     { RELAYDEF_PROTO_LMD,        "SEL Limited Multidrop (LMD)" },
-    { RELAYDEF_PROTO_LMD_FO,     "SEL Limited Multidrop (LMD) w/ Fast Operate" },
-    { RELAYDEF_PROTO_LMD_FO_FM,  "SEL Limited Multidrop (LMD) w/ Fast Operate and Fast SER" },
     { RELAYDEF_PROTO_MODBUS,     "Modbus" },
     { RELAYDEF_PROTO_SYMAX,      "SY/MAX" },
     { RELAYDEF_PROTO_R2R,        "SEL Relay-to-Relay" },
@@ -516,6 +511,11 @@ static const value_string selfm_relaydef_proto_vals[] = {
     { RELAYDEF_PROTO_MB,         "SEL Mirrored Bits" },
     { RELAYDEF_PROTO_C37_118,    "IEEE 37.118 Synchrophasors" },
     { RELAYDEF_PROTO_61850,      "IEC 61850" },
+    { RELAYDEF_PROTO_SEL_FO,     "SEL Fast Meter w/ Fast Operate" },
+    { RELAYDEF_PROTO_LMD_FO,     "SEL Limited Multidrop (LMD) w/ Fast Operate" },
+    { RELAYDEF_PROTO_SEL_FM,     "SEL Fast Meter w/ Fast SER" },
+    { RELAYDEF_PROTO_SEL_FO_FM,  "SEL Fast Meter w/ Fast Operate and Fast SER" },
+    { RELAYDEF_PROTO_LMD_FO_FM,  "SEL Limited Multidrop (LMD) w/ Fast Operate and Fast SER" },
     { 0,                         NULL }
 };
 static value_string_ext selfm_relaydef_proto_vals_ext = VALUE_STRING_EXT_INIT(selfm_relaydef_proto_vals);
