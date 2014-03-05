@@ -279,6 +279,25 @@ clopts_step_valid_name_resolving() {
 	fi
 }
 
+test_dump_glossary() {
+	$TSHARK -G $1 > /dev/null
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "exit status: $RETURNVALUE"
+	else
+		test_step_ok
+	fi
+}
+
+# check that dumping the glossaries succeeds (at least doesn't crash)
+# this catches extended value strings without the BASE_EXT_STRING flag
+# among other problems
+clopts_suite_dump_glossaries() {
+	for glossary in fields protocols values decodes defaultprefs currentprefs; do
+		test_step_add "Dumping $glossary glossary" "test_dump_glossary $glossary"
+	done
+}
+
 # check exit status of some basic functions
 clopts_suite_basic() {
 	test_step_add "Exit status for existing file: \"""${CAPTURE_DIR}dhcp.pcap""\" must be 0" clopts_step_existing_file
@@ -312,8 +331,8 @@ clopt_suite() {
 	test_suite_add "Valid TShark single char options" clopts_suite_tshark_valid_chars
 	test_suite_add "Interface-specific TShark single char options" clopts_suite_tshark_interface_chars
 	test_suite_add "Capture filter/interface options tests" clopts_suite_tshark_capture_options
+	test_suite_add "Dump glossaries" clopts_suite_dump_glossaries
 	test_step_add  "Valid name resolution options -N (1s)" clopts_step_valid_name_resolving
-	#test_remark_add "Undocumented command line option: G"
 	#test_remark_add "Options currently unchecked: S, V, l, n, p, q and x"
 }
 
