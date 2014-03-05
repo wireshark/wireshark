@@ -4230,7 +4230,7 @@ proto_register_btsdp(void)
         },
         { &hf_did_vendor_id_usb_forum,
             { "Vendor ID",                       "btsdp.service.did.vendor_id",
-            FT_UINT16, BASE_HEX, &ext_usb_vendors_vals, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &ext_usb_vendors_vals, 0,
             NULL, HFILL }
         },
         { &hf_did_product_id,
