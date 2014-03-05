@@ -55,9 +55,10 @@ static int hf_pn_dcp_block = -1;
 static int hf_pn_dcp_block_error = -1;
 
 static int hf_pn_dcp_option = -1;
-/* static int hf_pn_dcp_suboption = -1; */
 static int hf_pn_dcp_block_info = -1;
 static int hf_pn_dcp_block_qualifier = -1;
+static int hf_pn_dcp_blockqualifier = -1;
+static int hf_pn_dcp_blockqualifier_r2f = -1;
 
 static int hf_pn_dcp_suboption_ip = -1;
 static int hf_pn_dcp_suboption_ip_block_info = -1;
@@ -150,6 +151,29 @@ static const value_string pn_dcp_block_qualifier[] = {
     { 0, NULL }
 };
 
+static const value_string pn_dcp_BlockQualifier[] = {
+    { 0x0002, "Reset application data" },
+    { 0x0003, "Reset application data" },
+    { 0x0004, "Reset communication parameter" },
+    { 0x0005, "Reset communication parameter" },
+    { 0x0006, "Reset engineering parameter" },
+    { 0x0007, "Reset engineering parameter" },
+    { 0x0008, "Resets all stored data" },
+    { 0x0009, "Resets all stored data" },
+    { 0x000A, "Reset engineering parameter" },
+    { 0x000B, "Reset engineering parameter" },
+    { 0x000C, "Reserved" },
+    { 0x000D, "Reserved" },
+    { 0x0009, "Reserved" },
+    { 0x0010, "Resets all stored data in the IOD or IOC to its factory values" },
+    { 0x0011, "Resets all stored data in the IOD or IOC to its factory values" },
+    { 0x0012, "Reset and restore data" },
+    { 0x0013, "Reset and restore data" },
+    { 0x0014, "Reserved" },
+    { 0x0015, "Reserved" },
+    { 0x0016, "Reserved" },
+    { 0, NULL }
+};
 
 #define PNDCP_OPTION_IP                 0x01
 #define PNDCP_OPTION_DEVICE             0x02
@@ -251,6 +275,7 @@ static const value_string pn_dcp_suboption_dhcp[] = {
 #define PNDCP_SUBOPTION_CONTROL_SIGNAL      0x03
 #define PNDCP_SUBOPTION_CONTROL_RESPONSE    0x04
 #define PNDCP_SUBOPTION_CONTROL_FACT_RESET  0x05
+#define PNDCP_SUBOPTION_CONTROL_RESET_TO_FACT  0x06
 
 static const value_string pn_dcp_suboption_control[] = {
     { 0x00, "Reserved" },
@@ -259,7 +284,8 @@ static const value_string pn_dcp_suboption_control[] = {
     { PNDCP_SUBOPTION_CONTROL_SIGNAL,      "Signal" },
     { PNDCP_SUBOPTION_CONTROL_RESPONSE,    "Response" },
     { PNDCP_SUBOPTION_CONTROL_FACT_RESET,  "Reset Factory Settings" },
-    /*0x05 - 0xff reserved */
+    { PNDCP_SUBOPTION_CONTROL_RESET_TO_FACT,"Reset to Factory" },
+    /*0x07 - 0xff reserved */
     { 0, NULL }
 };
 
@@ -281,6 +307,12 @@ static const value_string pn_dcp_deviceinitiative_value[] = {
 
 static const value_string pn_dcp_suboption_all[] = {
     { 0xff, "ALL Selector" },
+    /* all other reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_dcp_suboption_other[] = {
+    { 0x00, "Default" },
     /* all other reserved */
     { 0, NULL }
 };
@@ -664,6 +696,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8      suboption;
     guint16     block_length;
     guint16     block_qualifier;
+    guint16     BlockQualifier;
     gchar      *info_str;
     guint8      block_error;
     proto_item *item = NULL;
@@ -714,8 +747,22 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
     case PNDCP_SUBOPTION_CONTROL_FACT_RESET:
         pn_append_info(pinfo, dcp_item, ", Reset FactorySettings");
         proto_item_append_text(block_item, "Control/Reset FactorySettings");
-        offset       += 2;
         block_length -= 2;
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier_r2f, &BlockQualifier);
+        proto_item_append_text(block_item, ", BlockQualifier: %s",
+            val_to_str(BlockQualifier, pn_dcp_suboption_other, "reserved"));
+        block_length -= 2;
+        break;
+
+    case PNDCP_SUBOPTION_CONTROL_RESET_TO_FACT:
+        pn_append_info(pinfo, dcp_item, ", Reset to Factory");
+        proto_item_append_text(block_item, "Reset to FactorySettings");
+
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier, &BlockQualifier);
+        proto_item_append_text(block_item, ", BlockQualifier: %s",
+            val_to_str(BlockQualifier, pn_dcp_BlockQualifier, "reserved"));
+        block_length -= 2;
+
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
@@ -915,7 +962,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         pn_append_info(pinfo, dcp_item, "Hello");
         break;
     default:
-        dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset));
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length_remaining(tvb, offset));
         return;
     }
 
@@ -932,7 +979,7 @@ dissect_PNDCP_PDU(tvbuff_t *tvb,
         is_response = TRUE;
         break;
     default:
-        dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_length_remaining(tvb, offset));
+        dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length_remaining(tvb, offset));
         return;
     }
 
@@ -1067,6 +1114,16 @@ proto_register_pn_dcp (void)
         { &hf_pn_dcp_block_qualifier,
           { "BlockQualifier", "pn_dcp.block_qualifier",
             FT_UINT16, BASE_DEC, VALS(pn_dcp_block_qualifier), 0x0,
+            NULL, HFILL }},
+
+        { &hf_pn_dcp_blockqualifier_r2f,
+          { "BlockQualifier: ResettoFactory", "pn_dcp.block_qualifier_reset",
+            FT_UINT16, BASE_DEC, VALS(pn_dcp_BlockQualifier), 0x0,
+            NULL, HFILL }},
+
+        { &hf_pn_dcp_blockqualifier,
+          { "BlockQualifier: ResetFactorySettings", "pn_dcp.block_qualifier_reset",
+            FT_UINT16, BASE_DEC, VALS(pn_dcp_suboption_other), 0x0,
             NULL, HFILL }},
 
         { &hf_pn_dcp_suboption_ip,

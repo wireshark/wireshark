@@ -136,7 +136,7 @@ dissect_PNMRP_Common(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item _U_)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 type)
 {
     guint8      mac[6];
     guint16     port_role;
@@ -154,7 +154,7 @@ dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
     offset = dissect_pn_uint16_ret_item(tvb, offset, pinfo, tree, hf_pn_mrp_interval, &interval, &sub_item);
     if (tree)
     {
-        proto_item_append_text(sub_item," Interval for next topology change event (in ms)");
+        proto_item_append_text(sub_item,"Interval for next topology change event (in ms)");
         if (interval <0x07D1)
             proto_item_append_text(sub_item," Mandatory");
         else
@@ -176,7 +176,16 @@ dissect_PNMRP_Link(tvbuff_t *tvb, int offset,
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-
+    if(type == 4 /* LinkDown */ )
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, "LinkDown");
+        proto_item_append_text(item, "LinkDown");
+    }
+    else
+    {
+        col_append_str(pinfo->cinfo, COL_INFO, "LinkUp");
+        proto_item_append_text(item, "LinkUp");
+    }
     return offset;
 }
 
@@ -381,7 +390,7 @@ dissect_PNMRP_PDU(tvbuff_t *tvb, int offset,
             break;
         case 0x04:
         case 0x05: /* dissection of up and down is identical! */
-            offset = dissect_PNMRP_Link(new_tvb, offset, pinfo, tree, item);
+            offset = dissect_PNMRP_Link(new_tvb, offset, pinfo, tree, item, type);
             break;
         case 0x7f:
             offset = dissect_PNMRP_Option(new_tvb, offset, pinfo, tree, item, length);
