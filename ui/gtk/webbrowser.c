@@ -245,7 +245,8 @@ browser_open_url (const gchar *url)
     {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
           "Web browser not specified.\n"
-          "Please correct the web browser setting in the Preferences dialog.");
+          "Please correct the web browser setting in the Preferences dialog.\n"
+          "URL: %s", url);
       g_free (browser);
       return FALSE;
     }
@@ -401,7 +402,8 @@ filemanager_open_directory (const gchar *path)
     {
       simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
           "Web browser not specified.\n"
-          "Please correct the web browser setting in the Preferences dialog.");
+          "Please correct the web browser setting in the Preferences dialog.\n"
+          "URL: %s", path);
       g_free (browser);
       return FALSE;
     }

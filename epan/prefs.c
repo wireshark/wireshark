@@ -2963,7 +2963,11 @@ pre_init_prefs(void)
   prefs.gui_update_enabled         = TRUE;
   prefs.gui_update_channel         = UPDATE_CHANNEL_STABLE;
   prefs.gui_update_interval        = 60*60*24; /* Seconds */
+#ifdef HTML_VIEWER
   prefs.gui_webbrowser             = (char *) HTML_VIEWER " %s";
+#else
+  prefs.gui_webbrowser             = (char *) "";
+#endif
   prefs.gui_window_title           = (char *) "";
   prefs.gui_start_title            = "The World's Most Popular Network Protocol Analyzer";
   prefs.gui_version_placement      = version_both;
