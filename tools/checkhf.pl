@@ -33,7 +33,7 @@
 ##
 ##       This program can be used to scan original .c source files or source
 ##        files which have been passed through a C pre-processor.
-##       Operating on pre-prosessed source files is optimal; There should be
+##       Operating on pre-processed source files is optimal; There should be
 ##        minimal false positives.
 ##       If the .c input is an original source file there may very well be
 ##        false positives/negatives due to the fact that the hf_... variables & etc
