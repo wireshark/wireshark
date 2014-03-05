@@ -1,6 +1,7 @@
 /* packet-mac-lte.h
  *
  * Martin Mathieson
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs

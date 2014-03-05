@@ -1,6 +1,7 @@
 /* packet-isis-clv.c
  * Common CLV decode routines.
  *
+ * Stuart Stanley <stuarts@mxmail.net>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

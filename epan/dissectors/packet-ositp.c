@@ -2,6 +2,7 @@
  * Routines for ISO/OSI transport protocol (connection-oriented
  * and connectionless) packet disassembly
  *
+ * Laurent Deniel <laurent.deniel@free.fr>
  * Ralf Schneider <Ralf.Schneider@t-online.de>
  *
  * Wireshark - Network traffic analyzer

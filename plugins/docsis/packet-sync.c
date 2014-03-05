@@ -1,4 +1,5 @@
 /* packet-sync.c
+ * Routines for Sync Message dissection
  * Copyright 2007, Bruno Verstuyft  <bruno.verstuyft@excentis.com>
  *
  *

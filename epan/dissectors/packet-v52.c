@@ -1,4 +1,5 @@
 /* packet-v52.c
+ * Implementation for V5.2 Interface dissection
  * References:
  * ETSI EN 300 324-1 V2.1.1 (2000-04)
  * ETSI EN 300 347-1 V2.2.2 (1999-12)

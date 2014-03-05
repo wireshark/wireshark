@@ -1,6 +1,7 @@
 /* packet-isis.h
  * Defines and such for core isis protcol decode.
  *
+ * Stuart Stanley <stuarts@mxmail.net>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
