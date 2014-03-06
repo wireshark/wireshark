@@ -1180,6 +1180,45 @@ static const value_string dnp3_al_data_type_vals[] = {
   { 0, NULL }
 };
 
+/* Application Layer Read Object Type values */
+static const value_string dnp3_al_read_obj_vals[] = {
+  { (AL_OBJ_DA_GRP    & 0xFF00),  "Device Attribute"            },
+  { (AL_OBJ_BI_ALL    & 0xFF00),  "Binary Input"                },
+  { (AL_OBJ_BIC_ALL   & 0xFF00),  "Binary Input Change"         },
+  { (AL_OBJ_2BI_ALL   & 0xFF00),  "Double-bit Input"            },
+  { (AL_OBJ_2BIC_ALL  & 0xFF00),  "Double-bit Input Change"     },
+  { (AL_OBJ_BO_ALL    & 0xFF00),  "Binary Output"               },
+  { (AL_OBJ_CTR_ALL   & 0xFF00),  "Counter"                     },
+  { (AL_OBJ_FCTR_ALL  & 0xFF00),  "Frozen Counter"              },
+  { (AL_OBJ_CTRC_ALL  & 0xFF00),  "Counter Change"              },
+  { (AL_OBJ_FCTRC_ALL & 0xFF00),  "Frozen Counter Change"       },
+  { (AL_OBJ_AI_ALL    & 0xFF00),  "Analog Input"                },
+  { (AL_OBJ_AIC_ALL   & 0xFF00),  "Analog Input Change"         },
+  { (AL_OBJ_AO_ALL    & 0xFF00),  "Analog Output"               },
+  { (AL_OBJ_AOC_ALL   & 0xFF00),  "Analog Output Change"        },
+  { (AL_OBJ_TD_ALL    & 0xFF00),  "Time and Date"               },
+  { (AL_OBJ_FILE_CMD  & 0xFF00),  "File Control"                },
+  { (AL_OBJ_IIN       & 0xFF00),  "Internal Indications"        },
+  { (AL_OBJ_OCT       & 0xFF00),  "Octet String"                },
+  { (AL_OBJ_OCT_EVT   & 0xFF00),  "Octet String Event"          },
+  { (AL_OBJ_VT_EVTD   & 0xFF00),  "Virtual Terminal Event Data" },
+  { 0, NULL }
+};
+
+static value_string_ext dnp3_al_read_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_read_obj_vals);
+
+/* Application Layer Write Object Type values */
+static const value_string dnp3_al_write_obj_vals[] = {
+  { (AL_OBJ_TD_ALL   & 0xFF00),  "Time and Date"                 },
+  { (AL_OBJ_FILE_CMD & 0xFF00),  "File Control"                  },
+  { (AL_OBJ_IIN      & 0xFF00),  "Internal Indications"          },
+  { (AL_OBJ_OCT      & 0xFF00),  "Octet String"                  },
+  { (AL_OBJ_OCT_EVT  & 0xFF00),  "Octet String Event"            },
+  { (AL_OBJ_VT_OBLK  & 0xFF00),  "Virtual Terminal Output Block" },
+  { 0, NULL }
+};
+
+static value_string_ext dnp3_al_write_obj_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_write_obj_vals);
 
 /* Initialize the subtree pointers */
 static gint ett_dnp3 = -1;
@@ -2778,7 +2817,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint         data_len = 0, offset = 0;
   proto_item   *ti, *tc, *t_robj;
   proto_tree   *al_tree, *field_tree, *robj_tree;
-  const gchar  *func_code_str;
+  const gchar  *func_code_str, *obj_type_str;
   nstime_t      al_cto;
 
   nstime_set_zero (&al_cto);
@@ -2859,8 +2898,12 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             al_class |= (1 << ((obj_type & 0x0f) - 1));
             break;
           default:
+            /* For reads for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
+            obj_type_str = val_to_str_ext((obj_type & 0xFF00), &dnp3_al_read_obj_vals_ext, "Unknown Object Type");
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", obj_type_str);
             break;
         }
+
       }
 
       /* Update the col info if there were class reads */
@@ -2871,32 +2914,6 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
           }
         }
-      }
-
-      /* For reads for specific object types, bit-mask out the first byte and use that to determine the column info to add */
-      switch(obj_type & 0xFF00) {
-        case (AL_OBJ_DA_GRP    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Device Attribute");            break;
-        case (AL_OBJ_BI_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input");                break;
-        case (AL_OBJ_BIC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Input Change");         break;
-        case (AL_OBJ_2BI_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input");            break;
-        case (AL_OBJ_2BIC_ALL  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Double-bit Input Change");     break;
-        case (AL_OBJ_BO_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Binary Output");               break;
-        case (AL_OBJ_CTR_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter");                     break;
-        case (AL_OBJ_FCTR_ALL  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter");              break;
-        case (AL_OBJ_CTRC_ALL  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Counter Change");              break;
-        case (AL_OBJ_FCTRC_ALL & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Frozen Counter Change");       break;
-        case (AL_OBJ_AI_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input");                break;
-        case (AL_OBJ_AIC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Input Change");         break;
-        case (AL_OBJ_AO_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output");               break;
-        case (AL_OBJ_AOC_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Analog Output Change");        break;
-        case (AL_OBJ_TD_ALL    & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Time and Date");               break;
-        case (AL_OBJ_FILE_CMD  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "File Control");                break;
-        case (AL_OBJ_IIN       & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Internal Indications");        break;
-        case (AL_OBJ_OCT       & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String");                break;
-        case (AL_OBJ_OCT_EVT   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String Event");          break;
-        case (AL_OBJ_VT_EVTD   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Virtual Terminal Event Data"); break;
-
-        default: break;
       }
 
       break;
@@ -2910,20 +2927,12 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Process Data Object Details */
       while (offset <= (data_len-2))  {  /* 2 octet object code + CRC32 */
         offset = dnp3_al_process_object(tvb, pinfo, offset, robj_tree, FALSE, &obj_type, &al_cto);
+
+        /* For writes for specific object types, bit-mask out the first byte and add the generic obj description to the column info */
+        obj_type_str = val_to_str_ext((obj_type & 0xFF00), &dnp3_al_write_obj_vals_ext, "Unknown Object Type");
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", obj_type_str);
+
       }
-
-      /* For writes of specific object types, bit-mask out the first byte and use that to determine the column info to add */
-      switch(obj_type & 0xFF00) {
-        case (AL_OBJ_TD_ALL   & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Time and Date");                 break;
-        case (AL_OBJ_FILE_CMD & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "File Control");                  break;
-        case (AL_OBJ_IIN      & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Internal Indications");          break;
-        case (AL_OBJ_OCT      & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String");                  break;
-        case (AL_OBJ_OCT_EVT  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Octet String Event");            break;
-        case (AL_OBJ_VT_OBLK  & 0xFF00): col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Virtual Terminal Output Block"); break;
-
-        default: break;
-      }
-
 
       break;
 
@@ -2954,7 +2963,8 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       break;
 
-    case AL_FUNC_DIROP:     /* Direct Operate Function Code 0x05 */
+    case AL_FUNC_DIROP:        /* Direct Operate Function Code 0x05 */
+    case AL_FUNC_DIROPNACK:    /* Direct Operate No ACK Function Code 0x06 */
       /* Functionally identical to 'SELECT' Function Code */
 
       /* Create Direct Operate Request Data Objects Tree */
