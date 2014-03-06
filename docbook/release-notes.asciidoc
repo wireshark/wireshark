@@ -122,6 +122,7 @@ MP4 / ISOBMFF file format
 Novell PKIS certificate extensions
 NXP PN532 HCI
 OpenFlow
+Open Sound Control
 Pathport
 Picture Transfer Protocol Over IP
 QUIC (Quick UDP Internet Connections)
