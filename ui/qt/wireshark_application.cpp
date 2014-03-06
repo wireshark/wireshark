@@ -499,12 +499,13 @@ void WiresharkApplication::setLastOpenDir(const char *dir_name)
 
 bool WiresharkApplication::event(QEvent *event)
 {
+    QString display_filter = NULL;
     if (event->type() == QEvent::FileOpen) {
         QFileOpenEvent *foe = static_cast<QFileOpenEvent *>(event);
         if (foe && foe->file().length() > 0) {
             QString cf_path(foe->file());
             if (initialized_) {
-                emit openCaptureFile(cf_path);
+                emit openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO);
             } else {
                 pending_open_files_.append(cf_path);
             }
@@ -621,11 +622,12 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
 }
 
 void WiresharkApplication::allSystemsGo()
-{    
+{
+    QString display_filter = NULL;
     initialized_ = true;
     emit appInitialized();
     while (pending_open_files_.length() > 0) {
-        emit openCaptureFile(pending_open_files_.front());
+        emit openCaptureFile(pending_open_files_.front(), display_filter, WTAP_TYPE_AUTO);
         pending_open_files_.pop_front();
     }
     software_update_init();
