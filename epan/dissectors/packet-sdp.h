@@ -37,7 +37,7 @@ enum sdp_exchange_type
 	SDP_EXCHANGE_ANSWER_REJECT,
 };
 
-extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame);
+extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame, const gboolean delay);
 /* Handles duplicate OFFER packets so they don't end up processed by dissect_sdp().  This can probably
  * be removed when all higher layer dissectors properly handle SDP themselves with setup_sdp_transport()
  */

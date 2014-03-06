@@ -1704,7 +1704,8 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
 }
 
 void
-setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type exchange_type, int request_frame)
+setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type exchange_type,
+    int request_frame, const gboolean delay)
 {
   gint        offset = 0, next_offset, n;
   int         linelen;
@@ -1755,6 +1756,18 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
   if (transport_info->media_count > 0)
     start_transport_info_count = transport_info->media_count;
+
+  /* if we don't delay, and this is an answer after a previous offer, then
+     we free'd the unused media rtp_dyn_payload last time while processing
+     the offer, so we need to re-create them this time in case we need them.
+     If they don't get used they'll get free'd again later */
+  if (!delay && (exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
+      (transport_info->sdp_status == SDP_EXCHANGE_OFFER)) {
+      for (n = start_transport_info_count; n < SDP_MAX_RTP_CHANNELS; n++) {
+          if (!transport_info->media[n].rtp_dyn_payload)
+              transport_info->media[n].rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
+      }
+  }
 
   /*
    * Show the SDP message a line at a time.
@@ -1835,8 +1848,8 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
   convert_disposable_media(transport_info, &media_info, start_transport_info_count);
 
   /* We have a successful negotiation, apply data to their respective protocols */
-  if ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) && 
-      (transport_info->sdp_status == SDP_EXCHANGE_OFFER)) {
+  if (!delay || ((exchange_type == SDP_EXCHANGE_ANSWER_ACCEPT) &&
+      (transport_info->sdp_status == SDP_EXCHANGE_OFFER))) {
     for (n = 0; n <= transport_info->media_count; n++) {
 
       /* Add (s)rtp and (s)rtcp conversation, if available (overrides t38 if conversation already set) */
@@ -1940,7 +1953,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         }
       }
     }
-    transport_info->sdp_status = SDP_EXCHANGE_ANSWER_ACCEPT;
+    transport_info->sdp_status = exchange_type;
 
   } else if ((exchange_type == SDP_EXCHANGE_ANSWER_REJECT) &&
              (transport_info->sdp_status != SDP_EXCHANGE_ANSWER_REJECT)){
