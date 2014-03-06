@@ -25,19 +25,19 @@ The NFS dissector could crash. Discovered by Moshe Kaplan.
 (ws-buglink:9672[])
 +
 Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
-//+
-//cve-idlink:2014-0000[]
++
+cve-idlink:2014-2281[]
 
 * ws-salink:2014-02[]
 +
 The M3UA dissector could crash. Discovered by Laurent Butti.
-Fixed in master: r51608 / ga8f4327
-Fixed in master-1.10: gd3bd396
+// Fixed in master: r51608 / ga8f4327
+// Fixed in master-1.10: gd3bd396
 (ws-buglink:9699[])
 +
 Versions affected: 1.10.0 to 1.10.5
-//+
-//cve-idlink:2014-0000[]
++
+cve-idlink:2014-2282[]
 
 * ws-salink:2014-03[]
 +
@@ -48,8 +48,8 @@ The RLC dissector could crash.
 (ws-buglink:9730[])
 +
 Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
-//+
-//cve-idlink:2014-0000[]
++
+cve-idlink:2014-2283[]
 
 The following bugs have been fixed:
 
