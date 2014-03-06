@@ -57,7 +57,6 @@
 
 #include "packet-sdp.h"  /* SDP needs a transport layer to determine request/response */
 
-
 #define TCP_PORT_SIP 5060
 #define UDP_PORT_SIP 5060
 #define TLS_PORT_SIP 5061
@@ -810,6 +809,9 @@ static gboolean sip_desegment_body = TRUE;
  * same source port for retransmissions
  */
 static gboolean sip_retrans_the_same_sport = TRUE;
+
+/* whether we hold off tracking RTP conversations until an SDP answer is received */
+static gboolean sip_delay_sdp_changes = FALSE;
 
 /* Extension header subdissectors */
 static dissector_table_t ext_hdr_subdissector_table;
@@ -3506,15 +3508,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
                 /* Resends don't count */
                 if (resend_for_packet == 0) {
                     if (line_type == REQUEST_LINE) {
-                        setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num);
+                        setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_OFFER, pinfo->fd->num, sip_delay_sdp_changes);
                     } else if (line_type == STATUS_LINE) {
                         if (stat_info->response_code >= 400) {
                             /* SIP client request failed, so SDP offer should fail */
-                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response);
+                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_REJECT, request_for_response, sip_delay_sdp_changes);
                         }
                         else if ((stat_info->response_code >= 200) && (stat_info->response_code <= 299)) {
                             /* SIP success request, so SDP offer should be accepted */
-                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response);
+                            setup_sdp_transport(next_tvb, pinfo, SDP_EXCHANGE_ANSWER_ACCEPT, request_for_response, sip_delay_sdp_changes);
                         }
                     }
                 } else {
@@ -5576,6 +5578,13 @@ void proto_register_sip(void)
         "Retransmissions always use the same source port",
         "Whether retransmissions are detected coming from the same source port only.",
         &sip_retrans_the_same_sport);
+    prefs_register_bool_preference(sip_module, "delay_sdp_changes",
+        "Delay SDP changes for tracking media",
+        "Whether SIP should delay tracking the media (e.g., RTP/RTCP) until an SDP offer "
+        "is answered. If enabled, mid-dialog changes to SDP and media state only take "
+        "effect if and when an SDP offer is successfully answered; however enabling this "
+        "prevents tracking media in early-media call scenarios",
+        &sip_delay_sdp_changes);
 
     prefs_register_obsolete_preference(sip_module, "tcp.port");
 
