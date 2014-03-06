@@ -25,10 +25,7 @@
 #include <gtk/gtk.h>
 
 #include "globals.h"
-#include "wtap.h"
 #include "pcap-encap.h"
-#include "version_info.h"
-#include "wsutil/tempfile.h"
 
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
