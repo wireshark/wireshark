@@ -6972,7 +6972,7 @@ proto_register_bgp(void)
           TFS(&tfs_set_notset), BGPNLRI_FSPEC_AND_BIT, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_val_len,
         { "Value length", "bgp.flowspec_nlri.op.val_len", FT_UINT8, BASE_DEC,
-          &flow_spec_op_len_val, BGPNLRI_FSPEC_VAL_LEN, NULL, HFILL }},
+          VALS(&flow_spec_op_len_val), BGPNLRI_FSPEC_VAL_LEN, NULL, HFILL }},
       { &hf_bgp_flowspec_nlri_op_un_bit4,
         { "Reserved", "bgp.flowspec_nlri.op.un_bit4", FT_BOOLEAN, 8,
           TFS(&tfs_set_notset), BGPNLRI_FSPEC_UNUSED_BIT4, "Unused (must be zero)",HFILL}},

@@ -855,7 +855,7 @@ void proto_register_devicenet(void)
         },
         { &hf_devicenet_service_code,
             { "Service Code", "devicenet.service",
-            FT_UINT8, BASE_DEC, &devicenet_service_code_vals, CIP_SC_MASK,
+            FT_UINT8, BASE_DEC, VALS(devicenet_service_code_vals), CIP_SC_MASK,
             NULL, HFILL }
         },
         { &hf_devicenet_open_exp_src_message_id,
