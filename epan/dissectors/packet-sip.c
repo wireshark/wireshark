@@ -3413,6 +3413,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 				}
 			}
 
+			/* XXX: why is this called even if setup_sdp_transport() was called before? That will
+					parse the SDP a second time, for 'application/sdp' media MIME bodies */
 			found_match = dissector_try_string(media_type_dissector_table,
 			                                   media_type_str_lower_case,
 			                                   next_tvb, pinfo,

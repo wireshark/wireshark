@@ -221,6 +221,8 @@ typedef struct {
    * We should probably handle offer/answer and session updates etc(SIP) quite possibly the whole handling of
    * seting up the RTP conversations should be done by the signaling protocol(s) calling the SDP dissector
    * and the SDP dissector just provide the relevant data.
+   * YES! packet-sdp.c should be about SDP parsing... SDP *state* needs to be maintained by upper
+   * protocols, because each one has different rules/semantics.
    */
   guint  encryption_algorithm;
   guint  auth_algorithm;
@@ -230,9 +232,10 @@ typedef struct {
 
 /* Data that is retrieved from a packet, but does not need to be kept */
 typedef struct {
-  char  *connection_address;
+  char  *connection_address; /* there should actually be SDP_MAX_RTP_CHANNELS of these too */
   char  *connection_type;
-  char  *media_type;
+  /* media_type is for 'audio', 'video', etc, so per-stream */
+  char  *media_type[SDP_MAX_RTP_CHANNELS];
   char  *media_port[SDP_MAX_RTP_CHANNELS];
   char  *media_proto[SDP_MAX_RTP_CHANNELS];
   guint8 media_count;
@@ -692,7 +695,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
   proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
                       ENC_ASCII|ENC_NA);
 
-  media_info->media_type = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
+  media_info->media_type[media_info->media_count] = (char*)tvb_get_string(wmem_packet_scope(), tvb, offset, tokenlen);
 
   offset = next_offset + 1;
 
@@ -1580,7 +1583,7 @@ static void
 convert_disposable_media(transport_info_t* transport_info, disposable_media_info_t* media_info,
                          gint start_transport_info_count)
 {
-  gint8 n, i, transport_index;
+  gint8 n, transport_index;
   guint proto_bitmask;
 
   for (n = 0; (n < media_info->media_count) && (n+start_transport_info_count < SDP_MAX_RTP_CHANNELS); n++)
@@ -1598,6 +1601,7 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
         proto_bitmask = 0;
 
         /* Check if media protocol is RTP */
+        /* XXX: what about 'RTP/AVPF' or RTP/SAVPF'? */
         if (!strcmp(media_info->media_proto[n],"RTP/AVP")) {
           transport_info->proto_bitmask[transport_index] |= SDP_RTP_PROTO;
           proto_bitmask |= SDP_RTP_PROTO;
@@ -1625,12 +1629,15 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
           proto_bitmask |= SDP_SPRT_PROTO;
         }
 
+        /* now check if this stream's port==0, in which case we need to disable its paired stream */
         if (transport_info->media_port[transport_index] == 0) {
-          /* This will disable any ports that share the media */
-          for (i = 0; i < transport_index; i++) {
-            if (proto_bitmask & transport_info->proto_bitmask[i]) {
-               transport_info->media_port[i] = 0;
-            }
+          /* This should disable the matching media session in the offer - it's a bit of a hack though,
+             basically start_transport_info_count is 0 for the offer, and >0 for the answer, so we
+             check that and if this is the answer, then we go set the offer's paired stream to 0.
+             If it turns out we got a port=0 in the offer, we don't care and it's ok to let the
+             answer have a non-port=0 (though that would be illegal per the RFCs). */
+          if (start_transport_info_count > 0 && (proto_bitmask & transport_info->proto_bitmask[n])) {
+            transport_info->media_port[n] = 0;
           }
         }
       }
@@ -1668,7 +1675,8 @@ convert_disposable_media(transport_info_t* transport_info, disposable_media_info
        transport_info->media_port[transport_index] = media_info->msrp_port_number;
     }
 
-    if ((media_info->media_type != NULL) && (strcmp(media_info->media_type, "video") == 0)) {
+    if ((media_info->media_type[transport_index] != NULL) &&
+        (strcmp(media_info->media_type[transport_index], "video") == 0)) {
       transport_info->proto_bitmask[transport_index] |= SDP_VIDEO;
     }
   }
@@ -1824,11 +1832,13 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
               srtp_info->auth_tag_len         = transport_info->auth_tag_len;
 
             }
-            srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
+            /* srtp_add_address and rtp_add_address are given the request_frame's not this frame's number,
+               because that's where the RTP flow started, and thus conversation needs to check against */
+            srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", request_frame,
                             (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                              transport_info->media[n].rtp_dyn_payload, srtp_info);
         } else {
-            rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
+            rtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", request_frame,
                             (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                             transport_info->media[n].rtp_dyn_payload);
         }
@@ -1838,9 +1848,9 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
         if (rtcp_handle) {
           if (transport_info->proto_bitmask[n] & SDP_SRTP_PROTO) {
-            srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num, srtp_info);
+            srtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", request_frame, srtp_info);
           } else {
-            rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", pinfo->fd->num);
+            rtcp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n]+1, 0, "SDP", request_frame);
           }
         }
       }
@@ -2162,7 +2172,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             srtp_info->auth_algorithm       = transport_info->auth_algorithm;
             srtp_info->mki_len              = transport_info->mki_len;
             srtp_info->auth_tag_len         = transport_info->auth_tag_len;
-            }
+          }
           srtp_add_address(pinfo, &transport_info->src_addr[n], transport_info->media_port[n], 0, "SDP", pinfo->fd->num,
                           (transport_info->proto_bitmask[n] & SDP_VIDEO) ? TRUE : FALSE,
                            transport_info->media[n].rtp_dyn_payload, srtp_info);
