@@ -1091,6 +1091,9 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
+    /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
+       https://twitter.com/ericlaw/status/274237352531083264 */
+    { SSL_HND_HELLO_EXT_CHANNEL_ID, "channel_id" },
     { 0, NULL }
 };
 
