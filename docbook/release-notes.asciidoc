@@ -25,8 +25,8 @@ The NFS dissector could crash. Discovered by Moshe Kaplan.
 (ws-buglink:9672[])
 +
 Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
-//+
-//cve-idlink:2014-0000[]
++
+cve-idlink:2014-2281[]
 
 * ws-salink:2014-03[]
 +
@@ -37,8 +37,8 @@ The RLC dissector could crash.
 (ws-buglink:9730[])
 +
 Versions affected: 1.10.0 to 1.10.5, 1.8.0 to 1.8.12
-//+
-//cve-idlink:2014-0000[]
++
+cve-idlink:2014-2283[]
 
 The following bugs have been fixed:
 
