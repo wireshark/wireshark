@@ -227,6 +227,18 @@ mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	}
 	*data_offset = file_tell(wth->fh);
 
+	if (packet_size > WTAP_MAX_PACKET_SIZE) {
+		/*
+		 * Larger than we can handle. Don't blow up trying
+		 * to allocate space for an immensely-large packet
+		 * or clobber the stack.
+		 */
+		*err = WTAP_ERR_BAD_FILE;
+		*err_info = g_strdup_printf("mpeg: File has %u-byte packet, bigger than maximum of %u",
+				packet_size, WTAP_MAX_PACKET_SIZE);
+		return FALSE;
+	}
+
 	buffer_assure_space(wth->frame_buffer, packet_size);
 	if (!mpeg_read_rec_data(wth->fh, buffer_start_ptr(wth->frame_buffer),
 				packet_size, err, err_info))
