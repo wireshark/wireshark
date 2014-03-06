@@ -95,7 +95,7 @@
 
 const char *dfe_property_ = "display filter expression"; //TODO : Fix Translate
 
-void MainWindow::openCaptureFile(QString &cf_path, QString &display_filter, unsigned int type)
+void MainWindow::openCaptureFile(QString& cf_path, QString& display_filter, unsigned int type)
 {
     QString file_name = "";
     dfilter_t *rfcode = NULL;

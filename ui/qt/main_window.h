@@ -164,7 +164,7 @@ signals:
 
 public slots:
     // in main_window_slots.cpp
-    void openCaptureFile(QString& cf_path = *new QString(), QString &display_filter = *new QString(), const unsigned int type = WTAP_TYPE_AUTO);
+    void openCaptureFile(QString& cf_path = *new QString(), QString& display_filter = *new QString(), unsigned int type = WTAP_TYPE_AUTO);
     void filterPackets(QString& new_filter = *new QString(), bool force = false);
     void updateForUnsavedChanges();
     void layoutPanes();
