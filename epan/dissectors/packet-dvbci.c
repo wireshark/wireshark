@@ -1978,7 +1978,7 @@ dissect_uri(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(tree, hf_dvbci_uri_aps,
             tvb, offset, 1, ENC_BIG_ENDIAN);
-    emi = (tvb_get_guint8(tvb, offset+1) & 0x30) >> 4;
+    emi = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
     proto_tree_add_item(tree, hf_dvbci_uri_emi,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s",
