@@ -1,8 +1,6 @@
 /*
  *  FIPS-180-1 compliant SHA-1 implementation
  *
- *  $Id$
- *
  *  Copyright (C) 2001-2003  Christophe Devine
  *  Copyright (C) 2012       Chris Elston, Katalix Systems Ltd <celston@katalix.com>
  *

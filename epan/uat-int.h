@@ -1,8 +1,6 @@
 /*
  *  uat-int.h
  *
- *  $Id$
- *
  *  User Accessible Tables
  *  Mantain an array of user accessible data strucures
  *  Internal interface

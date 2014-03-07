@@ -1,8 +1,6 @@
 /*
  *  uat_gui.c
  *
- *  $Id$
- *
  *  User Accessible Tables GUI
  *  Mantain an array of user accessible data strucures
  *
