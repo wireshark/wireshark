@@ -3366,7 +3366,7 @@ void proto_register_batadv(void)
 		},
 		{ &hf_batadv_unicast_4addr_subtype,
 		  { "Subtype", "batadv.unicast_4addr.subtype",
-		    FT_UINT8, BASE_DEC, VALS (&unicast_4addr_typenames), 0x0,
+		    FT_UINT8, BASE_DEC, VALS (unicast_4addr_typenames), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_unicast_frag_version,
@@ -3491,7 +3491,7 @@ void proto_register_batadv(void)
 		},
 		{ &hf_batadv_tt_query_flags_type,
 		  { "Query Type", "batadv.tt_query.flags.type",
-		    FT_UINT8, BASE_HEX, VALS (&tt_query_type_v14), TT_TYPE_MASK,
+		    FT_UINT8, BASE_HEX, VALS (tt_query_type_v14), TT_TYPE_MASK,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_tt_query_flags_full_table,

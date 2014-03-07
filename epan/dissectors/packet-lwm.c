@@ -747,7 +747,7 @@ void proto_register_lwm(void)
         "It contains a destination network address from the frame that cannot be routed", HFILL }},
 
         { &hf_lwm_cmd_route_multi,
-          { "Multicast", "lwm.cmd.multi", FT_UINT8, BASE_HEX, VALS(&lwm_cmd_multi_names), 0x0,
+          { "Multicast", "lwm.cmd.multi", FT_UINT8, BASE_HEX, VALS(lwm_cmd_multi_names), 0x0,
         "If it set to 0, Destination Address field contains a network address. If it set to 1, Destination Address field contains a group ID.", HFILL }},
 
         /*  Part of Command Frame - Route Request */

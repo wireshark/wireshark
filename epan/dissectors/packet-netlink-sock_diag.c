@@ -181,7 +181,7 @@ static const value_string socket_type_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_type NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.type", FT_UINT8, BASE_DEC,
-	  VALS(&socket_type_vals), 0x00, NULL, HFILL };
+	  VALS(socket_type_vals), 0x00, NULL, HFILL };
 
 static const value_string socket_state_vals[] = {
 	{ WS_ESTABLISHED, "ESTABLISHED" },
@@ -200,7 +200,7 @@ static const value_string socket_state_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_state NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "State", "netlink-sock_diag.state", FT_UINT8, BASE_DEC,
-	  VALS(&socket_state_vals), 0x00, NULL, HFILL };
+	  VALS(socket_state_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_inode NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Inode", "netlink-sock_diag.inode", FT_UINT32, BASE_DEC,
@@ -352,7 +352,7 @@ static const value_string netlink_sock_diag_unix_attr_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_unix_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.unix_attr", FT_UINT16, BASE_DEC,
-	  VALS(&netlink_sock_diag_unix_attr_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_unix_attr_vals), 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_sock_diag_unix_name NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Name", "netlink-sock_diag.unix_name", FT_STRINGZ, STR_ASCII,
@@ -541,7 +541,7 @@ static const value_string netlink_sock_diag_inet_attr_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_inet_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.inet_attr", FT_UINT16, BASE_DEC,
-	  VALS(&netlink_sock_diag_inet_attr_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_inet_attr_vals), 0x00, NULL, HFILL };
 
 static int
 dissect_sock_diag_inet_attributes(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
@@ -745,7 +745,7 @@ static const value_string netlink_sock_diag_netlink_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_netlink_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.netlink_attr", FT_UINT16, BASE_DEC,
-	  VALS(&netlink_sock_diag_netlink_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_netlink_vals), 0x00, NULL, HFILL };
 
 static int
 dissect_sock_diag_netlink_attributes(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int offset, int len)
@@ -920,13 +920,13 @@ static const value_string netlink_sock_diag_packet_vals[] = {
 
 static header_field_info hfi_netlink_sock_diag_packet_attr NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Type", "netlink-sock_diag.netlink_attr", FT_UINT16, BASE_DEC,
-	  VALS(&netlink_sock_diag_packet_vals), 0x00, NULL, HFILL };
+	  VALS(netlink_sock_diag_packet_vals), 0x00, NULL, HFILL };
 
 /* AF_PACKET */
 
 static header_field_info hfi_netlink_sock_diag_packet_proto NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Protocol", "netlink-sock_diag.packet_protocol", FT_UINT16, BASE_HEX,
-	  VALS(&etype_vals) /* XXX + Linux specific */, 0x00, NULL, HFILL };
+	  VALS(etype_vals) /* XXX + Linux specific */, 0x00, NULL, HFILL };
 
 static int
 dissect_sock_diag_packet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, proto_tree *tree, int offset)

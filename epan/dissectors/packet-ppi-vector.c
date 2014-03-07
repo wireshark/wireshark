@@ -1322,7 +1322,7 @@ proto_register_ppi_vector(void)
 
         /* V2 */
         { &hf_ppi_vector_vflags_relative_to,
-          { "RelativeTo", "ppi_vector.vflags.relative_to", FT_UINT32, BASE_HEX, VALS(&relativeto_string), PPI_VECTOR_VFLAGS_RELATIVE_TO,
+          { "RelativeTo", "ppi_vector.vflags.relative_to", FT_UINT32, BASE_HEX, VALS(relativeto_string), PPI_VECTOR_VFLAGS_RELATIVE_TO,
             "Reference frame vectors are RelativeTo:", HFILL } },
 
         /* Boolean vector chars */

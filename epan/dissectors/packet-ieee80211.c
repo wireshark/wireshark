@@ -18259,7 +18259,7 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ampduparam_mpdu_start_spacing,
      {"MPDU Density", "wlan_mgt.ht.ampduparam.mpdudensity",
-      FT_UINT8, BASE_HEX, VALS(&ampduparam_mpdu_start_spacing_flags), 0x1c,
+      FT_UINT8, BASE_HEX, VALS(ampduparam_mpdu_start_spacing_flags), 0x1c,
       NULL, HFILL }},
 
     {&hf_ieee80211_ampduparam_reserved,

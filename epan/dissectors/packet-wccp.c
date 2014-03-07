@@ -3026,7 +3026,7 @@ proto_register_wccp(void)
     },
     { &hf_web_cache_identity_flag_assign_type,
       { "Assignment Type", "wccp.web_cache_identity.flags.assign_type", FT_UINT16, BASE_HEX,
-        VALS(&wccp_web_cache_assignment_data_type_val), 0x6,
+        VALS(wccp_web_cache_assignment_data_type_val), 0x6,
         NULL, HFILL }
     },
     { &hf_web_cache_identity_flag_version_request,

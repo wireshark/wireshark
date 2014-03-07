@@ -1328,7 +1328,7 @@ ipmi_register_app(gint proto_ipmi)
 
 		{ &hf_ipmi_app_38_rq_ipmi20,
 			{ "Version compatibility",
-				"ipmi.app38.rq_ipmi20", FT_UINT8, BASE_DEC, VALS(&vals_38_ipmi20), 0x80, NULL, HFILL }},
+				"ipmi.app38.rq_ipmi20", FT_UINT8, BASE_DEC, VALS(vals_38_ipmi20), 0x80, NULL, HFILL }},
 		{ &hf_ipmi_app_38_rq_chan,
 			{ "Channel",
 				"ipmi.app38.rq_chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0x0f, NULL, HFILL }},

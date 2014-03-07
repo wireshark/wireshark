@@ -1113,7 +1113,7 @@ proto_register_mux27010 (void)
 
         {&hf_mux27010_direction,
          { "Direction", "mux27010.direction",
-           FT_UINT8, BASE_HEX, VALS(&direction_vals), 0x0, NULL, HFILL }},
+           FT_UINT8, BASE_HEX, VALS(direction_vals), 0x0, NULL, HFILL }},
 
         /*Flag*/
 
