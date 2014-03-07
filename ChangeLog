@@ -1,1 +1,894 @@
-Revision: 54193
+commit 3ba1968e8445b0019e02271cd7fcf568008b4f75
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 6 13:51:54 2014 -0800
+
+    Add a CVE ID and attribution.
+    
+    Change-Id: I5aef30dfab1fa551adf1de3bbb1c16056a3ce0ac
+    Reviewed-on: https://code.wireshark.org/review/542
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 7987a36747220d03bcfb9fa6cf1e9dc30375d47c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 6 12:33:21 2014 -0800
+
+    Add wnpa-sec-2014-04.
+    
+    Change-Id: I0c6f5a30e746df4f2471a7b93dffd1b22a639a9d
+    Reviewed-on: https://code.wireshark.org/review/539
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit f567435ac7140c96a5de56dbce3d5e7659af4d09
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Mar 6 11:27:45 2014 -0800
+
+    Add a check for an oversized record.
+    
+    For now we declare the file corrupt and give up. We may want to handle
+    this more gracefully. Fixes a vulnerability discovered by Wesley Neelen
+    (bug 9843).
+    
+    Remove the RCS ID and add modelines.
+    
+    Change-Id: I418938d7d6485b27cc51cf1dde50bc42dabf8c85
+    Reviewed-on: https://code.wireshark.org/review/533
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 34144b8d4da141e8aa9b99221855edc9f4c73ad8)
+    Reviewed-on: https://code.wireshark.org/review/534
+
+commit 3b72014e95aa4d2853a4d701ac25f4b074529105
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 5 17:10:30 2014 -0800
+
+    Add CVE IDs.
+    
+    Change-Id: I9a99fb3b4ffef46ef90103032e1a78aa9f8f68c1
+    Reviewed-on: https://code.wireshark.org/review/524
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 80bc0476e6c613b438c2b7b36d12c6139a2ed921
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Mar 4 11:08:28 2014 -0800
+
+    Update the release notes.
+    
+    Change-Id: Ia939f89cf89c56cbdd26755b98c16fe265bd1dd9
+    Reviewed-on: https://code.wireshark.org/review/504
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 3d87b897a43a89beaf576d857e12dde7c5723e91
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 3 15:03:41 2014 -0800
+
+    Switch to "rc" instead of "pre" to match our tags.
+    
+    Change-Id: I539b7287cd9d91bc88549d56283beb3f1ab1ff8e
+    Reviewed-on: https://code.wireshark.org/review/489
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 31187b1c5d863e2338f0050ff897512b92ebf774)
+    Reviewed-on: https://code.wireshark.org/review/490
+
+commit 7bb4ec81a7912a785758cd63570dab1d00da2647
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 3 14:26:15 2014 -0800
+
+    Don't append "-dirty" to the version string.
+    
+    Change-Id: I755a6229537745eca07f2fc467b9db9e6130b301
+    Reviewed-on: https://code.wireshark.org/review/485
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit d70016fdd64f05093863c7fe66fe4c5f7343d8c0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 3 13:52:57 2014 -0800
+
+    Strip out carriage returns when reading version.conf.
+    
+    The input record separator ($/) under Cygwin's Perl appears to be "\n"
+    which means that chomp() won't strip out carriage returns. Make sure
+    we do that when reading version.conf, otherwise we can end up with
+    unexpected behavior.
+    
+    Check pkg_enable using an integer comparison as an extra level of
+    protection.
+    
+    (We need to handle CRs better in general but for now we need to get
+    version stamping working for the next release.)
+    
+    Change-Id: I19974467d1a7386728b69dca77f74e678d66ca6b
+    Reviewed-on: https://code.wireshark.org/review/483
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit aff99aa5414e5df92a6714f4998518d3342a161e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 10 22:20:31 2013 +0000
+
+    More git revision updates.
+    
+    Includes a partial cherry-pick of gf8002de.
+    
+    Change-Id: I2d641001610aa1c46f64a9929e3114a76ba3ce2c
+    Reviewed-on: https://code.wireshark.org/review/480
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 40c4e98e6217109bd9d8834492612f059859d53e
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Mon Sep 10 16:00:58 2012 +0000
+
+    Update svnversion.h with (short) SHA-1 commit id and branch when use git repository
+    
+    svn path=/trunk/; revision=44850
+    (cherry picked from commit 8f4a2e5f28f241f2afb6004833528db20ff5e013)
+    
+    Change-Id: I989390f9c4d96d434571193aa923c95cf110c8bb
+    Reviewed-on: https://code.wireshark.org/review/477
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit b6e571f1bc6207d1a285dc89cff5ec7c79a94c78
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Sat Jun 29 21:58:46 2013 +0000
+
+    Update .gitignore to add some Windows specific build stuff to ignore list.
+    
+    svn path=/trunk/; revision=50231
+    (cherry picked from commit e66457472d52fc96a1b5d3c30beed4b07f14fe8b)
+    
+    Change-Id: Iaeaacaacafc4a829e693f8b4c66614748d0e67ca
+    Reviewed-on: https://code.wireshark.org/review/469
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 04806a88a1b06413b01a04b68956bd08a1cce5cc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 2 08:11:08 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-03-02]
+    
+    Change-Id: Idc5b60d4aaac166b0b434562ba6e900254455755
+    Reviewed-on: https://code.wireshark.org/review/446
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit 358ce3d5ce36e50545d00a80a74a4200c3d53575
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jun 5 16:38:20 2013 +0000
+
+    Quick fix for bug 8768. For now assume that only three logical channels
+    are valid. If we run into more add expert item and cap the channel
+    count.
+    
+    svn path=/trunk/; revision=49787
+    
+    Conflicts:
+    	epan/dissectors/packet-tetra.c
+    
+    (cherry picked from commit c891784de783cf23b8cf2957929af162480e0c73)
+    
+    Change-Id: I6974d755be544730fb4320b680299ce4040a47dc
+    Reviewed-on: https://code.wireshark.org/review/439
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 6d54ab69ffd8f6f57dbdc89036de8a4485b9dbcd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Feb 28 17:21:29 2014 -0800
+
+    Copy git-compare-abis from ge635d3f / master-1.10.
+    
+        Have git-compare-abis build in a sub-sub-subdirectory.
+    
+        We have a lot of relative includes which apparently weren't updated
+        correctly when we moved the gtk directory to ui/gtk. For example,
+        ui/gtk/about_dlg.c has
+    
+        The Autotools Makefile adds "-I../.." to the include path, which means
+        we end up including the current, top-level version_info.h instead of the
+        one in the compare-abis build directory.
+    
+    Change-Id: Ie9d35057fe14bcb75736b54b7efb5f0a8deda39a
+    Reviewed-on: https://code.wireshark.org/review/437
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 217293ba4a0353bf5d657e74fe8623dd3c86fe08
+Author: Evan Huus <eapache@gmail.com>
+Date:   Wed Feb 26 13:00:03 2014 -0500
+
+    Don't mix emem and glib memory and init routines.
+    
+    The seasonal memory is freed before the init routine is called, leading to a
+    whole bunch of use-after-free errors.
+    
+    Fixes bug #9802 (and duplicates).
+    
+    This introduces a few minor leaks but I can't find an easy way to add additional
+    free calls that doesn't lead to double-free errors.
+    
+    Change-Id: I1536fcb8e96f5560ad366169e815f62967b3e40d
+    Reviewed-on: https://code.wireshark.org/review/407
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+
+commit fc51c557e687351281592ea8d53fa51e0a2a61b6
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Sun Dec 29 18:45:09 2013 +0000
+
+    From stcook
+    
+    clear the temporary buffer after each DXM channel data line
+    
+    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9598
+    
+    svn path=/trunk/; revision=54488
+    cherry-picked from 745c8660be2707df41d7cea3cd2725d18b9d6ff0 with
+    release note updates.
+    
+    Change-Id: I80f0ed958517c90525def329b8fbdab26afe8f19
+    Reviewed-on: https://code.wireshark.org/review/343
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 31e7202fd227b1c0202408bd0c4dc382e927c168
+Author: Jeff Morriss <jeff.morriss.ws@gmail.com>
+Date:   Fri May 31 02:27:40 2013 +0000
+
+    Don't intentionally use -1 as an hfindex: while only naughty before, with the
+    changes from r49644 you'll get complaints about the hf being unregistered...
+    
+    Note that this code also intentionally passes -1 as an ett_index.  It doesn't
+    currently complain so I'm leaving it alone for now...
+    
+    svn path=/trunk/; revision=49648
+    (cherry picked from commit 813dcf79a15d6527cce8a6a7bac4234de6ab577f with
+    manual intervention)
+    
+    Change-Id: I38cf7946969972a9ab03a56966b10f880476f55c
+    Reviewed-on: https://code.wireshark.org/review/341
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 6c858b21aca6ea820f766b3457c9714778bb29db
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Feb 23 23:36:11 2014 +0100
+
+    NAS EPS: fix dissection of CS service notification message
+    
+    Fixes bug 9789
+    
+    Change-Id: I26ed1e9d8bb5b662af97d19f64b5f4b39374a5ee
+    Reviewed-on: https://code.wireshark.org/review/330
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    
+    (cherry picked from commit dd4e5fcbdd1c54afd9da2764b00f8fef2febb682)
+    
+    Change-Id: Ie5875149bc246840bf7d610420b2b2a1d15d2805
+    Reviewed-on: https://code.wireshark.org/review/334
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 19d95602bb568a6abc43d1c7f3ce59ef05174bf2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 23 08:10:46 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-02-23]
+    
+    Change-Id: Icbade2cf84449a950f0dcafd16730d419480885d
+    Reviewed-on: https://code.wireshark.org/review/318
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit ba2b412fee2bbddba0e7d8bdd17944e5aa397581
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Feb 21 16:47:55 2014 -0800
+
+    Add bug 9492.
+    
+    Change-Id: I412d5c56848f2a19c8bf2c2e50f1ad1db86ce793
+    Reviewed-on: https://code.wireshark.org/review/306
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Reviewed-on: https://code.wireshark.org/review/309
+
+commit e6540b550486fc9604575d4cb85140ceddca2d33
+Author: Michael Mann <mmann78@netscape.net>
+Date:   Sun Dec 1 13:47:11 2013 +0000
+
+    Add MPLS dissector to "ppp.protocol" table.  Bug 9492 (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9492)
+    
+    From Peter Paluch
+    
+    svn path=/trunk/; revision=53694
+    
+    Change-Id: Iee6b51807491170967a2822db8ccbab9b1e36204
+    Reviewed-on: https://code.wireshark.org/review/304
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Reviewed-on: https://code.wireshark.org/review/305
+
+commit 13321ccc4781b9e1a2d3eb4c7ac8e9578b7fdfaf
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Feb 20 17:50:52 2014 -0800
+
+    Force "printing" if -T is specified, even if -w is also specified.
+    
+    Just as "tshark ... -P -w xxx" writes raw packets to xxx *and* writes
+    text packet summaries to the standard output, and just as "tshark ...
+    -V -w xxx" writes raw packets to xxx *and* writes text packet details to
+    the standard output, so should "tshark ... -T fff -w xxx" write raw
+    packets to xxx *and* write whatever "-T fff" (and any "-e" options)
+    specifies to the standard output.
+    
+    Change-Id: I28ab3a4d48531f297533ec4dfb3742031eb69885
+    Reviewed-on: https://code.wireshark.org/review/278
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Reviewed-on: https://code.wireshark.org/review/281
+
+commit 468760ec8da2c0d8c933ad9bc24f4aa866becce5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 19 17:11:00 2014 -0800
+
+    More SVN → Git conversion.
+    
+    Change-Id: If89b3c752dfd92d9f1d22456a064dd2e0b45dc96
+    Reviewed-on: https://code.wireshark.org/review/266
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 90b34ae3db7cc39c80c5d1a372b7432fc884556c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Aug 23 22:18:49 2013 +0000
+
+    Add NSIS path discovery to config.nmake.
+    
+    Chocolatey wants to install NSIS in "c:\Program Files" no matter what. Try
+    to locate makensis automatically, similar to the way we locate Python.
+    
+    svn path=/trunk/; revision=51497
+    (cherry picked from commit dc87fa2d68a5dbc7693b5cc93e044a62af5ce39c)
+    
+    Change-Id: Icf7e26f2df5a01a19ed1e652e9b668f4175148a9
+    Reviewed-on: https://code.wireshark.org/review/264
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 5f4468c4e002e885fc4d79d5b60ec2d5619b1c78
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Feb 19 15:16:44 2014 -0800
+
+    Replace "svn" with "git" all over the place.
+    
+    Rename "SVNPATH" to "GITBRANCH" since that seems more appropriate.
+    Rename "svnversion.h" to "version.h" as Evan suggested. Update some
+    URLs. In make-version.pl, make sure we don't set an improper upstream
+    branch name. Use the number of commits + short hash from `git describe`
+    for package names by default.
+    
+    Cherry-picked from g5086c0e with some manual intervention.
+    
+    Change-Id: Ib4b3e52e10557e803d603aa2b1ea5d826845a102
+    Reviewed-on: https://code.wireshark.org/review/261
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit 5086c0e21d734612e12173acbee6a98b1a5df2ed)
+    Reviewed-on: https://code.wireshark.org/review/263
+
+commit 6d66c8023eddffdcb9fe4323d8b88d2480a7923e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 16 08:10:35 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-02-16]
+    
+    Change-Id: I92fd7ad702c4f7974bbe9b770293e6d0fa9217df
+    Reviewed-on: https://code.wireshark.org/review/231
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 593dbbb853ab83bc748dc0ddd1b19aadd18c6843
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 11 08:56:15 2014 -0800
+
+    Fix the host entry.
+    
+    Change-Id: Ia76b5585c38eebdec6c275c6e1aadabb3862cf2b
+    Reviewed-on: https://code.wireshark.org/review/172
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit bed30b8a94b645361a00d70ee2db0ec184cae103)
+    Reviewed-on: https://code.wireshark.org/review/173
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+
+commit 04da0319ce57ff161365c49275131de39e1720f6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 9 08:10:22 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-02-09]
+    
+    Change-Id: I914b0c5e7b427ac7201bcd4a062055036c802b5f
+    Reviewed-on: https://code.wireshark.org/review/154
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit dd8afe56f9dfaaeb9649bff1d8f8c68c8676c736
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu Feb 6 16:51:57 2014 -0800
+
+    Pass the caplen from the struct wtap_pkthdr to pcap_read_post_process().
+    
+    That makes it clearer what the argument should be and, in the case of an
+    SPB, passes the correct length (the length *after* any pseudo-header we
+    convert to a union wtap_pseudo_header and remove from the raw packet
+    data we hand to our caller).
+    
+    Change-Id: I431738942b4dd10ee0951d549ebf8d12c941c439
+    Reviewed-on: https://code.wireshark.org/review/135
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit 7065ca5b933380b0b1ae67ad8685912083d5bfa1
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Tue Feb 4 22:28:21 2014 +0100
+
+    Introduce end-of-line normalization
+    
+    Change-Id: If92ef2ceb5f1311d52c66710db9491d7ed4427c2
+    Reviewed-on: https://code.wireshark.org/review/116
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 5f5c122d5b975b372f66644b4f9bf17a359d2e72
+Author: Evan Huus <eapache@gmail.com>
+Date:   Tue Feb 4 10:28:06 2014 -0500
+
+    Fix dissection of GTP MM Context RAND field.
+    
+    As suggested by Lükő Bálint to fix bug #9722.
+    
+    Change-Id: Ie6b801a9660716c2c6efa6fd09b50a2481f5acd7
+    Reviewed-on: https://code.wireshark.org/review/110
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Tested-by: Evan Huus <eapache@gmail.com>
+    (cherry picked from commit 1de44d769cd205a49446ac1fd09ddd196fedb6a8)
+    Reviewed-on: https://code.wireshark.org/review/112
+
+commit d81206ac58486fe45faa74213b1aa5ae01b5a9b1
+Author: Martin Kaiser <wireshark@kaiser.cx>
+Date:   Fri Jan 10 08:48:38 2014 +0000
+
+    correct a typo in a filter string
+    
+    svn path=/trunk/; revision=54687
+    
+    Change-Id: I15832d91824087a2fed50a3968cb2801cc30cf91
+    Reviewed-on: https://code.wireshark.org/review/105
+    Reviewed-by: Martin Kaiser <wireshark@kaiser.cx>
+    Tested-by: Martin Kaiser <wireshark@kaiser.cx>
+
+commit fc38bf4821bba4e36b584b331f3e34cdad81ff0a
+Author: Anders Broman <anders.broman@ericsson.com>
+Date:   Tue Sep 10 06:06:55 2013 +0000
+
+    Freom Dennis:
+    
+    As I looked into the implementation in epan/dissectors/packet-ieee802a.c, there's a bug in the dissect_ieee802a(). After OUI and PID is parsed, it looks for the customized sub-dissector_table by
+    oui_info = (oui_info_t *)g_hash_table_lookup(oui_info_table, GUINT_TO_POINTER(oui))
+    The problem is that the oui is defined as an array (guint8 oui[3]), whose value contains the 3-byte customized OUI. However, here GUINT_TO_POINTER(oui) converts the local array oui's address to the hash table key, instead of the value. That cause the search in the hash table to fail, because the ieee802_add_oui() use the OUI value as the key.
+    
+    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9122
+    
+    svn path=/trunk/; revision=51918
+    
+    Conflicts:
+    	epan/dissectors/packet-ieee802a.c
+    
+    Change-Id: I431292a67f0d96341389f2220993b7362daf48ab
+    Reviewed-on: https://code.wireshark.org/review/93
+    Reviewed-by: Pascal Quantin <pascal.quantin@gmail.com>
+    Tested-by: Pascal Quantin <pascal.quantin@gmail.com>
+
+commit 302dcf09e7e26fc26d2c076509c0f5157ea23089
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 2 08:10:52 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-02-02]
+    
+    Change-Id: Ic2a83608a64d7bdf9fbde99f6d96d872dd0edcd9
+    Reviewed-on: https://code.wireshark.org/review/77
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Tested-by: Evan Huus <eapache@gmail.com>
+
+commit 7d10462e4c3ec9fde3b1a9721267b0f7df3610ab
+Author: Evan Huus <eapache@gmail.com>
+Date:   Fri Jan 31 18:54:43 2014 -0500
+
+    Add gitreview file for master-1.8
+    
+    Change-Id: I4d837c0eeab61d131e5e50b0b0a54a271f84b60e
+    Reviewed-on: https://code.wireshark.org/review/68
+    Reviewed-by: Evan Huus <eapache@gmail.com>
+    Tested-by: Evan Huus <eapache@gmail.com>
+
+commit 65b55ae6107a7bf3578d6689192c10da8de46112
+Author: Evan Huus <eapache@gmail.com>
+Date:   Wed Jan 29 13:12:39 2014 -0500
+
+    Add missing gitignore entries
+    
+    Change-Id: Ifc6a35924e4a725a9bfa73d35cb6bd11c72660e5
+
+commit 24a0832cfeff78d15eafb339a4f07e0f61b8c619
+Author: Evan Huus <eapache@gmail.com>
+Date:   Sun Jan 26 14:05:30 2014 +0000
+
+    Backport r54295 and part of r54296 - g_memmove is deprecated, so just use
+    memmove instead to permit building with recent glib versions.
+    
+    svn path=/trunk-1.10/; revision=54966
+    
+    Conflicts:
+    	ui/export_object_smb.c
+    
+    Change-Id: Id91522cab64fa5bbe40f0538049401b2c2f24c1a
+
+commit b1b1b86c08b5afb79e32e0cb0e8a9cc599735de8
+Merge: 3bba4ea 6788dad
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Jan 29 11:24:26 2014 +0000
+
+    Merge "Fix bug 9649: SMPP: source_telematics_id value length is 1 byte" into master-1.8
+
+commit 3bba4ea70b8698d675ae7eb802e3741de1426490
+Merge: 2fb9848 6df7bb0
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Wed Jan 29 11:18:46 2014 +0000
+
+    Merge "Fix bug 9633: Do not try to add a new NAL unit when the previous one was not decoded" into master-1.8
+
+commit 2fb984892099d81e54e4a69158ae4fb270028eb1
+Merge: 1c9e42e b532ef4
+Author: Evan Huus <eapache@gmail.com>
+Date:   Wed Jan 29 02:14:04 2014 +0000
+
+    Merge "Harden nfs_name_snoop_add_name against various malformed inputs. Thanks to Moshe Kaplan for the report." into master-1.8
+
+commit 1c9e42e4006862841eca6ae49360c1e3b3ab683b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 26 09:11:10 2014 -0800
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-01-26]
+    
+    Change-Id: Ie93cc40e6af4ce8c961dbead8937a87ad4361d1e
+
+commit 12bc6a65aa9b9b159709939e8f92013898073789
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri Jan 24 07:57:47 2014 +0000
+
+    Copy over r54938 from trunk:
+    
+      ------------------------------------------------------------------------
+      r54938 | guy | 2014-01-23 23:55:03 -0800 (Thu, 23 Jan 2014) | 5 lines
+    
+      Check for a zero offset in the "get status" reply *before* adding the
+      offset in the tvbuff of the beginning of the packet to it.  Otherwise,
+      it will never be zero, and the tests will always think the field pointed
+      to by the offset is present.
+    
+    svn path=/trunk-1.8/; revision=54940
+
+commit 1728b5996dda43b6318f8359ceaf12760525e423
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jan 22 02:25:27 2014 +0000
+
+    Copy over r54884 from trunk, with manual intervention:
+    
+      ------------------------------------------------------------------------
+      r54884 | guy | 2014-01-21 17:22:01 -0800 (Tue, 21 Jan 2014) | 4 lines
+    
+      It's not a string, it's a byte array (bit array, really).
+    
+      Also, RFC 5035 isn't a complete ESS spec, it's an update to RFC 2634.
+    
+    svn path=/trunk-1.8/; revision=54888
+
+commit b532ef412765c1a56db7eee560400081bceba776
+Author: Evan Huus <eapache@gmail.com>
+Date:   Tue Jan 21 18:48:01 2014 +0000
+
+    Harden nfs_name_snoop_add_name against various malformed inputs. Thanks to Moshe
+    Kaplan for the report.
+    
+    Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9672 and some
+    other cases in the same vein.
+    
+    svn path=/trunk/; revision=54875
+    
+    Conflicts:
+    	epan/dissectors/packet-nfs.c
+    
+    Change-Id: I7b64ad4475ef7701dd064cad98d5567ae3847735
+
+commit 6788dad31e66db6cfc4b5c378669ff3af41d2b1d
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Fri Jan 17 22:18:50 2014 +0000
+
+    Fix bug 9649: SMPP: source_telematics_id value length is 1 byte
+    
+    svn path=/trunk/; revision=54837
+    
+    (cherry picked from commit 642949701501d313059c3e7de888af266e00d0d1)
+    
+    Change-Id: I6ebc94bfe3aed22bdc1f1d8759c5b5c7e236bf95
+
+commit 6df7bb0669383479f00521cc09edae9734b8047d
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Sun Jan 12 20:52:19 2014 +0000
+
+    Fix bug 9633: Do not try to add a new NAL unit when the previous one was not decoded
+    
+    svn path=/trunk/; revision=54707
+    
+    Conflicts:
+    	epan/dissectors/packet-h264.c
+    
+    (cherry picked from commit 527071fb0dba0b8cae5ed8baa58b19ebf1996b89)
+    
+    Change-Id: I59b78a1509ba942f26f9b0ebb0b4e833d0522c7b
+
+commit 0fa1fb17cf9e7e00f63d85db669b0e80a46ec03e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 19 15:35:07 2014 +0000
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-01-19]
+    
+    svn path=/trunk-1.8/; revision=54846
+
+commit c7a18b39f9ddae1437c0ff56d3acb4a00fd93d70
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Jan 15 00:35:34 2014 +0000
+
+    Start using the output of 'git describe'.
+    
+    svn path=/trunk-1.8/; revision=54807
+
+commit 2d59e78cae1111eed03cad7d4b167da2bd9d1edd
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 14 23:50:45 2014 +0000
+
+    Remove a debugging print.
+    
+    svn path=/trunk-1.8/; revision=54806
+
+commit 01ab5b207a248965d1901cef198a25a32fcb4543
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 14 23:38:16 2014 +0000
+
+    Start adding support for plain git.
+    
+    svn path=/trunk-1.8/; revision=54805
+
+commit 1ddc83849075addb0cac69a6fe3782f4325337b9
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jan 14 00:14:34 2014 +0000
+
+    Copy over r54694.
+    
+      ------------------------------------------------------------------------
+      r54694 | gerald | 2014-01-10 14:57:28 -0800 (Fri, 10 Jan 2014) | 2 lines
+    
+      Update the enterprise-numbers URL.
+      ------------------------------------------------------------------------
+    
+    
+    svn path=/trunk-1.8/; revision=54740
+
+commit 339d238a0374ec7ccc73f8720e1c534625a74d35
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jan 13 20:03:36 2014 +0000
+
+    Copy over r54714 from trunk:
+    
+      ------------------------------------------------------------------------
+      r54714 | guy | 2014-01-13 11:49:12 -0800 (Mon, 13 Jan 2014) | 17 lines
+    
+      In a source file that defines external functions, the header file that
+      declares the functions must be included, in order to make sure the
+      declarations match the function signature.  Make it so.
+    
+      They *didn't* match; fix that.
+    
+      Do *not* use 16-bit tvbuff offsets; there is no advantage to that (and,
+      in fact, 32-bit arithmetic may be easier on some platforms), and it has
+      the disadvantage that you're more likely to have the offset overflow.
+    
+      dissect_cbs_serial_number() returns the new offset, not the length of
+      the item it dissected; don't add its return value to the offset, set the
+      offset to its return value.
+    
+      Make dissect_cbs_message_identifier() return the new offset as well, for
+      consistency, and don't add *its* return value to the offset.
+    
+    svn path=/trunk-1.8/; revision=54716
+
+commit 56c6fefcf22451c159078ba027d60740b8178d96
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 12 15:35:10 2014 +0000
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-01-12]
+    
+    svn path=/trunk-1.8/; revision=54704
+
+commit a15168cd8e11711f083d667834231d8a714d6f55
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 5 15:35:00 2014 +0000
+
+    [Automatic manuf, services and enterprise-numbers update for 2014-01-05]
+    
+    svn path=/trunk-1.8/; revision=54603
+
+commit f7f547c779f8d1ceb86bd39ba20202b38b3565a9
+Author: Pascal Quantin <pascal.quantin@gmail.com>
+Date:   Thu Jan 2 09:42:31 2014 +0000
+
+    Copy over revisions from the trunk:
+    
+      ------------------------------------------------------------------------
+      r54529 | stig | 2014-01-01 13:20:27 +0100 (mer. 01 janv. 2014) | 2 lignes
+      Chemins modifiés :
+         M /trunk/packaging/macosx/Info.plist.in
+         M /trunk/version_info.c
+    
+      Happy new year!
+    
+      ------------------------------------------------------------------------
+    
+    svn path=/trunk-1.8/; revision=54551
+
+commit 1421983681ae3054307d922ab4b1904237803133
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jan 1 23:26:04 2014 +0000
+
+    Copy over r54544 from trunk:
+    
+      ------------------------------------------------------------------------
+      r54544 | guy | 2014-01-01 15:22:53 -0800 (Wed, 01 Jan 2014) | 11 lines
+    
+      If the uncompression buffers are empty, they have no data; set the count
+      of bytes in them to 0, as there's no data in them, and set the offset in
+      that buffer of the stream's current position, to 0, as we're currently
+      at the beginning of the file in both streams.
+    
+      This fixes some tricky-to-reproduce errors (which show up only if the
+      ngsniffer_t structure is allocated from data that's been allocated,
+      written to in those variables, and freed).
+    
+    svn path=/trunk-1.8/; revision=54546
+
+commit 6437ddd5ba55a91e8f18f18b6a7e3fe99f1250f0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 17:31:08 2013 +0000
+
+    Manually copy over r54485:
+    
+      ------------------------------------------------------------------------
+      r54485 | gerald | 2013-12-29 09:28:12 -0800 (Sun, 29 Dec 2013) | 9 lines
+      Changed paths:
+         M /trunk/manuf
+         M /trunk/tools/make-manuf
+    
+      The IEEE OUI, IAB, and OUI-36 lists currently redirect to
+      http://standards.ieee.org/regauthmaint.html, which says
+    
+      IEEE Registration Authority Services will be unavailable from Friday, December 27th through Monday, December 30th
+    
+      As a result the manuf file got clobbered. Revert the manuf file to
+      its non-clobbered state and add sanity checks to make-manuf. Add a
+      note about the impending addition of OUI-28.
+      ------------------------------------------------------------------------
+    
+    svn path=/trunk-1.8/; revision=54487
+
+commit b5121c5dc5f9774f1d5344ece45cfd7da82573e4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 29 15:34:50 2013 +0000
+
+    [Automatic manuf, services and enterprise-numbers update for 2013-12-29]
+    
+    svn path=/trunk-1.8/; revision=54483
+
+commit 82530e9efdf315d8a285ee92b5fda5d5789e4976
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 22 15:34:54 2013 +0000
+
+    [Automatic manuf, services and enterprise-numbers update for 2013-12-22]
+    
+    svn path=/trunk-1.8/; revision=54363
+
+commit 13eb45b2fa6154b6fd854014b5b79c3ed3038b96
+Author: Chris Maynard <Christopher.Maynard@GTECH.COM>
+Date:   Fri Dec 20 15:14:38 2013 +0000
+
+    Copy over revisions from the trunk:
+    
+      ------------------------------------------------------------------------
+      r54227 | cmaynard | 2013-12-18 13:27:07 -0500 (Wed, 18 Dec 2013) | 4 lines
+      Changed paths:
+         M /trunk/epan/dissectors/packet-homeplug.c
+    
+      Call ptvcursor_new() to initialize cursor whether tree is NULL or not.
+      Fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9578
+      #BACKPORT(1.10, 1.8)
+    
+      ------------------------------------------------------------------------
+    
+    
+    svn path=/trunk-1.8/; revision=54302
+
+commit 2c0db318a0adadafedf94f56ba9b34eec6e630bb
+Author: Balint Reczey <balint@balintreczey.hu>
+Date:   Thu Dec 19 18:52:48 2013 +0000
+
+    Copy over r49145 with manual intervention:
+      ------------------------------------------------------------------------
+      r49145 | mmann | 2013-05-03 07:54:39 -0700 (Fri, 03 May 2013) | 1 line
+      Changed paths:
+         M /trunk/epan/dissectors/packet-bssgp.c
+         M /trunk/epan/dissectors/packet-gsm_a_bssmap.c
+         M /trunk/epan/dissectors/packet-gsm_bssmap_le.c
+         M /trunk/epan/dissectors/packet-gsm_sms.c
+         M /trunk/epan/dissectors/packet-nas_eps.c
+         M /trunk/epan/dissectors/packet-sgsap.c
+    
+      Remove static packet_info *gpinfo and just use the packet_info provided by the function.
+      ------------------------------------------------------------------------
+    
+    Update the release notes.
+    
+    svn path=/trunk-1.8/; revision=54263
+
+commit 17615a5a5fdf51d3c332d0ae6fbbe710288aab26
+Author: Chris Maynard <Christopher.Maynard@GTECH.COM>
+Date:   Thu Dec 19 18:11:14 2013 +0000
+
+    Copy over revisions from the trunk:
+    
+      ------------------------------------------------------------------------
+      r54257 | cmaynard | 2013-12-19 12:48:58 -0500 (Thu, 19 Dec 2013) | 2 lines
+      Changed paths:
+         M /trunk/epan/dissectors/packet-roofnet.c
+    
+      Need to call ptvcursor_current_offset() BEFORE ptvcursor_free().
+    
+      ------------------------------------------------------------------------
+    
+    
+    svn path=/trunk-1.8/; revision=54261
+
+commit 9a4a3becd28d5bd796b352022b1a693341feef7a
+Author: Chris Maynard <Christopher.Maynard@GTECH.COM>
+Date:   Thu Dec 19 18:10:53 2013 +0000
+
+    Copy over revisions from the trunk:
+    
+      ------------------------------------------------------------------------
+      r54255 | cmaynard | 2013-12-19 12:48:11 -0500 (Thu, 19 Dec 2013) | 2 lines
+      Changed paths:
+         M /trunk/epan/dissectors/packet-omapi.c
+         M /trunk/epan/dissectors/packet-pgm.c
+    
+      Fix leaks where ptvcursor_free() wasn't being called.
+    
+      ------------------------------------------------------------------------
+    
+    
+    svn path=/trunk-1.8/; revision=54260
+
+commit a297b86486dd22d031003e18ca52da770b632b28
+Author: Bill Meier <wmeier@newsguy.com>
+Date:   Tue Dec 17 21:16:17 2013 +0000
+
+    Copy over from the trunk:
+    
+     ------------------------------------------------------------------------
+     r54181 | wmeier | 2013-12-17 10:02:47 -0500 (Tue, 17 Dec 2013) | 8 lines
+    
+     From "bd": Fix " Wireshark stops showing new packets but dumpcap keeps writing them to the temp file"
+    
+     https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9571
+    
+     From me: Fixed in a slightly different manner than sugested in the patch attached to the bug.
+     ------------------------------------------------------------------------
+    
+    
+    svn path=/trunk-1.8/; revision=54195
+
+commit be039e36458050b2da7edbe40ab882868362b68d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 17 20:06:38 2013 +0000
+
+    1.8.12 → 1.8.13.
+    
+    svn path=/trunk-1.8/; revision=54194
