@@ -3,9 +3,6 @@
    description="presence XML doc (RFC 3863)"
    media="application/cpim-pidf+xml"
    hierarchy="yes" ?>
-<!--
-$Id$
--->
 
 
 <!ELEMENT presence (tuple)* >

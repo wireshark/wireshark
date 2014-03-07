@@ -3,9 +3,6 @@
    description="Event Notification for Resource Lists (RFC 4662)"
    hierarchy="yes" ?>
 
-<!--
-$Id$
--->
 
 <!ELEMENT list (name | resource)* >
 <!ATTLIST list xmlns CDATA #IMPLIED

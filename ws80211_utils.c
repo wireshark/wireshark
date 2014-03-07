@@ -2,8 +2,6 @@
  * ws80211 utilities
  * Copyright 2012, Pontus Fuchs <pontus.fuchs@gmail.com>
 
-$Id$
-
 Parts of this file was copied from iw:
 
 Copyright (c) 2007, 2008	Johannes Berg

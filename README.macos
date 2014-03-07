@@ -1,5 +1,3 @@
-$Id$
-
 This file tries to help building Wireshark for (Mac) OS X (Wireshark
 does not work on earlier versions of Mac OS).
 

@@ -1,5 +1,3 @@
-$Id$
-
 This is a very quick and very dirty guide to adding support for new
 capture file formats.  If you see any errors or have any improvements,
 submit patches - free software is a community effort....

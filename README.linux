@@ -1,5 +1,3 @@
-$Id$
-
 In order to capture packets (with Wireshark/TShark, tcpdump, or any
 other libpcap-based packet capture program) on a Linux system, the
 "packet" protocol must be supported by your kernel.  If it is not, you

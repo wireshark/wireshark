@@ -1,8 +1,6 @@
 Status of the GTK+ 3 port :
 ===========================
 
-$Id$
-
 The port is done. We used the methods described in the "Migrating from
 GTK+ 2.x to GTK+ 3" document at:
 http://developer.gnome.org/gtk3/stable/gtk-migrating-2-to-3.html

@@ -2,9 +2,6 @@
    proto_name="xcap-error"
    description="XCAP Error XML doc (RFC 4825)"
    hierarchy="yes" ?>
-<!--
-$Id$
--->
 
 <!ELEMENT xcap-error (schema-validation-error?,
                       not-xml-frag?,

@@ -1,5 +1,3 @@
-$Id$
-
 libpcap 0.7.1 and later appear to work on AIX when using AIX's native
 BPF; that appears to work better than DLPI does.  Note that you may have
 to run AIX's tcpdump, as root, before configuring, building, and

@@ -1,5 +1,3 @@
-$Id$
-
 The X11 dissector generator is no longer run automatically.
 
 To run the dissector generator, you will need perl 5.10 and the XML::Twig

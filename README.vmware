@@ -1,5 +1,3 @@
-$Id$
-
 If you are a registered user of VMware on Linux, you can contact their
 support staff via e-mail and ask for a libpcap patch which will allow
 you to sniff the virtual NIC of your virtual machine.

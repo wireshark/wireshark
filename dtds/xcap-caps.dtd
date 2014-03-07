@@ -3,9 +3,6 @@
    description="XML Configuration Access Protocol Server Capabilities"
    hierarchy="yes" ?>
 
-<!--
-$Id$
--->
 
 <!ELEMENT xcap-caps ((auid?)*, extension?, (namespace?)*) >
 

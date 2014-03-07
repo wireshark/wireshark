@@ -1,5 +1,3 @@
-$Id$
-
 This directory contains the source files needed to build the:
 
  - Wireshark User's guide

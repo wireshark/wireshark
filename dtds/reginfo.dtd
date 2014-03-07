@@ -3,9 +3,6 @@
    description="Reginfo XML doc (RFC 3680)"
    hierarchy="yes" ?>
 
-<!--
-$Id$    
--->
 
 <!ELEMENT reginfo (registration)* >
 <!ATTLIST reginfo xmlns CDATA #IMPLIED

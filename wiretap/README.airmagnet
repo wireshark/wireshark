@@ -1,7 +1,5 @@
 AMC: Wireless Analyzer Captured Data (AirMagnet)
 ------------------------------------------------
-$Id$
-
 This is just a braindump from looking at some Airmagnet capture files,
 in one case having a look at a decoded display in Airmagnet itself.
 Lots of things are still unknown.
