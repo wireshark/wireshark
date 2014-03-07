@@ -261,7 +261,7 @@ void ByteViewText::lineCommon(const int org_off)
                         EBCDIC_to_ASCII1(pd[off]) :
                         pd[off];
 
-            str += isprint(c) ? c : '.';
+            str += g_ascii_isprint(c) ? c : '.';
         } else
             str += ' ';
 
