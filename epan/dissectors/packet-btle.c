@@ -272,11 +272,11 @@ btle_crc(tvbuff_t *tvb, const guint8 payload_len, const guint32 crc_init)
     while( bytes_to_go-- ) {
         guint8 byte   = tvb_get_guint8(tvb, offset++);
         guint8 nibble = (byte & 0xf);
-        guint8 index  = ((state >> 16) & 0xf0) | nibble;
-        state  = ((state << 4) ^ btle_crc_next_state_flips[index]) & 0xffffff;
+        guint8 byte_index  = ((state >> 16) & 0xf0) | nibble;
+        state  = ((state << 4) ^ btle_crc_next_state_flips[byte_index]) & 0xffffff;
         nibble = ((byte >> 4) & 0xf);
-        index  = ((state >> 16) & 0xf0) | nibble;
-        state  = ((state << 4) ^ btle_crc_next_state_flips[index]) & 0xffffff;
+        byte_index  = ((state >> 16) & 0xf0) | nibble;
+        state  = ((state << 4) ^ btle_crc_next_state_flips[byte_index]) & 0xffffff;
     }
     return state;
 }
