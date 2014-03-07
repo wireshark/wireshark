@@ -3,8 +3,6 @@
 *
 *  (c) 2005, Luis E. G. Ontanon <luis@ontanon.org>
 *
-* $Id$
-*
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1998 Gerald Combs

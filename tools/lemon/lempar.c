@@ -1,6 +1,5 @@
 /* Driver template for the LEMON parser generator.
-* $Id$
-*
+**
 ** Copyright 1991-1995 by D. Richard Hipp.
 **
 ** This library is free software; you can redistribute it and/or

@@ -2,8 +2,6 @@
 * Routines for megaco packet disassembly
 * RFC 3015
 *
-* $Id$
-*
 * Christian Falckenberg, 2002/10/17
 * Copyright (c) 2002 by Christian Falckenberg
 *                       <christian.falckenberg@nortelnetworks.com>

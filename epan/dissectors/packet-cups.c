@@ -5,8 +5,6 @@
 * Charles Levert <charles@comm.polymtl.ca>
 * Copyright 2001 Charles Levert
 *
-* $Id$
-*
 * This program is free software; you can redistribute it and/or
 * modify it under the terms of the GNU General Public License
 * as published by the Free Software Foundation; either version 2

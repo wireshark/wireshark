@@ -1,6 +1,5 @@
 /* packet-mplstp-oam.c
 *
-* $Id$
 * Routines for MPLS-TP Lock Instruct Protocol    : RFC 6435
 *              MPLS-TP Fault-Management Protocol : RFC 6427
 *

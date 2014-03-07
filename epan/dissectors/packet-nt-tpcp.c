@@ -2,8 +2,6 @@
 * Routines for Transparent Proxy Cache Protocol packet disassembly
 * (c) Copyright Giles Scott <giles.scott1 [AT] btinternet.com>
 *
-* $Id$
-*
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
 * Easy codecs stub for EasyG722
 * 2007 Ales Kocourek
 *
-* $Id$
-*
 * Wireshark - Network traffic analyzer
 * By Gerald Combs <gerald@wireshark.org>
 * Copyright 1998 Gerald Combs

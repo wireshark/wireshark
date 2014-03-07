@@ -2,8 +2,6 @@
 *
 * Routine to dissect ISO 8327-1 OSI Session Protocol packets
 *
-* $Id$
-*
 * Yuriy Sidelnikov <YSidelnikov@hotmail.com>
 *
 * Wireshark - Network traffic analyzer
