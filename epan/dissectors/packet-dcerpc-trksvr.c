@@ -46,17 +46,17 @@ static gint ett_dcerpc_trksvr = -1;
   IDL {
 */
 static e_uuid_t uuid_dcerpc_trksvr = {
-        0x4da1c422, 0x943d, 0x11d1,
-        { 0xac, 0xae, 0x00, 0xc0, 0x4f, 0xc2, 0xaa, 0x3f }
+	0x4da1c422, 0x943d, 0x11d1,
+	{ 0xac, 0xae, 0x00, 0xc0, 0x4f, 0xc2, 0xaa, 0x3f }
 };
 
 static guint16 ver_dcerpc_trksvr = 1;
 
 static dcerpc_sub_dissector dcerpc_trksvr_dissectors[] = {
-        { 0, "LnkSvrMessage",
+	{ 0, "LnkSvrMessage",
 		NULL,
 		NULL },
-        {0, NULL, NULL,  NULL }
+	{0, NULL, NULL,  NULL }
 };
 
 void
@@ -73,25 +73,38 @@ static hf_register_info hf[] = {
 #endif
 	};
 
-        static gint *ett[] = {
-                &ett_dcerpc_trksvr
-        };
+	static gint *ett[] = {
+		&ett_dcerpc_trksvr
+	};
 
-        proto_dcerpc_trksvr = proto_register_protocol(
-                "Microsoft Distributed Link Tracking Server Service", "TRKSVR", "trksvr");
+	proto_dcerpc_trksvr = proto_register_protocol(
+		"Microsoft Distributed Link Tracking Server Service", "TRKSVR", "trksvr");
 
-        proto_register_field_array(proto_dcerpc_trksvr, hf,
+	proto_register_field_array(proto_dcerpc_trksvr, hf,
 				   array_length(hf));
 
-        proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_dcerpc_trksvr(void)
 {
-        /* Register protocol as dcerpc */
+	/* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_trksvr, ett_dcerpc_trksvr,
-                         &uuid_dcerpc_trksvr, ver_dcerpc_trksvr,
-                         dcerpc_trksvr_dissectors, hf_trksvr_opnum);
+	dcerpc_init_uuid(proto_dcerpc_trksvr, ett_dcerpc_trksvr,
+			 &uuid_dcerpc_trksvr, ver_dcerpc_trksvr,
+			 dcerpc_trksvr_dissectors, hf_trksvr_opnum);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

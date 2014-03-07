@@ -51,8 +51,8 @@ static gint ett_dcerpc_tapi = -1;
   IDL {
 */
 static e_uuid_t uuid_dcerpc_tapi = {
-        0x2f5f6520, 0xca46, 0x1067,
-        { 0xb3, 0x19, 0x00, 0xdd, 0x01, 0x06, 0x62, 0xda }
+	0x2f5f6520, 0xca46, 0x1067,
+	{ 0xb3, 0x19, 0x00, 0xdd, 0x01, 0x06, 0x62, 0xda }
 };
 
 static guint16 ver_dcerpc_tapi = 1;
@@ -180,17 +180,17 @@ dissect_tapi_client_detach_reply(tvbuff_t *tvb _U_, int offset _U_,
   IDL }
 */
 static dcerpc_sub_dissector dcerpc_tapi_dissectors[] = {
-        { TAPI_CLIENT_ATTACH, "ClientAttach",
+	{ TAPI_CLIENT_ATTACH, "ClientAttach",
 		dissect_tapi_client_attach_rqst,
 		dissect_tapi_client_attach_reply },
-        { TAPI_CLIENT_REQUEST, "ClientRequest",
+	{ TAPI_CLIENT_REQUEST, "ClientRequest",
 		dissect_tapi_client_request_rqst,
 		dissect_tapi_client_request_reply },
-        { TAPI_CLIENT_DETACH, "ClientDetach",
+	{ TAPI_CLIENT_DETACH, "ClientDetach",
 		dissect_tapi_client_detach_rqst,
 		dissect_tapi_client_detach_reply },
 
-        {0, NULL, NULL,  NULL }
+	{0, NULL, NULL,  NULL }
 };
 
 void
@@ -217,25 +217,38 @@ static hf_register_info hf[] = {
 		NULL, 0x0, "Unknown bytes. If you know what this is, contact wireshark developers.", HFILL }}
 	};
 
-        static gint *ett[] = {
-                &ett_dcerpc_tapi
-        };
+	static gint *ett[] = {
+		&ett_dcerpc_tapi
+	};
 
-        proto_dcerpc_tapi = proto_register_protocol(
-                "Microsoft Telephony API Service", "TAPI", "tapi");
+	proto_dcerpc_tapi = proto_register_protocol(
+		"Microsoft Telephony API Service", "TAPI", "tapi");
 
-        proto_register_field_array(proto_dcerpc_tapi, hf,
+	proto_register_field_array(proto_dcerpc_tapi, hf,
 				   array_length(hf));
 
-        proto_register_subtree_array(ett, array_length(ett));
+	proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_dcerpc_tapi(void)
 {
-        /* Register protocol as dcerpc */
+	/* Register protocol as dcerpc */
 
-        dcerpc_init_uuid(proto_dcerpc_tapi, ett_dcerpc_tapi,
-                         &uuid_dcerpc_tapi, ver_dcerpc_tapi,
-                         dcerpc_tapi_dissectors, hf_tapi_opnum);
+	dcerpc_init_uuid(proto_dcerpc_tapi, ett_dcerpc_tapi,
+			 &uuid_dcerpc_tapi, ver_dcerpc_tapi,
+			 dcerpc_tapi_dissectors, hf_tapi_opnum);
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
