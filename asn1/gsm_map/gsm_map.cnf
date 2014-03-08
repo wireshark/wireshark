@@ -39,6 +39,8 @@ DummyMAP						gsm_old
 EricssonMAP                     gsm_map.ericsson
 
 Remote-Operations-Information-Objects ROS
+#.NO_EMIT
+SubscriberData
 
 #.OMIT_ASSIGNMENT
 Code
@@ -47,20 +49,7 @@ CommonComponentId
 SubscriberId
 GuidanceInfo
 SS-InfoList
-SubscriberData
-SubscriberStatus
-Ext-SS-InfoList
-VlrCamelSubscriptionInfo
-VBSDataList
-VGCSDataList
-VoiceGroupCallData
-VoiceBroadcastData
-GroupId
-Ext-SS-Info
-EMLPP-Info
-Ext-ForwInfo
-Ext-CallBarInfo
-Ext-SS-Data
+# Omitting SubscriberData makes CONTENT OF fail and InsertSubscriberDataArg will not get all its tags
 # Not yet used Nokia extensions
 SS-DataEmoInExt
 EmoInCategoryKey
