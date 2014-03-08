@@ -97,6 +97,7 @@ Bluetooth 3DS
 Bluetooth HSP
 Bluetooth Linux Monitor Transport
 Bluetooth Low Energy
+Bluetooth Low Energy RF Info
 CARP
 CFDP
 Cisco MetaData
