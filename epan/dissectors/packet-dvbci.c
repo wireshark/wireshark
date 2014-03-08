@@ -1862,7 +1862,7 @@ pref_key_string_to_bin(const gchar *key_string, unsigned char **key_bin)
 {
     int  key_string_len;
     int  i, j;
-    char input[2];
+    char input[3];
 
     if (!key_string || !key_bin)
         return -1;
@@ -1870,6 +1870,7 @@ pref_key_string_to_bin(const gchar *key_string, unsigned char **key_bin)
     if (key_string_len != 2*AES_KEY_LEN)
         return -1;
     *key_bin = (unsigned char*)g_malloc(key_string_len/2);
+    input[2] = '\0';
 
     j=0;
     for (i=0; i<key_string_len-1; i+=2) {
