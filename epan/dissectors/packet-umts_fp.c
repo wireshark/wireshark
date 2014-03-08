@@ -3994,7 +3994,7 @@ fp_set_per_packet_inf_from_conv(umts_fp_conversation_info_t *p_conv_data,
                     }
                     tb_bit_off = (2+p_conv_data->num_dch_in_flow)*8;    /*Point to the C/T of first TB*/
                     /*Set configuration for individual blocks*/
-                    for(j=0; j < num_tbs; j++){
+                    for(j=0; j < num_tbs && j+chan < MAX_MAC_FRAMES; j++){
                         /*Set transport channel id (useful for debugging)*/
                         macinf->trchid[j+chan] = p_conv_data->dchs_in_flow_list[chan];
 
