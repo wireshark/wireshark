@@ -5554,12 +5554,14 @@ proto_register_ssl(void)
              "\n"
              "RSA <EPMS> <PMS>\n"
              "RSA Session-ID:<SSLID> Master-Key:<MS>\n"
+             "CLIENT_RANDOM <CRAND> <MS>\n"
              "\n"
              "Where:\n"
              "<EPMS> = First 8 bytes of the Encrypted PMS\n"
              "<PMS> = The Pre-Master-Secret (PMS)\n"
              "<SSLID> = The SSL Session ID\n"
              "<MS> = The Master-Secret (MS)\n"
+             "<CRAND> = The Client's random number from the ClientHello message\n"
              "\n"
              "(All fields are in hex notation)",
              &ssl_keylog_filename);
