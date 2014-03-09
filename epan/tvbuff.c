@@ -2161,62 +2161,62 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 
 static const gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
 
-    /* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
+	/* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
 
-    '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
-    0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
-    0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
-    0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
-    ' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
-    '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
-    '0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
-    '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
-    0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
-    'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
-    'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
-    'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
-    0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
-    'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
-    'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
-    'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
+	'@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
+	0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
+	0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
+	0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
+	' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
+	'(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
+	'0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
+	'8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
+	0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
+	'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
+	'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
+	'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
+	0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
+	'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
+	'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
+	'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
 };
 
 static gboolean
 char_is_escape(unsigned char value)
 {
-    return (value == GN_CHAR_ESCAPE);
+	return (value == GN_CHAR_ESCAPE);
 }
 
 static gunichar
 char_def_alphabet_ext_decode(unsigned char value)
 {
-    switch (value)
-    {
-    case 0x0a: return 0x0c; /* form feed */
-    case 0x14: return '^';
-    case 0x28: return '{';
-    case 0x29: return '}';
-    case 0x2f: return '\\';
-    case 0x3c: return '[';
-    case 0x3d: return '~';
-    case 0x3e: return ']';
-    case 0x40: return '|';
-    case 0x65: return 0x20ac; /* euro */
-    default: return UNREPL; /* invalid character */
-    }
+	switch (value)
+	{
+	case 0x0a: return 0x0c; /* form feed */
+	case 0x14: return '^';
+	case 0x28: return '{';
+	case 0x29: return '}';
+	case 0x2f: return '\\';
+	case 0x3c: return '[';
+	case 0x3d: return '~';
+	case 0x3e: return ']';
+	case 0x40: return '|';
+	case 0x65: return 0x20ac; /* euro */
+	default: return UNREPL; /* invalid character */
+	}
 }
 
 static gunichar
 char_def_alphabet_decode(unsigned char value)
 {
-    if (value < GN_CHAR_ALPHABET_SIZE)
-    {
-        return gsm_default_alphabet[value];
-    }
-    else
-    {
-        return UNREPL;
-    }
+	if (value < GN_CHAR_ALPHABET_SIZE)
+	{
+		return gsm_default_alphabet[value];
+	}
+	else
+	{
+		return UNREPL;
+	}
 }
 
 static gboolean
@@ -2556,7 +2556,7 @@ tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gi
  * As long as we aren't using composite TVBs, this saves the cycles used
  * (often unnecessariliy) in allocating a buffer and copying the string into
  * it.  (If we do start using composite TVBs, we may want to replace this
- * function with the _ephemeral versoin.)
+ * function with the _ephemeral version.)
  */
 const guint8 *
 tvb_get_const_stringz(tvbuff_t *tvb, const gint offset, gint *lengthp)
@@ -2868,7 +2868,7 @@ _tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
  * at the correct spot, terminating the string.
  */
 gint
-tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8* buffer)
+tvb_get_nstringz(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8 *buffer)
 {
 	gint bytes_copied;
 
