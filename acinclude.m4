@@ -1322,7 +1322,7 @@ AC_DEFUN([AC_WIRESHARK_KRB5_CHECK],
 		    KRB5_LIBS=`echo $KRB5_LIBS | sed 's/-lcrypto//'`
 		    KRB5_LIBS="$KRB5_LIBS $SSL_LIBS"
 		else
-		    AC_MSG_ERROR([Kerberos library requires -lcrypto but --with-ssl not specified])
+		    AC_MSG_ERROR([Kerberos library requires -lcrypto, so you must specify --with-ssl])
 		fi
 		;;
 	    esac
