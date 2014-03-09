@@ -2142,7 +2142,7 @@ static gboolean dissect_atn_ulcs_heur(
 {
 		/* do we have enough data*/
 		/* at least session + presentation data or pdv-list */
-		if (tvb_reported_length_remaining(tvb, 0) < 2){
+		if (tvb_length(tvb) < 2){
 				return FALSE; }
 
 		/* check for session/presentation/ACSE PDU's  */
