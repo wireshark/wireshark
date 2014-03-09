@@ -63,6 +63,49 @@ void proto_reg_handoff_peekremote(void);
 
 static int proto_peekremote;
 
+static const value_string peekremote_data_rate_vals[] = {
+  { 0, "Spatial streams: 1, Modulation type: BPSK, Codingrate: 1/2" },
+  { 1, "Spatial streams: 1, Modulation type: QPSK, Codingrate: 1/2" },
+  { 2, "Spatial streams: 1, Modulation type: QPSK, Codingrate: 3/4" },
+  { 3, "Spatial streams: 1, Modulation type: 16-QAM, Codingrate: 1/2" },
+  { 4, "Spatial streams: 1, Modulation type: 16-QAM, Codingrate: 3/4" },
+  { 5, "Spatial streams: 1, Modulation type: 64-QAM, Codingrate: 2/3" },
+  { 6, "Spatial streams: 1, Modulation type: 64-QAM, Codingrate: 3/4" },
+  { 7, "Spatial streams: 1, Modulation type: 64-QAM, Codingrate: 5/6" },
+  { 8, "Spatial streams: 2, Modulation type: BPSK, Codingrate: 1/2" },
+  { 9, "Spatial streams: 2, Modulation type: QPSK, Codingrate: 1/2" },
+  { 10, "Spatial streams: 2, Modulation type: QPSK, Codingrate: 3/4" },
+  { 11, "Spatial streams: 2, Modulation type: 16-QAM, Codingrate: 1/2" },
+  { 12, "Spatial streams: 2, Modulation type: 16-QAM, Codingrate: 3/4" },
+  { 13, "Spatial streams: 2, Modulation type: 64-QAM, Codingrate: 2/3" },
+  { 14, "Spatial streams: 2, Modulation type: 64-QAM, Codingrate: 3/4" },
+  { 15, "Spatial streams: 2, Modulation type: 64-QAM, Codingrate: 5/6" },
+  { 16, "Spatial streams: 3, Modulation type: BPSK, Codingrate: 1/2" },
+  { 17, "Spatial streams: 3, Modulation type: QPSK, Codingrate: 1/2" },
+  { 18, "Spatial streams: 3, Modulation type: QPSK, Codingrate: 3/4" },
+  { 19, "Spatial streams: 3, Modulation type: 16-QAM, Codingrate: 1/2" },
+  { 20, "Spatial streams: 3, Modulation type: 16-QAM, Codingrate: 3/4" },
+  { 21, "Spatial streams: 3, Modulation type: 64-QAM, Codingrate: 2/3" },
+  { 22, "Spatial streams: 3, Modulation type: 64-QAM, Codingrate: 3/4" },
+  { 23, "Spatial streams: 3, Modulation type: 64-QAM, Codingrate: 5/6" },
+  { 24, "Spatial streams: 4, Modulation type: BPSK, Codingrate: 1/2" },
+  { 25, "Spatial streams: 4, Modulation type: QPSK, Codingrate: 1/2" },
+  { 26, "Spatial streams: 4, Modulation type: QPSK, Codingrate: 3/4" },
+  { 27, "Spatial streams: 4, Modulation type: 16-QAM, Codingrate: 1/2" },
+  { 28, "Spatial streams: 4, Modulation type: 16-QAM, Codingrate: 3/4" },
+  { 29, "Spatial streams: 4, Modulation type: 64-QAM, Codingrate: 2/3" },
+  { 30, "Spatial streams: 4, Modulation type: 64-QAM, Codingrate: 3/4" },
+  { 31, "Spatial streams: 4, Modulation type: 64-QAM, Codingrate: 5/6" },
+  { 0, NULL }
+};
+
+static value_string_ext peekremote_data_rate_vals_ext = VALUE_STRING_EXT_INIT(peekremote_data_rate_vals);
+
+static const value_string peekremote_type_vals[] = {
+  { 6, "kMediaSpecificHdrType_Wireless3" },
+  { 0, NULL }
+};
+
 /* hfi elements */
 #define THIS_HF_INIT HFI_INIT(proto_peekremote)
 static header_field_info *hfi_peekremote = NULL;
@@ -101,7 +144,7 @@ static header_field_info hfi_peekremote_timestamp THIS_HF_INIT =
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_data_rate THIS_HF_INIT =
-      { "Data rate",         "peekremote.data_rate", FT_UINT16, BASE_DEC, NULL,
+      { "Data rate",         "peekremote.data_rate", FT_UINT16,  BASE_DEC|BASE_EXT_STRING, &peekremote_data_rate_vals_ext,
         0x0, NULL, HFILL };
 
 /* Legacy header only */
@@ -131,11 +174,11 @@ static header_field_info hfi_peekremote_header_size THIS_HF_INIT =
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_type THIS_HF_INIT =
-      { "Type",              "peekremote.type", FT_UINT32, BASE_DEC, NULL,
+      { "Type",              "peekremote.type", FT_UINT32, BASE_DEC, VALS(peekremote_type_vals),
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_frequency THIS_HF_INIT =
-      { "Frequency",     "peekremote.frequency", FT_UINT32, BASE_DEC, NULL,
+      { "Frequency [Mhz]",   "peekremote.frequency", FT_UINT32, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_band THIS_HF_INIT =
