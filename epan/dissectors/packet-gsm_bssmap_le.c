@@ -241,8 +241,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 
 	curr_offset = offset;
 
-	/* curr_offset + 1 is a hack, the length part here is 2 octets and we are off by one */
-	proto_tree_add_text(tree, tvb, curr_offset+1, len, "APDU");
+	proto_tree_add_text(tree, tvb, curr_offset, len, "APDU");
 
 	/*
 	 * dissect the embedded APDU message
@@ -252,15 +251,15 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	 * equivalent octet in the APDU element of 3GPP TS 49.031 BSSAP-LE.
 	 */
 
-	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset+1);
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_apdu_protocol_id, tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
+	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_apdu_protocol_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	switch(apdu_protocol_id){
 	case 1:
 		/* BSSLAP
 		 * the embedded message is as defined in 3GPP TS 08.71(3GPP TS 48.071 version 7.2.0 Release 7)
 		 */
-		APDU_tvb = tvb_new_subset(tvb, curr_offset+2, len-1, len-1);
+		APDU_tvb = tvb_new_subset(tvb, curr_offset+1, len-1, len-1);
 		if(gsm_bsslap_handle)
 			call_dissector(gsm_bsslap_handle, APDU_tvb, pinfo, g_tree);
 		break;
@@ -767,7 +766,7 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	/* LCS Client Type 9.1.4 C (note 3) 3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_LCS_CLIENT_TYPE, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CLIENT_TYPE, NULL);
 	/* Chosen Channel 9.1.5 O 2 */
-	ELEM_OPT_TV(BSSMAP_LE_CHOSEN_CHANNEL, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, NULL);
+	ELEM_OPT_TLV(BSSMAP_LE_CHOSEN_CHANNEL, GSM_A_PDU_TYPE_BSSMAP, BE_CHOSEN_CHAN, NULL);
 	/* LCS Priority 9.1.6 O 3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_LCS_PRIORITY, GSM_A_PDU_TYPE_BSSMAP, BE_LCS_PRIO, NULL);
 	/* LCS QoS 9.1.6a C (note 1) 3-n */
@@ -775,7 +774,7 @@ bssmap_le_perf_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	/* GPS Assistance Data 9.1.7 C (note 2) 3-n */
 	ELEM_OPT_TLV(BSSMAP_LE_REQUESTED_GPS_ASSISTANCE_DATA, GSM_A_PDU_TYPE_BSSMAP, BE_GPS_ASSIST_DATA, NULL);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_OPT_TLV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 	/* LCS Capability 9.1.9 O */
 	ELEM_OPT_TLV(BSSMAP_LE_LCS_CAPABILITY, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_LCS_CAPABILITY, NULL);
 	/* Packet Measurement Report 9.1.10 O*/
@@ -838,7 +837,7 @@ bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	curr_len = len;
 
 	/* APDU 9.8.1 M 3-n */
-	ELEM_MAND_TLV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 	/* Segmentation 9.8.2 */
 	ELEM_OPT_TLV(BSSMAP_LE_SEGMENTATION, BSSAP_PDU_TYPE_BSSMAP, BE_SEG, NULL);
 
@@ -877,7 +876,7 @@ bssmap_le_perf_loc_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	/* Cell Identifier 9.12.1 M */
 	ELEM_MAND_TLV(BSSMAP_LE_CELL_IDENTIFIER, GSM_A_PDU_TYPE_BSSMAP, BE_CELL_ID, NULL);
 	/* APDU 9.1.8 O 3-n */
-	ELEM_OPT_TLV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
+	ELEM_MAND_TELV(BSSMAP_LE_APDU, GSM_PDU_TYPE_BSSMAP_LE, DE_BMAPLE_APDU, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
 }
