@@ -10773,6 +10773,8 @@ soundsvirtual   17185/tcp # Sounds Virtual [Richard_Snider] [Richard_Snider]
 soundsvirtual   17185/udp # Sounds Virtual [Richard_Snider] [Richard_Snider]
 chipper         17219/tcp # Chipper [Ronald_Jimmink] [Ronald_Jimmink]
 chipper         17219/udp # Chipper [Ronald_Jimmink] [Ronald_Jimmink]
+avtp            17220/tcp # IEEE 1722 Transport Protocol for Time Sensitive Applications [Transport_Protocol_for_Time-Sensitive_Networking_TG] [Ashley_Butterworth] 2014-03-07
+avtp            17220/udp # IEEE 1722 Transport Protocol for Time Sensitive Applications [Transport_Protocol_for_Time-Sensitive_Networking_TG] [Ashley_Butterworth] 2014-03-07
 avdecc          17221/tcp # IEEE 1722.1 AVB Discovery, Enumeration, Connection management, and Control [IEEE_1722_1] [Jeffrey_Daniel_Koftinoff] 2011-11-01
 avdecc          17221/udp # IEEE 1722.1 AVB Discovery, Enumeration, Connection management, and Control [IEEE_1722_1] [Jeffrey_Daniel_Koftinoff] 2011-11-01
 cpsp            17222/udp # Control Plane Synchronization Protocol (SPSP) [Randall_Stewart_2] [Randall_Stewart_2] 2011-11-10
@@ -10829,6 +10831,8 @@ apc-necmp       18888/tcp # APCNECMP [Michael_Yip] [Michael_Yip]
 apc-necmp       18888/udp # APCNECMP [Michael_Yip] [Michael_Yip]
 igrid           19000/tcp # iGrid Server [Massimo_Cafaro] [Massimo_Cafaro] 2004-11
 igrid           19000/udp # iGrid Server [Massimo_Cafaro] [Massimo_Cafaro] 2004-11
+scintilla       19007/tcp # Scintilla protocol for device services [Veejansh_Inc] [Chirag_Patel] 2014-03-04
+scintilla       19007/udp # Scintilla protocol for device services [Veejansh_Inc] [Chirag_Patel] 2014-03-04
 j-link          19020/tcp # J-Link TCP/IP Protocol [SEGGER] [SEGGER]
 opsec-uaa       19191/tcp # OPSEC UAA [Reuven_Harrison] [Reuven_Harrison]
 opsec-uaa       19191/udp # OPSEC UAA [Reuven_Harrison] [Reuven_Harrison]
