@@ -840,6 +840,7 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, gint offset)
  *      tvb             ; packet buffer.
  *      pinfo           ; packet info.
  *      tree            ; protocol display tree.
+ *      data            : ieee802154_packet,
  *  RETURNS
  *      boolean         ; TRUE if the tvbuff was dissected as a
  *                          6LoWPAN packet. If this returns FALSE,
@@ -847,7 +848,7 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, gint offset)
  *---------------------------------------------------------------
  */
 static gboolean
-dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /* Check for valid patterns. */
     do {
@@ -859,6 +860,7 @@ dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_MESH_BITS) == LOWPAN_PATTERN_MESH)
         {
             ieee802154_packet *packet = (ieee802154_packet *)data;
+            DISSECTOR_ASSERT(packet);
             if (!(packet->dst_pan == IEEE802154_BCAST_PAN && packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT &&
                 packet->dst16 == IEEE802154_BCAST_ADDR && packet->frame_type != IEEE802154_FCF_BEACON &&
                 packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT && tvb_get_bits8(tvb, 2, 4) ==
@@ -908,7 +910,7 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Create the protocol tree. */
     if (tree) {
-        lowpan_root = proto_tree_add_protocol_format(tree, proto_6lowpan, tvb, 0, tvb_length(tvb), "6LoWPAN");
+        lowpan_root = proto_tree_add_protocol_format(tree, proto_6lowpan, tvb, 0, -1, "6LoWPAN");
         lowpan_tree = proto_item_add_subtree(lowpan_root, ett_6lowpan);
     }
     /* Add the protocol name. */
@@ -2250,9 +2252,9 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     proto_item *        ti = NULL;
     proto_item *        length_item = NULL;
     /* Reassembly parameters. */
-    tvbuff_t *          new_tvb = NULL;
-    tvbuff_t *          frag_tvb = NULL;
-    fragment_head *     frag_data = NULL;
+    tvbuff_t *          new_tvb;
+    tvbuff_t *          frag_tvb;
+    fragment_head *     frag_data;
     gboolean            save_fragmented;
 
     /* Create a tree for the fragmentation header. */
@@ -2369,8 +2371,8 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *        frag_tree = NULL;
     proto_item *        ti = NULL;
     /* Reassembly parameters. */
-    tvbuff_t *          new_tvb = NULL;
-    fragment_head *     frag_data = NULL;
+    tvbuff_t *          new_tvb;
+    fragment_head *     frag_data;
     gboolean            save_fragmented;
 
     /* Create a tree for the fragmentation header. */
@@ -2850,3 +2852,16 @@ proto_reg_handoff_6lowpan(void)
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, proto_6lowpan);
 } /* proto_reg_handoff_6lowpan */
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
