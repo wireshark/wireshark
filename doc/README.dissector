@@ -2645,16 +2645,22 @@ static dissector_handle_t sub_dissector_handle;
 Information can be stored for each data packet that is processed by the
 dissector.  The information is added with the p_add_proto_data function and
 retrieved with the p_get_proto_data function.  The data pointers passed into
-the p_add_proto_data are not managed by the proto_data routines. If you use
-malloc or any other dynamic memory allocation scheme, you must release the
-data when it isn't required.
+the p_add_proto_data are not managed by the proto_data routines, however the
+data pointer memory scope must match that of the scope parameter.
+The two most common use cases for p_add_proto_data/p_get_proto_data are for
+persistent data about the packet for the lifetime of the capture (file scope)
+and to exchange data between dissectors across a single packet (packet scope).
+It is also used to provide packet data for Decode As dialog (packet scope).
 
 void
-p_add_proto_data(frame_data *fd, int proto, void *proto_data)
+p_add_proto_data(wmem_allocator_t *scope, frame_data *fd, int proto, void *proto_data)
 void *
-p_get_proto_data(frame_data *fd, int proto)
+p_get_proto_data(wmem_allocator_t *scope, frame_data *fd, int proto)
 
 Where:
+    scope      - Lifetime of the data to be stored, typically wmem_file_scope()
+                 or pinfo->pool (packet scope).  Must match scope of data
+                 allocated.
     fd         - The fd pointer in the pinfo structure, pinfo->fd
     proto      - Protocol id returned by the proto_register_protocol call
                  during initialization
