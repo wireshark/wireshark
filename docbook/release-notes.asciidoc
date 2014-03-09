@@ -126,6 +126,7 @@ OpenFlow
 Open Sound Control
 Pathport
 Picture Transfer Protocol Over IP
+Private Data Channel
 QUIC (Quick UDP Internet Connections)
 SAE J1939
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection

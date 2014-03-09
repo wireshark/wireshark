@@ -957,6 +957,7 @@ DISSECTOR_SRC = \
 	packet-pcli.c		\
 	packet-pcnfsd.c		\
 	packet-pcp.c		\
+	packet-pdc.c		\
 	packet-pdcp-lte.c	\
 	packet-peekremote.c	\
 	packet-per.c		\
