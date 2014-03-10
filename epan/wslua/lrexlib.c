@@ -182,7 +182,7 @@ void bufferZ_addlstring (TBuffer *buf, const void *src, size_t len) {
   header[1] = len;
   buffer_addlstring (buf, header, sizeof (header));
   buffer_addlstring (buf, src, len);
-  n = len % N_ALIGN;
+  n = (int)(len % N_ALIGN);
   if (n) buffer_addlstring (buf, NULL, N_ALIGN - n);
 }
 
@@ -249,7 +249,7 @@ int bufferZ_next (TBuffer *buf, size_t *iter, size_t *num, const char **str) {
       int n;
       *str = buf->arr + *iter;
       *iter += *num;
-      n = *iter % N_ALIGN;
+      n = (int)(*iter % N_ALIGN);
       if (n) *iter += (N_ALIGN - n);
     }
     return 1;
