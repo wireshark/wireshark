@@ -223,16 +223,10 @@ plugin_src = \
 	../plugins/docsis/packet-uccreq.c \
 	../plugins/docsis/packet-uccrsp.c \
 	../plugins/docsis/packet-ucd.c \
-	../plugins/giop/packet-cosnaming.c \
-	../plugins/giop/packet-coseventcomm.c \
 	../plugins/gryphon/packet-gryphon.c \
-	../plugins/interlink/packet-interlink.c \
 	../plugins/irda/packet-irda.c \
 	../plugins/m2m/packet-m2m.c \
 	../plugins/m2m/wimax_tlv.c \
-	../plugins/mgcp/packet-mgcp.c \
-	../plugins/rdm/packet-rdm.c \
-	../plugins/sercosiii/packet-sercosiii.c \
         ../plugins/wimax/crc.c \
         ../plugins/wimax/crc_data.c \
         ../plugins/wimax/mac_hd_generic_decoder.c \
