@@ -522,6 +522,8 @@ static expert_field ei_mbim_unknown_sms_format = EI_INIT;
 static expert_field ei_mbim_unexpected_uuid_value = EI_INIT;
 static expert_field ei_mbim_too_many_items = EI_INIT;
 static expert_field ei_mbim_alignment_error = EI_INIT;
+static expert_field ei_mbim_invalid_block_len = EI_INIT;
+static expert_field ei_mbim_out_of_bounds_index = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_mbim = -1;
@@ -536,6 +538,7 @@ static gint ett_mbim_sc_address = -1;
 static gint ett_mbim_fragment = -1;
 static gint ett_mbim_fragments = -1;
 
+static dissector_table_t dss_dissector_table;
 static dissector_handle_t proactive_handle;
 static dissector_handle_t etsi_cat_handle;
 static dissector_handle_t gsm_sms_handle;
@@ -4593,12 +4596,13 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree *mbim_tree, *subtree, *sig_tree;
     gboolean is_32bits;
     guint32 nth_sig, length, next_index, base_offset, offset, datagram_index, datagram_length,
-            nb, total = 0, ndp = 0;
-    guint8 *signature;
+            nb, total = 0, ndp = 0, block_len;
+    guint8 *signature, dss_session_id;
     dissector_handle_t dissector;
     tvbuff_t *datagram_tvb;
     const guint32 NTH16 = 0x484D434E;
     const guint32 NTH32 = 0x686D636E;
+    guint reported_length;
 
     if (tvb_captured_length(tvb) < 12) {
         return 0;
@@ -4629,17 +4633,27 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_item_set_len(ti, length);
     proto_tree_add_item(subtree, hf_mbim_bulk_nth_sequence_number, tvb, 6, 2, ENC_LITTLE_ENDIAN);
     if (!is_32bits) {
-        proto_tree_add_item(subtree, hf_mbim_bulk_nth_block_length, tvb, 8, 2, ENC_LITTLE_ENDIAN);
+        block_len = tvb_get_letohs(tvb, 8);
+        ti = proto_tree_add_uint(subtree, hf_mbim_bulk_nth_block_length, tvb, 8, 2, block_len);
         next_index = tvb_get_letohs(tvb, 10);
         pi = proto_tree_add_uint(subtree, hf_mbim_bulk_nth_ndp_index, tvb, 10, 2, next_index);
     } else {
-        proto_tree_add_item(subtree, hf_mbim_bulk_nth_block_length_32, tvb, 8, 4, ENC_LITTLE_ENDIAN);
+        block_len = tvb_get_letohl(tvb, 8);
+        ti = proto_tree_add_uint(subtree, hf_mbim_bulk_nth_block_length_32, tvb, 8, 4, block_len);
         next_index = tvb_get_letohl(tvb, 12);
         pi = proto_tree_add_uint(subtree, hf_mbim_bulk_nth_ndp_index_32, tvb, 12, 4, next_index);
+    }
+    reported_length = tvb_reported_length(tvb);
+    if (block_len != reported_length) {
+        expert_add_info(pinfo, ti, &ei_mbim_invalid_block_len);
     }
     if (next_index % 4) {
         expert_add_info_format(pinfo, pi, &ei_mbim_alignment_error,
                                "NDP Index is not a multiple of 4 bytes");
+        return tvb_captured_length(tvb);
+    }
+    if (next_index > reported_length) {
+        expert_add_info(pinfo, pi, &ei_mbim_out_of_bounds_index);
         return tvb_captured_length(tvb);
     }
 
@@ -4665,10 +4679,14 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                                       4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
                                                       signature[1], signature[2], signature[3]);
             sig_tree = proto_item_add_subtree(sig_ti, ett_mbim_msg_header);
-            proto_tree_add_item(sig_tree, hf_mbim_bulk_ndp_signature_dss_session_id, tvb, offset+3, 1, ENC_NA);
+            dss_session_id = tvb_get_guint8(tvb, offset+3);
+            proto_tree_add_uint(sig_tree, hf_mbim_bulk_ndp_signature_dss_session_id, tvb, offset+3, 1, dss_session_id);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
                                 signature[2], signature[3]);
-            dissector = data_handle;
+            dissector = dissector_get_uint_handle(dss_dissector_table, dss_session_id);
+            if (dissector == NULL) {
+                dissector = data_handle;
+            }
         } else if ((!is_32bits && !strcmp(signature, "NCM0")) ||
                    (is_32bits && !strcmp(signature, "ncm0"))) {
             proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4,
@@ -4718,11 +4736,15 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                    "NDP Index is not a multiple of 4 bytes");
             return tvb_captured_length(tvb);
         }
+        if (next_index > reported_length) {
+            expert_add_info(pinfo, pi, &ei_mbim_out_of_bounds_index);
+            return tvb_captured_length(tvb);
+        }
         while ((offset - base_offset) < length) {
             if (!is_32bits) {
                 datagram_index = tvb_get_letohs(tvb, offset);
-                proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_index,
-                                    tvb, offset, 2, datagram_index);
+                pi = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_index,
+                                         tvb, offset, 2, datagram_index);
                 offset += 2;
                 datagram_length = tvb_get_letohs(tvb, offset);
                 proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_length,
@@ -4730,13 +4752,17 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 offset += 2;
             } else {
                 datagram_index = tvb_get_letohl(tvb, offset);
-                proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_index_32,
-                                    tvb, offset, 4, datagram_index);
+                pi = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_index_32,
+                                         tvb, offset, 4, datagram_index);
                 offset += 4;
                 datagram_length = tvb_get_letohl(tvb, offset);
                 proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_datagram_length_32,
                                     tvb, offset, 3, datagram_length);
                 offset += 4;
+            }
+            if (next_index > reported_length) {
+                expert_add_info(pinfo, pi, &ei_mbim_out_of_bounds_index);
+                return tvb_captured_length(tvb);
             }
             if (datagram_index && datagram_length) {
                 proto_tree_add_item(subtree, hf_mbim_bulk_ndp_datagram, tvb,
@@ -7188,7 +7214,13 @@ proto_register_mbim(void)
                 "Too many items", EXPFILL }},
         { &ei_mbim_alignment_error,
             { "mbim.alignment_error", PI_MALFORMED, PI_ERROR,
-                "Alignment error", EXPFILL }}
+                "Alignment error", EXPFILL }},
+        { &ei_mbim_invalid_block_len,
+            { "mbim.invalid_block_len", PI_PROTOCOL, PI_WARN,
+                "NTH Block Length does not match packet length", EXPFILL }},
+        { &ei_mbim_out_of_bounds_index,
+            { "mbim.out_of_bounds_index", PI_MALFORMED, PI_ERROR,
+                "Index is out of bounds", EXPFILL }}
     };
 
     proto_mbim = proto_register_protocol("Mobile Broadband Interface Model",
@@ -7204,6 +7236,8 @@ proto_register_mbim(void)
     new_register_dissector("mbim.control", dissect_mbim_control, proto_mbim);
     new_register_dissector("mbim.descriptor", dissect_mbim_descriptor, proto_mbim);
     new_register_dissector("mbim.bulk", dissect_mbim_bulk, proto_mbim);
+    dss_dissector_table = register_dissector_table("mbim.dss_session_id",
+        "MBIM DSS Session Id", FT_UINT8, BASE_DEC);
 
     mbim_module = prefs_register_protocol(proto_mbim, proto_reg_handoff_mbim);
     prefs_register_bool_preference(mbim_module, "bulk_heuristic",
