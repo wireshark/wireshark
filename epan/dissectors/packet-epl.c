@@ -108,6 +108,14 @@ static const gchar* addr_str_abbr_res = " (res.)";
 #define EPL_SOA_SVID_OFFSET         6
 #define EPL_SOA_SVTG_OFFSET         7
 #define EPL_SOA_EPLV_OFFSET         8
+/* SyncRequest */
+#define EPL_SOA_SYNC_OFFSET         10
+#define EPL_SOA_PRFE_OFFSET         14
+#define EPL_SOA_PRSE_OFFSET         18
+#define EPL_SOA_MNDF_OFFSET         22
+#define EPL_SOA_MNDS_OFFSET         26
+#define EPL_SOA_PRTO_OFFSET         30
+#define EPL_SOA_DEST_OFFSET         34
 
 #define EPL_ASND_SVID_OFFSET        3
 #define EPL_ASND_DATA_OFFSET        4
@@ -140,6 +148,7 @@ static const value_string mtyp_vals[] = {
 #define EPL_SOA_IDENTREQUEST            1
 #define EPL_SOA_STATUSREQUEST           2
 #define EPL_SOA_NMTREQUESTINVITE        3
+#define EPL_SOA_SYNCREQUEST             6
 #define EPL_SOA_UNSPECIFIEDINVITE     255
 
 static const value_string soa_svid_vals[] = {
@@ -147,6 +156,7 @@ static const value_string soa_svid_vals[] = {
     {EPL_SOA_IDENTREQUEST,        "IdentRequest"     },
     {EPL_SOA_STATUSREQUEST,       "StatusRequest"    },
     {EPL_SOA_NMTREQUESTINVITE,    "NMTRequestInvite" },
+    {EPL_SOA_SYNCREQUEST,         "SyncRequest"      },
     {EPL_SOA_UNSPECIFIEDINVITE,   "UnspecifiedInvite"},
     {0,NULL}
 };
@@ -157,6 +167,7 @@ static const value_string soa_svid_vals[] = {
 #define EPL_ASND_NMTREQUEST             3
 #define EPL_ASND_NMTCOMMAND             4
 #define EPL_ASND_SDO                    5
+#define EPL_ASND_SYNCRESPONSE           6
 
 static const value_string asnd_svid_vals[] = {
     {EPL_ASND_IDENTRESPONSE,  "IdentResponse" },
@@ -164,6 +175,7 @@ static const value_string asnd_svid_vals[] = {
     {EPL_ASND_NMTREQUEST,     "NMTRequest"    },
     {EPL_ASND_NMTCOMMAND,     "NMTCommand"    },
     {EPL_ASND_SDO,            "SDO"           },
+    {EPL_ASND_SYNCRESPONSE,   "SyncResponse"  },
     {0,NULL}
 };
 
@@ -465,6 +477,20 @@ static const value_string epl_sdo_asnd_commands[] = {
 	{0,NULL}
 };
 
+
+#define EPL_SOA_SYNC_PRES_FIRST                                 0x01
+#define EPL_SOA_SYNC_PRES_SECOND                                0x02
+#define EPL_SOA_SYNC_MND_FIRST                                  0x04
+#define EPL_SOA_SYNC_MND_SECOND                                 0x08
+#define EPL_SOA_SYNC_PRES_TIMEOUT                               0x10
+#define EPL_SOA_SYNC_MAC_VALID                                  0x20
+#define EPL_SOA_SYNC_PRES_RESET                                 0x40
+#define EPL_SOA_SYNC_PRES_SET                                   0x80
+
+#define EPL_ASND_SYNCRESPONSE_FST_VALID                         0x01
+#define EPL_ASND_SYNCRESPONSE_SEC_VALID                         0x02
+#define EPL_ASND_SYNCRESPONSE_MODE                              0x80
+
 static value_string_ext epl_sdo_asnd_commands_ext = VALUE_STRING_EXT_INIT(epl_sdo_asnd_commands);
 
 static const gchar* addr_str_cn  = " (Controlled Node)";
@@ -485,6 +511,7 @@ static gint dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *p
 static gint dissect_epl_ainv(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset);
 
 static gint dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
+static gint dissect_epl_asnd_resp(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset);
 static gint dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response);
@@ -529,6 +556,34 @@ static gint hf_epl_soa_svid      = -1;
 static gint hf_epl_soa_svtg      = -1;
 static gint hf_epl_soa_eplv      = -1;
 
+/*SyncRequest*/
+static gint hf_epl_soa_sync      = -1;
+static gint hf_epl_soa_mac       = -1;
+static gint hf_epl_soa_pre_fst   = -1;
+static gint hf_epl_soa_pre_sec   = -1;
+static gint hf_epl_soa_mnd_fst   = -1;
+static gint hf_epl_soa_mnd_sec   = -1;
+static gint hf_epl_soa_pre_tm    = -1;
+static gint hf_epl_soa_pre_set   = -1;
+static gint hf_epl_soa_pre_res   = -1;
+static gint hf_epl_soa_mac_end   = -1;
+static gint hf_epl_soa_pre_fst_end   = -1;
+static gint hf_epl_soa_pre_sec_end   = -1;
+static gint hf_epl_soa_mnd_fst_end   = -1;
+static gint hf_epl_soa_mnd_sec_end   = -1;
+static gint hf_epl_soa_pre_tm_end    = -1;
+
+/*SyncResponse*/
+static gint hf_epl_asnd_syncResponse_sync           = -1;
+static gint hf_epl_asnd_syncResponse_latency        = -1;
+static gint hf_epl_asnd_syncResponse_node           = -1;
+static gint hf_epl_asnd_syncResponse_delay          = -1;
+static gint hf_epl_asnd_syncResponse_pre_fst        = -1;
+static gint hf_epl_asnd_syncResponse_pre_sec        = -1;
+static gint hf_epl_asnd_syncResponse_fst_val        = -1;
+static gint hf_epl_asnd_syncResponse_sec_val        = -1;
+static gint hf_epl_asnd_syncResponse_mode           = -1;
+
 static gint hf_epl_asnd_svid      = -1;
 static gint hf_epl_asnd_svtg      = -1;
 /* static gint hf_epl_asnd_data     = -1; */
@@ -556,6 +611,13 @@ static gint hf_epl_asnd_identresponse_feat_bitA      = -1;
 static gint hf_epl_asnd_identresponse_feat_bitB      = -1;
 static gint hf_epl_asnd_identresponse_feat_bitC      = -1;
 static gint hf_epl_asnd_identresponse_feat_bitD      = -1;
+static gint hf_epl_asnd_identresponse_feat_bitE      = -1;
+static gint hf_epl_asnd_identresponse_feat_bitF      = -1;
+static gint hf_epl_asnd_identresponse_feat_bit10     = -1;
+static gint hf_epl_asnd_identresponse_feat_bit11     = -1;
+static gint hf_epl_asnd_identresponse_feat_bit12     = -1;
+static gint hf_epl_asnd_identresponse_feat_bit13     = -1;
+static gint hf_epl_asnd_identresponse_feat_bit14     = -1;
 static gint hf_epl_asnd_identresponse_mtu            = -1;
 static gint hf_epl_asnd_identresponse_pis            = -1;
 static gint hf_epl_asnd_identresponse_pos            = -1;
@@ -668,7 +730,8 @@ static gint ett_epl_sdo                 = -1;
 static gint ett_epl_sdo_sequence_layer  = -1;
 static gint ett_epl_sdo_command_layer   = -1;
 static gint ett_epl_sdo_data            = -1;
-
+static gint ett_epl_soa_sync            = -1;
+static gint ett_epl_asnd_sync           = -1;
 static dissector_handle_t epl_handle;
 
 /* preference whether or not display the SoC flags in info column */
@@ -696,7 +759,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	proto_tree *epl_tree = NULL, *epl_src_item, *epl_dest_item;
 	gint offset = 0;
 
-	if (tvb_length(tvb) < 3)
+	if (tvb_reported_length(tvb) < 3)
 	{
 		/* Not enough data for an EPL header; don't try to interpret it */
 		return FALSE;
@@ -1026,6 +1089,9 @@ gint
 dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
 {
 	guint8 svid, target;
+	proto_item *psf_item = NULL;
+	proto_tree *psf_tree  = NULL;
+
 
 	if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
 	{
@@ -1057,6 +1123,56 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 
 	proto_tree_add_item(epl_tree, hf_epl_soa_eplv, tvb, offset, 1, ENC_NA);
 	offset += 1;
+
+	if (svid == EPL_SOA_SYNCREQUEST)
+	{
+		/* reserved */
+		offset +=1;
+		/* SyncControl bit0-7 */
+		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(psf_item, " (Bits 0..7)");
+		psf_tree = proto_item_add_subtree(psf_item, ett_epl_soa_sync);
+		proto_tree_add_item(psf_tree, hf_epl_soa_mac, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(psf_tree, hf_epl_soa_pre_tm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(psf_tree, hf_epl_soa_mnd_sec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(psf_tree, hf_epl_soa_mnd_fst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(psf_tree, hf_epl_soa_pre_sec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(psf_tree, hf_epl_soa_pre_fst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+		/* SyncControl 2 - reserved */
+		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(psf_item, " (Bits 8..15)");
+		offset += 1;
+		/* SyncControl 3 - reserved */
+		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(psf_item, " (Bits 16..23)");
+		offset += 1;
+		/* SyncControl 4 */
+		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(psf_item, " (Bits 24..31)");
+		psf_tree = proto_item_add_subtree(psf_item, ett_epl_soa_sync);
+		proto_tree_add_item(psf_tree, hf_epl_soa_pre_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(psf_tree, hf_epl_soa_pre_res, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		offset += 1;
+		/* PResTimeFirst */
+		proto_tree_add_item(epl_tree, hf_epl_soa_pre_fst_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		/* PResTimeSecond */
+		proto_tree_add_item(epl_tree, hf_epl_soa_pre_sec_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		/* SyncMNDelayFirst */
+		proto_tree_add_item(epl_tree, hf_epl_soa_mnd_fst_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		/* SyncMNDelaySecond */
+		proto_tree_add_item(epl_tree, hf_epl_soa_mnd_sec_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		/* PResFallBackTimeout */
+		proto_tree_add_item(epl_tree, hf_epl_soa_pre_tm_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		/* DestMacAddress */
+		proto_tree_add_item(epl_tree, hf_epl_soa_mac_end, tvb, offset, 6, ENC_NA);
+		offset += 6;
+	}
 
 	return offset;
 }
@@ -1100,6 +1216,9 @@ dissect_epl_asnd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 		case EPL_ASND_SDO:
 			subtree = proto_item_add_subtree ( item, ett_epl_sdo );
 			offset = dissect_epl_asnd_sdo(subtree, tvb, pinfo, offset);
+			break;
+		case EPL_ASND_SYNCRESPONSE:
+			offset = dissect_epl_asnd_resp(epl_tree, tvb, pinfo, offset);
 			break;
 	}
 
@@ -1234,7 +1353,6 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 {
 	guint16 profile,additional;
 	guint32 epl_asnd_identresponse_ipa, epl_asnd_identresponse_snm, epl_asnd_identresponse_gtw;
-	guint32 epl_asnd_ires_feat;
 	proto_item  *ti_feat;
 	proto_tree  *epl_feat_tree;
 
@@ -1260,23 +1378,29 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	offset += 2;
 
 	/* decode FeatureFlags */
-	epl_asnd_ires_feat = tvb_get_letohl(tvb, offset);
-	ti_feat = proto_tree_add_uint(epl_tree, hf_epl_asnd_identresponse_feat, tvb, offset, 4, epl_asnd_ires_feat);
+	ti_feat = proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_feat, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	epl_feat_tree = proto_item_add_subtree(ti_feat, ett_epl_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit0, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit1, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit2, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit3, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit4, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit5, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit6, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit7, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit8, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit9, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitA, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitB, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitC, tvb, offset, 4, epl_asnd_ires_feat);
-	proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitD, tvb, offset, 4, epl_asnd_ires_feat);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit0, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit3, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit5, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit6, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit7, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit8, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit9, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitA, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitB, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitC, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitD, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitE, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitF, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit10, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit11, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit12, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit13, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(epl_feat_tree, hf_epl_asnd_identresponse_feat_bit14, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1350,7 +1474,58 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	return offset;
 }
 
+gint
+dissect_epl_asnd_resp(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo _U_, gint offset)
+{
+	proto_item *psf_item = NULL;
+	proto_tree *psf_tree  = NULL;
 
+	/* reserved 2 byte*/
+	offset +=2;
+	/* SyncStatus bit 0 - 7 */
+	psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_item_append_text(psf_item, " (Bits 0..7)");
+	psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sync);
+	proto_tree_add_item(psf_tree, hf_epl_asnd_syncResponse_sec_val, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(psf_tree, hf_epl_asnd_syncResponse_fst_val, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+	/* SyncStatus bit 8 - 15 reserved */
+	psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_item_append_text(psf_item, " (Bits 8..15)");
+#if 0
+	psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sync);
+#endif
+	offset += 1;
+	/* SyncStatus bit 16 - 23 reserved */
+	psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_item_append_text(psf_item, " (Bits 16..23)");
+#if 0
+	psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sync);
+#endif
+	offset += 1;
+	/* SyncStatus bit 24 - 31 reserved */
+	psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_item_append_text(psf_item, " (Bits 24..31)");
+	psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sync);
+	proto_tree_add_item(psf_tree, hf_epl_asnd_syncResponse_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+	/* Latency */
+	proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	/* SyncDelayStation */
+	proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_node, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	/* SyncDelay */
+	proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_delay, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	/* PResTimeFirst */
+	proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_pre_fst, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	/* PResTimeSecond */
+	proto_tree_add_item(epl_tree, hf_epl_asnd_syncResponse_pre_sec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	return offset;
+}
 
 gint
 dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 epl_src, gint offset)
@@ -1400,7 +1575,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
 	/* List of errors / events */
 	/* get the number of entries in the error code list*/
-	number_of_entries = (tvb_length(tvb)-offset)/20;
+	number_of_entries = (tvb_reported_length(tvb)-offset)/20;
 
 	ti_el = proto_tree_add_text(epl_tree, tvb, offset, -1, "ErrorCodeList: %d entries", number_of_entries);
 
@@ -1917,7 +2092,67 @@ proto_register_epl(void)
 			{ "EPLVersion", "epl.soa.eplv",
 				FT_UINT8, BASE_CUSTOM, elp_version, 0x00, NULL, HFILL }
 		},
+		{ &hf_epl_soa_sync,
+			{ "SyncControl", "epl.soa.sync",
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_mac,
+			{ "DestMacAddressValid", "epl.soa.adva",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_MAC_VALID, NULL, HFILL }
+		},
 
+		{ &hf_epl_soa_pre_tm,
+			{ "PResFallBackTimeoutValid", "epl.soa.tm",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_PRES_TIMEOUT, NULL, HFILL }
+		},
+		{ &hf_epl_soa_mnd_sec,
+			{ "SyncMNDelaySecondValid", "epl.soa.mnsc",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_MND_SECOND, NULL, HFILL }
+		},
+		{ &hf_epl_soa_mnd_fst,
+			{ "SyncMNDelayFirstValid", "epl.soa.mnft",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_MND_FIRST, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_sec,
+			{ "PResTimeSecondValid", "epl.soa.prsc",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_PRES_SECOND, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_fst,
+			{ "PResTimeFirstValid", "epl.soa.prft",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_PRES_FIRST, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_set ,
+			{ "PResModeSet", "epl.soa.prsc",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_PRES_SET, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_res,
+			{ "PResModeReset", "epl.soa.prft",
+				FT_BOOLEAN, 8, NULL, EPL_SOA_SYNC_PRES_RESET, NULL, HFILL }
+		},
+		{ &hf_epl_soa_mac_end,
+			{ "DestMacAddress", "epl.soa.adva.end",
+				FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_tm_end,
+			{ "PResFallBackTimeoutValid", "epl.soa.tm.end",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_mnd_sec_end,
+			{ "SyncMNDelaySecondValid", "epl.soa.mnsc.end",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_mnd_fst_end,
+			{ "SyncMNDelayFirstValid", "epl.soa.mnft.end",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_sec_end,
+			{ "PResTimeSecondValid", "epl.soa.prsc.end",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_soa_pre_fst_end,
+			{ "PResTimeFirstValid", "epl.soa.prft.end",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
 		/* ASnd header */
 		{ &hf_epl_asnd_svid,
 			{ "Requested Service ID", "epl.asnd.svid",
@@ -2022,6 +2257,34 @@ proto_register_epl(void)
 		{ &hf_epl_asnd_identresponse_feat_bitD,
 			{ "Routing Type 2 Support", "epl.asnd.ires.features.bitD",
 				FT_BOOLEAN, 32, NULL, 0x2000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bitE,
+			{ "SDO Read/Write All", "epl.asnd.ires.features.bitE",
+				FT_BOOLEAN, 32, NULL, 0x4000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bitF,
+			{ "SDO Read/Write Multiple", "epl.asnd.ires.features.bitF",
+				FT_BOOLEAN, 32, NULL, 0x8000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bit10,
+			{ "Multiple-ASend Support", "epl.asnd.ires.features.bit10",
+				FT_BOOLEAN, 32, NULL, 0x10000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bit11,
+			{ "Ring Redundancy", "epl.asnd.ires.features.bit11",
+				FT_BOOLEAN, 32, NULL, 0x20000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bit12,
+			{ "PResChaining", "epl.asnd.ires.features.bit12",
+				FT_BOOLEAN, 32, NULL, 0x40000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bit13,
+			{ "Multiple PReq/PRes", "epl.asnd.ires.features.bit13",
+				FT_BOOLEAN, 32, NULL, 0x80000, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_identresponse_feat_bit14,
+			{ "Dynamic Node Allocation", "epl.asnd.ires.features.bit14",
+				FT_BOOLEAN, 32, NULL, 0x100000, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_mtu,
 			{ "MTU", "epl.asnd.ires.mtu",
@@ -2128,6 +2391,43 @@ proto_register_epl(void)
 		{ &hf_epl_asnd_statusresponse_stat_cs,
 			{ "NMTStatus", "epl.asnd.sres.stat",
 				FT_UINT8, BASE_HEX, VALS(epl_nmt_cs_vals), 0x00, NULL, HFILL }
+		},
+		/* ASnd-->SyncResponse */
+		{ &hf_epl_asnd_syncResponse_sync,
+			{ "SyncResponse", "epl.asnd.syncresponse.sync",
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_fst_val,
+			{ "PResTimeFirstValid", "epl.asnd.syncresponse.fst.val",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SYNCRESPONSE_FST_VALID, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_sec_val,
+			{ "PResTimeSecondValid", "epl.asnd.syncresponse.sec.val",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SYNCRESPONSE_SEC_VALID, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_mode,
+			{ "PResModeStatus", "epl.asnd.syncresponse.mode",
+				FT_BOOLEAN, 8, NULL, EPL_ASND_SYNCRESPONSE_MODE, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_latency,
+			{ "Latency", "epl.asnd.syncresponse.latency",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_node,
+			{ "SyncDelayStation", "epl.asnd.syncresponse.delay.station",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_delay,
+			{ "SyncDelay", "epl.asnd.syncresponse.delay.station",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_pre_fst,
+			{ "PResTimeFirst", "epl.asnd.syncresponse.pres.fst",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_syncResponse_pre_sec,
+			{ "PResTimeSecond", "epl.asnd.syncresponse.pres.sec",
+				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 #if 0
 		{ &hf_epl_asnd_statusresponse_seb,
@@ -2350,6 +2650,8 @@ proto_register_epl(void)
 		&ett_epl_sdo_data,
 		&ett_epl_sdo_sequence_layer,
 		&ett_epl_sdo_command_layer,
+		&ett_epl_soa_sync,
+		&ett_epl_asnd_sync,
 	};
 
 	module_t *epl_module;
