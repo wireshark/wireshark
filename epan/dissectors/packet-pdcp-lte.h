@@ -175,6 +175,8 @@ typedef struct pdcp_lte_info
 
 
 
+/* Called by RRC, or other configuration protocols */
+
 /* Function to configure ciphering & integrity algorithms */
 void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info);
 
@@ -182,3 +184,7 @@ void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *securi
 void set_pdcp_lte_security_algorithms_failed(guint16 ueid);
 
 
+/* Called by external dissectors */
+void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key);
+void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key);
+void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key);

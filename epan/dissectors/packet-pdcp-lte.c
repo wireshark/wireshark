@@ -165,6 +165,7 @@ typedef struct {
 
 static uat_ue_keys_record_t *uat_ue_keys_records = NULL;
 
+/* Entries added by UAT */
 static uat_t * ue_keys_uat = NULL;
 static guint num_ue_keys_uat = 0;
 
@@ -185,7 +186,6 @@ static guchar hex_ascii_to_binary(gchar c)
         return 0;
 }
 
-
 static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) {
     uat_ue_keys_record_t* new_rec = (uat_ue_keys_record_t *)n;
     const uat_ue_keys_record_t* old_rec = (const uat_ue_keys_record_t *)o;
@@ -198,7 +198,7 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     return new_rec;
 }
 
-
+/* If raw_string is a valid key, set check_string & return TRUE */
 static gboolean check_valid_key_sring(const char* raw_string, char* checked_string)
 {
     guint n;
@@ -233,49 +233,38 @@ static gboolean check_valid_key_sring(const char* raw_string, char* checked_stri
     return (written == 32);
 }
 
-static void uat_ue_keys_record_update_cb(void* record, const char** error _U_) {
-    uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
-    int n;
+static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gboolean *pKeyOK)
+{
+    int  n;
     char cleanString[32];
 
-    /* Check and convert RRC key */
-    if (!check_valid_key_sring(rec->rrcCipherKeyString, cleanString)) {
-        rec->rrcCipherKeyOK = FALSE;
+    if (!check_valid_key_sring(stringKey, cleanString)) {
+        *pKeyOK = FALSE;
     }
     else {
         for (n=0; n < 32; n += 2) {
-            rec->rrcCipherBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
-                                            hex_ascii_to_binary(cleanString[n+1]);
+            binaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
+                              hex_ascii_to_binary(cleanString[n+1]);
         }
-        rec->rrcCipherKeyOK = TRUE;
-    }
-
-    /* Check and convert User-plane key */
-    if (!check_valid_key_sring(rec->upCipherKeyString, cleanString)) {
-        rec->upCipherKeyOK = FALSE;
-    }
-    else {
-        for (n=0; n < 32; n += 2) {
-            rec->upCipherBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
-                                           hex_ascii_to_binary(cleanString[n+1]);
-        }
-        rec->upCipherKeyOK = TRUE;
-    }
-
-    /* Check and convert Integrity key */
-    if (!check_valid_key_sring(rec->rrcIntegrityKeyString, cleanString)) {
-        rec->rrcIntegrityKeyOK = FALSE;
-    }
-    else {
-        for (n=0; n < 32; n += 2) {
-            rec->rrcIntegrityBinaryKey[n/2] = (hex_ascii_to_binary(cleanString[n]) << 4) +
-                                               hex_ascii_to_binary(cleanString[n+1]);
-        }
-        rec->rrcIntegrityKeyOK = TRUE;
+        *pKeyOK = TRUE;
     }
 }
 
+/* Update by checking whether the 3 key strings are valid or not, and storing result */
+static void uat_ue_keys_record_update_cb(void* record, const char** error _U_) {
+    uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
 
+    /* Check and convert RRC key */
+    update_key_from_string(rec->rrcCipherKeyString, rec->rrcCipherBinaryKey, &rec->rrcCipherKeyOK);
+
+    /* Check and convert User-plane key */
+    update_key_from_string(rec->upCipherKeyString, rec->upCipherBinaryKey, &rec->upCipherKeyOK);
+
+    /* Check and convert Integrity key */
+    update_key_from_string(rec->rrcIntegrityKeyString, rec->rrcIntegrityBinaryKey, &rec->rrcIntegrityKeyOK);
+}
+
+/* Free heap parts of record */
 static void uat_ue_keys_record_free_cb(void*r) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t*)r;
 
@@ -289,9 +278,70 @@ UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcCipherKeyString, uat_ue_keys_record_t
 UAT_CSTRING_CB_DEF(uat_ue_keys_records, upCipherKeyString,  uat_ue_keys_record_t)
 UAT_CSTRING_CB_DEF(uat_ue_keys_records, rrcIntegrityKeyString,  uat_ue_keys_record_t)
 
+
+/* Also supporting a hash table with entries from these functions */
+
+/* Table from ueid -> uat_ue_keys_record_t* */
+static GHashTable *pdcp_security_key_hash = NULL;
+
+
+void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key)
+{
+    /* Get or create struct for this UE */
+    uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)g_hash_table_lookup(pdcp_security_key_hash,
+                                                                                  GUINT_TO_POINTER((guint)ueid));
+    if (key_record == NULL) {
+        /* Create and add to table */
+        key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
+        key_record->ueid = ueid;
+        g_hash_table_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
+    }
+
+    /* Check and convert RRC key */
+    key_record->rrcCipherKeyString = g_strdup(key);
+    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK);}
+
+void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key)
+{
+    /* Get or create struct for this UE */
+    uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)g_hash_table_lookup(pdcp_security_key_hash,
+                                                                                  GUINT_TO_POINTER((guint)ueid));
+    if (key_record == NULL) {
+        /* Create and add to table */
+        key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
+        key_record->ueid = ueid;
+        g_hash_table_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
+    }
+
+    /* Check and convert RRC integrity key */
+    key_record->rrcIntegrityKeyString = g_strdup(key);
+    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK);
+}
+
+void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
+{
+    /* Get or create struct for this UE */
+    uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)g_hash_table_lookup(pdcp_security_key_hash,
+                                                                                  GUINT_TO_POINTER((guint)ueid));
+    if (key_record == NULL) {
+        /* Create and add to table */
+        key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
+        key_record->ueid = ueid;
+        g_hash_table_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
+    }
+
+    /* Check and convert UP key */
+    key_record->upCipherKeyString = g_strdup(key);
+    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK);
+}
+
+
+/* Preference settings for deciphering and integrity checking.  Currently all default to off */
 static gboolean global_pdcp_decipher_signalling = FALSE;
 static gboolean global_pdcp_decipher_userplane = FALSE;
 static gboolean global_pdcp_check_integrity = FALSE;
+
+
 
 static const value_string direction_vals[] =
 {
@@ -546,6 +596,27 @@ typedef struct pdu_security_settings_t
 } pdu_security_settings_t;
 
 
+static uat_ue_keys_record_t* look_up_keys_record(guint16 ueid)
+{
+    unsigned int record_id;
+    /* Try hash table first */
+    uat_ue_keys_record_t* key_record = (uat_ue_keys_record_t*)g_hash_table_lookup(pdcp_security_key_hash,
+                                                                                  GUINT_TO_POINTER((guint)ueid));
+    if (key_record != NULL) {
+        return key_record;
+    }
+
+    /* Else look up UAT entries */
+    for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
+        if (uat_ue_keys_records[record_id].ueid == ueid) {
+            return &uat_ue_keys_records[record_id];
+        }
+    }
+
+    /* No match at all - return NULL */
+    return NULL;
+}
+
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                    pdcp_lte_info *p_pdcp_lte_info,
@@ -558,6 +629,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
     proto_item *seqnum_ti;
     proto_item *ti_expected_sn;
     proto_item *ti;
+    uat_ue_keys_record_t *keys_record;
 
     /* Create subtree */
     seqnum_ti = proto_tree_add_string_format(tree,
@@ -613,7 +685,6 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 guint32              count;
                 gchar                *cipher_key = NULL;
                 gchar                *integrity_key = NULL;
-                guint                record_id;
 
                 /* BEARER */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
@@ -635,7 +706,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                         hfn_multiplier = 128;
                         break;
                     case PDCP_SN_LENGTH_12_BITS:
-                        hfn_multiplier = 2048;
+                        hfn_multiplier = 4096;
                         break;
                     case PDCP_SN_LENGTH_15_BITS:
                         hfn_multiplier = 32768;
@@ -651,46 +722,45 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 pdu_security->count = count;
 
                 /* KEY.  Look this UE up among UEs that have keys configured */
-                for (record_id=0; record_id < num_ue_keys_uat; record_id++) {
-                    if (uat_ue_keys_records[record_id].ueid == p_pdcp_lte_info->ueid) {
-                        if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
-                            /* Get RRC ciphering key */
-                            if (uat_ue_keys_records[record_id].rrcCipherKeyOK) {
-                                cipher_key = uat_ue_keys_records[record_id].rrcCipherKeyString;
-                                pdu_security->cipherKey = &(uat_ue_keys_records[record_id].rrcCipherBinaryKey[0]);
-                                pdu_security->cipherKeyValid = TRUE;
-                            }
-                            /* Get RRC integrity key */
-                            if (uat_ue_keys_records[record_id].rrcIntegrityKeyOK) {
-                                integrity_key = uat_ue_keys_records[record_id].rrcIntegrityKeyString;
-                                pdu_security->integrityKey = &(uat_ue_keys_records[record_id].rrcIntegrityBinaryKey[0]);
-                                pdu_security->integrityKeyValid = TRUE;
-                            }
+                keys_record = look_up_keys_record(p_pdcp_lte_info->ueid);
+                if (keys_record != NULL) {
+                    if (p_pdcp_lte_info->plane == SIGNALING_PLANE) {
+                        /* Get RRC ciphering key */
+                        if (keys_record->rrcCipherKeyOK) {
+                            cipher_key = keys_record->rrcCipherKeyString;
+                            pdu_security->cipherKey = &(keys_record->rrcCipherBinaryKey[0]);
+                            pdu_security->cipherKeyValid = TRUE;
                         }
-                        else {
-                            /* Get userplane ciphering key */
-                            if (uat_ue_keys_records[record_id].upCipherKeyOK) {
-                                cipher_key = uat_ue_keys_records[record_id].upCipherKeyString;
-                                pdu_security->cipherKey = &(uat_ue_keys_records[record_id].upCipherBinaryKey[0]);
-                                pdu_security->cipherKeyValid = TRUE;
-                            }
+                        /* Get RRC integrity key */
+                        if (keys_record->rrcIntegrityKeyOK) {
+                            integrity_key = keys_record->rrcIntegrityKeyString;
+                            pdu_security->integrityKey = &(keys_record->rrcIntegrityBinaryKey[0]);
+                            pdu_security->integrityKeyValid = TRUE;
                         }
-
-                        /* Show keys where known and valid */
-                        if (cipher_key != NULL) {
-                            ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_cipher_key,
-                                                       tvb, 0, 0, cipher_key);
-                            PROTO_ITEM_SET_GENERATED(ti);
-                        }
-                        if (integrity_key != NULL) {
-                            ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_integrity_key,
-                                                       tvb, 0, 0, integrity_key);
-                            PROTO_ITEM_SET_GENERATED(ti);
-                        }
-                        break;
                     }
+                    else {
+                        /* Get userplane ciphering key */
+                        if (keys_record->upCipherKeyOK) {
+                            cipher_key = keys_record->upCipherKeyString;
+                            pdu_security->cipherKey = &(keys_record->upCipherBinaryKey[0]);
+                            pdu_security->cipherKeyValid = TRUE;
+                        }
+                    }
+
+                    /* Show keys where known and valid */
+                    if (cipher_key != NULL) {
+                        ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_cipher_key,
+                                                   tvb, 0, 0, cipher_key);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                    }
+                    if (integrity_key != NULL) {
+                        ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_integrity_key,
+                                                   tvb, 0, 0, integrity_key);
+                        PROTO_ITEM_SET_GENERATED(ti);
+                    }
+
+                    pdu_security->direction = p_pdcp_lte_info->direction;
                 }
-                pdu_security->direction = p_pdcp_lte_info->direction;
             }
             break;
 
@@ -1995,7 +2065,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* RRC data is all but last 4 bytes.
            Call lte-rrc dissector (according to direction and channel type) if we have valid data */
         if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
-            ((pdu_security == NULL) || (pdu_security->ciphering == 0) || payload_deciphered || !pdu_security->seen_next_ul_pdu)){
+            ((pdu_security == NULL) || (pdu_security->ciphering == eea0) || payload_deciphered || !pdu_security->seen_next_ul_pdu)) {
             /* Get appropriate dissector handle */
             dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info);
 
@@ -2070,7 +2140,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     /* Not attempting to decode payload if ciphering is enabled
                        (and NULL ciphering is not being used) */
                     if (global_pdcp_dissect_user_plane_as_ip &&
-                        ((pdu_security == NULL) || (pdu_security->ciphering == 0) || payload_deciphered))
+                        ((pdu_security == NULL) || (pdu_security->ciphering == eea0) || payload_deciphered))
                     {
                         tvbuff_t *ip_payload_tvb = tvb_new_subset_remaining(payload_tvb, offset);
 
@@ -2079,7 +2149,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             col_set_writable(pinfo->cinfo, FALSE);
                         }
 
-                        switch (tvb_get_guint8(ip_payload_tvb, offset) & 0xf0) {
+                        switch (tvb_get_guint8(ip_payload_tvb, 0) & 0xf0) {
                             case 0x40:
                                 call_dissector_only(ip_handle, ip_payload_tvb, pinfo, pdcp_tree, NULL);
                                 break;
@@ -2163,12 +2233,17 @@ static void pdcp_lte_init_protocol(void)
     if (pdcp_security_result_hash) {
         g_hash_table_destroy(pdcp_security_result_hash);
     }
+    if (pdcp_security_key_hash) {
+        g_hash_table_destroy(pdcp_security_key_hash);
+    }
+
 
     /* Now create them over */
     pdcp_sequence_analysis_channel_hash = g_hash_table_new(pdcp_channel_hash_func, pdcp_channel_equal);
     pdcp_lte_sequence_analysis_report_hash = g_hash_table_new(pdcp_result_hash_func, pdcp_result_hash_equal);
     pdcp_security_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
     pdcp_security_result_hash = g_hash_table_new(pdcp_lte_ueid_frame_hash_func, pdcp_lte_ueid_frame_hash_equal);
+    pdcp_security_key_hash = g_hash_table_new(pdcp_lte_ueid_hash_func, pdcp_lte_ueid_hash_equal);
 }
 
 
