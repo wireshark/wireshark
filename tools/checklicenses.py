@@ -115,6 +115,7 @@ WHITELISTED_LICENSES = [
     'Public domain BSD-like',
     'Public domain GPL (v2 or later)',
     'Public domain LGPL (v2.1 or later)',
+    'Public domain MIT/X11 (BSD like)',
     'libpng',
     'zlib/libpng',
     'zlib/libpng GPL (v2 or later)',
