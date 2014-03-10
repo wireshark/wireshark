@@ -2454,7 +2454,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
     guint32                  k_device_address;
     guint32                  k_bus_id;
 
-    /* try dissect by "usb.product" */
+    /* try dissect by "usb.device" */
     if (tvb_length(next_tvb) > 0 && !dissector_try_uint_new(device_to_dissector, (guint32) (bus_id << 8 | device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
         k_frame_number = pinfo->fd->num;
         k_device_address = device_address;
@@ -2476,7 +2476,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                 device_protocol_data->device_address == device_address &&
                 dissector_try_uint_new(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
             offset += tvb_length(next_tvb);
-        } else { /* try dissect by "usb.device" */
+        } else { /* try dissect by "usb.product" */
             if (!device_product_data)
                 device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
             if (device_product_data && device_product_data->bus_id == bus_id &&
