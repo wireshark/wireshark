@@ -19,7 +19,8 @@ local filter = {
     -- differences caused by changes in wireshark 1.11
     "NSTime",
     "Proto",
-    'Listener["<metatable>"].__index'
+    'Listener["<metatable>"].__index',
+    ".__index"
  }
 
 -- the following items don't have to exist
@@ -69,6 +70,8 @@ if #arg > 0 then
     add_path = arg[1].."?.lua;"
 end
 
+print("package.path = " .. package.path)
+
 -- need the path to find inspect.lua
 local old_path = package.path
 package.path = add_path .. package.path
@@ -96,7 +99,7 @@ end
 
 if #arg == 2 or arg[3] == "verify" then
     print(string.rep("\n", 2))
-    print("Verifying input file '"..arg[1].."' is contained within the global table")
+    print("Verifying input file '"..arg[2].."' is contained within the global table")
     local ret, diff = inspect.compare(input, _G, {
         ['filter'] = inspect.makeFilter(filter),
         ['ignore'] = inspect.makeFilter(ignore),
@@ -114,7 +117,7 @@ if #arg == 2 or arg[3] == "verify" then
         print("All tests passed!\n\n")
     end
     return
-elseif #arg > 1 and arg[2] == "new" then
+elseif #arg > 2 and arg[3] == "new" then
     local ret, diff = inspect.compare(_G, input, {
         ['filter'] = inspect.makeFilter(filter),
         ['ignore'] = inspect.makeFilter(ignore),

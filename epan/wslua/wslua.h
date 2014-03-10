@@ -343,6 +343,7 @@ typedef struct _wslua_attribute_table {
     lua_CFunction setfunc;
 } wslua_attribute_table;
 extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean is_getter);
+extern int wslua_set__index(lua_State *L);
 
 #define WSLUA_TYPEOF_FIELD "__typeof"
 
@@ -387,9 +388,8 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
     /* setup the meta table */ \
     WSLUA_REGISTER_META(C); \
     luaL_getmetatable(L, #C); \
-    /* push a copy of the class methods table, and set it to be the metatable's __index field */ \
-    lua_pushvalue (L, -2); \
-    lua_setfield (L, -2, "__index"); \
+    /* the following sets the __index metamethod appropriately */ \
+    wslua_set__index(L); \
     /* set the metatable to be the class's metatable, so scripts can inspect it, and metamethods work for class tables */ \
     lua_setmetatable(L, -2); \
     /* set the class methods table as the global class table */ \

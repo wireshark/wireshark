@@ -121,7 +121,6 @@ WSLUA_API void wslua_print_stack(char* s, lua_State* L) {
     printf("\n");
 }
 
-
 /* C-code function equivalent of the typeof() function we created in Lua.
  * The Lua one is for Lua scripts to use, this one is for C-code to use.
  */
@@ -168,7 +167,6 @@ void wslua_assert_table_field_new(lua_State *L, int idx, const gchar *name) {
  * its functions were populated by the WSLUA_REGISTER_ATTRIBUTES() macro, and
  * really by wslua_reg_attributes().
  */
-
 static int wslua_attribute_dispatcher (lua_State *L) {
     lua_CFunction cfunc = NULL;
     const gchar *fieldname = lua_shiftstring(L,2); /* remove the field name */
@@ -178,7 +176,7 @@ static int wslua_attribute_dispatcher (lua_State *L) {
     /* the userdata object is at index 1, fieldname was at 2 but no longer,
        now we get the getter/setter table at upvalue 1  */
     if (!lua_istable(L, lua_upvalueindex(1)))
-        return luaL_error(L, "Accessor dispatcher cannot retrieve the metatable");
+        return luaL_error(L, "Accessor dispatcher cannot retrieve the getter/setter table");
 
     lua_rawgetfield(L, lua_upvalueindex(1), fieldname); /* field's cfunction is now at -1 */
 
@@ -222,9 +220,9 @@ static int wslua_attribute_dispatcher (lua_State *L) {
  * cfunctions, saving that as an upvalue of a dispatcher cfunction, and using that
  * dispatcher cfunction as the value of the __index field of the metatable of the wslua object.
  *
- * In some cases, the metatable _index/__newindex will already be a table; for example if
- * class methods were registered, then __index will already be a table.  In that case, we
- * move the existing one to be an upvalue of the attribute dispatcher function.  The attribute
+ * In some cases, the metatable _index/__newindex will already be a function; for example if
+ * class methods were registered, then __index will already be a function  In that case, we
+ * move the __methods table to be an upvalue of the attribute dispatcher function.  The attribute
  * dispatcher will look for it and return the method, if it doesn't find an attribute field.
  * The code below makes sure the attribute names don't overlap with method names.
  *
@@ -250,6 +248,17 @@ int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean 
     }
     else if (lua_istable(L, -1)) {
         /* there is one, so make it be the attribute dispatchers upvalue #2 table */
+        nup = 2;
+    }
+    else if (lua_iscfunction(L, -1)) {
+        /* there's a methods __index dispatcher, copy the __methods table */
+        lua_pop(L,1); /* pop the cfunction */
+        lua_rawgetfield(L, midx, "__methods");
+        if (!lua_istable(L, -1)) {
+            /* oh oh, something's wrong */
+            fprintf(stderr, "got a __index cfunction but no __methods table when registering attributes!\n");
+            exit(1);
+        }
         nup = 2;
     }
     else {
@@ -296,6 +305,62 @@ int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gboolean 
     /* create upvalue of getter/setter table for wslua_attribute_dispatcher function */
     lua_pushcclosure(L, wslua_attribute_dispatcher, nup); /* pushes cfunc with upvalue, removes getter/setter table */
     lua_rawsetfield(L, midx, metafield); /* sets this dispatch function as __index/__newindex field of metatable */
+
+    /* we should now be back to real metatable being on top */
+    return 0;
+}
+
+/* similar to __index metamethod but without triggering more metamethods */
+static int wslua__index(lua_State *L) {
+    const gchar *fieldname = lua_shiftstring(L,2); /* remove the field name */
+
+    /* the userdata object or table is at index 1, fieldname was at 2 but no longer,
+       now we get the metatable, so we can get the methods table */
+    if (!lua_getmetatable(L,1)) {
+        /* this should be impossible */
+        return luaL_error(L, "No such '%s' field", fieldname);
+    }
+
+    lua_rawgetfield(L, 2, "__methods"); /* method table is now at 3 */
+    lua_remove(L,2); /* remove metatable, methods table is at 2 */
+
+    if (!lua_istable(L, -1)) {
+        const gchar *classname = wslua_typeof(L, 1);
+        lua_pop(L, 1); /* pop the nil getfield result */
+        return luaL_error(L, "No such '%s' field for object type '%s'", fieldname, classname);
+    }
+
+    lua_rawgetfield(L, 2, fieldname); /* field's value/function is now at 3 */
+    lua_remove(L,2); /* remove methods table, field value si at 2 */
+
+    if (lua_isnil(L, -1)) {
+        const gchar *classname = wslua_typeof(L, 1);
+        lua_pop(L, 1); /* pop the nil getfield result */
+        return luaL_error(L, "No such '%s' function/method/field for object type '%s'", fieldname, classname);
+    }
+
+    /* we found a method for Lua to call, or a value of some type, so give it back to Lua */
+    return 1;
+}
+
+/*
+ * This function assumes there's a class methods table at index 1, and its metatable at 2,
+ * when it's initially called, and leaves them that way when done.
+ */
+int wslua_set__index(lua_State *L) {
+
+    if (!lua_istable(L, 2) || !lua_istable(L, 1)) {
+        fprintf(stderr, "No metatable or class table in the Lua stack when registering __index!\n");
+        exit(1);
+    }
+
+    /* push a copy of the class methods table, and set it to be the metatable's __methods field */
+    lua_pushvalue (L, 1);
+    lua_rawsetfield(L, 2, "__methods");
+
+    /* set the wslua__index to be the __index metamethod */
+    lua_pushcfunction(L, wslua__index);
+    lua_rawsetfield(L, 2, "__index");
 
     /* we should now be back to real metatable being on top */
     return 0;

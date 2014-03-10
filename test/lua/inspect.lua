@@ -648,10 +648,16 @@ end
 function inspect.makeFilter(arrayTable)
   local filter = {} -- our filter lookup tree (tables of tables)
   local matchNode = {} -- a table instance we use as a key for nodes which match
+  local wildcard = {} -- a key table of wildcard match names
 
   local function buildFilter(pathname)
     local t = filter
     local key
+    -- if the filtered name starts with a '.', it's a wildcard
+    if pathname:find("^%.") then
+      wildcard[pathname:sub(2)] = true
+      return
+    end
     for sep, name in pathname:gmatch("([%.%[\"\']*)([^%.%[\"\'%]]+)[\"\'%]]?") do
       if sep == '[' then
         if name == 'true' then
@@ -689,8 +695,11 @@ function inspect.makeFilter(arrayTable)
     buildFilter(pathname)
   end
 
-  return function(_,path)
+  return function(value,path)
       local t = filter
+      if wildcard[ path[#path] ] then
+        return true
+      end
       for _,v in ipairs(path) do
           if not t[v] then
             return false
