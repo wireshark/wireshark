@@ -126,7 +126,7 @@ void freelist_free (TFreeList *fl) {
 enum { ID_NUMBER, ID_STRING };
 
 void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
-  buf->arr = Lmalloc(L, sz);
+  buf->arr = (char *)Lmalloc(L, sz);
   if (!buf->arr) {
     freelist_free (fl);
     luaL_error (L, "malloc failed");

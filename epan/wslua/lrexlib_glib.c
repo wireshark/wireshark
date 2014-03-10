@@ -242,7 +242,8 @@ static int compile_regex (lua_State *L, const TArgComp *argC, TGrgx **pud) {
   lua_pushvalue (L, ALG_ENVIRONINDEX);
   lua_setmetatable (L, -2);
 
-  ud->pr = g_regex_new (argC->pattern, argC->cflags | G_REGEX_RAW, 0, &ud->error);
+  ud->pr = g_regex_new (argC->pattern,
+        (GRegexCompileFlags)(argC->cflags | G_REGEX_RAW), (GRegexMatchFlags)0, &ud->error);
   if (!ud->pr)
     return luaL_error (L, "%s (code: %d)", ud->error->message, ud->error->code);
 
@@ -270,7 +271,7 @@ static int Gregex_dfa_exec (lua_State *L)
   gerror_free (ud);
 
   res = g_regex_match_all_full (ud->pr, argE.text, (int)argE.textlen,
-    argE.startoffset, argE.eflags, &ud->match_info, &ud->error);
+    argE.startoffset, (GRegexMatchFlags)argE.eflags, &ud->match_info, &ud->error);
 
   if (ALG_ISMATCH (res)) {
     int i, start_pos, end_pos;
@@ -304,18 +305,19 @@ static int Gregex_dfa_exec (lua_State *L)
 
 #ifdef ALG_USERETRY
   static int gmatch_exec (TUserdata *ud, TArgExec *argE, int retry) {
+    int eflags = retry ? (argE->eflags|G_REGEX_MATCH_NOTEMPTY|G_REGEX_MATCH_ANCHORED) : argE->eflags;
+
     minfo_free (ud);
     gerror_free (ud);
-    int eflags = retry ? (argE->eflags|G_REGEX_MATCH_NOTEMPTY|G_REGEX_MATCH_ANCHORED) : argE->eflags;
     return g_regex_match_full (ud->pr, argE->text, argE->textlen,
-      argE->startoffset, eflags, &ud->match_info, &ud->error);
+      argE->startoffset, (GRegexMatchFlags)eflags, &ud->match_info, &ud->error);
   }
 #else
   static int gmatch_exec (TUserdata *ud, TArgExec *argE) {
     minfo_free (ud);
     gerror_free (ud);
     return g_regex_match_full (ud->pr, argE->text, argE->textlen,
-      argE->startoffset, argE->eflags, &ud->match_info, &ud->error);
+      argE->startoffset, (GRegexMatchFlags)argE->eflags, &ud->match_info, &ud->error);
   }
 #endif
 
@@ -327,23 +329,23 @@ static int findmatch_exec (TGrgx *ud, TArgExec *argE) {
   minfo_free (ud);
   gerror_free (ud);
   return g_regex_match_full (ud->pr, argE->text, argE->textlen,
-    argE->startoffset, argE->eflags, &ud->match_info, &ud->error);
+    argE->startoffset, (GRegexMatchFlags)argE->eflags, &ud->match_info, &ud->error);
 }
 
 #ifdef ALG_USERETRY
   static int gsub_exec (TGrgx *ud, TArgExec *argE, int st, int retry) {
+    int eflags = retry ? (argE->eflags|G_REGEX_MATCH_NOTEMPTY|G_REGEX_MATCH_ANCHORED) : argE->eflags;
     minfo_free (ud);
     gerror_free (ud);
-    int eflags = retry ? (argE->eflags|G_REGEX_MATCH_NOTEMPTY|G_REGEX_MATCH_ANCHORED) : argE->eflags;
     return g_regex_match_full (ud->pr, argE->text, argE->textlen,
-      st, eflags, &ud->match_info, &ud->error);
+      st, (GRegexMatchFlags)eflags, &ud->match_info, &ud->error);
   }
 #else
   static int gsub_exec (TGrgx *ud, TArgExec *argE, int st) {
     minfo_free (ud);
     gerror_free (ud);
     return g_regex_match_full (ud->pr, argE->text, argE->textlen,
-      st, argE->eflags, &ud->match_info, &ud->error);
+      st, (GRegexMatchFlags)argE->eflags, &ud->match_info, &ud->error);
   }
 #endif
 
@@ -351,7 +353,7 @@ static int split_exec (TGrgx *ud, TArgExec *argE, int offset) {
   minfo_free (ud);
   gerror_free (ud);
   return g_regex_match_full (ud->pr, argE->text, argE->textlen, offset,
-                    argE->eflags, &ud->match_info, &ud->error);
+                    (GRegexMatchFlags)argE->eflags, &ud->match_info, &ud->error);
 }
 
 static int Gregex_gc (lua_State *L) {

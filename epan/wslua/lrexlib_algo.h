@@ -141,7 +141,7 @@ static void check_subject (lua_State *L, int pos, TArgExec *argE)
     if (type != LUA_TLIGHTUSERDATA)
       luaL_error (L, "subject's topointer method returned %s (expected lightuserdata)",
                   lua_typename (L, type));
-    argE->text = lua_touserdata (L, -1);
+    argE->text = (const char *)lua_touserdata (L, -1);
     lua_pop (L, 1);
 #if LUA_VERSION_NUM == 501
     lua_objlen (L, pos);
