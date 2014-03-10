@@ -862,7 +862,7 @@ static const value_string scsi_lun_address_mode_vals[] = {
 
 static const value_string provisioning_vals[] = {
     {0, "No provisioning"},
-    {1, "Resource provisionied"},
+    {1, "Resource provisioned"},
     {2, "Thin provisioned"},
     {0, NULL},
 };
@@ -2050,12 +2050,13 @@ static const value_string scsi_devid_assoc_val[] = {
 };
 
 #define DEVID_TYPE_VEND_ID_VEND_SPEC_ID 1
+#define DEVID_TYPE_WWN 3
 
 const value_string scsi_devid_idtype_val[] = {
     {0, "Vendor-specific ID (non-globally unique)"},
     {DEVID_TYPE_VEND_ID_VEND_SPEC_ID, "Vendor-ID + vendor-specific ID (globally unique)"},
     {2, "EUI-64 ID"},
-    {3, "WWN"},
+    {DEVID_TYPE_WWN, "WWN"},
     {4, "4-byte Binary Number/Reserved"},
     {0, NULL},
 };
@@ -2744,6 +2745,8 @@ dissect_scsi_evpd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         } else {
                             proto_tree_add_item(evpd_tree, hf_scsi_inq_evpd_devid_identifier_str, tvb, offset, idlen, ENC_NA|ENC_ASCII);
                         }
+                    } else if (codeset == CODESET_BINARY && identifier_type == DEVID_TYPE_WWN) {
+                               proto_tree_add_text(evpd_tree, tvb, offset, plen, "WWN: %s", tvb_fcwwn_to_str(tvb, offset));
                     } else {
                         /*
                          * XXX - decode this based on the identifier type,
@@ -3395,8 +3398,8 @@ dissect_spc_extcopy(tvbuff_t *tvb, packet_info *pinfo _U_,
                                         des_len = tvb_get_guint8(tvb, offset);
                                         offset += 1;
                                         proto_tree_add_text(cscd_tree, tvb, offset, 20, "Designator (20 bytes, zero padded, used length %u)", des_len);
-                                        if (code_set == CODESET_BINARY && des_type == 3) { /* des_type 3 = WWN */
-                                                proto_tree_add_text(cscd_tree, tvb, offset, 8, "WWN: %s", tvb_fcwwn_to_str(tvb, offset));
+                                        if (code_set == CODESET_BINARY && des_type == DEVID_TYPE_WWN) { /* des_type 3 = WWN */
+                                                proto_tree_add_text(cscd_tree, tvb, offset, des_len, "WWN: %s", tvb_fcwwn_to_str(tvb, offset));
                                         }
                                         offset += 20;
                                         ti = proto_tree_add_text(cscd_tree, tvb, offset, 4, "Device type specific parameters");
