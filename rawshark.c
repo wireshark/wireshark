@@ -897,9 +897,8 @@ raw_pipe_read(struct wtap_pkthdr *phdr, guchar * pd, int *err, const gchar **err
     guchar *ptr = (guchar*) &disk_hdr;
     static gchar err_str[100];
 
-    memset(&mem_hdr, 0, sizeof(mem_hdr));
-
     if (want_pcap_pkthdr) {
+        bytes_needed = sizeof(mem_hdr);
         ptr = (guchar*) &mem_hdr;
     }
 
