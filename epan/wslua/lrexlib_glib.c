@@ -82,8 +82,8 @@ extern flag_pair gregex_error_flags[];
 static int getcflags (lua_State *L, int pos);
 #define ALG_GETCFLAGS(L,pos)  getcflags(L, pos)
 
-#define ALG_NOMATCH(res)   ((res) == FALSE)
-#define ALG_ISMATCH(res)   ((res) == TRUE)
+#define ALG_NOMATCH(res)   (res) == FALSE
+#define ALG_ISMATCH(res)   (res) == TRUE
 #define ALG_SUBBEG(ud,n)   getSubStartPos(ud,n)
 #define ALG_SUBEND(ud,n)   getSubEndPos(ud,n)
 #define ALG_SUBLEN(ud,n)   (ALG_SUBEND(ud,n) - ALG_SUBBEG(ud,n))
