@@ -2,8 +2,6 @@
  * Routines for PDC dissection
  * Copyright 2014, Antony Bridle <antony.bridle@nats.co.uk>
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
