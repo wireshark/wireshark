@@ -169,6 +169,8 @@ static gint hf_ssl_handshake_certificate_len  = -1;
 static gint hf_ssl_handshake_cert_types_count = -1;
 static gint hf_ssl_handshake_cert_types       = -1;
 static gint hf_ssl_handshake_cert_type        = -1;
+static gint hf_ssl_handshake_client_cert_vrfy_sig_len = -1;
+static gint hf_ssl_handshake_client_cert_vrfy_sig     = -1;
 static gint hf_ssl_handshake_server_keyex_p_len     = -1;
 static gint hf_ssl_handshake_server_keyex_g_len     = -1;
 static gint hf_ssl_handshake_server_keyex_ys_len    = -1;
@@ -269,6 +271,7 @@ static gint ett_ssl_dnames            = -1;
 static gint ett_ssl_random            = -1;
 static gint ett_ssl_new_ses_ticket    = -1;
 static gint ett_ssl_keyex_params      = -1;
+static gint ett_ssl_cli_sig           = -1;
 static gint ett_ssl_cert_status       = -1;
 static gint ett_ssl_ocsp_resp         = -1;
 static gint ett_pct_cipher_suites     = -1;
@@ -562,6 +565,10 @@ static void dissect_ssl3_hnd_srv_keyex_rsa(tvbuff_t *tvb,
 static void dissect_ssl3_hnd_srv_keyex_psk(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
+
+static void dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb,
+                                            proto_tree *tree,
+                                            guint32 offset, guint32 length);
 
 static void dissect_ssl3_hnd_cli_keyex_ecdh(tvbuff_t *tvb,
                                           proto_tree *tree,
@@ -2059,7 +2066,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERT_VERIFY:
-                /* unimplemented */
+                dissect_ssl3_hnd_cli_cert_verify(tvb, ssl_hand_tree, offset, length);
                 break;
 
             case SSL_HND_CLIENT_KEY_EXCHG:
@@ -3080,6 +3087,41 @@ dissect_ssl3_hnd_srv_keyex_psk(tvbuff_t *tvb, proto_tree *tree,
                         tvb, offset + 2, hint_len, ENC_NA);
 }
 
+static void
+dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
+                                guint32 offset, guint32 length)
+{
+    proto_item *ti_sig;
+    proto_tree *ssl_sig_tree;
+
+    /*
+       struct {
+          Signature signature;
+       } CertificateVerify;
+
+       Signature is a digitally-signed struct {...}, depending on the algorithm
+
+       "A digitally-signed element is encoded as an opaque
+        vector <0..2^16-1>, where the length is specified by the
+        signing algorithm and key."
+
+        <> is a variable length vector. It starts with a length field
+        large enough to encode the largest possible length.
+
+        -> The signature starts with a two-byte length field.
+     */
+
+
+    ti_sig = proto_tree_add_text(tree, tvb, offset, length,
+            "Signature with client's private key");
+    ssl_sig_tree = proto_item_add_subtree(ti_sig, ett_ssl_cli_sig);
+
+    proto_tree_add_item(ssl_sig_tree, hf_ssl_handshake_client_cert_vrfy_sig_len,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    /* XXX check that ..._vrfy_sig_len == length-2 */
+    proto_tree_add_item(ssl_sig_tree, hf_ssl_handshake_client_cert_vrfy_sig,
+                        tvb, offset+2, length-2, ENC_BIG_ENDIAN);
+}
 
 static void
 dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
@@ -5022,6 +5064,16 @@ proto_register_ssl(void)
             FT_UINT8, BASE_DEC, VALS(ssl_31_client_certificate_type), 0x0,
             NULL, HFILL }
         },
+        { &hf_ssl_handshake_client_cert_vrfy_sig_len,
+            { "Signature length", "ssl.handshake.client_cert_vrfy.sig_len",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Length of CertificateVerify's signature", HFILL }
+        },
+        { &hf_ssl_handshake_client_cert_vrfy_sig,
+            { "Signature", "ssl.handshake.client_cert_vrfy.sig",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "CertificateVerify's signature", HFILL }
+        },
         { &hf_ssl_handshake_server_keyex_p_len,
           { "p Length", "ssl.handshake.p_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -5452,6 +5504,7 @@ proto_register_ssl(void)
         &ett_ssl_random,
         &ett_ssl_new_ses_ticket,
         &ett_ssl_keyex_params,
+        &ett_ssl_cli_sig,
         &ett_ssl_cert_status,
         &ett_ssl_ocsp_resp,
         &ett_pct_cipher_suites,
