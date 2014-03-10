@@ -61,7 +61,10 @@ local lines = {
     }
 }
 
-local numtests = #lines[1] + #lines[2]
+-- we're going to see those two sets of output twice: both by the normal
+-- dissector, then the first one by the heuristic, then the second one by
+-- a conversation match
+local numtests = 1 + (2 * (#lines[1] + #lines[2]))
 print("going to run "..numtests.." tests")
 
 -- for an example of what we're reading through to verify, look at end of this file
@@ -71,6 +74,7 @@ local line = file:read()
 
 local pktidx = 1
 local total = 0
+local found = false
 
 while line do
     -- eat beginning whitespace
@@ -79,6 +83,18 @@ while line do
         pktidx = line:match("^Frame (%d+):")
         testing("Frame "..pktidx)
         pktidx = tonumber(pktidx)
+        if pktidx > 2 then pktidx = pktidx - 2 end
+        line = file:read()
+    elseif line:find("%[Heuristic dissector used%]") then
+        -- start again, because it now repeats
+        -- but we should not see this [Heuristic dissector used] line again
+        -- or it's an error in setting the conversation
+        if found then
+            error("Heuristic dissector ran twice - conversation setting not working?")
+            return
+        end
+        found = true
+        total = total + 1
         line = file:read()
     elseif line == lines[pktidx][1] then
         -- we've matched the first line of our section

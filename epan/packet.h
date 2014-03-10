@@ -338,7 +338,8 @@ typedef GSList *heur_dissector_list_t;
 
 typedef struct {
 	heur_dissector_t dissector;
-	protocol_t *protocol;
+	protocol_t *protocol; /* this entry's protocol */
+  gchar *list_name;     /* the list name this entry is in the list of */
 	gboolean enabled;
 } heur_dtbl_entry_t;
 
@@ -353,6 +354,9 @@ WS_DLL_PUBLIC void register_heur_dissector_list(const char *name,
 
 WS_DLL_PUBLIC void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
     gpointer user_data);
+
+/* true if a heur_dissector list of that anme exists to be registered into */
+WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
 
 /** Try all the dissectors in a given heuristic dissector list. This is done,
  *  until we find one that recognizes the protocol.

@@ -179,6 +179,7 @@ typedef struct _packet_info {
   struct epan_session *epan;
   nstime_t     rel_ts;       /**< Relative timestamp (yes, it can be negative) */
   const gchar  *pkt_comment; /**< NULL if not available */
+  const gchar *heur_list_name;    /**< name of heur list if this packet is being heuristically dissected */
 } packet_info;
 
 /** @} */

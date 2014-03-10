@@ -1831,6 +1831,11 @@ find_heur_dissector_list(const char *name)
 	return (heur_dissector_list_t *)g_hash_table_lookup(heur_dissector_lists, name);
 }
 
+gboolean
+has_heur_dissector_list(const gchar *name) {
+	return (find_heur_dissector_list(name) != NULL);
+}
+
 void
 heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto)
 {
@@ -1859,6 +1864,7 @@ heur_dissector_add(const char *name, heur_dissector_t dissector, const int proto
 	hdtbl_entry = g_slice_new(heur_dtbl_entry_t);
 	hdtbl_entry->dissector = dissector;
 	hdtbl_entry->protocol  = find_protocol_by_id(proto);
+	hdtbl_entry->list_name = g_strdup(name);
 	hdtbl_entry->enabled   = TRUE;
 
 	/* do the table insertion */
@@ -1892,6 +1898,7 @@ heur_dissector_delete(const char *name, heur_dissector_t dissector, const int pr
 	found_entry = g_slist_find_custom(*sub_dissectors, (gpointer) &hdtbl_entry, find_matching_heur_dissector);
 
 	if (found_entry) {
+		g_free(((heur_dtbl_entry_t *)(found_entry->data))->list_name);
 		g_slice_free(heur_dtbl_entry_t, found_entry->data);
 		*sub_dissectors = g_slist_delete_link(*sub_dissectors, found_entry);
 	}
@@ -1924,7 +1931,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			packet_info *pinfo, proto_tree *tree, void *data)
 {
 	gboolean           status;
-	const char        *saved_proto;
+	const char        *saved_curr_proto;
+	const char        *saved_heur_list_name;
 	GSList            *entry;
 	heur_dtbl_entry_t *hdtbl_entry;
 	guint16            saved_can_desegment;
@@ -1944,7 +1952,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	pinfo->can_desegment       = saved_can_desegment-(saved_can_desegment>0);
 
 	status      = FALSE;
-	saved_proto = pinfo->current_proto;
+	saved_curr_proto = pinfo->current_proto;
+	saved_heur_list_name = pinfo->heur_list_name;
 
 	saved_layers_len = wmem_list_count(pinfo->layers);
 
@@ -1962,6 +1971,8 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 		}
 
 		if (hdtbl_entry->protocol != NULL) {
+			/* do NOT change this behavior - wslua uses the protocol short name set here in order
+			   to determine which Lua-based heurisitc dissector to call */
 			pinfo->current_proto =
 				proto_get_protocol_short_name(hdtbl_entry->protocol);
 
@@ -1971,6 +1982,9 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			 */
 			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(hdtbl_entry->protocol)));
 		}
+
+		pinfo->heur_list_name = hdtbl_entry->list_name;
+
 		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s",
 				 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
 		if ((*hdtbl_entry->dissector)(tvb, pinfo, tree, data)) {
@@ -1992,8 +2006,10 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			}
 		}
 	}
-	pinfo->current_proto = saved_proto;
-	pinfo->can_desegment=saved_can_desegment;
+
+	pinfo->current_proto = saved_curr_proto;
+	pinfo->heur_list_name = saved_heur_list_name;
+	pinfo->can_desegment = saved_can_desegment;
 	return status;
 }
 

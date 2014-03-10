@@ -1458,6 +1458,76 @@ WSLUA_FUNCTION wslua_register_postdissector(lua_State* L) {
     return 0;
 }
 
+WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
+    /* Registers a heristic dissector function for this protocol, for the given heristic list name.
+       When later called, the passed-in function will be given (1) a Tvb object, (2) a Pinfo object,
+       and (3) a TreeItem object. The function must return true if the payload is for it, else false.
+       The function should perform as much verification as possible to ensure the payload is for it,
+       and dissect the packet (including setting TreeItem info and such) only if the payload is for it,
+       before returning true or false.*/
+#define WSLUA_ARG_Proto_register_heuristic_LISTNAME 2 /* the heristic list name this function is a heuristic for (e.g., "udp" or "infiniband.payload") */
+#define WSLUA_ARG_Proto_register_heuristic_FUNC 3 /* a Lua function that will be invoked for heuristic dissection */
+    Proto proto = checkProto(L,1);
+    const gchar *listname = luaL_checkstring(L, WSLUA_ARG_Proto_register_heuristic_LISTNAME);
+    const gchar *proto_name = proto->name;
+    const int top = lua_gettop(L);
+
+    if (!proto_name || proto->hfid == -1) {
+        /* this shouldn't happen - internal bug if it does */
+        luaL_error(L,"Proto_register_heuristic: got NULL proto name or invalid hfid");
+        return 0;
+    }
+
+    /* verify listname has a heuristic list */
+    if (!has_heur_dissector_list(listname)) {
+        luaL_error(L, "there is no heuristic list for '%s'", listname);
+        return 0;
+    }
+
+    /* heuristic functions are stored in a table in the registry; the registry has a
+     * table at reference lua_heur_dissectors_table_ref, and that table has keys for
+     * the heuristic listname (e.g., "udp", "tcp", etc.), and that key's value is a
+     * table of keys of the Proto->name, and their value is the function.
+     * So it's like registry[table_ref][heur_list_name][proto_name] = func
+     */
+    if (lua_isfunction(L,WSLUA_ARG_Proto_register_heuristic_FUNC)) {
+        /* insert the heur dissector into the heur dissectors table */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
+        /* the heuristic lists table is now at -1 */
+        if (!lua_istable(L,-1)) {
+            /* this shouldn't be possible */
+            luaL_error(L,"Proto_register_heuristic: could not get lua_heur_dissectors table from registry");
+            return 0;
+        }
+
+        if (!wslua_get_table(L,-1,listname)) {
+            /* no one's registered a lua heuristic for this list, so make a new list table */
+            lua_newtable(L);
+            lua_pushvalue(L,-1); /* duplicate the table so we can set it as a field */
+            lua_setfield(L,-3,listname); /* sets this new list table into the lists table */
+        }
+        else if (wslua_get_field(L,-1,proto_name)) {
+            luaL_error(L,"A heuristic dissector for Proto '%s' is already registered for the '%s' list", proto_name, listname);
+            return 0;
+        }
+
+        /* copy the func, set it as the value for key proto_name in listname's table */
+        lua_pushvalue(L,WSLUA_ARG_Proto_register_heuristic_FUNC);
+        lua_setfield(L,-2,proto_name);
+
+        /* ok, we're done with lua stuff, pop what we added to the stack */
+        lua_pop(L,2); /* pop the lists table and the listname table */
+        g_assert(top == lua_gettop(L));
+
+        /* now register the single/common heur_dissect_lua function */
+        heur_dissector_add(listname, heur_dissect_lua, proto->hfid);
+
+    } else {
+        luaL_argerror(L,3,"The heuristic dissector must be a function");
+    }
+    return 0;
+}
+
 /* WSLUA_ATTRIBUTE Proto_dissector RW The protocol's dissector, a function you define.
    The called dissector function will be given three arguments of (1) a Tvb object, (2) a Pinfo object, and (3) a TreeItem object. */
 static int Proto_get_dissector(lua_State* L) {
@@ -1602,6 +1672,7 @@ WSLUA_ATTRIBUTES Proto_attributes[] = {
 
 WSLUA_METHODS Proto_methods[] = {
     WSLUA_CLASS_FNREG(Proto,new),
+    WSLUA_CLASS_FNREG(Proto,register_heuristic),
     { NULL, NULL }
 };
 
@@ -1780,6 +1851,14 @@ WSLUA_METHOD Dissector_call(lua_State* L) {
     return 0;
 }
 
+WSLUA_METAMETHOD Dissector__call(lua_State* L) {
+    /* Calls a dissector against a given packet (or part of it) */
+#define WSLUA_ARG_Dissector__call_TVB 2 /* The buffer to dissect */
+#define WSLUA_ARG_Dissector__call_PINFO 3 /* The packet info */
+#define WSLUA_ARG_Dissector__call_TREE 4 /* The tree on which to add the protocol items */
+    return Dissector_call(L);
+}
+
 WSLUA_METAMETHOD Dissector__tostring(lua_State* L) {
     /* Gets the Dissector's protocol short name */
     Dissector d = checkDissector(L,1);
@@ -1803,6 +1882,7 @@ WSLUA_METHODS Dissector_methods[] = {
 
 WSLUA_META Dissector_meta[] = {
     WSLUA_CLASS_MTREG(Dissector,tostring),
+    WSLUA_CLASS_MTREG(Dissector,call),
     { NULL, NULL }
 };
 
@@ -1854,6 +1934,58 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
             break;
     }
     return 0;
+}
+
+/* this struct is used for passing ourselves user_data through dissector_all_tables_foreach_table() */
+typedef struct dissector_tables_foreach_table_info {
+    int num;
+    lua_State *L;
+} dissector_tables_foreach_table_info_t;
+
+/* this is the DATFunc_table function used for dissector_all_tables_foreach_table()
+   so we can get all dissector_table names. This pushes the name into a table at stack index 1 */
+static void
+dissector_tables_list_func(const gchar *table_name, const gchar *ui_name _U_, gpointer user_data) {
+    dissector_tables_foreach_table_info_t *data = (dissector_tables_foreach_table_info_t*) user_data;
+    lua_pushstring(data->L, table_name);
+    lua_rawseti(data->L, 1, data->num);
+    data->num = data->num + 1;
+}
+
+WSLUA_CONSTRUCTOR DissectorTable_list (lua_State *L) {
+    /* Gets a Lua array table of all DissectorTable names - i.e., the string names you can
+       use for the first argument to DissectorTable.get().
+       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+    dissector_tables_foreach_table_info_t data = { 1, L };
+
+    lua_newtable(L);
+
+    dissector_all_tables_foreach_table(dissector_tables_list_func, (gpointer)&data, (GCompareFunc)compare_dissector_key_name);
+
+    WSLUA_RETURN(1); /* The array table of registered DissectorTable names */
+}
+
+/* this is the DATFunc_heur_table function used for dissector_all_heur_tables_foreach_table()
+   so we can get all heuristic dissector list names. This pushes the name into a table at stack index 1 */
+static void
+heur_dissector_tables_list_func(const gchar *table_name, gpointer table _U_, gpointer user_data) {
+    dissector_tables_foreach_table_info_t *data = (dissector_tables_foreach_table_info_t*) user_data;
+    lua_pushstring(data->L, table_name);
+    lua_rawseti(data->L, 1, data->num);
+    data->num = data->num + 1;
+}
+
+WSLUA_CONSTRUCTOR DissectorTable_heuristic_list (lua_State *L) {
+    /* Gets a Lua array table of all heuristic list names - i.e., the string names you can
+       use for the first argument in Proto:register_heuristic().
+       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+    dissector_tables_foreach_table_info_t data = { 1, L };
+
+    lua_newtable(L);
+
+    dissector_all_heur_tables_foreach_table(heur_dissector_tables_list_func, (gpointer)&data);
+
+    WSLUA_RETURN(1); /* The array table of registered heuristic list names */
 }
 
 WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
@@ -2218,6 +2350,8 @@ static int DissectorTable__gc(lua_State* L _U_) {
 WSLUA_METHODS DissectorTable_methods[] = {
     WSLUA_CLASS_FNREG(DissectorTable,new),
     WSLUA_CLASS_FNREG(DissectorTable,get),
+    WSLUA_CLASS_FNREG(DissectorTable,list),
+    WSLUA_CLASS_FNREG(DissectorTable,heuristic_list),
     WSLUA_CLASS_FNREG(DissectorTable,add),
     WSLUA_CLASS_FNREG(DissectorTable,set),
     WSLUA_CLASS_FNREG(DissectorTable,remove),

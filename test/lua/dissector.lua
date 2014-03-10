@@ -35,8 +35,24 @@
 -- automagically do it without doing "Decode As ...".
 --
 ----------------------------------------
---print("Wireshark version = "..get_version())
---print("Lua version = ".._VERSION)
+-- debug printer, set DEBUG to true to enable printing debug info
+-- set DEBUG2 to true to enable really verbose printing
+local DEBUG, DEBUG2 = false, false
+
+local dprint = function() end
+local dprint2 = function() end
+if DEBUG or DEBUG2 then
+    dprint = function(...)
+        print(table.concat({"Lua:", ...}," "))
+    end
+
+    if DEBUG2 then
+        dprint2 = dprint
+    end
+end
+
+dprint2("Wireshark version = ", get_version())
+dprint2("Lua version = ", _VERSION)
 
 ----------------------------------------
 -- Unfortunately, the older Wireshark/Tshark versions have bugs, and part of the point
@@ -177,6 +193,10 @@ local getQueryName
 -- Whenever Wireshark dissects a packet that our Proto is hooked into, it will call
 -- this function and pass it these arguments for the packet it's dissecting.
 function dns.dissector(tvbuf,pktinfo,root)
+    dprint2("dns.dissector called")
+
+    -- set the protocol column to show our protocol name
+    pktinfo.cols.protocol:set("MYDNS")
 
     -- We want to check that the packet size is rational during dissection, so let's get the length of the
     -- packet buffer (Tvb).
@@ -195,6 +215,7 @@ function dns.dissector(tvbuf,pktinfo,root)
         -- since we're going to add this protocol to a specific UDP port, we're going to
         -- assume packets in this port are our protocol, so the packet being too short is an error
         tree:add_expert_info(PI_MALFORMED, PI_ERROR, "packet too short")
+        dprint("packet length",pktlen,"too short")
         return
     end
 
@@ -216,7 +237,7 @@ function dns.dissector(tvbuf,pktinfo,root)
 
     -- for our flags field, we want a sub-tree
     local flag_tree = tree:add(pf_flags, flagrange)
-        -- I'm indenting this for calarity, because it's adding to the flag's child-tree
+        -- I'm indenting this for clarity, because it's adding to the flag's child-tree
         -- let's add the type of message (query vs. response)
         flag_tree:add(pf_flag_response, flagrange)
 
@@ -312,15 +333,100 @@ function dns.dissector(tvbuf,pktinfo,root)
         end
     end
 
+    dprint2("dns.dissector returning",pos)
+
     -- tell wireshark how much of tvbuff we dissected
     return pos
 end
 
 ----------------------------------------
--- we want to have our protocol disseciton invoked for a specific UDP port,
--- so get the udp dissecotr table and add our protocol to it
+-- we want to have our protocol dissection invoked for a specific UDP port,
+-- so get the udp dissector table and add our protocol to it
 local udp_encap_table = DissectorTable.get("udp.port")
 udp_encap_table:add(MYDNS_PROTO_UDP_PORT, dns)
+
+----------------------------------------
+-- we also want to add the heuristic dissector, for any UDP protocol
+-- first we need a heuristic dissection function
+-- this is that function - when wireshark invokes this, it will pass in the same
+-- things it passes in to the "dissector" function, but we only want to actually
+-- dissect it if it's for us, and we need to return true if it's for us, or else false
+-- figuring out if it's for us or not is not easy
+-- we need to try as hard as possible, or else we'll think it's for us when it's
+-- not and block other heuristic dissectors from getting their chanc
+--
+-- in practice, you'd never set a dissector like this to be heuristic, because there
+-- just isn't enough information to safely detect if it's DNS or not
+-- but I'm doing it to show how it would be done
+--
+-- Note: this heuristic stuff is new in 1.11.3
+local function heur_dissect_dns(tvbuf,pktinfo,root)
+    dprint2("heur_dissect_dns called")
+
+    if tvbuf:len() < DNS_HDR_LEN then
+        dprint("heur_dissect_dns: tvb shorter than DNS_HDR_LEN of:",DNS_HDR_LEN)
+        return false
+    end
+
+    local tvbr = tvbuf:range(0,DNS_HDR_LEN)
+
+    -- the first 2 bytes are tansaction id, which can be anything so no point in checking those
+    -- the next 2 bytes contain flags, a couple of which have some values we can check against
+
+    -- the opcode has to be 0, 1, 2, 4 or 5
+    -- the opcode field starts at bit offset 17 (in C-indexing), for 4 bits in length
+    local check = tvbr:bitfield(17,4)
+    if check == 3 or check > 5 then
+        dprint("heur_dissect_dns: invalid opcode:",check)
+        return false
+    end
+
+    -- the rcode has to be 0-10, 16-22 (we're ignoring private use rcodes here)
+    -- the rcode field starts at bit offset 28 (in C-indexing), for 4 bits in length
+    check = tvbr:bitfield(28,4)
+    if check > 22 or (check > 10 and check < 16) then
+        dprint("heur_dissect_dns: invalid rcode:",check)
+        return false
+    end
+
+    dprint2("heur_dissect_dns checking questions/answers")
+
+    -- now let's verify the number of questions/answers are reasonable
+    check = tvbr:range(4,2):uint()  -- num questions
+    if check > 100 then return false end
+    check = tvbr:range(6,2):uint()  -- num answers
+    if check > 100 then return false end
+    check = tvbr:range(8,2):uint()  -- num authority
+    if check > 100 then return false end
+    check = tvbr:range(10,2):uint()  -- num additional
+    if check > 100 then return false end
+
+    dprint2("heur_dissect_dns: everything looks good calling the real dissector")
+
+    -- don't do this line in your script - I'm just doing it so our testsuite can
+    -- verify this script
+    root:add("Heuristic dissector used"):set_generated()
+
+    -- ok, looks like it's ours, so go dissect it
+    -- note: calling the dissector directly like this is new in 1.11.3
+    -- also note that calling a Dissector objkect, as this does, means we don't
+    -- get back the return value of the dissector function we created previously
+    -- so it might be better to just call the function directly instead of doing
+    -- this, but this script is used for testing and this tests the call() function
+    dns.dissector(tvbuf,pktinfo,root)
+
+    -- since this is over a transport protocol, such as UDP, we can set the
+    -- conversation to make it sticky for our dissector, so that all future
+    -- packets to/from the same address:port pair will just call our dissector
+    -- function directly instead of this heuristic function
+    -- this is a new attribute of pinfo in 1.11.3
+    pktinfo.conversation = dns
+
+    return true
+end
+
+-- now register that heuristic dissector into the udp heuristic list
+dns:register_heuristic("udp",heur_dissect_dns)
 
 -- We're done!
 -- our protocol (Proto) gets automatically registered after this script finishes loading
@@ -361,6 +467,7 @@ getQueryName = function (tvbr)
         end
         pos = pos + 1  -- move past label length octet
         -- append the label and a dot to name string
+        -- note: this uses the new method of ByteArray:raw(), added in 1.11.3
         name = name .. barray:raw(pos, label_len) .. "."
         len_remaining = len_remaining - (label_len + 1) -- subtract label and its length octet
         label_count = label_count + 1

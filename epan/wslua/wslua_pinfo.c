@@ -36,6 +36,7 @@
 #include "wslua.h"
 
 #include <epan/addr_resolv.h>
+#include <epan/conversation.h>
 #include <string.h>
 
 
@@ -1128,6 +1129,23 @@ static int Pinfo_get_lo(lua_State *L) {
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE Pinfo_conversation WO sets the packet conversation to the given Proto object */
+static int Pinfo_set_conversation(lua_State *L) {
+    Pinfo pinfo = checkPinfo(L,1);
+    Proto proto = checkProto(L,2);
+    conversation_t  *conversation;
+
+    if (!proto->handle) {
+        luaL_error(L,"Proto %s has no registered dissector", proto->name? proto->name:"<UKNOWN>");
+        return 0;
+    }
+
+    conversation = find_or_create_conversation(pinfo->ws_pinfo);
+    conversation_set_dissector(conversation,proto->handle);
+
+    return 0;
+}
+
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Pinfo__gc(lua_State* L) {
     Pinfo pinfo = toPinfo(L,1);
@@ -1183,6 +1201,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Pinfo,fragmented),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_uint),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_string),
+    WSLUA_ATTRIBUTE_WOREG(Pinfo,conversation),
     { NULL, NULL, NULL }
 };
 

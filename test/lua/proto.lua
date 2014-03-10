@@ -47,7 +47,7 @@ end
 -- note ip only runs 3 times because it gets removed
 -- and bootp only runs twice because the filter makes it run
 -- once and then it gets replaced with a different one for the second time
-local taptests = { [FRAME]=2, [OTHER]=48 }
+local taptests = { [FRAME]=4, [OTHER]=48 }
 local function getResults()
     print("\n-----------------------------\n")
     for k,v in pairs(taptests) do
@@ -496,6 +496,81 @@ end
 -- so get the udp dissecotr table and add our protocol to it
 local udp_encap_table = DissectorTable.get("udp.port")
 udp_encap_table:add(MYDNS_PROTO_UDP_PORT, dns)
+
+----------------------------------------
+-- we also want to add the heuristic dissector, for any UDP protocol
+-- first we need a heuristic dissection function
+-- this is that function - when wireshark invokes this, it will pass in the same
+-- things it passes in to the "dissector" function, but we only want to actually
+-- dissect it if it's for us, and we need to return true if it's for us, or else false
+-- figuring out if it's for us or not is not easy
+-- we need to try as hard as possible, or else we'll think it's for us when it's
+-- not and block other heuristic dissectors from getting their chanc
+--
+-- in practice, you'd never set a dissector like this to be heuristic, because there
+-- just isn't enough information to safely detect if it's DNS or not
+-- but I'm doing it to show how it would be done
+--
+-- Note: this heuristic stuff is new in 1.11.3
+local function heur_dissect_dns(tvbuf,pktinfo,root)
+
+    if tvbuf:len() < DNS_HDR_LEN then
+        return false
+    end
+
+    local tvbr = tvbuf:range(0,DNS_HDR_LEN)
+
+    -- the first 2 bytes are tansaction id, which can be anything so no point in checking those
+    -- the next 2 bytes contain flags, a couple of which have some values we can check against
+
+    -- the opcode has to be 0, 1, 2, 4 or 5
+    -- the opcode field starts at bit offset 17 (in C-indexing), for 4 bits in length
+    local check = tvbr:bitfield(17,4)
+    if check == 3 or check > 5 then
+        return false
+    end
+
+    -- the rcode has to be 0-10, 16-22 (we're ignoring private use rcodes here)
+    -- the rcode field starts at bit offset 28 (in C-indexing), for 4 bits in length
+    check = tvbr:bitfield(28,4)
+    if check > 22 or (check > 10 and check < 16) then
+        return false
+    end
+
+    -- now let's verify the number of questions/answers are reasonable
+    check = tvbr:range(4,2):uint()  -- num questions
+    if check > 100 then return false end
+    check = tvbr:range(6,2):uint()  -- num answers
+    if check > 100 then return false end
+    check = tvbr:range(8,2):uint()  -- num authority
+    if check > 100 then return false end
+    check = tvbr:range(10,2):uint()  -- num additional
+    if check > 100 then return false end
+
+    -- don't do this line in your script - I'm just doing it so our testsuite can
+    -- verify this script
+    root:add("Heuristic dissector used"):set_generated()
+
+    -- ok, looks like it's ours, so go dissect it
+    -- note: calling the dissector directly like this is new in 1.11.3
+    -- also note that calling a Dissector objkect, as this does, means we don't
+    -- get back the return value of the dissector function we created previously
+    -- so it might be better to just call the function directly instead of doing
+    -- this, but this script is used for testing and this tests the call() function
+    dns.dissector(tvbuf,pktinfo,root)
+
+    -- since this is over a transport protocol, such as UDP, we can set the
+    -- conversation to make it sticky for our dissector, so that all future
+    -- packets to/from the same address:port pair will just call our dissector
+    -- function directly instead of this heuristic function
+    -- this is a new attribute of pinfo in 1.11.3
+    pktinfo.conversation = dns
+
+    return true
+end
+
+-- now register that heuristic dissector into the udp heuristic list
+dns:register_heuristic("udp",heur_dissect_dns)
 
 -- We're done!
 -- our protocol (Proto) gets automatically registered after this script finishes loading

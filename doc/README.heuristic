@@ -103,7 +103,7 @@ Heuristic Code Example
 ----------------------
 You can find a lot of code examples in the Wireshark sources, e.g.:
 grep -l heur_dissector_add epan/dissectors/*.c
-returns 132 files (Feb 2013).
+returns 150 files (March 2014).
 
 For the above example criteria, the following code example might do the work
 (combine this with the dissector skeleton in README.developer):
@@ -150,7 +150,10 @@ dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     /* Assume it's your packet ... */
 
-    /*   specify that dissect_PROTOABBREV is to be called directly from now on for packets for this "connection" ... */
+    /* specify that dissect_PROTOABBREV is to be called directly from now on for packets for this "connection" ...
+     * but ONLY do this if your heuristic sits directly on top of UDP or TCP (ie, you did heur_dissector_add("tcp",...)),
+     * otherwise you'll be overriding the dissector that called your heuristic dissector.
+     */
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, PROTOABBREV_handle);
 
@@ -188,5 +191,4 @@ tendency to reuse known port numbers for new protocols. But TCP and UDP are
 not the only dissectors that provide support for HDs.  You can find more
 examples by searching the Wireshark sources as follows:
 grep -l register_heur_dissector_list epan/dissectors/packet-*.c
-returns 38 files (Feb 2013).
-
+returns 43 files (March 2014).

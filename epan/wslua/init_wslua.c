@@ -47,10 +47,13 @@ static wslua_plugin *wslua_plugin_list = NULL;
 
 static lua_State* L = NULL;
 
+/* XXX: global variables? Really?? Yuck. These could be done differently,
+   using the Lua registry */
 packet_info* lua_pinfo;
 struct _wslua_treeitem* lua_tree;
 tvbuff_t* lua_tvb;
-int lua_dissectors_table_ref;
+int lua_dissectors_table_ref = LUA_NOREF;
+int lua_heur_dissectors_table_ref = LUA_NOREF;
 
 static int proto_lua = -1;
 static expert_field ei_lua_error = EI_INIT;
@@ -131,6 +134,95 @@ int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
 
     return consumed_bytes;
 
+}
+
+/** Type of a heuristic dissector, used in heur_dissector_add().
+ *
+ * @param tvb the tvbuff with the (remaining) packet data
+ * @param pinfo the packet info of this packet (additional info)
+ * @param tree the protocol tree to be build or NULL
+ * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
+ */
+gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_) {
+    gboolean result = FALSE;
+    lua_tvb = tvb;
+    lua_pinfo = pinfo;
+
+    if (!tvb || !pinfo || !pinfo->heur_list_name || !pinfo->current_proto) {
+        report_failure("internal error in heur_dissect_lua: NULL packet info");
+        return FALSE;
+    }
+
+    /* heuristic functions are stored in a table in the registry; the registry has a
+     * table at reference lua_heur_dissectors_table_ref, and that table has keys for
+     * the heuristic listname (e.g., "udp", "tcp", etc.), and that key's value is a
+     * table of keys of the Proto->name, and their value is the function.
+     * So it's like registry[table_ref][heur_list_name][proto_name] = func
+     */
+
+    lua_settop(L,0);
+
+    /* get the table of all lua heuristic dissector lists */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, lua_heur_dissectors_table_ref);
+
+    /* get the table inside that, for the lua heuristic dissectors of the requested heur list */
+    if (!wslua_get_table(L, -1, pinfo->heur_list_name)) {
+        /* this shouldn't happen */
+        lua_settop(L,0);
+        report_failure("internal error in heur_dissect_lua: no %s heur list table", pinfo->heur_list_name);
+        return FALSE;
+    }
+
+    /* get the table inside that, for the specific lua heuristic dissector */
+    if (!wslua_get_field(L,-1,pinfo->current_proto)) {
+        /* this shouldn't happen */
+        lua_settop(L,0);
+        report_failure("internal error in heur_dissect_lua: no %s heuristic dissector for list %s",
+                        pinfo->current_proto, pinfo->heur_list_name);
+        return FALSE;
+    }
+
+    /* remove the table of all lists (the one in the registry) */
+    lua_remove(L,1);
+    /* remove the heur_list_name heur list table */
+    lua_remove(L,1);
+
+    if (!lua_isfunction(L,-1)) {
+        /* this shouldn't happen */
+        lua_settop(L,0);
+        report_failure("internal error in heur_dissect_lua: %s heuristic dissector is not a function", pinfo->current_proto);
+        return FALSE;
+    }
+
+    lua_tree = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
+    lua_tree->tree = tree;
+    lua_tree->item = proto_tree_add_text(tree,tvb,0,0,"lua fake item");
+    lua_tree->expired = FALSE;
+    PROTO_ITEM_SET_HIDDEN(lua_tree->item);
+
+    push_Tvb(L,tvb);
+    push_Pinfo(L,pinfo);
+    push_TreeItem(L,lua_tree);
+
+    if  ( lua_pcall(L,3,1,0) ) {
+        report_failure(" error calling %s heuristic dissector: %s", pinfo->current_proto, lua_tostring(L,-1));
+        lua_settop(L,0);
+    } else {
+        if (lua_isboolean(L, -1) || lua_isnil(L, -1)) {
+            result = lua_toboolean(L, -1);
+        } else {
+            report_failure(" invalid return value from Lua %s heuristic dissector", pinfo->current_proto);
+        }
+        lua_pop(L, 1);
+    }
+
+    register_frame_end_routine(pinfo, lua_frame_end);
+
+    lua_pinfo = NULL;
+    lua_tree = NULL;
+    lua_tvb = NULL;
+
+    return result;
 }
 
 static void iter_table_and_call(lua_State* LS, const gchar* table_name, lua_CFunction error_handler) {
@@ -454,6 +546,8 @@ int wslua_init(register_cb cb, gpointer client_data) {
     /* the dissectors table goes in the registry (not accessible) */
     lua_newtable (L);
     lua_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+    lua_newtable (L);
+    lua_heur_dissectors_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
 
     /* the preferences apply_cb table (accessible by the user) */
     lua_newtable (L);

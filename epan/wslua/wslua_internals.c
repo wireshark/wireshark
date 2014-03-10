@@ -99,13 +99,17 @@ WSLUA_API void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup) {
   lua_pop(L, nup);  /* remove upvalues */
 }
 
-/* identical to lua_getfield but without triggering metamethods */
+/* identical to lua_getfield but without triggering metamethods
+   warning: cannot be used directly with negative index (and shouldn't be changed to)
+   decrement your negative index if you want to use this */
 static void lua_rawgetfield(lua_State *L, int idx, const char *k) {
     lua_pushstring(L, k);
     lua_rawget(L, idx);
 }
 
-/* identical to lua_setfield but without triggering metamethods */
+/* identical to lua_setfield but without triggering metamethods
+   warning: cannot be used with negative index (and shouldn't be changed to)
+   decrement your negative index if you want to use this */
 static void lua_rawsetfield (lua_State *L, int idx, const char *k) {
     lua_pushstring(L, k);
     lua_insert(L, -2);
@@ -138,6 +142,38 @@ const gchar* wslua_typeof(lua_State *L, int idx) {
         lua_pop(L,1); /* pop __typeof result */
     }
     return classname;
+}
+
+/* this gets a Lua table of the given name, from the table at the given
+ * location idx. If it does not get a table, it pops whatever it got
+ * and returns false.
+ * warning: cannot be used with pseudo-indeces like LUA_REGISTRYINDEX
+ */
+gboolean wslua_get_table(lua_State *L, int idx, const gchar *name) {
+    gboolean result = TRUE;
+    if (idx < 0) idx--;
+    lua_rawgetfield(L, idx, name);
+    if (!lua_istable(L,-1)) {
+        lua_pop(L,1);
+        result = FALSE;
+    }
+    return result;
+}
+
+/* this gets a table field of the given name, from the table at the given
+ * location idx. If it does not get a field, it pops whatever it got
+ * and returns false.
+ * warning: cannot be used with pseudo-indeces like LUA_REGISTRYINDEX
+ */
+gboolean wslua_get_field(lua_State *L, int idx, const gchar *name) {
+    gboolean result = TRUE;
+    if (idx < 0) idx--;
+    lua_rawgetfield(L, idx, name);
+    if (lua_isnil(L,-1)) {
+        lua_pop(L,1);
+        result = FALSE;
+    }
+    return result;
 }
 
 /* This verifies/asserts that field 'name' doesn't already exist in table at location idx.

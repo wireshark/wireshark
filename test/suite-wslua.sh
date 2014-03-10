@@ -39,7 +39,7 @@ wslua_step_dissector_test() {
 	fi
 
 	# then run tshark again with the verification script. (it internally reads in testin.txt)
-	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else
@@ -121,7 +121,7 @@ wslua_step_proto_test() {
 		return
 	fi
 
-	# First run tshark with the dissector script.
+	# First run tshark with the proto script.
 	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -V -X lua_script:$TESTS_DIR/lua/proto.lua > testin.txt 2>&1
 	grep -q "All tests passed!" testin.txt
 	if [ $? -ne 0 ]; then
@@ -130,7 +130,7 @@ wslua_step_proto_test() {
 	fi
 
 	# then run tshark again with the verification script. (it internally reads in testin.txt)
-	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/verify_dissector.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else
@@ -148,7 +148,7 @@ wslua_step_int64_test() {
 	fi
 
 	# Tshark catches lua script failures, so we have to parse the output.
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/int64.lua > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/int64.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else
@@ -165,30 +165,30 @@ wslua_step_args_test() {
 	fi
 
 	# Tshark catches lua script failures, so we have to parse the output.
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:1 > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:1 > testout.txt 2>&1
 	grep -q "All tests passed!" testout.txt
 	if [ $? -ne 0 ]; then
 		cat testout.txt
 		test_step_failed "lua_args_test test 1 failed"
 	fi
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 -X lua_script1:foo -X lua_script1:bar > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 -X lua_script1:foo -X lua_script1:bar > testout.txt 2>&1
 	grep -q "All tests passed!" testout.txt
 	if [ $? -ne 0 ]; then
 		cat testout.txt
 		test_step_failed "lua_args_test test 2 failed"
 	fi
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 -X lua_script2:1 -X lua_script1:foo -X lua_script1:bar > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 -X lua_script2:1 -X lua_script1:foo -X lua_script1:bar > testout.txt 2>&1
 	grep -q "All tests passed!" testout.txt
 	if [ $? -ne 0 ]; then
 		cat testout.txt
 		test_step_failed "lua_args_test test 3 failed"
 	fi
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		cat testout.txt
 		test_step_failed "lua_args_test negative test 4 failed"
 	fi
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/script_args.lua -X lua_script1:3 > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		cat testout.txt
 		test_step_failed "lua_args_test negative test 5 failed"
@@ -241,7 +241,7 @@ wslua_step_struct_test() {
 	fi
 
 	# Tshark catches lua script failures, so we have to parse the output.
-	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/struct.lua > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/struct.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok
 	else

@@ -552,6 +552,7 @@ extern tvbuff_t* lua_tvb;
 extern dissector_handle_t lua_data_handle;
 extern gboolean lua_initialized;
 extern int lua_dissectors_table_ref;
+extern int lua_heur_dissectors_table_ref;
 
 WSLUA_DECLARE_CLASSES()
 WSLUA_DECLARE_FUNCTIONS()
@@ -565,8 +566,11 @@ extern const gchar* lua_shiftstring(lua_State* L,int idx);
 extern void wslua_setfuncs(lua_State *L, const luaL_Reg *l, int nup);
 extern const gchar* wslua_typeof_unknown;
 extern const gchar* wslua_typeof(lua_State *L, int idx);
+extern gboolean wslua_get_table(lua_State *L, int idx, const gchar *name);
+extern gboolean wslua_get_field(lua_State *L, int idx, const gchar *name);
 extern void wslua_assert_table_field_new(lua_State *L, int idx, const gchar *name);
 extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
+extern int heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 extern void wslua_prefs_changed(void);
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
