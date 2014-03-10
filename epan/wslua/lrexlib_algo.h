@@ -94,7 +94,7 @@ static int get_startoffset(lua_State *L, int stackpos, size_t len) {
   if(startoffset > 0)
     startoffset--;
   else if(startoffset < 0) {
-    startoffset += len/ALG_CHARSIZE;
+    startoffset += (int)(len/ALG_CHARSIZE);
     if(startoffset < 0)
       startoffset = 0;
   }
