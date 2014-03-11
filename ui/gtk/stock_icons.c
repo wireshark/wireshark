@@ -173,7 +173,9 @@ static stock_item_t gtk_stock_items[] = {
     {(char *)GTK_STOCK_APPLY,                         NULL,                                (char *)"_Apply"},
     {(char *)GTK_STOCK_BOLD,                          (char *)"format-text-bold",          (char *)"_Bold"},
     {(char *)GTK_STOCK_CANCEL,                        NULL,                                (char *)"_Cancel"},
+#ifdef GTK_STOCK_CAPS_LOCK_WARNING
     {(char *)GTK_STOCK_CAPS_LOCK_WARNING,             NULL,                                NULL},
+#endif
     {(char *)GTK_STOCK_CDROM,                         (char *)"media-optical",             (char *)"_CD-ROM"},
     {(char *)GTK_STOCK_CLEAR,                         (char *)"edit-clear",                (char *)"_Clear"},
     {(char *)GTK_STOCK_CLOSE,                         (char *)"window-close",              (char *)"_Close"},
@@ -239,15 +241,23 @@ static stock_item_t gtk_stock_items[] = {
     {(char *)GTK_STOCK_ORIENTATION_LANDSCAPE,         (char *)"?",                         (char *)"Landscape"},
     {(char *)GTK_STOCK_ORIENTATION_REVERSE_LANDSCAPE, (char *)"?",                         (char *)"Reverse  landscape"},
     {(char *)GTK_STOCK_ORIENTATION_REVERSE_PORTRAIT,  (char *)"?",                         (char *)"Reverse  portrait"},
+#ifdef GTK_STOCK_PAGE_SETUP
     {(char *)GTK_STOCK_PAGE_SETUP,                    (char *)"document-page-setup",       (char *)"Page     Set_up"},
+#endif
     {(char *)GTK_STOCK_PASTE,                         (char *)"edit-paste",                (char *)"_Paste"},
     {(char *)GTK_STOCK_PREFERENCES,                   (char *)"preferences-system",        (char *)"_Preferences"},
     {(char *)GTK_STOCK_PRINT,                         (char *)"document-print",            (char *)"_Print"},
     {(char *)GTK_STOCK_PRINT_ERROR,                   (char *)"printer-error",             NULL},
+#ifdef GTK_STOCK_PRINT_PAUSED
     {(char *)GTK_STOCK_PRINT_PAUSED,                  NULL,                                NULL},
+#endif
     {(char *)GTK_STOCK_PRINT_PREVIEW,                 NULL,                                (char *)"Print Pre_view"},
+#ifdef GTK_STOCK_PRINT_REPORT
     {(char *)GTK_STOCK_PRINT_REPORT,                  NULL,                                NULL},
+#endif
+#ifdef GTK_STOCK_PRINT_WARNING
     {(char *)GTK_STOCK_PRINT_WARNING,                 NULL,                                NULL},
+#endif
     {(char *)GTK_STOCK_PROPERTIES,                    (char *)"document-properties",       (char *)"_Properties"},
     {(char *)GTK_STOCK_QUIT,                          (char *)"application-exit",          (char *)"_Quit"},
     {(char *)GTK_STOCK_REDO,                          (char *)"edit-redo",                 (char *)"_Redo"},
