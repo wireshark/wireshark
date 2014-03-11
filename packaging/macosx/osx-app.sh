@@ -218,7 +218,7 @@ fi
 #pkglib="$pkgres/lib"
 pkglib="$bundle/Contents/Frameworks"
 pkgqtplugin="$bundle/Contents/PlugIns"
-pkgplugin="$pkglib/wireshark/plugins"
+pkgplugin="$bundle/Contents/PlugIns/wireshark"
 pkgpython="$pkglib/wireshark/python"
 
 mkdir -p "$pkgexec"

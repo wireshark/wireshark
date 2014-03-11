@@ -1148,7 +1148,7 @@ init_plugin_dir(void)
          * it; we don't need to call started_with_special_privs().)
          */
         else if (appbundle_dir != NULL) {
-            plugin_dir = g_strdup_printf("%s/Contents/Resources/lib/wireshark/plugins",
+            plugin_dir = g_strdup_printf("%s/Contents/PlugIns",
                                          appbundle_dir);
         }
 #endif
