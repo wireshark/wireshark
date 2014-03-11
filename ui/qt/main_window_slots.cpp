@@ -1585,6 +1585,30 @@ void MainWindow::on_actionViewReload_triggered()
     cf_reload(&cfile);
 }
 
+// gets called when user checks/unchecks the View->Toolbar->Main Toolbar
+void MainWindow::on_actionViewToolbarMainToolbar_triggered()
+{
+    // just checking for isChecked() was sufficient here, but I was worried about a loop
+    // so I'm checking both conditions
+    if (main_ui_->actionViewToolbarMainToolbar->isChecked() && !main_ui_->mainToolBar->isVisible()) {
+        main_ui_->mainToolBar->show();
+    } else if (!main_ui_->actionViewToolbarMainToolbar->isChecked() && main_ui_->mainToolBar->isVisible()) {
+        main_ui_->mainToolBar->hide();
+    }
+}
+
+// gets called when user checks/unchecks the View->Toolbar->Display Filter
+void MainWindow::on_actionViewToolbarDisplayFilter_triggered()
+{
+    // just checking for isChecked() was sufficient here, but I was worried about a loop
+    // so I'm checking both conditions
+    if (main_ui_->actionViewToolbarDisplayFilter->isChecked() && !main_ui_->displayFilterToolBar->isVisible()) {
+        main_ui_->displayFilterToolBar->show();
+    } else if (!main_ui_->actionViewToolbarDisplayFilter->isChecked() && main_ui_->displayFilterToolBar->isVisible()) {
+        main_ui_->displayFilterToolBar->hide();
+    }
+}
+
 // Expand / collapse slots in proto_tree
 
 // Go Menu

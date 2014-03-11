@@ -28,7 +28,16 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="margin">
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -59,7 +68,7 @@
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
-          <string>900000000; </string>
+          <string>900000000</string>
          </property>
         </widget>
        </item>
@@ -97,7 +106,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -220,12 +229,21 @@
     <property name="title">
      <string>&amp;View</string>
     </property>
+    <widget class="QMenu" name="menuToolbars">
+     <property name="title">
+      <string>Toolbars</string>
+     </property>
+     <addaction name="actionViewToolbarMainToolbar"/>
+     <addaction name="actionViewToolbarDisplayFilter"/>
+    </widget>
     <addaction name="separator"/>
     <addaction name="actionViewExpandSubtrees"/>
     <addaction name="actionViewExpandAll"/>
     <addaction name="actionViewCollapseAll"/>
     <addaction name="separator"/>
     <addaction name="actionViewReload"/>
+    <addaction name="separator"/>
+    <addaction name="menuToolbars"/>
    </widget>
    <widget class="QMenu" name="menuAnalyze">
     <property name="title">
@@ -395,6 +413,9 @@
      <verstretch>0</verstretch>
     </sizepolicy>
    </property>
+   <property name="windowTitle">
+    <string>Main Toolbar</string>
+   </property>
    <property name="movable">
     <bool>true</bool>
    </property>
@@ -425,6 +446,9 @@
   </widget>
   <widget class="MainStatusBar" name="statusBar"/>
   <widget class="QToolBar" name="displayFilterToolBar">
+   <property name="windowTitle">
+    <string>Display Filter Toolbar</string>
+   </property>
    <property name="movable">
     <bool>false</bool>
    </property>
@@ -1527,6 +1551,34 @@
     <string>Export PDUs to File</string>
    </property>
   </action>
+  <action name="actionViewToolbarMainToolbar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Main Toolbar</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/hide the main toolbar</string>
+   </property>
+  </action>
+  <action name="actionViewToolbarDisplayFilter">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="checked">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Display Filter</string>
+   </property>
+   <property name="toolTip">
+    <string>Show/hide the display filter toolbar</string>
+   </property>
+  </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
  <customwidgets>
@@ -1570,6 +1622,38 @@
     <hint type="destinationlabel">
      <x>408</x>
      <y>258</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>mainToolBar</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actionViewToolbarMainToolbar</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>479</x>
+     <y>39</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>displayFilterToolBar</sender>
+   <signal>visibilityChanged(bool)</signal>
+   <receiver>actionViewToolbarDisplayFilter</receiver>
+   <slot>setChecked(bool)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>479</x>
+     <y>64</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>-1</x>
+     <y>-1</y>
     </hint>
    </hints>
   </connection>
