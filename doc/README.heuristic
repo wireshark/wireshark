@@ -91,6 +91,13 @@ Obviously, this is *not* 100% bullet proof, but it's the best WS can offer to
 its users here - and improving the heuristic is always possible if it turns out
 that it's not good enough to distinguish between two given protocols.
 
+Note: The heuristic code in a dissector *must not* cause an exception
+      (before returning FALSE) as this will prevent following
+      heuristic dissector handoffs. In practce, this normally means
+      that a test should be done to verify that the required data is
+      available in the tvb before fetching from the tvb. (See the
+      example below).
+
 
 Heuristic Code Example
 ----------------------
@@ -120,6 +127,9 @@ static gboolean
 dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 ...
+    /* 0) Verify needed bytes available in tvb so tvb_get...() doesn't cause exception.
+    if (tvb_length(tvb) < 5)
+        return FALSE;
 
     /* 1) first byte must be 0x42 */
     if ( tvb_get_guint8(tvb, 0) != 0x42 )
