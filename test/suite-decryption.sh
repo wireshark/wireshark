@@ -90,7 +90,7 @@ decryption_step_dtls() {
 	test_step_ok
 }
 
-# SSL
+# SSL, using the server's private key
 # http://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
 decryption_step_ssl() {
 	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
@@ -98,7 +98,23 @@ decryption_step_ssl() {
 		| grep favicon.ico > /dev/null 2>&1
 	RETURNVALUE=$?
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
-		test_step_failed "Failed to decrypt SSL"
+		test_step_failed "Failed to decrypt SSL using the server's private key"
+		return
+	fi
+	test_step_ok
+}
+
+# SSL, using the master secret
+decryption_step_ssl_master_secret() {
+	env $TS_DC_ENV $TSHARK $TS_DC_ARGS -Tfields -e http.request.uri \
+		-o "ssl.keylog_file: $TEST_KEYS_DIR/dhe1_keylog.dat" \
+		-o "ssl.desegment_ssl_application_data: FALSE" \
+		-o "http.ssl.port: 443" \
+		-r "$CAPTURE_DIR/dhe1.pcapng.gz" -Y http \
+		| grep test > /dev/null 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		test_step_failed "Failed to decrypt SSL using the master secret"
 		return
 	fi
 	test_step_ok
@@ -159,7 +175,8 @@ decryption_step_dvb_ci() {
 tshark_decryption_suite() {
 	test_step_add "IEEE 802.11 WPA PSK Decryption" decryption_step_80211_wpa_psk
 	test_step_add "DTLS Decryption" decryption_step_dtls
-	test_step_add "SSL Decryption" decryption_step_ssl
+	test_step_add "SSL Decryption (private key)" decryption_step_ssl
+	test_step_add "SSL Decryption (master secret)" decryption_step_ssl_master_secret
 	test_step_add "ZigBee Decryption" decryption_step_zigbee
 	test_step_add "ANSI C12.22 Decryption" decryption_step_c1222
 	test_step_add "DVB-CI Decryption" decryption_step_dvb_ci
