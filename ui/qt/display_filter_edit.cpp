@@ -109,6 +109,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
     // XXX - Use native buttons on OS X?
 
     bookmark_button_ = new QToolButton(this);
+    bookmark_button_->setEnabled(false);
     bookmark_button_->setCursor(Qt::ArrowCursor);
     bookmark_button_->setStyleSheet(QString(
             "QToolButton { /* all types of tool button */"
@@ -137,6 +138,9 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
 
             ).arg(plain_ ? 0 : 1)
             );
+#ifndef QT_NO_TOOLTIP
+    bookmark_button_->setToolTip(tr("Bookmark this filter string"));
+#endif // QT_NO_TOOLTIP
     connect(bookmark_button_, SIGNAL(clicked()), this, SLOT(bookmarkClicked()));
 
     clear_button_ = new QToolButton(this);
@@ -154,8 +158,11 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
             "  image: url(:/dfilter/dfilter_erase_selected.png) center;"
             "}"
             );
+#ifndef QT_NO_TOOLTIP
+    clear_button_->setToolTip(tr("Clear the filter string and update the display"));
+#endif // QT_NO_TOOLTIP
     clear_button_->hide();
-    connect(clear_button_, SIGNAL(clicked()), this, SLOT(clear()));
+    connect(clear_button_, SIGNAL(clicked()), this, SLOT(clearFilter()));
     connect(this, SIGNAL(textChanged(const QString&)), this, SLOT(checkFilter(const QString&)));
 
     if (!plain_) {
@@ -181,6 +188,9 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, bool plain) :
                 "  image: url(:/dfilter/dfilter_apply_disabled.png) center;"
                 "}"
                 );
+#ifndef QT_NO_TOOLTIP
+        apply_button_->setToolTip(tr("Apply this filter string to the display"));
+#endif // QT_NO_TOOLTIP
         connect(apply_button_, SIGNAL(clicked()), this, SLOT(applyDisplayFilter()));
         connect(this, SIGNAL(returnPressed()), this, SLOT(applyDisplayFilter()));
     }
@@ -304,6 +314,13 @@ void DisplayFilterEdit::checkFilter(const QString& text)
 void DisplayFilterEdit::bookmarkClicked()
 {
     emit addBookmark(text());
+}
+
+void DisplayFilterEdit::clearFilter()
+{
+    clear();
+    QString new_filter;
+    emit filterPackets(new_filter, true);
 }
 
 void DisplayFilterEdit::applyDisplayFilter()

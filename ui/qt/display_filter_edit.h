@@ -44,6 +44,7 @@ public slots:
 private slots:
     void checkFilter(const QString &text);
     void bookmarkClicked();
+    void clearFilter();
 
 private:
     bool plain_;

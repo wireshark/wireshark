@@ -74,6 +74,9 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
             "}"
             );
     completer()->setCompletionMode(QCompleter::PopupCompletion);
+#ifndef QT_NO_TOOLTIP
+    setToolTip(tr("Select from previously used filters"));
+#endif // QT_NO_TOOLTIP
 
     connect(wsApp, SIGNAL(preferencesChanged()), this, SLOT(updateMaxCount()));
 }
