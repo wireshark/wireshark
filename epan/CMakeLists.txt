@@ -868,6 +868,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-lapsat.c
 	dissectors/packet-ldp.c
 	dissectors/packet-ldss.c
+	dissectors/packet-lg8979.c
 	dissectors/packet-lge_monitor.c
 	dissectors/packet-linx.c
 	dissectors/packet-lisp-data.c

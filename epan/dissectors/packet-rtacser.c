@@ -92,6 +92,7 @@ static dissector_handle_t selfm_handle;
 static dissector_handle_t dnp3_handle;
 static dissector_handle_t modbus_handle;
 static dissector_handle_t synphasor_handle;
+static dissector_handle_t lg8979_handle;
 
 #define RTACSER_HEADER_LEN    12
 
@@ -110,6 +111,7 @@ static dissector_handle_t synphasor_handle;
 #define RTACSER_PAYLOAD_DNP3        2
 #define RTACSER_PAYLOAD_MODBUS      3
 #define RTACSER_PAYLOAD_SYNPHASOR   4
+#define RTACSER_PAYLOAD_LG8979      5
 
 /* Event Types */
 static const value_string rtacser_eventtype_vals[] = {
@@ -133,6 +135,7 @@ static const enum_val_t rtacser_payload_proto_type[] = {
   { "DNP3      ", "DNP3      ",  RTACSER_PAYLOAD_DNP3       },
   { "MODBUS RTU", "MODBUS RTU",  RTACSER_PAYLOAD_MODBUS     },
   { "SYNPHASOR ", "SYNPHASOR ",  RTACSER_PAYLOAD_SYNPHASOR  },
+  { "L&G 8979  ", "L&G 8979  ",  RTACSER_PAYLOAD_LG8979     },
   { NULL, NULL, 0 }
 };
 
@@ -255,6 +258,10 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
                 call_dissector(synphasor_handle, payload_tvb, pinfo, tree);
                 break;
+            case RTACSER_PAYLOAD_LG8979:
+                payload_tvb = tvb_new_subset_remaining(tvb, RTACSER_HEADER_LEN);
+                call_dissector(lg8979_handle, payload_tvb, pinfo, tree);
+                break;
             default:
                 break;
         }
@@ -373,6 +380,7 @@ proto_reg_handoff_rtacser(void)
     dnp3_handle = find_dissector("dnp3.udp");
     modbus_handle = find_dissector("mbrtu");
     synphasor_handle = find_dissector("synphasor");
+    lg8979_handle = find_dissector("lg8979");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RTAC_SERIAL, rtacser_handle);
 }
