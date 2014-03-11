@@ -247,7 +247,9 @@ static stock_item_t gtk_stock_items[] = {
     {(char *)GTK_STOCK_PASTE,                         (char *)"edit-paste",                (char *)"_Paste"},
     {(char *)GTK_STOCK_PREFERENCES,                   (char *)"preferences-system",        (char *)"_Preferences"},
     {(char *)GTK_STOCK_PRINT,                         (char *)"document-print",            (char *)"_Print"},
+#ifdef GTK_STOCK_PRINT_ERROR
     {(char *)GTK_STOCK_PRINT_ERROR,                   (char *)"printer-error",             NULL},
+#endif
 #ifdef GTK_STOCK_PRINT_PAUSED
     {(char *)GTK_STOCK_PRINT_PAUSED,                  NULL,                                NULL},
 #endif
