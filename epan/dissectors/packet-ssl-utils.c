@@ -2516,7 +2516,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
             /* go with ssl key processessing; encrypted_pre_master
              * will be used for master secret store*/
             ret = ssl_decrypt_pre_master_secret(ssl_session, &encrypted_pre_master, ssl_session->private_key);
-            if (ret == 0)
+            if (ret>=0)
                 return 0;
 
             ssl_debug_printf("ssl_generate_pre_master_secret: can't decrypt pre master secret\n");
@@ -2525,7 +2525,7 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
         if (keylog_filename != NULL) {
             /* try to find the key in the key log */
             ret = ssl_keylog_lookup(ssl_session, keylog_filename, &encrypted_pre_master);
-            if (ret == 0)
+            if (ret>=0)
                 return 0;
         }
     }
