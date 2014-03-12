@@ -435,7 +435,7 @@ tshark_LDADD = \
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@GLIB_LIBS@ -lm			\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
@@ -447,7 +447,8 @@ tshark_LDADD = \
 	@PY_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@LIBSMI_LDFLAGS@		\
+	-lm
 tshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if ENABLE_STATIC
@@ -466,7 +467,7 @@ tfshark_LDADD = \
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@GLIB_LIBS@ -lm			\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
@@ -475,7 +476,8 @@ tfshark_LDADD = \
 	@COREFOUNDATION_FRAMEWORKS@	\
 	@PY_LIBS@			\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@LIBSMI_LDFLAGS@		\
+	-lm
 tfshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 if ENABLE_STATIC
@@ -492,7 +494,7 @@ rawshark_LDADD = \
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@GLIB_LIBS@ -lm			\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
@@ -504,13 +506,15 @@ rawshark_LDADD = \
 	@PY_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@LIBSMI_LDFLAGS@		\
+	-lm
 rawshark_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 # Libraries with which to link text2pcap.
 text2pcap_LDADD = \
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@ -lm
+	@GLIB_LIBS@			\
+	-lm
 # Don't turn on -Werror for text2pcap: its source includes text2pcap-scanner.c
 # which is generated (and therefore not always clean).
 # We could generate text2pcap.o as a library with -Werror but for now it
@@ -557,12 +561,13 @@ reordercap_CFLAGS = $(AM_CLEAN_CFLAGS)
 randpkt_LDADD = \
 	wiretap/libwiretap.la		\
 	wsutil/libwsutil.la		\
-	@GLIB_LIBS@ -lm			\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@
+	@ADNS_LIBS@			\
+	-lm
 randpkt_CFLAGS = $(AM_CLEAN_CFLAGS)
 
 # Libraries and plugin flags with which to link dftest.
@@ -573,7 +578,7 @@ dftest_LDADD = \
 	epan/libwireshark.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@GLIB_LIBS@ -lm			\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
@@ -583,19 +588,21 @@ dftest_LDADD = \
 	@PY_LIBS@			\
 	@LIBGCRYPT_LIBS@		\
 	@LIBGNUTLS_LIBS@		\
-	@LIBSMI_LDFLAGS@
+	@LIBSMI_LDFLAGS@		\
+	-lm
 dftest_CFLAGS = $(AM_CLEAN_CFLAGS) $(py_dissectors_dir)
 
 echld_test_LDADD = \
-	epan/libwireshark.la \
-	echld/libechld.la \
-	wsutil/libwsutil.la \
-	@GLIB_LIBS@ -lm			\
+	epan/libwireshark.la		\
+	echld/libechld.la		\
+	wsutil/libwsutil.la		\
+	@GLIB_LIBS@			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
 	@NSL_LIBS@			\
 	@C_ARES_LIBS@			\
-	@ADNS_LIBS@
+	@ADNS_LIBS@			\
+	-lm
 
 echld_test_DEPENDENCIES = \
 	echld/libechld.la \
