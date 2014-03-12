@@ -1,6 +1,10 @@
-# $Id$
+#
+# Autoconf script for Wireshark
 #
 
+#
+# Define variables for the components of the Wireshark version number.
+#
 m4_define([version_major], [1])
 m4_define([version_minor], [11])
 m4_define([version_micro], [3])
