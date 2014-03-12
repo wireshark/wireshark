@@ -150,8 +150,7 @@ static const value_string lcsap_pos_usage_vals[] = {
  	{ 0x01, "Attempted successfully: results not used to generate location - not used." },
  	{ 0x02, "Attempted successfully: results used to verify but not generate location - not used." },
  	{ 0x03, "Attempted successfully: results used to generate location" },
- 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods \n"
-	        "and the actual method or methods used by the UE cannot be determined." },
+ 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods and the actual method or methods used by the UE cannot be determined." },
  	{ 0x05, "Reserved" },
  	{ 0x06, "Reserved" },
  	{ 0x07, "Reserved" },
@@ -186,8 +185,7 @@ static const value_string lcsap_gnss_pos_usage_vals[] = {
  	{ 0x01, "Attempted successfully: results not used to generate location" },
  	{ 0x02, "Attempted successfully: results used to verify but not generate location" },
  	{ 0x03, "Attempted successfully: results used to generate location" },
- 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods \n"
-	        "and the actual method or methods used by the UE cannot be determined." },
+ 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods and the actual method or methods used by the UE cannot be determined." },
  	{ 0x05, "Reserved" },
  	{ 0x06, "Reserved" },
  	{ 0x07, "Reserved" },
