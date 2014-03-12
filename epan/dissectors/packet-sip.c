@@ -220,6 +220,7 @@ static gint ett_sip_tc_uri                = -1;
 
 static expert_field ei_sip_unrecognized_header = EI_INIT;
 static expert_field ei_sip_header_not_terminated = EI_INIT;
+static expert_field ei_sip_odd_register_response = EI_INIT;
 static expert_field ei_sip_sipsec_malformed = EI_INIT;
 
 /* PUBLISH method added as per http://www.ietf.org/internet-drafts/draft-ietf-sip-publish-01.txt */
@@ -1519,7 +1520,8 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
  * * contact-param  =  (name-addr / addr-spec) *(SEMI contact-params)
  */
 static gint
-dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset)
+dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint start_offset, gint line_end_offset,
+			guchar* contacts_expires_0, guchar* contacts_expires_unknown)
 {
 	gchar c;
 	gint current_offset;
@@ -1527,6 +1529,8 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	gint contact_params_start_offset = -1;
 	/*gint contact_param_end_offset = -1;*/
 	uri_offset_info uri_offsets;
+	gboolean end_of_hdr = FALSE;
+	gboolean has_expires_param = FALSE;
 
 	/* skip Spaces and Tabs */
 	start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -1547,11 +1551,23 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 	}
 	display_sip_uri(tvb, tree, &uri_offsets, &sip_contact_uri);
 
+	/* check if there's a comma before a ';', in which case we stop parsing this item at the comma */
+	queried_offset = tvb_find_guint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ',');
+
 	/* Check if we have contact parameters, the uri should be followed by a ';' */
 	contact_params_start_offset = tvb_find_guint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ';');
 	/* check if contact-params is present */
-	if(contact_params_start_offset == -1)
+	if(contact_params_start_offset == -1) {
+		/* no expires param */
+		(*contacts_expires_unknown)++;
 		return line_end_offset;
+	}
+
+	if (queried_offset != -1 && queried_offset < contact_params_start_offset) {
+		/* no expires param */
+		(*contacts_expires_unknown)++;
+		return queried_offset;
+	}
 
 	/* Move current offset to the start of the first param */
 	contact_params_start_offset++;
@@ -1568,6 +1584,11 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 			queried_offset++;
 			c = tvb_get_guint8(tvb, queried_offset);
 			switch (c) {
+				/* prevent tree from displaying the '\r\n' as part of the param */
+				case '\r':
+				case '\n':
+					end_of_hdr = TRUE;
+					/* fall through */
 				case ',':
 				case ';':
 				case '"':
@@ -1599,13 +1620,54 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 		}
 		proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset ,
 			current_offset - contact_params_start_offset, ENC_ASCII|ENC_NA);
+
+		/* need to check for an 'expires' parameter
+		 * TODO: this should be done in a common way for all headers,
+		 * but To/From/etc do their own right now so doing the same here
+		 */
+		/* also, this is a bad way of checking param names, but it's what To/From
+		 * etc, do. But legally "exPiRes = value" is also legit.
+		 */
+		if (tvb_strncaseeql(tvb, contact_params_start_offset, "expires=", 8) == 0) {
+			/* if the expires param value is 0, then it's de-registering
+			 * this assumes the message is a REGISTER request/response, but these
+			 * contacts_expires_0/contacts_expires_unknown variables only get used then,
+			 * so that's ok
+			 */
+			if (atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, contact_params_start_offset+8,
+						current_offset - (contact_params_start_offset+8), ENC_UTF_8)) == 0) {
+				(*contacts_expires_0)++;
+				/* it is actually unusual - arguably invalid - for a SIP REGISTER
+				 * 200 OK _response_ to contain Contacts with expires=0.
+				 */
+				if (stat_info && stat_info->response_code > 199 && stat_info->response_code < 300) {
+					proto_tree_add_expert_format(tree, pinfo, &ei_sip_odd_register_response,
+						tvb, contact_params_start_offset, current_offset - contact_params_start_offset,
+						"SIP REGISTER %d response contains Contact with expires=0",
+						stat_info->response_code);
+				}
+			} else {
+				has_expires_param = TRUE;
+			}
+		}
+
 		/* In case there are more parameters, point to the start of it */
 		contact_params_start_offset = current_offset+1;
 		queried_offset = contact_params_start_offset;
+		if (end_of_hdr) {
+			/* '\r' or '\n' found, stop parsing and also set current offset to end
+			 * so the return value indicates we reached line end
+			 */
+			current_offset = line_end_offset;
+		}
 		if (c == ',') {
 			/* comma separator found, stop parsing of current contact-param here */
 			break;
 		}
+	}
+
+	if (!has_expires_param) {
+		(*contacts_expires_unknown)++;
 	}
 
 	return current_offset;
@@ -2262,7 +2324,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		*sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL,
 		*via_tree         = NULL, *reason_tree       = NULL, *rack_tree = NULL,
 		*route_tree       = NULL, *security_client_tree = NULL;
-	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0;
+	guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0, contacts_expires_0 = 0, contacts_expires_unknown = 0;
 	guint32 cseq_number = 0;
 	guchar  cseq_number_set = 0;
 	char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
@@ -2342,7 +2404,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		}
 	}
 
-	/* Initialise stat info for passing to tap */
+	/* Initialise stat info for passing to tap
+	 * Note: this isn't _only_ for taps - internal code here uses it too
+	 */
 	stat_info = wmem_new0(wmem_packet_scope(), sip_info_value_t);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SIP");
@@ -3050,7 +3114,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 						if(hdr_tree) {
 							comma_offset = value_offset;
-							while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset, next_offset)) != -1)
+							while((comma_offset = dissect_sip_contact_item(tvb, pinfo, sip_element_tree, comma_offset,
+									next_offset, &contacts_expires_0, &contacts_expires_unknown)) != -1)
 							{
 								contacts++;
 								if(comma_offset == next_offset)
@@ -3300,28 +3365,72 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 
 	/* Add to info column interesting things learned from header fields. */
+
+	/* for either REGISTER requests or responses, any contacts without expires
+	 * parameter use the Expires header's value
+	 */
+	if (expires_is_0) {
+		/* this may add nothing, but that's ok */
+		contacts_expires_0 += contacts_expires_unknown;
+	}
+
 	/* Registration requests */
 	if (current_method_idx == SIP_METHOD_REGISTER)
 	{
+		/* TODO: what if there's a *-contact but also non-*-contacts?
+		 * we should create expert info for that someday I guess
+		 */
 		if (contact_is_star && expires_is_0)
 		{
-			col_append_str(pinfo->cinfo, COL_INFO, "    (remove all bindings)");
+			col_append_str(pinfo->cinfo, COL_INFO, "  (remove all bindings)");
+		}
+		else
+		if (contacts_expires_0 > 0)
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  (remove %d binding%s)",
+				contacts_expires_0, contacts_expires_0 == 1 ? "":"s");
+			if (contacts > contacts_expires_0) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (add %d binding%s)",
+					contacts - contacts_expires_0,
+					(contacts - contacts_expires_0 == 1) ? "":"s");
+			}
 		}
 		else
 		if (!contacts)
 		{
-			col_append_str(pinfo->cinfo, COL_INFO, "    (fetch bindings)");
+			col_append_str(pinfo->cinfo, COL_INFO, "  (fetch bindings)");
+		}
+		else
+		{
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  (%d binding%s)",
+				contacts, contacts == 1 ? "":"s");
 		}
 	}
 
-	/* Registration responses */
-	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0))
+	/* Registration responses - this info only makes sense in 2xx responses */
+	if (line_type == STATUS_LINE && (strcmp(cseq_method, "REGISTER") == 0) &&
+		stat_info && stat_info->response_code > 199 && stat_info->response_code < 300)
 	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "    (%d bindings)", contacts);
+		if (contacts_expires_0 > 0) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  (removed %d binding%s)",
+				contacts_expires_0, contacts_expires_0 == 1 ? "":"s");
+			if (contacts > contacts_expires_0) {
+				col_append_fstr(pinfo->cinfo, COL_INFO, " (%d binding%s kept)",
+					contacts - contacts_expires_0,
+					(contacts - contacts_expires_0 == 1) ? "":"s");
+			}
+		} else {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "  (%d binding%s)",
+				contacts, contacts == 1 ? "":"s");
+		}
 	}
 
 	/* We've finished writing to the info col for this SIP message
 	 * Set fence in case there is more than one (SIP)message in the frame
+	 */
+	/* XXX: this produces ugly output, since usually there's only one SIP
+	 * message in a frame yet this '|' gets added at the end. Need a better
+	 * way to do this.
 	 */
 	col_append_str(pinfo->cinfo, COL_INFO, " | ");
 	col_set_fence(pinfo->cinfo, COL_INFO);
@@ -5390,6 +5499,7 @@ void proto_register_sip(void)
 	static ei_register_info ei[] = {
 		{ &ei_sip_unrecognized_header, { "sip.unrecognized_header", PI_UNDECODED, PI_NOTE, "Unrecognised SIP header", EXPFILL }},
 		{ &ei_sip_header_not_terminated, { "sip.header_not_terminated", PI_MALFORMED, PI_WARN, "Header not terminated by empty line (CRLF)", EXPFILL }},
+		{ &ei_sip_odd_register_response, { "sip.response.unsual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
 		{ &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
 	};
 
