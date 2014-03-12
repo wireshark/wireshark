@@ -363,8 +363,7 @@ static const value_string lcsap_pos_usage_vals[] = {
  	{ 0x01, "Attempted successfully: results not used to generate location - not used." },
  	{ 0x02, "Attempted successfully: results used to verify but not generate location - not used." },
  	{ 0x03, "Attempted successfully: results used to generate location" },
- 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods \n"
-	        "and the actual method or methods used by the UE cannot be determined." },
+ 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods and the actual method or methods used by the UE cannot be determined." },
  	{ 0x05, "Reserved" },
  	{ 0x06, "Reserved" },
  	{ 0x07, "Reserved" },
@@ -399,8 +398,7 @@ static const value_string lcsap_gnss_pos_usage_vals[] = {
  	{ 0x01, "Attempted successfully: results not used to generate location" },
  	{ 0x02, "Attempted successfully: results used to verify but not generate location" },
  	{ 0x03, "Attempted successfully: results used to generate location" },
- 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods \n"
-	        "and the actual method or methods used by the UE cannot be determined." },
+ 	{ 0x04, "Attempted successfully: case where UE supports multiple mobile based positioning methods and the actual method or methods used by the UE cannot be determined." },
  	{ 0x05, "Reserved" },
  	{ 0x06, "Reserved" },
  	{ 0x07, "Reserved" },
@@ -2220,7 +2218,7 @@ static int dissect_LCS_AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
 
 /*--- End of included file: packet-lcsap-fn.c ---*/
-#line 197 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 195 "../../asn1/lcsap/packet-lcsap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -2320,7 +2318,7 @@ proto_reg_handoff_lcsap(void)
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
-#line 258 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 256 "../../asn1/lcsap/packet-lcsap-template.c"
 	} else {
 		if (SctpPort != 0) {
 			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
@@ -2802,7 +2800,7 @@ void proto_register_lcsap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-lcsap-hfarr.c ---*/
-#line 303 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 301 "../../asn1/lcsap/packet-lcsap-template.c"
   };
 
   /* List of subtrees */
@@ -2858,7 +2856,7 @@ void proto_register_lcsap(void) {
     &ett_lcsap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-lcsap-ettarr.c ---*/
-#line 309 "../../asn1/lcsap/packet-lcsap-template.c"
+#line 307 "../../asn1/lcsap/packet-lcsap-template.c"
  };
 
   module_t *lcsap_module;
