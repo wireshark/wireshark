@@ -21,13 +21,15 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
  * Protocol ref:
- * http://tools.ietf.org/html/draft-mahalingam-dutt-dcops-vxlan-00
+ * http://tools.ietf.org/html/draft-mahalingam-dutt-dcops-vxlan-08
  */
 
 
 #include "config.h"
 
 #include <epan/packet.h>
+
+#define UDP_PORT_VXLAN  4789
 
 void proto_register_vxlan(void);
 void proto_reg_handoff_vxlan(void);
@@ -218,7 +220,9 @@ proto_reg_handoff_vxlan(void)
     eth_handle = find_dissector("eth");
 
     vxlan_handle = create_dissector_handle(dissect_vxlan, proto_vxlan);
+    dissector_add_uint("udp.port", UDP_PORT_VXLAN, vxlan_handle);
     dissector_add_handle("udp.port", vxlan_handle);  /* For 'Decode As' */
+
 }
 
 /*
@@ -233,5 +237,3 @@ proto_reg_handoff_vxlan(void)
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
-
