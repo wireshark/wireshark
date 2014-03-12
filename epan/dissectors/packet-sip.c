@@ -5499,7 +5499,7 @@ void proto_register_sip(void)
 	static ei_register_info ei[] = {
 		{ &ei_sip_unrecognized_header, { "sip.unrecognized_header", PI_UNDECODED, PI_NOTE, "Unrecognised SIP header", EXPFILL }},
 		{ &ei_sip_header_not_terminated, { "sip.header_not_terminated", PI_MALFORMED, PI_WARN, "Header not terminated by empty line (CRLF)", EXPFILL }},
-		{ &ei_sip_odd_register_response, { "sip.response.unsual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
+		{ &ei_sip_odd_register_response, { "sip.response.unusual", PI_RESPONSE_CODE, PI_WARN, "SIP Response is unusual", EXPFILL }},
 		{ &ei_sip_sipsec_malformed, { "sip.sec_mechanism.malformed", PI_MALFORMED, PI_WARN, "SIP Security-mechanism header malformed", EXPFILL }},
 	};
 
