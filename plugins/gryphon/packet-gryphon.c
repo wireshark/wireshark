@@ -1461,7 +1461,7 @@ static const value_string action_vals[] = {
     { FR_RESP_AFTER_PERIOD,
         "Send response(s) after the specified period expires following a conforming message" },
     { FR_IGNORE_DURING_PER,
-        "Send response(s) for a conforming message and ignore\nfurther messages until the specified period expires" },
+        "Send response(s) for a conforming message and ignore further messages until the specified period expires" },
     { 0,
         NULL }
 };
