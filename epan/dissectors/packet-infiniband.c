@@ -1887,6 +1887,15 @@ skip_lrh:
 
                 parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
                 break;
+            case RETH_IMMDT_PAYLD:
+                parse_RETH(all_headers_tree, tvb, &offset);
+                parse_IMMDT(all_headers_tree, tvb, &offset);
+
+                packetLength -= 16; /* RETH */
+                packetLength -= 4; /* IMMDT */
+
+                parse_PAYLOAD(all_headers_tree, pinfo, &info, tvb, &offset, packetLength);
+                break;
             case RETH_PAYLD:
                 parse_RETH(all_headers_tree, tvb, &offset);
 
@@ -4992,6 +5001,10 @@ skip_lrh:
             case RDETH_DETH_PAYLD:
                 offset += 4; /* RDETH */
                 offset += 8; /* DETH */
+                break;
+            case RETH_IMMDT_PAYLD:
+                offset += 16; /* RETH */
+                offset += 4; /* IMMDT */
                 break;
             case RDETH_DETH_RETH_PAYLD:
                 offset += 4; /* RDETH */
