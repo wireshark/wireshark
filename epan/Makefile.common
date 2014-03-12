@@ -107,11 +107,11 @@ LIBWIRESHARK_SRC =		\
 # We distribute Lemon and rdps.py with Wireshark, so we don't distribute the
 # files they produce.
 #
-NODIST_LIBWIRESHARK_GENERATED_C_FILES = \
-	dtd_grammar.c		\
+NODIST_LIBWIRESHARK_GENERATED_C_FILES =	\
+	dtd_grammar.c			\
 	ps.c
 
-NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES = \
+NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES =	\
 	dtd_grammar.h
 
 #
