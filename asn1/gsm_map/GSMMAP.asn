@@ -25,7 +25,8 @@ IMPORTS
 	IMSI-WithLMSI,
 	LMSI,
 	ProtocolId,
-	SignalInfo
+	SignalInfo,
+	TeleserviceCode
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CommonDataTypes (18) version11 (11)}
@@ -41,6 +42,20 @@ FROM MAP-ExtensionDataTypes {
 FROM MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-CH-DataTypes (13) version11 (11)}
+
+   CUG-Interlock
+FROM MAP-MS-DataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version15 (15)}
+
+   CorrelationID,
+   SM-DeliveryNotIntended,
+   SM-RP-MTI,
+   SM-RP-SMEA
+FROM MAP-SM-DataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version15 (15)}
+
 ;
 
 -- ROS def's
@@ -633,11 +648,37 @@ SendRoutingInfoResV2 ::= SEQUENCE {
 -- cug-CheckInfo must be absent in version 1 
 	...
 	} 
+
 -- Removed from SS-DataTypes.asn in Rel 9.0.0
 BeginSubscriberActivityArg ::= SEQUENCE {
     imsi            IMSI,
     originatingEntityNumber ISDN-AddressString,
     msisdn                  [PRIVATE 28] AddressString OPTIONAL,
     ... }
+
+RoutingInfoForSM-ArgV1 ::= SEQUENCE {
+    msisdn      [0] ISDN-AddressString,
+    sm-RP-PRI       [1] BOOLEAN,
+    serviceCentreAddress    [2] AddressString,
+    -- WS specific change to be backwards compatible with phase 1 (See Bug 9704)
+    cug-Interlock       [3]  CUG-Interlock  OPTIONAL,
+    --teleserviceCode         [5] TeleserviceCode OPTIONAL,
+    -- END Ws specific change
+    --extensionContainer  [6] ExtensionContainer  OPTIONAL,
+    --... ,
+    --gprsSupportIndicator    [7] NULL        OPTIONAL,
+    -- gprsSupportIndicator is set only if the SMS-GMSC supports
+    -- receiving of two numbers from the HLR
+    --sm-RP-MTI       [8] SM-RP-MTI   OPTIONAL,
+    --sm-RP-SMEA  [9] SM-RP-SMEA  OPTIONAL,
+    --sm-deliveryNotIntended  [10] SM-DeliveryNotIntended OPTIONAL,
+    --ip-sm-gwGuidanceIndicator   [11] NULL       OPTIONAL,
+    imsi            [12] IMSI       OPTIONAL  --,
+    --t4-Trigger-Indicator    [14] NULL       OPTIONAL,
+    --singleAttemptDelivery   [13]    NULL        OPTIONAL,
+    --correlationID   [15] CorrelationID  OPTIONAL
+    }
+
+
 END
 

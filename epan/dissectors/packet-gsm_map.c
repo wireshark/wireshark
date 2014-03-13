@@ -1675,6 +1675,9 @@ static int hf_gsm_old_networkSignalInfo = -1;     /* ExternalSignalInfo */
 static int hf_gsm_old_routingInfo = -1;           /* RoutingInfo */
 static int hf_gsm_old_originatingEntityNumber = -1;  /* ISDN_AddressString */
 static int hf_gsm_old_msisdn_02 = -1;             /* AddressString */
+static int hf_gsm_old_sm_RP_PRI = -1;             /* BOOLEAN */
+static int hf_gsm_old_serviceCentreAddress = -1;  /* AddressString */
+static int hf_gsm_old_cug_Interlock = -1;         /* CUG_Interlock */
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -2498,6 +2501,7 @@ static gint ett_gsm_old_SM_RP_OAold = -1;
 static gint ett_gsm_old_SendRoutingInfoArgV2 = -1;
 static gint ett_gsm_old_SendRoutingInfoResV2 = -1;
 static gint ett_gsm_old_BeginSubscriberActivityArg = -1;
+static gint ett_gsm_old_RoutingInfoForSM_ArgV1 = -1;
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -17807,6 +17811,33 @@ dissect_gsm_old_BeginSubscriberActivityArg(gboolean implicit_tag _U_, tvbuff_t *
 }
 
 
+
+static int
+dissect_gsm_old_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_boolean(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t gsm_old_RoutingInfoForSM_ArgV1_sequence[] = {
+  { &hf_gsm_old_msisdn      , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
+  { &hf_gsm_old_sm_RP_PRI   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_old_BOOLEAN },
+  { &hf_gsm_old_serviceCentreAddress, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_AddressString },
+  { &hf_gsm_old_cug_Interlock, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_CUG_Interlock },
+  { &hf_gsm_old_imsi        , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_old_RoutingInfoForSM_ArgV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   gsm_old_RoutingInfoForSM_ArgV1_sequence, hf_index, ett_gsm_old_RoutingInfoForSM_ArgV1);
+
+  return offset;
+}
+
+
 /* --- Module SS-DataTypes --- --- ---                                        */
 
 
@@ -20982,7 +21013,11 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     }
     break;
   case 45: /*sendRoutingInfoForSM*/
-    offset=dissect_gsm_map_sm_RoutingInfoForSM_Arg(FALSE, tvb, offset, actx, tree, -1);
+    if (application_context_version == 1) {
+      offset=dissect_gsm_old_RoutingInfoForSM_ArgV1(FALSE, tvb, offset, actx, tree, -1);
+    } else {
+      offset=dissect_gsm_map_sm_RoutingInfoForSM_Arg(FALSE, tvb, offset, actx, tree, -1);
+    }
     break;
   case 46: /*mo-forwardSM(v3) or ForwardSM(v1/v2)*/
     if (application_context_version == 3)
@@ -28692,6 +28727,18 @@ void proto_register_gsm_map(void) {
       { "msisdn", "gsm_old.msisdn",
         FT_BYTES, BASE_NONE, NULL, 0,
         "AddressString", HFILL }},
+    { &hf_gsm_old_sm_RP_PRI,
+      { "sm-RP-PRI", "gsm_old.sm_RP_PRI",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_gsm_old_serviceCentreAddress,
+      { "serviceCentreAddress", "gsm_old.serviceCentreAddress",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "AddressString", HFILL }},
+    { &hf_gsm_old_cug_Interlock,
+      { "cug-Interlock", "gsm_old.cug_Interlock",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -29527,7 +29574,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 2948 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2952 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -30134,6 +30181,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_old_SendRoutingInfoArgV2,
     &ett_gsm_old_SendRoutingInfoResV2,
     &ett_gsm_old_BeginSubscriberActivityArg,
+    &ett_gsm_old_RoutingInfoForSM_ArgV1,
 
 /* --- Module SS-DataTypes --- --- ---                                        */
 
@@ -30234,7 +30282,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 2979 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 2983 "../../asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -30336,7 +30384,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3015 "../../asn1/gsm_map/packet-gsm_map-template.c"
+#line 3019 "../../asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

@@ -1157,7 +1157,11 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
     }
     break;
   case 45: /*sendRoutingInfoForSM*/
-    offset=dissect_gsm_map_sm_RoutingInfoForSM_Arg(FALSE, tvb, offset, actx, tree, -1);
+    if (application_context_version == 1) {
+      offset=dissect_gsm_old_RoutingInfoForSM_ArgV1(FALSE, tvb, offset, actx, tree, -1);
+    } else {
+      offset=dissect_gsm_map_sm_RoutingInfoForSM_Arg(FALSE, tvb, offset, actx, tree, -1);
+    }
     break;
   case 46: /*mo-forwardSM(v3) or ForwardSM(v1/v2)*/
     if (application_context_version == 3)
