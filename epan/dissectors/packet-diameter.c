@@ -450,10 +450,10 @@ call_avp_subdissector(guint32 vendorid, guint32 code, tvbuff_t *subtvb, packet_i
 	TRY {
 		switch (vendorid) {
 		case 0:
-			dissector_try_uint(diameter_dissector_table, code, subtvb, pinfo, avp_tree);
+			dissector_try_uint_new(diameter_dissector_table, code, subtvb, pinfo, avp_tree, FALSE, diam_sub_dis_inf);
 			break;
 		case VENDOR_ERICSSON:
-			dissector_try_uint(diameter_ericsson_avp_dissector_table, code, subtvb, pinfo, avp_tree);
+			dissector_try_uint_new(diameter_ericsson_avp_dissector_table, code, subtvb, pinfo, avp_tree, FALSE, diam_sub_dis_inf);
 			break;
 		case VENDOR_THE3GPP:
 			dissector_try_uint_new(diameter_3gpp_avp_dissector_table, code, subtvb, pinfo, avp_tree, FALSE, diam_sub_dis_inf);
