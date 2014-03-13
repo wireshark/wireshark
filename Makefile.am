@@ -874,6 +874,7 @@ EXTRA_DIST = \
 	image/stock_dialog_stop_48.xpm		\
 	image/stock_dialog_warning_48.xpm	\
 	image/text2pcap.rc.in			\
+	image/tfshark.rc.in			\
 	image/toolbar.qrc			\
 	image/toolbar/analyze_24.xpm 		\
 	image/toolbar/audio_player_24.xpm	\
