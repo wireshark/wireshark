@@ -2844,7 +2844,7 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             struct mbim_conv_info *mbim_conv)
 {
     gint base_offset;
-    guint32 pdu_data_offset, pdu_data_size;
+    guint32 message_status, pdu_data_offset, pdu_data_size;
     tvbuff_t *sms_tvb;
     proto_item *ti;
     proto_tree *subtree, *sc_tree;
@@ -2853,7 +2853,8 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_sms_pdu_record_message_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_mbim_sms_pdu_record_message_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    message_status = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_mbim_sms_pdu_record_message_status, tvb, offset, 4, message_status);
     offset += 4;
     pdu_data_offset = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_pdu_record_pdu_data_offset, tvb, offset, 4, pdu_data_offset);
@@ -2878,7 +2879,7 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
             sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
                                      pdu_data_size, pdu_data_size);
-            pinfo->p2p_dir = P2P_DIR_SENT;
+            pinfo->p2p_dir = (message_status < 2) ? P2P_DIR_SENT : P2P_DIR_RECV;
             call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
         } else {
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
