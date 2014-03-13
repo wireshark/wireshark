@@ -1,6 +1,6 @@
 /* file-mp4.c
  * routines for dissection of MP4 files
- * Copyright 2013, Martin Kaiser <martin@kaiser.cx>
+ * Copyright 2013-2014, Martin Kaiser <martin@kaiser.cx>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -170,6 +170,17 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 
 static gint
+dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, hf_mp4_full_box_ver,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return len;
+}
+
+
+static gint
 dissect_mp4_ftyp_body(tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo _U_, proto_tree *tree)
 {
@@ -260,6 +271,9 @@ dissect_mp4_box(guint32 parent_box_type _U_,
             break;
         case BOX_TYPE_MFHD:
             dissect_mp4_mfhd_body(tvb, offset, body_size, pinfo, box_tree);
+            break;
+        case BOX_TYPE_TKHD:
+            dissect_mp4_tkhd_body(tvb, offset, body_size, pinfo, box_tree);
             break;
         case BOX_TYPE_MOOV:
         case BOX_TYPE_MOOF:
