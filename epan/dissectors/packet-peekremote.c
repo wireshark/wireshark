@@ -115,8 +115,8 @@ static header_field_info hfi_peekremote_channel THIS_HF_INIT =
       { "Channel",       "peekremote.channel", FT_UINT16, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
-static header_field_info hfi_peekremote_signal_noise_dbm THIS_HF_INIT =
-      { "Signal/noise [dBm]",     "peekremote.signal_noise_dbm", FT_INT8, BASE_DEC, NULL,
+static header_field_info hfi_peekremote_signal_dbm THIS_HF_INIT =
+      { "Signal [dBm]",     "peekremote.signal_dbm", FT_INT8, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
 static header_field_info hfi_peekremote_noise_dbm THIS_HF_INIT =
@@ -179,17 +179,17 @@ static header_field_info hfi_peekremote_data_rate THIS_HF_INIT =
       { "Data rate",         "peekremote.data_rate", FT_UINT16,  BASE_DEC|BASE_EXT_STRING, &peekremote_data_rate_vals_ext,
         0x0, NULL, HFILL };
 
+static header_field_info hfi_peekremote_signal_percent THIS_HF_INIT =
+      { "Signal [percent]",     "peekremote.signal_percent", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL };
+
+static header_field_info hfi_peekremote_noise_percent THIS_HF_INIT =
+      { "Noise [percent]",     "peekremote.noise_percent", FT_UINT8, BASE_DEC, NULL,
+        0x0, NULL, HFILL };
+
 /* Legacy header only */
 static header_field_info hfi_peekremote_speed THIS_HF_INIT =
       { "Data rate [500kHz]", "peekremote.data_rate", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_signal THIS_HF_INIT =
-      { "Signal",     "peekremote.signal", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise THIS_HF_INIT =
-      { "Noise",     "peekremote.noise", FT_UINT8, BASE_DEC, NULL,
         0x0, NULL, HFILL };
 
 /* New header only */
@@ -256,14 +256,6 @@ static header_field_info hfi_peekremote_flagsn_future_use THIS_HF_INIT =
 static header_field_info hfi_peekremote_flagsn_reserved THIS_HF_INIT =
       { "Reserved",     "peekremote.flagsn.reserved", FT_UINT32, BASE_HEX, NULL,
         0xFFFFFE80, "Must be zero", HFILL };
-
-static header_field_info hfi_peekremote_signal_percent THIS_HF_INIT =
-      { "Signal [percent]",     "peekremote.signal_percent", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
-
-static header_field_info hfi_peekremote_noise_percent THIS_HF_INIT =
-      { "Noise [percent]",     "peekremote.noise_percent", FT_UINT8, BASE_DEC, NULL,
-        0x0, NULL, HFILL };
 
 /* XXX - are the numbers antenna numbers? */
 static header_field_info hfi_peekremote_signal_1_dbm THIS_HF_INIT =
@@ -418,7 +410,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       offset += 1;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_noise_dbm, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
       proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_dbm, tvb, offset, 1, ENC_NA);
       offset += 1;
@@ -485,7 +477,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     ti = proto_tree_add_item(tree, hfi_peekremote, tvb, 0, -1, ENC_NA);
     peekremote_tree = proto_item_add_subtree(ti, ett_peekremote);
 
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_noise_dbm, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_dbm, tvb, 0, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_dbm, tvb, 1, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_packetlength, tvb, 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_slicelength, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -494,8 +486,8 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_timestamp, tvb, 8, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_speed, tvb, 16, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_channel, tvb, 17, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal, tvb, 18, 1, ENC_NA);
-    proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise, tvb, 19, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, 18, 1, ENC_NA);
+    proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, 19, 1, ENC_NA);
   }
   next_tvb = tvb_new_subset_remaining(tvb, 20);
   pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
@@ -507,7 +499,7 @@ proto_register_peekremote(void)
 {
 #ifndef HAVE_HFI_SECTION_INIT
   static header_field_info *hfi[] = {
-    &hfi_peekremote_signal_noise_dbm,
+    &hfi_peekremote_signal_dbm,
     &hfi_peekremote_noise_dbm,
     &hfi_peekremote_packetlength,
     &hfi_peekremote_slicelength,
@@ -524,13 +516,13 @@ proto_register_peekremote(void)
     &hfi_peekremote_timestamp,
     &hfi_peekremote_speed,
     &hfi_peekremote_channel,
-    &hfi_peekremote_signal,
-    &hfi_peekremote_noise,
     &hfi_peekremote_magic_number,
     &hfi_peekremote_header_version,
     &hfi_peekremote_header_size,
     &hfi_peekremote_type,
     &hfi_peekremote_data_rate,
+    &hfi_peekremote_signal_percent,
+    &hfi_peekremote_noise_percent,
     &hfi_peekremote_frequency,
     &hfi_peekremote_band,
     &hfi_peekremote_flagsn,
@@ -543,8 +535,6 @@ proto_register_peekremote(void)
     &hfi_peekremote_flagsn_amsdu,
     &hfi_peekremote_flagsn_future_use,
     &hfi_peekremote_flagsn_reserved,
-    &hfi_peekremote_signal_percent,
-    &hfi_peekremote_noise_percent,
     &hfi_peekremote_signal_1_dbm,
     &hfi_peekremote_signal_2_dbm,
     &hfi_peekremote_signal_3_dbm,
