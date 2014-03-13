@@ -230,31 +230,30 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
 static void
 zdp_parse_routing_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset)
 {
-    proto_item  *ti = NULL;
     guint       len = 0;
-
+    proto_item  *ti;
+    proto_tree  *field_tree;
     guint16     dest;
     guint8      status;
     guint16     next;
 
+    ti = proto_tree_add_item(tree, hf_zbee_zdp_rtg_entry, tvb, *offset + len, 2 + 1 + 2, ENC_NA);
+    field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_rtg);
+
+    proto_tree_add_item(field_tree, hf_zbee_zdp_rtg_destination, tvb,  *offset + len, 2, ENC_LITTLE_ENDIAN);
     dest = tvb_get_letohs(tvb, *offset + len);
-    if (tree) ti = proto_tree_add_text(tree, tvb, *offset, 2*2 + 1, "{Destination: 0x%04x", dest);
     len += 2;
 
+    proto_tree_add_item(field_tree, hf_zbee_zdp_rtg_status, tvb, *offset + len , 1, ENC_LITTLE_ENDIAN);
     status = tvb_get_guint8(tvb, *offset + len);
-    next   = tvb_get_letohs(tvb, *offset + len + 1);
-    if (tree) {
-        /* Display the next hop first, because it looks a lot cleaner that way. */
-        proto_item_append_text(ti, ", Next Hop: 0x%04x", next);
+    len += 1;
 
-        if (status == 0x00)     proto_item_append_text(ti, ", Status: Active}");
-        else if (status == 0x01)proto_item_append_text(ti, ", Status: Discovery Underway}");
-        else if (status == 0x02)proto_item_append_text(ti, ", Status: Discovery Failed}");
-        else if (status == 0x03)proto_item_append_text(ti, ", Status: Inactive}");
-        else                    proto_item_append_text(ti, ", Status: Unknown}");
-    }
-    len += 1 + 2;
+    proto_tree_add_item(field_tree, hf_zbee_zdp_rtg_next_hop, tvb, *offset + len , 2, ENC_LITTLE_ENDIAN);
+    next = tvb_get_letohs(tvb, *offset + len);
+    len += 2;
 
+    /* Display the next hop first, because it looks a lot cleaner that way. */
+    proto_item_append_text(ti, " {Destination: 0x%04x, Next Hop: 0x%04x, Status: %s}", dest, next, val_to_str_const(status, zbee_zdp_rtg_status_vals, "Unknown"));
     *offset += len;
 } /* zdp_parse_routing_table_entry */
 
@@ -686,7 +685,7 @@ dissect_zbee_zdp_rsp_mgmt_rtg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     table_count = zbee_parse_uint(tree, hf_zbee_zdp_table_count, tvb, &offset, 1, NULL);
 
     if (tree && table_count) {
-        ti = proto_tree_add_text(tree, tvb, offset, tvb_length_remaining(tvb, offset), "Routing Table");
+        ti = proto_tree_add_item(tree, hf_zbee_zdp_rtg, tvb, offset, -1, ENC_NA);
         field_tree = proto_item_add_subtree(ti, ett_zbee_zdp_rtg);
     }
     for (i=0; i<table_count; i++) {

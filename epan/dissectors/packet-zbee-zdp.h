@@ -246,6 +246,14 @@ extern int hf_zbee_zdp_tx_total;
 extern int hf_zbee_zdp_tx_fail;
 extern int hf_zbee_zdp_channel_count;
 
+/* Routing Table */
+extern int hf_zbee_zdp_rtg;
+extern int hf_zbee_zdp_rtg_entry;
+extern int hf_zbee_zdp_rtg_destination;
+extern int hf_zbee_zdp_rtg_next_hop;
+extern int hf_zbee_zdp_rtg_status;
+
+
 /* Subtree indicies. */
 extern gint ett_zbee_zdp_endpoint;
 extern gint ett_zbee_zdp_match_in;
@@ -378,5 +386,6 @@ extern void dissect_zbee_zdp_rsp_mgmt_nwkupdate     (tvbuff_t *tvb, packet_info 
 
 extern void zdp_parse_bind_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint8 version);
 extern const value_string zbee_zdp_cluster_names[];
+extern const value_string zbee_zdp_rtg_status_vals[];
 
 #endif /* PACKET_ZBEE_ZDP_H */

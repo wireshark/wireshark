@@ -160,6 +160,13 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_tx_fail = -1;
        int hf_zbee_zdp_channel_count = -1;
 
+/* Routing Table */
+       int hf_zbee_zdp_rtg = -1;
+       int hf_zbee_zdp_rtg_entry = -1;
+       int hf_zbee_zdp_rtg_destination = -1;
+       int hf_zbee_zdp_rtg_next_hop = -1;
+       int hf_zbee_zdp_rtg_status = -1;
+
 /* Subtree indicies. */
 static gint ett_zbee_zdp = -1;
        gint ett_zbee_zdp_endpoint = -1;
@@ -300,6 +307,14 @@ static const value_string zbee_zdp_status_names[] = {
     { ZBEE_ZDP_STATUS_INSUFFICIENT_SPACE,   "Insufficient Space" },
     { ZBEE_ZDP_STATUS_NOT_PERMITTED,    "Not Permitted" },
     { ZBEE_ZDP_STATUS_TABLE_FULL,       "Table Full" },
+    { 0, NULL }
+};
+
+const value_string zbee_zdp_rtg_status_vals[] = {
+    { 0x00,  "Active" },
+    { 0x01,  "Discovery Underway" },
+    { 0x02,  "Discovery Failed" },
+    { 0x03,  "Inactive" },
     { 0, NULL }
 };
 
@@ -1657,7 +1672,24 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_channel_count,
         { "Channel List Count",         "zbee_zdp.channel_count", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_zbee_zdp_rtg,
+        { "Routing Table",         "zbee_zdp.routing", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_zbee_zdp_rtg_entry,
+        { "Routing Table Entry",         "zbee_zdp.routing.entry", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_zbee_zdp_rtg_destination,
+        { "Destination",         "zbee_zdp.routing.destination", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_zbee_zdp_rtg_status,
+        { "Status",         "zbee_zdp.routing.status", FT_UINT8, BASE_DEC, VALS(zbee_zdp_rtg_status_vals), 0x0,
+            NULL, HFILL }},
+        { &hf_zbee_zdp_rtg_next_hop,
+        { "Next Hop",         "zbee_zdp.routing.next_hop", FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }}
+
     };
 
     /*  APS subtrees */
