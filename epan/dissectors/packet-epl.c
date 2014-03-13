@@ -378,6 +378,476 @@ static const value_string epl_sdo_send_con_vals[] = {
 #define EPL_ASND_SDO_CMD_SEGMENTATION_FILTER             0x30
 #define EPL_ASND_SDO_CMD_RESPONSE_FILTER                 0x80
 
+#define EPL_SOD_CYLE_LEN        0x1006
+#define EPL_SOD_PDO_RX_COMM     0x1400
+#define EPL_SOD_PDO_RX_MAPP     0x1600
+#define EPL_SOD_PDO_TX_COMM     0x1800
+#define EPL_SOD_PDO_TX_MAPP     0x1A00
+#define EPL_SDO_SERVER_CONT     0x1200
+#define EPL_SDO_CLIENT_CONT     0x1280
+#define EPL_SOD_ERR_HISTORY     0x1003
+#define EPL_SOD_STORE_PARAM     0x1010
+#define EPL_SOD_RESTORE_PARAM   0x1011
+#define EPL_SOD_HEARTBEAT_TMN   0x1016
+#define EPL_SOD_IDENTITY_OBJECT 0x1018
+#define EPL_SOD_VERIFY_CONF     0x1020
+#define EPL_SOD_INT_GRP         0x1030
+#define EPL_SOD_RLATENCY_DIFF   0x1050
+#define EPL_SOD_TELEG_Count     0x1101
+#define EPL_SOD_ERR_STAT        0x1102
+#define EPL_SOD_STORE_DCF_LST   0x1F20
+#define EPL_SOD_STORE_CFM_FMT   0x1F21
+#define EPL_SOD_STORE_CON_LST   0x1F22
+#define EPL_SOD_STORE_DEV_FILE  0x1F23
+#define EPL_SOD_STORE_DEV_FMT   0x1F24
+#define EPL_SOD_CONF_REQ        0x1F25
+#define EPL_SOD_CONF_DATE       0x1F26
+#define EPL_SOD_CONF_TIME       0x1F27
+#define EPL_SOD_CONF_ID         0x1F28
+#define EPL_SOD_DL_PROG_DATA    0x1F50
+#define EPL_SOD_DL_PROG_CTRL    0x1F51
+#define EPL_SOD_LOC_SW          0x1F52
+#define EPL_SOD_MN_SW_DATE      0x1F53
+#define EPL_SOD_MN_SW_TIME      0x1F54
+#define EPL_SOD_PROC_IMG        0x1F70
+#define EPL_SOD_NMT_NODE        0x1F81
+#define EPL_SOD_DEVICE_TYPE_LST 0x1F84
+#define EPL_SOD_VENDORID_LST    0x1F85
+#define EPL_SOD_PRODUCTEC_LST   0x1F86
+#define EPL_SOD_REVISION_NO_LST 0x1F87
+#define EPL_SOD_SERIAL_NO_LST   0x1F88
+#define EPL_SOD_BOOT_TIME       0x1F89
+#define EPL_SOD_CYCLE_TIME      0x1F8A
+#define EPL_SOD_PREQ_PAYLOAD    0x1F8B
+#define EPL_SOD_PRES_PAYLOAD    0x1F8D
+#define EPL_SOD_NODE_STATE      0x1F8E
+#define EPL_SOD_NODE_EXP_STATE  0x1F8F
+#define EPL_SOD_CNRES_TMOUT     0x1F92
+#define EPL_SOD_MULT_CYCL       0x1F9B
+#define EPL_SOD_ISO_SLOT_ASSIGN 0x1F9C
+#define EPL_SOD_NAT_TABLE       0x1D00
+#define EPL_SOD_IP_ADD_TABLE    0x1E40
+#define EPL_SOD_ROUTING_TABLE   0x1E90
+#define EPL_SOD_ACL_IN_TABLE    0x1ED0
+#define EPL_SOD_ACL_OUT_TABLE   0x1EE0
+#define EPL_SOD_CYLE_LEN        0x1006
+#define EPL_NMT_DEVICE_TYPE     0x1000
+#define EPL_ERR_ERROR_REGISTER  0x1001
+#define EPL_MANUFACT_DEV_NAME   0x1008
+#define EPL_MANUFACT_HW_VERS    0x1009
+#define EPL_MANUFACT_SW_VERS    0x100A
+#define EPL_STORE_DEV_FILE      0x1021
+#define EPL_STORE_DEV_FORMAT    0x1022
+#define EPL_INT_GROUP           0x1300
+#define EPL_INT_INDEX           0x1301
+#define EPL_INT_DESC            0x1302
+#define EPL_VERSION             0x1F83
+#define EPL_CN_ETH_TIMEOUT      0x1F99
+#define EPL_HOST_NAME           0x1F9A
+#define EPL_CN_LINK_CUM         0x1C10
+#define EPL_CN_JITTER           0x1C13
+#define EPL_LOSS_OF_FRAME       0x1C14
+
+static const range_string sod_cmd_str[] = {
+	{EPL_SOD_PDO_RX_COMM,   0x14FF,   "0x1400"},
+	{EPL_SOD_PDO_RX_MAPP,   0x16FF,   "0x1600"},
+	{EPL_SOD_PDO_TX_COMM,   0x18FF,   "0x1800"},
+	{EPL_SOD_PDO_TX_MAPP,   0x1AFF,   "0x1A00"},
+	{EPL_SDO_SERVER_CONT,   0x1279,   "0x1200"},
+	{EPL_SDO_CLIENT_CONT,   0x12FF,   "0x1280"},
+	{EPL_SOD_NAT_TABLE,     0x1DFF,   "0x1D00"},
+	{EPL_SOD_IP_ADD_TABLE,  0x1E49,   "0x1E40"},
+	{EPL_SOD_ROUTING_TABLE, 0x1ECF,   "0x1E90"},
+	{EPL_SOD_ACL_IN_TABLE,  0x1EDF,   "0x1ED0"},
+	{EPL_SOD_ACL_OUT_TABLE, 0x1EEF,   "0x1EE0"},
+	{0,0,NULL}
+};
+
+static const value_string sod_cmd_str_val[] = {
+	{EPL_SOD_PDO_RX_COMM,   "0x1400"},
+	{EPL_SOD_PDO_RX_MAPP,   "0x1600"},
+	{EPL_SOD_PDO_TX_COMM,   "0x1800"},
+	{EPL_SOD_PDO_TX_MAPP,   "0x1A00"},
+	{EPL_SDO_SERVER_CONT,   "0x1200"},
+	{EPL_SDO_CLIENT_CONT,   "0x1280"},
+	{EPL_SOD_NAT_TABLE,     "0x1D00"},
+	{EPL_SOD_IP_ADD_TABLE,  "0x1E40"},
+	{EPL_SOD_ROUTING_TABLE, "0x1E90"},
+	{EPL_SOD_ACL_IN_TABLE,  "0x1ED0"},
+	{EPL_SOD_ACL_OUT_TABLE, "0x1EE0"},
+	{0,NULL}
+};
+
+static const value_string sod_cmd_sub_str_val[] = {
+	{EPL_SOD_ERR_HISTORY,    "0x1003"},
+	{EPL_SOD_HEARTBEAT_TMN,  "0x1016"},
+	{EPL_SOD_STORE_DCF_LST,  "0x1F20"},
+	{EPL_SOD_STORE_CFM_FMT,  "0x1F21"},
+	{EPL_SOD_STORE_CON_LST,  "0x1F22"},
+	{EPL_SOD_STORE_DEV_FILE, "0x1F23"},
+	{EPL_SOD_STORE_DEV_FMT,  "0x1F24"},
+	{EPL_SOD_CONF_REQ,       "0x1F25"},
+	{EPL_SOD_CONF_DATE,      "0x1F26"},
+	{EPL_SOD_CONF_TIME,      "0x1F27"},
+	{EPL_SOD_CONF_ID,        "0x1F28"},
+	{EPL_SOD_DL_PROG_DATA,   "0x1F50"},
+	{EPL_SOD_DL_PROG_CTRL,   "0x1F51"},
+	{EPL_SOD_MN_SW_DATE,     "0x1F53"},
+	{EPL_SOD_MN_SW_TIME,     "0x1F54"},
+	{EPL_SOD_NMT_NODE,       "0x1F81"},
+	{EPL_SOD_DEVICE_TYPE_LST,"0x1F84"},
+	{EPL_SOD_VENDORID_LST,   "0x1F85"},
+	{EPL_SOD_PRODUCTEC_LST,  "0x1F86"},
+	{EPL_SOD_REVISION_NO_LST,"0x1F87"},
+	{EPL_SOD_SERIAL_NO_LST,  "0x1F88"},
+	{EPL_SOD_PREQ_PAYLOAD,   "0x1F8B"},
+	{EPL_SOD_PRES_PAYLOAD,   "0x1F8D"},
+	{EPL_SOD_NODE_STATE,     "0x1F8E"},
+	{EPL_SOD_NODE_EXP_STATE, "0x1F8F"},
+	{EPL_SOD_CNRES_TMOUT,    "0x1F92"},
+	{EPL_SOD_MULT_CYCL,      "0x1F9B"},
+	{EPL_SOD_ISO_SLOT_ASSIGN,"0x1F9C"},
+	{0,NULL}
+};
+
+static value_string_ext sod_cmd_sub_str = VALUE_STRING_EXT_INIT(sod_cmd_sub_str_val);
+
+static const value_string sod_cmd_str_no_sub[] = {
+	{EPL_SOD_CYLE_LEN,       "0x1006"},
+	{EPL_NMT_DEVICE_TYPE,    "0x1000"},
+	{EPL_ERR_ERROR_REGISTER, "0x1001"},
+	{EPL_MANUFACT_DEV_NAME,  "0x1008"},
+	{EPL_MANUFACT_HW_VERS,   "0x1009"},
+	{EPL_MANUFACT_SW_VERS,   "0x100A"},
+	{EPL_STORE_DEV_FILE,     "0x1021"},
+	{EPL_STORE_DEV_FORMAT,   "0x1022"},
+	{EPL_INT_GROUP,          "0x1300"},
+	{EPL_INT_INDEX,          "0x1301"},
+	{EPL_INT_DESC,           "0x1302"},
+	{EPL_VERSION,            "0x1F83"},
+	{EPL_CN_ETH_TIMEOUT,     "0x1F99"},
+	{EPL_HOST_NAME,          "0x1F9A"},
+	{EPL_CN_LINK_CUM,        "0x1C10"},
+	{EPL_CN_JITTER,          "0x1C13"},
+	{EPL_LOSS_OF_FRAME,      "0x1C14"},
+	{0,NULL}
+};
+
+static value_string_ext sod_cmd_no_sub = VALUE_STRING_EXT_INIT(sod_cmd_str_no_sub);
+
+static const value_string sod_idx_names[] = {
+	/* SDO directory names */
+	{0x10000000, "NMT_DeviceType_U32"},
+	{0x10010000, "ERR_ErrorRegister_U8"},
+	{0x10030000, "ERR_History_ADOM"},
+	{0x10030001, "ErrorEntry_DOM"},
+	{0x10060000, "NMT_CycleLen_U32"},
+	{0x10080000, "NMT_ManufactDevName_VS"},
+	{0x10090000, "NMT_ManufactHwVers_VS"},
+	{0x100A0000, "NMT_ManufactSwVers_VS"},
+	{0x10100000, "NMT_StoreParam_REC"},
+	{0x10100001, "AllParam_U32"},
+	{0x10100002, "CommunicationParam_U32"},
+	{0x10100003, "ApplicationParam_U32"},
+	{0x10100004, "ManufacturerParam_XXh_U32"},
+
+	{0x10110000, "NMT_RestoreDefParam_REC"},
+	{0x10110001, "AllParam_U32"},
+	{0x10110002, "CommunicationParam_U32"},
+	{0x10110003, "ApplicationParam_U32"},
+	{0x10110004, "ManufacturerParam_XXh_U32"},
+
+	{0x10160000, "NMT_ConsumerHeartbeatTime_AU32"},
+	{0x10160001, "HeartbeatDescription"},
+
+	{0x10180000, "NMT_IdentityObject_REC" },
+	{0x10180001, "VendorId_U32" },
+	{0x10180002, "ProductCode_U32" },
+	{0x10180003, "RevisionNo_U32" },
+	{0x10180004, "SerialNo_U32" },
+
+	{0x10200000, "CFM_VerifyConfiguration_REC"},
+	{0x10200001, "ConfDate_U32"},
+	{0x10200002, "ConfTime_U32"},
+	{0x10200003, "ConfId_U32"},
+	{0x10200004, "VerifyConfInvalid_BOOL"},
+
+	{0x10210000, "CFM_StoreDevDescrFile_DOM"},
+	{0x10220000, "CFM_StoreDevDescrFormat_U16"},
+
+	{0x10300000, "NMT_InterfaceGroup_XX_REC"},
+	{0x10300001, "InterfaceIndex_U16"},
+	{0x10300002, "InterfaceDescription_VSTR"},
+	{0x10300003, "InterfaceType_U8"},
+	{0x10300004, "InterfaceMtu_U16"},
+	{0x10300005, "InterfacePhysAddress_OSTR"},
+	{0x10300006, "InterfaceName_VSTR"},
+	{0x10300007, "InterfaceOperStatus_U8"},
+	{0x10300008, "InterfaceAdminState_U8"},
+	{0x10300009, "Valid_BOOL"},
+
+	{0x10500000, "NMT_RelativeLatencyDiff_AU32"},
+	{0x10500000, "RelativeLatencyDiff"},
+
+	{0x11010000, "DIA_NMTTelegrCount_REC"},
+	{0x11010001, "IsochrCyc_U32"},
+	{0x11010002, "IsochrRx_U32"},
+	{0x11010003, "IsochrTx_U32"},
+	{0x11010004, "AsyncRx_U32"},
+	{0x11010005, "AsyncTx_U32"},
+	{0x11010006, "SdoRx_U32"},
+	{0x11010007, "SdoTx_U32"},
+	{0x11010008, "Status_U32"},
+
+	{0x11020000, "DIA_ERRStatistics_REC"},
+	{0x11020001, "HistoryEntryWrite_U32"},
+	{0x11020002, "EmergencyQueueWrite_U32"},
+	{0x11020003, "EmergencyQueueOverflow_U32"},
+	{0x11020004, "StatusEntryChanged_U32"},
+	{0x11020005, "StaticErrorBitFieldChanged_U32"},
+	{0x11020006, "ExceptionResetEdgePos_U32"},
+	{0x11020007, "ExceptionNewEdge_U32"},
+
+	{0x12000000, "SDO_ServerContainerParam"},
+	{0x12000001, "ClientNodeID_U8"},
+	{0x12000002, "ServerNodeID_U8"},
+	{0x12000003, "ContainerLen_U8"},
+	{0x12000004, "HistorySize_U8"},
+
+	{0x12800000, "SDO_ClientContainerParam"},
+	{0x12800001, "ClientNodeID_U8"},
+	{0x12800002, "ServerNodeID_U8"},
+	{0x12800003, "ContainerLen_U8"},
+	{0x12800004, "HistorySize_U8"},
+	{0x12800005, "Reserved"},
+
+	{0x13000000, "SDO_SequLayerTimeout_U32"},
+	{0x13010000, "SDO_CmdLayerTimeout_U32"},
+	{0x13020000, "SDO_SequLayerNoAck_U32"},
+
+	{0x14000000, "PDO_RxCommParam"},
+	{0x14000001, "NodeID_U8"},
+	{0x14000002, "MappingVersion_U8"},
+
+	{0x16000000, "PDO_RxMappParam"},
+	{0x16000001, "ObjectMapping"},
+
+	{0x18000000, "PDO_TxCommParam"},
+	{0x18000001, "NodeID_U8"},
+	{0x18000002, "MappingVersion"},
+
+	{0x1A000000, "PDO_TxMappParam"},
+	{0x1A000001, "ObjectMapping"},
+
+	{0x1F200000, "CFM_StoreDcfList_ADOM"},
+	{0x1F200001, "CNDcf"},
+	{0x1F210000, "CFM_DcfStorageFormatList_AU8"},
+	{0x1F210001, "CNDcfFormat"},
+	{0x1F220000, "CFM_ConciseDcfList_ADOM"},
+	{0x1F220001, "CNConciseDcfData"},
+	{0x1F230000, "CFM_StoreDevDescrFileList_ADOM"},
+	{0x1F230001, "CNDevDescrFile"},
+	{0x1F240000, "CFM_DevDescrFileFormatList_AU8"},
+	{0x1F240001, "CNDevDescrFileFormat"},
+	{0x1F250000, "CFM_ConfCNRequest_AU32"},
+	{0x1F250001, "CNConfigurationRequest"},
+	{0x1F260000, "CFM_ExpConfDateList_AU32"},
+	{0x1F260001, "CNConfigurationDate"},
+	{0x1F270000, "CFM_ExpConfTimeList_AU32"},
+	{0x1F270001, "CNConfigurationTime"},
+	{0x1F280000, "CFM_ExpConfIdList_AU32"},
+	{0x1F280001, "CNConfigurationId"},
+
+	{0x1F500000, "PDL_DownloadProgData_ADOM"},
+	{0x1F500001, "Program"},
+	{0x1F510000, "PDL_ProgCtrl_AU8"},
+	{0x1F510001, "ProgCtrl"},
+	{0x1F520000, "PDL_LocVerApplSw_REC"},
+	{0x1F520001, "ApplSwDate_U32"},
+	{0x1F520002, "ApplSwTime_U32"},
+	{0x1F530000, "PDL_MnExpAppSwDateList_AU32"},
+	{0x1F530001, "AppSwDate"},
+	{0x1F540000, "PDL_MnExpAppSwTimeList_AU32"},
+	{0x1F540001, "AppSwTime"},
+
+	{0x1F700000, "INP_ProcessImage_REC"},
+	{0x1F700001, "SelectedRange_U32"},
+	{0x1F700002, "ProcessImageDomain_DOM"},
+
+	{0x1F800000, "NMT_StartUp_U32"},
+	{0x1F810000, "NMT_NodeAssignment_AU32"},
+	{0x1F810001, "NodeAssignment"},
+	{0x1F820000, "NMT_FeatureFlags_U32"},
+	{0x1F830000, "NMT_EPLVersion_U8"},
+	{0x1F840000, "NMT_MNDeviceTypeIdList_AU32"},
+	{0x1F840001, "CNDeviceTypeId"},
+	{0x1F850000, "NMT_MNVendorIdList_AU32"},
+	{0x1F850001, "CNVendorId"},
+	{0x1F860000, "NMT_MNProductCodeList_AU32"},
+	{0x1F860001, "CNProductCode"},
+	{0x1F870000, "NMT_MNRevisionNoList_AU32"},
+	{0x1F870001, "CNRevisionNo"},
+	{0x1F880000, "NMT_MNSerialNoList_AU32"},
+	{0x1F880001, "CNSerialNo"},
+
+	{0x1F890000, "NMT_BootTime_REC"},
+	{0x1F890001, "MNWaitNotAct_U32"},
+	{0x1F890002, "MNTimeoutPreOp1_U32"},
+	{0x1F890003, "MNWaitPreOp1_U32"},
+	{0x1F890004, "MNTimeoutPreOp2_U32"},
+	{0x1F890005, "MNTimeoutReadyToOp_U32"},
+	{0x1F890006, "MNIdentificationTimeout_U32"},
+	{0x1F890007, "MNSoftwareTimeout_U32"},
+	{0x1F890008, "MNConfigurationTimeout_U32"},
+	{0x1F890009, "MNStartCNTimeout_U32"},
+	{0x1F89000A, "MNSwitchOverPriority_U32"},
+	{0x1F89000B, "MNSwitchOverDelay_U32"},
+	{0x1F89000C, "MNSwitchOverCycleDivider_U32"},
+
+	{0x1F8A0000, "NMT_MNCycleTiming_REC"},
+	{0x1F8A0001, "WaitSoCPReq_U32"},
+	{0x1F8A0002, "AsyncSlotTimeout_U32"},
+	{0x1F8A0003, "ASndMaxNumber"},
+
+	{0x1F8B0000, "NMT_MNPReqPayloadLimitList_AU16"},
+	{0x1F8B0001, "CNPReqPayload"},
+	{0x1F8C0000, "NMT_CurrNMTState_U8"},
+	{0x1F8D0000, "NMT_PResPayloadLimitList_AU16"},
+	{0x1F8D0001, "PResPayloadLimit"},
+	{0x1F8E0000, "NMT_MNNodeCurrState_AU8"},
+	{0x1F8E0001, "CurrState"},
+	{0x1F8F0000, "NMT_MNNodeExpState_AU8"},
+	{0x1F8F0001, "ExpState"},
+
+	{0x1F920000, "NMT_MNCNPResTimeout_AU32"},
+	{0x1F920001, "CNResTimeout"},
+
+	{0x1F930000, "NMT_EPLNodeID_REC"},
+	{0x1F930001, "NodeID_U8"},
+	{0x1F930002, "NodeIDByHW_BOOL"},
+	{0x1F930003, "SWNodeID_U8"},
+
+	{0x1F980000, "NMT_CycleTiming_REC"},
+	{0x1F980001, "IsochrTxMaxPayload_U16"},
+	{0x1F980002, "IsochrRxMaxPayload_U16"},
+	{0x1F980003, "PResMaxLatency_U32"},
+	{0x1F980004, "PReqActPayloadLimit_U16"},
+	{0x1F980005, "PResActPayloadLimit_U16"},
+	{0x1F980006, "ASndMaxLatency_U32"},
+	{0x1F980007, "MultiplCycleCnt_U8"},
+	{0x1F980008, "AsyncMTU_U16"},
+	{0x1F980009, "Prescaler_U16"},
+	{0x1F98000A, "PResMode_U8"},
+	{0x1F98000B, "PResTimeFirst_U32"},
+	{0x1F98000C, "PResTimeSecond_U32"},
+	{0x1F98000D, "SyncMNDelayFirst_U32"},
+	{0x1F98000E, "SyncMNDelaySecond_U32"},
+
+	{0x1F990000, "NMT_CNBasicEthernetTimeout_U32"},
+	{0x1F9A0000, "NMT_HostName_VSTR"},
+	{0x1F9B0000, "NMT_MultiplCycleAssign_AU8"},
+	{0x1F9B0001, "CycleNo"},
+	{0x1F9C0000, "NMT_IsochrSlotAssign_AU8"},
+	{0x1F9C0001, "NodeId"},
+	{0x1F9E0000, "NMT_ResetCmd_U8"},
+	{0x1F9F0000, "NMT_RequestCmd_REC"},
+	{0x1F9F0001, "Release_BOOL"},
+	{0x1F9F0002, "CmdID_U8"},
+	{0x1F9F0003, "CmdTarget_U8"},
+	{0x1F9F0004, "CmdData_DOM"},
+
+	{0x1D000000, "RT1_NatTable"},
+	{0x1D000001, "EplIpAddr_IPAD"},
+	{0x1D000002, "ExtIpAddr_IPAD"},
+	{0x1D000003, "Mask_IPAD"},
+	{0x1D000004, "Type_U8"},
+
+	{0x1E400000, "NWL_IpAddrTable"},
+	{0x1E400001, "IfIndex_U16"},
+	{0x1E400002, "Addr_IPAD"},
+	{0x1E400003, "NetMask_IPAD"},
+	{0x1E400004, "ReasmMaxSize_U16"},
+	{0x1E400005, "DefaultGateway_IPAD"},
+	{0x1E4A0000, "NWL_IpGroup_REC"},
+	{0x1E4A0001, "Forwarding_BOOL"},
+	{0x1E4A0002, "DefaultTTL_U16"},
+	{0x1E4A0003, "ForwardDatagrams_U32"},
+	{0x1E800000, "RT1_EplRouter_REC"},
+	{0x1E800001, "EnableNat_BOOL"},
+	{0x1E800002, "EnablePacketFiltering_BOOL"},
+	{0x1E810000, "RT1_SecurityGroup_REC"},
+	{0x1E810001, "FwdTablePolicy_U8"},
+	{0x1E810002, "InTablePolicy_U8"},
+	{0x1E810003, "OutTablePolicy_U8"},
+
+	{0x1E900000, "RT1_IpRoutingTable"},
+	{0x1E900001, "IpForwardDest_IPAD"},
+	{0x1E900002, "IpForwardMask_IPAD"},
+	{0x1E900003, "IpForwardNextHop_IPAD"},
+	{0x1E900004, "IpForwardType_U8"},
+	{0x1E900005, "IpForwardAge_U32"},
+	{0x1E900006, "IpForwardItfIndex_U16"},
+	{0x1E900007, "IpForwardMetric1_S32"},
+
+	{0x1ED00000, "RT1_AclInTable"},
+	{0x1ED00001, "SrcIp_IPAD"},
+	{0x1ED00002, "SrcMask_IPAD"},
+	{0x1ED00003, "DstIp_IPAD"},
+	{0x1ED00004, "DstMask_IPAD"},
+	{0x1ED00005, "Protocol_U8"},
+	{0x1ED00006, "SrcPort_U16"},
+	{0x1ED00007, "DstPort_U16"},
+	{0x1ED00008, "SrcMac_MAC"},
+	{0x1ED00009, "Target_U8"},
+
+	{0x1EE00000, "RT1_AclOutTable"},
+	{0x1EE00001, "SrcIp_IPAD"},
+	{0x1EE00002, "SrcMask_IPAD"},
+	{0x1EE00003, "DstIp_IPAD"},
+	{0x1EE00004, "DstMask_IPAD"},
+	{0x1EE00005, "Protocol_U8"},
+	{0x1EE00006, "SrcPort_U16"},
+	{0x1EE00007, "DstPort_U16"},
+	{0x1EE00008, "SrcMac_MAC"},
+	{0x1EE00009, "Target_U8"},
+
+	{0x1C0A0000, "DLL_CNCollision_REC"},
+	{0x1C0A0001, "CumulativeCnt_U32"},
+	{0x1C0A0002, "ThresholdCnt_U32"},
+	{0x1C0A0003, "Threshold_U32"},
+
+	{0x1C0B0000, "DLL_CNLossSoC_REC"},
+	{0x1C0B0001, "CumulativeCnt_U32"},
+	{0x1C0B0002, "ThresholdCnt_U32"},
+	{0x1C0B0003, "Threshold_U32"},
+
+	{0x1C0C0000, "DLL_CNLossSoA_REC"},
+	{0x1C0C0001, "CumulativeCnt_U32"},
+	{0x1C0C0002, "ThresholdCnt_U32"},
+	{0x1C0C0003, "Threshold_U32"},
+
+	{0x1C0D0000, "DLL_CNLossPReq_REC"},
+	{0x1C0D0001, "CumulativeCnt_U32"},
+	{0x1C0D0002, "ThresholdCnt_U32"},
+	{0x1C0D0003, "Threshold_U32"},
+
+	{0x1C0E0000, "DLL_CNSoCJitter_REC"},
+	{0x1C0E0001, "CumulativeCnt_U32"},
+	{0x1C0E0002, "ThresholdCnt_U32"},
+	{0x1C0E0003, "Threshold_U32"},
+
+	{0x1C0F0000, "DLL_CNCRCError_REC"},
+	{0x1C0F0001, "CumulativeCnt_U32"},
+	{0x1C0F0002, "ThresholdCnt_U32"},
+	{0x1C0F0003, "Threshold_U32"},
+
+	{0x1C100000, "DLL_CNLossOfLinkCum_U32"},
+	{0x1C130000, "DLL_CNSoCJitterRange_U32"},
+	{0x1C140000, "DLL_LossOfFrameTolerance_U32"},
+	{0,NULL}
+};
+
+static value_string_ext sod_index_names = VALUE_STRING_EXT_INIT(sod_idx_names);
 
 /* SDO - Abort Transfer */
 static const value_string sdo_cmd_abort_code[] = {
@@ -695,16 +1165,19 @@ static gint hf_epl_asnd_sdo_cmd                              = -1;
 static gint hf_epl_asnd_sdo_cmd_transaction_id               = -1;
 static gint hf_epl_asnd_sdo_cmd_response                     = -1;
 static gint hf_epl_asnd_sdo_cmd_abort                        = -1;
-
 static gint hf_epl_asnd_sdo_cmd_segmentation                 = -1;
 static gint hf_epl_asnd_sdo_cmd_command_id                   = -1;
 static gint hf_epl_asnd_sdo_cmd_segment_size                 = -1;
 
-static gint hf_epl_asnd_sdo_cmd_data                         = -1;
 static gint hf_epl_asnd_sdo_cmd_data_size                    = -1;
 static gint hf_epl_asnd_sdo_cmd_data_padding                 = -1;
 static gint hf_epl_asnd_sdo_cmd_data_index                   = -1;
 static gint hf_epl_asnd_sdo_cmd_data_subindex                = -1;
+static gint hf_epl_asnd_sdo_cmd_data_mapping                 = -1;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_index           = -1;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_subindex        = -1;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_offset          = -1;
+static gint hf_epl_asnd_sdo_cmd_data_mapping_length          = -1;
 /*static gint hf_epl_asnd_sdo_cmd_data_response      = -1;*/
 
 static gint hf_epl_asnd_sdo_cmd_abort_code                   = -1;
@@ -726,12 +1199,14 @@ static gint ett_epl_el_entry        = -1;
 static gint ett_epl_el_entry_type   = -1;
 static gint ett_epl_sdo_entry_type  = -1;
 
-static gint ett_epl_sdo                 = -1;
-static gint ett_epl_sdo_sequence_layer  = -1;
-static gint ett_epl_sdo_command_layer   = -1;
-static gint ett_epl_sdo_data            = -1;
-static gint ett_epl_soa_sync            = -1;
-static gint ett_epl_asnd_sync           = -1;
+static gint ett_epl_sdo                       = -1;
+static gint ett_epl_sdo_sequence_layer        = -1;
+static gint ett_epl_sdo_command_layer         = -1;
+static gint ett_epl_sdo_data                  = -1;
+static gint ett_epl_asnd_sdo_cmd_data_mapping = -1;
+static gint ett_epl_soa_sync                  = -1;
+static gint ett_epl_asnd_sync                 = -1;
+
 static dissector_handle_t epl_handle;
 
 /* preference whether or not display the SoC flags in info column */
@@ -1142,10 +1617,16 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 		/* SyncControl 2 - reserved */
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(psf_item, " (Bits 8..15)");
+#if 0
+		psf_tree = proto_item_add_subtree(psf_item, ett_epl_soa_sync);
+#endif
 		offset += 1;
 		/* SyncControl 3 - reserved */
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(psf_item, " (Bits 16..23)");
+#if 0
+		psf_tree = proto_item_add_subtree(psf_item, ett_epl_soa_sync);
+#endif
 		offset += 1;
 		/* SyncControl 4 */
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_soa_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1764,38 +2245,124 @@ gint
 dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
 	gint size;
-	guint16 indx;
-	guint8 subindx;
-	proto_item* item;
-	proto_item *sdo_data_tree;
+	guint16 index = 0x00, nosub = 0x00, sod_sub_index = 0x00, sod_index = 0x00, error = 0xFF, entries = 0x00, sub_val = 0x00;
+	guint8 subindex = 0x00;
+	proto_item *psf_item;
+	proto_tree *psf_tree;
+	const gchar *index_str, *sub_str, *sub_index_str;
 
 	if (!response)
 	{   /* request */
 
-		item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb,  offset, 0, ENC_NA);
-		sdo_data_tree = proto_item_add_subtree(item, ett_epl_sdo_data);
-
 		if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 		{
-			indx = tvb_get_letohs(tvb, offset);
-			proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, indx);
-			proto_item_append_text(item, ": 0x%04X", indx );
-			offset += 2;
+			index = tvb_get_letohs(tvb, offset);
+			psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, index,"OD Index: 0x%04X", index);
 
-			subindx = tvb_get_guint8(tvb, offset);
-			proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindx);
-			proto_item_append_text(item, "/0x%02X", subindx );
-			offset += 2;
+			col_append_fstr(pinfo->cinfo, COL_INFO, " Req. %s", val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, " User Defined (%d)"));
+			index_str = rval_to_str_const(index, sod_cmd_str, "unknown");
+			sod_index = str_to_val(index_str,sod_cmd_str_val,error);
+			sub_index_str = val_to_str_ext_const(index, &sod_cmd_no_sub, "unknown");
+			nosub = str_to_val(sub_index_str, sod_cmd_str_no_sub,error);
 
-			col_append_fstr(pinfo->cinfo, COL_INFO, "Write 0x%04X/0x%02X ", indx, subindx);
+			if(sod_index != error)
+			{
+				proto_item_append_text(psf_item," (%s", val_to_str_ext_const(((guint32)(sod_index<<16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item,"_%02Xh", (index-sod_index));
+				if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
+				{
+					proto_item_append_text(psf_item,"_AU64)");
+					sod_sub_index = 0x01;
+				}
+				else
+				{
+					proto_item_append_text(psf_item,"_REC)");
+				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32)(sod_index << 16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, "_%02Xh", (index-sod_index));
+				if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, "_AU64");
+				}
+				else
+				{
+					col_append_fstr(pinfo->cinfo, COL_INFO, "_REC");
+				}
+				index = sod_index;
+			}
+			else
+			{
+				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
+			}
+
+			offset += 2;
+			subindex = tvb_get_guint8(tvb, offset);
+			sub_str = val_to_str_ext_const(index, &sod_cmd_sub_str, "unknown");
+			sub_val = str_to_val(sub_str, sod_cmd_sub_str_val,error);
+
+			if(sub_val != error)
+				index = sub_val;
+
+			if(index == EPL_SOD_STORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)",subindex);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | ManufacturerParam_%02Xh_U32]",subindex);
+			}
+			else if(index == EPL_SOD_RESTORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)",subindex);
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | ManufacturerParam_%02Xh_U32]",subindex);
+			}
+			else if(nosub != error)
+			{
+				col_append_fstr(pinfo->cinfo, COL_INFO, "]");
+			}
+			else if(subindex == entries)
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (NumberOfEntries)");
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | NumberOfEntries]");
+			}
+			else if(sod_sub_index != entries)
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((sod_sub_index|(index<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((sod_sub_index|(index<<16)), &sod_index_names, "User Defined"));
+			}
+			else
+			{
+				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+			}
 		}
-
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Requ. %s",
-					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
+		offset += 2;
 
 		size = tvb_reported_length_remaining(tvb, offset);
 
-		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size, EPL_ASND );
+		if((index == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(index == EPL_SOD_PDO_RX_MAPP && subindex > entries))
+		{
+			psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_mapping, tvb, offset, 1, ENC_NA);
+			psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sdo_cmd_data_mapping);
+			index = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_index, tvb, offset, 2, index,"Index: 0x%04X", index);
+			offset += 2;
+			index = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, offset, 2, index,"SubIndex: 0x%02X", index);
+			offset += 2;
+			index = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_offset, tvb, offset, 2, index,"Offset: 0x%04X", index);
+			offset += 2;
+			proto_tree_add_item(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+		}
+		else
+		{
+		offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
+		}
 	}
 	else
 	{
@@ -1809,12 +2376,11 @@ gint
 dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented  _U_, gboolean response)
 {
 	gint dataoffset;
-	guint8 subindx, padding;
-	guint16 indx;
+	guint8 subindex = 0x00,  padding = 0x00;
+	guint16 index = 0x00;
 	guint32 size, offsetincrement, datalength, remlength;
-	proto_item* item;
-	proto_item *sdo_data_tree;
 	gboolean lastentry = FALSE;
+	proto_item *psf_item;
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
 	* The packet offset is 16, as this is the number of bytes trailing the SDO payload.
@@ -1880,29 +2446,27 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 				size = datalength - 8 - padding;
 			}
 
-			item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb, offset, datalength, ENC_NA);
-			sdo_data_tree = proto_item_add_subtree(item, ett_epl_sdo_data);
-
 			dataoffset = offset + 4;
 
 			if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 			{
-				indx = tvb_get_letohs(tvb, dataoffset);
-				proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, dataoffset, 2, indx);
-				proto_item_append_text(item, ": 0x%04X", indx );
-
+				index = tvb_get_letohs(tvb, dataoffset);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, dataoffset, 2, ENC_LITTLE_ENDIAN);
+				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
 				dataoffset += 2;
-				subindx = tvb_get_guint8(tvb, dataoffset);
-				proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, subindx);
-				proto_item_append_text(item, "/0x%02X ", subindx );
 
+				subindex = tvb_get_guint8(tvb, dataoffset);
+				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
 				dataoffset += 1;
-				proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
+				proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
 				dataoffset += 1;
 			}
 
 			/* dissect the payload */
-			dissect_epl_payload ( sdo_data_tree, tvb, pinfo, dataoffset, size, EPL_ASND );
+			dissect_epl_payload ( epl_tree, tvb, pinfo, dataoffset, size, EPL_ASND );
 
 			offset += datalength;
 
@@ -1922,36 +2486,34 @@ gint
 dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
 	gint size;
-	guint16 indx;
-	guint8 subindx;
-	proto_item* item;
-	proto_item *sdo_data_tree;
-
-	item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data, tvb,  offset, 0, ENC_NA);
-	sdo_data_tree = proto_item_add_subtree(item, ett_epl_sdo_data);
+	guint16 index = 0x00;
+	guint8 subindex = 0x00;
+	proto_item *psf_item;
 
 	if (!response)
 	{   /* request */
-
-		indx = tvb_get_letohs(tvb, offset);
-		proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, indx);
-		proto_item_append_text(item, ": 0x%04X", indx );
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Req. %s",
+					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "User Defined (%d)"));
+		index = tvb_get_letohs(tvb, offset);
+		psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined" ));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
 		offset += 2;
 
-		subindx = tvb_get_guint8(tvb, offset);
-		proto_tree_add_uint(sdo_data_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindx);
-		proto_item_append_text(item, "/0x%02X", subindx );
+		subindex = tvb_get_guint8(tvb, offset);
+		psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
 		offset += 1;
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Read 0x%04X/0x%02X ", indx, subindx);
 	}
 	else
 	{   /* response */
-		col_append_fstr(pinfo->cinfo, COL_INFO, "Resp. %s",
-					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Resp. %s",
+					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "User Defined (%d)"));
 
 		size = tvb_reported_length_remaining(tvb, offset);
-		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size, EPL_ASND );
+		offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, size, EPL_ASND );
 
 		offset += size;
 	}
@@ -2339,11 +2901,11 @@ proto_register_epl(void)
 				FT_UINT32, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_ad,
-			{ "applicationSwDate", "epl.asnd.ires.appswdate",
+			{ "ApplicationSwDate", "epl.asnd.ires.appswdate",
 				FT_UINT32, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_at,
-			{ "applicationSwTime", "epl.asnd.ires.appswtime",
+			{ "ApplicationSwTime", "epl.asnd.ires.appswtime",
 				FT_UINT32, BASE_DEC_HEX, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_identresponse_ipa,
@@ -2458,15 +3020,15 @@ proto_register_epl(void)
 				FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5,
-			{ "Device profile specific", "epl.asnd.res.seb.bit5",
+			{ "Device Profile Spec", "epl.asnd.res.seb.bit5",
 				FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7,
-			{ "Manufacturer specific", "epl.asnd.res.seb.bit7",
+			{ "Manufacturer Spec", "epl.asnd.res.seb.bit7",
 				FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL }
 		},
 		{ &hf_epl_asnd_statusresponse_seb_devicespecific_err,
-			{ "Device profile specific", "epl.asnd.res.seb.devicespecific_err",
+			{ "Device Profile Spec", "epl.asnd.res.seb.devicespecific_err",
 				FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		},
 
@@ -2610,10 +3172,6 @@ proto_register_epl(void)
 			{ "SDO Segment size", "epl.asnd.sdo.cmd.segment.size",
 				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
-		{ &hf_epl_asnd_sdo_cmd_data,
-			{ "SDO Index", "epl.asnd.sdo.cmd.data",
-				FT_NONE,  BASE_NONE, NULL, 0x00, NULL, HFILL }
-		},
 		{ &hf_epl_asnd_sdo_cmd_data_size,
 			{ "SDO Data size", "epl.asnd.sdo.cmd.data.size",
 				FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
@@ -2635,6 +3193,26 @@ proto_register_epl(void)
 			{ "OD SubIndex", "epl.asnd.sdo.cmd.data.subindex",
 				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
 		},
+		{ &hf_epl_asnd_sdo_cmd_data_mapping,
+			{ "Mapping", "epl.asnd.sdo.cmd.data.mapping",
+				FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_sdo_cmd_data_mapping_index,
+			{ "Index", "epl.asnd.sdo.cmd.data.mapping.index",
+				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_sdo_cmd_data_mapping_subindex,
+			{ "SubIndex", "epl.asnd.sdo.cmd.data.mapping.subindex",
+				FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_sdo_cmd_data_mapping_offset,
+			{ "Offset", "epl.asnd.sdo.cmd.data.mapping.offset",
+				FT_UINT16, BASE_HEX, NULL, 0x00, NULL, HFILL }
+		},
+		{ &hf_epl_asnd_sdo_cmd_data_mapping_length,
+			{ "Length", "epl.asnd.sdo.cmd.data.mapping.length",
+				FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -2648,6 +3226,7 @@ proto_register_epl(void)
 		&ett_epl_sdo_entry_type,
 		&ett_epl_sdo,
 		&ett_epl_sdo_data,
+		&ett_epl_asnd_sdo_cmd_data_mapping,
 		&ett_epl_sdo_sequence_layer,
 		&ett_epl_sdo_command_layer,
 		&ett_epl_soa_sync,
