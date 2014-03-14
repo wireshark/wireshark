@@ -31,6 +31,7 @@
 
 #include "config.h"
 
+#include <math.h>
 #include <glib.h>
 #include <epan/expert.h>
 #include <epan/packet.h>
@@ -53,6 +54,12 @@ static int hf_mp4_ftyp_brand = -1;
 static int hf_mp4_ftyp_ver = -1;
 static int hf_mp4_ftyp_add_brand = -1;
 static int hf_mp4_mfhd_seq_num = -1;
+static int hf_mp4_tkhd_creat_time = -1;
+static int hf_mp4_tkhd_mod_time = -1;
+static int hf_mp4_tkhd_track_id = -1;
+static int hf_mp4_tkhd_duration = -1;
+static int hf_mp4_tkhd_width = -1;
+static int hf_mp4_tkhd_height = -1;
 
 static expert_field ei_mp4_box_too_large = EI_INIT;
 
@@ -134,6 +141,16 @@ static const value_string box_types[] = {
     { 0, NULL }
 };
 
+/* convert a decimal number x into a double 0.x (e.g. 123 becomes 0.123) */
+static inline double
+make_fract(guint x)
+{
+    if (x==0)
+        return 0.0;
+
+    return (double)(x / exp(log(10.0)*(1+floor(log((double)x)/log(10.0))))); 
+}
+
 static gint
 dissect_mp4_mvhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
@@ -170,13 +187,65 @@ dissect_mp4_mfhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
 
 
 static gint
-dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len,
+dissect_mp4_tkhd_body(tvbuff_t *tvb, gint offset, gint len _U_,
         packet_info *pinfo _U_, proto_tree *tree)
 {
+    gint     offset_start;
+    guint8   version;
+    guint8   time_len;
+    double   width, height;
+    guint16  fract_dec;
+
+    offset_start = offset;
+
+    version = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_mp4_full_box_ver,
             tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    /* XXX dissect the flags */
+    proto_tree_add_text(tree, tvb, offset, 3, "Flags");
+    offset += 3;
 
-    return len;
+    time_len = (version==0) ? 4 : 8;
+    proto_tree_add_item(tree, hf_mp4_tkhd_creat_time,
+            tvb, offset, time_len, ENC_BIG_ENDIAN);
+    offset += time_len;
+    proto_tree_add_item(tree, hf_mp4_tkhd_mod_time,
+            tvb, offset, time_len, ENC_BIG_ENDIAN);
+    offset += time_len;
+
+    proto_tree_add_item(tree, hf_mp4_tkhd_track_id,
+            tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset += 4;   /* 32bit reserved */
+
+    proto_tree_add_item(tree, hf_mp4_tkhd_duration,
+            tvb, offset, time_len, ENC_BIG_ENDIAN);
+    offset += time_len;
+
+    offset += 2*4; /* 2*32bit reserved */
+    offset += 2;   /* 16bit layer */
+    offset += 2;   /* 16bit alternate_group */
+    offset += 2;   /* 16bit volume */
+    offset += 2;   /* 16bit reserved */
+    offset += 9*4; /* 9*32bit matrix */
+
+    width = tvb_get_ntohs(tvb, offset);
+    fract_dec = tvb_get_ntohs(tvb, offset+2);
+    width += make_fract(fract_dec);
+    proto_tree_add_double_format_value(tree, hf_mp4_tkhd_width,
+            tvb, offset, 4, width, "%f", width);
+    offset += 4;
+
+    height = tvb_get_ntohs(tvb, offset);
+    fract_dec = tvb_get_ntohs(tvb, offset+2);
+    height += make_fract(fract_dec);
+    proto_tree_add_double_format_value(tree, hf_mp4_tkhd_height,
+            tvb, offset, 4, height, "%f", height);
+    offset += 4;
+
+    return offset-offset_start;
 }
 
 
@@ -260,6 +329,10 @@ dissect_mp4_box(guint32 parent_box_type _U_,
     }
     proto_item_set_len(type_pi, (gint)box_size);
     body_size = (gint)box_size - (offset-offset_start);
+
+    /* we do not dissect full box version and flags here
+       these two components are required by the function dissecting the body
+       some fields of the body depend on the version and flags */
 
     /* XXX - check parent box if supplied */
     switch (box_type) {
@@ -365,7 +438,25 @@ proto_register_mp4(void)
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_mp4_mfhd_seq_num,
             { "Sequence number", "mp4.mfhd.sequence_number", FT_UINT32,
-                BASE_DEC, NULL, 0, NULL, HFILL } }
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_creat_time,
+            { "Creation time", "mp4.tkhd.creation_time", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_mod_time,
+            { "Modification time", "mp4.tkhd.modification_time", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_track_id,
+            { "Track ID", "mp4.tkhd.track_id", FT_UINT32,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_duration,
+            { "Duration", "mp4.tkhd.duration", FT_UINT64,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_width,
+            { "Width", "mp4.tkhd.width", FT_DOUBLE,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_mp4_tkhd_height,
+            { "Height", "mp4.tkhd.height", FT_DOUBLE,
+                BASE_NONE, NULL, 0, NULL, HFILL } }
     };
 
     static gint *ett[] = {
