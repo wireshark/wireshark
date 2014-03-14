@@ -69,13 +69,6 @@ static const enum_val_t byte_order_types[] = {
     { NULL, NULL, 0 }
 };
 
-static const value_string _encoding_vals[] = {
-	{ ENC_BIG_ENDIAN,    "Big Endian" },
-	{ ENC_LITTLE_ENDIAN, "Little Endian" },
-/*	{ ENC_NA,            "Unknown" }, */ /* ENC_NA has the same value as ENC_BIG_ENDIAN */
-	{ 0, NULL }
-};
-
 static const value_string nflog_tlv_vals[] = {
 	{ WS_NFULA_UNSPEC,             "NFULA_UNSPEC" },
 	{ WS_NFULA_PACKET_HDR,         "NFULA_PACKET_HDR" },
