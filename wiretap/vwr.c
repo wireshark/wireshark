@@ -1124,7 +1124,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
        octets = 0;
 
     /* Sanity check the octets field to determine if it is OK (or segfaults result). */
-    /* ff it's greater, then truncate to actual record size. */
+    /* iff it's greater, then truncate to actual record size. */
     if (octets > (rec_size - 64))
         octets = (rec_size - 64);
     msdu_length = octets;
@@ -1165,7 +1165,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     phdr->len    = (msdu_length - 4) + r_hdr_len;
     phdr->caplen = (octets - 4) + r_hdr_len;
 
-    phdr->presence_flags = WTAP_HAS_TS;
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
@@ -1428,7 +1428,7 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     tmp_len = (msdu_length - 4) + r_hdr_len;
     phdr->caplen = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
 
-    phdr->presence_flags = WTAP_HAS_TS;
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
