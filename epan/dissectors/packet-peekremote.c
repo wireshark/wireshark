@@ -564,6 +564,8 @@ proto_register_peekremote(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_peekremote = expert_register_protocol(proto_peekremote);
   expert_register_field_array(expert_peekremote, ei, array_length(ei));
+
+  new_register_dissector("peekremote", dissect_peekremote_legacy, proto_peekremote);
 }
 
 void
@@ -578,3 +580,16 @@ proto_reg_handoff_peekremote(void)
 
   heur_dissector_add("udp", dissect_peekremote_new, proto_peekremote);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
