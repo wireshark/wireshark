@@ -421,6 +421,7 @@ static int
 dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	guint8 prefix_len, prefix_len_bytes;
+	/*diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;*/
 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_reserved, tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_length, tvb, 1, 1, ENC_BIG_ENDIAN);
@@ -433,8 +434,16 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 	proto_tree_add_item(tree, hf_framed_ipv6_prefix_bytes, tvb, 2, prefix_len_bytes, ENC_NA);
 
 	/* If we have a fully IPv6 address, display it as such */
-	if (prefix_len_bytes == 16)
+	if (prefix_len_bytes == 16){
 		proto_tree_add_item(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, ENC_NA);
+	}else{
+		struct e_in6_addr value;
+
+		memset(&value.bytes, 0, sizeof(value));
+		tvb_memcpy(tvb, (guint8 *)&value.bytes, 2, prefix_len_bytes);
+		value.bytes[prefix_len_bytes] = value.bytes[prefix_len_bytes] & (0xff<<(prefix_len % 8));
+		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, value.bytes);
+	}
 
 	return(prefix_len_bytes+2);
 }
