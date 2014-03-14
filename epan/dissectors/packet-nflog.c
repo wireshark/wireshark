@@ -170,7 +170,7 @@ dissect_nflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 1;
 
 		proto_tree_add_item(nflog_tree, &hfi_nflog_resid, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+		/*offset += 2;*/
 	}
 
 	offset = start_tlv_offset;
