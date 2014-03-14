@@ -56,19 +56,6 @@ enum ws_nfulnl_attr_type {
     WS_NFULA_HWLEN               /* hardware header length */
 };
 
-#define BYTE_ORDER_AUTO 0
-#define BYTE_ORDER_BE 1
-#define BYTE_ORDER_LE 2
-#define BYTE_ORDER_HOST 3
-
-static const enum_val_t byte_order_types[] = {
-    { "Auto", "Auto",          BYTE_ORDER_AUTO },
-    { "Host", "Host",          BYTE_ORDER_HOST },
-    { "LE",   "Little Endian", BYTE_ORDER_LE },
-    { "BE",   "Big Endian",    BYTE_ORDER_BE },
-    { NULL, NULL, 0 }
-};
-
 static const value_string nflog_tlv_vals[] = {
     { WS_NFULA_UNSPEC,             "NFULA_UNSPEC" },
     { WS_NFULA_PACKET_HDR,         "NFULA_PACKET_HDR" },
@@ -90,8 +77,6 @@ static const value_string nflog_tlv_vals[] = {
     { WS_NFULA_HWLEN,              "NFULA_HWLEN" },
     { 0, NULL }
 };
-
-static gint nflog_byte_order = BYTE_ORDER_AUTO;
 
 static int ett_nflog = -1;
 static int ett_nflog_tlv = -1;
@@ -305,8 +290,6 @@ proto_register_nflog(void)
     hfi_nflog = proto_registrar_get_nth(proto_nflog);
 
     pref = prefs_register_protocol(proto_nflog, NULL);
-    prefs_register_enum_preference(pref, "byte_order_type", "Byte Order", "Byte Order",
-                                   &nflog_byte_order, byte_order_types, FALSE);
 
     register_dissector("nflog", dissect_nflog, proto_nflog);
 
