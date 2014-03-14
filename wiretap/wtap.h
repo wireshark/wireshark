@@ -253,6 +253,7 @@ extern "C" {
 #define WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR      160
 #define WTAP_ENCAP_BLUETOOTH_BREDR_BB           161
 #define WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR    162
+#define WTAP_ENCAP_NSTRACE_3_0                  163
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
@@ -328,6 +329,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_VWR_ETH                       63
 #define WTAP_FILE_TYPE_SUBTYPE_CAMINS                        64
 #define WTAP_FILE_TYPE_SUBTYPE_STANAG_4607                   65
+#define WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0                 66
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 
