@@ -29,11 +29,11 @@
 
 #include "config.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/exceptions.h>
 
 /* Open Sound Control (OSC) argument types enumeration */
 typedef enum _OSC_Type {
@@ -65,10 +65,10 @@ static const char invalid_path_chars [] = {
 
 /* allowed characters in OSC format string */
 static const char valid_format_chars [] = {
-    OSC_INT32, OSC_FLOAT, OSC_STRING, OSC_BLOB,
-    OSC_TRUE, OSC_FALSE, OSC_NIL, OSC_BANG,
-    OSC_INT64, OSC_DOUBLE, OSC_TIMETAG,
-    OSC_SYMBOL, OSC_CHAR, OSC_RGBA, OSC_MIDI,
+    OSC_INT32,  OSC_FLOAT,  OSC_STRING,  OSC_BLOB,
+    OSC_TRUE,   OSC_FALSE,  OSC_NIL,     OSC_BANG,
+    OSC_INT64,  OSC_DOUBLE, OSC_TIMETAG,
+    OSC_SYMBOL, OSC_CHAR,   OSC_RGBA,    OSC_MIDI,
     '\0'
 };
 
@@ -98,6 +98,7 @@ static const value_string MIDI_status [] = {
 
     {0, NULL }
 };
+static value_string_ext MIDI_status_ext = VALUE_STRING_EXT_INIT(MIDI_status);
 
 /* Standard MIDI Controller Numbers */
 static const value_string MIDI_control [] = {
@@ -176,6 +177,7 @@ static const value_string MIDI_control [] = {
 
     { 0, NULL }
 };
+static value_string_ext MIDI_control_ext = VALUE_STRING_EXT_INIT(MIDI_control);
 
 static const char *immediate_fmt = "%s";
 static const char *immediate_str = "Immediate";
@@ -239,47 +241,47 @@ static int ett_osc_rgba = -1;
 static int ett_osc_midi = -1;
 
 /* check for valid path string */
-static int
+static gboolean
 is_valid_path(const char *path)
 {
     const char *ptr;
     if(path[0] != '/')
-        return 0;
-    for(ptr=invalid_path_chars; *ptr!='\0'; ptr++)
-        if(strchr(path+1, *ptr) != NULL)
-            return 0;
-    return 1;
+        return FALSE;
+    for(ptr=path+1; *ptr!='\0'; ptr++)
+        if(strchr(invalid_path_chars, *ptr) != NULL)
+            return FALSE;
+    return TRUE;
 }
 
 /* check for valid format string */
-static int
+static gboolean
 is_valid_format(const char *format)
 {
     const char *ptr;
     if(format[0] != ',')
-        return 0;
+        return FALSE;
     for(ptr=format+1; *ptr!='\0'; ptr++)
         if(strchr(valid_format_chars, *ptr) == NULL)
-            return 0;
-    return 1;
+            return FALSE;
+    return TRUE;
 }
 
 /* Dissect OSC message */
 static int
 dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
 {
-    proto_tree *message_tree = NULL;
-    proto_tree *header_tree = NULL;
-    gint slen;
-    gint rem;
-    gint end = offset + len;
-    const gchar *path = NULL;
-    gint path_len;
-    gint path_offset;
-    const gchar *format = NULL;
-    gint format_offset;
-    gint format_len;
-    const gchar *ptr = NULL;
+    proto_tree  *message_tree;
+    proto_tree  *header_tree;
+    gint         slen;
+    gint         rem;
+    gint         end = offset + len;
+    const gchar *path;
+    gint         path_len;
+    gint         path_offset;
+    const gchar *format;
+    gint         format_offset;
+    gint         format_len;
+    const gchar *ptr;
 
     /* peek/read path */
     path_offset = offset;
@@ -335,8 +337,8 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 break;
             case OSC_BLOB:
             {
-                proto_item *bi = NULL;
-                proto_tree *blob_tree = NULL;
+                proto_item *bi;
+                proto_tree *blob_tree;
 
                 gint32 blen = tvb_get_ntohl(tvb, offset);
                 slen = blen;
@@ -380,10 +382,10 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 break;
             case OSC_TIMETAG:
             {
-                guint32 sec = tvb_get_ntohl(tvb, offset);
-                guint32 frac = tvb_get_ntohl(tvb, offset+4);
+                guint32  sec  = tvb_get_ntohl(tvb, offset);
+                guint32  frac = tvb_get_ntohl(tvb, offset+4);
                 nstime_t ns;
-                if( (sec == 0UL) && (frac == 1UL) )
+                if( (sec == 0) && (frac == 1) )
                     proto_tree_add_time_format_value(message_tree, hf_osc_message_timetag_type, tvb, offset, 8, &ns, immediate_fmt, immediate_str);
                 else
                     proto_tree_add_item(message_tree, hf_osc_message_timetag_type, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
@@ -404,8 +406,8 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 break;
             case OSC_RGBA:
             {
-                proto_item *ri = NULL;
-                proto_tree *rgba_tree = NULL;
+                proto_item *ri;
+                proto_tree *rgba_tree;
 
                 ri = proto_tree_add_item(message_tree, hf_osc_message_rgba_type, tvb, offset, 4, ENC_BIG_ENDIAN);
                 rgba_tree = proto_item_add_subtree(ri, ett_osc_rgba);
@@ -422,25 +424,25 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
             }
             case OSC_MIDI:
             {
-                const gchar *status_str = NULL;
-                const gchar *control_str = NULL;
-                proto_item *mi = NULL;
-                proto_tree *midi_tree = NULL;
-                guint8 channel;
-                guint8 status;
-                guint8 data1;
-                guint8 data2;
+                const gchar *status_str;
+                proto_item  *mi = NULL;
+                proto_tree  *midi_tree;
+                guint8       channel;
+                guint8       status;
+                guint8       data1;
+                guint8       data2;
 
                 channel = tvb_get_guint8(tvb, offset);
                 status = tvb_get_guint8(tvb, offset+1);
                 data1 = tvb_get_guint8(tvb, offset+2);
                 data2 = tvb_get_guint8(tvb, offset+3);
 
-                status_str = val_to_str_const(status, MIDI_status, "Unknown");
+                status_str = val_to_str_ext_const(status, &MIDI_status_ext, "Unknown");
 
                 if(status == MIDI_STATUS_CONTROLLER) /* MIDI Controller */
                 {
-                    control_str = val_to_str_const(data1, MIDI_control, "Unknown");
+                    const gchar *control_str;
+                    control_str = val_to_str_ext_const(data1, &MIDI_control_ext, "Unknown");
 
                     mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
                             "MIDI: Channel %2i, %s (0x%02x), %s (0x%02x), 0x%02x",
@@ -450,11 +452,13 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                             data2);
                 }
                 else
+                {
                     mi = proto_tree_add_none_format(message_tree, hf_osc_message_midi_type, tvb, offset, 4,
                             "MIDI: Channel %2i, %s (0x%02x), 0x%02x, 0x%02x",
                             channel,
                             status_str, status,
                             data1, data2);
+                }
                 midi_tree = proto_item_add_subtree(mi, ett_osc_midi);
 
                 proto_tree_add_item(midi_tree, hf_osc_message_midi_channel_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -502,11 +506,11 @@ static int
 dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
 {
     const gchar *str;
-    proto_tree *bundle_tree = NULL;
-    gint end = offset + len;
-    guint32 sec;
-    guint32 frac;
-    nstime_t ns;
+    proto_tree  *bundle_tree;
+    gint         end = offset + len;
+    guint32      sec;
+    guint32      frac;
+    nstime_t     ns;
 
     /* check for valid #bundle */
     str = tvb_get_const_stringz(tvb, offset, NULL);
@@ -521,9 +525,9 @@ dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint off
     offset += 8; /* skip bundle_str */
 
     /* read timetag */
-    sec = tvb_get_ntohl(tvb, offset);
+    sec  = tvb_get_ntohl(tvb, offset);
     frac = tvb_get_ntohl(tvb, offset+4);
-    if( (sec == 0UL) && (frac == 1UL) )
+    if( (sec == 0) && (frac == 1) )
         proto_tree_add_time_format_value(bundle_tree, hf_osc_bundle_timetag_type, tvb, offset, 8, &ns, immediate_fmt, immediate_str);
     else
         proto_tree_add_item(bundle_tree, hf_osc_bundle_timetag_type, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
@@ -585,9 +589,9 @@ dissect_osc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(tree) /* we are being asked for details */
     {
-        gint len;
-        proto_item *ti = NULL;
-        proto_tree *osc_tree = NULL;
+        gint        len;
+        proto_item *ti;
+        proto_tree *osc_tree;
 
         /* create OSC packet */
         ti = proto_tree_add_item(tree, proto_osc, tvb, 0, -1, ENC_NA);
@@ -614,32 +618,48 @@ dissect_osc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* OSC heuristics */
+
 static gboolean
-dissect_osc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    gint offset = 0;
-    gint slen;
-    gint rem;
-    const gchar *str = NULL;
-    conversation_t *conversation = NULL;
+    conversation_t *conversation;
+
+    if(tvb_length(tvb) < 8)
+        return FALSE;
 
     /* peek first string */
-    str = tvb_get_const_stringz(tvb, offset, &slen);
-    if(strncmp(str, bundle_str, 8) != 0) /* no OSC bundle */
+    if(tvb_strneql(tvb, 0, bundle_str, 8) != 0) /* no OSC bundle */
     {
+        gint         offset = 0;
+        gint         slen;
+        gint         rem;
+        const gchar *str;
+        gboolean     valid  = FALSE;
+
         /* check for valid path */
-        if(!is_valid_path(str))
-            return FALSE;
+        /* Don't propagate upwards any exceptions during heuristics check */
+        TRY {
+            str = tvb_get_const_stringz(tvb, offset, &slen);
+            if(is_valid_path(str)) {
 
-        /* skip path */
-        if( (rem = slen%4) ) slen += 4-rem;
-        offset += slen;
+                /* skip path */
+                if( (rem = slen%4) ) slen += 4-rem;
+                offset += slen;
 
-        /* peek next string */
-        str = tvb_get_const_stringz(tvb, offset, &slen);
+                /* peek next string */
+                str = tvb_get_const_stringz(tvb, offset, &slen);
 
-        /* check for valid format */
-        if(!is_valid_format(str))
+                /* check for valid format */
+                if(is_valid_format(str))
+                    valid = TRUE;
+            }
+        }
+        CATCH_ALL {
+            valid = FALSE;
+        }
+        ENDTRY;
+
+        if(! valid)
             return FALSE;
     }
 
@@ -786,8 +806,8 @@ proto_register_osc(void)
                 NULL, 0x0,
                 "MIDI channel", HFILL } },
         { &hf_osc_message_midi_status_type, { "Status", "osc.message.midi.status",
-                FT_UINT8, BASE_HEX,
-                VALS(MIDI_status), 0x0,
+                FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+                &MIDI_status_ext, 0x0,
                 "MIDI status message", HFILL } },
         { &hf_osc_message_midi_data1_type, { "Data1", "osc.message.midi.data1",
                 FT_UINT8, BASE_HEX,
@@ -798,8 +818,8 @@ proto_register_osc(void)
                 NULL, 0x0,
                 "MIDI data value 2", HFILL } },
         { &hf_osc_message_midi_controller_type, { "Controller", "osc.message.midi.controller",
-                FT_UINT8, BASE_HEX,
-                VALS(MIDI_control), 0x0,
+                FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+                &MIDI_control_ext, 0x0,
                 "MIDI controller message", HFILL } },
         { &hf_osc_message_midi_value_type, { "Value", "osc.message.midi.value",
                 FT_UINT8, BASE_HEX,
@@ -827,11 +847,11 @@ proto_register_osc(void)
 void
 proto_reg_handoff_osc(void)
 {
-    osc_handle = create_dissector_handle(dissect_osc, proto_osc);
-
     /* register as heuristic dissector for TCP and UDP connections */
-    heur_dissector_add("tcp", dissect_osc_heur, proto_osc);
-    heur_dissector_add("udp", dissect_osc_heur, proto_osc);
+#if 0 /* XXX: ToDo: TCP must be handled differently than UDP */
+    heur_dissector_add("tcp", dissect_osc_heur_tcp, proto_osc);
+#endif
+    heur_dissector_add("udp", dissect_osc_heur_udp, proto_osc);
 }
 
 /*
