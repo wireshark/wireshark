@@ -473,29 +473,26 @@ static
 gboolean dissect_bt_dht_heur (tvbuff_t *tvb, packet_info *pinfo,
                                         proto_tree *tree, void *data _U_)
 {
+  conversation_t *conversation;
+
   /* try dissecting */
   /* Assume dictionary (d) is followed by a one char long (1:) key string. */
-  if(tvb_memeql(tvb, 0, "d1:", 3) == 0)
-  {
-    int i;
-    guint8 key = tvb_get_guint8(tvb, 3);
 
-    /* Iterate through possible keys to improve heuristics. */
-    for(i=0; short_key_name_value_string[i].value != 0; i++)
-    {
-      if(short_key_name_value_string[i].value == key)
-      {
-        conversation_t *conversation;
+  if(tvb_length(tvb) < 4)
+    return FALSE;
 
-        conversation = find_or_create_conversation(pinfo);
-        conversation_set_dissector(conversation, bt_dht_handle);
+  if(tvb_memeql(tvb, 0, "d1:", 3) != 0)
+    return FALSE;
 
-        dissect_bt_dht(tvb, pinfo, tree, NULL);
-        return TRUE;
-      }
-    }
-  }
-  return FALSE;
+  /* Is 'key' a valid key ? */
+  if(try_val_to_str(tvb_get_guint8(tvb, 3), short_key_name_value_string) == NULL)
+    return FALSE;
+
+  conversation = find_or_create_conversation(pinfo);
+  conversation_set_dissector(conversation, bt_dht_handle);
+
+  dissect_bt_dht(tvb, pinfo, tree, NULL);
+  return TRUE;
 }
 
 void
