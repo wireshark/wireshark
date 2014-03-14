@@ -282,14 +282,10 @@ proto_register_nflog(void)
         &ett_nflog_tlv
     };
 
-    module_t *pref;
-
     int proto_nflog;
 
     proto_nflog = proto_register_protocol("Linux Netfilter NFLOG", "NFLOG", "nflog");
     hfi_nflog = proto_registrar_get_nth(proto_nflog);
-
-    pref = prefs_register_protocol(proto_nflog, NULL);
 
     register_dissector("nflog", dissect_nflog, proto_nflog);
 
