@@ -66,7 +66,7 @@
  * one or the other of them is the length of the rest of the record.
  * Other records contain only the header.
  */
-#define VW_RECORD_HEADER_LENGTH	16
+#define VW_RECORD_HEADER_LENGTH 16
 
 /* the metadata headers */
 
@@ -988,7 +988,6 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     guint8           plcp_type, mcs_index, nss;           /* PLCP type 0: Legacy, 1: Mixed, 2: Green field, 3: VHT Mixed */
     guint16          vc_id, flow_id, ht_len=0;            /* VC ID, flow ID, total ip length */
     guint32          d_time, errors;                      /* packet duration & errors */
-    guint16          r_hdr_len;                           /* length of metadata headers */
     int              sig_off, pay_off;                    /* MAC+SNAP header len, signature offset */
     guint64          sig_ts;                              /* 32 LSBs of timestamp in signature */
     float            phyRate;
@@ -1072,22 +1071,29 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     else
         sig_ts = 0;
 
-    /* Pack the common and er structs) */
-    r_hdr_len    = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
-
-    tmp_len      = (msdu_length - 4) + r_hdr_len;
-    phdr->len    = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
-    tmp_len      = (octets - 4) + r_hdr_len;
-    phdr->caplen = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
-
-    phdr->len    = (msdu_length - 4) + r_hdr_len;
-    phdr->caplen = (octets - 4) + r_hdr_len;
-
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    /*
+     * Fill up the per-packet header.
+     *
+     * The MSDU length includes the FCS.
+     * The packet data does *not* include the FCS - it's just 4 bytes
+     * of junk - so we have to remove it.
+     *
+     * We include the length of the metadata headers in the packet lengths.
+     */
+    if (msdu_length >= 4)
+        phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + msdu_length - 4;
+    else
+        phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
+    if (octets >= 4)
+        phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + octets - 4;
+    else
+        phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
+
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     /* generate and copy out the metadata headers, set the port type to 0 (WLAN) */
     common_fields->vw_port_type   = 0;
@@ -1152,7 +1158,6 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     register guint8 *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
 
     guint32          msdu_length, actual_octets;          /* octets in frame */
-    guint64          tmp_len;
     guint8           l1p_1,l1p_2, flow_seq, plcp_type, mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /*  times, nsec */
@@ -1165,7 +1170,6 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              f_tx;                                /* flag: if set, is a TX frame */
     guint16          vc_id, ht_len=0;                     /* VC ID , total ip length*/
     guint32          flow_id, d_time;                     /* flow ID, packet duration*/
-    guint16          r_hdr_len;                           /* length of metadata headers */
     int              sig_off, pay_off;                    /* MAC+SNAP header len, signature offset */
     guint64          sig_ts, tsid;                        /* 32 LSBs of timestamp in signature */
     guint16          chanflags = 0;                       /* channel flags for WLAN metadata header */
@@ -1332,23 +1336,29 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
           }
     }
 
-    /* Fill up the per-packet header (amazingly like a PCAP packet header! ;-)          */
-    /* Frames are always 802.11, with metadata headers.                      */
-    /* caplen is the length that is captured into the file (i.e., the written-out frame */
-    /*  block), and should always represent the actual number of bytes in the file.     */
-    /* len is the length of the original packet before truncation.                      */
-    /* The FCS is NOT included.                                                         */
-    r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
-    tmp_len = (actual_octets - 4) + r_hdr_len;
-    phdr->len = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
-    tmp_len = (msdu_length - 4) + r_hdr_len;
-    phdr->caplen = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
-
-    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+    /*
+     * Fill up the per-packet header.
+     *
+     * The MSDU length includes the FCS.
+     * The packet data does *not* include the FCS - it's just 4 bytes
+     * of junk - so we have to remove it.
+     *
+     * We include the length of the metadata headers in the packet lengths.
+     */
+    if (msdu_length >= 4)
+        phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + msdu_length - 4;
+    else
+        phdr->len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
+    if (actual_octets >= 4)
+        phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN + actual_octets - 4;
+    else
+        phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
+
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     /* generate and copy out the metadata headers, set the port type to 0 (WLAN) */
     common_fields->vw_port_type   = 0;
@@ -1434,7 +1444,6 @@ static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint32          flow_id, d_time;                     /* packet duration */
     int              f_flow;                              /* flags: flow valid */
     guint32          frame_type;                          /* frame type field */
-    guint16          e_hdr_len;                           /* length of ethernettap headers */
     int              mac_len, sig_off, pay_off;           /* MAC header len, signature offset */
     guint64          sig_ts, tsid;                        /* 32 LSBs of timestamp in signature */
     guint64          delta_b;                             /* Used for calculating latency */
@@ -1547,21 +1556,30 @@ static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
                 latency = (guint32)delta_b;
         }
     }
-    /* Fill up the per-packet header (amazingly like a PCAP packet header! ;-)          */
-    /* Frames are always wired ethernet with a wired ethernettap header.                */
-    /* Caplen is the length that is captured into the file (i.e., the written-out frame */
-    /*  block), and should always represent the actual number of bytes in the file.     */
-    /* len is the length of the original packet before truncation.                      */
-    /* The FCS is NEVER included.                                                       */
-    e_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN;
-    phdr->len    = (actual_octets - 4) + e_hdr_len;
-    phdr->caplen = (msdu_length - 4) + e_hdr_len;
 
-    phdr->presence_flags = WTAP_HAS_TS;
+    /*
+     * Fill up the per-packet header.
+     *
+     * The MSDU length includes the FCS.
+     * The packet data does *not* include the FCS - it's just 4 bytes
+     * of junk - so we have to remove it.
+     *
+     * We include the length of the metadata headers in the packet lengths.
+     */
+    if (msdu_length >= 4)
+        phdr->len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + msdu_length - 4;
+    else
+        phdr->len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN;
+    if (actual_octets >= 4)
+        phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN + actual_octets - 4;
+    else
+        phdr->caplen = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN;
 
     phdr->ts.secs   = (time_t)s_sec;
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
+
+    phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     /* generate and copy out the ETHERNETTAP header, set the port type to 1 (Ethernet) */
     common_hdr.vw_port_type = 1;
@@ -1797,10 +1815,10 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->IS_QOS             =   vVW510021_W_QOS_VALID;
 
             /*
-	     * The 8 is from the 8 bytes of stats block that precede the
-	     * PLCP; the 12 is for 11 bytes of PLCP  and 1 byte of pad
-	     * before the data.
-	     */
+             * The 8 is from the 8 bytes of stats block that precede the
+             * PLCP; the 12 is for 11 bytes of PLCP  and 1 byte of pad
+             * before the data.
+             */
             vwr->MPDU_OFF           = 8 + 12;
 
             break;
@@ -1812,9 +1830,9 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->HEADER_IS_TX    = vVW510021_W_HEADER_IS_TX;
 
             /*
-	     * The 8 is from the 8 bytes of stats block that precede the
-	     * PLCP; the 24 is for, umm, something.
-	     */
+             * The 8 is from the 8 bytes of stats block that precede the
+             * PLCP; the 24 is for, umm, something.
+             */
             vwr->MPDU_OFF        = 8 + 24;
 
             break;
