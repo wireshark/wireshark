@@ -2245,7 +2245,7 @@ gint
 dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
 	gint size;
-	guint16 index = 0x00, nosub = 0x00, sod_sub_index = 0x00, sod_index = 0x00, error = 0xFF, entries = 0x00, sub_val = 0x00;
+	guint16 idx = 0x00, nosub = 0x00, sod_sub_index = 0x00, sod_index = 0x00, error = 0xFF, entries = 0x00, sub_val = 0x00;
 	guint8 subindex = 0x00;
 	proto_item *psf_item;
 	proto_tree *psf_tree;
@@ -2256,19 +2256,19 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 
 		if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 		{
-			index = tvb_get_letohs(tvb, offset);
-			psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, index,"OD Index: 0x%04X", index);
+			idx = tvb_get_letohs(tvb, offset);
+			psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, idx, "OD Index: 0x%04X", idx);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO, " Req. %s", val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, " User Defined (%d)"));
-			index_str = rval_to_str_const(index, sod_cmd_str, "unknown");
-			sod_index = str_to_val(index_str,sod_cmd_str_val,error);
-			sub_index_str = val_to_str_ext_const(index, &sod_cmd_no_sub, "unknown");
+			index_str = rval_to_str_const(idx, sod_cmd_str, "unknown");
+			sod_index = str_to_val(index_str, sod_cmd_str_val, error);
+			sub_index_str = val_to_str_ext_const(idx, &sod_cmd_no_sub, "unknown");
 			nosub = str_to_val(sub_index_str, sod_cmd_str_no_sub,error);
 
 			if(sod_index != error)
 			{
 				proto_item_append_text(psf_item," (%s", val_to_str_ext_const(((guint32)(sod_index<<16)), &sod_index_names, "User Defined"));
-				proto_item_append_text(psf_item,"_%02Xh", (index-sod_index));
+				proto_item_append_text(psf_item,"_%02Xh", (idx-sod_index));
 				if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
 				{
 					proto_item_append_text(psf_item,"_AU64)");
@@ -2279,7 +2279,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 					proto_item_append_text(psf_item,"_REC)");
 				}
 				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32)(sod_index << 16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, "_%02Xh", (index-sod_index));
+				col_append_fstr(pinfo->cinfo, COL_INFO, "_%02Xh", (idx-sod_index));
 				if(sod_index == EPL_SOD_PDO_RX_MAPP || sod_index == EPL_SOD_PDO_TX_MAPP)
 				{
 					col_append_fstr(pinfo->cinfo, COL_INFO, "_AU64");
@@ -2288,29 +2288,29 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 				{
 					col_append_fstr(pinfo->cinfo, COL_INFO, "_REC");
 				}
-				index = sod_index;
+				idx = sod_index;
 			}
 			else
 			{
-				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (idx << 16)), &sod_index_names, "User Defined"));
 			}
 
 			offset += 2;
 			subindex = tvb_get_guint8(tvb, offset);
-			sub_str = val_to_str_ext_const(index, &sod_cmd_sub_str, "unknown");
+			sub_str = val_to_str_ext_const(idx, &sod_cmd_sub_str, "unknown");
 			sub_val = str_to_val(sub_str, sod_cmd_sub_str_val,error);
 
 			if(sub_val != error)
-				index = sub_val;
+				idx = sub_val;
 
-			if(index == EPL_SOD_STORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
+			if(idx == EPL_SOD_STORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
 			{
 				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
 				proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)",subindex);
 				col_append_fstr(pinfo->cinfo, COL_INFO, " | ManufacturerParam_%02Xh_U32]",subindex);
 			}
-			else if(index == EPL_SOD_RESTORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
+			else if(idx == EPL_SOD_RESTORE_PARAM && subindex <= 0x7F && subindex >= 0x04)
 			{
 				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
 				proto_item_append_text(psf_item, " (ManufacturerParam_%02Xh_U32)",subindex);
@@ -2329,32 +2329,32 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 			else if(sod_sub_index != entries)
 			{
 				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
-				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((sod_sub_index|(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((sod_sub_index|(index<<16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((sod_sub_index|(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((sod_sub_index|(idx<<16)), &sod_index_names, "User Defined"));
 			}
 			else
 			{
 				psf_item = proto_tree_add_uint_format(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, subindex, "OD SubIndex: 0x%02X", subindex);
-				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
 			}
 		}
 		offset += 2;
 
 		size = tvb_reported_length_remaining(tvb, offset);
 
-		if((index == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(index == EPL_SOD_PDO_RX_MAPP && subindex > entries))
+		if((idx == EPL_SOD_PDO_TX_MAPP && subindex > entries) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > entries))
 		{
 			psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_mapping, tvb, offset, 1, ENC_NA);
 			psf_tree = proto_item_add_subtree(psf_item, ett_epl_asnd_sdo_cmd_data_mapping);
-			index = tvb_get_letohs(tvb, offset);
-			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_index, tvb, offset, 2, index,"Index: 0x%04X", index);
+			idx = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_index, tvb, offset, 2, idx,"Index: 0x%04X", idx);
 			offset += 2;
-			index = tvb_get_letohs(tvb, offset);
-			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, offset, 2, index,"SubIndex: 0x%02X", index);
+			idx = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_subindex, tvb, offset, 2, idx,"SubIndex: 0x%02X", idx);
 			offset += 2;
-			index = tvb_get_letohs(tvb, offset);
-			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_offset, tvb, offset, 2, index,"Offset: 0x%04X", index);
+			idx = tvb_get_letohs(tvb, offset);
+			proto_tree_add_uint_format(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_offset, tvb, offset, 2, idx,"Offset: 0x%04X", idx);
 			offset += 2;
 			proto_tree_add_item(psf_tree, hf_epl_asnd_sdo_cmd_data_mapping_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
@@ -2377,7 +2377,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 {
 	gint dataoffset;
 	guint8 subindex = 0x00,  padding = 0x00;
-	guint16 index = 0x00;
+	guint16 idx = 0x00;
 	guint32 size, offsetincrement, datalength, remlength;
 	gboolean lastentry = FALSE;
 	proto_item *psf_item;
@@ -2450,16 +2450,16 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 
 			if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 			{
-				index = tvb_get_letohs(tvb, dataoffset);
+				idx = tvb_get_letohs(tvb, dataoffset);
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, dataoffset, 2, ENC_LITTLE_ENDIAN);
-				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (idx << 16)), &sod_index_names, "User Defined"));
 				dataoffset += 2;
 
 				subindex = tvb_get_guint8(tvb, dataoffset);
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
-				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
 				dataoffset += 1;
 				proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
 				dataoffset += 1;
@@ -2486,7 +2486,7 @@ gint
 dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response)
 {
 	gint size;
-	guint16 index = 0x00;
+	guint16 idx = 0x00;
 	guint8 subindex = 0x00;
 	proto_item *psf_item;
 
@@ -2494,16 +2494,16 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 	{   /* request */
 		col_append_fstr(pinfo->cinfo, COL_INFO, " Req. %s",
 					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "User Defined (%d)"));
-		index = tvb_get_letohs(tvb, offset);
+		idx = tvb_get_letohs(tvb, offset);
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-		proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined" ));
-		col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
+		proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(idx<<16)), &sod_index_names, "User Defined" ));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (idx << 16)), &sod_index_names, "User Defined"));
 		offset += 2;
 
 		subindex = tvb_get_guint8(tvb, offset);
 		psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
-		col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+		proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
 		offset += 1;
 
 	}
