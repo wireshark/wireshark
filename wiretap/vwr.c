@@ -1806,8 +1806,7 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             break;
 
         case S3_W_FPGA:
-fprintf(stderr, "You must be kidding\n");
-            vwr->STATS_LEN       = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
+            vwr->STATS_LEN       = vVW510021_W_STATS_LEN;
             vwr->PLCP_LENGTH_OFF = 16;
             vwr->HEADER_IS_RX    = vVW510021_W_HEADER_IS_RX;
             vwr->HEADER_IS_TX    = vVW510021_W_HEADER_IS_TX;
