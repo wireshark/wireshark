@@ -170,7 +170,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     switch(aruba_erm_type){
         case TYPE_PCAP:
             offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
-            proto_set_len(ti, offset);
+            proto_item_set_len(ti, offset);
             eth_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(ieee80211_handle, eth_tvb, pinfo, tree);
             break;
@@ -185,7 +185,7 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case TYPE_PCAPPLUSRADIO:
             offset = dissect_aruba_erm_pcap(tvb, pinfo, aruba_erm_tree, offset);
             offset = dissect_aruba_erm_pcap_radio(tvb, pinfo, aruba_erm_tree, offset);
-            proto_set_len(ti, offset);
+            proto_item_set_len(ti, offset);
             eth_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(ieee80211_handle, eth_tvb, pinfo, tree);
             break;
