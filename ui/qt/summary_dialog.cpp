@@ -570,9 +570,8 @@ void SummaryDialog::UpdateValues()
     ui->tbDisplay->setItem(ui->tbDisplay->rowCount()-1, 0, new QTableWidgetItem(tr("Avg. packet size")));
     if (summary_.packet_count > 1)
     {
-        output = output.sprintf(tr("%.3f bytes").toStdString().c_str(),
-                            /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-                            (float) ((gint64) summary_.bytes)/summary_.packet_count);
+        output = output.sprintf(tr("%" G_GUINT64_FORMAT " bytes").toStdString().c_str(),
+                            (guint64) ((double)summary_.bytes/summary_.packet_count + 0.5));
 
     }
     else
@@ -584,9 +583,8 @@ void SummaryDialog::UpdateValues()
 
     if (summary_.dfilter && summary_.filtered_count > 1)
     {
-        output = output.sprintf(tr("%.3f bytes").toStdString().c_str(),
-                            /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-                            (float) ((gint64) summary_.filtered_bytes)/summary_.filtered_count);
+        output = output.sprintf(tr("%" G_GUINT64_FORMAT " bytes").toStdString().c_str(),
+                            (guint64) ((double)summary_.filtered_bytes/summary_.filtered_count + 0.5));
     }
     else
     {
@@ -597,9 +595,8 @@ void SummaryDialog::UpdateValues()
 
     if (summary_.marked_count > 1)
     {
-        output = output.sprintf(tr("%.3f bytes").toStdString().c_str(),
-                            /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-                            (float) ((gint64) summary_.marked_bytes)/summary_.marked_count);
+        output = output.sprintf(tr("%" G_GUINT64_FORMAT " bytes").toStdString().c_str(),
+                            (guint64) ((double)summary_.marked_bytes/summary_.marked_count + 0.5));
     }
     else
     {

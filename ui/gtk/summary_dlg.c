@@ -518,24 +518,21 @@ summary_open_cb(GtkWidget *w _U_, gpointer d _U_)
 
   /* Average packet size */
   if (summary.packet_count > 1) {
-    g_snprintf(cap_buf, SUM_STR_MAX, "%.3f bytes",
-               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-               (float) ((gint64) summary.bytes)/summary.packet_count);
+    g_snprintf(cap_buf, SUM_STR_MAX, "%" G_GUINT64_FORMAT " bytes",
+              (guint64) ((double)summary.bytes/summary.packet_count + 0.5) );
   } else {
     cap_buf[0] = '\0';
   }
   if (summary.dfilter && summary.filtered_count > 1) {
-    g_snprintf(disp_buf, SUM_STR_MAX, "%.3f bytes",
-               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-               (float) ((gint64) summary.filtered_bytes)/summary.filtered_count);
+    g_snprintf(disp_buf, SUM_STR_MAX, "%" G_GUINT64_FORMAT " bytes",
+              (guint64) ((double)summary.filtered_bytes/summary.filtered_count + 0.5));
   } else {
     disp_buf[0] = '\0';
   }
   disp_pct_buf[0] = '\0';
   if (summary.marked_count > 1) {
-    g_snprintf(mark_buf, SUM_STR_MAX, "%.3f bytes",
-               /* MSVC cannot convert from unsigned __int64 to float, so first convert to signed __int64 */
-               (float) ((gint64) summary.marked_bytes)/summary.marked_count);
+    g_snprintf(mark_buf, SUM_STR_MAX, "%" G_GUINT64_FORMAT " bytes",
+              (guint64) ((double)summary.marked_bytes/summary.marked_count + 0.5));
   } else {
     mark_buf[0] = '\0';
   }
