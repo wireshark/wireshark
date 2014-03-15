@@ -1078,12 +1078,9 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     float            phyRate;
 
 
-    if (rec_size<64)
-       rec_size = 64;
-
     /* Calculate the start of the statistics block in the buffer */
     /* Also get a bunch of fields from the stats block */
-    s_ptr    = &(rec[rec_size - 64]); /* point to it */
+    s_ptr    = &(rec[rec_size - vwr->STATS_LEN]); /* point to it */
     m_type   = s_ptr[1] & 0x7;
     f_tx     = !(s_ptr[1] & 0x8);
     octets   = pntoh16(&s_ptr[8]);
@@ -1254,13 +1251,10 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          delta_b;                             /* Used for calculating latency */
 
 
-    if (rec_size<48)
-       rec_size = 48;
-
     /* Calculate the start of the statistics block in the buffer */
     /* Also get a bunch of fields from the stats block */
     s_start_ptr = &(rec[0]);
-    s_trail_ptr = &(rec[rec_size - 48]);             /* point to it */
+    s_trail_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to it */
 
     /* L1p info is different for series III and for Series II - need to check */
     l1p_1 = s_start_ptr[0];
