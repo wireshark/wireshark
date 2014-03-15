@@ -772,7 +772,7 @@ AC_ARG_ENABLE(extra-gcc-checks,
   AC_HELP_STRING( [--enable-extra-gcc-checks],
 		  [do additional -W checks in GCC @<:@default=no@:>@]),
 [
-	wireshark_extra_gcc_flags=$enableval
+	wireshark_extra_flags=$enableval
 	if test $enableval != no
 	then
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-pedantic)
@@ -811,6 +811,22 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
 	fi
 ],)
+
+#
+# Try to add some additional clang checks to CFLAGS
+#
+AC_ARG_ENABLE(extra-clang-checks,
+  AC_HELP_STRING( [--enable-extra-clang-checks],
+		  [do additional -W checks in Clang @<:@default=no@:>@]),
+[
+	wireshark_extra_flags=$enableval
+	if test $enableval != no
+	then
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
+		#AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
+	fi
+],)
+
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wall -W) # -W is now known as -Wextra
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wextra) # -W is now known as -Wextra
 AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdeclaration-after-statement, C)
@@ -999,7 +1015,7 @@ AC_ARG_ENABLE(warnings-as-errors,
   fi
 ],
 [
-  if test "x$ac_supports_gcc_flags" = "xyes" -a "x$wireshark_extra_gcc_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
+  if test "x$ac_supports_gcc_flags" = "xyes" -a "x$wireshark_extra_flags" = "x" -a "x$warnings_as_errors_default" = "xyes"; then
     with_warnings_as_errors="yes"
     AC_MSG_RESULT(yes)
   else

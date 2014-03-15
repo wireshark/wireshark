@@ -228,7 +228,7 @@ else()
 	set(WIRESHARK_CPP_ONLY_FLAGS
 	)
 
-	set(WIRESHARK_EXTRA_C_FLAGS
+	set(WIRESHARK_EXTRA_GCC_C_FLAGS
 		-pedantic
 		-Woverflow
 		-fstrict-overflow -Wstrict-overflow=4
@@ -245,16 +245,26 @@ else()
 		-Wmissing-declarations
 	)
 
-	set(WIRESHARK_EXTRA_C_ONLY_FLAGS
+	set(WIRESHARK_EXTRA_GCC_C_ONLY_FLAGS
 		# The following are C only, not C++
 		-Wbad-function-cast
 		# All the registration functions block these for now.
 		-Wmissing-prototypes
 	)
 
-	set(WIRESHARK_EXTRA_CPP_ONLY_FLAGS
+	set(WIRESHARK_EXTRA_GCC_CPP_ONLY_FLAGS
 	)
 
+	set(WIRESHARK_EXTRA_CLANG_C_FLAGS
+		-Wunreachable-code
+		#-Wdocumentation
+	)
+
+	set(WIRESHARK_EXTRA_CLANG_C_ONLY_FLAGS
+	)
+
+	set(WIRESHARK_EXTRA_CLANG_CPP_ONLY_FLAGS
+	)
 	# With clang some tests don't fail properly during testing but only
 	# during real compiles
 
@@ -273,9 +283,15 @@ else()
 	endif()
 
 	if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
-		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_C_FLAGS})
-		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_C_ONLY_FLAGS})
-		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_CPP_ONLY_FLAGS})
+		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_GCC_C_FLAGS})
+		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_GCC_C_ONLY_FLAGS})
+		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_GCC_CPP_ONLY_FLAGS})
+	endif()
+
+	if(ENABLE_EXTRA_CLANG_CHECKS)   # This overrides -Werror
+		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_CLANG_C_FLAGS})
+		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_CLANG_C_ONLY_FLAGS})
+		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_CLANG_CPP_ONLY_FLAGS})
 	endif()
 
 	add_definitions(
