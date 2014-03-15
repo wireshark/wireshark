@@ -1242,7 +1242,7 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
 		if (le_ts < comp_ts && le_ts <= (MSPERDAY / 4)
 		    && comp_ts >= (MSPERDAY - (MSPERDAY / 4)))
 			le_ts += MSPERDAY;	/* Assume a rollover to a new day */
-		if (abs(be_ts - comp_ts) < abs(le_ts - comp_ts))
+		if ((be_ts - comp_ts) < (le_ts - comp_ts))
 			return saved_be_ts;
 		return saved_le_ts;
 	}
@@ -1251,7 +1251,7 @@ get_best_guess_mstimeofday(tvbuff_t * tvb, gint offset, guint32 comp_ts)
 	 * is clearly invalid, but now what TODO?  For now, take the one closest to
 	 * the comparative timestamp, which is another way of saying, "let's
 	 * return a deterministic wild guess. */
-	if (abs(be_ts - comp_ts) < abs(le_ts - comp_ts)) {
+	if ((be_ts - comp_ts) < (le_ts - comp_ts)) {
 		return be_ts;
 	}
 	return le_ts;
@@ -1620,13 +1620,13 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 		 */
 		ts.secs = tvb_get_ntohl(tvb, 8);
 		ts.nsecs = tvb_get_ntohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
-		if (abs((guint32) (ts.secs - pinfo->fd->abs_ts.secs)) >=
+		if ((guint32) (ts.secs - pinfo->fd->abs_ts.secs) >=
 		    3600 * 24 || ts.nsecs >= 1000000) {
 			/* Timestamp does not look right in BE, try LE representation */
 			ts.secs = tvb_get_letohl(tvb, 8);
 			ts.nsecs = tvb_get_letohl(tvb, 8 + 4);	/* Leave at microsec resolution for now */
 		}
-		if (abs((guint32) (ts.secs - pinfo->fd->abs_ts.secs)) <
+		if ((guint32) (ts.secs - pinfo->fd->abs_ts.secs) <
 		    3600 * 24 && ts.nsecs < 1000000) {
 			ts.nsecs *= 1000;	/* Convert to nanosec resolution */
 			proto_tree_add_time(icmp_tree, hf_icmp_data_time,
