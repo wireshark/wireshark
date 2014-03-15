@@ -150,8 +150,10 @@ dissect_PROTOABBREV_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
     /* Assume it's your packet ... */
 
-    /* specify that dissect_PROTOABBREV is to be called directly from now on for packets for this "connection" ...
-     * but ONLY do this if your heuristic sits directly on top of UDP or TCP (ie, you did heur_dissector_add("tcp",...)),
+    /* specify that dissect_PROTOABBREV is to be called directly from now on for
+     * packets for this "connection" ... but only do this if your heuristic sits directly
+     * on top of (was called by) a dissector which established a conversation for the
+     * protocol "port type". In other words: only directly over TCP, UDP, DCCP, ...
      * otherwise you'll be overriding the dissector that called your heuristic dissector.
      */
     conversation = find_or_create_conversation(pinfo);
