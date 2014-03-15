@@ -232,7 +232,7 @@ comparestat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	nstime_set_zero(&fInfo->fg->predecessor_time);
 	g_hash_table_insert(cs->packet_set, GINT_TO_POINTER(pinfo->fd->num), fInfo);
 
-	if(cf_get_packet_count(&cfile)==abs(fInfo->num)){
+	if((guint32)cf_get_packet_count(&cfile)==fInfo->num){
 		nstime_set_unset(&cs->current_time);
 		return 1;
 	} else {
@@ -403,7 +403,7 @@ call_foreach_merge_settings(gpointer key _U_, gpointer value, gpointer arg)
 		}
 		if(fInfoTemp && fmod(fInfoTemp->zebra_time.nsecs, 2)){
 			/*first file*/
-			cs->stop_packet_nr_first=cs->start_packet_nr_first+abs(cs->second_file_amount-(cs->start_packet_nr_second-cs->first_file_amount));
+			cs->stop_packet_nr_first=cs->start_packet_nr_first+(cs->second_file_amount-(cs->start_packet_nr_second-cs->first_file_amount));
 			if(cs->stop_packet_nr_first>(tot_packet_amount-cs->second_file_amount)){
 				cs->stop_packet_nr_first=tot_packet_amount-cs->second_file_amount;
 			}
@@ -429,7 +429,7 @@ call_foreach_merge_settings(gpointer key _U_, gpointer value, gpointer arg)
 			}
 		}
 		/* set second stop location */
-		cs->stop_packet_nr_second=cs->start_packet_nr_second+abs(cs->stop_packet_nr_first-cs->start_packet_nr_first);
+		cs->stop_packet_nr_second=cs->start_packet_nr_second+(cs->stop_packet_nr_first-cs->start_packet_nr_first);
 		if(cs->stop_packet_nr_second>tot_packet_amount){
 			cs->stop_packet_nr_second=tot_packet_amount;
 		}
