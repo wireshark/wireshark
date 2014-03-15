@@ -57,6 +57,17 @@
 #define MAX_TRACKED_CLIENTS 1024                    /* track 1024 clients */
 #define MAX_TRACKED_FLOWS   65536                   /* and 64K flows */
 
+/*
+ * The file consists of a sequence of records.
+ * A record begins with a 16-byte header, the first 8 bytes of which
+ * begin with a byte containing a command plus transmit-receive flags.
+ *
+ * Following that are two big-endian 32-bi quantities; for some records
+ * one or the other of them is the length of the rest of the record.
+ * Other records contain only the header.
+ */
+#define VW_RECORD_HEADER_LENGTH	16
+
 /* the radiotap header */
 
 /* IxVeriwave common header fields */
@@ -706,7 +717,11 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info))
         return FALSE;                                   /* Read error or EOF */
 
-    *data_offset = (file_tell(wth->fh) - 16);           /* set offset for random seek @PLCP */
+    /*
+     * We're past the header; return the offset of the header, not of
+     * the data past the header.
+     */
+    *data_offset = (file_tell(wth->fh) - VW_RECORD_HEADER_LENGTH);
 
     /* got a frame record; read and process it */
     if (!vwr_process_rec_data(wth->fh, rec_size, &wth->phdr,
@@ -727,7 +742,7 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
     return TRUE;
 }
 
-/* read a random frame in the middle of a file; the start of the PLCP frame is @ seek_off */
+/* read a random record in the middle of a file; the start of the record is @ seek_off */
 
 static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
@@ -755,7 +770,7 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
 static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *IS_TX, int *err, gchar **err_info)
 {
     int     f_len, v_type;
-    guint8  header[16];
+    guint8  header[VW_RECORD_HEADER_LENGTH];
 
     errno = WTAP_ERR_CANT_READ;
     *rec_size = 0;
@@ -766,7 +781,7 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
     /*  variable-length item, we read the variable length item out and discard it.         */
     /* If we find a frame, we return (with the header in the passed buffer).               */
     while (1) {
-        if (file_read(header, 16, fh) != 16) {
+        if (file_read(header, VW_RECORD_HEADER_LENGTH, fh) != VW_RECORD_HEADER_LENGTH) {
             *err = file_error(fh, err_info);
             return FALSE;
         }
@@ -800,7 +815,7 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
 static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 {
     guint8   rec[B_SIZE];         /* local buffer (holds input record) */
-    guint8   header[16];
+    guint8   header[VW_RECORD_HEADER_LENGTH];
     int      rec_size     = 0;
     guint8   i;
     guint8  *s_510006_ptr = NULL;
@@ -827,7 +842,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     /* Each 16-byte message is decoded; if we run across a non-frame message followed by a */
     /*  variable-length item, we read the variable length item out and discard it.         */
     /* If we find a frame, we return (with the header in the passed buffer).               */
-    while ((file_read(header, 16, wth->fh)) == 16) {
+    while ((file_read(header, VW_RECORD_HEADER_LENGTH, wth->fh)) == VW_RECORD_HEADER_LENGTH) {
         /* Got a header; invoke decode-message function to parse and process it.     */
         /* If the function returns a length, then a frame or variable-length message */
         /*  follows the 16-byte message.                                             */
