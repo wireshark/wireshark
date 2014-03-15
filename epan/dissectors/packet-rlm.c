@@ -125,7 +125,10 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 			|| pinfo->destport != pinfo->srcport)
 		return FALSE;
 
-	version = tvb_get_guint8(tvb, 0);
+	if (tvb_captured_length(tvb) < 2)
+		return FALSE;
+
+	version  = tvb_get_guint8(tvb, 0);
 	rlm_type = tvb_get_guint8(tvb, 1);
 
 	/* we only know about version 2, and I've only seen 8 byte packets */
@@ -239,3 +242,16 @@ proto_register_rlm(void)
 	proto_register_field_array(proto_rlm, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
