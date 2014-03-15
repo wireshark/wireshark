@@ -158,6 +158,7 @@ void buffer_init (TBuffer *buf, size_t sz, lua_State *L, TFreeList *fl) {
   if (!buf->arr) {
     freelist_free (fl);
     luaL_error (L, "malloc failed");
+    return;
   }
   buf->size = sz;
   buf->top = 0;
@@ -189,6 +190,7 @@ void buffer_addlstring (TBuffer *buf, const void *src, size_t sz) {
     if (!p) {
       freelist_free (buf->freelist);
       luaL_error (buf->L, "realloc failed");
+      return;
     }
     buf->arr = p;
     buf->size = 2 * newtop;
@@ -247,6 +249,7 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
           else if (num > nsub) {
             freelist_free (BufRep->freelist);
             luaL_error (BufRep->L, "invalid capture index");
+            return;
           }
           bufferZ_addnum (BufRep, num);
         }
