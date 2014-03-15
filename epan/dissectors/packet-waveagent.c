@@ -1011,11 +1011,11 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         return 0;
 
     magic_number    = tvb_get_ntohl(tvb, 16) & 0x0FFFFFFF;  /* Mask magic number off */
-	if(magic_number != 0x0F87C3A5){
-		return 0;
-	}
+    if(magic_number != 0x0F87C3A5){
+        return 0;
+    }
 
-	signature_start = tvb_get_guint8(tvb, 0);
+    signature_start = tvb_get_guint8(tvb, 0);
     signature_end   = tvb_get_guint8(tvb, 15);
 
     if ( ((signature_start != 0xcc) && (signature_start !=0xdd)) ||
@@ -1027,7 +1027,7 @@ static int dissect_waveagent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     version         = ((tvb_get_ntohl(tvb, 16) & 0xF0000000) >> 28 == 1) ? 3 : 2;       /* Mask version bit off */
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "WA");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "WA");
     col_clear(pinfo->cinfo, COL_INFO);
 
     /* Grab the control word, parse the WaveAgent payload accordingly */
@@ -1098,133 +1098,133 @@ static const value_string status_values[] = {
 void proto_register_waveagent(void)
 {
     static const value_string tcp_states[] = {
-        { 0, "Closed" },
-        { 1, "Listen" },
-        { 2, "SYN Sent" },
-        { 3, "SYN received" },
-        { 4, "Established" },
-        { 5, "FIN Wait 1" },
-        { 6, "FIN Wait 2" },
-        { 7, "Close Wait" },
-        { 8, "Closing" },
-        { 9, "Last ACK" },
+        {  0, "Closed" },
+        {  1, "Listen" },
+        {  2, "SYN Sent" },
+        {  3, "SYN received" },
+        {  4, "Established" },
+        {  5, "FIN Wait 1" },
+        {  6, "FIN Wait 2" },
+        {  7, "Close Wait" },
+        {  8, "Closing" },
+        {  9, "Last ACK" },
         { 10, "Time Wait" },
-        { 0, NULL },
+        {  0, NULL },
     };
 
     static const value_string app_states[] = {
-        { 0, "IDLE" },
-        { 1, "READY" },
-        { 0, NULL },
+        {  0, "IDLE" },
+        {  1, "READY" },
+        {  0, NULL },
     };
 
     static const value_string wa_modes[] = {
-        { 0, "In-band" },
-        { 1, "Source" },
-        { 2, "Sink" },
-        { 3, "Loopback" },
-        { 0, NULL },
+        {  0, "In-band" },
+        {  1, "Source" },
+        {  2, "Sink" },
+        {  3, "Loopback" },
+        {  0, NULL },
     };
 
     static const value_string wa_endpointtypes[] = {
-        { 0, "Undefined" },
-        { 1, "Server" },
-        { 2, "Client" },
-        { 0, NULL },
+        {  0, "Undefined" },
+        {  1, "Server" },
+        {  2, "Client" },
+        {  0, NULL },
     };
 
     static const value_string binding_levels[] = {
-        { 0, "WLAN" },
-        { 1, "Ethernet" },
-        { 2, "IP" },
-        { 3, "UDP" },
-        { 4, "TCP" },
-        { 5, "FIN Wait 1" },
-        { 6, "FIN Wait 2" },
-        { 7, "Close Wait" },
-        { 8, "Closing" },
-        { 9, "Last ACK" },
+        {  0, "WLAN" },
+        {  1, "Ethernet" },
+        {  2, "IP" },
+        {  3, "UDP" },
+        {  4, "TCP" },
+        {  5, "FIN Wait 1" },
+        {  6, "FIN Wait 2" },
+        {  7, "Close Wait" },
+        {  8, "Closing" },
+        {  9, "Last ACK" },
         { 10, "Time Wait" },
-        { 0, NULL },
+        {  0, NULL },
     };
 
     static const value_string if_types[] = {
-        { ETHERNET_INTERFACE, "Ethernet" },
-        { WLAN_INTERFACE, "WLAN" },
-        { 0, NULL },
+        {  ETHERNET_INTERFACE, "Ethernet" },
+        {  WLAN_INTERFACE, "WLAN" },
+        {  0, NULL },
     };
 
     static const value_string no_yes[] = {
-        { 0, "No" },
-        { 1, "Yes" },
-        { 0, NULL },
+        {  0, "No" },
+        {  1, "Yes" },
+        {  0, NULL },
     };
 
     static const value_string ip_types[] = {
-        { 0,  "Unspecified" },
-        { IPV4_TYPE,  "IPv4" },
-        { IPV6_TYPE, "IPv6" },
-        { 0, NULL },
+        {  0,  "Unspecified" },
+        {  IPV4_TYPE,  "IPv4" },
+        {  IPV6_TYPE, "IPv6" },
+        {  0, NULL },
     };
 
     static const value_string if_l3_states[] = {
-        { 0, "Uninitialized" },
-        { 1, "Disconnected" },
-        { 2, "Connected" },
-        { 3, "Error" },
-        { 0, NULL },
+        {  0, "Uninitialized" },
+        {  1, "Disconnected" },
+        {  2, "Connected" },
+        {  3, "Error" },
+        {  0, NULL },
     };
 
     static const value_string if_wlan_states[] = {
-        { 0, "Uninitialized" },
-        { 1, "Not ready" },
-        { 2, "Connected" },
-        { 3, "Ad Hoc network formed" },
-        { 4, "Disconnecting" },
-        { 5, "Disconnected" },
-        { 6, "Associating" },
-        { 7, "Discovering" },
-        { 8, "Authenticating" },
-        { 0, NULL },
+        {  0, "Uninitialized" },
+        {  1, "Not ready" },
+        {  2, "Connected" },
+        {  3, "Ad Hoc network formed" },
+        {  4, "Disconnecting" },
+        {  5, "Disconnected" },
+        {  6, "Associating" },
+        {  7, "Discovering" },
+        {  8, "Authenticating" },
+        {  0, NULL },
     };
 
     static const value_string if_eth_states[] = {
-        { 0, "Uninitialized" },
-        { 1, "Not Operational" },
-        { 2, "Unreachable" },
-        { 3, "Disconnected" },
-        { 4, "Connecting" },
-        { 5, "Connected" },
-        { 6, "Operational" },
-        { 7, "Error" },
-        { 0, NULL },
+        {  0, "Uninitialized" },
+        {  1, "Not Operational" },
+        {  2, "Unreachable" },
+        {  3, "Disconnected" },
+        {  4, "Connecting" },
+        {  5, "Connected" },
+        {  6, "Operational" },
+        {  7, "Error" },
+        {  0, NULL },
     };
 
     static const value_string bss_modes[] = {
-        { 0, "Infrastructure" },
-        { 1, "IBSS" },
-        { 2, "Unknown" },
-        { 0, NULL },
+        {  0, "Infrastructure" },
+        {  1, "IBSS" },
+        {  2, "Unknown" },
+        {  0, NULL },
     };
 
     static const value_string auth_algs[] = {
-        { 0,  "Open" },
-        { 1,  "Shared Key" },
-        { 2,  "WPA" },
-        { 4,  "WPA PSK" },
-        { 8,  "WPA2" },
+        {  0,  "Open" },
+        {  1,  "Shared Key" },
+        {  2,  "WPA" },
+        {  4,  "WPA PSK" },
+        {  8,  "WPA2" },
         { 16, "WPA2 PSK" },
-        { 0, NULL },
+        {  0, NULL },
     };
 
     static const value_string cipher_algs[] = {
-        { 0,  "None" },
-        { 1,  "WEP 40" },
-        { 2,  "WEP 104" },
-        { 4,  "WEP" },
-        { 8,  "TKIP" },
+        {  0,  "None" },
+        {  1,  "WEP 40" },
+        {  2,  "WEP 104" },
+        {  4,  "WEP" },
+        {  8,  "TKIP" },
         { 16, "CCMP" },
-        { 0, NULL },
+        {  0, NULL },
     };
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
@@ -1912,3 +1912,17 @@ void proto_reg_handoff_waveagent(void)
 {
     heur_dissector_add("udp", dissect_waveagent_heur, proto_waveagent);
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

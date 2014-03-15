@@ -72,9 +72,9 @@ static void
 redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset, proto_tree *tree)
 {
 	const char	*avpname;
-	proto_tree	*ti, *st=NULL;
+	proto_tree	*ti, *st = NULL;
 
-	avpname=val_to_str_const(avptype, avp_names, "Unknown");
+	avpname = val_to_str_const(avptype, avp_names, "Unknown");
 
 	ti = proto_tree_add_text(tree, tvb, offset, avplen+2, "%s AVP", avpname);
 	st = proto_item_add_subtree(ti, ett_redbackli);
@@ -85,13 +85,13 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 	if (!avplen)
 		return;
 
-        /* XXX: ToDo: Validate the length (avplen) of the fixed length fields
-                before calling proto_tree_add_item().
-                Note that the field lengths have been validated when
-                dissect_avp() is called from redbackli_dissect_heur().
-         */
+	/* XXX: ToDo: Validate the length (avplen) of the fixed length fields
+	   before calling proto_tree_add_item().
+	   Note that the field lengths have been validated when
+	   dissect_avp() is called from redbackli_dissect_heur().
+	*/
 
-	switch(avptype) {
+	switch (avptype) {
 		case(RB_AVP_SEQNO):
 			proto_tree_add_item(st, hf_redbackli_seqno, tvb,
 					    offset+2, avplen, ENC_BIG_ENDIAN);
@@ -133,12 +133,12 @@ static void
 redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8		avptype, avplen;
-	gint		len, offset=0;
+	gint		len, offset = 0;
 	gboolean	eoh;
-	proto_tree	*ti, *redbackli_tree=NULL;
+	proto_tree	*ti, *redbackli_tree = NULL;
 	tvbuff_t	*next_tvb;
 
-	col_set_str(pinfo->cinfo,COL_PROTOCOL,"RBLI");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RBLI");
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_redbackli,
@@ -146,10 +146,10 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		redbackli_tree = proto_item_add_subtree(ti, ett_redbackli);
 	}
 
-	len=tvb_length(tvb);
-	offset=0;
-	eoh=FALSE;
-	while(!eoh && (len > 2)) {
+	len = tvb_length(tvb);
+	offset = 0;
+	eoh = FALSE;
+	while (!eoh && (len > 2)) {
 		avptype = tvb_get_guint8(tvb, offset+0);
 		avplen = tvb_get_guint8(tvb, offset+1);
 
@@ -160,10 +160,10 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			redbackli_dissect_avp(avptype, avplen, tvb, offset, redbackli_tree);
 
 		if (avptype == RB_AVP_EOH)
-			eoh=TRUE;
+			eoh = TRUE;
 
-		offset+=2+avplen;
-		len-=2+avplen;
+		offset += 2 + avplen;
+		len    -= 2 + avplen;
 	}
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -178,12 +178,12 @@ redbackli_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static gboolean
 redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-	gint		len, offset=0;
-	gboolean	eoh=FALSE;
+	gint		len, offset = 0;
+	gboolean	eoh = FALSE;
 	guint8		avptype, avplen;
-	guint32		avpfound=0;
+	guint32		avpfound = 0;
 
-	len=tvb_length(tvb);
+	len = tvb_length(tvb);
 	if (len < MIN_REDBACKLI_SIZE)
 		return FALSE;
 
@@ -193,22 +193,22 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	 * long .. Unknown AVPs also mean not for us ...
 	 *
 	 */
-	while((len > 2) && !eoh) {
+	while ((len > 2) && !eoh) {
 		avptype = tvb_get_guint8(tvb, offset+0);
 		avplen = tvb_get_guint8(tvb, offset+1);
 
-		switch(avptype) {
+		switch (avptype) {
 			case(RB_AVP_SEQNO):
 			case(RB_AVP_LIID):
 			case(RB_AVP_SESSID):
 				if (avplen != 4)
 					return FALSE;
-				avpfound|=1<<avptype;
+				avpfound |= 1<<avptype;
 				break;
 			case(RB_AVP_EOH):
 				if (avplen > 1 || offset == 0)
 					return FALSE;
-				eoh=TRUE;
+				eoh = TRUE;
 				break;
 			case(RB_AVP_LABEL):
 			case(RB_AVP_DIR):   /* Is this correct? the hf_ originally had FT_UINT8 for DIR */
@@ -217,8 +217,8 @@ redbackli_dissect_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			default:
 				return FALSE;
 		}
-		offset+=2+avplen;
-		len-=2+avplen;
+		offset += 2 + avplen;
+		len    -= 2 + avplen;
 	}
 
 	if (!(avpfound & (1<<RB_AVP_SEQNO)))
@@ -244,8 +244,8 @@ void proto_register_redbackli(void) {
 			{ "Session Id", "redbackli.sessid", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"Session Identifier", HFILL }},
 #if 0 /* XXX: If one goes by the heuristic then this field can be variable length ??
-         In the absence of any documentation We'll assume that's the case
-         (even though 'direction' sounds like a fixed length field */
+	 In the absence of any documentation We'll assume that's the case
+	 (even though 'direction' sounds like a fixed length field */
 		{ &hf_redbackli_dir,
 			{ "Direction", "redbackli.dir", FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL, HFILL }},
@@ -273,10 +273,10 @@ void proto_register_redbackli(void) {
 	};
 
 	proto_redbackli = proto_register_protocol("Redback Lawful Intercept",
-						  "RedbackLI","redbackli");
+						  "RedbackLI", "redbackli");
 
-	proto_register_field_array(proto_redbackli,hf,array_length(hf));
-	proto_register_subtree_array(ett,array_length(ett));
+	proto_register_field_array(proto_redbackli, hf, array_length(hf));
+	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("redbackli", redbackli_dissect, proto_redbackli);
 }
@@ -291,3 +291,17 @@ void proto_reg_handoff_redbackli(void) {
 
 	heur_dissector_add("udp", redbackli_dissect_heur, proto_redbackli);
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
