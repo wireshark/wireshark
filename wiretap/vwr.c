@@ -996,7 +996,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
 
     /* Calculate the start of the statistics block in the buffer */
     /* Also get a bunch of fields from the stats block */
-    s_ptr    = &(rec[rec_size - vwr->STATS_LEN]); /* point to it */
+    s_ptr    = &(rec[rec_size - v22_W_STATS_LEN]); /* point to it */
     m_type   = s_ptr[1] & 0x7;
     f_tx     = !(s_ptr[1] & 0x8);
     octets   = pntoh16(&s_ptr[8]);
@@ -1043,8 +1043,8 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
      *
      * Truncate it if it is.
      */
-    if (octets > (rec_size - vwr->STATS_LEN))
-        octets = (rec_size - vwr->STATS_LEN);
+    if (octets > (rec_size - v22_W_STATS_LEN))
+        octets = (rec_size - v22_W_STATS_LEN);
     msdu_length = octets;
 
 
@@ -1067,7 +1067,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     /* extract the 32 LSBs of the signature timestamp field from the data block*/
     pay_off = 42;    /* 24 (MAC) + 8 (SNAP) + IP */
     sig_off = find_signature(m_ptr, rec_size - 6, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - 48)))
+    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - v22_W_STATS_LEN)))
         sig_ts = get_signature_ts(m_ptr, sig_off);
     else
         sig_ts = 0;
@@ -1176,7 +1176,7 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* Calculate the start of the statistics blocks in the buffer */
     /* Also get a bunch of fields from the stats blocks */
     s_start_ptr = &(rec[0]);                              /* point to stats header */
-    s_trail_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to stats trailer */
+    s_trail_ptr = &(rec[rec_size - vVW510021_W_STATS_LEN]);      /* point to stats trailer */
 
     /* L1p info is different for series III and for Series II - need to check */
     l1p_1 = s_start_ptr[0];
@@ -1288,8 +1288,8 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
             radioflags |= FLAGS_CHAN_80MHZ;
     }
 
-    if (msdu_length > (guint32)(rec_size - 48)) {
-        msdu_length = (guint32)(rec_size - 48);
+    if (msdu_length > (guint32)(rec_size - vVW510021_W_STATS_LEN)) {
+        msdu_length = (guint32)(rec_size - vVW510021_W_STATS_LEN);
     }
 
     /* Calculate start & end times (in sec/usec), converting 64-bit times to usec. */
@@ -1312,7 +1312,7 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     m_ptr = &(rec[8+12]);
     pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
     sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - 48)))
+    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - vVW510021_W_STATS_LEN)))
         sig_ts = get_signature_ts(m_ptr, sig_off);
     else
         sig_ts = 0;
@@ -2133,8 +2133,6 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
             vwr_read_rec_data_wlan(vwr, phdr, data_ptr, rec, rec_size, IS_TX);
             break;
         case vVW510012_E_FPGA:
-            vwr_read_rec_data_ethernet(vwr, phdr, data_ptr, rec, rec_size, IS_TX);
-            break;
         case vVW510024_E_FPGA:
             vwr_read_rec_data_ethernet(vwr, phdr, data_ptr, rec, rec_size, IS_TX);
             break;
