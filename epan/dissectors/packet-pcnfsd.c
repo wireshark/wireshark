@@ -119,7 +119,7 @@ dissect_pcnfsd2_mapid_call(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-		dissect_pcnfsd2_dissect_mapreq_arg_item);
+		  dissect_pcnfsd2_dissect_mapreq_arg_item, NULL);
 
 	return offset;
 }
@@ -166,7 +166,7 @@ dissect_pcnfsd2_mapid_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_rpc_string(tvb, tree, hf_pcnfsd_comment, offset, NULL);
 
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-		dissect_pcnfsd2_dissect_mapreq_res_item);
+		  dissect_pcnfsd2_dissect_mapreq_res_item, NULL);
 
 	return offset;
 }

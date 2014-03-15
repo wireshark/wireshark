@@ -243,7 +243,8 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 static int
 dissect_mount_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_mountlist);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+		dissect_mountlist, NULL);
 
 	return offset;
 }
@@ -309,7 +310,8 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}
 
-	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset, dissect_group);
+	offset = dissect_rpc_list(tvb, pinfo, groups_tree, offset,
+		dissect_group, NULL);
 	if (groups_item) {
 		/* mark empty lists */
 		if (offset - groups_offset == 4) {
@@ -336,7 +338,8 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 static int
 dissect_mount_export_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_exportlist);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+		dissect_exportlist, NULL);
 
 	return offset;
 }
@@ -608,7 +611,8 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 static int
 dissect_mount_exportlist_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_sgi_exportlist);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+		dissect_sgi_exportlist, NULL);
 
 	return offset;
 }

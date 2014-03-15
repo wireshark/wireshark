@@ -168,7 +168,8 @@ WS_DLL_PUBLIC int dissect_rpc_bytes(tvbuff_t *tvb,
 	proto_tree *tree, int hfindex, int offset, guint32 length,
 	gboolean string_data, const char **string_buffer_ret);
 WS_DLL_PUBLIC int dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector);
+	proto_tree *tree, int offset, dissect_function_t *rpc_list_dissector,
+	void *data);
 WS_DLL_PUBLIC int dissect_rpc_array(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, dissect_function_t *rpc_array_dissector,
 	int hfindex);

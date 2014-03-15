@@ -3506,7 +3506,7 @@ dissect_nfs2_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item_append_text(tree, ", READDIR Reply");
 
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-				dissect_readdir_entry);
+				dissect_readdir_entry, NULL);
 			eof_value = tvb_get_ntohl(tvb, offset+0);
 			if (tree)
 				proto_tree_add_uint(tree, hf_nfs_readdir_eof, tvb,
@@ -5755,7 +5755,7 @@ dissect_nfs3_readdir_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"dir_attributes");
 			offset = dissect_nfs3_cookie_verf(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-				dissect_entry3);
+				dissect_entry3, NULL);
 			eof_value = tvb_get_ntohl(tvb, offset+0);
 			if (tree)
 				proto_tree_add_uint(tree, hf_nfs_readdir_eof, tvb,
@@ -5856,7 +5856,7 @@ dissect_nfs3_entryplus(tvbuff_t *tvb, int offset, packet_info *pinfo,
 /* NFSv3 RFC 1813, Page 80..83 */
 static int
 dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
-			       proto_tree *tree, void *data _U_)
+			       proto_tree *tree, void *data)
 {
 	guint32	    status;
 	guint32	    eof_value;
@@ -5871,7 +5871,7 @@ dissect_nfs3_readdirplus_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				"dir_attributes");
 			offset = dissect_nfs3_cookie_verf(tvb, offset, tree);
 			offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-				dissect_nfs3_entryplus);
+				dissect_nfs3_entryplus, data);
 			eof_value = tvb_get_ntohl(tvb, offset+0);
 			if (tree)
 				proto_tree_add_uint(tree, hf_nfs_readdir_eof, tvb,

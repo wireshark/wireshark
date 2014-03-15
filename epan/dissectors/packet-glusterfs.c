@@ -845,7 +845,7 @@ glusterfs_gfs3_op_readdirp_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-					    glusterfs_gfs3_op_readdirp_entry);
+				  glusterfs_gfs3_op_readdirp_entry, NULL);
 
 	return offset;
 }
@@ -1447,7 +1447,7 @@ glusterfs_gfs3_3_op_readdir_reply(tvbuff_t *tvb, int offset,
 {
 	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-					    glusterfs_gfs3_3_op_readdir_entry);
+				  glusterfs_gfs3_3_op_readdir_entry, NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
         return offset;
@@ -1624,7 +1624,7 @@ glusterfs_gfs3_3_op_readdirp_reply(tvbuff_t *tvb, int offset,
 {
 	offset = _glusterfs_gfs3_common_readdir_reply(tvb, tree, offset);
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-					    glusterfs_gfs3_3_op_readdirp_entry);
+				  glusterfs_gfs3_3_op_readdirp_entry, NULL);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
 
         return offset;

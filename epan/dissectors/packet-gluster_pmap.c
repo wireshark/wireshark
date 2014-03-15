@@ -129,7 +129,7 @@ gluster_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = gluster_dissect_common_reply(tvb, offset, pinfo, tree, data);
 
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-						gluster_dump_reply_detail);
+				  gluster_dump_reply_detail, NULL);
 
 	return offset;
 }

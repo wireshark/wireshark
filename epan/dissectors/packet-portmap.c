@@ -267,7 +267,7 @@ dissect_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, void* data _U_)
 {
 	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
-		dissect_dump_entry);
+		  dissect_dump_entry, NULL);
 	return offset;
 }
 
@@ -455,7 +455,8 @@ static int
 dissect_rpcb3_dump_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *tree, void* data _U_)
 {
-	offset = dissect_rpc_list(tvb, pinfo, tree, offset, dissect_rpcb);
+	offset = dissect_rpc_list(tvb, pinfo, tree, offset,
+		  dissect_rpcb, NULL);
 	return offset;
 }
 

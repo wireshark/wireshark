@@ -767,7 +767,7 @@ dissect_rpc_bytes(tvbuff_t *tvb, proto_tree *tree,
 
 int
 dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	int offset, dissect_function_t *rpc_list_dissector)
+		 int offset, dissect_function_t *rpc_list_dissector, void *data)
 {
 	guint32 value_follows;
 
@@ -777,7 +777,8 @@ dissect_rpc_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset, 4, value_follows);
 		offset += 4;
 		if (value_follows == 1) {
-			offset = rpc_list_dissector(tvb, offset, pinfo, tree, NULL);
+			offset = rpc_list_dissector(tvb, offset, pinfo, tree,
+						    data);
 		}
 		else {
 			break;
