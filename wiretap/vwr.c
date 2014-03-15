@@ -1251,10 +1251,10 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          delta_b;                             /* Used for calculating latency */
 
 
-    /* Calculate the start of the statistics block in the buffer */
-    /* Also get a bunch of fields from the stats block */
-    s_start_ptr = &(rec[0]);
-    s_trail_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to it */
+    /* Calculate the start of the statistics blocks in the buffer */
+    /* Also get a bunch of fields from the stats blocks */
+    s_start_ptr = &(rec[0]);                              /* point to stats header */
+    s_trail_ptr = &(rec[rec_size - vwr->STATS_LEN]);      /* point to stats trailer */
 
     /* L1p info is different for series III and for Series II - need to check */
     l1p_1 = s_start_ptr[0];
