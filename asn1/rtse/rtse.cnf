@@ -4,6 +4,9 @@ RTOACapdu
 RTORJapdu
 RTABapdu
 
+#.NO_EMIT ONLY_VALS
+RTSE-apdus
+
 #.FN_BODY RTORJapdu/userDataRJ
     struct SESSION_DATA_STRUCTURE* session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 	const char *oid = NULL;

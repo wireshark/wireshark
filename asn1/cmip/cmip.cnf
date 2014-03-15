@@ -13,6 +13,9 @@ Bind
 Unbind
 #.END
 
+#.NO_EMIT ONLY_VALS
+LinkedReplyArgument
+
 #.TYPE_RENAME
 
 Invoke/argument					InvokeArgument

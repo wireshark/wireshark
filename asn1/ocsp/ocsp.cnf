@@ -29,7 +29,8 @@ NULL				B	"1.3.6.1.5.5.7.48.1.5"	"id-pkix-ocsp-nocheck"
 ArchiveCutoff		B	"1.3.6.1.5.5.7.48.1.6"	"id-pkix-ocsp-archive-cutoff"
 ServiceLocator		B	"1.3.6.1.5.5.7.48.1.7"	"id-pkix-ocsp-service-locator"
 
-#.NO_EMIT
+#.NO_EMIT ONLY_VALS
+Version
 
 #.TYPE_RENAME
 

@@ -6319,11 +6319,6 @@ dissect_camel_T_timeDurationCharging_01(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 
 
-static const value_string camel_CAMEL_AChBillingChargingCharacteristicsV2_vals[] = {
-  {   0, "timeDurationCharging" },
-  { 0, NULL }
-};
-
 static const ber_choice_t CAMEL_AChBillingChargingCharacteristicsV2_choice[] = {
   {   0, &hf_camel_timeDurationCharging_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_camel_T_timeDurationCharging_01 },
   { 0, NULL, 0, 0, 0, NULL }
@@ -6630,14 +6625,6 @@ dissect_camel_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
   return offset;
 }
 
-
-static const value_string camel_ROS_vals[] = {
-  {   1, "invoke" },
-  {   2, "returnResult" },
-  {   3, "returnError" },
-  {   4, "reject" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ROS_choice[] = {
   {   1, &hf_camel_invoke        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_camel_Invoke },

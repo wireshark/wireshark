@@ -643,12 +643,6 @@ dissect_dsp_T_signedChainedReadArgument(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 
 
-static const value_string dsp_ChainedReadArgument_vals[] = {
-  {   0, "unsignedChainedReadArgument" },
-  {   1, "signedChainedReadArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedReadArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedReadArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedReadArgumentData },
   {   1, &hf_dsp_signedChainedReadArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedReadArgument },
@@ -836,12 +830,6 @@ dissect_dsp_T_signedChainedReadResult(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const value_string dsp_ChainedReadResult_vals[] = {
-  {   0, "unsignedChainedReadResult" },
-  {   1, "signedChainedReadResult" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedReadResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedReadResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedReadResultData },
   {   1, &hf_dsp_signedChainedReadResult, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedReadResult },
@@ -889,12 +877,6 @@ dissect_dsp_T_signedChainedCompareArgument(gboolean implicit_tag _U_, tvbuff_t *
 }
 
 
-static const value_string dsp_ChainedCompareArgument_vals[] = {
-  {   0, "unsignedChainedCompareArgument" },
-  {   1, "signedChainedCompareArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedCompareArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedCompareArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedCompareArgumentData },
   {   1, &hf_dsp_signedChainedCompareArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedCompareArgument },
@@ -941,12 +923,6 @@ dissect_dsp_T_signedChainedCompareResult(gboolean implicit_tag _U_, tvbuff_t *tv
   return offset;
 }
 
-
-static const value_string dsp_ChainedCompareResult_vals[] = {
-  {   0, "unsignedChainedCompareResult" },
-  {   1, "signedChainedCompareResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedCompareResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedCompareResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedCompareResultData },
@@ -1013,12 +989,6 @@ dissect_dsp_T_signedChainedListArgument(gboolean implicit_tag _U_, tvbuff_t *tvb
 }
 
 
-static const value_string dsp_ChainedListArgument_vals[] = {
-  {   0, "unsignedChainedListArgument" },
-  {   1, "signedChainedListArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedListArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedListArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedListArgumentData },
   {   1, &hf_dsp_signedChainedListArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedListArgument },
@@ -1065,12 +1035,6 @@ dissect_dsp_T_signedChainedListResult(gboolean implicit_tag _U_, tvbuff_t *tvb _
   return offset;
 }
 
-
-static const value_string dsp_ChainedListResult_vals[] = {
-  {   0, "unsignedChainedListResult" },
-  {   1, "signedChainedListResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedListResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedListResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedListResultData },
@@ -1119,12 +1083,6 @@ dissect_dsp_T_signedChainedSearchArgument(gboolean implicit_tag _U_, tvbuff_t *t
 }
 
 
-static const value_string dsp_ChainedSearchArgument_vals[] = {
-  {   0, "unsignedChainedSearchArgument" },
-  {   1, "signedChainedSearchArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedSearchArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedSearchArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedSearchArgumentData },
   {   1, &hf_dsp_signedChainedSearchArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedSearchArgument },
@@ -1171,12 +1129,6 @@ dissect_dsp_T_signedChainedSearchResult(gboolean implicit_tag _U_, tvbuff_t *tvb
   return offset;
 }
 
-
-static const value_string dsp_ChainedSearchResult_vals[] = {
-  {   0, "unsignedChainedSearchResult" },
-  {   1, "signedChainedSearchResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedSearchResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedSearchResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedSearchResultData },
@@ -1225,12 +1177,6 @@ dissect_dsp_T_signedChainedAddEntryArgument(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const value_string dsp_ChainedAddEntryArgument_vals[] = {
-  {   0, "unsignedChainedAddEntryArgument" },
-  {   1, "signedChainedAddEntryArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedAddEntryArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedAddEntryArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedAddEntryArgumentData },
   {   1, &hf_dsp_signedChainedAddEntryArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedAddEntryArgument },
@@ -1277,12 +1223,6 @@ dissect_dsp_T_signedChainedAddEntryResult(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-
-static const value_string dsp_ChainedAddEntryResult_vals[] = {
-  {   0, "unsignedChainedAddEntryResult" },
-  {   1, "signedChainedAddEntryResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedAddEntryResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedAddEntryResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedAddEntryResultData },
@@ -1331,12 +1271,6 @@ dissect_dsp_T_signedChainedRemoveEntryArgument(gboolean implicit_tag _U_, tvbuff
 }
 
 
-static const value_string dsp_ChainedRemoveEntryArgument_vals[] = {
-  {   0, "unsignedChainedRemoveEntryArgument" },
-  {   1, "signedChainedRemoveEntryArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedRemoveEntryArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedRemoveEntryArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedRemoveEntryArgumentData },
   {   1, &hf_dsp_signedChainedRemoveEntryArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedRemoveEntryArgument },
@@ -1383,12 +1317,6 @@ dissect_dsp_T_signedChainedRemoveEntryResult(gboolean implicit_tag _U_, tvbuff_t
   return offset;
 }
 
-
-static const value_string dsp_ChainedRemoveEntryResult_vals[] = {
-  {   0, "unsignedChainedRemoveEntryResult" },
-  {   1, "signedChainedRemoveEntryResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedRemoveEntryResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedRemoveEntryResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedRemoveEntryResultData },
@@ -1437,12 +1365,6 @@ dissect_dsp_T_signedChainedModifyEntryArgument(gboolean implicit_tag _U_, tvbuff
 }
 
 
-static const value_string dsp_ChainedModifyEntryArgument_vals[] = {
-  {   0, "unsignedChainedModifyEntryArgument" },
-  {   1, "signedChainedModifyEntryArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedModifyEntryArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedModifyEntryArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedModifyEntryArgumentData },
   {   1, &hf_dsp_signedChainedModifyEntryArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedModifyEntryArgument },
@@ -1489,12 +1411,6 @@ dissect_dsp_T_signedChainedModifyEntryResult(gboolean implicit_tag _U_, tvbuff_t
   return offset;
 }
 
-
-static const value_string dsp_ChainedModifyEntryResult_vals[] = {
-  {   0, "unsignedChainedModifyEntryResult" },
-  {   1, "signedChainedModifyEntryResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedModifyEntryResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedModifyEntryResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedModifyEntryResultData },
@@ -1543,12 +1459,6 @@ dissect_dsp_T_signedChainedModifyDNArgument(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const value_string dsp_ChainedModifyDNArgument_vals[] = {
-  {   0, "unsignedChainedModifyDNArgument" },
-  {   1, "signedChainedModifyDNArgument" },
-  { 0, NULL }
-};
-
 static const ber_choice_t ChainedModifyDNArgument_choice[] = {
   {   0, &hf_dsp_unsignedChainedModifyDNArgument, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedModifyDNArgumentData },
   {   1, &hf_dsp_signedChainedModifyDNArgument, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_dsp_T_signedChainedModifyDNArgument },
@@ -1595,12 +1505,6 @@ dissect_dsp_T_signedChainedModifyDNResult(gboolean implicit_tag _U_, tvbuff_t *t
   return offset;
 }
 
-
-static const value_string dsp_ChainedModifyDNResult_vals[] = {
-  {   0, "unsignedChainedModifyDNResult" },
-  {   1, "signedChainedModifyDNResult" },
-  { 0, NULL }
-};
 
 static const ber_choice_t ChainedModifyDNResult_choice[] = {
   {   0, &hf_dsp_unsignedChainedModifyDNResult, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_ChainedModifyDNResultData },
@@ -1701,12 +1605,6 @@ dissect_dsp_T_signedDSAReferral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
   return offset;
 }
 
-
-static const value_string dsp_DSAReferral_vals[] = {
-  {   0, "unsignedDSAReferral" },
-  {   1, "signedDSAReferral" },
-  { 0, NULL }
-};
 
 static const ber_choice_t DSAReferral_choice[] = {
   {   0, &hf_dsp_unsignedDSAReferral, BER_CLASS_UNI, BER_UNI_TAG_SET, BER_FLAGS_NOOWNTAG, dissect_dsp_DSAReferralData },

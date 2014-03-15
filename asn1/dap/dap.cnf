@@ -16,6 +16,9 @@ Time                     TYPE = FT_UINT32  DISPLAY = BASE_DEC   STRINGS = VALS(d
 DAP-InvokeIDSet
 #.END
 
+#.NO_EMIT ONLY_VALS
+Name
+
 #.MODULE_IMPORT
 AttributeCertificateDefinitions	x509af
 BasicAccessControl	crmf

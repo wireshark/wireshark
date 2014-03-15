@@ -13,6 +13,13 @@ DSEType
 SupplierAndConsumers
 OperationalBindingID
 
+#.NO_EMIT ONLY_VALS
+EstablishOperationalBindingArgument
+ModifyOperationalBindingArgument
+ModifyOperationalBindingResult
+TerminateOperationalBindingArgument
+TerminateOperationalBindingResult
+
 #.TYPE_RENAME
 EstablishOperationalBindingArgumentData/initiator	EstablishArgumentInitiator
 ModifyOperationalBindingArgumentData/initiator		ModifyArgumentInitiator

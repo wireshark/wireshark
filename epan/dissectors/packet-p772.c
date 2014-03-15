@@ -292,12 +292,6 @@ static gint ett_p772_Acp127NotificationType = -1;
 /*--- Included file: packet-p772-fn.c ---*/
 #line 1 "../../asn1/p772/packet-p772-fn.c"
 
-static const value_string p772_InformationObject_vals[] = {
-  {   0, "mm" },
-  {   1, "mn" },
-  { 0, NULL }
-};
-
 static const ber_choice_t InformationObject_choice[] = {
   {   0, &hf_p772_mm             , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_p22_IPM },
   {   1, &hf_p772_mn             , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_p22_IPN },
@@ -501,7 +495,7 @@ dissect_p772_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_p772_T_dist_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 97 "../../asn1/p772/p772.cnf"
+#line 100 "../../asn1/p772/p772.cnf"
 /* XXX: not implemented */
   offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
 
@@ -649,7 +643,7 @@ static const value_string p772_PrimaryPrecedence_vals[] = {
 
 static int
 dissect_p772_PrimaryPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 103 "../../asn1/p772/p772.cnf"
+#line 106 "../../asn1/p772/p772.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);
@@ -679,7 +673,7 @@ static const value_string p772_CopyPrecedence_vals[] = {
 
 static int
 dissect_p772_CopyPrecedence(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 111 "../../asn1/p772/p772.cnf"
+#line 114 "../../asn1/p772/p772.cnf"
   int precedence = -1;
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &precedence);

@@ -17,7 +17,8 @@ MiscCallInfo
 RedirectionInformation
 ServiceKey
 
-#.NO_EMIT
+#.NO_EMIT ONLY_VALS
+ROS
 
 #.OMIT_ASSIGNMENT
 # Removed as they are giving 'defined but not used' warnings currently.

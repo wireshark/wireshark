@@ -13,6 +13,12 @@ OperationalBindingManagement	dop
 #.EXPORTS
 AgreementID
 
+#.NO_EMIT ONLY_VALS
+CoordinateShadowUpdateArgument
+RequestShadowUpdateArgument
+UpdateShadowArgument
+ShadowError
+
 #.TYPE_RENAME
 CoordinateShadowUpdateArgumentData/updateStrategy/standard	StandardUpdate
 

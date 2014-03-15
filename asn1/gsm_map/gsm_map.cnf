@@ -42,6 +42,13 @@ Remote-Operations-Information-Objects ROS
 #.NO_EMIT
 SubscriberData
 
+#.NO_EMIT ONLY_VALS
+CallBarredParam
+PW-RegistrationFailureCause
+SystemFailureParam
+ExtensionType
+NumberPorted/_untag
+
 #.OMIT_ASSIGNMENT
 Code
 Priority

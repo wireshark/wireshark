@@ -474,7 +474,7 @@ dissect_goose_GSEMngtPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 16 "../../asn1/goose/goose.cnf"
+#line 17 "../../asn1/goose/goose.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -686,12 +686,6 @@ dissect_goose_IECGoosePdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
   return offset;
 }
 
-
-static const value_string goose_GOOSEpdu_vals[] = {
-  {   0, "gseMngtPdu" },
-  {   1, "goosePdu" },
-  { 0, NULL }
-};
 
 static const ber_choice_t GOOSEpdu_choice[] = {
   {   0, &hf_goose_gseMngtPdu    , BER_CLASS_APP, 0, BER_FLAGS_IMPLTAG, dissect_goose_GSEMngtPdu },

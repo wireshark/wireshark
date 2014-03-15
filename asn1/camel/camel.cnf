@@ -45,7 +45,9 @@ OPERATION.&ResultType
 CAP-GPRS-ReferenceNumber	B "0.4.0.0.1.1.5.2" "id-CAP-GPRS-ReferenceNumber"
 CAP-U-ABORT-REASON			B "0.4.0.0.1.1.2.2" "id-CAP-U-ABORT-Reason"
 
-#.NO_EMIT
+#.NO_EMIT ONLY_VALS
+CAMEL-AChBillingChargingCharacteristicsV2
+ROS
 
 #.TYPE_RENAME
 ReturnResult/result/result		ResultArgument

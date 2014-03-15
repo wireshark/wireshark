@@ -1,6 +1,9 @@
 # tcap.cnf
 # tcap conformation file
 
+#.NO_EMIT ONLY_VALS
+PackageType
+
 #.OMIT_ASSIGNMENT
 # Removed as they are giving 'defined but not used' warnings currently.
 Priority

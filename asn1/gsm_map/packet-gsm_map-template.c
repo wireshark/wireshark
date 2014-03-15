@@ -506,6 +506,7 @@ other values reserved for future use
 */
 
 /* TS 23 032 Table 2a: Coding of Type of Shape */
+#if 0
 static const value_string type_of_shape_vals[] = {
   { ELLIPSOID_POINT, "Ellipsoid Point"},
   { ELLIPSOID_POINT_WITH_UNCERT_CIRC, "Ellipsoid point with uncertainty Circle"},
@@ -529,6 +530,7 @@ static const value_string dir_of_alt_vals[] = {
   { 1, "Altitude expresses depth"},
   { 0, NULL }
 };
+#endif
 
 static const value_string gsm_map_cbs_data_coding_scheme_coding_grp_vals[] = {
   { 0, "Coding Group 0(Language using the GSM 7 bit default alphabet)" },
@@ -855,10 +857,14 @@ const value_string gsm_map_opr_code_strings[] = {
 #include "packet-gsm_map-table.c"
   { 0, NULL }
 };
+
+#if 0
 static const value_string gsm_map_err_code_string_vals[] = {
 #include "packet-gsm_map-table.c"
     { 0, NULL }
 };
+#endif
+
 static const true_false_string gsm_map_extension_value = {
   "No Extension",
   "Extension"

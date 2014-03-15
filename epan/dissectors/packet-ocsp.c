@@ -147,11 +147,6 @@ static const char *responseType_id;
 /*--- Included file: packet-ocsp-fn.c ---*/
 #line 1 "../../asn1/ocsp/packet-ocsp-fn.c"
 
-static const value_string ocsp_Version_vals[] = {
-  {   0, "v1" },
-  { 0, NULL }
-};
-
 
 static int
 dissect_ocsp_Version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -321,7 +316,7 @@ dissect_ocsp_T_responseType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_ocsp_T_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "../../asn1/ocsp/ocsp.cnf"
+#line 43 "../../asn1/ocsp/ocsp.cnf"
   gint8 appclass;
   gboolean pc, ind;
   gint32 tag;

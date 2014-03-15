@@ -835,11 +835,6 @@ dissect_dap_T_scopeOfReferral(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const value_string dap_Name_vals[] = {
-  {   0, "rdnSequence" },
-  { 0, NULL }
-};
-
 static const ber_choice_t Name_choice[] = {
   {   0, &hf_dap_rdnSequence     , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_x509if_RDNSequence },
   { 0, NULL, 0, 0, 0, NULL }

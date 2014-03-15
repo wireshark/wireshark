@@ -5,7 +5,8 @@
 
 #.PDU
 
-#.NO_EMIT
+#.NO_EMIT ONLY_VALS
+NegotiationToken
 
 #.TYPE_RENAME
 NegTokenInit/mechListMIC T_NegTokenInit_mechListMIC

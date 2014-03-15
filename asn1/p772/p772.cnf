@@ -28,6 +28,9 @@ ChangeAutoForwardingArgument
 SubscriptionErrorParameter
 SubscriptionProblem
 
+#.NO_EMIT ONLY_VALS
+InformationObject
+
 #.TYPE_RENAME
 AddressListDesignator/type	AddressListType
 OtherRecipientDesignator/type	OtherRecipientType

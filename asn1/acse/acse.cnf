@@ -7,6 +7,9 @@
 Application-context-name
 #.END
 
+#.NO_EMIT ONLY_VALS
+ACSE-apdu
+
 #.EXPORTS
 EXTERNALt
 AE-title

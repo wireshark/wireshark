@@ -22,7 +22,8 @@ Other-Pattern
 
 #.PDU
 
-#.NO_EMIT
+#.NO_EMIT ONLY_VALS
+PDU
 
 #.TYPE_RENAME
 F-OPEN-request/recovery-mode	T_request_recovery_mode

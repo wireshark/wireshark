@@ -15,8 +15,27 @@ Exclusions
 MasterAndShadowAccessPoints
 OperationProgress
 ReferenceType
-#.TYPE_RENAME
 
+#.NO_EMIT ONLY_VALS
+ChainedReadArgument
+ChainedReadResult
+ChainedCompareArgument
+ChainedCompareResult
+ChainedListArgument
+ChainedListResult
+ChainedSearchArgument
+ChainedSearchResult
+ChainedAddEntryArgument
+ChainedAddEntryResult
+ChainedRemoveEntryArgument
+ChainedRemoveEntryResult
+ChainedModifyEntryArgument
+ChainedModifyEntryResult
+ChainedModifyDNArgument
+ChainedModifyDNResult
+DSAReferral
+
+#.TYPE_RENAME
 MasterOrShadowAccessPoint/category	APCategory
 
 #.FIELD_RENAME
