@@ -925,11 +925,6 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     if (header[8] == 48)
                         fpga_version = S3_W_FPGA;
                 }
-                if ((rec_size > vVW510021_W_STATS_LEN) && (fpga_version == 1000)) {
-                    /* Check the version of the FPGA */
-                    if (header[8] == 48)
-                        fpga_version = S3_W_FPGA;
-                }
                 if (fpga_version != 1000)
                 {
                     /* reset the file position offset */
