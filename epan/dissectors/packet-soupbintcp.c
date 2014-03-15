@@ -142,8 +142,8 @@ static int hf_soupbintcp_reject_code = -1;
  * than using BASE_DEC which shows it as an integer value. */
 static void
 format_packet_type(
-    gchar *buf,
-    guint32 value)
+    gchar   *buf,
+    guint32  value)
 {
     g_snprintf(buf, ITEM_LABEL_LENGTH,
                "%s (%c)",
@@ -160,8 +160,8 @@ format_packet_type(
  * integer value. */
 static void
 format_reject_code(
-    gchar *buf,
-    guint32 value)
+    gchar   *buf,
+    guint32  value)
 {
     g_snprintf(buf, ITEM_LABEL_LENGTH,
                "%s (%c)",
@@ -173,13 +173,12 @@ format_reject_code(
 /** Dissector for SoupBinTCP messages */
 static void
 dissect_soupbintcp_common(
-    tvbuff_t *tvb,
+    tvbuff_t    *tvb,
     packet_info *pinfo,
-    proto_tree *tree)
+    proto_tree  *tree)
 {
     struct conv_data *conv_data;
     struct pdu_data  *pdu_data;
-    tvbuff_t         *sub_tvb         = NULL;
     const char       *pkt_name;
     const char       *tmp_buf;
     proto_item       *ti;
@@ -403,8 +402,17 @@ dissect_soupbintcp_common(
 
     /* Call sub-dissector for encapsulated data */
     if (pkt_type == 'S' || pkt_type == 'U') {
+        tvbuff_t         *sub_tvb;
+
         /* Sub-dissector tvb starts at 3 (length (2) + pkt_type (1)) */
         sub_tvb = tvb_new_subset_remaining(tvb, 3);
+
+#if 0   /* XXX: It's not valid for a soupbintcp subdissector to call       */
+        /*  conversation_set_dissector() since the conversation is really  */
+        /*  a TCP conversation.  (A 'soupbintcp' port type would need to   */
+        /*  be defined to be able to use conversation_set_dissector()).    */
+        /* In addition, no current soupbintcp subdissector calls           */
+        /*  conversation_set_dissector().                                  */
 
         /* If this packet is part of a conversation, call dissector
          * for the conversation if available */
@@ -413,6 +421,7 @@ dissect_soupbintcp_common(
                                        sub_tvb, pinfo, tree, NULL)) {
             return;
         }
+#endif
 
         /* Otherwise, try heuristic dissectors */
         if (dissector_try_heuristic(heur_subdissector_list,
@@ -438,8 +447,8 @@ dissect_soupbintcp_common(
 static guint
 get_soupbintcp_pdu_len(
     packet_info *pinfo _U_,
-    tvbuff_t *tvb,
-    int offset)
+    tvbuff_t    *tvb,
+    int          offset)
 {
     /* Determine the length of the PDU using the SOUP header's 16-bit
        big-endian length (at offset zero).  We're guaranteed to get at
@@ -453,11 +462,11 @@ get_soupbintcp_pdu_len(
 /** Dissect a possibly-reassembled TCP PDU */
 static int
 dissect_soupbintcp_tcp_pdu(
-    tvbuff_t *tvb,
+    tvbuff_t    *tvb,
     packet_info *pinfo,
-    proto_tree *tree, void* data _U_)
+    proto_tree  *tree,
+    void        *data _U_)
 {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "SoupBinTCP");
     dissect_soupbintcp_common(tvb, pinfo, tree);
     return tvb_length(tvb);
 }
@@ -466,9 +475,10 @@ dissect_soupbintcp_tcp_pdu(
 /** Dissect a TCP segment containing SoupBinTCP data */
 static int
 dissect_soupbintcp_tcp(
-    tvbuff_t *tvb,
+    tvbuff_t    *tvb,
     packet_info *pinfo,
-    proto_tree *tree, void* data)
+    proto_tree  *tree,
+    void        *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree,
                      soupbintcp_desegment, 2,
@@ -490,7 +500,6 @@ soupbintcp_prefs(void)
 void
 proto_register_soupbintcp(void)
 {
-    /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
 
         { &hf_soupbintcp_packet_length,
@@ -563,19 +572,15 @@ proto_register_soupbintcp(void)
             HFILL }}
     };
 
-    /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_soupbintcp
     };
 
     module_t *soupbintcp_module;
 
-    /* Register the protocol name and description */
     proto_soupbintcp
         = proto_register_protocol("SoupBinTCP", "SoupBinTCP", "soupbintcp");
 
-    /* Required function calls to register the header fields and
-       subtrees used */
     proto_register_field_array(proto_soupbintcp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -605,11 +610,6 @@ proto_register_soupbintcp(void)
 }
 
 
-/* If this dissector uses sub-dissector registration add a
-   registration routine.  This format is required because a script is
-   used to find these routines and create the code that calls these
-   routines.
-*/
 void
 proto_reg_handoff_soupbintcp(void)
 {
