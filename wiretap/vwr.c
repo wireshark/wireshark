@@ -1232,6 +1232,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     er_fields->vw_ht_length = (guint16)ht_len;
 
     /* return the offset to the actual frame data */
+    /* MPDU starts at 4 or 6 depending on OFDM/CCK. */
     return (m_type == vwr->MT_OFDM) ? 4 : 6;
 }
 
@@ -1495,13 +1496,10 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     er_fields->vw_ht_length = (guint16)ht_len;
     er_fields->vw_info      = (guint16)info;
 
-    /* return the offset to the actual frame data */
-    /* Calculate the MPDU size/ptr stuff; MPDU starts at 4 or 6 depending on OFDM/CCK. */
-    /* Note that the number of octets in the frame also varies depending on OFDM/CCK   */
-    /*  because the PLCP header is prepended to the actual MPDU.                       */
-    /* The 8 is from the 8 bytes of stats block that precede the plcps;                */
-    /* the 12 is for 11 bytes plcp and 1 byte of pad before the data.                  */
-
+    /*
+     * Return the offset to the actual frame data, skipping the stats
+     * header and the PLCP.
+     */
     return vwr->MPDU_OFF;
 }
 
@@ -1892,7 +1890,12 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->IS_IGMP            =   vVW510021_W_IS_IGMP;
             vwr->IS_QOS             =   vVW510021_W_QOS_VALID;
 
-            vwr->MPDU_OFF           = 20;
+            /*
+	     * The 8 is from the 8 bytes of stats block that precede the
+	     * PLCP; the 12 is for 11 bytes of PLCP  and 1 byte of pad
+	     * before the data.
+	     */
+            vwr->MPDU_OFF           = 8 + 12;
 
             break;
 
@@ -1901,7 +1904,12 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->PLCP_LENGTH_OFF = 16;
             vwr->HEADER_IS_RX    = vVW510021_W_HEADER_IS_RX;
             vwr->HEADER_IS_TX    = vVW510021_W_HEADER_IS_TX;
-            vwr->MPDU_OFF        = 32;
+
+            /*
+	     * The 8 is from the 8 bytes of stats block that precede the
+	     * PLCP; the 24 is for, umm, something.
+	     */
+            vwr->MPDU_OFF        = 8 + 24;
 
             break;
 
