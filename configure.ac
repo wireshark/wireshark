@@ -782,15 +782,6 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Woverflow)
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fstrict-overflow -Wstrict-overflow=4)
 		#
-		# Some memset() calls to clear out structures
-		# on the stack are getting flagged as "will never
-		# be executed" by this, at least by Apple's
-		# i686-apple-darwin11-llvm-gcc-4.2 (GCC) 4.2.1 (Based on
-		# Apple Inc. build 5658) (LLVM build 2336.11.00), for
-		# some unknown reason.
-		#
-		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
-		#
 		# Due to various places where APIs we don't control
 		# require us to cast away constness, we can probably
 		# never enable these ones with -Werror.

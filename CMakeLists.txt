@@ -232,7 +232,6 @@ else()
 		-pedantic
 		-Woverflow
 		-fstrict-overflow -Wstrict-overflow=4
-		-Wunreachable-code
 		-Wunsafe-loop-optimizations
 		-Wcast-align
 		-Wcast-qual
