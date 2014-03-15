@@ -68,12 +68,12 @@
  */
 #define VW_RECORD_HEADER_LENGTH	16
 
-/* the radiotap header */
+/* the metadata headers */
 
 /* IxVeriwave common header fields */
 typedef struct {
     guint16 vw_port_type;                           /* 0 for WLAN, 1 for Ethernet */
-    guint16 it_len;                                 /* WHOLE radiotap header length (incl. */
+    guint16 it_len;                                 /* WHOLE metadata header length (incl. */
     guint16 vw_msdu_length;                         /* length of MAC SDU */
     guint32 vw_flowid;                              /* VeriWave-specific flow ID for packet */
     guint16 vw_vcid;                                /* VeriWave-specific vC ID (client id) */
@@ -89,13 +89,45 @@ typedef struct {
 /* Size of those fields - regardless of how the compiler packs them */
 #define STATS_COMMON_FIELDS_LEN (2+2+2+4+2+2+4+4+8+8+4)
 
-/* Veriwave-specific extended radiotap header fields (following vwr_rtap_hdr above) */
-/* structure elements correspond one-to-one with the RADIOTAP_PRESENT bitmask below */
-/* NOTE: must ensure that elements are aligned to their "natural" packing */
-/* NOTE: must ensure that "latency" precedes all other packet timing details, because it */
-/* is used to start a subtree */
+/* For VeriWave WLAN and Ethernet metadata headers vw_flags field */
+#define VW_FLAGS_TXF        0x01                /* frame was transmitted */
+#define VW_FLAGS_FCSERR     0x02                /* FCS error detected */
+
+/* For VeriWave WLAN metadata header vw_flags field */
+#define VW_FLAGS_RETRERR    0x04                /* excess retry error detected */
+#define VW_FLAGS_DCRERR     0x10                /* decrypt error detected (WLAN) */
+#define VW_FLAGS_ENCMSK     0x60                /* encryption type mask */
+                                                /* 0 = none, 1 = WEP, 2 = TKIP, 3 = CCKM */
+#define VW_FLAGS_IS_WEP     0x20                /* WEP */
+#define VW_FLAGS_IS_TKIP    0x40                /* TKIP */
+#define VW_FLAGS_IS_CCMP    0x60                /* CCMP */
+
+/* Veriwave WLAN metadata header */
+
+/* Channel flags, for chanflags field */
+#define CHAN_TURBO          0x0010              /* Turbo channel */
+#define CHAN_CCK            0x0020              /* CCK channel */
+#define CHAN_OFDM           0x0040              /* OFDM channel */
+#define CHAN_2GHZ           0x0080              /* 2 GHz spectrum channel. */
+#define CHAN_5GHZ           0x0100              /* 5 GHz spectrum channel */
+#define CHAN_PASSIVE        0x0200              /* Only passive scan allowed */
+
+/* Flags, for flags field */
+#define FLAGS_CFP           0x0001              /* sent/received during CFP */
+#define FLAGS_SHORTPRE      0x0002              /* sent/received with short preamble */
+#define FLAGS_WEP           0x0004              /* sent/received with WEP encryption */
+#define FLAGS_FRAG          0x0008              /* sent/received with fragmentation */
+#define FLAGS_FCS           0x0010              /* frame includes FCS */
+#define FLAGS_DATAPAD       0x0020              /* padding between 802.11 hdr & payload */
+#define FLAGS_CHAN_HT       0x0040              /* In HT mode */
+#define FLAGS_CHAN_VHT      0x0080              /* VHT Mode */
+#define FLAGS_CHAN_SHORTGI  0x0100              /* Short guard interval */
+#define FLAGS_CHAN_40MHZ    0x0200              /* 40 Mhz channel bandwidth */
+#define FLAGS_CHAN_80MHZ    0x0400              /* 80 Mhz channel bandwidth */
+#define FLAGS_CHAN_160MHZ   0x0800              /* 160 Mhz channel bandwidth */
+
 typedef struct {
-    guint16 it_len;                                 /* WHOLE radiotap header length (incl. */
+    guint16 it_len;                                 /* WHOLE metadata header length (incl. */
     guint16 flags;                                  /* short preamble, WEP, frag */
     guint16 chanflags;                              /* channel flags bitmap */
     guint16 phyRate;                                /* The PHY rate of the packet * 10 (accommodates the 5.5 on CCK) */
@@ -111,149 +143,23 @@ typedef struct {
     guint16 vw_info;                                /* VeriWave-specific information */
     guint32 vw_errors;                              /* VeriWave-specific errors */
 
-} ext_rtap_fields;
+} ext_wlan_fields;
 
 /* Size of those fields - regardless of how the compiler packs them */
-#define EXT_RTAP_FIELDS_LEN (2+2+2+2+1+1+1+1+1+1+1+1+2+2+2+4)
+#define EXT_WLAN_FIELDS_LEN (2+2+2+2+1+1+1+1+1+1+1+1+2+2+2+4)
 
-/* Veriwave-specific Ethernettap header */
+/* Veriwave Ethernet metadata header */
 typedef struct {
-    guint16 it_len;                                 /* WHOLE radiotap header length (incl. */
+    guint16 it_len;                                 /* WHOLE metadata header length (incl. */
     guint16 vw_flags;                               /* Veriwave-specific flags (see above) */
     guint16 vw_info;                                /* VeriWave-specific information */
     guint32 vw_errors;                              /* VeriWave-specific flags */
     guint32 vw_l4id;                                /* layer four id*/
     guint32 it_pad2;                                /* pad out header to 16-byte boundary */
-} stats_ethernettap_fields;
+} ext_ethernet_fields;
 
 /* Size of those fields - regardless of how the compiler packs them */
-#define STATS_ETHERNETTAP_FIELDS_LEN (2+2+2+4+4+4)
-
-/* the bitmap offsets of the bits in it_present, above */
-/* also lists the expected field sizes in bytes */
-/* MUST BE IN SAME ORDER AS THE STRUCTURE ELEMENTS ABOVE */
-enum radiotap_type {
-    VW_RADIOTAP_FLAGS = 0,                              /* 2 bytes */
-    VW_RADIOTAP_RATE = 1,                               /* 1 byte */
-    VW_RADIOTAP_CHANNEL = 2,                            /* 4 bytes (mhz + chanflags) */
-    VW_RADIOTAP_DBM_ANTSIGNAL = 3,                      /* 1 byte */
-    VW_RADIOTAP_DBM_TX_POWER = 4,                       /* 1 byte */
-    /* start of veriwave addition */
-    VW_RADIOTAP_FPGA_VERSION = 5,                       /* 2 bytes */
-    VW_RADIOTAP_VW_FLAGS = 6,                           /* 2 bytes */
-    VW_RADIOTAP_MSDU_LENGTH = 7,                        /* 2 bytes */
-    VW_RADIOTAP_HT_LENGTH = 8,                          /* 2 bytes */
-    VW_RADIOTAP_INFO = 9,                               /* 2 bytes */
-    VW_RADIOTAP_ERRORS = 10,                            /* 4 bytes */
-    VW_RADIOTAP_FLOWID = 11,                            /* 4 bytes */
-    VW_RADIOTAP_MCID = 12,                              /* 2 bytes */
-    VW_RADIOTAP_SEQNUM = 13,                            /* 2 bytes */
-    VW_RADIOTAP_LATENCY = 14,                           /* 4 bytes (MUST COME BEFORE OTHER TIMES)*/
-    VW_RADIOTAP_SIG_TS = 15,                            /* 4 bytes */
-    VW_RADIOTAP_STARTT = 16,                            /* 8 bytes */
-    VW_RADIOTAP_ENDT = 17,                              /* 8 bytes */
-    VW_RADIOTAP_PKTDUR = 18,                            /* 4 bytes */
-    VW_RADIOTAP_IFG = 19,                               /* 4 bytes */
-
-    /* end of Veriwave addition 6-2007 */
-
-    VW_RADIOTAP_EXT = 31
-};
-
-/* standard field-present bitmap corresponding to above fixed-size set of fields */
-/* this produces a 16-byte header */
-#define VW_RADIOTAP_PRESENT ((1 << VW_RADIOTAP_FLAGS) | \
-                             (1 << VW_RADIOTAP_RATE) | \
-                             (1 << VW_RADIOTAP_CHANNEL) | \
-                             (1 << VW_RADIOTAP_DBM_ANTSIGNAL) | \
-                             (1 << VW_RADIOTAP_DBM_TX_POWER))
-
-/* extended field-present bitmap corresponding to above fixed-size set of fields */
-/* this produces a 32-byte header */
-#define VW_EXT_RTAP_PRESENT ((1 << VW_RADIOTAP_FLAGS) | \
-                             (1 << VW_RADIOTAP_RATE) | \
-                             (1 << VW_RADIOTAP_CHANNEL) | \
-                             (1 << VW_RADIOTAP_DBM_ANTSIGNAL) | \
-                             (1 << VW_RADIOTAP_DBM_TX_POWER) | \
-                             (1 << VW_RADIOTAP_FPGA_VERSION) | \
-                             (1 << VW_RADIOTAP_VW_FLAGS) | \
-                             (1 << VW_RADIOTAP_MSDU_LENGTH) | \
-                             (1 << VW_RADIOTAP_HT_LENGTH) | \
-                             (1 << VW_RADIOTAP_ERRORS) | \
-                             (1 << VW_RADIOTAP_INFO) | \
-                             (1 << VW_RADIOTAP_MCID) | \
-                             (1 << VW_RADIOTAP_FLOWID) | \
-                             (1 << VW_RADIOTAP_SEQNUM) | \
-                             (1 << VW_RADIOTAP_LATENCY) | \
-                             (1 << VW_RADIOTAP_SIG_TS) | \
-                             (1 << VW_RADIOTAP_STARTT) | \
-                             (1 << VW_RADIOTAP_ENDT) |\
-                             (1 << VW_RADIOTAP_PKTDUR) |\
-                             (1 << VW_RADIOTAP_IFG))
-
-/*
- * RADIOTAP_FLAGS               u_int8_t        bitmap
- *      See flags definitions below
- *
- * RADIOTAP_RATE                u_int8_t        500kb/s
- *      Tx/Rx data rate
- *
- * RADIOTAP_CHANNEL             2 x u_int16_t   MHz+bitmap
- *      Tx/Rx frequency in MHz, followed by flags (see below).
- *
- * RADIOTAP_DBM_ANTSIGNAL       int8_t          dBm
- *      RF signal power at the antenna, dBm
- *
- * RADIOTAP_DBM_ANTNOISE        int8_t          dBm
- *      RF noise power at the antenna, dBm
- *
- * RADIOTAP_BARKER_CODE_LOCK    u_int16_t       unitless
- *      Quality of Barker code lock. Monotonically nondecreasing with "better" lock strength.
- *      Called "Signal Quality" in datasheets.
- *
- * RADIOTAP_DBM_TX_POWER        int8_t          dBm
- *      Transmit power expressed as dBm.
-*/
-
-/* Channel flags for IEEE80211_RADIOTAP_CHANNEL */
-#define CHAN_TURBO          0x0010                  /* Turbo channel */
-#define CHAN_CCK            0x0020                  /* CCK channel */
-#define CHAN_OFDM           0x0040                  /* OFDM channel */
-#define CHAN_2GHZ           0x0080                  /* 2 GHz spectrum channel. */
-#define CHAN_5GHZ           0x0100                  /* 5 GHz spectrum channel */
-#define CHAN_PASSIVE        0x0200                  /* Only passive scan allowed */
-
-/* For RADIOTAP_FLAGS */
-#define RADIOTAP_F_CFP          0x001               /* sent/received during CFP */
-#define RADIOTAP_F_SHORTPRE     0x002               /* sent/received with short preamble */
-#define RADIOTAP_F_WEP          0x004               /* sent/received with WEP encryption */
-#define RADIOTAP_F_FRAG         0x008               /* sent/received with fragmentation */
-#define RADIOTAP_F_FCS          0x010               /* frame includes FCS */
-#define RADIOTAP_F_DATAPAD      0x020               /* padding between 802.11 hdr & payload */
-#define RADIOTAP_F_CHAN_HT      0x040               /* In HT mode */
-#define RADIOTAP_F_CHAN_VHT     0x080               /* VHT Mode */
-#define RADIOTAP_F_CHAN_SHORTGI 0x100               /* Short guard interval */
-#define RADIOTAP_F_CHAN_40MHZ   0x200               /* 40 Mhz CBW */
-#define RADIOTAP_F_CHAN_80MHZ   0x400               /* 80 MHz channel bandwidth */
-#define RADIOTAP_F_CHAN_160MHZ  0x800               /* 160 MHz channel bandwidth */
-
-/* For VeriWave-specific RADIOTAP_FLAGS and ETHERNETTAP_FLAGS */
-#define RADIOTAP_VWF_TXF        0x01                /* frame was transmitted */
-#define RADIOTAP_VWF_FCSERR     0x02                /* FCS error detected */
-#define RADIOTAP_VWF_RETRERR    0x04                /* excess retry error detected */
-#define RADIOTAP_VWF_DCRERR     0x10                /* decrypt error detected (WLAN) */
-#define RADIOTAP_VWF_ENCMSK     0x60                /* encryption type mask */
-                                                    /* 0 = none, 1 = WEP, 2 = TKIP, 3 = CCKM */
-#define RADIOTAP_VWF_IS_WEP     0x20                /* WEP */
-#define RADIOTAP_VWF_IS_TKIP    0x40                /* TKIP */
-#define RADIOTAP_VWF_IS_CCMP    0x60                /* CCMP */
-#define RADIOTAP_VWF_SEQ_ERR    0x80                /* flow sequence error detected */
-
-#define IEEE80211_PLCP_RATE_MASK        0x7f    /* parses out the rate or MCS index from the PLCP header(s) */
-#define IEEE80211_RADIOTAP_F_40MHZ      0x0200  /* 40 Mhz channel bandwidth */
-#define IEEE80211_RADIOTAP_F_80MHZ      0x0400  /* 80 Mhz channel bandwidth */
-#define IEEE80211_RADIOTAP_F_160MHZ     0x0800  /* 80 Mhz channel bandwidth */
-#define IEEE80211_RADIOTAP_F_SHORTGI    0x0100
+#define EXT_ETHERNET_FIELDS_LEN (2+2+2+4+4+4)
 
 /* FPGA-generated frame buffer STATS block offsets and definitions */
 
@@ -646,10 +552,10 @@ static void         vwr_read_rec_data_wlan(vwr_t *, struct wtap_pkthdr *,
 static int          vwr_get_fpga_version(wtap *, int *, gchar **);
 
 static int          parse_s1_W_stats(vwr_t *, struct wtap_pkthdr *, guint8 *,
-                                     int, ext_rtap_fields *,
+                                     int, ext_wlan_fields *,
                                      stats_common_fields *);
 static int          parse_s2_W_stats(vwr_t *, struct wtap_pkthdr *, guint8 *,
-                                     int, ext_rtap_fields *,
+                                     int, ext_wlan_fields *,
                                      stats_common_fields *, int);
 static void         vwr_read_rec_data_ethernet(vwr_t *, struct wtap_pkthdr *,
                                                guint8 *, guint8 *, int, int);
@@ -972,8 +878,8 @@ static void vwr_read_rec_data_wlan(vwr_t *vwr, struct wtap_pkthdr *phdr,
                                    int rec_size, int IS_TX)
 {
     int                  bytes_written = 0; /* bytes output to buf so far */
-    ext_rtap_fields      er_fields;         /* extended radiotap fields   */
-    stats_common_fields  common_fields;     /* extended radiotap fields   */
+    ext_wlan_fields      er_fields;         /* WLAN metadata fields   */
+    stats_common_fields  common_fields;     /* common metadata fields   */
     int                  mpdu_offset;
 
     /* Parse the stats block and fill the common and er structs */
@@ -1062,7 +968,7 @@ static void vwr_read_rec_data_wlan(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
 
 static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
-                            int rec_size, ext_rtap_fields * er_fields,
+                            int rec_size, ext_wlan_fields * er_fields,
                             stats_common_fields * common_fields)
 {
     register int     i;                                   /* temps */
@@ -1082,7 +988,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     guint8           plcp_type, mcs_index, nss;           /* PLCP type 0: Legacy, 1: Mixed, 2: Green field, 3: VHT Mixed */
     guint16          vc_id, flow_id, ht_len=0;            /* VC ID, flow ID, total ip length */
     guint32          d_time, errors;                      /* packet duration & errors */
-    guint16          r_hdr_len;                           /* length of radiotap headers */
+    guint16          r_hdr_len;                           /* length of metadata headers */
     int              sig_off, pay_off;                    /* MAC+SNAP header len, signature offset */
     guint64          sig_ts;                              /* 32 LSBs of timestamp in signature */
     float            phyRate;
@@ -1118,7 +1024,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
         mcs_index = get_cck_rate(rec);
     else
         mcs_index = 1;
-    rflags  = (m_type == vwr->MT_CCKS) ? RADIOTAP_F_SHORTPRE : 0;
+    rflags  = (m_type == vwr->MT_CCKS) ? FLAGS_SHORTPRE : 0;
     phyRate = getRate(plcp_type, mcs_index, rflags, nss);
     /* Calculate the MPDU size/ptr stuff; MPDU starts at 4 or 6 depending on OFDM/CCK. */
     /* Note that the number of octets in the frame also varies depending on OFDM/CCK,  */
@@ -1167,7 +1073,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
         sig_ts = 0;
 
     /* Pack the common and er structs) */
-    r_hdr_len    = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
+    r_hdr_len    = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
 
     tmp_len      = (msdu_length - 4) + r_hdr_len;
     phdr->len    = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
@@ -1183,7 +1089,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and copy out the radiotap header, set the port type to 0 (WLAN) */
+    /* generate and copy out the metadata headers, set the port type to 0 (WLAN) */
     common_fields->vw_port_type   = 0;
     common_fields->it_len         = STATS_COMMON_FIELDS_LEN;
     common_fields->vw_vcid        = (guint16)vc_id;
@@ -1199,7 +1105,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     common_fields->vw_startt      = start_time; /* record start & end times of frame */
     common_fields->vw_endt        = end_time;
 
-    er_fields->it_len    = EXT_RTAP_FIELDS_LEN;
+    er_fields->it_len    = EXT_WLAN_FIELDS_LEN;
     er_fields->flags     = rflags;
     er_fields->phyRate   = (guint16)(phyRate * 10);
     er_fields->plcpType  = plcp_type;
@@ -1214,19 +1120,19 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     /* fill in the VeriWave flags field */
     er_fields->vw_flags = 0;
     if (f_tx)
-        er_fields->vw_flags |= RADIOTAP_VWF_TXF;
+        er_fields->vw_flags |= VW_FLAGS_TXF;
     if (errors & vwr->FCS_ERROR)
-        er_fields->vw_flags |= RADIOTAP_VWF_FCSERR;
+        er_fields->vw_flags |= VW_FLAGS_FCSERR;
     if (!f_tx && (errors & vwr->CRYPTO_ERR))
-        er_fields->vw_flags |= RADIOTAP_VWF_DCRERR;
+        er_fields->vw_flags |= VW_FLAGS_DCRERR;
     if (!f_tx && (errors & vwr->RETRY_ERR))
-        er_fields->vw_flags |= RADIOTAP_VWF_RETRERR;
+        er_fields->vw_flags |= VW_FLAGS_RETRERR;
     if (info & vwr->WEPTYPE)
-        er_fields->vw_flags |= RADIOTAP_VWF_IS_WEP;
+        er_fields->vw_flags |= VW_FLAGS_IS_WEP;
     else if (info & vwr->TKIPTYPE)
-        er_fields->vw_flags |= RADIOTAP_VWF_IS_TKIP;
+        er_fields->vw_flags |= VW_FLAGS_IS_TKIP;
     else if (info & vwr->CCMPTYPE)
-        er_fields->vw_flags |= RADIOTAP_VWF_IS_CCMP;
+        er_fields->vw_flags |= VW_FLAGS_IS_CCMP;
     er_fields->vw_errors = (guint32)errors;
     er_fields->vw_info = (guint16)info;
     er_fields->vw_ht_length = (guint16)ht_len;
@@ -1239,7 +1145,7 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
 
 static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
                             guint8 *rec, int rec_size,
-                            ext_rtap_fields * er_fields,
+                            ext_wlan_fields * er_fields,
                             stats_common_fields * common_fields, int IS_TX)
 {
     register int     i;                                   /* temps */
@@ -1259,11 +1165,11 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              f_tx;                                /* flag: if set, is a TX frame */
     guint16          vc_id, ht_len=0;                     /* VC ID , total ip length*/
     guint32          flow_id, d_time;                     /* flow ID, packet duration*/
-    guint16          r_hdr_len;                           /* length of radiotap headers */
+    guint16          r_hdr_len;                           /* length of metadata headers */
     int              sig_off, pay_off;                    /* MAC+SNAP header len, signature offset */
     guint64          sig_ts, tsid;                        /* 32 LSBs of timestamp in signature */
-    guint16          chanflags = 0;                       /* extended radio tap channel flags */
-    guint16          radioflags = 0;                      /* extended radio tap flags */
+    guint16          chanflags = 0;                       /* channel flags for WLAN metadata header */
+    guint16          radioflags = 0;                      /* flags for WLAN metadata header */
     guint64          delta_b;                             /* Used for calculating latency */
 
 
@@ -1362,24 +1268,24 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     }
     else if (plcp_type == vVW510021_W_PLCP_MIXED) {
         /* set the appropriate flags to indicate HT mode and CB */
-        radioflags |= RADIOTAP_F_CHAN_HT | ((plcp_ptr[3] & 0x80) ? RADIOTAP_F_CHAN_40MHZ : 0) |
-                      ((l1p_1 & 0x40) ? 0 : RADIOTAP_F_CHAN_SHORTGI);
+        radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[3] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
+                      ((l1p_1 & 0x40) ? 0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
     }
     else if (plcp_type == vVW510021_W_PLCP_GREENFIELD) {
         /* set the appropriate flags to indicate HT mode and CB */
-        radioflags |= RADIOTAP_F_CHAN_HT | ((plcp_ptr[0] & 0x80) ? RADIOTAP_F_CHAN_40MHZ : 0) |
-                      ((l1p_1 & 0x40) ?  0 : RADIOTAP_F_CHAN_SHORTGI);
+        radioflags |= FLAGS_CHAN_HT | ((plcp_ptr[0] & 0x80) ? FLAGS_CHAN_40MHZ : 0) |
+                      ((l1p_1 & 0x40) ?  0 : FLAGS_CHAN_SHORTGI);
         chanflags  |= CHAN_OFDM;
     }
     else if (plcp_type == vVW510021_W_PLCP_VHT_MIXED) {
         guint8 SBW = l1p_2 >> 4 & 0xf;
-        radioflags |= RADIOTAP_F_CHAN_VHT | ((l1p_1 & 0x40) ?  0 : RADIOTAP_F_CHAN_SHORTGI);
+        radioflags |= FLAGS_CHAN_VHT | ((l1p_1 & 0x40) ?  0 : FLAGS_CHAN_SHORTGI);
         chanflags |= CHAN_OFDM;
         if (SBW == 3)
-            radioflags |= RADIOTAP_F_CHAN_40MHZ;
+            radioflags |= FLAGS_CHAN_40MHZ;
         else if (SBW == 4)
-            radioflags |= RADIOTAP_F_CHAN_80MHZ;
+            radioflags |= FLAGS_CHAN_80MHZ;
     }
 
     if (msdu_length > (guint32)(rec_size - 48)) {
@@ -1427,12 +1333,12 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     }
 
     /* Fill up the per-packet header (amazingly like a PCAP packet header! ;-)          */
-    /* Frames are always 802.11, with an extended radiotap header.                      */
+    /* Frames are always 802.11, with metadata headers.                      */
     /* caplen is the length that is captured into the file (i.e., the written-out frame */
     /*  block), and should always represent the actual number of bytes in the file.     */
     /* len is the length of the original packet before truncation.                      */
     /* The FCS is NOT included.                                                         */
-    r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
+    r_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
     tmp_len = (actual_octets - 4) + r_hdr_len;
     phdr->len = tmp_len<=G_MAXUINT32 ? (guint32) tmp_len : 0;
     tmp_len = (msdu_length - 4) + r_hdr_len;
@@ -1444,7 +1350,7 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
-    /* generate and copy out the radiotap header, set the port type to 0 (WLAN) */
+    /* generate and copy out the metadata headers, set the port type to 0 (WLAN) */
     common_fields->vw_port_type   = 0;
     common_fields->it_len         = STATS_COMMON_FIELDS_LEN;
     common_fields->vw_vcid        = (guint16)vc_id;
@@ -1460,12 +1366,12 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     common_fields->vw_endt        = end_time;
     common_fields->vw_sig_ts      = (guint32)(sig_ts); /* 32 LSBs of signature  */
 
-    er_fields->it_len    = EXT_RTAP_FIELDS_LEN;
+    er_fields->it_len    = EXT_WLAN_FIELDS_LEN;
     er_fields->flags     = radioflags;
     if (info & vVW510021_W_IS_WEP)
-        er_fields->flags |= RADIOTAP_F_WEP;
+        er_fields->flags |= FLAGS_WEP;
     if ((l1p_1 & vVW510021_W_PREAMBLE_MASK) != vVW510021_W_IS_LONGPREAMBLE && (plcp_type == vVW510021_W_PLCP_LEGACY))
-        er_fields->flags |= RADIOTAP_F_SHORTPRE;
+        er_fields->flags |= FLAGS_SHORTPRE;
     er_fields->phyRate   = (guint16)(getRate(plcp_type, mcs_index, er_fields->flags, nss) * 10);
     er_fields->plcpType  = plcp_type;
     er_fields->mcsIndex  = mcs_index;
@@ -1478,19 +1384,19 @@ static int parse_s2_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* fill in the VeriWave flags field */
     er_fields->vw_flags  = 0;
     if (f_tx)
-        er_fields->vw_flags |= RADIOTAP_VWF_TXF;
+        er_fields->vw_flags |= VW_FLAGS_TXF;
     if (errors & 0x1f)  /* If any error is flagged, then set the FCS error bit */
-        er_fields->vw_flags |= RADIOTAP_VWF_FCSERR;
+        er_fields->vw_flags |= VW_FLAGS_FCSERR;
     if (!f_tx && (errors & vwr->CRYPTO_ERR))
-        er_fields->vw_flags |= RADIOTAP_VWF_DCRERR;
+        er_fields->vw_flags |= VW_FLAGS_DCRERR;
     if (!f_tx && (errors & vwr->RETRY_ERR))
-        er_fields->vw_flags |= RADIOTAP_VWF_RETRERR;
+        er_fields->vw_flags |= VW_FLAGS_RETRERR;
     if (info & vwr->WEPTYPE)
-        er_fields->vw_flags |= RADIOTAP_VWF_IS_WEP;
+        er_fields->vw_flags |= VW_FLAGS_IS_WEP;
     else if (info & vwr->TKIPTYPE)
-        er_fields->vw_flags |= RADIOTAP_VWF_IS_TKIP;
+        er_fields->vw_flags |= VW_FLAGS_IS_TKIP;
     else if (info & vwr->CCMPTYPE)
-        er_fields->vw_flags |= RADIOTAP_VWF_IS_CCMP;
+        er_fields->vw_flags |= VW_FLAGS_IS_CCMP;
 
     er_fields->vw_errors    = (guint32)errors;
     er_fields->vw_ht_length = (guint16)ht_len;
@@ -1533,7 +1439,7 @@ static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          sig_ts, tsid;                        /* 32 LSBs of timestamp in signature */
     guint64          delta_b;                             /* Used for calculating latency */
 
-    stats_ethernettap_fields etap_hdr;                    /* VWR ethernettap header */
+    ext_ethernet_fields      etap_hdr;                    /* VWR Ethernet header */
     stats_common_fields      common_hdr;                  /* VWR common header */
 
     /* Calculate the start of the statistics block in the buffer. */
@@ -1647,7 +1553,7 @@ static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /*  block), and should always represent the actual number of bytes in the file.     */
     /* len is the length of the original packet before truncation.                      */
     /* The FCS is NEVER included.                                                       */
-    e_hdr_len = STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN;
+    e_hdr_len = STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN;
     phdr->len    = (actual_octets - 4) + e_hdr_len;
     phdr->caplen = (msdu_length - 4) + e_hdr_len;
 
@@ -1660,7 +1566,7 @@ static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* generate and copy out the ETHERNETTAP header, set the port type to 1 (Ethernet) */
     common_hdr.vw_port_type = 1;
     common_hdr.it_len       = STATS_COMMON_FIELDS_LEN;
-    etap_hdr.it_len = STATS_ETHERNETTAP_FIELDS_LEN;
+    etap_hdr.it_len = EXT_ETHERNET_FIELDS_LEN;
 
     etap_hdr.vw_errors = (guint32)errors;
     etap_hdr.vw_info   = (guint16)info;
@@ -1679,9 +1585,9 @@ static void vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     etap_hdr.vw_l4id  = (guint32)l4id;
     etap_hdr.vw_flags = 0;
     if (IS_TX)
-        etap_hdr.vw_flags |= RADIOTAP_VWF_TXF;
+        etap_hdr.vw_flags |= VW_FLAGS_TXF;
     if (errors & vwr->FCS_ERROR)
-        etap_hdr.vw_flags |= RADIOTAP_VWF_FCSERR;
+        etap_hdr.vw_flags |= VW_FLAGS_FCSERR;
     common_hdr.vw_startt = start_time;                  /* record start & end times of frame */
     common_hdr.vw_endt   = end_time;
     common_hdr.vw_sig_ts = (guint32)(sig_ts);
@@ -1900,7 +1806,8 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             break;
 
         case S3_W_FPGA:
-            vwr->STATS_LEN       = STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN;
+fprintf(stderr, "You must be kidding\n");
+            vwr->STATS_LEN       = STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN;
             vwr->PLCP_LENGTH_OFF = 16;
             vwr->HEADER_IS_RX    = vVW510021_W_HEADER_IS_RX;
             vwr->HEADER_IS_TX    = vVW510021_W_HEADER_IS_TX;
@@ -2147,12 +2054,12 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
         bitrate =  canonical_rate_legacy[mcsIndex];
     else if (plcpType == 1 || plcpType == 2)
     {
-        if ( rflags & IEEE80211_RADIOTAP_F_SHORTGI)
+        if ( rflags & FLAGS_CHAN_SHORTGI)
             symbol_tx_time = 3.6f;
         else
             symbol_tx_time = 4.0f;
 
-        if ( rflags & IEEE80211_RADIOTAP_F_40MHZ )
+        if ( rflags & FLAGS_CHAN_40MHZ )
             ndbps = canonical_ndbps_40_ht[ mcsIndex - 8*(int)(mcsIndex/8) ];
         else
             ndbps = canonical_ndbps_20_ht[ mcsIndex - 8*(int)(mcsIndex/8) ];
@@ -2161,16 +2068,16 @@ static float getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, guint8 n
     }
     else
     {
-        if ( rflags & IEEE80211_RADIOTAP_F_SHORTGI)
+        if ( rflags & FLAGS_CHAN_SHORTGI)
             symbol_tx_time = 3.6f;
         else
             symbol_tx_time = 4.0f;
 
     /* Check for the out of range mcsIndex.  Should never happen, but if mcs index is greater than 9 assume 9 is the value */
     if (mcsIndex > 9) mcsIndex = 9;
-        if ( rflags & IEEE80211_RADIOTAP_F_40MHZ )
+        if ( rflags & FLAGS_CHAN_40MHZ )
             bitrate = (canonical_ndbps_40_vht[ mcsIndex ] * nss) / symbol_tx_time;
-        else if (rflags & IEEE80211_RADIOTAP_F_80MHZ )
+        else if (rflags & FLAGS_CHAN_80MHZ )
             bitrate = (canonical_ndbps_80_vht[ mcsIndex ] * nss) / symbol_tx_time;
         else
         {
@@ -2190,7 +2097,7 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
                      int IS_TX, int *err, gchar **err_info)
 {
     guint8   rec[B_SIZE];       /* local buffer (holds input record) */
-    guint16  pkt_len;           /* length of radiotap headers */
+    guint16  pkt_len;           /* length of metadata headers */
     guint8  *data_ptr;
 
     /* Read over the entire record (frame + trailer) into a local buffer.         */
@@ -2210,11 +2117,11 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
 
     /* before writing anything out, make sure the buffer has enough space for everything */
     if ((vwr->FPGA_VERSION == S2_W_FPGA) || (vwr->FPGA_VERSION == S1_W_FPGA) || (vwr->FPGA_VERSION == S3_W_FPGA) )
-    /* frames are always 802.11 with an extended radiotap header */
-        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + EXT_RTAP_FIELDS_LEN);
+    /* frames are always 802.11 with an extended WLAN metadata header */
+        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + EXT_WLAN_FIELDS_LEN);
     else
-        /* frames are always ethernet with an extended ethernettap header */
-        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + STATS_ETHERNETTAP_FIELDS_LEN);
+        /* frames are always ethernet with an extended Ethernet metadata header */
+        pkt_len = (guint16)(rec_size + STATS_COMMON_FIELDS_LEN + EXT_ETHERNET_FIELDS_LEN);
     buffer_assure_space(buf, pkt_len);
     data_ptr = buffer_start_ptr(buf);
 
