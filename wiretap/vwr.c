@@ -1115,10 +1115,15 @@ static int parse_s1_W_stats(vwr_t *vwr, struct wtap_pkthdr *phdr, guint8 *rec,
     else
        octets = 0;
 
-    /* Sanity check the octets field to determine if it is OK (or segfaults result). */
-    /* iff it's greater, then truncate to actual record size. */
-    if (octets > (rec_size - 64))
-        octets = (rec_size - 64);
+    /*
+     * Sanity check the octets field to determine if it's greater than
+     * the packet data available in the record - i.e., the record size
+     * minus the length of the statistics block.
+     *
+     * Truncate it if it is.
+     */
+    if (octets > (rec_size - vwr->STATS_LEN))
+        octets = (rec_size - vwr->STATS_LEN);
     msdu_length = octets;
 
 
