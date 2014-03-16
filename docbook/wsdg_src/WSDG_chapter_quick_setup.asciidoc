@@ -5,7 +5,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- $Id$ -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterSetup]]
 
 == Quick Setup
@@ -195,7 +195,7 @@ http://code.google.com/p/gitextensions/.
 
 ===== TortoiseGit
 
-TortoiseGit is a native Windows graphical Git 
+TortoiseGit is a native Windows graphical Git
 similar to TortoiseSVN. You can download the installer from
 http://code.google.com/p/tortoisegit/.
 
@@ -351,7 +351,7 @@ goto usage
 :usage
 echo Error in script usage. The correct usage is:
 echo     %0 [option]
-echo where [option] is: x86 ^| x64 
+echo where [option] is: x86 ^| x64
 echo:
 echo For example:
 echo     %0 x86
@@ -537,10 +537,10 @@ depends on the compiler variant used. For variants other than
 the recommended Visual $$C++$$ 2010 Express Edition SP1 see the table
 at <<ChToolsMSChain>>.]
 +
-To build a 64-bit version, you will need 
-_$$vcredist_x64.exe$$_: 
+To build a 64-bit version, you will need
+_$$vcredist_x64.exe$$_:
 http://www.microsoft.com/en-us/download/details.aspx?id=13523[Download] the 64-bit redistributable for Visual $$C++$$ 2010 Express
-Edition SP1 (__$$vcredist_x64.exe$$__) and copy it into 
+Edition SP1 (__$$vcredist_x64.exe$$__) and copy it into
 __C:\Wireshark-win64-libs__.footnoteref:[compilerdependent]
 
 . If you've closed `cmd.exe` prepare it again.

@@ -197,11 +197,25 @@ your machine. This may take some time depending on the speed of your
 internet connection.
 --
 
-. Change to the Wireshark directory and initialize git-review.
+. Then set up the git pre-commit hook and the push address:
 +
 --
 ----
 $ cd wireshark
+$ cp tools/pre-commit .git/hooks/
+$ git config --add remote.origin.push HEAD:refs/for/master
+----
+This will run a few basic checks on commit to make sure that the code
+does not contain tivial errors. It will also warn if it is out of sync
+with its master copy in the tools/.
+The change in the push address is necessary: We have an asymmetric
+process for pulling and pushing because of gerrit.
+--
+
+. Initialize git-review.
++
+--
+----
 $ git review -s
 ----
 This prepares your local repository for use with Gerrit, including
@@ -1118,4 +1132,4 @@ the 'packaging/nsis' directory.
 <!-- End of WSDG Chapter Sources -->
 ++++++++++++++++++++++++++++++++++++++
 
-// vim: set syntax=asciidoc:    
+// vim: set syntax=asciidoc:
