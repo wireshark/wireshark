@@ -42,7 +42,6 @@ plugindir = @plugindir@
 
 EXTRA_DIST = \
 	$(_CUSTOM_EXTRA_DIST_) \
-	plugins.vcproj \
 	Makefile.common.inc \
 	Makefile.nmake \
 	Custom.make.example \

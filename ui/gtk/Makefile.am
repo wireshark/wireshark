@@ -189,7 +189,6 @@ EXTRA_DIST = \
 	capture_if_details_dlg_win32.h	\
 	CMakeLists.txt			\
 	doxygen.cfg.in			\
-	libgtkui.vcproj			\
 	main_airpcap_toolbar.c		\
 	Makefile.common			\
 	Makefile.nmake			\

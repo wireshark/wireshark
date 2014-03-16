@@ -1056,12 +1056,7 @@ EXTRA_DIST = \
 	ui/win32/print_win32.c			\
 	ui/win32/print_win32.h			\
 	ui/win32/settings.ini			\
-	CPackConfig.txt				\
-	all.vcproj				\
-	dumpcap.vcproj				\
-	packaging.vcproj			\
-	tshark.vcproj				\
-	wireshark.vcproj
+	CPackConfig.txt
 
 install-exec-hook:
 if HAVE_DUMPCAP_GROUP

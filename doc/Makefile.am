@@ -264,7 +264,6 @@ EXTRA_DIST =				\
 	capinfos.pod			\
 	dfilter2pod.pl			\
 	dftest.pod			\
-	doc.vcproj			\
 	dumpcap.pod			\
 	editcap.pod			\
 	eproto2sgml			\

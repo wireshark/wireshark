@@ -285,7 +285,6 @@ EXTRA_DIST = \
 	$(WSDG_DIST)		\
 	$(RELEASE_NOTES_SOURCE)	\
 	check_git_version.sh	\
-	docbook.vcproj		\
 	dfilter2xml.pl		\
 	make-wsluarm.pl		\
 	README.txt		\

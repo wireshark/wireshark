@@ -242,7 +242,6 @@ remote_icons.h:
 	done
 
 # XXX to be created
-#	libqtui.vcproj
 #	Makefile.nmake
 EXTRA_DIST = \
 	$(GENERATOR_FILES)		\
