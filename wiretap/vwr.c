@@ -70,23 +70,7 @@
 
 /* the metadata headers */
 
-/* IxVeriwave common header fields */
-typedef struct {
-    guint16 vw_port_type;                           /* 0 for WLAN, 1 for Ethernet */
-    guint16 it_len;                                 /* WHOLE metadata header length (incl. */
-    guint16 vw_msdu_length;                         /* length of MAC SDU */
-    guint32 vw_flowid;                              /* VeriWave-specific flow ID for packet */
-    guint16 vw_vcid;                                /* VeriWave-specific vC ID (client id) */
-    guint16 vw_seqnum;                              /* VeriWave-specific signature seqnum */
-    guint32 vw_latency;                             /* VeriWave-specific packet latency, ns */
-    guint32 vw_sig_ts;                              /* signature timestamp, 32 LSBs, nsec */
-    guint64 vw_startt;                              /* frame start time (nsec) */
-    guint64 vw_endt;                                /* frame end time (nsec) */
-    guint32 vw_pktdur;                              /* VeriWave-specific pkt duration, us */
-
-} stats_common_fields;
-
-/* Size of those fields - regardless of how the compiler packs them */
+/* Size of thhe IxVeriwave common header */
 #define STATS_COMMON_FIELDS_LEN (2+2+2+4+2+2+4+4+8+8+4)
 
 /* For VeriWave WLAN and Ethernet metadata headers vw_flags field */
@@ -105,20 +89,12 @@ typedef struct {
 /* Veriwave WLAN metadata header */
 
 /* Channel flags, for chanflags field */
-#define CHAN_TURBO          0x0010              /* Turbo channel */
 #define CHAN_CCK            0x0020              /* CCK channel */
 #define CHAN_OFDM           0x0040              /* OFDM channel */
-#define CHAN_2GHZ           0x0080              /* 2 GHz spectrum channel. */
-#define CHAN_5GHZ           0x0100              /* 5 GHz spectrum channel */
-#define CHAN_PASSIVE        0x0200              /* Only passive scan allowed */
 
 /* Flags, for flags field */
-#define FLAGS_CFP           0x0001              /* sent/received during CFP */
 #define FLAGS_SHORTPRE      0x0002              /* sent/received with short preamble */
 #define FLAGS_WEP           0x0004              /* sent/received with WEP encryption */
-#define FLAGS_FRAG          0x0008              /* sent/received with fragmentation */
-#define FLAGS_FCS           0x0010              /* frame includes FCS */
-#define FLAGS_DATAPAD       0x0020              /* padding between 802.11 hdr & payload */
 #define FLAGS_CHAN_HT       0x0040              /* In HT mode */
 #define FLAGS_CHAN_VHT      0x0080              /* VHT Mode */
 #define FLAGS_CHAN_SHORTGI  0x0100              /* Short guard interval */
@@ -126,39 +102,10 @@ typedef struct {
 #define FLAGS_CHAN_80MHZ    0x0400              /* 80 Mhz channel bandwidth */
 #define FLAGS_CHAN_160MHZ   0x0800              /* 160 Mhz channel bandwidth */
 
-typedef struct {
-    guint16 it_len;                                 /* WHOLE metadata header length (incl. */
-    guint16 flags;                                  /* short preamble, WEP, frag */
-    guint16 chanflags;                              /* channel flags bitmap */
-    guint16 phyRate;                                /* The PHY rate of the packet * 10 (accommodates the 5.5 on CCK) */
-    guint8  plcpType;                               /* PLCP type - 0: Legacy, 1: HT Mixed, 2: HT Green field, 3: VHT mixed */
-    guint8  mcsIndex;                               /* 0 - 31 possible */
-    guint8  nss;                                    /* Guard interval */
-    gint8   signal;                                 /* RF signal power, +/- dBm */
-    gint8   signalb;                                /* transmit power, +/- dBm */
-    gint8   signalc;                                /* transmit power, +/- dBm */
-    gint8   signald;                                /* transmit power, +/- dBm */
-    guint16 vw_flags;                               /* VeriWave-specific packet flags */
-    guint16 vw_ht_length;                           /* ht length (in plcp header)*/
-    guint16 vw_info;                                /* VeriWave-specific information */
-    guint32 vw_errors;                              /* VeriWave-specific errors */
-
-} ext_wlan_fields;
-
-/* Size of those fields - regardless of how the compiler packs them */
+/* Size of the VeriWave WLAN metadata header */
 #define EXT_WLAN_FIELDS_LEN (2+2+2+2+1+1+1+1+1+1+1+1+2+2+2+4)
 
-/* Veriwave Ethernet metadata header */
-typedef struct {
-    guint16 it_len;                                 /* WHOLE metadata header length (incl. */
-    guint16 vw_flags;                               /* Veriwave-specific flags (see above) */
-    guint16 vw_info;                                /* VeriWave-specific information */
-    guint32 vw_errors;                              /* VeriWave-specific flags */
-    guint32 vw_l4id;                                /* layer four id*/
-    guint32 it_pad2;                                /* pad out header to 16-byte boundary */
-} ext_ethernet_fields;
-
-/* Size of those fields - regardless of how the compiler packs them */
+/* Size of the VeriWave Ethernet metadata header */
 #define EXT_ETHERNET_FIELDS_LEN (2+2+2+4+4+4)
 
 /* FPGA-generated frame buffer STATS block offsets and definitions */
