@@ -829,7 +829,8 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint16          msdu_length, actual_octets;          /* octets in frame */
     guint16          plcp_hdr_len;                        /* PLCP header length */
     guint16          rflags;
-    guint8           m_type, flow_seq;                    /* mod type (CCK-L/CCK-S/OFDM), seqnum */
+    guint8           m_type;                              /* mod type (CCK-L/CCK-S/OFDM), seqnum */
+    guint            flow_seq;
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /* times, nsec */
     guint32          latency;
