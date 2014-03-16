@@ -25,7 +25,7 @@
 
 #
 # To build cmake
-# CMAKE=1
+CMAKE=1
 #
 # To build all libraries as 32-bit libraries uncomment the following three lines.
 #
@@ -54,7 +54,7 @@ XZ_VERSION=5.0.4
 #
 # In case we want to build with cmake.
 #
-CMAKE_VERSION=2.8.10.2
+CMAKE_VERSION=2.8.12.2
 
 #
 # The following libraries and tools are required even to build only TShark.
