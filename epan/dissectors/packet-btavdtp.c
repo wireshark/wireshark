@@ -1805,42 +1805,42 @@ proto_register_btavdtp(void)
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_block_4,
-            { "Block Length 4",                 "btavdtp.codec.sbc.block_4",
+            { "Block Length 4",                 "btavdtp.codec.sbc.block.4",
             FT_BOOLEAN, 8, NULL, 0x80,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_block_8,
-            { "Block Length 8",                 "btavdtp.codec.sbc.block_8",
+            { "Block Length 8",                 "btavdtp.codec.sbc.block.8",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_block_12,
-            { "Block Length 12",                "btavdtp.codec.sbc.block_12",
+            { "Block Length 12",                "btavdtp.codec.sbc.block.12",
             FT_BOOLEAN, 8, NULL, 0x20,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_block_16,
-            { "Block Length 16",                "btavdtp.codec.sbc.block_16",
+            { "Block Length 16",                "btavdtp.codec.sbc.block.16",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_subbands_4,
-            { "Subbands 4",                     "btavdtp.codec.sbc.subbands_4",
+            { "Subbands 4",                     "btavdtp.codec.sbc.subbands.4",
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_subbands_8,
-            { "Subbands 8",                     "btavdtp.codec.sbc.subbands_8",
+            { "Subbands 8",                     "btavdtp.codec.sbc.subbands.8",
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_allocation_method_snr,
-            { "Allocation Method SNR",          "btavdtp.codec.sbc.allocation_method_snr",
+            { "Allocation Method SNR",          "btavdtp.codec.sbc.allocation_method.snr",
             FT_BOOLEAN, 8, NULL, 0x02,
             NULL, HFILL }
         },
         { &hf_btavdtp_sbc_allocation_method_loudness,
-            { "Allocation Method Loudness",     "btavdtp.codec.sbc.allocation_method_loudness",
+            { "Allocation Method Loudness",     "btavdtp.codec.sbc.allocation_method.loudness",
             FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
