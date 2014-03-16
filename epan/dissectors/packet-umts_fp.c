@@ -4523,14 +4523,14 @@ umts_fp_init_protocol(void)
                 /* set up conversation info for RACH FDD channels */
                 umts_fp_conversation_info = se_new0(umts_fp_conversation_info_t);
                 /* Fill in the data */
-                umts_fp_conversation_info->iface_type        = uat_umts_fp_ep_and_ch_records[i].interface_type;
-                umts_fp_conversation_info->division          = uat_umts_fp_ep_and_ch_records[i].division;
+                umts_fp_conversation_info->iface_type        = (enum fp_interface_type)uat_umts_fp_ep_and_ch_records[i].interface_type;
+                umts_fp_conversation_info->division          = (enum division_type) uat_umts_fp_ep_and_ch_records[i].division;
                 umts_fp_conversation_info->channel           = uat_umts_fp_ep_and_ch_records[i].channel_type;
                 umts_fp_conversation_info->dl_frame_number   = 0;
                 umts_fp_conversation_info->ul_frame_number   = 1;
                 SE_COPY_ADDRESS(&(umts_fp_conversation_info->crnc_address), &src_addr);
                 umts_fp_conversation_info->crnc_port         = uat_umts_fp_ep_and_ch_records[i].src_port;
-                umts_fp_conversation_info->rlc_mode          = uat_umts_fp_ep_and_ch_records[i].rlc_mode;
+                umts_fp_conversation_info->rlc_mode          = (enum fp_rlc_mode) uat_umts_fp_ep_and_ch_records[i].rlc_mode;
                 /*Save unique UE-identifier */
                 umts_fp_conversation_info->com_context_id = 1;
 
