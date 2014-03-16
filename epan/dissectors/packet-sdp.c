@@ -1816,6 +1816,18 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
 
     if (in_media_description) {
         /* Increase the count of media channels, but don't walk off the end of the arrays. */
+        /* XXX: I don't know why this was done here - I'm keeping it here in case
+         * removing it causes problems, but it's wrong. transport_info->media_count
+         * is already incremented in the while() loop above. Incrementing it
+         * again here will cause bugs. The name of this is misleading, because
+         * 'transport_info->media_count' is actually an index, not count.
+         * In other words, it's a 0-based number, of the current rtp channel.
+         * So debug printing shows bogus rtp channels get created and then later
+         * removed because luckily it knows they were bogus. But it will cause bugs
+         * because if we're not delaying, then for the SDP_EXCHANGE_ANSWER_ACCEPT
+         * run through this function, it will add new RTP channels at a +1 index,
+         * which will likely cause problems.
+         */
         if (transport_info->media_count < (SDP_MAX_RTP_CHANNELS-1))
             transport_info->media_count++;
         if (media_info.media_count < (SDP_MAX_RTP_CHANNELS-1))
