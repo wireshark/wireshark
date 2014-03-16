@@ -836,10 +836,11 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
     guint64          end_time;                            /* end time */
     guint32          info;                                /* INFO/ERRORS fields in stats blk */
-    gint16           rssi;                                /* RSSI, signed 16-bit number */
+    gint8            rssi;                                /* RSSI, signed 8-bit number */
     int              f_tx;                                /* flag: if set, is a TX frame */
     guint8           plcp_type, mcs_index, nss;           /* PLCP type 0: Legacy, 1: Mixed, 2: Green field, 3: VHT Mixed */
-    guint16          vc_id, flow_id, ht_len=0;            /* VC ID, flow ID, total ip length */
+    guint16          vc_id, ht_len=0;                     /* VC ID, total ip length */
+    guint            flow_id;                             /* flow ID */
     guint32          d_time, errors;                      /* packet duration & errors */
     int              sig_off, pay_off;                    /* MAC+SNAP header len, signature offset */
     guint64          sig_ts;                              /* 32 LSBs of timestamp in signature */
@@ -1092,7 +1093,8 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     register int     i;                                   /* temps */
     const guint8     *s_start_ptr,*s_trail_ptr, *plcp_ptr, *m_ptr; /* stats & MPDU ptr */
     guint32          msdu_length, actual_octets;          /* octets in frame */
-    guint8           l1p_1,l1p_2, flow_seq, plcp_type, mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
+    guint8           l1p_1,l1p_2, plcp_type, mcs_index, nss;   /* mod (CCK-L/CCK-S/OFDM) */
+    guint            flow_seq;
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /*  times, nsec */
     guint64          latency = LL_ZERO;
@@ -1100,7 +1102,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     guint64          end_time;                            /* end time */
     guint16          info;                                /* INFO/ERRORS fields in stats blk */
     guint32          errors;
-    gint16           rssi[] = {0,0,0,0};                  /* RSSI, signed 16-bit number */
+    gint8            rssi[] = {0,0,0,0};                  /* RSSI, signed 8-bit number */
     int              f_tx;                                /* flag: if set, is a TX frame */
     guint16          vc_id, ht_len=0;                     /* VC ID , total ip length*/
     guint32          flow_id, d_time;                     /* flow ID, packet duration*/
@@ -1453,13 +1455,14 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     register int     i;                                   /* temps */
     const guint8 *s_ptr, *m_ptr;                          /* stats and MPDU pointers */
     guint16          msdu_length, actual_octets;          /* octets in frame */
-    guint8           flow_seq;                            /* seqnum */
+    guint            flow_seq;                            /* seqnum */
     guint64          s_time = LL_ZERO, e_time = LL_ZERO;  /* start/end */
                                                           /* times, nsec */
     guint32          latency = 0;
     guint64          start_time, s_sec, s_usec = LL_ZERO; /* start time, sec + usec */
     guint64          end_time;                            /* end time */
-    guint16          l4id, info, validityBits;            /* INFO/ERRORS fields in stats */
+    guint            l4id;
+    guint16          info, validityBits;                  /* INFO/ERRORS fields in stats */
     guint32          errors;
     guint16          vc_id;                               /* VC ID, total (incl of aggregates) */
     guint32          flow_id, d_time;                     /* packet duration */
