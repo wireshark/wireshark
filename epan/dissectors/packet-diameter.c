@@ -61,6 +61,7 @@
 #include <epan/diam_dict.h>
 #include <epan/sctpppids.h>
 #include <epan/show_exception.h>
+#include <epan/to_str.h>
 #include "packet-tcp.h"
 #include "packet-diameter.h"
 
@@ -420,6 +421,7 @@ dissect_diameter_3gpp2_exp_res(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static int
 dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
+	diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 	guint8 prefix_len, prefix_len_bytes;
 	/*diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;*/
 
@@ -443,6 +445,7 @@ dissect_diameter_base_framed_ipv6_prefix(tvbuff_t *tvb, packet_info *pinfo _U_, 
 		tvb_memcpy(tvb, (guint8 *)&value.bytes, 2, prefix_len_bytes);
 		value.bytes[prefix_len_bytes] = value.bytes[prefix_len_bytes] & (0xff<<(prefix_len % 8));
 		proto_tree_add_ipv6(tree, hf_framed_ipv6_prefix_ipv6, tvb, 2, prefix_len_bytes, value.bytes);
+		diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "%s/%u", ip6_to_str((const struct e_in6_addr *)&value),prefix_len);
 	}
 
 	return(prefix_len_bytes+2);
@@ -642,9 +645,16 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	}
 	c->tree = save_tree;
 
-	if (avp_str) proto_item_append_text(avp_item," val=%s", avp_str);
-
+	diam_sub_dis_inf->avp_str = NULL;
 	call_avp_subdissector(vendorid, code, subtvb, c->pinfo, avp_tree, diam_sub_dis_inf);
+
+	/* Let the subdissector have precedence filling in the avp_item string */
+	if(diam_sub_dis_inf->avp_str){
+		proto_item_append_text(avp_item," val=%s", diam_sub_dis_inf->avp_str);
+	}else if (avp_str){
+		proto_item_append_text(avp_item," val=%s", avp_str);
+	}
+
 
 	if (pad_len) {
 		guint8 i;

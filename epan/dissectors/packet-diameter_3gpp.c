@@ -187,6 +187,7 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     int offset = 0;
     guint8      oct;
     char        sign;
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 
     /* 3GPP TS 23.040 version 6.6.0 Release 6
      * 9.2.3.11 TP-Service-Centre-Time-Stamp (TP-SCTS)
@@ -207,6 +208,12 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     oct = tvb_get_guint8(tvb, offset) & 0x3;
     proto_tree_add_text(tree, tvb, offset, 1, "%s", val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
     offset++;
+
+    diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c %d hours %d minutes %s", 
+        sign, 
+        oct / 4, 
+        oct % 4 * 15,
+        val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
 
     return offset;
 }
