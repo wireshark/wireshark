@@ -239,7 +239,8 @@
     remaining 48 bytes of stat block
 */
 /* offsets in the stats block */
-#define vVW510021_W_STATS_LEN           48          /* length of stats block trailer after the plcp portion*/
+#define vVW510021_W_STATS_HEADER_LEN     8          /* length of stats block header at beginning of record data */
+#define vVW510021_W_STATS_TRAILER_LEN   48          /* length of stats block trailer after the plcp portion*/
 #define vVW510021_W_STARTT_OFF           0          /* offset of start time, 64 bits */
 #define vVW510021_W_ENDT_OFF             8          /* offset of end time, 64 bits */
 #define vVW510021_W_ERRORS_OFF          16          /* offset of error vector */
@@ -760,7 +761,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
 
 
                 /* Next the series II WLAN */
-                if ((rec_size > vVW510021_W_STATS_LEN) && (fpga_version == 1000)) {
+                if ((rec_size > vVW510021_W_STATS_TRAILER_LEN) && (fpga_version == 1000)) {
                     /* stats block */
 
                     data_length = (256 * (rec[vVW510021_W_MSDU_LENGTH_OFF + 1] & 0x1f)) + rec[vVW510021_W_MSDU_LENGTH_OFF];
@@ -770,7 +771,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                         i = i + 1;
 
                     /*the 12 is from the 12 bytes of plcp header */
-                    if (rec_size == (data_length + vVW510021_W_STATS_LEN +vVW510021_W_AFTERHEADER_LEN+12+i))
+                    if (rec_size == (data_length + vVW510021_W_STATS_TRAILER_LEN +vVW510021_W_AFTERHEADER_LEN+12+i))
                         fpga_version = S2_W_FPGA;
                 }
 
@@ -786,7 +787,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                     if (rec_size == (data_length + vVW510024_E_STATS_LEN + i))
                         fpga_version = vVW510024_E_FPGA;
                 }
-                if ((rec_size > vVW510021_W_STATS_LEN) && (fpga_version == 1000)) {
+                if ((rec_size > vVW510021_W_STATS_TRAILER_LEN) && (fpga_version == 1000)) {
                     /* Check the version of the FPGA */
                     if (header[8] == 48)
                         fpga_version = S3_W_FPGA;
@@ -1119,9 +1120,10 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      * The record data must be large enough to hold the statistics header
      * and the statistics trailer.
      */
-    if (rec_size < 8 + vVW510021_W_STATS_LEN) {
+    if (rec_size < vVW510021_W_STATS_HEADER_LEN + vVW510021_W_STATS_TRAILER_LEN) {
         *err_info = g_strdup_printf("vwr: Invalid record length %d (must be at least %u)",
-                                    rec_size, 8 + vVW510021_W_STATS_LEN);
+                                    rec_size,
+                                    vVW510021_W_STATS_HEADER_LEN + vVW510021_W_STATS_TRAILER_LEN);
         *err = WTAP_ERR_BAD_FILE;
         return FALSE;
     }
@@ -1129,7 +1131,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* Calculate the start of the statistics blocks in the buffer */
     /* Also get a bunch of fields from the stats blocks */
     s_start_ptr = &(rec[0]);                              /* point to stats header */
-    s_trail_ptr = &(rec[rec_size - vVW510021_W_STATS_LEN]);      /* point to stats trailer */
+    s_trail_ptr = &(rec[rec_size - vVW510021_W_STATS_TRAILER_LEN]);      /* point to stats trailer */
 
     /* L1p info is different for series III and for Series II - need to check */
     l1p_1 = s_start_ptr[vVW510021_W_L1P_1_OFF];
@@ -1202,7 +1204,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
      *
      * Report an error if it is.
      */
-    if (actual_octets > rec_size - (vwr->MPDU_OFF + vVW510021_W_STATS_LEN)) {
+    if (actual_octets > rec_size - (vwr->MPDU_OFF + vVW510021_W_STATS_TRAILER_LEN)) {
         *err_info = g_strdup_printf("vwr: Invalid data length %u (runs past the end of the record)",
                                     actual_octets);
         *err = WTAP_ERR_BAD_FILE;
@@ -1298,7 +1300,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     m_ptr = &(rec[8+12]);
     pay_off = 42;         /* 24 (MAC) + 8 (SNAP) + IP */
     sig_off = find_signature(m_ptr, rec_size - 20, pay_off, flow_id, flow_seq);
-    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - vVW510021_W_STATS_LEN)))
+    if ((m_ptr[sig_off] == 0xdd) && (sig_off + 15 <= (rec_size - vVW510021_W_STATS_TRAILER_LEN)))
         sig_ts = get_signature_ts(m_ptr, sig_off);
     else
         sig_ts = 0;
@@ -1790,7 +1792,7 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
     switch (fpga) {
         /* WLAN frames */
         case S2_W_FPGA:
-            vwr->STATS_LEN          = vVW510021_W_STATS_LEN;
+            vwr->STATS_LEN          = vVW510021_W_STATS_TRAILER_LEN;
 
             vwr->VALID_OFF          = vVW510021_W_VALID_OFF;
             vwr->MTYPE_OFF          = vVW510021_W_MTYPE_OFF;
@@ -1853,16 +1855,15 @@ static void setup_defaults(vwr_t *vwr, guint16 fpga)
             vwr->IS_QOS             =   vVW510021_W_QOS_VALID;
 
             /*
-             * The 8 is from the 8 bytes of stats block that precede the
-             * PLCP; the 12 is for 11 bytes of PLCP  and 1 byte of pad
+             * The 12 is for 11 bytes of PLCP  and 1 byte of pad
              * before the data.
              */
-            vwr->MPDU_OFF           = 8 + 12;
+            vwr->MPDU_OFF           = vVW510021_W_STATS_HEADER_LEN + 12;
 
             break;
 
         case S3_W_FPGA:
-            vwr->STATS_LEN       = vVW510021_W_STATS_LEN;
+            vwr->STATS_LEN       = vVW510021_W_STATS_TRAILER_LEN;
             vwr->PLCP_LENGTH_OFF = 16;
             vwr->HEADER_IS_RX    = vVW510021_W_HEADER_IS_RX;
             vwr->HEADER_IS_TX    = vVW510021_W_HEADER_IS_TX;
