@@ -1,7 +1,5 @@
           Explain the cmake build system for wireshark
 
-   $Id$
-
                            Notice
 
    To find out the current state of the cmake implementation for

@@ -3,8 +3,6 @@
         This is the executable that goes into Platypus apps
     Copyright (C) 2003 Sveinbjorn Thordarson <sveinbt@hi.is>
 
-    $Id$
-
     With modifications by Aaron Voisine for gimp.app
     With modifications by Marianne gagnon for Wilber-loves-apple
     With modifications by Michael Wybrow for Inkscape.app

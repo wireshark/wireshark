@@ -1,6 +1,4 @@
 /*
-   $Id$
-
    Copyright (C) 1992, 1996 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
