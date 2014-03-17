@@ -611,7 +611,7 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
  */
 
 static int
-dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, void *data) {
 
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
     int offset = 0;
