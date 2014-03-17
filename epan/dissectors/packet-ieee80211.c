@@ -644,7 +644,7 @@ enum fixed_field {
 #define TAG_BEACON_TIMING            120
 #define TAG_MCCAOP_SETUP_REQUEST     121
 #define TAG_MCCAOP_SETUP_REPLY       122
-#define TAG_MCCAOP_ADVERTISSEMENT    123
+#define TAG_MCCAOP_ADVERTISEMENT     123
 #define TAG_MCCAOP_TEARDOWN          124
 #define TAG_GANN                     125
 #define TAG_RANN                     126  /* IEEE Std 802.11s-2011 */
@@ -664,9 +664,9 @@ enum fixed_field {
 #define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
-#define TAG_MCCAOP_ADVERTISSEMENT_OV 174
-#define TAG_VHT_CAPABILITY           191  /* IEEE Stc 802.11ac/D3.1 */
-#define TAG_VHT_OPERATION            192  /* IEEE Stc 802.11ac/D3.1 */
+#define TAG_MCCAOP_ADVERTISEMENT_OV  174
+#define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
+#define TAG_VHT_OPERATION            192  /* IEEE Std 802.11ac/D3.1 */
 #define TAG_VENDOR_SPECIFIC_IE       221
 
 static const value_string tag_num_vals[] = {
@@ -775,9 +775,9 @@ static const value_string tag_num_vals[] = {
   { TAG_BEACON_TIMING,                        "Beacon Timing" },
   { TAG_MCCAOP_SETUP_REQUEST,                 "MCCAOP Setup Request" },
   { TAG_MCCAOP_SETUP_REPLY,                   "MCCAOP SETUP Reply" },
-  { TAG_MCCAOP_ADVERTISSEMENT,                "MCCAOP Advertissement" },
+  { TAG_MCCAOP_ADVERTISEMENT,                 "MCCAOP Advertisement" },
   { TAG_MCCAOP_TEARDOWN,                      "MCCAOP Teardown" },
-  { TAG_GANN,                                 "Gate Announcemen" },
+  { TAG_GANN,                                 "Gate Announcement" },
   { TAG_RANN,                                 "Root Announcement" },
   { TAG_EXTENDED_CAPABILITIES,                "Extended Capabilities" },
   { TAG_AGERE_PROPRIETARY,                    "Agere Proprietary" },
@@ -795,9 +795,16 @@ static const value_string tag_num_vals[] = {
   { TAG_CISCO_CCX3,                           "Cisco Unknown 95" },
   { TAG_CISCO_UNKNOWN_96,                     "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY,                   "Symbol Proprietary" },
+<<<<<<< HEAD
   { TAG_MCCAOP_ADVERTISSEMENT_OV,             "MCCAOP Advertissement Overviw" },
   { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Stc 802.11ac/D3.1)" },
   { TAG_VHT_OPERATION,                        "VHT Operation (IEEE Stc 802.11ac/D3.1)" },
+=======
+  { TAG_MCCAOP_ADVERTISEMENT_OV,              "MCCAOP Advertisement Overview" },
+  { TAG_VHT_CAPABILITY,                       "VHT Capabilities (IEEE Std 802.11ac/D3.1)" },
+  { TAG_VHT_OPERATION,                        "VHT Operation (IEEE Std 802.11ac/D3.1)" },
+  { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope (IEEE Std 802.11ac/D5.0)" },
+>>>>>>> 66d0b18... Fix some typo on 802.11 dissector
   { TAG_VENDOR_SPECIFIC_IE,                   "Vendor Specific" },
   { 0, NULL }
 };
@@ -1097,7 +1104,7 @@ static const value_string ieee80211_qos_tags_acs[] = {
   { 4, "Controlled Load (Video)" },
   { 5, "Video (Video)" },
   { 6, "Voice (Voice)" },
-  { 7, "Netowrk Control (Voice)" },
+  { 7, "Network Control (Voice)" },
   { 0, NULL }
 };
 
@@ -11692,6 +11699,12 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
             /* TODO */
           case 9: /* Transmit Stream Measurement Request */
             /* TODO */
+          case 10: /* Multicast diagnostics request */
+            /* TODO */
+          case 11: /* Location Civic request */
+            /* TODO */
+          case 12: /* Location Identifier request */
+            /* TODO */
           case 255: /* Measurement Pause Request*/
             /* TODO */
           default: /* unknown */
@@ -11938,6 +11951,12 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
           case 8: /* Location Configuration Information Report element */
             /* TODO */
           case 9: /* Transmit Stream Measurement Report */
+            /* TODO */
+          case 10: /* Multicast diagnostics Report */
+            /* TODO */
+          case 11: /* Location Civic Report */
+            /* TODO */
+          case 12: /* Location Identifier Report */
             /* TODO */
           default: /* unknown */
             break;
@@ -20700,18 +20719,18 @@ proto_register_ieee80211 (void)
   };
   module_t *wlan_module;
 
-  memset (&wlan_stats, 0, sizeof wlan_stats);
+  memset(&wlan_stats, 0, sizeof wlan_stats);
 
   proto_aggregate = proto_register_protocol("IEEE 802.11 wireless LAN aggregate frame",
       "IEEE 802.11 Aggregate Data", "wlan_aggregate");
   proto_register_field_array(proto_aggregate, aggregate_fields, array_length(aggregate_fields));
 
-  proto_wlan = proto_register_protocol ("IEEE 802.11 wireless LAN",
+  proto_wlan = proto_register_protocol("IEEE 802.11 wireless LAN",
       "IEEE 802.11", "wlan");
-  proto_register_field_array (proto_wlan, hf, array_length (hf));
+  proto_register_field_array(proto_wlan, hf, array_length (hf));
 
-  proto_wlan_mgt = proto_register_protocol ("IEEE 802.11 wireless LAN management frame",
-      "802.11 MGT", "wlan_mgt");
+  proto_wlan_mgt = proto_register_protocol("IEEE 802.11 wireless LAN management frame",
+      "IEEE 802.11 MGT", "wlan_mgt");
   proto_register_field_array (proto_wlan_mgt, ff, array_length (ff));
 
   proto_register_subtree_array (tree_array, array_length (tree_array));
