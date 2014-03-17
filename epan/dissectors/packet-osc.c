@@ -35,6 +35,9 @@
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
 
+void proto_register_osc(void);
+void proto_reg_handoff_osc(void);
+
 /* Open Sound Control (OSC) argument types enumeration */
 typedef enum _OSC_Type {
     OSC_INT32   = 'i',

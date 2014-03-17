@@ -47,7 +47,7 @@ typedef enum {
     E_AA_NO_COMMENT = 0,
     E_AA_MATCHED,
     E_AA_BIT_ERRORS,
-    E_AA_ILLEGAL,
+    E_AA_ILLEGAL
 } btle_AA_category_t;
 
 typedef struct {

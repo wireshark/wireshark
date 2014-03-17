@@ -3893,7 +3893,7 @@ dissect_openflow_queue_desc_request_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         proto_tree_add_item(tree, hf_openflow_v5_queue_desc_request_queue_id_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     /*offset+=4;*/
-};
+}
 
 
 #define OFPFMF_INITIAL       1<<0
@@ -4133,7 +4133,7 @@ dissect_openflow_switch_description_v5(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     /* char dp_desc[DESC_STR_LEN]; */
     proto_tree_add_item(tree, hf_openflow_v5_switch_description_dp_desc, tvb, offset, DESC_STR_LEN, ENC_ASCII|ENC_NA);
     /*offset+=DESC_STR_LEN;*/
-};
+}
 
 
 static int
@@ -4361,7 +4361,7 @@ dissect_openflow_port_stats_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     return offset;
-};
+}
 
 
 

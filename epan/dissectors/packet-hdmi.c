@@ -37,6 +37,7 @@
 #include "packet-hdmi.h"
 
 void proto_register_hdmi(void);
+void proto_reg_handoff_hdmi(void);
 
 static int proto_hdmi  = -1;
 

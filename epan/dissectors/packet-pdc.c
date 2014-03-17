@@ -29,6 +29,10 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/reassemble.h>
 
+
+void proto_register_pdc(void);
+void proto_reg_handoff_pdc(void);
+
 /*PDC Protocol*/
 #define PDC_PROCOTOL "PDC"
 
@@ -201,12 +205,12 @@ static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint
 		} /* end of whileloop */
 	}
 	return (bytesProcessed);
-};
+}
 
 static int dissect_rsmpdu(void)
 {
 	return (0);
-};
+}
 
 static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 {
@@ -217,7 +221,7 @@ static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 	proto_tree_add_item(tree, hf_pdc_drmpdu_reason, tvb, offset + 1, 1, ENC_NA);
 
 	return (2);
-};
+}
 
 static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
@@ -245,7 +249,7 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		return (returnLen);
 	}
 	return (2);
-};
+}
 
 static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
@@ -267,7 +271,7 @@ static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		return (returnLen);
 	}
 	return (2);
-};
+}
 
 static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
@@ -289,7 +293,7 @@ static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		return (returnLen);
 	}
 	return 2;
-};
+}
 
 static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 {
@@ -297,7 +301,7 @@ static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 	proto_tree_add_item(tree, hf_pdc_akmpdu_cdt, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_pdc_yr_admu_nr, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
 	return (6);
-};
+}
 
 static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
@@ -360,7 +364,7 @@ static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 		break;
 	};
 	return (length);
-};
+}
 
 /* Actual dissector bits and bytes done here */
 static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -376,7 +380,7 @@ static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	}
 
 	return tvb_length(tvb);
-};
+}
 
 /* function to provide TCP split packet combiner with size of packet */
 static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -420,7 +424,7 @@ static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offs
 		extra=0;
 	}
 	return (guint)(size+extra);
-};
+}
 
 /* top level call to recombine split tcp packets */
 
@@ -457,7 +461,7 @@ static void tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, minimum_bytes, get_pdc_message_len, dissect_pdc, NULL);
-};
+}
 
 /* function to register pdc dissector and get handle for asterix dissector */
 void proto_reg_handoff_pdc(void)
@@ -467,7 +471,7 @@ void proto_reg_handoff_pdc(void)
 	asterix_handle = find_dissector("asterix");
 	pdc_handle = create_dissector_handle(tcp_dissect_pdc, proto_pdc);
 	dissector_add_uint("tcp.port", gPREF_PORT_NUM_TCP, pdc_handle);
-};
+}
 
 void proto_register_pdc(void)
 {
@@ -520,7 +524,7 @@ void proto_register_pdc(void)
 
 	/*Register Preferences*/
 	prefs_register_uint_preference(pdc_pref_module, "tcp.port", "PDC Port", "PDC Port if other then the default", 10, &gPREF_PORT_NUM_TCP);
-};
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
