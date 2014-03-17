@@ -42,6 +42,7 @@
 #include "packet-bssgp.h"
 #include "packet-ntp.h"
 #include "packet-gtpv2.h"
+#include "packet-diameter.h"
 
 void proto_register_gtpv2(void);
 void proto_reg_handoff_gtpv2(void);
@@ -1849,71 +1850,102 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
  * to 23.003 in a future version.
  */
 
-static void
+static gchar*
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 instance _U_, guint flags)
 {
     int         offset = 1;     /* flags are already dissected */
     proto_item *fi;
     proto_tree *part_tree;
+    gchar      *mcc_mnc_str;
+    gchar      *str = NULL;
 
     /* 8.21.1 CGI field  */
     if (flags & GTPv2_ULI_CGI_MASK)
     {
+        guint16 lac, ci;
+
         proto_item_append_text(item, "CGI ");
         fi = proto_tree_add_text(tree, tvb, offset, 7, "Cell Global Identity (CGI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
-        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
+        lac = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        ci = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_ci, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, CI 0x%x",
+            mcc_mnc_str,
+            lac,
+            ci);
         if (offset == length)
-            return;
+            return str;
     }
 
     /* 8.21.2 SAI field  */
     if (flags & GTPv2_ULI_SAI_MASK)
     {
+        guint16 lac, sac;
+
         proto_item_append_text(item, "SAI ");
         fi = proto_tree_add_text(tree, tvb, offset, 7, "Service Area Identity (SAI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
-        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
+        lac = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        sac = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_sai_sac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, SAC 0x%x",
+            mcc_mnc_str,
+            lac,
+            sac);
         if (offset == length)
-            return;
+            return str;
     }
     /* 8.21.3 RAI field  */
     if (flags & GTPv2_ULI_RAI_MASK)
     {
+        guint16 lac, rac;
         proto_item_append_text(item, "RAI ");
         fi = proto_tree_add_text(tree, tvb, offset, 7, "Routeing Area Identity (RAI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
-        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
+        lac = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        rac = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_rai_rac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x, RAC 0x%x",
+            mcc_mnc_str,
+            lac,
+            rac);
+
         if (offset == length)
-            return;
+            return str;
     }
     /* 8.21.4 TAI field  */
     if (flags & GTPv2_ULI_TAI_MASK)
     {
+        guint16 tac;
         proto_item_append_text(item, "TAI ");
         fi = proto_tree_add_text(tree, tvb, offset, 5, "Tracking Area Identity (TAI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
-        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
+        tac = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(part_tree, hf_gtpv2_uli_tai_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+        str = wmem_strdup_printf(wmem_packet_scope(), "%s, TAC 0x%x",
+            mcc_mnc_str,
+            tac);
         if (offset == length)
-            return;
+            return str;
     }
     /* 8.21.5 ECGI field */
     if (flags & GTPv2_ULI_ECGI_MASK)
@@ -1926,7 +1958,7 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         proto_item_append_text(item, "ECGI ");
         fi = proto_tree_add_text(tree, tvb, offset, 7, "E-UTRAN Cell Global Identifier (ECGI)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
-        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
         /* The bits 8 through 5, of octet e+3 (Fig 8.21.5-1 in TS 29.274 V8.2.0) are spare
          * and hence they would not make any difference to the hex string following it,
@@ -1944,17 +1976,22 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
         proto_tree_add_uint(part_tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ECGI);
         /*proto_tree_add_item(tree, hf_gtpv2_uli_ecgi_eci, tvb, offset, 4, ENC_BIG_ENDIAN);*/
         offset += 4;
+        str = wmem_strdup_printf(wmem_packet_scope(), "%s, ECGI 0x%x",
+            mcc_mnc_str,
+            ECGI);
+
         if (offset == length)
-            return;
+            return str;
 
     }
     /* 8.21.6  LAI field */
     if (flags & GTPv2_ULI_LAI_MASK)
     {
+        guint16 lac;
         proto_item_append_text(item, "LAI ");
         fi = proto_tree_add_text(tree, tvb, offset, 5, "LAI (Location Area Identifier)");
         part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
-        dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
+        mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, part_tree, offset, TRUE);
         offset += 3;
 
         /* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet f+3 is the most significant bit
@@ -1962,8 +1999,14 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item
          * responsibility of each administration. Coding using full hexadecimal representation shall be used.
          */
         proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        lac = tvb_get_ntohs(tvb, offset);
+        str = wmem_strdup_printf(wmem_packet_scope(), "%s, LAC 0x%x",
+            mcc_mnc_str,
+            lac);
 
     }
+
+    return str;
 
 }
 
@@ -2027,8 +2070,9 @@ static const value_string geographic_location_type_vals[] = {
 };
 
 static int
-dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
     int   offset = 0;
     guint length;
     guint flags;
@@ -2069,7 +2113,7 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         return length;
     }
 
-    decode_gtpv2_uli(tvb, pinfo, tree, NULL, length, 0, flags);
+    diam_sub_dis->avp_str = decode_gtpv2_uli(tvb, pinfo, tree, NULL, length, 0, flags);
     return length;
 }
 

@@ -592,6 +592,52 @@ dissect_diameter_3gpp_ipaddr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 }
 
+/* AVP Code: 903 RAI AVP 
+ * 17.7.12 RAI AVP
+ * The RAI AVP (AVP Code 909) is of type UTF8String, and contains the Routing Area Identity of the SGSN where the
+ * UE is registered. RAI use and structure is specified in 3GPP TS 23.003 [40].
+ * Its value shall be encoded as a UTF-8 string on either 11 (if the MNC contains two digits) or 12 (if the MNC contains
+ * three digits) octets as follows:
+ * - The MCC shall be encoded first using three UTF-8 characters on three octets, each character representing a
+ * decimal digit starting with the first MCC digit.
+ * - Then, the MNC shall be encoded as either two or three UTF-8 characters on two or three octets, each character
+ * representing a decimal digit starting with the first MNC digit.
+ * - The Location Area Code (LAC) is encoded next using four UTF-8 characters on four octets, each character
+ * representing a hexadecimal digit of the LAC which is two binary octets long.
+ * - The Routing Area Code (RAC) is encoded last using two UTF-8 characters on two octets, each character
+ * representing a hexadecimal digit of the RAC which is one binary octet long.
+ * NOTE: As an example, a RAI with the following information: MCC=123, MNC=45, LAC=41655(0xA2C1) and
+ * RAC=10(0x0A) is encoded within the RAI AVP as a UTF-8 string of "12345A2C10A".
+ */
+
+static int
+dissect_diameter_3gpp_rai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data) {
+
+    diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
+    int offset = 0;
+    guint length;
+
+    length = tvb_length(tvb);
+
+    if(length==12){
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MNC %s, MCC %s, LAC 0x%s, RAC 0x%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 3, ENC_UTF_8|ENC_NA), /* MCC 3 digits */
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  6, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
+            tvb_get_string_enc(wmem_packet_scope(), tvb, 10, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
+			);
+    }else{
+        diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "MNC %s, MCC %s, LAC 0x%s, RAC 0x%s",
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  0, 3, ENC_UTF_8|ENC_NA), /* MNC 3 digits */
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  3, 2, ENC_UTF_8|ENC_NA), /* MCC 2 digits */
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  5, 4, ENC_UTF_8|ENC_NA), /* LCC 4 digits */
+            tvb_get_string_enc(wmem_packet_scope(), tvb,  9, 2, ENC_UTF_8|ENC_NA)  /* RAC 2 digits */
+			);
+    }
+
+    return offset;
+
+}
 /* AVP Code: 913 MBMS-Required-QoS */
 static int
 dissect_diameter_3gpp_mbms_required_qos(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_) {
@@ -954,6 +1000,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 904 MBMS-Session-Duration  Registered by packet-gtp.c */
     /* AVP Code: 903 MBMS-Service-Area Registered by packet-gtp.c */
+
+    /* AVP Code: 909 RAI */
+    dissector_add_uint("diameter.3gpp", 909, new_create_dissector_handle(dissect_diameter_3gpp_rai, proto_diameter_3gpp));
 
     /* AVP Code: 911 MBMS-Time-To-Data-Transfer  Registered by packet-gtp.c */
     /* Registered by packet-gtp.c */
