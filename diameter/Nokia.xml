@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id$ -->
 <!-- Nokia verndor-specific AVPs. Simple encoding, by old (oleksandr.darchuk[AT]gmail.com). 02.03.2009 -->
 
 <application id="4" name="Diameter Credit Control Application" uri="http://www.ietf.org/rfc/rfc4006.txt">

@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- $Id$ -->
 <!-- Nokia Siemens Networks verndor-specific AVPs.  -->
 
 <application id="16777238" name="3GPP Gx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">

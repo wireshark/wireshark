@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
 
 
 	<application id="6" name="Diameter Session Initiation Protocol (SIP) Application" uri="http://www.ietf.org/internet-drafts/draft-ietf-aaa-diameter-sip-app-12.txt">

@@ -1,5 +1,4 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- $Id$ -->
 <application id="5" name="EAP Application" uri="http://www.ietf.org/rfc/rfc4072.txt">
 
 		<command name="Diameter-EAP" code="268" vendor-id="None"/>
