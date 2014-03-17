@@ -1,6 +1,6 @@
 -- SUPL.asn
--- From OMA UserPlane Location Protocol Candidate Version 2.0 06 Aug 2010
--- OMA-TS-ULP-V2_0-20100806-D
+-- From OMA UserPlane Location Protocol Approved Version 2.0.1 - 05 Dec 2012
+-- OMA-TS-ULP-V2_0_1-20121205-A.zip
 --
 -- 11.2 Message Specific Part
 --
@@ -483,11 +483,8 @@ GSMAreaId ::= SEQUENCE {
  refCI		INTEGER(0..65535) OPTIONAL, -- Cell Id
  ...}
 
--- if only CI is present, MCC, MNC and LAC are assumed to be identical to the current serving or camped on network values
--- if only CI + LAC are present, MCC and MNC are assumed to be identical to the current serving or camped on network values
--- if only CI + LAC + MNC are present, MCC is assumed to be identical to the current serving or camped on network values
--- if only LAC is present, MCC and MNC are assumed to be identical to the current serving or camped on network values
--- if only MNC is present, MCC is assumed to be identical to the current serving or camped on network value
+-- only one of the following four combinations are allowed: (1) refMCC, (2)
+-- refMCC+refMNC, (3) refMCC+refMNC+refLAC or (4) refMCC+refMNC+refLAC+refCI
 
 WCDMAAreaId ::= SEQUENCE {
   refMCC	INTEGER(0..999) OPTIONAL, -- Mobile Country Code
@@ -496,9 +493,8 @@ refMNC	INTEGER(0..999) OPTIONAL, -- Mobile Network Code
 refUC	INTEGER(0..268435455) OPTIONAL, -- Cell identity
 ...}
 
--- if only UC is present, MCC and MNC are assumed to be identical to the current serving or camped on network values
--- if only LAC is present, MCC and MNC are assumed to be identical to the current serving or camped on network values
--- if only MNC is present, MCC is assumed to be identical to the current serving or camped on network value
+-- only one of the following four combinations are allowed: (1) refMCC, (2)
+-- refMCC+refMNC, (3) refMCC+refMNC+refLAC, or (4) refMCC+refMNC+refLAC+refUC
 
 CDMAAreaId::= SEQUENCE {
   refSID         INTEGER(0..65535) OPTIONAL, -- System Id
@@ -506,8 +502,8 @@ CDMAAreaId::= SEQUENCE {
   refBASEID      INTEGER(0..65535) OPTIONAL, -- Base Station Id
 ...}
 
--- if only BASEID is present, SID and NID are assumed to be identical to the current serving or camped on network values
--- if only NID is present, SID is assumed to be identical to the current serving or camped on network value
+-- only one of the following three combinations are allowed: (1) refSID, (2)
+-- refSID+refNID, or (3) refSID+refNID+refBASEID
 
 HRPDAreaId::= SEQUENCE {
 refSECTORID    BIT STRING(SIZE (128)), -- HRPD Sector Id
@@ -519,19 +515,16 @@ UMBAreaId::= SEQUENCE {
 refSECTORID    	BIT STRING(SIZE (128)) OPTIONAL, -- UMB Sector Id
 ...}
 
--- if only SECTORID is present, MCC and MNC are assumed to be identical to the current serving or camped on network values
--- if only SECTORID + MNC are present, MCC is assumed to be identical to the current serving or camped on network values
--- if only MNC is present, MCC is assumed to be identical to the current serving or camped on network value
 
 LTEAreaId::= SEQUENCE {
   refMCC	INTEGER(0..999) OPTIONAL, -- Mobile Country Code
   refMNC	INTEGER(0..999) OPTIONAL, -- Mobile Network Code
-refCI	BIT STRING(SIZE (29)) OPTIONAL, -- LTE Cell-Id including CSG bit
+refCI	BIT STRING(SIZE (29)) OPTIONAL, -- LTE Cell-Id
 ...}
 
--- if only CI is present, MCC and MNC are assumed to be identical to the current serving or camped on network values
--- if only CI + MNC are present, MCC is assumed to be identical to the current serving or camped on network values
--- if only MNC is present, MCC is assumed to be identical to the current serving or camped on network value
+-- only one of the following three combinations are allowed: (1) refMCC, (2) refMCC+refMNC, or (3) refMCC+refMNC+refCI
+-- The LTE Cell-Id is encoded in the 28 Least Significant Bits of refCI -
+-- The Most Significant Bit of refCI shall be ignored -
 
 
 WLANAreaId::= SEQUENCE {

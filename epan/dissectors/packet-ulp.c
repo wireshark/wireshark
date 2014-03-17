@@ -28,7 +28,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  *
- * ref OMA-TS-ULP-V2_0-20100806-D
+ * ref OMA-TS-ULP-V2_0_1-20121205-A
  * http://www.openmobilealliance.org
  */
 
@@ -538,6 +538,7 @@ static int hf_ulp_rsrpResult = -1;                /* RSRP_Range */
 static int hf_ulp_rsrqResult = -1;                /* RSRQ_Range */
 static int hf_ulp_tA_02 = -1;                     /* INTEGER_0_1282 */
 static int hf_ulp_measResultListEUTRA = -1;       /* MeasResultListEUTRA */
+static int hf_ulp_earfcn = -1;                    /* INTEGER_0_65535 */
 static int hf_ulp_MeasResultListEUTRA_item = -1;  /* MeasResultEUTRA */
 static int hf_ulp_cgi_Info = -1;                  /* T_cgi_Info */
 static int hf_ulp_cellGlobalId = -1;              /* CellGlobalIdEUTRA */
@@ -3021,6 +3022,7 @@ dissect_ulp_T_cgi_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static const per_sequence_t T_measResult_sequence[] = {
   { &hf_ulp_rsrpResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_RSRP_Range },
   { &hf_ulp_rsrqResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_RSRQ_Range },
+  { &hf_ulp_earfcn          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_65535 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3071,6 +3073,7 @@ static const per_sequence_t LteCellInformation_sequence[] = {
   { &hf_ulp_rsrqResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_RSRQ_Range },
   { &hf_ulp_tA_02           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_1282 },
   { &hf_ulp_measResultListEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_MeasResultListEUTRA },
+  { &hf_ulp_earfcn          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_65535 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5142,15 +5145,16 @@ static const value_string ulp_StatusCode_vals[] = {
   {  20, "ver2-insufficientInterval" },
   {  21, "ver2-noSUPLCoverage" },
   { 102, "ver2-sessionStopped" },
+  { 103, "ver2-appIdDenied" },
   { 0, NULL }
 };
 
-static guint32 StatusCode_value_map[20+5] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 100, 101, 18, 19, 20, 21, 102};
+static guint32 StatusCode_value_map[20+6] = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 100, 101, 18, 19, 20, 21, 102, 103};
 
 static int
 dissect_ulp_StatusCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     20, NULL, TRUE, 5, StatusCode_value_map);
+                                     20, NULL, TRUE, 6, StatusCode_value_map);
 
   return offset;
 }
@@ -8179,6 +8183,10 @@ void proto_register_ulp(void) {
       { "measResultListEUTRA", "ulp.measResultListEUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_earfcn,
+      { "earfcn", "ulp.earfcn",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_65535", HFILL }},
     { &hf_ulp_MeasResultListEUTRA_item,
       { "MeasResultEUTRA", "ulp.MeasResultEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
