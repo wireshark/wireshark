@@ -664,7 +664,7 @@ enum fixed_field {
 #define TAG_CISCO_CCX3               149  /* Cisco Compatible eXtensions v3 */
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
-#define TAG_MCCAOP_ADVERTISEMENT_OV  174
+#define TAG_MCCAOP_ADVERTISSEMENT_OV 174
 #define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
 #define TAG_VHT_OPERATION            192  /* IEEE Std 802.11ac/D3.1 */
 #define TAG_VENDOR_SPECIFIC_IE       221
