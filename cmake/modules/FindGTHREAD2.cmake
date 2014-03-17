@@ -1,7 +1,5 @@
 # - Try to find GThread2
 #
-# $Id$
-#
 # Find GThread headers, libraries and the answer to all questions.
 #
 #  GTHREAD2_FOUND               True if GTHREAD2 got found

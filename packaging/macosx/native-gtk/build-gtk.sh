@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 # Based on the Imendio 'build-gtk.sh' script.
 #
 # Inkscape (Wireshark) build additions by Michael Wybrow <mjwybrow@users.sf.net>

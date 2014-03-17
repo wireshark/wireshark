@@ -1,4 +1,4 @@
-# $Id$
+#
 # Add custom dictionaries here as:
 # 	diameter/foo.xml
 #

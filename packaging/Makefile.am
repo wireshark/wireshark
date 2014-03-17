@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 SUBDIRS = macosx rpm svr4 nsis
 
 MAINTAINERCLEANFILES = \

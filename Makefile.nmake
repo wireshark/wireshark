@@ -1,8 +1,6 @@
 ## Makefile for building wireshark.exe with Microsoft C and nmake
 ## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
 #
-# $Id$
-
 # We "Deploy using XCopy," which is described at
 # http://msdn.microsoft.com/en-us/library/ms235291.aspx
 

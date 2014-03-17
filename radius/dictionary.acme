@@ -7,8 +7,6 @@
 #
 # Version:	6.2.0  30-Oct-2009  Hadriel Kaplan <hkaplan@acmepacket.com>
 #
-# $Id$
-#
 
 VENDOR		Acme				9148
 BEGIN-VENDOR	Acme

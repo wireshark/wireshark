@@ -1,5 +1,4 @@
 # call.mate
-# $Id$
 
 Action=Settings; DiscardPduData=TRUE; ShowGopTimes=FALSE; ShowPduTree=FALSE;
 

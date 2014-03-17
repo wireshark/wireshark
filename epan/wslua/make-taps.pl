@@ -7,8 +7,6 @@
 #
 # (c) 2006 Luis E. Garcia Ontanon <luis@ontanon.org>
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2006 Gerald Combs

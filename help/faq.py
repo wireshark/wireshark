@@ -6,8 +6,6 @@
 # Questions and answer content can be found below. Section and
 # question numbers will be automatically generated.
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

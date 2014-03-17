@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 # Author: Aaron Voisine <aaron@voisine.org>
 
 if [ "$DISPLAY"x == "x" ]; then

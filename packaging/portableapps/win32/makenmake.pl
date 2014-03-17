@@ -1,7 +1,5 @@
 #
 # makenmake.pl - create a nmake file from a generic manifest file that will create the appropriate PortableApp structure
-# $Id$
-#
 
 print q{
 #

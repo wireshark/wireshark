@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 
 # Right now this is a more or less inelegant hack to get Windows
 # builds going with MSVC

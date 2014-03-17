@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # Find the native netlink includes and library
 #
 # If they exist, differentiate between versions 1, 2 and 3.

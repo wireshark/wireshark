@@ -1,8 +1,6 @@
 # Makefile.am
 # Automake file for M2M plugin
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

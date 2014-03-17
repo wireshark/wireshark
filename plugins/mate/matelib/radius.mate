@@ -1,5 +1,4 @@
 # radius.mate
-# $Id$
 
 Action=Transform; Name=radius_same_port; Mode=Insert; Match=Strict; radius_port; radius_port;
 Action=Transform; Name=radius_same_port; Mode=Insert; Match=Every; radius_port; .radius_port=0;

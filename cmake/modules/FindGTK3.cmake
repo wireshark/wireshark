@@ -1,7 +1,5 @@
 # - Try to find GTK3
 #
-# $Id$
-#
 # Once done this will define
 #
 #  GTK3_FOUND - System has GTK3

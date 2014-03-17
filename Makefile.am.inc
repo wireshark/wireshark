@@ -1,8 +1,6 @@
 # Makefile.am.inc
 # Include file for Makefile.am files to get additional rules
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

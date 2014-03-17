@@ -1,6 +1,4 @@
 #
-# $Id$
-# 
 # Add your custom plugins here
 CUSTOM_PLUGINS= \
 # Example:

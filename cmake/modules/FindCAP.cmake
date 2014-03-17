@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find capabilities
 # Find the native CAP includes and library
 #

@@ -3,8 +3,6 @@
 # in several formats.
 # See the Readme.txt file for instructions.
 #
-# $Id$
-#
 
 # formatting objects processor
 # Additional options to fop.

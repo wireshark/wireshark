@@ -1,5 +1,4 @@
 # h225_ras.mate
-# $Id$
 
 Action=PduDef; Name=ras_pdu; Proto=h225.RasMessage; Transport=udp/ip; ras_sn=h225.requestSeqNum; ras_msg=h225.RasMessage; addr=ip.addr;
 Action=GopDef; Name=ras_leg; On=ras_pdu; addr; addr; ras_sn;

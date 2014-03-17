@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 #	Reads defaults from Apple preferences and modifies GTK accordingly
 #
 #	(c) 2007 JiHO <jo.irisson@gmail.com>

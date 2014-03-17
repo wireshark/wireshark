@@ -1,4 +1,3 @@
-# $Id$
 # @configure_input@
 PKG="@PACKAGE@"
 NAME="@PACKAGE@ @VERSION@"

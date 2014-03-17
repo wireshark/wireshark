@@ -1,6 +1,5 @@
 #! /bin/bash
 #
-# $Id$
 
 . /etc/rc.common
 

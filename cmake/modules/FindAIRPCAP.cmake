@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find airpcap
 # Find the native AIRPCAP includes and library
 #

@@ -3,8 +3,6 @@
 # (EPAN is a historical name; it stands for Ethereal Protocol ANalyzer
 # Library)
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

@@ -2,8 +2,6 @@
 #
 # Test for correct name resolution behavior
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2005 Ulf Lamping

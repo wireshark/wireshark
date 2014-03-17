@@ -2,8 +2,6 @@
 #
 # Run the epan unit tests
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 #

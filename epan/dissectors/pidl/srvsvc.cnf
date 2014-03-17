@@ -1,7 +1,5 @@
 # conformance file for SRVSVC
 #
-# $Id$
-#
 
 MANUAL srvsvc_dissect_element_NetShareInfo_info1501_
 MANUAL srvsvc_dissect_element_NetGetFileSecurity_sd_buf_

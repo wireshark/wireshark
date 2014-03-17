@@ -1,7 +1,5 @@
 #!/bin/sh
 #
-# $Id$
-#
 # Wireshark CLI utility launcher
 
 if [ -z "$WIRESHARK_APP_DIR" ] ; then

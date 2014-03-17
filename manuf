@@ -4,8 +4,6 @@
 # 
 # /etc/manuf - Ethernet vendor codes, and well-known MAC addresses
 #
-# $Id$
-#
 # Laurent Deniel <laurent.deniel [AT] free.fr>
 #
 # Wireshark - Network traffic analyzer
@@ -24129,8 +24127,6 @@ FC:FE:77	HitachiR               # Hitachi Reftechno, Inc.
 
 #
 # Well-known addresses.
-#
-# $Id$
 #
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald [AT] wireshark.org>

@@ -1,5 +1,3 @@
-# $Id$
-
 IDL2WRS=../idl2wrs
 
 DISSECTOR_FILES=packet-dcerpc-$(PROTOCOL_NAME).c packet-dcerpc-$(PROTOCOL_NAME).h

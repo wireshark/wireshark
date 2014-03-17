@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Try to find GModule2
 # Find GModule headers, libraries and the answer to all questions.
 #

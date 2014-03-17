@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find pcap and winpcap
 # Find the native PCAP includes and library
 #

@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find an html viewer program
 #
 #  HTML_VIEWER_EXECUTABLE - the full path to perl

@@ -1,8 +1,6 @@
 # Makefile.nmake
 # nmake file for Easy codec plugin
 #
-# $Id$
-#
 
 include ..\..\config.nmake
 include ..\..\Makefile.nmake.inc

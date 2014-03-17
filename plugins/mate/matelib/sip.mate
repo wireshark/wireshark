@@ -1,5 +1,4 @@
 # sip.mate
-# $Id$
 
 Action=PduDef; Name=sip_pdu; Proto=sip; Transport=tcp/ip; addr=ip.addr; port=tcp.port; sip_method=sip.Method; sip_callid=sip.Call-ID; calling=sdp.owner.username;
 Action=GopDef; Name=sip_leg; On=sip_pdu; addr; addr; port; port;

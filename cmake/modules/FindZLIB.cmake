@@ -1,7 +1,5 @@
 # - Find zlib
 #
-# $Id$
-#
 # Find the native ZLIB includes and library.
 # Once done this will define
 #

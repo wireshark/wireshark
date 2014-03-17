@@ -1,6 +1,4 @@
 # isup.mate
-# $Id$
-
 
 #Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=1;		.isup_IAM=;
 #Action=Transform;  Name=isup_msg_type;	Mode=Insert; Match=Strict;     isup_msg=2;		.isup_SAM=;

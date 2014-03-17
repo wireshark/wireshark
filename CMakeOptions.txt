@@ -1,7 +1,5 @@
 # Build options for use by CMake
 
-# $Id$
-
 option(BUILD_wireshark   "Build the GTK+-GUI version of Wireshark" ON)
 option(BUILD_qtshark     "Build the Qt-GUI version of Wireshark" ON)
 option(BUILD_tshark      "Build tshark" ON)

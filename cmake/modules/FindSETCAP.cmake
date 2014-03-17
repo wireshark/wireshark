@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # Look for the Linux setcap command (capabilities)
 #
 

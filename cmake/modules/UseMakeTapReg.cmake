@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 MACRO(REGISTER_TAP_FILES _outputfile _registertype )
     set( _sources ${ARGN})
     ADD_CUSTOM_COMMAND(

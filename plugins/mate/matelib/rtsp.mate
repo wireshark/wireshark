@@ -1,5 +1,4 @@
 # rtsp.mate
-# $Id$
 
 Action=PduDef; Name=rtsp_pdu; Proto=rtsp; Transport=tcp/ip; addr=ip.addr; port=tcp.port; rtsp_method=rtsp.method;
 Action=PduExtra; For=rtsp_pdu; rtsp_ses=rtsp.session; rtsp_url=rtsp.url;

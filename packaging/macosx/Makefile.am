@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # This was disabled at one point, since the contents of the
 # Clearlooks-Quicksilver-OSX directory exceed the 99-character file
 # name limit imposed by the old tar format.  We now use ustar format,

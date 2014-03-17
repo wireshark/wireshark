@@ -5,8 +5,6 @@
 # Script to run CppCheck Static Analyzer.
 # http://cppcheck.sourceforge.net/
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2012 Gerald Combs

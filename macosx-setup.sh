@@ -1,8 +1,6 @@
 #!/bin/sh
 # Setup development environment on Mac OS X (tested with 10.6.8 and Xcode 3.2.6)
 #
-# $Id$
-#
 # Copyright 2011 Michael Tuexen, Joerg Mayer, Guy Harris (see AUTHORS file)
 #
 # Wireshark - Network traffic analyzer

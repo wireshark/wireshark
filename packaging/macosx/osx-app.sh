@@ -1,7 +1,5 @@
 #!/bin/bash
 #
-# $Id$
-#
 # USAGE
 # osx-app [-s] [-l /path/to/libraries] -bp /path/to/wireshark/bin -p /path/to/Info.plist
 #

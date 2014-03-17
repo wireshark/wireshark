@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find adns
 # Find the native ADNS includes and library
 #

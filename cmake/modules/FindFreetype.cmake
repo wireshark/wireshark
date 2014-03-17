@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Locate FreeType library
 # This module defines
 #  FREETYPE_LIBRARIES, the library to link against

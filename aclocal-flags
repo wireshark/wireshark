@@ -36,8 +36,6 @@
 # and Glib are installed with the same prefix, we should only supply one
 # "-I" flag for both of them.
 #
-# $Id$
-#
 
 #
 # OK, where will aclocal look by default?

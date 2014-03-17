@@ -1,5 +1,4 @@
 # Note that this is NOT a relocatable package
-# $Id$
 # @configure_input@
 # configure options: @CONFIG_ARGS@
 

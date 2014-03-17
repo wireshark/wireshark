@@ -2,8 +2,6 @@
 #
 # Test file format conversions of the Wireshark tools
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2005 Ulf Lamping

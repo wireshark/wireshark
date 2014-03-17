@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find unix commands from cygwin
 # This module looks for some usual Unix commands.
 #

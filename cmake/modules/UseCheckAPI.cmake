@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 macro( CHECKAPI )
 	set( _sources ${ARGN} )
 

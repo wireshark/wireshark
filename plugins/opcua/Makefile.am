@@ -1,8 +1,6 @@
 # Makefile.am
 # Automake file for OpcUa plugin
 #
-# $Id$
-#
 # Adapted by Gerhard Gappmeier for OpcUa
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>

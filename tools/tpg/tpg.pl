@@ -4,8 +4,6 @@
 #
 # Given a bnf like grammar generate a parser for text based tvbs
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 2004 Gerald Combs

@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Try to find the GLIB2 libraries
 # Once done this will define
 #

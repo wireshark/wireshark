@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 
 include ..\..\config.nmake
 include <win32.mak>

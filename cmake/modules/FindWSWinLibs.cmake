@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find WSWin Libs
 #  Due to the layout of the Wireshark Win support libs,
 #  CMake needs some support to find them

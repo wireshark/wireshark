@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 # - Find smi
 # Find the native SMI includes and library
 #

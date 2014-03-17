@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 MACRO(REGISTER_DISSECTOR_FILES _outputfile _registertype )
 	if(${_registertype} STREQUAL "dissectors" )
 	    set( _makeregistertype "dissectorsinfile" )

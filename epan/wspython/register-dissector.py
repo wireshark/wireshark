@@ -1,7 +1,5 @@
 # register-dissector.py
 #
-# $Id$
-#
 # Wireshark Protocol Python Binding
 #
 # Copyright (c) 2009 by Sebastien Tandel <sebastien [AT] tandel [dot] be>

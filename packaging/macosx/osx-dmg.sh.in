@@ -1,7 +1,5 @@
 #!/bin/bash
 #
-# $Id$
-#
 # USAGE
 # osx-dmg [-s] -p /path/to/Wireshark.app
 #

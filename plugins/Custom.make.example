@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 
 _CUSTOM_SUBDIRS_ = \
 	foo

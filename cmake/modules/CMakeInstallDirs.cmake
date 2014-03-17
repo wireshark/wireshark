@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 ###################################################################
 #
 #  Copyright (c) 2006 Frederic Heem, <frederic.heem@telsey.it>

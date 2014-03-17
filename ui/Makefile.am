@@ -2,8 +2,6 @@
 # Automake file for the common-to-all-toolkits user interface routines
 # for Wireshark
 #
-# $Id$
-#
 # Wireshark - Network traffic analyzer
 # By Gerald Combs <gerald@wireshark.org>
 # Copyright 1998 Gerald Combs

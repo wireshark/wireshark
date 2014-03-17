@@ -1,6 +1,4 @@
 #
-# $Id$
-#
 MACRO(ASN2WRS)
 	set( DISSECTOR ${CMAKE_SOURCE_DIR}/epan/dissectors/packet-${PROTOCOL_NAME}.c )
 
