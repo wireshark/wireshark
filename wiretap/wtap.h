@@ -1134,6 +1134,22 @@ typedef struct wtap_dumper wtap_dumper;
 
 typedef struct wtap_reader *FILE_T;
 
+/* Similar to the wtap_open_routine_info for open routines, the following
+ * wtap_wslua_file_info struct is used by wslua code for Lua-based file writers.
+ *
+ * This concept is necessary because when wslua goes to invoke the
+ * registered dump/write_open routine callback in Lua, it needs the ref number representing
+ * the hooked function inside Lua.  This will be stored in the thing pointed to
+ * by the void* data here.  This 'data' pointer will be copied into the
+ * wtap_dumper struct's 'void* data' member when calling the dump_open function,
+ * which is how wslua finally retrieves it.  Unlike wtap_dumper's 'priv' member, its
+ * 'data' member is not free'd in wtap_dump_close().
+ */
+typedef struct wtap_wslua_file_info {
+    int (*wslua_can_write_encap)(int, void*);   /* a can_write_encap func for wslua uses */
+    void* wslua_data;                           /* holds the wslua data */
+} wtap_wslua_file_info_t;
+
 /*
  * For registering extensions used for capture file formats.
  *
@@ -1218,6 +1234,7 @@ struct open_info {
     int type;
     wtap_open_routine_t open_routine;
     const char *extensions;
+    void* wslua_data; /* should be NULL for C-code file readers */
 };
 WS_DLL_PUBLIC struct open_info *open_routines;
 
@@ -1264,6 +1281,10 @@ struct file_type_subtype_info {
     /* the function to open the capture file for writing */
     /* should be NULL is this file type don't have write support */
     int (*dump_open)(wtap_dumper *, int *);
+
+    /* if can_write_encap returned WTAP_ERR_CHECK_WSLUA, then this is used instead */
+    /* this should be NULL for everyone except Lua-based file writers */
+    wtap_wslua_file_info_t *wslua_info;
 };
 
 #define WTAP_TYPE_AUTO 0
@@ -1488,18 +1509,21 @@ WS_DLL_PUBLIC
 void register_all_wiretap_modules(void);
 WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
-#if 0
+
 WS_DLL_PUBLIC
-void wtap_register_magic_number_open_routine(wtap_open_routine_t open_routine);
+void wtap_register_open_info(const struct open_info *oi, const gboolean first_routine);
 WS_DLL_PUBLIC
-void wtap_register_heuristic_open_info(const struct heuristic_open_info *oi);
-#endif
+gboolean wtap_has_open_info(const gchar *name);
 WS_DLL_PUBLIC
-void wtap_register_open_info(const struct open_info *oi);
+void wtap_deregister_open_info(const gchar *name);
+
 WS_DLL_PUBLIC
 unsigned int open_info_name_to_type(const char *name);
 WS_DLL_PUBLIC
-int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
+int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype);
+WS_DLL_PUBLIC
+void wtap_deregister_file_type_subtype(const int file_type_subtype);
+
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char* name, const char* short_name);
 
@@ -1581,6 +1605,10 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_PACKET_TOO_LARGE             -24
     /** Packet being written is larger than we support; do not use when
         reading, use WTAP_ERR_BAD_FILE instead */
+
+#define WTAP_ERR_CHECK_WSLUA                  -25
+    /** Not really an error: the file type being checked is from a Lua
+        plugin, so that the code will call wslua_can_write_encap() instead if it gets this */
 
 #ifdef __cplusplus
 }

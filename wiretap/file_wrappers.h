@@ -22,7 +22,7 @@
 #define __WTAP_FILE_WRAPPERS_H__
 
 #include <glib.h>
-#include <wtap.h>
+#include "wtap.h"
 #include <wsutil/file_util.h>
 #include "ws_symbol_export.h"
 
@@ -34,8 +34,9 @@ extern gboolean file_skip(FILE_T file, gint64 delta, int *err);
 WS_DLL_PUBLIC gint64 file_tell(FILE_T stream);
 extern gint64 file_tell_raw(FILE_T stream);
 extern int file_fstat(FILE_T stream, ws_statb64 *statb, int *err);
-extern gboolean file_iscompressed(FILE_T stream);
+WS_DLL_PUBLIC gboolean file_iscompressed(FILE_T stream);
 WS_DLL_PUBLIC int file_read(void *buf, unsigned int count, FILE_T file);
+WS_DLL_PUBLIC int file_peekc(FILE_T stream);
 WS_DLL_PUBLIC int file_getc(FILE_T stream);
 WS_DLL_PUBLIC char *file_gets(char *buf, int len, FILE_T stream);
 WS_DLL_PUBLIC int file_eof(FILE_T stream);

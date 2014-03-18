@@ -34,7 +34,9 @@ die "'$WSROOT' is not a directory" unless -d $WSROOT;
 
 my $wtap_encaps_table = '';
 my $wtap_filetypes_table = '';
+my $wtap_commenttypes_table = '';
 my $ft_types_table = '';
+my $wtap_presence_flags_table = '';
 my $bases_table = '';
 my $encodings = '';
 my $expert_pi = '';
@@ -43,7 +45,9 @@ my $menu_groups = '';
 my %replacements = %{{
     WTAP_ENCAPS => \$wtap_encaps_table,
     WTAP_FILETYPES => \$wtap_filetypes_table,
+    WTAP_COMMENTTYPES => \$wtap_commenttypes_table,
     FT_TYPES => \$ft_types_table,
+    WTAP_PRESENCE_FLAGS => \$wtap_presence_flags_table,
     BASES => \$bases_table,
     ENCODINGS => \$encodings,
     EXPERT => \$expert_pi,
@@ -66,10 +70,13 @@ close TEMPLATE;
 #
 #   WTAP_FILE_  values
 #	WTAP_ENCAP_ values
+#   WTAP_HAS_   values
 #
 
 $wtap_encaps_table = "-- Wiretap encapsulations XXX\nwtap_encaps = {\n";
 $wtap_filetypes_table = "-- Wiretap file types\nwtap_filetypes = {\n";
+$wtap_commenttypes_table = "-- Wiretap file comment types\nwtap_comments = {\n";
+$wtap_presence_flags_table = "-- Wiretap presence flags\nwtap_presence_flags = {\n";
 
 open WTAP_H, "< $WSROOT/wiretap/wtap.h" or die "cannot open '$WSROOT/wiretap/wtap.h':  $!";
 
@@ -82,10 +89,23 @@ while(<WTAP_H>) {
     if ( /^#define WTAP_FILE_(?:TYPE_SUBTYPE_)?([A-Z0-9_]+)\s+(\d+)/ ) {
         $wtap_filetypes_table .= "\t[\"$1\"] = $2,\n";
     }
+
+    if ( /^#define WTAP_COMMENT_([A-Z0-9_]+)\s+(0x\d+)/ ) {
+        $wtap_commenttypes_table .= "\t[\"$1\"] = $2,\n";
+    }
+
+    if ( /^#define WTAP_HAS_([A-Z0-9_]+)\s+(0x\d+)\s+\/\*\*<([^\*]+)\*\// ) {
+        my $num = hex($2);
+        $wtap_presence_flags_table .= "\t[\"$1\"] = $num,  --$3\n";
+    }
 }
 
 $wtap_encaps_table =~ s/,\n$/\n}\nwtap = wtap_encaps -- for bw compatibility\n/msi;
 $wtap_filetypes_table =~ s/,\n$/\n}\n/msi;
+$wtap_commenttypes_table =~ s/,\n$/\n}\n/msi;
+# wtap_presence_flags_table has comments at the end (not a comma),
+# but Lua doesn't care about extra commas so leave it in
+$wtap_presence_flags_table =~ s/\n$/\n}\n/msi;
 
 #
 # Extract values from epan/ftypes/ftypes.h:

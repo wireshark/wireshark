@@ -58,7 +58,8 @@ struct wtap {
     guint                       number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
 
-    void                        *priv;
+    void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
+    void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
 
     subtype_read_func           subtype_read;
     subtype_seek_read_func      subtype_seek_read;
@@ -97,7 +98,8 @@ struct wtap_dumper {
     gboolean                compressed;
     gint64                  bytes_dumped;
 
-    void                    *priv;
+    void                    *priv;       /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
+    void                    *wslua_data; /* this one holds wslua state info and is not free'd */
 
     subtype_write_func      subtype_write;
     subtype_close_func      subtype_close;
@@ -111,10 +113,10 @@ struct wtap_dumper {
     GArray                  *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
 
-gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
+WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
     size_t bufsize, int *err);
-gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
-gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
+WS_DLL_PUBLIC gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
+WS_DLL_PUBLIC gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
 
 
 extern gint wtap_num_file_types;
@@ -280,6 +282,7 @@ GSList *wtap_get_compressed_file_extensions(void);
  * header, so if we get an EOF trying to read the packet data, the file
  * has been cut short, even if the read didn't read any data at all.)
  */
+WS_DLL_PUBLIC
 gboolean
 wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
     gchar **err_info);

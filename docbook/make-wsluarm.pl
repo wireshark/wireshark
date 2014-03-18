@@ -40,8 +40,16 @@ sub gorolla {
 	my $s = shift;
 	$s =~ s/^([\n]|\s)*//ms;
 	$s =~ s/([\n]|\s)*$//ms;
+	# as far as I can tell, these will only convert the *first* '<'/'>' they find in a line, but
+	# not subsequent ones in that line (because the flag isn't 'msg'?) -hadriel
 	$s =~ s/\</&lt;/ms;
 	$s =~ s/\>/&gt;/ms;
+	# this is a horrible horrible hack, but it works
+	# basically we undo the replacements just made above, if it's a '</para>' or '<para>' case
+	# so that comments can include them for prettier output. Really this API generator thing needs
+	# to be rewritten, but I don't understand perl well enough to do it properly -hadriel
+	$s =~ s/&lt;\/para&gt;/<\/para>/ms;
+	$s =~ s/&lt;para&gt;/<para>/ms;
 	$s;
 }
 

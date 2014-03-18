@@ -73,7 +73,11 @@ end
 
 -- %WTAP_FILETYPES%
 
+-- %WTAP_COMMENTTYPES%
+
 -- %FT_TYPES%
+
+-- %WTAP_PRESENCE_FLAGS%
 
 -- %BASES%
 

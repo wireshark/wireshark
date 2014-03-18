@@ -1208,6 +1208,53 @@ file_read(void *buf, unsigned int len, FILE_T file)
 }
 
 /*
+ * XXX - this *peeks* at next byte, not a character.
+ */
+int
+file_peekc(FILE_T file)
+{
+	int ret = 0;
+
+	/* check that we're reading and that there's no error */
+	if (file->err)
+		return -1;
+
+	/* try output buffer (no need to check for skip request) */
+	if (file->have) {
+		return *(file->next);
+	}
+
+	/* process a skip request */
+	if (file->seek_pending) {
+		file->seek_pending = FALSE;
+		if (gz_skip(file, file->skip) == -1)
+			return -1;
+	}
+	/* if we processed a skip request, there may be data in the buffer,
+	 * or an error could have occured; likewise if we didn't do seek but
+	 * now call fill_out_buffer, the errors can occur.  So we do this while
+	 * loop to check before and after - this is basically the logic from
+	 * file_read() but only for peeking not consuming a byte
+	 */
+	while (1) {
+		if (file->have) {
+			return *(file->next);
+		}
+		else if (file->err) {
+			return -1;
+		}
+		else if (file->eof && file->avail_in == 0) {
+			return -1;
+		}
+		else if (fill_out_buffer(file) == -1) {
+			return -1;
+		}
+	}
+	/* it's actually impossible to get here */
+	return ret;
+}
+
+/*
  * XXX - this gets a byte, not a character.
  */
 int

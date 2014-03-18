@@ -226,15 +226,59 @@ struct _wslua_tap {
     gboolean all_fields;
 };
 
-#  define DIRECTORY_T GDir
-#  define FILE_T gchar
-#  define OPENDIR_OP(name) g_dir_open(name, 0, dir->dummy)
-#  define DIRGETNEXT_OP(dir) g_dir_read_name(dir)
-#  define GETFNAME_OP(file) (file);
-#  define CLOSEDIR_OP(dir) g_dir_close(dir)
+/* a "File" object can be different things under the hood. It can either
+   be a FILE_T from wtap struct, which it is during read operations, or it
+   can be a wtap_dumper struct during write operations. A wtap_dumper struct
+   has a FILE_T member, but we can't only store its pointer here because
+   dump operations need the whole thing to write out with. Ugh. */
+struct _wslua_file {
+    FILE_T   file;
+    wtap_dumper *wdh;   /* will be NULL during read usage */
+    gboolean expired;
+};
+
+/* a "CaptureInfo" object can also be different things under the hood. */
+struct _wslua_captureinfo {
+    wtap *wth;          /* will be NULL during write usage */
+    wtap_dumper *wdh;   /* will be NULL during read usage */
+    gboolean expired;
+};
+
+struct _wslua_phdr {
+    struct wtap_pkthdr *phdr; /* this also exists in wtap struct, but is different for seek_read ops */
+    Buffer *buf;              /* can't use the one in wtap because it's different for seek_read ops */
+    gboolean expired;
+};
+
+struct _wslua_const_phdr {
+    const struct wtap_pkthdr *phdr;
+    const guint8 *pd;
+    gboolean expired;
+};
+
+struct _wslua_filehandler {
+    struct file_type_subtype_info finfo;
+    gboolean is_reader;
+    gboolean is_writer;
+    gchar* description;
+    gchar* type;
+    gchar* extensions;
+    lua_State* L;
+    int read_open_ref;
+    int read_ref;
+    int seek_read_ref;
+    int read_close_ref;
+    int seq_read_close_ref;
+    int can_write_encap_ref;
+    int write_open_ref;
+    int write_ref;
+    int write_close_ref;
+    int file_type;
+    gboolean registered;
+};
 
 struct _wslua_dir {
-    DIRECTORY_T* dir;
+    GDir* dir;
     char* ext;
     GError** dummy;
 };
@@ -272,6 +316,12 @@ typedef struct _wslua_field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
 typedef struct _wslua_tw* TextWindow;
 typedef struct _wslua_progdlg* ProgDlg;
+typedef struct _wslua_file* File;
+typedef struct _wslua_captureinfo* CaptureInfo;
+typedef struct _wslua_captureinfo* CaptureInfoConst;
+typedef struct _wslua_phdr* FrameInfo;
+typedef struct _wslua_const_phdr* FrameInfoConst;
+typedef struct _wslua_filehandler* FileHandler;
 typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;
 typedef tvbparse_t* Parser;
@@ -446,6 +496,9 @@ extern int wslua_set__index(lua_State *L);
         C obj = check##C (L,1); \
         if (! lua_isfunction(L,-1) ) \
             return luaL_error(L, "%s's attribute `%s' must be a function", #C , #field ); \
+        if (obj->field##_ref != LUA_NOREF) \
+            /* there was one registered before, remove it */ \
+            luaL_unref(L, LUA_REGISTRYINDEX, obj->field##_ref); \
         obj->field##_ref = luaL_ref(L, LUA_REGISTRYINDEX); \
         return 0; \
     } \
@@ -491,6 +544,13 @@ extern int wslua_set__index(lua_State *L);
     /* silly little trick so we can add a semicolon after this macro */ \
     static int C##_set_##name(lua_State*)
 
+#define WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(C,name,member) \
+    WSLUA_ATTRIBUTE_SET(C,name, { \
+        if (! lua_isboolean(L,-1) ) \
+            return luaL_error(L, "%s's attribute `%s' must be a boolean", #C , #name ); \
+        obj->member = lua_toboolean(L,-1); \
+    })
+
 /* to make this integral-safe, we treat it as int32 and then cast
    Note: this will truncate 64-bit integers (but then Lua itself only has doubles */
 #define WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,name,member,cast) \
@@ -503,6 +563,23 @@ extern int wslua_set__index(lua_State *L);
 #define WSLUA_ATTRIBUTE_NUMBER_SETTER(C,member,cast) \
     WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(C,member,member,cast)
 
+#define WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(C,field,member,need_free) \
+    static int C##_set_##field (lua_State* L) { \
+        C obj = check##C (L,1); \
+        gchar* s = NULL; \
+        if (lua_isstring(L,-1) || lua_isnil(L,-1)) { \
+            s = g_strdup(lua_tostring(L,-1)); \
+        } else { \
+            return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
+        } \
+        if (obj->member != NULL && need_free) \
+            free((void*) obj->member); \
+        obj->member = s; \
+        return 0; \
+    }
+
+#define WSLUA_ATTRIBUTE_STRING_SETTER(C,field,need_free) \
+    WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(C,field,field,need_free)
 
 #define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); }
@@ -518,7 +595,17 @@ extern int wslua_set__index(lua_State *L);
 
 /* empty macro arguments trigger ISO C90 warnings, so do this */
 #define NOP (void)p
+
 #define FAIL_ON_NULL(s) if (! *p) luaL_argerror(L,idx,"null " s)
+
+#define FAIL_ON_NULL_MEMBER_OR_EXPIRED(s,member) if (!*p) { \
+        luaL_argerror(L,idx,"null " s); \
+    } else if ((*p)->member == NULL) { \
+        luaL_argerror(L,idx,"null " s " member " #member); \
+    } else if ((*p)->expired) { \
+        luaL_argerror(L,idx,"expired " s); \
+    }
+
 #define FAIL_ON_NULL_OR_EXPIRED(s) if (!*p) { \
         luaL_argerror(L,idx,"null " s); \
     } else if ((*p)->expired) { \

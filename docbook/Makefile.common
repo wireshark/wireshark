@@ -254,4 +254,5 @@ WSLUA_MODULES = \
 	../epan/wslua/wslua_struct.c \
 	../epan/wslua/wslua_tree.c \
 	../epan/wslua/wslua_tvb.c \
+	../epan/wslua/wslua_file.c \
 	../epan/wslua/wslua_util.c

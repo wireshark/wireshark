@@ -1,0 +1,136 @@
+File opened.
+Mar  6 13:34:22.599 UDP[3:0]10.102.131.194:5060 OPENED
+Mar  6 13:34:22.616 UDP[6:0]10.102.130.185:5060 OPENED
+Mar  6 13:34:49.416 On [6:0]10.102.130.185:5060 received from 10.102.130.150:5060
+REGISTER sip:csp.noklab.net SIP/2.0
+Via: SIP/2.0/UDP 192.168.1.100:5060;branch=z9hG4bK26b7a48d
+From: sip:34903@csp.noklab.net
+To: sip:34903@csp.noklab.net
+Call-ID: 003094c3-a0160002-23aa7e86-29e5808d@192.168.1.100
+CSeq: 144 REGISTER
+User-Agent: CSCO/7
+Contact: <sip:34903@192.168.1.100:5060>
+Content-Length: 0
+Expires: 3600
+
+
+----------------------------------------
+Mar  6 13:34:49.516 On [6:0]10.102.130.185:5060 sent to 10.102.130.150:5060
+SIP/2.0 200 OK
+Via: SIP/2.0/UDP 192.168.1.100:5060;received=10.102.130.150;branch=z9hG4bK26b7a48d;rport=5060
+From: sip:34903@csp.noklab.net
+To: sip:34903@csp.noklab.net
+Call-ID: 003094c3-a0160002-23aa7e86-29e5808d@192.168.1.100
+CSeq: 144 REGISTER
+Contact: <sip:34903@192.168.1.100:5060>;expires=34
+
+
+----------------------------------------
+Mar  6 13:39:06.100 On 127.0.0.1:5060 received from 127.0.0.1:5070
+INVITE sip:17324201111@135.25.31.10:5060;acme_realm=cpea8500 SIP/2.0
+Via: SIP/2.0/UDP 127.0.0.1:5070;branch=z9hG4bKIWFuqpq6n00c0o1eckfm741;acme_irealm=public;acme_sa=192.168.109.112
+Contact: "B5-2C23-052 Blu"<sip:7323685154@127.0.0.1:5070>
+GenericID: 117318834600008@0008250123d0
+Supported: 100rel
+From: "B5-2C23-052 Blu"<sip:7323685154@127.25.29.135:5060>;tag=0000047b000ce0e0
+To: <sip:17324201111@135.25.31.10:5060>
+Call-ID: 7f00000113ce0000047b000cd140@127.0.0.1
+CSeq: 2 INVITE
+P-Asserted-Identity: "B5-2C23-052 Blu"<sip:7323685154@127.25.29.135:5060>
+Content-Length: 187
+Content-Type: application/sdp
+
+v=0
+o=IWF 10 10 IN IP4 192.168.109.113
+s=H323 Call
+c=IN IP4 192.168.109.113
+t=0 0
+m=audio 29156 RTP/AVP 18  0
+a=rtpmap:18 G729/8000/1
+a=fmtp:18 annexb=yes
+a=rtpmap:0 PCMU/8000/1
+
+----------------------------------------
+Mar  6 13:39:06.104 On 127.0.0.1:5060 sent to 127.0.0.1:5070
+SIP/2.0 100 Trying
+Via: SIP/2.0/UDP 127.0.0.1:5070;branch=z9hG4bKIWFuqpq6n00c0o1eckfm741
+From: "B5-2C23-052 Blu"<sip:7323685154@127.0.0.1:5060>;tag=0000047b000ce0e0
+To: <sip:17324201111@127.0.0.1:5060>
+Call-ID: 7f00000113ce0000047b000cd140@127.0.0.1
+CSeq: 2 INVITE
+
+
+----------------------------------------
+Mar  6 13:39:06.122 On 127.0.0.1:2945 sent to 127.0.0.1:2944
+  0000: ac 3e fd 01 00 07 89 d9 00 fc 10 00 00 00 02 00   .>..............
+  0010: 00 00 00 00 f1 21 00 00 00 02 00 6d 30 00 6a 8c   .....!.....m0.j.
+  0020: 00 02 20 01 80 00 06 70 75 62 6c 69 63 83 00 05   .. ....public...
+  0030: 24 57 45 53 54 84 00 08 63 70 65 61 38 35 30 30   $WEST...cpea8500
+  0040: 86 00 05 24 45 41 53 54 88 00 01 01 8b 00 01 00   ...$EAST........
+  0050: 89 00 02 00 02 8a 00 04 00 00 00 00 98 00 04 00   ................
+  0060: 00 00 00 99 00 04 00 00 00 00 9a 00 04 00 00 00   ................
+  0070: 00 94 00 04 87 19 1f 0a 96 00 01 01 a7 00 01 00   ................
+  0080: a8 00 01 00 a9 00 02 00 00 21 00 00 00 02 00 76   .........!.....v
+  0090: 30 00 73 8c 00 02 10 01 80 00 08 63 70 65 61 38   0.s........cpea8
+  00a0: 35 30 30 83 00 05 24 45 41 53 54 84 00 06 70 75   500...$EAST...pu
+  00b0: 62 6c 69 63 86 00 05 24 57 45 53 54 87 00 06 c0   blic...$WEST....
+  00c0: a8 6d 71 71 e4 88 00 01 01 8b 00 01 01 89 00 02   .mqq............
+  00d0: 00 02 8a 00 04 00 00 00 00 98 00 04 00 00 00 00   ................
+  00e0: 99 00 04 00 00 00 00 9a 00 04 00 00 00 00 94 00   ................
+  00f0: 04 7f 00 00 01 96 00 01 01 a7 00 01 00 a8 00 01   ................
+  0100: 00 a9 00 02 00 00                                 ......
+Transaction = 494041 {
+  Context = $ {
+    Add = $ {
+      Flow {
+        index=1E
+        irealm=public
+        idest=$WEST
+        erealm=cpea8500
+        esource=$EAST
+        media=audio
+        trans=UDP
+        mode=off
+        num=2
+        bw=0
+        peakr=0
+        avgr=0
+        mbs=0
+        subscr=135.25.31.10
+      }
+    },
+    Add = $ {
+      Flow {
+        index=1W
+        irealm=cpea8500
+        idest=$EAST
+        erealm=public
+        esource=$WEST
+        edest=192.168.109.113:29156
+        media=audio
+        trans=UDP
+        mode=1way
+        num=2
+        bw=0
+        peakr=0
+        avgr=0
+        mbs=0
+        subscr=127.0.0.1
+      }
+    }
+  }
+}
+----------------------------------------
+Mar  6 13:39:06.127 On 127.0.0.1:5060 sent to 127.0.0.1:5070
+SIP/2.0 181 Call Is Being Forwarded
+Via: SIP/2.0/UDP 127.0.0.1:5070;branch=z9hG4bKIWFuqpq6n00c0o1eckfm741;acme_iwf_2833_preferred=101
+From: "B5-2C23-052 Blu"<sip:7323685154@127.25.29.135:5060>;tag=0000047b000ce0e0
+To: <sip:17324201111@135.25.31.10:5060>
+Call-ID: 7f00000113ce0000047b000cd140@127.0.0.1
+CSeq: 2 INVITE
+
+
+----------------------------------------
+Jun  8 14:35:50.233 UDP[3:0]10.102.131.194:5060 CLOSED
+Jun  8 14:35:50.233 UDP[6:0]10.102.130.185:5060 CLOSED
+File closed.

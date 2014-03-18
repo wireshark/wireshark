@@ -287,7 +287,7 @@ WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
     }
 
     dir = (Dir)g_malloc(sizeof(struct _wslua_dir));
-    dir->dir = OPENDIR_OP(dirname_clean);
+    dir->dir = g_dir_open(dirname_clean, 0, dir->dummy);
     g_free(dirname_clean);
     dir->ext = extension ? g_strdup(extension) : NULL;
     dir->dummy = (GError **)g_malloc(sizeof(GError *));
@@ -309,7 +309,7 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
     /* At every invocation will return one file (nil when done) */
 
     Dir dir = checkDir(L,1);
-    const FILE_T* file;
+    const gchar* file;
     const gchar* filename;
     const char* ext;
 
@@ -317,21 +317,20 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
         return 0;
     }
 
-    if ( ! ( file = DIRGETNEXT_OP(dir->dir ) )) {
-        CLOSEDIR_OP(dir->dir);
+    if ( ! ( file = g_dir_read_name(dir->dir ) )) {
+        g_dir_close(dir->dir);
         dir->dir = NULL;
         return 0;
     }
 
 
     if ( ! dir->ext ) {
-        filename = GETFNAME_OP(file);
-        lua_pushstring(L,filename);
+        lua_pushstring(L,file);
         return 1;
     }
 
     do {
-        filename = GETFNAME_OP(file);
+        filename = file;
 
         /* XXX strstr returns ptr to first match,
             this fails ext=".xxx" filename="aaa.xxxz.xxx"  */
@@ -339,9 +338,9 @@ WSLUA_METAMETHOD Dir__call(lua_State* L) {
             lua_pushstring(L,filename);
             return 1;
         }
-    } while(( file = DIRGETNEXT_OP(dir->dir) ));
+    } while(( file = g_dir_read_name(dir->dir) ));
 
-    CLOSEDIR_OP(dir->dir);
+    g_dir_close(dir->dir);
     dir->dir = NULL;
     return 0;
 }
@@ -351,7 +350,7 @@ WSLUA_METHOD Dir_close(lua_State* L) {
     Dir dir = checkDir(L,1);
 
     if (dir->dir) {
-        CLOSEDIR_OP(dir->dir);
+        g_dir_close(dir->dir);
         dir->dir = NULL;
     }
 
@@ -365,7 +364,7 @@ static int Dir__gc(lua_State* L) {
     if(!dir) return 0;
 
     if (dir->dir) {
-        CLOSEDIR_OP(dir->dir);
+        g_dir_close(dir->dir);
     }
 
     g_free(dir->dummy);

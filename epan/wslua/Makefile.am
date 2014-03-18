@@ -43,6 +43,7 @@ wslua_modules = 	\
 	$(srcdir)/wslua_gui.c \
 	$(srcdir)/wslua_util.c \
 	$(srcdir)/wslua_field.c \
+	$(srcdir)/wslua_file.c \
 	$(srcdir)/wslua_struct.c \
 	$(srcdir)/wslua_dumper.c \
 	$(srcdir)/wslua_internals.c
@@ -134,6 +135,7 @@ checkapi:
 	lrexlib_glib_f.c \
 	wslua_dumper.c \
 	wslua_field.c \
+	wslua_file.c \
 	wslua_gui.c \
 	wslua_int64.c \
 	wslua_pinfo.c \

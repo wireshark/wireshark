@@ -28,6 +28,7 @@ MODULES = 	\
 	wslua_gui.c \
 	wslua_util.c \
 	wslua_field.c \
+	wslua_file.c \
 	wslua_struct.c \
 	wslua_dumper.c \
 	wslua_internals.c
@@ -49,6 +50,7 @@ OBJECTS= \
 	wslua_gui.obj \
 	wslua_util.obj \
 	wslua_field.obj \
+	wslua_file.obj \
 	wslua_struct.obj \
 	wslua_dumper.obj \
 	wslua_internals.obj

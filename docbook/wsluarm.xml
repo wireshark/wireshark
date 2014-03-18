@@ -176,6 +176,7 @@ end
 	&WsLuaProto;
 	&WsLuaTree;
 	&WsLuaTvb;
+	&WsLuaFile;
 	&WsLuaUtility;
 	&WsLuaInt64;
 	&WsLuaStruct;

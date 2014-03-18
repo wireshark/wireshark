@@ -66,6 +66,103 @@ wslua_step_field_test() {
 	fi
 }
 
+wslua_step_file_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# First run tshark with the pcap_file_reader script.
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/pcap_file.lua > testin.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/wpa-Induction.pcap.gz -X lua_script:$TESTS_DIR/lua/pcap_file.lua >> testin.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testin.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# then run tshark again without the script
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap > testout.txt 2>&1
+	$TSHARK -r $CAPTURE_DIR/wpa-Induction.pcap.gz >> testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testout.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# now compare the two files - they should be identical
+	if diff -q ./testin.txt ./testout.txt; then
+		rm ./testin.txt
+	else
+		echo
+		cat ./testin.txt
+		cat ./testout.txt
+		test_step_failed "reading the pcap file with Lua did not match internal"
+	fi
+
+	# Now generate a new capture file using the Lua writer.
+	$TSHARK -r $CAPTURE_DIR/dhcp.pcap -X lua_script:$TESTS_DIR/lua/pcap_file.lua -w testin.txt -F lua_pcap2 > testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testout.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# now compare the two files - they should be identical
+	if diff -q $CAPTURE_DIR/dhcp.pcap ./testin.txt; then
+		rm ./testin.txt
+	else
+		echo
+		cat ./testout.txt
+		test_step_failed "writing the pcap out as Lua did not match dhcp.cap"
+	fi
+
+	# Now read an acme sipmsg.log using the acme Lua reader, writing it out as pcapng.
+	$TSHARK -r $CAPTURE_DIR/sipmsg.log -X lua_script:$TESTS_DIR/lua/acme_file.lua -w testin.txt -F pcapng > testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testout.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# testin.txt is now a pcapng, read it out using -V verbose into testout.txt
+	$TSHARK -r ./testin.txt -V > testout.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testout.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# now readout sip.pcapng into testin.txt using -V verbose
+	$TSHARK -r $CAPTURE_DIR/sip.pcapng -V > testin.txt 2>&1
+	RETURNVALUE=$?
+	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
+		echo
+		cat ./testin.txt
+		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		return
+	fi
+
+	# now compare testin and testout - they should be identical
+	if diff -q ./testout.txt ./testin.txt; then
+		test_step_ok
+	else
+		echo
+		cat ./testout.txt
+		test_step_failed "writing the acme sipmsg.log out as pcapng did not match sip.pcapng"
+	fi
+}
+
 wslua_step_listener_test() {
 	if [ $HAVE_LUA -ne 0 ]; then
 		test_step_skipped
@@ -260,6 +357,7 @@ wslua_suite() {
 	test_step_set_post wslua_cleanup_step
 	test_step_add "wslua dissector" wslua_step_dissector_test
 	test_step_add "wslua field/fieldinfo" wslua_step_field_test
+	test_step_add "wslua file" wslua_step_file_test
 	test_step_add "wslua globals" wslua_step_globals_test
 	test_step_add "wslua gregex" wslua_step_gregex_test
 	test_step_add "wslua int64" wslua_step_int64_test
