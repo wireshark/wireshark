@@ -57,6 +57,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/tap.h>
+#include <epan/exported_pdu.h>
 #include <epan/ipproto.h>
 #include <epan/addr_resolv.h>
 #include <epan/sctpppids.h>
@@ -251,6 +252,7 @@ static dissector_table_t sctp_port_dissector_table;
 static dissector_table_t sctp_ppi_dissector_table;
 static heur_dissector_list_t sctp_heur_subdissector_list;
 static int sctp_tap = -1;
+static int exported_pdu_tap = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sctp = -1;
@@ -3033,6 +3035,23 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment *fragment,
   return new_tvb;
 }
 
+static void
+export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, const gchar *proto_name)
+{
+	exp_pdu_data_t *exp_pdu_data;
+	guint32 tags_bit_field;
+
+	tags_bit_field = EXP_PDU_TAG_IP_SRC_BIT + EXP_PDU_TAG_IP_DST_BIT + EXP_PDU_TAG_SRC_PORT_BIT+
+		EXP_PDU_TAG_DST_PORT_BIT + EXP_PDU_TAG_ORIG_FNO_BIT;
+
+	exp_pdu_data = load_export_pdu_tags(pinfo, proto_name, -1, tags_bit_field);
+
+	exp_pdu_data->tvb_length = tvb_captured_length(tvb);
+	exp_pdu_data->pdu_tvb = tvb;
+
+	tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
+
+}
 
 static gboolean
 dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree,
@@ -3056,8 +3075,24 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
     new_tvb = fragment_reassembly(payload_tvb, fragment, pinfo, chunk_tree, stream_id, stream_seq_num);
 
   /* pass reassembled data to next dissector, if possible */
-  if (new_tvb)
-    return dissect_payload(new_tvb, pinfo, tree, ppi);
+  if (new_tvb){
+    wmem_list_frame_t *cur;
+    guint8 curr_layer_num = pinfo->curr_layer_num;
+    guint proto_id;
+    const gchar *proto_name;
+    gboolean retval;
+
+    retval = dissect_payload(new_tvb, pinfo, tree, ppi);
+    cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+    proto_id = GPOINTER_TO_UINT(wmem_list_frame_data(cur));
+    proto_name = proto_get_protocol_filter_name(proto_id);
+    if(strcmp(proto_name, "data") != 0){
+      if (have_tap_listener(exported_pdu_tap)){
+        export_sctp_data_chunk(pinfo,payload_tvb, proto_name);
+      }
+    }
+    return retval;
+  }
 
   /* no reassembly done, do nothing */
   return TRUE;
@@ -3198,7 +3233,20 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
 
     pd_save = pinfo->private_data;
     TRY {
+      wmem_list_frame_t *cur;
+      guint8 curr_layer_num = pinfo->curr_layer_num;
+      guint proto_id;
+      const gchar *proto_name;
+
       retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
+      cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+      proto_id = GPOINTER_TO_UINT(wmem_list_frame_data(cur));
+      proto_name = proto_get_protocol_filter_name(proto_id);
+      if(strcmp(proto_name, "data") != 0){
+        if (have_tap_listener(exported_pdu_tap)){
+          export_sctp_data_chunk(pinfo,payload_tvb, proto_name);
+        }
+      }
     }
     CATCH_NONFATAL_ERRORS {
       /*
@@ -4749,6 +4797,7 @@ proto_register_sctp(void)
   expert_register_field_array(expert_sctp, ei, array_length(ei));
 
   sctp_tap = register_tap("sctp");
+  exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_3);
   /* subdissector code */
   sctp_port_dissector_table = register_dissector_table("sctp.port", "SCTP port", FT_UINT16, BASE_DEC);
   sctp_ppi_dissector_table  = register_dissector_table("sctp.ppi",  "SCTP payload protocol identifier", FT_UINT32, BASE_HEX);
