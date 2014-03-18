@@ -3077,7 +3077,6 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
   /* pass reassembled data to next dissector, if possible */
   if (new_tvb){
     wmem_list_frame_t *cur;
-    guint8 curr_layer_num = pinfo->curr_layer_num;
     guint proto_id;
     const gchar *proto_name;
     gboolean retval;
@@ -3234,7 +3233,6 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     pd_save = pinfo->private_data;
     TRY {
       wmem_list_frame_t *cur;
-      guint8 curr_layer_num = pinfo->curr_layer_num;
       guint proto_id;
       const gchar *proto_name;
 
