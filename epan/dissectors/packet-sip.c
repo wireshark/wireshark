@@ -994,7 +994,8 @@ export_sip_pdu(packet_info *pinfo, tvbuff_t *tvb)
 
   exp_pdu_data = load_export_pdu_tags(pinfo, "sip", -1, tags_bit_field);
 
-  exp_pdu_data->tvb_length = tvb_length(tvb);
+  exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+  exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
   exp_pdu_data->pdu_tvb = tvb;
 
   tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);

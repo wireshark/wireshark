@@ -97,9 +97,10 @@
 
 
 typedef struct _exp_pdu_data_t {
-    int          tlv_buffer_len;
+    guint        tlv_buffer_len;
     guint8      *tlv_buffer;
-    int          tvb_length;
+    guint        tvb_captured_length;
+    guint        tvb_reported_length;
     tvbuff_t    *pdu_tvb;
 } exp_pdu_data_t;
 

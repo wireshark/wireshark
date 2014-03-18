@@ -3046,7 +3046,8 @@ export_sctp_data_chunk(packet_info *pinfo, tvbuff_t *tvb, const gchar *proto_nam
 
 	exp_pdu_data = load_export_pdu_tags(pinfo, proto_name, -1, tags_bit_field);
 
-	exp_pdu_data->tvb_length = tvb_captured_length(tvb);
+	exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+	exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
 	exp_pdu_data->pdu_tvb = tvb;
 
 	tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);

@@ -179,7 +179,8 @@ dissect_logcat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         exp_pdu_data_t *exp_pdu_data;
 
         exp_pdu_data = load_export_pdu_tags(pinfo, "logcat", -1, EXP_PDU_TAG_END_OF_OPT);
-        exp_pdu_data->tvb_length = tvb_length(tvb);
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(tvb);
         exp_pdu_data->pdu_tvb = tvb;
         tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
     }

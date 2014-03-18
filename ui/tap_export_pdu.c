@@ -48,7 +48,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     int buffer_len;
     guint8 *packet_buf;
 
-    buffer_len = exp_pdu_data->tvb_length + exp_pdu_data->tlv_buffer_len;
+    buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
     packet_buf = (guint8 *)g_malloc(buffer_len);
 
     if(exp_pdu_data->tlv_buffer_len > 0){
@@ -60,7 +60,8 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     }
     pkthdr.ts.secs   = pinfo->fd->abs_ts.secs;
     pkthdr.ts.nsecs  = pinfo->fd->abs_ts.nsecs;
-    pkthdr.caplen    = pkthdr.len = buffer_len;
+    pkthdr.caplen    = buffer_len;
+    pkthdr.len       = exp_pdu_data->tvb_reported_length + exp_pdu_data->tlv_buffer_len;
 
     pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
     pkthdr.interface_id = 0;

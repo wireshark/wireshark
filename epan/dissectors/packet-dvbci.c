@@ -3417,7 +3417,8 @@ dissect_sac_msg(guint32 tag, tvbuff_t *tvb, gint offset,
         exp_pdu_data = load_export_pdu_tags(
                 pinfo, EXPORTED_SAC_MSG_PROTO, -1, EXP_PDU_TAG_DVBCI_EVT_BIT);
 
-        exp_pdu_data->tvb_length = tvb_length(clear_sac_msg_tvb);
+        exp_pdu_data->tvb_captured_length = tvb_captured_length(clear_sac_msg_tvb);
+        exp_pdu_data->tvb_reported_length = tvb_reported_length(clear_sac_msg_tvb);
         exp_pdu_data->pdu_tvb = clear_sac_msg_tvb;
         tap_queue_packet(exported_pdu_tap, pinfo, exp_pdu_data);
     }
