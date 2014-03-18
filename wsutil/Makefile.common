@@ -53,6 +53,7 @@ LIBWSUTIL_SRC = 	\
 	plugins.c	\
 	privileges.c	\
 	sha1.c		\
+	sober128.c	\
 	strnatcmp.c	\
 	str_util.c	\
 	rc4.c		\
@@ -94,6 +95,7 @@ LIBWSUTIL_INCLUDES = 	\
 	privileges.h	\
 	sha1.h		\
 	sign_ext.h	\
+	sober128.h	\
 	strnatcmp.h	\
 	str_util.h	\
 	pint.h		\

@@ -474,6 +474,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-collectd.c
 	dissectors/packet-componentstatus.c
 	dissectors/packet-cops.c
+	dissectors/packet-corosync-totemnet.c
+	dissectors/packet-corosync-totemsrp.c
 	dissectors/packet-cosine.c
 	dissectors/packet-cpfi.c
 	dissectors/packet-cpha.c
