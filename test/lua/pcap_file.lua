@@ -64,7 +64,7 @@ local ENCAP_TYPE = wtap.UNKNOWN
 
 ----------------------------------------
 -- The read_open() is called by Wireshark once per file, to see if the file is this reader's type.
--- Wireshark passes in a File object to this function
+-- Wireshark passes in (1) a File object and (2) CaptureInfo object to this function
 -- It expects in return either nil or false to mean it's not our file type, or true if it is
 -- In our case what this means is we figure out if the file has the magic header, and get the
 -- endianess of the file, and the encapsulation type of its frames/records
@@ -181,7 +181,7 @@ end
 
 ----------------------------------------
 -- ok, so let's create a FileHandler object
-local fh = FileHandler.new("Lua-based PCAP reader", "lua_pcap", "A Lua-based file reader for PCAP-type files","rs")
+local fh = FileHandler.new("Lua-based PCAP reader", "lua_pcap", "A Lua-based file reader for PCAP-type files","rms")
 
 -- set above functions to the FileHandler
 fh.read_open = read_open

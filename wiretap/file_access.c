@@ -368,7 +368,6 @@ static struct open_info open_info_base[] = {
     /* Extremely weak heuristics - put them at the end. */
     { "VWR",                         OPEN_INFO_HEURISTIC, vwr_open,                 "vwr",      NULL },
     { "Camins",                      OPEN_INFO_HEURISTIC, camins_open,              "camins",   NULL },
-    { NULL, 0, NULL, NULL, NULL }
 };
 
 /* this is only used to build the dynamic array on load, do NOT use this
@@ -405,7 +404,7 @@ void init_open_routines(void) {
 
     if (open_info_arr) return;
 
-    open_info_arr = g_array_new(FALSE,TRUE,sizeof(struct open_info));
+    open_info_arr = g_array_new(TRUE,TRUE,sizeof(struct open_info));
 
     g_array_append_vals(open_info_arr, open_info_base, N_OPEN_INFO_ROUTINES);
 

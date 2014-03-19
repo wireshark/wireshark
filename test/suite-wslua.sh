@@ -79,7 +79,7 @@ wslua_step_file_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testin.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-1 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -90,7 +90,7 @@ wslua_step_file_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-2 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -101,7 +101,7 @@ wslua_step_file_test() {
 		echo
 		cat ./testin.txt
 		cat ./testout.txt
-		test_step_failed "reading the pcap file with Lua did not match internal"
+		test_step_failed "subtest-3 reading the pcap file with Lua did not match internal"
 	fi
 
 	# Now generate a new capture file using the Lua writer.
@@ -110,7 +110,7 @@ wslua_step_file_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-4 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -120,7 +120,7 @@ wslua_step_file_test() {
 	else
 		echo
 		cat ./testout.txt
-		test_step_failed "writing the pcap out as Lua did not match dhcp.cap"
+		test_step_failed "subtest-5 creating a new pcap file using Lua did not match dhcp.cap"
 	fi
 
 	# Now read an acme sipmsg.log using the acme Lua reader, writing it out as pcapng.
@@ -129,7 +129,7 @@ wslua_step_file_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-6 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -139,7 +139,7 @@ wslua_step_file_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testout.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-7 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -149,7 +149,7 @@ wslua_step_file_test() {
 	if [ ! $RETURNVALUE -eq $EXIT_OK ]; then
 		echo
 		cat ./testin.txt
-		test_step_failed "exit status of $DUT: $RETURNVALUE"
+		test_step_failed "subtest-8 exit status of $DUT: $RETURNVALUE"
 		return
 	fi
 
@@ -159,7 +159,8 @@ wslua_step_file_test() {
 	else
 		echo
 		cat ./testout.txt
-		test_step_failed "writing the acme sipmsg.log out as pcapng did not match sip.pcapng"
+		diff ./testout.txt ./testin.txt
+		test_step_failed "subtest-9 writing the acme sipmsg.log out as pcapng did not match sip.pcapng"
 	fi
 }
 

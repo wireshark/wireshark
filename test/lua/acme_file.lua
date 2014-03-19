@@ -196,6 +196,10 @@ if DEBUG or DEBUG2 then
     end
 end
 
+-- this should be done as a preference setting
+local ALWAYS_UDP = true
+
+
 local fh = FileHandler.new("Oracle Acme Packet logs", "acme", "A file reader for Oracle Acme Packet message logs such as sipmsg.log","rs")
 
 
@@ -323,6 +327,14 @@ end
 -- monthlist table for getting month number value from 3-char name (number is table index)
 local monthlist = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}
 
+-- Compute the difference in seconds between local time and UTC
+-- from http://lua-users.org/wiki/TimeZone
+local function get_timezone()
+  local now = os.time()
+  return os.difftime(now, os.time(os.date("!*t", now)))
+end
+local timezone = get_timezone()
+
 local function get_timestamp(line, file_position, seeking)
     local i, line_pos, month, day, hour, min, sec, milli = line:find(header_time_pattern)
     if not month then
@@ -386,6 +398,8 @@ local function get_timestamp(line, file_position, seeking)
     if not timet then
         dprint("timestamp conversion failed")
     end
+
+    timet = timet + timezone
 
     -- make an NSTime
     statics.nstime = NSTime(timet, milli * 1000000)
@@ -1189,6 +1203,11 @@ local function parse_header(file, line, file_position, seeking)
 
     if local_ip:find(loopback_pattern) and remote_ip:find(loopback_pattern) then
         -- internal loopback packets never have phy/vlan but are always UDP messages (for all intents)
+        ttype = UDP
+    end
+
+    -- override above decisions based on configuration
+    if ALWAYS_UDP then
         ttype = UDP
     end
 
