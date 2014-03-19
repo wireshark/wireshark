@@ -816,6 +816,25 @@ static const value_string bt_sig_uuid_vals[] = {
     { 0x2A69,   "Position Quality" },
     { 0x2A6A,   "LN Feature" },
     { 0x2A6B,   "LN Control Point" },
+    /*  16-bit UUID for Members - https://www.bluetooth.org/en-us/Pages/LoginRestrictedAll/16-bit-UUIDs-member.aspx */
+    { 0xFEEE,   "Company UUID #2: Polar Electro Oy"}, /* Allocated 06-Mar-14 */
+    { 0xFEEF,   "Company UUID #1: Polar Electro Oy"}, /* Allocated 06-Mar-14 */
+    { 0xFEF0,   "Company UUID: Intel"}, /* Allocated 06-Mar-14 */
+    { 0xFEF1,   "Company UUID #2: CSR"}, /* Allocated 13-Feb-14 */
+    { 0xFEF2,   "Company UUID #1: CSR"}, /* Allocated 13-Feb-14 */
+    { 0xFEF3,   "Company UUID #2: Google"}, /* Allocated 13-Feb-14 */
+    { 0xFEF4,   "Company UUID #1: Google"}, /* Allocated 13-Feb-14 */
+    { 0xFEF5,   "Company UUID: Dialog Semiconductor GmbH"}, /* Allocated 13-Feb-14 */
+    { 0xFEF6,   "Company UUID: Wicentric, Inc."}, /* Allocated 13-Feb-14 */
+    { 0xFEF7,   "Company UUID #2: Aplix Corporation"}, /* Allocated 13-Feb-14 */
+    { 0xFEF8,   "Company UUID #1: Aplix Corporation"}, /* Allocated 13-Feb-14 */
+    { 0xFEF9,   "Company UUID #2: PayPal, Inc."}, /* Allocated 13-Jan-14 */
+    { 0xFEFA,   "Company UUID #1: PayPal, Inc."}, /* Allocated 13-Jan-14 */
+    { 0xFEFB,   "Company UUID: Stollmann E+V GmbH"}, /* Allocated 06-Jan-14 */
+    { 0xFEFC,   "Company UUID #2: Qualcomm Retail Solutions, Inc."}, /* Allocated 20-Dec-13 */
+    { 0xFEFD,   "Company UUID #1: Qualcomm Retail Solutions, Inc."}, /* Allocated 20-Dec-13 */
+    { 0xFEFE,   "Company UUID: GN ReSound A/S"}, /* Allocated 17-Dec-13 */
+    { 0xFEFF,   "Company UUID: GN Netcom"}, /* Allocated 12-Dec-13 */
     /* SDO Uuids - https://www.bluetooth.org/en-us/specification/assigned-numbers/sdo-16-bit-uuids */
     { 0xFFFE,   "Alliance for Wireless Power" },
     { 0, NULL }
