@@ -2203,6 +2203,45 @@ static const value_string category_codes[] = {
 };
 static value_string_ext category_codes_ext = VALUE_STRING_EXT_INIT(category_codes);
 
+#define NR_SUB_ID_TSF_INFO                 1
+#define NR_SUB_ID_CON_COU_STR              2
+#define NR_SUB_ID_BSS_TRN_CAN_PREF         3
+#define NR_SUB_ID_BSS_TER_DUR              4
+#define NR_SUB_ID_BEARING                  5
+
+#define NR_SUB_ID_HT_CAPABILITIES          45
+#define NR_SUB_ID_HT_OPERATION             61
+#define NR_SUB_ID_SEC_CHANNEL_OFFSET       62
+#define NR_SUB_ID_MEASUREMENT_PILOT_INFO   66
+#define NR_SUB_ID_RM_ENABLE_CAP            70
+#define NR_SUB_ID_HT_MULTIPLE_BSSID        71
+
+#define NR_SUB_ID_VENDOR_SPECIFIC          221
+
+static const value_string ieee80211_neighbor_report_subelement_id_vals[] = {
+  {NR_SUB_ID_TSF_INFO, "TSF Information"},
+  {NR_SUB_ID_CON_COU_STR, "Condensed Country String"},
+  {NR_SUB_ID_BSS_TRN_CAN_PREF, "BSS Transition Candidate Preference"},
+  {NR_SUB_ID_BSS_TER_DUR, "BSS Termination Duration"},
+  {NR_SUB_ID_BEARING, "Bearing"},
+  {NR_SUB_ID_HT_CAPABILITIES, "HT Capabilities"},
+  {NR_SUB_ID_HT_OPERATION, "HT Operation"},
+  {NR_SUB_ID_SEC_CHANNEL_OFFSET, "Secondary Channel Offset"},
+  {NR_SUB_ID_MEASUREMENT_PILOT_INFO, "Measurement Pilot Transmission"},
+  {NR_SUB_ID_RM_ENABLE_CAP, "RM Enabled Capabilities"},
+  {NR_SUB_ID_HT_MULTIPLE_BSSID, "Multiple BSSID"},
+  {NR_SUB_ID_VENDOR_SPECIFIC, "Vendor Specific"},
+  {0, NULL}
+};
+
+static const value_string ieee80211_neighbor_report_bssid_info_reachability_vals[] = {
+  {0, "Reserved"},
+  {1, "Not Reachable"},
+  {2, "Unknown"},
+  {3, "Reachable"},
+  {0, NULL}
+};
+
 static const value_string action_codes[] = {
   {SM_ACTION_MEASUREMENT_REQUEST, "Measurement Request"},
   {SM_ACTION_MEASUREMENT_REPORT,  "Measurement Report"},
@@ -4034,7 +4073,7 @@ static int hf_ieee80211_tag_neighbor_report_bssid_info = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_reachability = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_security = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_key_scope = -1;
-/*static int hf_ieee80211_tag_neighbor_report_bssid_info_capability = -1; */ /* TODO Make this the parent tree item */
+static int hf_ieee80211_tag_neighbor_report_bssid_info_capability = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos = -1;
 static int hf_ieee80211_tag_neighbor_report_bssid_info_capability_apsd = -1;
@@ -4047,6 +4086,8 @@ static int hf_ieee80211_tag_neighbor_report_bssid_info_reserved = -1;
 static int hf_ieee80211_tag_neighbor_report_ope_class = -1;
 static int hf_ieee80211_tag_neighbor_report_channel_number = -1;
 static int hf_ieee80211_tag_neighbor_report_phy_type = -1;
+static int hf_ieee80211_tag_neighbor_report_subelement_id = -1;
+static int hf_ieee80211_tag_neighbor_report_subelement_length = -1;
 
 static int hf_ieee80211_tag_supported_ope_classes_current = -1;
 static int hf_ieee80211_tag_supported_ope_classes_alternate = -1;
@@ -11785,6 +11826,8 @@ dissect_ap_channel_report(tvbuff_t *tvb, packet_info *pinfo,
   }
   return offset;
 }
+
+
 static int
 dissect_secondary_channel_offset_ie(tvbuff_t *tvb, packet_info *pinfo,
                                     proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len)
@@ -12726,6 +12769,109 @@ ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
   beacon_padding += 1; /* padding bug */
 
   return offset + 2 + tag_len;
+}
+
+static int
+dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
+                          proto_tree *tree, int offset, guint32 tag_len, proto_item *ti_len,
+                          int tag_end, proto_item *ti _U_)
+{
+
+  guint8 sub_tag_id;
+  guint32 sub_tag_length;
+  proto_item *parent_item;
+  proto_tree *bssid_info_subtree, *bssid_info_cap_subtree, *sub_tag_tree;
+  tvbuff_t *volatile sub_tag_tvb = NULL;
+
+  if (tag_len < 13) {
+    expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
+                           "Neighbor Report length %u wrong, must be > 13", tag_len);
+    return offset;
+  }
+
+//  tag_offset = offset;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_bssid, tvb, offset, 6, ENC_NA);
+  offset += 6;
+
+  /*** Begin: BSSID Information ***/
+
+  parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_bssid_info, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  bssid_info_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_tree);
+
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reachability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_security, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_key_scope, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+ parent_item = proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  bssid_info_cap_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_capability_tree);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_apsd, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_radio_msnt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_cap_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_ope_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_phy_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  /* The Optional Subelements field format contains zero or more subelements */
+  if (tag_len == 13){ /* tag_len == 13 => no Subelements */
+        return offset;
+  }
+
+  while (offset < tag_end)
+  {
+
+    sub_tag_id = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    sub_tag_length = tvb_get_guint8 (tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_subelement_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    sub_tag_tvb = tvb_new_subset(tvb, offset, sub_tag_length, -1);
+
+    switch (sub_tag_id) {
+      case NR_SUB_ID_TSF_INFO:
+        /* TODO */
+        break;
+      case NR_SUB_ID_MEASUREMENT_PILOT_INFO:
+        /* TODO */
+        break;
+      case NR_SUB_ID_HT_CAPABILITIES:
+        parent_item = proto_tree_add_text(tree, tvb, offset, sub_tag_length, "HT Capabilities");
+        sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+        dissect_ht_capability_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len, FALSE);
+        break;
+      case NR_SUB_ID_HT_OPERATION:
+        parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Information");
+        sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+        dissect_ht_info_ie_1_1(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
+        break;
+      case NR_SUB_ID_SEC_CHANNEL_OFFSET:
+        parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "Secondary Channel Offset");
+        sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
+        dissect_secondary_channel_offset_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
+        break;
+      case NR_SUB_ID_VENDOR_SPECIFIC:
+        default:
+        break;
+    }
+
+  offset += sub_tag_length;
+}
+
+  return offset;
 }
 
 static int
@@ -14636,111 +14782,8 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
       dissect_ap_channel_report(tvb, pinfo, tree, offset + 2, tag_len, ti_len, tag_end, ti);
       break;
     case TAG_NEIGHBOR_REPORT:
-    {
-      #define SUB_TAG_TSF_INFO                 0x01
-      #define SUB_TAG_MEASUREMENT_PILOT_INFO   0x02
-      #define SUB_TAG_HT_CAPABILITIES          0x03
-      #define SUB_TAG_HT_INFO                  0x04
-      #define SUB_TAG_SEC_CHANNEL_OFFSET       0x05
-      #define SUB_TAG_VENDOR_SPECIFIC          0xDD
-
-
-      guint tag_offset;
-      guint8 sub_tag_id;
-      guint32 bssid_info, sub_tag_length;
-      proto_item *parent_item;
-      proto_tree *bssid_info_subtree, *sub_tag_tree;
-      tvbuff_t *volatile sub_tag_tvb = NULL;
-
-      if (tag_len < 13)
-      {
-        proto_tree_add_text (tree, tvb, offset + 2, tag_len,
-            "Neighbor Report: Error: Tag length must be at least 13 bytes long");
-        break;
-      }
-      offset += 2;
-      tag_offset = offset;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_bssid, tvb, offset, 6, ENC_NA);
-
-      /*** Begin: BSSID Information ***/
-      offset += 6;
-      bssid_info = tvb_get_letohl (tvb, offset);
-      parent_item = proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_bssid_info, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-      bssid_info_subtree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_bssid_info_tree);
-
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reachability, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_security, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_key_scope, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_apsd, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_radio_msnt, tvb, offset, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback, tvb, offset+1, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback, tvb, offset+1, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain, tvb, offset+1, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput, tvb, offset+1, 1, bssid_info);
-      proto_tree_add_uint(bssid_info_subtree, hf_ieee80211_tag_neighbor_report_bssid_info_reserved, tvb, offset+1, 3, (bssid_info & 0xfffff000) >> 12);
-      /*** End: BSSID Information ***/
-
-      offset += 4;
-      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_ope_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-      offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-      offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_phy_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
-      offset += 1;
-
-      /* The Optional Subelements field format contains zero or more subelements */
-      if (tag_len == 13){ /* tag_len == 13 => no Subelements */
-        break;
-      }
-      sub_tag_id = tvb_get_guint8 (tvb, offset);
-      offset += 1;
-      sub_tag_length = tvb_get_guint8 (tvb, offset);
-
-      offset += 1;
-      sub_tag_tvb = tvb_new_subset(tvb, offset, sub_tag_length, -1);
-
-      switch (sub_tag_id) {
-        case SUB_TAG_TSF_INFO:
-          /* TODO */
-          break;
-        case SUB_TAG_MEASUREMENT_PILOT_INFO:
-          /* TODO */
-          break;
-        case SUB_TAG_HT_CAPABILITIES:
-          parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Capabilities");
-          sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
-          dissect_ht_capability_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len, FALSE);
-          break;
-        case SUB_TAG_HT_INFO:
-          parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "HT Information");
-          sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
-          dissect_ht_info_ie_1_1(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
-          break;
-        case SUB_TAG_SEC_CHANNEL_OFFSET:
-          parent_item = proto_tree_add_text (tree, tvb, offset, sub_tag_length, "Secondary Channel Offset");
-          sub_tag_tree = proto_item_add_subtree(parent_item, ett_tag_neighbor_report_sub_tag_tree);
-          dissect_secondary_channel_offset_ie(sub_tag_tvb, pinfo, sub_tag_tree, 0, sub_tag_length, ti_len);
-          break;
-        case SUB_TAG_VENDOR_SPECIFIC:
-        default:
-          break;
-      }
-
-      offset += sub_tag_length;
-
-      if (tag_len > (offset - tag_offset))
-      {
-        proto_tree_add_text (tree, tvb, offset, tag_len - (offset - tag_offset), "Unknown Data");
-        break;
-      }
+      dissect_neighbor_report(tvb, pinfo, tree, offset + 2, tag_len, ti_len, tag_end, ti);
       break;
-    }
 
     case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
     {
@@ -23750,67 +23793,72 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_reachability,
      {"AP Reachability", "wlan_mgt.nreport.bssid.info.reachability",
-      FT_UINT16, BASE_HEX, NULL, 0x0003,
-      NULL, HFILL }},
+      FT_UINT32, BASE_HEX, VALS(ieee80211_neighbor_report_bssid_info_reachability_vals), 0x00000003,
+      "Indicates whether the AP identified by this BSSID is reachable by the STA that requested the neighbor report", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_security,
      {"Security", "wlan_mgt.nreport.bssid.info.security",
-      FT_UINT16, BASE_HEX, NULL, 0x0004,
-      NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000004,
+      "Indicates that the AP identified by this BSSID supports the same security provisioning as used by the STA in its current association", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_key_scope,
      {"Key Scope", "wlan_mgt.nreport.bssid.info.keyscope",
-      FT_UINT16, BASE_HEX, NULL, 0x0008,
-      NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000008,
+      "indicates the AP indicated by this BSSID has the same authenticator as the AP sending the report", HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_bssid_info_capability,
+     {"Capability", "wlan_mgt.nreport.bssid.info.capability",
+      FT_UINT32, BASE_HEX, NULL, 0x000003F0,
+      "Contains selected capability information for the AP indicated by this BSSID", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_spec_mng,
-     {"Capability: Spectrum Management", "wlan_mgt.nreport.bssid.info.capability.specmngt",
-      FT_UINT16, BASE_HEX, NULL, 0x0010,
+     {"Spectrum Management", "wlan_mgt.nreport.bssid.info.capability.specmngt",
+      FT_BOOLEAN, 32, NULL, 0x00000010,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_qos,
-     {"Capability: QoS", "wlan_mgt.nreport.bssid.info.capability.qos",
-      FT_UINT16, BASE_HEX, NULL, 0x0020,
+     {"QoS", "wlan_mgt.nreport.bssid.info.capability.qos",
+      FT_BOOLEAN, 32, NULL, 0x00000020,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_apsd,
-     {"Capability: APSD", "wlan_mgt.nreport.bssid.info.capability.apsd",
-      FT_UINT16, BASE_HEX, NULL, 0x0040,
+     {"APSD", "wlan_mgt.nreport.bssid.info.capability.apsd",
+      FT_BOOLEAN, 32, NULL, 0x00000040,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_radio_msnt,
-     {"Capability: Radio Measurement", "wlan_mgt.nreport.bssid.info.capability.radiomsnt",
-      FT_UINT16, BASE_HEX, NULL, 0x0080,
+     {"Radio Measurement", "wlan_mgt.nreport.bssid.info.capability.radiomsnt",
+      FT_BOOLEAN, 32, NULL, 0x00000080,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_dback,
-     {"Capability: Delayed Block Ack", "wlan_mgt.nreport.bssid.info.capability.dback",
-      FT_UINT16, BASE_HEX, NULL, 0x0100,
+     {"Delayed Block Ack", "wlan_mgt.nreport.bssid.info.capability.dback",
+      FT_BOOLEAN, 32, NULL, 0x000000100,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_capability_iback,
-     {"Capability: Immediate Block Ack", "wlan_mgt.nreport.bssid.info.capability.iback",
-      FT_UINT16, BASE_HEX, NULL, 0x0200,
+     {"Immediate Block Ack", "wlan_mgt.nreport.bssid.info.capability.iback",
+      FT_BOOLEAN, 32, NULL, 0x00000200,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_mobility_domain,
      {"Mobility Domain", "wlan_mgt.nreport.bssid.info.mobilitydomain",
-      FT_UINT16, BASE_HEX, NULL, 0x0400,
-      NULL, HFILL }},
+      FT_BOOLEAN, 32, NULL, 0x00000400,
+      "", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_high_throughput,
      {"High Throughput Control (+HTC)", "wlan_mgt.nreport.bssid.info.hthoughput",
-      FT_UINT16, BASE_HEX, NULL, 0x0800,
+      FT_BOOLEAN, 32, NULL, 0x00000800,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_bssid_info_reserved,
      {"Reserved", "wlan_mgt.nreport.bssid.info.reserved",
-      FT_UINT32, BASE_HEX, NULL, 0,
-      NULL, HFILL }},
+      FT_UINT32, BASE_HEX, NULL, 0xFFFFF000,
+      "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_ope_class,
      {"Operating Class", "wlan_mgt.nreport.opeclass",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_neighbor_report_channel_number,
@@ -23820,6 +23868,16 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_tag_neighbor_report_phy_type,
      {"PHY Type", "wlan_mgt.nreport.phytype",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_subelement_id,
+     {"Subelement ID", "wlan_mgt.nreport.subelement_id",
+      FT_UINT8, BASE_HEX, VALS(ieee80211_neighbor_report_subelement_id_vals), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_neighbor_report_subelement_length,
+     {"Length", "wlan_mgt.nreport.phytype.subelement_length",
       FT_UINT8, BASE_HEX, NULL, 0,
       NULL, HFILL }},
 
