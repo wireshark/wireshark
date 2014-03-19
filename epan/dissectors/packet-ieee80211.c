@@ -8709,7 +8709,7 @@ add_ff_oct_mmpdu(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int of
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_ff_mmpdu_ctrl, tvb, offset, 2, ENC_NA);
   offset += 2;
-  proto_tree_add_item(tree, hf_ieee80211_ff_oct_mmpdu, tvb, offset, len, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_ff_oct_mmpdu, tvb, offset, len, ENC_ASCII|ENC_NA);
   offset += len;
   return offset - start;
 }
@@ -16690,7 +16690,7 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           dst = tvb_get_ptr(tvb, 4, 6);
           set_dst_addr_cols(pinfo, dst, "BSSID");
           if (tree) {
-            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 4, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_item(hdr_tree, hf_ieee80211_addr_bssid, tvb, 4, 6, ENC_NA);
             hidden_item = proto_tree_add_item (hdr_tree, hf_ieee80211_addr, tvb, 4, 6, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
           }
@@ -19449,22 +19449,22 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_handover_reason,
       {"Handover Reason","wlan.dmg.handover_reason",
        FT_UINT8, BASE_DEC, NULL, 0x03,
-       "Handover Reason", HFILL }},
+       NULL, HFILL }},
 
     {&hf_ieee80211_ff_handover_remaining_bi,
       {"Handover Remaining BI","wlan.dmg.handover_remaining_bi",
        FT_UINT8, BASE_DEC, NULL, 0x01,
-       "Handover Remaining BI", HFILL }},
+       NULL, HFILL }},
 
     {&hf_ieee80211_ff_handover_result,
       {"Handover Result","wlan.dmg.handover_result",
        FT_UINT8, BASE_DEC, NULL, 0x01,
-       "Handover Result", HFILL }},
+       NULL, HFILL }},
 
     {&hf_ieee80211_ff_handover_reject_reason,
       {"Handover Reject Reason","wlan.dmg.handover_reject_reason",
        FT_UINT8, BASE_DEC, NULL, 0x03,
-       "Handover Reject Reason", HFILL }},
+       NULL, HFILL }},
 
     {&hf_ieee80211_ff_destination_reds_aid,
       {"Destination REDS AID","wlan.dmg.destination_reds_aid",
@@ -20796,12 +20796,12 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_req_ap_addr,
      {"RequesterAP address", "wlan_mgt.fixed.req_ap_addr",
       FT_ETHER, BASE_NONE, NULL, 0,
-      "RequesterAP address", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_res_ap_addr,
      {"ResponderAP address", "wlan_mgt.fixed.res_ap_addr",
       FT_ETHER, BASE_NONE, NULL, 0,
-      "ResponderAP address", HFILL }},
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_ft_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
