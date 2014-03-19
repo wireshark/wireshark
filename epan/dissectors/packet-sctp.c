@@ -574,6 +574,12 @@ static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
       (a->initiate_tag == b->verification_tag2) &&
       (a->initiate_tag == b->initiate_tag))
     return FORWARD_STREAM;
+    
+  if ((a->sport == b->sport) &&
+      (a->dport == b->dport) &&
+      (a->verification_tag1 == b->verification_tag1) &&
+      (a->initiate_tag ==  b->initiate_tag))
+    return FORWARD_STREAM;
 
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
