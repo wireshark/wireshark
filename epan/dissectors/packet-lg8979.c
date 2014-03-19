@@ -1289,7 +1289,7 @@ proto_register_lg8979(void)
         { &hf_lg8979_start_ptnum16,
         { "Start Point Number (16-bit)", "lg8979.start_ptnum16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_start_ptnum8,
-        { "Start Point Number (8-bit) ", "lg8979.start_ptnum8", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { "Start Point Number (8-bit)", "lg8979.start_ptnum8", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_stop_ptnum16,
         { "Stop Point Number (16-bit)", "lg8979.stop_ptnum16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_lg8979_stop_ptnum8,
