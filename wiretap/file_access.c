@@ -833,7 +833,7 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	}
 
 	/* Try all file types that support magic numbers */
-	for (i = 0; i < open_info_arr->len; i++) {
+	for (i = 0; i < heuristic_open_routine_idx; i++) {
 		/* Seek back to the beginning of the file; the open routine
 		   for the previous file type may have left the file
 		   position somewhere other than the beginning, and the
