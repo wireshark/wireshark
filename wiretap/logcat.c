@@ -413,7 +413,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     str_begin = str_end = log;
     while (dumper->type != DUMP_LONG && (str_end = strchr(str_begin, '\n'))) {
         log_part = (gchar *) g_malloc(str_end - str_begin + 1);
-        strncpy(log_part, str_begin, str_end - str_begin);
+        g_strlcpy(log_part, str_begin, str_end - str_begin);
         log_part[str_end - str_begin] = '\0';
         str_begin = str_end + 1;
 
@@ -438,7 +438,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
 
     if (*str_begin != '\0') {
         log_part = (gchar *) g_malloc(strlen(str_begin) + 1);
-        strncpy(log_part, str_begin, strlen(str_begin));
+        g_strlcpy(log_part, str_begin, strlen(str_begin));
         log_part[strlen(str_begin)] = '\0';
 
         buf = logcat_log(dumper, *datetime, *nanoseconds / 1000000, *pid, *tid,
