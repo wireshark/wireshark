@@ -1140,7 +1140,7 @@ init_plugin_dir(void)
 #ifdef __APPLE__
         /*
          * If we're running from an app bundle and weren't started
-         * with special privileges, use the Contents/Resources/lib/wireshark/plugins
+         * with special privileges, use the Contents/PlugIns/wireshark
          * subdirectory of the app bundle.
          *
          * (appbundle_dir is not set to a non-null value if we're
@@ -1148,7 +1148,7 @@ init_plugin_dir(void)
          * it; we don't need to call started_with_special_privs().)
          */
         else if (appbundle_dir != NULL) {
-            plugin_dir = g_strdup_printf("%s/Contents/PlugIns",
+            plugin_dir = g_strdup_printf("%s/Contents/PlugIns/wireshark",
                                          appbundle_dir);
         }
 #endif
