@@ -4069,7 +4069,7 @@ proto_register_usb(void)
 
         { &hf_usb_data_fragment,
           { "Data Fragment",
-            "usb.data_fragment", FT_NONE, BASE_NONE,
+            "usb.data_fragment", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL }},
    };
 
