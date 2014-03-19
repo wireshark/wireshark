@@ -1065,8 +1065,6 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
                     for (cnt=0; cnt<num_points; cnt++) {
 
-                        ptval = tvb_get_letohs(tvb, offset);
-
                         lg8979_point_item = proto_tree_add_item(lg8979_tree, hf_lg8979_acc_point, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         proto_item_prepend_text(lg8979_point_item, "Point Number %u, ", ptnum8);
 
