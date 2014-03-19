@@ -611,6 +611,9 @@ will pass the string 'foo' to the 'my.lua' script.  If two scripts were loaded, 
 and '-X lua_script:other.lua' in that order, then a '-X lua_script2:bar' would pass the string 'bar' to the second lua
 script, namely 'other.lua'.
 
+B<read_format>:I<file_format> tells B<Wireshark> to use the given file format to read in the
+file (the file given in the B<-r> command option).
+
 B<stdin_descr>:I<description> tells B<Wireshark> to use the given description when
 capturing from standard input (B<-i ->).
 
