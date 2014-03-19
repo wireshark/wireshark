@@ -2040,7 +2040,8 @@ dissect_usb_setup_get_descriptor_response(packet_info *pinfo, proto_tree *tree,
         offset = dissect_usb_device_qualifier_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info, bus_id, device_address);
         break;
     case USB_DT_RPIPE:
-        if (usb_conv_info->interfaceClass == IF_CLASS_HID) {
+        if (usb_conv_info->interfaceClass == IF_CLASS_HID ||
+            usb_conv_info->interfaceClass == IF_CLASS_UNKNOWN) {
                 offset = dissect_usb_hid_get_report_descriptor(pinfo, tree, tvb, offset, usb_trans_info, usb_conv_info);
                 break;
         }
