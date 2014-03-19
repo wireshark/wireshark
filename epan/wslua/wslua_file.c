@@ -89,7 +89,7 @@ static File* push_File(lua_State* L, FILE_T ft) {
 
 static File* push_Wdh(lua_State* L, wtap_dumper *wdh) {
     File f = (File) g_malloc(sizeof(struct _wslua_file));
-    f->file = wdh->fh;
+    f->file = (FILE_T)wdh->fh;
     f->wdh = wdh;
     f->expired = FALSE;
     return pushFile(L,f);
