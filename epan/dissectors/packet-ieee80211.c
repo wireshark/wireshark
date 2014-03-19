@@ -8580,9 +8580,9 @@ add_ff_cc_field(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean dis)
     cc_field = tvb_get_letoh64(tvb, offset);
     /*TODO : Add support of bitmask for FT_(U)INT64 */
     proto_tree_add_uint(cc_tree, hf_ieee80211_ff_cc_sp_duration, tvb, offset, 1, (guint32)(cc_field & 0xff));
-    proto_tree_add_uint64(cc_tree, hf_ieee80211_ff_cc_cluster_id, tvb, offset+1, 6, (guint64)((cc_field & 0x00ffffffffffff00) >> 8));
-    proto_tree_add_uint(cc_tree, hf_ieee80211_ff_cc_role, tvb, offset+7, 1, (guint32)((cc_field & 0x0300000000000000) >> 56));
-    proto_tree_add_uint(cc_tree, hf_ieee80211_ff_cc_max_mem, tvb, offset+7, 1, (guint32)((cc_field & 0x7c00000000000000) >> 58));
+    proto_tree_add_uint64(cc_tree, hf_ieee80211_ff_cc_cluster_id, tvb, offset+1, 6, (guint64)((cc_field & G_GUINT64_CONSTANT(0x00ffffffffffff00)) >> 8));
+    proto_tree_add_uint(cc_tree, hf_ieee80211_ff_cc_role, tvb, offset+7, 1, (guint32)((cc_field & G_GUINT64_CONSTANT(0x0300000000000000)) >> 56));
+    proto_tree_add_uint(cc_tree, hf_ieee80211_ff_cc_max_mem, tvb, offset+7, 1, (guint32)((cc_field & G_GUINT64_CONSTANT(0x7c00000000000000)) >> 58));
   }
   return 8;
 }
