@@ -139,16 +139,16 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     }
 
     if (try_header_size == 24) {
-        tag_length = strlen(buffer + 5 * 4 + 1) + 1;
-        log_length = strlen(buffer + 5 * 4 + 1 + tag_length) + 1;
+        tag_length = (guint32)strlen(buffer + 5 * 4 + 1) + 1;
+        log_length = (guint32)strlen(buffer + 5 * 4 + 1 + tag_length) + 1;
         if (payload_length == 1 + tag_length + log_length) {
             g_free(buffer);
             return 2;
         }
     }
 
-    tag_length = strlen(buffer + 4 * 4 + 1) + 1;
-    log_length = strlen(buffer + 4 * 4 + 1 + tag_length) + 1;
+    tag_length = (guint32)strlen(buffer + 4 * 4 + 1) + 1;
+    log_length = (guint32)strlen(buffer + 4 * 4 + 1 + tag_length) + 1;
     if (payload_length == 1 + tag_length + log_length) {
         if (file_seek(wth->fh, file_offset + 4 * 4 + 1 + tag_length + log_length, SEEK_SET, err) == -1) {
             g_free(buffer);
@@ -424,7 +424,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
             return FALSE;
         }
         g_free(log_part);
-        length = strlen(buf);
+        length = (guint32)strlen(buf);
 
         if (!wtap_dump_file_write(wdh, buf, length, err)) {
             g_free(buf);
@@ -448,7 +448,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
             return FALSE;
         }
         g_free(log_part);
-        length = strlen(buf);
+        length = (guint32)strlen(buf);
 
         if (!wtap_dump_file_write(wdh, buf, length, err)) {
             g_free(buf);
