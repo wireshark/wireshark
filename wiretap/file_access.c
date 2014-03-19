@@ -388,7 +388,7 @@ static void set_heuristic_routine(void) {
 	guint i;
 	g_assert(open_info_arr != NULL);
 
-	for (i = 0; i < open_info_arr->len - 1; i++) {
+	for (i = 0; i < open_info_arr->len; i++) {
 		if (open_routines[i].type == OPEN_INFO_HEURISTIC) {
 			heuristic_open_routine_idx = i;
 			break;
@@ -459,7 +459,7 @@ void wtap_deregister_open_info(const gchar *name) {
         return;
     }
 
-    for (i = 0; i < open_info_arr->len - 1; i++) {
+    for (i = 0; i < open_info_arr->len; i++) {
 		if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
 			open_info_arr = g_array_remove_index(open_info_arr, i);
 		    set_heuristic_routine();
@@ -482,7 +482,7 @@ gboolean wtap_has_open_info(const gchar *name) {
     }
 
 
-	for (i = 0; i < open_info_arr->len - 1; i++) {
+	for (i = 0; i < open_info_arr->len; i++) {
 		if (open_routines[i].name && strcmp(open_routines[i].name, name) == 0) {
 			return TRUE;
 		}
@@ -522,7 +522,7 @@ unsigned int open_info_name_to_type(const char *name)
 	if (!name)
 		return WTAP_TYPE_AUTO;
 
-	for (i = 0; i < open_info_arr->len - 1; i++) {
+	for (i = 0; i < open_info_arr->len; i++) {
 		if (open_routines[i].name != NULL &&
 			strcmp(name, open_routines[i].name) == 0)
 			return i+1;
@@ -833,7 +833,7 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	}
 
 	/* Try all file types that support magic numbers */
-	for (i = 0; i < open_info_arr->len - 1; i++) {
+	for (i = 0; i < open_info_arr->len; i++) {
 		/* Seek back to the beginning of the file; the open routine
 		   for the previous file type may have left the file
 		   position somewhere other than the beginning, and the
@@ -875,7 +875,7 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	extension = get_file_extension(filename);
 	if (extension != NULL) {
 		/* Yes - try the heuristic types that use that extension first. */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len - 1; i++) {
+		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
 			/* Does this type use that extension? */
 			if (heuristic_uses_extension(i, extension)) {
 				/* Yes. */
@@ -913,7 +913,7 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 		}
 
 		/* Now try the ones that don't use it. */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len - 1; i++) {
+		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
 			/* Does this type use that extension? */
 			if (!heuristic_uses_extension(i, extension)) {
 				/* No. */
@@ -952,7 +952,7 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 		g_free(extension);
 	} else {
 		/* No - try all the heuristics types in order. */
-		for (i = heuristic_open_routine_idx; i < open_info_arr->len - 1; i++) {
+		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
 
 			if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 				/* I/O error - give up */
