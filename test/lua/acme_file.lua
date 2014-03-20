@@ -200,56 +200,83 @@ end
 local ALWAYS_UDP = true
 
 
-local fh = FileHandler.new("Oracle Acme Packet logs", "acme", "A file reader for Oracle Acme Packet message logs such as sipmsg.log","rs")
+local fh = FileHandler.new("Oracle Acme Packet logs", "acme",
+                "A file reader for Oracle Acme Packet message logs such as sipmsg.log","rs")
 
 
--- there are certain things we have to create fake state/data for, because they don't exist in the log file
--- for example to create IP headers we have to cerate fake identification field values, and to create
--- timestamps we have to guess the year (and in some cases month/day as well), and for TCP we have
--- to create fake conneciton info, such as sequence numbers.  We can't simply have a global static variable holding
--- such things, because Wireshark reads the file sequentially at first, but then calls seek_read for random
--- packets again and we don't want to re-create the fake info again because it will be wrong.  So we need to
--- create it for each packet and remember what we created for each packet, so that seek_read gets the same values.
--- We could store the variables in a big table, keyed by the specific header info line for each one; but instead we'll
--- key it off of the file position number, since read() sets it for Wireshark and seek_read() gets it from Wireshark.
--- So we'll have a set of global statics used during read(), but the actual per-packet values will be stored in
--- a table indexed/keyed by the file position number.  A separate table holds TCP peer connection info as described later.
+-- There are certain things we have to create fake state/data for, because they
+-- don't exist in the log file for example to create IP headers we have to create
+-- fake identification field values, and to create timestamps we have to guess the
+-- year (and in some cases month/day as well), and for TCP we have to create fake
+-- conneciton info, such as sequence numbers.  We can't simply have a global static
+-- variable holding such things, because Wireshark reads the file sequentially at
+-- first, but then calls seek_read for random packets again and we don't want to
+-- re-create the fake info again because it will be wrong.  So we need to create it
+-- for each packet and remember what we created for each packet, so that seek_read
+-- gets the same values. We could store the variables in a big table, keyed by the
+-- specific header info line for each one; but instead we'll key it off of the file
+-- position number, since read() sets it for Wireshark and seek_read() gets it from
+-- Wireshark. So we'll have a set of global statics used during read(), but the
+-- actual per-packet values will be stored in a table indexed/keyed by the file
+-- position number.  A separate table holds TCP peer connection info as described
+-- later.
 
--- the following local table holds global (to this file) static variables that need to be reset every new file read
-local statics = { ["ip_ident"] = 0, ["tyear"] = 0, ["tmonth"] = 0, ["tmin"] = 0, ["tmin"] = 0, ["tsec"] = 0, ["tmilli"] = 0, ["nstime"] = NSTime() }
+-- I said above that this state is "global", but really it can't be global to this
+-- whole script file, because more than one file can be opened for reading at the
+-- same time. For exampel if the user presses the reload button, the capture file
+-- will be opened for reading before the previous (same) one is closed. So we have
+-- to store state per-file. The good news is Wireshark gives us a convenient way to
+-- do that, using the CaptureInfo.private_table attribute/member. We can save a Lua
+-- table with whatever contents we want, to this private_table member, and get it
+-- later during the other read/seek_read/cose function calls.
 
--- the following table holds per-packet info
--- the key index will be a number - the file position - but it won't be an array type table (too sparse).
--- Each packets entry is a table holding the "static" variables for that packet; this sub-table will be
--- an array style instead of hashmap, to reduce size/performance
--- This table needs to be cleared whenever the file is closed/opened.
-local packets = {}
--- the indeces for the variable sub-tables
+-- So to store this per-file state, we're going to use Lua class objects. They're
+-- just Lua tables that have functions and metafunctions and can be treated like
+-- objects in terms of syntax/behavior.
+
+local State = {}
+local State_mt = { __index = State }
+
+function State.new()
+    local new_class = {  -- the new instance
+        -- stuff we need to keep track of to cerate fake info
+        ip_ident = 0,
+        tyear    = 0,
+        tmonth   = 0,
+        tmin     = 0,
+        tsec     = 0,
+        tmilli   = 0,
+        nstime   = NSTime(),
+        -- the following table holds per-packet info
+        -- the key index will be a number - the file position - but it won't be an array type table (too sparse).
+        -- Each packet's entry is a table holding the "static" variables for that packet; this sub-table will be
+        -- an array style instead of hashmap, to reduce size/performance
+        -- This table needs to be cleared whenever the file is closed/opened.
+        packets = {},
+
+        -- the following local table holds TCP peer "connection" info, which is basically
+        -- TCP control block (TCB) type information; this is needed to create and keep track
+        -- of fake TCP sockets/headers for messages that went over TCP, for example for fake
+        -- sequence number info.
+        -- The key index for this is the local+remote ip:port strings concatenated.
+        -- The value is a sub-table, array style, holding the most recent sequence numbers.
+        -- This whole table needs to be cleared whenever the file is closed/opened.
+        tcb = {},
+
+    }
+    setmetatable( new_class, State_mt ) -- all instances share the same metatable
+    return new_class
+end
+
+-- the indeces for the State.packets{} variable sub-tables
 local IP_IDENT  = 1
 local TTIME     = 2
 local LOCAL_SEQ = 3
 local REMOTE_SEQ = 4
 
--- the following local table holds TCP peer "connection" info, which is basically
--- TCP control block (TCB) type information; this is needed to create and keep track
--- of fake TCP sockets/headers for messages that went over TCP, for example for fake
--- sequence number info.
--- The key index for this is the local+remote ip:port strings concatenated.
--- The value is a sub-table, array style, holding the most recent sequence numbers.
--- This whole table needs to be cleared whenever the file is closed/opened.
-local tcb = {}
--- the indeces for the sub-tables
+-- the indeces for the State.tcb{} sub-tables
 local TLOCAL_SEQ = 1
 local TREMOTE_SEQ = 2
-
-local function reset_state()
-    tcb = {}
-    packets = {}
-    for name, v in pairs(statics) do
-        statics[name] = 0
-    end
-    statics.nstime = NSTime()
-end
 
 -- helper functions
 local char = string.char
@@ -335,7 +362,7 @@ local function get_timezone()
 end
 local timezone = get_timezone()
 
-local function get_timestamp(line, file_position, seeking)
+function State:get_timestamp(line, file_position, seeking)
     local i, line_pos, month, day, hour, min, sec, milli = line:find(header_time_pattern)
     if not month then
         return
@@ -343,7 +370,7 @@ local function get_timestamp(line, file_position, seeking)
 
     if seeking then
         -- we've seen this packet before, just go get the saved timestamp
-        sec = packets[file_position][TTIME]
+        sec = self.packets[file_position][TTIME]
         if not sec then
             dprint("failed to get saved timestamp for packet at position:", file_position)
             return
@@ -377,7 +404,7 @@ local function get_timestamp(line, file_position, seeking)
     -- so we're going to check the current system month, and if it's less than the log file's then we'll
     -- assume the log file started last year; if the system month is larger or equal, then we'll assume the log
     -- file is of this year.  We only do this checking once per file.
-    if statics.tyear == 0 then
+    if self.tyear == 0 then
         local curr_year, curr_month = tonumber(os.date("%Y")), tonumber(os.date("%m"))
         if curr_month < month then
             -- use last year
@@ -385,16 +412,16 @@ local function get_timestamp(line, file_position, seeking)
                 curr_year = curr_year - 1
             end
         end
-        statics.tyear = curr_year
+        self.tyear = curr_year
     end
 
     -- if this message's month is less than previous message's, then year wrapped
-    if month < statics.tmonth then
-        statics.tyear = statics.tyear + 1
+    if month < self.tmonth then
+        self.tyear = self.tyear + 1
     end
-    statics.tmonth = month
+    self.tmonth = month
 
-    local timet = os.time({ ["year"] = statics.tyear, ["month"] = month, ["day"] = day, ["hour"] = hour, ["min"] = min, ["sec"] = sec })
+    local timet = os.time({ ["year"] = self.tyear, ["month"] = month, ["day"] = day, ["hour"] = hour, ["min"] = min, ["sec"] = sec })
     if not timet then
         dprint("timestamp conversion failed")
     end
@@ -402,25 +429,25 @@ local function get_timestamp(line, file_position, seeking)
     timet = timet + timezone
 
     -- make an NSTime
-    statics.nstime = NSTime(timet, milli * 1000000)
-    packets[file_position][TTIME] = statics.nstime
+    self.nstime = NSTime(timet, milli * 1000000)
+    self.packets[file_position][TTIME] = self.nstime
 
     timet = timet + (milli/1000)
     dprint2("found time of ", os.date("%c",timet), " with value=",timet)
 
-    return statics.nstime, line_pos
+    return self.nstime, line_pos
 end
 
 -- get_tail_time() gets a fictitous timestamp starting from 19:00:00 on Dec 31, 1969, and incrementing based
 -- on the minutes/secs/millisecs seen (i.e., if the minute wrapped then hour increases by 1, etc.).
 -- this is needed for tail'ed log files, since they don't show month/day/hour
-local function get_tail_time(line, file_position, seeking)
+function State:get_tail_time(line, file_position, seeking)
     local i, line_pos, min, sec, milli = line:find(header_tail_time_pattern)
     if not min then return end
 
     if seeking then
         -- we've seen this packet before, just go get the saved timestamp
-        sec = packets[file_position][TTIME]
+        sec = self.packets[file_position][TTIME]
         if not sec then
             dprint("failed to get saved timestamp for packet at position:", file_position)
             return
@@ -438,7 +465,7 @@ local function get_tail_time(line, file_position, seeking)
     end
 
     -- get difference in time
-    local tmin, tsec, tmilli, nstime = statics.tmin, statics.tsec, statics.tmilli, statics.nstime
+    local tmin, tsec, tmilli, nstime = self.tmin, self.tsec, self.tmilli, self.nstime
     local ttime = nstime.secs
 
     -- min, sec, milli are what the log says this tail'ed packet is
@@ -452,11 +479,11 @@ local function get_tail_time(line, file_position, seeking)
     else
         ttime = ttime + (((min * 60) + sec) - ((tmin * 60) + tsec))
     end
-    statics.tmin, statics.tsec, statics.tmilli = min, sec, milli
-    statics.nstime = NSTime(ttime, milli * 1000000)
-    packets[file_position][TTIME] = statics.nstime
+    self.tmin, self.tsec, self.tmilli = min, sec, milli
+    self.nstime = NSTime(ttime, milli * 1000000)
+    self.packets[file_position][TTIME] = self.nstime
 
-    return statics.nstime, line_pos
+    return self.nstime, line_pos
 end
 
 local hexbin = {
@@ -606,8 +633,9 @@ local TCP = 20
 local Packet = {}
 local Packet_mt = { __index = Packet }
 
-function Packet:new(timestamp, direction, source_ip, source_port, dest_ip, dest_port, ptype, ttype, file_position)
+function Packet.new(state, timestamp, direction, source_ip, source_port, dest_ip, dest_port, ptype, ttype, file_position)
     local new_class = {  -- the new instance
+        ["state"] = state,
         ["timestamp"] = timestamp,
         ["direction"] = direction,
         ["source_ip"] = source_ip,
@@ -693,6 +721,7 @@ function Packet:get_ascii_data(file, line, bufftbl, index, only_newline)
         bufftbl[index-1] = nil
     end
 
+    dprint2("Packet:get_ascii_data() returning", bufflen)
     return bufflen
 end
 
@@ -703,8 +732,8 @@ local RawPacket = {}
 local RawPacket_mt = { __index = RawPacket }
 setmetatable( RawPacket, Packet_mt ) -- make RawPacket inherit from Packet
 
-function RawPacket:new(...)
-    local new_class = Packet:new(...) -- the new instance
+function RawPacket.new(...)
+    local new_class = Packet.new(...) -- the new instance
     setmetatable( new_class, RawPacket_mt ) -- all instances share the same metatable
     return new_class
 end
@@ -779,8 +808,8 @@ local DataPacket = {}
 local DataPacket_mt = { __index = DataPacket }
 setmetatable( DataPacket, Packet_mt ) -- make Dataacket inherit from Packet
 
-function DataPacket:new(...)
-    local new_class = Packet:new(...) -- the new instance
+function DataPacket.new(...)
+    local new_class = Packet.new(...) -- the new instance
     setmetatable( new_class, DataPacket_mt ) -- all instances share the same metatable
     return new_class
 end
@@ -796,16 +825,16 @@ function DataPacket:build_ipv4_hdr(bufflen, proto, seeking)
     -- figure out the ip identification value
     local ip_ident
     if seeking then
-        ip_ident = packets[self.file_position][IP_IDENT]
+        ip_ident = self.state.packets[self.file_position][IP_IDENT]
     else
         -- increment ident value
-        statics.ip_ident = statics.ip_ident + 1
-        if statics.ip_ident == 65536 then
-            statics.ip_ident = 1
+        self.state.ip_ident = self.state.ip_ident + 1
+        if self.state.ip_ident == 65536 then
+            self.state.ip_ident = 1
         end
-        ip_ident = statics.ip_ident
+        ip_ident = self.state.ip_ident
         -- save it for future seeking
-        packets[self.file_position][IP_IDENT] = ip_ident
+        self.state.packets[self.file_position][IP_IDENT] = ip_ident
     end
 
     -- use a table to concatenate as it's slightly faster that way
@@ -907,45 +936,45 @@ function DataPacket:build_tcp_hdr(bufflen, bufftbl, seeking)
 
     local local_seq, remote_seq
     if seeking then
-        local_seq = packets[self.file_position][LOCAL_SEQ]
-        remote_seq = packets[self.file_position][REMOTE_SEQ]
+        local_seq = self.state.packets[self.file_position][LOCAL_SEQ]
+        remote_seq = self.state.packets[self.file_position][REMOTE_SEQ]
     else
         -- find socket/tcb info for this "stream", create if not found
-        if not tcb[self.tcbkey] then
+        if not self.state.tcb[self.tcbkey] then
             -- create them
-            tcb[self.tcbkey] = {}
+            self.state.tcb[self.tcbkey] = {}
             local_seq = 1
             remote_seq = 1
-            packets[self.file_position][LOCAL_SEQ] = 1
-            packets[self.file_position][REMOTE_SEQ] = 1
+            self.state.packets[self.file_position][LOCAL_SEQ] = 1
+            self.state.packets[self.file_position][REMOTE_SEQ] = 1
             -- set tcb to next sequence numbers, so that the correct "side"
             -- acknowledges receiving these bytes
             if self.direction == SENT then
                 -- this packet is being sent, so local sequence increases next time
-                tcb[self.tcbkey][TLOCAL_SEQ] = bufflen+1
-                tcb[self.tcbkey][TREMOTE_SEQ] = 1
+                self.state.tcb[self.tcbkey][TLOCAL_SEQ] = bufflen+1
+                self.state.tcb[self.tcbkey][TREMOTE_SEQ] = 1
             else
                 -- this packet is being received, so remote sequence increases next time
                 -- and local side will acknowldge it next time
-                tcb[self.tcbkey][TLOCAL_SEQ] = 1
-                tcb[self.tcbkey][TREMOTE_SEQ] = bufflen+1
+                self.state.tcb[self.tcbkey][TLOCAL_SEQ] = 1
+                self.state.tcb[self.tcbkey][TREMOTE_SEQ] = bufflen+1
             end
         else
             -- stream already exists, so send the current tcb seqs and update for next time
             if self.direction == SENT then
                 -- this packet is being sent, so local sequence increases next time
-                local_seq = tcb[self.tcbkey][TLOCAL_SEQ]
-                remote_seq = tcb[self.tcbkey][TREMOTE_SEQ]
-                tcb[self.tcbkey][TLOCAL_SEQ] = local_seq + bufflen
+                local_seq = self.state.tcb[self.tcbkey][TLOCAL_SEQ]
+                remote_seq = self.state.tcb[self.tcbkey][TREMOTE_SEQ]
+                self.state.tcb[self.tcbkey][TLOCAL_SEQ] = local_seq + bufflen
             else
                 -- this packet is being received, so the "local" seq number of the packet is the remote's seq really
-                local_seq = tcb[self.tcbkey][TREMOTE_SEQ]
-                remote_seq = tcb[self.tcbkey][TLOCAL_SEQ]
+                local_seq = self.state.tcb[self.tcbkey][TREMOTE_SEQ]
+                remote_seq = self.state.tcb[self.tcbkey][TLOCAL_SEQ]
                 -- and remote seq needs to increase next time (remember local_seq is TREMOTE_SEQ)
-                tcb[self.tcbkey][TREMOTE_SEQ] = local_seq + bufflen
+                self.state.tcb[self.tcbkey][TREMOTE_SEQ] = local_seq + bufflen
             end
-            packets[self.file_position][LOCAL_SEQ] = local_seq
-            packets[self.file_position][REMOTE_SEQ] = remote_seq
+            self.state.packets[self.file_position][LOCAL_SEQ] = local_seq
+            self.state.packets[self.file_position][REMOTE_SEQ] = remote_seq
         end
     end
 
@@ -966,7 +995,7 @@ function DataPacket:build_tcp_hdr(bufflen, bufftbl, seeking)
 end
 
 function DataPacket:build_packet(bufftbl, bufflen, seeking)
-    dprint2("DataPacket:build_packet() called")
+    dprint2("DataPacket:build_packet() called with ptype=",self.ptype)
     if self.ptype == IPv4 then
         if self.ttype == UDP then
             bufftbl[2] = self:build_udp_hdr(bufflen)
@@ -1021,8 +1050,8 @@ local BinPacket = {}
 local BinPacket_mt = { __index = BinPacket }
 setmetatable( BinPacket, DataPacket_mt ) -- make BinPacket inherit from DataPacket
 
-function BinPacket:new(...)
-    local new_class = DataPacket:new(...) -- the new instance
+function BinPacket.new(...)
+    local new_class = DataPacket.new(...) -- the new instance
     setmetatable( new_class, BinPacket_mt ) -- all instances share the same metatable
     return new_class
 end
@@ -1067,8 +1096,8 @@ local DnsPacket = {}
 local DnsPacket_mt = { __index = DnsPacket }
 setmetatable( DnsPacket, BinPacket_mt ) -- make DnsPacket inherit from BinPacket
 
-function DnsPacket:new(...)
-    local new_class = BinPacket:new(...) -- the new instance
+function DnsPacket.new(...)
+    local new_class = BinPacket.new(...) -- the new instance
     setmetatable( new_class, DnsPacket_mt ) -- all instances share the same metatable
     return new_class
 end
@@ -1099,8 +1128,8 @@ local AsciiPacket = {}
 local AsciiPacket_mt = { __index = AsciiPacket }
 setmetatable( AsciiPacket, DataPacket_mt ) -- make AsciiPacket inherit from DataPacket
 
-function AsciiPacket:new(...)
-    local new_class = DataPacket:new(...) -- the new instance
+function AsciiPacket.new(...)
+    local new_class = DataPacket.new(...) -- the new instance
     setmetatable( new_class, AsciiPacket_mt ) -- all instances share the same metatable
     return new_class
 end
@@ -1148,24 +1177,24 @@ end
 -- this is from a tail'ed log output:
 -- 52:22.434 On [0:0]205.152.56.211:5060 received from 205.152.56.75:5060
 local loopback_pattern = "^127%.0%.0%.%d+$"
-local function parse_header(file, line, file_position, seeking)
+local function parse_header(state, file, line, file_position, seeking)
 
     if seeking then
         -- verify we've seen this packet before
-        if not packets[file_position] then
+        if not state.packets[file_position] then
             dprint("parse_header: packet at file position ", file_position, " not saved previously")
             return
         end
     else
         -- first time through, create sub-table for the packet
-        packets[file_position] = {}
+        state.packets[file_position] = {}
     end
 
     -- get time info, and line match ending position
-    local timestamp, line_pos = get_timestamp(line, file_position, seeking)
+    local timestamp, line_pos = state:get_timestamp(line, file_position, seeking)
     if not timestamp then
         -- see if it's a tail'ed log instead
-        timestamp, line_pos = get_tail_time(line, file_position, seeking)
+        timestamp, line_pos = state:get_tail_time(line, file_position, seeking)
     end
 
     if not timestamp then
@@ -1233,7 +1262,11 @@ local function parse_header(file, line, file_position, seeking)
     packet_class = get_packet_class(line)
     file:seek("set", position)  -- go back
 
-    local packet = packet_class:new(timestamp, direction, source_ip, source_port, dest_ip, dest_port, ptype, ttype, file_position)
+    dprint2("parse_header calling packet_class.new with:",
+            tostring(timestamp), direction, source_ip, source_port,
+            dest_ip, dest_port, ptype, ttype, file_position)
+
+    local packet = packet_class.new(state, timestamp, direction, source_ip, source_port, dest_ip, dest_port, ptype, ttype, file_position)
     if not packet then
         dprint("parse_header: parser failed to create Packet object")
     end
@@ -1251,40 +1284,61 @@ end
 -- file handling functions for Wireshark to use
 
 -- The read_open is called by Wireshark once per file, to see if the file is this reader's type.
+-- It passes in (1) a File and (2) CaptureInfo object to this function
 -- Since there is no exact magic sequence to search for, we have to use heuristics to guess if the file
 -- is our type or not, which we do by parsing a message header.
 -- Since Wireshark uses the file cursor position for future reading of this file, we also have to seek back to the beginning
 -- so that our normal read() function works correctly.
 local function read_open(file, capture)
+    dprint2("read_open called")
     -- save current position to return later
     local position = file:seek()
+
     local line = file:read()
     if not line then return false end
+
     dprint2("read_open: got this line begin:\n'", line, "'")
 
     line, position = skip_ahead(file, line, position)
     if not line then return false end
+
     dprint2("read_open: got this line after skip:\n'", line, "', with position=", position)
 
-    if parse_header(file, line, position) then
+    local state = State.new()
+
+    if parse_header(state, file, line, position) then
+        dprint2("read_open success")
+
         file:seek("set",position)
+
         capture.time_precision = wtap_filetypes.TSPREC_MSEC  -- for millisecond precision
         capture.encap = wtap.RAW_IP -- whole file is raw IP format
         capture.snapshot_length = 0 -- unknown snaplen
         capture.comment = "Oracle Acme Packet SBC message log"
         capture.os = "VxWorks or Linux"
         capture.hardware = "Oracle Acme Packet SBC"
-        -- reset static variables
-        reset_state()
+
+        -- reset state variables
+        capture.private_table = State.new()
+
+        dprint2("read_open returning true")
         return true
     end
 
+    dprint2("read_open returning false")
     return false
 end
 
 ----------------------------------------
 -- this is used by both read() and seek_read()
-local function read_common(funcname, file, frame, position, seeking)
+local function read_common(funcname, file, capture, frame, position, seeking)
+    dprint2(funcname, "read_common called")
+    local state = capture.private_table
+
+    if not state then
+        dprint(funcname, "error getting capture state")
+        return false
+    end
 
     local line = file:read()
     if not line then
@@ -1302,7 +1356,7 @@ local function read_common(funcname, file, frame, position, seeking)
     end
 
     dprint2(funcname, ": parsing line='", line, "'")
-    local phdr = parse_header(file, line, position, seeking)
+    local phdr = parse_header(state, file, line, position, seeking)
     if not phdr then
         dprint(funcname, "failed to parse header")
         return false
@@ -1317,19 +1371,22 @@ local function read_common(funcname, file, frame, position, seeking)
         dprint(funcname, "failed to set Wireshark packet header info")
         return
     end
+
+    dprint2(funcname, "read_common returning position")
     return position
 end
 
 ----------------------------------------
 -- Wireshark/tshark calls read() for each frame/record in the file
--- It passes in a File object and FrameInfo object to this function
+-- It passes in (1) a File, (2) CaptureInfo, and (3) a FrameInfo object to this function
 -- It expects in return the file offset position the record starts at,
 -- or nil/false if there's an error or end-of-file is reached.
 -- The offset position is used later: wireshark remembers it and gives
 -- it to seek_read() at various random times
-local function read(file, frame)
+local function read(file, capture, frame)
+    dprint2("read called")
     local position = file:seek()
-    position = read_common("read", file, frame, position)
+    position = read_common("read", file, capture, frame, position)
     if not position then
         if file:read(0) ~= nil then
             dprint("read failed to call read_common")
@@ -1343,11 +1400,12 @@ end
 
 ----------------------------------------
 -- Wireshark/tshark calls seek_read() for each frame/record in the file, at random times
--- It passes in to this function a File object, FrameInfo object, and the offset position number
+-- It passes in (1) File, (2) CaptureInfo, (3) FrameInfo, and (4) the offset position number
 -- It expects in return true for successful parsing, or nil/false if there's an error.
-local function seek_read(file, frame, offset)
+local function seek_read(file, capture, frame, offset)
+    dprint2("seek_read called")
     file:seek("set",offset)
-    if not read_common("seek_read", file, frame, offset, true) then
+    if not read_common("seek_read", file, capture, frame, offset, true) then
         dprint("seek_read failed to call read_common")
         return false
     end
@@ -1356,19 +1414,24 @@ end
 
 ----------------------------------------
 -- Wireshark/tshark calls read_close() when it's closing the file completely
+-- It passes in (1) a File and (2) CaptureInfo object to this function
 -- this is a good opportunity to clean up any state you may have created during
--- file reading. (in our case there *is* state to reset)
-local function read_close(file)
-    reset_state()
+-- file reading.
+-- In our case there *is* state to reset, but we only saved it in
+-- the capture.private_table, so Wireshark will clean it up for us.
+local function read_close(file, capture)
+    dprint2("read_close called")
     return true
 end
 
 ----------------------------------------
 -- An often unused function, Wireshark calls this when the sequential walk-through is over
--- (i.e., no more calls to read(), only to seek_read()).  So we'll clear the TCB table
--- here to free up memory; this is undoubtedly unecessary, but good practice.
-local function seq_read_close(file)
-    tcb = {}
+-- It passes in (1) a File and (2) CaptureInfo object to this function
+-- (i.e., no more calls to read(), only to seek_read()).
+-- In our case there *is* some state to reset, but we only saved it in
+-- the capture.private_table, so Wireshark will clean it up for us.
+local function seq_read_close(file, capture)
+    dprint2("seq_read_close called")
     return true
 end
 

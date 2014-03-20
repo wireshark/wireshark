@@ -12,6 +12,18 @@
 --]]
 --------------------------------------------------------------------------------
 
+-- do not modify this table
+local debug = {
+    DISABLED = 0,
+    LEVEL_1  = 1,
+    LEVEL_2  = 2
+}
+
+-- set this DEBUG to debug.LEVEL_1 to enable printing debug info
+-- set it to debug.LEVEL_2 to enable really verbose printing
+local DEBUG = debug.LEVEL_1
+
+
 local wireshark_name = "Wireshark"
 if not GUI_ENABLED then
     wireshark_name = "Tshark"
@@ -28,35 +40,51 @@ end
 -- technically we should be able to do this with 'require', but Struct is a built-in
 assert(Struct.unpack, wireshark_name .. " does not have the Struct library!")
 
--- debug printer, set DEBUG to true to enable printing debug info
--- set DEBUG2 to true to enable really verbose printing
-local DEBUG, DEBUG2 = false, false
+--------------------------------------------------------------------------------
+-- early definitions
+-- throughout most of this file I try to pre-declare things to help ease
+-- reading it and following the logic flow, but some things just have to be done
+-- before others, so this sections has such things that cannot be avoided
+--------------------------------------------------------------------------------
+
+-- first some variable declarations for functions we'll define later
+local parse_file_header, parse_rec_header, read_common
+
+-- these will be set inside of parse_file_header(), but we're declaring them up here
+local default_settings =
+{
+    debug           = DEBUG,
+    corrected_magic = 0xa1b2c3d4,
+    version_major   = 2,
+    version_minor   = 4,
+    timezone        = 0,
+    sigfigs         = 0,
+    read_snaplen    = 0, -- the snaplen we read from file
+    snaplen         = 0, -- the snaplen we use (limited by WTAP_MAX_PACKET_SIZE)
+    linktype        = -1, -- the raw linktype number in the file header
+    wtap_type       = wtap_encaps.UNKNOWN, -- the mapped internal wtap number based on linktype
+    endianess       = ENC_BIG_ENDIAN,
+    time_precision  = wtap_filetypes.TSPREC_USEC,
+    rec_hdr_len     = 16,            -- default size of record header
+    rec_hdr_patt    = "I4 I4 I4 I4", -- pattern for Struct to use
+    num_rec_fields  = 4,             -- number of vars in pattern
+}
 
 local dprint = function() end
 local dprint2 = function() end
-if DEBUG or DEBUG2 then
-    dprint = function(...)
-        print(table.concat({"Lua:", ...}," "))
-    end
+local function reset_debug()
+    if default_settings.debug > debug.DISABLED then
+        dprint = function(...)
+            print(table.concat({"Lua:", ...}," "))
+        end
 
-    if DEBUG2 then
-        dprint2 = dprint
+        if default_settings.debug > debug.LEVEL_1 then
+            dprint2 = dprint
+        end
     end
 end
-
-----------------------------------------
--- to make it easier to read this file, we'll define some of the functions
--- later on, but we need them earlier, so we "declare" them here
-local parse_file_header, parse_rec_header, read_common
-
-
--- these will be set inside of parse_file_header(), but we're declaring them up here
-local VERSION_MAJOR = 2
-local VERSION_MINOR = 4
-local TIMEZONE = 0
-local SIGFIGS = 0
-local SNAPLEN = 0
-local ENCAP_TYPE = wtap.UNKNOWN
+-- call it now
+reset_debug()
 
 --------------------------------------------------------------------------------
 -- file reader handling functions for Wireshark to use
@@ -68,17 +96,17 @@ local ENCAP_TYPE = wtap.UNKNOWN
 -- It expects in return either nil or false to mean it's not our file type, or true if it is
 -- In our case what this means is we figure out if the file has the magic header, and get the
 -- endianess of the file, and the encapsulation type of its frames/records
--- Since Wireshark uses the file cursor position for future reading of this file, we also have to seek back to the beginning
--- so that our normal read() function works correctly.
 local function read_open(file, capture)
     dprint2("read_open() called")
 
-    -- save current position to return later
-    local position = file:seek()
+    local file_settings = parse_file_header(file)
 
-    if parse_file_header(file) then
+    if file_settings then
 
         dprint2("read_open: success, file is for us")
+
+        -- save our state
+        capture.private_table = file_settings
 
         -- if the file is for us, we MUST set the file position cursor to
         -- where we want the first call to read() function to get it the next time
@@ -89,9 +117,9 @@ local function read_open(file, capture)
         --file:seek("set",position)
 
         -- these we can also set per record later during read operations
-        capture.time_precision = wtap_filetypes.TSPREC_USEC  -- for microsecond precision
-        capture.encap = ENCAP_TYPE -- this was updated by parse_file_header()
-        capture.snapshot_length = SNAPLEN  -- also updated by parse_file_header()
+        capture.time_precision  = file_settings.time_precision
+        capture.encap           = file_settings.wtap_type
+        capture.snapshot_length = file_settings.snaplen
 
         return true
     end
@@ -99,26 +127,24 @@ local function read_open(file, capture)
     dprint2("read_open: file not for us")
 
     -- if it's not for us, wireshark will reset the file position itself
-    -- but we might as well do it too, in case that behavior ever changes
-    file:seek("set",position)
 
     return false
 end
 
 ----------------------------------------
 -- Wireshark/tshark calls read() for each frame/record in the file
--- It passes in a File object and FrameInfo object to this function
+-- It passes in (1) a File, (2) CaptureInfo, and (3) FrameInfo object to this function
 -- It expects in return the file offset position the record starts at,
 -- or nil/false if there's an error or end-of-file is reached.
 -- The offset position is used later: wireshark remembers it and gives
 -- it to seek_read() at various random times
-local function read(file, frame)
+local function read(file, capture, frame)
     dprint2("read() called")
 
     -- call our common reader function
     local position = file:seek()
 
-    if not read_common("read", file, frame) then
+    if not read_common("read", file, capture, frame) then
         -- this isnt' actually an error, because it might just mean we reached end-of-file
         -- so let's test for that (read(0) is a special case in Lua, see Lua docs)
         if file:read(0) ~= nil then
@@ -137,15 +163,15 @@ end
 
 ----------------------------------------
 -- Wireshark/tshark calls seek_read() for each frame/record in the file, at random times
--- It passes in to this function a File object, FrameInfo object, and the offset position number
+-- It passes in (1) a File, (2) CaptureInfo, (3) FrameInfo object, and the offset position number
 -- It expects in return true for successful parsing, or nil/false if there's an error.
-local function seek_read(file, frame, offset)
+local function seek_read(file, capture, frame, offset)
     dprint2("seek_read() called")
 
     -- first move to the right position in the file
     file:seek("set",offset)
 
-    if not read_common("seek_read", file, frame) then
+    if not read_common("seek_read", file, capture, frame) then
         dprint("seek_read: failed to call read_common")
         return false
     end
@@ -155,26 +181,23 @@ end
 
 ----------------------------------------
 -- Wireshark/tshark calls read_close() when it's closing the file completely
+-- It passes in (1) a File and (2) CaptureInfo object to this function
 -- this is a good opportunity to clean up any state you may have created during
 -- file reading. (in our case there's no real state)
-local function read_close(file)
+local function read_close(file, capture)
     dprint2("read_close() called")
-    -- we don't really have to reset these, but just to show what you might do in this function...
-    VERSION_MAJOR = 2
-    VERSION_MINOR = 4
-    TIMEZONE = 0
-    SIGFIGS = 0
-    SNAPLEN = 0
-    ENCAP_TYPE = wtap.UNKNOWN
+    -- we don't really have to reset anything, because we used the
+    -- capture.private_table and wireshark clears it for us after this function
     return true
 end
 
 ----------------------------------------
 -- An often unused function, Wireshark calls this when the sequential walk-through is over
 -- (i.e., no more calls to read(), only to seek_read()).
+-- It passes in (1) a File and (2) CaptureInfo object to this function
 -- This gives you a chance to clean up any state you used during read() calls, but remember
 -- that there will be calls to seek_read() after this (in Wireshark, though not Tshark)
-local function seq_read_close(file)
+local function seq_read_close(file, capture)
     dprint2("First pass of read() calls are over, but there may be seek_read() calls after this")
     return true
 end
@@ -216,6 +239,7 @@ local pcap2wtap = {
     [9]   = wtap_encaps.PPP,
     [101] = wtap_encaps.RAW_IP,
     [105] = wtap_encaps.IEEE_802_11,
+    [127] = wtap_encaps.IEEE_802_11_RADIOTAP,
     [140] = wtap_encaps.MTP2,
     [141] = wtap_encaps.MTP3,
     [143] = wtap_encaps.DOCSIS,
@@ -253,31 +277,135 @@ local function wtap2pcap(encap)
 end
 
 ----------------------------------------
--- the pcap magic field: 0xA1B2C3D4, of both endianess
-local MAGIC         = 0xa1b2c3d4
-local SWAPPED_MAGIC = 0xd4c3b2a1
-
 -- here are the "structs" we're going to parse, of the various records in a pcap file
 -- these pattern string gets used in calls to Struct.unpack()
 --
 -- we will prepend a '<' or '>' later, once we figure out what endian-ess the files are in
 --
+-- this is a constant for minimum we need to read before we figure out the filetype
+local FILE_HDR_LEN = 24
 -- a pcap file header struct
 -- this is: magic, version_major, version_minor, timezone, sigfigs, snaplen, encap type
-local FILE_HEADER = "I4 I2 I2 i4 I4 I4 I4"
-local FILE_HDR_LEN = Struct.size(FILE_HEADER)
-
--- a pcap record header struct
--- this is: time_sec, time_usec, capture_len, original_len
-local REC_HEADER = "I4 I4 I4 I4"
-local REC_HDR_LEN  = Struct.size(REC_HEADER)
-local NUM_REC_FIELDS = 4
+local FILE_HEADER_PATT = "I4 I2 I2 i4 I4 I4 I4"
+-- it's too bad Struct doesn't have a way to get the number of vars the pattern holds
+-- another thing to add to my to-do list?
+local NUM_HDR_FIELDS = 7
 
 -- these will hold the '<'/'>' prepended version of above
-local file_header, rec_header
+--local file_header, rec_header
 
 -- snaplen/caplen can't be bigger than this
 local WTAP_MAX_PACKET_SIZE = 65535
+
+----------------------------------------
+-- different pcap file types have different magic values
+-- we need to know various things about them for various functions
+-- in this script, so this table holds all the info
+--
+-- See default_settings table above for the defaults used if this table
+-- doesn't override them.
+--
+-- Arguably, these magic types represent different "Protocols" to dissect later,
+-- but this script treats them all as "pcapfile" protocol.
+--
+-- From this table, we'll auto-create a value-string table for file header magic field
+local magic_spells =
+{
+    normal =
+    {
+        magic = 0xa1b2c3d4,
+        name  = "Normal (Big-endian)",
+    },
+    swapped =
+    {
+        magic = 0xd4c3b2a1,
+        name  = "Swapped Normal (Little-endian)",
+        endianess = ENC_LITTLE_ENDIAN,
+    },
+    modified =
+    {
+        -- this is for a ss991029 patched format only
+        magic = 0xa1b2cd34,
+        name  = "Modified",
+        rec_hdr_len    = 24,
+        rec_hdr_patt   = "I4I4I4I4 I4 I2 I1 I1",
+        num_rec_fields = 8,
+    },
+    swapped_modified =
+    {
+        -- this is for a ss991029 patched format only
+        magic = 0x34cdb2a1,
+        name  = "Swapped Modified",
+        rec_hdr_len    = 24,
+        rec_hdr_patt   = "I4I4I4I4 I4 I2 I1 I1",
+        num_rec_fields = 8,
+        endianess = ENC_LITTLE_ENDIAN,
+    },
+    nsecs =
+    {
+        magic = 0xa1b23c4d,
+        name  = "Nanosecond",
+        time_precision = wtap_filetypes.TSPREC_NSEC,
+    },
+    swapped_nsecs =
+    {
+        magic = 0x4d3cb2a1,
+        name  = "Swapped Nanosecond",
+        endianess      = ENC_LITTLE_ENDIAN,
+        time_precision = wtap_filetypes.TSPREC_NSEC,
+    },
+}
+
+-- create a magic-to-spell entry table from above magic_spells table
+-- so we can find them faster during file read operations
+-- we could just add them right back into spells table, but this is cleaner
+local magic_values = {}
+for k,t in pairs(magic_spells) do
+    magic_values[t.magic] = t
+end
+
+-- the function which makes a copy of the default settings per file
+local function new_settings()
+    dprint2("creating new file_settings")
+    local file_settings = {}
+    for k,v in pairs(default_settings) do
+        file_settings[k] = v
+    end
+    return file_settings
+end
+
+-- set the file_settings that the magic value defines in magic_values
+local function set_magic_file_settings(magic)
+    local t = magic_values[magic]
+    if not t then
+        dprint("set_magic_file_settings: did not find magic settings for:",magic)
+        return false
+    end
+
+    local file_settings = new_settings()
+
+    -- the magic_values/spells table uses the same key names, so this is easy
+    for k,v in pairs(t) do
+        file_settings[k] = v
+    end
+
+    -- based on endianess, set the file_header and rec_header
+    -- and determine corrected_magic
+    if file_settings.endianess == ENC_BIG_ENDIAN then
+        file_settings.file_hdr_patt = '>' .. FILE_HEADER_PATT
+        file_settings.rec_hdr_patt  = '>' .. file_settings.rec_hdr_patt
+        file_settings.corrected_magic = magic
+    else
+        file_settings.file_hdr_patt = '<' .. FILE_HEADER_PATT
+        file_settings.rec_hdr_patt  = '<' .. file_settings.rec_hdr_patt
+        local m = Struct.pack(">I4", magic)
+        file_settings.corrected_magic = Struct.unpack("<I4", m)
+    end
+
+    file_settings.rec_hdr_len = Struct.size(file_settings.rec_hdr_patt)
+
+    return file_settings
+end
 
 ----------------------------------------
 -- internal functions declared previously
@@ -298,70 +426,94 @@ parse_file_header = function(file)
 
     dprint2("parse_file_header: got this line:\n'", Struct.tohex(line,false,":"), "'")
 
-    -- let's peek at the magic int32, assuming it's little-endian
-    local magic = Struct.unpack("<I4", line)
+    -- let's peek at the magic int32, assuming it's big-endian
+    local magic = Struct.unpack(">I4", line)
 
-    if magic == MAGIC then
-        dprint2("file is little-endian")
-        file_header = "<" .. FILE_HEADER
-        rec_header  = "<" .. REC_HEADER
-    elseif magic == SWAPPED_MAGIC then
-        dprint2("file is big-endian")
-        file_header = ">" .. FILE_HEADER
-        rec_header  = ">" .. REC_HEADER
-    else
-        dprint("magic was:",magic," so not a pcap file")
+    local file_settings = set_magic_file_settings(magic)
+
+    if not file_settings then
+        dprint("magic was: '", magic, "', so not a known pcap file?")
         return false
     end
 
-    local nettype
+    -- this is: magic, version_major, version_minor, timezone, sigfigs, snaplen, encap type
+    local fields = { Struct.unpack(FILE_HEADER_PATT, line) }
 
-    magic, VERSION_MAJOR, VERSION_MINOR, TIMEZONE, SIGFIGS, SNAPLEN, nettype = Struct.unpack(file_header, line)
-
-    if not magic then
-        dprint("parse_file_header: failed to unpack header struct")
-        return false
+    -- sanity check; also note that Struct.unpack() returns the fields plus
+    -- a number of where in the line it stopped reading (ie, the end in this case)
+    -- so we got back number of fields + 1
+    if #fields ~= NUM_HDR_FIELDS + 1 then
+        -- this should never happen, since we already told file:read() to grab enough bytes
+        dprint("parse_file_header: failed to read the file header")
+        return nil
     end
 
-    dprint("parse_file_header: got magic=",magic, ", major version=",VERSION_MAJOR, ", minor=",VERSION_MINOR,
-            ", timezone=",TIMEZONE, ", sigfigs=",SIGFIGS, "snaplen=",SNAPLEN, ", nettype =",nettype)
+    -- fields[1] is the magic, which we already parsed and saved before, but just to be sure
+    -- our endianess is set right, we validate what we got is what we expect now that
+    -- endianess has been corrected
+    if fields[1] ~= file_settings.corrected_magic then
+        dprint ("parse_file_header: endianess screwed up? Got:'", fields[1],
+                "', but wanted:", file_settings.corrected_magic)
+        return nil
+    end
+
+    file_settings.version_major = fields[2]
+    file_settings.version_minor = fields[3]
+    file_settings.timezone      = fields[4]
+    file_settings.sigfigs       = fields[5]
+    file_settings.read_snaplen  = fields[6]
+    file_settings.linktype      = fields[7]
 
     -- wireshark only supports version 2.0 and later
-    if VERSION_MAJOR < 2 then
+    if fields[2] < 2 then
         dprint("got version =",VERSION_MAJOR,"but only version 2 or greater supported")
         return false
     end
 
     -- convert pcap file interface type to wtap number type
-    ENCAP_TYPE = pcap2wtap[nettype]
-    if not ENCAP_TYPE then
-        dprint("file nettype",nettype,"couldn't be mapped to wireshark wtap type")
+    file_settings.wtap_type = pcap2wtap[file_settings.linktype]
+    if not file_settings.wtap_type then
+        dprint("file nettype", file_settings.linktype,
+               "couldn't be mapped to wireshark wtap type")
         return false
     end
 
-
-    if SNAPLEN > WTAP_MAX_PACKET_SIZE then
-        SNAPLEN = WTAP_MAX_PACKET_SIZE
+    file_settings.snaplen = file_settings.read_snaplen
+    if file_settings.snaplen > WTAP_MAX_PACKET_SIZE then
+        file_settings.snaplen = WTAP_MAX_PACKET_SIZE
     end
+
+    dprint2("read_file_header: got magic='", magic,
+            "', major version='", file_settings.version_major,
+            "', minor='", file_settings.version_minor,
+            "', timezone='", file_settings.timezone,
+            "', sigfigs='", file_settings.sigfigs,
+            "', read_snaplen='", file_settings.read_snaplen,
+            "', snaplen='", file_settings.snaplen,
+            "', nettype ='", file_settings.linktype,
+            "', wtap ='", file_settings.wtap_type)
 
     --ok, it's a pcap file
     dprint2("parse_file_header: success")
-    return true
+    return file_settings
 end
 
 ----------------------------------------
 -- this is used by both read() and seek_read()
 -- the calling function to this should have already set the file position correctly
-read_common = function(funcname, file, frame)
+read_common = function(funcname, file, capture, frame)
     dprint2(funcname,": read_common() called")
 
+    -- get the state info
+    local file_settings = capture.private_table
+
     -- first parse the record header, which will set the FrameInfo fields
-    if not parse_rec_header(funcname, file, frame) then
+    if not parse_rec_header(funcname, file, file_settings, frame) then
         dprint2(funcname, ": read_common: hit end of file or error")
         return false
     end
 
-    frame.encap = ENCAP_TYPE
+    frame.encap = file_settings.wtap_type
 
     -- now we need to get the packet bytes from the file record into the frame...
     -- we *could* read them into a string using file:read(numbytes), and then
@@ -380,51 +532,56 @@ end
 
 ----------------------------------------
 -- the function to parse individual records
-parse_rec_header = function(funcname, file, frame)
+parse_rec_header = function(funcname, file, file_settings, frame)
     dprint2(funcname,": parse_rec_header() called")
 
-    local line = file:read(REC_HDR_LEN)
+    local line = file:read(file_settings.rec_hdr_len)
 
     -- it's ok for us to not be able to read it, if it's end of file
     if not line then return false end
 
     -- this is: time_sec, time_usec, capture_len, original_len
-    local fields = { Struct.unpack(rec_header, line) }
+    local fields = { Struct.unpack(file_settings.rec_hdr_patt, line) }
 
     -- sanity check; also note that Struct.unpack() returns the fields plus
     -- a number of where in the line it stopped reading (ie, the end in this case)
     -- so we got back number of fields + 1
-    if #fields ~= NUM_REC_FIELDS + 1 then
-        dprint(funcname, ": parse_rec_header: failed to read the record header")
+    if #fields ~= file_settings.num_rec_fields + 1 then
+        dprint(funcname, ": parse_rec_header: failed to read the record header, got:",
+               #fields, ", expected:", file_settings.num_rec_fields)
         return nil
     end
 
-    -- we could just do this:
-    --frame.time = fields[1] + (fields[2] / 1000000)
-    -- but Lua numbers are doubles, which lose precision in the fractional part
-    -- so we use a NSTime() object instead; remember though that an NSTime takes
-    -- nanoseconds for its second arg, and pcap's are only microseconds, so *1000
-    frame.time = NSTime(fields[1], fields[2]*1000)
+    local nsecs = fields[2]
+
+    if file_settings.time_precision == wtap_filetypes.TSPREC_USEC then
+        nsecs = nsecs * 1000
+    elseif file_settings.time_precision == wtap_filetypes.TSPREC_MSEC then
+        nsecs = nsecs * 1000000
+    end
+
+    frame.time = NSTime(fields[1], nsecs)
+
+    local caplen, origlen = fields[3], fields[4]
 
     -- sanity check, verify captured length isn't more than original length
-    if fields[3] > fields[4] then
-        dprint("captured length of",fields[3],"is bigger than original length of",fields[4])
-        -- swap them
-        local caplen = fields[3]
-        fields[3] = fields[4]
-        fields[4] = caplen
+    if caplen > origlen then
+        dprint("captured length of", caplen, "is bigger than original length of", origlen)
+        -- swap them, a cool Lua ability
+        caplen, origlen = origlen, caplen
     end
 
-    if fields[3] > WTAP_MAX_PACKET_SIZE then
-        dprint("Got a captured_length of",fields[3],"which is too big")
-        return nil
+    if caplen > WTAP_MAX_PACKET_SIZE then
+        dprint("Got a captured_length of", caplen, "which is too big")
+        caplen = WTAP_MAX_PACKET_SIZE
     end
 
-    frame.captured_length = fields[3]
-    frame.original_length = fields[4]
+    frame.captured_length = caplen
+    frame.original_length = origlen
 
     frame.flags = wtap_presence_flags.TS + wtap_presence_flags.CAP_LEN -- for timestamp|cap_len
 
+    dprint2(funcname,": parse_rec_header() returning")
     return true
 end
 
@@ -446,20 +603,38 @@ local canwrite = {
     -- etc., etc.
 }
 
--- we can't reuse the variables we used in the reader, because this script might be sued to both
--- open a file for reading and write it out, at the same time, so we prepend 'W_' for the writer's
--- versions. Normally I'd put this type of stuff in a class table and just create a new instance,
--- but I didn't want to confuse people with Lua class models in this script
-local W_VERSION_MAJOR = 2
-local W_VERSION_MINOR = 4
-local W_TIMEZONE = 0
-local W_SIGFIGS = 0
-local W_SNAPLEN = 0
-local W_ENCAP_TYPE = wtap.UNKNOWN
--- write out things in little-endian order
-local w_file_header = "<" .. FILE_HEADER
-local w_rec_header = "<" .. REC_HEADER
-local TSPRECISION = wtap_filetypes.TSPREC_USEC
+-- we can't reuse the variables we used in the reader, because this script might be used to both
+-- open a file for reading and write it out, at the same time, so we cerate another file_settings
+-- instance.
+-- set the file_settings for the little-endian version in magic_spells
+local function create_writer_file_settings()
+    dprint2("create_writer_file_settings called")
+    local t = magic_spells.swapped
+
+    local file_settings = new_settings()
+
+    -- the magic_values/spells table uses the same key names, so this is easy
+    for k,v in pairs(t) do
+        file_settings[k] = v
+    end
+
+    -- based on endianess, set the file_header and rec_header
+    -- and determine corrected_magic
+    if file_settings.endianess == ENC_BIG_ENDIAN then
+        file_settings.file_hdr_patt = '>' .. FILE_HEADER_PATT
+        file_settings.rec_hdr_patt  = '>' .. file_settings.rec_hdr_patt
+        file_settings.corrected_magic = file_settings.magic
+    else
+        file_settings.file_hdr_patt = '<' .. FILE_HEADER_PATT
+        file_settings.rec_hdr_patt  = '<' .. file_settings.rec_hdr_patt
+        local m = Struct.pack(">I4", file_settings.magic)
+        file_settings.corrected_magic = Struct.unpack("<I4", m)
+    end
+
+    file_settings.rec_hdr_len = Struct.size(file_settings.rec_hdr_patt)
+
+    return file_settings
+end
 
 ----------------------------------------
 -- The can_write_encap() function is called by Wireshark when it wants to write out a file,
@@ -473,60 +648,87 @@ end
 local function write_open(file, capture)
     dprint2("write_open() called")
 
+    local file_settings = create_writer_file_settings()
+
     -- write out file header
-    local hdr = Struct.pack(w_file_header,
-        MAGIC, W_VERSION_MAJOR, W_VERSION_MINOR,
-        W_TIMEZONE, W_SIGFIGS, capture.snapshot_length, wtap2pcap(capture.encap))
+    local hdr = Struct.pack(file_settings.file_hdr_patt,
+                            file_settings.corrected_magic,
+                            file_settings.version_major,
+                            file_settings.version_minor,
+                            file_settings.timezone,
+                            file_settings.sigfigs,
+                            capture.snapshot_length,
+                            wtap2pcap(capture.encap))
 
     if not hdr then
         dprint("write_open: error generating file header")
         return false
     end
 
-    dprint2("write_open generating:",Struct.tohex(hdr))
+    dprint2("write_open generating:", Struct.tohex(hdr))
 
     if not file:write(hdr) then
         dprint("write_open: error writing file header to file")
         return false
     end
 
+    -- save settings
+    capture.private_table = file_settings
+
     return true
 end
 
-local function write(file, frame)
+local function write(file, capture, frame)
     dprint2("write() called")
+
+    -- get file settings
+    local file_settings = capture.private_table
+    if not file_settings then
+        dprint("write() failed to get private table file settings")
+        return false
+    end
 
     -- write out record header: time_sec, time_usec, capture_len, original_len
 
     -- first get times
     local nstime = frame.time
 
-    -- pcap format is in usecs
-    local nsecs = nstime.nsecs / 1000
+    -- pcap format is in usecs, but wireshark's internal is nsecs
+    local nsecs = nstime.nsecs
 
-    local hdr = Struct.pack(w_rec_header, nstime.secs, nsecs, frame.captured_length, frame.original_length)
+    if file_settings.time_precision == wtap_filetypes.TSPREC_USEC then
+        nsecs = nsecs / 1000
+    elseif file_settings.time_precision == wtap_filetypes.TSPREC_MSEC then
+        nsecs = nsecs / 1000000
+    end
+
+    local hdr = Struct.pack(file_settings.rec_hdr_patt,
+                            nstime.secs,
+                            nsecs,
+                            frame.captured_length,
+                            frame.original_length)
 
     if not hdr then
-        dprint("write_open: error generating record header")
+        dprint("write: error generating record header")
         return false
     end
 
     if not file:write(hdr) then
-        dprint("write_open: error writing record header to file")
+        dprint("write: error writing record header to file")
         return false
     end
 
     -- we could write the packet data the same way, by getting frame.data and writing it out
     -- but we can avoid copying those bytes into Lua by using the write_data() function
     if not frame:write_data(file) then
-        dprint("write_open: error writing record data to file")
+        dprint("write: error writing record data to file")
         return false
     end
 
     return true
 end
 
-local function write_close(file)
+local function write_close(file, capture)
     dprint2("write_close() called")
     dprint2("Good night, and good luck")
     return true

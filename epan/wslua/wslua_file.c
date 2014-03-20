@@ -74,6 +74,7 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"),NOP);
     it is passed in to.
  */
 
+
 /* a "File" object can be different things under the hood. It can either
    be a FILE_T from wtap struct, which it is during read operations, or it
    can be a wtap_dumper struct during write operations. A wtap_dumper struct
@@ -490,29 +491,202 @@ int File_register(lua_State* L) {
 }
 
 
+/************
+ * The following is for handling private data for the duration of the file
+ * read_open/read/close cycle, or write_open/write/write_close cycle.
+ * In other words it handles the "priv" member of wtap and wtap_dumper,
+ * but for the Lua script's use. A Lua script can set a Lua table
+ * to CaptureInfo/CaptureInfoConst and have it saved and retrievable this way.
+ * We need to offer that, because there needs to be a way for Lua scripts
+ * to save state for a given file's operations cycle. Since there can be
+ * two files opened at the same time for the same Lua script (due to reload
+ * and other such events), the script can't just have one file state.
+ */
+
+/* this is way overkill for this one member, but in case we need to add
+   more in the future, the plumbing will be here */
+typedef struct _file_priv_t {
+    int table_ref;
+} file_priv_t;
+
+/* create and set the wtap->priv private data for the file instance */
+static void create_wth_priv(lua_State* L, wtap *wth) {
+    file_priv_t *priv = g_malloc(sizeof(file_priv_t));
+
+    if (wth->priv != NULL) {
+        luaL_error(L, "Cannot create wtap private data because there already is private data");
+        return;
+    }
+    priv->table_ref = LUA_NOREF;
+    wth->priv = (void*) priv;
+}
+
+/* gets the private data table from wtap */
+static int get_wth_priv_table_ref(lua_State* L, wtap *wth) {
+    file_priv_t *priv = (file_priv_t*) wth->priv;
+
+    if (!priv) {
+        /* shouldn't be possible */
+        luaL_error(L, "Cannot get wtap private data: it is null");
+        return LUA_NOREF;
+    }
+
+    /* the following might push a nil, but that's ok */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, priv->table_ref);
+
+    return 1;
+}
+
+/* sets the private data to wtap - the table is presumed on top of stack */
+static int set_wth_priv_table_ref(lua_State* L, wtap *wth) {
+    file_priv_t *priv = (file_priv_t*) wth->priv;
+
+    if (!priv) {
+        /* shouldn't be possible */
+        luaL_error(L, "Cannot get wtap private data: it is null");
+        return 0;
+    }
+
+    if (lua_isnil(L, -1)){
+        /* user is setting it nil - ok, de-ref any previous one */
+        luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
+        priv->table_ref = LUA_NOREF;
+        return 0;
+    }
+
+    if (!lua_istable(L, -1)) {
+        luaL_error(L, "The private_table member can only be set to a table or nil");
+        return 0;
+    }
+
+    /* if we had a table already referenced, de-ref it first */
+    if (priv->table_ref != LUA_NOREF) {
+        luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
+    }
+
+    priv->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    return 0;
+}
+
+/* remove, deref, and free the wtap->priv data */
+static void remove_wth_priv(lua_State* L, wtap *wth) {
+    file_priv_t *priv = (file_priv_t*) wth->priv;
+
+    if (!priv) {
+        /* shouldn't be possible */
+        luaL_error(L, "Cannot remove wtap private data: it is null");
+        return;
+    }
+
+    luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
+
+    g_free(wth->priv);
+    wth->priv = NULL;
+}
+
+/* create and set the wtap_dumper->priv private data for the file instance */
+static void create_wdh_priv(lua_State* L, wtap_dumper *wdh) {
+    file_priv_t *priv = g_malloc(sizeof(file_priv_t));
+
+    if (wdh->priv != NULL) {
+        luaL_error(L, "Cannot create wtap_dumper private data because there already is private data");
+        return;
+    }
+    priv->table_ref = LUA_NOREF;
+    wdh->priv = (void*) priv;
+}
+
+/* get the private data from wtap_dumper */
+static int get_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh) {
+    file_priv_t *priv = (file_priv_t*) wdh->priv;
+
+    if (!priv) {
+        /* shouldn't be possible */
+        luaL_error(L, "Cannot get wtap_dumper private data: it is null");
+        return LUA_NOREF;
+    }
+
+    /* the following might push a nil, but that's ok */
+    lua_rawgeti(L, LUA_REGISTRYINDEX, priv->table_ref);
+
+    return 1;
+}
+
+/* sets the private data to wtap - the table is presumed on top of stack */
+static int set_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh) {
+    file_priv_t *priv = (file_priv_t*) wdh->priv;
+
+    if (!priv) {
+        /* shouldn't be possible */
+        luaL_error(L, "Cannot get wtap private data: it is null");
+        return 0;
+    }
+
+    if (lua_isnil(L, -1)){
+        /* user is setting it nil - ok, de-ref any previous one */
+        luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
+        priv->table_ref = LUA_NOREF;
+        return 0;
+    }
+
+    if (!lua_istable(L, -1)) {
+        luaL_error(L, "The private_table member can only be set to a table or nil");
+        return 0;
+    }
+
+    /* if we had a table already referenced, de-ref it first */
+    if (priv->table_ref != LUA_NOREF) {
+        luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
+    }
+
+    priv->table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+
+    return 0;
+}
+
+/* remove and deref the wtap_dumper->priv data */
+static void remove_wdh_priv(lua_State* L, wtap_dumper *wdh) {
+    file_priv_t *priv = (file_priv_t*) wdh->priv;
+
+    if (!priv) {
+        /* shouldn't be possible */
+        luaL_error(L, "Cannot remove wtap_dumper private data: it is null");
+        return;
+    }
+
+    luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
+    /* we do NOT free wtap_dumper's priv member - wtap_dump_close() free's it */
+}
+
+
 WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth),NOP);
 /*
     A CaptureInfo object, passed into Lua as an argument by FileHandler callback
-    function read_open().
+    function read_open(), read(), seek_read(), seq_read_close(), and read_close().
     This object represents capture file data and meta-data (data about the
     capture file) being read into Wireshark/Tshark.
 
     </para><para>
-    This object's fields can be written-to by Lua during the read_open function callback.
-    In other words, when the Lua plugin's FileHandler read_open function is invoked, a
+    This object's fields can be written-to by Lua during the read-based function callbacks.
+    In other words, when the Lua plugin's FileHandler read_open() function is invoked, a
     CaptureInfo object will be passed in as one of the arguments, and its fields
     should be written to by your Lua code to tell Wireshark about the capture.
  */
 
-static CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth) {
+static CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time) {
     CaptureInfo f = (CaptureInfo) g_malloc0(sizeof(struct _wslua_captureinfo));
     f->wth = wth;
     f->wdh = NULL;
-    /* XXX: need to do this? */
-    wth->file_encap = WTAP_ENCAP_UNKNOWN;
-    wth->tsprecision = WTAP_FILE_TSPREC_SEC;
-    wth->snapshot_length = 0;
     f->expired = FALSE;
+
+    if (first_time) {
+        /* XXX: need to do this? */
+        wth->file_encap = WTAP_ENCAP_UNKNOWN;
+        wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+        wth->snapshot_length = 0;
+    }
+
     return pushCaptureInfo(L,f);
 }
 
@@ -533,9 +707,9 @@ WSLUA_METAMETHOD CaptureInfo__tostring(lua_State* L) {
 
 
 static int CaptureInfo__gc(lua_State* L _U_) {
-    FrameInfo fi = toFrameInfo(L,1);
-    if (fi)
-        g_free(fi);
+    CaptureInfo fc = toCaptureInfo(L,1);
+    if (fc)
+        g_free(fc);
     return 0;
 }
 
@@ -693,6 +867,35 @@ static int CaptureInfo_set_hosts(lua_State* L) {
     return 0;
 }
 
+
+/* WSLUA_ATTRIBUTE CaptureInfo_private_table RW A private Lua value unique to this file.
+
+    </para><para>
+    The private_table is a field you set/get with your own Lua table.
+    This is provided so that a Lua script can save per-file reading/writing
+    state, because multiple files can be opened and read at the same time.
+
+    </para><para>
+    For example, if the user issued a reload-file command, or Lua called the
+    reload() function, then the current capture file is still open while a new one
+    is being opened, and thus Wireshark will invoke read_open() while the previous
+    capture file has not caused read_close() to be called; and if the read_open()
+    succeeds then read_close() will be called right after that for the previous
+    file, rather than the one just opened. Thus the Lua script can use this
+    private_table to store a table of values specific to each file, by setting
+    this private_table in the read_open() function, which it can then later get back
+    inside its read(), seek_read(), and read_close() functions.
+*/
+static int CaptureInfo_get_private_table(lua_State* L) {
+    CaptureInfo fi = checkCaptureInfo(L,1);
+    return get_wth_priv_table_ref(L, fi->wth);
+}
+
+static int CaptureInfo_set_private_table(lua_State* L) {
+    CaptureInfo fi = checkCaptureInfo(L,1);
+    return set_wth_priv_table_ref(L, fi->wth);
+}
+
 WSLUA_ATTRIBUTES CaptureInfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,encap),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,time_precision),
@@ -702,6 +905,7 @@ WSLUA_ATTRIBUTES CaptureInfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,os),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,user_app),
     WSLUA_ATTRIBUTE_WOREG(CaptureInfo,hosts),
+    WSLUA_ATTRIBUTE_RWREG(CaptureInfo,private_table),
     { NULL, NULL, NULL }
 };
 
@@ -860,9 +1064,34 @@ static int CaptureInfoConst_get_hosts(lua_State* L) {
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE CaptureInfoConst_private_table RW A private Lua value unique to this file.
+
+    </para><para>
+    The private_table is a field you set/get with your own Lua table.
+    This is provided so that a Lua script can save per-file reading/writing
+    state, because multiple files can be opened and read at the same time.
+
+    </para><para>
+    For example, if two Lua scripts issue a Dumper:new_for_current() call and the
+    current file happens to use your script's writer, then the Wireshark will invoke
+    write_open() while the previous capture file has not had write_close() called.
+    Thus the Lua script can use this private_table to store a table of values
+    specific to each file, by setting this private_table in the write_open()
+    function, which it can then later get back inside its write(), and write_close()
+    functions.
+*/
+static int CaptureInfoConst_get_private_table(lua_State* L) {
+    CaptureInfoConst fi = checkCaptureInfoConst(L,1);
+    return get_wdh_priv_table_ref(L, fi->wdh);
+}
+
+static int CaptureInfoConst_set_private_table(lua_State* L) {
+    CaptureInfoConst fi = checkCaptureInfoConst(L,1);
+    return set_wdh_priv_table_ref(L, fi->wdh);
+}
 
 static int CaptureInfoConst__gc(lua_State* L _U_) {
-    FrameInfoConst fi = toFrameInfoConst(L,1);
+    CaptureInfoConst fi = toCaptureInfoConst(L,1);
     if (fi)
         g_free(fi);
     return 0;
@@ -877,6 +1106,7 @@ WSLUA_ATTRIBUTES CaptureInfoConst_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,os),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,user_app),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,hosts),
+    WSLUA_ATTRIBUTE_RWREG(CaptureInfoConst,private_table),
     { NULL, NULL, NULL }
 };
 
@@ -1386,8 +1616,10 @@ wslua_filehandler_open(wtap *wth, int *err _U_, gchar **err_info)
 
     INIT_FILEHANDLER_ROUTINE(read_open,0);
 
+    create_wth_priv(L, wth);
+
     fp = push_File(L, wth->fh);
-    fc = push_CaptureInfo(L, wth);
+    fc = push_CaptureInfo(L, wth, TRUE);
 
     errno = WTAP_ERR_CANT_READ;
     switch ( lua_pcall(L,2,1,1) ) {
@@ -1429,6 +1661,10 @@ wslua_filehandler_open(wtap *wth, int *err _U_, gchar **err_info)
 
         wth->file_type_subtype = fh->file_type;
     }
+    else {
+        /* not our file type */
+        remove_wth_priv(L, wth);
+    }
 
     lua_settop(L,0);
     return retval;
@@ -1448,6 +1684,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
     int retval = -1;
     lua_State* L = NULL;
     File *fp = NULL;
+    CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
 
     INIT_FILEHANDLER_ROUTINE(read,FALSE);
@@ -1458,10 +1695,11 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
     wth->phdr.opt_comment = NULL;
 
     fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
     fi = push_FrameInfo(L, &wth->phdr, wth->frame_buffer);
 
     errno = WTAP_ERR_CANT_READ;
-    switch ( lua_pcall(L,2,1,1) ) {
+    switch ( lua_pcall(L,3,1,1) ) {
         case 0:
             if (lua_isnumber(L,-1)) {
                 *data_offset = wslua_togint64(L, -1);
@@ -1476,6 +1714,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
     END_FILEHANDLER_ROUTINE();
 
     (*fp)->expired = TRUE;
+    (*fc)->expired = TRUE;
     (*fi)->expired = TRUE;
     lua_settop(L,0);
 
@@ -1494,6 +1733,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     int retval = -1;
     lua_State* L = NULL;
     File *fp = NULL;
+    CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
 
     INIT_FILEHANDLER_ROUTINE(seek_read,FALSE);
@@ -1503,11 +1743,12 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     phdr->opt_comment = NULL;
 
     fp = push_File(L, wth->random_fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
     fi = push_FrameInfo(L, phdr, buf);
     lua_pushnumber(L, (lua_Number)seek_off);
 
     *err = WTAP_ERR_CANT_READ;
-    switch ( lua_pcall(L,3,1,1) ) {
+    switch ( lua_pcall(L,4,1,1) ) {
         case 0:
             if (lua_isstring(L,-1)) {
                 size_t len = 0;
@@ -1525,6 +1766,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     END_FILEHANDLER_ROUTINE();
 
     (*fp)->expired = TRUE;
+    (*fc)->expired = TRUE;
     (*fi)->expired = TRUE;
     lua_settop(L,0);
 
@@ -1539,12 +1781,14 @@ wslua_filehandler_close(wtap *wth)
     FileHandler fh = (FileHandler)(wth->wslua_data);
     lua_State* L = NULL;
     File *fp = NULL;
+    CaptureInfo *fc = NULL;
 
     INIT_FILEHANDLER_ROUTINE(read_close,);
 
     fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
 
-    switch ( lua_pcall(L,1,1,1) ) {
+    switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             break;
         CASE_ERROR("read_close")
@@ -1552,7 +1796,10 @@ wslua_filehandler_close(wtap *wth)
 
     END_FILEHANDLER_ROUTINE();
 
+    remove_wth_priv(L, wth);
+
     (*fp)->expired = TRUE;
+    (*fc)->expired = TRUE;
     lua_settop(L,0);
 
     return;
@@ -1566,12 +1813,14 @@ wslua_filehandler_sequential_close(wtap *wth)
     FileHandler fh = (FileHandler)(wth->wslua_data);
     lua_State* L = NULL;
     File *fp = NULL;
+    CaptureInfo *fc = NULL;
 
     INIT_FILEHANDLER_ROUTINE(seq_read_close,);
 
     fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
 
-    switch ( lua_pcall(L,1,1,1) ) {
+    switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             break;
         CASE_ERROR("seq_read_close")
@@ -1580,6 +1829,7 @@ wslua_filehandler_sequential_close(wtap *wth)
     END_FILEHANDLER_ROUTINE();
 
     (*fp)->expired = TRUE;
+    (*fc)->expired = TRUE;
     lua_settop(L,0);
 
     return;
@@ -1652,6 +1902,8 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
 
     INIT_FILEHANDLER_ROUTINE(write_open,0);
 
+    create_wdh_priv(L, wdh);
+
     fp = push_Wdh(L, wdh);
     fc = push_CaptureInfoConst(L,wdh);
 
@@ -1687,6 +1939,10 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
         else
             wdh->subtype_close = NULL;
     }
+    else {
+        /* not our file type? */
+        remove_wdh_priv(L, wdh);
+    }
 
     return retval;
 }
@@ -1702,6 +1958,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     int retval = -1;
     lua_State* L = NULL;
     File *fp = NULL;
+    CaptureInfoConst *fc = NULL;
     FrameInfoConst *fi = NULL;
 
     INIT_FILEHANDLER_ROUTINE(write,FALSE);
@@ -1710,10 +1967,11 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     *err = errno = 0;
 
     fp = push_Wdh(L, wdh);
+    fc = push_CaptureInfoConst(L,wdh);
     fi = push_FrameInfoConst(L, phdr, pd);
 
     errno = WTAP_ERR_CANT_READ;
-    switch ( lua_pcall(L,2,1,1) ) {
+    switch ( lua_pcall(L,3,1,1) ) {
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
@@ -1723,6 +1981,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     END_FILEHANDLER_ROUTINE();
 
     (*fp)->expired = TRUE;
+    (*fc)->expired = TRUE;
     (*fi)->expired = TRUE;
 
     return (retval == 1);
@@ -1738,6 +1997,7 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
     int retval = -1;
     lua_State* L = NULL;
     File *fp = NULL;
+    CaptureInfoConst *fc = NULL;
 
     INIT_FILEHANDLER_ROUTINE(write_close,FALSE);
 
@@ -1745,9 +2005,10 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
     *err = errno = 0;
 
     fp = push_Wdh(L, wdh);
+    fc = push_CaptureInfoConst(L,wdh);
 
     errno = WTAP_ERR_CANT_READ;
-    switch ( lua_pcall(L,1,1,1) ) {
+    switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
@@ -1756,7 +2017,10 @@ wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
 
     END_FILEHANDLER_ROUTINE();
 
+    remove_wdh_priv(L, wdh);
+
     (*fp)->expired = TRUE;
+    (*fc)->expired = TRUE;
 
     return (retval == 1);
 }

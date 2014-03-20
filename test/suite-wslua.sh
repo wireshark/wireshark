@@ -102,6 +102,7 @@ wslua_step_file_test() {
 		cat ./testin.txt
 		cat ./testout.txt
 		test_step_failed "subtest-3 reading the pcap file with Lua did not match internal"
+		return
 	fi
 
 	# Now generate a new capture file using the Lua writer.
@@ -121,6 +122,7 @@ wslua_step_file_test() {
 		echo
 		cat ./testout.txt
 		test_step_failed "subtest-5 creating a new pcap file using Lua did not match dhcp.cap"
+		return
 	fi
 
 	# Now read an acme sipmsg.log using the acme Lua reader, writing it out as pcapng.
