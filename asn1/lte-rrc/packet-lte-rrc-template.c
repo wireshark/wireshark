@@ -1,9 +1,9 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V11.6.0 Release 11) packet dissection
+ * (3GPP TS 36.331 V11.7.0 Release 11) packet dissection
  * Copyright 2008, Vincent Helfre
- * Copyright 2009-2013, Pascal Quantin
+ * Copyright 2009-2014, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -185,6 +185,8 @@ static int hf_lte_rrc_warningType_emergency_user_alert = -1;
 static int hf_lte_rrc_warningType_popup = -1;
 static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
 static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
+static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
+static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -204,6 +206,7 @@ static gint ett_lte_rrc_serialNumber = -1;
 static gint ett_lte_rrc_warningType = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
+static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -1807,6 +1810,15 @@ static const value_string lte_rrc_warningType_vals[] = {
   { 0, NULL},
 };
 
+static const true_false_string lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1_val = {
+  "SCell DL subframes are a subset or superset of PCell by SIB1 configuration - Supported",
+  "SCell DL subframes are a subset or superset of PCell by SIB1 configuration - Not supported",
+};
+
+static const true_false_string lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_val = {
+  "SCell DL subframes are neither superset nor subset of PCell by SIB1 configuration - Supported",
+  "SCell DL subframes are neither superset nor subset of PCell by SIB1 configuration - Not supported",
+};
 
 /*****************************************************************************/
 /* Packet private data                                                       */
@@ -1971,7 +1983,7 @@ dissect_lte_rrc_warningMessageSegment(tvbuff_t *warning_msg_seg_tvb, proto_tree 
     cb_data_page_tvb = tvb_new_subset(warning_msg_seg_tvb, offset, length, length);
     cb_data_tvb = dissect_cbs_data(dataCodingScheme, cb_data_page_tvb, tree, pinfo, 0);
     if (cb_data_tvb) {
-      str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
+      str = tvb_get_string_enc(wmem_packet_scope(), cb_data_tvb, 0, tvb_reported_length(cb_data_tvb), ENC_UTF_8|ENC_NA);
       proto_tree_add_string_format(tree, hf_lte_rrc_warningMessageSegment_decoded_page, warning_msg_seg_tvb, offset, 83,
                                    str, "Decoded Page %u: %s", i+1, str);
     }
@@ -2770,6 +2782,14 @@ void proto_register_lte_rrc(void) {
       { "Decoded Page", "lte-rrc.warningMessageSegment.decoded_page",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1,
+      { "Bit 1", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit1",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1_val), 0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2,
+      { "Bit 2", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit2",
+        FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_val), 0,
+        NULL, HFILL }}
   };
 
   /* List of subtrees */
@@ -2789,7 +2809,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_serialNumber,
     &ett_lte_rrc_warningType,
     &ett_lte_rrc_dataCodingScheme,
-    &ett_lte_rrc_warningMessageSegment
+    &ett_lte_rrc_warningMessageSegment,
+    &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig
   };
 
   static ei_register_info ei[] = {

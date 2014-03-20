@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V11.6.0 (2013-12)
+-- 3GPP TS 36.331 V11.7.0 (2014-03)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -128,6 +128,9 @@ AS-Config ::=				SEQUENCE {
 	[[	sourceSystemInformationBlockType1Ext	OCTET STRING (CONTAINING
 												SystemInformationBlockType1-v890-IEs)	OPTIONAL,
 		sourceOtherConfig-r9				OtherConfig-r9
+	-- sourceOtherConfig-r9 should have been optional. A target eNB compliant with this transfer
+	-- syntax should support receiving an AS-Config not including this extension addition group
+	-- e.g. from a legacy source eNB
 	]],
 	[[	sourceSCellConfigList-r10			SCellToAddModList-r10			OPTIONAL
 	]]

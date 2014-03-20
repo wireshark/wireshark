@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2013 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2014 Pascal Quantin
 
 #.OPT
 PER
@@ -152,7 +152,7 @@ if(ue_cap_tvb){
     }
     de_ms_cm_2(ue_cap_tvb, subtree2, actx->pinfo, 2, 3, NULL, 0);
     /* Mobile Station Classmark 3 is formatted as V */
-    length = tvb_ensure_length_remaining(ue_cap_tvb, 5);
+    length = tvb_reported_length_remaining(ue_cap_tvb, 5);
     item = proto_tree_add_text(subtree, ue_cap_tvb, 5, length, "Mobile Station Classmark 3");
     subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
     de_ms_cm_3(ue_cap_tvb, subtree2, actx->pinfo, 5, length, NULL, 0);
@@ -160,7 +160,7 @@ if(ue_cap_tvb){
   case RAT_Type_geran_ps:
     /* geran-ps */
     /* MS Radio Access Capability is formatted as V */
-    length = tvb_length(ue_cap_tvb);
+    length = tvb_reported_length(ue_cap_tvb);
     item = proto_tree_add_text(subtree, ue_cap_tvb, 0, length, "MS Radio Access Capability");
     subtree2 = proto_item_add_subtree(item, ett_lte_rrc_UE_CapabilityRAT_Container);
     de_gmm_ms_radio_acc_cap(ue_cap_tvb, subtree2, actx->pinfo, 0, length, NULL, 0);
@@ -222,6 +222,16 @@ if(ue_cap_tvb){
     dissect_lte_rrc_featureGroupIndRel10(featureGroupIndRel10_tvb, actx);
   }
 
+#.FN_BODY PhyLayerParameters-v1170/interBandTDD-CA-WithDifferentConfig-r11 VAL_PTR = &inter_band_tdd_ca_tvb
+  tvbuff_t *inter_band_tdd_ca_tvb=NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (inter_band_tdd_ca_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_interBandTDD_CA_WithDifferentConfig);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1, inter_band_tdd_ca_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(subtree, hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2, inter_band_tdd_ca_tvb, 1, 1, ENC_BIG_ENDIAN);
+  }
+
 #.FN_BODY Handover
   /* Initialise to invalid value */
   private_data_set_rat_target_type(actx, 0xFF);
@@ -276,7 +286,7 @@ if(ue_cap_tvb){
 
 %(DEFAULT_BODY)s
   if (nas_sec_param_from_eutra_tvb) {
-    length = tvb_length(nas_sec_param_from_eutra_tvb);
+    length = tvb_reported_length(nas_sec_param_from_eutra_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
     de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
   }
@@ -288,7 +298,7 @@ if(ue_cap_tvb){
 
 %(DEFAULT_BODY)s
   if (nas_sec_param_to_eutra_tvb) {
-    length = tvb_length(nas_sec_param_to_eutra_tvb);
+    length = tvb_reported_length(nas_sec_param_to_eutra_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
     de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
   }
