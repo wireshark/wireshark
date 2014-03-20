@@ -1425,6 +1425,8 @@ main(int argc, char *argv[])
     relinquish_special_privs_perm();
     print_current_user();
 
+    /* TODO: if tfshark is ever changed to give the user a choice of which
+       open_routine reader to use, then the following needs to change. */
     if (cf_open(&cfile, cf_name, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
       epan_cleanup();
       return 2;
@@ -2543,6 +2545,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->unsaved_changes = FALSE;
 
   cf->cd_t      = ftap_file_type_subtype((struct ftap*)cf->wth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
+  cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;

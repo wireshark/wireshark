@@ -238,9 +238,9 @@ static int pushresult (lua_State *L, int i, const char *filename) {
   else {
     lua_pushnil(L);
     if (filename)
-      lua_pushfstring(L, "%s: %s", filename, strerror(en));
+      lua_pushfstring(L, "%s: %s", filename, g_strerror(en));
     else
-      lua_pushfstring(L, "%s", strerror(en));
+      lua_pushfstring(L, "%s", g_strerror(en));
     lua_pushinteger(L, en);
     return 3;
   }
@@ -368,7 +368,7 @@ static int File_lines_iterator(lua_State* L) {
     success = File_read_line(L, ft);
 
     /* if (ferror(ft))
-        return luaL_error(L, "%s", strerror(errno));
+        return luaL_error(L, "%s", g_strerror(errno));
     */
     return success;
 }
@@ -421,7 +421,7 @@ WSLUA_METHOD File_write(lua_State* L) {
     if (!status) {
         lua_pop(L,1); /* pop the extraneous File object */
         lua_pushnil(L);
-        lua_pushfstring(L, "File write error: %s", strerror(err));
+        lua_pushfstring(L, "File write error: %s", g_strerror(err));
         lua_pushinteger(L, err);
         return 3;
     }
@@ -1157,7 +1157,7 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
 
     if (!wtap_dump_file_write(fh->wdh, fi->pd, (size_t)(len), &err)) {
         lua_pushboolean(L, FALSE);
-        lua_pushfstring(L, "FrameInfoConst write_data() error: %s", strerror(err));
+        lua_pushfstring(L, "FrameInfoConst write_data() error: %s", g_strerror(err));
         lua_pushnumber(L, err);
         return 3;
     }
@@ -1464,7 +1464,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             if (lua_isnumber(L,-1)) {
-                *data_offset = (gint64) lua_tonumber(L, -1);
+                *data_offset = wslua_togint64(L, -1);
                 retval = 1;
                 break;
             }

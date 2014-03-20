@@ -515,7 +515,7 @@ static gboolean funnel_open_file(const char* fname, const char* filter, const ch
         }
     }
 
-
+    /* This closes the current file if it succeeds. */
     if (cf_open(&cfile, fname, WTAP_TYPE_AUTO, FALSE, &err) != CF_OK) {
         *err_str = g_strerror(err);
         if (rfcode != NULL) dfilter_free(rfcode);

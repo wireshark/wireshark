@@ -72,6 +72,7 @@ typedef struct _capture_file {
   gboolean     unsaved_changes; /* Does the capture file have changes that have not been saved? */
   gint64       f_datalen;       /* Size of capture file data (uncompressed) */
   guint16      cd_t;            /* File type of capture file */
+  unsigned int open_type;       /* open_routine index+1 used, if selected, or WTAP_TYPE_AUTO */
   gboolean     iscompressed;    /* TRUE if the file is compressed */
   int          lnk_t;           /* File link-layer type; could be WTAP_ENCAP_PER_PACKET */
   GArray      *linktypes;       /* Array of packet link-layer types */

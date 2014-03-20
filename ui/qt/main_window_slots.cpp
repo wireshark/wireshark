@@ -150,7 +150,7 @@ void MainWindow::openCaptureFile(QString& cf_path, QString& display_filter, unsi
             }
         }
 
-        /* Try to open the capture file. */
+        /* Try to open the capture file. This closes the current file if it succeeds. */
         cfile.window = this;
         if (cf_open(&cfile, cf_path.toUtf8().constData(), type, FALSE, &err) != CF_OK) {
             /* We couldn't open it; don't dismiss the open dialog box,

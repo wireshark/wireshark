@@ -573,15 +573,17 @@ extern int wslua_set__index(lua_State *L);
             return luaL_error(L, "%s's attribute `%s' must be a string or nil", #C , #field ); \
         } \
         if (obj->member != NULL && need_free) \
-            free((void*) obj->member); \
+            g_free((void*) obj->member); \
         obj->member = s; \
         return 0; \
-    }
+    } \
+    /* silly little trick so we can add a semicolon after this macro */ \
+    static int C##_set_##field(lua_State*)
 
 #define WSLUA_ATTRIBUTE_STRING_SETTER(C,field,need_free) \
     WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(C,field,field,need_free)
 
-#define WSLUA_ERROR(name,error) { luaL_error(L, ep_strdup_printf("%s%s", #name ": " ,error) ); }
+#define WSLUA_ERROR(name,error) { luaL_error(L, "%s%s", #name ": " ,error); }
 #define WSLUA_ARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_ARG_ ## name ## _ ## attr, #name  ": " error); }
 #define WSLUA_OPTARG_ERROR(name,attr,error) { luaL_argerror(L,WSLUA_OPTARG_##name##_ ##attr, #name  ": " error); }
 

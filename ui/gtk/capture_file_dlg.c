@@ -709,7 +709,7 @@ file_open_cmd(capture_file *cf, GtkWidget *w _U_)
         continue;
       }
 
-      /* Try to open the capture file. */
+      /* Try to open the capture file. This closes the current file if it succeeds. */
       if (cf_open(&cfile, file_name->str, type, FALSE, &err) != CF_OK) {
         /* We couldn't open it; don't dismiss the open dialog box,
            just leave it around so that the user can, after they
@@ -990,7 +990,7 @@ file_merge_cmd(GtkWidget *w _U_)
 
       cf_close(&cfile);
 
-      /* Try to open the merged capture file. */
+      /* Try to open the merged capture file. This closes the current file if it succeeds. */
       if (cf_open(&cfile, tmpname, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
         /* We couldn't open it; fail. */
         if (rfcode != NULL)

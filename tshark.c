@@ -2626,6 +2626,8 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
   /* if we are in real-time mode, open the new file now */
   if (do_dissection) {
+    /* this is probably unecessary, but better safe than sorry */
+    ((capture_file *)cap_session->cf)->open_type = WTAP_TYPE_AUTO;
     /* Attempt to open the capture file and set up to read from it. */
     switch(cf_open((capture_file *)cap_session->cf, capture_opts->save_file, WTAP_TYPE_AUTO, is_tempfile, &err)) {
     case CF_OK:
@@ -4009,6 +4011,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->unsaved_changes = FALSE;
 
   cf->cd_t      = wtap_file_type_subtype(cf->wth);
+  cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;

@@ -376,6 +376,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->computed_elapsed = 0;
 
   cf->cd_t        = wtap_file_type_subtype(cf->wth);
+  cf->open_type   = type;
   cf->linktypes = g_array_sized_new(FALSE, FALSE, (guint) sizeof(int), 1);
   cf->count     = 0;
   cf->packet_comment_count = 0;
@@ -469,6 +470,9 @@ cf_reset_state(capture_file *cf)
   }
   /* ...which means we have no changes to that file to save. */
   cf->unsaved_changes = FALSE;
+
+  /* no open_routine type */
+  cf->open_type = WTAP_TYPE_AUTO;
 
   /* Free up the packet buffer. */
   buffer_free(&cf->buf);
@@ -4334,6 +4338,11 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
   wtap_close(cf->wth);
 
   /* Open the new file. */
+  /* XXX: this will go through all open_routines for a matching one. But right
+     now rescan_file() is only used when a file is being saved to a different
+     format than the original, and the user is not given a choice of which
+     reader to use (only which format to save it in), so doing this makes
+     sense for now. */
   cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, err, &err_info, TRUE);
   if (cf->wth == NULL) {
     cf_open_failure_alert_box(fname, *err, err_info, FALSE, 0);
@@ -4768,6 +4777,10 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          the wtap structure, the filename, and the "is temporary"
          status applies to the new file; just update that. */
       wtap_close(cf->wth);
+      /* Although we're just "copying" and then opening the copy, it will
+         try all open_routine readers to open the copy, so we need to
+         reset the cfile's open_type. */
+      cf->open_type = WTAP_TYPE_AUTO;
       cf->wth = wtap_open_offline(fname, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
       if (cf->wth == NULL) {
         cf_open_failure_alert_box(fname, err, err_info, FALSE, 0);
@@ -4799,6 +4812,9 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
          ...as long as, for gzipped files, the process of writing
          out the file *also* generates the information needed to
          support fast random access to the compressed file. */
+      /* rescan_file will cause us to try all open_routines, so
+         reset cfile's open_type */
+      cf->open_type = WTAP_TYPE_AUTO;
       if (rescan_file(cf, fname, FALSE, &err) != CF_READ_OK) {
         /* The rescan failed; just close the file.  Either
            a dialog was popped up for the failure, so the
@@ -5210,7 +5226,7 @@ cf_reload(capture_file *cf) {
   filename = g_strdup(cf->filename);
   is_tempfile = cf->is_tempfile;
   cf->is_tempfile = FALSE;
-  if (cf_open(cf, filename, WTAP_TYPE_AUTO, is_tempfile, &err) == CF_OK) {
+  if (cf_open(cf, filename, cf->open_type, is_tempfile, &err) == CF_OK) {
     switch (cf_read(cf, TRUE)) {
 
     case CF_READ_OK:

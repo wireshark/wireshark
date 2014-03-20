@@ -222,6 +222,8 @@ int main(int argc, char *argv[])
     init_open_routines();
 
     /* Open infile */
+    /* TODO: if reordercap is ever changed to give the user a choice of which
+       open_routine reader to use, then the following needs to change. */
     wth = wtap_open_offline(infile, WTAP_TYPE_AUTO, &err, &err_info, TRUE);
     if (wth == NULL) {
         fprintf(stderr, "reordercap: Can't open %s: %s\n", infile,

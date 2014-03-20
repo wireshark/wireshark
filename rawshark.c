@@ -1678,6 +1678,7 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->unsaved_changes = FALSE;
 
     cf->cd_t      = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    cf->open_type = WTAP_TYPE_AUTO;
     cf->count     = 0;
     cf->drops_known = FALSE;
     cf->drops     = 0;
