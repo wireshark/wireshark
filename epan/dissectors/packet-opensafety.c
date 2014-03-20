@@ -69,6 +69,10 @@
 #define UDP_PORT_SIII         8755
 #endif
 
+/* Used to clasify incoming traffic and presort the heuristic */
+#define OPENSAFETY_CYCLIC_DATA   0x01
+#define OPENSAFETY_ACYCLIC_DATA  0x02
+
 #define OPENSAFETY_DEFAULT_DOMAIN       0x1
 
 /* Under linux, this gets defined in netinet/in.h */
@@ -450,8 +454,7 @@ static gint ett_opensafety_ssdo_payload = -1;
 static gint ett_opensafety_ssdo_sodentry = -1;
 static gint ett_opensafety_ssdo_extpar = -1;
 static gint ett_opensafety_sod_mapping = -1;
-static gint ett_opensafety_sender = -1;
-static gint ett_opensafety_receiver = -1;
+static gint ett_opensafety_node = -1;
 
 static expert_field ei_payload_length_not_positive = EI_INIT;
 static expert_field ei_payload_unknown_format = EI_INIT;
@@ -593,6 +596,7 @@ static gboolean global_siii_udp_frame2_first   = FALSE;
 static gboolean global_mbtcp_big_endian        = FALSE;
 static guint global_network_udp_port           = UDP_PORT_OPENSAFETY;
 static guint global_network_udp_port_sercosiii = UDP_PORT_SIII;
+static gboolean global_classify_transport      = TRUE;
 
 static gboolean global_enable_plk    = TRUE;
 static gboolean global_enable_udp    = TRUE;
@@ -640,7 +644,7 @@ void proto_reg_handoff_opensafety(void);
         proto_item *psf_item = NULL; \
         proto_tree *psf_tree  = NULL; \
         psf_item = proto_tree_add_uint(opensafety_tree, hf_oss_msg_receiver, message_tvb, pos, 2, recv); \
-        psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_receiver); \
+        psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_node); \
         psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_node, message_tvb, pos, 2, recv);\
         PROTO_ITEM_SET_GENERATED(psf_item); \
         if ( sdn > 0 ) \
@@ -659,7 +663,7 @@ void proto_reg_handoff_opensafety(void);
         proto_item *psf_item = NULL; \
         proto_tree *psf_tree  = NULL; \
         psf_item = proto_tree_add_uint(opensafety_tree, hf_oss_msg_sender, message_tvb, pos, 2, sender); \
-        psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_sender); \
+        psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_node); \
         psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_node, message_tvb, pos, 2, sender);\
         PROTO_ITEM_SET_GENERATED(psf_item); \
         if ( sdn > 0 ) \
@@ -908,10 +912,10 @@ static guint8 findSafetyFrame ( tvbuff_t *message_tvb, guint u_Offset, gboolean 
 
 static void
 dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree,
-        guint16 frameStart1, guint16 frameStart2, gboolean validSCMUDID, guint8 scm_udid[6])
+        guint16 frameStart1, guint16 frameStart2, gboolean validSCMUDID, guint8 *scm_udid)
 {
     proto_item *item;
-    proto_tree *spdo_tree;
+    proto_tree *spdo_tree, *node_tree;
     guint16     ct;
     gint16      taddr;
     guint       dataLength;
@@ -972,8 +976,12 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
 
         proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request, message_tvb,
                             OSS_FRAME_POS_ADDR + frameStart2 + 4, 1, tr);
-        proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request_from, message_tvb,
+        item = proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request_from, message_tvb,
                             OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
+        node_tree = proto_item_add_subtree(item, ett_opensafety_node);
+        item = proto_tree_add_uint(node_tree, hf_oss_msg_node,  message_tvb,
+                OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
+        PROTO_ITEM_SET_GENERATED(item);
     }
     else
     {
@@ -984,7 +992,12 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         if ( b_ID == OPENSAFETY_MSG_SPDO_DATA_WITH_TIME_RESPONSE )
         {
             proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request,    message_tvb, OSS_FRAME_POS_ADDR + frameStart2 + 4, 1, tr);
-            proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request_to, message_tvb, OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
+            item = proto_tree_add_uint(spdo_tree, hf_oss_spdo_time_request_to, message_tvb,
+                    OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
+            node_tree = proto_item_add_subtree(item, ett_opensafety_node);
+            item = proto_tree_add_uint(node_tree, hf_oss_msg_node,  message_tvb,
+                    OSS_FRAME_POS_ADDR + frameStart2 + 3, 2, taddr);
+            PROTO_ITEM_SET_GENERATED(item);
         }
     }
 
@@ -1922,11 +1935,11 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 static gboolean
 opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_handle,
                              gboolean b_frame2First, gboolean do_byte_swap, guint8 force_nr_in_package,
-                             tvbuff_t *given_tvb, packet_info *pinfo, proto_tree *tree )
+                             tvbuff_t *given_tvb, packet_info *pinfo, proto_tree *tree, guint8 transporttype )
 {
     tvbuff_t           *next_tvb = NULL, *gap_tvb = NULL, *message_tvb = NULL;
     guint               length, len, frameOffset, frameLength, nodeAddress, gapStart;
-    guint8             *bytes;
+    guint8             *swbytes;
     gboolean            handled, dissectorCalled, call_sub_dissector, markAsMalformed;
     guint8              type, found, i, tempByte;
     guint16             frameStart1, frameStart2, byte_offset;
@@ -1969,17 +1982,17 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
         if ( ! tvb_bytes_exist ( given_tvb, 0, length ) )
             return FALSE;
 
-        bytes = (guint8 *) tvb_memdup( pinfo->pool, given_tvb, 0, length);
+        swbytes = (guint8 *) tvb_memdup( pinfo->pool, given_tvb, 0, length);
 
         /* Wordswapping for modbus detection */
         /* Only a even number of bytes can be swapped */
         len = (length / 2);
         for ( i = 0; i < len; i++ )
         {
-            tempByte = bytes [ 2 * i ]; bytes [ 2 * i ] = bytes [ 2 * i + 1 ]; bytes [ 2 * i + 1 ] = tempByte;
+            tempByte = swbytes [ 2 * i ]; swbytes [ 2 * i ] = swbytes [ 2 * i + 1 ]; swbytes [ 2 * i + 1 ] = tempByte;
         }
 
-        message_tvb = tvb_new_real_data(bytes, length, reported_len);
+        message_tvb = tvb_new_real_data(swbytes, length, reported_len);
     } else {
         message_tvb = given_tvb;
     }
@@ -2082,6 +2095,20 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                 }
             }
 
+            /* Sorting messages for transporttype */
+            if ( global_classify_transport && transporttype != 0 )
+            {
+                /* Cyclic data is transported via SPDOs and acyclic is transported via SNMT, SSDO. Everything
+                 * else is misclassification */
+                if ( ( transporttype == OPENSAFETY_ACYCLIC_DATA && type == OPENSAFETY_SPDO_MESSAGE_TYPE ) ||
+                        ( transporttype == OPENSAFETY_CYCLIC_DATA && type != OPENSAFETY_SPDO_MESSAGE_TYPE ) )
+                {
+                    frameOffset += 2;
+                    found--;
+                    continue;
+                }
+            }
+
             /* Some faulty packages do indeed have a valid first frame, but the second is
              * invalid. These checks should prevent most faulty detections */
             if ( type != OPENSAFETY_SPDO_MESSAGE_TYPE )
@@ -2106,22 +2133,25 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
                 }
             }
 
-            /* Checking if the producer for a SPDO message is valid, otherwise the opensafety package
-             * is malformed. Instead of declining dissection, the package gets marked as malformed */
+            /* If this package is not valid, the next step, which normally occurs in unxorFrame will lead to a
+             * frameLength bigger than the maximum data size. This is an indicator, that the package in general
+             * is fault, and therefore we return false. Increasing the frameOffset will lead to out-of-bounds
+             * for tvb_* functions. And frameLength errors are misidentified packages most of the times anyway */
+            if ( ( (gint)frameLength - (gint)( frameStart2 > frameStart1 ? frameStart2 : frameLength - frameStart1 ) ) < 0 )
+                return FALSE;
+
+            /* Some SPDO based sanity checks, still a lot of faulty SPDOs remain, because they
+             * cannot be filtered, without throwing out too many positives. */
             if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
             {
+                /* Checking if there is a node address set, or the package is invalid. Some PRes
+                 * messages in EPL may double as valid subframes 1. If the nodeAddress is out of
+                 * range, the package is marked as malformed */
                 nodeAddress = OSS_FRAME_ADDR_T(message_tvb, byte_offset + frameStart1);
-                if ( nodeAddress > 1024 ) {
+                if ( nodeAddress == 0 || nodeAddress > 1024 ) {
                     markAsMalformed = TRUE;
                 }
             }
-
-            /* If this package is not valid, the next step, which normally occurs in unxorFrame will lead to a
-             * frameLength bigger than the maximum data size. This is an indicator, that the package in general
-             * is fault, and therefore we return false.
-             */
-            if ( ( (gint)frameLength - (gint)( frameStart2 > frameStart1 ? frameStart2 : frameLength - frameStart1 ) ) < 0 )
-                return FALSE;
 
             /* From here on, the package should be correct. Even if it is not correct, it will be dissected
              * anyway and marked as malformed. Therefore it can be assumed, that a gap will end here.
@@ -2203,10 +2233,11 @@ opensafety_package_dissector(const gchar *protocolName, const gchar *sub_diss_ha
 }
 
 static gboolean
-dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_ )
+dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data )
 {
     gboolean        result     = FALSE;
     proto_tree      *epl_tree = NULL;
+    guint8  epl_msgtype = 0;
 
     if ( ! global_enable_plk )
         return result;
@@ -2223,8 +2254,17 @@ dissect_opensafety_epl(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tr
         while ( epl_tree != NULL && epl_tree->parent != NULL )
             epl_tree = epl_tree->parent;
 
+        /* Ordering message type to traffic types */
+        if ( *((guint8*)data) == 0x03 || *((guint8*)data) == 0x04 )
+            epl_msgtype = OPENSAFETY_CYCLIC_DATA;
+        else
+            epl_msgtype = OPENSAFETY_ACYCLIC_DATA;
+
+        /* We check if we have a asynchronous message, or a synchronoues message. In case of
+         * asynchronous messages, SPDO packages are not valid. */
+
         result = opensafety_package_dissector("openSAFETY/Powerlink", "",
-                FALSE, FALSE, 0, message_tvb, pinfo, epl_tree);
+                FALSE, FALSE, 0, message_tvb, pinfo, epl_tree, epl_msgtype );
 
         bDissector_Called_Once_Before = FALSE;
     }
@@ -2244,7 +2284,8 @@ dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
 
     if ( pinfo->ipproto == IPPROTO_UDP )
     {
-        return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, 0, message_tvb, pinfo, tree);
+        return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, 0,
+                message_tvb, pinfo, tree, OPENSAFETY_ACYCLIC_DATA );
     }
 
     /* We can assume to have a SercosIII package, as the SercosIII dissector won't detect
@@ -2261,7 +2302,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
         if ( ( firstByte & 0x40 ) == 0x40 )
         {
             result = opensafety_package_dissector("openSAFETY/SercosIII", "sercosiii",
-                                                  FALSE, FALSE, 0, message_tvb, pinfo, tree);
+                          FALSE, FALSE, 0, message_tvb, pinfo, tree, OPENSAFETY_CYCLIC_DATA );
         }
         bDissector_Called_Once_Before = FALSE;
     }
@@ -2284,7 +2325,7 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
     {
         bDissector_Called_Once_Before = TRUE;
         result = opensafety_package_dissector("openSAFETY/Profinet IO", "pn_io",
-                                              FALSE, FALSE, 0, message_tvb, pinfo, tree);
+                                              FALSE, FALSE, 0, message_tvb, pinfo, tree, 0);
         bDissector_Called_Once_Before = FALSE;
     }
 
@@ -2301,7 +2342,7 @@ dissect_opensafety_mbtcp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *
      * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
      * Therefore, the openSAFETY frame gets put one up, if the parent is not NULL */
     return opensafety_package_dissector("openSAFETY/Modbus TCP", "", FALSE, TRUE, 0,
-                                        message_tvb, pinfo, ( ((tree != NULL) && (tree->parent != NULL)) ? tree->parent : tree ));
+                                        message_tvb, pinfo, ( ((tree != NULL) && (tree->parent != NULL)) ? tree->parent : tree ), 0);
 }
 
 static gboolean
@@ -2328,7 +2369,8 @@ dissect_opensafety_udpdata(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
 
     result = opensafety_package_dissector((pinfo->destport == UDP_PORT_SIII ? "openSAFETY/SercosIII" : "openSAFETY/UDP" ),
                                           "", pinfo->destport == UDP_PORT_SIII ? global_siii_udp_frame2_first : global_udp_frame2_first,
-                                          FALSE, frameIdx, message_tvb, pinfo, tree);
+                                          FALSE, frameIdx, message_tvb, pinfo, tree,
+                                          pinfo->destport == UDP_PORT_SIII ? OPENSAFETY_ACYCLIC_DATA : 0 );
 
     if ( result )
         frameIdx++;
@@ -2628,8 +2670,7 @@ proto_register_opensafety(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_opensafety,
-        &ett_opensafety_sender,
-        &ett_opensafety_receiver,
+        &ett_opensafety_node,
         &ett_opensafety_checksum,
         &ett_opensafety_snmt,
         &ett_opensafety_ssdo,
@@ -2762,6 +2803,10 @@ proto_register_opensafety(void)
     prefs_register_bool_preference(opensafety_module, "display_intergap_data",
                 "Display the data between openSAFETY packets", "Display the data between openSAFETY packets",
                 &global_display_intergap_data);
+    prefs_register_bool_preference(opensafety_module, "classify_transport",
+                "Dissect packet based on transport method (EPL + SercosIII only)",
+                "SPDOs may only be found in cyclic data, SSDOs/SNMTS only in acyclic data",
+                &global_classify_transport);
 
     /* Registering default and ModBus/TCP dissector */
     new_register_dissector("opensafety_udpdata", dissect_opensafety_udpdata, proto_opensafety );

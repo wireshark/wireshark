@@ -776,16 +776,16 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "EPL/UDP");
 	}
 
+	/* Get message type */
+	epl_mtyp = tvb_get_guint8(tvb, EPL_MTYP_OFFSET) & 0x7F;
+
 	/*
 	* In case the packet is a protocol encoded in the basic EPL transport stream,
 	* give that protocol a chance to make a heuristic dissection, before we continue
 	* to dissect it as a normal EPL packet.
 	*/
-	if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree, NULL))
+	if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree, &epl_mtyp))
 		return TRUE;
-
-	/* Get message type */
-	epl_mtyp = tvb_get_guint8(tvb, EPL_MTYP_OFFSET) & 0x7F;
 
 	/* tap */
 	/*  mi.epl_mtyp = epl_mtyp;
@@ -956,7 +956,7 @@ decode_epl_address (guchar adr)
 }
 
 gint
-dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len )
+dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
 	gint off = 0;
 	tvbuff_t * payload_tvb = NULL;;
@@ -966,7 +966,7 @@ dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 	if (len > 0)
 	{
 		payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
-		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, NULL))
+		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, &msgType))
 			call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
 
 		off += len;
@@ -1033,7 +1033,7 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 			(EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
 
 	offset += 2;
-	offset += dissect_epl_payload(epl_tree, tvb, pinfo, offset, len);
+	offset += dissect_epl_payload(epl_tree, tvb, pinfo, offset, len, EPL_PREQ );
 
 	return offset;
 }
@@ -1079,7 +1079,7 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 			(EPL_PDO_RD_MASK & flags), len, hi_nibble(pdoversion), lo_nibble(pdoversion));
 
 	offset += 2;
-	offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, len );
+	offset += dissect_epl_payload ( epl_tree, tvb, pinfo, offset, len, EPL_PRES );
 
 	return offset;
 }
@@ -1795,7 +1795,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
 
 		size = tvb_reported_length_remaining(tvb, offset);
 
-		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size );
+		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size, EPL_ASND );
 	}
 	else
 	{
@@ -1902,7 +1902,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 			}
 
 			/* dissect the payload */
-			dissect_epl_payload ( sdo_data_tree, tvb, pinfo, dataoffset, size );
+			dissect_epl_payload ( sdo_data_tree, tvb, pinfo, dataoffset, size, EPL_ASND );
 
 			offset += datalength;
 
@@ -1951,7 +1951,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
 					val_to_str(segmented, epl_sdo_asnd_cmd_segmentation, "Unknown (%d)"));
 
 		size = tvb_reported_length_remaining(tvb, offset);
-		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size );
+		offset += dissect_epl_payload ( sdo_data_tree, tvb, pinfo, offset, size, EPL_ASND );
 
 		offset += size;
 	}
