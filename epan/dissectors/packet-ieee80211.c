@@ -13105,9 +13105,15 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   proto_item   *ti        = NULL;
   proto_item   *ti_len, *ti_tag;
   int           tag_end;
+  gboolean      isDMG;
 
-  gboolean isDMG = *((gboolean*)(p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY)));
+  gboolean     *p_isDMG = ((gboolean*)(p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY)));
 
+  if (!p_isDMG) {
+    DISSECTOR_ASSERT_NOT_REACHED();
+  }
+
+  isDMG = *p_isDMG;
   tag_no  = tvb_get_guint8(tvb, offset);
   tag_len = tvb_get_guint8(tvb, offset + 1);
   tag_end = offset + 2 + tag_len;
