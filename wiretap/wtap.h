@@ -1118,7 +1118,6 @@ typedef struct wtapng_if_descr_s {
     guint8                 num_stat_entries;
     GArray                *interface_statistics;  /**< An array holding the interface statistics from
                                                    *     pcapng ISB:s or equivalent(?)*/
-    GHashTable            *if_options;
 } wtapng_if_descr_t;
 
 

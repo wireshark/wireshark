@@ -178,15 +178,6 @@ epan_get_interface_name(const epan_t *session, guint32 interface_id)
 	return NULL;
 }
 
-const GArray *
-epan_get_interface_option(const epan_t *session, guint32 interface_id, guint16 option_code)
-{
-	if (session->get_interface_option)
-		return session->get_interface_option(session->data, interface_id, option_code);
-
-	return NULL;
-}
-
 const nstime_t *
 epan_get_frame_ts(const epan_t *session, guint32 frame_num)
 {
