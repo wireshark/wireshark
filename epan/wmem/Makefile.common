@@ -32,6 +32,7 @@ LIBWMEM_SRC =				\
 	wmem_list.c			\
 	wmem_miscutl.c			\
 	wmem_scopes.c			\
+	wmem_splay.c			\
 	wmem_stack.c			\
 	wmem_strbuf.c			\
 	wmem_strutl.c			\
@@ -50,6 +51,7 @@ LIBWMEM_INCLUDES =			\
 	wmem_miscutl.h			\
 	wmem_queue.h			\
 	wmem_scopes.h			\
+	wmem_splay.h			\
 	wmem_stack.h			\
 	wmem_strbuf.h			\
 	wmem_strutl.h			\

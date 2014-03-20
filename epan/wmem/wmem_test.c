@@ -35,6 +35,7 @@
 #define MAX_ALLOC_SIZE          (1024*64)
 #define MAX_SIMULTANEOUS_ALLOCS  1024
 #define CONTAINER_ITERS          10000
+#define MANY_ITERS               (CONTAINER_ITERS * 100)
 
 typedef void (*wmem_verify_func)(wmem_allocator_t *allocator);
 
@@ -639,6 +640,110 @@ wmem_test_queue(void)
 }
 
 static void
+wmem_test_splay(void)
+{
+    wmem_allocator_t   *allocator, *extra_allocator;
+    wmem_splay_t       *tree;
+    guint32             i;
+    int                 seen_values = 0;
+
+    allocator       = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+    extra_allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+
+    tree = wmem_splay_new(allocator, NULL);
+    g_assert(tree);
+    g_assert(wmem_splay_is_empty(tree));
+
+    /* test basic integer key operations */
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        void *tmp = GINT_TO_POINTER(i);
+        g_assert(wmem_splay_lookup(tree, tmp) == NULL);
+        if (i > 0) {
+            g_assert(wmem_splay_lookup_le(tree, tmp) == GINT_TO_POINTER(i-1));
+        }
+        wmem_splay_insert(tree, tmp, tmp);
+        g_assert(wmem_splay_lookup(tree, tmp) == tmp);
+        g_assert(!wmem_splay_is_empty(tree));
+    }
+    wmem_free_all(allocator);
+
+    tree = wmem_splay_new(allocator, NULL);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        guint32 rand_int = g_test_rand_int();
+        wmem_splay_insert(tree, GINT_TO_POINTER(rand_int), GINT_TO_POINTER(i));
+        g_assert(wmem_splay_lookup(tree, GINT_TO_POINTER(rand_int)) == GINT_TO_POINTER(i));
+    }
+    wmem_free_all(allocator);
+
+    /* test auto-reset functionality */
+    tree = wmem_splay_new_autoreset(allocator, extra_allocator, NULL);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        void *tmp = GINT_TO_POINTER(i);
+        g_assert(wmem_splay_lookup(tree, tmp) == NULL);
+        wmem_splay_insert(tree, tmp, tmp);
+        g_assert(wmem_splay_lookup(tree, tmp) == tmp);
+    }
+    wmem_free_all(extra_allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(wmem_splay_lookup(tree, GINT_TO_POINTER(i)) == NULL);
+        g_assert(wmem_splay_lookup_le(tree, GINT_TO_POINTER(i)) == NULL);
+    }
+    wmem_free_all(allocator);
+
+    /* test complex key functionality */
+    tree = wmem_splay_new(allocator, (wmem_compare_func)(&strcmp));
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        char *str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_splay_insert(tree, str_key, GINT_TO_POINTER(i));
+        g_assert(wmem_splay_lookup(tree, str_key) == GINT_TO_POINTER(i));
+        /* lookup some other arbitrary string to stir the tree; there's nothing
+         * we can assert about the result, but it shouldn't crash */
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_splay_lookup_le(tree, str_key);
+    }
+    wmem_free_all(allocator);
+
+    /* test for-each functionality */
+    tree = wmem_splay_new(allocator, NULL);
+    expected_user_data = GINT_TO_POINTER(g_test_rand_int());
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        gint tmp;
+        do {
+            tmp = g_test_rand_int();
+        } while (wmem_splay_lookup(tree, GINT_TO_POINTER(tmp)));
+        value_seen[i] = FALSE;
+        wmem_splay_insert(tree, GINT_TO_POINTER(tmp), GINT_TO_POINTER(i));
+    }
+
+    cb_called_count    = 0;
+    cb_continue_count  = CONTAINER_ITERS;
+    wmem_splay_foreach(tree, wmem_test_foreach_cb, expected_user_data);
+    g_assert(cb_called_count   == CONTAINER_ITERS);
+    g_assert(cb_continue_count == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        g_assert(value_seen[i]);
+        value_seen[i] = FALSE;
+    }
+
+    cb_called_count    = 0;
+    cb_continue_count  = 10;
+    wmem_splay_foreach(tree, wmem_test_foreach_cb, expected_user_data);
+    g_assert(cb_called_count   == 10);
+    g_assert(cb_continue_count == 0);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        if (value_seen[i]) {
+            seen_values++;
+        }
+    }
+    g_assert(seen_values == 10);
+
+    wmem_destroy_allocator(extra_allocator);
+    wmem_destroy_allocator(allocator);
+}
+
+static void
 wmem_test_stack(void)
 {
     wmem_allocator_t   *allocator;
@@ -913,6 +1018,86 @@ wmem_test_tree(void)
     wmem_destroy_allocator(allocator);
 }
 
+static void
+wmem_time_trees(void)
+{
+    int               i;
+    char             *str_key;
+    wmem_allocator_t *allocator;
+
+    double       rb_time, rb_string_time;
+    wmem_tree_t *tree;
+
+    double        splay_time, splay_string_time;
+    wmem_splay_t *splay;
+
+    /* red-black tree with integer keys */
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+    g_test_timer_start();
+    tree = wmem_tree_new(allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_tree_insert32(tree, g_test_rand_int(), GINT_TO_POINTER(i));
+    }
+    for (i=0; i<MANY_ITERS; i++) {
+        wmem_tree_lookup32(tree, g_test_rand_int());
+    }
+    rb_time = g_test_timer_elapsed();
+    wmem_destroy_allocator(allocator);
+
+    /* splay tree with integer keys */
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+    g_test_timer_start();
+    splay = wmem_splay_new(allocator, NULL);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        wmem_splay_insert(splay, GINT_TO_POINTER(g_test_rand_int()), GINT_TO_POINTER(i));
+    }
+    for (i=0; i<MANY_ITERS; i++) {
+        wmem_splay_lookup(splay, GINT_TO_POINTER(g_test_rand_int()));
+    }
+    splay_time = g_test_timer_elapsed();
+    wmem_destroy_allocator(allocator);
+
+    /* red-black tree with string keys */
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+    g_test_timer_start();
+    tree = wmem_tree_new(allocator);
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_tree_insert_string(tree, str_key, GINT_TO_POINTER(i), 0);
+    }
+    for (i=0; i<MANY_ITERS; i++) {
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_tree_lookup_string(tree, str_key, 0);
+        wmem_free(allocator, str_key);
+    }
+    rb_string_time = g_test_timer_elapsed();
+    wmem_destroy_allocator(allocator);
+
+    /* splay tree with string keys */
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+    g_test_timer_start();
+    splay = wmem_splay_new(allocator, (wmem_compare_func)(&strcmp));
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_splay_insert(splay, str_key, GINT_TO_POINTER(i));
+    }
+    for (i=0; i<MANY_ITERS; i++) {
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_splay_lookup(splay, str_key);
+        wmem_free(allocator, str_key);
+    }
+    splay_string_time = g_test_timer_elapsed();
+    wmem_destroy_allocator(allocator);
+
+    printf("(red-black: %lf+%lf; splay: %lf+%lf) ", rb_time, rb_string_time,
+            splay_time, splay_string_time);
+
+    /* Performance is close enough that about 10% of the time (in my tests) the
+     * red-black tree will work out to be faster just due to random variation.
+     * So we add a 0.1 fudge factor. */
+    g_assert((rb_time + rb_string_time) * 1.1 > splay_time + splay_string_time);
+}
+
 int
 main(int argc, char **argv)
 {
@@ -921,7 +1106,6 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/allocator/block",     wmem_test_allocator_block);
     g_test_add_func("/wmem/allocator/simple",    wmem_test_allocator_simple);
     g_test_add_func("/wmem/allocator/strict",    wmem_test_allocator_strict);
-    g_test_add_func("/wmem/allocator/times",     wmem_time_allocators);
     g_test_add_func("/wmem/allocator/callbacks", wmem_test_allocator_callbacks);
 
     g_test_add_func("/wmem/utils/misc",    wmem_test_miscutls);
@@ -930,9 +1114,13 @@ main(int argc, char **argv)
     g_test_add_func("/wmem/datastruct/array",  wmem_test_array);
     g_test_add_func("/wmem/datastruct/list",   wmem_test_list);
     g_test_add_func("/wmem/datastruct/queue",  wmem_test_queue);
+    g_test_add_func("/wmem/datastruct/splay",  wmem_test_splay);
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
     g_test_add_func("/wmem/datastruct/tree",   wmem_test_tree);
+
+    g_test_add_func("/wmem/timing/trees",      wmem_time_trees);
+    g_test_add_func("/wmem/timing/allocators", wmem_time_allocators);
 
     return g_test_run();
 }
