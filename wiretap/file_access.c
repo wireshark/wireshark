@@ -799,7 +799,7 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	}
 
 	/* 'type' is 1 greater than the array index */
-	if (type != 0 && type <= open_info_arr->len) {
+	if (type != WTAP_TYPE_AUTO && type <= open_info_arr->len) {
 		int result;
 
 		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
