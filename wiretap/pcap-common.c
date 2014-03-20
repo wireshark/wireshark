@@ -418,12 +418,11 @@ static const struct {
 	/* Netlink Protocol (nlmon devices) */
 	{ 253,		WTAP_ENCAP_NETLINK },
 	/* Bluetooth Linux Monitor */
-	{ 254,      WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR },
-        /* Bluetooth BR/EDR Baseband RF captures */
-        { 255,          WTAP_ENCAP_BLUETOOTH_BREDR_BB },
-        /* Bluetooth Low Energy Link Layer RF captures */
-        { 256,          WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR },
-
+	{ 254,		WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR },
+	/* Bluetooth BR/EDR Baseband RF captures */
+	{ 255,		WTAP_ENCAP_BLUETOOTH_BREDR_BB },
+	/* Bluetooth Low Energy Link Layer RF captures */
+	{ 256,		WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR },
 	/*
 	 * To repeat:
 	 *
