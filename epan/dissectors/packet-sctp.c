@@ -3088,8 +3088,9 @@ dissect_fragmented_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree
     const gchar *proto_name;
     gboolean retval;
 
+	cur = wmem_list_tail(pinfo->layers);
     retval = dissect_payload(new_tvb, pinfo, tree, ppi);
-    cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+    cur = wmem_list_frame_next(cur);
     proto_id = GPOINTER_TO_UINT(wmem_list_frame_data(cur));
     proto_name = proto_get_protocol_filter_name(proto_id);
     if(strcmp(proto_name, "data") != 0){
@@ -3243,8 +3244,9 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
       guint proto_id;
       const gchar *proto_name;
 
+	  cur = wmem_list_tail(pinfo->layers);
       retval = dissect_payload(payload_tvb, pinfo, tree, payload_proto_id);
-      cur = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
+      cur = wmem_list_frame_next(cur);
       proto_id = GPOINTER_TO_UINT(wmem_list_frame_data(cur));
       proto_name = proto_get_protocol_filter_name(proto_id);
       if(strcmp(proto_name, "data") != 0){
