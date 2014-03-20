@@ -149,7 +149,7 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *rtacser_item, *ts_item, *cl_item, *data_payload;
     proto_tree    *rtacser_tree, *cl_tree;
-    int           offset=0, len=0;
+    int           offset = 0, len;
     guint         event_type;
     guint32       timestamp1, timestamp2;
     gboolean      cts, dcd, dsr, rts, dtr, ring, mbok;
@@ -161,82 +161,79 @@ dissect_rtacser_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTAC Serial");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
+    rtacser_item = proto_tree_add_protocol_format(tree, proto_rtacser, tvb, 0, len, "RTAC Serial Line");
+    rtacser_tree = proto_item_add_subtree(rtacser_item, ett_rtacser);
 
-        rtacser_item = proto_tree_add_protocol_format(tree, proto_rtacser, tvb, 0, len, "RTAC Serial Line");
-        rtacser_tree = proto_item_add_subtree(rtacser_item, ett_rtacser);
+    /* Time-stamp is stored as 2 x 32-bit unsigned integers, the left and right-hand side of the decimal point respectively */
+    /* The format mirrors the timeval struct - absolute Epoch time (seconds since 1/1/1970) with an added microsecond component */
+    timestamp1 = tvb_get_ntohl(tvb, offset);
+    timestamp2 = tvb_get_ntohl(tvb, offset+4);
+    ts_item = proto_tree_add_item(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_item_set_text(ts_item, "Arrived At Time: %u.%u" , timestamp1, timestamp2);
+    offset += 8;
 
-        /* Time-stamp is stored as 2 x 32-bit unsigned integers, the left and right-hand side of the decimal point respectively */
-        /* The format mirrors the timeval struct - absolute Epoch time (seconds since 1/1/1970) with an added microsecond component */
-        timestamp1 = tvb_get_ntohl(tvb, offset);
-        timestamp2 = tvb_get_ntohl(tvb, offset+4);
-        ts_item = proto_tree_add_item(rtacser_tree, hf_rtacser_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
-        proto_item_set_text(ts_item, "Arrived At Time: %u.%u" , timestamp1, timestamp2);
-        offset += 8;
+    /* Set INFO column with RTAC Serial Event Type */
+    event_type = tvb_get_guint8(tvb, offset);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%-21s", val_to_str_const(event_type, rtacser_eventtype_vals, "Unknown Type"));
 
-        /* Set INFO column with RTAC Serial Event Type */
-        event_type = tvb_get_guint8(tvb, offset);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%-21s", val_to_str_const(event_type, rtacser_eventtype_vals, "Unknown Type"));
+    /* Add event type to tree */
+    proto_tree_add_item(rtacser_tree, hf_rtacser_event_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        /* Add event type to tree */
-        proto_tree_add_item(rtacser_tree, hf_rtacser_event_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    /* Retrieve EIA-232 serial control line states */
+    cts  = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_CTS;
+    dcd  = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DCD;
+    dsr  = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DSR;
+    rts  = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_RTS;
+    dtr  = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DTR;
+    ring = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_RING;
+    mbok = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_MBOK;
 
-        /* Retrieve EIA-232 serial control line states */
-        cts = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_CTS;
-        dcd = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DCD;
-        dsr = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DSR;
-        rts = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_RTS;
-        dtr = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_DTR;
-        ring = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_RING;
-        mbok = tvb_get_guint8(tvb, offset) & RTACSER_CTRL_MBOK;
+    cl_item = proto_tree_add_text(rtacser_tree, tvb, offset, 1, "Control Lines");
+    cl_tree = proto_item_add_subtree(cl_item, ett_rtacser_cl);
 
-        cl_item = proto_tree_add_text(rtacser_tree, tvb, offset, 1, "Control Lines");
-        cl_tree = proto_item_add_subtree(cl_item, ett_rtacser_cl);
+    /* Add UART Control Line information to INFO column */
+    col_append_str(pinfo->cinfo, COL_INFO, " ( ");
+    (cts)  ? col_append_str(pinfo->cinfo, COL_INFO, "CTS") : col_append_str(pinfo->cinfo, COL_INFO, "/CTS");
+    (dcd)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DCD")  : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DCD");
+    (dsr)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DSR")  : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DSR");
+    (rts)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RTS")  : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/RTS");
+    (dtr)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DTR")  : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DTR");
+    (ring) ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RING") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/RING");
+    (mbok) ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MBOK") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/MBOK");
+    col_append_str(pinfo->cinfo, COL_INFO, " )");
 
-        /* Add UART Control Line information to INFO column */
-        col_append_str(pinfo->cinfo, COL_INFO, " ( ");
-        (cts)  ? col_append_str(pinfo->cinfo, COL_INFO, "CTS") : col_append_str(pinfo->cinfo, COL_INFO, "/CTS");
-        (dcd)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DCD") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DCD");
-        (dsr)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DSR") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DSR");
-        (rts)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RTS") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/RTS");
-        (dtr)  ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DTR") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/DTR");
-        (ring) ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RING") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/RING");
-        (mbok) ? col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "MBOK") : col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "/MBOK");
-        col_append_str(pinfo->cinfo, COL_INFO, " )");
+    /* Add UART Control Line information to tree */
+    proto_item_append_text(cl_item, " (");
+    (cts)  ? proto_item_append_text(cl_item, "CTS, ") : proto_item_append_text(cl_item, "/CTS, ");
+    (dcd)  ? proto_item_append_text(cl_item, "DCD, ") : proto_item_append_text(cl_item, "/DCD, ");
+    (dsr)  ? proto_item_append_text(cl_item, "DSR, ") : proto_item_append_text(cl_item, "/DSR, ");
+    (rts)  ? proto_item_append_text(cl_item, "RTS, ") : proto_item_append_text(cl_item, "/RTS, ");
+    (dtr)  ? proto_item_append_text(cl_item, "DTR, ") : proto_item_append_text(cl_item, "/DTR, ");
+    (ring) ? proto_item_append_text(cl_item, "RING, ") : proto_item_append_text(cl_item, "/RING, ");
+    (mbok) ? proto_item_append_text(cl_item, "MBOK") : proto_item_append_text(cl_item, "/MBOK");
+    proto_item_append_text(cl_item, ")");
 
-        /* Add UART Control Line information to tree */
-        proto_item_append_text(cl_item, " (");
-        (cts)  ? proto_item_append_text(cl_item, "CTS, ") : proto_item_append_text(cl_item, "/CTS, ");
-        (dcd)  ? proto_item_append_text(cl_item, "DCD, ") : proto_item_append_text(cl_item, "/DCD, ");
-        (dsr)  ? proto_item_append_text(cl_item, "DSR, ") : proto_item_append_text(cl_item, "/DSR, ");
-        (rts)  ? proto_item_append_text(cl_item, "RTS, ") : proto_item_append_text(cl_item, "/RTS, ");
-        (dtr)  ? proto_item_append_text(cl_item, "DTR, ") : proto_item_append_text(cl_item, "/DTR, ");
-        (ring) ? proto_item_append_text(cl_item, "RING, ") : proto_item_append_text(cl_item, "/RING, ");
-        (mbok) ? proto_item_append_text(cl_item, "MBOK") : proto_item_append_text(cl_item, "/MBOK");
-        proto_item_append_text(cl_item, ")");
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_cts,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_dcd,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_dsr,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_rts,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_dtr,  tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_ring, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cl_tree, hf_rtacser_ctrl_mbok, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
 
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_cts, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_dcd, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_dsr, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_rts, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_dtr, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_ring, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(cl_tree, hf_rtacser_ctrl_mbok, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
+    /* 2-byte footer */
+    proto_tree_add_item(rtacser_tree, hf_rtacser_footer, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-        /* 2-byte footer */
-        proto_tree_add_item(rtacser_tree, hf_rtacser_footer, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
+    /* If no payload dissector has been selected, indicate to the user the preferences options */
+    if ((tvb_reported_length_remaining(tvb, offset) > 0) && (global_rtacser_payload_proto == RTACSER_PAYLOAD_NONE)) {
+        data_payload = proto_tree_add_item(tree, hf_rtacser_data, tvb, offset, -1, ENC_NA);
+        proto_item_set_text(data_payload,"Payload Protocol not selected.  Check 'Preferences-> Protocols-> RTAC Serial' for options");
+        return;
+    }
 
-        /* If no payload dissector has been selected, indicate to the user the preferences options */
-        if ((tvb_reported_length_remaining(tvb, offset) > 0) && (global_rtacser_payload_proto == RTACSER_PAYLOAD_NONE)) {
-            data_payload = proto_tree_add_item(tree, hf_rtacser_data, tvb, offset, -1, ENC_NA);
-            proto_item_set_text(data_payload,"Payload Protocol not selected.  Check 'Preferences-> Protocols-> RTAC Serial' for options");
-            return;
-        }
-
-    } /* tree */
 
     /* Determine correct message type and call appropriate dissector */
     if (tvb_reported_length_remaining(tvb, RTACSER_HEADER_LEN) > 0) {
@@ -384,3 +381,17 @@ proto_reg_handoff_rtacser(void)
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_RTAC_SERIAL, rtacser_handle);
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
