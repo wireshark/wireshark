@@ -50,6 +50,7 @@
 #include <epan/packet.h>
 #include <epan/etypes.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 
 void proto_register_epl(void);
 void proto_reg_handoff_epl(void);
@@ -248,6 +249,28 @@ static const value_string asnd_cid_vals[] = {
 };
 static value_string_ext asnd_cid_vals_ext = VALUE_STRING_EXT_INIT(asnd_cid_vals);
 
+/* Maximal Sequence */
+#define EPL_MAX_SEQUENCE      0x40
+/* SCON and RCON values*/
+#define EPL_NO_CONNECTION     0x00
+#define EPL_INITIALIZATION    0x01
+#define EPL_VALID             0x02
+#define EPL_RETRANSMISSION    0x03
+/* MAX Frame offset */
+#define EPL_MAX_FRAME_OFFSET  0x64
+
+typedef struct _epl_sdo_duplication{
+	guint32 sequence[EPL_MAX_SEQUENCE][EPL_MAX_SEQUENCE];
+	guint32 duplication[EPL_MAX_SEQUENCE][EPL_MAX_SEQUENCE];
+	guint32 frame[EPL_MAX_SEQUENCE][EPL_MAX_SEQUENCE];
+}epl_sdo_duplication;
+
+typedef struct{
+	guint32 frame;
+}epl_sdo_frame_ref;
+
+static epl_sdo_duplication epl_asnd_sdo_duplication;
+
 /* Priority values for EPL message type "ASnd", "", "", field PR */
 #define EPL_PR_GENERICREQUEST   0x03
 #define EPL_PR_NMTREQUEST       0x07
@@ -351,6 +374,7 @@ static const value_string epl_device_profiles[] = {
 #define EPL_ASND_SDO_SEQ_RECEIVE_CON_CONNECTION_VALID       0x02
 #define EPL_ASND_SDO_SEQ_RECEIVE_CON_ERROR_RESPONSE         0x03
 #define EPL_ASND_SDO_SEQ_CON_MASK                           0x03
+#define EPL_ASND_SDO_SEQ_MASK                               0x02
 
 static const value_string epl_sdo_receive_con_vals[] = {
 	{EPL_ASND_SDO_SEQ_RECEIVE_CON_NO_CONNECTION,      "No connection"                          },
@@ -948,7 +972,6 @@ static const value_string epl_sdo_asnd_commands[] = {
 	{0,NULL}
 };
 
-
 #define EPL_SOA_SYNC_PRES_FIRST                                 0x01
 #define EPL_SOA_SYNC_PRES_SECOND                                0x02
 #define EPL_SOA_SYNC_MND_FIRST                                  0x04
@@ -1208,11 +1231,23 @@ static gint ett_epl_asnd_sdo_cmd_data_mapping = -1;
 static gint ett_epl_soa_sync                  = -1;
 static gint ett_epl_asnd_sync                 = -1;
 
+static expert_field ei_duplicated_frame       = EI_INIT;
+static expert_field ei_recvseq_value          = EI_INIT;
+static expert_field ei_sendseq_value          = EI_INIT;
+static expert_field ei_recvcon_value          = EI_INIT;
+static expert_field ei_sendcon_value          = EI_INIT;
+
 static dissector_handle_t epl_handle;
+
+static void
+setup_dissector(void)
+{
+	/* create memory block for duplication*/
+	memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+}
 
 /* preference whether or not display the SoC flags in info column */
 gboolean show_soc_flags = FALSE;
-
 
 /* Define the tap for epl */
 /*static gint epl_tap = -1;*/
@@ -1222,7 +1257,6 @@ elp_version( gchar *result, guint32 version )
 {
 	g_snprintf( result, ITEM_LABEL_LENGTH, "%d.%d", hi_nibble(version), lo_nibble(version));
 }
-
 /* Code to actually dissect the packets */
 static int
 dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udpencap)
@@ -2110,26 +2144,171 @@ dissect_epl_asnd_sdo(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gi
 {
 	offset = dissect_epl_sdo_sequence(epl_tree, tvb, pinfo, offset);
 
-	if (tvb_reported_length_remaining(tvb, offset) > 0)
+	/* if a frame is duplicated don't show the command layer */
+	if(pinfo->fd->subnum == 0x00)
 	{
-		offset = dissect_epl_sdo_command(epl_tree, tvb, pinfo, offset);
+		if (tvb_reported_length_remaining(tvb, offset) > 0)
+		{
+			offset = dissect_epl_sdo_command(epl_tree, tvb, pinfo, offset);
+		}
+		else col_append_str(pinfo->cinfo, COL_INFO, "Empty CommandLayer");
 	}
-	else col_append_str(pinfo->cinfo, COL_INFO, "Empty CommandLayer");
-
 	return offset;
 }
-
 
 gint
 dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
-	guint8 seq_recv, seq_send;
+	guint8 seq_recv = 0x00, seq_send = 0x00, rcon = 0x00, scon = 0x00;
+	guint32 frame = 0x00;
 	proto_tree *sod_seq_tree;
 	proto_item *item;
+	guint8 duplication = 0x00;
+	epl_sdo_frame_ref *frame_ref = NULL;
 
+	/* read buffer */
+	seq_recv = tvb_get_guint8(tvb, offset);
+	/* get rcon */
+	rcon = seq_recv & EPL_ASND_SDO_SEQ_CON_MASK;
+	/* get seq_recv */
+	seq_recv = seq_recv >> EPL_ASND_SDO_SEQ_MASK;
+	/* read buffer */
+	seq_send = tvb_get_guint8(tvb, offset+1);
+	/* get scon */
+	scon = seq_send & EPL_ASND_SDO_SEQ_CON_MASK;
+	/* get seq_send */
+	seq_send = seq_send >> EPL_ASND_SDO_SEQ_MASK;
+	/* get the current frame-number */
+	frame = pinfo->fd->num;
+
+	/* get frame_ref */
+	frame_ref = (epl_sdo_frame_ref *)p_get_proto_data(wmem_file_scope(), pinfo,proto_epl,frame);
+	/* if the frame is opened the first time create a new memory block */
+	if(!frame_ref)
+		frame_ref = (epl_sdo_frame_ref *)wmem_new0(wmem_file_scope(), epl_sdo_frame_ref);
+
+	/* clear array at the start Sequence */
+	if((rcon < EPL_VALID && scon < EPL_VALID)
+		||(rcon == EPL_VALID && scon < EPL_VALID)
+		||(rcon < EPL_VALID && scon == EPL_VALID))
+	{
+		/* reset memory block */
+		memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+		duplication = 0x00;
+	}
+	/* if cooked/fuzzed capture*/
+	else if(seq_recv >= EPL_MAX_SEQUENCE || seq_send >= EPL_MAX_SEQUENCE
+			||rcon > EPL_RETRANSMISSION || scon > EPL_RETRANSMISSION )
+	{
+		if(seq_recv >= EPL_MAX_SEQUENCE)
+		{
+			expert_add_info(pinfo, epl_tree, &ei_recvseq_value);
+		}
+		if(seq_send >= EPL_MAX_SEQUENCE)
+		{
+			expert_add_info(pinfo, epl_tree, &ei_sendseq_value);
+		}
+		if(rcon > EPL_RETRANSMISSION)
+		{
+			expert_add_info(pinfo, epl_tree, &ei_recvcon_value);
+		}
+		if(scon > EPL_RETRANSMISSION)
+		{
+			expert_add_info(pinfo, epl_tree, &ei_sendcon_value);
+		}
+		duplication = 0x00;
+		pinfo->fd->subnum = 0x00;
+	}
+	else
+	{
+		/* if retransmission request or connection valid with acknowledge request */
+		if((rcon == EPL_VALID && scon == EPL_RETRANSMISSION) || (rcon == EPL_RETRANSMISSION && scon == EPL_VALID))
+		{
+			epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+			epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+		}
+		/* if connection valid*/
+		else
+		{
+			/* for a filter to prevent false detection of duplicated frames add
+			100 frames to the saved frame, in this time retransmission can occur,
+			if the frame is bigger, then no retransmission occurs.
+			--------------------------------------------------------------------
+			if the saved frame is bigger than the current frame save the frame
+			and reset duplication value. */
+			if(((frame > (epl_asnd_sdo_duplication.frame[seq_recv][seq_send] + EPL_MAX_FRAME_OFFSET))
+				||(epl_asnd_sdo_duplication.frame[seq_recv][seq_send] > frame))
+				&& epl_asnd_sdo_duplication.frame[seq_recv][seq_send] != 0x00)
+			{
+				epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+			}
+			/* if the frame is the same as the saved frame reset the value */
+			if((frame == epl_asnd_sdo_duplication.frame[seq_recv][seq_send])
+				&&(epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] == 0x01))
+			{
+				epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x00;
+			}
+			else
+				epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] = 0x01;
+
+			/* if the frame is a duplicated frame */
+			if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] == epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
+			{
+				/* if the frame has no frame reference */
+				if(frame_ref->frame == 0x00)
+				{
+					duplication = 0x01;
+					/* store the frame with the first occurrence of this SequenceNumber
+					 in the frame_ref_num */
+					frame_ref->frame = epl_asnd_sdo_duplication.frame[seq_recv][seq_send];
+				}
+				/* if the frame has a reference */
+				else if(frame_ref->frame != frame)
+				{
+					duplication = 0x01;
+				}
+			}
+			/* if stored values are not equal */
+			else if(epl_asnd_sdo_duplication.sequence[seq_recv][seq_send] != epl_asnd_sdo_duplication.duplication[seq_recv][seq_send])
+			{
+				/* if the frame has no frame_ref_num */
+				if(frame_ref->frame == 0x00)
+				{
+					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
+					/* save the frame number */
+					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+					/* save the frame as a reference for possible duplicated frames */
+					frame_ref->frame = frame;
+				}
+				/* if the frame is in the frame_ref_num */
+				else if(frame_ref->frame == frame)
+				{
+					epl_asnd_sdo_duplication.duplication[seq_recv][seq_send] = 0x01;
+					/* save the frame number */
+					epl_asnd_sdo_duplication.frame[seq_recv][seq_send] = frame;
+				}
+			}
+		}
+	}
+	/* if the frame is a duplicated frame */
+	if((duplication == 0x01 && pinfo->fd->subnum == 0x00)||(pinfo->fd->subnum != 0x00))
+	{
+		pinfo->fd->subnum = 0x01;
+		expert_add_info_format(pinfo, epl_tree, &ei_duplicated_frame,
+			"Duplication of Frame: %d ReceiveSequenceNumber: %d and SendSequenceNumber: %d ",
+			frame_ref->frame,seq_recv,seq_send );
+	}
+	/* if the last frame in the ReceiveSequence is sent get new memory */
+	if(seq_recv == 0x3f && seq_send <= 0x3f)
+	{
+		/* reset memory block */
+		memset(&epl_asnd_sdo_duplication, 0, sizeof(epl_sdo_duplication));
+	}
+
+	p_add_proto_data(wmem_file_scope(), pinfo,proto_epl,frame,frame_ref);
 	item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_seq, tvb,  offset, 5, ENC_NA);
 	sod_seq_tree = proto_item_add_subtree(item, ett_epl_sdo_sequence_layer);
-
 	/* Asynchronuous SDO Sequence Layer */
 	seq_recv = tvb_get_guint8(tvb, offset);
 
@@ -2145,16 +2324,17 @@ dissect_epl_sdo_sequence(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo
 
 	seq_recv &= EPL_ASND_SDO_SEQ_CON_MASK;
 	seq_send &= EPL_ASND_SDO_SEQ_CON_MASK;
-	if ((seq_recv == 0x00) && (seq_send == 0x00))
-	{   /* Sequence layer will be closed */
+
+	if ((seq_recv == EPL_NO_CONNECTION) && (seq_send == EPL_NO_CONNECTION))
+	{
+		/* Sequence layer will be closed */
 		col_append_str(pinfo->cinfo, COL_INFO, "Close  ");
 	}
-	else if ((seq_recv < 0x02) || (seq_send < 0x02))
+	else if ((seq_recv < EPL_VALID) || (seq_send < EPL_VALID))
 	{
 		col_append_fstr(pinfo->cinfo, COL_INFO, "Init=%d%d  ",
-				seq_recv, seq_send);
+			seq_recv, seq_send);
 	}
-
 	return offset;
 }
 
@@ -3142,7 +3322,6 @@ proto_register_epl(void)
 				FT_UINT8, BASE_DEC, VALS(epl_sdo_send_con_vals),
 				0x03, NULL, HFILL }
 		},
-
 		{ &hf_epl_asnd_sdo_cmd,
 			{ "Command Layer", "epl.asnd.sdo.cmd",
 				FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
@@ -3236,7 +3415,30 @@ proto_register_epl(void)
 		&ett_epl_asnd_sync,
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_duplicated_frame,
+			{ "epl.asnd.sdo.duplication", PI_PROTOCOL, PI_NOTE,
+				"Duplicated Frame", EXPFILL }
+		},
+		{ &ei_recvseq_value,
+			{ "epl.error.value.receive.sequence", PI_PROTOCOL, PI_ERROR,
+				"Invalid Value for ReceiveSequenceNumber", EXPFILL }
+		},
+		{ &ei_sendseq_value,
+			{ "epl.error.value.send.sequence", PI_PROTOCOL, PI_ERROR,
+				"Invalid Value for SendSequenceNumber", EXPFILL }
+		},
+		{ &ei_recvcon_value,
+			{ "epl.error.receive.connection", PI_PROTOCOL, PI_ERROR,
+				"Invalid Value for ReceiveCon", EXPFILL }
+		},
+		{ &ei_sendcon_value,
+			{ "epl.error.send.connection", PI_PROTOCOL, PI_ERROR,
+				"Invalid Value for SendCon", EXPFILL }
+		},
+	};
 	module_t *epl_module;
+	expert_module_t *expert_epl;
 
 	/* Register the protocol name and description */
 	proto_epl = proto_register_protocol("Ethernet POWERLINK", "EPL", "epl");
@@ -3251,6 +3453,10 @@ proto_register_epl(void)
 	/* Required function calls to register the header fields and subtrees used */
 	proto_register_field_array(proto_epl, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	/* Register expert information field */
+	expert_epl = expert_register_protocol ( proto_epl );
+	expert_register_field_array ( expert_epl, ei, array_length (ei ) );
 
 	/* register preferences */
 	epl_module = prefs_register_protocol(proto_epl, NULL);
@@ -3275,6 +3481,9 @@ proto_reg_handoff_epl(void)
 
 	dissector_add_uint("ethertype", ETHERTYPE_EPL_V2, epl_handle);
 	dissector_add_uint("udp.port", UDP_PORT_EPL, epl_udp_handle);
+
+	/* register frame init routine */
+	register_init_routine( setup_dissector );
 }
 
 /*
