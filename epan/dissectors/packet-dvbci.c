@@ -2539,6 +2539,12 @@ dissect_es(tvbuff_t *tvb, gint offset,
 
     offset_start = offset;
 
+    if (scrambled) {
+        /* default to free service until we found a ca descriptor
+           (we could have es info len > 0 and no ca descriptors) */
+        *scrambled = FALSE;
+    }
+
     ti = proto_tree_add_text(tree, tvb, offset_start, -1, "Elementary Stream");
     es_tree = proto_item_add_subtree(ti, ett_dvbci_application);
 
@@ -2564,14 +2570,14 @@ dissect_es(tvbuff_t *tvb, gint offset,
             if (ca_desc_len <= 0)
                 return -1;
             offset += ca_desc_len;
+            if (scrambled)
+                *scrambled = TRUE;
         }
-        *scrambled = TRUE;
     }
     else {
         proto_tree_add_text(
                 es_tree, tvb, 0, 0,
                 "No CA descriptors for this elementary stream");
-        *scrambled = FALSE;
     }
 
     proto_item_set_len(ti, offset-offset_start);
@@ -2754,7 +2760,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
     gint         es_info_len, all_len;
     gint         ca_desc_len;
     gboolean     scrambled = FALSE;
-    gboolean     es_scrambled;
+    gboolean     es_scrambled = FALSE;
     proto_tree  *es_tree = NULL;
     gboolean     desc_ok = FALSE;
 
@@ -2805,8 +2811,9 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
                 if (ca_desc_len <= 0)
                     return;
                 offset += ca_desc_len;
+                /* set this only if we've seen at least one valid ca descriptor */
+                scrambled = TRUE;
             }
-            scrambled = TRUE;
         }
         else {
             proto_tree_add_text(
