@@ -225,7 +225,7 @@ static GtkWidget *cap_open_w = NULL, *opt_edit_w = NULL, *ok_bt, *interface_mana
 static GtkWidget *compile_bpf_w = NULL;
 #endif
 static gboolean   cap_open_complete;  /* valid only if cap_open_w != NULL */
-static const gchar *pipe_name;
+static const gchar *pipe_name = NULL;
 static const gchar *selected_name;
 static GtkWidget *columns_menu_object;
 static GtkUIManager *ui_manager_columns = NULL;
@@ -3436,6 +3436,9 @@ add_pipe_cb(gpointer w _U_)
   guint         i;
   gpointer      dialog;
 
+  if (!pipe_name)
+    return;
+
   pipe_te = (GtkWidget *) g_object_get_data(G_OBJECT(interface_management_w), E_CAP_PIPE_TE_KEY);
   g_save_file = gtk_entry_get_text(GTK_ENTRY(pipe_te));
   name = g_strdup(g_save_file);
@@ -3675,6 +3678,7 @@ static void
 cancel_pipe_cb (gpointer w _U_)
 {
   window_destroy(GTK_WIDGET(interface_management_w));
+  pipe_name = NULL;
 }
 
 static void
