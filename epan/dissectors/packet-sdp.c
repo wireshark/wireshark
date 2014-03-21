@@ -274,6 +274,7 @@ rtp_dyn_payload_table_foreach_func (gpointer key, gpointer value, gpointer user_
 
 static void sdp_dump_transport_media(const transport_media_pt_t* media) {
     int i;
+    int count;
     DPRINT2(("transport_media contents:"));
     DINDENT();
         if (!media) {
@@ -281,9 +282,10 @@ static void sdp_dump_transport_media(const transport_media_pt_t* media) {
             DENDENT();
             return;
         }
-        DPRINT2(("pt_count=%hhu",media->pt_count));
+        count = (int)media->pt_count;
+        DPRINT2(("pt_count=%d",count));
         DINDENT();
-            for (i=0; i < media->pt_count; i++) {
+            for (i=0; i < count; i++) {
                 DPRINT2(("pt=%d", media->pt[i]));
             }
         DENDENT();
@@ -311,6 +313,7 @@ static const value_string sdp_exchange_type_vs[] = {
 
 static void sdp_dump_transport_info(const transport_info_t* info) {
     int i;
+    int count;
     DPRINT2(("transport_info contents:"));
     DINDENT();
         if (!info) {
@@ -334,10 +337,11 @@ static void sdp_dump_transport_info(const transport_info_t* info) {
                 }
             }
         DENDENT();
-        DPRINT2(("media_count=%hhd", info->media_count));
+        count = (int)info->media_count;
+        DPRINT2(("media_count=%d", count));
         DPRINT2(("rtp channels:"));
         DINDENT();
-            for (i=0; i <= info->media_count; i++) {
+            for (i=0; i <= count; i++) {
                 DPRINT2(("channel #%d:",i));
                 DINDENT();
                     DPRINT2(("src_addr=%s",
@@ -361,6 +365,7 @@ static void sdp_dump_transport_info(const transport_info_t* info) {
 
 static void sdp_dump_disposable_media_info(const disposable_media_info_t* info) {
     int i;
+    int count;
     DPRINT2(("disposable_media_info contents:"));
     DINDENT();
         if (!info) {
@@ -372,9 +377,10 @@ static void sdp_dump_disposable_media_info(const disposable_media_info_t* info) 
                 info->connection_address ? info->connection_address : "NULL"));
         DPRINT2(("connection_type=%s",
                 info->connection_type ? info->connection_type : "NULL"));
-        DPRINT2(("media_count=%hhu",info->media_count));
+        count = (int)info->media_count;
+        DPRINT2(("media_count=%d",count));
         DINDENT();
-            for (i=0; i < info->media_count; i++) {
+            for (i=0; i < count; i++) {
                 DPRINT2(("media #%d:",i));
                 DINDENT();
                     DPRINT2(("media_type=%s", info->media_type[i] ? info->media_type[i] : "NULL"));
