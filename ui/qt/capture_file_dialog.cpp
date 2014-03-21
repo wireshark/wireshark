@@ -498,7 +498,7 @@ void CaptureFileDialog::addDisplayFilterEdit() {
 }
 
 void CaptureFileDialog::addFormatTypeSelector(QVBoxLayout &v_box) {
-    format_type_.addItem("Automatic");
+    format_type_.addItem(tr("Automatic"));
     for (int i = 0; open_routines[i].name != NULL; i += 1) {
         format_type_.addItem(open_routines[i].name);
     }
