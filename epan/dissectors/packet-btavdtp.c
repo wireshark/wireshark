@@ -1900,7 +1900,7 @@ proto_register_btavdtp(void)
             NULL, HFILL }
         },
         { &hf_btavdtp_mpeg12_mpf_2,
-            { "MPF 2",                          "btavdtp.codec.mpeg12.mpf_2",
+            { "Media Payload Format 2",         "btavdtp.codec.mpeg12.mpf_2",
             FT_BOOLEAN, 8, NULL, 0x40,
             NULL, HFILL }
         },
