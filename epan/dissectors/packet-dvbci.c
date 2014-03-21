@@ -809,6 +809,7 @@ static gboolean dvbci_dissect_lsc_msg = FALSE;
 static dissector_handle_t data_handle;
 static dissector_handle_t mpeg_pmt_handle;
 static dissector_handle_t dvb_nit_handle;
+static dissector_handle_t png_handle;
 static dissector_table_t tcp_dissector_table;
 static dissector_table_t udp_dissector_table;
 
@@ -3584,6 +3585,7 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
     guint8      file_name_len;
     guint8     *file_name_str;
     guint32     file_data_len;
+    tvbuff_t   *png_file_tvb = NULL;
     proto_item *ti;
     proto_tree *req_tree;
 
@@ -3620,8 +3622,25 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
                 "File data length %d", file_data_len);
         offset += 4;
         if (file_data_len > 0) {
-            proto_tree_add_item(tree, hf_dvbci_file_data,
-                    tvb, offset, file_data_len, ENC_NA);
+            if (file_name_len>4) {
+                gchar *suffix_lo;
+                suffix_lo = wmem_ascii_strdown(wmem_packet_scope(),
+                        &file_name_str[file_name_len-4], -1);
+                if (g_strcmp0(suffix_lo, ".png")==0) {
+                    png_file_tvb = tvb_new_subset(
+                            tvb, offset, file_data_len, file_data_len);
+                }
+            }
+
+            if (png_handle && png_file_tvb) {
+                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+                col_set_fence(pinfo->cinfo, COL_INFO);
+                call_dissector(png_handle, png_file_tvb, pinfo, tree);
+            }
+            else {
+                proto_tree_add_item(tree, hf_dvbci_file_data,
+                        tvb, offset, file_data_len, ENC_NA);
+            }
         }
     }
     else if (req_type==REQ_TYPE_DATA) {
@@ -6138,6 +6157,7 @@ proto_reg_handoff_dvbci(void)
     data_handle = find_dissector("data");
     mpeg_pmt_handle = find_dissector("mpeg_pmt");
     dvb_nit_handle = find_dissector("dvb_nit");
+    png_handle = find_dissector("png");
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
 
