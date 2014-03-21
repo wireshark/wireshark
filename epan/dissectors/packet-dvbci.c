@@ -2559,7 +2559,7 @@ dissect_es(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(
             es_tree, hf_dvbci_es_info_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    if (es_info_len != 0) {
+    if (es_info_len>0) {
         all_len = offset + es_info_len;
 
         proto_tree_add_item(
