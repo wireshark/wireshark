@@ -1,9 +1,27 @@
-
-/* a file of debug printing stuff for conversation-related things,
+/* conversation_debug.h
+ * A file of debug printing stuff for conversation-related things,
  * although really anything can use this so long as it includes this
+ * header file and defines DEBUG_CONVERSATION in conversation.c
  *
  * define DEBUG_CONVERSATION before including this file to turn on printing
  * and also define it in conversation.c (because it has the indent variable)
+ *
+ * By Hadriel Kaplan <hadrielk at yahoo dot com>
+ * Copyright 2014 Hadriel Kaplan
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
 #ifndef _CONVERSATION_DEBUG_H
