@@ -185,6 +185,7 @@ typedef enum {
     PPI_VECTOR_INFO              = 30003, /* currently available in draft from. jellch@harris.com */
     PPI_SENSOR_INFO              = 30004,
     PPI_ANTENNA_INFO             = 30005,
+    FNET_PRIVATE                 = 0xC017,
     CACE_PRIVATE                 = 0xCACE
     /* All others RESERVED.  Contact the WinPcap team for an assignment */
 } ppi_field_type;
@@ -309,6 +310,7 @@ static int hf_ppi_antenna = -1;
 static int hf_ppi_harris = -1;
 static int hf_ppi_reserved = -1;
 static int hf_ppi_vector = -1;
+static int hf_ppi_fnet = -1;
 static int hf_ppi_gps = -1;
 
 static gint ett_ppi_pph = -1;
@@ -336,6 +338,7 @@ static dissector_handle_t ppi_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t ieee80211_ht_handle;
 static dissector_handle_t ppi_gps_handle, ppi_vector_handle, ppi_sensor_handle, ppi_antenna_handle;
+static dissector_handle_t ppi_fnet_handle;
 
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
 static const true_false_string tfs_tsft_ms = { "milliseconds", "microseconds" };
@@ -359,6 +362,7 @@ static const value_string vs_ppi_field_type[] = {
     {PPI_VECTOR_INFO,           "Vector Tagging"},
     {PPI_SENSOR_INFO,           "Sensor tagging"},
     {PPI_ANTENNA_INFO,          "Antenna Tagging"},
+    {FNET_PRIVATE,              "FlukeNetworks (private)"},
     {CACE_PRIVATE,              "CACE Technologies (private)"},
     {0, NULL}
 };
@@ -887,6 +891,18 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 call_dissector(ppi_antenna_handle, next_tvb, pinfo, ppi_tree);
             }
             break;
+        case FNET_PRIVATE:
+            if (ppi_fnet_handle == NULL)
+            {
+                proto_tree_add_item(ppi_tree, hf_ppi_fnet, tvb, offset, data_len, ENC_NA);
+            }
+            else /* we found a suitable dissector */
+            {
+                /* skip over the ppi_fieldheader, and pass it off to the dedicated FNET dissetor */
+                next_tvb = tvb_new_subset(tvb, offset + 4, data_len - 4 , -1);
+                call_dissector(ppi_fnet_handle, next_tvb, pinfo, ppi_tree);
+            }
+            break;
 
         default:
             proto_tree_add_item(ppi_tree, hf_ppi_reserved, tvb, offset, data_len, ENC_NA);
@@ -1323,6 +1339,7 @@ proto_register_ppi(void)
       { &hf_ppi_vector, { "VECTOR", "ppi.vector", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ppi_harris, { "HARRIS", "ppi.harris", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ppi_antenna, { "ANTENNA", "ppi.antenna", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_ppi_fnet, { "FNET", "ppi.fnet", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ppi_reserved, { "Reserved", "ppi.reserved", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
@@ -1379,6 +1396,7 @@ proto_reg_handoff_ppi(void)
     ppi_vector_handle = find_dissector("ppi_vector");
     ppi_sensor_handle = find_dissector("ppi_sensor");
     ppi_antenna_handle = find_dissector("ppi_antenna");
+    ppi_fnet_handle = find_dissector("ppi_fnet");
 
     dissector_add_uint("wtap_encap", WTAP_ENCAP_PPI, ppi_handle);
 }
