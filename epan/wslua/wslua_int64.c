@@ -269,7 +269,7 @@ WSLUA_METAMETHOD Int64__tostring(lua_State* L) {
     /* Converts the Int64 into a string of decimal digits */
     gint64 num = getInt64(L,1);
     gchar s[LUATYPE64_STRING_SIZE];
-    if (sprintf(s, "%" G_GINT64_MODIFIER "d", num) < 0) {
+    if (g_snprintf(s, LUATYPE64_STRING_SIZE, "%" G_GINT64_MODIFIER "d", num) < 0) {
         return luaL_error(L, "Error writing Int64 to a string");
     }
     lua_pushstring(L,s);
@@ -383,19 +383,19 @@ WSLUA_METHOD Int64_bnot(lua_State* L) {
     return 1
 
 WSLUA_METHOD Int64_band(lua_State* L) {
-    /* Returns a Int64 of the bitwise 'and' operation, with the given number/Int64/UIn64. Note that multiple arguments are allowed. */
+    /* Returns a Int64 of the bitwise 'and' operation, with the given number/Int64/UInt64. Note that multiple arguments are allowed. */
     WSLUA_BIT_OP_FUNC(Int64,&=);
     WSLUA_RETURN(1); /* The Int64 object */
 }
 
 WSLUA_METHOD Int64_bor(lua_State* L) {
-    /* Returns a Int64 of the bitwise 'or' operation, with the given number/Int64/UIn64. Note that multiple arguments are allowed. */
+    /* Returns a Int64 of the bitwise 'or' operation, with the given number/Int64/UInt64. Note that multiple arguments are allowed. */
     WSLUA_BIT_OP_FUNC(Int64,|=);
     WSLUA_RETURN(1); /* The Int64 object */
 }
 
 WSLUA_METHOD Int64_bxor(lua_State* L) {
-    /* Returns a Int64 of the bitwise 'xor' operation, with the given number/Int64/UIn64. Note that multiple arguments are allowed. */
+    /* Returns a Int64 of the bitwise 'xor' operation, with the given number/Int64/UInt64. Note that multiple arguments are allowed. */
     WSLUA_BIT_OP_FUNC(Int64,^=);
     WSLUA_RETURN(1); /* The Int64 object */
 }
@@ -678,7 +678,7 @@ WSLUA_METAMETHOD UInt64__tostring(lua_State* L) {
     /* Converts the UInt64 into a string */
     guint64 num = getUInt64(L,1);
     gchar s[LUATYPE64_STRING_SIZE];
-    if (sprintf(s, "%" G_GINT64_MODIFIER "u",(guint64)num) < 0) {
+    if (g_snprintf(s, LUATYPE64_STRING_SIZE, "%" G_GINT64_MODIFIER "u",(guint64)num) < 0) {
         return luaL_error(L, "Error writing UInt64 to a string");
     }
     lua_pushstring(L,s);
@@ -817,19 +817,19 @@ WSLUA_METHOD UInt64_bnot(lua_State* L) {
 }
 
 WSLUA_METHOD UInt64_band(lua_State* L) {
-    /* Returns a UInt64 of the bitwise 'and' operation, with the given number/Int64/UIn64. Note that multiple arguments are allowed. */
+    /* Returns a UInt64 of the bitwise 'and' operation, with the given number/Int64/UInt64. Note that multiple arguments are allowed. */
     WSLUA_BIT_OP_FUNC(UInt64,&=);
     WSLUA_RETURN(1); /* The UInt64 object */
 }
 
 WSLUA_METHOD UInt64_bor(lua_State* L) {
-    /* Returns a UInt64 of the bitwise 'or' operation, with the given number/Int64/UIn64. Note that multiple arguments are allowed. */
+    /* Returns a UInt64 of the bitwise 'or' operation, with the given number/Int64/UInt64. Note that multiple arguments are allowed. */
     WSLUA_BIT_OP_FUNC(UInt64,|=);
     WSLUA_RETURN(1); /* The UInt64 object */
 }
 
 WSLUA_METHOD UInt64_bxor(lua_State* L) {
-    /* Returns a UInt64 of the bitwise 'xor' operation, with the given number/Int64/UIn64. Note that multiple arguments are allowed. */
+    /* Returns a UInt64 of the bitwise 'xor' operation, with the given number/Int64/UInt64. Note that multiple arguments are allowed. */
     WSLUA_BIT_OP_FUNC(UInt64,^=);
     WSLUA_RETURN(1); /* The UInt64 object */
 }
