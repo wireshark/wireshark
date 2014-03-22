@@ -511,7 +511,7 @@ typedef struct _file_priv_t {
 
 /* create and set the wtap->priv private data for the file instance */
 static void create_wth_priv(lua_State* L, wtap *wth) {
-    file_priv_t *priv = g_malloc(sizeof(file_priv_t));
+    file_priv_t *priv = (file_priv_t*)g_malloc(sizeof(file_priv_t));
 
     if (wth->priv != NULL) {
         luaL_error(L, "Cannot create wtap private data because there already is private data");
@@ -587,7 +587,7 @@ static void remove_wth_priv(lua_State* L, wtap *wth) {
 
 /* create and set the wtap_dumper->priv private data for the file instance */
 static void create_wdh_priv(lua_State* L, wtap_dumper *wdh) {
-    file_priv_t *priv = g_malloc(sizeof(file_priv_t));
+    file_priv_t *priv = (file_priv_t*)g_malloc(sizeof(file_priv_t));
 
     if (wdh->priv != NULL) {
         luaL_error(L, "Cannot create wtap_dumper private data because there already is private data");
