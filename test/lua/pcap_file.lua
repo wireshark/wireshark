@@ -437,10 +437,10 @@ parse_file_header = function(file)
     end
 
     -- this is: magic, version_major, version_minor, timezone, sigfigs, snaplen, encap type
-    local fields = { Struct.unpack(FILE_HEADER_PATT, line) }
+    local fields = { Struct.unpack(file_settings.file_hdr_patt, line) }
 
     -- sanity check; also note that Struct.unpack() returns the fields plus
-    -- a number of where in the line it stopped reading (ie, the end in this case)
+    -- a number of where in the line it stopped reading (i.e., the end in this case)
     -- so we got back number of fields + 1
     if #fields ~= NUM_HDR_FIELDS + 1 then
         -- this should never happen, since we already told file:read() to grab enough bytes
@@ -544,7 +544,7 @@ parse_rec_header = function(funcname, file, file_settings, frame)
     local fields = { Struct.unpack(file_settings.rec_hdr_patt, line) }
 
     -- sanity check; also note that Struct.unpack() returns the fields plus
-    -- a number of where in the line it stopped reading (ie, the end in this case)
+    -- a number of where in the line it stopped reading (i.e., the end in this case)
     -- so we got back number of fields + 1
     if #fields ~= file_settings.num_rec_fields + 1 then
         dprint(funcname, ": parse_rec_header: failed to read the record header, got:",

@@ -53,7 +53,7 @@ local inspect ={
   _DEPTH_MARKER  = " ['<depth>'] = true " -- instead of printing '...' we print this
 }
 
--- Apostrophizes the string if it has quotes, but not aphostrophes
+-- Apostrophizes the string if it has quotes, but not apostrophes
 -- Otherwise, it returns a regular quoted string
 local function smartQuote(str)
   if str:match('"') and not str:match("'") then
@@ -516,7 +516,7 @@ end
 -- Like inspect(), there's a 'filter' option, which works the same way:
 -- it ignores its value completely in terms of matching, so their string values
 -- can be different, but the keys still have to exist.  Sub-tables of
--- such keys (ie, if the key's value is a table) are not checked/compared.
+-- such keys (i.e., if the key's value is a table) are not checked/compared.
 -- In other words, it's identical to the filter option for inspect().
 --
 -- The option 'ignore' is similar to 'filter', except matching ones
@@ -617,7 +617,7 @@ function inspect.compare(firstTable, secondTable, options)
       elseif tf == 'number' then
         return f == s or options.nonumber
       else
-        -- asume they're the same functions/userdata/looped-table
+        -- assume they're the same functions/userdata/looped-table
         -- type matching before would already cover it otherwise
         return true
       end

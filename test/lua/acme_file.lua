@@ -208,7 +208,7 @@ local fh = FileHandler.new("Oracle Acme Packet logs", "acme",
 -- don't exist in the log file for example to create IP headers we have to create
 -- fake identification field values, and to create timestamps we have to guess the
 -- year (and in some cases month/day as well), and for TCP we have to create fake
--- conneciton info, such as sequence numbers.  We can't simply have a global static
+-- connection info, such as sequence numbers.  We can't simply have a global static
 -- variable holding such things, because Wireshark reads the file sequentially at
 -- first, but then calls seek_read for random packets again and we don't want to
 -- re-create the fake info again because it will be wrong.  So we need to create it
@@ -223,7 +223,7 @@ local fh = FileHandler.new("Oracle Acme Packet logs", "acme",
 
 -- I said above that this state is "global", but really it can't be global to this
 -- whole script file, because more than one file can be opened for reading at the
--- same time. For exampel if the user presses the reload button, the capture file
+-- same time. For example if the user presses the reload button, the capture file
 -- will be opened for reading before the previous (same) one is closed. So we have
 -- to store state per-file. The good news is Wireshark gives us a convenient way to
 -- do that, using the CaptureInfo.private_table attribute/member. We can save a Lua
@@ -231,7 +231,7 @@ local fh = FileHandler.new("Oracle Acme Packet logs", "acme",
 -- later during the other read/seek_read/cose function calls.
 
 -- So to store this per-file state, we're going to use Lua class objects. They're
--- just Lua tables that have functions and metafunctions and can be treated like
+-- just Lua tables that have functions and meta-functions and can be treated like
 -- objects in terms of syntax/behavior.
 
 local State = {}
@@ -268,13 +268,13 @@ function State.new()
     return new_class
 end
 
--- the indeces for the State.packets{} variable sub-tables
+-- the indices for the State.packets{} variable sub-tables
 local IP_IDENT  = 1
 local TTIME     = 2
 local LOCAL_SEQ = 3
 local REMOTE_SEQ = 4
 
--- the indeces for the State.tcb{} sub-tables
+-- the indices for the State.tcb{} sub-tables
 local TLOCAL_SEQ = 1
 local TREMOTE_SEQ = 2
 
@@ -438,7 +438,7 @@ function State:get_timestamp(line, file_position, seeking)
     return self.nstime, line_pos
 end
 
--- get_tail_time() gets a fictitous timestamp starting from 19:00:00 on Dec 31, 1969, and incrementing based
+-- get_tail_time() gets a fictitious timestamp starting from 19:00:00 on Dec 31, 1969, and incrementing based
 -- on the minutes/secs/millisecs seen (i.e., if the minute wrapped then hour increases by 1, etc.).
 -- this is needed for tail'ed log files, since they don't show month/day/hour
 function State:get_tail_time(line, file_position, seeking)
@@ -620,7 +620,7 @@ local TCP = 20
 -- classes.
 
 -- For performance reasons, packet data is read line-by-line into a table (called bufftbl),
--- which is concatendated at the end.  This avoids Lua building interim strings and garbage
+-- which is concatenated at the end.  This avoids Lua building interim strings and garbage
 -- collecting them.  But it makes the code uglier.  The get_data()/get_hex_data()/get_ascii_data()
 -- methods read into this table they get passed, while the read_data() functions handle managing
 -- the table.
@@ -715,7 +715,7 @@ function Packet:get_ascii_data(file, line, bufftbl, index, only_newline)
 
     until line:find(delim)
 
-    -- get rid of last \r\n, if we found a dashed delimeter, as it's not part of packet
+    -- get rid of last \r\n, if we found a dashed delimiter, as it's not part of packet
     if found_delim then
         bufflen = bufflen - bufftbl[index-1]:len()
         bufftbl[index-1] = nil
@@ -806,7 +806,7 @@ end
 --
 local DataPacket = {}
 local DataPacket_mt = { __index = DataPacket }
-setmetatable( DataPacket, Packet_mt ) -- make Dataacket inherit from Packet
+setmetatable( DataPacket, Packet_mt ) -- make DataPacket inherit from Packet
 
 function DataPacket.new(...)
     local new_class = Packet.new(...) -- the new instance
@@ -1081,7 +1081,7 @@ function BinPacket:get_data(file, line, bufftbl, index)
 
     local bufflen, line = self:get_hex_data(file, line, bufftbl, index)
 
-    -- now eat rest of message until delimeter or end of file
+    -- now eat rest of message until delimiter or end of file
     -- we'll put them in comments
     line = self:get_comment_data(file, line, delim)
 
@@ -1090,7 +1090,7 @@ function BinPacket:get_data(file, line, bufftbl, index)
 end
 
 ----------------------------------------
--- DnsPacket class, for DNS packets (which are binary but with commments at top)
+-- DnsPacket class, for DNS packets (which are binary but with comments at top)
 --
 local DnsPacket = {}
 local DnsPacket_mt = { __index = DnsPacket }
@@ -1107,12 +1107,12 @@ function DnsPacket:get_data(file, line, bufftbl, index)
      -- it's UDP regardless of what parse_header() thinks
     self.ttype = UDP
 
-    -- comments are at top instead of bottom of messsage
+    -- comments are at top instead of bottom of message
     line = self:get_comment_data(file, line, binpacket_start_pattern)
 
     local bufflen, line = self:get_hex_data(file, line, bufftbl, index)
 
-    -- now eat rest of message until delimeter or end of file
+    -- now eat rest of message until delimiter or end of file
     while line and not line:find(delim) do
         line = file:read()
     end
