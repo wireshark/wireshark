@@ -1,7 +1,7 @@
 /***************************************************************************
 **                                                                        **
 **  QCustomPlot, an easy to use, modern plotting widget for Qt            **
-**  Copyright (C) 2011, 2012, 2013 Emanuel Eichhammer                     **
+**  Copyright (C) 2011, 2012, 2013, 2014 Emanuel Eichhammer               **
 **                                                                        **
 **  This program is free software: you can redistribute it and/or modify  **
 **  it under the terms of the GNU General Public License as published by  **
@@ -19,23 +19,17 @@
 ****************************************************************************
 **           Author: Emanuel Eichhammer                                   **
 **  Website/Contact: http://www.qcustomplot.com/                          **
-**             Date: 01.08.13                                             **
-**          Version: 1.0.0                                                **
-****************************************************************************
 ** Emanuel Eichhammer has granted Wireshark permission to use QCustomPlot **
 ** under the terms of the GNU General Public License version 2.           **
+**             Date: 14.03.14                                             **
+**          Version: 1.2.0                                                **
 ****************************************************************************/
 
 #ifndef QCUSTOMPLOT_H
 #define QCUSTOMPLOT_H
 
-#ifdef QT_DISABLE_DEPRECATED_BEFORE
-#  undef QT_DISABLE_DEPRECATED_BEFORE
-#endif
-#define QT_DISABLE_DEPRECATED_BEFORE QT_VERSION_CHECK(0, 0, 0)
-
 #include <QObject>
-#include <QWeakPointer>
+#include <QPointer>
 #include <QWidget>
 #include <QPainter>
 #include <QPaintEvent>
@@ -56,9 +50,10 @@
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 #  include <qnumeric.h>
 #  include <QPrinter>
+#  include <QPrintEngine>
 #else
 #  include <QtNumeric>
-#  include <QPrinter>
+#  include <QtPrintSupport>
 #endif
 
 class QCPPainter;
@@ -68,6 +63,7 @@ class QCPLayoutElement;
 class QCPLayout;
 class QCPAxis;
 class QCPAxisRect;
+class QCPAxisPainterPrivate;
 class QCPAbstractPlottable;
 class QCPGraph;
 class QCPAbstractItem;
@@ -76,15 +72,11 @@ class QCPLayer;
 class QCPPlotTitle;
 class QCPLegend;
 class QCPAbstractLegendItem;
-class QCPAbstractItem;
+class QCPColorMap;
+class QCPColorScale;
 
 
 /*! \file */
-
-#ifdef QT_DISABLE_DEPRECATED_BEFORE
-#  undef QT_DISABLE_DEPRECATED_BEFORE
-#endif
-#define QT_DISABLE_DEPRECATED_BEFORE QT_VERSION_CHECK(0, 0, 0)
 
 
 // decl definitions for shared library compilation/usage:
@@ -148,8 +140,8 @@ Q_DECLARE_FLAGS(AntialiasedElements, AntialiasedElement)
 enum PlottingHint { phNone            = 0x000 ///< <tt>0x000</tt> No hints are set
                     ,phFastPolylines  = 0x001 ///< <tt>0x001</tt> Graph/Curve lines are drawn with a faster method. This reduces the quality
                                               ///<                especially of the line segment joins. (Only relevant for solid line pens.)
-                    ,phForceRepaint   = 0x002 ///< <tt>0x002</tt> causes an immediate repaint() instead of a soft update() when QCustomPlot::replot() is called. This is set by default
-                                              ///<                on Windows-Systems to prevent the plot from freezing on fast consecutive replots (e.g. user drags ranges with mouse).
+                    ,phForceRepaint   = 0x002 ///< <tt>0x002</tt> causes an immediate repaint() instead of a soft update() when QCustomPlot::replot() is called with parameter \ref QCustomPlot::rpHint.
+                                              ///<                This is set by default to prevent the plot from freezing on fast consecutive replots (e.g. user drags ranges with mouse).
                     ,phCacheLabels    = 0x004 ///< <tt>0x004</tt> axis (tick) labels will be cached as pixmaps, increasing replot performance.
                   };
 Q_DECLARE_FLAGS(PlottingHints, PlottingHint)
@@ -180,7 +172,7 @@ Q_DECLARE_FLAGS(Interactions, Interaction)
 */
 inline bool isInvalidData(double value)
 {
-  return (!qIsNaN(value) && !qIsInf(value));
+  return qIsNaN(value) || qIsInf(value);
 }
 
 /*! \internal
@@ -257,7 +249,7 @@ public:
                       ,ssCross     ///< \enumimage{ssCross.png} a cross
                       ,ssPlus      ///< \enumimage{ssPlus.png} a plus
                       ,ssCircle    ///< \enumimage{ssCircle.png} a circle
-                      ,ssDisc      ///< \enumimage{ssDisc.png} a circle which is filled with the pen (not the brush as with ssCircle)
+                      ,ssDisc      ///< \enumimage{ssDisc.png} a circle which is filled with the pen's color (not the brush as with ssCircle)
                       ,ssSquare    ///< \enumimage{ssSquare.png} a square
                       ,ssDiamond   ///< \enumimage{ssDiamond.png} a diamond
                       ,ssStar      ///< \enumimage{ssStar.png} a star with eight arms, i.e. a combination of cross and plus
@@ -268,7 +260,7 @@ public:
                       ,ssCrossCircle      ///< \enumimage{ssCrossCircle.png} a circle with a cross inside
                       ,ssPlusCircle       ///< \enumimage{ssPlusCircle.png} a circle with a plus inside
                       ,ssPeace     ///< \enumimage{ssPeace.png} a circle, with one vertical and two downward diagonal lines
-                      ,ssPixmap    ///< a custom pixmap specified by setScatterPixmap, centered on the data point coordinates
+                      ,ssPixmap    ///< a custom pixmap specified by \ref setPixmap, centered on the data point coordinates
                       ,ssCustom    ///< custom painter operations are performed per scatter (As QPainterPath, see \ref setCustomPath)
                     };
 
@@ -326,10 +318,10 @@ public:
     Defines special modes the painter can operate in. They disable or enable certain subsets of features/fixes/workarounds,
     depending on whether they are wanted on the respective output device.
   */
-  enum PainterMode {pmDefault       = 0x00   ///< <tt>0x00</tt> Default mode for painting on screen devices
-                    ,pmVectorized   = 0x01   ///< <tt>0x01</tt> Mode for vectorized painting (e.g. PDF export). For example, this prevents some antialiasing fixes.
-                    ,pmNoCaching    = 0x02   ///< <tt>0x02</tt> Mode for all sorts of exports (e.g. PNG, PDF,...). For example, this prevents using cached pixmap labels
-                    ,pmNonCosmetic  = 0x04   ///< <tt>0x04</tt> Turns pen widths 0 to 1, i.e. disables cosmetic pens. (A cosmetic pen is always drawn with width 1 pixel in the vector image/pdf viewer, independent of zoom.)
+  enum PainterMode { pmDefault       = 0x00   ///< <tt>0x00</tt> Default mode for painting on screen devices
+                     ,pmVectorized   = 0x01   ///< <tt>0x01</tt> Mode for vectorized painting (e.g. PDF export). For example, this prevents some antialiasing fixes.
+                     ,pmNoCaching    = 0x02   ///< <tt>0x02</tt> Mode for all sorts of exports (e.g. PNG, PDF,...). For example, this prevents using cached pixmap labels
+                     ,pmNonCosmetic  = 0x04   ///< <tt>0x04</tt> Turns pen widths 0 to 1, i.e. disables cosmetic pens. (A cosmetic pen is always drawn with width 1 pixel in the vector image/pdf viewer, independent of zoom.)
                    };
   Q_FLAGS(PainterMode PainterModes)
   Q_DECLARE_FLAGS(PainterModes, PainterMode)
@@ -379,6 +371,7 @@ class QCP_LIB_DECL QCPLayer : public QObject
   Q_PROPERTY(QString name READ name)
   Q_PROPERTY(int index READ index)
   Q_PROPERTY(QList<QCPLayerable*> children READ children)
+  Q_PROPERTY(bool visible READ visible WRITE setVisible)
   /// \endcond
 public:
   QCPLayer(QCustomPlot* parentPlot, const QString &layerName);
@@ -389,6 +382,10 @@ public:
   QString name() const { return mName; }
   int index() const { return mIndex; }
   QList<QCPLayerable*> children() const { return mChildren; }
+  bool visible() const { return mVisible; }
+
+  // setters:
+  void setVisible(bool visible);
 
 protected:
   // property members:
@@ -396,6 +393,7 @@ protected:
   QString mName;
   int mIndex;
   QList<QCPLayerable*> mChildren;
+  bool mVisible;
 
   // non-virtual methods:
   void addChild(QCPLayerable *layerable, bool prepend);
@@ -415,7 +413,7 @@ class QCP_LIB_DECL QCPLayerable : public QObject
   Q_PROPERTY(bool visible READ visible WRITE setVisible)
   Q_PROPERTY(QCustomPlot* parentPlot READ parentPlot)
   Q_PROPERTY(QCPLayerable* parentLayerable READ parentLayerable)
-  Q_PROPERTY(QCPLayer* layer READ layer WRITE setLayer)
+  Q_PROPERTY(QCPLayer* layer READ layer WRITE setLayer NOTIFY layerChanged)
   Q_PROPERTY(bool antialiased READ antialiased WRITE setAntialiased)
   /// \endcond
 public:
@@ -431,7 +429,7 @@ public:
 
   // setters:
   void setVisible(bool on);
-  bool setLayer(QCPLayer *layer);
+  Q_SLOT bool setLayer(QCPLayer *layer);
   bool setLayer(const QString &layerName);
   void setAntialiased(bool enabled);
 
@@ -441,11 +439,14 @@ public:
   // non-property methods:
   bool realVisibility() const;
 
+signals:
+  void layerChanged(QCPLayer *newLayer);
+
 protected:
   // property members:
   bool mVisible;
   QCustomPlot *mParentPlot;
-  QWeakPointer<QCPLayerable> mParentLayerable;
+  QPointer<QCPLayerable> mParentLayerable;
   QCPLayer *mLayer;
   bool mAntialiased;
 
@@ -481,9 +482,25 @@ public:
   QCPRange();
   QCPRange(double lower, double upper);
 
+  bool operator==(const QCPRange& other) { return lower == other.lower && upper == other.upper; }
+  bool operator!=(const QCPRange& other) { return !(*this == other); }
+
+  QCPRange &operator+=(const double& value) { lower+=value; upper+=value; return *this; }
+  QCPRange &operator-=(const double& value) { lower-=value; upper-=value; return *this; }
+  QCPRange &operator*=(const double& value) { lower*=value; upper*=value; return *this; }
+  QCPRange &operator/=(const double& value) { lower/=value; upper/=value; return *this; }
+  friend inline const QCPRange operator+(const QCPRange&, double);
+  friend inline const QCPRange operator+(double, const QCPRange&);
+  friend inline const QCPRange operator-(const QCPRange& range, double value);
+  friend inline const QCPRange operator*(const QCPRange& range, double value);
+  friend inline const QCPRange operator*(double value, const QCPRange& range);
+  friend inline const QCPRange operator/(const QCPRange& range, double value);
+
   double size() const;
   double center() const;
   void normalize();
+  void expand(const QCPRange &otherRange);
+  QCPRange expanded(const QCPRange &otherRange) const;
   QCPRange sanitizedForLogScale() const;
   QCPRange sanitizedForLinScale() const;
   bool contains(double value) const;
@@ -492,8 +509,93 @@ public:
   static bool validRange(const QCPRange &range);
   static const double minRange; //1e-280;
   static const double maxRange; //1e280;
+
 };
 Q_DECLARE_TYPEINFO(QCPRange, Q_MOVABLE_TYPE);
+
+/* documentation of inline functions */
+
+/*! \fn QCPRange &QCPRange::operator+=(const double& value)
+
+  Adds \a value to both boundaries of the range.
+*/
+
+/*! \fn QCPRange &QCPRange::operator-=(const double& value)
+
+  Subtracts \a value from both boundaries of the range.
+*/
+
+/*! \fn QCPRange &QCPRange::operator*=(const double& value)
+
+  Multiplies both boundaries of the range by \a value.
+*/
+
+/*! \fn QCPRange &QCPRange::operator/=(const double& value)
+
+  Divides both boundaries of the range by \a value.
+*/
+
+/* end documentation of inline functions */
+
+/*!
+  Adds \a value to both boundaries of the range.
+*/
+inline const QCPRange operator+(const QCPRange& range, double value)
+{
+  QCPRange result(range);
+  result += value;
+  return result;
+}
+
+/*!
+  Adds \a value to both boundaries of the range.
+*/
+inline const QCPRange operator+(double value, const QCPRange& range)
+{
+  QCPRange result(range);
+  result += value;
+  return result;
+}
+
+/*!
+  Subtracts \a value from both boundaries of the range.
+*/
+inline const QCPRange operator-(const QCPRange& range, double value)
+{
+  QCPRange result(range);
+  result -= value;
+  return result;
+}
+
+/*!
+  Multiplies both boundaries of the range by \a value.
+*/
+inline const QCPRange operator*(const QCPRange& range, double value)
+{
+  QCPRange result(range);
+  result *= value;
+  return result;
+}
+
+/*!
+  Multiplies both boundaries of the range by \a value.
+*/
+inline const QCPRange operator*(double value, const QCPRange& range)
+{
+  QCPRange result(range);
+  result *= value;
+  return result;
+}
+
+/*!
+  Divides both boundaries of the range by \a value.
+*/
+inline const QCPRange operator/(const QCPRange& range, double value)
+{
+  QCPRange result(range);
+  result /= value;
+  return result;
+}
 
 
 class QCP_LIB_DECL QCPMarginGroup : public QObject
@@ -538,6 +640,16 @@ class QCP_LIB_DECL QCPLayoutElement : public QCPLayerable
   Q_PROPERTY(QSize maximumSize READ maximumSize WRITE setMaximumSize)
   /// \endcond
 public:
+  /*!
+    Defines the phases of the update process, that happens just before a replot. At each phase,
+    \ref update is called with the according UpdatePhase value.
+  */
+  enum UpdatePhase { upPreparation ///< Phase used for any type of preparation that needs to be done before margin calculation and layout
+                     ,upMargins    ///< Phase in which the margins are calculated and set
+                     ,upLayout     ///< Final phase in which the layout system places the rects of the elements
+                   };
+  Q_ENUMS(UpdatePhase)
+
   explicit QCPLayoutElement(QCustomPlot *parentPlot=0);
   virtual ~QCPLayoutElement();
 
@@ -565,7 +677,7 @@ public:
   void setMarginGroup(QCP::MarginSides sides, QCPMarginGroup *group);
 
   // introduced virtual methods:
-  virtual void update();
+  virtual void update(UpdatePhase phase);
   virtual QSize minimumSizeHint() const;
   virtual QSize maximumSizeHint() const;
   virtual QList<QCPLayoutElement*> elements(bool recursive) const;
@@ -612,7 +724,7 @@ public:
   explicit QCPLayout();
 
   // reimplemented virtual methods:
-  virtual void update();
+  virtual void update(UpdatePhase phase);
   virtual QList<QCPLayoutElement*> elements(bool recursive) const;
 
   // introduced virtual methods:
@@ -716,8 +828,8 @@ public:
   /*!
     Defines how the placement and sizing is handled for a certain element in a QCPLayoutInset.
   */
-  enum InsetPlacement {ipFree            ///< The element may be positioned/sized arbitrarily, see \ref setInsetRect
-                       ,ipBorderAligned  ///< The element is aligned to one of the layout sides, see \ref setInsetAlignment
+  enum InsetPlacement { ipFree            ///< The element may be positioned/sized arbitrarily, see \ref setInsetRect
+                        ,ipBorderAligned  ///< The element is aligned to one of the layout sides, see \ref setInsetAlignment
                       };
 
   explicit QCPLayoutInset();
@@ -771,7 +883,7 @@ public:
     and \ref setLength. Some decorations like \ref esDisc, \ref esSquare, \ref esDiamond and \ref esBar only
     support a width, the length property is ignored.
 
-    \see QCPItemLine::setHead, QCPItemLine::setTail, QCPItemCurve::setHead, QCPItemCurve::setTail
+    \see QCPItemLine::setHead, QCPItemLine::setTail, QCPItemCurve::setHead, QCPItemCurve::setTail, QCPAxis::setLowerEnding, QCPAxis::setUpperEnding
   */
   Q_ENUMS(EndingStyle)
   enum EndingStyle { esNone          ///< No ending decoration
@@ -780,9 +892,9 @@ public:
                      ,esLineArrow    ///< A non-filled arrow head with open back
                      ,esDisc         ///< A filled circle
                      ,esSquare       ///< A filled square
-                     ,esDiamond      ///< A filled diamond (45° rotated square)
+                     ,esDiamond      ///< A filled diamond (45 rotated square)
                      ,esBar          ///< A bar perpendicular to the line
-                     ,esHalfBar      ///< A bar perpendicular to the line sticking out to one side
+                     ,esHalfBar      ///< A bar perpendicular to the line, pointing out to only one side (to which side can be changed with \ref setInverted)
                      ,esSkewedBar    ///< A bar that is skewed (skew controllable via \ref setLength)
                    };
 
@@ -872,9 +984,9 @@ class QCP_LIB_DECL QCPAxis : public QCPLayerable
   /// \cond INCLUDE_QPROPERTIES
   Q_PROPERTY(AxisType axisType READ axisType)
   Q_PROPERTY(QCPAxisRect* axisRect READ axisRect)
-  Q_PROPERTY(ScaleType scaleType READ scaleType WRITE setScaleType)
+  Q_PROPERTY(ScaleType scaleType READ scaleType WRITE setScaleType NOTIFY scaleTypeChanged)
   Q_PROPERTY(double scaleLogBase READ scaleLogBase WRITE setScaleLogBase)
-  Q_PROPERTY(QCPRange range READ range WRITE setRange)
+  Q_PROPERTY(QCPRange range READ range WRITE setRange NOTIFY rangeChanged)
   Q_PROPERTY(bool rangeReversed READ rangeReversed WRITE setRangeReversed)
   Q_PROPERTY(bool autoTicks READ autoTicks WRITE setAutoTicks)
   Q_PROPERTY(int autoTickCount READ autoTickCount WRITE setAutoTickCount)
@@ -889,6 +1001,7 @@ class QCP_LIB_DECL QCPAxis : public QCPLayerable
   Q_PROPERTY(QColor tickLabelColor READ tickLabelColor WRITE setTickLabelColor)
   Q_PROPERTY(double tickLabelRotation READ tickLabelRotation WRITE setTickLabelRotation)
   Q_PROPERTY(QString dateTimeFormat READ dateTimeFormat WRITE setDateTimeFormat)
+  Q_PROPERTY(Qt::TimeSpec dateTimeSpec READ dateTimeSpec WRITE setDateTimeSpec)
   Q_PROPERTY(QString numberFormat READ numberFormat WRITE setNumberFormat)
   Q_PROPERTY(int numberPrecision READ numberPrecision WRITE setNumberPrecision)
   Q_PROPERTY(double tickStep READ tickStep WRITE setTickStep)
@@ -908,8 +1021,8 @@ class QCP_LIB_DECL QCPAxis : public QCPLayerable
   Q_PROPERTY(int labelPadding READ labelPadding WRITE setLabelPadding)
   Q_PROPERTY(int padding READ padding WRITE setPadding)
   Q_PROPERTY(int offset READ offset WRITE setOffset)
-  Q_PROPERTY(SelectableParts selectedParts READ selectedParts WRITE setSelectedParts)
-  Q_PROPERTY(SelectableParts selectableParts READ selectableParts WRITE setSelectableParts)
+  Q_PROPERTY(SelectableParts selectedParts READ selectedParts WRITE setSelectedParts NOTIFY selectionChanged)
+  Q_PROPERTY(SelectableParts selectableParts READ selectableParts WRITE setSelectableParts NOTIFY selectableChanged)
   Q_PROPERTY(QFont selectedTickLabelFont READ selectedTickLabelFont WRITE setSelectedTickLabelFont)
   Q_PROPERTY(QFont selectedLabelFont READ selectedLabelFont WRITE setSelectedLabelFont)
   Q_PROPERTY(QColor selectedTickLabelColor READ selectedTickLabelColor WRITE setSelectedTickLabelColor)
@@ -964,6 +1077,7 @@ public:
   Q_DECLARE_FLAGS(SelectableParts, SelectablePart)
 
   explicit QCPAxis(QCPAxisRect *parent, AxisType type);
+  virtual ~QCPAxis();
 
   // getters:
   AxisType axisType() const { return mAxisType; }
@@ -979,31 +1093,32 @@ public:
   bool autoSubTicks() const { return mAutoSubTicks; }
   bool ticks() const { return mTicks; }
   bool tickLabels() const { return mTickLabels; }
-  int tickLabelPadding() const { return mTickLabelPadding; }
+  int tickLabelPadding() const;
   LabelType tickLabelType() const { return mTickLabelType; }
   QFont tickLabelFont() const { return mTickLabelFont; }
   QColor tickLabelColor() const { return mTickLabelColor; }
-  double tickLabelRotation() const { return mTickLabelRotation; }
+  double tickLabelRotation() const;
   QString dateTimeFormat() const { return mDateTimeFormat; }
+  Qt::TimeSpec dateTimeSpec() const { return mDateTimeSpec; }
   QString numberFormat() const;
   int numberPrecision() const { return mNumberPrecision; }
   double tickStep() const { return mTickStep; }
   QVector<double> tickVector() const { return mTickVector; }
   QVector<QString> tickVectorLabels() const { return mTickVectorLabels; }
-  int tickLengthIn() const { return mTickLengthIn; }
-  int tickLengthOut() const { return mTickLengthOut; }
+  int tickLengthIn() const;
+  int tickLengthOut() const;
   int subTickCount() const { return mSubTickCount; }
-  int subTickLengthIn() const { return mSubTickLengthIn; }
-  int subTickLengthOut() const { return mSubTickLengthOut; }
+  int subTickLengthIn() const;
+  int subTickLengthOut() const;
   QPen basePen() const { return mBasePen; }
   QPen tickPen() const { return mTickPen; }
   QPen subTickPen() const { return mSubTickPen; }
   QFont labelFont() const { return mLabelFont; }
   QColor labelColor() const { return mLabelColor; }
   QString label() const { return mLabel; }
-  int labelPadding() const { return mLabelPadding; }
+  int labelPadding() const;
   int padding() const { return mPadding; }
-  int offset() const { return mOffset; }
+  int offset() const;
   SelectableParts selectedParts() const { return mSelectedParts; }
   SelectableParts selectableParts() const { return mSelectableParts; }
   QFont selectedTickLabelFont() const { return mSelectedTickLabelFont; }
@@ -1013,12 +1128,12 @@ public:
   QPen selectedBasePen() const { return mSelectedBasePen; }
   QPen selectedTickPen() const { return mSelectedTickPen; }
   QPen selectedSubTickPen() const { return mSelectedSubTickPen; }
-  QCPLineEnding lowerEnding() const { return mLowerEnding; }
-  QCPLineEnding upperEnding() const { return mUpperEnding; }
+  QCPLineEnding lowerEnding() const;
+  QCPLineEnding upperEnding() const;
   QCPGrid *grid() const { return mGrid; }
 
   // setters:
-  void setScaleType(ScaleType type);
+  Q_SLOT void setScaleType(QCPAxis::ScaleType type);
   void setScaleLogBase(double base);
   Q_SLOT void setRange(const QCPRange &range);
   void setRange(double lower, double upper);
@@ -1039,6 +1154,7 @@ public:
   void setTickLabelColor(const QColor &color);
   void setTickLabelRotation(double degrees);
   void setDateTimeFormat(const QString &format);
+  void setDateTimeSpec(const Qt::TimeSpec &timeSpec);
   void setNumberFormat(const QString &formatCode);
   void setNumberPrecision(int precision);
   void setTickStep(double step);
@@ -1075,11 +1191,12 @@ public:
   // reimplemented virtual methods:
   virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
 
-  // non-virtual methods:
+  // non-property methods:
   Qt::Orientation orientation() const { return mOrientation; }
   void moveRange(double diff);
   void scaleRange(double factor, double center);
   void setScaleRatio(const QCPAxis *otherAxis, double ratio=1.0);
+  void rescale(bool onlyVisiblePlottables=false);
   double pixelToCoord(double value) const;
   double coordToPixel(double value) const;
   SelectablePart getPartAt(const QPointF &pos) const;
@@ -1088,57 +1205,52 @@ public:
   QList<QCPAbstractItem*> items() const;
 
   static AxisType marginSideToAxisType(QCP::MarginSide side);
+  static Qt::Orientation orientation(AxisType type) { return type==atBottom||type==atTop ? Qt::Horizontal : Qt::Vertical; }
+  static AxisType opposite(AxisType type);
 
 signals:
   void ticksRequest();
   void rangeChanged(const QCPRange &newRange);
+  void rangeChanged(const QCPRange &newRange, const QCPRange &oldRange);
+  void scaleTypeChanged(QCPAxis::ScaleType scaleType);
   void selectionChanged(const QCPAxis::SelectableParts &parts);
+  void selectableChanged(const QCPAxis::SelectableParts &parts);
 
 protected:
-  struct CachedLabel
-  {
-    QPointF offset;
-    QPixmap pixmap;
-  };
-  struct TickLabelData
-  {
-    QString basePart, expPart;
-    QRect baseBounds, expBounds, totalBounds, rotatedTotalBounds;
-    QFont baseFont, expFont;
-  };
-
   // property members:
   // axis base:
   AxisType mAxisType;
   QCPAxisRect *mAxisRect;
-  int mOffset, mPadding;
+  //int mOffset; // in QCPAxisPainter
+  int mPadding;
   Qt::Orientation mOrientation;
   SelectableParts mSelectableParts, mSelectedParts;
   QPen mBasePen, mSelectedBasePen;
-  QCPLineEnding mLowerEnding, mUpperEnding;
+  //QCPLineEnding mLowerEnding, mUpperEnding; // in QCPAxisPainter
   // axis label:
-  int mLabelPadding;
+  //int mLabelPadding; // in QCPAxisPainter
   QString mLabel;
   QFont mLabelFont, mSelectedLabelFont;
   QColor mLabelColor, mSelectedLabelColor;
   // tick labels:
-  int mTickLabelPadding;
+  //int mTickLabelPadding; // in QCPAxisPainter
   bool mTickLabels, mAutoTickLabels;
-  double mTickLabelRotation;
+  //double mTickLabelRotation; // in QCPAxisPainter
   LabelType mTickLabelType;
   QFont mTickLabelFont, mSelectedTickLabelFont;
   QColor mTickLabelColor, mSelectedTickLabelColor;
   QString mDateTimeFormat;
+  Qt::TimeSpec mDateTimeSpec;
   int mNumberPrecision;
   char mNumberFormatChar;
   bool mNumberBeautifulPowers;
-  bool mNumberMultiplyCross;
+  //bool mNumberMultiplyCross; // QCPAxisPainter
   // ticks and subticks:
   bool mTicks;
   double mTickStep;
   int mSubTickCount, mAutoTickCount;
   bool mAutoTicks, mAutoTickStep, mAutoSubTicks;
-  int mTickLengthIn, mTickLengthOut, mSubTickLengthIn, mSubTickLengthOut;
+  //int mTickLengthIn, mTickLengthOut, mSubTickLengthIn, mSubTickLengthOut; // QCPAxisPainter
   QPen mTickPen, mSelectedTickPen;
   QPen mSubTickPen, mSelectedSubTickPen;
   // scale and range:
@@ -1149,13 +1261,11 @@ protected:
 
   // non-property members:
   QCPGrid *mGrid;
-  QCache<QString, CachedLabel> mLabelCache;
+  QCPAxisPainterPrivate *mAxisPainter;
   int mLowestVisibleTick, mHighestVisibleTick;
-  QChar mExponentialChar, mPositiveSignChar;
   QVector<double> mTickVector;
   QVector<QString> mTickVectorLabels;
   QVector<double> mSubTickVector;
-  QRect mAxisSelectionBox, mTickLabelsSelectionBox, mLabelSelectionBox;
   bool mCachedMarginValid;
   int mCachedMargin;
 
@@ -1164,12 +1274,6 @@ protected:
   virtual void generateAutoTicks();
   virtual int calculateAutoSubTickCount(double tickStep) const;
   virtual int calculateMargin();
-  // tick label drawing/caching:
-  virtual void placeTickLabel(QCPPainter *painter, double position, int distanceToAxis, const QString &text, QSize *tickLabelsSize);
-  virtual void drawTickLabel(QCPPainter *painter, double x, double y, const TickLabelData &labelData) const;
-  virtual TickLabelData getTickLabelData(const QFont &font, const QString &text) const;
-  virtual QPointF getTickLabelDrawOffset(const TickLabelData &labelData) const;
-  virtual void getMaxTickLabelSize(const QFont &font, const QString &text, QSize *tickLabelsSize) const;
 
   // reimplemented virtual methods:
   virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
@@ -1203,6 +1307,72 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(QCPAxis::AxisTypes)
 Q_DECLARE_METATYPE(QCPAxis::SelectablePart)
 
 
+class QCPAxisPainterPrivate
+{
+public:
+  explicit QCPAxisPainterPrivate(QCustomPlot *parentPlot);
+  virtual ~QCPAxisPainterPrivate();
+
+  virtual void draw(QCPPainter *painter);
+  virtual int size() const;
+  void clearCache();
+
+  QRect axisSelectionBox() const { return mAxisSelectionBox; }
+  QRect tickLabelsSelectionBox() const { return mTickLabelsSelectionBox; }
+  QRect labelSelectionBox() const { return mLabelSelectionBox; }
+
+  // public property members:
+  QCPAxis::AxisType type;
+  QPen basePen;
+  QCPLineEnding lowerEnding, upperEnding; // directly accessed by QCPAxis setters/getters
+  int labelPadding; // directly accessed by QCPAxis setters/getters
+  QFont labelFont;
+  QColor labelColor;
+  QString label;
+  int tickLabelPadding; // directly accessed by QCPAxis setters/getters
+  double tickLabelRotation; // directly accessed by QCPAxis setters/getters
+  bool substituteExponent;
+  bool numberMultiplyCross; // directly accessed by QCPAxis setters/getters
+  int tickLengthIn, tickLengthOut, subTickLengthIn, subTickLengthOut; // directly accessed by QCPAxis setters/getters
+  QPen tickPen, subTickPen;
+  QFont tickLabelFont;
+  QColor tickLabelColor;
+  QRect alignmentRect, viewportRect;
+  double offset; // directly accessed by QCPAxis setters/getters
+  bool abbreviateDecimalPowers;
+  bool reversedEndings;
+
+  QVector<double> subTickPositions;
+  QVector<double> tickPositions;
+  QVector<QString> tickLabels;
+
+protected:
+  struct CachedLabel
+  {
+    QPointF offset;
+    QPixmap pixmap;
+  };
+  struct TickLabelData
+  {
+    QString basePart, expPart;
+    QRect baseBounds, expBounds, totalBounds, rotatedTotalBounds;
+    QFont baseFont, expFont;
+  };
+  QCustomPlot *mParentPlot;
+  QByteArray mLabelParameterHash; // to determine whether mLabelCache needs to be cleared due to changed parameters
+  QCache<QString, CachedLabel> mLabelCache;
+  QRect mAxisSelectionBox, mTickLabelsSelectionBox, mLabelSelectionBox;
+
+  virtual QByteArray generateLabelParameterHash() const;
+
+  virtual void placeTickLabel(QCPPainter *painter, double position, int distanceToAxis, const QString &text, QSize *tickLabelsSize);
+  virtual void drawTickLabel(QCPPainter *painter, double x, double y, const TickLabelData &labelData) const;
+  virtual TickLabelData getTickLabelData(const QFont &font, const QString &text) const;
+  virtual QPointF getTickLabelDrawOffset(const TickLabelData &labelData) const;
+  virtual void getMaxTickLabelSize(const QFont &font, const QString &text, QSize *tickLabelsSize) const;
+};
+
+
 class QCP_LIB_DECL QCPAbstractPlottable : public QCPLayerable
 {
   Q_OBJECT
@@ -1217,8 +1387,8 @@ class QCP_LIB_DECL QCPAbstractPlottable : public QCPLayerable
   Q_PROPERTY(QBrush selectedBrush READ selectedBrush WRITE setSelectedBrush)
   Q_PROPERTY(QCPAxis* keyAxis READ keyAxis WRITE setKeyAxis)
   Q_PROPERTY(QCPAxis* valueAxis READ valueAxis WRITE setValueAxis)
-  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable)
-  Q_PROPERTY(bool selected READ selected WRITE setSelected)
+  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable NOTIFY selectableChanged)
+  Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectionChanged)
   /// \endcond
 public:
   QCPAbstractPlottable(QCPAxis *keyAxis, QCPAxis *valueAxis);
@@ -1264,6 +1434,7 @@ public:
 
 signals:
   void selectionChanged(bool selected);
+  void selectableChanged(bool selectable);
 
 protected:
   /*!
@@ -1279,7 +1450,7 @@ protected:
   bool mAntialiasedFill, mAntialiasedScatters, mAntialiasedErrorBars;
   QPen mPen, mSelectedPen;
   QBrush mBrush, mSelectedBrush;
-  QWeakPointer<QCPAxis> mKeyAxis, mValueAxis;
+  QPointer<QCPAxis> mKeyAxis, mValueAxis;
   bool mSelectable, mSelected;
 
   // reimplemented virtual methods:
@@ -1293,8 +1464,8 @@ protected:
 
   // introduced virtual methods:
   virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const = 0;
-  virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain=sdBoth) const = 0;
-  virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain=sdBoth) const = 0;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const = 0;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const = 0;
 
   // non-virtual methods:
   void coordsToPixels(double key, double value, double &x, double &y) const;
@@ -1312,6 +1483,7 @@ private:
   Q_DISABLE_COPY(QCPAbstractPlottable)
 
   friend class QCustomPlot;
+  friend class QCPAxis;
   friend class QCPPlottableLegendItem;
 };
 
@@ -1361,8 +1533,12 @@ public:
     \see setType
   */
   enum PositionType { ptAbsolute        ///< Static positioning in pixels, starting from the top left corner of the viewport/widget.
-                      ,ptViewportRatio  ///< Static positioning given by a fraction of the viewport size.
-                      ,ptAxisRectRatio  ///< Static positioning given by a fraction of the axis rect size (see \ref setAxisRect).
+                      ,ptViewportRatio  ///< Static positioning given by a fraction of the viewport size. For example, if you call setCoords(0, 0), the position will be at the top
+                                        ///< left corner of the viewport/widget. setCoords(1, 1) will be at the bottom right corner, setCoords(0.5, 0) will be horizontally centered and
+                                        ///< vertically at the top of the viewport/widget, etc.
+                      ,ptAxisRectRatio  ///< Static positioning given by a fraction of the axis rect size (see \ref setAxisRect). For example, if you call setCoords(0, 0), the position will be at the top
+                                        ///< left corner of the axis rect. setCoords(1, 1) will be at the bottom right corner, setCoords(0.5, 0) will be horizontally centered and
+                                        ///< vertically at the top of the axis rect, etc. You can also go beyond the axis rect by providing negative coordinates or coordinates larger than 1.
                       ,ptPlotCoords     ///< Dynamic positioning at a plot coordinate defined by two axes (see \ref setAxes).
                     };
 
@@ -1377,7 +1553,7 @@ public:
   QPointF coords() const { return QPointF(mKey, mValue); }
   QCPAxis *keyAxis() const { return mKeyAxis.data(); }
   QCPAxis *valueAxis() const { return mValueAxis.data(); }
-  QCPAxisRect *axisRect() const { return mAxisRect.data(); }
+  QCPAxisRect *axisRect() const;
   virtual QPointF pixelPoint() const;
 
   // setters:
@@ -1392,8 +1568,8 @@ public:
 protected:
   // property members:
   PositionType mPositionType;
-  QWeakPointer<QCPAxis> mKeyAxis, mValueAxis;
-  QWeakPointer<QCPAxisRect> mAxisRect;
+  QPointer<QCPAxis> mKeyAxis, mValueAxis;
+  QPointer<QCPAxisRect> mAxisRect;
   double mKey, mValue;
   QCPItemAnchor *mParentAnchor;
 
@@ -1412,8 +1588,8 @@ class QCP_LIB_DECL QCPAbstractItem : public QCPLayerable
   /// \cond INCLUDE_QPROPERTIES
   Q_PROPERTY(bool clipToAxisRect READ clipToAxisRect WRITE setClipToAxisRect)
   Q_PROPERTY(QCPAxisRect* clipAxisRect READ clipAxisRect WRITE setClipAxisRect)
-  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable)
-  Q_PROPERTY(bool selected READ selected WRITE setSelected)
+  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable NOTIFY selectableChanged)
+  Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectionChanged)
   /// \endcond
 public:
   QCPAbstractItem(QCustomPlot *parentPlot);
@@ -1421,15 +1597,15 @@ public:
 
   // getters:
   bool clipToAxisRect() const { return mClipToAxisRect; }
-  QCPAxisRect *clipAxisRect() const { return mClipAxisRect.data(); }
+  QCPAxisRect *clipAxisRect() const;
   bool selectable() const { return mSelectable; }
   bool selected() const { return mSelected; }
 
   // setters:
   void setClipToAxisRect(bool clip);
   void setClipAxisRect(QCPAxisRect *rect);
-  void setSelectable(bool selectable);
-  void setSelected(bool selected);
+  Q_SLOT void setSelectable(bool selectable);
+  Q_SLOT void setSelected(bool selected);
 
   // reimplemented virtual methods:
   virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const = 0;
@@ -1443,11 +1619,12 @@ public:
 
 signals:
   void selectionChanged(bool selected);
+  void selectableChanged(bool selectable);
 
 protected:
   // property members:
   bool mClipToAxisRect;
-  QWeakPointer<QCPAxisRect> mClipAxisRect;
+  QPointer<QCPAxisRect> mClipAxisRect;
   QList<QCPItemPosition*> mPositions;
   QList<QCPItemAnchor*> mAnchors;
   bool mSelectable, mSelected;
@@ -1502,6 +1679,16 @@ public:
                          ,limAbove ///< Layer is inserted above other layer
                        };
   Q_ENUMS(LayerInsertMode)
+
+  /*!
+    Defines with what timing the QCustomPlot surface is refreshed after a replot.
+
+    \see replot
+  */
+  enum RefreshPriority { rpImmediate ///< The QCustomPlot surface is immediately refreshed, by calling QWidget::repaint() after the replot
+                         ,rpQueued   ///< Queues the refresh such that it is performed at a slightly delayed point in time after the replot, by calling QWidget::update() after the replot
+                         ,rpHint     ///< Whether to use immediate repaint or queued update depends on whether the plotting hint \ref QCP::phForceRepaint is set, see \ref setPlottingHints.
+                       };
 
   explicit QCustomPlot(QWidget *parent = 0);
   virtual ~QCustomPlot();
@@ -1592,20 +1779,20 @@ public:
   QCPAxisRect* axisRect(int index=0) const;
   QList<QCPAxisRect*> axisRects() const;
   QCPLayoutElement* layoutElementAt(const QPointF &pos) const;
-  Q_SLOT void rescaleAxes(bool onlyVisible=false);
+  Q_SLOT void rescaleAxes(bool onlyVisiblePlottables=false);
 
   QList<QCPAxis*> selectedAxes() const;
   QList<QCPLegend*> selectedLegends() const;
   Q_SLOT void deselectAll();
 
-  bool savePdf(const QString &fileName, bool noCosmeticPen=false, int width=0, int height=0);
+  bool savePdf(const QString &fileName, bool noCosmeticPen=false, int width=0, int height=0, const QString &pdfCreator="", const QString &pdfTitle="");
   bool savePng(const QString &fileName, int width=0, int height=0, double scale=1.0, int quality=-1);
   bool saveJpg(const QString &fileName, int width=0, int height=0, double scale=1.0, int quality=-1);
   bool saveBmp(const QString &fileName, int width=0, int height=0, double scale=1.0);
   bool saveRastered(const QString &fileName, int width, int height, double scale, const char *format, int quality=-1);
   QPixmap toPixmap(int width=0, int height=0, double scale=1.0);
   void toPainter(QCPPainter *painter, int width=0, int height=0);
-  Q_SLOT void replot();
+  Q_SLOT void replot(QCustomPlot::RefreshPriority refreshPriority=QCustomPlot::rpHint);
 
   QCPAxis *xAxis, *yAxis, *xAxis2, *yAxis2;
   QCPLegend *legend;
@@ -1657,7 +1844,7 @@ protected:
   // non-property members:
   QPixmap mPaintBuffer;
   QPoint mMousePressPos;
-  QCPLayoutElement *mMouseEventElement;
+  QPointer<QCPLayoutElement> mMouseEventElement;
   bool mReplotting;
 
   // reimplemented virtual methods:
@@ -1685,6 +1872,569 @@ protected:
   friend class QCPAxis;
   friend class QCPLayer;
   friend class QCPAxisRect;
+};
+
+
+class QCP_LIB_DECL QCPColorGradient
+{
+  Q_GADGET
+public:
+  /*!
+    Defines the color spaces in which color interpolation between gradient stops can be performed.
+
+    \see setColorInterpolation
+  */
+  enum ColorInterpolation { ciRGB  ///< Color channels red, green and blue are linearly interpolated
+                            ,ciHSV ///< Color channels hue, saturation and value are linearly interpolated (The hue is interpolated over the shortest angle distance)
+                          };
+  Q_ENUMS(ColorInterpolation)
+
+  /*!
+    Defines the available presets that can be loaded with \ref loadPreset. See the documentation
+    there for an image of the presets.
+  */
+  enum GradientPreset { gpGrayscale  ///< Continuous lightness from black to white (suited for non-biased data representation)
+                        ,gpHot       ///< Continuous lightness from black over firey colors to white (suited for non-biased data representation)
+                        ,gpCold      ///< Continuous lightness from black over icey colors to white (suited for non-biased data representation)
+                        ,gpNight     ///< Continuous lightness from black over weak blueish colors to white (suited for non-biased data representation)
+                        ,gpCandy     ///< Blue over pink to white
+                        ,gpGeography ///< Colors suitable to represent different elevations on geographical maps
+                        ,gpIon       ///< Half hue spectrum from black over purple to blue and finally green (creates banding illusion but allows more precise magnitude estimates)
+                        ,gpThermal   ///< Colors suitable for thermal imaging, ranging from dark blue over purple to orange, yellow and white
+                        ,gpPolar     ///< Colors suitable to emphasize polarity around the center, with blue for negative, black in the middle and red for positive values
+                        ,gpSpectrum  ///< An approximation of the visible light spectrum (creates banding illusion but allows more precise magnitude estimates)
+                        ,gpJet       ///< Hue variation similar to a spectrum, often used in numerical visualization (creates banding illusion but allows more precise magnitude estimates)
+                        ,gpHues      ///< Full hue cycle, with highest and lowest color red (suitable for periodic data, such as angles and phases, see \ref setPeriodic)
+                      };
+  Q_ENUMS(GradientPreset)
+
+  QCPColorGradient(GradientPreset preset=gpCold);
+  bool operator==(const QCPColorGradient &other) const;
+  bool operator!=(const QCPColorGradient &other) const { return !(*this == other); }
+
+  // getters:
+  int levelCount() const { return mLevelCount; }
+  QMap<double, QColor> colorStops() const { return mColorStops; }
+  ColorInterpolation colorInterpolation() const { return mColorInterpolation; }
+  bool periodic() const { return mPeriodic; }
+
+  // setters:
+  void setLevelCount(int n);
+  void setColorStops(const QMap<double, QColor> &colorStops);
+  void setColorStopAt(double position, const QColor &color);
+  void setColorInterpolation(ColorInterpolation interpolation);
+  void setPeriodic(bool enabled);
+
+  // non-property methods:
+  void colorize(const double *data, const QCPRange &range, QRgb *scanLine, int n, int dataIndexFactor=1, bool logarithmic=false);
+  QRgb color(double position, const QCPRange &range, bool logarithmic=false);
+  void loadPreset(GradientPreset preset);
+  void clearColorStops();
+  QCPColorGradient inverted() const;
+
+protected:
+  void updateColorBuffer();
+
+  // property members:
+  int mLevelCount;
+  QMap<double, QColor> mColorStops;
+  ColorInterpolation mColorInterpolation;
+  bool mPeriodic;
+
+  // non-property members:
+  QVector<QRgb> mColorBuffer;
+  bool mColorBufferInvalidated;
+};
+
+
+class QCP_LIB_DECL QCPAxisRect : public QCPLayoutElement
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(QPixmap background READ background WRITE setBackground)
+  Q_PROPERTY(bool backgroundScaled READ backgroundScaled WRITE setBackgroundScaled)
+  Q_PROPERTY(Qt::AspectRatioMode backgroundScaledMode READ backgroundScaledMode WRITE setBackgroundScaledMode)
+  Q_PROPERTY(Qt::Orientations rangeDrag READ rangeDrag WRITE setRangeDrag)
+  Q_PROPERTY(Qt::Orientations rangeZoom READ rangeZoom WRITE setRangeZoom)
+  /// \endcond
+public:
+  explicit QCPAxisRect(QCustomPlot *parentPlot, bool setupDefaultAxes=true);
+  virtual ~QCPAxisRect();
+
+  // getters:
+  QPixmap background() const { return mBackgroundPixmap; }
+  bool backgroundScaled() const { return mBackgroundScaled; }
+  Qt::AspectRatioMode backgroundScaledMode() const { return mBackgroundScaledMode; }
+  Qt::Orientations rangeDrag() const { return mRangeDrag; }
+  Qt::Orientations rangeZoom() const { return mRangeZoom; }
+  QCPAxis *rangeDragAxis(Qt::Orientation orientation);
+  QCPAxis *rangeZoomAxis(Qt::Orientation orientation);
+  double rangeZoomFactor(Qt::Orientation orientation);
+
+  // setters:
+  void setBackground(const QPixmap &pm);
+  void setBackground(const QPixmap &pm, bool scaled, Qt::AspectRatioMode mode=Qt::KeepAspectRatioByExpanding);
+  void setBackground(const QBrush &brush);
+  void setBackgroundScaled(bool scaled);
+  void setBackgroundScaledMode(Qt::AspectRatioMode mode);
+  void setRangeDrag(Qt::Orientations orientations);
+  void setRangeZoom(Qt::Orientations orientations);
+  void setRangeDragAxes(QCPAxis *horizontal, QCPAxis *vertical);
+  void setRangeZoomAxes(QCPAxis *horizontal, QCPAxis *vertical);
+  void setRangeZoomFactor(double horizontalFactor, double verticalFactor);
+  void setRangeZoomFactor(double factor);
+
+  // non-property methods:
+  int axisCount(QCPAxis::AxisType type) const;
+  QCPAxis *axis(QCPAxis::AxisType type, int index=0) const;
+  QList<QCPAxis*> axes(QCPAxis::AxisTypes types) const;
+  QList<QCPAxis*> axes() const;
+  QCPAxis *addAxis(QCPAxis::AxisType type);
+  QList<QCPAxis*> addAxes(QCPAxis::AxisTypes types);
+  bool removeAxis(QCPAxis *axis);
+  QCPLayoutInset *insetLayout() const { return mInsetLayout; }
+
+  void setupFullAxesBox(bool connectRanges=false);
+  QList<QCPAbstractPlottable*> plottables() const;
+  QList<QCPGraph*> graphs() const;
+  QList<QCPAbstractItem*> items() const;
+
+  // read-only interface imitating a QRect:
+  int left() const { return mRect.left(); }
+  int right() const { return mRect.right(); }
+  int top() const { return mRect.top(); }
+  int bottom() const { return mRect.bottom(); }
+  int width() const { return mRect.width(); }
+  int height() const { return mRect.height(); }
+  QSize size() const { return mRect.size(); }
+  QPoint topLeft() const { return mRect.topLeft(); }
+  QPoint topRight() const { return mRect.topRight(); }
+  QPoint bottomLeft() const { return mRect.bottomLeft(); }
+  QPoint bottomRight() const { return mRect.bottomRight(); }
+  QPoint center() const { return mRect.center(); }
+
+  // reimplemented virtual methods:
+  virtual void update(UpdatePhase phase);
+  virtual QList<QCPLayoutElement*> elements(bool recursive) const;
+
+protected:
+  // property members:
+  QBrush mBackgroundBrush;
+  QPixmap mBackgroundPixmap;
+  QPixmap mScaledBackgroundPixmap;
+  bool mBackgroundScaled;
+  Qt::AspectRatioMode mBackgroundScaledMode;
+  QCPLayoutInset *mInsetLayout;
+  Qt::Orientations mRangeDrag, mRangeZoom;
+  QPointer<QCPAxis> mRangeDragHorzAxis, mRangeDragVertAxis, mRangeZoomHorzAxis, mRangeZoomVertAxis;
+  double mRangeZoomFactorHorz, mRangeZoomFactorVert;
+  // non-property members:
+  QCPRange mDragStartHorzRange, mDragStartVertRange;
+  QCP::AntialiasedElements mAADragBackup, mNotAADragBackup;
+  QPoint mDragStart;
+  bool mDragging;
+  QHash<QCPAxis::AxisType, QList<QCPAxis*> > mAxes;
+
+  // reimplemented virtual methods:
+  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
+  virtual void draw(QCPPainter *painter);
+  virtual int calculateAutoMargin(QCP::MarginSide side);
+  // events:
+  virtual void mousePressEvent(QMouseEvent *event);
+  virtual void mouseMoveEvent(QMouseEvent *event);
+  virtual void mouseReleaseEvent(QMouseEvent *event);
+  virtual void wheelEvent(QWheelEvent *event);
+
+  // non-property methods:
+  void drawBackground(QCPPainter *painter);
+  void updateAxesOffset(QCPAxis::AxisType type);
+
+private:
+  Q_DISABLE_COPY(QCPAxisRect)
+
+  friend class QCustomPlot;
+};
+
+
+class QCP_LIB_DECL QCPAbstractLegendItem : public QCPLayoutElement
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(QCPLegend* parentLegend READ parentLegend)
+  Q_PROPERTY(QFont font READ font WRITE setFont)
+  Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
+  Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
+  Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
+  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable NOTIFY selectionChanged)
+  Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectableChanged)
+  /// \endcond
+public:
+  explicit QCPAbstractLegendItem(QCPLegend *parent);
+
+  // getters:
+  QCPLegend *parentLegend() const { return mParentLegend; }
+  QFont font() const { return mFont; }
+  QColor textColor() const { return mTextColor; }
+  QFont selectedFont() const { return mSelectedFont; }
+  QColor selectedTextColor() const { return mSelectedTextColor; }
+  bool selectable() const { return mSelectable; }
+  bool selected() const { return mSelected; }
+
+  // setters:
+  void setFont(const QFont &font);
+  void setTextColor(const QColor &color);
+  void setSelectedFont(const QFont &font);
+  void setSelectedTextColor(const QColor &color);
+  Q_SLOT void setSelectable(bool selectable);
+  Q_SLOT void setSelected(bool selected);
+
+  // reimplemented virtual methods:
+  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+
+signals:
+  void selectionChanged(bool selected);
+  void selectableChanged(bool selectable);
+
+protected:
+  // property members:
+  QCPLegend *mParentLegend;
+  QFont mFont;
+  QColor mTextColor;
+  QFont mSelectedFont;
+  QColor mSelectedTextColor;
+  bool mSelectable, mSelected;
+
+  // reimplemented virtual methods:
+  virtual QCP::Interaction selectionCategory() const;
+  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
+  virtual QRect clipRect() const;
+  virtual void draw(QCPPainter *painter) = 0;
+  // events:
+  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
+  virtual void deselectEvent(bool *selectionStateChanged);
+
+private:
+  Q_DISABLE_COPY(QCPAbstractLegendItem)
+
+  friend class QCPLegend;
+};
+
+
+class QCP_LIB_DECL QCPPlottableLegendItem : public QCPAbstractLegendItem
+{
+  Q_OBJECT
+public:
+  QCPPlottableLegendItem(QCPLegend *parent, QCPAbstractPlottable *plottable);
+
+  // getters:
+  QCPAbstractPlottable *plottable() { return mPlottable; }
+
+protected:
+  // property members:
+  QCPAbstractPlottable *mPlottable;
+
+  // reimplemented virtual methods:
+  virtual void draw(QCPPainter *painter);
+  virtual QSize minimumSizeHint() const;
+
+  // non-virtual methods:
+  QPen getIconBorderPen() const;
+  QColor getTextColor() const;
+  QFont getFont() const;
+};
+
+
+class QCP_LIB_DECL QCPLegend : public QCPLayoutGrid
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(QPen borderPen READ borderPen WRITE setBorderPen)
+  Q_PROPERTY(QBrush brush READ brush WRITE setBrush)
+  Q_PROPERTY(QFont font READ font WRITE setFont)
+  Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
+  Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
+  Q_PROPERTY(int iconTextPadding READ iconTextPadding WRITE setIconTextPadding)
+  Q_PROPERTY(QPen iconBorderPen READ iconBorderPen WRITE setIconBorderPen)
+  Q_PROPERTY(SelectableParts selectableParts READ selectableParts WRITE setSelectableParts NOTIFY selectionChanged)
+  Q_PROPERTY(SelectableParts selectedParts READ selectedParts WRITE setSelectedParts NOTIFY selectableChanged)
+  Q_PROPERTY(QPen selectedBorderPen READ selectedBorderPen WRITE setSelectedBorderPen)
+  Q_PROPERTY(QPen selectedIconBorderPen READ selectedIconBorderPen WRITE setSelectedIconBorderPen)
+  Q_PROPERTY(QBrush selectedBrush READ selectedBrush WRITE setSelectedBrush)
+  Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
+  Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
+  /// \endcond
+public:
+  /*!
+    Defines the selectable parts of a legend
+
+    \see setSelectedParts, setSelectableParts
+  */
+  enum SelectablePart { spNone       = 0x000  ///< <tt>0x000</tt> None
+                        ,spLegendBox  = 0x001 ///< <tt>0x001</tt> The legend box (frame)
+                        ,spItems      = 0x002 ///< <tt>0x002</tt> Legend items individually (see \ref selectedItems)
+                      };
+  Q_FLAGS(SelectablePart SelectableParts)
+  Q_DECLARE_FLAGS(SelectableParts, SelectablePart)
+
+  explicit QCPLegend();
+  virtual ~QCPLegend();
+
+  // getters:
+  QPen borderPen() const { return mBorderPen; }
+  QBrush brush() const { return mBrush; }
+  QFont font() const { return mFont; }
+  QColor textColor() const { return mTextColor; }
+  QSize iconSize() const { return mIconSize; }
+  int iconTextPadding() const { return mIconTextPadding; }
+  QPen iconBorderPen() const { return mIconBorderPen; }
+  SelectableParts selectableParts() const { return mSelectableParts; }
+  SelectableParts selectedParts() const;
+  QPen selectedBorderPen() const { return mSelectedBorderPen; }
+  QPen selectedIconBorderPen() const { return mSelectedIconBorderPen; }
+  QBrush selectedBrush() const { return mSelectedBrush; }
+  QFont selectedFont() const { return mSelectedFont; }
+  QColor selectedTextColor() const { return mSelectedTextColor; }
+
+  // setters:
+  void setBorderPen(const QPen &pen);
+  void setBrush(const QBrush &brush);
+  void setFont(const QFont &font);
+  void setTextColor(const QColor &color);
+  void setIconSize(const QSize &size);
+  void setIconSize(int width, int height);
+  void setIconTextPadding(int padding);
+  void setIconBorderPen(const QPen &pen);
+  Q_SLOT void setSelectableParts(const SelectableParts &selectableParts);
+  Q_SLOT void setSelectedParts(const SelectableParts &selectedParts);
+  void setSelectedBorderPen(const QPen &pen);
+  void setSelectedIconBorderPen(const QPen &pen);
+  void setSelectedBrush(const QBrush &brush);
+  void setSelectedFont(const QFont &font);
+  void setSelectedTextColor(const QColor &color);
+
+  // reimplemented virtual methods:
+  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+
+  // non-virtual methods:
+  QCPAbstractLegendItem *item(int index) const;
+  QCPPlottableLegendItem *itemWithPlottable(const QCPAbstractPlottable *plottable) const;
+  int itemCount() const;
+  bool hasItem(QCPAbstractLegendItem *item) const;
+  bool hasItemWithPlottable(const QCPAbstractPlottable *plottable) const;
+  bool addItem(QCPAbstractLegendItem *item);
+  bool removeItem(int index);
+  bool removeItem(QCPAbstractLegendItem *item);
+  void clearItems();
+  QList<QCPAbstractLegendItem*> selectedItems() const;
+
+signals:
+  void selectionChanged(QCPLegend::SelectableParts parts);
+  void selectableChanged(QCPLegend::SelectableParts parts);
+
+protected:
+  // property members:
+  QPen mBorderPen, mIconBorderPen;
+  QBrush mBrush;
+  QFont mFont;
+  QColor mTextColor;
+  QSize mIconSize;
+  int mIconTextPadding;
+  SelectableParts mSelectedParts, mSelectableParts;
+  QPen mSelectedBorderPen, mSelectedIconBorderPen;
+  QBrush mSelectedBrush;
+  QFont mSelectedFont;
+  QColor mSelectedTextColor;
+
+  // reimplemented virtual methods:
+  virtual void parentPlotInitialized(QCustomPlot *parentPlot);
+  virtual QCP::Interaction selectionCategory() const;
+  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
+  virtual void draw(QCPPainter *painter);
+  // events:
+  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
+  virtual void deselectEvent(bool *selectionStateChanged);
+
+  // non-virtual methods:
+  QPen getBorderPen() const;
+  QBrush getBrush() const;
+
+private:
+  Q_DISABLE_COPY(QCPLegend)
+
+  friend class QCustomPlot;
+  friend class QCPAbstractLegendItem;
+};
+Q_DECLARE_OPERATORS_FOR_FLAGS(QCPLegend::SelectableParts)
+Q_DECLARE_METATYPE(QCPLegend::SelectablePart)
+
+
+class QCP_LIB_DECL QCPPlotTitle : public QCPLayoutElement
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(QString text READ text WRITE setText)
+  Q_PROPERTY(QFont font READ font WRITE setFont)
+  Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
+  Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
+  Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
+  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable NOTIFY selectableChanged)
+  Q_PROPERTY(bool selected READ selected WRITE setSelected NOTIFY selectionChanged)
+  /// \endcond
+public:
+  explicit QCPPlotTitle(QCustomPlot *parentPlot);
+  explicit QCPPlotTitle(QCustomPlot *parentPlot, const QString &text);
+
+  // getters:
+  QString text() const { return mText; }
+  QFont font() const { return mFont; }
+  QColor textColor() const { return mTextColor; }
+  QFont selectedFont() const { return mSelectedFont; }
+  QColor selectedTextColor() const { return mSelectedTextColor; }
+  bool selectable() const { return mSelectable; }
+  bool selected() const { return mSelected; }
+
+  // setters:
+  void setText(const QString &text);
+  void setFont(const QFont &font);
+  void setTextColor(const QColor &color);
+  void setSelectedFont(const QFont &font);
+  void setSelectedTextColor(const QColor &color);
+  Q_SLOT void setSelectable(bool selectable);
+  Q_SLOT void setSelected(bool selected);
+
+  // reimplemented virtual methods:
+  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+
+signals:
+  void selectionChanged(bool selected);
+  void selectableChanged(bool selectable);
+
+protected:
+  // property members:
+  QString mText;
+  QFont mFont;
+  QColor mTextColor;
+  QFont mSelectedFont;
+  QColor mSelectedTextColor;
+  QRect mTextBoundingRect;
+  bool mSelectable, mSelected;
+
+  // reimplemented virtual methods:
+  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
+  virtual void draw(QCPPainter *painter);
+  virtual QSize minimumSizeHint() const;
+  virtual QSize maximumSizeHint() const;
+  // events:
+  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
+  virtual void deselectEvent(bool *selectionStateChanged);
+
+  // non-virtual methods:
+  QFont mainFont() const;
+  QColor mainTextColor() const;
+
+private:
+  Q_DISABLE_COPY(QCPPlotTitle)
+};
+
+
+class QCPColorScaleAxisRectPrivate : public QCPAxisRect
+{
+  Q_OBJECT
+public:
+  explicit QCPColorScaleAxisRectPrivate(QCPColorScale *parentColorScale);
+protected:
+  QCPColorScale *mParentColorScale;
+  QImage mGradientImage;
+  bool mGradientImageInvalidated;
+  // re-using some methods of QCPAxisRect to make them available to friend class QCPColorScale
+  using QCPAxisRect::calculateAutoMargin;
+  using QCPAxisRect::mousePressEvent;
+  using QCPAxisRect::mouseMoveEvent;
+  using QCPAxisRect::mouseReleaseEvent;
+  using QCPAxisRect::wheelEvent;
+  using QCPAxisRect::update;
+  virtual void draw(QCPPainter *painter);
+  void updateGradientImage();
+  Q_SLOT void axisSelectionChanged(QCPAxis::SelectableParts selectedParts);
+  Q_SLOT void axisSelectableChanged(QCPAxis::SelectableParts selectableParts);
+  friend class QCPColorScale;
+};
+
+
+class QCP_LIB_DECL QCPColorScale : public QCPLayoutElement
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(QCPAxis::AxisType type READ type WRITE setType)
+  Q_PROPERTY(QCPRange dataRange READ dataRange WRITE setDataRange NOTIFY dataRangeChanged)
+  Q_PROPERTY(QCPAxis::ScaleType dataScaleType READ dataScaleType WRITE setDataScaleType NOTIFY dataScaleTypeChanged)
+  Q_PROPERTY(QCPColorGradient gradient READ gradient WRITE setGradient NOTIFY gradientChanged)
+  Q_PROPERTY(QString label READ label WRITE setLabel)
+  Q_PROPERTY(int barWidth READ barWidth WRITE setBarWidth)
+  Q_PROPERTY(bool rangeDrag READ rangeDrag WRITE setRangeDrag)
+  Q_PROPERTY(bool rangeZoom READ rangeZoom WRITE setRangeZoom)
+  /// \endcond
+public:
+  explicit QCPColorScale(QCustomPlot *parentPlot);
+  virtual ~QCPColorScale();
+
+  // getters:
+  QCPAxis *axis() const { return mColorAxis.data(); }
+  QCPAxis::AxisType type() const { return mType; }
+  QCPRange dataRange() const { return mDataRange; }
+  QCPAxis::ScaleType dataScaleType() const { return mDataScaleType; }
+  QCPColorGradient gradient() const { return mGradient; }
+  QString label() const;
+  int barWidth () const { return mBarWidth; }
+  bool rangeDrag() const;
+  bool rangeZoom() const;
+
+  // setters:
+  void setType(QCPAxis::AxisType type);
+  Q_SLOT void setDataRange(const QCPRange &dataRange);
+  Q_SLOT void setDataScaleType(QCPAxis::ScaleType scaleType);
+  Q_SLOT void setGradient(const QCPColorGradient &gradient);
+  void setLabel(const QString &str);
+  void setBarWidth(int width);
+  void setRangeDrag(bool enabled);
+  void setRangeZoom(bool enabled);
+
+  // non-property methods:
+  QList<QCPColorMap*> colorMaps() const;
+  void rescaleDataRange(bool onlyVisibleMaps);
+
+  // reimplemented virtual methods:
+  virtual void update(UpdatePhase phase);
+
+signals:
+  void dataRangeChanged(QCPRange newRange);
+  void dataScaleTypeChanged(QCPAxis::ScaleType scaleType);
+  void gradientChanged(QCPColorGradient newGradient);
+
+protected:
+  // property members:
+  QCPAxis::AxisType mType;
+  QCPRange mDataRange;
+  QCPAxis::ScaleType mDataScaleType;
+  QCPColorGradient mGradient;
+  int mBarWidth;
+
+  // non-property members:
+  QPointer<QCPColorScaleAxisRectPrivate> mAxisRect;
+  QPointer<QCPAxis> mColorAxis;
+
+  // reimplemented virtual methods:
+  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
+  // events:
+  virtual void mousePressEvent(QMouseEvent *event);
+  virtual void mouseMoveEvent(QMouseEvent *event);
+  virtual void mouseReleaseEvent(QMouseEvent *event);
+  virtual void wheelEvent(QWheelEvent *event);
+
+private:
+  Q_DISABLE_COPY(QCPColorScale)
+
+  friend class QCPColorScaleAxisRectPrivate;
 };
 
 
@@ -1726,6 +2476,7 @@ class QCP_LIB_DECL QCPGraph : public QCPAbstractPlottable
   Q_PROPERTY(double errorBarSize READ errorBarSize WRITE setErrorBarSize)
   Q_PROPERTY(bool errorBarSkipSymbol READ errorBarSkipSymbol WRITE setErrorBarSkipSymbol)
   Q_PROPERTY(QCPGraph* channelFillGraph READ channelFillGraph WRITE setChannelFillGraph)
+  Q_PROPERTY(bool adaptiveSampling READ adaptiveSampling WRITE setAdaptiveSampling)
   /// \endcond
 public:
   /*!
@@ -1735,20 +2486,20 @@ public:
   */
   enum LineStyle { lsNone        ///< data points are not connected with any lines (e.g. data only represented
                                  ///< with symbols according to the scatter style, see \ref setScatterStyle)
-                  ,lsLine        ///< data points are connected by a straight line
-                  ,lsStepLeft    ///< line is drawn as steps where the step height is the value of the left data point
-                  ,lsStepRight   ///< line is drawn as steps where the step height is the value of the right data point
-                  ,lsStepCenter  ///< line is drawn as steps where the step is in between two data points
-                  ,lsImpulse     ///< each data point is represented by a line parallel to the value axis, which reaches from the data point to the zero-value-line
+                   ,lsLine       ///< data points are connected by a straight line
+                   ,lsStepLeft   ///< line is drawn as steps where the step height is the value of the left data point
+                   ,lsStepRight  ///< line is drawn as steps where the step height is the value of the right data point
+                   ,lsStepCenter ///< line is drawn as steps where the step is in between two data points
+                   ,lsImpulse    ///< each data point is represented by a line parallel to the value axis, which reaches from the data point to the zero-value-line
                  };
   Q_ENUMS(LineStyle)
   /*!
     Defines what kind of error bars are drawn for each data point
   */
   enum ErrorType { etNone   ///< No error bars are shown
-                  ,etKey    ///< Error bars for the key dimension of the data point are shown
-                  ,etValue  ///< Error bars for the value dimension of the data point are shown
-                  ,etBoth   ///< Error bars for both key and value dimensions of the data point are shown
+                   ,etKey   ///< Error bars for the key dimension of the data point are shown
+                   ,etValue ///< Error bars for the value dimension of the data point are shown
+                   ,etBoth  ///< Error bars for both key and value dimensions of the data point are shown
                  };
   Q_ENUMS(ErrorType)
 
@@ -1756,7 +2507,7 @@ public:
   virtual ~QCPGraph();
 
   // getters:
-  const QCPDataMap *data() const { return mData; }
+  QCPDataMap *data() const { return mData; }
   LineStyle lineStyle() const { return mLineStyle; }
   QCPScatterStyle scatterStyle() const { return mScatterStyle; }
   ErrorType errorType() const { return mErrorType; }
@@ -1764,6 +2515,7 @@ public:
   double errorBarSize() const { return mErrorBarSize; }
   bool errorBarSkipSymbol() const { return mErrorBarSkipSymbol; }
   QCPGraph *channelFillGraph() const { return mChannelFillGraph.data(); }
+  bool adaptiveSampling() const { return mAdaptiveSampling; }
 
   // setters:
   void setData(QCPDataMap *data, bool copy=false);
@@ -1781,6 +2533,7 @@ public:
   void setErrorBarSize(double size);
   void setErrorBarSkipSymbol(bool enabled);
   void setChannelFillGraph(QCPGraph *targetGraph);
+  void setAdaptiveSampling(bool enabled);
 
   // non-property methods:
   void addData(const QCPDataMap &dataMap);
@@ -1798,9 +2551,9 @@ public:
   using QCPAbstractPlottable::rescaleAxes;
   using QCPAbstractPlottable::rescaleKeyAxis;
   using QCPAbstractPlottable::rescaleValueAxis;
-  virtual void rescaleAxes(bool onlyEnlarge, bool includeErrorBars) const; // overloads base class interface
-  virtual void rescaleKeyAxis(bool onlyEnlarge, bool includeErrorBars) const; // overloads base class interface
-  virtual void rescaleValueAxis(bool onlyEnlarge, bool includeErrorBars) const; // overloads base class interface
+  void rescaleAxes(bool onlyEnlarge, bool includeErrorBars) const; // overloads base class interface
+  void rescaleKeyAxis(bool onlyEnlarge, bool includeErrorBars) const; // overloads base class interface
+  void rescaleValueAxis(bool onlyEnlarge, bool includeErrorBars) const; // overloads base class interface
 
 protected:
   // property members:
@@ -1811,32 +2564,35 @@ protected:
   ErrorType mErrorType;
   double mErrorBarSize;
   bool mErrorBarSkipSymbol;
-  QWeakPointer<QCPGraph> mChannelFillGraph;
+  QPointer<QCPGraph> mChannelFillGraph;
+  bool mAdaptiveSampling;
 
   // reimplemented virtual methods:
   virtual void draw(QCPPainter *painter);
   virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
-  virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
-  virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
-  virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain, bool includeErrors) const; // overloads base class interface
-  virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain, bool includeErrors) const; // overloads base class interface
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain, bool includeErrors) const; // overloads base class interface
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain, bool includeErrors) const; // overloads base class interface
 
   // introduced virtual methods:
   virtual void drawFill(QCPPainter *painter, QVector<QPointF> *lineData) const;
-  virtual void drawScatterPlot(QCPPainter *painter, QVector<QCPData> *pointData) const;
+  virtual void drawScatterPlot(QCPPainter *painter, QVector<QCPData> *scatterData) const;
   virtual void drawLinePlot(QCPPainter *painter, QVector<QPointF> *lineData) const;
   virtual void drawImpulsePlot(QCPPainter *painter, QVector<QPointF> *lineData) const;
 
   // non-virtual methods:
-  void getPlotData(QVector<QPointF> *lineData, QVector<QCPData> *pointData) const;
-  void getScatterPlotData(QVector<QCPData> *pointData) const;
-  void getLinePlotData(QVector<QPointF> *lineData, QVector<QCPData> *pointData) const;
-  void getStepLeftPlotData(QVector<QPointF> *lineData, QVector<QCPData> *pointData) const;
-  void getStepRightPlotData(QVector<QPointF> *lineData, QVector<QCPData> *pointData) const;
-  void getStepCenterPlotData(QVector<QPointF> *lineData, QVector<QCPData> *pointData) const;
-  void getImpulsePlotData(QVector<QPointF> *lineData, QVector<QCPData> *pointData) const;
+  void getPreparedData(QVector<QCPData> *lineData, QVector<QCPData> *scatterData) const;
+  void getPlotData(QVector<QPointF> *lineData, QVector<QCPData> *scatterData) const;
+  void getScatterPlotData(QVector<QCPData> *scatterData) const;
+  void getLinePlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
+  void getStepLeftPlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
+  void getStepRightPlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
+  void getStepCenterPlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
+  void getImpulsePlotData(QVector<QPointF> *linePixelData, QVector<QCPData> *scatterData) const;
   void drawError(QCPPainter *painter, double x, double y, const QCPData &data) const;
-  void getVisibleDataBounds(QCPDataMap::const_iterator &lower, QCPDataMap::const_iterator &upper, int &count) const;
+  void getVisibleDataBounds(QCPDataMap::const_iterator &lower, QCPDataMap::const_iterator &upper) const;
+  int countDataInBounds(const QCPDataMap::const_iterator &lower, const QCPDataMap::const_iterator &upper, int maxCount) const;
   void addFillBasePoints(QVector<QPointF> *lineData) const;
   void removeFillBasePoints(QVector<QPointF> *lineData) const;
   QPointF lowerFillBasePoint(double lowerKey) const;
@@ -1892,8 +2648,8 @@ public:
     current pen of the curve (\ref setPen).
     \see setLineStyle
   */
-  enum LineStyle { lsNone, ///< No line is drawn between data points (e.g. only scatters)
-                   lsLine  ///< Data points are connected with a straight line
+  enum LineStyle { lsNone  ///< No line is drawn between data points (e.g. only scatters)
+                   ,lsLine ///< Data points are connected with a straight line
                  };
   explicit QCPCurve(QCPAxis *keyAxis, QCPAxis *valueAxis);
   virtual ~QCPCurve();
@@ -1934,8 +2690,8 @@ protected:
   // reimplemented virtual methods:
   virtual void draw(QCPPainter *painter);
   virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
-  virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
-  virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
 
   // introduced virtual methods:
   virtual void drawScatterPlot(QCPPainter *painter, const QVector<QPointF> *pointData) const;
@@ -2018,13 +2774,13 @@ protected:
   // property members:
   QCPBarDataMap *mData;
   double mWidth;
-  QWeakPointer<QCPBars> mBarBelow, mBarAbove;
+  QPointer<QCPBars> mBarBelow, mBarAbove;
 
   // reimplemented virtual methods:
   virtual void draw(QCPPainter *painter);
   virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
-  virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
-  virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
 
   // non-virtual methods:
   QPolygonF getBarPolygon(double key, double value) const;
@@ -2108,14 +2864,137 @@ protected:
   // reimplemented virtual methods:
   virtual void draw(QCPPainter *painter);
   virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
-  virtual QCPRange getKeyRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
-  virtual QCPRange getValueRange(bool &validRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
 
   // introduced virtual methods:
   virtual void drawQuartileBox(QCPPainter *painter, QRectF *quartileBox=0) const;
   virtual void drawMedian(QCPPainter *painter) const;
   virtual void drawWhiskers(QCPPainter *painter) const;
   virtual void drawOutliers(QCPPainter *painter) const;
+
+  friend class QCustomPlot;
+  friend class QCPLegend;
+};
+
+
+class QCP_LIB_DECL QCPColorMapData
+{
+public:
+  QCPColorMapData(int keySize, int valueSize, const QCPRange &keyRange, const QCPRange &valueRange);
+  ~QCPColorMapData();
+  QCPColorMapData(const QCPColorMapData &other);
+  QCPColorMapData &operator=(const QCPColorMapData &other);
+
+  // getters:
+  int keySize() const { return mKeySize; }
+  int valueSize() const { return mValueSize; }
+  QCPRange keyRange() const { return mKeyRange; }
+  QCPRange valueRange() const { return mValueRange; }
+  QCPRange dataBounds() const { return mDataBounds; }
+  double data(double key, double value);
+  double cell(int keyIndex, int valueIndex);
+
+  // setters:
+  void setSize(int keySize, int valueSize);
+  void setKeySize(int keySize);
+  void setValueSize(int valueSize);
+  void setRange(const QCPRange &keyRange, const QCPRange &valueRange);
+  void setKeyRange(const QCPRange &keyRange);
+  void setValueRange(const QCPRange &valueRange);
+  void setData(double key, double value, double z);
+  void setCell(int keyIndex, int valueIndex, double z);
+
+  // non-property methods:
+  void recalculateDataBounds();
+  void clear();
+  void fill(double z);
+  bool isEmpty() const { return mIsEmpty; }
+  void coordToCell(double key, double value, int *keyIndex, int *valueIndex) const;
+  void cellToCoord(int keyIndex, int valueIndex, double *key, double *value) const;
+
+protected:
+  // property members:
+  int mKeySize, mValueSize;
+  QCPRange mKeyRange, mValueRange;
+  bool mIsEmpty;
+  // non-property members:
+  double *mData;
+  QCPRange mDataBounds;
+  bool mDataModified;
+
+  friend class QCPColorMap;
+};
+
+
+class QCP_LIB_DECL QCPColorMap : public QCPAbstractPlottable
+{
+  Q_OBJECT
+  /// \cond INCLUDE_QPROPERTIES
+  Q_PROPERTY(QCPRange dataRange READ dataRange WRITE setDataRange NOTIFY dataRangeChanged)
+  Q_PROPERTY(QCPAxis::ScaleType dataScaleType READ dataScaleType WRITE setDataScaleType NOTIFY dataScaleTypeChanged)
+  Q_PROPERTY(QCPColorGradient gradient READ gradient WRITE setGradient NOTIFY gradientChanged)
+  Q_PROPERTY(bool interpolate READ interpolate WRITE setInterpolate)
+  Q_PROPERTY(bool tightBoundary READ tightBoundary WRITE setTightBoundary)
+  Q_PROPERTY(QCPColorScale* colorScale READ colorScale WRITE setColorScale)
+  /// \endcond
+public:
+  explicit QCPColorMap(QCPAxis *keyAxis, QCPAxis *valueAxis);
+  virtual ~QCPColorMap();
+
+  // getters:
+  QCPColorMapData *data() const { return mMapData; }
+  QCPRange dataRange() const { return mDataRange; }
+  QCPAxis::ScaleType dataScaleType() const { return mDataScaleType; }
+  bool interpolate() const { return mInterpolate; }
+  bool tightBoundary() const { return mTightBoundary; }
+  QCPColorGradient gradient() const { return mGradient; }
+  QCPColorScale *colorScale() const { return mColorScale.data(); }
+
+  // setters:
+  void setData(QCPColorMapData *data, bool copy=false);
+  Q_SLOT void setDataRange(const QCPRange &dataRange);
+  Q_SLOT void setDataScaleType(QCPAxis::ScaleType scaleType);
+  Q_SLOT void setGradient(const QCPColorGradient &gradient);
+  void setInterpolate(bool enabled);
+  void setTightBoundary(bool enabled);
+  void setColorScale(QCPColorScale *colorScale);
+
+  // non-property methods:
+  void rescaleDataRange(bool recalculateDataBounds=false);
+  Q_SLOT void updateLegendIcon(Qt::TransformationMode transformMode=Qt::SmoothTransformation, const QSize &thumbSize=QSize(32, 18));
+
+  // reimplemented virtual methods:
+  virtual void clearData();
+  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
+
+signals:
+  void dataRangeChanged(QCPRange newRange);
+  void dataScaleTypeChanged(QCPAxis::ScaleType scaleType);
+  void gradientChanged(QCPColorGradient newGradient);
+
+protected:
+  // property members:
+  QCPRange mDataRange;
+  QCPAxis::ScaleType mDataScaleType;
+  QCPColorMapData *mMapData;
+  QCPColorGradient mGradient;
+  bool mInterpolate;
+  bool mTightBoundary;
+  QPointer<QCPColorScale> mColorScale;
+  // non-property members:
+  QImage mMapImage;
+  QPixmap mLegendIcon;
+  bool mMapImageInvalidated;
+
+  // introduced virtual methods:
+  virtual void updateMapImage();
+
+  // reimplemented virtual methods:
+  virtual void draw(QCPPainter *painter);
+  virtual void drawLegendIcon(QCPPainter *painter, const QRectF &rect) const;
+  virtual QCPRange getKeyRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
+  virtual QCPRange getValueRange(bool &foundRange, SignDomain inSignDomain=sdBoth) const;
 
   friend class QCustomPlot;
   friend class QCPLegend;
@@ -2646,393 +3525,6 @@ protected:
 
   // non-virtual methods:
   QPen mainPen() const;
-};
-
-
-class QCP_LIB_DECL QCPAxisRect : public QCPLayoutElement
-{
-  Q_OBJECT
-  /// \cond INCLUDE_QPROPERTIES
-  Q_PROPERTY(QPixmap background READ background WRITE setBackground)
-  Q_PROPERTY(bool backgroundScaled READ backgroundScaled WRITE setBackgroundScaled)
-  Q_PROPERTY(Qt::AspectRatioMode backgroundScaledMode READ backgroundScaledMode WRITE setBackgroundScaledMode)
-  Q_PROPERTY(Qt::Orientations rangeDrag READ rangeDrag WRITE setRangeDrag)
-  Q_PROPERTY(Qt::Orientations rangeZoom READ rangeZoom WRITE setRangeZoom)
-  /// \endcond
-public:
-  explicit QCPAxisRect(QCustomPlot *parentPlot, bool setupDefaultAxes=true);
-  virtual ~QCPAxisRect();
-
-  // getters:
-  QPixmap background() const { return mBackgroundPixmap; }
-  bool backgroundScaled() const { return mBackgroundScaled; }
-  Qt::AspectRatioMode backgroundScaledMode() const { return mBackgroundScaledMode; }
-  Qt::Orientations rangeDrag() const { return mRangeDrag; }
-  Qt::Orientations rangeZoom() const { return mRangeZoom; }
-  QCPAxis *rangeDragAxis(Qt::Orientation orientation);
-  QCPAxis *rangeZoomAxis(Qt::Orientation orientation);
-  double rangeZoomFactor(Qt::Orientation orientation);
-
-  // setters:
-  void setBackground(const QPixmap &pm);
-  void setBackground(const QPixmap &pm, bool scaled, Qt::AspectRatioMode mode=Qt::KeepAspectRatioByExpanding);
-  void setBackground(const QBrush &brush);
-  void setBackgroundScaled(bool scaled);
-  void setBackgroundScaledMode(Qt::AspectRatioMode mode);
-  void setRangeDrag(Qt::Orientations orientations);
-  void setRangeZoom(Qt::Orientations orientations);
-  void setRangeDragAxes(QCPAxis *horizontal, QCPAxis *vertical);
-  void setRangeZoomAxes(QCPAxis *horizontal, QCPAxis *vertical);
-  void setRangeZoomFactor(double horizontalFactor, double verticalFactor);
-  void setRangeZoomFactor(double factor);
-
-  // non-property methods:
-  int axisCount(QCPAxis::AxisType type) const;
-  QCPAxis *axis(QCPAxis::AxisType type, int index=0) const;
-  QList<QCPAxis*> axes(QCPAxis::AxisTypes types) const;
-  QList<QCPAxis*> axes() const;
-  QCPAxis *addAxis(QCPAxis::AxisType type);
-  QList<QCPAxis*> addAxes(QCPAxis::AxisTypes types);
-  bool removeAxis(QCPAxis *axis);
-  QCPLayoutInset *insetLayout() const { return mInsetLayout; }
-
-  void setupFullAxesBox(bool connectRanges=false);
-  QList<QCPAbstractPlottable*> plottables() const;
-  QList<QCPGraph*> graphs() const;
-  QList<QCPAbstractItem*> items() const;
-
-  // read-only interface imitating a QRect:
-  int left() const { return mRect.left(); }
-  int right() const { return mRect.right(); }
-  int top() const { return mRect.top(); }
-  int bottom() const { return mRect.bottom(); }
-  int width() const { return mRect.width(); }
-  int height() const { return mRect.height(); }
-  QSize size() const { return mRect.size(); }
-  QPoint topLeft() const { return mRect.topLeft(); }
-  QPoint topRight() const { return mRect.topRight(); }
-  QPoint bottomLeft() const { return mRect.bottomLeft(); }
-  QPoint bottomRight() const { return mRect.bottomRight(); }
-  QPoint center() const { return mRect.center(); }
-
-  // reimplemented virtual methods:
-  virtual void update();
-  virtual QList<QCPLayoutElement*> elements(bool recursive) const;
-
-protected:
-  // property members:
-  QBrush mBackgroundBrush;
-  QPixmap mBackgroundPixmap;
-  QPixmap mScaledBackgroundPixmap;
-  bool mBackgroundScaled;
-  Qt::AspectRatioMode mBackgroundScaledMode;
-  QCPLayoutInset *mInsetLayout;
-  Qt::Orientations mRangeDrag, mRangeZoom;
-  QWeakPointer<QCPAxis> mRangeDragHorzAxis, mRangeDragVertAxis, mRangeZoomHorzAxis, mRangeZoomVertAxis;
-  double mRangeZoomFactorHorz, mRangeZoomFactorVert;
-  // non-property members:
-  QCPRange mDragStartHorzRange, mDragStartVertRange;
-  QCP::AntialiasedElements mAADragBackup, mNotAADragBackup;
-  QPoint mDragStart;
-  bool mDragging;
-  QHash<QCPAxis::AxisType, QList<QCPAxis*> > mAxes;
-
-  // reimplemented virtual methods:
-  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
-  virtual void draw(QCPPainter *painter);
-  virtual int calculateAutoMargin(QCP::MarginSide side);
-  // events:
-  virtual void mousePressEvent(QMouseEvent *event);
-  virtual void mouseMoveEvent(QMouseEvent *event);
-  virtual void mouseReleaseEvent(QMouseEvent *event);
-  virtual void wheelEvent(QWheelEvent *event);
-
-  // non-property methods:
-  void drawBackground(QCPPainter *painter);
-  void updateAxesOffset(QCPAxis::AxisType type);
-
-private:
-  Q_DISABLE_COPY(QCPAxisRect)
-
-  friend class QCustomPlot;
-};
-
-
-class QCP_LIB_DECL QCPAbstractLegendItem : public QCPLayoutElement
-{
-  Q_OBJECT
-  /// \cond INCLUDE_QPROPERTIES
-  Q_PROPERTY(QCPLegend* parentLegend READ parentLegend)
-  Q_PROPERTY(QFont font READ font WRITE setFont)
-  Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
-  Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
-  Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
-  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable)
-  Q_PROPERTY(bool selected READ selected WRITE setSelected)
-  /// \endcond
-public:
-  explicit QCPAbstractLegendItem(QCPLegend *parent);
-
-  // getters:
-  QCPLegend *parentLegend() const { return mParentLegend; }
-  QFont font() const { return mFont; }
-  QColor textColor() const { return mTextColor; }
-  QFont selectedFont() const { return mSelectedFont; }
-  QColor selectedTextColor() const { return mSelectedTextColor; }
-  bool selectable() const { return mSelectable; }
-  bool selected() const { return mSelected; }
-
-  // setters:
-  void setFont(const QFont &font);
-  void setTextColor(const QColor &color);
-  void setSelectedFont(const QFont &font);
-  void setSelectedTextColor(const QColor &color);
-  void setSelectable(bool selectable);
-  void setSelected(bool selected);
-
-  // reimplemented virtual methods:
-  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
-
-signals:
-  void selectionChanged(bool selected);
-
-protected:
-  // property members:
-  QCPLegend *mParentLegend;
-  QFont mFont;
-  QColor mTextColor;
-  QFont mSelectedFont;
-  QColor mSelectedTextColor;
-  bool mSelectable, mSelected;
-
-  // reimplemented virtual methods:
-  virtual QCP::Interaction selectionCategory() const;
-  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
-  virtual QRect clipRect() const;
-  virtual void draw(QCPPainter *painter) = 0;
-  // events:
-  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
-  virtual void deselectEvent(bool *selectionStateChanged);
-
-private:
-  Q_DISABLE_COPY(QCPAbstractLegendItem)
-
-  friend class QCPLegend;
-};
-
-
-class QCP_LIB_DECL QCPPlottableLegendItem : public QCPAbstractLegendItem
-{
-  Q_OBJECT
-public:
-  QCPPlottableLegendItem(QCPLegend *parent, QCPAbstractPlottable *plottable);
-
-  // getters:
-  QCPAbstractPlottable *plottable() { return mPlottable; }
-
-protected:
-  // property members:
-  QCPAbstractPlottable *mPlottable;
-
-  // reimplemented virtual methods:
-  virtual void draw(QCPPainter *painter);
-  virtual QSize minimumSizeHint() const;
-
-  // non-virtual methods:
-  QPen getIconBorderPen() const;
-  QColor getTextColor() const;
-  QFont getFont() const;
-};
-
-
-class QCP_LIB_DECL QCPLegend : public QCPLayoutGrid
-{
-  Q_OBJECT
-  /// \cond INCLUDE_QPROPERTIES
-  Q_PROPERTY(QPen borderPen READ borderPen WRITE setBorderPen)
-  Q_PROPERTY(QBrush brush READ brush WRITE setBrush)
-  Q_PROPERTY(QFont font READ font WRITE setFont)
-  Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
-  Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
-  Q_PROPERTY(int iconTextPadding READ iconTextPadding WRITE setIconTextPadding)
-  Q_PROPERTY(QPen iconBorderPen READ iconBorderPen WRITE setIconBorderPen)
-  Q_PROPERTY(SelectableParts selectableParts READ selectableParts WRITE setSelectableParts)
-  Q_PROPERTY(SelectableParts selectedParts READ selectedParts WRITE setSelectedParts)
-  Q_PROPERTY(QPen selectedBorderPen READ selectedBorderPen WRITE setSelectedBorderPen)
-  Q_PROPERTY(QPen selectedIconBorderPen READ selectedIconBorderPen WRITE setSelectedIconBorderPen)
-  Q_PROPERTY(QBrush selectedBrush READ selectedBrush WRITE setSelectedBrush)
-  Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
-  Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
-  /// \endcond
-public:
-  /*!
-    Defines the selectable parts of a legend
-
-    \see setSelectedParts, setSelectableParts
-  */
-  enum SelectablePart { spNone       = 0x000  ///< <tt>0x000</tt> None
-                       ,spLegendBox  = 0x001  ///< <tt>0x001</tt> The legend box (frame)
-                       ,spItems      = 0x002  ///< <tt>0x002</tt> Legend items individually (see \ref selectedItems)
-                      };
-  Q_FLAGS(SelectablePart SelectableParts)
-  Q_DECLARE_FLAGS(SelectableParts, SelectablePart)
-
-  explicit QCPLegend();
-  virtual ~QCPLegend();
-
-  // getters:
-  QPen borderPen() const { return mBorderPen; }
-  QBrush brush() const { return mBrush; }
-  QFont font() const { return mFont; }
-  QColor textColor() const { return mTextColor; }
-  QSize iconSize() const { return mIconSize; }
-  int iconTextPadding() const { return mIconTextPadding; }
-  QPen iconBorderPen() const { return mIconBorderPen; }
-  SelectableParts selectableParts() const { return mSelectableParts; }
-  SelectableParts selectedParts() const;
-  QPen selectedBorderPen() const { return mSelectedBorderPen; }
-  QPen selectedIconBorderPen() const { return mSelectedIconBorderPen; }
-  QBrush selectedBrush() const { return mSelectedBrush; }
-  QFont selectedFont() const { return mSelectedFont; }
-  QColor selectedTextColor() const { return mSelectedTextColor; }
-
-  // setters:
-  void setBorderPen(const QPen &pen);
-  void setBrush(const QBrush &brush);
-  void setFont(const QFont &font);
-  void setTextColor(const QColor &color);
-  void setIconSize(const QSize &size);
-  void setIconSize(int width, int height);
-  void setIconTextPadding(int padding);
-  void setIconBorderPen(const QPen &pen);
-  void setSelectableParts(const SelectableParts &selectableParts);
-  void setSelectedParts(const SelectableParts &selectedParts);
-  void setSelectedBorderPen(const QPen &pen);
-  void setSelectedIconBorderPen(const QPen &pen);
-  void setSelectedBrush(const QBrush &brush);
-  void setSelectedFont(const QFont &font);
-  void setSelectedTextColor(const QColor &color);
-
-  // reimplemented virtual methods:
-  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
-
-  // non-virtual methods:
-  QCPAbstractLegendItem *item(int index) const;
-  QCPPlottableLegendItem *itemWithPlottable(const QCPAbstractPlottable *plottable) const;
-  int itemCount() const;
-  bool hasItem(QCPAbstractLegendItem *item) const;
-  bool hasItemWithPlottable(const QCPAbstractPlottable *plottable) const;
-  bool addItem(QCPAbstractLegendItem *item);
-  bool removeItem(int index);
-  bool removeItem(QCPAbstractLegendItem *item);
-  void clearItems();
-  QList<QCPAbstractLegendItem*> selectedItems() const;
-
-signals:
-  void selectionChanged(QCPLegend::SelectableParts selection);
-
-protected:
-  // property members:
-  QPen mBorderPen, mIconBorderPen;
-  QBrush mBrush;
-  QFont mFont;
-  QColor mTextColor;
-  QSize mIconSize;
-  int mIconTextPadding;
-  SelectableParts mSelectedParts, mSelectableParts;
-  QPen mSelectedBorderPen, mSelectedIconBorderPen;
-  QBrush mSelectedBrush;
-  QFont mSelectedFont;
-  QColor mSelectedTextColor;
-
-  // reimplemented virtual methods:
-  virtual void parentPlotInitialized(QCustomPlot *parentPlot);
-  virtual QCP::Interaction selectionCategory() const;
-  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
-  virtual void draw(QCPPainter *painter);
-  // events:
-  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
-  virtual void deselectEvent(bool *selectionStateChanged);
-
-  // non-virtual methods:
-  QPen getBorderPen() const;
-  QBrush getBrush() const;
-
-private:
-  Q_DISABLE_COPY(QCPLegend)
-
-  friend class QCustomPlot;
-  friend class QCPAbstractLegendItem;
-};
-Q_DECLARE_OPERATORS_FOR_FLAGS(QCPLegend::SelectableParts)
-Q_DECLARE_METATYPE(QCPLegend::SelectablePart)
-
-
-class QCP_LIB_DECL QCPPlotTitle : public QCPLayoutElement
-{
-  Q_OBJECT
-  /// \cond INCLUDE_QPROPERTIES
-  Q_PROPERTY(QString text READ text WRITE setText)
-  Q_PROPERTY(QFont font READ font WRITE setFont)
-  Q_PROPERTY(QColor textColor READ textColor WRITE setTextColor)
-  Q_PROPERTY(QFont selectedFont READ selectedFont WRITE setSelectedFont)
-  Q_PROPERTY(QColor selectedTextColor READ selectedTextColor WRITE setSelectedTextColor)
-  Q_PROPERTY(bool selectable READ selectable WRITE setSelectable)
-  Q_PROPERTY(bool selected READ selected WRITE setSelected)
-  /// \endcond
-public:
-  explicit QCPPlotTitle(QCustomPlot *parentPlot);
-  explicit QCPPlotTitle(QCustomPlot *parentPlot, const QString &text);
-
-  // getters:
-  QString text() const { return mText; }
-  QFont font() const { return mFont; }
-  QColor textColor() const { return mTextColor; }
-  QFont selectedFont() const { return mSelectedFont; }
-  QColor selectedTextColor() const { return mSelectedTextColor; }
-  bool selectable() const { return mSelectable; }
-  bool selected() const { return mSelected; }
-
-  // setters:
-  void setText(const QString &text);
-  void setFont(const QFont &font);
-  void setTextColor(const QColor &color);
-  void setSelectedFont(const QFont &font);
-  void setSelectedTextColor(const QColor &color);
-  void setSelectable(bool selectable);
-  void setSelected(bool selected);
-
-  // reimplemented virtual methods:
-  virtual double selectTest(const QPointF &pos, bool onlySelectable, QVariant *details=0) const;
-
-signals:
-  void selectionChanged(bool selected);
-
-protected:
-  // property members:
-  QString mText;
-  QFont mFont;
-  QColor mTextColor;
-  QFont mSelectedFont;
-  QColor mSelectedTextColor;
-  QRect mTextBoundingRect;
-  bool mSelectable, mSelected;
-
-  // reimplemented virtual methods:
-  virtual void applyDefaultAntialiasingHint(QCPPainter *painter) const;
-  virtual void draw(QCPPainter *painter);
-  virtual QSize minimumSizeHint() const;
-  virtual QSize maximumSizeHint() const;
-  // events:
-  virtual void selectEvent(QMouseEvent *event, bool additive, const QVariant &details, bool *selectionStateChanged);
-  virtual void deselectEvent(bool *selectionStateChanged);
-
-  // non-virtual methods:
-  QFont mainFont() const;
-  QColor mainTextColor() const;
-
-private:
-  Q_DISABLE_COPY(QCPPlotTitle)
 };
 
 #endif // QCUSTOMPLOT_H
