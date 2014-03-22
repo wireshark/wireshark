@@ -291,6 +291,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/strutil.h>
 
 #include "packet-giop.h"
 #include "packet-ziop.h"
@@ -3321,6 +3322,8 @@ guint32 get_CDR_string(tvbuff_t *tvb, const gchar **seq, int *offset, gboolean s
     *seq = wmem_strdup(wmem_packet_scope(), "");        /* zero-length string */
   }
 
+  /* XXX: this returns a length which is only known to be less than reported_length_remaining,
+     but it could still be more than captured length, no? */
   return slength;               /* return length */
 
 }
@@ -4356,7 +4359,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", operation);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(operation, (size_t)len));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
@@ -4481,7 +4484,7 @@ dissect_giop_request_1_2 (tvbuff_t * tvb, packet_info * pinfo,
 
   if ( len > 0)
   {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", operation);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": op=%s", format_text(operation, (size_t)len));
     proto_tree_add_string(request_tree, hf_giop_req_operation, tvb, offset - len, len, operation);
   }
 
