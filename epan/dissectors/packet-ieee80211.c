@@ -12789,7 +12789,7 @@ dissect_neighbor_report(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
   }
 
-//  tag_offset = offset;
+  /* tag_offset = offset; */
 
   proto_tree_add_item(tree, hf_ieee80211_tag_neighbor_report_bssid, tvb, offset, 6, ENC_NA);
   offset += 6;
@@ -13255,11 +13255,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
 
   gboolean     *p_isDMG = ((gboolean*)(p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY)));
 
-  if (!p_isDMG) {
-    DISSECTOR_ASSERT_NOT_REACHED();
-  }
-
-  isDMG = *p_isDMG;
+  isDMG   = p_isDMG ? *p_isDMG : FALSE;
   tag_no  = tvb_get_guint8(tvb, offset);
   tag_len = tvb_get_guint8(tvb, offset + 1);
   tag_end = offset + 2 + tag_len;
