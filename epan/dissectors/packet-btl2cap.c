@@ -1290,7 +1290,7 @@ dissect_connparamresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
 static int
 dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
-        proto_tree *tree, bthci_acl_data_t *acl_data)
+        proto_tree *tree, bthci_acl_data_t *acl_data, gboolean is_request)
 {
     guint16 scid;
     guint16 dcid;
@@ -1325,8 +1325,13 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
-        key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
-        key_scid     = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+        if (is_request) {
+            key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+            key_scid     = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
+        } else {
+            key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
+            key_scid     = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+        }
 
         k_interface_id = interface_id;
         k_adapter_id   = adapter_id;
@@ -1762,11 +1767,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             case 0x06: /* Disconnect Request */
-                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
+                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data, TRUE);
                 break;
 
             case 0x07: /* Disconnect Response */
-                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data);
+                offset  = dissect_disconnrequestresponse(tvb, offset, pinfo, btl2cap_cmd_tree, acl_data, FALSE);
                 break;
 
             case 0x08: /* Echo Request */
