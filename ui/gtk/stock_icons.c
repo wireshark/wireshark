@@ -71,6 +71,12 @@
 #include "../../image/toolbar/telephone_16.xpm"
 #include "../../image/toolbar/analyze_24.xpm"
 
+/*
+ * the minimal value is 10, since gtk_button_new_from_icon_name() is available
+ * from GTK+ 3.10
+ */
+#define WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS 99
+
 typedef struct stock_item_tag {
     const char * name;
     const char * icon;
@@ -302,7 +308,7 @@ static int si_cmp(const stock_item_t * a, const stock_item_t * b) {
 /* generate application specific stock items */
 void stock_icons_init(void) {
     guint32 i;
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
     GtkIconFactory * factory;
     GtkIconSet *icon_set;
     GtkIconSource *source16;
@@ -374,7 +380,7 @@ void stock_icons_init(void) {
     qsort(gtk_stock_items, sizeof(gtk_stock_items)/sizeof(gtk_stock_items[0]),
           sizeof(gtk_stock_items[0]), (int (*)(const void *, const void *))si_cmp);
 
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
     for (i = 0; i < (sizeof(ws_stock_items) / sizeof(ws_stock_items[0])) ; i++) {
         GtkStockItem stock_item =
                 {(char *)ws_stock_items[i].name,
@@ -393,7 +399,7 @@ void stock_icons_init(void) {
         /* The default icon */
         GdkPixbuf * pixbuf = gdk_pixbuf_new_from_xpm_data((const char **) (pixmaps[i].xpm_data));
         g_assert(pixbuf);
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
         icon_set = gtk_icon_set_new_from_pixbuf (pixbuf);
         gtk_icon_factory_add (factory, pixmaps[i].name, icon_set);
         gtk_icon_set_unref (icon_set);
@@ -406,7 +412,7 @@ void stock_icons_init(void) {
     for (i = 0; pixbufs[i].name != NULL; i++) {
         GdkPixbuf * pixbuf24 = gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data24, FALSE, NULL);
         g_assert(pixbuf24);
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
         icon_set = gtk_icon_set_new_from_pixbuf(pixbuf24);
         gtk_icon_factory_add (factory, pixbufs[i].name, icon_set);
         gtk_icon_set_unref (icon_set);
@@ -418,7 +424,7 @@ void stock_icons_init(void) {
         if (pixbufs[i].pb_data16) {
             GdkPixbuf * pixbuf16 = gdk_pixbuf_new_from_inline(-1, pixbufs[i].pb_data16, FALSE, NULL);
             g_assert(pixbuf16);
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
             source16 = gtk_icon_source_new();
             gtk_icon_source_set_pixbuf(source16, pixbuf16);
             gtk_icon_source_set_size_wildcarded(source16, FALSE);
@@ -436,7 +442,7 @@ void stock_icons_init(void) {
         }
         g_object_unref (G_OBJECT (pixbuf24));
     }
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
     /* use default stock icons for Wireshark specifics where the icon metapher makes sense */
     /* PLEASE DON'T REUSE STOCK ICONS IF THEY ARE USUALLY USED FOR SOME DIFFERENT MEANING!!!) */
 
@@ -451,7 +457,7 @@ void stock_icons_init(void) {
 }
 
 GtkWidget * ws_gtk_button_new_from_stock(const gchar *stock_id) {
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
         return gtk_button_new_from_stock(stock_id);
 #else
     GtkWidget * b;
@@ -481,7 +487,7 @@ GtkWidget * ws_gtk_button_new_from_stock(const gchar *stock_id) {
     gtk_tool_button_set_use_underline(type(tb), TRUE);
 
 GtkToolItem * ws_gtk_tool_button_new_from_stock(const gchar *stock_id) {
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
     return gtk_tool_button_new_from_stock(stock_id);
 #else
     GtkToolItem * b = NULL;
@@ -509,7 +515,7 @@ GtkToolItem * ws_gtk_tool_button_new_from_stock(const gchar *stock_id) {
 }
 
 GtkToolItem * ws_gtk_toggle_tool_button_new_from_stock(const gchar *stock_id) {
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
     return gtk_toggle_tool_button_new_from_stock(stock_id);
 #else
     GtkToolItem * b = NULL;
@@ -538,7 +544,7 @@ GtkToolItem * ws_gtk_toggle_tool_button_new_from_stock(const gchar *stock_id) {
 }
 
 GtkWidget * ws_gtk_image_new_from_stock(const gchar *stock_id, GtkIconSize size) {
-#if !GTK_CHECK_VERSION(3, 10, 0)
+#if !GTK_CHECK_VERSION(3, WS_GTK3_MINOR_STOCK_DEPRECATION_STARTS, 0)
         return gtk_image_new_from_stock(stock_id, size);
 #else
     stock_item_t * i = NULL;
