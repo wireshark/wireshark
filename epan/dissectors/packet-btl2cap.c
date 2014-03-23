@@ -81,7 +81,6 @@ static int hf_btl2cap_info_window = -1;
 static int hf_btl2cap_info_unicast = -1;
 static int hf_btl2cap_info_type = -1;
 static int hf_btl2cap_info_result = -1;
-static int hf_btl2cap_continuation_flag = -1;
 static int hf_btl2cap_configuration_result = -1;
 static int hf_btl2cap_info_extfeatures = -1;
 static int hf_btl2cap_option = -1;
@@ -125,6 +124,13 @@ static int hf_btl2cap_max_interval = -1;
 static int hf_btl2cap_slave_latency = -1;
 static int hf_btl2cap_timeout_multiplier = -1;
 static int hf_btl2cap_conn_param_result = -1;
+static int hf_btl2cap_credits = -1;
+static int hf_btl2cap_initial_credits = -1;
+static int hf_btl2cap_le_result = -1;
+static int hf_btl2cap_le_psm = -1;
+static int hf_btl2cap_flags_reserved = -1;
+static int hf_btl2cap_flags_continuation = -1;
+static int hf_btl2cap_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_btl2cap = -1;
@@ -137,6 +143,7 @@ static gint ett_btl2cap_control = -1;
 static expert_field ei_btl2cap_parameter_mismatch = EI_INIT;
 static expert_field ei_btl2cap_sdulength_bad = EI_INIT;
 static expert_field ei_btl2cap_length_bad = EI_INIT;
+static expert_field ei_btl2cap_unknown_command_code = EI_INIT;
 
 /* Initialize dissector table */
 static dissector_table_t l2cap_psm_dissector_table;
@@ -186,8 +193,8 @@ static const value_string command_code_vals[] = {
     { 0x03,   "Connection Response" },
     { 0x04,   "Configure Request" },
     { 0x05,   "Configure Response" },
-    { 0x06,   "Disconnect Request" },
-    { 0x07,   "Disconnect Response" },
+    { 0x06,   "Disconnection Request" },
+    { 0x07,   "Disconnection Response" },
     { 0x08,   "Echo Request" },
     { 0x09,   "Echo Response" },
     { 0x0A,   "Information Request" },
@@ -200,6 +207,9 @@ static const value_string command_code_vals[] = {
     { 0x11,   "Move Channel Confirmation Response" },
     { 0x12,   "Connection Parameter Update Request" },
     { 0x13,   "Connection Parameter Update Response" },
+    { 0x14,   "LE Credit Based Connection Request" },
+    { 0x15,   "LE Credit Based Connection Response" },
+    { 0x16,   "LE Flow Control Credit" },
     { 0, NULL }
 };
 
@@ -230,6 +240,17 @@ static const value_string result_vals[] = {
     { 0x0003, "Refused - security block" },
     { 0x0004, "Refused - no resources available" },
     { 0x0005, "Refused - Controller ID not supported" },
+    { 0, NULL }
+};
+
+static const value_string le_result_vals[] = {
+    { 0x0000, "Connection Successful" },
+    { 0x0002, "Connection Refused – LE_PSM Not Supported" },
+    { 0x0004, "Connection Refused – No Resources Available" },
+    { 0x0005, "Connection Refused – Insufficient Authentication" },
+    { 0x0006, "Connection Refused – Insufficient Authorization" },
+    { 0x0007, "Connection Refused – Insufficient Encryption Key Size" },
+    { 0x0008, "Connection Refused – Insufficient Encryption" },
     { 0, NULL }
 };
 
@@ -365,6 +386,13 @@ static const range_string cid_rvals[] = {
     { 0x0007, 0x003E,  "Reserved" },
     { 0x003F, 0x003F,  "AMP Test Manager" },
     { 0x0040, 0xFFFF,  "Dynamically Allocated Channel" },
+    { 0, 0, NULL }
+};
+
+static const range_string le_psm_rvals[] = {
+    { 0x0001, 0x007F,  "Fixed, SIG Assigned" },
+    { 0x0080, 0x00FF,  "Dynamically Allocated" },
+    { 0x0100, 0xFFFF,  "Reserved" },
     { 0, 0, NULL }
 };
 
@@ -797,7 +825,8 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (DCID: 0x%04x)", dcid);
 
-    proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_btl2cap_flags_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_btl2cap_flags_continuation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -983,7 +1012,8 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_btl2cap_flags_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_btl2cap_flags_continuation, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     result = tvb_get_letohs(tvb, offset);
@@ -1706,7 +1736,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_item_set_len(ti_command, cmd_length + 4);
             offset += 2;
 
-            cmd_str = val_to_str_const(cmd_code, command_code_vals, "Unknown cmd");
+            cmd_str = val_to_str_const(cmd_code, command_code_vals, "Unknown command");
             proto_item_append_text(ti_command, "%s", cmd_str);
             col_append_str(pinfo->cinfo, COL_INFO, cmd_str);
 
@@ -1740,11 +1770,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
 
             case 0x08: /* Echo Request */
-                offset += tvb_reported_length_remaining(tvb, offset);
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_data, tvb, offset, -1, ENC_NA);
+                offset = tvb_reported_length(tvb);
                 break;
 
             case 0x09: /* Echo Response */
-                offset += tvb_reported_length_remaining(tvb, offset);
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_data, tvb, offset, -1, ENC_NA);
+                offset = tvb_reported_length(tvb);
                 break;
 
             case 0x0a: /* Information Request */
@@ -1787,8 +1819,53 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset  = dissect_connparamresponse(tvb, offset, pinfo, btl2cap_cmd_tree);
                 break;
 
+            case 0x14: /* LE Credit Based Connection Request */
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_le_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                break;
+
+            case 0x15: /* LE Credit Based Connection Response */
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_initial_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_le_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+                break;
+
+            case 0x16: /* LE Flow Control Credit */
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_credits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                offset += 2;
+
+                col_append_fstr(pinfo->cinfo, COL_INFO, " (CID: %04x, Credits: %u)",
+                        tvb_get_letohs(tvb, offset - 4), tvb_get_letohs(tvb, offset - 2));
+                break;
+
             default:
-                proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_data, tvb, offset, -1, ENC_NA);
+                proto_tree_add_expert(btl2cap_cmd_tree, pinfo, &ei_btl2cap_unknown_command_code, tvb, offset, -1);
                 offset += tvb_reported_length_remaining(tvb, offset);
                 break;
             }
@@ -2165,8 +2242,13 @@ proto_register_btl2cap(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             "Extended Features Mask", HFILL }
         },
-        { &hf_btl2cap_continuation_flag,
-          { "Continuation Flag",           "btl2cap.continuation",
+        { &hf_btl2cap_flags_reserved,
+          { "Reserved",           "btl2cap.flags.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFE,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_flags_continuation,
+          { "Continuation Flag",           "btl2cap.flags.continuation",
             FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
@@ -2379,7 +2461,32 @@ proto_register_btl2cap(void)
           { "Move Result",           "btl2cap.move_result",
             FT_UINT16, BASE_HEX, VALS(conn_param_result_vals), 0x0,
             NULL, HFILL }
-        }
+        },
+        { &hf_btl2cap_le_result,
+          { "LE Result",           "btl2cap.le_result",
+            FT_UINT16, BASE_HEX, VALS(le_result_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btl2cap_credits,
+          { "Credits",               "btl2cap.credits",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "L2CAP Channel Identifier", HFILL }
+        },
+        { &hf_btl2cap_initial_credits,
+          { "Initial Credits",       "btl2cap.initial_credits",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            "L2CAP Channel Identifier", HFILL }
+        },
+        { &hf_btl2cap_le_psm,
+          { "LE PSM",           "btl2cap.le_psm",
+            FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(le_psm_rvals), 0x0,
+            "Protocol/Service Multiplexer", HFILL }
+        },
+        { &hf_btl2cap_data,
+          { "Data",           "btl2cap.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
@@ -2396,6 +2503,7 @@ proto_register_btl2cap(void)
         { &ei_btl2cap_parameter_mismatch, { "btl2cap.parameter_mismatch", PI_PROTOCOL, PI_WARN, "Unexpected frame", EXPFILL }},
         { &ei_btl2cap_sdulength_bad, { "btl2cap.sdulength.bad", PI_MALFORMED, PI_WARN, "SDU length bad", EXPFILL }},
         { &ei_btl2cap_length_bad, { "btl2cap.length.bad", PI_MALFORMED, PI_WARN, "Length bad", EXPFILL }},
+        { &ei_btl2cap_unknown_command_code, { "btl2cap.unknown_command_code", PI_PROTOCOL, PI_WARN, "Unknown Command Code", EXPFILL }},
     };
 
     /* Decode As handling */
