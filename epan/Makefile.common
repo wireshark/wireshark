@@ -177,6 +177,7 @@ LIBWIRESHARK_INCLUDES =		\
 	dvb_chartbl.h		\
 	dwarf.h			\
 	eap.h			\
+	eapol_keydes_types.h	\
 	emem.h			\
 	epan-int.h		\
 	epan.h			\

@@ -38,9 +38,6 @@ void capture_prism(const guchar *, int, int, packet_counts *);
 WS_DLL_PUBLIC
 void capture_wlancap(const guchar *, int, int, packet_counts *);
 
-void ieee_80211_add_tagged_parameters (tvbuff_t * tvb, int offset,
-       packet_info * pinfo, proto_tree * tree, int tagged_parameters_len, int ftype);
-
 void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 			 int offset, gint size);
 int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,

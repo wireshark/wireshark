@@ -103,6 +103,7 @@
 #include <epan/crypt/wep-wpadefs.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
+#include <epan/eapol_keydes_types.h>
 
 #include "packet-wps.h"
 
@@ -225,6 +226,10 @@ UAT_CSTRING_CB_DEF(uat_wep_key_records, string, uat_wep_key_record_t)
 
 /* Stuff for the WEP decoder */
 static gboolean enable_decryption = FALSE;
+
+static void
+ieee_80211_add_tagged_parameters (tvbuff_t *tvb, int offset, packet_info *pinfo,
+                                  proto_tree *tree, int tagged_parameters_len, int ftype);
 
 /* Davide Schiera (2006-11-26): created function to decrypt WEP and WPA/WPA2  */
 static tvbuff_t *try_decrypt(tvbuff_t *tvb, guint32 offset, guint32 len, guint8 *algorithm, guint32 *sec_header, guint32 *sec_trailer);
@@ -15415,7 +15420,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
   return tag_len + 1 + 1;
 }
 
-void
+static void
 ieee_80211_add_tagged_parameters (tvbuff_t *tvb, int offset, packet_info *pinfo,
                                   proto_tree *tree, int tagged_parameters_len, int ftype)
 {
@@ -17669,6 +17674,205 @@ frame_equal(gconstpointer k1, gconstpointer k2)
   guint32 frame2 = GPOINTER_TO_UINT(k2);
 
   return frame1==frame2;
+}
+
+/*
+ * EAPOL key description dissectors.
+ */
+#define KEY_INFO_KEYDES_VERSION_MASK        0x0007
+#define KEY_INFO_KEY_TYPE_MASK              0x0008
+#define KEY_INFO_KEY_INDEX_MASK             0x0030
+#define KEY_INFO_INSTALL_MASK               0x0040
+#define KEY_INFO_KEY_ACK_MASK               0x0080
+#define KEY_INFO_KEY_MIC_MASK               0x0100
+#define KEY_INFO_SECURE_MASK                0x0200
+#define KEY_INFO_ERROR_MASK                 0x0400
+#define KEY_INFO_REQUEST_MASK               0x0800
+#define KEY_INFO_ENCRYPTED_KEY_DATA_MASK    0x1000
+
+#define KEYDES_VER_TYPE1        0x01
+#define KEYDES_VER_TYPE2        0x02
+#define KEYDES_VER_TYPE3        0x03
+
+static const value_string keydes_version_vals[] = {
+  { KEYDES_VER_TYPE1,     "RC4 Cipher, HMAC-MD5 MIC" },
+  { KEYDES_VER_TYPE2,     "AES Cipher, HMAC-SHA1 MIC" },
+  { KEYDES_VER_TYPE3,     "AES Cipher, AES-128-CMAC MIC" },
+  { 0, NULL }
+};
+
+static int proto_ieee80211i = -1;
+
+static int hf_ieee80211i_wpa_keydes_keyinfo = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_keydes_version = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_key_type = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_key_index = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_install = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_key_ack = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_key_mic = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_secure = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_error = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_request = -1;
+static int hf_ieee80211i_wpa_keydes_keyinfo_encrypted_key_data = -1;
+static int hf_ieee80211i_keydes_key_len = -1;
+static int hf_ieee80211i_keydes_replay_counter = -1;
+static int hf_ieee80211i_keydes_key_iv = -1;
+static int hf_ieee80211i_wpa_keydes_nonce = -1;
+static int hf_ieee80211i_wpa_keydes_rsc = -1;
+static int hf_ieee80211i_wpa_keydes_id = -1;
+static int hf_ieee80211i_wpa_keydes_mic = -1;
+static int hf_ieee80211i_wpa_keydes_data_len = -1;
+static int hf_ieee80211i_wpa_keydes_data = -1;
+
+static gint ett_keyinfo = -1;
+static gint ett_ieee80211i_keydes_data = -1;
+
+static const true_false_string keyinfo_key_type_tfs = { "Pairwise Key", "Group Key" };
+
+static int
+dissect_ieee80211i_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_rsn)
+{
+  int         offset = 0;
+  guint16     keyinfo;
+  guint16     eapol_data_len;
+  proto_tree *keyinfo_item = NULL;
+  proto_tree *keyinfo_tree = NULL;
+  proto_tree *keydes_tree;
+  proto_tree *ti = NULL;
+  guint8     counter;
+
+  /*
+   * 802.11i.
+   */
+  keyinfo = tvb_get_ntohs(tvb, offset);
+  if (keyinfo & KEY_INFO_REQUEST_MASK) {
+    col_set_str(pinfo->cinfo, COL_INFO, "Key (Request)");
+    if (keyinfo & KEY_INFO_ERROR_MASK)
+      col_set_str(pinfo->cinfo, COL_INFO, "Key (Request, Error)");
+  } else if (keyinfo & KEY_INFO_KEY_TYPE_MASK) {
+    guint16 masked;
+    masked = keyinfo &
+      (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK |
+       KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK);
+
+    if (!is_rsn) {
+      /* WPA */
+      switch (masked) {
+      case KEY_INFO_KEY_ACK_MASK:
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+        break;
+
+      case KEY_INFO_KEY_MIC_MASK:
+        counter = tvb_get_guint8(tvb, offset+11);
+        if (!counter)
+          col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+        else
+          col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+        break;
+
+      case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK):
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+        break;
+      }
+    } else {
+      /* RSN */
+      switch (masked) {
+
+      case KEY_INFO_KEY_ACK_MASK:
+        col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 1 of 4)");
+        break;
+
+      case KEY_INFO_KEY_MIC_MASK:
+         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 2 of 4)");
+         break;
+
+      case (KEY_INFO_INSTALL_MASK | KEY_INFO_KEY_ACK_MASK | KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
+         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 3 of 4)");
+         break;
+
+      case (KEY_INFO_KEY_MIC_MASK | KEY_INFO_SECURE_MASK):
+         col_set_str(pinfo->cinfo, COL_INFO, "Key (Message 4 of 4)");
+         break;
+       }
+    }
+  } else {
+    if (keyinfo & KEY_INFO_KEY_ACK_MASK)
+      col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 1 of 2)");
+    else
+      col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 2 of 2)");
+  }
+  keyinfo_item =
+    proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_keyinfo, tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+
+  keyinfo_tree = proto_item_add_subtree(keyinfo_item, ett_keyinfo);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_keydes_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_install, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_ack, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_mic, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_secure, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_error, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_request, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_encrypted_key_data, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211i_keydes_key_len, tvb, offset,
+                      2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item(tree, hf_ieee80211i_keydes_replay_counter, tvb,
+                      offset, 8, ENC_BIG_ENDIAN);
+  offset += 8;
+  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_nonce, tvb, offset,
+                      32, ENC_NA);
+  offset += 32;
+  proto_tree_add_item(tree, hf_ieee80211i_keydes_key_iv, tvb,
+                      offset, 16, ENC_NA);
+  offset += 16;
+  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_rsc, tvb, offset,
+                      8, ENC_NA);
+  offset += 8;
+  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_id, tvb, offset, 8,
+                      ENC_NA);
+  offset += 8;
+  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_mic, tvb, offset,
+                      16, ENC_NA);
+  offset += 16;
+  eapol_data_len = tvb_get_ntohs(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_data_len, tvb,
+                      offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  if (eapol_data_len != 0) {
+    ti = proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_data,
+                             tvb, offset, eapol_data_len, ENC_NA);
+    if ((keyinfo & KEY_INFO_ENCRYPTED_KEY_DATA_MASK) ||
+        !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
+      /* RSN: EAPOL-Key Key Data is encrypted.
+       * WPA: Group Keys use encrypted Key Data.
+       * Cannot parse this without knowing the key.
+       * IEEE 802.11i-2004 8.5.2.
+       */
+    } else {
+      keydes_tree = proto_item_add_subtree(ti, ett_ieee80211i_keydes_data);
+      ieee_80211_add_tagged_parameters(tvb, offset, pinfo, keydes_tree,
+                                       tvb_reported_length_remaining(tvb, offset),
+                                       -1);
+    }
+  }
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_ieee80211i_wpa_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  return dissect_ieee80211i_wpa_or_rsn_key(tvb, pinfo, tree, FALSE);
+}
+
+static int
+dissect_ieee80211i_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  return dissect_ieee80211i_wpa_or_rsn_key(tvb, pinfo, tree, TRUE);
 }
 
 /* Davide Schiera (2006-11-26): this function will try to decrypt with WEP or  */
@@ -25717,9 +25921,128 @@ proto_register_ieee80211 (void)
 }
 
 void
+proto_register_ieee80211i (void)
+{
+
+  static hf_register_info hf[] = {
+    {&hf_ieee80211i_wpa_keydes_keyinfo,
+     {"Key Information", "ieee80211i.keydes.key_info",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_keydes_version,
+     {"Key Descriptor Version", "ieee80211i.keydes.key_info.keydes_version",
+      FT_UINT16, BASE_DEC, VALS(keydes_version_vals), KEY_INFO_KEYDES_VERSION_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_key_type,
+     {"Key Type", "ieee80211i.keydes.key_info.key_type",
+      FT_BOOLEAN, 16, TFS(&keyinfo_key_type_tfs), KEY_INFO_KEY_TYPE_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_key_index,
+     {"Key Index", "ieee80211i.keydes.key_info.key_index",
+      FT_UINT16, BASE_DEC, NULL, KEY_INFO_KEY_INDEX_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_install,
+     {"Install", "ieee80211i.keydes.key_info.install",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_INSTALL_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_key_ack,
+     {"Key ACK", "ieee80211i.keydes.key_info.key_ack",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_KEY_ACK_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_key_mic,
+     {"Key MIC", "ieee80211i.keydes.key_info.key_mic",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_KEY_MIC_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_secure,
+     {"Secure", "ieee80211i.keydes.key_info.secure",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_SECURE_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_error,
+     {"Error", "ieee80211i.keydes.key_info.error",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_ERROR_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_request,
+     {"Request", "ieee80211i.keydes.key_info.request",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_REQUEST_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_keyinfo_encrypted_key_data,
+     {"Encrypted Key Data", "ieee80211i.keydes.key_info.encrypted_key_data",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_ENCRYPTED_KEY_DATA_MASK,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_keydes_key_len,
+     {"Key Length", "eapol.keydes.key_len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_keydes_replay_counter,
+     {"Replay Counter", "eapol.keydes.replay_counter",
+      FT_UINT64, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_keydes_key_iv,
+     {"Key IV", "eapol.keydes.key_iv",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_nonce,
+     {"WPA Key Nonce", "ieee80211i.keydes.nonce",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_rsc,
+     {"WPA Key RSC", "ieee80211i.keydes.rsc",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_id,
+     {"WPA Key ID", "ieee80211i.keydes.id",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_mic,
+     {"WPA Key MIC", "ieee80211i.keydes.mic",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_data_len,
+     {"WPA Key Data Length", "ieee80211i.keydes.data_len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211i_wpa_keydes_data,
+     {"WPA Key Data", "ieee80211i.keydes.data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+  };
+
+  static gint *tree_array[] = {
+    &ett_keyinfo,
+    &ett_ieee80211i_keydes_data,
+  };
+
+  proto_ieee80211i = proto_register_protocol("IEEE 802.11i MAC Security Enhancements",
+      "IEEE 802.11i", "ieee80211i");
+  proto_register_field_array(proto_ieee80211i, hf, array_length (hf));
+
+  proto_register_subtree_array (tree_array, array_length (tree_array));
+}
+
+void
 proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t data_encap_handle, centrino_handle;
+  dissector_handle_t ieee80211i_wpa_key_handle, ieee80211i_rsn_key_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -25764,6 +26087,16 @@ proto_reg_handoff_ieee80211(void)
   data_encap_handle = create_dissector_handle(dissect_data_encap, proto_wlan);
   dissector_add_uint("ethertype", ETHERTYPE_IEEE80211_DATA_ENCAP,
                 data_encap_handle);
+
+  /*
+   * EAPOL key descriptor types.
+   */
+  ieee80211i_wpa_key_handle = new_create_dissector_handle(dissect_ieee80211i_wpa_key,
+                                                          proto_ieee80211i);
+  dissector_add_uint("eapol.keydes.type", EAPOL_WPA_KEY, ieee80211i_wpa_key_handle);
+  ieee80211i_rsn_key_handle = new_create_dissector_handle(dissect_ieee80211i_rsn_key,
+                                                          proto_ieee80211i);
+  dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, ieee80211i_rsn_key_handle);
 }
 
 /*
