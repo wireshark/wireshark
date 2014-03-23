@@ -193,6 +193,10 @@ static guint32 hdr_src_port  = 0;
 /* Dummy TCP header */
 static int hdr_tcp = FALSE;
 
+/* TCP sequence numbers when has_direction is true */
+static guint32 tcp_in_seq_num = 0;
+static guint32 tcp_out_seq_num = 0;
+
 /* Dummy SCTP header */
 static int hdr_sctp = FALSE;
 static guint32 hdr_sctp_src  = 0;
@@ -318,6 +322,15 @@ static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0,
 0x0101010a, 0x0202020a
 #endif
 };
+
+/* Fixed IP address values */
+#ifdef WORDS_BIGENDIAN
+#define IP_SRC 0x0a010101
+#define IP_DST 0x0a020202
+#else
+#define IP_SRC 0x0101010a
+#define IP_DST 0x0202020a
+#endif
 
 static struct {         /* pseudo header for checksum calculation */
     guint32 src_addr;
@@ -656,6 +669,9 @@ write_current_packet (gboolean cont)
     if (curr_offset > header_length) {
         /* Write the packet */
 
+        /* Is direction indication on with an inbound packet? */
+        gboolean isInbound = has_direction && (direction == 2);
+
         /* if defined IPv6 we should rewrite hdr_ethernet_proto anyways */
         if (hdr_ipv6) {
             hdr_ethernet_proto = 0x86DD;
@@ -680,8 +696,14 @@ write_current_packet (gboolean cont)
 
         /* Write IP header */
         if (hdr_ip) {
-            if (hdr_ip_src_addr) HDR_IP.src_addr = hdr_ip_src_addr;
-            if (hdr_ip_dest_addr) HDR_IP.dest_addr = hdr_ip_dest_addr;
+            if (isInbound) {
+                HDR_IP.src_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
+                HDR_IP.dest_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
+            }
+            else {
+                HDR_IP.src_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
+                HDR_IP.dest_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
+            }
 
             HDR_IP.packet_length = g_htons(length - ip_offset + padding_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
@@ -689,10 +711,10 @@ write_current_packet (gboolean cont)
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
             write_bytes((const char *)&HDR_IP, sizeof(HDR_IP));
         } else if (hdr_ipv6) {
-            if (memcmp(hdr_ipv6_src_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_src, &hdr_ipv6_src_addr, sizeof(struct hdr_in6_addr));
-            if (memcmp(hdr_ipv6_dest_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_dst, &hdr_ipv6_dest_addr, sizeof(struct hdr_in6_addr));
+            if (memcmp(isInbound ? hdr_ipv6_dest_addr : hdr_ipv6_src_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_src, isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(struct hdr_in6_addr));
+            if (memcmp(isInbound ? hdr_ipv6_src_addr : hdr_ipv6_dest_addr, NO_IPv6_ADDRESS, sizeof(struct hdr_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_dst, isInbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(struct hdr_in6_addr));
 
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
@@ -725,8 +747,8 @@ write_current_packet (gboolean cont)
             guint32 u;
 
             /* initialize the UDP header */
-            HDR_UDP.source_port = g_htons(hdr_src_port);
-            HDR_UDP.dest_port = g_htons(hdr_dest_port);
+            HDR_UDP.source_port = isInbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_UDP.dest_port = isInbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
             HDR_UDP.length      = pseudoh.length;
             HDR_UDP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
@@ -755,9 +777,19 @@ write_current_packet (gboolean cont)
             pseudoh.protocol    = (guint8) hdr_ip_proto;
             pseudoh.length      = g_htons(length - header_length + sizeof(HDR_TCP));
             /* initialize the TCP header */
-            HDR_TCP.source_port = g_htons(hdr_src_port);
-            HDR_TCP.dest_port = g_htons(hdr_dest_port);
-            /* HDR_TCP.seq_num already correct */
+            HDR_TCP.source_port = isInbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_TCP.dest_port = isInbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
+            /* set ack number if we have direction */
+            if (has_direction) {
+                HDR_TCP.flags = 0x10;
+                HDR_TCP.ack_num = g_ntohl(isInbound ? tcp_out_seq_num : tcp_in_seq_num);
+                HDR_TCP.ack_num = g_htonl(HDR_TCP.ack_num);
+            }
+            else {
+                HDR_TCP.flags = 0;
+                HDR_TCP.ack_num = 0;
+            }
+            HDR_TCP.seq_num = isInbound ? tcp_in_seq_num : tcp_out_seq_num;
             HDR_TCP.window = g_htons(0x2000);
             HDR_TCP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
@@ -772,8 +804,14 @@ write_current_packet (gboolean cont)
             if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
                 HDR_TCP.checksum = g_htons(1);
             write_bytes((const char *)&HDR_TCP, sizeof(HDR_TCP));
-            HDR_TCP.seq_num = g_ntohl(HDR_TCP.seq_num) + length - header_length;
-            HDR_TCP.seq_num = g_htonl(HDR_TCP.seq_num);
+            if (isInbound) {
+                tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + length - header_length;
+                tcp_in_seq_num = g_htonl(tcp_in_seq_num);
+            }
+            else {
+                tcp_out_seq_num = g_ntohl(tcp_out_seq_num) + length - header_length;
+                tcp_out_seq_num = g_htonl(tcp_out_seq_num);
+            }
         }
 
         /* Compute DATA chunk header */
@@ -802,8 +840,8 @@ write_current_packet (gboolean cont)
         if (hdr_sctp) {
             guint32 zero = 0;
 
-            HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
+            HDR_SCTP.src_port  = isInbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = isInbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
             HDR_SCTP.checksum  = g_htonl(0);
             HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0);
@@ -1451,7 +1489,7 @@ usage (gboolean is_error)
             "                         Example: -4 10.0.0.1,10.0.0.2\n"
             "  -6 <srcip>,<destip>    replace IPv6 header with specified\n"
             "                         dest and source address.\n"
-            "                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329, 2001:0db8:85a3:0000:0000:8a2e:0370:7334\n"
+            "                         Example: -6 fe80:0:0:0:202:b3ff:fe1e:8329,2001:0db8:85a3:0000:0000:8a2e:0370:7334\n"
             "  -u <srcp>,<destp>      prepend dummy UDP header with specified\n"
             "                         source and destination ports (in DECIMAL).\n"
             "                         Automatically prepends Ethernet & IP headers as well.\n"
