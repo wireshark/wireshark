@@ -16850,12 +16850,14 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
           PROTO_ITEM_SET_GENERATED(fcs_item);
         }
       }
-    } else {
+    }
+  else
+    {
       flag_str[8] = '\0';
     }
 
-    proto_item_append_text(ti, ", Flags: %s", flag_str);
-    col_append_fstr (pinfo->cinfo, COL_INFO, ", Flags=%s", flag_str);
+  proto_item_append_text(ti, ", Flags: %s", flag_str);
+  col_append_fstr (pinfo->cinfo, COL_INFO, ", Flags=%s", flag_str);
 
 
   /*
