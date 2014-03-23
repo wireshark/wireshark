@@ -968,7 +968,7 @@ static xml_ns_t *make_xml_hier(gchar      *elem_name,
     }
 
     for (i = 0; i < hier->len; i++) {
-        if( strcmp(elem_name, (gchar *) g_ptr_array_index(hier, i) ) == 0 ) {
+        if( (elem_name) && (strcmp(elem_name, (gchar *) g_ptr_array_index(hier, i) ) == 0 )) {
             recurred = TRUE;
         }
     }
