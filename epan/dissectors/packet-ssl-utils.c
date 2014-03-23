@@ -1398,6 +1398,7 @@ ssl_data_alloc(StringInfo* str, size_t len)
 void
 ssl_data_set(StringInfo* str, const guchar* data, guint len)
 {
+    DISSECTOR_ASSERT(data);
     memcpy(str->data, data, len);
     str->data_len = len;
 }
