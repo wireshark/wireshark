@@ -203,6 +203,9 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       if (keydesc_type == EAPOL_WPA_KEY || keydesc_type == EAPOL_RSN_KEY) {
+        /*
+         * 802.11i.
+         */
         keyinfo = tvb_get_ntohs(tvb, offset);
         if (keyinfo & KEY_INFO_REQUEST_MASK) {
           col_set_str(pinfo->cinfo, COL_INFO, "Key (Request)");
