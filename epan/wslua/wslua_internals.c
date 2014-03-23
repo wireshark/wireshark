@@ -74,6 +74,20 @@ WSLUA_API int wslua_optboolint(lua_State* L, int n, int def) {
     return val;
 }
 
+/* like luaL_checklstring, except no coercion */
+WSLUA_API const char* wslua_checklstring_only(lua_State* L, int n, size_t *l) {
+
+    if (lua_type(L,n) != LUA_TSTRING) {
+        luaL_argerror(L,n,"must be a Lua string");
+    }
+
+    return luaL_checklstring(L, n, l);
+}
+
+/* like luaL_checkstring, except no coercion */
+WSLUA_API const char* wslua_checkstring_only(lua_State* L, int n) {
+    return wslua_checklstring_only(L, n, NULL);
+}
 
 WSLUA_API const gchar* lua_shiftstring(lua_State* L, int i) {
     const gchar* p = luaL_checkstring(L, i);

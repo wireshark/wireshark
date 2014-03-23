@@ -52,24 +52,24 @@
 ** X[num]   - pad to num align, default MAXALIGN
 **
 ** Following are system-dependent sizes:
-** b/B - signed/unsigned byte
-** h/H - signed/unsigned short
 ** i/I - signed/unsigned int
 ** l/L - signed/unsigned long
-** f - float
-** d - double
+** f   - float
 ** T   - size_t
 **
 ** Following are system-independent sizes:
+** b/B   - signed/unsigned byte
+** h/H   - signed/unsigned short
 ** in/In - signed/unsigned integer of size `n' bytes
           Note: unpack of i/I is done to a Lua_number, typically a double,
           so unpacking a 64-bit field (i8/I8) will lose precision.
           Use e/E to unpack into a Wireshark Int64/UInt64 object/userdata instead.
-** e/E - signed/unsigned eight-byte Integer (64bits, long long), to/from Int64/UInt64 object
-** cn - sequence of `n' chars (from/to a string); when packing, n==0 means
-        the whole string; when unpacking, n==0 means use the previous
-        read number as the string length
-** s - zero-terminated string
+** e/E   - signed/unsigned eight-byte Integer (64bits, long long), to/from Int64/UInt64 object
+** d     - double
+** cn    - sequence of `n' chars (from/to a string); when packing, n==0 means
+           the whole string; when unpacking, n==0 means use the previous
+           read number as the string length
+** s  - zero-terminated string
 ** ' ' - ignored
 ** '(' ')'  - stop assigning items. ')' start assigning (padding when packing)
 ** '='      - return current position / offset
@@ -129,7 +129,7 @@ struct cD {
 #define BIG	0
 #define LITTLE	1
 
-/* trick to determine native endianess of system */
+/* trick to determine native endianness of system */
 static union {
   int dummy;
   gchar endian;
@@ -205,7 +205,7 @@ static int gettoalign (size_t len, Header *h, int opt, size_t size) {
 
 
 /*
-** options to control endianess and alignment settings
+** options to control endianness and alignment settings
 */
 static void controloptions (lua_State *L, int opt, const gchar **fmt,
                             Header *h) {
@@ -229,7 +229,7 @@ static void controloptions (lua_State *L, int opt, const gchar **fmt,
   }
 }
 
-/* Encodes a Lua number as an integer of given size and endiannes into a string struct */
+/* Encodes a Lua number as an integer of given size and endianness into a string struct */
 static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
                         int size) {
   lua_Number n = luaL_checknumber(L, arg);
@@ -257,7 +257,7 @@ static void putinteger (lua_State *L, luaL_Buffer *b, int arg, int endian,
   luaL_addlstring(b, buff, size);
 }
 
-/* corrects endiannes - usually done by other functions themselves, but is
+/* corrects endianness - usually done by other functions themselves, but is
  * used for float/doubles, since on some platforms they're endian'ed as well
  */
 static void correctbytes (gchar *b, int size, int endian) {
@@ -275,9 +275,9 @@ static void correctbytes (gchar *b, int size, int endian) {
 WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
   /* Returns a string containing the values arg1, arg2, etc. packed/encoded according to the format string. */
 #define WSLUA_ARG_Struct_pack_FORMAT 1 /* The format string */
-#define WSLUA_ARG_Struct_pack_STRUCT 2 /* One or more Lua value(s) to encode, based on the given format. */
+#define WSLUA_ARG_Struct_pack_VALUE  2 /* One or more Lua value(s) to encode, based on the given format. */
   luaL_Buffer b;
-  const char *fmt = luaL_checkstring(L, WSLUA_ARG_Struct_pack_FORMAT);
+  const char *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_pack_FORMAT);
   Header h;
   int poscnt = 0;
   int posBuf[10];
@@ -354,7 +354,7 @@ WSLUA_CONSTRUCTOR Struct_pack (lua_State *L) {
 }
 
 /* Decodes an integer from a string struct into a Lua number, based on
- * given endianess and size. If the integer type is signed, this makes
+ * given endianness and size. If the integer type is signed, this makes
  * the Lua number be +/- correctly as well.
  */
 static lua_Number getinteger (const gchar *buff, int endian,
@@ -387,14 +387,14 @@ static lua_Number getinteger (const gchar *buff, int endian,
 
 WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
   /*  Unpacks/decodes multiple Lua values from a given struct-like binary Lua string.
-      The number of returned values depends on the format given, plus an addtional value of the position where it stopped reading is returned. */
+      The number of returned values depends on the format given, plus an additional value of the position where it stopped reading is returned. */
 #define WSLUA_ARG_Struct_unpack_FORMAT 1 /* The format string */
 #define WSLUA_ARG_Struct_unpack_STRUCT 2 /* The binary Lua string to unpack */
 #define WSLUA_OPTARG_Struct_unpack_BEGIN  3 /* The position to begin reading from (default=1) */
   Header h;
-  const char *fmt = luaL_checkstring(L, WSLUA_ARG_Struct_unpack_FORMAT);
+  const char *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_unpack_FORMAT);
   size_t ld;
-  const char *data = luaL_checklstring(L, WSLUA_ARG_Struct_unpack_STRUCT, &ld);
+  const char *data = wslua_checklstring_only(L, WSLUA_ARG_Struct_unpack_STRUCT, &ld);
   size_t pos = luaL_optinteger(L, WSLUA_OPTARG_Struct_unpack_BEGIN, 1) - 1;
   defaultoptions(&h);
   lua_settop(L, 2);
@@ -407,7 +407,7 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
     if (opt == 'X') size = 0;
     if (h.noassign && size > 0) {
       /* if we're not assigning, and the opt type has a size, then loop again */
-      /* this will not be the case for controloptions, 'c0', 's', and '=' */
+      /* this will not be the case for control options, 'c0', 's', and '=' */
       pos += size;
       continue;
     }
@@ -476,15 +476,15 @@ WSLUA_CONSTRUCTOR Struct_unpack (lua_State *L) {
     pos += size;
   }
   lua_pushinteger(L, pos + 1);
-  WSLUA_RETURN(lua_gettop(L) - 2); /* One or more values based on format, plus the posoition it stopped unpacking. */
+  WSLUA_RETURN(lua_gettop(L) - 2); /* One or more values based on format, plus the position it stopped unpacking. */
 }
 
 
 WSLUA_CONSTRUCTOR Struct_size (lua_State *L) {
-  /* Returns the length of the binary string struct that would be consumed/handled by the given format string. */
+  /* Returns the length of a binary string that would be consumed/handled by the given format string. */
 #define WSLUA_ARG_Struct_size_FORMAT 1 /* The format string */
   Header h;
-  const gchar *fmt = luaL_checkstring(L, WSLUA_ARG_Struct_size_FORMAT);
+  const gchar *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_size_FORMAT);
   size_t pos = 0;
   defaultoptions(&h);
   while (*fmt) {
@@ -503,6 +503,43 @@ WSLUA_CONSTRUCTOR Struct_size (lua_State *L) {
   WSLUA_RETURN(1); /* The size number */
 }
 
+WSLUA_CONSTRUCTOR Struct_values (lua_State *L) {
+  /* Returns the number of Lua values contained in the given format string.
+     This will be the number of returned values from a call to Struct.unpack()
+     not including the extra return value of offset position. (i.e., Struct.values()
+     does not count that extra return value) This will also be the number of
+     arguments Struct.pack() expects, not including the format string argument. */
+#define WSLUA_ARG_Struct_values_FORMAT 1 /* The format string */
+  Header h;
+  const gchar *fmt = wslua_checkstring_only(L, WSLUA_ARG_Struct_values_FORMAT);
+  size_t vals = 0;
+  defaultoptions(&h);
+  while (*fmt) {
+    int opt = *fmt++;
+    /* we use a size != 0 to mean it is a value */
+    size_t size = optsize(L, opt, &fmt);
+    /* but some will be zero and not be a value, or vice-versa */
+    switch (opt) {
+      case 's': case 'c':
+        /* these are values */
+        size = 1;
+        break;
+      case 'x': case 'X':
+        /* these are not */
+        size = 0;
+        break;
+      default:
+        break;
+    }
+    if (!isalnum(opt))
+      controloptions(L, opt, &fmt, &h);
+    else if (size && !h.noassign)
+      vals++;
+  }
+  lua_pushinteger(L, vals);
+  WSLUA_RETURN(1); /* The number of values */
+}
+
 WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
   /* Converts the passed-in binary string to a hex-ascii string. */
 #define WSLUA_ARG_Struct_tohex_BYTESTRING 1 /* A Lua string consisting of binary bytes */
@@ -513,7 +550,8 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
   gboolean lowercase = FALSE;
   const gchar* sep = NULL;
 
-  s = luaL_checklstring(L,WSLUA_ARG_Struct_tohex_BYTESTRING,&len);
+  /* luaL_checklstring coerces the argument to a string, and we don't want to do that */
+  s = wslua_checklstring_only(L, WSLUA_ARG_Struct_tohex_BYTESTRING, &len);
 
   if (!s) {
     WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
@@ -535,10 +573,11 @@ WSLUA_CONSTRUCTOR Struct_fromhex (lua_State *L) {
   size_t len = 0;
   const gchar* sep = NULL;
 
-  s = luaL_checklstring(L,WSLUA_ARG_Struct_fromhex_HEXBYTES,&len);
+  /* luaL_checklstring coerces the argument to a string, and we don't want to do that */
+  s = wslua_checklstring_only(L, WSLUA_ARG_Struct_fromhex_HEXBYTES, &len);
 
   if (!s) {
-    WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
+    WSLUA_ARG_ERROR(Struct_fromhex,HEXBYTES,"must be a Lua string");
     return 0;
   }
 
@@ -559,6 +598,7 @@ WSLUA_METHODS Struct_methods[] = {
   WSLUA_CLASS_FNREG(Struct,pack),
   WSLUA_CLASS_FNREG(Struct,unpack),
   WSLUA_CLASS_FNREG(Struct,size),
+  WSLUA_CLASS_FNREG(Struct,values),
   WSLUA_CLASS_FNREG(Struct,tohex),
   WSLUA_CLASS_FNREG(Struct,fromhex),
   { NULL, NULL }

@@ -71,6 +71,14 @@ test("basic_size2", lib.size(fmt1_le) == Struct.size(fmt1_be))
 test("basic_size3", lib.size(fmt1_le) == Struct.size(fmt1_64le))
 test("basic_size4", lib.size(fmt2_be) == Struct.size(fmt1_64le))
 
+testing("basic values")
+
+test("basic_values1", lib.values(fmt1_le) == 5)
+test("basic_values2", lib.values(fmt1_be) == lib.values(fmt1_le))
+test("basic_values3", lib.values(fmt1_64le) == 3)
+test("basic_values4", lib.values(fmt2_be) == lib.values(fmt1_64le))
+test("basic_values4", lib.values(" (I)  s x i XxX c0") == 3)
+
 testing("tohex")
 local val1hex = "2A:00:00:00:00:00:00:01:00:00:00:02:00:00:00:03:00:00:00:04"
 test("tohex1", Struct.tohex(val1) == tohex(val1):upper())
@@ -351,6 +359,17 @@ test("weird_unpack7",pcall(lib.unpack, "bc0", "\3alo"))
 
 test("weird_unpack8",not pcall(lib.unpack, "b", "alo", 4))
 test("weird_unpack9",lib.unpack("b", "alo\3", 4) == 3)
+
+test("weird_pack11",not pcall(lib.pack, "\250\22", "alo"))
+test("weird_pack12",not pcall(lib.pack, 1, "alo"))
+test("weird_pack13",not pcall(lib.pack, nil, "alo"))
+test("weird_pack14",not pcall(lib.pack, {}, "alo"))
+test("weird_pack15",not pcall(lib.pack, true, "alo"))
+test("weird_unpack10",not pcall(lib.unpack, "\250\22", "\3alo"))
+test("weird_unpack11",not pcall(lib.unpack, 1, "\3alo"))
+test("weird_unpack12",not pcall(lib.unpack, nil, "\3alo"))
+test("weird_unpack13",not pcall(lib.unpack, {}, "\3alo"))
+test("weird_unpack14",not pcall(lib.unpack, true, "\3alo"))
 
 
 print("\n-----------------------------\n")
