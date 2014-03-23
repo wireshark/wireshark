@@ -711,7 +711,9 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
         memcpy(nt_password_hash, pass_list[i].md4, NTLMSSP_KEY_LEN);
         /*printnbyte(nt_password_hash, NTLMSSP_KEY_LEN, "Current NT password hash: ", "\n");*/
         i++;
-        memcpy(lm_challenge_response, clientchallenge, 8);
+        if(clientchallenge){
+          memcpy(lm_challenge_response, clientchallenge, 8);
+        }
         md5_init(&md5state);
         md5_append(&md5state, serverchallenge, 8);
         md5_append(&md5state, clientchallenge, 8);
@@ -745,10 +747,12 @@ create_ntlmssp_v1_key(const char *nt_password, const guint8 *serverchallenge, co
      * Otherwise it should be lm_password_hash ...*/
     crypt_md4(md4, nt_password_hash, NTLMSSP_KEY_LEN);
     if (flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY) {
-     memcpy(challenges, serverchallenge, 8);
-     memcpy(challenges+8, clientchallenge, 8);
-     /*md5_hmac(text, text_len, key, key_len, digest);*/
-     md5_hmac(challenges, NTLMSSP_KEY_LEN, md4, NTLMSSP_KEY_LEN, sessionbasekey);
+      memcpy(challenges, serverchallenge, 8);
+      if(clientchallenge){
+        memcpy(challenges+8, clientchallenge, 8);
+      }
+      /*md5_hmac(text, text_len, key, key_len, digest);*/
+      md5_hmac(challenges, NTLMSSP_KEY_LEN, md4, NTLMSSP_KEY_LEN, sessionbasekey);
     }
     else {
      memcpy(sessionbasekey, md4, NTLMSSP_KEY_LEN);
