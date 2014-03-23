@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# make-doc.pl
+# make-wsluarm.pl
 # WSLUA's Reference Manual Generator
 #
 # (c) 2006, Luis E. Garcia Onatnon <luis@ontanon.org>
@@ -26,6 +26,31 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 # (-: I don't even think writing this in Lua  :-)
+# ...well I wished you had!
+#
+# changed by Hadriel Kaplan to do the following:
+#  - generates pretty XML output, to make debugging it easier
+#  - allows modules (i.e., WSLUA_MODULE) to have detailed descriptions
+#  - two (or more) line breaks in comments result in separate paragraphs
+#  - all '&' are converted into their entity names, except inside urls
+#  - all '<', and '>' are converted into their entity names everywhere
+#  - any word(s) wrapped in one star, e.g., *foo bar*, become italics
+#  - any word(s) wrapped in two stars, e.g., **foo bar**, become commands (is there a 'bold'?)
+#  - any word(s) wrapped in backticks, e.g., `foo bar`, become commands (is there something better?)
+#  - any word(s) wrapped in two backticks, e.g., ``foo bar``, become one backtick
+#  - any "[[url]]" becomes an XML ulink with the url as both the url and text
+#  - any "[[url|text]]" becomes an XML ulink with the url as the url and text as text
+#  - any indent with a single leading star '*' followed by space is a bulleted list item
+#    reducing indent or having an extra linebreak stops the list
+#  - any indent with a leading digits-dot followed by space, i.e. "1. ", is a numbered list item
+#    reducing indent or having an extra linebreak stops the list
+#  - supports meta-tagged info inside comment descriptions as follows:
+#    * a line starting with "@note" or "Note:" becomes an XML note line
+#    * a line starting with "@warning" or "Warning:" becomes an XML warning line
+#    * a line starting with "@version" or "@since" becomes a "Since:" line
+#    * a line starting with "@code" and ending with "@endcode" becomes an
+#      XML programlisting block, with no indenting/parsing within the block
+#    The above '@' commands are based on Doxygen commands
 
 use strict;
 #use V2P;
@@ -38,19 +63,286 @@ sub gorolla {
 # a gorilla stays to a chimp like gorolla stays to chomp
 # but this one returns the shrugged string.
 	my $s = shift;
+	# remove leading newlines and spaces at beginning
 	$s =~ s/^([\n]|\s)*//ms;
-	$s =~ s/([\n]|\s)*$//ms;
-	# as far as I can tell, these will only convert the *first* '<'/'>' they find in a line, but
-	# not subsequent ones in that line (because the flag isn't 'msg'?) -hadriel
-	$s =~ s/\</&lt;/ms;
-	$s =~ s/\>/&gt;/ms;
-	# this is a horrible horrible hack, but it works
-	# basically we undo the replacements just made above, if it's a '</para>' or '<para>' case
-	# so that comments can include them for prettier output. Really this API generator thing needs
-	# to be rewritten, but I don't understand perl well enough to do it properly -hadriel
-	$s =~ s/&lt;\/para&gt;/<\/para>/ms;
-	$s =~ s/&lt;para&gt;/<para>/ms;
+	# remove trailing newlines and spaces at end
+	$s =~ s/([\n]|\s)*$//s;
+	# escape HTML entities everywhere
+	$s =~ s/&/&amp;/msg; # do this one first so we don't clobber later ones
+	$s =~ s/\</&lt;/msg;
+	$s =~ s/\>/&gt;/msg;
+
+	# bold and italics - but don't change a star followed by space (it's a list item)
+	$s =~ s/(\*\*)([^*]+?)(\*\*)/<command>$2<\/command>/g; # bold=command??
+	$s =~ s/(\*)([^\s][^*]*?)(\*)/<emphasis>$2<\/emphasis>/g; # italics
+
+	# one backtick is quote/command
+	$s =~ s/([^`]|^)(`)([^`]+?)(`)/$1<command>$3<\/command>/g; # quote=command??
+	# two backticks are one
+	$s =~ s/(``)([^`]+?)(``)/`$2`/g; # quote=command??
+
+	# handle '[[url]]'
+	$s =~ s/(\[\[)([^\]\|]+?)(\]\])/<ulink url="$2">$2<\/ulink>/g;
+	# handle '[[url|pretty]]'
+	$s =~ s/(\[\[)(([^\]\|]+?)\|\s*([^\]]+?))(\]\])/<ulink url="$3">$4<\/ulink>/g;
+	# unescape gorolla'd ampersands in url
+	while ($s =~ /<ulink url="[^"]*&amp;/) {
+		$s =~ s/(<ulink url="[^"]*)(&amp;)/$1\&/;
+	}
+
 	$s;
+}
+
+# break up descriptions based on newlines and keywords
+# builds an array of paragraphs and returns the array ref
+# each entry in the array is a single line for XML, but not a
+# whole paragraph - there are "<para>"/"</para>" entries in the
+# array to make them paragraphs - this way the XML itself is
+# also pretty, while the resulting output is of course valid
+# first arg is the array to build into; second arg is an array
+# of lines to parse - this way it can be called from multiple
+# other functions with slightly different needs
+# this function assumes gorolla was called previously
+sub parse_desc_common {
+	my @r; # a temp array we fill, then copy into @ret below
+	my @ret   = @{ $_[0] };
+	my @lines = @{ $_[1] };
+
+	# the following will unfortunately create empty paragraphs too
+	# (ie, <para> followed by </para>), so we do this stuff to a temp @r
+	# array and then copy the non-empty ones into the passed-in array @ret
+	if ($#lines >= 0) {
+		# capitalize the first letter of the first line
+		$lines[0] = ucfirst($lines[0]);
+		# for each double newline, break into separate para's
+		$r[++$#r] = "<para>\n";
+		for (my $idx=0; $idx <= $#lines; $idx++) {
+
+			$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
+			# save number of spaces in case we need to know later
+			my $indent = length($1);
+
+			# if we find @code then treat it as a blob
+			if ($lines[$idx] =~ /^\@code\b/) {
+				my $line = $lines[$idx];
+				$line =~ s/\@code/<programlisting language="lua">/;
+				# if this line didn't have ending token, keep eating paragraphs
+				while (!($line =~ /\@endcode\b/) && $idx <= $#lines) {
+					# also insert back the line separator we ate in earlier split()
+					$line .= $lines[++$idx] . "\n";
+				}
+				# fix ending token, and also remove trailing whitespace before it
+				$line =~ s/[\s\n]*\@endcode/<\/programlisting>/;
+				$r[++$#r] = $line . "\n";
+			} elsif ($lines[$idx] =~ /^\s*$/) {
+				# line is either empty or just whitespace, and we're not in a @code block
+				# so it's the end of a previous paragraph, beginning of new one
+				$r[++$#r] = "</para>\n";
+				$r[++$#r] = "<para>\n";
+			} else {
+				# we have a regular line, not in a @code block
+				# XML-ify it
+				my $line = $lines[$idx];
+
+				# if line starts with "Note:" or "@note", make it an XML <note>
+				if ($line =~ /^[nN]ote:|^\@note /) {
+					$r[++$#r] = "</para>\n";
+					$r[++$#r] = "<note>\n";
+					$r[++$#r] = "\t<para>\n";
+					$line =~ s/^([nN]ote:\s*|\@note\s*)//;
+					$r[++$#r] = "\t\t" . $line . "\n";
+					# keep eating until we find a blank line or end
+					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
+						$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
+						$r[++$#r] = "\t\t" . $lines[$idx]. "\n";
+					}
+					$r[++$#r] = "\t</para>\n";
+					$r[++$#r] = "</note>\n";
+					$r[++$#r] = "<para>\n";
+
+				# if line starts with "Warning:"" or @warning", make it an XML <warning>
+				} elsif ($line =~ /^[wW]arning:|^\@warning /) {
+					$r[++$#r] = "</para>\n";
+					$r[++$#r] = "<warning>\n";
+					$r[++$#r] = "\t<para>\n";
+					$line =~ s/^(wW]arning:\s*|\@warning\s*)//;
+					# keep eating until we find a blank line or end
+					$r[++$#r] = "\t\t" . $line . "\n";
+					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
+						$lines[$idx] =~ s/^(\s*)//; # remove leading whitespace
+						$r[++$#r] = "\t\t" . $lines[$idx] . "\n";
+					}
+					$r[++$#r] = "\t</para>\n";
+					$r[++$#r] = "</warning>\n";
+					$r[++$#r] = "<para>\n";
+
+				# if line starts with "@version" or "@since", make it a "Since:"
+				} elsif ($line =~ /^\@version |^\@since /) {
+					$r[++$#r] = "</para>\n";
+					$r[++$#r] = "<para>\n";
+					$line =~ s/^\@version\s+|^\@since\s+/Since: /;
+					$r[++$#r] = "\t" . $line . "\n";
+					$r[++$#r] = "</para>\n";
+					$r[++$#r] = "<para>\n";
+
+				# if line starts with single "*" and space, make it an XML <itemizedlist>
+				} elsif ($line =~ /^\*\s/) {
+					$r[++$#r] = "</para>\n";
+					$r[++$#r] = "<itemizedlist>\n";
+					$r[++$#r] = "\t<listitem>\n";
+					$r[++$#r] = "\t\t<para>\n";
+					$line =~ s/^\*\s*//; # remove the star and whitespace
+					$r[++$#r] = "\t\t\t" . $line . "\n";
+					# keep eating until we find a blank line or end
+					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
+						$lines[$idx] =~ s/^(\s*)//; # count and remove leading whitespace
+						# if this is less indented than before, break out
+						last if length($1) < $indent;
+						if ($lines[$idx] =~ /^\*\s/) {
+							# another star, new list item
+							$r[++$#r] = "\t\t</para>\n";
+							$r[++$#r] = "\t</listitem>\n";
+							$r[++$#r] = "\t<listitem>\n";
+							$r[++$#r] = "\t\t<para>\n";
+							$lines[$idx] =~ s/^\*\s*//; # remove star and whitespace
+						}
+						$r[++$#r] = "\t\t\t" . $lines[$idx] . "\n";
+					}
+					$r[++$#r] = "\t\t</para>\n";
+					$r[++$#r] = "\t</listitem>\n";
+					$r[++$#r] = "</itemizedlist>\n";
+					$r[++$#r] = "<para>\n";
+
+				# if line starts with "1." and space, make it an XML <orderedlist>
+				} elsif ($line =~ /^1\.\s/) {
+					$r[++$#r] = "</para>\n";
+					$r[++$#r] = "<orderedlist>\n";
+					$r[++$#r] = "\t<listitem>\n";
+					$r[++$#r] = "\t\t<para>\n";
+					$line =~ s/^1\.\s*//; # remove the 1. and whitespace
+					$r[++$#r] = "\t\t\t" . $line . "\n";
+					# keep eating until we find a blank line or end
+					while (!($lines[++$idx] =~ /^\s*$/) && $idx <= $#lines) {
+						$lines[$idx] =~ s/^(\s*)//; # count and remove leading whitespace
+						# if this is less indented than before, break out
+						last if length($1) < $indent;
+						if ($lines[$idx] =~ /^[0-9]+\.\s/) {
+							# another number, new list item
+							$r[++$#r] = "\t\t</para>\n";
+							$r[++$#r] = "\t</listitem>\n";
+							$r[++$#r] = "\t<listitem>\n";
+							$r[++$#r] = "\t\t<para>\n";
+							$lines[$idx] =~ s/^[0-9]+\.\s*//; # remove star and whitespace
+						}
+						$r[++$#r] = "\t\t\t" . $lines[$idx] . "\n";
+					}
+					$r[++$#r] = "\t\t</para>\n";
+					$r[++$#r] = "\t</listitem>\n";
+					$r[++$#r] = "</orderedlist>\n";
+					$r[++$#r] = "<para>\n";
+
+				# just a normal line, add it to array
+				} else {
+					$r[++$#r] = "\t" . $line . "\n";
+				}
+			}
+		}
+		$r[++$#r] = "</para>\n";
+
+		# now go through @r, and copy into @ret but skip empty
+		# paragraphs (ie, <para> followed by </para>)
+		# I could have used splice(), but I think this is easier (and faster?)
+		# this isn't strictly necessary since the XML tool seems
+		# to ignore empty paragraphs, but in case it ever changes...
+		for (my $idx=0; $idx <= $#r; $idx++) {
+			if ($r[$idx] =~ /^<para>\n$/ && $r[$idx+1] =~ /^<\/para>\n$/) {
+				$idx++; # for-loop will increment $idx and skip the other one
+			} else {
+				$ret[++$#ret] = $r[$idx];
+			}
+		}
+	}
+
+	return \@ret;
+}
+
+# for "normal" description cases - class, function, etc.
+# but not for modules nor function arguments
+sub parse_desc {
+	my $s = gorolla(shift);
+	# break description into separate sections
+	my @r = (); # the array we return
+
+	# split each line into an array
+	my @lines = split(/\n/, $s);
+
+	return parse_desc_common(\@r, \@lines);
+}
+
+# modules have a "title" and an optional description
+sub parse_module_desc {
+	my $s = gorolla(shift);
+	# break description into separate sections
+	my @r = (); # the array we return
+
+	my @lines = split(/\n/, $s);
+	my $line  = shift @lines;
+
+	$r[++$#r] = "<title>$line</title>\n";
+
+	return parse_desc_common(\@r, \@lines);
+}
+
+# function argument descriptions are in a <listitem>
+sub parse_function_arg_desc {
+	my $s = gorolla(shift);
+	# break description into separate sections
+	my @r = ( "<listitem>\n" ); # the array we return
+
+	my @lines = split(/\n/, $s);
+	@r = @{ parse_desc_common(\@r, \@lines) };
+
+	$r[++$#r] = "</listitem>\n";
+
+	return \@r;
+}
+
+# attributes have a "mode" and an optional description
+sub parse_attrib_desc {
+	my $s = gorolla(shift);
+	# break description into separate sections
+	my @r = (); # the array we return
+
+	my $mode = shift;
+	if ($mode) {
+		$mode =~ s/RO/ Retrieve only./;
+		$mode =~ s/WO/ Assign only./;
+		$mode =~ s/RW|WR/ Retrieve or assign./;
+		$r[++$#r] = "<para>Mode: $mode</para>\n";
+	} else {
+		die "Attribute does not have a RO/WO/RW mode: '$s'\n";
+	}
+
+	# split each line into an array
+	my @lines = split(/\n/, $s);
+
+	return parse_desc_common(\@r, \@lines);
+}
+
+# prints the parse_* arrays into the XML file with pretty indenting
+# first arg is the description array, second is indent level
+sub print_desc {
+	my $desc_ref = $_[0];
+
+	my $indent = $_[1];
+	if (!$indent) {
+		$indent = 2;
+	}
+	my $tabs = "\t" x $indent;
+
+	for my $line ( @{ $desc_ref } ) {
+		printf D "%s%s", $tabs, $line;
+	}
 }
 
 my %module = ();
@@ -61,39 +353,56 @@ my $function;
 my @functions;
 
 my $docbook_template = {
-	module_header => "<section id='lua_module_%s'>\n",
-	module_desc => "\t<title>%s</title>\n",
-	module_footer => "</section>\n",
-	class_header => "\t<section id='lua_class_%s'><title>%s</title>\n",
-	class_desc => "\t\t<para>%s</para>\n",
-	class_footer => "\t</section> <!-- class_footer: %s -->\n",
-#	class_constructors_header => "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
-#	class_constructors_footer => "\t\t</section> <!-- class_constructors_footer -->\n",
-#	class_methods_header => "\t\t<section id='lua_class_methods_%s'>\n\t\t\t<title>%s Methods</title>\n",
-#	class_methods_footer => "\t\t</section> <!-- class_methods_footer: %s -->\n",
-	class_attr_header => "\t\t<section id='lua_class_attrib_%s'>\n\t\t\t<title>%s</title>\n",
-	class_attr_footer => "\t\t</section> <!-- class_attr_footer: %s -->\n",
-	class_attr_descr => "\t\t\t<para>%s%s</para>\n",
-	function_header => "\t\t\t<section id='lua_fn_%s'>\n\t\t\t\t<title>%s</title>\n",
-	function_descr => "\t\t\t\t<para>%s</para>\n",
-	function_footer => "\t\t\t</section> <!-- function_footer: %s -->\n",
-	function_args_header => "\t\t\t\t\t<section><title>Arguments</title>\t\t\t\t<variablelist>\n",
-	function_args_footer => "\t\t\t\t</variablelist></section>\n",
-	function_arg_header => "\t\t\t\t<varlistentry><term>%s</term>\n",
-	function_arg_descr => "\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_arg_footer => "\t\t\t\t</varlistentry> <!-- function_arg_footer: %s -->\n",
-	function_argerror_header => "", #"\t\t\t\t\t<section><title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
-	function_argerror => "", #"\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_argerror_footer => "", #"\t\t\t\t\t\t</itemizedlist></section> <!-- function_argerror_footer: %s -->\n",
-	function_returns_header => "\t\t\t\t<section><title>Returns</title>\n",
-	function_returns_footer => "\t\t\t\t</section> <!-- function_returns_footer: %s -->\n",
-	function_returns => "\t\t\t\t\t<para>%s</para>\n",
-	function_errors_header => "\t\t\t\t<section><title>Errors</title><itemizedlist>\n",
-	function_errors => "\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
-	function_errors_footer => "\t\t\t\t\t</itemizedlist></section> <!-- function_error_footer: %s -->\n",
-	non_method_functions_header => "\t\t<section id='non_method_functions_%s'><title>Non Method Functions</title>\n",
-	non_method_functions_footer => "\t\t</section> <!-- Non method -->\n",
+	module_header =>               "<section id='lua_module_%s'>\n",
+	# module_desc =>                 "\t<title>%s</title>\n",
+	class_header =>                "\t<section id='lua_class_%s'>\n" .
+								   "\t\t<title>%s</title>\n",
+	#class_desc =>                  "\t\t<para>%s</para>\n",
+	class_attr_header =>           "\t\t<section id='lua_class_attrib_%s'>\n" .
+								   "\t\t\t<title>%s</title>\n",
+	#class_attr_descr =>            "\t\t\t<para>%s%s</para>\n",
+	class_attr_footer =>           "\t\t</section> <!-- class_attr_footer: %s -->\n",
+	function_header =>             "\t\t<section id='lua_fn_%s'>\n" .
+								   "\t\t\t<title>%s</title>\n",
+	#function_descr =>              "\t\t\t<para>%s</para>\n",
+	function_args_header =>        "\t\t\t<section>\n" .
+								   "\t\t\t\t<title>Arguments</title>\n" .
+								   "\t\t\t\t<variablelist>\n",
+	function_arg_header =>         "\t\t\t\t\t<varlistentry>\n" .
+								   "\t\t\t\t\t\t<term>%s</term>\n",
+	#function_arg_descr =>          "\t\t\t\t\t\t<listitem>\n" .
+	#                               "\t\t\t\t\t\t\t<para>%s</para>\n" .
+	#                               "\t\t\t\t\t\t</listitem>\n",
+	function_arg_footer =>         "\t\t\t\t\t</varlistentry> <!-- function_arg_footer: %s -->\n",
+	function_args_footer =>        "\t\t\t\t</variablelist>\n" .
+								   "\t\t\t</section> <!-- end of function_args -->\n",
+	function_argerror_header =>    "", #"\t\t\t\t\t<section><title>Errors</title>\n\t\t\t\t\t\t<itemizedlist>\n",
+	function_argerror =>           "", #"\t\t\t\t\t\t\t<listitem><para>%s</para></listitem>\n",
+	function_argerror_footer =>    "", #"\t\t\t\t\t\t</itemizedlist></section> <!-- function_argerror_footer: %s -->\n",
+	function_returns_header =>     "\t\t\t<section>\n" .
+								   "\t\t\t\t<title>Returns</title>\n",
+	function_returns =>            "\t\t\t\t<para>%s</para>\n",
+	function_returns_footer =>     "\t\t\t</section> <!-- function_returns_footer: %s -->\n",
+	function_errors_header =>      "\t\t\t<section>\n" .
+								   "\t\t\t\t<title>Errors</title>\n" .
+								   "\t\t\t\t<itemizedlist>\n",
+	function_errors =>             "\t\t\t\t\t<listitem>\n" .
+								   "\t\t\t\t\t\t<para>%s</para>\n" .
+								   "\t\t\t\t\t</listitem>\n",
+	function_errors_footer =>      "\t\t\t\t</itemizedlist>\n" .
+								   "\t\t\t</section> <!-- function_errors_footer: %s -->\n",
+	function_footer =>             "\t\t</section> <!-- function_footer: %s -->\n",
+	class_footer =>                "\t</section> <!-- class_footer: %s -->\n",
+	global_functions_header =>     "\t<section id='global_functions_%s'>\n" .
+								   "\t\t<title>Global Functions</title>\n",
+	global_functions_footer =>     "\t</section> <!-- Global function -->\n",
+	module_footer =>               "</section> <!-- end of module -->\n",
 };
+
+#	class_constructors_header =>   "\t\t<section id='lua_class_constructors_%s'>\n\t\t\t<title>%s Constructors</title>\n",
+#	class_constructors_footer =>   "\t\t</section> <!-- class_constructors_footer -->\n",
+#	class_methods_header =>        "\t\t<section id='lua_class_methods_%s'>\n\t\t\t<title>%s Methods</title>\n",
+#	class_methods_footer =>        "\t\t</section> <!-- class_methods_footer: %s -->\n",
 
 
 my $template_ref = $docbook_template;
@@ -105,15 +414,16 @@ my $out_extension = "xml";
 my $QUOTED_RE = "\042\050\133^\042\135*\051\042";
 
 my $TRAILING_COMMENT_RE = '((\s*|[\n\r]*)/\*(.*?)\*/)?';
+my $IN_COMMENT_RE       = '[\s\r\n]*((.*?)\*/)?';
 
 my @control =
 (
 # This will be scanned in order trying to match the re if it matches
-# the body will be executed immediatelly after.
-[ 'WSLUA_MODULE\s*([A-Z][a-zA-Z0-9]+)([^\*]*)',
+# the body will be executed immediately after.
+[ 'WSLUA_MODULE\s*([A-Z][a-zA-Z0-9]+)' . $IN_COMMENT_RE,
 sub {
 	$module{name} = $1;
-	$module{descr} = $2
+	$module{descr} = parse_module_desc($3);
 } ],
 
 [ 'WSLUA_CLASS_DEFINE(?:_BASE)?\050\s*([A-Z][a-zA-Z0-9]+).*?\051;' . $TRAILING_COMMENT_RE,
@@ -121,7 +431,7 @@ sub {
 	deb ">c=$1=$2=$3=$4=$5=$6=$7=\n";
 	$class = {
 		name => $1,
-		descr=> gorolla($4),
+		descr=> parse_desc($4),
 		constructors => [],
 		methods => [],
 		attributes => []
@@ -137,7 +447,7 @@ sub {
 		arglist => [],
 		args => {},
 		name => $1,
-		descr => gorolla($4),
+		descr => parse_desc($4),
 		type => 'standalone'
 	};
 	push @functions, $function;
@@ -151,7 +461,7 @@ sub {
 		arglist => [],
 		args => {},
 		name => "$1.$2",
-		descr => gorolla($5),
+		descr => parse_desc($5),
 		type => 'constructor'
 	};
 	push @{${$class}{constructors}}, $function;
@@ -165,7 +475,7 @@ sub {
 		arglist => [],
 		args => {},
 		name => "$1.$2",
-		descr => gorolla($3),
+		descr => parse_desc($3),
 		type => 'constructor'
 	};
 	push @{${$class}{constructors}}, $function;
@@ -182,7 +492,7 @@ sub {
 		arglist => [],
 		args => {},
 		name => $name,
-		descr => gorolla($5),
+		descr => parse_desc($5),
 		type => 'method'
 	};
 	push @{${$class}{methods}}, $function;
@@ -200,7 +510,7 @@ sub {
 		arglist => [],
 		args => {},
 		name => $name,
-		descr => gorolla($5),
+		descr => parse_desc($5),
 		type => 'metamethod'
 	};
 	push @{${$class}{methods}}, $function;
@@ -211,7 +521,7 @@ sub {
 	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = $1 eq 'OPT' ? "[$3]" : $3;
 	push @{${$function}{arglist}} , $name;
-	${${$function}{args}}{$name} = {descr=>$6,}
+	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($6),}
 } ],
 
 [ '\057\052\s*WSLUA_(OPT)?ARG_([A-Za-z0-9_]+)_([A-Z0-9]+)\s*(.*?)\052\057',
@@ -219,7 +529,7 @@ sub {
 	deb ">a=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = $1 eq 'OPT' ? "[$3]" : $3;
 	push @{${$function}{arglist}} , $name;
-	${${$function}{args}}{$name} = {descr=>$4,}
+	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($4),}
 } ],
 
 [ '#define WSLUA_(OPT)?ARG_([A-Za-z0-9]+)_([a-z_]+)_([A-Z0-9]+)\s+\d+' . $TRAILING_COMMENT_RE,
@@ -227,7 +537,7 @@ sub {
 	deb ">ca=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = $1 eq 'OPT' ? "[$4]" : $4;
 	push @{${$function}{arglist}} , $name;
-	${${$function}{args}}{$name} = {descr=>$7,optional => $1 eq '' ? 1 : 0 }
+	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($7),optional => $1 eq '' ? 1 : 0 }
 } ],
 
 [ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z0-9]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
@@ -236,24 +546,14 @@ sub {
 	my $name = "$1";
 	$name =~ tr/A-Z/a-z/;
 	$name .= ".$2";
-	push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
-} ],
-
-# the following never gets used (WSLUA_ATTR_GET is defunct)
-[ 'WSLUA_ATTR_GET\s+([A-Za-z]+)_([a-z_]+).*?' . $TRAILING_COMMENT_RE,
-sub {
-	deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
-	my $name = "$1";
-	$name =~ tr/A-Z/a-z/;
-	$name .= ".$2";
-	push @{${$class}{attributes}}, { name => $name, descr => gorolla($4), mode=>$3 };
+	push @{${$class}{attributes}}, { name => $name, descr => parse_attrib_desc($4, $3) };
 } ],
 
 [ '/\052\s+WSLUA_MOREARGS\s+([A-Za-z_]+)\s+(.*?)\052/',
 sub {
 	deb ">ma=$1=$2=$3=$4=$5=$6=$7=\n";
 	push @{${$function}{arglist}} , "...";
-	${${$function}{args}}{"..."} = {descr=>gorolla($2)}
+	${${$function}{args}}{"..."} = {descr=>parse_function_arg_desc($2)}
 } ],
 
 [ 'WSLUA_(FINAL_)?RETURN\050\s*.*?\s*\051\s*;' . $TRAILING_COMMENT_RE,
@@ -333,51 +633,48 @@ while ( $file =  shift) {
 
 	$modules{$module{name}} = $docfile;
 
+	print "Generating source XML for: $module{name}\n";
+
 	printf D ${$template_ref}{module_header}, $module{name}, $module{name};
-	if ( exists  ${$template_ref}{module_desc} ) {
-		printf D ${$template_ref}{module_desc}, $module{descr}, $module{descr};
+
+	if ($module{descr} && @{$module{descr}} >= 0) {
+		print_desc($module{descr}, 1);
+	} else {
+		die "did NOT print $module{name} description\n";
 	}
 
 	for my $cname (sort keys %classes) {
 		my $cl = $classes{$cname};
 		printf D ${$template_ref}{class_header}, $cname, $cname;
 
-		if ( ${$cl}{descr} ) {
-			printf D ${$template_ref}{class_desc} , ${$cl}{descr};
+		if (${$cl}{descr} && @{${$cl}{descr}} >= 0) {
+			print_desc(${$cl}{descr}, 2);
+		} else {
+			die "did NOT print $cname description\n";
 		}
 
 		if ( $#{${$cl}{constructors}} >= 0) {
-#			printf D ${$template_ref}{class_constructors_header}, $cname, $cname;
-
 			for my $c (@{${$cl}{constructors}}) {
-				function_descr($c);
+				function_descr($c,3);
 			}
-
-#			printf D ${$template_ref}{class_constructors_footer}, $cname, $cname;
 		}
 
 		if ( $#{${$cl}{methods}} >= 0) {
-#			printf D ${$template_ref}{class_methods_header}, $cname, $cname;
-
 			for my $m (@{${$cl}{methods}}) {
-				function_descr($m);
+				function_descr($m, 3);
 			}
-
-#			printf D ${$template_ref}{class_methods_footer}, $cname, $cname;
 		}
 
 		if ( $#{${$cl}{attributes}} >= 0) {
 			for my $a (@{${$cl}{attributes}}) {
 				my $a_id = ${$a}{name};
 				$a_id =~ s/[^a-zA-Z0-9]/_/g;
-				my $mode = ${$a}{mode};
-				if ($mode) {
-					$mode =~ s/RO/ (read-only)/;
-					$mode =~ s/WO/ (write-only)/;
-					$mode =~ s/RW|WR/ (read\/write)/;
-				}
 				printf D ${$template_ref}{class_attr_header}, $a_id, ${$a}{name};
-				printf D ${$template_ref}{class_attr_descr}, ${$a}{descr}, $mode if ${$a}{mode};
+				if (${$a}{descr} && @{${$a}{descr}} >= 0) {
+					print_desc(${$a}{descr}, 3);
+				} else {
+					die "did not print $a_id description\n";
+				}
 				printf D ${$template_ref}{class_attr_footer}, ${$a}{name}, ${$a}{name};
 
 			}
@@ -390,13 +687,13 @@ while ( $file =  shift) {
 	}
 
 	if ($#functions >= 0) {
-		printf D ${$template_ref}{non_method_functions_header}, $module{name};
+		printf D ${$template_ref}{global_functions_header}, $module{name};
 
 		for my $f (@functions) {
-			function_descr($f);
+			function_descr($f, 3);
 		}
 
-		print D ${$template_ref}{non_method_functions_footer};
+		print D ${$template_ref}{global_functions_footer};
 	}
 
 	%classes = ();
@@ -410,56 +707,29 @@ while ( $file =  shift) {
 	close D;
 }
 
-#my $wsluarm = '';
-#open B, "< template-wsluarm.xml";
-#$wsluarm .= $_ while(<B>);
-#close B;
-#
-#my $ents = '';
-#my $txt = '';
-#
-#for my $module_name (sort keys %modules) {
-#	$ents .= <<"_ENT";
-#	<!ENTITY $module_name SYSTEM "wsluarm_src/$modules{$module_name}">
-#_ENT
-#	$txt .= "&$module_name;\n";
-#}
-#
-#$wsluarm =~ s/<!-- WSLUA_MODULE_ENTITIES -->/$ents/;
-#$wsluarm =~ s/<!-- WSLUA_MODULE_TEXT -->/$txt/;
-#
-#open X, "> wsluarm.xml";
-#print X $wsluarm;
-#close X;
-
 sub function_descr {
 	my $f = $_[0];
-	my $label = $_[1];
+	my $indent = $_[1];
+	my $section_name = 'UNKNOWN';
 
-	if (defined $label ) {
-		$label =~ s/>/&gt;/;
-		$label =~ s/</&lt;/;
-		my $section_name =  ${$f}{section_name};
-		$section_name =~ s/[^a-zA-Z0-9]/_/g;
+	my $arglist = '';
 
-		printf D ${$template_ref}{function_header}, $section_name, $label;
-	} else {
-		my $arglist = '';
-
-		for (@{ ${$f}{arglist} }) {
-			my $a = $_;
-			$a =~ tr/A-Z/a-z/;
-			$arglist .= "$a, ";
-		}
-
-		$arglist =~ s/, $//;
-		my $section_name =  "${$f}{name}($arglist)";
-		$section_name =~ s/[^a-zA-Z0-9]/_/g;
-
-		printf D ${$template_ref}{function_header}, $section_name , "${$f}{name}($arglist)";
+	for (@{ ${$f}{arglist} }) {
+		my $a = $_;
+		$a =~ tr/A-Z/a-z/;
+		$arglist .= "$a, ";
 	}
 
-	printf D ${$template_ref}{function_descr}, ${$f}{descr} if ${$f}{descr};
+	$arglist =~ s/, $//;
+	$section_name =  "${$f}{name}($arglist)";
+	$section_name =~ s/[^a-zA-Z0-9]/_/g;
+
+	printf D ${$template_ref}{function_header}, $section_name , "${$f}{name}($arglist)";
+
+	my @desc = ${$f}{descr};
+	if ($#desc >= 0) {
+		print_desc(@desc, $indent);
+	}
 
 	print D ${$template_ref}{function_args_header} if $#{${$f}{arglist}} >= 0;
 
@@ -469,7 +739,10 @@ sub function_descr {
 		$argname =~ s/\[(.*)\]/$1 (optional)/;
 
 		printf D ${$template_ref}{function_arg_header}, $argname, $argname;
-		printf D ${$template_ref}{function_arg_descr}, ${$arg}{descr} , ${$arg}{descr} if ${$arg}{descr};
+		my @desc = ${$arg}{descr};
+		if ($#desc >= 0) {
+			print_desc(@desc, $indent+2);
+		}
 
 		if ( $#{${$arg}{errors}} >= 0) {
 			printf D ${$template_ref}{function_argerror_header}, $argname, $argname;
@@ -497,10 +770,6 @@ sub function_descr {
 		printf D ${$template_ref}{function_errors_footer}, ${$f}{name};
 	}
 
-	if (not defined $label ) {
-		$label = '';
-	}
-
-	printf D ${$template_ref}{function_footer}, $label, $label;
+	printf D ${$template_ref}{function_footer}, $section_name;
 
 }

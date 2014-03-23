@@ -71,12 +71,12 @@ Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
 #define PUSH_PRIVATE_TABLE(L,c) {g_ptr_array_add(outstanding_PrivateTable,c);pushPrivateTable(L,c);}
 
 WSLUA_CLASS_DEFINE(NSTime,FAIL_ON_NULL("NSTime"),NOP);
-	/* NSTime represents a nstime_t.  This is an object with seconds and nano seconds. */
+	/* NSTime represents a nstime_t.  This is an object with seconds and nanoseconds. */
 
 WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
-	/* Creates a new NSTime object */
-#define WSLUA_OPTARG_NSTime_new_SECONDS 1 /* Seconds */
-#define WSLUA_OPTARG_NSTime_new_NSECONDS 2 /* Nano seconds */
+	/* Creates a new NSTime object. */
+#define WSLUA_OPTARG_NSTime_new_SECONDS 1 /* Seconds. */
+#define WSLUA_OPTARG_NSTime_new_NSECONDS 2 /* Nano seconds. */
     NSTime nstime = (NSTime)g_malloc(sizeof(nstime_t));
 
     if (!nstime) return 0;
@@ -89,9 +89,9 @@ WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
     WSLUA_RETURN(1); /* The new NSTime object. */
 }
 
-WSLUA_METAMETHOD NSTime__call(lua_State* L) { /* Creates a NSTime object */
-#define WSLUA_OPTARG_NSTime__call_SECONDS 1 /* Seconds */
-#define WSLUA_OPTARG_NSTime__call_NSECONDS 2 /* Nano seconds */
+WSLUA_METAMETHOD NSTime__call(lua_State* L) { /* Creates a NSTime object. */
+#define WSLUA_OPTARG_NSTime__call_SECONDS 1 /* Seconds. */
+#define WSLUA_OPTARG_NSTime__call_NSECONDS 2 /* Nanoseconds. */
     lua_remove(L,1); /* remove the table */
     WSLUA_RETURN(NSTime_new(L)); /* The new NSTime object. */
 }
@@ -103,7 +103,7 @@ WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
 
     WSLUA_RETURN(1); /* The string representing the nstime. */
 }
-WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTimes */
+WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
     NSTime time3 = (NSTime)g_malloc (sizeof (nstime_t));
@@ -114,7 +114,7 @@ WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTime
     return 1;
 }
 
-WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTimes */
+WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
     NSTime time3 = (NSTime)g_malloc (sizeof (nstime_t));
@@ -125,7 +125,7 @@ WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTim
     return 1;
 }
 
-WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime */
+WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = (NSTime)g_malloc (sizeof (nstime_t));
 
@@ -136,7 +136,7 @@ WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime *
     return 1;
 }
 
-WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
+WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
     gboolean result = FALSE;
@@ -149,7 +149,7 @@ WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
     return 1;
 }
 
-WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes */
+WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
     gboolean result = FALSE;
@@ -162,7 +162,7 @@ WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes */
     return 1;
 }
 
-WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes */
+WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes. */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
     gboolean result = FALSE;
@@ -176,11 +176,11 @@ WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes */
 }
 
 
-/* WSLUA_ATTRIBUTE NSTime_secs RW The NSTime seconds */
+/* WSLUA_ATTRIBUTE NSTime_secs RW The NSTime seconds. */
 WSLUA_ATTRIBUTE_NUMBER_GETTER(NSTime,secs);
 WSLUA_ATTRIBUTE_NUMBER_SETTER(NSTime,secs,time_t);
 
-/* WSLUA_ATTRIBUTE NSTime_nsecs RW The NSTime nano seconds */
+/* WSLUA_ATTRIBUTE NSTime_nsecs RW The NSTime nano seconds. */
 WSLUA_ATTRIBUTE_NUMBER_GETTER(NSTime,nsecs);
 WSLUA_ATTRIBUTE_NUMBER_SETTER(NSTime,nsecs,int);
 
@@ -227,7 +227,7 @@ int NSTime_register(lua_State* L) {
     return 0;
 }
 
-WSLUA_CLASS_DEFINE(Address,FAIL_ON_NULL("Address"),NOP); /* Represents an address */
+WSLUA_CLASS_DEFINE(Address,FAIL_ON_NULL("Address"),NOP); /* Represents an address. */
 
 WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 	/* Creates an Address Object representing an IP address. */
@@ -243,7 +243,7 @@ WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {
 
     SET_ADDRESS(addr, AT_IPv4, 4, ip_addr);
     pushAddress(L,addr);
-    WSLUA_RETURN(1); /* The Address object */
+    WSLUA_RETURN(1); /* The Address object. */
 }
 
 #if 0
@@ -395,7 +395,7 @@ static int Address__gc(lua_State* L) {
     return 0;
 }
 
-WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses */
+WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses. */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -408,7 +408,7 @@ WSLUA_METAMETHOD Address__eq(lua_State* L) { /* Compares two Addresses */
     return 1;
 }
 
-WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses */
+WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses. */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -421,7 +421,7 @@ WSLUA_METAMETHOD Address__le(lua_State* L) { /* Compares two Addresses */
     return 1;
 }
 
-WSLUA_METAMETHOD Address__lt(lua_State* L) { /* Compares two Addresses */
+WSLUA_METAMETHOD Address__lt(lua_State* L) { /* Compares two Addresses. */
     Address addr1 = checkAddress(L,1);
     Address addr2 = checkAddress(L,2);
     gboolean result = FALSE;
@@ -449,7 +449,7 @@ int Address_register(lua_State *L) {
 }
 
 
-WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL("Column"),NOP); /* A Column in the packet list */
+WSLUA_CLASS_DEFINE(Column,FAIL_ON_NULL("Column"),NOP); /* A Column in the packet list. */
 
 struct col_names_t {
     const gchar* name;
@@ -539,7 +539,7 @@ WSLUA_METAMETHOD Column__tostring(lua_State *L) {
         lua_pushstring(L, text ? text : "(nil)");
     }
 
-    WSLUA_RETURN(1); /* The column's string text (in parenthesis if not available) */
+    WSLUA_RETURN(1); /* The column's string text (in parenthesis if not available). */
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS */
@@ -558,7 +558,7 @@ static int Column__gc(lua_State* L) {
 }
 
 WSLUA_METHOD Column_clear(lua_State *L) {
-	/* Clears a Column */
+	/* Clears a Column. */
     Column c = checkColumn(L,1);
 
     if (!(c->cinfo)) return 0;
@@ -569,8 +569,8 @@ WSLUA_METHOD Column_clear(lua_State *L) {
 }
 
 WSLUA_METHOD Column_set(lua_State *L) {
-	/* Sets the text of a Column */
-#define WSLUA_ARG_Column_set_TEXT 2 /* The text to which to set the Column */
+	/* Sets the text of a Column. */
+#define WSLUA_ARG_Column_set_TEXT 2 /* The text to which to set the Column. */
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_set_TEXT);
 
@@ -588,8 +588,8 @@ WSLUA_METHOD Column_set(lua_State *L) {
 }
 
 WSLUA_METHOD Column_append(lua_State *L) {
-	/* Appends text to a Column */
-#define WSLUA_ARG_Column_append_TEXT 2 /* The text to append to the Column */
+	/* Appends text to a Column. */
+#define WSLUA_ARG_Column_append_TEXT 2 /* The text to append to the Column. */
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_append_TEXT);
 
@@ -607,8 +607,8 @@ WSLUA_METHOD Column_append(lua_State *L) {
 }
 
 WSLUA_METHOD Column_prepend(lua_State *L) {
-	/* Prepends text to a Column */
-#define WSLUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column */
+	/* Prepends text to a Column. */
+#define WSLUA_ARG_Column_prepend_TEXT 2 /* The text to prepend to the Column. */
     Column c = checkColumn(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_Column_prepend_TEXT);
 
@@ -626,7 +626,10 @@ WSLUA_METHOD Column_prepend(lua_State *L) {
 }
 
 WSLUA_METHOD Column_fence(lua_State *L) {
-        /* Sets Column text fence, to prevent overwriting */
+    /* Sets Column text fence, to prevent overwriting.
+
+       @since 1.10.6
+     */
     Column c = checkColumn(L,1);
 
     if (c->cinfo)
@@ -636,7 +639,10 @@ WSLUA_METHOD Column_fence(lua_State *L) {
 }
 
 WSLUA_METHOD Column_clear_fence(lua_State *L) {
-        /* Clear Column text fence */
+    /* Clear Column text fence.
+
+       @since 1.11.3
+     */
     Column c = checkColumn(L,1);
 
     if (c->cinfo)
@@ -670,10 +676,6 @@ int Column_register(lua_State *L) {
 }
 
 
-
-
-
-
 WSLUA_CLASS_DEFINE(Columns,NOP,NOP);
 /* The Columns of the packet list. */
 
@@ -688,9 +690,9 @@ WSLUA_METAMETHOD Columns__tostring(lua_State *L) {
  * API docs to see this metamethod as a method, but oh well.
  */
 WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
-	/* Sets the text of a specific column */
-#define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set */
-#define WSLUA_ARG_Columns__newindex_TEXT 3 /* The text for the column */
+	/* Sets the text of a specific column. */
+#define WSLUA_ARG_Columns__newindex_COLUMN 2 /* The name of the column to set. */
+#define WSLUA_ARG_Columns__newindex_TEXT 3 /* The text for the column. */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname;
@@ -717,7 +719,7 @@ WSLUA_METAMETHOD Columns__newindex(lua_State *L) {
 }
 
 WSLUA_METAMETHOD Columns__index(lua_State *L) {
-    /* Gets a specific Column */
+    /* Gets a specific Column. */
     Columns cols = checkColumns(L,1);
     const struct col_names_t* cn;
     const char* colname = luaL_checkstring(L,2);
@@ -788,7 +790,7 @@ WSLUA_CLASS_DEFINE(PrivateTable,FAIL_ON_NULL_OR_EXPIRED("PrivateTable"),NOP);
 	/* PrivateTable represents the pinfo->private_table. */
 
 WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
-    /* Gets debugging type information about the private table */
+    /* Gets debugging type information about the private table. */
     PrivateTable priv = toPrivateTable(L,1);
     GString *key_string;
     GList *keys, *key;
@@ -815,7 +817,7 @@ WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
 }
 
 static int PrivateTable__index(lua_State* L) {
-	/* Gets the text of a specific entry */
+	/* Gets the text of a specific entry. */
     PrivateTable priv = checkPrivateTable(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const gchar* string;
@@ -832,7 +834,7 @@ static int PrivateTable__index(lua_State* L) {
 }
 
 static int PrivateTable__newindex(lua_State* L) {
-	/* Sets the text of a specific entry */
+	/* Sets the text of a specific entry. */
     PrivateTable priv = checkPrivateTable(L,1);
     const gchar* name = luaL_checkstring(L,2);
     const gchar* string = NULL;
@@ -889,7 +891,7 @@ int PrivateTable_register(lua_State* L) {
 
 
 WSLUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL_OR_EXPIRED("Pinfo"),NOP);
-/* Packet information */
+/* Packet information. */
 
 static int Pinfo__tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
@@ -937,104 +939,104 @@ lua_delta_nstime_to_sec(const Pinfo pinfo, const frame_data *fd, guint32 prev_nu
 }
 
 
-/* WSLUA_ATTRIBUTE Pinfo_visited RO Whether this packet hass been already visited */
+/* WSLUA_ATTRIBUTE Pinfo_visited RO Whether this packet has been already visited. */
 PINFO_NAMED_BOOLEAN_GETTER(visited,fd->flags.visited);
 
-/* WSLUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file */
+/* WSLUA_ATTRIBUTE Pinfo_number RO The number of this packet in the current file. */
 PINFO_NAMED_NUMBER_GETTER(number,fd->num);
 
-/* WSLUA_ATTRIBUTE Pinfo_len  RO The length of the frame */
+/* WSLUA_ATTRIBUTE Pinfo_len  RO The length of the frame. */
 PINFO_NAMED_NUMBER_GETTER(len,fd->pkt_len);
 
-/* WSLUA_ATTRIBUTE Pinfo_caplen RO The captured length of the frame */
+/* WSLUA_ATTRIBUTE Pinfo_caplen RO The captured length of the frame. */
 PINFO_NAMED_NUMBER_GETTER(caplen,fd->cap_len);
 
-/* WSLUA_ATTRIBUTE Pinfo_abs_ts RO When the packet was captured */
+/* WSLUA_ATTRIBUTE Pinfo_abs_ts RO When the packet was captured. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,abs_ts,lua_nstime_to_sec(&obj->ws_pinfo->fd->abs_ts));
 
-/* WSLUA_ATTRIBUTE Pinfo_rel_ts RO Number of seconds passed since beginning of capture */
+/* WSLUA_ATTRIBUTE Pinfo_rel_ts RO Number of seconds passed since beginning of capture. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,rel_ts,lua_nstime_to_sec(&obj->ws_pinfo->rel_ts));
 
-/* WSLUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last captured packet */
+/* WSLUA_ATTRIBUTE Pinfo_delta_ts RO Number of seconds passed since the last captured packet. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->fd->num - 1));
 
-/* WSLUA_ATTRIBUTE Pinfo_delta_dis_ts RO Number of seconds passed since the last displayed packet */
+/* WSLUA_ATTRIBUTE Pinfo_delta_dis_ts RO Number of seconds passed since the last displayed packet. */
 WSLUA_ATTRIBUTE_BLOCK_NUMBER_GETTER(Pinfo,delta_dis_ts,lua_delta_nstime_to_sec(obj, obj->ws_pinfo->fd, obj->ws_pinfo->fd->prev_dis_num));
 
-/* WSLUA_ATTRIBUTE Pinfo_ipproto RO IP Protocol id */
+/* WSLUA_ATTRIBUTE Pinfo_ipproto RO IP Protocol id. */
 PINFO_NUMBER_GETTER(ipproto);
 
-/* WSLUA_ATTRIBUTE Pinfo_circuit_id RW For circuit based protocols */
+/* WSLUA_ATTRIBUTE Pinfo_circuit_id RW For circuit based protocols. */
 PINFO_NUMBER_GETTER(circuit_id);
 PINFO_NUMBER_SETTER(circuit_id,guint32);
 
-/* WSLUA_ATTRIBUTE Pinfo_curr_proto RO Which Protocol are we dissecting */
+/* WSLUA_ATTRIBUTE Pinfo_curr_proto RO Which Protocol are we dissecting. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,curr_proto,ws_pinfo->current_proto);
 
-/* WSLUA_ATTRIBUTE Pinfo_can_desegment RW Set if this segment could be desegmented */
+/* WSLUA_ATTRIBUTE Pinfo_can_desegment RW Set if this segment could be desegmented. */
 PINFO_NUMBER_GETTER(can_desegment);
 PINFO_NUMBER_SETTER(can_desegment,guint16);
 
-/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU */
+/* WSLUA_ATTRIBUTE Pinfo_desegment_len RW Estimated number of additional bytes required for completing the PDU. */
 PINFO_NUMBER_GETTER(desegment_len);
 PINFO_NUMBER_SETTER(desegment_len,guint32);
 
-/* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called*/
+/* WSLUA_ATTRIBUTE Pinfo_desegment_offset RW Offset in the tvbuff at which the dissector will continue processing when next called. */
 PINFO_NUMBER_GETTER(desegment_offset);
 PINFO_NUMBER_SETTER(desegment_offset,int);
 
-/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data */
+/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data. */
 WSLUA_ATTRIBUTE_GET(Pinfo,private_data, {lua_pushlightuserdata(L,(void *)(obj->ws_pinfo->private_data));});
 
-/* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment */
+/* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment. */
 PINFO_NAMED_BOOLEAN_GETTER(fragmented,fragmented);
 
-/* WSLUA_ATTRIBUTE Pinfo_in_error_pkt RO If we're inside an error packet */
+/* WSLUA_ATTRIBUTE Pinfo_in_error_pkt RO If we're inside an error packet. */
 PINFO_NAMED_BOOLEAN_GETTER(in_error_pkt,flags.in_error_pkt);
 
-/* WSLUA_ATTRIBUTE Pinfo_match_uint RO Matched uint for calling subdissector from table */
+/* WSLUA_ATTRIBUTE Pinfo_match_uint RO Matched uint for calling subdissector from table. */
 PINFO_NUMBER_GETTER(match_uint);
 
-/* WSLUA_ATTRIBUTE Pinfo_match_string RO Matched string for calling subdissector from table */
+/* WSLUA_ATTRIBUTE Pinfo_match_string RO Matched string for calling subdissector from table. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(Pinfo,match_string,ws_pinfo->match_string);
 
-/* WSLUA_ATTRIBUTE Pinfo_port_type RW Type of Port of .src_port and .dst_port */
+/* WSLUA_ATTRIBUTE Pinfo_port_type RW Type of Port of .src_port and .dst_port. */
 PINFO_NAMED_NUMBER_GETTER(port_type,ptype);
 
-/* WSLUA_ATTRIBUTE Pinfo_src_port RW Source Port of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_src_port RW Source Port of this Packet. */
 PINFO_NAMED_NUMBER_GETTER(src_port,srcport);
 PINFO_NAMED_NUMBER_SETTER(src_port,srcport,guint32);
 
-/* WSLUA_ATTRIBUTE Pinfo_dst_port RW Source Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_dst_port RW Source Address of this Packet. */
 PINFO_NAMED_NUMBER_GETTER(dst_port,destport);
 PINFO_NAMED_NUMBER_SETTER(dst_port,destport,guint32);
 
-/* WSLUA_ATTRIBUTE Pinfo_dl_src RW Data Link Source Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_dl_src RW Data Link Source Address of this Packet. */
 PINFO_ADDRESS_GETTER(dl_src);
 PINFO_ADDRESS_SETTER(dl_src);
 
-/* WSLUA_ATTRIBUTE Pinfo_dl_dst RW Data Link Destination Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_dl_dst RW Data Link Destination Address of this Packet. */
 PINFO_ADDRESS_GETTER(dl_dst);
 PINFO_ADDRESS_SETTER(dl_dst);
 
-/* WSLUA_ATTRIBUTE Pinfo_net_src RW Network Layer Source Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_net_src RW Network Layer Source Address of this Packet. */
 PINFO_ADDRESS_GETTER(net_src);
 PINFO_ADDRESS_SETTER(net_src);
 
-/* WSLUA_ATTRIBUTE Pinfo_net_dst RW Network Layer Destination Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_net_dst RW Network Layer Destination Address of this Packet. */
 PINFO_ADDRESS_GETTER(net_dst);
 PINFO_ADDRESS_SETTER(net_dst);
 
-/* WSLUA_ATTRIBUTE Pinfo_src RW Source Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_src RW Source Address of this Packet. */
 PINFO_ADDRESS_GETTER(src);
 PINFO_ADDRESS_SETTER(src);
 
-/* WSLUA_ATTRIBUTE Pinfo_dst RW Destination Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_dst RW Destination Address of this Packet. */
 PINFO_ADDRESS_GETTER(dst);
 PINFO_ADDRESS_SETTER(dst);
 
 
-/* WSLUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching */
+/* WSLUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching. */
 static int Pinfo_get_match(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
 
@@ -1047,8 +1049,8 @@ static int Pinfo_get_match(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns */
-/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.columns) */
+/* WSLUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns. */
+/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.columns). */
 static int Pinfo_get_columns(lua_State *L) {
     Columns cols = NULL;
     Pinfo pinfo = checkPinfo(L,1);
@@ -1069,7 +1071,7 @@ static int Pinfo_get_columns(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_private RO Access to the private table entries */
+/* WSLUA_ATTRIBUTE Pinfo_private RO Access to the private table entries. */
 static int Pinfo_get_private(lua_State *L) {
     PrivateTable priv = NULL;
     Pinfo pinfo = checkPinfo(L,1);
@@ -1097,7 +1099,7 @@ static int Pinfo_get_private(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_hi RW higher Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_hi RW higher Address of this Packet. */
 static int Pinfo_get_hi(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Address addr;
@@ -1113,7 +1115,7 @@ static int Pinfo_get_hi(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_lo RO lower Address of this Packet */
+/* WSLUA_ATTRIBUTE Pinfo_lo RO lower Address of this Packet. */
 static int Pinfo_get_lo(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Address addr;
@@ -1129,7 +1131,7 @@ static int Pinfo_get_lo(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_conversation WO sets the packet conversation to the given Proto object */
+/* WSLUA_ATTRIBUTE Pinfo_conversation WO sets the packet conversation to the given Proto object. */
 static int Pinfo_set_conversation(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
     Proto proto = checkProto(L,2);

@@ -74,21 +74,21 @@ static void lua_menu_callback(gpointer data) {
 }
 
 WSLUA_FUNCTION wslua_register_menu(lua_State* L) { /*  Register a menu item in one of the main menus. */
-#define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '/'s. (string) */
+#define WSLUA_ARG_register_menu_NAME 1 /* The name of the menu item. The submenus are to be separated by '`/`'s. (string) */
 #define WSLUA_ARG_register_menu_ACTION 2 /* The function to be called when the menu item is invoked. (function taking no arguments and returning nothing)  */
 #define WSLUA_OPTARG_register_menu_GROUP 3 /* The menu group into which the menu item is to be inserted. If omitted, defaults to MENU_STAT_GENERIC. One of:
-                                              MENU_STAT_UNSORTED (Statistics),
-                                              MENU_STAT_GENERIC (Statistics, first section),
-                                              MENU_STAT_CONVERSATION (Statistics/Conversation List),
-                                              MENU_STAT_ENDPOINT (Statistics/Endpoint List),
-                                              MENU_STAT_RESPONSE (Statistics/Service Response Time),
-                                              MENU_STAT_TELEPHONY (Telephony),
-                                              MENU_STAT_TELEPHONY_GSM (Telephony/GSM),
-                                              MENU_STAT_TELEPHONY_LTE (Telephony/LTE),
-                                              MENU_STAT_TELEPHONY_SCTP (Telephony/SCTP),
-                                              MENU_ANALYZE (Analyze),
-                                              MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter),
-                                              MENU_TOOLS_UNSORTED (Tools). (number) */
+                                              * MENU_STAT_UNSORTED (Statistics),
+                                              * MENU_STAT_GENERIC (Statistics, first section),
+                                              * MENU_STAT_CONVERSATION (Statistics/Conversation List),
+                                              * MENU_STAT_ENDPOINT (Statistics/Endpoint List),
+                                              * MENU_STAT_RESPONSE (Statistics/Service Response Time),
+                                              * MENU_STAT_TELEPHONY (Telephony),
+                                              * MENU_STAT_TELEPHONY_GSM (Telephony/GSM),
+                                              * MENU_STAT_TELEPHONY_LTE (Telephony/LTE),
+                                              * MENU_STAT_TELEPHONY_SCTP (Telephony/SCTP),
+                                              * MENU_ANALYZE (Analyze),
+                                              * MENU_ANALYZE_CONVERSATION (Analyze/Conversation Filter),
+                                              * MENU_TOOLS_UNSORTED (Tools). (number) */
 
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_register_menu_NAME);
     struct _lua_menu_data* md;
@@ -220,8 +220,8 @@ static void text_win_close_cb(void* data) {
 
 WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 #define WSLUA_ARG_new_dialog_TITLE 1 /* Title of the dialog's window. */
-#define WSLUA_ARG_new_dialog_ACTION 2 /* Action to be performed when OKd. */
-/* WSLUA_MOREARGS new_dialog A series of strings to be used as labels of the dialog's fields */
+#define WSLUA_ARG_new_dialog_ACTION 2 /* Action to be performed when OK'd. */
+/* WSLUA_MOREARGS new_dialog A series of strings to be used as labels of the dialog's fields. */
 
     const gchar* title;
     int top = lua_gettop(L);
@@ -293,7 +293,7 @@ WSLUA_FUNCTION wslua_new_dialog(lua_State* L) { /* Pops up a new dialog */
 
 WSLUA_CLASS_DEFINE(ProgDlg,FAIL_ON_NULL("ProgDlg"),NOP); /* Manages a progress bar dialog. */
 
-WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
+WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new `ProgDlg` progress dialog. */
 #define WSLUA_OPTARG_ProgDlg_new_TITLE 2 /* Title of the new window, defaults to "Progress". */
 #define WSLUA_OPTARG_ProgDlg_new_TASK 3  /* Current task, defaults to "". */
     ProgDlg pd = (ProgDlg)g_malloc(sizeof(struct _wslua_progdlg));
@@ -310,10 +310,10 @@ WSLUA_CONSTRUCTOR ProgDlg_new(lua_State* L) { /* Creates a new TextWindow. */
 
     pushProgDlg(L,pd);
 
-    WSLUA_RETURN(1); /* The newly created TextWindow object. */
+    WSLUA_RETURN(1); /* The newly created `ProgDlg` object. */
 }
 
-WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
+WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text. */
 #define WSLUA_ARG_ProgDlg_update_PROGRESS 2  /* Part done ( e.g. 0.75 ). */
 #define WSLUA_OPTARG_ProgDlg_update_TASK 3  /* Current task, defaults to "". */
     ProgDlg pd = checkProgDlg(L,1);
@@ -343,7 +343,7 @@ WSLUA_METHOD ProgDlg_update(lua_State* L) { /* Appends text */
     return 0;
 }
 
-WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has pressed the stop button.  */
+WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks whether the user has pressed the stop button.  */
     ProgDlg pd = checkProgDlg(L,1);
 
     lua_pushboolean(L,pd->stopped);
@@ -353,7 +353,7 @@ WSLUA_METHOD ProgDlg_stopped(lua_State* L) { /* Checks wheher the user has press
 
 
 
-WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Appends text */
+WSLUA_METHOD ProgDlg_close(lua_State* L) { /* Closes the progress dialog. */
     ProgDlg pd = checkProgDlg(L,1);
 
     if (!ops->destroy_progress_window) {
@@ -425,7 +425,7 @@ WSLUA_CLASS_DEFINE(TextWindow,FAIL_ON_NULL_OR_EXPIRED("TextWindow"),NOP); /* Man
 /* XXX: lua callback function and TextWindow are not garbage collected because
    they stay in LUA_REGISTRYINDEX forever */
 
-WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
+WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new `TextWindow` text window. */
 #define WSLUA_OPTARG_TextWindow_new_TITLE 1 /* Title of the new window. */
 
     const gchar* title;
@@ -452,11 +452,11 @@ WSLUA_CONSTRUCTOR TextWindow_new(lua_State* L) { /* Creates a new TextWindow. */
 
     pushTextWindow(L,tw);
 
-    WSLUA_RETURN(1); /* The newly created TextWindow object. */
+    WSLUA_RETURN(1); /* The newly created `TextWindow` object. */
 }
 
-WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that will be called when the window closes */
-#define WSLUA_ARG_TextWindow_at_close_ACTION 2 /* A function to be executed when the user closes the window */
+WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that will be called when the text window closes. */
+#define WSLUA_ARG_TextWindow_at_close_ACTION 2 /* A Lua function to be executed when the user closes the text window. */
 
     TextWindow tw = checkTextWindow(L,1);
     struct _close_cb_data* cbd;
@@ -481,7 +481,8 @@ WSLUA_METHOD TextWindow_set_atclose(lua_State* L) { /* Set the function that wil
 
     ops->set_close_cb(tw->ws_tw,text_win_close_cb,cbd);
 
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    /* XXX: this is a bad way to do this - should copy the object on to the stack first */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
 WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
@@ -502,7 +503,8 @@ WSLUA_METHOD TextWindow_set(lua_State* L) { /* Sets the text. */
 
     ops->set_text(tw->ws_tw,text);
 
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    /* XXX: this is a bad way to do this - should copy the object on to the stack first */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
 WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
@@ -522,7 +524,8 @@ WSLUA_METHOD TextWindow_append(lua_State* L) { /* Appends text */
 
     ops->append_text(tw->ws_tw,text);
 
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    /* XXX: this is a bad way to do this - should copy the object on to the stack first */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
 WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
@@ -542,7 +545,8 @@ WSLUA_METHOD TextWindow_prepend(lua_State* L) { /* Prepends text */
 
     ops->prepend_text(tw->ws_tw,text);
 
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    /* XXX: this is a bad way to do this - should copy the object on to the stack first */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
 WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. */
@@ -555,6 +559,7 @@ WSLUA_METHOD TextWindow_clear(lua_State* L) { /* Erases all text in the window. 
 
     ops->clear_text(tw->ws_tw);
 
+    /* XXX: this is a bad way to do this - should copy the object on to the stack first */
     WSLUA_RETURN(1); /* The TextWindow object. */
 }
 
@@ -570,7 +575,7 @@ WSLUA_METHOD TextWindow_get_text(lua_State* L) { /* Get the text of the window *
     text = ops->get_text(tw->ws_tw);
 
     lua_pushstring(L,text);
-    WSLUA_RETURN(1); /* The TextWindow's text. */
+    WSLUA_RETURN(1); /* The `TextWindow`'s text. */
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
@@ -592,8 +597,8 @@ static int TextWindow__gc(lua_State* L) {
     return 0;
 }
 
-WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editable */
-#define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true */
+WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this text window editable. */
+#define WSLUA_OPTARG_TextWindow_set_editable_EDITABLE 2 /* A boolean flag, defaults to true. */
 
     TextWindow tw = checkTextWindow(L,1);
     gboolean editable = wslua_optbool(L,WSLUA_OPTARG_TextWindow_set_editable_EDITABLE,TRUE);
@@ -605,7 +610,7 @@ WSLUA_METHOD TextWindow_set_editable(lua_State* L) { /* Make this window editabl
 
     ops->set_editable(tw->ws_tw,editable);
 
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
 typedef struct _wslua_bt_cb_t {
@@ -642,8 +647,9 @@ static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
 }
 
 WSLUA_METHOD TextWindow_add_button(lua_State* L) {
+    /* Adds a button to the text window. */
 #define WSLUA_ARG_TextWindow_add_button_LABEL 2 /* The label of the button */
-#define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The function to be called when clicked */
+#define WSLUA_ARG_TextWindow_add_button_FUNCTION 3 /* The Lua function to be called when clicked */
     TextWindow tw = checkTextWindow(L,1);
     const gchar* label = luaL_checkstring(L,WSLUA_ARG_TextWindow_add_button_LABEL);
 
@@ -679,7 +685,7 @@ WSLUA_METHOD TextWindow_add_button(lua_State* L) {
         ops->add_button(tw->ws_tw,fbt,label);
     }
 
-    WSLUA_RETURN(1); /* The TextWindow object. */
+    WSLUA_RETURN(1); /* The `TextWindow` object. */
 }
 
 WSLUA_METHODS TextWindow_methods[] = {
@@ -725,7 +731,7 @@ WSLUA_FUNCTION wslua_retap_packets(lua_State* L) {
 }
 
 
-WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the clipboard */
+WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the clipboard. */
 #define WSLUA_ARG_copy_to_clipboard_TEXT 1 /* The string to be copied into the clipboard. */
     const char* copied_str = luaL_checkstring(L,WSLUA_ARG_copy_to_clipboard_TEXT);
     GString* gstr;
@@ -748,7 +754,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
     return 0;
 }
 
-WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file */
+WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file. */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
 #define WSLUA_ARG_open_capture_file_FILTER 2 /* A filter to be applied as the file gets opened. */
 
@@ -781,7 +787,7 @@ WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a cap
     }
 }
 
-WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /* Get the main filter text */
+WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /* Get the main filter text. */
     const char *filter_str = NULL;
 
     if (!ops->get_filter) {
@@ -795,7 +801,7 @@ WSLUA_FUNCTION wslua_get_filter(lua_State* L) { /* Get the main filter text */
     return 1;
 }
 
-WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
+WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
 #define WSLUA_ARG_set_filter_TEXT 1 /* The filter's text. */
     const char* filter_str = luaL_checkstring(L,WSLUA_ARG_set_filter_TEXT);
 
@@ -814,9 +820,9 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text */
     return 0;
 }
 
-WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-coloring rule for the current session */
-#define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The index of the desired color in the temporary coloring rules list */
-#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Display filter for selecting packets to be colorized */
+WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-coloring rule for the current session. */
+#define WSLUA_ARG_set_color_filter_slot_ROW 1 /* The index of the desired color in the temporary coloring rules list. */
+#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* Display filter for selecting packets to be colorized. */
     guint8 row = luaL_checkint(L,WSLUA_ARG_set_color_filter_slot_ROW);
     const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);
 
@@ -835,7 +841,7 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /* Set packet-colorin
     return 0;
 }
 
-WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box */
+WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the main filter box. */
     if (!ops->apply_filter) {
         WSLUA_ERROR(apply_filter, "GUI not available");
         return 0;
@@ -847,7 +853,7 @@ WSLUA_FUNCTION wslua_apply_filter(lua_State* L) { /* Apply the filter in the mai
 }
 
 
-WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file */
+WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file. */
 
     if (!ops->reload) {
         WSLUA_ERROR(reload, "GUI not available");
@@ -860,7 +866,7 @@ WSLUA_FUNCTION wslua_reload(lua_State* L) { /* Reload the current capture file *
 }
 
 
-WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browser */
+WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browser. */
 #define WSLUA_ARG_browser_open_url_URL 1 /* The url. */
     const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
 
@@ -879,8 +885,8 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browse
     return 0;
 }
 
-WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open an file in a browser */
-#define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The url. */
+WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open a file in a browser. */
+#define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The file name. */
     const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 
     if (!ops->browser_open_data_file) {
@@ -897,6 +903,3 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open an file in a
 
     return 0;
 }
-
-
-

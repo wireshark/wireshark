@@ -28,7 +28,15 @@
 
 #include <epan/emem.h>
 
-/* WSLUA_MODULE Dumper Saving capture files */
+/* WSLUA_MODULE Dumper Saving capture files
+
+   The classes/functions defined in this module are for using a `Dumper` object to
+   make Wireshark save a capture file to disk. `Dumper` represents Wireshark's built-in
+   file format writers (see the `wtap_filetypes` table in `init.lua`).
+
+   To have a Lua script create its own file format writer, see the chapter titled
+   "Custom file format reading/writing".
+*/
 
 #include "wslua.h"
 #include <math.h>
@@ -76,7 +84,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_none(lua_State* L) {
 
 WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
     /*
-     Creates an ethernet pseudoheader
+     Creates an ethernet pseudoheader.
      */
 
 #define WSLUA_OPTARG_PseudoHeader_eth_FCSLEN 1 /* The fcs length */
@@ -93,7 +101,7 @@ WSLUA_CONSTRUCTOR PseudoHeader_eth(lua_State* L) {
 
 WSLUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
     /*
-     Creates an ATM pseudoheader
+     Creates an ATM pseudoheader.
      */
 #define WSLUA_OPTARG_PseudoHeader_atm_AAL 1 /* AAL number */
 #define WSLUA_OPTARG_PseudoHeader_atm_VPI 2 /* VPI */
@@ -120,10 +128,10 @@ WSLUA_CONSTRUCTOR PseudoHeader_atm(lua_State* L) {
 }
 
 WSLUA_CONSTRUCTOR PseudoHeader_mtp2(lua_State* L) {
-    /* Creates an MTP2 PseudoHeader */
+    /* Creates an MTP2 PseudoHeader. */
 #define WSLUA_OPTARG_PseudoHeader_mtp2_SENT 1 /* True if the packet is sent, False if received. */
-#define WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA 2 /* True if annex A is used  */
-#define WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM 3 /* Link Number */
+#define WSLUA_OPTARG_PseudoHeader_mtp2_ANNEXA 2 /* True if annex A is used.  */
+#define WSLUA_OPTARG_PseudoHeader_mtp2_LINKNUM 3 /* Link Number. */
     PseudoHeader ph = (PseudoHeader)g_malloc(sizeof(struct lua_pseudo_header));
     ph->type = PHDR_MTP2;
     ph->wph = (union wtap_pseudo_header *)g_malloc(sizeof(union wtap_pseudo_header));
@@ -198,11 +206,11 @@ static const char* cross_plat_fname(const char* fname) {
 WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     /*
      Creates a file to write packets.
-     Dumper:new_for_current() will probably be a better choice.
+     `Dumper:new_for_current()` will probably be a better choice.
     */
-#define WSLUA_ARG_Dumper_new_FILENAME 1 /* The name of the capture file to be created */
-#define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created */
-#define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created */
+#define WSLUA_ARG_Dumper_new_FILENAME 1 /* The name of the capture file to be created. */
+#define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created - a number entry from the `wtap_filetypes` table in `init.lua`. */
+#define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created - a number entry from the `wtap_encaps` table in `init.lua`. */
     Dumper d;
     const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
     int filetype = luaL_optint(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
@@ -247,7 +255,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 }
 
 WSLUA_METHOD Dumper_close(lua_State* L) {
-    /* Closes a dumper */
+    /* Closes a dumper. */
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
 
@@ -287,8 +295,8 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
      Dumps an arbitrary packet.
      Note: Dumper:dump_current() will fit best in most cases.
      */
-#define WSLUA_ARG_Dumper_dump_TIMESTAMP 2 /* The absolute timestamp the packet will have */
-#define WSLUA_ARG_Dumper_dump_PSEUDOHEADER 3 /* The Pseudoheader to use. */
+#define WSLUA_ARG_Dumper_dump_TIMESTAMP 2 /* The absolute timestamp the packet will have. */
+#define WSLUA_ARG_Dumper_dump_PSEUDOHEADER 3 /* The `PseudoHeader` to use. */
 #define WSLUA_ARG_Dumper_dump_BYTEARRAY 4 /* the data to be saved */
 
     Dumper d = checkDumper(L,1);
@@ -339,7 +347,7 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
 
 WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     /*
-     Creates a capture file using the same encapsulation as the one of the cuurrent packet
+     Creates a capture file using the same encapsulation as the one of the current packet.
      */
 #define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
     Dumper d;

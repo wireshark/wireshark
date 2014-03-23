@@ -38,40 +38,62 @@
 
 #define MAX_LINE_LENGTH            65536
 
-/* WSLUA_MODULE File Custom file format reading/writing */
+/* WSLUA_MODULE File Custom file format reading/writing
+
+   The classes/functions defined in this section allow you to create your own
+   custom Lua-based "capture" file reader, or writer, or both.
+
+   @since 1.11.3
+ */
 
 
 WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"),NOP);
 /*
-    A File object, passed into Lua as an argument by FileHandler callback
-    functions (e.g., read_open, read, write, etc.).  This behaves similarly to the
-    Lua 'io' library's 'file' object, returned when calling io.open(), *except*
-    in this case you cannot call file:close(), file:open(), nor file:setvbuf(),
+    A `File` object, passed into Lua as an argument by FileHandler callback
+    functions (e.g., `read_open`, `read`, `write`, etc.).  This behaves similarly to the
+    Lua `io` library's `file` object, returned when calling `io.open()`, *except*
+    in this case you cannot call `file:close()`, `file:open()`, nor `file:setvbuf()`,
     since Wireshark/tshark manages the opening and closing of files.
-    You also cannot use the 'io' library itself on this object, i.e. you cannot
-    do io.read(file, 4).  Instead, use this File with the object-oriented style
-    calling its methods, i.e. myfile:read(4).
+    You also cannot use the '`io`' library itself on this object, i.e. you cannot
+    do `io.read(file, 4)`.  Instead, use this `File` with the object-oriented style
+    calling its methods, i.e. `myfile:read(4)`. (see later example)
 
-    </para><para>
     The purpose of this object is to hide the internal complexity of how Wireshark
     handles files, and instead provide a Lua interface that is familiar, by mimicking
-    the io library. The reason true/raw io files cannot be used is because Wireshark
-    does many things under the hood, such as compress the file, or write to stdout,
+    the `io` library. The reason true/raw `io` files cannot be used is because Wireshark
+    does many things under the hood, such as compress the file, or write to `stdout`,
     or various other things based on configuration/commands.
 
-    </para><para>
-    When a File object is passed in through reading-based callback functions, such as
-    read_open(), read(), and read_close(), then the File object's write() and flush()
+    When a `File` object is passed in through reading-based callback functions, such as
+    `read_open()`, `read()`, and `read_close()`, then the File object's `write()` and `flush()`
     functions are not usable and will raise an error if used.
 
-    </para><para>
-    When a File object is passed in through writing-based callback functions, such as
-    write_open(), write(), and write_close(), then the File object's read() and lines()
+    When a `File` object is passed in through writing-based callback functions, such as
+    `write_open()`, `write()`, and `write_close()`, then the File object's `read()` and `lines()`
     functions are not usable and will raise an error if used.
 
-    </para><para>
-    Note: a File object should never be stored/saved beyond the scope of the callback function
+    Note: a `File` object should never be stored/saved beyond the scope of the callback function
     it is passed in to.
+
+    For example:
+    @code
+    function myfilehandler.read_open(file, capture)
+        local position = file:seek()
+
+        -- read 24 bytes
+        local line = file:read(24)
+
+        -- do stuff
+
+        -- it's not our file type, seek back (unnecessary but just to show it...)
+        file:seek("set",position)
+
+        -- return false because it's not our file type
+        return false
+    end
+    @endcode
+
+   @since 1.11.3
  */
 
 
@@ -182,7 +204,7 @@ static int File_read_line(lua_State *L, FILE_T ft) {
     return 1;
 }
 
-/* This internal function reads X number of btyes form the file, same as io.read(num) in Lua.
+/* This internal function reads X number of bytes from the file, same as `io.read(num)` in Lua.
  * Since we have to use file_wrappers.c, and an intermediate buffer, we read it in chunks
  * of 1024 bytes at a time. (or less if called with a smaller number)  To do that, we use
  * Lua's buffer manager to push it into Lua as those chunks, while ending up with one long
@@ -248,7 +270,7 @@ static int pushresult (lua_State *L, int i, const char *filename) {
 }
 
 WSLUA_METHOD File_read(lua_State* L) {
-    /* Reads from the File, similar to Lua's file:read().  See Lua 5.x ref manual for file:read(). */
+    /* Reads from the File, similar to Lua's `file:read()`.  See Lua 5.x ref manual for `file:read()`. */
     File f = shiftFile(L,1);
     int nargs = lua_gettop(L);
     int success;
@@ -316,7 +338,7 @@ WSLUA_METHOD File_read(lua_State* L) {
 }
 
 WSLUA_METHOD File_seek(lua_State* L) {
-    /* Seeks in the File, similar to Lua's file:seek().  See Lua 5.x ref manual for file:seek(). */
+    /* Seeks in the File, similar to Lua's `file:seek()`.  See Lua 5.x ref manual for `file:seek()`. */
     static const int mode[] = { SEEK_SET, SEEK_CUR, SEEK_END };
     static const char *const modenames[] = {"set", "cur", "end", NULL};
     File f = checkFile(L,1);
@@ -375,7 +397,7 @@ static int File_lines_iterator(lua_State* L) {
 }
 
 WSLUA_METHOD File_lines(lua_State* L) {
-    /* Lua iterator function for retrieving ascii File lines, similar to Lua's file:lines().  See Lua 5.x ref manual for file:lines(). */
+    /* Lua iterator function for retrieving ASCII File lines, similar to Lua's `file:lines()`.  See Lua 5.x ref manual for `file:lines()`. */
     File f = checkFile(L,1);
     FILE_T ft = NULL;
 
@@ -453,8 +475,9 @@ static int File__gc(lua_State* L _U_) {
 }
 
 /* WSLUA_ATTRIBUTE File_compressed RO Whether the File is compressed or not.
-    See 'wtap_encaps' in init.lua for available types.  Set to 'wtap_encaps.PER_PACKET' if packets can
-    have different types, then later set 'FrameInfo.encap' for each packet during read()/seek_read(). */
+
+    See `wtap_encaps` in init.lua for available types.  Set to `wtap_encaps.PER_PACKET` if packets can
+    have different types, then later set `FrameInfo.encap` for each packet during read()/seek_read(). */
 static int File_get_compressed(lua_State* L) {
     File f = checkFile(L,1);
 
@@ -662,16 +685,17 @@ static void remove_wdh_priv(lua_State* L, wtap_dumper *wdh) {
 
 WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth),NOP);
 /*
-    A CaptureInfo object, passed into Lua as an argument by FileHandler callback
-    function read_open(), read(), seek_read(), seq_read_close(), and read_close().
+    A `CaptureInfo` object, passed into Lua as an argument by `FileHandler` callback
+    function `read_open()`, `read()`, `seek_read()`, `seq_read_close()`, and `read_close()`.
     This object represents capture file data and meta-data (data about the
     capture file) being read into Wireshark/Tshark.
 
-    </para><para>
     This object's fields can be written-to by Lua during the read-based function callbacks.
-    In other words, when the Lua plugin's FileHandler read_open() function is invoked, a
-    CaptureInfo object will be passed in as one of the arguments, and its fields
+    In other words, when the Lua plugin's `FileHandler.read_open()` function is invoked, a
+    `CaptureInfo` object will be passed in as one of the arguments, and its fields
     should be written to by your Lua code to tell Wireshark about the capture.
+
+    @since 1.11.3
  */
 
 static CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time) {
@@ -714,52 +738,58 @@ static int CaptureInfo__gc(lua_State* L _U_) {
 }
 
 /* WSLUA_ATTRIBUTE CaptureInfo_encap RW The packet encapsulation type for the whole file.
-    See 'wtap_encaps' in init.lua for available types.  Set to 'wtap_encaps.PER_PACKET' if packets can
-    have different types, then later set 'FrameInfo.encap' for each packet during read()/seek_read(). */
+
+    See `wtap_encaps` in `init.lua` for available types.  Set to `wtap_encaps.PER_PACKET` if packets can
+    have different types, then later set `FrameInfo.encap` for each packet during `read()`/`seek_read()`.
+ */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,encap,wth->file_encap);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,encap,wth->file_encap,int);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_time_precision RW The precision of the packet timestamps in the file.
-    See 'wtap_file_tsprec' in init.lua for available precisions. */
+
+    See `wtap_file_tsprec` in `init.lua` for available precisions.
+ */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,time_precision,wth->tsprecision);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wth->tsprecision,int);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_snapshot_length RW The maximum packet length that could be recorded.
-    Setting it to 0 means unknown.  Wireshark cannot handle anything bigger than 65535 bytes. */
+
+    Setting it to `0` means unknown.  Wireshark cannot handle anything bigger than 65535 bytes.
+ */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,snapshot_length,wth->snapshot_length);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_length,guint);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_comment RW A string comment for the whole capture file,
-    or nil if there is no comment. */
+    or nil if there is no `comment`. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,comment,wth->shb_hdr.opt_comment);
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,comment,wth->shb_hdr.opt_comment,TRUE);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_hardware RW A string containing the description of
-    the hardware used to create the capture, or nil if there is no hardware string. */
+    the hardware used to create the capture, or nil if there is no `hardware` string. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,hardware,wth->shb_hdr.shb_hardware);
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,hardware,wth->shb_hdr.shb_hardware,TRUE);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_os RW A string containing the name of
-    the operating system used to create the capture, or nil if there is no os string. */
+    the operating system used to create the capture, or nil if there is no `os` string. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,os,wth->shb_hdr.shb_os);
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,os,wth->shb_hdr.shb_os,TRUE);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_user_app RW A string containing the name of
-    the application used to create the capture, or nil if there is no user_app string. */
+    the application used to create the capture, or nil if there is no `user_app` string. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_appl);
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_appl,TRUE);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_hosts WO Sets resolved ip-to-hostname information.
-    The value set must be a Lua table of two key-ed names: 'ipv4_addresses' and 'ipv6_addresses'.
+
+    The value set must be a Lua table of two key-ed names: `ipv4_addresses` and `ipv6_addresses`.
     The value of each of these names are themselves array tables, of key-ed tables, such that the inner table has a key
-    'addr' set to the raw 4-byte or 16-byte IP address Lua string and a 'name' set to the resolved name.
+    `addr` set to the raw 4-byte or 16-byte IP address Lua string and a `name` set to the resolved name.
 
-    </para><para>
-    For example, if the capture file identifies one resolved IPv4 address of 1.2.3.4 to 'foo.com', then you must set
-    CaptureInfo.hosts to a table of { ipv4_addresses = { { addr = '\01\02\03\04', name = 'foo.com' } } }.
+    For example, if the capture file identifies one resolved IPv4 address of 1.2.3.4 to `foo.com`, then you must set
+    `CaptureInfo.hosts` to a table of:
+    @code { ipv4_addresses = { { addr = "\01\02\03\04", name = "foo.com" } } } @endcode
 
-    </para><para>
-    Note that either the 'ipv4_addresses' or the 'ipv6_addresses' table, or both, may be empty or nil.
+    Note that either the `ipv4_addresses` or the `ipv6_addresses` table, or both, may be empty or nil.
     */
 static int CaptureInfo_set_hosts(lua_State* L) {
     CaptureInfo fi = checkCaptureInfo(L,1);
@@ -870,21 +900,19 @@ static int CaptureInfo_set_hosts(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE CaptureInfo_private_table RW A private Lua value unique to this file.
 
-    </para><para>
-    The private_table is a field you set/get with your own Lua table.
+    The `private_table` is a field you set/get with your own Lua table.
     This is provided so that a Lua script can save per-file reading/writing
     state, because multiple files can be opened and read at the same time.
 
-    </para><para>
     For example, if the user issued a reload-file command, or Lua called the
-    reload() function, then the current capture file is still open while a new one
-    is being opened, and thus Wireshark will invoke read_open() while the previous
-    capture file has not caused read_close() to be called; and if the read_open()
-    succeeds then read_close() will be called right after that for the previous
+    `reload()` function, then the current capture file is still open while a new one
+    is being opened, and thus Wireshark will invoke `read_open()` while the previous
+    capture file has not caused `read_close()` to be called; and if the `read_open()`
+    succeeds then `read_close()` will be called right after that for the previous
     file, rather than the one just opened. Thus the Lua script can use this
-    private_table to store a table of values specific to each file, by setting
-    this private_table in the read_open() function, which it can then later get back
-    inside its read(), seek_read(), and read_close() functions.
+    `private_table` to store a table of values specific to each file, by setting
+    this `private_table` in the `read_open()` function, which it can then later get back
+    inside its `read()`, `seek_read()`, and `read_close()` functions.
 */
 static int CaptureInfo_get_private_table(lua_State* L) {
     CaptureInfo fi = checkCaptureInfo(L,1);
@@ -923,16 +951,18 @@ int CaptureInfo_register(lua_State* L) {
 
 WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfoConst",wdh),NOP);
 /*
-    A CaptureInfoConst object, passed into Lua as an argument to the FileHandler callback
-    function write_open().
+    A `CaptureInfoConst` object, passed into Lua as an argument to the `FileHandler` callback
+    function `write_open()`.
+
     This object represents capture file data and meta-data (data about the
     capture file) for the current capture in Wireshark/Tshark.
 
-    </para><para>
-    This object's fields are read-from when used by write_open function callback.
-    In other words, when the Lua plugin's FileHandler write_open function is invoked, a
-    CaptureInfoConst object will be passed in as one of the arguments, and its fields
+    This object's fields are read-from when used by `write_open` function callback.
+    In other words, when the Lua plugin's FileHandler `write_open` function is invoked, a
+    `CaptureInfoConst` object will be passed in as one of the arguments, and its fields
     should be read from by your Lua code to get data about the capture that needs to be written.
+
+    @since 1.11.3
  */
 
 static CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {
@@ -962,17 +992,18 @@ WSLUA_METAMETHOD CaptureInfoConst__tostring(lua_State* L) {
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,type,wdh->file_type_subtype);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_snapshot_length RO The maximum packet length that is actually recorded (vs. the original
-    length of any given packet on-the-wire). A value of 0 means the snapshot length is unknown or there is no one
+    length of any given packet on-the-wire). A value of `0` means the snapshot length is unknown or there is no one
     such length for the whole file. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,snapshot_length,wdh->snaplen);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_encap RO The packet encapsulation type for the whole file.
-    See 'wtap_encaps' in init.lua for available types.  It is set to 'wtap_encaps.PER_PACKET' if packets can
-    have different types, in which case each Frame identifies its type, in 'FrameInfo.packet_encap'. */
+
+    See `wtap_encaps` in init.lua for available types.  It is set to `wtap_encaps.PER_PACKET` if packets can
+    have different types, in which case each Frame identifies its type, in `FrameInfo.packet_encap`. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,encap,wdh->encap);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_comment RW A comment for the whole capture file, if the
-    'wtap_presence_flags.COMMENTS' was set in the presence flags; nil if there is no comment. */
+    `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,comment,wth->shb_hdr.opt_comment);
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_hardware RO A string containing the description of
@@ -987,17 +1018,15 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,os,wth->shb_hdr.shb_os);
     the application used to create the capture, or nil if there is no user_app string. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,user_app,wth->shb_hdr.shb_user_appl);
 
-/* WSLUA_ATTRIBUTE CaptureInfoConst_hosts RO A ip-to-hostname Lua table of two key-ed names: 'ipv4_addresses' and 'ipv6_addresses'.
+/* WSLUA_ATTRIBUTE CaptureInfoConst_hosts RO A ip-to-hostname Lua table of two key-ed names: `ipv4_addresses` and `ipv6_addresses`.
     The value of each of these names are themselves array tables, of key-ed tables, such that the inner table has a key
-    'addr' set to the raw 4-byte or 16-byte IP address Lua string and a 'name' set to the resolved name.
+    `addr` set to the raw 4-byte or 16-byte IP address Lua string and a `name` set to the resolved name.
 
-    </para><para>
-    For example, if the current capture has one resolved IPv4 address of 1.2.3.4 to 'foo.com', then getting
-    CaptureInfoConst.hosts will get a table of:
-    { ipv4_addresses = { { addr = '\01\02\03\04', name = 'foo.com' } }, ipv6_addresses = { } }.
+    For example, if the current capture has one resolved IPv4 address of 1.2.3.4 to `foo.com`, then getting
+    `CaptureInfoConst.hosts` will get a table of:
+    @code { ipv4_addresses = { { addr = "\01\02\03\04", name = "foo.com" } }, ipv6_addresses = { } } @endcode
 
-    </para><para>
-    Note that either the 'ipv4_addresses' or the 'ipv6_addresses' table, or both, may be empty, however they will not
+    Note that either the `ipv4_addresses` or the `ipv6_addresses` table, or both, may be empty, however they will not
     be nil. */
 static int CaptureInfoConst_get_hosts(lua_State* L) {
     CaptureInfoConst fi = checkCaptureInfoConst(L,1);
@@ -1066,18 +1095,16 @@ static int CaptureInfoConst_get_hosts(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_private_table RW A private Lua value unique to this file.
 
-    </para><para>
-    The private_table is a field you set/get with your own Lua table.
+    The `private_table` is a field you set/get with your own Lua table.
     This is provided so that a Lua script can save per-file reading/writing
     state, because multiple files can be opened and read at the same time.
 
-    </para><para>
-    For example, if two Lua scripts issue a Dumper:new_for_current() call and the
+    For example, if two Lua scripts issue a `Dumper:new_for_current()` call and the
     current file happens to use your script's writer, then the Wireshark will invoke
-    write_open() while the previous capture file has not had write_close() called.
-    Thus the Lua script can use this private_table to store a table of values
-    specific to each file, by setting this private_table in the write_open()
-    function, which it can then later get back inside its write(), and write_close()
+    `write_open()` while the previous capture file has not had `write_close()` called.
+    Thus the Lua script can use this `private_table` to store a table of values
+    specific to each file, by setting this `private_table` in the write_open()
+    function, which it can then later get back inside its `write()`, and `write_close()`
     functions.
 */
 static int CaptureInfoConst_get_private_table(lua_State* L) {
@@ -1125,21 +1152,21 @@ int CaptureInfoConst_register(lua_State* L) {
 WSLUA_CLASS_DEFINE(FrameInfo,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"),NOP);
 /*
     A FrameInfo object, passed into Lua as an argument by FileHandler callback
-    functions (e.g., read, seek_read, etc.).
+    functions (e.g., `read`, `seek_read`, etc.).
 
-    </para><para>
-    This object represents frame data and
-    meta-data (data about the frame/packet) for a given read/seek_read/write's frame.
+    This object represents frame data and meta-data (data about the frame/packet)
+    for a given `read`/`seek_read`/`write`'s frame.
 
-    </para><para>
     This object's fields are written-to/set when used by read function callbacks, and
     read-from/get when used by file write function callbacks.  In other words, when
-    the Lua plugin's FileHandler read/seek_read/etc. functions are invoked, a
+    the Lua plugin's FileHandler `read`/`seek_read`/etc. functions are invoked, a
     FrameInfo object will be passed in as one of the arguments, and its fields
     should be written-to/set based on the frame information read from the file;
-    whereas when the Lua plugin's FileHandler write function is invoked, the
-    FrameInfo object passed in should have its fields read-from/get, to write that
+    whereas when the Lua plugin's `FileHandler.write()` function is invoked, the
+    `FrameInfo` object passed in should have its fields read-from/get, to write that
     frame information to the file.
+
+    @since 1.11.3
  */
 
 static FrameInfo* push_FrameInfo(lua_State* L, struct wtap_pkthdr *phdr, Buffer* buf) {
@@ -1170,8 +1197,8 @@ WSLUA_METAMETHOD FrameInfo__tostring(lua_State* L) {
 /* XXX: should this function be a method of File instead? */
 WSLUA_METHOD FrameInfo_read_data(lua_State* L) {
     /* Tells Wireshark to read directly from given file into frame data buffer, for length bytes. Returns true if succeeded, else false. */
-#define WSLUA_ARG_FrameInfo_read_data_FILE 2 /* The File object userdata, provided by Wireshark previously in a reading-based callback */
-#define WSLUA_ARG_FrameInfo_read_data_LENGTH 3 /* The number of bytes to read from the file at the current cursor position */
+#define WSLUA_ARG_FrameInfo_read_data_FILE 2 /* The File object userdata, provided by Wireshark previously in a reading-based callback. */
+#define WSLUA_ARG_FrameInfo_read_data_LENGTH 3 /* The number of bytes to read from the file at the current cursor position. */
     FrameInfo fi = checkFrameInfo(L,1);
     File fh = checkFile(L,WSLUA_ARG_FrameInfo_read_data_FILE);
     guint32 len = wslua_checkguint32(L, WSLUA_ARG_FrameInfo_read_data_LENGTH);
@@ -1208,7 +1235,9 @@ static int FrameInfo__gc(lua_State* L _U_) {
 }
 
 /* WSLUA_ATTRIBUTE FrameInfo_time RW The packet timestamp as an NSTime object.
-    Note: Set the 'FileHandler.time_precision' to the appropriate 'wtap_file_tsprec' value as well. */
+
+    Note: Set the `FileHandler.time_precision` to the appropriate `wtap_file_tsprec` value as well.
+ */
 static int FrameInfo_set_time (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
     NSTime nstime = checkNSTime(L,2);
@@ -1235,7 +1264,10 @@ static int FrameInfo_get_time (lua_State* L) {
     return 1; /* An NSTime object of the frame's timestamp. */
 }
 
-/* WSLUA_ATTRIBUTE FrameInfo_data RW The data buffer containing the packet.  This cannot be cleared once set. */
+/* WSLUA_ATTRIBUTE FrameInfo_data RW The data buffer containing the packet.
+
+   @note This cannot be cleared once set.
+ */
 static int FrameInfo_set_data (lua_State* L) {
     FrameInfo fi = checkFrameInfo(L,1);
 
@@ -1279,28 +1311,29 @@ static int FrameInfo_get_data (lua_State* L) {
 }
 
 /* WSLUA_ATTRIBUTE FrameInfo_flags RW The presence flags of the packet frame.
-    See 'wtap_presence_flags' in init.lua for bit values. */
+
+    See `wtap_presence_flags` in `init.lua` for bit values. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,flags,phdr->presence_flags);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,flags,phdr->presence_flags,guint32);
 
 /* WSLUA_ATTRIBUTE FrameInfo_captured_length RW The captured packet length,
-    and thus the length of the buffer passed to the FrameInfo.data field. */
+    and thus the length of the buffer passed to the `FrameInfo.data` field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,captured_length,phdr->caplen);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,captured_length,phdr->caplen,guint32);
 
 /* WSLUA_ATTRIBUTE FrameInfo_original_length RW The on-the-wire packet length,
-    which may be longer than the captured_length. */
+    which may be longer than the `captured_length`. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,original_length,phdr->len);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,phdr->len,guint32);
 
 /* WSLUA_ATTRIBUTE FrameInfo_encap RW The packet encapsulation type for the frame/packet,
-    if the file supports per-packet types. See 'wtap_encaps' in init.lua for possible
+    if the file supports per-packet types. See `wtap_encaps` in `init.lua` for possible
     packet encapsulation types to use as the value for this field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,encap,phdr->pkt_encap);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,encap,phdr->pkt_encap,int);
 
 /* WSLUA_ATTRIBUTE FrameInfo_comment RW A string comment for the packet, if the
-    'wtap_presence_flags.COMMENTS' was set in the presence flags; nil if there is no comment. */
+    `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(FrameInfo,comment,phdr->opt_comment);
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(FrameInfo,comment,phdr->opt_comment,TRUE);
 
@@ -1340,6 +1373,8 @@ WSLUA_CLASS_DEFINE(FrameInfoConst,FAIL_ON_NULL_OR_EXPIRED("FrameInfo"),NOP);
     A constant FrameInfo object, passed into Lua as an argument by the FileHandler write
     callback function.  This has similar attributes/properties as FrameInfo, but the fields can
     only be read from, not written to.
+
+    @since 1.11.3
  */
 
 static FrameInfoConst* push_FrameInfoConst(lua_State* L, const struct wtap_pkthdr *phdr, const guint8 *pd) {
@@ -1370,7 +1405,7 @@ WSLUA_METAMETHOD FrameInfoConst__tostring(lua_State* L) {
 /* XXX: should this function be a method of File instead? */
 WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
     /* Tells Wireshark to write directly to given file from the frame data buffer, for length bytes. Returns true if succeeded, else false. */
-#define WSLUA_ARG_FrameInfoConst_write_data_FILE 2 /* The File object userdata, provided by Wireshark previously in a writing-based callback */
+#define WSLUA_ARG_FrameInfoConst_write_data_FILE 2 /* The File object userdata, provided by Wireshark previously in a writing-based callback. */
 #define WSLUA_OPTARG_FrameInfoConst_write_data_LENGTH 3 /* The number of bytes to write to the file at the current cursor position, or all if not supplied. */
     FrameInfoConst fi = checkFrameInfoConst(L,1);
     File fh = checkFile(L,WSLUA_ARG_FrameInfoConst_write_data_FILE);
@@ -1431,17 +1466,18 @@ static int FrameInfoConst_get_data (lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FrameInfoConst_flags RO The presence flags of the packet frame - see 'wtap_presence_flags' in init.lua for bits. */
+/* WSLUA_ATTRIBUTE FrameInfoConst_flags RO The presence flags of the packet frame - see `wtap_presence_flags` in `init.lua` for bits. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,flags,phdr->presence_flags);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_captured_length RO The captured packet length, and thus the length of the buffer in the FrameInfoConst.data field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,captured_length,phdr->caplen);
 
-/* WSLUA_ATTRIBUTE FrameInfoConst_original_length RO The on-the-wire packet length, which may be longer than the captured_length. */
+/* WSLUA_ATTRIBUTE FrameInfoConst_original_length RO The on-the-wire packet length, which may be longer than the `captured_length`. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,original_length,phdr->len);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_encap RO The packet encapsulation type, if the file supports per-packet types.
-      See 'wtap_encaps' in init.lua for possible packet encapsulation types to use as the value for this field. */
+
+      See `wtap_encaps` in `init.lua` for possible packet encapsulation types to use as the value for this field. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,encap,phdr->pkt_encap);
 
 /* WSLUA_ATTRIBUTE FrameInfoConst_comment RO A comment for the packet; nil if there is none. */
@@ -1480,6 +1516,8 @@ WSLUA_CLASS_DEFINE(FileHandler,NOP,NOP);
     A FileHandler object, created by a call to FileHandler.new(arg1, arg2, ...).
     The FileHandler object lets you create a file-format reader, or writer, or
     both, by setting your own read_open/read or write_open/write functions.
+
+    @since 1.11.3
  */
 
 static int filehandler_cb_error_handler(lua_State* L) {
@@ -2215,114 +2253,113 @@ WSLUA_FUNCTION wslua_deregister_filehandler(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FileHandler_read_open WO The Lua function to be called when Wireshark opens a file for reading.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given (1) a File object, and (2) a CaptureInfo object.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfo` object
 
-    </para><para>
-    The purpose of the Lua function set to this 'read_open' field is to check if the file Wireshark is opening is of its type,
+    The purpose of the Lua function set to this `read_open` field is to check if the file Wireshark is opening is of its type,
     for example by checking for magic numbers or trying to parse records in the file, etc.  The more can be verified
     the better, because Wireshark tries all file readers until it finds one that accepts the file, so accepting an
     incorrect file prevents other file readers from reading their files.
 
-    </para><para>
     The called Lua function should return true if the file is its type (it accepts it), false if not.  The Lua
-    function must also set the File offset position (using file:seek()) to where it wants it to be for its first
-    read() call, or back to beginning if it returns false.
+    function must also set the File offset position (using `file:seek()`) to where it wants it to be for its first
+    `read()` call.
     */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read_open);
 
 /* WSLUA_ATTRIBUTE FileHandler_read WO The Lua function to be called when Wireshark wants to read a packet from the file.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given (1) a File object, and (2) a FrameInfo object.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfo` object
+        3. A `FrameInfo` object
 
-    </para><para>
-    The purpose of the Lua function set to this 'read' field is to read the next packet from the file, and setting the parsed/read
-    packet into the frame buffer using 'FrameInfo.data = foo' or 'FrameInfo:read_data()'.
+    The purpose of the Lua function set to this `read` field is to read the next packet from the file, and setting the parsed/read
+    packet into the frame buffer using `FrameInfo.data = foo` or `FrameInfo:read_data()`.
 
-    </para><para>
     The called Lua function should return the file offset/position number where the packet begins, or false if it hit an
-    error.  The file offset will be saved by Wireshark and passed into the set seek_read() Lua function later. */
+    error.  The file offset will be saved by Wireshark and passed into the set `seek_read()` Lua function later. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read);
 
 /* WSLUA_ATTRIBUTE FileHandler_seek_read WO The Lua function to be called when Wireshark wants to read a packet from the file at the given offset.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given (1) a File object, and (2) a FrameInfo object,
-    and (3) the file offset number previously set by the read function call. */
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfo` object
+        3. A `FrameInfo` object
+        4. The file offset number previously set by the `read()` function call
+ */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,seek_read);
 
 /* WSLUA_ATTRIBUTE FileHandler_read_close WO The Lua function to be called when Wireshark wants to close the read file completely.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given (1) a File object.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfo` object
 
-    </para><para>
     It is not necessary to set this field to a Lua function - FileHandler can be registered without doing so - it
     is available in case there is memory/state to clear in your script when the file is closed. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,read_close);
 
 /* WSLUA_ATTRIBUTE FileHandler_seq_read_close WO The Lua function to be called when Wireshark wants to close the sequentially-read file.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given a File object.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfo` object
 
-    </para><para>
     It is not necessary to set this field to a Lua
     function - FileHandler can be registered without doing so - it is available in case there is memory/state to clear in your script
-    when the file is closed for the sequential reading portion.  After this point, there will be no more calls to read(), only seek_read(). */
+    when the file is closed for the sequential reading portion.  After this point, there will be no more calls to `read()`, only `seek_read()`. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,seq_read_close);
 
 
 /* WSLUA_ATTRIBUTE FileHandler_can_write_encap WO The Lua function to be called when Wireshark wants to write a file,
     by checking if this file writer can handle the wtap packet encapsulation(s).
 
-    </para><para>
     When later called by Wireshark, the Lua function will be given a Lua number, which matches one of the encapsulations
-    in the Lua 'wtap_encaps' table.  This might be the 'wtap_encap.PER_PACKET' number, meaning the capture contains multiple
+    in the Lua `wtap_encaps` table.  This might be the `wtap_encap.PER_PACKET` number, meaning the capture contains multiple
     encapsulation types, and the file reader should only return true if it can handle multiple encap types in one file. The
     function will then be called again, once for each encap type in the file, to make sure it can write each one.
 
-    </para><para>
     If the Lua file writer can write the given type of encapsulation into a file, then it returns the boolean true, else false. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,can_write_encap);
 
 /* WSLUA_ATTRIBUTE FileHandler_write_open WO The Lua function to be called when Wireshark opens a file for writing.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given (1) a File object, and (2) a CaptureInfoConst object.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfoConst` object
 
-    </para><para>
-    The purpose of the Lua function set to this 'write_open' field is similar to the read_open callback function:
+    The purpose of the Lua function set to this `write_open` field is similar to the read_open callback function:
     to initialize things necessary for writing the capture to a file. For example, if the output file format has a
     file header, then the file header should be written within this write_open function.
 
-    </para><para>
     The called Lua function should return true on success, or false if it hit an error.
-    Also make sure to set the FileHandler.write (and potentially FileHandler.write_close) functions before
+
+    Also make sure to set the `FileHandler.write` (and potentially `FileHandler.write_close`) functions before
     returning true from this function. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_open);
 
 /* WSLUA_ATTRIBUTE FileHandler_write WO The Lua function to be called when Wireshark wants to write a packet to the file.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given (1) a File object, and (2) a FrameInfoConst object
-    of the current frame/packet to be written.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfoConst` object
+        3. A `FrameInfoConst` object of the current frame/packet to be written
 
-    </para><para>
-    The purpose of the Lua function set to this 'write' field is to write the next packet to the file.
+    The purpose of the Lua function set to this `write` field is to write the next packet to the file.
 
-    </para><para>
-    The called Lua function should return true on succcess, or false if it hit an error. */
+    The called Lua function should return true on success, or false if it hit an error. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write);
 
 /* WSLUA_ATTRIBUTE FileHandler_write_close WO The Lua function to be called when Wireshark wants to close the written file.
 
-    </para><para>
-    When later called by Wireshark, the Lua function will be given a File object.
+    When later called by Wireshark, the Lua function will be given:
+        1. A `File` object
+        2. A `CaptureInfoConst` object
 
-    </para><para>
-    It is not necessary to set this field to a Lua function - FileHandler can be registered without doing so - it is available
+    It is not necessary to set this field to a Lua function - `FileHandler` can be registered without doing so - it is available
     in case there is memory/state to clear in your script when the file is closed. */
 WSLUA_ATTRIBUTE_FUNC_SETTER(FileHandler,write_close);
 
@@ -2334,7 +2371,6 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FileHandler,type,file_type);
 
 /* WSLUA_ATTRIBUTE FileHandler_extensions RW One or more file extensions that this file type usually uses.
 
-    </para><para>
     For readers using heuristics to determine file type, Wireshark will try the readers of the file's
     extension first, before trying other readers.  But ultimately Wireshark tries all file readers
     for any file extension, until it finds one that accepts the file. */
@@ -2342,7 +2378,9 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(FileHandler,extensions,finfo.additional_file
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(FileHandler,extensions,finfo.additional_file_extensions,TRUE);
 
 /* WSLUA_ATTRIBUTE FileHandler_writing_must_seek RW true if the ability to seek is required when writing
-    this file format, else false. This will be checked by Wireshark when writing out to compressed
+    this file format, else false.
+
+    This will be checked by Wireshark when writing out to compressed
     file formats, because seeking is not possible with compressed files. Usually a file writer only
     needs to be able to seek if it needs to go back in the file to change something, such as a block or
     file length value earlier in the file. */
@@ -2355,7 +2393,7 @@ WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(FileHandler,writes_name_resolution,finfo.ha
 WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(FileHandler,writes_name_resolution,finfo.has_name_resolution);
 
 /* WSLUA_ATTRIBUTE FileHandler_supported_comment_types RW set to the bit-wise OR'ed number representing
-    the type of comments the file writer supports writing, based on the numbers in the 'wtap_comments' table. */
+    the type of comments the file writer supports writing, based on the numbers in the `wtap_comments` table. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FileHandler,supported_comment_types,finfo.supported_comment_types);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FileHandler,supported_comment_types,finfo.supported_comment_types,guint32);
 

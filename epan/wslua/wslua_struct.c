@@ -39,7 +39,7 @@
 ** -Can mask out return values when you only want to calculate sizes or unmarshal pascal-style strings. '(' & ')'
 **
 ** Changes I made:
-** -Added support for Int64/UIn64 being packed/unpacked, using 'e'/'E'
+** -Added support for Int64/UInt64 being packed/unpacked, using 'e'/'E'
 ** -Made it follow Wireshark's conventions so we could get API docs
 ** =======================================================
 */
@@ -88,13 +88,81 @@
 
 #include "wslua.h"
 
-    /* WSLUA_MODULE Struct Binary encode/decode support */
+/* WSLUA_MODULE Struct Binary encode/decode support
 
-/* TODO: figure out a way for wslua Module's to have (possibly long) description text */
+  The Struct class offers basic facilities to convert Lua values to and from C-style structs
+  in binary Lua strings.  This is based on Roberto Ierusalimschy's Lua struct library found
+  in [[http://www.inf.puc-rio.br/~roberto/struct/]], with some minor modifications as follows:
+    * Added support for `Int64`/`UInt64` being packed/unpacked, using 'e'/'E'.
+    * Can handle 'long long' integers (i8 / I8); though they're converted to doubles.
+    * Can insert/specify padding anywhere in a struct. ('X' eg. when a string is following a union).
+    * Can report current offset in both `pack` and `unpack` ('`=`').
+    * Can mask out return values when you only want to calculate sizes or unmarshal
+      pascal-style strings using '`(`' & '`)`'.
+
+  All but the first of those changes are based on an email from Flemming Madsen, on the lua-users
+  mailing list, which can be found [[http://lua-users.org/lists/lua-l/2009-10/msg00572.html|here]].
+
+  The main functions are `Struct.pack`, which packs multiple Lua values into a struct-like
+  Lua binary string; and `Struct.unpack`, which unpacks multiple Lua values from a given
+  struct-like Lua binary string. There are some additional helper functions available as well.
+
+  All functions in the Struct library are called as static member functions, not object methods,
+  so they are invoked as "Struct.pack(...)" instead of "object:pack(...)".
+
+  The fist argument to several of the `Struct` functions is a format string, which describes
+  the layout of the structure. The format string is a sequence of conversion elements, which
+  respect the current endianness and the current alignment requirements. Initially, the
+  current endianness is the machine's native endianness and the current alignment requirement
+  is 1 (meaning no alignment at all). You can change these settings with appropriate directives
+  in the format string.
+
+  The supported elements in the format string are as follows:
+
+    * "` `" (empty space) ignored.
+    * "`!`n" flag to set the current alignment requirement to 'n' (necessarily a power of 2);
+      an absent 'n' means the machine's native alignment.
+    * "`>`" flag to set mode to big endian (i.e., network-order).
+    * "`<`" flag to set mode to little endian.
+    * "`x`" a padding zero byte with no corresponding Lua value.
+    * "`b`" a signed char.
+    * "`B`" an unsigned char.
+    * "`h`" a signed short (native size).
+    * "`H`" an unsigned short (native size).
+    * "`l`" a signed long (native size).
+    * "`L`" an unsigned long (native size).
+    * "`T`" a size_t (native size).
+    * "`i`n" a signed integer with 'n' bytes. An absent 'n' means the native size of an int.
+    * "`I`n" like "`i`n" but unsigned.
+    * "`e`" signed 8-byte Integer (64-bits, long long), to/from a `Int64` object.
+    * "`E`" unsigned 8-byte Integer (64-bits, long long), to/from a `UInt64` object.
+    * "`f`" a float (native size).
+    * "`d`" a double (native size).
+    * "`s`" a zero-terminated string.
+    * "`c`n" a sequence of exactly 'n' chars corresponding to a single Lua string. An absent 'n'
+      means 1. When packing, the given string must have at least 'n' characters (extra
+      characters are discarded).
+    * "`c0`" this is like "`c`n", except that the 'n' is given by other means: When packing, 'n' is
+      the length of the given string; when unpacking, 'n' is the value of the previous unpacked
+      value (which must be a number). In that case, this previous value is not returned.
+    * "`x`n" pad to 'n' number of bytes, default 1.
+    * "`X`n" pad to 'n' alignment, default MAXALIGN.
+    * "`(`" to stop assigning items, and "`)`" start assigning (padding when packing).
+    * "`=`" to return the current position / offset.
+
+  @note Using `i`, `I`, `h`, `H`, `l`, `L`, `f`, and `T` is strongly discouraged, as those sizes
+    are system-dependent. Use the explicitly sized variants instead, such as `i4` or `E`.
+
+  @note Unpacking of `i`/`I` is done to a Lua number, a double-precision floating point,
+    so unpacking a 64-bit field (`i8`/`I8`) will lose precision.
+    Use `e`/`E` to unpack into a Wireshark `Int64`/`UInt64` object instead.
+
+ */
+
 
 /* The following line is here so that make-reg.pl does the right thing.  This 'Struct' class
   isn't really a class, so it doesn't have the checkStruct/pushStruct/etc. functions
-  the following macro would generate; but it does need to be registered and such.
+  the following macro would generate; but it does need to be registered and such, so...
   WSLUA_CLASS_DEFINE_BASE(Struct,NOP,NOP,0);
   */
 

@@ -37,8 +37,12 @@
 /* any call to checkFieldInfo() will now error on null or expired, so no need to check again */
 WSLUA_CLASS_DEFINE(FieldInfo,FAIL_ON_NULL_OR_EXPIRED("FieldInfo"),NOP);
 /*
-   An extracted Field
-   */
+   An extracted Field from dissected packet data. A `FieldInfo` object can only be used within
+   the callback functions of dissectors, post-dissectors, heuristic-dissectors, and taps.
+
+   A `FieldInfo` can be called on either existing Wireshark fields by using either `Field.new()`
+   or `Field()` before-hand, or it can be called on new fields created by Lua from a `ProtoField`.
+ */
 
 static GPtrArray* outstanding_FieldInfo = NULL;
 
@@ -46,7 +50,7 @@ static GPtrArray* outstanding_FieldInfo = NULL;
 
 CLEAR_OUTSTANDING(FieldInfo,expired,TRUE)
 
-/* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field */
+/* WSLUA_ATTRIBUTE FieldInfo_len RO The length of this field. */
 WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
     /*
        Obtain the Length of the field
@@ -57,7 +61,7 @@ WSLUA_METAMETHOD FieldInfo__len(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field */
+/* WSLUA_ATTRIBUTE FieldInfo_offset RO The offset of this field. */
 WSLUA_METAMETHOD FieldInfo__unm(lua_State* L) {
     /*
        Obtain the Offset of the field
@@ -68,7 +72,7 @@ WSLUA_METAMETHOD FieldInfo__unm(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field */
+/* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field. */
 WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
     /*
        Obtain the Value of the field
@@ -179,7 +183,7 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FieldInfo_label RO The string representing this field */
 WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
-    /* The string representation of the field */
+    /* The string representation of the field. */
     FieldInfo fi = checkFieldInfo(L,1);
 
     if (fi->ws_fi->value.ftype->val_to_string_repr) {
@@ -203,7 +207,7 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
 
 /* WSLUA_ATTRIBUTE FieldInfo_display RO The string display of this field as seen in GUI */
 static int FieldInfo_get_display(lua_State* L) {
-    /* The display string of this field as seen in GUI */
+    /* The display string of this field as seen in GUI. */
     FieldInfo fi = checkFieldInfo(L,1);
     gchar         label_str[ITEM_LABEL_LENGTH+1];
     gchar        *label_ptr;
@@ -229,9 +233,9 @@ static int FieldInfo_get_display(lua_State* L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE FieldInfo_range RO The TvbRange covering this field */
+/* WSLUA_ATTRIBUTE FieldInfo_range RO The `TvbRange` covering this field */
 static int FieldInfo_get_range(lua_State* L) {
-    /* The TvbRange covering this field */
+    /* The `TvbRange` covering this field. */
     FieldInfo fi = checkFieldInfo(L,1);
 
     if (push_TvbRange (L, fi->ws_fi->ds_tvb, fi->ws_fi->start, fi->ws_fi->length)) {
@@ -260,7 +264,7 @@ static int FieldInfo_get_name(lua_State* L) {
 }
 
 WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
-    /* Checks whether lhs is within rhs */
+    /* Checks whether lhs is within rhs. */
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
@@ -278,7 +282,7 @@ WSLUA_METAMETHOD FieldInfo__eq(lua_State* L) {
 }
 
 WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
-    /* Checks whether the end byte of lhs is before the end of rhs */
+    /* Checks whether the end byte of lhs is before the end of rhs. */
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
@@ -294,7 +298,7 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
 }
 
 WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
-    /* Checks whether the end byte of rhs is before the beginning of rhs */
+    /* Checks whether the end byte of rhs is before the beginning of rhs. */
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
@@ -397,7 +401,10 @@ WSLUA_FUNCTION wslua_all_field_infos(lua_State* L) {
 
 WSLUA_CLASS_DEFINE(Field,FAIL_ON_NULL("Field"),NOP);
 /*
-   A Field extractor to to obtain field values.
+   A Field extractor to to obtain field values. A `Field` object can only be created *outside* of
+   the callback functions of dissectors, post-dissectors, heuristic-dissectors, and taps.
+
+   Once created, it is used *inside* the callback functions, to generate a `FieldInfo` object.
  */
 
 static GPtrArray* wanted_fields = NULL;
@@ -417,7 +424,7 @@ void wslua_prime_dfilter(epan_dissect_t *edt) {
 }
 
 /*
- * field extractor registartion is tricky, In order to allow
+ * field extractor registration is tricky, In order to allow
  * the user to define them in the body of the script we will
  * populate the Field value with a pointer of the abbrev of it
  * to later replace it with the hfi.
@@ -475,7 +482,7 @@ void lua_prime_all_fields(proto_tree* tree _U_) {
 
 WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
     /*
-       Create a Field extractor
+       Create a Field extractor.
        */
 #define WSLUA_ARG_Field_new_FIELDNAME 1 /* The filter name of the field (e.g. ip.addr) */
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_Field_new_FIELDNAME);
@@ -504,7 +511,11 @@ WSLUA_CONSTRUCTOR Field_new(lua_State *L) {
 
 WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
     /* Gets a Lua array table of all registered field filter names.
-       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+
+       NOTE: this is an expensive operation, and should only be used for troubleshooting.
+
+       @since 1.11.3
+     */
     void *cookie, *cookie2;
     int i = -1;
     int count = 0;
@@ -531,7 +542,7 @@ WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
 }
 
 WSLUA_METAMETHOD Field__call (lua_State* L) {
-    /* Obtain all values (see FieldInfo) for this field. */
+    /* Obtain all values (see `FieldInfo`) for this field. */
     Field f = checkField(L,1);
     header_field_info* in = *f;
     int items_found = 0;
@@ -566,7 +577,7 @@ WSLUA_METAMETHOD Field__call (lua_State* L) {
 }
 
 WSLUA_METAMETHOD Field__tostring(lua_State* L) {
-	/* Obtain a string with the field name */
+	/* Obtain a string with the field name. */
     Field f = checkField(L,1);
 
     if (wanted_fields) {

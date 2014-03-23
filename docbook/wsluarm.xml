@@ -13,7 +13,7 @@
 	  Both Tecgraf and Lua.org are laboratories of the Department of Computer Science.
 	</para>
 	<para>
-	   In Wireshark Lua can be used to write dissectors and taps.
+	   In Wireshark Lua can be used to write dissectors, taps, and capture file readers and writers.
 	</para>
 	<para>
 	  Wireshark's Lua interpreter starts by loading <command>init.lua</command> that
@@ -41,126 +41,118 @@
   </section>
   <section id="wslua_dissector_example">
   <title>Example of Dissector written in Lua</title>
-    <programlisting>
-do
-        local p_multi = Proto("multi","MultiProto");
+<programlisting>local p_multi = Proto("multi","MultiProto");
 
-        local vs_protos = {
-                [2] = "mtp2",
-                [3] = "mtp3",
-                [4] = "alcap",
-                [5] = "h248",
-                [6] = "ranap",
-                [7] = "rnsap",
-                [8] = "nbap"
-        }
+local vs_protos = {
+        [2] = "mtp2",
+        [3] = "mtp3",
+        [4] = "alcap",
+        [5] = "h248",
+        [6] = "ranap",
+        [7] = "rnsap",
+        [8] = "nbap"
+}
 
-        local f_proto = ProtoField.uint8("multi.protocol","Protocol",base.DEC,vs_protos)
-        local f_dir = ProtoField.uint8("multi.direction","Direction",base.DEC,{ [1] = "incoming", [0] = "outgoing"})
-        local f_text = ProtoField.string("multi.text","Text")
+local f_proto = ProtoField.uint8("multi.protocol","Protocol",base.DEC,vs_protos)
+local f_dir = ProtoField.uint8("multi.direction","Direction",base.DEC,{ [1] = "incoming", [0] = "outgoing"})
+local f_text = ProtoField.string("multi.text","Text")
 
-        p_multi.fields = { f_proto, f_dir, f_text }
+p_multi.fields = { f_proto, f_dir, f_text }
 
-        local data_dis = Dissector.get("data")
+local data_dis = Dissector.get("data")
 
-        local protos = {
-                [2] = Dissector.get("mtp2"),
-                [3] = Dissector.get("mtp3"),
-                [4] = Dissector.get("alcap"),
-                [5] = Dissector.get("h248"),
-                [6] = Dissector.get("ranap"),
-                [7] = Dissector.get("rnsap"),
-                [8] = Dissector.get("nbap"),
-                [9] = Dissector.get("rrc"),
-                [10] = DissectorTable.get("sctp.ppi"):get_dissector(3), -- m3ua
-                [11] = DissectorTable.get("ip.proto"):get_dissector(132), -- sctp
-        }
+local protos = {
+        [2] = Dissector.get("mtp2"),
+        [3] = Dissector.get("mtp3"),
+        [4] = Dissector.get("alcap"),
+        [5] = Dissector.get("h248"),
+        [6] = Dissector.get("ranap"),
+        [7] = Dissector.get("rnsap"),
+        [8] = Dissector.get("nbap"),
+        [9] = Dissector.get("rrc"),
+        [10] = DissectorTable.get("sctp.ppi"):get_dissector(3), -- m3ua
+        [11] = DissectorTable.get("ip.proto"):get_dissector(132), -- sctp
+}
 
-        function p_multi.dissector(buf,pkt,root)
+function p_multi.dissector(buf,pkt,root)
 
-                local t = root:add(p_multi,buf(0,2))
-                t:add(f_proto,buf(0,1))
-                t:add(f_dir,buf(1,1))
+        local t = root:add(p_multi,buf(0,2))
+        t:add(f_proto,buf(0,1))
+        t:add(f_dir,buf(1,1))
 
-                local proto_id = buf(0,1):uint()
+        local proto_id = buf(0,1):uint()
 
-                local dissector = protos[proto_id]
+        local dissector = protos[proto_id]
 
-                if dissector ~= nil then
-                        dissector:call(buf(2):tvb(),pkt,root)
-                elseif proto_id &lt; 2 then
-                        t:add(f_text,buf(2))
-                        -- pkt.cols.info:set(buf(2,buf:len() - 3):string())
-                else
-                        data_dis:call(buf(2):tvb(),pkt,root)
-                end
-
+        if dissector ~= nil then
+                dissector:call(buf(2):tvb(),pkt,root)
+        elseif proto_id &lt; 2 then
+                t:add(f_text,buf(2))
+                -- pkt.cols.info:set(buf(2,buf:len() - 3):string())
+        else
+                data_dis:call(buf(2):tvb(),pkt,root)
         end
 
-        local wtap_encap_table = DissectorTable.get("wtap_encap")
-        local udp_encap_table = DissectorTable.get("udp.port")
-
-        wtap_encap_table:add(wtap.USER15,p_multi)
-        wtap_encap_table:add(wtap.USER12,p_multi)
-        udp_encap_table:add(7555,p_multi)
 end
-    </programlisting>
+
+local wtap_encap_table = DissectorTable.get("wtap_encap")
+local udp_encap_table = DissectorTable.get("udp.port")
+
+wtap_encap_table:add(wtap.USER15,p_multi)
+wtap_encap_table:add(wtap.USER12,p_multi)
+udp_encap_table:add(7555,p_multi)</programlisting>
   </section>
   <section id="wslua_tap_example">
   <title>Example of Listener written in Lua</title>
-    <programlisting>
--- This program will register a menu that will open a window with a count of occurrences
+    <programlisting>-- This program will register a menu that will open a window with a count of occurrences
 -- of every address in the capture
 
-do
-	local function menuable_tap()
-		-- Declare the window we will use
-		local tw = TextWindow.new("Address Counter")
+local function menuable_tap()
+	-- Declare the window we will use
+	local tw = TextWindow.new("Address Counter")
 
-		-- This will contain a hash of counters of appearances of a certain address
-		local ips = {}
+	-- This will contain a hash of counters of appearances of a certain address
+	local ips = {}
 
-		-- this is our tap
-		local tap = Listener.new();
+	-- this is our tap
+	local tap = Listener.new();
 
-		function remove()
-			-- this way we remove the listener that otherwise will remain running indefinitely
-			tap:remove();
-		end
+	function remove()
+		-- this way we remove the listener that otherwise will remain running indefinitely
+		tap:remove();
+	end
 
-		-- we tell the window to call the remove() function when closed
-		tw:set_atclose(remove)
+	-- we tell the window to call the remove() function when closed
+	tw:set_atclose(remove)
 
-		-- this function will be called once for each packet
-		function tap.packet(pinfo,tvb)
-			local src = ips[tostring(pinfo.src)] or 0
-			local dst = ips[tostring(pinfo.dst)] or 0
+	-- this function will be called once for each packet
+	function tap.packet(pinfo,tvb)
+		local src = ips[tostring(pinfo.src)] or 0
+		local dst = ips[tostring(pinfo.dst)] or 0
 
-			ips[tostring(pinfo.src)] = src + 1
-			ips[tostring(pinfo.dst)] = dst + 1
-		end
+		ips[tostring(pinfo.src)] = src + 1
+		ips[tostring(pinfo.dst)] = dst + 1
+	end
 
-		-- this function will be called once every few seconds to update our window
-		function tap.draw(t)
-			tw:clear()
-			for ip,num in pairs(ips) do
-				tw:append(ip .. "\t" .. num .. "\n");
-			end
-		end
-
-		-- this function will be called whenever a reset is needed
-		-- e.g. when reloading the capture file
-		function tap.reset()
-			tw:clear()
-			ips = {}
+	-- this function will be called once every few seconds to update our window
+	function tap.draw(t)
+		tw:clear()
+		for ip,num in pairs(ips) do
+			tw:append(ip .. "\t" .. num .. "\n");
 		end
 	end
 
-	-- using this function we register our function
-	-- to be called when the user selects the Tools->Test->Packets menu
-	register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)
+	-- this function will be called whenever a reset is needed
+	-- e.g. when reloading the capture file
+	function tap.reset()
+		tw:clear()
+		ips = {}
+	end
 end
-    </programlisting>
+
+-- using this function we register our function
+-- to be called when the user selects the Tools->Test->Packets menu
+register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)</programlisting>
   </section>
   <section id="wsluarm_modules">
   <title>Wireshark's Lua API Reference Manual</title>
@@ -230,6 +222,9 @@ end
 			</itemizedlist>
 		</para>
 		<para>
+			Since: 1.11.3
+		</para>
+		<para>
 		  This page is based on the full documentation for Lrexlib at
 		      <ulink url="http://rrthomas.github.io/lrexlib/manual.html">http://rrthomas.github.io/lrexlib/manual.html</ulink>
 		</para>
@@ -240,6 +235,9 @@ end
 		<section id='lua_class_GRegex'><title>GRegex</title>
 			<para>
 				GLib Regular Expressions based on PCRE.
+			</para>
+			<para>
+				Since: 1.11.3
 			</para>
 			<section id='lua_class_GRegex_notes'><title>Notes</title>
 				<para>
@@ -295,6 +293,9 @@ end
 			     result then can be used by the methods, e.g. match, exec, etc. Regular
 			     expression objects are automatically garbage collected.
 				</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>pattern</term>
@@ -322,6 +323,9 @@ end
 			     used for comparing with return codes of some functions and methods for
 			     determining the reason of failure.
 			   </para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>table (optional)</term>
@@ -339,6 +343,9 @@ end
 					the regex library for compile flags, with the keys being the (string) names of the
 					constants. If the table argument is supplied then it is used as the
 					output table, otherwise a new table is created.
+				</para>
+				<para>
+					Since: 1.11.3
 				</para>
 				<section><title>Arguments</title>
 					<variablelist>
@@ -358,6 +365,9 @@ end
 					constants. If the table argument is supplied then it is used as the
 					output table, otherwise a new table is created.
 				</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>table (optional)</term>
@@ -374,6 +384,9 @@ end
 				<para>Searches for the first match of the regexp pattern in the string subject, starting
 					from offset init, subject to flags cf and ef. The pattern is compiled each time this is
 					called, unlike the class method 'match' function.
+				</para>
+				<para>
+					Since: 1.11.3
 				</para>
 				<section><title>Arguments</title>
 					<variablelist>
@@ -408,6 +421,9 @@ end
 					from offset init, subject to flags ef. The pattern is compiled each time this is
 					called, unlike the class method 'find' function.
 				</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>subject</term>
@@ -441,6 +457,9 @@ end
 					to flags cf and ef. The function is intended for use in the generic for Lua construct.
 					The pattern can be a string or a GRegex object previously compiled with GRegex.new().
 				</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>subject</term>
@@ -473,6 +492,9 @@ end
 				<para>Searches for all matches of the pattern in the string subject and replaces them according
 					to the parameters repl and max.
 					The pattern can be a string or a GRegex object previously compiled with GRegex.new().
+				</para>
+				<para>
+					Since: 1.11.3
 				</para>
 				<para> For details see:
 					<ulink url="http://rrthomas.github.io/lrexlib/manual.html#gsub">http://rrthomas.github.io/lrexlib/manual.html#gsub</ulink>
@@ -515,6 +537,9 @@ end
 					The sep pattern can be a string or a GRegex object previously compiled with GRegex.new().
 					Unlike gmatch, there will always be at least one iteration pass, even if there are no matches in the subject.
 				</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>subject</term>
@@ -543,6 +568,9 @@ end
 			<section id='lua_fn_GRegex_version__'>
 				<title>GRegex.version()</title>
 				<para>Returns a returns a string containing the version of the used library.</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Returns</title>
 					<para>The version string</para>
 				</section> <!-- function_returns_footer: GRegex.version -->
@@ -551,6 +579,9 @@ end
 				<title>gregex:match(subject, [init], [ef])</title>
 				<para>Searches for the first match of the regexp pattern in the string subject, starting
 					from offset init, subject to flags ef.
+				</para>
+				<para>
+					Since: 1.11.3
 				</para>
 				<section><title>Arguments</title>
 					<variablelist>
@@ -578,6 +609,9 @@ end
 				<para>Searches for the first match of the regexp pattern in the string subject, starting
 					from offset init, subject to flags ef.
 				</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>subject</term>
@@ -603,6 +637,9 @@ end
 				<title>gregex:exec(subject, [init], [ef])</title>
 				<para>Searches for the first match of the compiled GRegex object in the string subject, starting
 					from offset init, subject to the execution match flags ef.
+				</para>
+				<para>
+					Since: 1.11.3
 				</para>
 				<section><title>Arguments</title>
 					<variablelist>
@@ -632,6 +669,9 @@ end
 			<section id='lua_fn_gregex_dfa_exec_subject___init____ef__'>
 				<title>gregex:dfa_exec(subject, [init], [ef])</title>
 				<para>Matches a compiled regular expression GRegex object against a given subject string subj, using a DFA matching algorithm.</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Arguments</title>
 					<variablelist>
 						<varlistentry><term>subject</term>
@@ -659,6 +699,9 @@ end
 			<section id='lua_fn_gregex___tostring__'>
 				<title>gregex:__tostring()</title>
 				<para>Returns a string containing debug information about the GRegex object.</para>
+				<para>
+					Since: 1.11.3
+				</para>
 				<section><title>Returns</title>
 					<para>The debug string</para>
 				</section> <!-- function_returns_footer: gregex:__tostring -->

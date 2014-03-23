@@ -48,8 +48,8 @@ TreeItem* push_TreeItem(lua_State*L, TreeItem t) {
 CLEAR_OUTSTANDING(TreeItem, expired, TRUE)
 
 WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
-/* TreeItems represent information in the packet-details pane.
-   A root TreeItem is passed to dissectors as the third argument. */
+/* `TreeItem`s represent information in the packet-details pane.
+   A root `TreeItem` is passed to dissectors as the third argument. */
 
 WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     /*
@@ -272,10 +272,12 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
 
 WSLUA_METHOD TreeItem_add(lua_State *L) {
     /*
-     Adds a child item to this tree item, returning the new child TreeItem.
-     if the protofield represents a numeric value (int, uint or float), then it's treated as a Big Endian (network order) value.
+     Adds a child item to this tree item, returning the new child `TreeItem`.
+
+     If the `ProtoField` represents a numeric value (int, uint or float), then it's treated as a Big Endian (network order) value.
+
      This function has a complicated form: 'treeitem:add(protofield, [tvbrange,] [[value], label]])', such that if the second
-     argument is a tvbrange, and a third argument is given, it's a value; but if the second argument is a non-tvbrange type, then
+     argument is a `TvbRange`, and a third argument is given, it's a value; but if the second argument is a non-`TvbRange` type, then
      it is the value (as opposed to filling that argument with 'nil', which is invalid for this function).
     */
 #define WSLUA_ARG_TreeItem_add_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
@@ -287,10 +289,12 @@ WSLUA_METHOD TreeItem_add(lua_State *L) {
 
 WSLUA_METHOD TreeItem_add_le(lua_State *L) {
     /*
-     Adds a child item to this tree item, returning the new child TreeItem.
-     if the protofield represents a numeric value (int, uint or float), then it's treated as a Little Endian value.
+     Adds a child item to this tree item, returning the new child `TreeItem`.
+
+     If the `ProtoField` represents a numeric value (int, uint or float), then it's treated as a Little Endian value.
+
      This function has a complicated form: 'treeitem:add_le(protofield, [tvbrange,] [[value], label]])', such that if the second
-     argument is a tvbrange, and a third argument is given, it's a value; but if the second argument is a non-tvbrange type, then
+     argument is a `TvbRange`, and a third argument is given, it's a value; but if the second argument is a non-`TvbRange` type, then
      it is the value (as opposed to filling that argument with 'nil', which is invalid for this function).
      */
 #define WSLUA_ARG_TreeItem_add_le_PROTOFIELD 2 /* The ProtoField field or Proto protocol object to add to the tree. */
@@ -301,7 +305,7 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_text(lua_State *L) {
-    /* Sets the text of the label */
+    /* Sets the text of the label. */
 #define WSLUA_ARG_TreeItem_set_text_TEXT 2 /* The text to be used. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_set_text_TEXT);
@@ -312,7 +316,7 @@ WSLUA_METHOD TreeItem_set_text(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_append_text(lua_State *L) {
-    /* Appends text to the label */
+    /* Appends text to the label. */
 #define WSLUA_ARG_TreeItem_append_text_TEXT 2 /* The text to be appended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_append_text_TEXT);
@@ -323,8 +327,8 @@ WSLUA_METHOD TreeItem_append_text(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_prepend_text(lua_State *L) {
-    /* Prepends text to the label */
-#define WSLUA_ARG_TreeItem_prepend_text_TEXT 2 /* The text to be prepended */
+    /* Prepends text to the label. */
+#define WSLUA_ARG_TreeItem_prepend_text_TEXT 2 /* The text to be prepended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_prepend_text_TEXT);
 
@@ -335,9 +339,13 @@ WSLUA_METHOD TreeItem_prepend_text(lua_State *L) {
 
 WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
     /* Sets the expert flags of the item and adds expert info to the packet. */
-#define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of PI_CHECKSUM, PI_SEQUENCE, PI_RESPONSE_CODE, PI_REQUEST_CODE, PI_UNDECODED, PI_REASSEMBLE, PI_MALFORMED or PI_DEBUG */
-#define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of PI_CHAT, PI_NOTE, PI_WARN, PI_ERROR */
-#define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 4 /* The text for the expert info */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of `PI_CHECKSUM`, `PI_SEQUENCE`,
+                                                         `PI_RESPONSE_CODE`, `PI_REQUEST_CODE`,
+                                                         `PI_UNDECODED`, `PI_REASSEMBLE`,
+                                                         `PI_MALFORMED` or `PI_DEBUG`. */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of `PI_CHAT`, `PI_NOTE`,
+                                                            `PI_WARN`, or `PI_ERROR`. */
+#define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 4 /* The text for the expert info display. */
     TreeItem ti = checkTreeItem(L,1);
     int group = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
     int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
@@ -349,7 +357,7 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
-    /* Marks the TreeItem as a generated field (with data infered but not contained in the packet). */
+    /* Marks the `TreeItem` as a generated field (with data inferred but not contained in the packet). */
     TreeItem ti = checkTreeItem(L,1);
 
     PROTO_ITEM_SET_GENERATED(ti->item);
@@ -368,7 +376,7 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_set_len(lua_State *L) {
-    /* Set TreeItem's length inside tvb, after it has already been created. */
+    /* Set `TreeItem`'s length inside tvb, after it has already been created. */
 #define WSLUA_ARG_TreeItem_set_len_LEN 2 /* The length to be used. */
     TreeItem ti = checkTreeItem(L,1);
     gint len = luaL_checkint(L,WSLUA_ARG_TreeItem_set_len_LEN);

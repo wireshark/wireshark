@@ -36,8 +36,8 @@
 
 WSLUA_CLASS_DEFINE(Listener,FAIL_ON_NULL("Listener"),NOP);
 /*
-    A Listener, is called once for every packet that matches a certain filter or has a certain tap.
-    It can read the tree, the packet's Tvb eventually the tapped data but it cannot
+    A `Listener` is called once for every packet that matches a certain filter or has a certain tap.
+    It can read the tree, the packet's `Tvb` buffer as well as the tapped data, but it cannot
     add elements to the tree.
  */
 
@@ -187,10 +187,12 @@ static void lua_tap_draw(void *tapdata) {
 }
 
 WSLUA_CONSTRUCTOR Listener_new(lua_State* L) {
-    /* Creates a new Listener listener */
-#define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap */
-#define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the tap.packet function gets called (use nil to be called for every packet) */
-#define WSLUA_OPTARG_Listener_new_ALLFIELDS 3 /* Whether to generate all fields. Note: this impacts performance (default=false) */
+    /* Creates a new `Listener` listener object. */
+#define WSLUA_OPTARG_Listener_new_TAP 1 /* The name of this tap. */
+#define WSLUA_OPTARG_Listener_new_FILTER 2 /* A filter that when matches the `tap.packet` function gets
+                                              called (use nil to be called for every packet). */
+#define WSLUA_OPTARG_Listener_new_ALLFIELDS 3 /* Whether to generate all fields. (default=false)
+                                                 Note: this impacts performance. */
 
     const gchar* tap_type = luaL_optstring(L,WSLUA_OPTARG_Listener_new_TAP,"frame");
     const gchar* filter = luaL_optstring(L,WSLUA_OPTARG_Listener_new_FILTER,NULL);
@@ -244,8 +246,12 @@ compare_dissector_key_name(gconstpointer dissector_a, gconstpointer dissector_b)
 }
 
 WSLUA_CONSTRUCTOR Listener_list (lua_State *L) {
-    /* Gets a Lua array table of all registered Listener tap names.
-       NOTE: this is an expensive operation, and should only be used for troubleshooting. */
+    /* Gets a Lua array table of all registered `Listener` tap names.
+
+       Note: this is an expensive operation, and should only be used for troubleshooting.
+
+       @since 1.11.3
+     */
     GList* list = get_tap_names();
     GList* elist = NULL;
     int i = 1;
@@ -266,7 +272,7 @@ WSLUA_CONSTRUCTOR Listener_list (lua_State *L) {
 }
 
 WSLUA_METHOD Listener_remove(lua_State* L) {
-    /* Removes a tap listener */
+    /* Removes a tap `Listener`. */
     Listener tap = checkListener(L,1);
 
     if (tap->all_fields) {
@@ -280,7 +286,7 @@ WSLUA_METHOD Listener_remove(lua_State* L) {
 }
 
 WSLUA_METAMETHOD Listener__tostring(lua_State* L) {
-    /* Generates a string of debug info for the tap listener */
+    /* Generates a string of debug info for the tap `Listener`. */
     Listener tap = checkListener(L,1);
     gchar* str;
 
@@ -291,24 +297,35 @@ WSLUA_METAMETHOD Listener__tostring(lua_State* L) {
 }
 
 
-/* WSLUA_ATTRIBUTE Listener_packet WO A function that will be called once every packet matches the Listener listener filter.
+/* WSLUA_ATTRIBUTE Listener_packet WO A function that will be called once every packet matches the
+    `Listener` listener filter.
 
-    function tap.packet(pinfo,tvb,tapinfo) ... end
-    Note: tapinfo is a table of info based on the Listener's type, or nil.
+    When later called by Wireshark, the `packet` function will be given:
+      1. A `Pinfo` object
+      2. A `Tvb` object
+      3. A `tapinfo` table
+
+    @code function tap.packet(pinfo,tvb,tapinfo) ... end @endcode
+
+    @note `tapinfo` is a table of info based on the `Listener`'s type, or nil.
 */
 WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,packet);
 
 
-/* WSLUA_ATTRIBUTE Listener_draw WO A function that will be called once every few seconds to redraw the gui objects;
-            in tshark this funtion is called only at the very end of the capture file.
+/* WSLUA_ATTRIBUTE Listener_draw WO A function that will be called once every few seconds to redraw the GUI objects;
+            in Tshark this funtion is called only at the very end of the capture file.
 
-    function tap.draw() ... end
+    When later called by Wireshark, the `draw` function will not be given any arguments.
+
+    @code function tap.draw() ... end @endcode
 */
 WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,draw);
 
 /* WSLUA_ATTRIBUTE Listener_reset WO A function that will be called at the end of the capture run.
 
-    function tap.reset() ... end
+    When later called by Wireshark, the `reset` function will not be given any arguments.
+
+    @code function tap.reset() ... end @endcode
 */
 WSLUA_ATTRIBUTE_FUNC_SETTER(Listener,reset);
 
