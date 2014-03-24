@@ -33,6 +33,12 @@ EllipsoidPointWithAltitudeAndUncertaintyEllipsoid
 NetworkTime
 GNSS-ID-Bitmap
 ARFCN-ValueUTRA
+GNSS-ReferenceTime
+LPP-Message
+Ellipsoid-PointWithUncertaintyCircle
+EllipsoidPointWithUncertaintyEllipse
+EllipsoidArc
+Polygon
 #.END
 
 #.PDU_NEW
