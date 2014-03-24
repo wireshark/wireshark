@@ -347,6 +347,9 @@ static expert_field ei_data_element_value_large = EI_INIT;
 
 static dissector_handle_t btsdp_handle;
 
+static dissector_table_t btrfcomm_service_table;
+static dissector_table_t btl2cap_service_table;
+
 static wmem_tree_t *tid_requests           = NULL;
 static wmem_tree_t *continuation_states    = NULL;
 static wmem_tree_t *record_handle_services = NULL;
@@ -858,16 +861,27 @@ service_info_t* btsdp_get_service_info(wmem_tree_key_t* key)
 }
 
 static uuid_t
-get_most_specified_uuid(wmem_array_t  *uuid_array)
+get_specified_uuid(wmem_array_t  *uuid_array)
 {
     uuid_t  uuid;
 
-/* TODO: For now try to use first (most specified) UUID, this may sometimes fail */
+/* Try to find UUID that is already use in RFCOMM or L2CAP, otherwise try to
+   return last one (most generic).
+   NOTE: UUIDs in array are from (most specified) to (most generic) */
     if (uuid_array) {
+        guint32  i_uuid;
+        guint32  size;
         uuid_t  *p_uuid = NULL;
 
-        if (wmem_array_get_count(uuid_array) > 0)
-            p_uuid = (uuid_t *) wmem_array_index(uuid_array, 0);
+        size = wmem_array_get_count(uuid_array);
+
+        for (i_uuid = 0; i_uuid < size; i_uuid += 1) {
+            p_uuid = (uuid_t *) wmem_array_index(uuid_array, i_uuid);
+            if (dissector_get_uint_handle(btrfcomm_service_table, p_uuid->bt_uuid))
+                break;
+            if (dissector_get_uint_handle(btl2cap_service_table, p_uuid->bt_uuid))
+                break;
+        }
 
         if (p_uuid) return *p_uuid;
     }
@@ -3617,7 +3631,7 @@ dissect_sdp_service_attribute_list(proto_tree *tree, tvbuff_t *tvb, gint offset,
         number_of_attributes += 1;
     }
 
-    uuid = get_most_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(uuid_array);
     if (uuid.size == 0 && service_uuid)
         uuid = *service_uuid;
 
@@ -3950,7 +3964,7 @@ dissect_sdp_service_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     offset += 2;
 
     uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
-    uuid = get_most_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(uuid_array);
 
     offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
 
@@ -3988,7 +4002,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
         wmem_array_t  *uuid_array;
 
         uuid_array = get_uuids(pinfo, record_handle, l2cap_data);
-        uuid = get_most_specified_uuid(uuid_array);
+        uuid = get_specified_uuid(uuid_array);
     } else {
         memset(&uuid, 0, sizeof(uuid_t));
     }
@@ -4081,7 +4095,7 @@ dissect_sdp_service_search_attribute_request(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_maximum_attribute_byte_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    uuid = get_most_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(uuid_array);
 
     offset += dissect_attribute_id_list(tree, tvb, offset, pinfo, &uuid);
 
@@ -4115,7 +4129,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
             PDU_TYPE_SERVICE_SEARCH_ATTRIBUTE, &new_tvb, &is_first,
             &is_continued, &uuid_array, NULL, l2cap_data);
 
-    uuid = get_most_specified_uuid(uuid_array);
+    uuid = get_specified_uuid(uuid_array);
 
     if (is_first && !is_continued) {
         dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo,
@@ -5668,6 +5682,9 @@ proto_reg_handoff_btsdp(void)
 {
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_SDP, btsdp_handle);
     dissector_add_handle("btl2cap.cid", btsdp_handle);
+
+    btrfcomm_service_table = find_dissector_table("btrfcomm.service");
+    btl2cap_service_table = find_dissector_table("btl2cap.service");
 }
 
 /*

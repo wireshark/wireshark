@@ -128,6 +128,13 @@ static dissector_handle_t btgnss_handle;
 static dissector_table_t rfcomm_service_dissector_table;
 static dissector_table_t rfcomm_channel_dissector_table;
 
+static wmem_tree_t *service_directions = NULL;
+
+typedef struct {
+    guint32  direction;
+    guint32  end_in;
+} service_direction_t;
+
 typedef struct {
     guint               channel;
     gchar*              payload_proto_name;
@@ -204,6 +211,8 @@ static const value_string vs_frame_type_short[] = {
         {0, NULL}
 };
 
+#define FRAME_TYPE_SABM  0x2F
+#define FRAME_TYPE_UIH   0xEF
 
 static const value_string vs_ctl[] = {
        /* masked 0xfc */
@@ -616,22 +625,73 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     /* payload length */
     offset = dissect_btrfcomm_payload_length(tvb, offset, rfcomm_tree, &frame_len);
 
-    if (dlci && (frame_len || (frame_type == 0xef) || (frame_type == 0x2f))) {
-        wmem_tree_key_t  key[10];
-        guint32          k_interface_id;
-        guint32          k_adapter_id;
-        guint32          k_sdp_psm;
-        guint32          k_direction;
-        guint32          k_bd_addr_oui;
-        guint32          k_bd_addr_id;
-        guint32          k_service_type;
-        guint32          k_service_channel;
-        guint32          k_frame_number;
+    if (dlci && (frame_len || (frame_type == FRAME_TYPE_UIH) || (frame_type == FRAME_TYPE_SABM))) {
+        wmem_tree_key_t       key[10];
+        guint32               k_interface_id;
+        guint32               k_adapter_id;
+        guint32               k_psm;
+        guint32               k_direction;
+        guint32               k_bd_addr_oui;
+        guint32               k_bd_addr_id;
+        guint32               k_service_type;
+        guint32               k_frame_number;
+        guint32               k_chandle;
+        guint32               k_channel;
+        service_direction_t  *service_direction;
+        wmem_tree_t          *subtree;
 
         k_interface_id    = l2cap_data->interface_id;
         k_adapter_id      = l2cap_data->adapter_id;
-        k_sdp_psm         = SDP_PSM_DEFAULT;
-        k_direction       = (l2cap_data->is_local_psm) ? P2P_DIR_SENT : P2P_DIR_RECV;
+        k_chandle         = l2cap_data->chandle;
+        k_psm             = l2cap_data->psm;
+        k_channel         = dlci >> 1;
+        k_frame_number    = pinfo->fd->num;
+
+        key[0].length = 1;
+        key[0].key = &k_interface_id;
+        key[1].length = 1;
+        key[1].key = &k_adapter_id;
+        key[2].length = 1;
+        key[2].key = &k_chandle;
+        key[3].length = 1;
+        key[3].key = &k_psm;
+        key[4].length = 1;
+        key[4].key = &k_channel;
+
+        if (!pinfo->fd->flags.visited && frame_type == FRAME_TYPE_SABM) {
+            key[5].length = 0;
+            key[5].key = NULL;
+
+            subtree = (wmem_tree_t *) wmem_tree_lookup32_array(service_directions, key);
+            service_direction = (subtree) ? (service_direction_t *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
+            if (service_direction && service_direction->end_in == G_MAXUINT32) {
+                service_direction->end_in = k_frame_number;
+            }
+
+            key[5].length = 1;
+            key[5].key = &k_frame_number;
+            key[6].length = 0;
+            key[6].key = NULL;
+
+            service_direction = wmem_new(wmem_file_scope(), service_direction_t);
+            service_direction->direction = (pinfo->p2p_dir == P2P_DIR_RECV) ? P2P_DIR_SENT : P2P_DIR_RECV;
+            service_direction->end_in = G_MAXUINT32;
+
+            wmem_tree_insert32_array(service_directions, key, service_direction);
+        }
+
+        key[5].length = 0;
+        key[5].key = NULL;
+
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(service_directions, key);
+        service_direction = (subtree) ? (service_direction_t *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
+        if (service_direction && service_direction->end_in > k_frame_number) {
+            k_direction = service_direction->direction;
+        } else {
+            k_direction = (l2cap_data->is_local_psm) ? P2P_DIR_SENT : P2P_DIR_RECV;
+        }
+
+        k_psm = SDP_PSM_DEFAULT;
         if (k_direction == P2P_DIR_RECV) {
             k_bd_addr_oui     = l2cap_data->remote_bd_addr_oui;
             k_bd_addr_id      = l2cap_data->remote_bd_addr_id;
@@ -640,15 +700,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
             k_bd_addr_id      = 0;
         }
         k_service_type    = BTSDP_RFCOMM_PROTOCOL_UUID;
-        k_service_channel = dlci >> 1;
-        k_frame_number    = pinfo->fd->num;
 
-        key[0].length = 1;
-        key[0].key = &k_interface_id;
-        key[1].length = 1;
-        key[1].key = &k_adapter_id;
         key[2].length = 1;
-        key[2].key = &k_sdp_psm;
+        key[2].key = &k_psm;
         key[3].length = 1;
         key[3].key = &k_direction;
         key[4].length = 1;
@@ -658,7 +712,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
         key[6].length = 1;
         key[6].key = &k_service_type;
         key[7].length = 1;
-        key[7].key = &k_service_channel;
+        key[7].key = &k_channel;
         key[8].length = 1;
         key[8].key = &k_frame_number;
         key[9].length = 0;
@@ -685,12 +739,12 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s Channel=%u ",
                     val_to_str_const(frame_type, vs_frame_type_short, "Unknown"), dlci >> 1);
-    if (dlci && (frame_type == 0x2f))
+    if (dlci && (frame_type == FRAME_TYPE_SABM))
         col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ",
                         val_to_str_ext_const(service_info->uuid.bt_uuid, &bt_sig_uuid_vals_ext, "Unknown"));
 
     /* UID frame */
-    if ((frame_type == 0xef) && dlci && pf_flag) {
+    if ((frame_type == FRAME_TYPE_UIH) && dlci && pf_flag) {
         col_append_str(pinfo->cinfo, COL_INFO, "UID ");
 
         /* add credit based flow control byte */
@@ -1071,6 +1125,8 @@ proto_register_btrfcomm(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_btrfcomm = expert_register_protocol(proto_btrfcomm);
     expert_register_field_array(expert_btrfcomm, ei, array_length(ei));
+
+    service_directions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     rfcomm_service_dissector_table = register_dissector_table("btrfcomm.service", "BT RFCOMM Service", FT_UINT16, BASE_HEX);
     rfcomm_channel_dissector_table = register_dissector_table("btrfcomm.channel", "BT RFCOMM Channel", FT_UINT16, BASE_DEC);
