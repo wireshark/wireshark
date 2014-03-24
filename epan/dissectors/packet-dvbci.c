@@ -3589,8 +3589,8 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
     guint8      file_name_len;
     guint8     *file_name_str;
     guint32     file_data_len;
-    proto_item *ti       = NULL;
-    proto_tree *req_tree = NULL;
+    proto_item *ti;
+    proto_tree *req_tree;
 
     switch(tag) {
         case T_REQUEST_START:
@@ -3694,13 +3694,11 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                         tvb_reported_length_remaining(tvb, offset), ENC_NA);
             }
             else if (req_type==REQ_TYPE_REQ) {
-                if (tree) {
-                    ti = proto_tree_add_text(tree, tvb,
-                            offset, tvb_reported_length_remaining(tvb, offset),
-                            "Supported request types");
-                    req_tree = proto_item_add_subtree(
-                            ti, ett_dvbci_ami_req_types);
-                }
+                ti = proto_tree_add_text(tree, tvb,
+                        offset, tvb_reported_length_remaining(tvb, offset),
+                        "Supported request types");
+                req_tree = proto_item_add_subtree(
+                        ti, ett_dvbci_ami_req_types);
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(req_tree, hf_dvbci_req_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
