@@ -245,12 +245,12 @@ static const value_string result_vals[] = {
 
 static const value_string le_result_vals[] = {
     { 0x0000, "Connection Successful" },
-    { 0x0002, "Connection Refused – LE_PSM Not Supported" },
-    { 0x0004, "Connection Refused – No Resources Available" },
-    { 0x0005, "Connection Refused – Insufficient Authentication" },
-    { 0x0006, "Connection Refused – Insufficient Authorization" },
-    { 0x0007, "Connection Refused – Insufficient Encryption Key Size" },
-    { 0x0008, "Connection Refused – Insufficient Encryption" },
+    { 0x0002, "Connection Refused - LE_PSM Not Supported" },
+    { 0x0004, "Connection Refused - No Resources Available" },
+    { 0x0005, "Connection Refused - Insufficient Authentication" },
+    { 0x0006, "Connection Refused - Insufficient Authorization" },
+    { 0x0007, "Connection Refused - Insufficient Encryption Key Size" },
+    { 0x0008, "Connection Refused - Insufficient Encryption" },
     { 0, NULL }
 };
 
