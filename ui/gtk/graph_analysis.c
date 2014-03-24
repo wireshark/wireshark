@@ -628,6 +628,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	GdkRGBA grey_color0 = {0.3945, 0.3945, 0.3945, 1.0};
 	GdkRGBA grey_color1 = {0.1484, 0.1484, 0.1484, 1.0};
 
+	GdkRGBA bg_color = {0.9137, 0.8901, 0.8705, 1.0};
+
 	static GdkRGBA background_color[MAX_NUM_COL_CONV+1] = {
 		/* Red, Green, Blue Alpha */
 		{0.0039, 0.0039, 1.0000, 1.0},
@@ -643,9 +645,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		{0.8281, 0.8281, 0.8281, 1.0}
 	};
 
-	/* XXX can't we just set the background color ? */
-	GdkPixbuf *bg_pixbuf;
-
 	/* Dashed line pattern */
 	static const double dashed1[] = {5.0, 4.0};
 	static int len1  = sizeof(dashed1) / sizeof(dashed1[0]);
@@ -656,7 +655,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		return;
 	}
 
-	bg_pixbuf =  gdk_pixbuf_new_from_xpm_data(voip_bg_xpm);
 	time_str = (gchar *)g_malloc(COL_MAX_LEN);
 	user_data->dlg.needs_redraw = FALSE;
 
@@ -804,24 +802,21 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #if GTK_CHECK_VERSION(2,22,0)
 	/* Paint time title background */
 	cr = cairo_create (user_data->dlg.surface_time);
-	gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+	gdk_cairo_set_source_rgba (cr, &bg_color);
 	cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
 	cairo_fill (cr);
 	cairo_destroy (cr);
 
 	/* Paint main title background */
 	cr = cairo_create (user_data->dlg.surface_main);
-	gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+	gdk_cairo_set_source_rgba (cr, &bg_color);
 	cairo_rectangle (cr, 0, 0, draw_area_alloc.width, top_y_border);
 	cairo_fill (cr);
 	cairo_destroy (cr);
 
 	/* Paint main comment background */
 	cr = cairo_create (user_data->dlg.surface_comments);
-	gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+	gdk_cairo_set_source_rgba (cr, &bg_color);
 	cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, top_y_border);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -829,9 +824,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint time title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ) {
 		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
-		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
-		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
+		gdk_cairo_set_source_rgba (cr, &bg_color);
 		cairo_fill (cr);
 		cairo_destroy (cr);
 
@@ -839,8 +832,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint main title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
 		cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+		gdk_cairo_set_source_rgba (cr, &bg_color);
 		cairo_rectangle (cr, 0, 0, draw_area_alloc.width, top_y_border);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -849,8 +841,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint main comment background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) ) {
 		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
-		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
+		gdk_cairo_set_source_rgba (cr, &bg_color);
 		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, top_y_border);
 		cairo_fill (cr);
 		cairo_destroy (cr);
