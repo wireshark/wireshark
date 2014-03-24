@@ -108,9 +108,11 @@ FINGER
 HDMI
 HTTP2
 IDRP
+IEEE 1722a
 ILP
 Kafka
 Kyoto Tycoon
+Landis & Gyr Telegyr 8979
 Lightweight Mesh (v1.1.1)
 Linux netlink
 Linux netlink netfilter
