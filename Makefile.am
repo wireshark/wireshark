@@ -944,7 +944,6 @@ EXTRA_DIST = \
 	image/toolbar/web_support_24.xpm	\
 	image/toolbar/wep_closed_24.xpm \
 	image/tshark.rc.in	\
-	image/voip_bg.xpm	\
 	image/voip_select.xpm	\
 	image/wireshark.exe.manifest.in \
 	image/wireshark.ico	\
