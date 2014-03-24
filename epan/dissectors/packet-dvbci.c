@@ -3576,21 +3576,90 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
 
 
 static void
-dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
-    guint8      app_dom_id_len, init_obj_len;
-    guint8     *app_dom_id;
-    guint8      ack_code;
-    gboolean    req_ok   = FALSE, file_ok;
     guint8      req_type;
-    guint8     *req_str;
+    gboolean    req_ok = FALSE, file_ok;
     guint8      file_name_len;
     guint8     *file_name_str;
     guint32     file_data_len;
     proto_item *ti;
     proto_tree *req_tree;
+
+    req_type = tvb_get_guint8(tvb, offset+1);
+    if (req_type==REQ_TYPE_FILE_HASH) {
+        req_ok = ((tvb_get_guint8(tvb, offset) & 0x02) == 0x02);
+        proto_tree_add_item(tree, hf_dvbci_req_ok,
+                tvb, offset, 1, ENC_BIG_ENDIAN);
+    }
+    file_ok = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
+    proto_tree_add_item(tree, hf_dvbci_file_ok, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+            val_to_str_const(req_type, dvbci_req_type, "unknown"));
+    offset++;
+    if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
+        file_name_len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_text(tree, tvb, offset, 1,
+                "File name length %d", file_name_len);
+        offset++;
+        file_name_str = tvb_get_string(wmem_packet_scope(),
+                tvb, offset, file_name_len);
+        if (!file_name_str)
+            return;
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                "%s", file_name_str);
+        proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
+                tvb, offset, file_name_len, file_name_str,
+                "%s", file_name_str);
+        offset += file_name_len;
+        file_data_len = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_text(tree, tvb, offset, 4,
+                "File data length %d", file_data_len);
+        offset += 4;
+        if (file_data_len > 0) {
+            proto_tree_add_item(tree, hf_dvbci_file_data,
+                    tvb, offset, file_data_len, ENC_NA);
+        }
+    }
+    else if (req_type==REQ_TYPE_DATA) {
+        if (tvb_reported_length_remaining(tvb, offset) <= 0)
+            return;
+        proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
+                tvb_reported_length_remaining(tvb, offset), ENC_NA);
+    }
+    else if (req_type==REQ_TYPE_REQ) {
+        ti = proto_tree_add_text(tree, tvb,
+                offset, tvb_reported_length_remaining(tvb, offset),
+                "Supported request types");
+        req_tree = proto_item_add_subtree(
+                ti, ett_dvbci_ami_req_types);
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(req_tree, hf_dvbci_req_type,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+        }
+    }
+
+    if (req_type==REQ_TYPE_FILE_HASH && req_ok && !file_ok) {
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                "cached copy is valid");
+    }
+}
+
+
+static void
+dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, circuit_t *circuit _U_,
+        packet_info *pinfo, proto_tree *tree)
+{
+    guint8  app_dom_id_len, init_obj_len;
+    guint8 *app_dom_id;
+    guint8  ack_code;
+    guint8  req_type;
+    guint8 *req_str;
 
     switch(tag) {
         case T_REQUEST_START:
@@ -3650,66 +3719,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             }
             break;
         case T_FILE_ACKNOWLEDGE:
-            req_type = tvb_get_guint8(tvb, offset+1);
-            if (req_type==REQ_TYPE_FILE_HASH) {
-                req_ok = ((tvb_get_guint8(tvb, offset) & 0x02) == 0x02);
-                proto_tree_add_item(tree, hf_dvbci_req_ok,
-                        tvb, offset, 1, ENC_BIG_ENDIAN);
-            }
-            file_ok = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
-            proto_tree_add_item(tree, hf_dvbci_file_ok, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset++;
-            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
-                    val_to_str_const(req_type, dvbci_req_type, "unknown"));
-            offset++;
-            if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
-                file_name_len = tvb_get_guint8(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 1,
-                        "File name length %d", file_name_len);
-                offset++;
-                file_name_str = tvb_get_string(wmem_packet_scope(),
-                        tvb, offset, file_name_len);
-                if (!file_name_str)
-                    break;
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
-                        "%s", file_name_str);
-                proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
-                        tvb, offset, file_name_len, file_name_str,
-                        "%s", file_name_str);
-                offset += file_name_len;
-                file_data_len = tvb_get_ntohl(tvb, offset);
-                proto_tree_add_text(tree, tvb, offset, 4,
-                        "File data length %d", file_data_len);
-                offset += 4;
-                if (file_data_len > 0) {
-                    proto_tree_add_item(tree, hf_dvbci_file_data,
-                            tvb, offset, file_data_len, ENC_NA);
-                }
-             }
-            else if (req_type==REQ_TYPE_DATA) {
-                if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                    break;
-                proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
-            }
-            else if (req_type==REQ_TYPE_REQ) {
-                ti = proto_tree_add_text(tree, tvb,
-                        offset, tvb_reported_length_remaining(tvb, offset),
-                        "Supported request types");
-                req_tree = proto_item_add_subtree(
-                        ti, ett_dvbci_ami_req_types);
-                while (tvb_reported_length_remaining(tvb, offset) > 0) {
-                    proto_tree_add_item(req_tree, hf_dvbci_req_type,
-                            tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset++;
-                }
-            }
-
-            if (req_type==REQ_TYPE_FILE_HASH && req_ok && !file_ok) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
-                        "cached copy is valid");
-            }
+            dissect_dvbci_ami_file_ack(tvb, offset, pinfo, tree);
             break;
         case T_APP_ABORT_REQUEST:
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
