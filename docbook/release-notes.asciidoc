@@ -155,6 +155,7 @@ Media Agnostic USB (MA USB)
 MiNT
 MP4 / ISOBMFF file format
 MQ Telemetry Transport Protocol
+MS NLB (Rewrite)
 Novell PKIS certificate extensions
 NXP PN532 HCI
 OpenFlow
