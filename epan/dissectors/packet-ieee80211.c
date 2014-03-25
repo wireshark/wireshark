@@ -137,7 +137,8 @@ static gboolean wlan_check_fcs = FALSE;
 /* Ignore vendor-specific HT elements */
 static gboolean wlan_ignore_draft_ht = FALSE;
 
-/* Ignore the WEP bit; assume packet is decrypted */
+/* Ignore the Protection bit; assume packet is decrypted */
+/* (The term "WEP" is historical.) */
 #define WLAN_IGNORE_WEP_NO     0
 #define WLAN_IGNORE_WEP_WO_IV  1
 #define WLAN_IGNORE_WEP_W_IV   2
@@ -17744,7 +17745,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
   guint8     counter;
 
   /*
-   * 802.11i.
+   * RSNA key descriptors.
    */
   keyinfo = tvb_get_ntohs(tvb, offset);
   if (keyinfo & KEY_INFO_REQUEST_MASK) {
@@ -25880,7 +25881,6 @@ proto_register_ieee80211 (void)
     &wlan_check_fcs);
 
   /* Davide Schiera (2006-11-26): changed "WEP bit" in "Protection bit"    */
-  /*    (according to the document IEEE Std 802.11i-2004)              */
   prefs_register_enum_preference(wlan_module, "ignore_wep",
     "Ignore the Protection bit",
     "Some 802.11 cards leave the Protection bit set even though the packet is decrypted, "
