@@ -39,12 +39,17 @@ typedef struct _usb_address_t {
 
 typedef struct _usb_conv_info_t usb_conv_info_t;
 
+/* header flags */
+#define USB_HEADER_IS_LINUX    (1 << 0)
+#define USB_HEADER_IS_64_BYTES (1 << 1)
+#define USB_HEADER_IS_USBPCAP  (1 << 2)
+
 /* there is one such structure for each request/response */
 typedef struct _usb_trans_info_t {
     guint32 request_in;
     guint32 response_in;
     nstime_t req_time;
-    gboolean header_len_64;
+    guint8 header_info;
 
     /* Valid only for SETUP transactions */
     struct _usb_setup {

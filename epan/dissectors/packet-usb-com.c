@@ -464,9 +464,15 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         switch (usb_trans_info->setup.request)
         {
             case SEND_ENCAPSULATED_COMMAND:
+                if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) &&
+                    (usb_trans_info->header_info & USB_HEADER_IS_LINUX)) {
+                    offset = call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
+                    break;
+                }
+                /* FALLTHROUGH */
             case GET_ENCAPSULATED_RESPONSE:
-                if (!is_request && (usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM)) {
-                    offset = call_dissector_only(mbim_control_handle, tvb, pinfo, tree, NULL);
+                if ((usb_conv_info->interfaceSubclass == COM_SUBCLASS_MBIM) && !is_request) {
+                    offset = call_dissector_only(mbim_control_handle, tvb, pinfo, tree, usb_conv_info);
                 }
                 break;
             case GET_NTB_PARAMETERS:

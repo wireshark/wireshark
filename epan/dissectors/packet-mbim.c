@@ -1,6 +1,6 @@
 /* packet-mbim.c
  * Routines for MBIM dissection
- * Copyright 2013, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2013-2014, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -3492,7 +3492,7 @@ mbim_dissect_muticarrier_current_cid_list_info(tvbuff_t *tvb, packet_info *pinfo
 }
 
 static int
-dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *ti;
     proto_tree *mbim_tree, *header_tree, *subtree;
@@ -3503,7 +3503,15 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     struct mbim_conv_info *mbim_conv;
     struct mbim_info *mbim_info = NULL;
 
-    if (mbim_control_decode_unknown_itf && (tvb_reported_length(tvb) < 12)) {
+    if (data) {
+        usb_trans_info_t *usb_trans_info = ((usb_conv_info_t *)data)->usb_trans_info;
+        if ((usb_trans_info->setup.request == 0x00) && (usb_trans_info->header_info & USB_HEADER_IS_LINUX)) {
+            /* Skip Send Encapsulated Command header */
+            offset += 7;
+        }
+    }
+
+    if (mbim_control_decode_unknown_itf && (tvb_reported_length_remaining(tvb, offset) < 12)) {
         return 0;
     }
 
@@ -3522,9 +3530,9 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         conversation_add_proto_data(conversation, proto_mbim, mbim_conv);
     }
 
-    ti = proto_tree_add_item(tree, proto_mbim, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_mbim, tvb, offset, -1, ENC_NA);
     mbim_tree = proto_item_add_subtree(ti, ett_mbim);
-    ti = proto_tree_add_item(mbim_tree, hf_mbim_control, tvb, 0, 0, ENC_NA);
+    ti = proto_tree_add_item(mbim_tree, hf_mbim_control, tvb, offset, 0, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti);
 
     ti = proto_tree_add_text(mbim_tree, tvb, offset, 12, "Message Header");

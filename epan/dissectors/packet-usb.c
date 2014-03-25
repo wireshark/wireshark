@@ -41,11 +41,6 @@
 #include "packet-usb.h"
 #include "packet-usb-hid.h"
 
-/* internal header flags */
-#define USB_HEADER_IS_LINUX    (1 << 0)
-#define USB_HEADER_IS_64_BYTES (1 << 1)
-#define USB_HEADER_IS_USBPCAP  (1 << 2)
-
 /* protocols and header fields */
 static int proto_usb = -1;
 
@@ -2867,10 +2862,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         /* this is a request */
         usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         if (!usb_trans_info) {
-            usb_trans_info                = wmem_new0(wmem_file_scope(), usb_trans_info_t);
-            usb_trans_info->request_in    = pinfo->fd->num;
-            usb_trans_info->req_time      = pinfo->fd->abs_ts;
-            usb_trans_info->header_len_64 = (header_info & USB_HEADER_IS_64_BYTES) ? TRUE : FALSE;
+            usb_trans_info              = wmem_new0(wmem_file_scope(), usb_trans_info_t);
+            usb_trans_info->request_in  = pinfo->fd->num;
+            usb_trans_info->req_time    = pinfo->fd->abs_ts;
+            usb_trans_info->header_info = header_info;
 
             wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }

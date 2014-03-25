@@ -1851,7 +1851,7 @@ dissect_usb_vid_get_set(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         offset += 2;
 
         /* If there is an extended pseudo header, skip over it to reach the payload */
-        if ((usb_trans_info->setup.request == USB_SETUP_SET_CUR) && usb_trans_info->header_len_64)
+        if ((usb_trans_info->setup.request == USB_SETUP_SET_CUR) && (usb_trans_info->header_info & USB_HEADER_IS_64_BYTES))
             offset += 16;
     }
     else
