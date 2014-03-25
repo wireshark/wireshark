@@ -435,6 +435,11 @@ wmem_test_strutls(void)
     g_assert_cmpstr(split_str[0], ==, "aslkf");
     g_assert_cmpstr(split_str[1], ==, "asio");
     g_assert_cmpstr(split_str[2], ==, "-asfj-as--");
+    wmem_strict_check_canaries(allocator);
+
+    orig_str = "TeStAsCiIsTrDoWn";
+    new_str = wmem_ascii_strdown(allocator, orig_str, -1);
+    g_assert_cmpstr(new_str, ==, "testasciistrdown");
 
     wmem_destroy_allocator(allocator);
 }

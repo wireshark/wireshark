@@ -201,6 +201,26 @@ wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
 }
 
 /*
+ * wmem_ascii_strdown:
+ * based on g_ascii_strdown.
+ */
+gchar*
+wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len)
+{
+    gchar *result, *s;
+
+    g_return_val_if_fail (str != NULL, NULL);
+
+    if (len < 0)
+        len = strlen (str);
+
+    result = wmem_strndup(allocator, str, len);
+    for (s = result; *s; s++)
+        *s = g_ascii_tolower (*s);
+
+    return result;
+}
+/*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
