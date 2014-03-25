@@ -585,8 +585,8 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
     char *parameters = NULL;
     gint body_start, boundary_start, boundary_line_len;
 
-    char *content_type_str = NULL;
-    char *content_encoding_str = NULL;
+    gchar *content_type_str = NULL;
+    gchar *content_encoding_str = NULL;
     char *filename = NULL;
     char *mimetypename = NULL;
     int  len = 0;
@@ -663,7 +663,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
                                 parameters = NULL;
                             }
 
-                            content_type_str = g_ascii_strdown(value_str, -1);
+                            content_type_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
 
                             /* Show content-type in root 'part' label */
                             proto_item_append_text(ti, " (%s)", content_type_str);
@@ -685,7 +685,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
                                 value_str[cr_offset] = '\0';
                             }
 
-                            content_encoding_str = g_ascii_strdown(value_str, -1);
+                            content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
                         }
                         break;
                         case POS_CONTENT_DISPOSITION:
@@ -758,8 +758,6 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
                 pinfo->match_string = save_match_string;
             }
             pinfo->private_data = save_private_data;
-            g_free(content_type_str);
-            content_type_str = NULL;
             parameters = NULL; /* Shares same memory as content_type_str */
         } else {
             call_dissector(data_handle, tmp_tvb, pinfo, subtree);
