@@ -19514,7 +19514,14 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
     case SI_OrPSI_GERAN_si:
       /* SI message */
       if (gsm_a_dtap_handle) {
-        call_dissector(gsm_a_dtap_handle, sys_info_list_tvb, actx->pinfo, subtree);
+        tvbuff_t *si_tvb = tvb_new_composite();
+        guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
+        pd[0] = 0x06;
+        tvb_composite_append(si_tvb, tvb_new_real_data(pd, 1, 1));
+        tvb_composite_append(si_tvb, sys_info_list_tvb);
+        tvb_composite_finalize(si_tvb);
+        add_new_data_source(actx->pinfo, si_tvb, "System Information");
+        call_dissector(gsm_a_dtap_handle, si_tvb, actx->pinfo, subtree);
       }
       break;
     case SI_OrPSI_GERAN_psi:
