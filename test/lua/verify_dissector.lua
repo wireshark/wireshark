@@ -13,10 +13,76 @@ end
 local lines = {
     {
         "MyDNS Protocol",
+        "Transaction ID: 42",
+        "Flags: 0x0100",
+        "0... .... .... .... = Response: this is a query",
+        "[Expert Info (Chat/Request): DNS query message]",
+        "[DNS query message]",
+        "[Severity level: Chat]",
+        "[Group: Request]",
+       ".000 0... .... .... = Opcode: 0",
+        ".... ..0. .... .... = Truncated: False",
+        ".... ...1 .... .... = Recursion desired: yes",
+        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
+        ".... .... ...0 .... = Checking disabled: False",
+        "Number of Questions: 1",
+        "Number of Answer RRs: 0",
+        "Number of Authority RRs: 0",
+        "Number of Additional RRs: 0",
+        "Queries",
+        "us.pool.ntp.org: type A (IPv4 host address) (1), class IN (Internet) (1)",
+        "Name: us.pool.ntp.org",
+        "[Name Length: 17]",
+        "[Label Count: 4]",
+        "Type: A (IPv4 host address) (1)",
+        "Class: IN (Internet) (1)",
+    },
+
+    {
+        "MyDNS Protocol",
+        "Transaction ID: 42",
+        "Flags: 0x8180",
+        "1... .... .... .... = Response: this is a response",
+        "[Expert Info (Chat/Response): It's a response!]",
+        "[It's a response!]",
+        "[Severity level: Chat]",
+        "[Group: Response]",
+         ".000 0... .... .... = Opcode: 0",
+        ".... .0.. .... .... = Authoritative: False",
+        ".... ..0. .... .... = Truncated: False",
+        ".... .... 1... .... = Recursion available: True",
+        ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
+        ".... .... ..0. .... = Authenticated: no",
+        ".... .... .... 0000 = Response code: No Error (0)",
+        ".... .... ...0 .... = Checking disabled: False",
+        "DNS answer to life, the universe, and everything",
+        "[Expert Info (Note/Comment): DNS answer to life, the universe, and everything]",
+        "[DNS answer to life, the universe, and everything]",
+        "[Severity level: Note]",
+        "[Group: Comment]",
+        "Number of Questions: 1",
+        "Number of Answer RRs: 15",
+        "Number of Authority RRs: 6",
+        "Number of Additional RRs: 2",
+        "Queries",
+        "us.pool.ntp.org: type A (IPv4 host address) (1), class IN (Internet) (1)",
+        "Name: us.pool.ntp.org",
+        "[Name Length: 17]",
+        "[Label Count: 4]",
+        "Type: A (IPv4 host address) (1)",
+        "Class: IN (Internet) (1)",
+    },
+
+    {
+        "MyDNS Protocol",
         "Transaction ID: 43",
         "Flags: 0x0100",
         "0... .... .... .... = Response: this is a query",
-        ".000 0... .... .... = Opcode: 0",
+        "[Expert Info (Chat/Request): DNS query message]",
+        "[DNS query message]",
+        "[Severity level: Chat]",
+        "[Group: Request]",
+       ".000 0... .... .... = Opcode: 0",
         ".... ..0. .... .... = Truncated: False",
         ".... ...1 .... .... = Recursion desired: yes",
         ".... .... .0.. .... = World War Z - Reserved for future use: 0x0000",
@@ -39,7 +105,11 @@ local lines = {
         "Transaction ID: 43",
         "Flags: 0x8180",
         "1... .... .... .... = Response: this is a response",
-        ".000 0... .... .... = Opcode: 0",
+        "[Expert Info (Chat/Response): It's a response!]",
+        "[It's a response!]",
+        "[Severity level: Chat]",
+        "[Group: Response]",
+         ".000 0... .... .... = Opcode: 0",
         ".... .0.. .... .... = Authoritative: False",
         ".... ..0. .... .... = Truncated: False",
         ".... .... 1... .... = Recursion available: True",
@@ -58,13 +128,13 @@ local lines = {
         "[Label Count: 4]",
         "Type: A (IPv4 host address) (1)",
         "Class: IN (Internet) (1)",
-    }
+    },
 }
 
 -- we're going to see those two sets of output twice: both by the normal
 -- dissector, then the first one by the heuristic, then the second one by
 -- a conversation match
-local numtests = 1 + (2 * (#lines[1] + #lines[2]))
+local numtests = 1 + #lines[1] + #lines[2] + #lines[3] + #lines[4]
 print("going to run "..numtests.." tests")
 
 -- for an example of what we're reading through to verify, look at end of this file
@@ -83,7 +153,7 @@ while line do
         pktidx = line:match("^Frame (%d+):")
         testing("Frame "..pktidx)
         pktidx = tonumber(pktidx)
-        if pktidx > 2 then pktidx = pktidx - 2 end
+        if pktidx > 4 then pktidx = pktidx - 4 end
         line = file:read()
     elseif line:find("%[Heuristic dissector used%]") then
         -- start again, because it now repeats

@@ -289,6 +289,24 @@ function dns.init()
 end
 
 ----------------------------------------
+-- create some expert info fields
+local ef_query     = ProtoExpert.new("mydns.query.expert", "DNS query message",
+                                     expert.group.REQUEST_CODE, expert.severity.CHAT)
+local ef_response  = ProtoExpert.new("mydns.response.expert", "DNS response message",
+                                     expert.group.RESPONSE_CODE, expert.severity.CHAT)
+local ef_ultimate  = ProtoExpert.new("mydns.response.ultimate.expert", "DNS answer to life, the universe, and everything",
+                                     expert.group.COMMENTS_GROUP, expert.severity.NOTE)
+-- some error expert info's
+local ef_too_short = ProtoExpert.new("mydns.too_short.expert", "DNS message too short",
+                                     expert.group.MALFORMED, expert.severity.ERROR)
+local ef_bad_query = ProtoExpert.new("mydns.query.missing.expert", "DNS query missing or malformed",
+                                     expert.group.MALFORMED, expert.severity.WARN)
+
+-- register them
+dns.experts = { ef_query, ef_too_short, ef_bad_query, ef_response, ef_ultimate }
+
+
+----------------------------------------
 -- we don't just want to display our protocol's fields, we want to access the value of some of them too!
 -- There are several ways to do that.  One is to just parse the buffer contents in Lua code to find
 -- the values.  But since ProtoFields actually do the parsing for us, and can be retrieved using Field
@@ -391,7 +409,17 @@ function dns.dissector(tvbuf,pktinfo,root)
     local flag_tree = tree:add(pf_flags, flagrange)
         -- I'm indenting this for calarity, because it's adding to the flag's child-tree
         -- let's add the type of message (query vs. response)
-        flag_tree:add(pf_flag_response, flagrange)
+        local query_flag_tree = flag_tree:add(pf_flag_response, flagrange)
+
+        -- let's also add an expert info about it
+        if isResponse() then
+            query_flag_tree:add_proto_expert_info(ef_response, "It's a response!")
+            if transid == 42 then
+                tree:add_tvb_expert_info(ef_ultimate, tvbuf:range(0,2))
+            end
+        else
+            query_flag_tree:add_proto_expert_info(ef_query)
+        end
 
         -- we now know if it's a response or query, so let's put that in the
         -- GUI packet row, in the INFO column cell

@@ -32,7 +32,6 @@
 /* WSLUA_MODULE Tree Adding information to the dissection tree */
 
 #include "wslua.h"
-#include <epan/expert.h>
 
 static gint wslua_ett = -1;
 
@@ -338,7 +337,15 @@ WSLUA_METHOD TreeItem_prepend_text(lua_State *L) {
 }
 
 WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
-    /* Sets the expert flags of the item and adds expert info to the packet. */
+    /* Sets the expert flags of the item and adds expert info to the packet.
+
+       This function does *not* create a truly filterable expert info for a protocol.
+       Instead you should use `TreeItem.add_proto_expert_info()`.
+
+       Note: This function is provided for backwards compatibility only, and should not
+       be used in new Lua code. It may be removed in the future. You should only
+       use `TreeItem.add_proto_expert_info()`.
+     */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_GROUP 2 /* One of `PI_CHECKSUM`, `PI_SEQUENCE`,
                                                          `PI_RESPONSE_CODE`, `PI_REQUEST_CODE`,
                                                          `PI_UNDECODED`, `PI_REASSEMBLE`,
@@ -346,12 +353,94 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY 3 /* One of `PI_CHAT`, `PI_NOTE`,
                                                             `PI_WARN`, or `PI_ERROR`. */
 #define WSLUA_OPTARG_TreeItem_add_expert_info_TEXT 4 /* The text for the expert info display. */
-    TreeItem ti = checkTreeItem(L,1);
-    int group = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
-    int severity = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
-    const gchar* str = luaL_optstring(L,WSLUA_OPTARG_TreeItem_add_expert_info_TEXT,"Expert Info");
+    TreeItem ti           = checkTreeItem(L,1);
+    int group             = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_GROUP,PI_DEBUG);
+    int severity          = luaL_optint(L,WSLUA_OPTARG_TreeItem_add_expert_info_SEVERITY,PI_CHAT);
+    expert_field* ei_info = wslua_get_expert_field(group, severity);
+    const gchar* str;
 
-    expert_add_info_format_internal(lua_pinfo, ti->item, group, severity, "%s", str);
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_add_expert_info_TEXT) {
+        str = wslua_checkstring_only(L, WSLUA_OPTARG_TreeItem_add_expert_info_TEXT);
+        expert_add_info_format(lua_pinfo, ti->item, ei_info, "%s", str);
+    } else {
+        expert_add_info(lua_pinfo, ti->item, ei_info);
+    }
+
+    return 0;
+}
+
+WSLUA_METHOD TreeItem_add_proto_expert_info(lua_State *L) {
+    /* Sets the expert flags of the tree item and adds expert info to the packet.
+
+       @since 1.11.3
+     */
+#define WSLUA_ARG_TreeItem_add_proto_expert_info_EXPERT 2 /* The `ProtoExpert` object to add to the tree. */
+#define WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT 3 /* Text for the expert info display
+                                                              (default is to use the registered
+                                                              text). */
+    TreeItem ti = checkTreeItem(L,1);
+    ProtoExpert expert = checkProtoExpert(L,WSLUA_ARG_TreeItem_add_proto_expert_info_EXPERT);
+    const gchar* str;
+
+    if (expert->ids.ei == EI_INIT_EI || expert->ids.hf == EI_INIT_HF) {
+        luaL_error(L, "ProtoExpert is not registered");
+        return 0;
+    }
+
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT) {
+        str = wslua_checkstring_only(L, WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT);
+        expert_add_info_format(lua_pinfo, ti->item, &expert->ids, "%s", str);
+    } else {
+        expert_add_info(lua_pinfo, ti->item, &expert->ids);
+    }
+
+    return 0;
+}
+
+WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
+    /* Sets the expert flags of the tree item and adds expert info to the packet
+       associated with the `Tvb` or `TvbRange` bytes in the packet.
+
+       @since 1.11.3
+     */
+#define WSLUA_ARG_TreeItem_add_tvb_expert_info_EXPERT 2 /* The `ProtoExpert` object to add to the tree. */
+#define WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB 3 /* The `Tvb` or `TvbRange` object bytes to associate
+                                                        the expert info with. */
+#define WSLUA_OPTARG_TreeItem_add_tvb_expert_info_TEXT 4 /* Text for the expert info display
+                                                              (default is to use the registered
+                                                              text). */
+    TreeItem ti = checkTreeItem(L,1);
+    ProtoExpert expert = checkProtoExpert(L,WSLUA_ARG_TreeItem_add_proto_expert_info_EXPERT);
+    TvbRange tvbr;
+    const gchar* str;
+
+    if (expert->ids.ei == EI_INIT_EI || expert->ids.hf == EI_INIT_HF) {
+        luaL_error(L, "ProtoExpert is not registered");
+        return 0;
+    }
+
+    tvbr = shiftTvbRange(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
+
+    if (!tvbr) {
+        tvbr = ep_new(struct _wslua_tvbrange);
+        tvbr->tvb = shiftTvb(L,WSLUA_ARG_TreeItem_add_tvb_expert_info_TVB);
+        if (!tvbr->tvb) {
+            tvbr->tvb = ep_new(struct _wslua_tvb);
+        }
+        tvbr->tvb->ws_tvb = lua_tvb;
+        tvbr->offset = 0;
+        tvbr->len = 0;
+    }
+
+    if (lua_gettop(L) >= WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT) {
+        str = wslua_checkstring_only(L, WSLUA_OPTARG_TreeItem_add_proto_expert_info_TEXT);
+        proto_tree_add_expert_format(ti->tree, lua_pinfo, &expert->ids,
+                                     tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
+                                     "%s", str);
+    } else {
+        proto_tree_add_expert(ti->tree, lua_pinfo, &expert->ids,
+                              tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
+    }
 
     return 0;
 }
@@ -405,6 +494,8 @@ WSLUA_METHODS TreeItem_methods[] = {
     WSLUA_CLASS_FNREG(TreeItem,append_text),
     WSLUA_CLASS_FNREG(TreeItem,prepend_text),
     WSLUA_CLASS_FNREG(TreeItem,add_expert_info),
+    WSLUA_CLASS_FNREG(TreeItem,add_proto_expert_info),
+    WSLUA_CLASS_FNREG(TreeItem,add_tvb_expert_info),
     WSLUA_CLASS_FNREG(TreeItem,set_generated),
     WSLUA_CLASS_FNREG(TreeItem,set_hidden),
     WSLUA_CLASS_FNREG(TreeItem,set_len),

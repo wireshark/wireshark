@@ -318,6 +318,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 		highest_severity = severity;
 	}
 
+	/* XXX: can we get rid of these checks and make them programming errors instead now? */
 	if (pi != NULL && PITEM_FINFO(pi) != NULL) {
 		expert_set_item_flags(pi, group, severity);
 	}
@@ -371,22 +372,13 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	/* if we have a proto_item (not a faked item), set expert attributes to it */
 	if (pi != NULL && PITEM_FINFO(pi) != NULL) {
 		ei->pitem = pi;
-	} else {
+	}
+	/* XXX: remove this because we don't have an internal-only function now? */
+	else {
 		ei->pitem = NULL;
 	}
 
 	tap_queue_packet(expert_tap, pinfo, ei);
-}
-
-
-void
-expert_add_info_format_internal(packet_info *pinfo, proto_item *pi, int group, int severity, const char *format, ...)
-{
-	va_list ap;
-
-	va_start(ap, format);
-	expert_set_info_vformat(pinfo, pi, group, severity, -1, TRUE, format, ap);
-	va_end(ap);
 }
 
 void

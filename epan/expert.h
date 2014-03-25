@@ -51,7 +51,9 @@ typedef struct expert_field
 	int hf;
 } expert_field;
 
-#define EI_INIT {-1, -1}
+#define EI_INIT_EI -1
+#define EI_INIT_HF -1
+#define EI_INIT {EI_INIT_EI, EI_INIT_HF}
 
 typedef struct expert_field_info {
 	/* ---------- set by dissector --------- */
@@ -111,20 +113,6 @@ expert_update_comment_count(guint64 count);
  */
 WS_DLL_PUBLIC void
 expert_add_info(packet_info *pinfo, proto_item *pi, expert_field* eiindex);
-
-/** Add an expert info. FOR INTERNAL (NON-DISSECTOR) USE ONLY!!!
- Add an expert info tree to a protocol item, with classification and message.
- @param pinfo Packet info of the currently processed packet. May be NULL if
-        pi is supplied
- @param pi Current protocol item (or NULL)
- @param group The expert group (like PI_CHECKSUM - see: proto.h)
- @param severity The expert severity (like PI_WARN - see: proto.h)
- @param format Printf-style format string for additional arguments
- */
-WS_DLL_PUBLIC void
-expert_add_info_format_internal(packet_info *pinfo, proto_item *pi, int group,
-	int severity, const char *format, ...)
-	G_GNUC_PRINTF(5, 6);
 
 /** Add an expert info.
  Add an expert info tree to a protocol item, using registered expert info item,

@@ -64,6 +64,7 @@ function typeof(obj)
     return mt and mt.__typeof or obj.__typeof or type(obj)
 end
 
+-- the following function is since 1.11.3
 function file_exists(name)
    local f = io.open(name,"r")
    if f ~= nil then io.close(f) return true else return false end
@@ -77,6 +78,7 @@ end
 
 -- %FT_TYPES%
 
+-- the following table is since 1.11.3
 -- %WTAP_PRESENCE_FLAGS%
 
 -- %BASES%
@@ -84,6 +86,9 @@ end
 -- %ENCODINGS%
 
 -- %EXPERT%
+
+-- the following table is since 1.11.3
+-- %EXPERT_TABLE%
 
 -- %MENU_GROUPS%
 

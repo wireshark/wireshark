@@ -893,7 +893,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
 
     pushProtoField(L,f);
 
-    WSLUA_RETURN(1); /* The newly created ProtoField object. */
+    WSLUA_RETURN(1); /* The newly created `ProtoField` object. */
 }
 
 static int ProtoField_integer(lua_State* L, enum ftenum type) {
@@ -1319,7 +1319,7 @@ WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
 }
 
 static int ProtoField__gc(lua_State* L) {
-    ProtoField f = checkProtoField(L,1);
+    ProtoField f = toProtoField(L,1);
 
     /*
      * A garbage collector for ProtoFields makes little sense.
@@ -1385,6 +1385,102 @@ int ProtoField_register(lua_State* L) {
     return 0;
 }
 
+WSLUA_CLASS_DEFINE(ProtoExpert,FAIL_ON_NULL("null ProtoExpert"),NOP);
+    /* A Protocol expert info field, to be used when adding items to the dissection tree.
+
+       @since 1.11.3
+     */
+
+WSLUA_CONSTRUCTOR ProtoExpert_new(lua_State* L) {
+    /* Creates a new `ProtoExpert` object to be used for a protocol's expert information notices.
+
+       @since 1.11.3
+     */
+#define WSLUA_ARG_ProtoExpert_new_ABBR 1 /* Filter name of the expert info field (the string that
+                                            is used in filters). */
+#define WSLUA_ARG_ProtoExpert_new_TEXT 2 /* The default text of the expert field. */
+#define WSLUA_ARG_ProtoExpert_new_GROUP 3 /* Expert group type: one of: `expert.group.CHECKSUM`,
+                                             `expert.group.SEQUENCE`, `expert.group.RESPONSE_CODE`,
+                                             `expert.group.REQUEST_CODE`, `expert.group.UNDECODED`,
+                                             `expert.group.REASSEMBLE`, `expert.group.MALFORMED`,
+                                             `expert.group.DEBUG`, `expert.group.PROTOCOL`,
+                                             `expert.group.SECURITY`, or `expert.group.COMMENTS_GROUP`. */
+#define WSLUA_ARG_ProtoExpert_new_SEVERITY 4 /* Expert severity type: one of:
+                                                `expert.severity.COMMENT`, `expert.severity.CHAT`,
+                                                `expert.severity.NOTE`, `expert.severity.WARN`,
+                                                or `expert.severity.ERROR`. */
+
+    ProtoExpert pe    = NULL;
+    const gchar* abbr = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_ABBR);
+    const gchar* text = wslua_checkstring_only(L,WSLUA_ARG_ProtoExpert_new_TEXT);
+    int group         = luaL_checkint         (L, WSLUA_ARG_ProtoExpert_new_GROUP);
+    int severity      = luaL_checkint         (L, WSLUA_ARG_ProtoExpert_new_SEVERITY);
+
+    pe = g_new(wslua_expert_field_t,1);
+
+    pe->ids.ei   = EI_INIT_EI;
+    pe->ids.hf   = EI_INIT_HF;
+    pe->abbr     = g_strdup(abbr);
+    pe->text     = g_strdup(text);
+    pe->group    = group;
+    pe->severity = severity;
+
+    pushProtoExpert(L,pe);
+
+    WSLUA_RETURN(1); /* The newly created `ProtoExpert` object. */
+}
+
+WSLUA_METAMETHOD ProtoExpert__tostring(lua_State* L) {
+    /* Returns a string with debugging information about a `ProtoExpert` object.
+
+       @since 1.11.3
+     */
+    ProtoExpert pe = toProtoExpert(L,1);
+
+    if (!pe) {
+        lua_pushstring(L,"ProtoExpert pointer is NULL!");
+    } else {
+        lua_pushfstring(L, "ProtoExpert: ei=%d, hf=%d, abbr=%s, text=%s, group=%d, severity=%d",
+                        pe->ids.ei, pe->ids.hf, pe->abbr, pe->text, pe->group, pe->severity);
+    }
+    return 1;
+}
+
+static int ProtoExpert__gc(lua_State* L) {
+    ProtoExpert pe = toProtoExpert(L,1);
+
+    /*
+     * A garbage collector for ProtoExpert makes little sense.
+     * Even if this cannot be used anymore because it has gone out of scope,
+     * we can destroy the ProtoExpert only if it is not part of a registered Proto,
+     * if it actually belongs to one we need to preserve it as it is pointed by
+     * a expert code causing a crash or memory corruption.
+     */
+
+    if (pe) {
+        luaL_argerror(L,1,"BUG: ProtoExpert_gc called for something not ProtoExpert");
+        /* g_assert() ?? */
+    }
+
+    return 0;
+}
+
+WSLUA_METHODS ProtoExpert_methods[] = {
+    WSLUA_CLASS_FNREG(ProtoExpert,new),
+    { NULL, NULL }
+};
+
+WSLUA_META ProtoExpert_meta[] = {
+    WSLUA_CLASS_MTREG(ProtoExpert,tostring),
+    { NULL, NULL }
+};
+
+int ProtoExpert_register(lua_State* L) {
+    WSLUA_REGISTER_CLASS(ProtoExpert);
+    return 0;
+}
+
+
 WSLUA_CLASS_DEFINE(Proto,FAIL_ON_NULL("Proto"),NOP);
 /*
   A new protocol in Wireshark. Protocols have more uses, the main one is to dissect
@@ -1427,6 +1523,10 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
             lua_newtable (L);
             proto->fields = luaL_ref(L, LUA_REGISTRYINDEX);
+
+            lua_newtable (L);
+            proto->expert_info_table_ref = luaL_ref(L, LUA_REGISTRYINDEX);
+            proto->expert_module = expert_register_protocol(proto->hfid);
 
             proto->prefs.name = NULL;
             proto->prefs.label = NULL;
@@ -1712,6 +1812,46 @@ static int Proto_set_fields(lua_State* L) {
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE Proto_experts RW The expert info Lua table of this `Proto`.
+
+   @since 1.11.3
+ */
+static int Proto_get_experts(lua_State* L) {
+    Proto proto = checkProto(L,1);
+    lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
+    return 1;
+}
+
+static int Proto_set_experts(lua_State* L) {
+    Proto proto = checkProto(L,1);
+#define EI_TABLE 2
+#define NEW_TABLE 3
+#define NEW_FIELD 3
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
+    lua_insert(L,EI_TABLE);
+
+    if( lua_istable(L,NEW_TABLE)) {
+        for (lua_pushnil(L); lua_next(L, NEW_TABLE); ) {
+            if (isProtoExpert(L,5)) {
+                luaL_ref(L,EI_TABLE);
+            } else if (! lua_isnil(L,5) ) {
+                return luaL_error(L,"only ProtoExperts should be in the table");
+            }
+        }
+    } else if (isProtoExpert(L,NEW_FIELD)){
+        lua_pushvalue(L, NEW_FIELD);
+        luaL_ref(L,EI_TABLE);
+
+    } else {
+        return luaL_error(L,"either a ProtoExpert or an array of ProtoExperts");
+    }
+
+    lua_pushvalue(L, 3);
+
+    return 1;
+}
+
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
 static int Proto__gc(lua_State* L _U_) {
     /* do NOT free Proto, it's never free'd */
@@ -1725,6 +1865,7 @@ static int Proto__gc(lua_State* L _U_) {
 WSLUA_ATTRIBUTES Proto_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(Proto,dissector),
     WSLUA_ATTRIBUTE_RWREG(Proto,fields),
+    WSLUA_ATTRIBUTE_RWREG(Proto,experts),
     WSLUA_ATTRIBUTE_ROREG(Proto,prefs),
     WSLUA_ATTRIBUTE_WOREG(Proto,prefs_changed),
     WSLUA_ATTRIBUTE_WOREG(Proto,init),
@@ -1787,17 +1928,28 @@ int wslua_is_field_available(lua_State* L, const char* field_abbr) {
 
 int Proto_commit(lua_State* L) {
     lua_settop(L,0);
+    /* the following gets the table of registered Proto protocols and puts it on the stack (index=1) */
     lua_rawgeti(L, LUA_REGISTRYINDEX, protocols_table_ref);
 
+    /* for each registered Proto protocol do... */
     for (lua_pushnil(L); lua_next(L, 1); lua_pop(L, 2)) {
-        GArray* hfa = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
+        /* lua_next() pop'ed the nil, pushed a table entry key at index=2, with value at index=3.
+           In our case, the key is the Proto's name, and the value is the Proto object.
+           At next iteration, the value (Proto object) and ProtoExperts table will be pop'ed due
+           to lua_pop(L, 2), and when lua_next() returns 0 (no more table entries), it will have
+           pop'ed the final key itself, leaving just the protocols_table_ref table on the stack.
+         */
+        GArray* hfa  = g_array_new(TRUE,TRUE,sizeof(hf_register_info));
         GArray* etta = g_array_new(TRUE,TRUE,sizeof(gint*));
+        GArray* eia  = g_array_new(TRUE,TRUE,sizeof(ei_register_info));
         Proto proto;
         /* const gchar* proto_name = lua_tostring(L,2); */
         proto = checkProto(L,3);
 
+        /* get the Lua table of ProtoFields, push it on the stack (index=3) */
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
 
+        /* for each ProtoField in the Lua table do... */
         for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
             ProtoField f = checkProtoField(L,6);
             hf_register_info hfri = { NULL, { NULL, NULL, FT_NONE, 0, NULL, 0, NULL, HFILL } };
@@ -1821,11 +1973,43 @@ int Proto_commit(lua_State* L) {
             g_array_append_val(etta,ettp);
         }
 
+        /* register the proto fields */
         proto_register_field_array(proto->hfid,(hf_register_info*)(void*)hfa->data,hfa->len);
         proto_register_subtree_array((gint**)(void*)etta->data,etta->len);
 
+        lua_pop(L,1); /* pop the table of ProtoFields */
+
+        /* now do the same thing for expert fields */
+
+        /* get the Lua table of ProtoExperts, push it on the stack (index=2) */
+        lua_rawgeti(L, LUA_REGISTRYINDEX, proto->expert_info_table_ref);
+
+        /* for each ProtoExpert in the Lua table do... */
+        for (lua_pushnil(L); lua_next(L, 4); lua_pop(L, 1)) {
+            ProtoExpert e = checkProtoExpert(L,6);
+            ei_register_info eiri = { NULL, { NULL, 0, 0, NULL, EXPFILL } };
+
+            eiri.ids             = &(e->ids);
+            eiri.eiinfo.name     = e->abbr;
+            eiri.eiinfo.group    = e->group;
+            eiri.eiinfo.severity = e->severity;
+            eiri.eiinfo.summary  = e->text;
+
+            if (e->ids.ei != EI_INIT_EI || e->ids.hf != EI_INIT_HF) {
+                return luaL_error(L,"expert fields can be registered only once");
+            }
+
+            g_array_append_val(eia,eiri);
+        }
+
+        expert_register_field_array(proto->expert_module, (ei_register_info*)(void*)eia->data, eia->len);
+
+        /* XXX: the registration routines say to use static arrays only, so is this safe? */
         g_array_free(hfa,FALSE);
         g_array_free(etta,FALSE);
+        g_array_free(eia,FALSE);
+
+        /* Proto object and ProtoFields table will be pop'ed by lua_pop(L, 2) in for statement */
     }
 
     lua_pop(L,1); /* pop the protocols_table_ref */

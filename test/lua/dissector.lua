@@ -132,6 +132,22 @@ dns.fields = { pf_trasaction_id, pf_flags,
     pf_flag_z, pf_flag_authenticated, pf_flag_checking_disabled, pf_flag_rcode,
     pf_query, pf_query_name, pf_query_name_len, pf_query_label_count, pf_query_type, pf_query_class }
 
+----------------------------------------
+-- create some expert info fields
+local ef_query     = ProtoExpert.new("mydns.query.expert", "DNS query message",
+                                     expert.group.REQUEST_CODE, expert.severity.CHAT)
+local ef_response  = ProtoExpert.new("mydns.response.expert", "DNS response message",
+                                     expert.group.RESPONSE_CODE, expert.severity.CHAT)
+local ef_ultimate  = ProtoExpert.new("mydns.response.ultimate.expert", "DNS answer to life, the universe, and everything",
+                                     expert.group.COMMENTS_GROUP, expert.severity.NOTE)
+-- some error expert info's
+local ef_too_short = ProtoExpert.new("mydns.too_short.expert", "DNS message too short",
+                                     expert.group.MALFORMED, expert.severity.ERROR)
+local ef_bad_query = ProtoExpert.new("mydns.query.missing.expert", "DNS query missing or malformed",
+                                     expert.group.MALFORMED, expert.severity.WARN)
+
+-- register them
+dns.experts = { ef_query, ef_too_short, ef_bad_query, ef_response, ef_ultimate }
 
 ----------------------------------------
 -- we don't just want to display our protocol's fields, we want to access the value of some of them too!
@@ -214,7 +230,9 @@ function dns.dissector(tvbuf,pktinfo,root)
     if pktlen < DNS_HDR_LEN then
         -- since we're going to add this protocol to a specific UDP port, we're going to
         -- assume packets in this port are our protocol, so the packet being too short is an error
-        tree:add_expert_info(PI_MALFORMED, PI_ERROR, "packet too short")
+        -- the old way: tree:add_expert_info(PI_MALFORMED, PI_ERROR, "packet too short")
+        -- the correct way now:
+        tree:add_proto_expert_info(ef_too_short)
         dprint("packet length",pktlen,"too short")
         return
     end
@@ -238,8 +256,19 @@ function dns.dissector(tvbuf,pktinfo,root)
     -- for our flags field, we want a sub-tree
     local flag_tree = tree:add(pf_flags, flagrange)
         -- I'm indenting this for clarity, because it's adding to the flag's child-tree
+
         -- let's add the type of message (query vs. response)
-        flag_tree:add(pf_flag_response, flagrange)
+        local query_flag_tree = flag_tree:add(pf_flag_response, flagrange)
+
+        -- let's also add an expert info about it
+        if isResponse() then
+            query_flag_tree:add_proto_expert_info(ef_response, "It's a response!")
+            if transid == 42 then
+                tree:add_tvb_expert_info(ef_ultimate, tvbuf:range(0,2))
+            end
+        else
+            query_flag_tree:add_proto_expert_info(ef_query)
+        end
 
         -- we now know if it's a response or query, so let's put that in the
         -- GUI packet row, in the INFO column cell
@@ -289,7 +318,8 @@ function dns.dissector(tvbuf,pktinfo,root)
 
         while num_queries > 0 and pktlen_remaining > 0 do
             if pktlen_remaining < MIN_QUERY_LEN then
-                queries_tree:add_expert_info(PI_MALFORMED, PI_ERROR, "query field missing or too short")
+                -- old way: queries_tree:add_expert_info(PI_MALFORMED, PI_ERROR, "query field missing or too short")
+                queries_tree:add_proto_expert_info(ef_bad_query)
                 return
             end
 

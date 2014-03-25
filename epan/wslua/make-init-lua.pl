@@ -40,6 +40,9 @@ my $wtap_presence_flags_table = '';
 my $bases_table = '';
 my $encodings = '';
 my $expert_pi = '';
+my $expert_pi_tbl = '';
+my $expert_pi_severity = '';
+my $expert_pi_group = '';
 my $menu_groups = '';
 
 my %replacements = %{{
@@ -51,6 +54,7 @@ my %replacements = %{{
     BASES => \$bases_table,
     ENCODINGS => \$encodings,
     EXPERT => \$expert_pi,
+    EXPERT_TABLE => \$expert_pi_tbl,
     MENU_GROUPS => \$menu_groups,
 }};
 
@@ -135,19 +139,53 @@ $ft_types_table =~ s/,\n$/\n}\n/msi;
 #	#defines for encodings and expert group and severity levels
 #
 
-$bases_table = "-- Display Bases\n base = {\n";
-$encodings = "-- Encodings\n";
-$expert_pi = "-- Expert flags and facilities\n";
+$bases_table        = "-- Display Bases\n base = {\n";
+$encodings          = "-- Encodings\n";
+$expert_pi          = "-- Expert flags and facilities (deprecated - see 'expert' table below)\n";
+$expert_pi_tbl      = "-- Expert flags and facilities\nexpert = {\n";
+$expert_pi_severity = "\t-- Expert severity levels\n\tseverity = {\n";
+$expert_pi_group    = "\t-- Expert event groups\n\tgroup = {\n";
 
 open PROTO_H, "< $WSROOT/epan/proto.h" or die "cannot open '$WSROOT/epan/proto.h':  $!";
+
+my $in_severity = 0;
+my $prev_comment;
+my $skip_this = 0;
+
 while(<PROTO_H>) {
+    $skip_this = 0;
+
     if (/^\s+BASE_([A-Z_]+)[ ]*=[ ]*([0-9]+),/ ) {
         $bases_table .= "\t[\"$1\"] = $2,\n";
     }
 
-    if ( /^.define\s+(PI_[A-Z_]+)\s+((0x)?[0-9A-Fa-f]+)/ ) {
-        my ($name, $value) = ($1, hex($2));
+    if (/^.define\s+PI_SEVERITY_MASK /) {
+        $in_severity = 1;
+        $skip_this = 1;
+    }
+
+    if (/^.define\s+PI_GROUP_MASK /) {
+        $in_severity = 2;
+        $skip_this = 1;
+    }
+
+    if ($in_severity && /\/\*\* (.*?) \*\//) {
+        $prev_comment = $1;
+    }
+
+    if ( /^.define\s+(PI_([A-Z_]+))\s+((0x)?[0-9A-Fa-f]+)/ ) {
+        my ($name, $abbr, $value) = ($1, $2, hex($3));
+        # I'm keeping this here for backwards-compatibility
         $expert_pi .= "$name = $value\n";
+
+        if (!$skip_this && $in_severity == 1) {
+            $expert_pi_severity .= "\t\t-- $prev_comment\n";
+            $expert_pi_severity .= "\t\t\[\"$abbr\"\] = $value,\n";
+        }
+        elsif (!$skip_this && $in_severity == 2) {
+            $expert_pi_group .= "\t\t-- $prev_comment\n";
+            $expert_pi_group .= "\t\t\[\"$abbr\"\] = $value,\n";
+        }
     }
 
     if ( /^.define\s+(ENC_[A-Z0-9_]+)\s+((0x)?[0-9A-Fa-f]+)/ ) {
@@ -183,7 +221,10 @@ close STAT_MENU;
 
 $bases_table .= "}\n\n";
 $encodings .= "\n\n";
-$expert_pi .= "\n\n";
+$expert_pi .= "\n";
+$expert_pi_severity .= "\t},\n";
+$expert_pi_group .= "\t},\n";
+$expert_pi_tbl .= $expert_pi_group . $expert_pi_severity . "}\n\n";
 
 for my $key (keys %replacements) {
     $template =~ s/%$key%/${$replacements{$key}}/msig;

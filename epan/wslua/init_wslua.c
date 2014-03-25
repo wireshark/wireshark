@@ -58,6 +58,72 @@ int lua_heur_dissectors_table_ref = LUA_NOREF;
 static int proto_lua = -1;
 static expert_field ei_lua_error = EI_INIT;
 
+static expert_field ei_lua_proto_checksum_comment = EI_INIT;
+static expert_field ei_lua_proto_checksum_chat    = EI_INIT;
+static expert_field ei_lua_proto_checksum_note    = EI_INIT;
+static expert_field ei_lua_proto_checksum_warn    = EI_INIT;
+static expert_field ei_lua_proto_checksum_error   = EI_INIT;
+
+static expert_field ei_lua_proto_sequence_comment = EI_INIT;
+static expert_field ei_lua_proto_sequence_chat    = EI_INIT;
+static expert_field ei_lua_proto_sequence_note    = EI_INIT;
+static expert_field ei_lua_proto_sequence_warn    = EI_INIT;
+static expert_field ei_lua_proto_sequence_error   = EI_INIT;
+
+static expert_field ei_lua_proto_response_comment = EI_INIT;
+static expert_field ei_lua_proto_response_chat    = EI_INIT;
+static expert_field ei_lua_proto_response_note    = EI_INIT;
+static expert_field ei_lua_proto_response_warn    = EI_INIT;
+static expert_field ei_lua_proto_response_error   = EI_INIT;
+
+static expert_field ei_lua_proto_request_comment = EI_INIT;
+static expert_field ei_lua_proto_request_chat    = EI_INIT;
+static expert_field ei_lua_proto_request_note    = EI_INIT;
+static expert_field ei_lua_proto_request_warn    = EI_INIT;
+static expert_field ei_lua_proto_request_error   = EI_INIT;
+
+static expert_field ei_lua_proto_undecoded_comment = EI_INIT;
+static expert_field ei_lua_proto_undecoded_chat    = EI_INIT;
+static expert_field ei_lua_proto_undecoded_note    = EI_INIT;
+static expert_field ei_lua_proto_undecoded_warn    = EI_INIT;
+static expert_field ei_lua_proto_undecoded_error   = EI_INIT;
+
+static expert_field ei_lua_proto_reassemble_comment = EI_INIT;
+static expert_field ei_lua_proto_reassemble_chat    = EI_INIT;
+static expert_field ei_lua_proto_reassemble_note    = EI_INIT;
+static expert_field ei_lua_proto_reassemble_warn    = EI_INIT;
+static expert_field ei_lua_proto_reassemble_error   = EI_INIT;
+
+static expert_field ei_lua_proto_malformed_comment = EI_INIT;
+static expert_field ei_lua_proto_malformed_chat    = EI_INIT;
+static expert_field ei_lua_proto_malformed_note    = EI_INIT;
+static expert_field ei_lua_proto_malformed_warn    = EI_INIT;
+static expert_field ei_lua_proto_malformed_error   = EI_INIT;
+
+static expert_field ei_lua_proto_debug_comment = EI_INIT;
+static expert_field ei_lua_proto_debug_chat    = EI_INIT;
+static expert_field ei_lua_proto_debug_note    = EI_INIT;
+static expert_field ei_lua_proto_debug_warn    = EI_INIT;
+static expert_field ei_lua_proto_debug_error   = EI_INIT;
+
+static expert_field ei_lua_proto_protocol_comment = EI_INIT;
+static expert_field ei_lua_proto_protocol_chat    = EI_INIT;
+static expert_field ei_lua_proto_protocol_note    = EI_INIT;
+static expert_field ei_lua_proto_protocol_warn    = EI_INIT;
+static expert_field ei_lua_proto_protocol_error   = EI_INIT;
+
+static expert_field ei_lua_proto_security_comment = EI_INIT;
+static expert_field ei_lua_proto_security_chat    = EI_INIT;
+static expert_field ei_lua_proto_security_note    = EI_INIT;
+static expert_field ei_lua_proto_security_warn    = EI_INIT;
+static expert_field ei_lua_proto_security_error   = EI_INIT;
+
+static expert_field ei_lua_proto_comments_comment = EI_INIT;
+static expert_field ei_lua_proto_comments_chat    = EI_INIT;
+static expert_field ei_lua_proto_comments_note    = EI_INIT;
+static expert_field ei_lua_proto_comments_warn    = EI_INIT;
+static expert_field ei_lua_proto_comments_error   = EI_INIT;
+
 dissector_handle_t lua_data_handle;
 
 static void lua_frame_end(void)
@@ -506,6 +572,25 @@ wslua_plugins_dump_all(void)
     wslua_plugins_get_descriptions(print_wslua_plugin_description, NULL);
 }
 
+static ei_register_info* ws_lua_ei = NULL;
+static int ws_lua_ei_len = 0;
+
+expert_field*
+wslua_get_expert_field(const int group, const int severity)
+{
+    int i;
+    const ei_register_info *ei = ws_lua_ei;
+
+    g_assert(ei);
+
+    for (i=0; i < ws_lua_ei_len; i++, ei++) {
+        if (ei->eiinfo.group == group && ei->eiinfo.severity == severity)
+            return ei->ids;
+    }
+
+    return &ei_lua_error;
+}
+
 int wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const gchar *script_filename;
@@ -515,8 +600,87 @@ int wslua_init(register_cb cb, gpointer client_data) {
     int file_count = 1;
 
     static ei_register_info ei[] = {
+        /* the following are created so we can continue to support the TreeItem_add_expert_info()
+           function to Lua scripts. That function doesn't know what registered protocol to use,
+           so it uses the "_ws.lua" one. */
+        /* XXX: it seems to me we should not be offering PI_GROUP_MASK nor PI_SEVERITY_MASK since
+           they are not real settings, so I'm not adding them below (should they also not be exported
+           into Lua? they are right now.) */
+        /* NOTE: do not add expert entries at the top of this array - only at the bottom. This array
+           is not only used by expert.c, but also by wslua_get_expert_field() to find the appropriate
+           "dummy" entry. So this array's ordering matters. */
+        { &ei_lua_proto_checksum_comment,   { "_ws.lua.proto.comment", PI_CHECKSUM, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_checksum_chat,      { "_ws.lua.proto.chat",    PI_CHECKSUM, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_checksum_note,      { "_ws.lua.proto.note",    PI_CHECKSUM, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_checksum_warn,      { "_ws.lua.proto.warning", PI_CHECKSUM, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_checksum_error,     { "_ws.lua.proto.error",   PI_CHECKSUM, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_sequence_comment,   { "_ws.lua.proto.comment", PI_SEQUENCE, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_sequence_chat,      { "_ws.lua.proto.chat",    PI_SEQUENCE, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_sequence_note,      { "_ws.lua.proto.note",    PI_SEQUENCE, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_sequence_warn,      { "_ws.lua.proto.warning", PI_SEQUENCE, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_sequence_error,     { "_ws.lua.proto.error",   PI_SEQUENCE, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_response_comment,   { "_ws.lua.proto.comment", PI_RESPONSE_CODE, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_response_chat,      { "_ws.lua.proto.chat",    PI_RESPONSE_CODE, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_response_note,      { "_ws.lua.proto.note",    PI_RESPONSE_CODE, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_response_warn,      { "_ws.lua.proto.warning", PI_RESPONSE_CODE, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_response_error,     { "_ws.lua.proto.error",   PI_RESPONSE_CODE, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_request_comment,    { "_ws.lua.proto.comment", PI_REQUEST_CODE, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_request_chat,       { "_ws.lua.proto.chat",    PI_REQUEST_CODE, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_request_note,       { "_ws.lua.proto.note",    PI_REQUEST_CODE, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_request_warn,       { "_ws.lua.proto.warning", PI_REQUEST_CODE, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_request_error,      { "_ws.lua.proto.error",   PI_REQUEST_CODE, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_undecoded_comment,  { "_ws.lua.proto.comment", PI_UNDECODED, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_undecoded_chat,     { "_ws.lua.proto.chat",    PI_UNDECODED, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_undecoded_note,     { "_ws.lua.proto.note",    PI_UNDECODED, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_undecoded_warn,     { "_ws.lua.proto.warning", PI_UNDECODED, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_undecoded_error,    { "_ws.lua.proto.error",   PI_UNDECODED, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_reassemble_comment, { "_ws.lua.proto.comment", PI_REASSEMBLE, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_reassemble_chat,    { "_ws.lua.proto.chat",    PI_REASSEMBLE, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_reassemble_note,    { "_ws.lua.proto.note",    PI_REASSEMBLE, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_reassemble_warn,    { "_ws.lua.proto.warning", PI_REASSEMBLE, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_reassemble_error,   { "_ws.lua.proto.error",   PI_REASSEMBLE, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_malformed_comment,  { "_ws.lua.proto.comment", PI_MALFORMED, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_malformed_chat,     { "_ws.lua.proto.chat",    PI_MALFORMED, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_malformed_note,     { "_ws.lua.proto.note",    PI_MALFORMED, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_malformed_warn,     { "_ws.lua.proto.warning", PI_MALFORMED, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_malformed_error,    { "_ws.lua.proto.error",   PI_MALFORMED, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_debug_comment,      { "_ws.lua.proto.comment", PI_DEBUG, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_debug_chat,         { "_ws.lua.proto.chat",    PI_DEBUG, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_debug_note,         { "_ws.lua.proto.note",    PI_DEBUG, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_debug_warn,         { "_ws.lua.proto.warning", PI_DEBUG, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_debug_error,        { "_ws.lua.proto.error",   PI_DEBUG, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_protocol_comment,   { "_ws.lua.proto.comment", PI_PROTOCOL, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_protocol_chat,      { "_ws.lua.proto.chat",    PI_PROTOCOL, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_protocol_note,      { "_ws.lua.proto.note",    PI_PROTOCOL, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_protocol_warn,      { "_ws.lua.proto.warning", PI_PROTOCOL, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_protocol_error,     { "_ws.lua.proto.error",   PI_PROTOCOL, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_security_comment,   { "_ws.lua.proto.comment", PI_SECURITY, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_security_chat,      { "_ws.lua.proto.chat",    PI_SECURITY, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_security_note,      { "_ws.lua.proto.note",    PI_SECURITY, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_security_warn,      { "_ws.lua.proto.warning", PI_SECURITY, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_security_error,     { "_ws.lua.proto.error",   PI_SECURITY, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        { &ei_lua_proto_comments_comment,   { "_ws.lua.proto.comment", PI_COMMENTS_GROUP, PI_COMMENT ,"Protocol Comment", EXPFILL }},
+        { &ei_lua_proto_comments_chat,      { "_ws.lua.proto.chat",    PI_COMMENTS_GROUP, PI_CHAT    ,"Protocol Chat",    EXPFILL }},
+        { &ei_lua_proto_comments_note,      { "_ws.lua.proto.note",    PI_COMMENTS_GROUP, PI_NOTE    ,"Protocol Note",    EXPFILL }},
+        { &ei_lua_proto_comments_warn,      { "_ws.lua.proto.warning", PI_COMMENTS_GROUP, PI_WARN    ,"Protocol Warning", EXPFILL }},
+        { &ei_lua_proto_comments_error,     { "_ws.lua.proto.error",   PI_COMMENTS_GROUP, PI_ERROR   ,"Protocol Error",   EXPFILL }},
+
+        /* this one is for reporting errors executing Lua code */
         { &ei_lua_error, { "_ws.lua.error", PI_UNDECODED, PI_ERROR ,"Lua Error", EXPFILL }},
     };
+
+    ws_lua_ei = ei;
+    ws_lua_ei_len = array_length(ei);
 
     /* set up the logger */
     g_log_set_handler(LOG_DOMAIN_LUA, (GLogLevelFlags)(G_LOG_LEVEL_CRITICAL|

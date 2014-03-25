@@ -56,6 +56,7 @@
 #include <epan/funnel.h>
 #include <epan/tvbparse.h>
 #include <epan/epan.h>
+#include <epan/expert.h>
 
 #include "declare_wslua.h"
 
@@ -126,6 +127,14 @@ typedef struct _wslua_field_t {
     guint32 mask;
 } wslua_field_t;
 
+typedef struct _wslua_expert_field_t {
+    expert_field ids;
+    const gchar *abbr;
+    const gchar *text;
+    int group;
+    int severity;
+} wslua_expert_field_t;
+
 /**
  * PREF_OBSOLETE is used for preferences that a module used to support
  * but no longer supports; we give different error messages for them.
@@ -175,6 +184,8 @@ typedef struct _wslua_proto_t {
     int ett;
     wslua_pref_t prefs;
     int fields;
+    int expert_info_table_ref;
+    expert_module_t *expert_module;
     module_t *prefs_module;
     dissector_handle_t handle;
     gboolean is_postdissector;
@@ -297,6 +308,7 @@ typedef struct {const gchar* str; enum ftenum id; } wslua_ft_types_t;
 typedef wslua_pref_t* Pref;
 typedef wslua_pref_t* Prefs;
 typedef struct _wslua_field_t* ProtoField;
+typedef struct _wslua_expert_field_t* ProtoExpert;
 typedef struct _wslua_proto_t* Proto;
 typedef struct _wslua_distbl_t* DissectorTable;
 typedef dissector_handle_t Dissector;
@@ -662,6 +674,7 @@ extern gboolean wslua_get_field(lua_State *L, int idx, const gchar *name);
 extern void wslua_assert_table_field_new(lua_State *L, int idx, const gchar *name);
 extern int dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
 extern int heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data);
+extern expert_field* wslua_get_expert_field(const int group, const int severity);
 extern void wslua_prefs_changed(void);
 extern void proto_register_lua(void);
 extern GString* lua_register_all_taps(void);
