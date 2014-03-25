@@ -83,6 +83,7 @@
 #define STREAM_TYPE_MEDIA   0x00
 #define STREAM_TYPE_SIGNAL  0x01
 
+#define CODEC_DEFAULT         0xFFFF
 #define CODEC_SBC             0x00
 #define CODEC_MPEG12_AUDIO    0x01
 #define CODEC_MPEG24_AAC      0x02
@@ -269,9 +270,10 @@ static dissector_handle_t mpeg_audio_handle;
 static dissector_handle_t atrac_handle;
 
 static gboolean  force_a2dp_scms_t = FALSE;
-static gint      force_a2dp_codec = CODEC_SBC;
+static gint      force_a2dp_codec = CODEC_DEFAULT;
 
 static const enum_val_t pref_a2dp_codec[] = {
+    { "default",     "Default",      CODEC_DEFAULT },
     { "sbc",         "SBC",          CODEC_SBC },
     { "mp2t",        "MPEG12 AUDIO", CODEC_MPEG12_AUDIO },
     { "mpeg-audio",  "MPEG24 AAC",   CODEC_MPEG24_AAC },
@@ -2251,13 +2253,13 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.acp_seid = 0;
     sep_data.int_seid = 0;
 
-    if (force_a2dp_scms_t || force_a2dp_codec) {
+    if (force_a2dp_scms_t || force_a2dp_codec != CODEC_DEFAULT) {
         if (force_a2dp_scms_t)
             sep_data.content_protection_type = 2;
         else if (data)
             sep_data.content_protection_type = ((sep_data_t *) data)->content_protection_type;
 
-        if (force_a2dp_codec)
+        if (force_a2dp_codec != CODEC_DEFAULT)
             sep_data.codec = force_a2dp_codec;
         else if (data)
             sep_data.codec = ((sep_data_t *) data)->codec;
