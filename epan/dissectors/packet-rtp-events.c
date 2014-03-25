@@ -520,9 +520,10 @@ proto_reg_handoff_rtp_events(void)
 	/* rtp_event_payload_type_value is set from preferences */
 	saved_cisco_nse_pt_value = cisco_nse_pt_value;
 	/* cisco_nse_pt_value is set from preferences */
-
-	dissector_add_uint("rtp.pt", saved_payload_type_value, rtp_events_handle);
-	dissector_add_uint("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
+	if(saved_payload_type_value != 0){
+		dissector_add_uint("rtp.pt", saved_payload_type_value, rtp_events_handle);
+		dissector_add_uint("rtp.pt", saved_cisco_nse_pt_value, rtp_events_handle);
+	}
 }
 
 /*
