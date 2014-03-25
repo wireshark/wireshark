@@ -17689,6 +17689,7 @@ frame_equal(gconstpointer k1, gconstpointer k2)
 #define KEY_INFO_ERROR_MASK                 0x0400
 #define KEY_INFO_REQUEST_MASK               0x0800
 #define KEY_INFO_ENCRYPTED_KEY_DATA_MASK    0x1000
+#define KEY_INFO_SMK_MESSAGE_MASK           0x2000
 
 #define KEYDES_VER_TYPE1        0x01
 #define KEYDES_VER_TYPE2        0x02
@@ -17701,36 +17702,37 @@ static const value_string keydes_version_vals[] = {
   { 0, NULL }
 };
 
-static int proto_ieee80211i = -1;
+static int proto_wlan_rsna_eapol = -1;
 
-static int hf_ieee80211i_wpa_keydes_keyinfo = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_keydes_version = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_key_type = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_key_index = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_install = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_key_ack = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_key_mic = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_secure = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_error = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_request = -1;
-static int hf_ieee80211i_wpa_keydes_keyinfo_encrypted_key_data = -1;
-static int hf_ieee80211i_keydes_key_len = -1;
-static int hf_ieee80211i_keydes_replay_counter = -1;
-static int hf_ieee80211i_keydes_key_iv = -1;
-static int hf_ieee80211i_wpa_keydes_nonce = -1;
-static int hf_ieee80211i_wpa_keydes_rsc = -1;
-static int hf_ieee80211i_wpa_keydes_id = -1;
-static int hf_ieee80211i_wpa_keydes_mic = -1;
-static int hf_ieee80211i_wpa_keydes_data_len = -1;
-static int hf_ieee80211i_wpa_keydes_data = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_keydes_version = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_type = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_index = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_install = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_ack = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_mic = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_secure = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_error = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_request = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_encrypted_key_data = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_keyinfo_smk_message = -1;
+static int hf_wlan_rsna_eapol_keydes_key_len = -1;
+static int hf_wlan_rsna_eapol_keydes_replay_counter = -1;
+static int hf_wlan_rsna_eapol_keydes_key_iv = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_nonce = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_rsc = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_id = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_mic = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_data_len = -1;
+static int hf_wlan_rsna_eapol_wpa_keydes_data = -1;
 
 static gint ett_keyinfo = -1;
-static gint ett_ieee80211i_keydes_data = -1;
+static gint ett_wlan_rsna_eapol_keydes_data = -1;
 
 static const true_false_string keyinfo_key_type_tfs = { "Pairwise Key", "Group Key" };
 
 static int
-dissect_ieee80211i_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_rsn)
+dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_rsn)
 {
   int         offset = 0;
   guint16     keyinfo;
@@ -17802,49 +17804,50 @@ dissect_ieee80211i_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       col_set_str(pinfo->cinfo, COL_INFO, "Key (Group Message 2 of 2)");
   }
   keyinfo_item =
-    proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_keyinfo, tvb,
+    proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo, tvb,
                         offset, 2, ENC_BIG_ENDIAN);
 
   keyinfo_tree = proto_item_add_subtree(keyinfo_item, ett_keyinfo);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_keydes_version, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_install, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_ack, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_key_mic, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_secure, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_error, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_request, tvb, offset, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(keyinfo_tree, hf_ieee80211i_wpa_keydes_keyinfo_encrypted_key_data, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_keydes_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_install, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_ack, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_mic, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_secure, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_error, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_request, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_encrypted_key_data, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(keyinfo_tree, hf_wlan_rsna_eapol_wpa_keydes_keyinfo_smk_message, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_ieee80211i_keydes_key_len, tvb, offset,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_key_len, tvb, offset,
                       2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(tree, hf_ieee80211i_keydes_replay_counter, tvb,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_replay_counter, tvb,
                       offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
-  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_nonce, tvb, offset,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_nonce, tvb, offset,
                       32, ENC_NA);
   offset += 32;
-  proto_tree_add_item(tree, hf_ieee80211i_keydes_key_iv, tvb,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_keydes_key_iv, tvb,
                       offset, 16, ENC_NA);
   offset += 16;
-  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_rsc, tvb, offset,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_rsc, tvb, offset,
                       8, ENC_NA);
   offset += 8;
-  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_id, tvb, offset, 8,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_id, tvb, offset, 8,
                       ENC_NA);
   offset += 8;
-  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_mic, tvb, offset,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_mic, tvb, offset,
                       16, ENC_NA);
   offset += 16;
   eapol_data_len = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_data_len, tvb,
+  proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data_len, tvb,
                       offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   if (eapol_data_len != 0) {
-    ti = proto_tree_add_item(tree, hf_ieee80211i_wpa_keydes_data,
+    ti = proto_tree_add_item(tree, hf_wlan_rsna_eapol_wpa_keydes_data,
                              tvb, offset, eapol_data_len, ENC_NA);
     if ((keyinfo & KEY_INFO_ENCRYPTED_KEY_DATA_MASK) ||
         !(keyinfo & KEY_INFO_KEY_TYPE_MASK)) {
@@ -17854,7 +17857,7 @@ dissect_ieee80211i_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
        * IEEE 802.11i-2004 8.5.2.
        */
     } else {
-      keydes_tree = proto_item_add_subtree(ti, ett_ieee80211i_keydes_data);
+      keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, keydes_tree,
                                        tvb_reported_length_remaining(tvb, offset),
                                        -1);
@@ -17864,15 +17867,15 @@ dissect_ieee80211i_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static int
-dissect_ieee80211i_wpa_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_wlan_rsna_eapol_wpa_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return dissect_ieee80211i_wpa_or_rsn_key(tvb, pinfo, tree, FALSE);
+  return dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvb, pinfo, tree, FALSE);
 }
 
 static int
-dissect_ieee80211i_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_wlan_rsna_eapol_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  return dissect_ieee80211i_wpa_or_rsn_key(tvb, pinfo, tree, TRUE);
+  return dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvb, pinfo, tree, TRUE);
 }
 
 /* Davide Schiera (2006-11-26): this function will try to decrypt with WEP or  */
@@ -25921,119 +25924,124 @@ proto_register_ieee80211 (void)
 }
 
 void
-proto_register_ieee80211i (void)
+proto_register_wlan_rsna_eapol (void)
 {
 
   static hf_register_info hf[] = {
-    {&hf_ieee80211i_wpa_keydes_keyinfo,
-     {"Key Information", "ieee80211i.keydes.key_info",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo,
+     {"Key Information", "wlan_rsna_eapol.keydes.key_info",
       FT_UINT16, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_keydes_version,
-     {"Key Descriptor Version", "ieee80211i.keydes.key_info.keydes_version",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_keydes_version,
+     {"Key Descriptor Version", "wlan_rsna_eapol.keydes.key_info.keydes_version",
       FT_UINT16, BASE_DEC, VALS(keydes_version_vals), KEY_INFO_KEYDES_VERSION_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_key_type,
-     {"Key Type", "ieee80211i.keydes.key_info.key_type",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_type,
+     {"Key Type", "wlan_rsna_eapol.keydes.key_info.key_type",
       FT_BOOLEAN, 16, TFS(&keyinfo_key_type_tfs), KEY_INFO_KEY_TYPE_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_key_index,
-     {"Key Index", "ieee80211i.keydes.key_info.key_index",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_index,
+     {"Key Index", "wlan_rsna_eapol.keydes.key_info.key_index",
       FT_UINT16, BASE_DEC, NULL, KEY_INFO_KEY_INDEX_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_install,
-     {"Install", "ieee80211i.keydes.key_info.install",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_install,
+     {"Install", "wlan_rsna_eapol.keydes.key_info.install",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_INSTALL_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_key_ack,
-     {"Key ACK", "ieee80211i.keydes.key_info.key_ack",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_ack,
+     {"Key ACK", "wlan_rsna_eapol.keydes.key_info.key_ack",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_KEY_ACK_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_key_mic,
-     {"Key MIC", "ieee80211i.keydes.key_info.key_mic",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_key_mic,
+     {"Key MIC", "wlan_rsna_eapol.keydes.key_info.key_mic",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_KEY_MIC_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_secure,
-     {"Secure", "ieee80211i.keydes.key_info.secure",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_secure,
+     {"Secure", "wlan_rsna_eapol.keydes.key_info.secure",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_SECURE_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_error,
-     {"Error", "ieee80211i.keydes.key_info.error",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_error,
+     {"Error", "wlan_rsna_eapol.keydes.key_info.error",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_ERROR_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_request,
-     {"Request", "ieee80211i.keydes.key_info.request",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_request,
+     {"Request", "wlan_rsna_eapol.keydes.key_info.request",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_REQUEST_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_keyinfo_encrypted_key_data,
-     {"Encrypted Key Data", "ieee80211i.keydes.key_info.encrypted_key_data",
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_encrypted_key_data,
+     {"Encrypted Key Data", "wlan_rsna_eapol.keydes.key_info.encrypted_key_data",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_ENCRYPTED_KEY_DATA_MASK,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_keydes_key_len,
+    {&hf_wlan_rsna_eapol_wpa_keydes_keyinfo_smk_message,
+     {"SMK Message", "wlan_rsna_eapol.keydes.key_info.smk_message",
+      FT_BOOLEAN, 16, TFS(&tfs_set_notset), KEY_INFO_ENCRYPTED_KEY_DATA_MASK,
+      NULL, HFILL }},
+
+    {&hf_wlan_rsna_eapol_keydes_key_len,
      {"Key Length", "eapol.keydes.key_len",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_keydes_replay_counter,
+    {&hf_wlan_rsna_eapol_keydes_replay_counter,
      {"Replay Counter", "eapol.keydes.replay_counter",
       FT_UINT64, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_keydes_key_iv,
+    {&hf_wlan_rsna_eapol_keydes_key_iv,
      {"Key IV", "eapol.keydes.key_iv",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_nonce,
-     {"WPA Key Nonce", "ieee80211i.keydes.nonce",
+    {&hf_wlan_rsna_eapol_wpa_keydes_nonce,
+     {"WPA Key Nonce", "wlan_rsna_eapol.keydes.nonce",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_rsc,
-     {"WPA Key RSC", "ieee80211i.keydes.rsc",
+    {&hf_wlan_rsna_eapol_wpa_keydes_rsc,
+     {"WPA Key RSC", "wlan_rsna_eapol.keydes.rsc",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_id,
-     {"WPA Key ID", "ieee80211i.keydes.id",
+    {&hf_wlan_rsna_eapol_wpa_keydes_id,
+     {"WPA Key ID", "wlan_rsna_eapol.keydes.id",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_mic,
-     {"WPA Key MIC", "ieee80211i.keydes.mic",
+    {&hf_wlan_rsna_eapol_wpa_keydes_mic,
+     {"WPA Key MIC", "wlan_rsna_eapol.keydes.mic",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_data_len,
-     {"WPA Key Data Length", "ieee80211i.keydes.data_len",
+    {&hf_wlan_rsna_eapol_wpa_keydes_data_len,
+     {"WPA Key Data Length", "wlan_rsna_eapol.keydes.data_len",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211i_wpa_keydes_data,
-     {"WPA Key Data", "ieee80211i.keydes.data",
+    {&hf_wlan_rsna_eapol_wpa_keydes_data,
+     {"WPA Key Data", "wlan_rsna_eapol.keydes.data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
   };
 
   static gint *tree_array[] = {
     &ett_keyinfo,
-    &ett_ieee80211i_keydes_data,
+    &ett_wlan_rsna_eapol_keydes_data,
   };
 
-  proto_ieee80211i = proto_register_protocol("IEEE 802.11i MAC Security Enhancements",
-      "IEEE 802.11i", "ieee80211i");
-  proto_register_field_array(proto_ieee80211i, hf, array_length (hf));
+  proto_wlan_rsna_eapol = proto_register_protocol("IEEE 802.11 RSNA EAPOL key",
+      "802.11 RSNA EAPOL", "wlan_rsna_eapol");
+  proto_register_field_array(proto_wlan_rsna_eapol, hf, array_length (hf));
 
   proto_register_subtree_array (tree_array, array_length (tree_array));
 }
@@ -26042,7 +26050,7 @@ void
 proto_reg_handoff_ieee80211(void)
 {
   dissector_handle_t data_encap_handle, centrino_handle;
-  dissector_handle_t ieee80211i_wpa_key_handle, ieee80211i_rsn_key_handle;
+  dissector_handle_t wlan_rsna_eapol_wpa_key_handle, wlan_rsna_eapol_rsn_key_handle;
 
   /*
    * Get handles for the LLC, IPX and Ethernet  dissectors.
@@ -26091,12 +26099,12 @@ proto_reg_handoff_ieee80211(void)
   /*
    * EAPOL key descriptor types.
    */
-  ieee80211i_wpa_key_handle = new_create_dissector_handle(dissect_ieee80211i_wpa_key,
-                                                          proto_ieee80211i);
-  dissector_add_uint("eapol.keydes.type", EAPOL_WPA_KEY, ieee80211i_wpa_key_handle);
-  ieee80211i_rsn_key_handle = new_create_dissector_handle(dissect_ieee80211i_rsn_key,
-                                                          proto_ieee80211i);
-  dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, ieee80211i_rsn_key_handle);
+  wlan_rsna_eapol_wpa_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_wpa_key,
+                                                               proto_wlan_rsna_eapol);
+  dissector_add_uint("eapol.keydes.type", EAPOL_WPA_KEY, wlan_rsna_eapol_wpa_key_handle);
+  wlan_rsna_eapol_rsn_key_handle = new_create_dissector_handle(dissect_wlan_rsna_eapol_rsn_key,
+                                                               proto_wlan_rsna_eapol);
+  dissector_add_uint("eapol.keydes.type", EAPOL_RSN_KEY, wlan_rsna_eapol_rsn_key_handle);
 }
 
 /*
