@@ -13181,10 +13181,12 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+#define RANAM_MSG_MIN_LENGTH 8
 static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 temp;
+	guint16 word;
 	asn1_ctx_t asn1_ctx;
 	guint length;
 	int offset;
@@ -13202,7 +13204,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     #define LENGTH_OFFSET 3
     #define MSG_TYPE_OFFSET 1
-    if (tvb_length(tvb) < 4) { return FALSE; }
+    if (tvb_length(tvb) < RANAM_MSG_MIN_LENGTH) { return FALSE; }
     /*if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }*/
 	/* Read the length NOTE offset in bits */
 	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
@@ -13214,6 +13216,13 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
     if (temp > RANAP_MAX_PC) { return FALSE; }
 
+    /* Try to strengthen the heuristic further, by checking byte 6 and 7 which usaly is a sequence-of lenght
+     * 
+     */
+    word = tvb_get_ntohs(tvb,6);
+    if(word > 0x2ff){
+        return FALSE;
+    }
     dissect_ranap(tvb, pinfo, tree);
 
     return TRUE;
@@ -16113,7 +16122,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ranap-hfarr.c ---*/
-#line 319 "../../asn1/ranap/packet-ranap-template.c"
+#line 328 "../../asn1/ranap/packet-ranap-template.c"
   };
 
   /* List of subtrees */
@@ -16450,7 +16459,7 @@ void proto_register_ranap(void) {
     &ett_ranap_Outcome,
 
 /*--- End of included file: packet-ranap-ettarr.c ---*/
-#line 327 "../../asn1/ranap/packet-ranap-template.c"
+#line 336 "../../asn1/ranap/packet-ranap-template.c"
   };
 
 
@@ -16833,7 +16842,7 @@ proto_reg_handoff_ranap(void)
 
 
 /*--- End of included file: packet-ranap-dis-tab.c ---*/
-#line 377 "../../asn1/ranap/packet-ranap-template.c"
+#line 386 "../../asn1/ranap/packet-ranap-template.c"
 	} else {
 		dissector_delete_uint("sccp.ssn", local_ranap_sccp_ssn, ranap_handle);
 	}

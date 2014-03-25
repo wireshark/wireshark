@@ -252,10 +252,12 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+#define RANAP_MSG_MIN_LENGTH 8
 static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 temp;
+	guint16 word;
 	asn1_ctx_t asn1_ctx;
 	guint length;
 	int offset;
@@ -273,7 +275,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     #define LENGTH_OFFSET 3
     #define MSG_TYPE_OFFSET 1
-    if (tvb_length(tvb) < 4) { return FALSE; }
+    if (tvb_length(tvb) < RANAP_MSG_MIN_LENGTH) { return FALSE; }
     /*if (tvb_get_guint8(tvb, LENGTH_OFFSET) != (tvb_length(tvb) - 4)) { return FALSE; }*/
 	/* Read the length NOTE offset in bits */
 	offset = dissect_per_length_determinant(tvb, LENGTH_OFFSET<<3, &asn1_ctx, tree, -1, &length);
@@ -285,6 +287,13 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     temp = tvb_get_guint8(tvb, MSG_TYPE_OFFSET);
     if (temp > RANAP_MAX_PC) { return FALSE; }
 
+    /* Try to strengthen the heuristic further, by checking byte 6 and 7 which usually is a sequence-of lenght
+     * 
+     */
+    word = tvb_get_ntohs(tvb,6);
+    if(word > 0x2ff){
+        return FALSE;
+    }
     dissect_ranap(tvb, pinfo, tree);
 
     return TRUE;
