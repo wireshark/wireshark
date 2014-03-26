@@ -290,7 +290,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     /* Try to strengthen the heuristic further, by checking byte 6 and 7 which usually is a sequence-of lenght
      * 
      */
-    word = tvb_get_ntohs(tvb,6);
+    word = tvb_get_ntohs(tvb,5);
     if(word > 0x2ff){
         return FALSE;
     }
