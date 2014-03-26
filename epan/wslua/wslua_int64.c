@@ -557,7 +557,7 @@ static int Int64__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg Int64_methods[] = {
+WSLUA_METHODS Int64_methods[] = {
     WSLUA_CLASS_FNREG(Int64,new),
     WSLUA_CLASS_FNREG(Int64,max),
     WSLUA_CLASS_FNREG(Int64,min),
@@ -581,7 +581,7 @@ static const luaL_Reg Int64_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_Reg Int64_meta[] = {
+WSLUA_META Int64_meta[] = {
     WSLUA_CLASS_MTREG(Int64,tostring),
     WSLUA_CLASS_MTREG(Int64,call),
     WSLUA_CLASS_MTREG(wslua,concat),
@@ -1076,7 +1076,7 @@ static int UInt64__gc(lua_State* L _U_) {
     return 0;
 }
 
-static const luaL_Reg UInt64_methods[] = {
+WSLUA_METHODS UInt64_methods[] = {
     WSLUA_CLASS_FNREG(UInt64,new),
     WSLUA_CLASS_FNREG(UInt64,max),
     WSLUA_CLASS_FNREG(UInt64,min),
@@ -1100,7 +1100,7 @@ static const luaL_Reg UInt64_methods[] = {
     { NULL, NULL }
 };
 
-static const luaL_Reg UInt64_meta[] = {
+WSLUA_META UInt64_meta[] = {
     WSLUA_CLASS_MTREG(UInt64,tostring),
     WSLUA_CLASS_MTREG(UInt64,call),
     WSLUA_CLASS_MTREG(wslua,concat),

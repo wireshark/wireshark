@@ -94,8 +94,13 @@ end
 
 -- other useful constants
 GUI_ENABLED = gui_enabled()
-DATA_DIR = datafile_path()
-USER_DIR = persconffile_path()
+DATA_DIR = Dir.global_config_path()
+USER_DIR = Dir.personal_config_path()
+
+-- deprecated function names
+datafile_path = Dir.global_config_path
+persconffile_path = Dir.personal_config_path
+
 
 dofile(DATA_DIR.."console.lua")
 --dofile(DATA_DIR.."dtd_gen.lua")

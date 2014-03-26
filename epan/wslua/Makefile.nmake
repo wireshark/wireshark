@@ -26,6 +26,7 @@ MODULES = 	\
 	wslua_pinfo.c \
 	wslua_listener.c \
 	wslua_gui.c \
+	wslua_dir.c \
 	wslua_util.c \
 	wslua_field.c \
 	wslua_file.c \
@@ -48,6 +49,7 @@ OBJECTS= \
 	wslua_pinfo.obj \
 	wslua_listener.obj \
 	wslua_gui.obj \
+	wslua_dir.obj \
 	wslua_util.obj \
 	wslua_field.obj \
 	wslua_file.obj \

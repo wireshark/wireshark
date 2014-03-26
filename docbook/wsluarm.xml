@@ -169,6 +169,7 @@ register_menu("Test/Packets", menuable_tap, MENU_TOOLS_UNSORTED)</programlisting
 	&WsLuaTree;
 	&WsLuaTvb;
 	&WsLuaFile;
+	&WsLuaDir;
 	&WsLuaUtility;
 	&WsLuaInt64;
 	&WsLuaStruct;

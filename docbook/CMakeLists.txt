@@ -310,6 +310,7 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tree.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_tvb.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_file.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dir.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
 )

@@ -127,7 +127,7 @@ WSLUA_FUNCTION wslua_debug( lua_State* L ) { /* Will add a log entry with debug 
 
 /* The returned filename is g_malloc()'d so the caller must free it */
 /* except when NULL is returned if file doesn't exist               */
-static char* wslua_get_actual_filename(const char* fname) {
+char* wslua_get_actual_filename(const char* fname) {
     char fname_clean[256];
     char* f;
     char* filename;
@@ -228,176 +228,6 @@ WSLUA_FUNCTION wslua_dofile(lua_State* L) {
 }
 
 
-WSLUA_FUNCTION wslua_persconffile_path(lua_State* L) {
-#define WSLUA_OPTARG_persconffile_path_FILENAME 1 /* A filename. */
-    const char *fname = luaL_optstring(L, WSLUA_OPTARG_persconffile_path_FILENAME,"");
-    char* filename = get_persconffile_path(fname,FALSE);
-
-    lua_pushstring(L,filename);
-    g_free(filename);
-    WSLUA_RETURN(1); /* The full pathname for a file in the personal configuration directory. */
-}
-
-WSLUA_FUNCTION wslua_datafile_path(lua_State* L) {
-#define WSLUA_OPTARG_datafile_path_FILENAME 1 /* A filename */
-    const char *fname = luaL_optstring(L, WSLUA_OPTARG_datafile_path_FILENAME,"");
-    char* filename;
-
-    if (running_in_build_directory()) {
-        /* Running in build directory, set datafile_path to wslua source directory */
-        filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "epan" G_DIR_SEPARATOR_S "wslua"
-                                   G_DIR_SEPARATOR_S "%s", get_datafile_dir(), fname);
-    } else {
-        filename = get_datafile_path(fname);
-    }
-
-    lua_pushstring(L,filename);
-    g_free(filename);
-    WSLUA_RETURN(1); /* The full pathname for a file in wireshark's configuration directory. */
-}
-
-
-WSLUA_CLASS_DEFINE(Dir,FAIL_ON_NULL("Dir"),NOP); /* A Directory */
-
-WSLUA_CONSTRUCTOR Dir_open(lua_State* L) {
-    /* Opens a directory and returns a `Dir` object representing the files in the directory.
-
-       @code for filename in Dir.open(path) do ... end @endcode
-    */
-#define WSLUA_ARG_Dir_open_PATHNAME 1 /* The pathname of the directory. */
-#define WSLUA_OPTARG_Dir_open_EXTENSION 2 /* If given, only files with this extension will be returned. */
-
-    const char* dirname = luaL_checkstring(L,WSLUA_ARG_Dir_open_PATHNAME);
-    const char* extension = luaL_optstring(L,WSLUA_OPTARG_Dir_open_EXTENSION,NULL);
-    Dir dir;
-    char* dirname_clean;
-
-    if (!dirname) {
-        WSLUA_ARG_ERROR(Dir_open,PATHNAME,"must be a string");
-        return 0;
-    }
-
-    dirname_clean = wslua_get_actual_filename(dirname);
-    if (!dirname_clean) {
-        WSLUA_ARG_ERROR(Dir_open,PATHNAME,"directory does not exist");
-        return 0;
-    }
-
-    if (!test_for_directory(dirname_clean))  {
-        g_free(dirname_clean);
-        WSLUA_ARG_ERROR(Dir_open,PATHNAME, "must be a directory");
-        return 0;
-    }
-
-    dir = (Dir)g_malloc(sizeof(struct _wslua_dir));
-    dir->dir = g_dir_open(dirname_clean, 0, dir->dummy);
-    g_free(dirname_clean);
-    dir->ext = extension ? g_strdup(extension) : NULL;
-    dir->dummy = (GError **)g_malloc(sizeof(GError *));
-    *(dir->dummy) = NULL;
-
-    if (dir->dir == NULL) {
-        g_free(dir->dummy);
-        g_free(dir);
-
-        WSLUA_ARG_ERROR(Dir_open,PATHNAME,"could not open directory");
-        return 0;
-    }
-
-    pushDir(L,dir);
-    WSLUA_RETURN(1); /* the `Dir` object. */
-}
-
-WSLUA_METAMETHOD Dir__call(lua_State* L) {
-    /* At every invocation will return one file (nil when done). */
-
-    Dir dir = checkDir(L,1);
-    const gchar* file;
-    const gchar* filename;
-    const char* ext;
-
-    if (!dir->dir) {
-        return 0;
-    }
-
-    if ( ! ( file = g_dir_read_name(dir->dir ) )) {
-        g_dir_close(dir->dir);
-        dir->dir = NULL;
-        return 0;
-    }
-
-
-    if ( ! dir->ext ) {
-        lua_pushstring(L,file);
-        return 1;
-    }
-
-    do {
-        filename = file;
-
-        /* XXX strstr returns ptr to first match,
-            this fails ext=".xxx" filename="aaa.xxxz.xxx"  */
-        if ( ( ext = strstr(filename,dir->ext)) && g_str_equal(ext,dir->ext) ) {
-            lua_pushstring(L,filename);
-            return 1;
-        }
-    } while(( file = g_dir_read_name(dir->dir) ));
-
-    g_dir_close(dir->dir);
-    dir->dir = NULL;
-    return 0;
-}
-
-WSLUA_METHOD Dir_close(lua_State* L) {
-    /* Closes the directory. */
-    Dir dir = checkDir(L,1);
-
-    if (dir->dir) {
-        g_dir_close(dir->dir);
-        dir->dir = NULL;
-    }
-
-    return 0;
-}
-
-/* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */
-static int Dir__gc(lua_State* L) {
-    Dir dir = toDir(L,1);
-
-    if(!dir) return 0;
-
-    if (dir->dir) {
-        g_dir_close(dir->dir);
-    }
-
-    g_free(dir->dummy);
-
-    if (dir->ext) g_free(dir->ext);
-
-    g_free(dir);
-
-    return 0;
-}
-
-static const luaL_Reg Dir_methods[] = {
-    {"open", Dir_open},
-    {"close", Dir_close},
-    { NULL, NULL }
-};
-
-static const luaL_Reg Dir_meta[] = {
-    {"__call", Dir__call},
-    { NULL, NULL }
-};
-
-int Dir_register(lua_State* L) {
-
-    WSLUA_REGISTER_CLASS(Dir);
-
-    return 0;
-}
-
-
 typedef struct _statcmd_t {
     lua_State* L;
     int func_ref;
@@ -434,7 +264,7 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
 }
 
 WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
-    /*  Register a function to handle a -z option */
+    /*  Register a function to handle a `-z` option */
 #define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /* Argument */
 #define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* Action */
     const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);

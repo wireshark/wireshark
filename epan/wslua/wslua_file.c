@@ -938,7 +938,7 @@ WSLUA_ATTRIBUTES CaptureInfo_attributes[] = {
 };
 
 WSLUA_META CaptureInfo_meta[] = {
-    {"__tostring", CaptureInfo__tostring},
+    WSLUA_CLASS_MTREG(CaptureInfo,tostring),
     { NULL, NULL }
 };
 
@@ -1138,7 +1138,7 @@ WSLUA_ATTRIBUTES CaptureInfoConst_attributes[] = {
 };
 
 WSLUA_META CaptureInfoConst_meta[] = {
-    {"__tostring", CaptureInfoConst__tostring},
+    WSLUA_CLASS_MTREG(CaptureInfoConst,tostring),
     { NULL, NULL }
 };
 
@@ -1353,12 +1353,12 @@ WSLUA_ATTRIBUTES FrameInfo_attributes[] = {
 };
 
 WSLUA_METHODS FrameInfo_methods[] = {
-    {"read_data", FrameInfo_read_data},
+    WSLUA_CLASS_FNREG(FrameInfo,read_data),
     { NULL, NULL }
 };
 
 WSLUA_META FrameInfo_meta[] = {
-    {"__tostring", FrameInfo__tostring},
+    WSLUA_CLASS_MTREG(FrameInfo,tostring),
     { NULL, NULL }
 };
 
@@ -1495,12 +1495,12 @@ WSLUA_ATTRIBUTES FrameInfoConst_attributes[] = {
 };
 
 WSLUA_METHODS FrameInfoConst_methods[] = {
-    {"write_data", FrameInfoConst_write_data},
+    WSLUA_CLASS_FNREG(FrameInfoConst,write_data),
     { NULL, NULL }
 };
 
 WSLUA_META FrameInfoConst_meta[] = {
-    {"__tostring", FrameInfoConst__tostring},
+    WSLUA_CLASS_MTREG(FrameInfoConst,tostring),
     { NULL, NULL }
 };
 
@@ -2420,12 +2420,12 @@ WSLUA_ATTRIBUTES FileHandler_attributes[] = {
 };
 
 WSLUA_METHODS FileHandler_methods[] = {
-    {"new", FileHandler_new},
+    WSLUA_CLASS_FNREG(FileHandler,new),
     { NULL, NULL }
 };
 
 WSLUA_META FileHandler_meta[] = {
-    {"__tostring", FileHandler__tostring},
+    WSLUA_CLASS_MTREG(FileHandler,tostring),
     { NULL, NULL }
 };
 

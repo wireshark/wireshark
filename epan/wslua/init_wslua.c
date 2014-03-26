@@ -411,10 +411,42 @@ static int lua_script_push_args(const int script_num) {
     return count;
 }
 
+#define FILE_NAME_KEY "__FILE__"
+#define DIR_NAME_KEY "__DIR__"
+/* assumes a loaded chunk's function is on top of stack */
+static void set_file_environment(const gchar* filename, const gchar* dirname) {
+    lua_newtable(L); /* environment for script (index 3) */
+
+    lua_pushstring(L, filename); /* tell the script about its filename */
+    lua_setfield(L, -2, FILE_NAME_KEY); /* make it accessible at __FILE__ */
+
+    lua_pushstring(L, dirname); /* tell the script about its dirname */
+    lua_setfield(L, -2, DIR_NAME_KEY); /* make it accessible at __DIR__ */
+
+    lua_newtable(L); /* metatable */
+
+#if LUA_VERSION_NUM >= 502
+    lua_pushglobaltable(L);
+#else
+    lua_pushvalue(L, LUA_GLOBALSINDEX);
+#endif
+    lua_setfield(L, -2, "__index"); /* __index points to global environment */
+
+    lua_setmetatable(L, -2); /* pop metatable, set it as metatable of environment */
+
+#if LUA_VERSION_NUM >= 502
+    lua_setupvalue(L, -2, 1); /* pop environment and assign it to upvalue 1 */
+#else
+    lua_setfenv(L, -2); /* pop environment and set it as the func's environment */
+#endif
+}
+
 /* If file_count > 0 then it's a command-line-added user script, and the count
  * represents which user script it is (first=1, second=2, etc.).
+ * If dirname != NULL, then it's a user script and the dirname will get put in a file environment
+ * If dirname == NULL then it's a wireshark script and no file environment is created
  */
-static gboolean lua_load_script(const gchar* filename, const int file_count) {
+static gboolean lua_load_script(const gchar* filename, const gchar* dirname, const int file_count) {
     FILE* file;
     int error;
     int numargs = 0;
@@ -433,8 +465,12 @@ static gboolean lua_load_script(const gchar* filename, const int file_count) {
 #else
     error = lua_load(L,getF,file,filename);
 #endif
+
     switch (error) {
         case 0:
+            if (dirname) {
+                set_file_environment(filename, dirname);
+            }
             if (file_count > 0) {
                 numargs = lua_script_push_args(file_count);
             }
@@ -471,7 +507,9 @@ static int wslua_panic(lua_State* LS) {
     return 0; /* keep gcc happy */
 }
 
-static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client_data, gboolean count_only) {
+static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client_data,
+                            gboolean count_only, const gboolean is_user)
+{
     WS_DIR        *dir;             /* scanned directory */
     WS_DIRENT     *file;            /* current file */
     gchar         *filename, *dot;
@@ -487,7 +525,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
 
             filename = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
             if (test_for_directory(filename) == EISDIR) {
-                plugins_counter += lua_load_plugins(filename, cb, client_data, count_only);
+                plugins_counter += lua_load_plugins(filename, cb, client_data, count_only, is_user);
                 g_free(filename);
                 continue;
             }
@@ -509,7 +547,7 @@ static int lua_load_plugins(const char *dirname, register_cb cb, gpointer client
                 if (!count_only) {
                     if (cb)
                         (*cb)(RA_LUA_PLUGINS, name, client_data);
-                    if (lua_load_script(filename,0)) {
+                    if (lua_load_script(filename, is_user ? dirname : NULL, 0)) {
                         wslua_add_plugin(g_strdup(name), g_strdup(""), g_strdup(filename));
                     }
                 }
@@ -528,7 +566,7 @@ int wslua_count_plugins(void) {
     int plugins_counter;
 
     /* count global scripts */
-    plugins_counter = lua_load_plugins(get_plugin_dir(), NULL, NULL, TRUE);
+    plugins_counter = lua_load_plugins(get_plugin_dir(), NULL, NULL, TRUE, FALSE);
 
     /* count users init.lua */
     filename = get_persconffile_path("init.lua", FALSE);
@@ -539,7 +577,7 @@ int wslua_count_plugins(void) {
 
     /* count user scripts */
     filename = get_plugins_pers_dir();
-    plugins_counter += lua_load_plugins(filename, NULL, NULL, TRUE);
+    plugins_counter += lua_load_plugins(filename, NULL, NULL, TRUE, TRUE);
     g_free(filename);
 
     /* count scripts from command line */
@@ -734,7 +772,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     }
 
     if (( file_exists(filename))) {
-        lua_load_script(filename,0);
+        lua_load_script(filename, NULL, 0);
     }
 
     g_free(filename);
@@ -752,7 +790,7 @@ int wslua_init(register_cb cb, gpointer client_data) {
     lua_pop(L,1);  /* pop the getglobal result */
 
     /* load global scripts */
-    lua_load_plugins(get_plugin_dir(), cb, client_data, FALSE);
+    lua_load_plugins(get_plugin_dir(), cb, client_data, FALSE, FALSE);
 
     /* check whether we should run other scripts even if running superuser */
     lua_getglobal(L,"run_user_scripts_when_superuser");
@@ -769,21 +807,26 @@ int wslua_init(register_cb cb, gpointer client_data) {
         if ((file_exists(filename))) {
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(filename), client_data);
-            lua_load_script(filename,0);
+            lua_load_script(filename, NULL, 0);
         }
         g_free(filename);
 
         /* load user scripts */
         filename = get_plugins_pers_dir();
-        lua_load_plugins(filename, cb, client_data, FALSE);
+        lua_load_plugins(filename, cb, client_data, FALSE, TRUE);
         g_free(filename);
 
         /* load scripts from command line */
         while((script_filename = ex_opt_get_next("lua_script"))) {
+            char* dirname = g_strdup(script_filename);
+            char* dname = get_dirname(dirname);
+
             if (cb)
                 (*cb)(RA_LUA_PLUGINS, get_basename(script_filename), client_data);
-            lua_load_script(script_filename,file_count);
+
+            lua_load_script(script_filename, dname ? dname : "", file_count);
             file_count++;
+            g_free(dirname);
         }
     }
 

@@ -41,6 +41,7 @@ wslua_modules = 	\
 	$(srcdir)/wslua_pinfo.c \
 	$(srcdir)/wslua_listener.c \
 	$(srcdir)/wslua_gui.c \
+	$(srcdir)/wslua_dir.c \
 	$(srcdir)/wslua_util.c \
 	$(srcdir)/wslua_field.c \
 	$(srcdir)/wslua_file.c \
@@ -144,4 +145,5 @@ checkapi:
 	wslua_tree.c \
 	wslua_tree.c \
 	wslua_tvb.c \
+	wslua_dir.c \
 	wslua_util.c

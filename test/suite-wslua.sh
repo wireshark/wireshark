@@ -22,6 +22,22 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 #
 
+wslua_step_dir_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# Tshark catches lua script failures, so we have to parse the output.
+	$TSHARK -r $CAPTURE_DIR/empty.pcap -X lua_script:$TESTS_DIR/lua/dir.lua > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		cat testout.txt
+		test_step_failed "didn't find pass marker"
+	fi
+}
+
 wslua_step_dissector_test() {
 	if [ $HAVE_LUA -ne 0 ]; then
 		test_step_skipped
@@ -358,6 +374,7 @@ wslua_cleanup_step() {
 wslua_suite() {
 	test_step_set_pre wslua_cleanup_step
 	test_step_set_post wslua_cleanup_step
+	test_step_add "wslua dir" wslua_step_dir_test
 	test_step_add "wslua dissector" wslua_step_dissector_test
 	test_step_add "wslua field/fieldinfo" wslua_step_field_test
 	test_step_add "wslua file" wslua_step_file_test
