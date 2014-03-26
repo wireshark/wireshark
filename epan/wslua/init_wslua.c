@@ -413,8 +413,12 @@ static int lua_script_push_args(const int script_num) {
 
 #define FILE_NAME_KEY "__FILE__"
 #define DIR_NAME_KEY "__DIR__"
+#define DIR_SEP_NAME_KEY "__DIR_SEPARATOR__"
 /* assumes a loaded chunk's function is on top of stack */
 static void set_file_environment(const gchar* filename, const gchar* dirname) {
+    const char* path;
+    char* personal = get_plugins_pers_dir();
+
     lua_newtable(L); /* environment for script (index 3) */
 
     lua_pushstring(L, filename); /* tell the script about its filename */
@@ -423,14 +427,28 @@ static void set_file_environment(const gchar* filename, const gchar* dirname) {
     lua_pushstring(L, dirname); /* tell the script about its dirname */
     lua_setfield(L, -2, DIR_NAME_KEY); /* make it accessible at __DIR__ */
 
-    lua_newtable(L); /* metatable */
+    lua_pushstring(L, G_DIR_SEPARATOR_S); /* tell the script the directory separator */
+    lua_setfield(L, -2, DIR_SEP_NAME_KEY); /* make it accessible at __DIR__ */
+
+    lua_newtable(L); /* new metatable */
 
 #if LUA_VERSION_NUM >= 502
     lua_pushglobaltable(L);
 #else
     lua_pushvalue(L, LUA_GLOBALSINDEX);
 #endif
-    lua_setfield(L, -2, "__index"); /* __index points to global environment */
+    /* prepend the directory name to _G.package.path */
+    lua_getfield(L, -1, "package"); /* get the package table from the global table */
+    lua_getfield(L, -1, "path");    /* get the path field from the package table */
+    path = luaL_checkstring(L, -1); /* get the path string */
+    lua_pop(L, 1);                  /* pop the path string */
+    /* prepend the various paths */
+    lua_pushfstring(L, "%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s" G_DIR_SEPARATOR_S "?.lua;%s",
+                    dirname, personal, get_plugin_dir(), path);
+    lua_setfield(L, -2, "path");    /* set the new string to be the path field of the package table */
+    lua_setfield(L, -2, "package"); /* set the package table to be the package field of the global */
+
+    lua_setfield(L, -2, "__index"); /* make metatable's __index point to global table */
 
     lua_setmetatable(L, -2); /* pop metatable, set it as metatable of environment */
 
@@ -439,6 +457,8 @@ static void set_file_environment(const gchar* filename, const gchar* dirname) {
 #else
     lua_setfenv(L, -2); /* pop environment and set it as the func's environment */
 #endif
+
+    g_free(personal);
 }
 
 /* If file_count > 0 then it's a command-line-added user script, and the count

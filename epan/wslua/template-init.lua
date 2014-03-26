@@ -64,10 +64,51 @@ function typeof(obj)
     return mt and mt.__typeof or obj.__typeof or type(obj)
 end
 
--- the following function is since 1.11.3
+-- the following function checks if a file exists
+-- since 1.11.3
 function file_exists(name)
    local f = io.open(name,"r")
    if f ~= nil then io.close(f) return true else return false end
+end
+
+-- the following function prepends the given directory name to
+-- the package.path, so that a 'require "foo"' will work if 'foo'
+-- is in the directory name given to this function. For example,
+-- if your Lua file will do a 'require "foo"' and the foo.lua
+-- file is in a local directory (local to your script) named 'bar',
+-- then call this function before doing your 'require', by doing
+--     package.prepend_path("bar")
+-- and that will let Wireshark's Lua find the file "bar/foo.lua"
+-- when you later do 'require "foo"'
+--
+-- Because this function resides here in init.lua, it does not
+-- have the same environment as your script, so it has to get it
+-- using the debug library, which is why the code appears so
+-- cumbersome.
+--
+-- since 1.11.3
+function package.prepend_path(name)
+    local debug = require "debug"
+    -- get the function calling this package.prepend_path function
+    local dt = debug.getinfo(2, "f")
+    if not dt then
+        error("could not retrieve debug info table")
+    end
+    -- get its upvalue
+    local _, val = debug.getupvalue(dt.func, 1)
+    if not val or type(val) ~= 'table' then
+        error("No calling function upvalue or it is not a table")
+    end
+    -- get the __DIR__ field in its upvalue table
+    local dir = val["__DIR__"]
+    -- get the platform-specific directory separator character
+    local sep = package.config:sub(1,1)
+    -- prepend the dir and given name to path
+    if dir and dir:len() > 0 then
+        package.path = dir .. sep .. name .. sep .. "?.lua;" .. package.path
+    end
+    -- also prepend just the name as a directory
+    package.path = name .. sep .. "?.lua;" .. package.path
 end
 
 -- %WTAP_ENCAPS%
