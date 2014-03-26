@@ -343,7 +343,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         str[3]=tvb_get_guint8(tvb, offset+7);
         str[4]=0;
 
-        it=proto_tree_add_text(tree, tvb, offset, offset+8+len+4, "%s", str);
+        it=proto_tree_add_text(tree, tvb, offset, 4+4+len+4, "%s", str);
         chunk_tree=proto_item_add_subtree(it, ett_png_chunk);
 
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_len, tvb, offset, 4, ENC_BIG_ENDIAN);
