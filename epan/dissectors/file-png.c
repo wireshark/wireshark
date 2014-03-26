@@ -39,17 +39,25 @@
 
 #define CHUNK_TYPE_IHDR   MAKE_TYPE_VAL('I', 'H', 'D', 'R')
 #define CHUNK_TYPE_bKGD   MAKE_TYPE_VAL('b', 'K', 'G', 'D')
+#define CHUNK_TYPE_iCCP   MAKE_TYPE_VAL('i', 'C', 'C', 'P')
+#define CHUNK_TYPE_cHRM   MAKE_TYPE_VAL('c', 'H', 'R', 'M')
 #define CHUNK_TYPE_pHYs   MAKE_TYPE_VAL('p', 'H', 'Y', 's')
 #define CHUNK_TYPE_tEXt   MAKE_TYPE_VAL('t', 'E', 'X', 't')
+#define CHUNK_TYPE_sRGB   MAKE_TYPE_VAL('s', 'R', 'G', 'B')
 #define CHUNK_TYPE_tIME   MAKE_TYPE_VAL('t', 'I', 'M', 'E')
+#define CHUNK_TYPE_IDAT   MAKE_TYPE_VAL('I', 'D', 'A', 'T')
 #define CHUNK_TYPE_IEND   MAKE_TYPE_VAL('I', 'E', 'N', 'D')
 
 static const value_string chunk_types[] = {
     { CHUNK_TYPE_IHDR, "Image Header" },
     { CHUNK_TYPE_bKGD, "Background colour" },
+    { CHUNK_TYPE_iCCP, "Embedded ICC profile" },
+    { CHUNK_TYPE_cHRM, "Primary chromaticities and white point" },
     { CHUNK_TYPE_pHYs, "Physical pixel dimensions" },
     { CHUNK_TYPE_tEXt, "Textual data" },
+    { CHUNK_TYPE_sRGB, "Standard RGB colour space" },
     { CHUNK_TYPE_tIME, "Image last-modification time" },
+    { CHUNK_TYPE_IDAT, "Image data chunk" },
     { CHUNK_TYPE_IEND, "Image Trailer" },
     { 0, NULL }
 };
