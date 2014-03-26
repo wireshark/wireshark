@@ -252,7 +252,7 @@ dissect_ranap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
-#define RANAP_MSG_MIN_LENGTH 8
+#define RANAP_MSG_MIN_LENGTH 7
 static gboolean
 dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -291,7 +291,7 @@ dissect_sccp_ranap_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * 
      */
     word = tvb_get_ntohs(tvb,5);
-    if(word > 0x2ff){
+    if(word > 0x1ff){
         return FALSE;
     }
     dissect_ranap(tvb, pinfo, tree);
