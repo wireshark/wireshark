@@ -34,6 +34,27 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 
+
+#define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
+
+#define CHUNK_TYPE_IHDR   MAKE_TYPE_VAL('I', 'H', 'D', 'R')
+#define CHUNK_TYPE_bKGD   MAKE_TYPE_VAL('b', 'K', 'G', 'D')
+#define CHUNK_TYPE_pHYs   MAKE_TYPE_VAL('p', 'H', 'Y', 's')
+#define CHUNK_TYPE_tEXt   MAKE_TYPE_VAL('t', 'E', 'X', 't')
+#define CHUNK_TYPE_tIME   MAKE_TYPE_VAL('t', 'I', 'M', 'E')
+#define CHUNK_TYPE_IEND   MAKE_TYPE_VAL('I', 'E', 'N', 'D')
+
+static const value_string chunk_types[] = {
+    { CHUNK_TYPE_IHDR, "Image Header" },
+    { CHUNK_TYPE_bKGD, "Background colour" },
+    { CHUNK_TYPE_pHYs, "Physical pixel dimensions" },
+    { CHUNK_TYPE_tEXt, "Textual data" },
+    { CHUNK_TYPE_tIME, "Image last-modification time" },
+    { CHUNK_TYPE_IEND, "Image Trailer" },
+    { 0, NULL }
+};
+
+
 void proto_register_png(void);
 void proto_reg_handoff_png(void);
 
@@ -49,7 +70,7 @@ static header_field_info hfi_png_chunk_data PNG_HFI_INIT = {
     "Data", "png.chunk.data", FT_NONE, BASE_NONE,
     NULL, 0, NULL, HFILL };
 
-static header_field_info hfi_png_chunk_type PNG_HFI_INIT = {
+static header_field_info hfi_png_chunk_type_str PNG_HFI_INIT = {
     "Chunk", "png.chunk.type", FT_STRING, BASE_NONE,
     NULL, 0, NULL, HFILL };
 
@@ -213,7 +234,6 @@ static header_field_info hfi_png_bkgd_blue PNG_HFI_INIT = {
 
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
-static gint ett_png_chunk_item = -1;
 
 static dissector_handle_t png_handle;
 
@@ -287,36 +307,18 @@ dissect_png_bkgd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     }
 }
 
-typedef struct _chunk_dissector_t {
-    guint32 type;
-    const char *name;
-    void (*dissector)(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-} chunk_dissector_t;
-
-static chunk_dissector_t chunk_table[] = {
-    { 0x49484452, "Image Header", dissect_png_ihdr },     /* IHDR */
-    { 0x624b4744, "Background colour", dissect_png_bkgd },     /* bKGD */
-    { 0x70485973, "Physical pixel dimensions",
-                    dissect_png_phys },     /* pHYs */
-    { 0x74455874, "Textual data", dissect_png_text },     /* tEXt */
-    { 0x74494d45, "Image last-modification time",
-                    dissect_png_time },     /* tIME */
-    { 0x49454e44, "Image Trailer", NULL },             /* IEND */
-    { 0, NULL, NULL }
-};
 
 static gint
 dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
     proto_tree *tree;
     proto_item *ti;
-    int offset=0;
-
+    gint        offset=0;
     /* http://libpng.org/pub/png/spec/1.2/PNG-Structure.html#PNG-file-signature */
     static const guint8 magic[8] = { 137, 80, 78, 71, 13, 10, 26, 10 };
+
     if (tvb_length(tvb) < 20)
         return 0;
-
     if (tvb_memeql(tvb, 0, magic, sizeof(magic)) != 0)
         return 0;
 
@@ -329,61 +331,65 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
     offset+=8;
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
+        guint32     len_field;
+        proto_item *chunk_it;
         proto_tree *chunk_tree;
-        proto_item *it;
-        guint32 len, type;
-        chunk_dissector_t *cd;
-        char str[5];
+        guint32     type;
+        guint8     *type_str;
+        tvbuff_t   *chunk_tvb;
 
-        len=tvb_get_ntohl(tvb, offset);
-        type=tvb_get_ntohl(tvb, offset+4);
-        str[0]=tvb_get_guint8(tvb, offset+4);
-        str[1]=tvb_get_guint8(tvb, offset+5);
-        str[2]=tvb_get_guint8(tvb, offset+6);
-        str[3]=tvb_get_guint8(tvb, offset+7);
-        str[4]=0;
+        len_field = tvb_get_ntohl(tvb, offset);
 
-        it=proto_tree_add_text(tree, tvb, offset, 4+4+len+4, "%s", str);
-        chunk_tree=proto_item_add_subtree(it, ett_png_chunk);
+        type = tvb_get_ntohl(tvb, offset+4);
+        type_str = tvb_get_string_enc(wmem_packet_scope(),
+                tvb, offset+4, 4, ENC_ASCII|ENC_NA);
+
+        /* 4 byte len field, 4 byte chunk type, 4 byte CRC */
+        chunk_it = proto_tree_add_text(tree, tvb, offset, 4+4+len_field+4, "%s (%s)", 
+                val_to_str_const(type, chunk_types, "unknown"), type_str);
+        chunk_tree = proto_item_add_subtree(chunk_it, ett_png_chunk);
 
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
 
+        proto_tree_add_item(chunk_tree, &hfi_png_chunk_type_str,
+                tvb, offset, 4, ENC_ASCII|ENC_NA);
 
-        it=proto_tree_add_item(chunk_tree, &hfi_png_chunk_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_anc, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
 
-        if (len >= 1000000000)
+        if (len_field >= G_MAXINT) {
+            /* XXX - expert info */
             THROW(ReportedBoundsError);
-        cd=&chunk_table[0];
-        while(1){
-            if(cd->type==0){
-                cd=NULL;
-                break;
-            }
-            if(cd->type==type){
-                break;
-            }
-            cd++;
         }
-        proto_item_append_text(chunk_tree, " %s", cd?cd->name:"(don't know how to dissect this)");
 
-        if(!cd){
-            proto_tree_add_item(chunk_tree, &hfi_png_chunk_data, tvb, offset, len, ENC_NA);
-        } else {
-            if(cd->dissector){
-                tvbuff_t *next_tvb;
-                proto_tree *cti;
-
-                next_tvb=tvb_new_subset(tvb, offset, MIN(tvb_length_remaining(tvb, offset), (int)len), len);
-                cti=proto_item_add_subtree(it, ett_png_chunk_item);
-                cd->dissector(next_tvb, pinfo, cti);
-            }
+        chunk_tvb=tvb_new_subset(tvb, offset, len_field, len_field);
+        switch (type) {
+            case CHUNK_TYPE_IHDR:
+                dissect_png_ihdr(chunk_tvb, pinfo, chunk_tree);
+                break;
+            case CHUNK_TYPE_bKGD:
+                dissect_png_bkgd(chunk_tvb, pinfo, chunk_tree);
+                break;
+            case CHUNK_TYPE_pHYs:
+                dissect_png_phys(chunk_tvb, pinfo, chunk_tree);
+                break;
+            case CHUNK_TYPE_tEXt:
+                dissect_png_text(chunk_tvb, pinfo, chunk_tree);
+                break;
+            case CHUNK_TYPE_tIME:
+                dissect_png_time(chunk_tvb, pinfo, chunk_tree);
+                break;
+            default:
+                if (len_field>0) {
+                    proto_tree_add_item(chunk_tree, &hfi_png_chunk_data,
+                            tvb, offset, len_field, ENC_NA);
+                }
+                break;
         }
-        offset+=len;
+        offset += len_field;
 
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -398,7 +404,7 @@ proto_register_png(void)
     static header_field_info *hfi[] =
     {
         &hfi_png_signature,
-        &hfi_png_chunk_type,
+        &hfi_png_chunk_type_str,
         &hfi_png_chunk_data,
         &hfi_png_chunk_len,
         &hfi_png_chunk_crc,
@@ -435,7 +441,6 @@ proto_register_png(void)
     {
         &ett_png,
         &ett_png_chunk,
-        &ett_png_chunk_item,
     };
 
     int proto_png;
