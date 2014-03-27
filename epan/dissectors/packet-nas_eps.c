@@ -876,7 +876,7 @@ static const value_string nas_eps_emm_switch_off_vals[] = {
 /* Type of detach (octet 1)
  * In the UE to network direction:
  */
-static const value_string nas_eps_emm_type_of_dtatch_UL_vals[] = {
+static const value_string nas_eps_emm_type_of_detach_UL_vals[] = {
     { 0x1,  "EPS detach"},
     { 0x2,  "IMSI detach"},
     { 0x3,  "Combined EPS/IMSI detach"},
@@ -892,7 +892,7 @@ static const value_string nas_eps_emm_type_of_dtatch_UL_vals[] = {
  * In the network to UE direction:
  */
 
-static const value_string nas_eps_emm_type_of_dtatch_DL_vals[] = {
+static const value_string nas_eps_emm_type_of_detach_DL_vals[] = {
     { 0x1,  "Re-attach required"},
     { 0x2,  "Re-attach not required"},
     { 0x3,  "IMSI detach"},
@@ -3200,8 +3200,8 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
    /* bit_offset+=3;*/
     /* Show detach reason in Info column.  TODO: expert info ? */
     col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%s)",
-    	            val_to_str_const((guint32)detach_type, nas_eps_emm_type_of_dtatch_UL_vals, "Unknown"),
-    	            (switch_off==0) ? "" : " / switch-off");
+                    val_to_str_const((guint32)detach_type, nas_eps_emm_type_of_detach_UL_vals, "Unknown"),
+                    (switch_off==0) ? "" : " / switch-off");
 
     /* Fix the lengths */
     curr_len--;
@@ -3219,6 +3219,7 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     guint32 curr_offset, bit_offset;
     guint32 consumed;
     guint   curr_len;
+    guint64 detach_type;
 
     curr_offset = offset;
     curr_len    = len;
@@ -3232,8 +3233,11 @@ nas_emm_detach_req_DL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     /* In the network to UE direction bit 4 is spare. The network shall set this bit to zero. */
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_DL, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_ret_val(tree, hf_nas_eps_emm_detach_type_DL, tvb, bit_offset, 3, &detach_type, ENC_BIG_ENDIAN);
     /*bit_offset+=3;*/
+    /* Show detach reason in Info column.  TODO: expert info ? */
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                    val_to_str_const((guint32)detach_type, nas_eps_emm_type_of_detach_DL_vals, "Unknown"));
 
     /* Fix the lengths */
     curr_len--;
@@ -5591,12 +5595,12 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_detach_type_UL,
         { "Detach Type","nas_eps.emm.detach_type_ul",
-        FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_dtatch_UL_vals), 0x0,
+        FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_detach_UL_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_detach_type_DL,
         { "Detach Type","nas_eps.emm.detach_type_dl",
-        FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_dtatch_DL_vals), 0x0,
+        FT_UINT8,BASE_DEC, VALS(nas_eps_emm_type_of_detach_DL_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_qci,
