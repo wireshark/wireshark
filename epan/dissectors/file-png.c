@@ -32,7 +32,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/exceptions.h>
+#include <epan/expert.h>
 
 
 #define MAKE_TYPE_VAL(a, b, c, d)   ((a)<<24 | (b)<<16 | (c)<<8 | (d))
@@ -247,6 +247,8 @@ static header_field_info hfi_png_bkgd_blue PNG_HFI_INIT = {
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
 
+static expert_field ei_png_chunk_too_large = EI_INIT;
+
 static dissector_handle_t png_handle;
 
 static void
@@ -344,7 +346,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
         guint32     len_field;
-        proto_item *chunk_it;
+        proto_item *chunk_it, *len_it;
         proto_tree *chunk_tree;
         guint32     type;
         guint8     *type_str;
@@ -361,8 +363,13 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
                 val_to_str_const(type, chunk_types, "unknown"), type_str);
         chunk_tree = proto_item_add_subtree(chunk_it, ett_png_chunk);
 
-        proto_tree_add_item(chunk_tree, &hfi_png_chunk_len, tvb, offset, 4, ENC_BIG_ENDIAN);
+        len_it = proto_tree_add_item(chunk_tree, &hfi_png_chunk_len,
+                tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
+        if (len_field > G_MAXINT) {
+            expert_add_info(pinfo, len_it, &ei_png_chunk_too_large);
+            return offset;
+        }
 
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_type_str,
                 tvb, offset, 4, ENC_ASCII|ENC_NA);
@@ -371,11 +378,6 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(chunk_tree, &hfi_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
-
-        if (len_field >= G_MAXINT) {
-            /* XXX - expert info */
-            THROW(ReportedBoundsError);
-        }
 
         chunk_tvb=tvb_new_subset(tvb, offset, len_field, len_field);
         switch (type) {
@@ -455,6 +457,13 @@ proto_register_png(void)
         &ett_png_chunk,
     };
 
+    static ei_register_info ei[] = {
+        { &ei_png_chunk_too_large,
+            { "png.chunk_too_large", PI_PROTOCOL, PI_WARN,
+                "chunk size too large, dissection of this chunk is not supported", EXPFILL }}
+    };
+    expert_module_t *expert_png;
+
     int proto_png;
 
     proto_png = proto_register_protocol("Portable Network Graphics","PNG","png");
@@ -462,6 +471,9 @@ proto_register_png(void)
 
     proto_register_fields(proto_png, hfi, array_length(hfi));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_png = expert_register_protocol(proto_png);
+    expert_register_field_array(expert_png, ei, array_length(ei));
 
     png_handle = new_register_dissector("png", dissect_png, proto_png);
 }
