@@ -174,6 +174,18 @@ static header_field_info hfi_png_ihdr_interlace_method PNG_HFI_INIT = {
     "Interlace Method", "png.ihdr.interlace_method", FT_UINT8, BASE_DEC,
     VALS(interlace_method_vals), 0, NULL, HFILL };
 
+static const value_string srgb_intent_vals[] = {
+    { 0, "Perceptual" },
+    { 1, "Relative colorimetric" },
+    { 2, "Saturation" },
+    { 3, "Absolute colorimetric" },
+    { 0, NULL }
+};
+
+static header_field_info hfi_png_srgb_intent PNG_HFI_INIT = {
+    "Intent", "png.srgb.intent", FT_UINT8, BASE_DEC,
+    VALS(srgb_intent_vals), 0, NULL, HFILL };
+
 static header_field_info hfi_png_text_keyword PNG_HFI_INIT = {
     "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
     NULL, 0, NULL, HFILL };
@@ -262,6 +274,13 @@ dissect_png_ihdr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(tree, &hfi_png_ihdr_filter_method, tvb, 11, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, &hfi_png_ihdr_interlace_method, tvb, 12, 1, ENC_BIG_ENDIAN);
 
+}
+
+static void
+dissect_png_srgb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_tree_add_item(tree, &hfi_png_srgb_intent,
+            tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -390,6 +409,9 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
             case CHUNK_TYPE_pHYs:
                 dissect_png_phys(chunk_tvb, pinfo, chunk_tree);
                 break;
+            case CHUNK_TYPE_sRGB:
+                dissect_png_srgb(chunk_tvb, pinfo, chunk_tree);
+                break;
             case CHUNK_TYPE_tEXt:
                 dissect_png_text(chunk_tvb, pinfo, chunk_tree);
                 break;
@@ -432,6 +454,7 @@ proto_register_png(void)
         &hfi_png_ihdr_compression_method,
         &hfi_png_ihdr_filter_method,
         &hfi_png_ihdr_interlace_method,
+        &hfi_png_srgb_intent,
         &hfi_png_text_keyword,
         &hfi_png_text_string,
         &hfi_png_time_year,
