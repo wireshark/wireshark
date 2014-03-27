@@ -48,6 +48,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     int buffer_len;
     guint8 *packet_buf;
 
+    memset(&pkthdr, 0, sizeof(struct wtap_pkthdr));
     buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
     packet_buf = (guint8 *)g_malloc(buffer_len);
 
@@ -64,12 +65,10 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, co
     pkthdr.len       = exp_pdu_data->tvb_reported_length + exp_pdu_data->tlv_buffer_len;
 
     pkthdr.pkt_encap = exp_pdu_tap_data->pkt_encap;
-    pkthdr.interface_id = 0;
-    pkthdr.presence_flags = 0;
     pkthdr.opt_comment = g_strdup(pinfo->pkt_comment);
-    pkthdr.drop_count = 0;
-    pkthdr.pack_flags = 0;
     pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
+
+    /* XXX: should the pkthdr.pseudo_header be set to the pinfo's pseudo-header? */
 
     wtap_dump(exp_pdu_tap_data->wdh, &pkthdr, packet_buf, &err);
 

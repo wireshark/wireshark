@@ -4019,7 +4019,7 @@ cf_get_comment(capture_file *cf, const frame_data *fd)
     struct wtap_pkthdr phdr; /* Packet header */
     Buffer buf; /* Packet data */
 
-    phdr.opt_comment = NULL;
+    memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
     buffer_init(&buf, 1500);
     if (!cf_read_frame_r(cf, fd, &phdr, &buf))

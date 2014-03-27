@@ -1102,6 +1102,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	g_return_if_fail(packet_list);
 	g_return_if_fail(PACKETLIST_IS_LIST(packet_list));
 
+	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
 	fdata = record->fdata;
 
 	if (dissect_columns) {

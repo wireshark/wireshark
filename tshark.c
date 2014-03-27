@@ -3064,6 +3064,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   Buffer       buf;
   epan_dissect_t *edt = NULL;
 
+  memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
 #ifdef PCAP_NG_DEFAULT

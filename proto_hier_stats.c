@@ -143,6 +143,8 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	Buffer				buf;
 	double				cur_time;
 
+	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
 	/* Load the frame from the capture file */
 	buffer_init(&buf, 1500);
 	if (!cf_read_frame_r(&cfile, frame, &phdr, &buf))

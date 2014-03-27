@@ -96,6 +96,8 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
     gchar  *err_info;
     struct wtap_pkthdr phdr;
 
+    memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
     DEBUG_PRINT("\nDumping frame (offset=%" G_GINT64_MODIFIER "u)\n",
                 frame->offset);
 
