@@ -3182,6 +3182,8 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     guint32 curr_offset,bit_offset;
     guint32 consumed;
     guint   curr_len;
+    guint64 switch_off;
+    guint64 detach_type;
 
     curr_offset = offset;
     curr_len    = len;
@@ -3192,10 +3194,14 @@ nas_emm_detach_req_UL(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     de_emm_nas_key_set_id_bits(tvb, tree, bit_offset, NULL);
     bit_offset+=4;
     /* Detach type  Detach type 9.9.3.6 M   V   1/2 */
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_switch_off, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_ret_val(tree, hf_nas_eps_emm_switch_off, tvb, bit_offset, 1, &switch_off, ENC_BIG_ENDIAN);
     bit_offset++;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_detach_type_UL, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_ret_val(tree, hf_nas_eps_emm_detach_type_UL, tvb, bit_offset, 3, &detach_type, ENC_BIG_ENDIAN);
    /* bit_offset+=3;*/
+    /* Show detach reason in Info column.  TODO: expert info ? */
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%s)",
+    	            val_to_str_const((guint32)detach_type, nas_eps_emm_type_of_dtatch_UL_vals, "Unknown"),
+    	            (switch_off==0) ? "" : " / switch-off");
 
     /* Fix the lengths */
     curr_len--;
