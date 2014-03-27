@@ -121,7 +121,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 
     PUSH_TREEITEM(L,tree_item);
 
-    return 1;
+    WSLUA_RETURN(1); /* The new child TreeItem. */
 }
 
 static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
@@ -173,7 +173,11 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                     lua_insert(L,1);
                     break;
                 case FT_BOOLEAN:
-                    item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,wslua_checkguint32(L,1));
+                    {
+                        /* this needs to use checkinteger so that it can accept a Lua boolean and coerce it to an int */
+                        guint32 val = (guint32) (wslua_tointeger(L,1));
+                        item = proto_tree_add_boolean(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,val);
+                    }
                     break;
                 case FT_UINT8:
                 case FT_UINT16:
@@ -283,7 +287,7 @@ WSLUA_METHOD TreeItem_add(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
 #define WSLUA_OPTARG_TreeItem_add_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
 #define WSLUA_OPTARG_TreeItem_add_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
-    WSLUA_RETURN(TreeItem_add_item_any(L,FALSE)); /* The new child TreeItem */
+    WSLUA_RETURN(TreeItem_add_item_any(L,FALSE)); /* The new child TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_add_le(lua_State *L) {
@@ -300,40 +304,58 @@ WSLUA_METHOD TreeItem_add_le(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_le_TVBRANGE 3 /* The TvbRange of bytes in the packet this tree item covers/represents. */
 #define WSLUA_OPTARG_TreeItem_add_le_VALUE 4 /* The field's value, instead of the ProtoField/Proto one. */
 #define WSLUA_OPTARG_TreeItem_add_le_LABEL 5 /* One or more strings to use for the tree item label, instead of the ProtoField/Proto one. */
-    WSLUA_RETURN(TreeItem_add_item_any(L,TRUE)); /* The new child TreeItem */
+    WSLUA_RETURN(TreeItem_add_item_any(L,TRUE)); /* The new child TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_set_text(lua_State *L) {
-    /* Sets the text of the label. */
+    /* Sets the text of the label.
+
+       This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
+    */
 #define WSLUA_ARG_TreeItem_set_text_TEXT 2 /* The text to be used. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_set_text_TEXT);
 
     proto_item_set_text(ti->item,"%s",s);
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_append_text(lua_State *L) {
-    /* Appends text to the label. */
+    /* Appends text to the label.
+
+       This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
+    */
 #define WSLUA_ARG_TreeItem_append_text_TEXT 2 /* The text to be appended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_append_text_TEXT);
 
     proto_item_append_text(ti->item,"%s",s);
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_prepend_text(lua_State *L) {
-    /* Prepends text to the label. */
+    /* Prepends text to the label.
+
+       This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
+    */
 #define WSLUA_ARG_TreeItem_prepend_text_TEXT 2 /* The text to be prepended. */
     TreeItem ti = checkTreeItem(L,1);
     const gchar* s = luaL_checkstring(L,WSLUA_ARG_TreeItem_prepend_text_TEXT);
 
     proto_item_prepend_text(ti->item,"%s",s);
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
@@ -366,7 +388,10 @@ WSLUA_METHOD TreeItem_add_expert_info(lua_State *L) {
         expert_add_info(lua_pinfo, ti->item, ei_info);
     }
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_add_proto_expert_info(lua_State *L) {
@@ -394,7 +419,10 @@ WSLUA_METHOD TreeItem_add_proto_expert_info(lua_State *L) {
         expert_add_info(lua_pinfo, ti->item, &expert->ids);
     }
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
@@ -442,37 +470,55 @@ WSLUA_METHOD TreeItem_add_tvb_expert_info(lua_State *L) {
                               tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len);
     }
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
-    /* Marks the `TreeItem` as a generated field (with data inferred but not contained in the packet). */
+    /* Marks the `TreeItem` as a generated field (with data inferred but not contained in the packet).
+
+       This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
+    */
     TreeItem ti = checkTreeItem(L,1);
 
     PROTO_ITEM_SET_GENERATED(ti->item);
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 
 WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
-    /* Should not be used */
+    /* This function should not be used, and is provided for backwards-compatibility only. */
     TreeItem ti = checkTreeItem(L,1);
 
     PROTO_ITEM_SET_HIDDEN(ti->item);
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 WSLUA_METHOD TreeItem_set_len(lua_State *L) {
-    /* Set `TreeItem`'s length inside tvb, after it has already been created. */
+    /* Set `TreeItem`'s length inside tvb, after it has already been created.
+
+       This used to return nothing, but as of 1.11.3 it returns the same tree item to allow chained calls.
+    */
 #define WSLUA_ARG_TreeItem_set_len_LEN 2 /* The length to be used. */
     TreeItem ti = checkTreeItem(L,1);
     gint len = luaL_checkint(L,WSLUA_ARG_TreeItem_set_len_LEN);
 
     proto_item_set_len(ti->item, len);
 
-    return 0;
+    /* copy the TreeItem userdata so we give it back */
+    lua_pushvalue(L, 1);
+
+    WSLUA_RETURN(1); /* The same TreeItem. */
 }
 
 /* Gets registered as metamethod automatically by WSLUA_REGISTER_CLASS/META */

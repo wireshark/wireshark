@@ -126,7 +126,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
 
     switch(type) {
         case PREF_BOOL: {
-            gboolean def = lua_toboolean(L,2);
+            gboolean def = wslua_toboolean(L,2);
             pref->value.b = def;
             break;
         }
@@ -143,7 +143,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
         case PREF_ENUM: {
             guint32 def = wslua_optgint32(L,2,0);
             enum_val_t *enum_val = get_enum(L,4);
-            gboolean radio = lua_toboolean(L,5);
+            gboolean radio = wslua_toboolean(L,5);
             pref->value.e = def;
             pref->info.enum_info.enumvals = enum_val;
             pref->info.enum_info.radio_buttons = radio;

@@ -43,6 +43,36 @@ WSLUA_API int wslua__concat(lua_State* L) {
     return 1;
 }
 
+/* like lua_toboolean, except only coerces int, nil, and bool, and errors on other types.
+   note that normal lua_toboolean returns 1 for any Lua value different from false and
+   nil; otherwise it returns 0. So a string would give a 0, as would a number of 1.
+   This function errors if the arg is a string, and sets the boolean to 1 for any
+   number other than 0. Like toboolean, this returns FALSE if the arg was missing. */
+WSLUA_API gboolean wslua_toboolean(lua_State* L, int n) {
+    gboolean val = FALSE;
+
+    if ( lua_isboolean(L,n) ||  lua_isnil(L,n)  || lua_gettop(L) < n ) {
+        val = lua_toboolean(L,n);
+    } else if ( lua_type(L,n) == LUA_TNUMBER ) {
+        int num = luaL_checkint(L,n);
+        val = num != 0 ? TRUE : FALSE;
+    } else {
+        luaL_argerror(L,n,"must be a boolean or number");
+    }
+
+    return val;
+}
+
+/* like luaL_checkint, except for booleans - this does not coerce other types */
+WSLUA_API gboolean wslua_checkboolean(lua_State* L, int n) {
+
+    if (!lua_isboolean(L,n) ) {
+        luaL_argerror(L,n,"must be a boolean");
+    }
+
+    return lua_toboolean(L,n);;
+}
+
 WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
     gboolean val = FALSE;
 
@@ -52,6 +82,24 @@ WSLUA_API gboolean wslua_optbool(lua_State* L, int n, gboolean def) {
         val = def;
     } else {
         luaL_argerror(L,n,"must be a boolean");
+    }
+
+    return val;
+}
+
+/* like lua_tointeger, except only coerces int, nil, and bool, and errors on other types.
+   note that normal lua_tointeger does not coerce nil or bool, but does coerce strings. */
+WSLUA_API lua_Integer wslua_tointeger(lua_State* L, int n) {
+    lua_Integer val = 0;
+
+    if ( lua_type(L,n) == LUA_TNUMBER) {
+        val = lua_tointeger(L,n);
+    } else if ( lua_isboolean(L,n) ) {
+        val = (lua_Integer) (lua_toboolean(L,n));
+    } else if ( lua_isnil(L,n) ) {
+        val = 0;
+    } else {
+        luaL_argerror(L,n,"must be a integer, boolean or nil");
     }
 
     return val;

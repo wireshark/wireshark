@@ -661,7 +661,10 @@ WSLUA_DECLARE_FUNCTIONS()
 extern lua_State* wslua_state(void);
 
 extern int wslua__concat(lua_State* L);
+extern gboolean wslua_toboolean(lua_State* L, int n);
+extern gboolean wslua_checkboolean(lua_State* L, int n);
 extern gboolean wslua_optbool(lua_State* L, int n, gboolean def);
+extern lua_Integer wslua_tointeger(lua_State* L, int n);
 extern int wslua_optboolint(lua_State* L, int n, int def);
 extern const char* wslua_checklstring_only(lua_State* L, int n, size_t *l);
 extern const char* wslua_checkstring_only(lua_State* L, int n);

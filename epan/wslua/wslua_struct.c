@@ -618,8 +618,9 @@ WSLUA_CONSTRUCTOR Struct_tohex (lua_State *L) {
   gboolean lowercase = FALSE;
   const gchar* sep = NULL;
 
-  /* luaL_checklstring coerces the argument to a string, and we don't want to do that */
-  s = wslua_checklstring_only(L, WSLUA_ARG_Struct_tohex_BYTESTRING, &len);
+  /* luaL_checklstring coerces the argument to a string, and that's ok for tohex,
+     just not fromhex. In fact, we should accept/coerce a Int64/UInt64 here too someday. */
+  s = luaL_checklstring(L, WSLUA_ARG_Struct_tohex_BYTESTRING, &len);
 
   if (!s) {
     WSLUA_ARG_ERROR(Struct_tohex,BYTESTRING,"must be a Lua string");
