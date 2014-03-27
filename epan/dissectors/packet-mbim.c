@@ -3456,8 +3456,15 @@ mbim_dissect_sim_auth_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 static void
 mbim_dissect_set_dss_connect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
-    proto_tree_add_item(tree, hf_mbim_set_dss_connect_device_service_id, tvb, offset, 16, ENC_NA);
-    offset += 16;
+    guint32 dss_session_id;
+    struct mbim_uuid_ext *uuid_ext_info = NULL;
+
+    mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_set_dss_connect_device_service_id, &offset, &uuid_ext_info);
+    dss_session_id = tvb_get_letohl(tvb, offset);
+    dissector_delete_uint("mbim.dss_session_id", dss_session_id, NULL);
+    if ((dss_session_id <= 255) && uuid_ext_info && uuid_ext_info->dss_handle) {
+        dissector_add_uint("mbim.dss_session_id", dss_session_id, uuid_ext_info->dss_handle);
+    }
     proto_tree_add_item(tree, hf_mbim_set_dss_connect_dss_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_set_dss_connect_dss_link_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -3548,7 +3555,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree_add_uint(header_tree, hf_mbim_header_transaction_id, tvb, offset, 4, trans_id);
     offset += 4;
 
-    switch(msg_type) {
+    switch (msg_type) {
         case MBIM_OPEN_MSG:
             {
                 guint32 max_ctrl_transfer;
@@ -4672,8 +4679,8 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         ti = proto_tree_add_text(mbim_tree, tvb, offset, 0, "NCM Datagram Pointer");
         subtree = proto_item_add_subtree(ti, ett_mbim_msg_header);
         signature = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, 4, ENC_ASCII);
-        if ((!is_32bits && !strcmp(signature, "IPS")) ||
-            (is_32bits && !strcmp(signature, "ips"))) {
+        if ((!is_32bits && !strncmp(signature, "IPS", 3)) ||
+            (is_32bits && !strncmp(signature, "ips", 3))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
                                                       4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
                                                       signature[1], signature[2], signature[3]);
@@ -4682,8 +4689,8 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%c%c%c%u", signature[0], signature[1],
                                 signature[2], signature[3]);
             dissector = ip_handle;
-        } else if ((!is_32bits && !strcmp(signature, "DSS")) ||
-                   (is_32bits && !strcmp(signature, "dss"))) {
+        } else if ((!is_32bits && !strncmp(signature, "DSS", 3)) ||
+                   (is_32bits && !strncmp(signature, "dss", 3))) {
             sig_ti = proto_tree_add_uint_format_value(subtree, hf_mbim_bulk_ndp_signature, tvb, offset,
                                                       4, tvb_get_letohl(tvb, offset), "%c%c%c%u", signature[0],
                                                       signature[1], signature[2], signature[3]);
@@ -4709,8 +4716,8 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, signature);
             dissector = eth_fcs_handle;
         } else {
-            proto_tree_add_item(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, signature);
+            proto_tree_add_item(subtree, hf_mbim_bulk_ndp_signature, tvb, offset, 4, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "0x%08X", tvb_get_ntohl(tvb, offset));
             dissector = data_handle;
         }
         offset += 4;

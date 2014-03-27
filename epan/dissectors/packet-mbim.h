@@ -53,9 +53,11 @@ struct mbim_uuid_ext {
     const gchar *uuid_name;
     /* value_string array containing the CID list for this UUID */
     const value_string *uuid_cid_list;
-    /* Array of the dissection functions per CID. Pointers can be NULL when no dissection is expected. */
+    /* Array of the dissection functions per CID. Pointers can be NULL when no dissection is expected */
     /* BEWARE: the array must be ordered the same way as uuid_cid_list as it will be accessed with the CID index */
     const struct mbim_cid_dissect *uuid_fct_list;
+    /* Handle used for the DSS of this UUID. Set it to NULL if unused */
+    dissector_handle_t dss_handle;
 };
 
 /* Function allowing to register a new UUID used during MBIM dissection */
