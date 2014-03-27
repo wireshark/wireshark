@@ -1147,6 +1147,8 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 
 	g_assert((record->col_text != NULL)&&(record->col_text_len != NULL));
 
+	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
 	/* XXX: Does it work to check if the record is already columnized/colorized ?
 	 *      i.e.: test record->columnized and record->colorized and just return
 	 *            if they're both TRUE.

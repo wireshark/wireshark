@@ -522,16 +522,13 @@ write_current_packet (void)
             struct wtap_pkthdr pkthdr;
             int err;
 
+            memset(&pkthdr, 0, sizeof(struct wtap_pkthdr));
+
             pkthdr.ts.secs = (guint32)ts_sec;
             pkthdr.ts.nsecs = ts_usec * 1000;
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
             pkthdr.caplen = pkthdr.len = prefix_length + curr_offset + eth_trailer_length;
             pkthdr.pkt_encap = pcap_link_type;
-            pkthdr.interface_id = 0;
-            pkthdr.presence_flags = 0;
-            pkthdr.opt_comment = NULL;
-            pkthdr.drop_count = 0;
-            pkthdr.pack_flags = 0;
             pkthdr.pack_flags |= direction;
             pkthdr.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
 

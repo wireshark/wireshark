@@ -144,6 +144,8 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	guint8				pd[WTAP_MAX_PACKET_SIZE];
 	double				cur_time;
 
+	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
 	/* Load the frame from the capture file */
 	if (!cf_read_frame_r(&cfile, frame, &phdr, pd))
 		return FALSE;	/* failure */

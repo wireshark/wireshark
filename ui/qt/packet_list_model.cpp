@@ -184,6 +184,8 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     else
         cinfo = NULL;
 
+    memset(&phdr, 0, sizeof(struct wtap_pkthdr));
+
     if (!cap_file_ || !cf_read_frame_r(cap_file_, fdata, &phdr, pd)) {
         /*
          * Error reading the frame.
