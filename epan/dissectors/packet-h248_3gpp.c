@@ -458,7 +458,47 @@ static h248_package_t h248_package_3GTFO = {
  * ASCI Group call package
  * 3GPP TS 29.232 -- 15.2.10
  */
+/*
+ * 3G Interface Type package
+ * 3GPP TS 29.232 -- 15.2.11
+ */
+static int hf_h248_package_threegint = -1;
+static int hf_h248_package_threegint_ipint = -1;
 
+static int ett_h248_package_threegint = -1;
+
+static const value_string h248_threegint_properties_vals[] = {
+	{0000,  "3G Interface Type"},
+	{0001,  "IP Interface Type"},
+	{0,  NULL}
+};
+
+static const value_string h248_threegint_ipint_vals[] = {
+	{1,  "NboIP (Nb over IP with SIP-I based Nc,)"},
+	{2,  "AoIP (A interface over IP)"},
+	{3,  "MboIP (Mb interface)"},
+	{4,  "ExtSIPI (External SIP-I based network)"},
+	{0,  NULL}
+};
+
+static const h248_pkg_param_t h248_package_threegint_properties[] = {
+	{ 0x0001, &hf_h248_package_threegint_ipint, h248_param_ber_integer, &implicit },
+	{ 0x0000, NULL, NULL, NULL }
+};
+
+static h248_package_t h248_package_threegint = {
+	0x00e3,                                    /* Package ID = threegint */
+	&hf_h248_package_threegint,                /* hf_id */
+	&ett_h248_package_threegint,
+	h248_threegint_properties_vals,
+	NULL,                                      /* signal_names */
+	NULL,                                      /* event_names */
+	NULL,                                      /* stats_names */
+	h248_package_threegint_properties,         /* h248_pkg_param_t */
+	NULL,
+	NULL,
+	NULL
+};
 
 void proto_register_h248_3gpp(void) {
 	static hf_register_info hf[] = {
@@ -566,6 +606,15 @@ void proto_register_h248_3gpp(void) {
 		{ "TFO Status", "h248.package_3GTFO.status.tfostatus",
 			FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"reports whether TFO has been established or broken", HFILL }},
+		{ &hf_h248_package_threegint,
+		{ "3G Interface Type", "h248.package_threegint",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"This package contains a property to specify the used interface type for IP terminations", HFILL }},
+		{ &hf_h248_package_threegint_ipint,
+		{ "IP Interface Type", "h248.package_threegint.ipint",
+			FT_UINT32, BASE_DEC, VALS(h248_threegint_ipint_vals), 0,
+			NULL, HFILL }},
+
 	};
 
 	static gint *ett[] = {
@@ -591,5 +640,6 @@ void proto_register_h248_3gpp(void) {
 	h248_register_package(&h248_package_3GUP,REPLACE_PKG);
 	h248_register_package(&h248_package_3GCSD, REPLACE_PKG);
 	h248_register_package(&h248_package_3GTFO, REPLACE_PKG);
+	h248_register_package(&h248_package_threegint, REPLACE_PKG);
 }
 

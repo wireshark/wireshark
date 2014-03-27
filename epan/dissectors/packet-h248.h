@@ -89,10 +89,10 @@ typedef struct _h248_pkg_stat_t {
 } h248_pkg_stat_t;
 
 typedef struct _h248_package_t {
-	guint32 id;
-	int* hfid;
-	gint* ett;
-	const value_string* param_names;
+	guint32 id;                            /**< Package ID */
+	int* hfid;                             /**< hfid that will display the package name */
+	gint* ett;                             /**< The ett for this item */
+	const value_string* param_names;       /**< The parameter names, Value 00000 should be the package name */
 	const value_string* signal_names;
 	const value_string* event_names;
 	const value_string* stats_names;
