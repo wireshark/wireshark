@@ -28,6 +28,8 @@
 #include <epan/expert.h>
 #include <epan/prefs.h>
 
+#include "packet-btavdtp.h"
+
 #define CHANNELS_MONO          0x00
 #define CHANNELS_JOINT_STEREO  0x03
 
@@ -54,6 +56,13 @@ static int hf_sbc_allocation_method                                        = -1;
 static int hf_sbc_subbands                                                 = -1;
 static int hf_sbc_bitpool                                                  = -1;
 static int hf_sbc_crc_check                                                = -1;
+static int hf_sbc_expected_data_speed                                      = -1;
+static int hf_sbc_frame_duration                                           = -1;
+static int hf_sbc_cummulative_frame_duration                               = -1;
+static int hf_sbc_delta_time                                               = -1;
+static int hf_sbc_delta_time_from_the_beginning                            = -1;
+static int hf_sbc_cummulative_duration                                     = -1;
+static int hf_sbc_diff                                                     = -1;
 
 static int hf_sbc_data                                                     = -1;
 
@@ -102,7 +111,7 @@ static const value_string subbands_vals[] = {
 
 
 static gint
-dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item  *ti;
     proto_tree  *sbc_tree;
@@ -125,8 +134,13 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     gint        counter = 1;
     gint        frame_length;
     gint        expected_speed_data;
+    gdouble     frame_duration;
+    gdouble     cummulative_frame_duration = 0;
+    bta2dp_codec_info_t  *info;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SBC");
+
+    info = (bta2dp_codec_info_t *) data;
 
     ti = proto_tree_add_item(tree, proto_sbc, tvb, offset, -1, ENC_NA);
     sbc_tree = proto_item_add_subtree(ti, ett_sbc);
@@ -212,12 +226,49 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree_add_item(ritem, hf_sbc_data,  tvb, offset, frame_length, ENC_NA);
         offset += frame_length;
 
-/* TODO: expert_info for invalid CRC*/
+/* TODO: expert_info for invalid CRC */
 
-        pitem = proto_tree_add_text(ritem, tvb, offset, 0, "Expected speed data: %u KiB/s", expected_speed_data / 1024);
+        pitem = proto_tree_add_uint(ritem, hf_sbc_expected_data_speed, tvb, offset, 0, expected_speed_data / 1024);
+        proto_item_append_text(pitem, " KiB/s");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
+        cummulative_frame_duration += frame_duration;
+
+        pitem = proto_tree_add_double(ritem, hf_sbc_frame_duration, tvb, offset, 0, frame_duration);
+        proto_item_append_text(pitem, " ms");
         PROTO_ITEM_SET_GENERATED(pitem);
 
         counter += 1;
+    }
+
+    pitem = proto_tree_add_double(sbc_tree, hf_sbc_cummulative_frame_duration, tvb, offset, 0, cummulative_frame_duration);
+    proto_item_append_text(pitem, " ms");
+    PROTO_ITEM_SET_GENERATED(pitem);
+
+    if (info && info->previous_media_packet_info && info->current_media_packet_info) {
+        nstime_t  delta;
+
+        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
+        pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time, tvb, offset, 0, nstime_to_msec(&delta));
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
+        pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time_from_the_beginning, tvb, offset, 0,  nstime_to_msec(&delta));
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        if (!pinfo->fd->flags.visited)
+            info->current_media_packet_info->cummulative_frame_duration += cummulative_frame_duration;
+
+        pitem = proto_tree_add_double(sbc_tree, hf_sbc_cummulative_duration, tvb, offset, 0, info->previous_media_packet_info->cummulative_frame_duration);
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        pitem = proto_tree_add_double(sbc_tree, hf_sbc_diff, tvb, offset, 0, info->previous_media_packet_info->cummulative_frame_duration - nstime_to_msec(&delta));
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
     }
 
 /* TODO: more precise dissection: blocks, channels, subbands, padding  */
@@ -299,9 +350,43 @@ proto_register_sbc(void)
             FT_UINT8, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
-
+        { &hf_sbc_expected_data_speed,
+            { "Expected data speed",             "sbc.expected_speed_data",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_frame_duration,
+            { "Frame Duration",                  "sbc.frame_duration",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_cummulative_frame_duration,
+            { "Cummulative Frame Duration",      "sbc.cummulative_frame_duration",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_delta_time,
+            { "Delta time",                      "sbc.delta_time",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_delta_time_from_the_beginning,
+            { "Delta time from the beginning",   "sbc.delta_time_from_the_beginning",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_cummulative_duration,
+            { "Cummulative Music Duration",      "sbc.cummulative_music_duration",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_sbc_diff,
+            { "Diff",            "sbc.diff",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_sbc_data,
-            { "Data",                            "sbc.data",
+            { "Frame Data",                      "sbc.data",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },

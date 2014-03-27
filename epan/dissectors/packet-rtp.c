@@ -1470,7 +1470,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 
         nexttvb = tvb_new_subset_remaining(newtvb, suboffset);
         if (p_conv_data->bta2dp_info->codec_dissector)
-            call_dissector(p_conv_data->bta2dp_info->codec_dissector, nexttvb, pinfo, tree);
+            call_dissector_with_data(p_conv_data->bta2dp_info->codec_dissector, nexttvb, pinfo, tree, p_conv_data->bta2dp_info);
         else
             call_dissector(data_handle, nexttvb, pinfo, tree);
     } else if (p_conv_data && p_conv_data->btvdp_info) {
