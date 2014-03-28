@@ -81,6 +81,10 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
   int		tot_invokes, tot_rr;
   double	tot_invokes_size, tot_rr_size;
 
+  if (cfile.state == FILE_CLOSED) {
+    return;
+  }
+
   /* initialize the tally */
   summary_fill_in(&cfile, &summary);
 
