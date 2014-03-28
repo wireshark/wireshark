@@ -525,6 +525,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ) {
 		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
 		gdk_cairo_set_source_rgba (cr, &bg_color);
+		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
 		cairo_fill (cr);
 		cairo_destroy (cr);
 
