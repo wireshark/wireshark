@@ -2096,10 +2096,10 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                     if (current_offset > port_offset)
                     {
                         /* Add address port number to tree */
+                        int port = atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, port_offset,
+                                                           current_offset - port_offset, ENC_UTF_8));
                         proto_tree_add_uint(tree, hf_sip_via_sent_by_port, tvb, port_offset,
-                                            current_offset - port_offset,
-                                            atoi(tvb_get_string_enc(wmem_packet_scope(), tvb, port_offset,
-                                                                          current_offset - port_offset, ENC_UTF_8)));
+                                            current_offset - port_offset, port);
                     }
                     else
                     {
