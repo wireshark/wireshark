@@ -232,6 +232,22 @@ wmem_strbuf_get_len(wmem_strbuf_t *strbuf)
     return strbuf->len;
 }
 
+/* Truncates the allocated memory down to the minimal amount, frees the header
+ * structure, and returns a non-const pointer to the raw string. The
+ * wmem_strbuf_t structure cannot be used after this is called.
+ */
+char *
+wmem_strbuf_finalize(wmem_strbuf_t *strbuf)
+{
+    char *ret;
+
+    ret = (char *)wmem_realloc(strbuf->allocator, strbuf->str, strbuf->len+1);
+
+    wmem_free(strbuf->allocator, strbuf);
+
+    return ret;
+}
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

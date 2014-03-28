@@ -89,6 +89,15 @@ WS_DLL_PUBLIC
 gsize
 wmem_strbuf_get_len(wmem_strbuf_t *strbuf);
 
+/** Truncates the allocated memory down to the minimal amount, frees the header
+ *  structure, and returns a non-const pointer to the raw string. The
+ *  wmem_strbuf_t structure cannot be used after this is called. Basically a
+ *  destructor for when you still need the underlying C-string.
+ */
+WS_DLL_PUBLIC
+char *
+wmem_strbuf_finalize(wmem_strbuf_t *strbuf);
+
 /**   @}
  *  @} */
 

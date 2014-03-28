@@ -677,6 +677,7 @@ wmem_test_strbuf(void)
     wmem_allocator_t   *allocator;
     wmem_strbuf_t      *strbuf;
     int                 i;
+    char               *str;
 
     allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
 
@@ -736,6 +737,10 @@ wmem_test_strbuf(void)
     wmem_strbuf_append_unichar(strbuf, g_utf8_get_char("\xC2\xA9"));
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
     g_assert(wmem_strbuf_get_len(strbuf) == 9);
+
+    str = wmem_strbuf_finalize(strbuf);
+    g_assert_cmpstr(str, ==, "FUZZ3abcd");
+    g_assert(strlen(str) == 9);
 
     wmem_free_all(allocator);
 
