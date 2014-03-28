@@ -47,6 +47,16 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #  define REX_API LUALIB_API
 #endif
 
+#ifndef REX_OPENLIB
+#  define REX_OPENLIB luaopen_rex_glib
+#endif
+
+/* public function declarations */
+REX_API int REX_OPENLIB (lua_State *L);
+int Gregex_get_compile_flags (lua_State *L);
+int Gregex_get_match_flags (lua_State *L);
+int Gregex_get_flags (lua_State *L);
+
 /* Special values for maxmatch in gsub. They all must be negative. */
 #define GSUB_UNLIMITED   -1
 #define GSUB_CONDITIONAL -2

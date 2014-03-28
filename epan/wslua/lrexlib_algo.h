@@ -350,7 +350,7 @@ static int algf_gsub (lua_State *L) {
     /*----------------------------------------------------------------*/
     else if (argE.reptype == LUA_TTABLE) {
       if (ALG_NSUB(ud) > 0)
-        ALG_PUSHSUB_OR_FALSE (L, ud, argE.text + ALG_BASE(st), 1);
+        ALG_PUSHSUB_OR_FALSE (L, ud, argE.text + ALG_BASE(st), 1)
       else
         lua_pushlstring (L, argE.text + from, to - from);
       lua_gettable (L, argE.funcpos);

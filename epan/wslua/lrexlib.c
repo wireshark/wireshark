@@ -272,7 +272,7 @@ void bufferZ_putrepstring (TBuffer *BufRep, int reppos, int nsub) {
 */
 int bufferZ_next (TBuffer *buf, size_t *iter, size_t *num, const char **str) {
   if (*iter < buf->top) {
-    size_t *ptr_header = (size_t*)(buf->arr + *iter);
+    size_t *ptr_header = (size_t*)(void*)(buf->arr + *iter);
     *num = ptr_header[1];
     *iter += 2 * sizeof (size_t);
     *str = NULL;

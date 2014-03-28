@@ -70,9 +70,6 @@ extern flag_pair gregex_error_flags[];
 #  define REX_LIBNAME "rex_glib"
 # endif
 #endif
-#ifndef REX_OPENLIB
-#  define REX_OPENLIB luaopen_rex_glib
-#endif
 
 #define REX_TYPENAME REX_LIBNAME"_regex"
 
@@ -94,7 +91,7 @@ static int getcflags (lua_State *L, int pos);
   lua_pushlstring (L, (text) + ALG_SUBBEG(ud,n), ALG_SUBLEN(ud,n))
 
 #define ALG_PUSHSUB_OR_FALSE(L,ud,text,n) \
-  (ALG_SUBVALID(ud,n) ? ALG_PUSHSUB (L,ud,text,n) : lua_pushboolean (L,0))
+  { if ( ALG_SUBVALID(ud,n) ) { ALG_PUSHSUB (L,ud,text,n); } else { lua_pushboolean (L,0); } }
 
 #define ALG_PUSHSTART(L,ud,offs,n)   lua_pushinteger(L, (offs) + ALG_SUBBEG(ud,n) + 1)
 #define ALG_PUSHEND(L,ud,offs,n)     lua_pushinteger(L, (offs) + ALG_SUBEND(ud,n))
