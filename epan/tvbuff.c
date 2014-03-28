@@ -1839,7 +1839,7 @@ tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint l
 
 	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
 
-	str = wmem_strbuf_new(scope, "");
+	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
 		guint8 ch = tvb_get_guint8(tvb, offset);
@@ -1851,11 +1851,8 @@ tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint l
 		offset++;
 		length--;
 	}
-	wmem_strbuf_append_c(str, '\0');
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str
-	   (like when strbuf is no longer needed) */
-	return (guint8 *) wmem_strbuf_get_str(str);
+	return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
@@ -1888,7 +1885,7 @@ tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 {
 	wmem_strbuf_t *str;
 
-	str = wmem_strbuf_new(scope, "");
+	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
 		guint8 ch = tvb_get_guint8(tvb, offset);
@@ -1908,8 +1905,7 @@ tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 		length--;
 	}
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (guint8 *) wmem_strbuf_get_str(str);
+	return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
@@ -1926,7 +1922,7 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
 {
 	wmem_strbuf_t *str;
 
-	str = wmem_strbuf_new(scope, "");
+	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
 		guint8 ch = tvb_get_guint8(tvb, offset);
@@ -1939,8 +1935,7 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
 		length--;
 	}
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (guint8 *) wmem_strbuf_get_str(str);
+	return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
@@ -1965,7 +1960,7 @@ tvb_extract_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
 
-	strbuf = wmem_strbuf_new(scope, NULL);
+	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	for(i = 0; i + 1 < length; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
@@ -1990,8 +1985,7 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 	strbuf = tvb_extract_ucs_2_string(scope, tvb, offset, length, encoding);
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -2016,7 +2010,7 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 	gunichar       uchar;
 	gint           i;       /* Byte counter for tvbuff */
 
-	strbuf = wmem_strbuf_new(scope, NULL);
+	strbuf = wmem_strbuf_sized_new(scope, size+1, 0);
 
 	for(i = 0; i + 1 < size; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
@@ -2092,8 +2086,7 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, length, encoding);
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -2118,7 +2111,7 @@ tvb_extract_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
 
-	strbuf = wmem_strbuf_new(scope, NULL);
+	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	for(i = 0; i + 3 < length; i += 4) {
 		if (encoding == ENC_BIG_ENDIAN)
@@ -2144,8 +2137,7 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 
 	tvb_ensure_bytes_exist(tvb, offset, length);
 	strbuf = tvb_extract_ucs_4_string(scope, tvb, offset, length, encoding);
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -2317,8 +2309,7 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 		wmem_strbuf_append_unichar(strbuf, UNREPL);
 	}
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -2487,9 +2478,9 @@ tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 	guint   size, i;
 	wmem_strbuf_t *str;
 
-	str = wmem_strbuf_new(scope, "");
+	size = tvb_strsize(tvb, offset);
+	str = wmem_strbuf_sized_new(scope, size+1, 0);
 
-	size   = tvb_strsize(tvb, offset);
 	for (i = 0; i < size; i++) {
 		guint8 ch = tvb_get_guint8(tvb, offset);
 
@@ -2504,9 +2495,7 @@ tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 	if (lengthp)
 		*lengthp = size;
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str
-	   (like when strbuf is no longer needed) */
-	return (guint8 *) wmem_strbuf_get_str(str);
+	return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 static guint8 *
@@ -2584,8 +2573,7 @@ tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	if (lengthp)
 		*lengthp = size;
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 static gchar *
@@ -2601,8 +2589,7 @@ tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
 	if (lengthp)
 		*lengthp = size;
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 static gchar *
@@ -2626,8 +2613,7 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	if (lengthp)
 		*lengthp = size; /* Number of *bytes* processed */
 
-	/* XXX, discarding constiness, should we have some function which "take-over" strbuf->str (like when strbuf is no longer needed) */
-	return (gchar*)wmem_strbuf_get_str(strbuf);
+	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
 
 guint8 *
