@@ -32,8 +32,10 @@
 #include <string.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/exceptions.h>
+#include "packet-tcp.h"
 
 void proto_register_osc(void);
 void proto_reg_handoff_osc(void);
@@ -186,8 +188,11 @@ static const char *immediate_fmt = "%s";
 static const char *immediate_str = "Immediate";
 static const char *bundle_str = "#bundle";
 
+/* Preference */
+static guint global_osc_tcp_port = 0;
+
 /* Initialize the protocol and registered fields */
-static dissector_handle_t osc_handle = NULL;
+static dissector_handle_t osc_udp_handle = NULL;
 
 static int proto_osc = -1;
 
@@ -436,9 +441,9 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
                 guint8       data2;
 
                 channel = tvb_get_guint8(tvb, offset);
-                status = tvb_get_guint8(tvb, offset+1);
-                data1 = tvb_get_guint8(tvb, offset+2);
-                data2 = tvb_get_guint8(tvb, offset+3);
+                status  = tvb_get_guint8(tvb, offset+1);
+                data1   = tvb_get_guint8(tvb, offset+2);
+                data2   = tvb_get_guint8(tvb, offset+3);
 
                 status_str = val_to_str_ext_const(status, &MIDI_status_ext, "Unknown");
 
@@ -508,7 +513,6 @@ dissect_osc_message(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint of
 static int
 dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint offset, gint len)
 {
-    const gchar *str;
     proto_tree  *bundle_tree;
     gint         end = offset + len;
     guint32      sec;
@@ -516,8 +520,7 @@ dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint off
     nstime_t     ns;
 
     /* check for valid #bundle */
-    str = tvb_get_const_stringz(tvb, offset, NULL);
-    if(strncmp(str, bundle_str, 8)) /* no OSC bundle */
+    if(tvb_strneql(tvb, offset, bundle_str, 8) != 0)
         return -1;
 
     /* create bundle */
@@ -580,26 +583,21 @@ dissect_osc_bundle(tvbuff_t *tvb, proto_item *ti, proto_tree *osc_tree, gint off
         return 0;
 }
 
-/* Dissect OSC packet */
+/* Dissect OSC PDU */
 static void
-dissect_osc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_osc_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_, gint offset, gint len)
 {
-    gint offset = 0;
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OSC");
-    /* clear out stuff in the info column */
     col_clear(pinfo->cinfo, COL_INFO);
 
     if(tree) /* we are being asked for details */
     {
-        gint        len;
         proto_item *ti;
         proto_tree *osc_tree;
 
         /* create OSC packet */
         ti = proto_tree_add_item(tree, proto_osc, tvb, 0, -1, ENC_NA);
         osc_tree = proto_item_add_subtree(ti, ett_osc_packet);
-        len = proto_item_get_len(ti);
 
         /* peek first bundle element char */
         switch(tvb_get_guint8(tvb, offset))
@@ -620,14 +618,51 @@ dissect_osc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 }
 
-/* OSC heuristics */
+/* OSC TCP */
 
+static guint
+get_osc_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
+{
+    return tvb_get_ntohl(tvb, offset) + 4;
+}
+
+static int
+dissect_osc_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    gint pdu_len;
+
+    pdu_len = tvb_get_ntohl(tvb, 0);
+    dissect_osc_pdu_common(tvb, pinfo, tree, data, 4, pdu_len);
+    return pdu_len;
+}
+
+static int
+dissect_osc_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4, get_osc_pdu_len,
+                     dissect_osc_tcp_pdu, data);
+    return tvb_reported_length(tvb);
+}
+
+/* OSC UDP */
+
+static int
+dissect_osc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    gint pdu_len;
+
+    pdu_len = tvb_reported_length(tvb);
+    dissect_osc_pdu_common(tvb,pinfo, tree, data, 0, pdu_len);
+    return pdu_len;
+}
+
+/* UDP Heuristic */
 static gboolean
-dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     conversation_t *conversation;
 
-    if(tvb_length(tvb) < 8)
+    if(tvb_captured_length(tvb) < 8)
         return FALSE;
 
     /* peek first string */
@@ -639,8 +674,9 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         const gchar *str;
         gboolean     valid  = FALSE;
 
-        /* check for valid path */
-        /* Don't propagate upwards any exceptions during heuristics check */
+        /* Check for valid path */
+        /* Don't propagate any exceptions upwards during heuristics check  */
+        /* XXX: this check is a bit expensive; Consider: use UDP port pref ? */
         TRY {
             str = tvb_get_const_stringz(tvb, offset, &slen);
             if(is_valid_path(str)) {
@@ -670,10 +706,10 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     /* specify that dissect_osc is to be called directly from now on for packets for this connection */
     conversation = find_or_create_conversation(pinfo);
-    conversation_set_dissector(conversation, osc_handle);
+    conversation_set_dissector(conversation, osc_udp_handle);
 
     /* do the dissection */
-    dissect_osc(tvb, pinfo, tree);
+    dissect_osc_udp(tvb, pinfo, tree, data);
 
     return TRUE; /* OSC heuristics was matched */
 }
@@ -841,20 +877,50 @@ proto_register_osc(void)
         &ett_osc_midi
     };
 
+    module_t *osc_module;
+
     proto_osc = proto_register_protocol("Open Sound Control Protocol", "OSC", "osc");
 
     proto_register_field_array(proto_osc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    osc_module = prefs_register_protocol(proto_osc, proto_reg_handoff_osc);
+
+    prefs_register_uint_preference(osc_module, "tcp.port",
+                                   "OSC TCP Port",
+                                   "Set the TCP port for OSC",
+                                   10, &global_osc_tcp_port);
 }
 
 void
 proto_reg_handoff_osc(void)
 {
-    /* register as heuristic dissector for TCP and UDP connections */
-#if 0 /* XXX: ToDo: TCP must be handled differently than UDP */
-    heur_dissector_add("tcp", dissect_osc_heur_tcp, proto_osc);
-#endif
-    heur_dissector_add("udp", dissect_osc_heur_udp, proto_osc);
+    static dissector_handle_t osc_tcp_handle;
+    static guint              osc_tcp_port;
+    static gboolean           initialized = FALSE;
+
+    if(! initialized)
+    {
+        osc_tcp_handle = new_create_dissector_handle(dissect_osc_tcp, proto_osc);
+        dissector_add_handle("tcp.port", osc_tcp_handle); /* for "decode-as" */
+
+        /* XXX: Add port pref and  "decode as" for UDP ? */
+        /*      (The UDP heuristic is a bit expensive    */
+        osc_udp_handle = new_create_dissector_handle(dissect_osc_udp, proto_osc);
+        /* register as heuristic dissector for UDP connections */
+        heur_dissector_add("udp", dissect_osc_heur_udp, proto_osc);
+
+        initialized = TRUE;
+    }
+    else
+    {
+        if(osc_tcp_port != 0)
+            dissector_delete_uint("tcp.port", osc_tcp_port, osc_tcp_handle);
+    }
+
+    osc_tcp_port = global_osc_tcp_port;
+    if(osc_tcp_port != 0)
+        dissector_add_uint("tcp.port", osc_tcp_port, osc_tcp_handle);
 }
 
 /*
