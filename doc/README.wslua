@@ -14,38 +14,41 @@ Hadriel Kaplan <hadrielk[AT]yahoo.com>
 
 Overview:
 
-The way WireShark exposes functions for Lua is generally based on a
+The way Wireshark exposes functions for Lua is generally based on a
 callback/event model, letting Lua plugins register their custom Lua functions
 into event callbacks.  C-based "objects" are exposed as Lua tables with
 typical Lua USERDATA pointer dispatching, plain C-functions are registered as
 such in Lua, and C-based enums/variables are registered into Lua as table
 key=value (usually... though rarely they're registered as array indexed
-values).  All of that is very typical for appplications that expose things
+values).  All of that is very typical for applications that expose things
 into a Lua scripting environment.
 
 The details that make it a little different are (1) the process by which the
-code is bound/registered into Lua, and (2) the documentation generator.
-WireShark uses C-macros liberally, both for the usual reasons as well as for
+code is bound/registered into Lua, and (2) the API documentation generator.
+Wireshark uses C-macros liberally, both for the usual reasons as well as for
 the binding generator and documentation generator scripts.  The macros are
 described within this document.
 
 The API documentation is auto-generated from a Perl script called 'make-
 wsluarm.pl', which searches C-files for the known macros and generates
 appropriate HTML documentation from them.  This includes using the C-comments
-after the macros for the document info.
+after the macros for the API document info.
 
 Likewise, another Perl script called 'make-reg.pl' generates the C-files
 'register_wslua.c' and 'declare_wslua.h', based on the C-macros it searches
 for in existing source files.  The code this Perl script auto-generates is
 what actually registers some classes/functions into Lua - you don't have to
 write your own registration functions to get your new functions/classes into
-Lua tables. (you can do so, however)
+Lua tables. (you can do so, but it's not advisable)
 
 Both of the perl scripts above are given the C-source files to search through
-by the make process, generated from the lists in CMakeLists.txt.  Naturally if
-you add new source files, you need to add them to the list in CMakeLists.txt.
-You also have to add the module name into docbook/user-guide.xml, and 
-docbook/wsluarm.xml, to get it to be generated in the user guide.
+by the make process, generated from the lists in epan/wslua/CMakeLists.txt.
+Naturally if you add new source files, you need to add them to the list in
+epan/wslua/CMakeLists.txt, as well as epan/wslua/Makefile.am and
+epan/wslua/Makefile.nmake. You also have to add the module name into
+docbook/user-guide.xml and docbook/wsluarm.xml, and the source files into
+docbook/CMakeLists.txt and docbook/Makefile.common, to get it to be generated
+in the user guide.
 
 Another Perl script is used as well, called 'make-init-lua.pl', which
 generates the init.lua script.  A large part of it deals with exposing #define
@@ -56,7 +59,9 @@ as they are for wtap, ftypes, and base.  For example, there are several put in
 as 'PI_' prefixed names, such as 'PI_SEVERITY_MASK = 15728640'.  The fact they
 all have a common 'PI_' prefix should be an indicator they can be put in a
 table named PI, or PacketInfo.  Just because C-code doesn't have namespaces,
-doesn't mean Lua can't.
+doesn't mean Lua can't. This has now been fixed, and the PI_* names are now in
+two separate subtables of a table named 'expert', as 'expert.group' and
+'expert.severity' subtables. Follow that model in 'make-init-lua.pl'.
 
 
 Due to those documentation and registration scripts, you MUST follow some very
@@ -75,6 +80,48 @@ followed.
 
 ==============================================================================
 
+Documenting things for the API docs:
+
+As explained previously, the API documentation is auto-generated from a
+Perl script called 'make-wsluarm.pl', which searches C-files for the known
+macros and generates appropriate HTML documentation from them. This includes
+using the C-comments after the macros for the API document info. The comments
+are extremely important, because the API documentation is what most Lua script
+authors will see - do *not* expect them to go looking through the C-source code
+to figure things out.
+
+Please make sure to at least use the '@since' version notification markup
+in your comments, to let users know when the new class/function/etc. you
+created became available.
+
+Because documentation is so important, the make-wsluarm.pl script supports
+specific markup syntax in comments, and converts them to XML and ultimately
+into the various documentation formats. The markup syntax is documented in
+the top comments in make-wsluarm.pl, but are repeated here as well:
+  - two (or more) line breaks in comments result in separate paragraphs
+  - all '&' are converted into their entity names, except inside urls
+  - all '<', and '>' are converted into their entity names everywhere
+  - any word(s) wrapped in one star, e.g., *foo bar*, become italics
+  - any word(s) wrapped in two stars, e.g., **foo bar**, become bold
+  - any word(s) wrapped in backticks, e.g., `foo bar`, become bold (for now)
+  - any word(s) wrapped in two backticks, e.g., ``foo bar``, become one backtick
+  - any "[[url]]" becomes an XML ulink with the url as both the url and text
+  - any "[[url|text]]" becomes an XML ulink with the url as the url and text as text
+  - any indent with a single leading star '*' followed by space is a bulleted list item
+    reducing indent or having an extra linebreak stops the list
+  - any indent with a leading digits-dot followed by space, i.e. "1. ", is a numbered list item
+    reducing indent or having an extra linebreak stops the list
+  - supports meta-tagged info inside comment descriptions as follows:
+    * a line starting with "@note" or "Note:" becomes an XML note line
+    * a line starting with "@warning" or "Warning:" becomes an XML warning line
+    * a line starting with "@version" or "@since" becomes a "Since:" line
+    * a line starting with "@code" and ending with "@endcode" becomes an
+      XML programlisting block, with no indenting/parsing within the block
+    The above '@' commands are based on Doxygen commands
+
+
+==============================================================================
+
 Some implementation details:
 
 Creating new C-classes for Lua:
@@ -82,63 +129,95 @@ Creating new C-classes for Lua:
 Explaining the Lua class/object model and how it's bound to C-code functions
 and data types is beyond the scope of this document; if you don't already know
 how that works, I suggest you start reading lua-users.org's wiki, and
-lua.org's free reference manual.  Wireshark generally uses the typical binding
+lua.org's free reference manual.
+
+Wireshark generally uses a model close to the typical binding
 model: 'registering' class methods and metamethods, pushing objects into Lua
 by applying the class' metatable to the USERDATA, etc.  This latter part is
 mostly handled for you by the C-macro's created by WSLUA_CLASS_DEFINE, such as
-push/check, described later in this document.  Registering the class requires
-you to write some code: a WSLUA_METHODS table, a WSLUA_META table, and a
-registration function.  The WSLUA_METHODS table is an array of luaL_Reg
-structs, which map a string name that will be the function's name in Lua, to a
-C-function pointer which is the C-function to be invoked by Lua when the user
-calls the name.  Some of the existing classes define this array of structs
-explicitly using strings and function names, but really you should use the
-WSLUA_CLASS_FNREG macro for each entry instead.  The WSLUA_META table follows
-the same behavior, but make sure your C-function names use two underscores
-instead of one.  There is no WSLUA_CLASS_FNREG equivalent for WSLUA_META at
-the time of this writing.  Once you've created the appropriate array tables,
-define a registration function named 'ClassName_register', where 'ClassName'
-is your class name, the same one used in WSLUA_CLASS_DEFINE.  The make-reg.pl
-Perl script will search your file for WSLUA_CLASS_DEFINE, and it generates a
-register_wslua.c which will call your ClassName_register function during
-Wireshark intiialization.  Inside your ClassName_register function, use either
-the WSLUA_REGISTER_CLASS or the WSLUA_REGISTER_META macros with the class name
-as the argument.  That will automatically register the methods/meta tables
-into Lua.  Use WSLUA_REGISTER_CLASS if your class has methods and optionally
-metamethods, or use WSLUA_REGISTER_META if it only has metamethods - do not
-use both.  Note that your class does not need to have a WSLUA_METHODS or
-WSLUA_META table.  Also, you should read the 'Memory management model' section
-later in this document.
+push/check, described later in this document.
 
-Class member variable accessors (getters/setters):
+The actual way methods are dispatched is a little different from normal Lua
+bindings, because attributes are supported as well (see next section). The
+details won't be covered in this document - they're documented in the code
+itself in: wslua_internals.c above the wslua_reg_attributes function.
+
+Registering a class requires you to write some code: a WSLUA_METHODS table,
+a WSLUA_META table, and a registration function.  The WSLUA_METHODS table is an
+array of luaL_Reg structs, which map a string name that will be the function's
+name in Lua, to a C-function pointer which is the C-function to be invoked by
+Lua when the user calls the name.  Instead of defining this array of structs
+explicitly using strings and function names, you should use the WSLUA_METHODS
+macro name for the array, and use WSLUA_CLASS_FNREG macro for each entry.
+The WSLUA_META table follows the same behavior, with the WSLUA_CLASS_MTREG
+macro for each entry. Make sure your C-function names use two underscores
+instead of one.
+
+Once you've created the appropriate array tables, define a registration
+function named 'ClassName_register', where 'ClassName'is your class name, the
+same one used in WSLUA_CLASS_DEFINE.  The make-reg.pl Perl script will search
+your file for WSLUA_CLASS_DEFINE, and it generates a register_wslua.c which
+will call your ClassName_register function during Wireshark initialization.
+Inside your ClassName_register function, use either the WSLUA_REGISTER_CLASS
+or the WSLUA_REGISTER_META macros with the class name as the argument.  That
+will automatically register the methods/meta tables into Lua.  Use
+WSLUA_REGISTER_CLASS if your class has methods and optionally metamethods, or
+use WSLUA_REGISTER_META if it only has metamethods - do *not* use both.  Note
+that your class does not need to have a WSLUA_METHODS nor WSLUA_META table.
+Also, you should read the 'Memory management model' section later in this
+document.
+
+Class member variable attributes (getters/setters):
 
 The current implementation does not follow a single/common class-variable
-accessor model for the Lua API: some class member values are
-populated/retrieved when a table field accessor is used that triggers the
-__index metamethod, and others are accessed through explicit getter/setter
-method functions.  In other words from a Lua code perspective some class
-object variables are retrieves as 'foo = myObj.var', while others are done as
-'foo = myObj.getVar()'.  From the C-side code perspective, some classes
-register no real method functions but just have a C-function handle the
-__index/__newindex metamethods to dispatch to C-functions for the given class
-table's field name (and they use the WSLUA_ATTRIBUTE documentation model
-because of it).  For example the FieldInfo class in wslua_field.c does this.
+attribute accessor model for the Lua API: some class member values are
+populated/retrieved when a table field attribute is used that triggers the
+__index or __newindex metamethods, and others are accessed through explicit
+getter/setter method functions.  In other words from a Lua code perspective
+some class object variables are retrieves as 'foo = myObj.var', while others
+are done as 'foo = myObj.getVar()'.
+
+From the C-side code perspective, some classes register no real method
+functions but just have attributes (and use the WSLUA_ATTRIBUTE documentation
+model for them). For example the FieldInfo class in wslua_field.c does this.
 Other classes provide access to member variable through getter/setter method
-functions (and thus use the WSLUA_METHOD model).  For example the TvbRange
-class in wslua_tvb.c does this.  Using the latter model of having a
-getter/setter method function allows one to pass multiple arguments, whereas
-the former __index/__newindex metamethod model does not.  Both models are
+functions (and thus use the WSLUA_METHOD documentation model). For example
+the TvbRange class in wslua_tvb.c does this. Using the latter model of having
+a getter/setter method function allows one to pass multiple arguments, whereas
+the former __index/__newindex metamethod model does not. Both models are
 fairly common in Lua APIs, although having a mixture of both in the same API
 probably isn't.  There is even a third model in use: pre-loading the member
 fields of the class table with the values, instead of waiting for the Lua
 script to access a particular one to retrieve it; for example the Listener tap
 extractors table is pre-populated (see files 'wslua_listener.c' and 'taps'
-which through the make-taps.pl perl script creates 'taps_wslua.c').  The
+which through the make-taps.pl perl script creates 'taps_wslua.c'). The
 downside of that approach is the performance impact, filling fields the Lua
 script may never access.  Lastly, the Field, FieldInfo, and Tvb's ByteArray
 type each provide a __call metamethod as an accessor - I strongly suggest you
 do NOT do that, as it's not a common model and will confuse people since it
 doesn't follow the model of the other classes in Wireshark.
+
+The way attribute accessing is handled is a bit too complicated to discuss
+here, but is documented in wslua_internals.c above the wslua_reg_attributes
+function definition. All you need to know is how to write the C-code to
+register attributes, and the code to provide getter/setters for them. To
+create them, you create an array table similar to the WSLUA_METHODS and
+WSLUA_META tables, except using the macro name WSLUA_ATTRIBUTES. Inside this
+array, each entry should use one of the following macros: WSLUA_ATTRIBUTE_ROREG,
+WSLUA_ATTRIBUTE_WOREG, or WSLUA_ATTRIBUTE_RWREG. Those provide the hooks for
+a getter-only, setter-only, or both getter and setter function. The functions
+themselves need to follow a naming scheme of ClassName_get_attributename(),
+or ClassName_set_attributename(), for the respective getter vs. setter function.
+Trivial getters/setters have macros provided to make this automatic, for things
+such as getting numbers, strings, etc. The macros are in wslua.h. For example,
+the WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(Foo,bar,choo) macro creates a getter
+function to get the boolean value of the Class Foo's choo member variable, as
+the Lua attribute named 'bar'.
+
+To register the attributes, your Class registration function must call the
+WSLUA_REGISTER_ATTRIBUTES(ClassName) macro, after it calls either the
+WSLUA_REGISTER_META(ClassName) macro or the WSLUA_REGISTER_CLASS(ClassName)
+one.
 
 Callback function registration:
 
@@ -216,9 +295,9 @@ of a class, i.e. a key of a Lua table that is not called as a function in Lua,
 but rather just retrieved or set.  The 'WSLUA_ATTRIBUTE' token is followed by
 a 'RO', 'WO', or 'RW' token, for Read-Only, Write-Only, or Read-Write. (ie,
 whether the variable can be retrieved, written to, or both)  This read/write
-mode indication does not appear to be actually used for documentation
-currently, however.  After that comes the name of the attribute, which must be
-the class name followed by the specific attribute name. 
+mode indication gets put into the API documentation. After that comes the name
+of the attribute, which must be the class name followed by the specific
+attribute name.
 
 Example:
 
@@ -255,7 +334,7 @@ words, UpperCamelCase without numbers.  The macro is expanded to create a
 bunch of helper functions - see wslua.h.  Documentation for it will also be
 automatically generated, as it is for the other macros.
 
-Example: 
+Example:
 
     WSLUA_CLASS_DEFINE(ProgDlg,NOP,NOP); /* Manages a progress bar dialog. */
 
