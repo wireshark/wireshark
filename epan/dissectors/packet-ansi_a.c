@@ -1759,7 +1759,7 @@ content_fill_aux(
     }
 
 #define NO_MORE_DATA_CHECK(nmdc_len) \
-    if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
+    if ((nmdc_len) <= (curr_offset - offset)) return(nmdc_len);
 
 
 /*
