@@ -2904,6 +2904,9 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     if (cf->rfcode)
       epan_dissect_prime_dfilter(edt, cf->rfcode);
 
+    if (cf->dfcode)
+      epan_dissect_prime_dfilter(edt, cf->dfcode);
+
     frame_data_set_before_dissect(&fdlocal, &cf->elapsed_time,
                                   &ref, prev_dis);
     if (ref == &fdlocal) {
@@ -2925,9 +2928,13 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     /* If we're not doing dissection then there won't be any dependent frames.
      * More importantly, edt.pi.dependent_frames won't be initialized because
      * epan hasn't been initialized.
+     * if we *are* doing dissection, then mark the dependent frames, but only
+     * if a display filter was given and it matches this packet.
      */
-    if (edt) {
-      g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+    if (edt && cf->dfcode) {
+      if (dfilter_apply_edt(cf->dfcode, edt)) {
+        g_slist_foreach(edt->pi.dependent_frames, find_and_mark_frame_depended_upon, cf->frames);
+      }
     }
 
     cf->count++;
@@ -3172,7 +3179,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
       /* If we're going to be applying a filter, we'll need to
          create a protocol tree against which to apply the filter. */
-      if (cf->rfcode)
+      if (cf->rfcode || cf->dfcode)
         create_proto_tree = TRUE;
 
       /* We're not going to display the protocol tree on this pass,
