@@ -323,7 +323,7 @@ File "${STAGING_DIR}\libintl-8.dll"
 SkipLibIntl8:
 !endif
 !ifdef LUA_DIR
-File "${STAGING_DIR}\lua5.1.dll"
+File "${STAGING_DIR}\lua52.dll"
 File "..\..\epan\wslua\init.lua"
 File "..\..\epan\wslua\console.lua"
 File "..\..\epan\wslua\dtd_gen.lua"

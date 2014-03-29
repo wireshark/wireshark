@@ -444,7 +444,7 @@ win32 {
         $${GNUTLS_DIR}/bin/libgcrypt-11.dll $${GNUTLS_DIR}/bin/libgnutls-26.dll \
         $${GNUTLS_DIR}/bin/libgpg-error-0.dll $${GNUTLS_DIR}/bin/libtasn1-3.dll \
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
-        $${LUA_DIR}/lua5.1.dll \
+        $${LUA_DIR}/lua52.dll \
         $${GEOIP_DIR}/bin/libGeoIP-1.dll \
         $${WINSPARKLE_DIR}/WinSparkle.dll \
         ../../colorfilters ../../dfilters ../../cfilters

@@ -1011,7 +1011,7 @@ process_libs:
 !ENDIF
 !IFDEF LUA_DIR
 	@$(SH) $(WIN_SETUP) "$(WIN_SETUP_OPT)" "$(WIRESHARK_LIB_DIR)" \
-		lua5.1.4 lua$(LUA_DIST)_lib.zip
+		lua5.2.1 lua$(LUA_DIST)_lib.zip
 !ENDIF
 
 !IFDEF GNUTLS_PKG
@@ -1087,6 +1087,7 @@ clean_setup:
 	rm -r -f libiconv-1.9.1.bin.woe32
 	rm -r -f lua5.1
 	rm -r -f lua5.1.4
+	rm -r -f lua5.2.1
 	rm -r -f libsmi-0.4.5
 	rm -r -f libsmi-0.4.8
 	rm -r -f libsmi-svn-40773-win??ws
@@ -1357,7 +1358,7 @@ install-all: install-generated-files
 ! ENDIF
 !ENDIF
 !IFDEF LUA_DIR
-	xcopy "$(LUA_DIR)\lua5.1.dll" $(INSTALL_DIR) /d
+	xcopy "$(LUA_DIR)\lua52.dll" $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF SMI_DIR
 	if not exist $(INSTALL_DIR)\snmp mkdir $(INSTALL_DIR)\snmp
