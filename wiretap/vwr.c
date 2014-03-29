@@ -1474,7 +1474,8 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     int              f_flow;                              /* flags: flow valid */
     guint32          frame_type;                          /* frame type field */
     int              mac_len, sig_off, pay_off;           /* MAC header len, signature offset */
-    guint64          sig_ts, tsid;                        /* 32 LSBs of timestamp in signature */
+    /* XXX - the code here fetched tsid, but never used it! */
+    guint64          sig_ts/*, tsid*/;                    /* 32 LSBs of timestamp in signature */
     guint64          delta_b;                             /* Used for calculating latency */
     guint16          vw_flags;                            /* VeriWave-specific packet flags */
 
@@ -1532,9 +1533,11 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /*  24 LSBs */
     flow_id = pntoh24(&s_ptr[vwr->FLOWID_OFF]);
 
+#if 0
     /* For tx latency is duration, for rx latency is timestamp. */
     /* Get 64-bit latency value. */
     tsid = pcorey48tohll(&s_ptr[vwr->LATVAL_OFF]);
+#endif
 
     l4id = pntoh16(&s_ptr[vwr->L4ID_OFF]);
 
