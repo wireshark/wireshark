@@ -50,6 +50,17 @@
                          (guint64)*((const guint8 *)(p)+2)<<8|   \
                          (guint64)*((const guint8 *)(p)+3)<<0)
 
+/*
+ * Fetch a 48-bit value in "Corey-endian" form; it's stored as
+ * a 64-bit Corey-endian value, with the upper 16 bits ignored.
+ */
+#define pcorey48tohll(p)  ((guint64)*((const guint8 *)(p)+6)<<40|  \
+                           (guint64)*((const guint8 *)(p)+7)<<32|  \
+                           (guint64)*((const guint8 *)(p)+0)<<24|  \
+                           (guint64)*((const guint8 *)(p)+1)<<16|  \
+                           (guint64)*((const guint8 *)(p)+2)<<8|   \
+                           (guint64)*((const guint8 *)(p)+3)<<0)
+
 /* .vwr log file defines */
 #define B_SIZE      32768                           /* max var len message = 32 kB */
 #define VT_FRAME    0                               /* varlen msg is a frame */
@@ -825,7 +836,6 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 {
     guint8           *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
-    register int     i;                                   /* temps */
     const guint8     *s_ptr, *m_ptr;                      /* stats pointer */
     guint16          msdu_length, actual_octets;          /* octets in frame */
     guint16          plcp_hdr_len;                        /* PLCP header length */
@@ -862,22 +872,19 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     /* Calculate the start of the statistics block in the buffer */
     /* Also get a bunch of fields from the stats block */
     s_ptr    = &(rec[rec_size - v22_W_STATS_LEN]); /* point to it */
-    m_type   = s_ptr[1] & 0x7;
-    f_tx     = !(s_ptr[1] & 0x8);
-    actual_octets   = pntoh16(&s_ptr[8]);
-    vc_id    = pntoh16(&s_ptr[2]) & 0x3ff;
-    flow_seq = s_ptr[4];
+    m_type   = s_ptr[v22_W_MTYPE_OFF] & 0x7;
+    f_tx     = !(s_ptr[v22_W_MTYPE_OFF] & 0x8);
+    actual_octets   = pntoh16(&s_ptr[v22_W_OCTET_OFF]);
+    vc_id    = pntoh16(&s_ptr[v22_W_VCID_OFF]) & 0x3ff;
+    flow_seq = s_ptr[v22_W_FLOWSEQ_OFF];
 
-    /* XXX - this is 48 bits, in a weird byte order */
-    latency = (s_ptr[40 + 6] << 8) | (s_ptr[40 + 7]);   /* latency MSbytes */
-    for (i = 0; i < 4; i++)
-        latency = (latency << 8) | s_ptr[40 + i];
+    latency = (guint32)pcorey48tohll(&s_ptr[v22_W_LATVAL_OFF]);
 
-    flow_id = pntoh16(&s_ptr[6]);  /* only 16 LSBs kept */
-    errors  = pntoh16(&s_ptr[10]);
+    flow_id = pntoh16(&s_ptr[v22_W_FLOWID_OFF+1]);  /* only 16 LSBs kept */
+    errors  = pntoh16(&s_ptr[v22_W_ERRORS_OFF]);
 
-    info = pntoh16(&s_ptr[54]);
-    rssi = (s_ptr[21] & 0x80) ? (-1 * (s_ptr[21] & 0x7f)) : s_ptr[21];
+    info = pntoh16(&s_ptr[v22_W_INFO_OFF]);
+    rssi = (s_ptr[v22_W_RSSI_OFF] & 0x80) ? (-1 * (s_ptr[v22_W_RSSI_OFF] & 0x7f)) : s_ptr[v22_W_RSSI_OFF];
 
     /*
      * Sanity check the octets field to determine if it's greater than
@@ -938,8 +945,8 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /* Calculate start & end times (in sec/usec), converting 64-bit times to usec. */
     /* 64-bit times are "Corey-endian" */
-    s_time = pcoreytohll(&s_ptr[24]);
-    e_time = pcoreytohll(&s_ptr[32]);
+    s_time = pcoreytohll(&s_ptr[v22_W_STARTT_OFF]);
+    e_time = pcoreytohll(&s_ptr[v22_W_ENDT_OFF]);
 
     /* find the packet duration (difference between start and end times) */
     d_time = (guint32)((e_time - s_time) / NS_IN_US);   /* find diff, converting to usec */
@@ -1218,11 +1225,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     flow_id = pntoh24(&s_trail_ptr[vVW510021_W_FLOWID_OFF]);         /* all 24 bits valid */
     /* For tx latency is duration, for rx latency is timestamp */
     /* Get 48-bit latency value */
-    tsid = (s_trail_ptr[vVW510021_W_LATVAL_OFF + 6] << 8) |
-           (s_trail_ptr[vVW510021_W_LATVAL_OFF + 7]);
-
-    for (i = 0; i < 4; i++)
-        tsid = (tsid << 8) | s_trail_ptr[vVW510021_W_LATVAL_OFF + i];
+    tsid = pcorey48tohll(&s_trail_ptr[vVW510021_W_LATVAL_OFF]);
 
     errors = pntoh32(&s_trail_ptr[vVW510021_W_ERRORS_OFF]);
     info = pntoh16(&s_trail_ptr[vVW510021_W_INFO_OFF]);
@@ -1455,7 +1458,6 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
 {
     guint8           *data_ptr;
     int              bytes_written = 0;                   /* bytes output to buf so far */
-    register int     i;                                   /* temps */
     const guint8 *s_ptr, *m_ptr;                          /* stats and MPDU pointers */
     guint16          msdu_length, actual_octets;          /* octets in frame */
     guint            flow_seq;                            /* seqnum */
@@ -1532,10 +1534,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
 
     /* For tx latency is duration, for rx latency is timestamp. */
     /* Get 64-bit latency value. */
-    tsid = (s_ptr[vwr->LATVAL_OFF + 6] << 8) | (s_ptr[vwr->LATVAL_OFF + 7]);
-    for (i = 0; i < 4; i++)
-        tsid = (tsid << 8) | s_ptr[vwr->LATVAL_OFF + i];
-
+    tsid = pcorey48tohll(&s_ptr[vwr->LATVAL_OFF]);
 
     l4id = pntoh16(&s_ptr[vwr->L4ID_OFF]);
 
