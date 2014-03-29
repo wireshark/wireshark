@@ -2003,16 +2003,16 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * REPLACEMENT CHARACTER at the end.
  */
 static wmem_strbuf_t *
-tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint size, const guint encoding)
+tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
 	wmem_strbuf_t *strbuf;
 	gunichar2      uchar2, lead_surrogate;
 	gunichar       uchar;
 	gint           i;       /* Byte counter for tvbuff */
 
-	strbuf = wmem_strbuf_sized_new(scope, size+1, 0);
+	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	for(i = 0; i + 1 < size; i += 2) {
+	for(i = 0; i + 1 < length; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
 			uchar2 = tvb_get_ntohs(tvb, offset + i);
 		else
@@ -2024,7 +2024,7 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 			 * a trail surrogate.
 			 */
 			i += 2;
-			if (i + 1 >= size) {
+			if (i + 1 >= length) {
 				/*
 				 * Oops, string ends with a lead surrogate.
 				 * Ignore this for now.
