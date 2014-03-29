@@ -264,7 +264,7 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
     }
 
 #define NO_MORE_DATA_CHECK(nmdc_len) \
-    if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
+    if ((nmdc_len) <= (curr_offset - offset)) return(nmdc_len);
 
 #define SET_ELEM_VARS(SEV_pdu_type, SEV_elem_names, SEV_elem_ett, SEV_elem_funcs) \
     switch (SEV_pdu_type) \

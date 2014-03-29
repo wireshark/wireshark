@@ -949,7 +949,7 @@ ansi_a_so_int_to_str(
     }
 
 #define NO_MORE_DATA_CHECK(nmdc_len) \
-    if ((nmdc_len) == (curr_offset - offset)) return(nmdc_len);
+    if ((nmdc_len) <= (curr_offset - offset)) return(nmdc_len);
 
 
 /*
