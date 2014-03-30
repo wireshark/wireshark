@@ -9029,6 +9029,7 @@ max              6074/udp # Microsoft Max [Jay_Beavers] [Jay_Beavers] 2006-02
 dpm-acm          6075/tcp # Microsoft DPM Access Control Manager [Prabu_Ambravaneswara] [Prabu_Ambravaneswara] 2009-10-29
 msft-dpm-cert    6076/tcp # Microsoft DPM WCF Certificates [Microsoft_Corporation] [Prateek_Sharma] 2011-08-04
 iconstructsrv    6077/tcp # iConstruct Server [iConstruct_Aus_Pty_Ltd] [Afshin_Jafari] 2012-12-21
+geneve           6081/udp # Generic Network Virtualization Encapsulation (Geneve) [Jesse_Gross] [Jesse_Gross] 2014-03-27 [draft-gross-geneve-00]
 p25cai           6082/udp # APCO Project 25 Common Air Interface - UDP encapsulation [APCO_Project] [APCO_Project] 2011-05-13
 miami-bcast      6083/udp # telecomsoftware miami broadcast [Peter_Steiner] [Peter_Steiner] 2011-02-22
 reload-config    6084/tcp # Peer to Peer Infrastructure Configuration [IESG] [IETF_Chair] 2009-01-29 2013-03-26 [RFC6940]
@@ -10573,6 +10574,7 @@ atm-uhas        11367/tcp # ATM UHAS [Todd_Barker] [Todd_Barker]
 atm-uhas        11367/udp # ATM UHAS [Todd_Barker] [Todd_Barker]
 hkp             11371/tcp # OpenPGP HTTP Keyserver [David_Shaw] [David_Shaw] 2003-05
 hkp             11371/udp # OpenPGP HTTP Keyserver [David_Shaw] [David_Shaw] 2003-05
+lsdp            11430/udp # Lenbrook Service Discovery Protocol [Lenbrook_Industries_Limited] [Kevin_Groeneveld] 2014-03-27
 asgcypresstcps  11489/tcp # ASG Cypress Secure Only [David_Luxford] [David_Luxford] 2010-07-01
 tempest-port    11600/tcp # Tempest Protocol Port [Francis_Cianfrocca] [Francis_Cianfrocca]
 tempest-port    11600/udp # Tempest Protocol Port [Francis_Cianfrocca] [Francis_Cianfrocca]
@@ -10787,6 +10789,7 @@ ssh-mgmt        17235/tcp # SSH Tectia Manager [Ville_Laurikari] [Ville_Laurikar
 ssh-mgmt        17235/udp # SSH Tectia Manager [Ville_Laurikari] [Ville_Laurikari] 2005-08
 db-lsp          17500/tcp # Dropbox LanSync Protocol [Paul_Bohm] [Paul_Bohm] 2010-01-21
 db-lsp-disc     17500/udp # Dropbox LanSync Discovery [Paul_Bohm] [Paul_Bohm] 2010-01-21
+ailith          17555/tcp # Ailith management of routers [Thomas_Boje] [Thomas_Boje] 2014-03-27
 ea              17729/tcp # Eclipse Aviation [William_Schmidt] [William_Schmidt] 2006-03
 ea              17729/udp # Eclipse Aviation [William_Schmidt] [William_Schmidt] 2006-03
 zep             17754/tcp # Encap. ZigBee Packets [Fred_Fierling] [Fred_Fierling] 2006-02
