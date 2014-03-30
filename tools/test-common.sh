@@ -61,6 +61,8 @@ MAX_STACK=2033
 # Insert z times an error into the capture file (0.02 seems to be a good value to find errors)
 ERR_PROB=0.02
 
+# Call *after* any changes to BIN_DIR (e.g., via command-line options)
+function ws_bind_exec_paths() {
 # Tweak the following to your liking.  Editcap must support "-E".
 TSHARK="$BIN_DIR/tshark"
 EDITCAP="$BIN_DIR/editcap"
@@ -70,6 +72,20 @@ RANDPKT="$BIN_DIR/randpkt"
 if [ "$BIN_DIR" = "." ]; then
     export WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1
 fi
+}
+
+function ws_check_exec() {
+NOTFOUND=0
+for i in "$@" ; do
+    if [ ! -x "$i" ]; then
+        echo "Couldn't find \"$i\""
+        NOTFOUND=1
+    fi
+done
+if [ $NOTFOUND -eq 1 ]; then
+    exit 1
+fi
+}
 
 ##############################################################################
 ### Set up environment variables for fuzz testing			   ###
@@ -112,7 +128,7 @@ export MallocCheckHeapAbort=1
 export MallocBadFreeAbort=1
 
 # Create an error report
-function exit_error() {
+function ws_exit_error() {
     echo -e "\n ERROR"
     echo -e "Processing failed. Capture info follows:\n"
     echo "  Input file: $CF"

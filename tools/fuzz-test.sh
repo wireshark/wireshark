@@ -30,9 +30,6 @@
 TEST_TYPE="fuzz"
 . `dirname $0`/test-common.sh || exit 1
 
-# Directory containing binaries.  Default current directory.
-BIN_DIR=.
-
 # Sanity check to make sure we can find our plugins. Zero or less disables.
 MIN_PLUGINS=0
 
@@ -70,6 +67,9 @@ shift $(($OPTIND - 1))
 
 ### usually you won't have to change anything below this line ###
 
+ws_bind_exec_paths
+ws_check_exec "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR"
+
 COMMON_ARGS="${CONFIG_PROFILE}${TWO_PASS}"
 if [ $VALGRIND -eq 1 ]; then
     RUNNER="`dirname $0`/valgrind-wireshark.sh"
@@ -94,17 +94,6 @@ else
     #declare -a RUNNER_ARGS=("${CONFIG_PROFILE}${TWO_PASS}-nVxr" "${CONFIG_PROFILE}${TWO_PASS}-nr" "-Yframe ${CONFIG_PROFILE}${TWO_PASS}-nr")
 fi
 
-
-NOTFOUND=0
-for i in "$TSHARK" "$EDITCAP" "$CAPINFOS" "$DATE" "$TMP_DIR" ; do
-    if [ ! -x $i ]; then
-        echo "Couldn't find $i"
-        NOTFOUND=1
-    fi
-done
-if [ $NOTFOUND -eq 1 ]; then
-    exit 1
-fi
 
 # Make sure we have a valid test set
 FOUND=0
@@ -172,7 +161,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             continue
         elif [ $RETVAL -ne 0 -a $DONE -ne 1 ] ; then
             # Some other error
-            exit_error
+            ws_exit_error
         fi
 
         DISSECTOR_BUG=0
@@ -228,7 +217,7 @@ while [ \( $PASS -lt $MAX_PASSES -o $MAX_PASSES -lt 1 \) -a $DONE -ne 1 ] ; do
             fi
 
             if [ $DONE -ne 1 -a \( $RETVAL -ne 0 -o $DISSECTOR_BUG -ne 0 -o $VG_ERR_CNT -ne 0 \) ] ; then
-                exit_error
+                ws_exit_error
             fi
         done
 

@@ -27,14 +27,24 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+TEST_TYPE="manual"
+. `dirname $0`/test-common.sh || exit 1
+
+while getopts ":b:" OPTCHAR ; do
+    case $OPTCHAR in
+        b) BIN_DIR=$OPTARG ;;
+    esac
+done
+shift $(($OPTIND - 1))
+
 if [ $# -lt 1 ]
 then
-	printf "Usage: $0 /path/to/file[s].pcap\n"
+	printf "Usage: $(basename $0) [-b bin_dir] /path/to/file[s].pcap\n"
 	exit 1
 fi
 
-TEST_TYPE="manual"
-. `dirname $0`/test-common.sh || exit 1
+ws_bind_exec_paths
+ws_check_exec "$TSHARK"
 
 # set some limits to the child processes, e.g. stop it if it's running longer then MAX_CPU_TIME seconds
 # (ulimit is not supported well on cygwin and probably other platforms, e.g. cygwin shows some warnings)
@@ -46,7 +56,7 @@ for file in "$@"
 do
 	echo "Testing file $file..."
 	echo -n " - with tree... "
-	if $BIN_DIR/tshark -nVxr $file > /dev/null
+	if $TSHARK -nVxr $file > /dev/null
 	then
 		echo "OK"
 		echo -n " - without tree... "
