@@ -30,6 +30,7 @@
 #include "config.h"
 
 #include <string.h>
+#include <ctype.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -64,7 +65,7 @@ typedef enum _OSC_Type {
 
 /* characters not allowed in OSC path string */
 static const char invalid_path_chars [] = {
-    ' ', '#', '*', ',', '?', '[', ']', '{', '}',
+    ' ', '#',
     '\0'
 };
 
@@ -256,7 +257,7 @@ is_valid_path(const char *path)
     if(path[0] != '/')
         return FALSE;
     for(ptr=path+1; *ptr!='\0'; ptr++)
-        if(strchr(invalid_path_chars, *ptr) != NULL)
+        if( (isprint(*ptr) == 0) || (strchr(invalid_path_chars, *ptr) != NULL) )
             return FALSE;
     return TRUE;
 }
