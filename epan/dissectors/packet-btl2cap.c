@@ -176,8 +176,8 @@ typedef struct _psm_data_t {
     guint32       interface_id;
     guint32       adapter_id;
     guint32       chandle;
-    guint32       scid;
-    guint32       dcid;
+    gint32        scid;
+    gint32        dcid;
     guint32       first_scid_frame;
     guint32       first_dcid_frame;
     guint16       psm;
@@ -1708,6 +1708,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
     l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
+    l2cap_data->scid             = -1;
+    l2cap_data->dcid             = -1;
     l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
     l2cap_data->first_scid_frame = 0;
@@ -1880,6 +1882,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
 
         psm = tvb_get_letohs(tvb, offset);
+        l2cap_data->scid = psm_data->scid;
+        l2cap_data->dcid = psm_data->dcid;
         l2cap_data->psm = psm;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
@@ -2006,6 +2010,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             psm = psm_data->psm;
+            l2cap_data->scid = psm_data->scid;
+            l2cap_data->dcid = psm_data->dcid;
             l2cap_data->psm = psm;
             l2cap_data->is_local_psm = psm_data->local_service;
             l2cap_data->first_scid_frame = psm_data->first_scid_frame;

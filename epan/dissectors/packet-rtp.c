@@ -1131,7 +1131,7 @@ rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload)
 }
 
 void
-bluetooth_add_address(packet_info *pinfo, address *addr,
+bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          const gchar *setup_method, guint32 setup_frame_number,
          gboolean is_video, void *data)
 {
@@ -1154,14 +1154,14 @@ bluetooth_add_address(packet_info *pinfo, address *addr,
      * Check if the ip address and port combination is not
      * already registered as a conversation.
      */
-    p_conv = find_conversation(setup_frame_number, addr, &null_addr, PT_BLUETOOTH, 0, 0,
+    p_conv = find_conversation(setup_frame_number, addr, &null_addr, PT_BLUETOOTH, stream_number, stream_number,
                    NO_ADDR_B | NO_PORT_B);
 
     /*
      * If not, create a new conversation.
      */
     if (!p_conv || p_conv->setup_frame != setup_frame_number) {
-        p_conv = conversation_new(setup_frame_number, addr, &null_addr, PT_BLUETOOTH, 0, 0,
+        p_conv = conversation_new(setup_frame_number, addr, &null_addr, PT_BLUETOOTH, stream_number, stream_number,
                    NO_ADDR2 | NO_PORT2);
     }
 

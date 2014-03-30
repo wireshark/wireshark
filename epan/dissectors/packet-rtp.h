@@ -210,6 +210,6 @@ void srtp_add_address(packet_info *pinfo,
 
 /* Add an Bluetooth conversation with the given details */
 void
-bluetooth_add_address(packet_info *pinfo, address *addr,
+bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          const gchar *setup_method, guint32 setup_frame_number,
          gboolean is_video, void *data);

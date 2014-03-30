@@ -100,6 +100,34 @@
 #define SEP_MAX     64
 #define SEP_SIZE     2
 
+/* ========================================================== */
+/* Story: RTP Player, conversation (probably reassemble too) use address:port as
+   "key" to separate devices/streams. In Bluetooth World it is not enough to
+   separate devices/streams. Example key:
+        guint32 interface_id (aka frame.interface_id)
+        guint32 adapter_id (interface like "bluetooth-monitor" or USB provide
+                            more than one device over interface, so we must
+                            separate information provided by each one)
+        guint16 hci_chandle (aka "connection handle" use to separate connections to devices)
+        guint16 l2cap_psm (like hci_chandle but over l2cap layer, need hci_chandle info because
+                           the same PSM can be used over chandles)
+        guint8 rfcomm_channel (like l2cap_psm, but over RFCOMM layer...)
+        etc. like
+        guint8  stram_endpoint_number
+        guint32 stream_number (to separate multiple streams for RTP Player)
+
+    So keys can be various (length or type) and "ports" are not enough to sore
+    all needed information. If one day that changed then all RTP_PLAYER_WORKAROUND
+    block can be removed. This workaround use global number of streams (aka stream ID)
+    to be used as port number in RTP Player to separate streams.
+        */
+#define RTP_PLAYER_WORKAROUND TRUE
+
+#if RTP_PLAYER_WORKAROUND == TRUE
+    wmem_tree_t *file_scope_stream_number = NULL;
+#endif
+/* ========================================================== */
+
 static int proto_btavdtp = -1;
 
 static int hf_btavdtp_data                                                 = -1;
@@ -239,18 +267,15 @@ static expert_field ei_btavdtp_sbc_min_bitpool_out_of_range = EI_INIT;
 static expert_field ei_btavdtp_sbc_max_bitpool_out_of_range = EI_INIT;
 static expert_field ei_btavdtp_unexpected_losc_data = EI_INIT;
 
-static gboolean force_avdtp = FALSE;
-
 static dissector_handle_t btavdtp_handle;
 static dissector_handle_t bta2dp_handle;
 static dissector_handle_t btvdp_handle;
 static dissector_handle_t rtp_handle;
 
-
-static wmem_tree_t *sep_list           = NULL;
-static wmem_tree_t *sep_open           = NULL;
-static wmem_tree_t *cid_to_type_table  = NULL;
-static wmem_tree_t *media_packet_times = NULL;
+static wmem_tree_t *channels             = NULL;
+static wmem_tree_t *sep_list             = NULL;
+static wmem_tree_t *sep_open             = NULL;
+static wmem_tree_t *media_packet_times   = NULL;
 
 /* A2DP declarations */
 static gint proto_bta2dp                        = -1;
@@ -262,6 +287,7 @@ static int hf_bta2dp_acp_seid                           = -1;
 static int hf_bta2dp_int_seid                           = -1;
 static int hf_bta2dp_codec                              = -1;
 static int hf_bta2dp_content_protection                 = -1;
+static int hf_bta2dp_stream_number                      = -1;
 static int hf_bta2dp_l_bit                              = -1;
 static int hf_bta2dp_cp_bit                             = -1;
 static int hf_bta2dp_reserved                           = -1;
@@ -461,23 +487,31 @@ typedef struct _sep_entry_t {
     enum sep_state state;
 } sep_entry_t;
 
-typedef struct _cid_type_data_t {
-    guint32      interface_id;
-    guint32      adapter_id;
-    guint32      chandle;
-    guint32      type;
-    guint16      cid;
-    sep_entry_t  *sep;
-} cid_type_data_t;
-
 typedef struct _sep_data_t {
     gint      codec;
     guint8    acp_seid;
     guint8    int_seid;
     gint      content_protection_type;
+    guint32   stream_number;
     media_packet_info_t  *previous_media_packet_info;
     media_packet_info_t  *current_media_packet_info;
 } sep_data_t;
+
+typedef struct _media_stream_number_value_t {
+    guint32      stream_number;
+} media_stream_number_value_t;
+
+typedef struct _channels_info_t {
+    gint32        control_scid;
+    gint32        control_dcid;
+    gint32        media_scid;
+    gint32        media_dcid;
+    gboolean      media_is_local_psm;
+    wmem_tree_t  *stream_numbers;
+    guint32       disconnect_in_frame;
+    sep_entry_t  *sep;
+} channels_info_t;
+
 
 void proto_register_btavdtp(void);
 void proto_reg_handoff_btavdtp(void);
@@ -487,6 +521,7 @@ void proto_register_bta2dp_content_protection_header_scms_t(void);
 void proto_register_btvdp(void);
 void proto_reg_handoff_btvdp(void);
 void proto_register_btvdp_content_protection_header_scms_t(void);
+
 
 static const char *
 get_sep_type(guint32 interface_id,
@@ -827,7 +862,7 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
             case SERVICE_CATEGORY_MEDIA_TRANSPORT:
             case SERVICE_CATEGORY_REPORTING:
             case SERVICE_CATEGORY_DELAY_REPORTING:
-                /* losc should be 0*/
+                /* losc should be 0 */
                 break;
             case SERVICE_CATEGORY_RECOVERY:
                 recovery_type = tvb_get_guint8(tvb, offset);
@@ -979,7 +1014,6 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     return offset;
 }
 
-
 static gint
 dissect_seid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
              gint seid_side, gint i_item, guint32 *sep_seid,
@@ -1047,14 +1081,14 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     guint            delay;
     wmem_tree_t      *subtree;
     wmem_tree_key_t  key[8];
+    channels_info_t  *channels_info;
     guint32          interface_id;
     guint32          adapter_id;
     guint32          chandle;
+    guint32          psm;
     guint32          direction;
-    guint32          type;
     guint32          cid;
     guint32          frame_number;
-    cid_type_data_t  *cid_type_data;
     sep_entry_t      *sep;
     tvbuff_t         *next_tvb;
     guint32          seid;
@@ -1082,234 +1116,186 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data = (btl2cap_data_t *) data;
     DISSECTOR_ASSERT(l2cap_data);
 
-    if (!force_avdtp && !pinfo->fd->flags.visited && (l2cap_data->first_scid_frame == pinfo->fd->num ||
-                l2cap_data->first_dcid_frame == pinfo->fd->num)) {
-        cid_type_data = wmem_new(wmem_file_scope(), cid_type_data_t);
-        cid_type_data->interface_id = l2cap_data->interface_id;
-        cid_type_data->adapter_id = l2cap_data->adapter_id;
-        cid_type_data->chandle = l2cap_data->chandle;
-        cid_type_data->type = STREAM_TYPE_MEDIA;
-        cid_type_data->cid = l2cap_data->cid;
-        cid_type_data->sep = NULL;
-
-        /* heuristics for recognize signal AVDTP: first packet must be Discover Command */
-        if ((tvb_get_guint8(tvb, offset) & 0x0F) == 0x00 &&
-                tvb_get_guint8(tvb, offset + 1) == 0x01 &&
-                tvb_length_remaining(tvb, offset) == HEADER_SIZE) {
-            /* It is AVDTP Signaling cmd side */
-            cid_type_data->type = STREAM_TYPE_SIGNAL;
-        } else if ((tvb_get_guint8(tvb, offset) & 0x0F) == 0x02 &&
-                tvb_get_guint8(tvb, offset + 1) == 0x01 &&
-                tvb_length_remaining(tvb, offset) <= SEP_MAX * SEP_SIZE + HEADER_SIZE &&
-                !(tvb_length_remaining(tvb, offset) % SEP_SIZE)) {
-            /* It is AVDTP Signaling rsp side */
-            cid_type_data->type = STREAM_TYPE_SIGNAL;
-        } else {
-            interface_id = cid_type_data->interface_id;
-            adapter_id = cid_type_data->adapter_id;
-            chandle = cid_type_data->chandle;
-            frame_number = pinfo->fd->num;
-
-            key[0].length = 1;
-            key[0].key    = &interface_id;
-            key[1].length = 1;
-            key[1].key    = &adapter_id;
-            key[2].length = 1;
-            key[2].key    = &chandle;
-            key[3].length = 0;
-            key[3].key    = NULL;
-
-            subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_open, key);
-            sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
-            if (sep && sep->state == SEP_STATE_OPEN) {
-                sep->state = SEP_STATE_IN_USE;
-                cid_type_data->sep = sep;
-            }
-        }
-
-        interface_id = cid_type_data->interface_id;
-        adapter_id = cid_type_data->adapter_id;
-        chandle = cid_type_data->chandle;
-        type = cid_type_data->type;
-        cid = cid_type_data->cid;
-        frame_number = pinfo->fd->num;
-
-        key[0].length = 1;
-        key[0].key    = &interface_id;
-        key[1].length = 1;
-        key[1].key    = &adapter_id;
-        key[2].length = 1;
-        key[2].key    = &chandle;
-        key[3].length = 1;
-        key[3].key    = &cid;
-        key[4].length = 1;
-        key[4].key    = &direction;
-        key[5].length = 1;
-        key[5].key    = &type;
-        key[6].length = 1;
-        key[6].key    = &frame_number;
-        key[7].length = 0;
-        key[7].key    = NULL;
-
-        wmem_tree_insert32_array(cid_to_type_table, key, cid_type_data);
-    }
-
     interface_id = l2cap_data->interface_id;
     adapter_id = l2cap_data->adapter_id;
     chandle = l2cap_data->chandle;
+    psm = l2cap_data->psm;
     cid = l2cap_data->cid;
     frame_number = pinfo->fd->num;
 
-    if (!force_avdtp) {
-        key[0].length = 1;
-        key[0].key    = &interface_id;
-        key[1].length = 1;
-        key[1].key    = &adapter_id;
-        key[2].length = 1;
-        key[2].key    = &chandle;
-        key[3].length = 1;
-        key[3].key    = &cid;
-        key[4].length = 1;
-        key[4].key    = &direction;
-        key[5].length = 0;
-        key[5].key    = NULL;
-        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(cid_to_type_table, key);
-        if (subtree) {
-            wmem_tree_t  *type_tree;
+    key[0].length = 1;
+    key[0].key    = &interface_id;
+    key[1].length = 1;
+    key[1].key    = &adapter_id;
+    key[2].length = 1;
+    key[2].key    = &chandle;
+    key[3].length = 1;
+    key[3].key    = &psm;
+    key[4].length = 0;
+    key[4].key    = NULL;
 
-            type_tree = (wmem_tree_t *) wmem_tree_lookup32(subtree, STREAM_TYPE_MEDIA);
-            if (!type_tree)
-                type_tree = (wmem_tree_t *) wmem_tree_lookup32(subtree, STREAM_TYPE_SIGNAL);
-            subtree = type_tree;
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(channels, key);
+    channels_info = (subtree) ? (channels_info_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+    if (!(channels_info && channels_info->disconnect_in_frame >= pinfo->fd->num)) {
+
+        channels_info = (channels_info_t *) wmem_new (wmem_file_scope(), channels_info_t);
+        channels_info->control_scid = l2cap_data->scid;
+        channels_info->control_dcid = l2cap_data->dcid;
+        channels_info->media_scid = -1;
+        channels_info->media_dcid = -1;
+        channels_info->disconnect_in_frame = G_MAXUINT32;
+        channels_info->sep = NULL;
+
+        if (!pinfo->fd->flags.visited) {
+            key[4].length = 1;
+            key[4].key    = &frame_number;
+            key[5].length = 0;
+            key[5].key    = NULL;
+
+            channels_info->stream_numbers = wmem_tree_new(wmem_file_scope());
+            wmem_tree_insert32_array(channels, key, channels_info);
+        } else {
+            channels_info->stream_numbers = NULL;
         }
-        cid_type_data = (subtree) ? (cid_type_data_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
-        if (cid_type_data && cid_type_data->type == STREAM_TYPE_MEDIA) {
-            /* AVDTP Media */
+    }
 
-            if (!cid_type_data->sep) {
+    if (!(l2cap_data->scid == channels_info->control_scid &&
+            l2cap_data->dcid == channels_info->control_dcid) &&
+            (channels_info->media_scid == -1 ||
+            (l2cap_data->scid == channels_info->media_scid &&
+            l2cap_data->dcid == channels_info->media_dcid))) {
+
+        if (!pinfo->fd->flags.visited && channels_info->media_scid == -1) {
+            channels_info->media_scid = l2cap_data->scid;
+            channels_info->media_dcid = l2cap_data->dcid;
+            channels_info->media_is_local_psm = l2cap_data->is_local_psm;
+        }
+        /* Media Channel */
+
+        if (!channels_info->sep) {
+            ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
+            btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
+
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream on cid=0x%04x", l2cap_data->cid);
+            proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
+        } else {
+            col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream ACP SEID [%u - %s %s]",
+                    channels_info->sep->seid, get_sep_media_type(
+                            interface_id, adapter_id, chandle, direction,
+                            channels_info->sep->seid,
+                            frame_number),
+                    get_sep_type(interface_id, adapter_id, chandle, direction,
+                            channels_info->sep->seid,
+                            frame_number));
+
+            if (channels_info->sep->media_type == MEDIA_TYPE_AUDIO) {
+                sep_data_t                    sep_data;
+                media_stream_number_value_t  *media_stream_number_value;
+                media_packet_info_t          *previous_media_packet_info;
+                media_packet_info_t          *current_media_packet_info;
+                nstime_t                      first_abs_ts;
+                gdouble                       cummulative_frame_duration;
+
+                sep_data.codec    = channels_info->sep->codec;
+                sep_data.acp_seid = channels_info->sep->seid;
+                sep_data.int_seid = channels_info->sep->int_seid;
+                sep_data.content_protection_type = channels_info->sep->content_protection_type;
+
+                media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
+                if (media_stream_number_value) {
+                    sep_data.stream_number = media_stream_number_value->stream_number;
+                } else {
+                    sep_data.stream_number = 1;
+                }
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &chandle;
+                key[3].length = 1;
+                key[3].key    = &cid;
+                key[4].length = 1;
+                key[4].key    = &direction;
+                key[5].length = 0;
+                key[5].key    = NULL;
+
+                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(media_packet_times, key);
+                previous_media_packet_info = (subtree) ? (media_packet_info_t *) wmem_tree_lookup32_le(subtree, frame_number - 1) : NULL;
+                if (previous_media_packet_info && previous_media_packet_info->stream_number == sep_data.stream_number ) {
+                    sep_data.previous_media_packet_info = previous_media_packet_info;
+                    first_abs_ts = previous_media_packet_info->first_abs_ts;
+                    cummulative_frame_duration = previous_media_packet_info->cummulative_frame_duration;
+                } else {
+                    first_abs_ts = pinfo->fd->abs_ts;
+                    cummulative_frame_duration = 0.0;
+                    sep_data.previous_media_packet_info = (media_packet_info_t *) wmem_new(wmem_epan_scope(), media_packet_info_t);
+                    sep_data.previous_media_packet_info->abs_ts = pinfo->fd->abs_ts;
+                    sep_data.previous_media_packet_info->first_abs_ts = first_abs_ts;
+                    sep_data.previous_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
+                    sep_data.previous_media_packet_info->stream_number = sep_data.stream_number;
+                }
+
+                if (!pinfo->fd->flags.visited) {
+                    key[5].length = 1;
+                    key[5].key    = &frame_number;
+                    key[6].length = 0;
+                    key[6].key    = NULL;
+
+                    current_media_packet_info = wmem_new(wmem_file_scope(), media_packet_info_t);
+                    current_media_packet_info->abs_ts = pinfo->fd->abs_ts;
+                    current_media_packet_info->first_abs_ts = first_abs_ts;
+                    current_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
+                    current_media_packet_info->stream_number = sep_data.stream_number;
+
+                    wmem_tree_insert32_array(media_packet_times, key, current_media_packet_info);
+                }
+
+                key[5].length = 0;
+                key[5].key    = NULL;
+
+                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(media_packet_times, key);
+                current_media_packet_info = (subtree) ? (media_packet_info_t *) wmem_tree_lookup32(subtree, frame_number) : NULL;
+                if (current_media_packet_info)
+                    sep_data.current_media_packet_info = current_media_packet_info;
+                else
+                    sep_data.current_media_packet_info = NULL;
+
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector_with_data(bta2dp_handle, next_tvb, pinfo, tree, &sep_data);
+            } else if (channels_info->sep->media_type == MEDIA_TYPE_VIDEO) {
+                sep_data_t  sep_data;
+
+                sep_data.codec    = channels_info->sep->codec;
+                sep_data.acp_seid = channels_info->sep->seid;
+                sep_data.int_seid = channels_info->sep->int_seid;
+                sep_data.content_protection_type = channels_info->sep->content_protection_type;
+
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector_with_data(btvdp_handle, next_tvb, pinfo, tree, &sep_data);
+            } else {
                 ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
                 btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
 
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream on cid=0x%04x", l2cap_data->cid);
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-            } else {
-                col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream ACP SEID [%u - %s %s]",
-                        cid_type_data->sep->seid, get_sep_media_type(
-                                cid_type_data->interface_id,
-                                cid_type_data->adapter_id,
-                                cid_type_data->chandle,
-                                direction,
-                                cid_type_data->sep->seid,
-                                pinfo->fd->num),
-                        get_sep_type(cid_type_data->interface_id,
-                                cid_type_data->adapter_id,
-                                cid_type_data->chandle,
-                                direction,
-                                cid_type_data->sep->seid,
-                                pinfo->fd->num));
-
-                if (cid_type_data->sep->media_type == MEDIA_TYPE_AUDIO) {
-                    sep_data_t            sep_data;
-                    media_packet_info_t  *previous_media_packet_info;
-                    media_packet_info_t  *current_media_packet_info;
-                    nstime_t              first_abs_ts;
-                    gdouble               cummulative_frame_duration;
-
-                    sep_data.codec    = cid_type_data->sep->codec;
-                    sep_data.acp_seid = cid_type_data->sep->seid;
-                    sep_data.int_seid = cid_type_data->sep->int_seid;
-                    sep_data.content_protection_type = cid_type_data->sep->content_protection_type;
-
-                    interface_id = cid_type_data->interface_id;
-                    adapter_id = cid_type_data->adapter_id;
-                    chandle = cid_type_data->chandle;
-                    cid = cid_type_data->cid;
-                    frame_number = pinfo->fd->num;
-
-                    key[0].length = 1;
-                    key[0].key    = &interface_id;
-                    key[1].length = 1;
-                    key[1].key    = &adapter_id;
-                    key[2].length = 1;
-                    key[2].key    = &chandle;
-                    key[3].length = 1;
-                    key[3].key    = &cid;
-                    key[4].length = 1;
-                    key[4].key    = &direction;
-                    key[5].length = 0;
-                    key[5].key    = NULL;
-                    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(media_packet_times, key);
-
-                    previous_media_packet_info = (subtree) ? (media_packet_info_t *) wmem_tree_lookup32_le(subtree, frame_number - 1) : NULL;
-                    if (previous_media_packet_info) {
-                        sep_data.previous_media_packet_info = previous_media_packet_info;
-                        first_abs_ts = previous_media_packet_info->first_abs_ts;
-                        cummulative_frame_duration = previous_media_packet_info->cummulative_frame_duration;
-                    } else {
-                        first_abs_ts = pinfo->fd->abs_ts;
-                        cummulative_frame_duration = 0.0;
-                        sep_data.previous_media_packet_info = (media_packet_info_t *) wmem_new(wmem_epan_scope(), media_packet_info_t);
-                        sep_data.previous_media_packet_info->abs_ts = pinfo->fd->abs_ts;
-                        sep_data.previous_media_packet_info->first_abs_ts = first_abs_ts;
-                        sep_data.previous_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
-                    }
-
-                    if (!pinfo->fd->flags.visited) {
-                        key[5].length = 1;
-                        key[5].key    = &frame_number;
-                        key[6].length = 0;
-                        key[6].key    = NULL;
-
-                        current_media_packet_info = wmem_new(wmem_file_scope(), media_packet_info_t);
-                        current_media_packet_info->abs_ts = pinfo->fd->abs_ts;
-                        current_media_packet_info->first_abs_ts = first_abs_ts;
-                        current_media_packet_info->cummulative_frame_duration = cummulative_frame_duration;
-
-                        wmem_tree_insert32_array(media_packet_times, key, current_media_packet_info);
-                    }
-
-                    key[5].length = 0;
-                    key[5].key    = NULL;
-                    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(media_packet_times, key);
-                    current_media_packet_info = (subtree) ? (media_packet_info_t *) wmem_tree_lookup32(subtree, frame_number) : NULL;
-                    if (current_media_packet_info)
-                        sep_data.current_media_packet_info = current_media_packet_info;
-                    else
-                        sep_data.current_media_packet_info = NULL;
-
-                    next_tvb = tvb_new_subset_remaining(tvb, offset);
-                    call_dissector_with_data(bta2dp_handle, next_tvb, pinfo, tree, &sep_data);
-                } else if (cid_type_data->sep->media_type == MEDIA_TYPE_VIDEO) {
-                    sep_data_t  sep_data;
-
-                    sep_data.codec    = cid_type_data->sep->codec;
-                    sep_data.acp_seid = cid_type_data->sep->seid;
-                    sep_data.int_seid = cid_type_data->sep->int_seid;
-                    sep_data.content_protection_type = cid_type_data->sep->content_protection_type;
-
-                    next_tvb = tvb_new_subset_remaining(tvb, offset);
-                    call_dissector_with_data(btvdp_handle, next_tvb, pinfo, tree, &sep_data);
-                } else {
-                    ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
-                    btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
-
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "Media stream on cid=0x%04x", l2cap_data->cid);
-                    proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-                }
             }
-
-            return tvb_length(tvb);
-        } else if (!(cid_type_data && cid_type_data->type == STREAM_TYPE_SIGNAL)) {
-            /* AVDTP not signaling - Unknown Media stream */
-            ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
-            btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
-
-            col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown stream on cid=0x%04x", l2cap_data->cid);
-            proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
-            return tvb_length(tvb);
         }
+
+        return tvb_length(tvb);
+    } else if (!(l2cap_data->scid == channels_info->control_scid &&
+            l2cap_data->dcid == channels_info->control_dcid)) {
+        /* Unknown Stream Channel */
+        ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
+        btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
+
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Unknown channel stream on cid=0x%04x", l2cap_data->cid);
+        proto_tree_add_item(btavdtp_tree, hf_btavdtp_data, tvb, offset, -1, ENC_NA);
+        return tvb_length(tvb);
     }
 
+    /* Signaling Channel */
     ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
     btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);
 
@@ -1508,6 +1494,24 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
+            if (message_type == MESSAGE_TYPE_ACCEPT && !pinfo->fd->flags.visited) {
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &chandle;
+                key[3].length = 0;
+                key[3].key    = NULL;
+
+                subtree = (wmem_tree_t *) wmem_tree_lookup32_array(sep_open, key);
+                sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
+                if (sep && sep->state == SEP_STATE_OPEN) {
+                    sep->state = SEP_STATE_IN_USE;
+                    channels_info->sep = sep;
+                }
+            }
             break;
         case SIGNAL_ID_START:
             if (message_type == MESSAGE_TYPE_COMMAND) {
@@ -1528,6 +1532,42 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
+
+            if (message_type == MESSAGE_TYPE_ACCEPT && !pinfo->fd->flags.visited) {
+                media_stream_number_value_t  *media_stream_number_value;
+                guint32                       stream_number = 0;
+
+                media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
+#if RTP_PLAYER_WORKAROUND == TRUE
+                {
+                    media_stream_number_value_t  *file_scope_stream_number_value;
+
+                    if (media_stream_number_value) {
+                        stream_number = media_stream_number_value->stream_number;
+                    } else {
+                        file_scope_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(file_scope_stream_number, frame_number - 1);
+                        if (file_scope_stream_number_value)
+                            stream_number = file_scope_stream_number_value->stream_number + 1;
+                        else
+                            stream_number = 0;
+                    }
+
+                    file_scope_stream_number_value = wmem_new(wmem_file_scope(), media_stream_number_value_t);
+                    file_scope_stream_number_value->stream_number = stream_number;
+                    wmem_tree_insert32(file_scope_stream_number, frame_number, file_scope_stream_number_value);
+                }
+#else
+                if (media_stream_number_value)
+                    stream_number = media_stream_number_value->stream_number;
+                else
+                    stream_number = 0;
+#endif
+
+                media_stream_number_value = wmem_new(wmem_file_scope(), media_stream_number_value_t);
+                media_stream_number_value->stream_number = stream_number + 1;
+
+                wmem_tree_insert32(channels_info->stream_numbers, frame_number, media_stream_number_value);
+            }
             break;
         case SIGNAL_ID_CLOSE:
             if (message_type == MESSAGE_TYPE_COMMAND) {
@@ -1540,6 +1580,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
+            }
+            if (!pinfo->fd->flags.visited && message_type == MESSAGE_TYPE_ACCEPT &&
+                    channels_info->disconnect_in_frame == G_MAXUINT32) {
+                channels_info->disconnect_in_frame = pinfo->fd->num;
             }
             break;
         case SIGNAL_ID_SUSPEND:
@@ -1573,6 +1617,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btavdtp_tree, hf_btavdtp_error_code, tvb, offset, 1, ENC_NA);
                 offset += 1;
                 break;
+            }
+            if (!pinfo->fd->flags.visited && message_type == MESSAGE_TYPE_ACCEPT &&
+                    channels_info->disconnect_in_frame == G_MAXUINT32) {
+                channels_info->disconnect_in_frame = pinfo->fd->num;
             }
             break;
         case SIGNAL_ID_SECURITY_CONTROL:
@@ -2285,15 +2333,13 @@ proto_register_btavdtp(void)
             "Bluetooth Protocol AVDTP version: 1.3",
             "Version of protocol supported by this dissector.");
 
-    prefs_register_bool_preference(module, "avdtp.force",
-            "Force decoding as AVDTP Signaling",
-            "Force decoding as AVDTP Signaling",
-            &force_avdtp);
-
-    sep_list = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    sep_open = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-    cid_to_type_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* cid: type */
-    media_packet_times = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    channels             = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    sep_list             = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    sep_open             = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    media_packet_times   = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+#if RTP_PLAYER_WORKAROUND == TRUE
+    file_scope_stream_number = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+#endif
 }
 
 void
@@ -2324,6 +2370,7 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.int_seid = 0;
     sep_data.previous_media_packet_info = NULL;
     sep_data.current_media_packet_info = NULL;
+    sep_data.stream_number = 1;
 
     if (force_a2dp_scms_t || force_a2dp_codec != CODEC_DEFAULT) {
         if (force_a2dp_scms_t)
@@ -2382,6 +2429,9 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         PROTO_ITEM_SET_GENERATED(pitem);
     }
 
+    pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_stream_number, tvb, 0, 0, sep_data.stream_number);
+    PROTO_ITEM_SET_GENERATED(pitem);
+
     switch (sep_data.codec) {
         case CODEC_SBC:
             codec_dissector = sbc_handle;
@@ -2402,8 +2452,16 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bta2dp_codec_info.previous_media_packet_info = sep_data.previous_media_packet_info;
     bta2dp_codec_info.current_media_packet_info  = sep_data.current_media_packet_info;
 
-    bluetooth_add_address(pinfo, &pinfo->net_dst, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
+#if RTP_PLAYER_WORKAROUND == TRUE
+    /* XXX: Workaround to get multiple RTP streams, because converation are too
+       weak to recognize Bluetooth streams (key is: guint32 interface_id, guint32 adapter_id, guint32 chandle, guint32 cid, guint32 direction -> guint32 stream_number) */
+    pinfo->srcport = sep_data.stream_number;
+    pinfo->destport = sep_data.stream_number;
+#endif
+
+    bluetooth_add_address(pinfo, &pinfo->net_dst, sep_data.stream_number, "BT A2DP", pinfo->fd->num, FALSE, &bta2dp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
+
     offset += tvb_length_remaining(tvb, offset);
 
     return offset;
@@ -2433,6 +2491,11 @@ proto_register_bta2dp(void)
         { &hf_bta2dp_content_protection,
             { "Content Protection",              "bta2dp.content_protection",
             FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_stream_number,
+            { "Stream Number",                   "bta2dp.stream_number",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
     };
@@ -2567,7 +2630,7 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     btvdp_codec_info.codec_dissector = codec_dissector;
     btvdp_codec_info.content_protection_type = sep_data.content_protection_type;
 
-    bluetooth_add_address(pinfo, &pinfo->net_dst, "BT VDP", pinfo->fd->num, TRUE, &btvdp_codec_info);
+    bluetooth_add_address(pinfo, &pinfo->net_dst, 0, "BT VDP", pinfo->fd->num, TRUE, &btvdp_codec_info);
     call_dissector(rtp_handle, tvb, pinfo, tree);
     offset += tvb_length_remaining(tvb, offset);
 
