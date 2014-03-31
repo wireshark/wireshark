@@ -1836,19 +1836,20 @@ static guint8 *
 tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
 	wmem_strbuf_t *str;
+	const guint8 *ptr;
 
-	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
+	ptr = ensure_contiguous(tvb, offset, length);
 
 	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
-		guint8 ch = tvb_get_guint8(tvb, offset);
+		guint8 ch = *ptr;
 
 		if (ch < 0x80)
 			wmem_strbuf_append_c(str, ch);
 		else
 			wmem_strbuf_append_unichar(str, UNREPL);
-		offset++;
+		ptr++;
 		length--;
 	}
 
@@ -1884,11 +1885,14 @@ static guint8 *
 tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
 	wmem_strbuf_t *str;
+	const guint8 *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
 
 	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
-		guint8 ch = tvb_get_guint8(tvb, offset);
+		guint8 ch =  *ptr;
 
 		if (ch < 0x80)
 			wmem_strbuf_append_c(str, ch);
@@ -1901,7 +1905,7 @@ tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 			 */
 			wmem_strbuf_append_unichar(str, ch);
 		}
-		offset++;
+		ptr++;
 		length--;
 	}
 
@@ -1921,17 +1925,20 @@ static guint8 *
 tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[0x80])
 {
 	wmem_strbuf_t *str;
+	const guint8 *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
 
 	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
-		guint8 ch = tvb_get_guint8(tvb, offset);
+		guint8 ch = *ptr;
 
 		if (ch < 0x80)
 			wmem_strbuf_append_c(str, ch);
 		else
 			wmem_strbuf_append_unichar(str, table[ch-0x80]);
-		offset++;
+		ptr++;
 		length--;
 	}
 
@@ -1959,15 +1966,18 @@ tvb_extract_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 	gunichar2      uchar;
 	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
+	const guint8 *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
 
 	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	for(i = 0; i + 1 < length; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar = tvb_get_ntohs(tvb, offset + i);
-		else
-			uchar = tvb_get_letohs(tvb, offset + i);
-
+		if (encoding == ENC_BIG_ENDIAN){
+			uchar = pntoh16(ptr + i);
+		}else{
+			uchar = pletoh16(ptr + i);
+		}
 		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
 
@@ -1983,7 +1993,7 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 {
 	wmem_strbuf_t *strbuf;
 
-	tvb_ensure_bytes_exist(tvb, offset, length);
+	/*tvb_ensure_bytes_exist(tvb, offset, length); xhecked in the called routine */
 	strbuf = tvb_extract_ucs_2_string(scope, tvb, offset, length, encoding);
 	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
@@ -2009,14 +2019,22 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 	gunichar2      uchar2, lead_surrogate;
 	gunichar       uchar;
 	gint           i;       /* Byte counter for tvbuff */
+	const guint8 *ptr;
+
+	/* make sure length = -1 fails */
+	if (length < 0) {
+		THROW(ReportedBoundsError);
+	}
+
+	ptr = ensure_contiguous(tvb, offset, length);
 
 	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	for(i = 0; i + 1 < length; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
-			uchar2 = tvb_get_ntohs(tvb, offset + i);
+			uchar2 = pletoh16(ptr + i);
 		else
-			uchar2 = tvb_get_letohs(tvb, offset + i);
+			uchar2 = pletoh16(ptr + i);
 
 		if (IS_LEAD_SURROGATE(uchar2)) {
 			/*
@@ -2036,9 +2054,9 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 			}
 			lead_surrogate = uchar2;
 			if (encoding == ENC_BIG_ENDIAN)
-				uchar2 = tvb_get_ntohs(tvb, offset + i);
+				uchar2 = pletoh16(ptr + i);
 			else
-				uchar2 = tvb_get_letohs(tvb, offset + i);
+				uchar2 = pletoh16(ptr + i);
 			if (IS_TRAIL_SURROGATE(uchar2)) {
 				/* Trail surrogate. */
 				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
@@ -2084,7 +2102,7 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 {
 	wmem_strbuf_t *strbuf;
 
-	tvb_ensure_bytes_exist(tvb, offset, length);
+	/*tvb_ensure_bytes_exist(tvb, offset, length); checked in the called routine */
 	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, length, encoding);
 	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
@@ -2110,14 +2128,22 @@ tvb_extract_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 	gunichar       uchar;
 	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
+	const guint8 *ptr;
+
+	/* make sure length = -1 fails */
+	if (length < 0) {
+		THROW(ReportedBoundsError);
+	}
+
+	ptr = ensure_contiguous(tvb, offset, length);
 
 	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	for(i = 0; i + 3 < length; i += 4) {
 		if (encoding == ENC_BIG_ENDIAN)
-			uchar = tvb_get_ntohl(tvb, offset + i);
+			uchar = pletoh16(ptr + i);
 		else
-			uchar = tvb_get_letohl(tvb, offset + i);
+			uchar = pletoh16(ptr + i);
 
 		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
@@ -2135,7 +2161,7 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 {
 	wmem_strbuf_t *strbuf;
 
-	tvb_ensure_bytes_exist(tvb, offset, length);
+	/*tvb_ensure_bytes_exist(tvb, offset, length); checked in the called routine*/
 	strbuf = tvb_extract_ucs_4_string(scope, tvb, offset, length, encoding);
 	return (gchar*)wmem_strbuf_finalize(strbuf);
 }
@@ -2250,18 +2276,24 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	guint8         in_byte, out_byte, rest = 0x00;
 	gboolean       saw_escape = FALSE;
 	int            bits;
+	const guint8 *ptr;
+	gint length;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	bits = bit_offset & 0x07;
 	if (!bits) {
 		bits = 7;
 	}
 
-	tvb_ensure_bytes_exist(tvb, in_offset, ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3);
+	length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	ptr = ensure_contiguous(tvb, in_offset, length);
+
 	strbuf = wmem_strbuf_new(scope, NULL);
 	for(char_count = 0; char_count < no_of_chars;) {
 		/* Get the next byte from the string. */
-		in_byte = tvb_get_guint8(tvb, in_offset);
-		in_offset++;
+		in_byte = *ptr;;
+		ptr++;
 
 		/*
 		 * Combine the bits we've accumulated with bits from
@@ -2325,6 +2357,13 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 {
 	const guint8 *ptr;
 	guint8       *strbuf;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	/* make sure length = -1 fails */
+	if (length < 0) {
+		THROW(ReportedBoundsError);
+	}
 
 	switch (encoding & ENC_CHARENCODING_MASK) {
 
@@ -2477,18 +2516,21 @@ tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 {
 	guint   size, i;
 	wmem_strbuf_t *str;
+	const guint8 *ptr;
 
 	size = tvb_strsize(tvb, offset);
 	str = wmem_strbuf_sized_new(scope, size+1, 0);
 
+	ptr = ensure_contiguous(tvb, offset, length);
+
 	for (i = 0; i < size; i++) {
-		guint8 ch = tvb_get_guint8(tvb, offset);
+		guint8 ch = *ptr;
 
 		if (ch < 0x80)
 			wmem_strbuf_append_c(str, ch);
 		else
 			wmem_strbuf_append_unichar(str, UNREPL);
-		offset++;
+		ptr++;
 	}
 	/* No need to append '\0' - we processed the NUL in the loop above. */
 
@@ -2599,8 +2641,6 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	gint           size;    /* Number of bytes in string */
 	wmem_strbuf_t *strbuf;
 
-	DISSECTOR_ASSERT(tvb && tvb->initialized);
-
 	size = 0;
 	do {
 		/* Endianness doesn't matter when looking for null */
@@ -2621,6 +2661,8 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 {
 	guint   size;
 	guint8 *strptr;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	switch (encoding & ENC_CHARENCODING_MASK) {
 
