@@ -187,11 +187,11 @@ static header_field_info hfi_png_srgb_intent PNG_HFI_INIT = {
     VALS(srgb_intent_vals), 0, NULL, HFILL };
 
 static header_field_info hfi_png_text_keyword PNG_HFI_INIT = {
-    "Keyword", "png.text.keyword", FT_STRING, BASE_NONE,
+    "Keyword", "png.text.keyword", FT_STRING, STR_UNICODE,
     NULL, 0, NULL, HFILL };
 
 static header_field_info hfi_png_text_string PNG_HFI_INIT = {
-    "String", "png.text.string", FT_STRING, BASE_NONE,
+    "String", "png.text.string", FT_STRING, STR_UNICODE,
     NULL, 0, NULL, HFILL };
 
 static header_field_info hfi_png_time_year PNG_HFI_INIT = {
@@ -286,20 +286,19 @@ dissect_png_srgb(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static void
 dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    int offset=1;
+    gint offset=0, nul_offset;
 
-    /* find the null that separates keyword and text string */
-    while(1){
-        if(!tvb_get_guint8(tvb, offset)){
-            break;
-        }
-        offset++;
+    nul_offset = tvb_find_guint8(tvb, offset, tvb_length_remaining(tvb, offset), 0);
+    /* nul_offset == 0 means empty keyword, this is not allowed by the png standard */
+    if (nul_offset<=0) {
+        /* XXX exception */
+        return;
     }
 
-    proto_tree_add_item(tree, &hfi_png_text_keyword, tvb, 0, offset, ENC_ASCII|ENC_NA);
-    offset++;
+    proto_tree_add_item(tree, &hfi_png_text_keyword, tvb, offset, nul_offset, ENC_ISO_8859_1|ENC_NA);
+    offset = nul_offset+1; /* length of the key word + 0 character */
 
-    proto_tree_add_item(tree, &hfi_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+    proto_tree_add_item(tree, &hfi_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ISO_8859_1|ENC_NA);
 
 }
 
