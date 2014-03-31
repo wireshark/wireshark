@@ -576,6 +576,7 @@ static int hf_dnp3_ctl_fcv = -1;
 static int hf_dnp3_ctl_dfc = -1;
 static int hf_dnp3_dst = -1;
 static int hf_dnp3_src = -1;
+static int hf_dnp3_addr = -1;
 static int hf_dnp_hdr_CRC = -1;
 static int hf_dnp_hdr_CRC_bad = -1;
 static int hf_dnp3_tr_ctl = -1;
@@ -817,7 +818,6 @@ static const value_string dnp3_al_func_vals[] = {
 };
 static value_string_ext dnp3_al_func_vals_ext = VALUE_STRING_EXT_INIT(dnp3_al_func_vals);
 
-#if 0
 /* Application Layer Internal Indication (IIN) bit Values */
 static const value_string dnp3_al_iin_vals[] = {
   { AL_IIN_BMSG,    "Broadcast message Rx'd" },
@@ -836,7 +836,6 @@ static const value_string dnp3_al_iin_vals[] = {
   { AL_IIN_CC,      "Device Configuration Corrupt" },
   { 0, NULL }
 };
-#endif
 
 /* Application Layer Object Qualifier Index Values When Qualifier Code != 11 */
 static const value_string dnp3_al_objq_index_vals[] = {
@@ -1959,6 +1958,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
           /* Bit-based Data objects here */
           case AL_OBJ_BI_1BIT:    /* Single-Bit Binary Input (Obj:01, Var:01) */
           case AL_OBJ_BO:         /* Binary Output (Obj:10, Var:01) */
+          case AL_OBJ_IIN:        /* Internal Indications - IIN (Obj: 80, Var:01) */
 
             /* Reset bit index if we've gone onto the next byte */
             if (bitindex > 7)
@@ -1971,7 +1971,21 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             al_bi_val = tvb_get_guint8(tvb, offset);
             al_bit = (al_bi_val & (1 << bitindex)) > 0;
 
-            proto_item_append_text(point_item, ", Value: %u", al_bit);
+            if (al_obj == AL_OBJ_IIN) {
+              /* For an IIN bit, work out the IIN constant value for the bit position to get the name of the bit */
+              guint16 iin_bit = 0;
+              if (al_ptaddr < 8) {
+                iin_bit = 0x100 << al_ptaddr;
+              }
+              else {
+                iin_bit = 1 << (al_ptaddr - 8);
+              }
+              proto_item_append_text(point_item, " (%s), Value: %u",
+                                     val_to_str_const(iin_bit, dnp3_al_iin_vals, "Invalid IIN bit"), al_bit);
+            }
+            else {
+              proto_item_append_text(point_item, ", Value: %u", al_bit);
+            }
             proto_tree_add_boolean(point_tree, hf_dnp3_al_bit, tvb, offset, 1, al_bit);
             proto_item_set_len(point_item, indexbytes + 1);
 
@@ -2757,18 +2771,6 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
             offset = data_pos;
             break;
 
-          case AL_OBJ_IIN:        /* Internal Indications - IIN (Obj: 80, Var:01) */
-
-            /* Process IIN bit object as per standard Response message */
-            dnp3_al_process_iin(tvb, pinfo, offset, object_tree);
-
-            offset += 2;
-
-            /* skip over the rest of the items */
-            item_num = 15;
-
-            break;
-
           case AL_OBJ_OCT:      /* Octet string */
           case AL_OBJ_OCT_EVT:  /* Octet string event */
 
@@ -3078,7 +3080,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static int
 dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  proto_item  *ti, *tdl, *tc;
+  proto_item  *ti, *tdl, *tc, *hidden_item;
   proto_tree  *dnp3_tree, *dl_tree, *field_tree;
   int          offset = 0, temp_offset = 0;
   gboolean     dl_prm;
@@ -3180,8 +3182,12 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
   /* add destination and source addresses */
   proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  hidden_item = proto_tree_add_item(dl_tree, hf_dnp3_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   offset += 2;
   proto_tree_add_item(dl_tree, hf_dnp3_src, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  hidden_item = proto_tree_add_item(dl_tree, hf_dnp3_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  PROTO_ITEM_SET_HIDDEN(hidden_item);
   offset += 2;
 
   /* and header CRC */
@@ -3192,7 +3198,6 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                                dl_crc, "0x%04x [correct]", dl_crc);
   else
   {
-    proto_item *hidden_item;
     hidden_item = proto_tree_add_boolean(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
                                          offset, 2, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -3556,6 +3561,12 @@ proto_register_dnp3(void)
       { "Source", "dnp3.src",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         "Source Address", HFILL }
+    },
+
+    { &hf_dnp3_addr,
+      { "Address", "dnp3.addr",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Source or Destination Address", HFILL }
     },
 
     { &hf_dnp_hdr_CRC,
