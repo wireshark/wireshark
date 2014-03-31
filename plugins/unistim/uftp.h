@@ -3,8 +3,6 @@
   * definitions for uftp commands and messages
   * Copyright 2007 Chad Singer <csinger@cypresscom.net>
   *
-  * $Id$
-  *
   * Wireshark - Network traffic analyzer
   * By Gerald Combs <gerald@wireshark.org>
   * Copyright 1998 Gerald Combs
