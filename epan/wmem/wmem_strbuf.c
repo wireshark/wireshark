@@ -101,7 +101,7 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
     return strbuf;
 }
 
-static void
+static inline void
 wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 {
     gsize  new_alloc_len, new_len;
