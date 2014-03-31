@@ -53,7 +53,6 @@ plugin.c
 plugins/mate/mate_parser.c
 version.h
 tools/lemon/lemon
-tools/lemon/lemon
 tools/setuid-root.pl
 tshark-tap-register.c
 wiretap/ascend.c
@@ -176,7 +175,6 @@ wsutil/abi-descriptor.xml
 # Windows Stuff #
 #################
 *.bsc
-*.chm
 *.dsp
 *.dsw
 *.chm
@@ -189,7 +187,6 @@ wsutil/abi-descriptor.xml
 !adns_dll.rc
 !image/file_dlg_win32.rc
 *.res
-*.manifest
 _libs_check_
 /wireshark-gtk*
 doc/ws.css
