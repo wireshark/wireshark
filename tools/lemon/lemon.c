@@ -25,7 +25,6 @@
 **   http://www.hwaci.com/drh/
 **
 ** Updated to sqlite lemon version 1.59
-** $Id$
 */
 
 #include "config.h"

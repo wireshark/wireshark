@@ -1,6 +1,4 @@
 /******************************************************************************
-** $Id$
-**
 ** Copyright (C) 2006-2007 ascolab GmbH. All Rights Reserved.
 ** Web: http://www.ascolab.com
 **
