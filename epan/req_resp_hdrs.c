@@ -159,7 +159,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				/*
 				 * Check if we've found Content-Length.
 				 */
-				line = tvb_get_string(wmem_packet_scope(), tvb, next_offset_sav, linelen);
+				line = tvb_get_string_enc(wmem_packet_scope(), tvb, next_offset_sav, linelen, ENC_UTF_8|ENC_NA);
 				if (g_ascii_strncasecmp(line, "Content-Length:", 15) == 0) {
 					/* XXX - what if it doesn't fit in an int?
 					   (Do not "fix" that by making this
