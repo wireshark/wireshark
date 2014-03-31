@@ -256,6 +256,39 @@ static header_field_info hfi_png_bkgd_blue PNG_HFI_INIT = {
     "Blue", "png.bkgd.blue", FT_UINT16, BASE_HEX,
     NULL, 0, NULL, HFILL };
 
+static header_field_info hfi_png_chrm_white_x PNG_HFI_INIT = {
+    "White X", "png.chrm.white.x", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_white_y PNG_HFI_INIT = {
+    "White Y", "png.chrm.white.y", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_red_x PNG_HFI_INIT = {
+    "Red X", "png.chrm.red.x", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_red_y PNG_HFI_INIT = {
+    "Red Y", "png.chrm.red.y", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_green_x PNG_HFI_INIT = {
+    "Green X", "png.chrm.green.x", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_green_y PNG_HFI_INIT = {
+    "Green Y", "png.chrm.green.y", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_blue_x PNG_HFI_INIT = {
+    "Blue X", "png.chrm.blue.x", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+static header_field_info hfi_png_chrm_blue_y PNG_HFI_INIT = {
+    "Blue Y", "png.chrm.blue.y", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
+
+
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
 
@@ -339,6 +372,51 @@ dissect_png_bkgd(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     }
 }
 
+static void
+dissect_png_chrm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    float  wx, wy, rx, ry, gx, gy, bx, by;
+    gint   offset = 0;
+
+    wx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_white_x,
+            tvb, offset, 4, wx, "%f", wx);
+    offset += 4;
+
+    wy = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_white_y,
+            tvb, offset, 4, wy, "%f", wy);
+    offset += 4;
+
+    rx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_red_x,
+            tvb, offset, 4, rx, "%f", rx);
+    offset += 4;
+
+    ry = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_red_y,
+            tvb, offset, 4, ry, "%f", ry);
+    offset += 4;
+
+    gx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_green_x,
+            tvb, offset, 4, gx, "%f", gx);
+    offset += 4;
+
+    gy = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_green_y,
+            tvb, offset, 4, gy, "%f", gy);
+    offset += 4;
+
+    bx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_blue_x,
+            tvb, offset, 4, bx, "%f", bx);
+    offset += 4;
+
+    by = tvb_get_ntohl(tvb, offset) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_chrm_blue_y,
+            tvb, offset, 4, by, "%f", by);
+}
 
 static gint
 dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
@@ -405,6 +483,9 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
             case CHUNK_TYPE_bKGD:
                 dissect_png_bkgd(chunk_tvb, pinfo, chunk_tree);
                 break;
+            case CHUNK_TYPE_cHRM:
+                dissect_png_chrm(chunk_tvb, pinfo, chunk_tree);
+                break;
             case CHUNK_TYPE_pHYs:
                 dissect_png_phys(chunk_tvb, pinfo, chunk_tree);
                 break;
@@ -470,6 +551,14 @@ proto_register_png(void)
         &hfi_png_bkgd_red,
         &hfi_png_bkgd_green,
         &hfi_png_bkgd_blue,
+        &hfi_png_chrm_white_x,
+        &hfi_png_chrm_white_y,
+        &hfi_png_chrm_red_x,
+        &hfi_png_chrm_red_y,
+        &hfi_png_chrm_green_x,
+        &hfi_png_chrm_green_y,
+        &hfi_png_chrm_blue_x,
+        &hfi_png_chrm_blue_y
     };
 #endif
 
