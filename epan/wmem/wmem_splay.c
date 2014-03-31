@@ -182,59 +182,59 @@ wmem_splay_pred_succ(wmem_splay_t *tree, const void *key,
     }
 }
 
-#define TRAVERSE(CUR, NXT)           \
-do {                                 \
-    if ((*CUR) == NULL) {            \
-        return (CUR);                \
-    }                                \
-    cmp = COMPARE(key, (*CUR)->key); \
-    if (cmp == 0) {                  \
-        return (CUR);                \
-    }                                \
-    else if (cmp < 0) {              \
-        (NXT) = &((*CUR)->left);     \
-    }                                \
-    else {                           \
-        (NXT) = &((*CUR)->right);    \
-    }                                \
+#define TRAVERSE(CUR, NXT, KEY)        \
+do {                                   \
+    if ((*CUR) == NULL) {              \
+        return (CUR);                  \
+    }                                  \
+    cmp = COMPARE((KEY), (*CUR)->key); \
+    if (cmp == 0) {                    \
+        return (CUR);                  \
+    }                                  \
+    else if (cmp < 0) {                \
+        (NXT) = &((*CUR)->left);       \
+    }                                  \
+    else {                             \
+        (NXT) = &((*CUR)->right);      \
+    }                                  \
 } while (0)
 
-#define ZIGZIG(CHILD)                \
-do {                                 \
-    tmp = *p;                        \
-    *p = tmp->CHILD;                 \
-    tmp->CHILD = *gp;                \
-    *gp = tmp;                       \
-    cmp = COMPARE(key, (*cur)->key); \
-    if (cmp == 0) {                  \
-        return cur;                  \
-    }                                \
-    else if (cmp < 0) {              \
-        gp = &((*cur)->left);        \
-    }                                \
-    else {                           \
-        gp = &((*cur)->right);       \
-    }                                \
+#define ZIGZIG(CHILD, KEY)             \
+do {                                   \
+    tmp = *p;                          \
+    *p = tmp->CHILD;                   \
+    tmp->CHILD = *gp;                  \
+    *gp = tmp;                         \
+    cmp = COMPARE((KEY), (*cur)->key); \
+    if (cmp == 0) {                    \
+        return cur;                    \
+    }                                  \
+    else if (cmp < 0) {                \
+        gp = &((*cur)->left);          \
+    }                                  \
+    else {                             \
+        gp = &((*cur)->right);         \
+    }                                  \
 } while (0)
 
-#define ZIGZAG(LEFT, RIGHT)       \
-do {                              \
-    tmp = *cur;                   \
-    *cur = tmp->LEFT;             \
-    tmp->LEFT = *p;               \
-    *p = tmp->RIGHT;              \
-    tmp->RIGHT = *gp;             \
-    *gp = tmp;                    \
-    cmp = COMPARE(key, tmp->key); \
-    if (cmp == 0) {               \
-        return gp;                \
-    }                             \
-    else if (cmp < 0) {           \
-        gp = &(tmp->left->right); \
-    }                             \
-    else {                        \
-        gp = &(tmp->right->left); \
-    }                             \
+#define ZIGZAG(LEFT, RIGHT, KEY)    \
+do {                                \
+    tmp = *cur;                     \
+    *cur = tmp->LEFT;               \
+    tmp->LEFT = *p;                 \
+    *p = tmp->RIGHT;                \
+    tmp->RIGHT = *gp;               \
+    *gp = tmp;                      \
+    cmp = COMPARE((KEY), tmp->key); \
+    if (cmp == 0) {                 \
+        return gp;                  \
+    }                               \
+    else if (cmp < 0) {             \
+        gp = &(tmp->left->right);   \
+    }                               \
+    else {                          \
+        gp = &(tmp->right->left);   \
+    }                               \
 } while (0)
 
 static wmem_splay_node_t **
@@ -246,8 +246,8 @@ wmem_splay_splay(wmem_splay_t *tree, const void *key)
     gp = &(tree->root);
 
     while (TRUE) {
-        TRAVERSE(gp, p);
-        TRAVERSE(p,  cur);
+        TRAVERSE(gp, p,   key);
+        TRAVERSE(p,  cur, key);
 
         if ((*cur) == NULL) {
             return cur;
@@ -255,18 +255,18 @@ wmem_splay_splay(wmem_splay_t *tree, const void *key)
 
         if (p == &((*gp)->left)) {
             if (cur == &((*p)->left)) {
-                ZIGZIG(right);
+                ZIGZIG(right, key);
             }
             else {
-                ZIGZAG(left, right);
+                ZIGZAG(left, right, key);
             }
         }
         else {
             if (cur == &((*p)->right)) {
-                ZIGZIG(left);
+                ZIGZIG(left, key);
             }
             else {
-                ZIGZAG(right, left);
+                ZIGZAG(right, left, key);
             }
         }
     }

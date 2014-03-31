@@ -52,18 +52,21 @@ extern "C" {
 struct _wmem_splay_t;
 typedef struct _wmem_splay_t wmem_splay_t;
 
-/* like strcmp: 0 means a==b,
- * >0 means a>b
- * <0 means a<b
+/** A wmem_compare_func compares two keys in a tree, and must return:
+ *     0 if a==b
+ *    >0 if a>b
+ *    <0 if a<b
+ * It must be able to compare any two keys, and must form a total order on the
+ * space of keys (https://en.wikipedia.org/wiki/Total_order). For example, the
+ * builtin strcmp() function satisfies these requirements.
  */
 typedef int (*wmem_compare_func)(const void *a, const void *b);
 
 /** Creates a tree with the given allocator scope. When the scope is emptied,
  * the tree is fully destroyed. The given comparison function is used to compare
- * keys; it must provide a coherent ordering on the key-space for the tree to
- * work sensibly. It is permitted to pass NULL for the comparison function, in
- * which case the key pointer values will be compared directly (cast to
- * integers). */
+ * keys. It is permitted to pass NULL for the comparison function, in which case
+ * the key pointer values will be compared directly (cast to signed integers).
+ */
 WS_DLL_PUBLIC
 wmem_splay_t *
 wmem_splay_new(wmem_allocator_t *allocator, wmem_compare_func cmp)
@@ -112,6 +115,11 @@ wmem_splay_lookup_le(wmem_splay_t *tree, const void *key);
  * Value is a pointer to the structure you want to be able to retrieve by
  * searching for the same key later.
  *
+ * Unlike the old wmem_tree/emem_tree, inserting does *not* take a copy of
+ * whatever key is pointed to, it simply stores a pointer. As such, inserted
+ * keys cannot be on the stack and must instead last as long as the tree itself
+ * (keys used during lookups are not stored, and can be on the stack).
+ *
  * NOTE: If you insert a node to a key that already exists in the tree this
  * function will simply overwrite the old value. If the structures you are
  * storing are allocated in a wmem pool this is not a problem as they will still
@@ -129,6 +137,9 @@ WS_DLL_PUBLIC
 gboolean
 wmem_splay_foreach(wmem_splay_t* tree, wmem_foreach_func callback,
         void *user_data);
+
+/**   @}
+ *  @} */
 
 #ifdef __cplusplus
 }
