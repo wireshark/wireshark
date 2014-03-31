@@ -441,7 +441,7 @@ check_fragments( int idx, tcp_stream_chunk *sc, guint32 acknowledged ) {
         lowest_seq = current->seq;
       }
 
-      if( current->seq < seq[idx] ) {
+      if( LT_SEQ(current->seq, seq[idx]) ) {
         guint32 newseq;
         /* this sequence number seems dated, but
            check the end to make sure it has no more
