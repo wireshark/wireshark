@@ -1,5 +1,4 @@
-/* $Id$
- *
+/*
  * Routines for wimaxmacphy (WiMAX MAX SHY over Ethernet) packet dissection
  * Copyright 2008, Mobile Metrics - http://mobilemetrics.net/
  *

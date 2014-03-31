@@ -2,8 +2,6 @@
  ** wimaxasncp_dict.h
  ** WIMAXASNCP Dictionary Import Routines
  **
- ** $Id$
- **
  ** (c) 2007, Stephen Croll <stephen.d.croll@gmail.com>
  **
  ** This library is free software; you can redistribute it and/or

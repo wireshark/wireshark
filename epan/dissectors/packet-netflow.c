@@ -1,8 +1,6 @@
 /*
  ** packet-netflow.c
  **
- ** $Id$
- **
  ** (c) 2002 bill fumerola <fumerola@yahoo-inc.com>
  ** (C) 2005-06 Luca Deri <deri@ntop.org>
  **

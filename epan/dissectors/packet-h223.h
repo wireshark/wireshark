@@ -1,5 +1,4 @@
-/* $Id$
- *
+/*
  * Routines for H.223 packet dissection
  * 2004 Richard van der Hoff <richardv@mxtelecom.com>
  *
