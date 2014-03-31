@@ -1,8 +1,6 @@
 /* config.h.  Generated from config.h.in by configure.  */
 /* config.h.in.  Generated from configure.in by autoheader.  */
 
-/* $Id$ */
-
 /* poll doesn't work on devices */
 #define BROKEN_POLL 1
 

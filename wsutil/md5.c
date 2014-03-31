@@ -1,4 +1,3 @@
-/* $Id$ */
 /*
  * Copyright (C) 2003-2006 Benny Prijono <benny@prijono.org>
  * Copyright (C) 2012      C Elston, Katalix Systems Ltd <celston@katalix.com>

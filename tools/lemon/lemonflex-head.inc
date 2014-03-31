@@ -1,4 +1,3 @@
-/* $Id$ */
 
 /* This file is #include'd at the top of a Lex/Flex scanner
 for use with the Lemon parser. You must have #define'd:
