@@ -31,6 +31,13 @@ Versions affected: 1.10.0 to 1.10.6, 1.8.0 to 1.8.13
 The following bugs have been fixed:
 
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+* SIP/SDP: disabled second media stream disables all media streams (ws-buglink:9835[])
+* Lua: trying to get/access a Preference before its registered causes a segfault (ws-buglink:9853[])
+* RTP not decoded inside the conversation in v.1.10.1 (ws-buglink:9021[])
+* Buildbot crash output: fuzz-2014-03-14-15333.pcap (ws-buglink:9885[])
+* Fix crash when calling "MAP Summary" dialog when no file is open (ws-buglink:9934[])
+* Tighten the NO_MORE_DATA_CHECK macros (ws-buglink:9932[])
+* fix comparing a sequence number of TCP fragment when its value wraps over uint32_t limit (ws-buglink:9936[])
 
 === New and Updated Features
 
@@ -44,7 +51,19 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-.
+ANSI A
+DVB-CI
+GSM DTAP
+GSM MAP
+IEEE 802.11
+LCSAP
+LTE RRC
+MAC LTE
+Prism
+RTP
+SIP
+SDP
+TCP
 
 --sort-and-group--
 
