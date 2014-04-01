@@ -23,6 +23,8 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -80,6 +82,11 @@ static guint num_encaps = 0;
 static uat_t* encaps_uat;
 static dissector_handle_t data_handle;
 
+/*
+ * Use this for DLT_USER2 if we don't have an encapsulation for it.
+ */
+static user_encap_t user2_encap;
+
 static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     user_encap_t* encap = NULL;
     tvbuff_t* payload_tvb;
@@ -95,6 +102,14 @@ static void dissect_user(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
     }
 
     item = proto_tree_add_item(tree,proto_user_encap,tvb,0,-1,ENC_NA);
+    if (!encap && pinfo->match_uint == WTAP_ENCAP_USER2) {
+        /*
+         * Special-case DLT_USER2 - Apple hijacked it for use as DLT_PKTAP.
+         * The user hasn't assigned anything to it, so default it to
+         * the PKTAP dissector.
+         */
+        encap = &user2_encap;
+    }
     if (!encap) {
         char* msg = wmem_strdup_printf(wmem_packet_scope(),
                                      "User encapsulation not handled: DLT=%d, "
@@ -191,6 +206,16 @@ void proto_reg_handoff_user_encap(void)
 
     user_encap_handle = find_dissector("user_dlt");
     data_handle = find_dissector("data");
+
+    user2_encap.encap = WTAP_ENCAP_USER2;
+    user2_encap.payload_proto_name = g_strdup("pktap");
+    user2_encap.payload_proto = find_dissector("pktap");
+    user2_encap.header_proto_name = g_strdup("");
+    user2_encap.header_proto = NULL;
+    user2_encap.trailer_proto_name = g_strdup("");
+    user2_encap.trailer_proto = NULL;
+    user2_encap.header_size = 0;
+    user2_encap.trailer_size = 0;
 
     for (i = WTAP_ENCAP_USER0 ; i <= WTAP_ENCAP_USER15; i++)
         dissector_add_uint("wtap_encap", i, user_encap_handle);

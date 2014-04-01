@@ -250,6 +250,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-pkixproxy.c
 	dissectors/packet-pkixqualified.c
 	dissectors/packet-pkixtsp.c
+	dissectors/packet-pktap.c
 	dissectors/packet-q932.c
 	dissectors/packet-q932-ros.c
 	dissectors/packet-qsig.c

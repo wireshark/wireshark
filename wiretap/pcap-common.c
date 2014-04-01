@@ -423,6 +423,10 @@ static const struct {
 	{ 255,		WTAP_ENCAP_BLUETOOTH_BREDR_BB },
 	/* Bluetooth Low Energy Link Layer RF captures */
 	{ 256,		WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR },
+
+	/* Apple PKTAP */
+	{ 258,		WTAP_ENCAP_PKTAP },
+
 	/*
 	 * To repeat:
 	 *

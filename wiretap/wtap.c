@@ -729,6 +729,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_LOGCAT_LONG */
 	{ "logcat_long", "logcat_long" },
+
+	/* WTAP_ENCAP_PKTAP */
+	{ "Apple PKTAP", "pktap" },
 };
 
 WS_DLL_LOCAL
