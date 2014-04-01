@@ -705,6 +705,30 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_NSTRACE_3_0 */
 	{ "NetScaler Encapsulation 3.0 of Ethernet", "nstrace30" },
+
+	/* WTAP_ENCAP_LOGCAT */
+	{ "logcat", "logcat" },
+
+	/* WTAP_ENCAP_LOGCAT_BRIEF */
+	{ "logcat_brief", "logcat_brief" },
+
+	/* WTAP_ENCAP_LOGCAT_PROCESS */
+	{ "logcat_process", "logcat_process" },
+
+	/* WTAP_ENCAP_LOGCAT_TAG */
+	{ "logcat_tag", "logcat_tag" },
+
+	/* WTAP_ENCAP_LOGCAT_THREAD */
+	{ "logcat_thread", "logcat_thread" },
+
+	/* WTAP_ENCAP_LOGCAT_TIME */
+	{ "logcat_time", "logcat_time" },
+
+	/* WTAP_ENCAP_LOGCAT_THREADTIME */
+	{ "logcat_threadtime", "logcat_threadtime" },
+
+	/* WTAP_ENCAP_LOGCAT_LONG */
+	{ "logcat_long", "logcat_long" },
 };
 
 WS_DLL_LOCAL
