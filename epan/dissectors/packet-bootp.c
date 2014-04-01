@@ -1444,7 +1444,7 @@ bootp_handle_basic_types(packet_info *pinfo, proto_tree *tree, proto_item *item,
 
 /* Returns the number of bytes consumed by this option. */
 static int
-bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
+bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, proto_item *bp_item, int voff,
 	     int eoff, gboolean first_pass, gboolean *at_end, const char **dhcp_type_p,
 	     const guint8 **vendor_class_id_p, guint8 *overload_p)
 {
@@ -1731,7 +1731,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				rfc3396_dns_domain_search_list.index_current_block = 0;
 				rfc3396_sip_server.index_current_block = 0;
 				while (o52voff < o52eoff && !o52at_end) {
-					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
+					o52voff += bootp_option(tvb, pinfo, bp_tree, bp_item, o52voff,
 						o52eoff, FALSE, &o52at_end,
 						dhcp_type_p, vendor_class_id_p,
 						overload_p);
@@ -1752,7 +1752,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				rfc3396_dns_domain_search_list.index_current_block = 0;
 				rfc3396_sip_server.index_current_block = 0;
 				while (o52voff < o52eoff && !o52at_end) {
-					o52voff += bootp_option(tvb, pinfo, bp_tree, o52voff,
+					o52voff += bootp_option(tvb, pinfo, bp_tree, bp_item, o52voff,
 						o52eoff, FALSE, &o52at_end,
 						dhcp_type_p, vendor_class_id_p,
 						overload_p);
@@ -1765,6 +1765,16 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			/* The final end option is not in overload */
 			*overload_p = 0;
 		}
+		break;
+
+	case 53:
+		/* Show the message type name on the Message Type option, and in the protocol root */
+		proto_item_append_text(vti, " (%s)", val_to_str(tvb_get_guint8(tvb, voff+2),
+				       opt53_text,
+				       "Unknown Message Type (0x%02x)"));
+		proto_item_append_text(bp_item, " (%s)", val_to_str(tvb_get_guint8(tvb, voff+2),
+				       opt53_text,
+				       "Unknown Message Type (0x%02x)"));
 		break;
 
 	case 55:	/* Parameter Request List */
@@ -5126,7 +5136,7 @@ static void
 dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree   *bp_tree;
-	proto_item   *ti;
+	proto_item   *bp_ti, *ti;
 	proto_tree   *flag_tree;
 	proto_item   *fi, *hidden_item;
 	guint8	      op;
@@ -5197,7 +5207,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rfc3396_dns_domain_search_list.index_current_block = 0;
 	rfc3396_sip_server.index_current_block = 0;
 	while (tmpvoff < eoff && !at_end) {
-		offset_delta = bootp_option(tvb, pinfo, 0, tmpvoff, eoff, TRUE, &at_end,
+		offset_delta = bootp_option(tvb, pinfo, NULL, NULL, tmpvoff, eoff, TRUE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
@@ -5225,8 +5235,8 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * OK, now build the protocol tree.
 	 */
 
-	ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, ENC_NA);
-	bp_tree = proto_item_add_subtree(ti, ett_bootp);
+	bp_ti = proto_tree_add_item(tree, proto_bootp, tvb, 0, -1, ENC_NA);
+	bp_tree = proto_item_add_subtree(bp_ti, ett_bootp);
 
 	proto_tree_add_uint(bp_tree, hf_bootp_type, tvb,
 				   0, 1,
@@ -5346,7 +5356,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	rfc3396_dns_domain_search_list.index_current_block = 0;
 	rfc3396_sip_server.index_current_block = 0;
 	while (voff < eoff && !at_end) {
-		offset_delta = bootp_option(tvb, pinfo, bp_tree, voff, eoff, FALSE, &at_end,
+		offset_delta = bootp_option(tvb, pinfo, bp_tree, bp_ti, voff, eoff, FALSE, &at_end,
 		    &dhcp_type, &vendor_class_id, &overload);
 		if (offset_delta <= 0) {
 			THROW(ReportedBoundsError);
