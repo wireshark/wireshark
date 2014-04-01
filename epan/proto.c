@@ -2790,7 +2790,7 @@ proto_tree_set_string_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint length
 	gchar	*string;
 
 	if (length == -1) {
-		length = tvb_ensure_length_remaining(tvb, start);
+		length = tvb_ensure_captured_length_remaining(tvb, start);
 	}
 
 	string = tvb_get_string_enc(wmem_packet_scope(), tvb, start, length, encoding);
@@ -3590,7 +3590,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 			 * end of the tvbuff, so we throw an
 			 * exception.
 			 */
-			*length = tvb_length_remaining(tvb, start);
+			*length = tvb_captured_length_remaining(tvb, start);
 			if (*length < 0) {
 				/*
 				 * Use "tvb_ensure_bytes_exist()"
@@ -3605,7 +3605,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
-			*length = tvb_ensure_length_remaining(tvb, start);
+			*length = tvb_ensure_captured_length_remaining(tvb, start);
 			DISSECTOR_ASSERT(*length >= 0);
 			break;
 
@@ -3635,7 +3635,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 			 */
 			/* XXX - what to do, if we don't have a tvb? */
 			if (tvb) {
-				length_remaining = tvb_length_remaining(tvb, start);
+				length_remaining = tvb_captured_length_remaining(tvb, start);
 				if (*item_length < 0 ||
 					(*item_length > 0 &&
 					  (length_remaining < *item_length)))
@@ -6921,7 +6921,7 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 			/*
 			 * Don't go past the end of that tvbuff.
 			 */
-			length_remaining = tvb_length_remaining(finfo->ds_tvb, finfo->start);
+			length_remaining = tvb_captured_length_remaining(finfo->ds_tvb, finfo->start);
 			if (length > length_remaining)
 				length = length_remaining;
 			if (length <= 0)
@@ -7652,8 +7652,8 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 
 	str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
-	strcat(str, " = ");
-	strcat(str, hf_field->name);
+	g_strlcat(str, " = ", 256+64);
+	g_strlcat(str, hf_field->name, 256+64);
 
 	/*
 	 * This function does not receive an actual value but a dimensionless pointer to that value.
