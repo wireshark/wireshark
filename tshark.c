@@ -1477,7 +1477,7 @@ main(int argc, char *argv[])
         /* already processed; just ignore it now */
         break;
     case 'S':        /* Set the line Separator to be printed between packets */
-      separator = strdup(optarg);
+      separator = optarg;
       break;
     case 't':        /* Time stamp type */
       if (strcmp(optarg, "r") == 0)
@@ -2515,7 +2515,7 @@ capture(void)
 
       if (ret == -1)
       {
-        perror("select()");
+        fprintf(stderr, "%s: %s\n", "select()", g_strerror(errno));
         return TRUE;
       } else if (ret == 1) {
 #endif
@@ -2813,7 +2813,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
   }
 #ifdef USE_BROKEN_G_MAIN_LOOP
   /*g_main_loop_quit(loop);*/
-  g_main_quit(loop);
+  g_main_loop_quit(loop);
 #else
   loop_running = FALSE;
 #endif
