@@ -1171,6 +1171,8 @@ install-generated-files: doc
 	if exist editcap.pdb xcopy editcap.pdb $(INSTALL_DIR) /d
 	if exist mergecap.exe xcopy mergecap.exe $(INSTALL_DIR) /d
 	if exist mergecap.pdb xcopy mergecap.pdb $(INSTALL_DIR) /d
+	if exist randpkt.exe xcopy randpkt.exe $(INSTALL_DIR) /d
+	if exist randpkt.pdb xcopy randpkt.pdb $(INSTALL_DIR) /d
 	if exist reordercap.exe xcopy reordercap.exe $(INSTALL_DIR) /d
 	if exist reordercap.pdb xcopy reordercap.pdb $(INSTALL_DIR) /d
 	if exist rawshark.exe xcopy rawshark.exe $(INSTALL_DIR) /d
