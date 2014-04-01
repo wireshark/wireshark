@@ -32,7 +32,6 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/etypes.h>
 #include <epan/expert.h>
 
 void proto_register_1722a(void);
@@ -40,11 +39,11 @@ void proto_reg_handoff_1722a(void);
 
 /* 1722a Offsets */
 /* 1722a audio */
-#define IEEE_1722A_CD_OFFSET                            0
-#define IEEE_1722A_VERSION_OFFSET                       1
-#define IEEE_1722A_SEQ_NUM_OFFSET                       2
-#define IEEE_1722A_TU_FIELD_OFFSET                      3
-#define IEEE_1722A_STREAM_ID_OFFSET                     4
+#define IEEE_1722A_CD_OFFSET                             0
+#define IEEE_1722A_VERSION_OFFSET                        1
+#define IEEE_1722A_SEQ_NUM_OFFSET                        2
+#define IEEE_1722A_TU_FIELD_OFFSET                       3
+#define IEEE_1722A_STREAM_ID_OFFSET                      4
 #define IEEE_1722A_TIMESTAMP_OFFSET                     12
 #define IEEE_1722A_FORMAT_INFO_OFFSET                   16
 #define IEEE_1722A_NOM_SAMPLE_RATE_OFFSET               17
@@ -80,11 +79,11 @@ void proto_reg_handoff_1722a(void);
 #define IEEE_1722A_SUBTYPE_AVTP_AUDIO                   0x02
 #define IEEE_1722A_SUBTYPE_CRF                          0x05
 
-#define FORMAT_INFO_USER_SPECIFIED      0
-#define FORMAT_INFO_32FLOAT             1
-#define FORMAT_INFO_32INTEGER           2
-#define FORMAT_INFO_24INTEGER           3
-#define FORMAT_INFO_16INTEGER           4
+#define FORMAT_INFO_USER_SPECIFIED       0
+#define FORMAT_INFO_32FLOAT              1
+#define FORMAT_INFO_32INTEGER            2
+#define FORMAT_INFO_24INTEGER            3
+#define FORMAT_INFO_16INTEGER            4
 
 static const value_string format_info_vals [] = {
     {FORMAT_INFO_USER_SPECIFIED,        "User specified"},
@@ -95,16 +94,16 @@ static const value_string format_info_vals [] = {
     {0,                                 NULL}
 };
 
-#define SAMPLE_RATE_USER_SPECIFIED      0
-#define SAMPLE_RATE_8K                  1
-#define SAMPLE_RATE_16K                 2
-#define SAMPLE_RATE_32K                 3
-#define SAMPLE_RATE_44K1                4
-#define SAMPLE_RATE_48K                 5
-#define SAMPLE_RATE_88K2                6
-#define SAMPLE_RATE_96K                 7
-#define SAMPLE_RATE_176K4               8
-#define SAMPLE_RATE_192K                9
+#define SAMPLE_RATE_USER_SPECIFIED       0
+#define SAMPLE_RATE_8K                   1
+#define SAMPLE_RATE_16K                  2
+#define SAMPLE_RATE_32K                  3
+#define SAMPLE_RATE_44K1                 4
+#define SAMPLE_RATE_48K                  5
+#define SAMPLE_RATE_88K2                 6
+#define SAMPLE_RATE_96K                  7
+#define SAMPLE_RATE_176K4                8
+#define SAMPLE_RATE_192K                 9
 #define SAMPLE_RATE_16RPM               10
 #define SAMPLE_RATE_33RPM3              11
 #define SAMPLE_RATE_33RPM3_REV          12
@@ -222,26 +221,26 @@ static int ett_1722a_audio = -1;
 static int ett_1722a_sample = -1;
 static int ett_1722a_crf_timestamp = -1;
 
-static expert_field ei_sample_width                 = EI_INIT;
-static expert_field ei_channels_per_frame           = EI_INIT;
-static expert_field ei_unknown_parameter            = EI_INIT;
-static expert_field ei_format_info                  = EI_INIT;
-static expert_field ei_clock_reference_type         = EI_INIT;
+static expert_field ei_sample_width         = EI_INIT;
+static expert_field ei_channels_per_frame   = EI_INIT;
+static expert_field ei_unknown_parameter    = EI_INIT;
+static expert_field ei_format_info          = EI_INIT;
+static expert_field ei_clock_reference_type = EI_INIT;
 
 
 static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_item *ti = NULL;
-    proto_tree *ieee1722a_tree = NULL;
-    proto_tree *audio_tree = NULL;
-    proto_tree *sample_tree = NULL;
-    proto_tree *timestamp_tree = NULL;
-    gint offset = 0;
-    guint16 datalen = 0;
-    guint16 channels_per_frame = 0;
-    guint8 subtype = 0;
-    gint sample_width = 0;
-    int i, j;
+    proto_item *ti                 = NULL;
+    proto_tree *ieee1722a_tree     = NULL;
+    proto_tree *audio_tree         = NULL;
+    proto_tree *sample_tree        = NULL;
+    proto_tree *timestamp_tree     = NULL;
+    gint        offset             = 0;
+    guint16     datalen            = 0;
+    guint16     channels_per_frame = 0;
+    guint8      subtype            = 0;
+    gint        sample_width       = 0;
+    int         i, j;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE1722a");
 
@@ -257,69 +256,71 @@ static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     subtype = tvb_get_guint8(tvb, IEEE_1722A_CD_OFFSET);
     subtype &= IEEE_1722A_SUBTYPE_MASK;
 
-    if (tree)
+    switch (subtype)
     {
-        switch (subtype)
+    case IEEE_1722A_SUBTYPE_AVTP_AUDIO:
+        if (tree)
         {
-        case IEEE_1722A_SUBTYPE_AVTP_AUDIO:
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_mrfield, tvb, IEEE_1722A_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_tvfield, tvb, IEEE_1722A_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_seqnum, tvb,  IEEE_1722A_SEQ_NUM_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_tufield, tvb, IEEE_1722A_TU_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_id, tvb, IEEE_1722A_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_avbtp_timestamp, tvb, IEEE_1722A_TIMESTAMP_OFFSET, 4, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_format_info, tvb, IEEE_1722A_FORMAT_INFO_OFFSET, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_mrfield,         tvb, IEEE_1722A_VERSION_OFFSET,     1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_tvfield,         tvb, IEEE_1722A_VERSION_OFFSET,     1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_seqnum,          tvb, IEEE_1722A_SEQ_NUM_OFFSET,     1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_tufield,         tvb, IEEE_1722A_TU_FIELD_OFFSET,    1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_id,       tvb, IEEE_1722A_STREAM_ID_OFFSET,   8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_avbtp_timestamp, tvb, IEEE_1722A_TIMESTAMP_OFFSET,   4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_format_info,     tvb, IEEE_1722A_FORMAT_INFO_OFFSET, 1, ENC_BIG_ENDIAN);
 
-            switch (tvb_get_guint8(tvb, IEEE_1722A_FORMAT_INFO_OFFSET))
-            {
-            case 0:
-                break;
-            case 1:
-                sample_width = 32;
-                break;
-            case 2:
-                sample_width = 32;
-                break;
-            case 3:
-                sample_width = 24;
-                break;
-            case 4:
-                sample_width = 16;
-                break;
-            default:
-                expert_add_info(pinfo, ti, &ei_format_info);
-                break;
-            }
-
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_nominal_sample_rate, tvb, IEEE_1722A_NOM_SAMPLE_RATE_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_channels_per_frame, tvb, IEEE_1722A_CHANNELS_PER_FRAME_OFFSET, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_bit_depth, tvb, IEEE_1722A_BIT_DEPTH_OFFSET, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_nominal_sample_rate, tvb, IEEE_1722A_NOM_SAMPLE_RATE_OFFSET,        1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_channels_per_frame,  tvb, IEEE_1722A_CHANNELS_PER_FRAME_OFFSET,     2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_bit_depth,           tvb, IEEE_1722A_BIT_DEPTH_OFFSET,              1, ENC_BIG_ENDIAN);
             ti = proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_data_length, tvb, IEEE_1722A_STREAM_DATA_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(ti, " bytes");
             proto_tree_add_item(ieee1722a_tree, hf_1722a_sparse_timestamp, tvb, IEEE_1722A_SPARSE_TIMESTAMP_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_evtfield, tvb, IEEE_1722A_EVT_OFFSET, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ieee1722a_tree, hf_1722a_evtfield,         tvb, IEEE_1722A_EVT_OFFSET,              1, ENC_BIG_ENDIAN);
+        }
+        /* Make the Audio sample tree. */
+        datalen    = tvb_get_ntohs(tvb, IEEE_1722A_STREAM_DATA_LENGTH_OFFSET); /* Length of audio data in bytes */
+        ti         = proto_tree_add_item(ieee1722a_tree, hf_1722a_data, tvb, IEEE_1722A_DATA_OFFSET, datalen, ENC_NA);
+        audio_tree = proto_item_add_subtree(ti, ett_1722a_audio);
 
-            /* Make the Audio sample tree. */
-            datalen = tvb_get_ntohs(tvb, IEEE_1722A_STREAM_DATA_LENGTH_OFFSET); /* Length of audio data in bytes */
-            ti = proto_tree_add_item(ieee1722a_tree, hf_1722a_data, tvb, IEEE_1722A_DATA_OFFSET, datalen, ENC_NA);
-            audio_tree = proto_item_add_subtree(ti, ett_1722a_audio);
+        /* Need to get the offset of where the audio data starts */
+        offset              = IEEE_1722A_DATA_OFFSET;
+        channels_per_frame  = tvb_get_ntohs(tvb, IEEE_1722A_CHANNELS_PER_FRAME_OFFSET);
+        channels_per_frame &= IEEE_1722A_CHANNEL_PER_FRAME_MASK;
 
-            /* Need to get the offset of where the audio data starts */
-            offset = IEEE_1722A_DATA_OFFSET;
-            channels_per_frame = tvb_get_ntohs(tvb, IEEE_1722A_CHANNELS_PER_FRAME_OFFSET);
-            channels_per_frame &= IEEE_1722A_CHANNEL_PER_FRAME_MASK;
+        switch (tvb_get_guint8(tvb, IEEE_1722A_FORMAT_INFO_OFFSET))
+        {
+        case 0:
+            break;
+        case 1:
+            sample_width = 32;
+            break;
+        case 2:
+            sample_width = 32;
+            break;
+        case 3:
+            sample_width = 24;
+            break;
+        case 4:
+            sample_width = 16;
+            break;
+        default:
+            expert_add_info(pinfo, ti, &ei_format_info);
+            break;
+        }
 
-            if (sample_width == 0)
+        if (sample_width == 0)
+        {
+            expert_add_info(pinfo, ti, &ei_sample_width);
+        }
+        else
+        {
+            if (channels_per_frame == 0)
             {
-                expert_add_info(pinfo, ti, &ei_sample_width);
+                expert_add_info(pinfo, ti, &ei_channels_per_frame);
             }
             else
             {
-                if (channels_per_frame == 0)
-                {
-                    expert_add_info(pinfo, ti, &ei_channels_per_frame);
-                }
-                else
+                if (tree)
                 {
                     /* Loop through all samples and add them to the audio tree. */
                     for (j = 0; j < ((datalen * 8) / (channels_per_frame * sample_width)); j++)
@@ -335,23 +336,26 @@ static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                 }
             }
-            break;
-        case IEEE_1722A_SUBTYPE_CRF:
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_mrfield, tvb, IEEE_1722A_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_tvfield, tvb, IEEE_1722A_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_seqnum, tvb,  IEEE_1722A_SEQ_NUM_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_tufield, tvb, IEEE_1722A_TU_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_id, tvb, IEEE_1722A_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
-            ti = proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_data_length, tvb, IEEE_1722A_STREAM_DATA_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
-            proto_item_append_text(ti, " bytes");
-            proto_tree_add_item(ieee1722a_tree, hf_1722a_crf_type, tvb, IEEE_1722A_CRF_TYPE_OFFSET, 2, ENC_BIG_ENDIAN);
+        }
+        break;
+    case IEEE_1722A_SUBTYPE_CRF:
+        proto_tree_add_item(ieee1722a_tree, hf_1722a_mrfield,   tvb, IEEE_1722A_VERSION_OFFSET,   1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ieee1722a_tree, hf_1722a_tvfield,   tvb, IEEE_1722A_VERSION_OFFSET,   1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ieee1722a_tree, hf_1722a_seqnum,    tvb, IEEE_1722A_SEQ_NUM_OFFSET,   1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ieee1722a_tree, hf_1722a_tufield,   tvb, IEEE_1722A_TU_FIELD_OFFSET,  1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_id, tvb, IEEE_1722A_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(ieee1722a_tree, hf_1722a_stream_data_length, tvb, IEEE_1722A_STREAM_DATA_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti, " bytes");
+        proto_tree_add_item(ieee1722a_tree, hf_1722a_crf_type,  tvb, IEEE_1722A_CRF_TYPE_OFFSET,  2, ENC_BIG_ENDIAN);
 
-            switch (tvb_get_ntohs(tvb, IEEE_1722A_CRF_TYPE_OFFSET))
+        switch (tvb_get_ntohs(tvb, IEEE_1722A_CRF_TYPE_OFFSET))
+        {
+        /* Audio Timestamp Case */
+        case IEEE_1722A_CRF_AUDIO_SAMPLE_TIMESTAMP:
+            if (tree)
             {
-            /* Audio Timestamp Case */
-            case IEEE_1722A_CRF_AUDIO_SAMPLE_TIMESTAMP:
-                proto_tree_add_item(ieee1722a_tree, hf_1722a_clock_frequency, tvb, IEEE_1722A_CRF_CLOCK_FREQUENCY_OFFSET, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(ieee1722a_tree, hf_1722a_clock_multiplier, tvb, IEEE_1722A_CRF_CLOCK_MULTIPLIER_OFFSET, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ieee1722a_tree, hf_1722a_clock_frequency,    tvb, IEEE_1722A_CRF_CLOCK_FREQUENCY_OFFSET,    1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ieee1722a_tree, hf_1722a_clock_multiplier,   tvb, IEEE_1722A_CRF_CLOCK_MULTIPLIER_OFFSET,   1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(ieee1722a_tree, hf_1722a_timestamp_interval, tvb, IEEE_1722A_CRF_TIMESTAMP_INTERVAL_OFFSET, 2, ENC_BIG_ENDIAN);
                 /* Make the Timestamp tree. */
                 datalen = tvb_get_ntohs(tvb, IEEE_1722A_STREAM_DATA_LENGTH_OFFSET);
@@ -365,17 +369,18 @@ static void dissect_1722a (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(timestamp_tree, hf_1722a_crf_timestamp_data, tvb, offset, IEEE_1722A_CRF_TIMESTAMP_SIZE, ENC_NA);
                     offset += IEEE_1722A_CRF_TIMESTAMP_SIZE;
                 }
-                break;
-            default:
-                expert_add_info(pinfo, ti, &ei_clock_reference_type);
-                break;
             }
             break;
         default:
-        /* This dissector only registers for subtype 0x02 (AVTP Audio Format) and 0x05 (Clock Reference Format)
-           which will be handled above. So we won`t enter the default path. */
+            expert_add_info(pinfo, ti, &ei_clock_reference_type);
             break;
         }
+        break;
+    default:
+        /* This dissector only registers for subtype 0x02 (AVTP Audio Format) and 0x05 (Clock Reference Format)
+           which will be handled above. So we won`t enter the default path. */
+        DISSECTOR_ASSERT_NOT_REACHED();
+        break;
     }
 }
 
@@ -491,8 +496,8 @@ void proto_register_1722a (void)
     /* Register the protocol name and description */
     proto_1722a = proto_register_protocol(
         "IEEE 1722a Protocol", /* name */
-        "1722A", /* short name */
-        "1722a" /* abbrev */
+        "1722A",               /* short name */
+        "1722a"                /* abbrev */
         );
 
     /* Required function calls to register the header fields and subtrees used */
@@ -509,7 +514,7 @@ void proto_reg_handoff_1722a(void)
 
     avb1722a_handle = create_dissector_handle(dissect_1722a, proto_1722a);
     dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_AVTP_AUDIO, avb1722a_handle);
-    dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_CRF, avb1722a_handle);
+    dissector_add_uint("ieee1722.subtype", IEEE_1722A_SUBTYPE_CRF,        avb1722a_handle);
 }
 
 /*
@@ -517,10 +522,10 @@ void proto_reg_handoff_1722a(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
