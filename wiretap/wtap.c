@@ -697,38 +697,38 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
 	{ "Bluetooth Linux Monitor", "bluetooth-linux-monitor" },
 
-        /* WTAP_ENCAP_BLUETOOTH_BREDR_BB */
-        { "Bluetooth BR/EDR Baseband RF", "bluetooth-bredr-bb-rf" },
+	/* WTAP_ENCAP_BLUETOOTH_BREDR_BB */
+	{ "Bluetooth BR/EDR Baseband RF", "bluetooth-bredr-bb-rf" },
 
-        /* WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR */
-        { "Bluetooth Low Energy Link Layer RF", "bluetooth-le-ll-rf" },
+	/* WTAP_ENCAP_BLUETOOTH_LE_LL_WITH_PHDR */
+	{ "Bluetooth Low Energy Link Layer RF", "bluetooth-le-ll-rf" },
 
 	/* WTAP_ENCAP_NSTRACE_3_0 */
 	{ "NetScaler Encapsulation 3.0 of Ethernet", "nstrace30" },
 
 	/* WTAP_ENCAP_LOGCAT */
-	{ "logcat", "logcat" },
+	{ "Android Logcat Binary format", "logcat" },
 
 	/* WTAP_ENCAP_LOGCAT_BRIEF */
-	{ "logcat_brief", "logcat_brief" },
+	{ "Android Logcat Brief text format", "logcat_brief" },
 
 	/* WTAP_ENCAP_LOGCAT_PROCESS */
-	{ "logcat_process", "logcat_process" },
+	{ "Android Logcat Process text format", "logcat_process" },
 
 	/* WTAP_ENCAP_LOGCAT_TAG */
-	{ "logcat_tag", "logcat_tag" },
+	{ "Android Logcat Tag text format", "logcat_tag" },
 
 	/* WTAP_ENCAP_LOGCAT_THREAD */
-	{ "logcat_thread", "logcat_thread" },
+	{ "Android Logcat Thread text format", "logcat_thread" },
 
 	/* WTAP_ENCAP_LOGCAT_TIME */
-	{ "logcat_time", "logcat_time" },
+	{ "Android Logcat Time text format", "logcat_time" },
 
 	/* WTAP_ENCAP_LOGCAT_THREADTIME */
-	{ "logcat_threadtime", "logcat_threadtime" },
+	{ "Android Logcat Threadtime text format", "logcat_threadtime" },
 
 	/* WTAP_ENCAP_LOGCAT_LONG */
-	{ "logcat_long", "logcat_long" },
+	{ "Android Logcat Long text format", "logcat_long" },
 
 	/* WTAP_ENCAP_PKTAP */
 	{ "Apple PKTAP", "pktap" },
