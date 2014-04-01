@@ -157,7 +157,7 @@ validate_offset(const tvbuff_t *tvb, const guint abs_offset)
 		return ReportedBoundsError;
 }
 
-static int
+static inline int
 compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 {
 	if (offset >= 0) {
@@ -188,7 +188,7 @@ compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
 	return 0;
 }
 
-static int
+static inline int
 compute_offset_and_remaining(const tvbuff_t *tvb, const gint offset, guint *offset_ptr, guint *rem_len)
 {
 	int exception;
@@ -213,7 +213,7 @@ compute_offset_and_remaining(const tvbuff_t *tvb, const gint offset, guint *offs
  * left for the next protocol - we want the next protocol to be the one
  * that gets an exception, so the error is reported as an error in that
  * protocol rather than the containing protocol.  */
-static int
+static inline int
 check_offset_length_no_exception(const tvbuff_t *tvb,
 				 const gint offset, gint const length_val,
 				 guint *offset_ptr, guint *length_ptr)
@@ -257,7 +257,7 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 /* Checks (+/-) offset and length and throws an exception if
  * either is out of bounds. Sets integer ptrs to the new offset
  * and length. */
-static void
+static inline void
 check_offset_length(const tvbuff_t *tvb,
 		    const gint offset, gint const length_val,
 		    guint *offset_ptr, guint *length_ptr)
@@ -617,7 +617,7 @@ tvb_offset_from_real_beginning(const tvbuff_t *tvb)
 	return tvb_offset_from_real_beginning_counter(tvb, 0);
 }
 
-static const guint8*
+static inline const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length, int *pexception)
 {
 	guint abs_offset, abs_length;
@@ -644,7 +644,7 @@ ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint leng
 	return NULL;
 }
 
-static const guint8*
+static inline const guint8*
 ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	int           exception = 0;
@@ -658,7 +658,7 @@ ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length)
 	return p;
 }
 
-static const guint8*
+static inline const guint8*
 fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 {
 	guint end_offset;
@@ -692,7 +692,7 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 	return NULL;
 }
 
-static const guint8*
+static inline const guint8*
 guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, guchar *found_needle)
 {
 	gchar         tmp[256] = { 0 };
@@ -1505,7 +1505,7 @@ tvb_find_guint8(tvbuff_t *tvb, const gint offset, const gint maxlength, const gu
 	return tvb_find_guint8_generic(tvb, offset, limit, needle);
 }
 
-static gint
+static inline gint
 tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const guint8 *needles, guchar *found_needle)
 {
 	const guint8 *ptr;
