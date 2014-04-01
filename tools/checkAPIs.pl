@@ -1621,7 +1621,8 @@ sub check_proto_tree_add_XXX_encoding($$)
                 # Remove anything inside parenthesis in the arguments so we
                 # don't get false positives when someone calls
                 # proto_tree_add_XXX(..., tvb_YYY(..., ENC_ZZZ))
-                $args =~ s/\(.*\)//g;
+                # and allow there to be newlines inside
+                $args =~ s/\(.*\)//sg;
 
                 if ($args =~ /,\s*ENC_/xos) {
                         if (!($func =~ /proto_tree_add_(item|bitmask|bits_item|bits_ret_val)/xos)
