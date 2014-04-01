@@ -27,8 +27,6 @@
 #include <epan/prefs.h>
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
-#include <epan/reassemble.h>
-
 
 void proto_register_pdc(void);
 void proto_reg_handoff_pdc(void);
@@ -48,7 +46,7 @@ void proto_reg_handoff_pdc(void);
 #define AKMPDU	8
 
 /*Variable length Parameter Codes*/
-#define PARAM_CODE_VERSION		2
+#define PARAM_CODE_VERSION	2
 #define PARAM_CODE_REFERENCES	3
 #define PARAM_CODE_TRANSPORT	4
 
@@ -57,9 +55,10 @@ void proto_reg_handoff_pdc(void);
 #define FRAME_HEADER_LEN 8
 
 /* global handle for calling asterix decoder if required */
-static 			dissector_handle_t asterix_handle;
-static int 		proto_pdc = -1;
-static guint	gPREF_PORT_NUM_TCP = 0;
+static dissector_handle_t asterix_handle;
+
+static int		  proto_pdc	     = -1;
+static guint		  gPREF_PORT_NUM_TCP = 0;
 
 /*HF Declarations*/
 static gint hf_pdc_len = -1;
@@ -91,66 +90,66 @@ static gint ett_pdc_simpdu_var = -1;
 
 /*Value String Declarations*/
 static const value_string valstr_simpdu_state[] = {
-		{ 1, "Operational" },
-		{ 2, "Standby" },
-		{ 3, "Master" },
-		{ 4, "Slave" },
-		{ 5, "Single" },
-		{ 0, NULL }
+	{ 1, "Operational" },
+	{ 2, "Standby" },
+	{ 3, "Master" },
+	{ 4, "Slave" },
+	{ 5, "Single" },
+	{ 0, NULL }
 };
 
 static const value_string valstr_simpdu_param[] = {
-		{ 2, "Version Number" },
-		{ 3, "References" },
-		{ 4, "Transport Selector" },
-		{ 0, NULL }
+	{ 2, "Version Number" },
+	{ 3, "References" },
+	{ 4, "Transport Selector" },
+	{ 0, NULL }
 };
 
 static const value_string valstr_mpdus[] = {
-		{ 1, "State Information" },
-		{ 2, "Request State" },
-		{ 3, "Disconnect Request" },
-		{ 4, "Data" },
-		{ 5, "Acknowledged Data" },
-		{ 6, "Expedited Data" },
-		{ 8, "Data Acknowledgement" },
-		{ 0, NULL }
+	{ 1, "State Information" },
+	{ 2, "Request State" },
+	{ 3, "Disconnect Request" },
+	{ 4, "Data" },
+	{ 5, "Acknowledged Data" },
+	{ 6, "Expedited Data" },
+	{ 8, "Data Acknowledgement" },
+	{ 0, NULL }
 };
 
 static const value_string valstr_drmpdu_abort[] = {
-		{ 0, "Orderly Release" },
-		{ 1, "Abortive Release" },
-		{ 0, NULL }
+	{ 0, "Orderly Release" },
+	{ 1, "Abortive Release" },
+	{ 0, NULL }
 };
 
 static const value_string valstr_drmpdu_mode[] = {
-		{ 0, "Node Shutdown" },
-		{ 7, "PDC Release"},
-		{ 0, NULL }
+	{ 0, "Node Shutdown" },
+	{ 7, "PDC Release"},
+	{ 0, NULL }
 };
 
 static const value_string valstr_drmpdu_initatior[] = {
-		{ 0, "Server" },
-		{ 15, "Client"},
-		{ 0, NULL }
+	{ 0, "Server" },
+	{ 15, "Client"},
+	{ 0, NULL }
 };
 
 static const value_string valstr_drmpdu_reason[] = {
-		{ 0, "Reason Not Specified" },
-		{ 1, "Normal Disconnect Initiated by the MS-User" },
-		{ 2, "Protocol Error" },
-		{ 3, "Connection Request Refused" },
-		{ 4, "The Remote Operational MS Entity Does Not Respond" },
-		{ 5, "The Protocol Version Is Not Supported" },
-		{ 6, "Mismatched References" },
-		{ 0, NULL }
+	{ 0, "Reason Not Specified" },
+	{ 1, "Normal Disconnect Initiated by the MS-User" },
+	{ 2, "Protocol Error" },
+	{ 3, "Connection Request Refused" },
+	{ 4, "The Remote Operational MS Entity Does Not Respond" },
+	{ 5, "The Protocol Version Is Not Supported" },
+	{ 6, "Mismatched References" },
+	{ 0, NULL }
 };
 
 /* start of functions here */
 static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint8 lenIndicator)
 {
-	guint16 bytesProcessed;
-	guint8 paramCode;
+	guint16	    bytesProcessed;
+	guint8	    paramCode;
 	proto_item *simpduItem;
 	proto_tree *simpduVarTree;
 	proto_tree *simpduVarTree1;
@@ -159,46 +158,46 @@ static int dissect_simpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, guint
 
 	/*Add the Credit allocation*/
 	proto_tree_add_item(tree, hf_pdc_credit, tvb, offset, 1, ENC_BIG_ENDIAN);
-	bytesProcessed++;
+	bytesProcessed += 1;
 
 	/*Add the State*/
 	proto_tree_add_item(tree, hf_pdc_simpdu_state, tvb, offset + bytesProcessed , 1, ENC_BIG_ENDIAN);
-	bytesProcessed++;
+	bytesProcessed += 1;
 
 	/*Add the YR-ADMU-NR*/
 	proto_tree_add_item(tree, hf_pdc_yr_admu_nr, tvb, offset + bytesProcessed , 4, ENC_BIG_ENDIAN);
 	bytesProcessed += 4;
 
-	/*Determine whats in the variable part*/
-	if(lenIndicator > 7)
+	/*Determine what's in the variable part*/
+	if (lenIndicator > 7)
 	{
 		/*Add the Variable Length Tree*/
 		simpduItem = proto_tree_add_item (tree, hf_pdc_simpdu_var, tvb, offset + bytesProcessed, lenIndicator - 7, ENC_NA);
 		simpduVarTree = proto_item_add_subtree (simpduItem, ett_pdc_simpdu_var);
 
-		while((offset + bytesProcessed) < ( lenIndicator + 1 ))
+		while ((offset + bytesProcessed) < ( lenIndicator + 1 ))
 		{
 			/*Get the parameter code*/
-			paramCode = tvb_get_guint8(tvb, offset + bytesProcessed);
-			simpduItem = proto_tree_add_item (simpduVarTree, hf_pdc_simpdu_param, tvb, offset + bytesProcessed, 1, ENC_NA);
+			paramCode  = tvb_get_guint8(tvb, offset + bytesProcessed);
+			simpduItem = proto_tree_add_item (simpduVarTree, hf_pdc_simpdu_param, tvb, offset + bytesProcessed,      1, ENC_NA);
 			simpduVarTree1 = proto_item_add_subtree (simpduItem, ett_pdc_simpdu_var);
-			bytesProcessed++;
+			bytesProcessed += 1;
 			switch (paramCode)
 			{
 			case PARAM_CODE_VERSION:
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len, tvb, offset +bytesProcessed, 1, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_version, tvb, offset +bytesProcessed + 1, 1, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len,     tvb, offset + bytesProcessed,     1, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_version, tvb, offset + bytesProcessed + 1, 1, ENC_NA);
 				bytesProcessed += 2;
 				break;
 			case PARAM_CODE_REFERENCES:
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len, tvb, offset +bytesProcessed, 1, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFSRC, tvb, offset +bytesProcessed + 1, 2, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFDEST, tvb, offset +bytesProcessed + 3, 2, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len,     tvb, offset + bytesProcessed,     1, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFSRC,  tvb, offset + bytesProcessed + 1, 2, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_REFDEST, tvb, offset + bytesProcessed + 3, 2, ENC_NA);
 				bytesProcessed += 5;
 				break;
 			case PARAM_CODE_TRANSPORT:
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len, tvb, offset +bytesProcessed, 1, ENC_NA);
-				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_TSEL, tvb, offset +bytesProcessed + 1, 2, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_len,     tvb, offset + bytesProcessed,     1, ENC_NA);
+				proto_tree_add_item(simpduVarTree1, hf_pdc_simpdu_var_TSEL,    tvb, offset + bytesProcessed + 1, 2, ENC_NA);
 				bytesProcessed += 3;
 				break;
 			}
@@ -215,9 +214,9 @@ static int dissect_rsmpdu(void)
 static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 {
 	/*DR-MPDU*/
-	proto_tree_add_item(tree, hf_pdc_drmpdu_abort, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_pdc_drmpdu_mode, tvb, offset, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_pdc_drmpdu_init, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_pdc_drmpdu_abort,  tvb, offset,     1, ENC_NA);
+	proto_tree_add_item(tree, hf_pdc_drmpdu_mode,   tvb, offset,     1, ENC_NA);
+	proto_tree_add_item(tree, hf_pdc_drmpdu_init,   tvb, offset,     1, ENC_NA);
 	proto_tree_add_item(tree, hf_pdc_drmpdu_reason, tvb, offset + 1, 1, ENC_NA);
 
 	return (2);
@@ -225,9 +224,9 @@ static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 
 static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
-	guint16		userDataLen;
-	guint16		returnLen;
-	tvbuff_t	*asterixTVB;
+	guint16	  userDataLen;
+	guint16	  returnLen;
+	tvbuff_t *asterixTVB;
 
 	/*Add the ad*/
 	proto_tree_add_item(tree, hf_pdc_admpdu_admpdunr, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -243,7 +242,7 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		returnLen = userDataLen + 6;
 		asterixTVB = tvb_new_subset(tvb, offset, userDataLen, userDataLen);
 
-		if(asterix_handle != NULL)
+		if (asterix_handle != NULL)
 			call_dissector(asterix_handle, asterixTVB, pinfo, tree);
 
 		return (returnLen);
@@ -253,19 +252,19 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 
 static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
-	guint16		userDataLen;
-	guint16		returnLen;
-	tvbuff_t	*asterixTVB;
+	guint16	  userDataLen;
+	guint16	  returnLen;
+	tvbuff_t *asterixTVB;
 
 	if (PDC_VERSION == 2)
 	{
 		proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* length of user data field */
 		userDataLen = tvb_get_ntohs(tvb, 2);
-		returnLen = userDataLen + 2;
+		returnLen  = userDataLen + 2;
 		asterixTVB = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
 
-		if(asterix_handle != NULL)
+		if (asterix_handle != NULL)
 			call_dissector(asterix_handle, asterixTVB, pinfo, tree);
 
 		return (returnLen);
@@ -275,19 +274,19 @@ static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 
 static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
-	guint16		userDataLen;
-	guint16		returnLen;
-	tvbuff_t	*asterixTVB;
+	guint16	  userDataLen;
+	guint16	  returnLen;
+	tvbuff_t *asterixTVB;
 
 	if (PDC_VERSION == 2)
 	{
 		proto_tree_add_item(tree, hf_pdc_dtmpdu_user_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* length of user data field */
 		userDataLen = tvb_get_ntohs(tvb, 2);
-		returnLen = userDataLen + 2;
-		asterixTVB = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
+		returnLen   = userDataLen + 2;
+		asterixTVB  = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
 
-		if(asterix_handle != NULL)
+		if (asterix_handle != NULL)
 			call_dissector(asterix_handle, asterixTVB, pinfo, tree);
 
 		return (returnLen);
@@ -297,29 +296,27 @@ static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 
 static int dissect_akmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 {
-	proto_tree_add_item(tree, hf_pdc_akmpdu_mns, tvb, offset, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_pdc_akmpdu_cdt, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_pdc_akmpdu_mns, tvb, offset,     2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_pdc_akmpdu_cdt, tvb, offset,     2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_pdc_yr_admu_nr, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
 	return (6);
 }
 
 static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
 {
-	guint i = 0;
-	guint8 len_indicator;
-	guint8 mpduCode;
-	guint16 length;
+	guint	    i = 0;
+	guint8	    len_indicator;
+	guint8	    mpduCode;
+	guint16	    length;
 	proto_item *pdcPacketItem;
 	proto_tree *pdcPacketTree;
 
 	length = 0;
-	pdcPacketItem = NULL;
-	pdcPacketTree = NULL;
 
 	/*Get the length indictor and the MPDU Code*/
-	len_indicator = tvb_get_guint8 (tvb, i);
-	mpduCode = tvb_get_guint8 (tvb, i + 1);
-	length += 2;
+	len_indicator  = tvb_get_guint8 (tvb, i);
+	mpduCode       = tvb_get_guint8 (tvb, i + 1);
+	length	      += 2;
 
 	/*Add the PDC Tree*/
 	pdcPacketItem = proto_tree_add_item (tree, proto_pdc, tvb, i, len_indicator + 1, ENC_NA);
@@ -330,7 +327,7 @@ static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	proto_tree_add_item(pdcPacketTree, hf_pdc_mpdu_code, tvb, i + 1, 1, ENC_BIG_ENDIAN);
 
 	/*Call the correct dissecting function*/
-	switch(mpduCode)
+	switch (mpduCode)
 	{
 	case SIMPDU:
 		length += dissect_simpdu(tvb, pdcPacketTree, length, len_indicator);
@@ -363,114 +360,103 @@ static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 	default:
 		break;
 	};
-	return (length);
+	return (length);  /* XXX: returned length ignored by caller: Remove keeping track of data rocessed ?         */
+			  /*      col_set_str() could then be done separately with 'if (tree)' around the dissection */
 }
 
 /* Actual dissector bits and bytes done here */
-static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+static int dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-
 	/*Set the Column*/
-	col_set_str (pinfo->cinfo, COL_PROTOCOL, PDC_PROCOTOL );
-	col_clear (pinfo->cinfo, COL_INFO);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, PDC_PROCOTOL );
+	col_clear(pinfo->cinfo, COL_INFO);
 
-	if (tree)
-	{ /* we are being asked for details */
-		dissect_pdc_packet(tvb, tree, pinfo);
-	}
+	dissect_pdc_packet(tvb, tree, pinfo);
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 /* function to provide TCP split packet combiner with size of packet */
 static guint get_pdc_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	guint16 size;
-	guint8 extra=0;
-	guint8 mpdu_type=0;
-	mpdu_type=tvb_get_guint8(tvb,offset+1);
+	guint  size;
+	guint  extra;
+	guint8 mpdu_type;
+
+	mpdu_type = tvb_get_guint8(tvb, offset+1);
 	switch (mpdu_type)
 	{
 	case SIMPDU:
-		size=tvb_get_guint8(tvb,offset);
-		extra=1;
+		size  = tvb_get_guint8(tvb, offset);
+		extra = 1;
 		break;
 	case RSMPDU:
-		size=tvb_get_guint8(tvb,offset);
-		extra=1;
+		size  = tvb_get_guint8(tvb, offset);
+		extra = 1;
 		break;
 	case DRMPDU:
-		size=tvb_get_guint8(tvb,offset);
-		extra=1;
+		size  =	tvb_get_guint8(tvb, offset);
+		extra = 1;
 		break;
 	case DTMPDU:
-		size=tvb_get_ntohs(tvb, offset+2);
-		extra=4;
+		size  = tvb_get_ntohs(tvb, offset+2);
+		extra = 4;
 		break;
 	case ADMPDU:
-		size=tvb_get_ntohs(tvb,offset+6);
-		extra=8;
+		size  = tvb_get_ntohs(tvb, offset+6);
+		extra = 8;
 		break;
 	case EDMPDU:
-		size=tvb_get_guint8(tvb,offset);
-		extra=1;
+		size  = tvb_get_guint8(tvb, offset);
+		extra = 1;
 		break;
 	case AKMPDU:
-		size=tvb_get_guint8(tvb,offset)+1;
-		extra=0;
+		size  = tvb_get_guint8(tvb, offset)+1;
+		extra = 0;
 		break;
 	default:
-		size=0;
-		extra=0;
+		size  = 0;
+		extra = 0;
 	}
-	return (guint)(size+extra);
+	return size + extra;
 }
 
 /* top level call to recombine split tcp packets */
 
 static void tcp_dissect_pdc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	guint8 mpdu_type=0;
-	guint8 minimum_bytes=2;
-	mpdu_type=tvb_get_guint8(tvb,1);
+	guint8 mpdu_type;
+	guint8 minimum_bytes;
+
+	mpdu_type = tvb_get_guint8(tvb,1);
 	switch (mpdu_type)
 	{
 	case SIMPDU:
-		minimum_bytes=2;
+		minimum_bytes = 2;
 		break;
 	case RSMPDU:
-		minimum_bytes=2;
+		minimum_bytes = 2;
 		break;
 	case DRMPDU:
-		minimum_bytes=2;
+		minimum_bytes = 2;
 		break;
 	case DTMPDU:
-		minimum_bytes=4;
+		minimum_bytes = 4;
 		break;
 	case ADMPDU:
-		minimum_bytes=8;
+		minimum_bytes = 8;
 		break;
 	case EDMPDU:
-		minimum_bytes=2;
+		minimum_bytes = 2;
 		break;
 	case AKMPDU:
-		minimum_bytes=2;
+		minimum_bytes = 2;
 		break;
 	default:
-		minimum_bytes=2;
+		minimum_bytes = 2;
 		break;
 	}
 	tcp_dissect_pdus(tvb, pinfo, tree, TRUE, minimum_bytes, get_pdc_message_len, dissect_pdc, NULL);
-}
-
-/* function to register pdc dissector and get handle for asterix dissector */
-void proto_reg_handoff_pdc(void)
-{
-	dissector_handle_t pdc_handle;
-
-	asterix_handle = find_dissector("asterix");
-	pdc_handle = create_dissector_handle(tcp_dissect_pdc, proto_pdc);
-	dissector_add_uint("tcp.port", gPREF_PORT_NUM_TCP, pdc_handle);
 }
 
 void proto_register_pdc(void)
@@ -479,51 +465,137 @@ void proto_register_pdc(void)
 
 	static hf_register_info hf[] =
 	{
-			{ &hf_pdc_len,{ "Length Indicator", "pdc.li",FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-			{ &hf_pdc_mpdu_code,{ "MPDU code", "pdc.mpducode", FT_UINT8, BASE_DEC, VALS(valstr_mpdus), 0x0, NULL, HFILL }},
-			{ &hf_pdc_credit,{ "Credit", "pdc.cdt", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-			{ &hf_pdc_yr_admu_nr,{ "YR-ADMU-NR", "pdc.yradmunr", FT_UINT32, BASE_DEC, NULL, 0x0, NULL , HFILL }},
-			{ &hf_pdc_simpdu_state,{ "State", "pdc.state", FT_UINT8, BASE_DEC, VALS(valstr_simpdu_state), 0x0, NULL, HFILL }},
-			{ &hf_pdc_akmpdu_mns,{ "MNS", "pdc.akmpdu.mns", FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL }},
-			{ &hf_pdc_akmpdu_cdt,{ "CDT", "pdc.akmpdu.cdt", FT_UINT16, BASE_DEC, NULL, 0x07FF, NULL, HFILL }},
-			{ &hf_pdc_simpdu_var,{ "Variable Part", "pdc.simpdu.variable", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-			{ &hf_pdc_simpdu_param,{ "Parameter", "pdc.simpdu.param", FT_UINT8, BASE_DEC, VALS(valstr_simpdu_param), 0x0, NULL, HFILL }},
-			{ &hf_pdc_simpdu_var_len, { "Length", "pdc.simpdu.variable.length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-			{ &hf_pdc_simpdu_var_version, { "PDC Version Number", "pdc.simpdu.variable.version", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-			{ &hf_pdc_simpdu_var_REFSRC,{ "Reference Source", "pdc.simpdu.variable.refsrc", FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }},
-			{ &hf_pdc_simpdu_var_REFDEST,{ "Reference Destination", "pdc.simpdu.variable.refdst",FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }},
-			{ &hf_pdc_simpdu_var_TSEL,{ "Transport Selector", "pdc.simpdu.tsel", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-			{ &hf_pdc_drmpdu_abort,{ "Abort", "pdc.drmpdu.abort", FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_abort), 0x80, NULL, HFILL }},
-			{ &hf_pdc_drmpdu_reason,{ "Reason", "pdc.drmpdu.reason", FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_reason), 0x0, NULL, HFILL }},
-			{ &hf_pdc_drmpdu_mode,{ "Mode", "pdc.drmpdu.mode", FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_mode), 0x70, NULL, HFILL }},
-			{ &hf_pdc_drmpdu_init,{ "Reason", "pdc.drmpdu.init", FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_initatior), 0x0F, NULL, HFILL }},
-			{ &hf_pdc_dtmpdu_user_size,{ "User Data Length", "pdc.dtmpdu.usersize", FT_UINT16, BASE_DEC, NULL, 0x0, NULL , HFILL }},
-			{ &hf_pdc_admpdu_admpdunr,{ "AD-MPDU-NR", "pdc.admpdu.admpdunr",FT_UINT32, BASE_DEC, NULL, 0x0, NULL , HFILL }},
-			{ &hf_pdc_admpdu_size,{ "User Data Size", "pdc.admpdu.usersize",FT_UINT16, BASE_DEC, NULL, 0x0, NULL , HFILL }},
+		{ &hf_pdc_len,
+		  { "Length Indicator", "pdc.li",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_mpdu_code,
+		  { "MPDU code", "pdc.mpducode",
+		    FT_UINT8, BASE_DEC, VALS(valstr_mpdus), 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_credit,
+		  { "Credit", "pdc.cdt",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_yr_admu_nr,
+		  { "YR-ADMU-NR", "pdc.yradmunr",
+		    FT_UINT32, BASE_DEC, NULL, 0x0, NULL , HFILL }},
+
+		{ &hf_pdc_simpdu_state,
+		  { "State", "pdc.state",
+		    FT_UINT8, BASE_DEC, VALS(valstr_simpdu_state), 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_akmpdu_mns,
+		  { "MNS", "pdc.akmpdu.mns",
+		    FT_UINT16, BASE_DEC, NULL, 0x8000, NULL, HFILL }},
+
+		{ &hf_pdc_akmpdu_cdt,
+		  { "CDT", "pdc.akmpdu.cdt",
+		    FT_UINT16, BASE_DEC, NULL, 0x07FF, NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_var,
+		  { "Variable Part", "pdc.simpdu.variable",
+		    FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_param,
+		  { "Parameter", "pdc.simpdu.param",
+		    FT_UINT8, BASE_DEC, VALS(valstr_simpdu_param), 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_var_len,
+		  { "Length", "pdc.simpdu.variable.length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_var_version,
+		  { "PDC Version Number", "pdc.simpdu.variable.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_var_REFSRC,
+		  { "Reference Source", "pdc.simpdu.variable.refsrc",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_var_REFDEST,
+		  { "Reference Destination", "pdc.simpdu.variable.refdst",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,NULL, HFILL }},
+
+		{ &hf_pdc_simpdu_var_TSEL,
+		  { "Transport Selector", "pdc.simpdu.tsel",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_drmpdu_abort,
+		  { "Abort", "pdc.drmpdu.abort",
+		    FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_abort), 0x80, NULL, HFILL }},
+
+		{ &hf_pdc_drmpdu_reason,
+		  { "Reason", "pdc.drmpdu.reason",
+		    FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_reason), 0x0, NULL, HFILL }},
+
+		{ &hf_pdc_drmpdu_mode,
+		  { "Mode", "pdc.drmpdu.mode",
+		    FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_mode), 0x70, NULL, HFILL }},
+
+		{ &hf_pdc_drmpdu_init,
+		  { "Reason", "pdc.drmpdu.init",
+		    FT_UINT8, BASE_DEC, VALS(valstr_drmpdu_initatior), 0x0F, NULL, HFILL }},
+
+		{ &hf_pdc_dtmpdu_user_size,
+		  { "User Data Length", "pdc.dtmpdu.usersize",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL , HFILL }},
+
+		{ &hf_pdc_admpdu_admpdunr,
+		  { "AD-MPDU-NR", "pdc.admpdu.admpdunr",
+		    FT_UINT32,  BASE_DEC, NULL, 0x0, NULL , HFILL }},
+
+		{ &hf_pdc_admpdu_size,
+		  { "User Data Size", "pdc.admpdu.usersize",
+		    FT_UINT16, BASE_DEC, NULL, 0x0, NULL , HFILL }},
 	};
 
 	/* Setup protocol subtree array */
 	static gint *ett[] = {
-			&ett_pdc,
-			&ett_pdc_simpdu_var
+		&ett_pdc,
+		&ett_pdc_simpdu_var
 	};
 
 	proto_pdc = proto_register_protocol (
-			"PDC Protocol",	/* name       */
-			"PDC",			/* short name */
-			"pdc"			/* abbrev     */
-	);
+		"PDC Protocol",	/* name       */
+		"PDC",		/* short name */
+		"pdc"		/* abbrev     */
+		);
 
 	/*Required Function Calls to register the header fields and subtrees used*/
 	proto_register_field_array(proto_pdc, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
-	new_register_dissector("pdc", dissect_pdc, proto_pdc);
 
 	/*Register Preferences Module*/
 	pdc_pref_module = prefs_register_protocol(proto_pdc, proto_reg_handoff_pdc);
 
 	/*Register Preferences*/
 	prefs_register_uint_preference(pdc_pref_module, "tcp.port", "PDC Port", "PDC Port if other then the default", 10, &gPREF_PORT_NUM_TCP);
+}
+
+/* Function to add pdc dissector to tcp.port dissector table and to get handle for asterix dissector */
+void proto_reg_handoff_pdc(void)
+{
+	static dissector_handle_t pdc_tcp_handle;
+	static int		  pdc_tcp_port;
+	static gboolean		  initialized = FALSE;
+
+	if (! initialized)
+	{
+		asterix_handle = find_dissector("asterix");
+		pdc_tcp_handle = create_dissector_handle(tcp_dissect_pdc, proto_pdc);
+		dissector_add_handle("tcp.port", pdc_tcp_handle); /* for "decode-as" */
+		initialized    = TRUE;
+	}
+	else
+	{
+		if (pdc_tcp_port != 0)
+			dissector_delete_uint("tcp.port", pdc_tcp_port, pdc_tcp_handle);
+	}
+
+	pdc_tcp_port = gPREF_PORT_NUM_TCP;
+	if (pdc_tcp_port != 0)
+		dissector_add_uint("tcp.port", pdc_tcp_port, pdc_tcp_handle);
 }
 
 /*
