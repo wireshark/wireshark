@@ -41,6 +41,11 @@
 #include <epan/addr_resolv.h>
 
 #include "packet-sdp.h"
+
+/* un-comment the following as well as this line in conversation.c, to enable debug printing */
+/* #define DEBUG_CONVERSATION */
+#include "conversation_debug.h"
+
 #include "packet-rtp.h"
 
 #include "packet-rtcp.h"
@@ -51,10 +56,6 @@
 #include "packet-h245.h"
 #include "packet-h264.h"
 #include "packet-mp4ves.h"
-
-/* un-comment the following as well as this line in conversation.c, to enable debug printing */
-/* #define DEBUG_CONVERSATION */
-#include "conversation_debug.h"
 
 void proto_register_sdp(void);
 void proto_reg_handoff_sdp(void);
@@ -208,7 +209,7 @@ static expert_field ei_sdp_invalid_line = EI_INIT;
 typedef struct {
     gint32 pt[SDP_MAX_RTP_PAYLOAD_TYPES];
     gint8 pt_count;
-    GHashTable *rtp_dyn_payload;
+    rtp_dyn_payload_t *rtp_dyn_payload;
     gboolean set_rtp;
 } transport_media_pt_t;
 
@@ -254,24 +255,6 @@ typedef struct {
 
 /* here lie the debugging dumper functions */
 #ifdef DEBUG_CONVERSATION
-/* Called for each entry in the rtp_dyn_payload hash table. */
-static void
-rtp_dyn_payload_table_foreach_func (gpointer key, gpointer value, gpointer user_data _U_) {
-    gint* pt = (gint*) key;
-    encoding_name_and_rate_t *encoding = (encoding_name_and_rate_t*) value;
-
-    DPRINT2(("pt=%d",*pt));
-    DINDENT();
-        if (encoding) {
-            DPRINT2(("encoding_name=%s",
-                    encoding->encoding_name ? encoding->encoding_name : "NULL"));
-            DPRINT2(("sample_rate=%d", encoding->sample_rate));
-        } else {
-            DPRINT2(("encoding=NULL"));
-        }
-    DENDENT();
-}
-
 static void sdp_dump_transport_media(const transport_media_pt_t* media) {
     int i;
     int count;
@@ -291,14 +274,7 @@ static void sdp_dump_transport_media(const transport_media_pt_t* media) {
         DENDENT();
         DPRINT2(("rtp_dyn_payload hashtable=%s", media->rtp_dyn_payload ? "YES" : "NO"));
         if (media->rtp_dyn_payload) {
-            DPRINT2(("rtp_dyn_payload hash table contents:"));
-            DINDENT();
-                if (g_hash_table_size(media->rtp_dyn_payload) == 0) {
-                    DPRINT2(("rtp_dyn_payload is empty"));
-                } else {
-                    g_hash_table_foreach(media->rtp_dyn_payload, rtp_dyn_payload_table_foreach_func, NULL);
-                }
-            DENDENT();
+            rtp_dump_dyn_payload(media->rtp_dyn_payload);
         }
         DPRINT2(("set_rtp=%s", media->set_rtp ? "TRUE" : "FALSE"));
     DENDENT();
@@ -1289,7 +1265,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     /*??guint8 *field_name;*/
     guint8     *payload_type;
     guint8     *attribute_value;
-    gint       *key;
     guint8      pt;
     gint        sdp_media_attrbute_code;
     const char *msrp_res           = "msrp://";
@@ -1297,7 +1272,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     gboolean    has_more_pars      = TRUE;
     tvbuff_t   *h245_tvb;
     guint8      master_key_length  = 0, master_salt_length = 0;
-    encoding_name_and_rate_t *encoding_name_and_rate;
 
     offset = 0;
 
@@ -1364,9 +1338,6 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
                 return;   /* Invalid */
             }
 
-            key  = wmem_new(wmem_file_scope(), gint);
-            *key = (gint)strtol((char*)payload_type, NULL, 10);
-
             transport_info->encoding_name[pt] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
             next_offset =  next_offset + 1;
@@ -1399,30 +1370,17 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
              */
             if (transport_info->media_count < 0) {
                 for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
-                    encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
-                    encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), transport_info->encoding_name[pt]);
-                    encoding_name_and_rate->sample_rate = transport_info->sample_rate[pt];
-                    if (n == 0) {
-                        g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                                            key, encoding_name_and_rate);
-                    } else {    /* we create a new key and encoding_name to assign to the other hash tables */
-                        gint *key2;
-                        key2  = wmem_new(wmem_file_scope(), gint);
-                        *key2 = (gint)strtol((char*)payload_type, NULL, 10);
-                        g_hash_table_insert(transport_info->media[n].rtp_dyn_payload,
-                                            key2, encoding_name_and_rate);
-                    }
+                    rtp_dyn_payload_insert(transport_info->media[n].rtp_dyn_payload,
+                                           pt,
+                                           transport_info->encoding_name[pt],
+                                           transport_info->sample_rate[pt]);
                 }
                 return;
                 /* if the "a=" is after an "m=", only apply to this "m=" */
-            } else
-                /* in case there is an overflow in SDP_MAX_RTP_CHANNELS, we keep always the last "m=" */
-                encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+            }
 
-            encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), transport_info->encoding_name[pt]);
-            encoding_name_and_rate->sample_rate   = transport_info->sample_rate[pt];
-            g_hash_table_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
-                                  key, encoding_name_and_rate);
+            rtp_dyn_payload_insert(transport_info->media[ transport_info->media_count ].rtp_dyn_payload,
+                                  pt, transport_info->encoding_name[pt], transport_info->sample_rate[pt]);
             break;
         case SDP_FMTP:
             if (sdp_media_attribute_tree) {
@@ -1917,8 +1875,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             transport_info->encoding_name[n] = (char*)UNKNOWN_ENCODING;
         }
         for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
-            transport_info->media[n].rtp_dyn_payload =
-                g_hash_table_new(g_int_hash, g_int_equal);
+            transport_info->media[n].rtp_dyn_payload = rtp_dyn_payload_new();
             transport_info->media[n].set_rtp = FALSE;
         }
 
@@ -1955,7 +1912,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         (transport_info->sdp_status == SDP_EXCHANGE_OFFER)) {
         for (n = start_transport_info_count; n < SDP_MAX_RTP_CHANNELS; n++) {
             if (!transport_info->media[n].rtp_dyn_payload)
-                transport_info->media[n].rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
+                transport_info->media[n].rtp_dyn_payload = rtp_dyn_payload_new();
         }
     }
 
@@ -2160,10 +2117,10 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             /* Free the hash table if we did't assigned it to a conv use it */
             if (!transport_info->media[n].set_rtp)
             {
-                DPRINT(("set_rtp is not set, calling rtp_free_hash_dyn_payload, "
+                DPRINT(("set_rtp is not set, calling rtp_dyn_payload_free, "
                         "channel=%d, media_port=%d",
                         n, transport_info->media_port[n]));
-                rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+                rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
                 transport_info->media[n].rtp_dyn_payload = NULL;
             }
 
@@ -2176,10 +2133,10 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             {
                 if (!transport_info->media[n].set_rtp)
                 {
-                    DPRINT(("media_count == -1, calling rtp_free_hash_dyn_payload, "
+                    DPRINT(("media_count == -1, calling rtp_dyn_payload_free, "
                             "channel=%d, media_port=%d",
                             n, transport_info->media_port[n]));
-                    rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+                    rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
                     transport_info->media[n].rtp_dyn_payload = NULL;
                 }
             }
@@ -2190,10 +2147,10 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
             {
                 if (!transport_info->media[n].set_rtp)
                 {
-                    DPRINT(("media_count != -1, calling rtp_free_hash_dyn_payload, "
+                    DPRINT(("media_count != -1, calling rtp_dyn_payload_free, "
                             "channel=%d, media_port=%d",
                             n, transport_info->media_port[n]));
-                    rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+                    rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
                     transport_info->media[n].rtp_dyn_payload = NULL;
                 }
             }
@@ -2208,7 +2165,7 @@ setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type ex
         {
             if (!transport_info->media[n].set_rtp)
             {
-                rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+                rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
                 transport_info->media[n].rtp_dyn_payload = NULL;
             }
         }
@@ -2281,8 +2238,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         local_transport_info.encoding_name[n] = (char*)UNKNOWN_ENCODING;
     }
     for (n = 0; n < SDP_MAX_RTP_CHANNELS; n++) {
-        local_transport_info.media[n].rtp_dyn_payload =
-            g_hash_table_new(g_int_hash, g_int_equal);
+        local_transport_info.media[n].rtp_dyn_payload = rtp_dyn_payload_new();
         local_transport_info.media[n].set_rtp = FALSE;
     }
 
@@ -2559,14 +2515,13 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         i, local_transport_info.media[n].pt[i]));
                 /* if the payload type is dynamic (96 to 127), check the hash table to add the desc in the SDP summary */
                 if ((local_transport_info.media[n].pt[i] >= 96) && (local_transport_info.media[n].pt[i] <= 127)) {
-                    encoding_name_and_rate_t *encoding_name_and_rate_pt =
-                        (encoding_name_and_rate_t *)g_hash_table_lookup(
+                    const gchar *payload_type_str = rtp_dyn_payload_get_name(
                         local_transport_info.media[n].rtp_dyn_payload,
-                        &local_transport_info.media[n].pt[i]);
-                    if (encoding_name_and_rate_pt) {
+                        local_transport_info.media[n].pt[i]);
+                    if (payload_type_str) {
                         if (strlen(sdp_pi->summary_str))
                             g_strlcat(sdp_pi->summary_str, " ", 50);
-                        g_strlcat(sdp_pi->summary_str, encoding_name_and_rate_pt->encoding_name, 50);
+                        g_strlcat(sdp_pi->summary_str, payload_type_str, 50);
                     } else {
                         char num_pt[10];
                         g_snprintf(num_pt, 10, "%u", local_transport_info.media[n].pt[i]);
@@ -2589,7 +2544,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if ((transport_info == &local_transport_info) &&
             !transport_info->media[n].set_rtp)
         {
-            rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+            rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
             transport_info->media[n].rtp_dyn_payload = NULL;
         }
 
@@ -2611,7 +2566,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
             if (!transport_info->media[n].set_rtp)
             {
-                rtp_free_hash_dyn_payload(transport_info->media[n].rtp_dyn_payload);
+                rtp_dyn_payload_free(transport_info->media[n].rtp_dyn_payload);
                 transport_info->media[n].rtp_dyn_payload = NULL;
             }
         }

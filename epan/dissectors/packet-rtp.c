@@ -102,6 +102,17 @@ typedef struct  _rtp_private_conv_info {
     wmem_tree_t *multisegment_pdus;
 } rtp_private_conv_info;
 
+typedef struct {
+    char *encoding_name;
+    int   sample_rate;
+} encoding_name_and_rate_t;
+
+struct _rtp_dyn_payload_t
+{
+    GHashTable *table;
+    size_t ref_count;
+};
+
 static reassembly_table rtp_reassembly_table;
 
 static int hf_rtp_fragments = -1;
@@ -809,11 +820,11 @@ static const value_string srtp_auth_alg_vals[] =
 #ifdef DEBUG_CONVERSATION
 /* Called for each entry in the rtp_dyn_payload hash table. */
 static void
-rtp_dyn_payload_table_foreach_func (gpointer key, gpointer value, gpointer user_data _U_) {
-    gint* pt = (gint*) key;
+rtp_dyn_payload_table_foreach_func(gpointer key, gpointer value, gpointer user_data _U_) {
+    guint pt = GPOINTER_TO_UINT(key);
     encoding_name_and_rate_t *encoding = (encoding_name_and_rate_t*) value;
 
-    DPRINT2(("pt=%d",*pt));
+    DPRINT2(("pt=%d",pt));
     if (encoding) {
         DPRINT2(("encoding_name=%s",
                 encoding->encoding_name ? encoding->encoding_name : "NULL"));
@@ -822,19 +833,27 @@ rtp_dyn_payload_table_foreach_func (gpointer key, gpointer value, gpointer user_
         DPRINT2(("encoding=NULL"));
     }
 }
-static void rtp_dump_dyn_payload(GHashTable *rtp_dyn_payload) {
+
+void
+rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload) {
     DPRINT2(("rtp_dyn_payload hash table contents:"));
     DINDENT();
-    if (!rtp_dyn_payload) {
-        DPRINT2(("null rtp_dyn_payload"));
-        DENDENT();
-        return;
-    }
-    if (g_hash_table_size(rtp_dyn_payload) == 0) {
-        DPRINT2(("rtp_dyn_payload is empty"));
-    } else {
-        g_hash_table_foreach(rtp_dyn_payload, rtp_dyn_payload_table_foreach_func, NULL);
-    }
+        if (!rtp_dyn_payload) {
+            DPRINT2(("null pointer to rtp_dyn_payload"));
+            DENDENT();
+            return;
+        }
+        DPRINT2(("ref_count=%" G_GSIZE_FORMAT, rtp_dyn_payload->ref_count));
+        if (!rtp_dyn_payload->table) {
+            DPRINT2(("null rtp_dyn_payload table"));
+            DENDENT();
+            return;
+        }
+        if (g_hash_table_size(rtp_dyn_payload->table) == 0) {
+            DPRINT2(("rtp_dyn_payload has no entries"));
+        } else {
+            g_hash_table_foreach(rtp_dyn_payload->table, rtp_dyn_payload_table_foreach_func, NULL);
+        }
     DENDENT();
 }
 #endif /* DEBUG_CONVERSATION */
@@ -847,14 +866,225 @@ rtp_fragment_init(void)
                   &addresses_reassembly_table_functions);
 }
 
-void
-rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload)
+/* A single hash table to hold pointers to all the rtp_dyn_payload_t's we create/destroy.
+   This is necessary because we need to g_hash_table_destroy() them, either individually or
+   all at once at the end of the wmem file scope. Since rtp_dyn_payload_free() removes them
+   individually, we need to remove those then; and when the file scope is over, we have a
+   single registered callback walk this GHashTable and destroy each member as well as this
+   GHashTable.
+ */
+static GHashTable *rtp_dyn_payloads = NULL;
+
+/* the following is the GDestroyNotify function used when the individual rtp_dyn_payload_t
+   GHashTables are destroyed */
+static void
+rtp_dyn_payload_value_destroy(gpointer data)
 {
-    if (rtp_dyn_payload == NULL) return;
-    g_hash_table_destroy(rtp_dyn_payload);
-    rtp_dyn_payload = NULL;
+    encoding_name_and_rate_t *encoding_name_and_rate_pt = (encoding_name_and_rate_t*) data;
+    wmem_free(wmem_file_scope(), encoding_name_and_rate_pt->encoding_name);
+    wmem_free(wmem_file_scope(), encoding_name_and_rate_pt);
 }
 
+/* this gets called by wmem_rtp_dyn_payload_destroy_cb */
+static gboolean
+rtp_dyn_payloads_table_steal_func(gpointer key _U_, gpointer value, gpointer user_data _U_)
+{
+    rtp_dyn_payload_t *rtp_dyn_payload = (rtp_dyn_payload_t *)value;
+
+#ifdef DEBUG_CONVERSATION
+    DPRINT(("about to steal_all and destroy the following:"));
+    DINDENT();
+    rtp_dump_dyn_payload(rtp_dyn_payload);
+    DENDENT();
+#endif
+
+    if (rtp_dyn_payload->ref_count == 0) {
+        /* this shouldn't happen */
+        g_error("rtp_dyn_payload cannot be free'd because it should already have been!\n");
+    }
+    else if (rtp_dyn_payload->table) {
+        /* each member was created with a wmem file scope, so there's no point in calling the
+           destroy functions for the GHashTable entries, so we steal them instead */
+        g_hash_table_steal_all(rtp_dyn_payload->table);
+        g_hash_table_destroy(rtp_dyn_payload->table);
+    }
+
+    return TRUE;
+}
+
+/* the following is used as the wmem callback to destroy *all* alive rtp_dyn_payload_t's,
+   which are pointed to by the single rtp_dyn_payloads GHashTable above.
+ */
+static gboolean
+wmem_rtp_dyn_payload_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
+        void *user_data _U_)
+{
+    g_assert(rtp_dyn_payloads);
+
+    DPRINT(("destroying %u remaining rtp_dyn_payload_t's", g_hash_table_size(rtp_dyn_payloads)));
+
+    /* each member was created with a wmem file scope, so there's no point in calling the
+       destroy functions for the GHashTable entries, so we steal them instead */
+    g_hash_table_foreach_steal(rtp_dyn_payloads, rtp_dyn_payloads_table_steal_func, NULL);
+    g_hash_table_destroy(rtp_dyn_payloads);
+    rtp_dyn_payloads = NULL;
+
+    /* remove this callback? */
+    return FALSE;
+}
+
+/* the following initializes the single GHashTable - this is invoked as an init_routine,
+   but those are called both at init and cleanup times, and the cleanup time is before
+   wmem scope is exited, so we ignore this if rtp_dyn_payloads is not NULL.
+ */
+static void
+rtp_dyn_payloads_init(void)
+{
+    if (rtp_dyn_payloads == NULL) {
+        rtp_dyn_payloads = g_hash_table_new(NULL, NULL);
+        wmem_register_callback(wmem_file_scope(), wmem_rtp_dyn_payload_destroy_cb, NULL);
+    }
+}
+
+/* creates a new hashtable and sets ref_count to 1, returning the newly created object */
+rtp_dyn_payload_t* rtp_dyn_payload_new(void)
+{
+    /* create the new entry */
+    rtp_dyn_payload_t * rtp_dyn_payload = wmem_new(wmem_file_scope(), rtp_dyn_payload_t);
+    rtp_dyn_payload->table = g_hash_table_new_full(NULL, NULL, NULL, rtp_dyn_payload_value_destroy);
+    rtp_dyn_payload->ref_count = 1;
+
+    /* now put it in our single rtp_dyn_payloads GHashTable */
+    g_hash_table_insert(rtp_dyn_payloads, rtp_dyn_payload, rtp_dyn_payload);
+
+    return rtp_dyn_payload;
+}
+
+static rtp_dyn_payload_t*
+rtp_dyn_payload_ref(rtp_dyn_payload_t *rtp_dyn_payload)
+{
+    if (rtp_dyn_payload) {
+        rtp_dyn_payload->ref_count++;
+    }
+    return rtp_dyn_payload;
+}
+
+/* Inserts the given payload type key, for the encoding name and sample rate, into the hash table.
+   This makes copies of the encoding name, scoped to the life of the capture file or sooner if
+   rtp_dyn_payload_free is called. */
+void
+rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
+                       const guint8 pt,
+                       const gchar* encoding_name,
+                       const int sample_rate)
+{
+    if (rtp_dyn_payload && rtp_dyn_payload->table) {
+        encoding_name_and_rate_t *encoding_name_and_rate_pt =
+                    wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+        encoding_name_and_rate_pt->encoding_name = wmem_strdup(wmem_file_scope(), encoding_name);
+        encoding_name_and_rate_pt->sample_rate = sample_rate;
+        g_hash_table_insert(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
+    }
+}
+
+/* Replaces the given payload type key in the hash table, with the encoding name and sample rate.
+   This makes copies of the encoding name, scoped to the life of the capture file or sooner if
+   rtp_dyn_payload_free is called. */
+void
+rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
+                        const guint8 pt,
+                        const gchar* encoding_name,
+                        const int sample_rate)
+{
+    if (rtp_dyn_payload && rtp_dyn_payload->table) {
+        encoding_name_and_rate_t *encoding_name_and_rate_pt =
+                    wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
+        encoding_name_and_rate_pt->encoding_name = wmem_strdup(wmem_file_scope(), encoding_name);
+        encoding_name_and_rate_pt->sample_rate = sample_rate;
+        g_hash_table_replace(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
+    }
+}
+
+/* removes the given payload type */
+gboolean
+rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt)
+{
+    return (rtp_dyn_payload && rtp_dyn_payload->table &&
+            g_hash_table_remove(rtp_dyn_payload->table, GUINT_TO_POINTER(pt)));
+}
+
+/* retrieves the encoding name for the given payload type */
+const gchar*
+rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt)
+{
+    encoding_name_and_rate_t *encoding_name_and_rate_pt;
+
+    if (!rtp_dyn_payload || !rtp_dyn_payload->table) return NULL;
+
+    encoding_name_and_rate_pt = (encoding_name_and_rate_t*)g_hash_table_lookup(rtp_dyn_payload->table,
+                                                                               GUINT_TO_POINTER(pt));
+
+    return (encoding_name_and_rate_pt ? encoding_name_and_rate_pt->encoding_name : NULL);
+}
+
+/* retrieves the encoding name and sample rate for the given payload type, returning TRUE if
+   successful, else FALSE. The encoding string pointed to is only valid until the entry is
+   replaced, removed, or the hash table is destroyed, so duplicate it if you need it long. */
+gboolean
+rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt,
+                         const gchar **encoding_name, int *sample_rate)
+{
+    encoding_name_and_rate_t *encoding_name_and_rate_pt;
+    *encoding_name = NULL;
+    *sample_rate = 0;
+
+    if (!rtp_dyn_payload || !rtp_dyn_payload->table) return FALSE;
+
+    encoding_name_and_rate_pt = (encoding_name_and_rate_t*)g_hash_table_lookup(rtp_dyn_payload->table,
+                                                                               GUINT_TO_POINTER(pt));
+
+    if (encoding_name_and_rate_pt) {
+        *encoding_name = encoding_name_and_rate_pt->encoding_name;
+        *sample_rate = encoding_name_and_rate_pt->sample_rate;
+    }
+
+    return (encoding_name_and_rate_pt != NULL);
+}
+
+/* Free's and destroys the dyn_payload hash table; internally this decrements the ref_count
+   and only free's it if the ref_count == 0. */
+void
+rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload)
+{
+    if (!rtp_dyn_payload) return;
+
+    if (rtp_dyn_payload->ref_count > 0)
+        --(rtp_dyn_payload->ref_count);
+
+    if (rtp_dyn_payload->ref_count == 0) {
+
+#ifdef DEBUG_CONVERSATION
+        DPRINT(("free'ing the following rtp_dyn_payload:"));
+        DINDENT();
+        rtp_dump_dyn_payload(rtp_dyn_payload);
+        DENDENT();
+#endif
+
+        /* remove it from the single rtp_dyn_payloads GHashTable */
+        g_assert(rtp_dyn_payloads);
+        if (!g_hash_table_remove(rtp_dyn_payloads, rtp_dyn_payload)) {
+            g_error("rtp_dyn_payload not found in rtp_dyn_payloads table to remove!");
+        }
+
+        /* destroy the table GHashTable in it - this automatically deletes the
+           members too, because we used destroy function callbacks */
+        if (rtp_dyn_payload->table)
+            g_hash_table_destroy(rtp_dyn_payload->table);
+
+        /* free the object itself */
+        wmem_free(wmem_file_scope(), rtp_dyn_payload);
+    }
+}
 
 void
 bluetooth_add_address(packet_info *pinfo, address *addr,
@@ -928,7 +1158,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr,
      * Update the conversation data.
      */
     /* Free the hash if already exists */
-    rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload);
+    rtp_dyn_payload_free(p_conv_data->rtp_dyn_payload);
 
     g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
     p_conv_data->frame_number = setup_frame_number;
@@ -941,7 +1171,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr,
 void
 srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
          const gchar *setup_method, guint32 setup_frame_number,
-         gboolean is_video _U_, GHashTable *rtp_dyn_payload,
+         gboolean is_video _U_, rtp_dyn_payload_t *rtp_dyn_payload,
          struct srtp_info *srtp_info)
 {
     address null_addr;
@@ -1022,13 +1252,16 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
      * Update the conversation data.
      */
     /* Free the hash if a different one already exists */
-    if (p_conv_data->rtp_dyn_payload != rtp_dyn_payload)
-        rtp_free_hash_dyn_payload(p_conv_data->rtp_dyn_payload);
+    if (p_conv_data->rtp_dyn_payload != rtp_dyn_payload) {
+        rtp_dyn_payload_free(p_conv_data->rtp_dyn_payload);
+        p_conv_data->rtp_dyn_payload = rtp_dyn_payload_ref(rtp_dyn_payload);
+    } else {
+        DPRINT(("passed-in rtp_dyn_payload is the same as in the conversation"));
+    }
 
     g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
     p_conv_data->frame_number = setup_frame_number;
     p_conv_data->is_video = is_video;
-    p_conv_data->rtp_dyn_payload = rtp_dyn_payload;
     p_conv_data->srtp_info = srtp_info;
     p_conv_data->bta2dp_info = NULL;
     p_conv_data->btvdp_info = NULL;
@@ -1038,7 +1271,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
 void
 rtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
         const gchar *setup_method, guint32 setup_frame_number,
-        gboolean is_video , GHashTable *rtp_dyn_payload)
+        gboolean is_video , rtp_dyn_payload_t *rtp_dyn_payload)
 {
     srtp_add_address(pinfo, addr, port, other_port, setup_method, setup_frame_number, is_video, rtp_dyn_payload, NULL);
 }
@@ -1163,13 +1396,8 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
             payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127) {
         /* if the payload type is dynamic, we check if the conv is set and we look for the pt definition */
         if (p_conv_data && p_conv_data->rtp_dyn_payload) {
-            gchar *payload_type_str = NULL;
-            encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
-            encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
-            if (encoding_name_and_rate_pt) {
-                payload_type_str = encoding_name_and_rate_pt->encoding_name;
-            }
-            if (payload_type_str){
+            const gchar *payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, payload_type);
+            if (payload_type_str) {
                 found_match = dissector_try_string(rtp_dyn_pt_dissector_table,
                                    payload_type_str, newtvb, pinfo, tree, NULL);
                 /* If payload type string set from conversation and
@@ -1452,7 +1680,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     rfc2198_hdr *hdr_last, *hdr_new;
     rfc2198_hdr *hdr_chain = NULL;
     struct _rtp_conversation_info *p_conv_data= NULL;
-    gchar *payload_type_str;
+    const gchar *payload_type_str;
 
     /* Retrieve RTPs idea of a converation */
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
@@ -1477,11 +1705,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* if it is dynamic payload, let use the conv data to see if it is defined */
         if ((hdr_new->pt > 95) && (hdr_new->pt < 128)) {
             if (p_conv_data && p_conv_data->rtp_dyn_payload){
-                encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
-                encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &hdr_new->pt);
-                if (encoding_name_and_rate_pt) {
-                    payload_type_str = encoding_name_and_rate_pt->encoding_name;
-                }
+                payload_type_str = rtp_dyn_payload_get_name(p_conv_data->rtp_dyn_payload, hdr_new->pt);
             }
         }
         /* Add a subtree for this header and add items */
@@ -1645,7 +1869,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     unsigned int csrc_count;
     gboolean    marker_set;
     unsigned int payload_type;
-    gchar *payload_type_str = NULL;
+    const gchar *payload_type_str = NULL;
     gboolean    is_srtp = FALSE;
     unsigned int i            = 0;
     unsigned int hdr_extension_len= 0;
@@ -1826,24 +2050,20 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     /* if it is dynamic payload, let use the conv data to see if it is defined */
     if ( (payload_type>95) && (payload_type<128) ) {
-        if (p_conv_data && p_conv_data->rtp_dyn_payload){
-            encoding_name_and_rate_t *encoding_name_and_rate_pt = NULL;
+        if (p_conv_data && p_conv_data->rtp_dyn_payload) {
+            int sample_rate = 0;
 
 #ifdef DEBUG_CONVERSATION
             rtp_dump_dyn_payload(p_conv_data->rtp_dyn_payload);
 #endif
             DPRINT(("looking up conversation data for dyn_pt=%d", payload_type));
 
-            encoding_name_and_rate_pt = (encoding_name_and_rate_t *)g_hash_table_lookup(p_conv_data->rtp_dyn_payload, &payload_type);
-
-            DPRINT(("did %sfind conversation data for dyn_pt=%d",
-                    encoding_name_and_rate_pt?"":"not ", payload_type));
-
-            if (encoding_name_and_rate_pt) {
+            if (rtp_dyn_payload_get_full(p_conv_data->rtp_dyn_payload, payload_type,
+                                        &payload_type_str, &sample_rate)) {
                 DPRINT(("found conversation data for dyn_pt=%d, enc_name=%s",
-                        payload_type,encoding_name_and_rate_pt->encoding_name));
-                rtp_info->info_payload_type_str = payload_type_str = encoding_name_and_rate_pt->encoding_name;
-                rtp_info->info_payload_rate = encoding_name_and_rate_pt->sample_rate;
+                        payload_type, payload_type_str));
+                rtp_info->info_payload_type_str = payload_type_str;
+                rtp_info->info_payload_rate     = sample_rate;
             }
         }
     }
@@ -2316,15 +2536,18 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
                 guint32 seqno;
 
                 /* Save this conversation info into packet info */
+                /* XXX: why is this file pool not pinfo->pool? */
                 p_conv_packet_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
                 g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_conv_packet_data->is_video = p_conv_data->is_video;
+                /* do not increment ref count for the rtp_dyn_payload */
                 p_conv_packet_data->rtp_dyn_payload = p_conv_data->rtp_dyn_payload;
                 p_conv_packet_data->rtp_conv_info = p_conv_data->rtp_conv_info;
                 p_conv_packet_data->srtp_info = p_conv_data->srtp_info;
                 p_conv_packet_data->bta2dp_info = p_conv_data->bta2dp_info;
                 p_conv_packet_data->btvdp_info = p_conv_data->btvdp_info;
+                /* XXX: why is this file pool not pinfo->pool? */
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0, p_conv_packet_data);
 
                 /* calculate extended sequence number */
@@ -3338,6 +3561,7 @@ proto_register_rtp(void)
                                     &rtp_rfc2198_pt);
 
     register_init_routine(rtp_fragment_init);
+    register_init_routine(rtp_dyn_payloads_init);
 }
 
 void

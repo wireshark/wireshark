@@ -100,6 +100,72 @@ struct srtp_info
 #endif
 };
 
+/* an opaque object holding the hash table - use accessor functions to create/destroy/find */
+typedef struct _rtp_dyn_payload_t rtp_dyn_payload_t;
+
+/* RTP dynamic payload handling - use the following to create, insert, lookup, and free the
+   dynamic payload information. Internally, RTP creates the GHashTable with a wmem file scope
+   and increments the ref_count when it saves the info to conversations later. The calling
+   dissector (SDP, H.245, etc.) uses these functions as an interface. If the calling dissector
+   is done with the rtp_dyn_payload_t* for good, it should call rtp_dyn_payload_free() which
+   will decrement the ref_count and free's it if the ref_count is 0. In the worst case, it
+   will get free'd when the wmem file scope is over.
+
+   This was changed because there were too many bugs with SDP's handling of memory ownership
+   of the GHashTable, with RTP freeing things SDP didn't think were free'ed. And also because
+   the GHashTables never got free'd in many cases by several dissectors.
+ */
+
+/* creates a new hashtable and sets ref_count to 1, returning the newly created object */
+WS_DLL_PUBLIC
+rtp_dyn_payload_t* rtp_dyn_payload_new(void);
+
+/* Inserts the given payload type key, for the encoding name and sample rate, into the hash table.
+   This makes copies of the encoding name, scoped to the life of the capture file or sooner if
+   rtp_dyn_payload_free is called. */
+WS_DLL_PUBLIC
+void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
+							const guint8 pt,
+							const gchar* encoding_name,
+							const int sample_rate);
+
+/* Replaces the given payload type key in the hash table, with the encoding name and sample rate.
+   This makes copies of the encoding name, scoped to the life of the capture file or sooner if
+   rtp_dyn_payload_free is called. The replaced encoding name is free'd immediately. */
+WS_DLL_PUBLIC
+void rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
+							const guint8 pt,
+							const gchar* encoding_name,
+							const int sample_rate);
+
+/* removes the given payload type */
+WS_DLL_PUBLIC
+gboolean rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt);
+
+/* retrieves the encoding name for the given payload type; the string returned is only valid
+   until the entry is replaced, removed, or the hash table is destroyed, so duplicate it if
+   you need it long. */
+WS_DLL_PUBLIC
+const gchar* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt);
+
+/* retrieves the encoding name and sample rate for the given payload type, returning TRUE if
+   successful, else FALSE. The encoding string pointed to is only valid until the entry is
+   replaced, removed, or the hash table is destroyed, so duplicate it if you need it long. */
+WS_DLL_PUBLIC
+gboolean rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt,
+								  const gchar **encoding_name, int *sample_rate);
+
+/* Free's and destroys the dyn_payload hash table; internally this decrements the ref_count
+   and only free's it if the ref_count == 0. */
+WS_DLL_PUBLIC
+void rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload);
+
+
+#ifdef DEBUG_CONVERSATION
+/* used for printing out debugging info, if DEBUG_CONVERSATION is defined */
+void rtp_dump_dyn_payload(rtp_dyn_payload_t *rtp_dyn_payload);
+#endif
+
 /* Info to save in RTP conversation / packet-info */
 #define MAX_RTP_SETUP_METHOD_SIZE 7
 struct _rtp_conversation_info
@@ -107,7 +173,7 @@ struct _rtp_conversation_info
 	gchar   method[MAX_RTP_SETUP_METHOD_SIZE + 1];
 	guint32 frame_number;			/* the frame where this conversation is started */
 	gboolean is_video;
-	GHashTable *rtp_dyn_payload;	/* a hash table with the dynamic RTP payload */
+	rtp_dyn_payload_t *rtp_dyn_payload;	/* the dynamic RTP payload info - see comments above */
 
 	guint32 extended_seqno;			/* the sequence number, extended to a 32-bit
 									 * int to guarantee it increasing monotonically
@@ -121,11 +187,6 @@ struct _rtp_conversation_info
 	btvdp_codec_info_t *btvdp_info;
 };
 
-typedef struct {
-	char *encoding_name;
-	int   sample_rate;
-} encoding_name_and_rate_t;
-
 /* Add an RTP conversation with the given details */
 WS_DLL_PUBLIC
 void rtp_add_address(packet_info *pinfo,
@@ -134,7 +195,7 @@ void rtp_add_address(packet_info *pinfo,
                      const gchar *setup_method,
                      guint32 setup_frame_number,
 					 gboolean is_video,
-                     GHashTable *rtp_dyn_payload);
+                     rtp_dyn_payload_t *rtp_dyn_payload);
 
 /* Add an SRTP conversation with the given details */
 WS_DLL_PUBLIC
@@ -144,7 +205,7 @@ void srtp_add_address(packet_info *pinfo,
                      const gchar *setup_method,
                      guint32 setup_frame_number,
 					 gboolean is_video,
-                     GHashTable *rtp_dyn_payload,
+                     rtp_dyn_payload_t *rtp_dyn_payload,
                      struct srtp_info *srtp_info);
 
 /* Add an Bluetooth conversation with the given details */
@@ -152,8 +213,3 @@ void
 bluetooth_add_address(packet_info *pinfo, address *addr,
          const gchar *setup_method, guint32 setup_frame_number,
          gboolean is_video, void *data);
-
-/* Free and destroy the dyn_payload hash table */
-WS_DLL_PUBLIC
-void rtp_free_hash_dyn_payload(GHashTable *rtp_dyn_payload);
-

@@ -6905,11 +6905,9 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
     gboolean                            first_assigned_found;
     gboolean                            rtp_dyn_payload_used;
     guint8                              rtp_payload_type;
-    GHashTable                          *rtp_dyn_payload;
-    gint                                *key;
-    encoding_name_and_rate_t            *encoding_name_and_rate;
+    rtp_dyn_payload_t                  *rtp_dyn_payload;
 
-    rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
+    rtp_dyn_payload = rtp_dyn_payload_new();
     rtp_dyn_payload_used = FALSE;
 
     first_assigned_found = FALSE;
@@ -7066,14 +7064,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
         if (format_assigned &&
             (first_assigned_found == FALSE))
         {
-            key  = wmem_new(wmem_file_scope(), gint);
-            *key = rtp_payload_type;
-
-            encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
-            encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), mime_type);
-            encoding_name_and_rate->sample_rate = sample_rate;
-
-            g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
+            rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, mime_type, sample_rate);
             rtp_dyn_payload_used = TRUE;
 
             first_assigned_found = TRUE;
@@ -7083,14 +7074,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
         if (in_band_format_assigned)
         {
-            key  = (gint *) wmem_alloc(wmem_file_scope(), sizeof(gint));
-            *key = rtp_payload_type;
-
-            encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
-            encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), "telephone-event");
-            encoding_name_and_rate->sample_rate = sample_rate;
-
-            g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
+            rtp_dyn_payload_insert(rtp_dyn_payload, rtp_payload_type, "telephone-event", sample_rate);
             rtp_dyn_payload_used = TRUE;
         }
 
@@ -7099,7 +7083,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
 
     if (rtp_dyn_payload_used == FALSE)
     {
-        rtp_free_hash_dyn_payload(rtp_dyn_payload);
+        rtp_dyn_payload_free(rtp_dyn_payload);
     }
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset);

@@ -341,8 +341,7 @@ static void update_unicast_addr(unicast_addr_t *req_addr, unicast_addr_t *ack_ad
 
 static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_channel_lcl)
 {
-	gint *key;
-	GHashTable *rtp_dyn_payload = NULL;
+	rtp_dyn_payload_t *rtp_dyn_payload = NULL;
 	struct srtp_info *dummy_srtp_info = NULL;
 
 	if (!upcoming_channel_lcl) return;
@@ -359,13 +358,8 @@ static void h245_setup_channels(packet_info *pinfo, channel_info_t *upcoming_cha
 
 	/* (S)RTP, (S)RTCP */
 	if (upcoming_channel_lcl->rfc2198 > 0) {
-		encoding_name_and_rate_t *encoding_name_and_rate = wmem_new(wmem_file_scope(), encoding_name_and_rate_t);
-		rtp_dyn_payload = g_hash_table_new(g_int_hash, g_int_equal);
-		encoding_name_and_rate->encoding_name = wmem_strdup(wmem_file_scope(), "red");
-		encoding_name_and_rate->sample_rate = 8000;
-		key = wmem_new(wmem_file_scope(), gint);
-		*key = upcoming_channel_lcl->rfc2198;
-		g_hash_table_insert(rtp_dyn_payload, key, encoding_name_and_rate);
+		rtp_dyn_payload = rtp_dyn_payload_new();
+		rtp_dyn_payload_insert(rtp_dyn_payload, upcoming_channel_lcl->rfc2198, "red", 8000);
 	}
 
 	if (upcoming_channel_lcl->srtp_flag) {
