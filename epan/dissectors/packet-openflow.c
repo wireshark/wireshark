@@ -36,8 +36,13 @@
 void proto_register_openflow(void);
 void proto_reg_handoff_openflow(void);
 
-static int g_openflow_port = 0;
+#define OFP_LEGACY_PORT 6633
+#define OFP_LEGACY2_PORT 6634
+#define OFP_IANA_PORT 6653
+static int g_openflow_port = OFP_IANA_PORT;
+static gboolean openflow_heur_enabled = TRUE;
 
+static dissector_handle_t openflow_handle;
 static dissector_handle_t openflow_v1_handle;
 static dissector_handle_t openflow_v4_handle;
 static dissector_handle_t openflow_v5_handle;
@@ -63,13 +68,11 @@ static const value_string openflow_version_values[] = {
     { 0, NULL }
 };
 
-
 static guint
 get_openflow_pdu_length(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
     return tvb_get_ntohs(tvb, offset + 2);
 }
-
 
 static int
 dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -100,14 +103,37 @@ dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     return tvb_length(tvb);
 }
 
-
 #define OFP_HEADER_LEN  8
 static int
 dissect_openflow(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     tcp_dissect_pdus(tvb, pinfo, tree, openflow_desegment, OFP_HEADER_LEN,
                      get_openflow_pdu_length, dissect_openflow_tcp_pdu, data);
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
+}
+
+static gboolean
+dissect_openflow_heur(tvbuff_t *tvb, packet_info *pinfo,
+                     proto_tree *tree, void *data)
+{
+    conversation_t *conversation = NULL;
+
+    if (!openflow_heur_enabled) {
+        return FALSE;
+    }
+
+    if ((pinfo->destport != OFP_LEGACY_PORT) &&
+        (pinfo->destport != OFP_LEGACY2_PORT) &&
+        (pinfo->destport != OFP_IANA_PORT) &&
+        (pinfo->destport != (guint32)g_openflow_port)) {
+        return FALSE;
+    }
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, openflow_handle);
+
+    dissect_openflow(tvb, pinfo, tree, data);
+    return TRUE;
 }
 
 /*
@@ -138,9 +164,17 @@ proto_register_openflow(void)
     openflow_module = prefs_register_protocol(proto_openflow, proto_reg_handoff_openflow);
 
     /* Register port preference */
-    prefs_register_uint_preference(openflow_module, "tcp.port", "openflow TCP Port",
-            " openflow TCP port if other than the default",
-            10, &g_openflow_port);
+    prefs_register_uint_preference(openflow_module, "tcp.port", "OpenFlow TCP port",
+                                   " OpenFlow TCP port (6653 is the IANA assigned port)",
+                                   10, &g_openflow_port);
+
+    /* Register heuristic preference */
+    prefs_register_bool_preference(openflow_module, "heuristic",
+                                   "Try to decode OpenFlow on other common ports",
+                                   "Try to decode OpenFlow on several common "
+                                   "ports in addition to the one supplied by "
+                                   "user above (6653 is the IANA assigned port).",
+                                   &openflow_heur_enabled);
 
     /* Register desegment preference */
     prefs_register_bool_preference(openflow_module, "desegment",
@@ -154,13 +188,12 @@ void
 proto_reg_handoff_openflow(void)
 {
     static gboolean initialized = FALSE;
-    static dissector_handle_t openflow_handle;
     static int currentPort;
 
     if (!initialized) {
         openflow_handle = new_create_dissector_handle(dissect_openflow, proto_openflow);
+        heur_dissector_add("tcp", dissect_openflow_heur, proto_openflow);
         initialized = TRUE;
-
     } else {
         dissector_delete_uint("tcp.port", currentPort, openflow_handle);
     }
@@ -173,7 +206,6 @@ proto_reg_handoff_openflow(void)
     openflow_v4_handle = find_dissector("openflow_v4");
     openflow_v5_handle = find_dissector("openflow_v5");
 }
-
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

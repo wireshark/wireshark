@@ -2369,6 +2369,7 @@ Francesco Fondelli	<francesco.fondelli[AT]gmail.com> {
 	Support for Exclude Routes (XRO) in RSVP-TE, RFC 4874
 	Support for Shared Use of Experimental TCP Options
 	Support for TCP Fast Open
+	OpenFlow heuristic logic
 }
 
 Artem Tamazov           <artem.tamazov[AT]tellabs.com> {
