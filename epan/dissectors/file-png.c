@@ -288,6 +288,9 @@ static header_field_info hfi_png_chrm_blue_y PNG_HFI_INIT = {
     "Blue Y", "png.chrm.blue.y", FT_FLOAT, BASE_NONE,
     NULL, 0, NULL, HFILL };
 
+static header_field_info hfi_png_gama_gamma PNG_HFI_INIT = {
+    "Gamma", "png.gama.gamma", FT_FLOAT, BASE_NONE,
+    NULL, 0, NULL, HFILL };
 
 static gint ett_png = -1;
 static gint ett_png_chunk = -1;
@@ -418,6 +421,16 @@ dissect_png_chrm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             tvb, offset, 4, by, "%f", by);
 }
 
+static void
+dissect_png_gama(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+    float  gamma;
+
+    gamma = tvb_get_ntohl(tvb, 0) / 100000.0;
+    proto_tree_add_float_format_value(tree, &hfi_png_gama_gamma,
+            tvb, 0, 4, gamma, "%f", gamma);
+}
+
 static gint
 dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *data _U_)
 {
@@ -485,6 +498,9 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *da
                 break;
             case CHUNK_TYPE_cHRM:
                 dissect_png_chrm(chunk_tvb, pinfo, chunk_tree);
+                break;
+            case CHUNK_TYPE_gAMA:
+                dissect_png_gama(chunk_tvb, pinfo, chunk_tree);
                 break;
             case CHUNK_TYPE_pHYs:
                 dissect_png_phys(chunk_tvb, pinfo, chunk_tree);
@@ -558,7 +574,8 @@ proto_register_png(void)
         &hfi_png_chrm_green_x,
         &hfi_png_chrm_green_y,
         &hfi_png_chrm_blue_x,
-        &hfi_png_chrm_blue_y
+        &hfi_png_chrm_blue_y,
+        &hfi_png_gama_gamma
     };
 #endif
 
