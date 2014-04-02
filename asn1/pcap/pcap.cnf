@@ -259,7 +259,6 @@ id-ganssReq-EarthOrientPara						ProtocolIE-ID
 id-ganssAddNavigationModel-req					ProtocolIE-ID
 id-ganssAddUTCModel-req							ProtocolIE-ID
 id-ganssAuxInfo-req								ProtocolIE-ID
-id-GANSS-AddADchoices							ProtocolIE-ID
 id-OTDOA-ReferenceCellInfo						ProtocolIE-ID
 id-DGNSS-ValidityPeriod							ProtocolIE-ID
 id-AzimuthAndElevationLSB						ProtocolIE-ID
@@ -312,13 +311,20 @@ UC-ID-InfEx-Rqst								N pcap.ies id-UC-ID-InfEx-Rqst
 UE-PositionEstimateInfo							N pcap.ies id-UE-PositionEstimateInfo
 OTDOA-MeasuredResultsSets						N pcap.ies id-OTDOA-MeasuredResultsSets
 PeriodicPosCalcInfo								N pcap.ies id-PeriodicPosCalcInfo
-PeriodicLocationInfo							N pcap.extension id-PeriodicLocationInfo
-MeasInstructionsUsed							N pcap.extension id-MeasInstructionsUsed
 PeriodicTerminationCause						N pcap.ies id-PeriodicTerminationCause
 
 #PCAP-PROTOCOL-EXTENSION
+CellId-MeasuredResultsSets						N pcap.extension id-CellId-MeasuredResultsSets
+OTDOA-MeasurementGroup							N pcap.extension id-OTDOA-MeasurementGroup
+HorizontalAccuracyCode							N pcap.extension id-HorizontalAccuracyCode
+VerticalAccuracyCode							N pcap.extension id-VerticalAccuracyCode
+UTDOA-Group										N pcap.extension id-UTDOA-Group
+Positioning-ResponseTime						N pcap.extension id-Positioning-ResponseTime
 IncludeVelocity									N pcap.extension id-IncludeVelocity
+PeriodicPosCalcInfo								N pcap.extension id-PeriodicPosCalcInfo
 AmountOfReporting								N pcap.extension id-AmountOfReporting
+PeriodicLocationInfo							N pcap.extension id-PeriodicLocationInfo
+MeasInstructionsUsed							N pcap.extension id-MeasInstructionsUsed
 CellIDPositioning								N pcap.extension id-CellIDPositioning
 GANSSPositioning								N pcap.extension id-GANSSPositioning
 RRCstateChange									N pcap.extension id-RRCstateChange
