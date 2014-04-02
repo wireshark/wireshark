@@ -1453,7 +1453,6 @@ set(WMEM_FILES
 	wmem/wmem_list.c
 	wmem/wmem_miscutl.c
 	wmem/wmem_scopes.c
-	wmem/wmem_splay.c
 	wmem/wmem_stack.c
 	wmem/wmem_strbuf.c
 	wmem/wmem_strutl.c
