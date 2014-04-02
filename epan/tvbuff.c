@@ -51,6 +51,12 @@
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
 
+static inline gint
+_tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset);
+
+static inline const guint8*
+ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
+
 tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
 {
@@ -297,12 +303,14 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 	guint8        left, right, remaining_bits, *buf;
 	const guint8 *data;
 
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
 	byte_offset = bit_offset >> 3;
 	left = bit_offset % 8; /* for left-shifting */
 	right = 8 - left; /* for right-shifting */
 
 	if (no_of_bits == -1) {
-		datalen = tvb_captured_length_remaining(tvb, byte_offset);
+		datalen = _tvb_captured_length_remaining(tvb, byte_offset);
 		remaining_bits = 0;
 	} else {
 		datalen = no_of_bits >> 3;
@@ -324,8 +332,8 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
  	* if non extra byte is available, the last shifted byte requires
  	* special treatment
  	*/
-	if (tvb_captured_length_remaining(tvb, byte_offset) > datalen) {
-		data = tvb_get_ptr(tvb, byte_offset, datalen + 1);
+	if (_tvb_captured_length_remaining(tvb, byte_offset) > datalen) {
+		data = ensure_contiguous(tvb, byte_offset, datalen + 1); /* tvb_get_ptr */
 
 		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
 		buf = (guint8 *)g_malloc(datalen);
@@ -334,7 +342,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 		for (i = 0; i < datalen; i++)
 			buf[i] = (data[i] << left) | (data[i+1] >> right);
 	} else {
-		data = tvb_get_ptr(tvb, byte_offset, datalen);
+		data = ensure_contiguous(tvb, byte_offset, datalen); /* tvb_get_ptr() */
 
 		/* Do this allocation AFTER tvb_get_ptr() (which could throw an exception) */
 		buf = (guint8 *)g_malloc(datalen);
@@ -393,6 +401,20 @@ tvb_captured_length(const tvbuff_t *tvb)
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	return tvb->length;
+}
+
+/* For tvbuff internal use */
+static inline gint
+_tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
+{
+	guint abs_offset, rem_length;
+	int exception;
+
+	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	if (exception)
+		return 0;
+
+	return rem_length;
 }
 
 gint
@@ -1444,7 +1466,7 @@ tvb_find_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 nee
 	const guint8 *ptr;
 	const guint8 *result;
 
-	ptr = tvb_get_ptr(tvb, abs_offset, limit);
+	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr() */
 
 	result = (const guint8 *) memchr(ptr, needle, limit);
 	if (!result)
@@ -1511,7 +1533,7 @@ tvb_pbrk_guint8_generic(tvbuff_t *tvb, guint abs_offset, guint limit, const guin
 	const guint8 *ptr;
 	const guint8 *result;
 
-	ptr = tvb_get_ptr(tvb, abs_offset, limit);
+	ptr = ensure_contiguous(tvb, abs_offset, limit); /* tvb_get_ptr */
 
 	result = guint8_pbrk(ptr, limit, needles, found_needle);
 	if (!result)
@@ -2954,8 +2976,10 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	int    linelen;
 	guchar found_needle = 0;
 
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
 	if (len == -1)
-		len = tvb_captured_length_remaining(tvb, offset);
+		len = _tvb_captured_length_remaining(tvb, offset);
 	/*
 	 * XXX - what if "len" is still -1, meaning "offset is past the
 	 * end of the tvbuff"?
@@ -3070,8 +3094,10 @@ tvb_find_line_end_unquoted(tvbuff_t *tvb, const gint offset, int len, gint *next
 	gint     eob_offset;
 	int      linelen;
 
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
 	if (len == -1)
-		len = tvb_captured_length_remaining(tvb, offset);
+		len = _tvb_captured_length_remaining(tvb, offset);
 	/*
 	 * XXX - what if "len" is still -1, meaning "offset is past the
 	 * end of the tvbuff"?
@@ -3208,8 +3234,12 @@ tvb_skip_wsp(tvbuff_t *tvb, const gint offset, const gint maxlength)
 	gint   end, tvb_len;
 	guint8 tempchar;
 
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
 	/* Get the length remaining */
-	tvb_len = tvb_captured_length(tvb);
+	/*tvb_len = tvb_captured_length(tvb);*/
+	tvb_len = tvb->length;
+
 	end     = offset + maxlength;
 	if (end >= tvb_len)
 	{
@@ -3243,8 +3273,12 @@ tvb_skip_guint8(tvbuff_t *tvb, int offset, const int maxlength, const guint8 ch)
 {
 	int end, tvb_len;
 
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
 	/* Get the length remaining */
-	tvb_len = tvb_captured_length(tvb);
+	/*tvb_len = tvb_captured_length(tvb);*/
+	tvb_len = tvb->length;
+
 	end     = offset + maxlength;
 	if (end >= tvb_len)
 		end = tvb_len;
@@ -3296,11 +3330,14 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
 	char   *digit_str;
 	gint    t_offset = offset;
 
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
 	if (!dgt)
 		dgt = &Dgt1_9_bcd;
 
 	if (len == -1) {
-		length = tvb_captured_length(tvb);
+		/*length = tvb_captured_length(tvb);*/
+		length = tvb->length;
 		if (length < offset) {
 			return "";
 		}
