@@ -52,7 +52,7 @@ extern "C" {
 #define LT_SEQ(x, y) ((gint32)((x) - (y)) < 0)
 #define GE_SEQ(x, y) ((gint32)((y) - (x)) <= 0)
 #define LE_SEQ(x, y) ((gint32)((x) - (y)) <= 0)
-#define EQ_SEQ(x, y) ((x) == (y))
+#define EQ_SEQ(x, y) (x) == (y)
 
 /* the tcp header structure, passed to tap listeners */
 typedef struct tcpheader {
