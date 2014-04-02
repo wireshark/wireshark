@@ -222,7 +222,7 @@ static int dissect_drmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
 	return (2);
 }
 
-static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
+static int dissect_admpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
 	guint16	  userDataLen;
 	guint16	  returnLen;
@@ -243,14 +243,14 @@ static int dissect_admpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		asterixTVB = tvb_new_subset(tvb, offset, userDataLen, userDataLen);
 
 		if (asterix_handle != NULL)
-			call_dissector(asterix_handle, asterixTVB, pinfo, tree);
+			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
 
 		return (returnLen);
 	}
 	return (2);
 }
 
-static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
+static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
 	guint16	  userDataLen;
 	guint16	  returnLen;
@@ -265,14 +265,14 @@ static int dissect_dtmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		asterixTVB = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
 
 		if (asterix_handle != NULL)
-			call_dissector(asterix_handle, asterixTVB, pinfo, tree);
+			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
 
 		return (returnLen);
 	}
 	return (2);
 }
 
-static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packet_info *pinfo)
+static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *parent_tree, proto_tree *tree, guint16 offset, packet_info *pinfo)
 {
 	guint16	  userDataLen;
 	guint16	  returnLen;
@@ -287,7 +287,7 @@ static int dissect_edmpdu(tvbuff_t *tvb, proto_tree *tree, guint16 offset, packe
 		asterixTVB  = tvb_new_subset(tvb, offset + 2, userDataLen, userDataLen);
 
 		if (asterix_handle != NULL)
-			call_dissector(asterix_handle, asterixTVB, pinfo, tree);
+			call_dissector(asterix_handle, asterixTVB, pinfo, parent_tree);
 
 		return (returnLen);
 	}
@@ -342,15 +342,15 @@ static int dissect_pdc_packet(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 		col_set_str(pinfo->cinfo, COL_INFO, "DRMPDU");
 		break;
 	case DTMPDU:
-		length += dissect_dtmpdu(tvb, pdcPacketTree, length, pinfo);
+		length += dissect_dtmpdu(tvb, tree, pdcPacketTree, length, pinfo);
 		col_set_str(pinfo->cinfo, COL_INFO, "DTMPDU");
 		break;
 	case ADMPDU:
-		length += dissect_admpdu(tvb, pdcPacketTree, length, pinfo);
+		length += dissect_admpdu(tvb, tree, pdcPacketTree, length, pinfo);
 		col_set_str(pinfo->cinfo, COL_INFO, "ADMPDU");
 		break;
 	case EDMPDU:
-		length += dissect_edmpdu(tvb, pdcPacketTree, length, pinfo);
+		length += dissect_edmpdu(tvb, tree, pdcPacketTree, length, pinfo);
 		col_set_str(pinfo->cinfo, COL_INFO, "EDMPDU");
 		break;
 	case AKMPDU:
