@@ -38,7 +38,6 @@ pushed to the main repository. For an overview of Gerrit see the
 https://code.wireshark.org/review/Documentation/intro-quick.html[Quick
 Introduction].
 
-
 .Why Git?
 
 Git is a fast, flexible way of managing source code. It allows large
@@ -99,13 +98,11 @@ repository.
 [TIP]
 .Check out from the master branch using Git.
 ====
-Using Git is much easier than synchronizing your source tree by hand
-using any of the snapshot methods mentioned below.
-Git merges of changes into your personal source tree in a
-very comfortable and quick way. So you can update your source tree several
-times a day without much effort.
+Using Git is much easier than synchronizing your source tree by hand using any
+of the snapshot methods mentioned below. Git merges of changes into your
+personal source tree in a very comfortable and quick way. So you can update your
+source tree several times a day without much effort.
 ====
-
 
 [NOTE]
 .Keep your sources up to date
@@ -581,7 +578,7 @@ the following benefits by contributing your improvements:
 
 There's no direct way to push changes to the Git repository. Only a few people
 are authorised to actually make changes to the source code (check-in changed
-files). If you want to submit your changes, you should push them to the code
+files). If you want to submit your changes, you should upload them to the code
 review system.
 
 [[ChSrcDiffWhat]]
@@ -853,30 +850,17 @@ you could push to refs/for/master with the topic "snowcone-machine":
 $ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master/snowcone-machine
 ----
 
+If you have `git-review` installed you can upload the change with a lot less typing:
+
+----
+# Note: The "-f" flag deletes your current branch.
+$ git review -f
+----
+
 You can push using any Git client. Many clients have support for Gerrit, either
 built in or via an additional module.
 
 // XXX - Talk about Gerrit change IDs
-
-// To submit a patch, open a new ticket in the Wireshark bug database at wireshark-bugs-site:[]/bugzilla/enter_bug.cgi?product=Wireshark[].
-// You must first create a bug, then attach your patch or patches.
-//
-// * Set the Product, Priority, and Severity as needed.
-//
-// * Add a Summary and Description, and create a bug using the
-// Commitbutton. If your code has passed fuzz
-// testing, please say so in the description.
-//
-// * Once the bug has been created, select Create a New Attachmentand upload your
-// patch or patches. Set the +review_for_checkin+ flag to *?*. If you skip
-// this step, your patch won't show up in the patch request queue.
-//
-// * If possible and applicable, attach a capture file that demonstrates
-// your new feature or protocol.
-//
-// * Don't set the bug's status to ASSIGNED and don't assign the bug to
-// yourself -- if you do the latter, the core developers won't see the
-// updates made to the bug.
 
 You might get one of the following responses to your patch request:
 
@@ -898,6 +882,43 @@ You might get one of the following responses to your patch request:
 If you're concerned, feel free to add a comment to the patch or send an email
 to the developer's list asking for status. But please be patient: most if not
 all of us do this in our spare time.
+
+[[ChSrcBackport]]
+
+==== Backporting a change
+
+When a bug is fixed in the master branch it might be desirable or
+necessary to backport the fix to a stable branch. You can do this
+in Git by cherry-picking the change from one branch to another.
+Suppose you want to backport change 1ab2c3d4 from the master branch to
+master-1.10. Using "pure Git" commands you would do the following:
+
+----
+# Create a new topic branch for the backport.
+$ git checkout -b backport-g1ab2c3d4 origin/master-1.10
+
+# Cherry-pick the change. Include a "cherry picked from..." line.
+$ git cherry-pick -x 1ab2c3d4
+
+# If there are conflicts, fix them.
+
+# Compile and test the change.
+$ make
+$ ...
+
+# OPTIONAL: Add entries to docbook/release-notes.asciidoc.
+$ $EDITOR docbook/release-notes.asciidoc
+
+# If you made any changes, update your commit:
+$ git commit --amend -a
+
+# Upload the change to Gerrit
+$ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master-1.10/backport-g1ab2c3d4
+----
+
+If you want to cherry-pick a Gerrit change ID (e.g. I5e6f7890) you can use
+`git review -X I5e6f7890` instead of `git cherry-pick` and `git review`
+instead of `git push` as described in the previous chapter.
 
 [[ChSrcPatchApply]]
 
