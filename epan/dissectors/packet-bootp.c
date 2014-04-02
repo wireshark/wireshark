@@ -5365,7 +5365,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if ((dhcp_type != NULL) && (!at_end))
 	{
-		expert_add_info(pinfo, ti, &ei_bootp_end_option_missing);
+		expert_add_info(pinfo, bp_ti, &ei_bootp_end_option_missing);
 	}
 	if (voff < eoff) {
 		/*
