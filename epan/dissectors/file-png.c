@@ -381,42 +381,42 @@ dissect_png_chrm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     float  wx, wy, rx, ry, gx, gy, bx, by;
     gint   offset = 0;
 
-    wx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    wx = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_white_x,
             tvb, offset, 4, wx, "%f", wx);
     offset += 4;
 
-    wy = tvb_get_ntohl(tvb, offset) / 100000.0;
+    wy = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_white_y,
             tvb, offset, 4, wy, "%f", wy);
     offset += 4;
 
-    rx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    rx = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_red_x,
             tvb, offset, 4, rx, "%f", rx);
     offset += 4;
 
-    ry = tvb_get_ntohl(tvb, offset) / 100000.0;
+    ry = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_red_y,
             tvb, offset, 4, ry, "%f", ry);
     offset += 4;
 
-    gx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    gx = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_green_x,
             tvb, offset, 4, gx, "%f", gx);
     offset += 4;
 
-    gy = tvb_get_ntohl(tvb, offset) / 100000.0;
+    gy = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_green_y,
             tvb, offset, 4, gy, "%f", gy);
     offset += 4;
 
-    bx = tvb_get_ntohl(tvb, offset) / 100000.0;
+    bx = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_blue_x,
             tvb, offset, 4, bx, "%f", bx);
     offset += 4;
 
-    by = tvb_get_ntohl(tvb, offset) / 100000.0;
+    by = tvb_get_ntohl(tvb, offset) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_chrm_blue_y,
             tvb, offset, 4, by, "%f", by);
 }
