@@ -1,4 +1,4 @@
-/* file_import_dlg.c
+/* file_import_dlg.c
  * Dialog to setup for import of a text file, like text2pcap
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>
  *
