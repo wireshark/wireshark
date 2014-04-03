@@ -426,7 +426,7 @@ dissect_png_gama(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
     float  gamma;
 
-    gamma = tvb_get_ntohl(tvb, 0) / 100000.0;
+    gamma = tvb_get_ntohl(tvb, 0) / 100000.0f;
     proto_tree_add_float_format_value(tree, &hfi_png_gama_gamma,
             tvb, 0, 4, gamma, "%f", gamma);
 }
