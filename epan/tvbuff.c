@@ -2543,7 +2543,7 @@ tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 	size = tvb_strsize(tvb, offset);
 	str = wmem_strbuf_sized_new(scope, size+1, 0);
 
-	ptr = ensure_contiguous(tvb, offset, length);
+	ptr = ensure_contiguous(tvb, offset, size);
 
 	for (i = 0; i < size; i++) {
 		guint8 ch = *ptr;
