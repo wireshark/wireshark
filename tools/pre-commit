@@ -21,7 +21,7 @@ for FILE in `git diff-index --cached --name-only HEAD | grep "\.[ch]$"` ; do
     ./tools/checkhf.pl $FILE
 
     #Check if checkAPIs is good
-    ./tools/checkAPIs.pl $FILE
+    ./tools/checkAPIs.pl -p $FILE
 
     #Check if fix-encoding-args is good
     ./tools/fix-encoding-args.pl $FILE

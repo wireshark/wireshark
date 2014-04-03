@@ -1860,6 +1860,7 @@ sub print_usage
         print "                    [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...\n";
         print "\n";
         print "       -M: Generate output for -g in 'machine-readable' format\n";
+        print "       -p: used by the git pre-commit hook\n";
         print "       -h: help, print usage message\n";
         print "       -g <group>:  Check input files for use of APIs in <group>\n";
         print "                    (in addition to the default groups)\n";
@@ -2000,6 +2001,7 @@ my $check_addtext = 1;                                  # default: enabled
 my $debug_flag = 0;                                     # default: disabled
 my $buildbot_flag = 0;
 my $help_flag = 0;
+my $pre_commit = 0;
 
 my $result = GetOptions(
                         'group=s' => \@apiGroups,
@@ -2010,11 +2012,23 @@ my $result = GetOptions(
                         'check-addtext!' => \$check_addtext,
                         'build' => \$buildbot_flag,
                         'debug' => \$debug_flag,
+                        'pre-commit' => \$pre_commit,
                         'help' => \$help_flag
                         );
 if (!$result || $help_flag) {
         print_usage();
         exit(1);
+}
+
+# the pre-commit hook only calls checkAPIs one file at a time, so this
+# is safe to do globally (and easier)
+if ($pre_commit) {
+    my $filename = $ARGV[0];
+    # if the filename is packet-*.c or packet-*.h, then we set the abort and termoutput groups.
+    if ($filename =~ /\bpacket-\w+\.[ch]$/) {
+        push @apiGroups, "abort";
+        push @apiGroups, "termoutput";
+    }
 }
 
 # Add a 'function_count' anonymous hash to each of the 'apiGroup' entries in the %APIs hash.
