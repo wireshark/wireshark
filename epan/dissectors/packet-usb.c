@@ -3006,7 +3006,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     }
                     break;
                 default:
-                    /* To dissector found - display generic fields */
+                    /* no dissector found - display generic fields */
                     proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     offset += 1;
                     proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
