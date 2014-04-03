@@ -574,7 +574,7 @@ static gint sctp_assoc_vtag_cmp(const assoc_info_t *a, const assoc_info_t *b)
       (a->initiate_tag == b->verification_tag2) &&
       (a->initiate_tag == b->initiate_tag))
     return FORWARD_STREAM;
-    
+
   if ((a->sport == b->sport) &&
       (a->dport == b->dport) &&
       (a->verification_tag1 == b->verification_tag1) &&
@@ -908,7 +908,8 @@ get_half_assoc(packet_info *pinfo, guint32 spt, guint32 dpt, guint32 vtag)
   sctp_half_assoc_t **hb;
   wmem_tree_key_t *k;
 
-  if (!enable_tsn_analysis || !vtag) return NULL;
+  if (!enable_tsn_analysis || !vtag || pinfo->flags.in_error_pkt)
+    return NULL;
 
   /* look for the current half_assoc by spt, dpt and vtag */
 
@@ -4029,12 +4030,19 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pi
     proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_queuesize,        chunk_tvb, PKTDROP_CHUNK_QUEUESIZE_OFFSET,      PKTDROP_CHUNK_QUEUESIZE_LENGTH,      ENC_BIG_ENDIAN);
     proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_truncated_length, chunk_tvb, PKTDROP_CHUNK_TRUNCATED_SIZE_OFFSET, PKTDROP_CHUNK_TRUNCATED_SIZE_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_reserved,         chunk_tvb, PKTDROP_CHUNK_RESERVED_SIZE_OFFSET,  PKTDROP_CHUNK_RESERVED_SIZE_LENGTH,  ENC_BIG_ENDIAN);
-    /* XXX - set pinfo->flags.in_error_pkt? */
+
     if (chunk_length > 0) {
+      /* XXX - We should dissect what we can and catch the BoundsError when we run out of bytes */
       if (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_PKTDROP_CHUNK_T_BIT)
         proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_data_field,   chunk_tvb, PKTDROP_CHUNK_DATA_FIELD_OFFSET,     chunk_length,                   ENC_NA);
-      else
+      else {
+        gboolean save_in_error_pkt = pinfo->flags.in_error_pkt;
+        pinfo->flags.in_error_pkt = TRUE;
+
         dissect_sctp_packet(data_field_tvb, pinfo, chunk_tree, TRUE);
+
+        pinfo->flags.in_error_pkt = save_in_error_pkt;
+      }
     }
   }
 }
