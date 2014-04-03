@@ -57,6 +57,7 @@
 #include <epan/dissectors/packet-enc.h>
 #include <epan/dissectors/packet-i2c.h>
 #include <epan/dissectors/packet-ax25-kiss.h>
+#include <epan/dissectors/packet-pktap.h>
 
 #include <wsutil/filesystem.h>
 
@@ -361,6 +362,9 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
         /* XXX - some ATM drivers on FreeBSD might prepend a 4-byte ATM
            pseudo-header to DLT_ATM_RFC1483, with LLC header following;
            we might have to implement that at some point. */
+    case WTAP_ENCAP_PKTAP:
+        capture_pktap(pd, caplen, counts);
+        break;
     }
 }
 

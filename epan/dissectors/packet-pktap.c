@@ -34,6 +34,7 @@
 
 #include "packet-frame.h"
 #include "packet-eth.h"
+#include "packet-pktap.h"
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>

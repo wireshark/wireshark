@@ -1542,6 +1542,7 @@ DISSECTOR_INCLUDES =	\
 	packet-pkixtsp.h	\
 	packet-pkinit.h	\
 	packet-pktc.h	\
+	packet-pktap.h	\
 	packet-portmap.h	\
 	packet-ppi.h		\
 	packet-ppi-geolocation-common.h		\
