@@ -112,6 +112,7 @@ static guint global_tpncp_trunkpack_tcp_port = TCP_PORT_TPNCP_TRUNKPACK;
 static guint global_tpncp_trunkpack_udp_port = UDP_PORT_TPNCP_TRUNKPACK;
 static guint global_tpncp_host_tcp_port = TCP_PORT_TPNCP_HOST;
 static guint global_tpncp_host_udp_port = UDP_PORT_TPNCP_HOST;
+static guint global_tpncp_load_db = FALSE;
 
 static dissector_handle_t tpncp_handle;
 
@@ -789,14 +790,16 @@ void proto_reg_handoff_tpncp(void) {
         dissector_delete_uint("udp.port", host_udp_port,      tpncp_handle);
     }
 
-    trunkpack_tcp_port = global_tpncp_trunkpack_tcp_port;
-    trunkpack_udp_port = global_tpncp_trunkpack_udp_port;
+	if(global_tpncp_load_db){
+		trunkpack_tcp_port = global_tpncp_trunkpack_tcp_port;
+		trunkpack_udp_port = global_tpncp_trunkpack_udp_port;
 
-    host_tcp_port = global_tpncp_host_tcp_port;
-    host_udp_port = global_tpncp_host_udp_port;
+		host_tcp_port = global_tpncp_host_tcp_port;
+		host_udp_port = global_tpncp_host_udp_port;
 
-    dissector_add_uint("tcp.port", global_tpncp_trunkpack_tcp_port, tpncp_tcp_handle);
-    dissector_add_uint("udp.port", global_tpncp_trunkpack_udp_port, tpncp_handle);
+		dissector_add_uint("tcp.port", global_tpncp_trunkpack_tcp_port, tpncp_tcp_handle);
+		dissector_add_uint("udp.port", global_tpncp_trunkpack_udp_port, tpncp_handle);
+	}
 }
 
 /*-------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -809,40 +812,50 @@ void proto_register_tpncp(void) {
         &ett_tpncp_body
     };
 
-    if (init_tpncp_db() == -1) {
-        g_warning("Could not load tpncp.dat file, tpncp dissector will not work");
-        return;
-    }
-
     proto_tpncp = proto_register_protocol("AudioCodes TPNCP (TrunkPack Network Control Protocol)",
                                           "TPNCP", "tpncp");
+	if(global_tpncp_load_db){
+		if (init_tpncp_db() == -1) {
+			g_warning("Could not load tpncp.dat file, tpncp dissector will not work");
+			return;
+		}
 
-    /* Rather than duplicating large quantities of code from
-     * proto_register_field_array() and friends to sanitize the tpncp.dat file
-     * when we read it, just catch any exceptions we get while registering and
-     * take them as a hint that the file is corrupt. Then move on, so that at
-     * least the rest of the protocol dissectors will still work.
-     */
-    TRY {
-        /* The function proto_register_field_array does not work with dynamic
-         * arrays, so pass dynamic array elements one-by-one in the loop.
-         */
-        for(idx = 0; idx < hf_size; idx++) {
-            proto_register_field_array(proto_tpncp, &hf[idx], 1);
-        }
-    }
 
-    CATCH_ALL {
-        g_warning("Corrupt tpncp.dat file, tpncp dissector will not work.");
-    }
+		/* Rather than duplicating large quantities of code from
+		 * proto_register_field_array() and friends to sanitize the tpncp.dat file
+		 * when we read it, just catch any exceptions we get while registering and
+		 * take them as a hint that the file is corrupt. Then move on, so that at
+		 * least the rest of the protocol dissectors will still work.
+		 */
+		TRY {
+			/* The function proto_register_field_array does not work with dynamic
+			 * arrays, so pass dynamic array elements one-by-one in the loop.
+			 */
+			for(idx = 0; idx < hf_size; idx++) {
+				proto_register_field_array(proto_tpncp, &hf[idx], 1);
+			}
+		}
 
-    ENDTRY;
+		CATCH_ALL {
+			g_warning("Corrupt tpncp.dat file, tpncp dissector will not work.");
+		}
 
-    proto_register_subtree_array(ett, array_length(ett));
+		ENDTRY;
+
+		proto_register_subtree_array(ett, array_length(ett));
+	}
 
     tpncp_handle = new_register_dissector("tpncp", dissect_tpncp, proto_tpncp);
 
     tpncp_module = prefs_register_protocol(proto_tpncp, proto_reg_handoff_tpncp);
+
+	/* See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9569 for some discussion on this as well */
+	prefs_register_bool_preference(tpncp_module, "load_db",
+        "Whether to load DB or not, if DB not loaded dissector is passive",
+        "Whether to load the Data base or not, not loading the DB "
+        "dissaables the protocol, Wireshar has to be restarted for the"
+        "setting to take effect ",
+        &global_tpncp_load_db);
 
     prefs_register_uint_preference(tpncp_module, "tcp.trunkpack_port",
                                    "TPNCP \"well-known\" TrunkPack TCP Port",
