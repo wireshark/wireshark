@@ -900,7 +900,7 @@ rtp_dyn_payloads_table_steal_func(gpointer key _U_, gpointer value, gpointer use
 
     if (rtp_dyn_payload->ref_count == 0) {
         /* this shouldn't happen */
-        g_error("rtp_dyn_payload cannot be free'd because it should already have been!\n");
+        DPRINT(("rtp_dyn_payload cannot be free'd because it should already have been!\n"));
     }
     else if (rtp_dyn_payload->table) {
         /* each member was created with a wmem file scope, so there's no point in calling the
@@ -919,8 +919,6 @@ static gboolean
 wmem_rtp_dyn_payload_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data _U_)
 {
-    g_assert(rtp_dyn_payloads);
-
     DPRINT(("destroying %u remaining rtp_dyn_payload_t's", g_hash_table_size(rtp_dyn_payloads)));
 
     /* each member was created with a wmem file scope, so there's no point in calling the
@@ -1071,9 +1069,8 @@ rtp_dyn_payload_free(rtp_dyn_payload_t *rtp_dyn_payload)
 #endif
 
         /* remove it from the single rtp_dyn_payloads GHashTable */
-        g_assert(rtp_dyn_payloads);
         if (!g_hash_table_remove(rtp_dyn_payloads, rtp_dyn_payload)) {
-            g_error("rtp_dyn_payload not found in rtp_dyn_payloads table to remove!");
+            DPRINT(("rtp_dyn_payload not found in rtp_dyn_payloads table to remove!"));
         }
 
         /* destroy the table GHashTable in it - this automatically deletes the
