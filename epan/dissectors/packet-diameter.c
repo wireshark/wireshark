@@ -1242,17 +1242,28 @@ get_diameter_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 static gboolean
 check_diameter(tvbuff_t *tvb)
 {
-	if (tvb_length(tvb) < 1)
-		return FALSE;   /* not enough bytes to check the version */
+	guint32 diam_len;
 
+	/* Ensure we don't throw an exception trying to do these heuristics */
+	if (tvb_length(tvb) < 5)
+		return FALSE;
+
+	/* Check if the Diameter version is 1 */
 	if (tvb_get_guint8(tvb, 0) != 1)
-		return FALSE;   /* not version 1 */
+		return FALSE;
 
-		  /*
-		   * XXX - fetch length and make sure it's at least MIN_DIAMETER_SIZE?
-		   * Fetch flags and check that none of the DIAM_FLAGS_RESERVED bits
-		   * are set?
-		   */
+	/* Check if the message size is reasonable.
+	 * Diameter messages can technically be of any size; this limit
+	 * is just a practical one (feel free to tune it).
+	 */
+	diam_len = tvb_get_ntoh24(tvb, 1);
+	if (diam_len > 8192)
+		return FALSE;
+
+	/* Check if any of the Reserved flag bits are set */
+	if (tvb_get_guint8(tvb, 4) & 0x0f)
+		return FALSE;
+
 	return TRUE;
 }
 
