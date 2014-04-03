@@ -363,6 +363,11 @@ capture_info_packet(packet_counts *counts, gint wtap_linktype, const guchar *pd,
            pseudo-header to DLT_ATM_RFC1483, with LLC header following;
            we might have to implement that at some point. */
     case WTAP_ENCAP_PKTAP:
+    case WTAP_ENCAP_USER2:
+        /* XXX - WTAP_ENCAP_USER2 to handle Mavericks' botch wherein it
+           uses DLT_USER2 for PKTAP; if you are using DLT_USER2 for your
+           own purposes, feel free to call your own capture_ routine for
+           WTAP_ENCAP_USER2. */
         capture_pktap(pd, caplen, counts);
         break;
     }
