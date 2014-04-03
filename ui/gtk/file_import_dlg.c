@@ -1,4 +1,4 @@
-/* file_import_dlg.c
+/* file_import_dlg.c
  * Dialog to setup for import of a text file, like text2pcap
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>
  *
@@ -1213,10 +1213,10 @@ file_import_cmd_cb(GtkWidget *widget _U_)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

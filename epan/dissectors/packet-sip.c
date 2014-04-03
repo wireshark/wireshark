@@ -2436,8 +2436,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         descr = "Status";
         col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
                      tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
-        stat_info->reason_phrase = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5, 
-			linelen - (SIP2_HDR_LEN + 5),ENC_UTF_8|ENC_NA);
+        stat_info->reason_phrase = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5,
+                                                      linelen - (SIP2_HDR_LEN + 5),ENC_UTF_8|ENC_NA);
         DPRINT(("got Response: %s",
                 tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1)));
         break;
@@ -4380,1136 +4380,1136 @@ guint sip_find_invite(packet_info *pinfo,
 void proto_register_sip(void)
 {
 
-        /* Setup list of header fields */
-        static hf_register_info hf[] = {
+    /* Setup list of header fields */
+    static hf_register_info hf[] = {
 
         { &hf_sip_msg_hdr,
-                { "Message Header",           "sip.msg_hdr",
-                        FT_STRING, BASE_NONE, NULL, 0,
-                        "Message Header in SIP message", HFILL }
-                },
+          { "Message Header",           "sip.msg_hdr",
+            FT_STRING, BASE_NONE, NULL, 0,
+            "Message Header in SIP message", HFILL }
+        },
         { &hf_sip_Method,
-               { "Method",      "sip.Method",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Method",      "sip.Method",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "SIP Method", HFILL }
         },
         { &hf_Request_Line,
-                { "Request-Line",                "sip.Request-Line",
-                    FT_STRING, BASE_NONE,NULL,0x0,
-                       "SIP Request-Line", HFILL }
-                },
+          { "Request-Line",                "sip.Request-Line",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "SIP Request-Line", HFILL }
+        },
         { &hf_sip_ruri,
-                { "Request-URI",        "sip.r-uri",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Request-URI",        "sip.r-uri",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP R-URI", HFILL }
         },
         { &hf_sip_ruri_user,
-                { "Request-URI User Part",      "sip.r-uri.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Request-URI User Part",      "sip.r-uri.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP R-URI User", HFILL }
         },
         { &hf_sip_ruri_host,
-                { "Request-URI Host Part",      "sip.r-uri.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Request-URI Host Part",      "sip.r-uri.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP R-URI Host", HFILL }
         },
         { &hf_sip_ruri_port,
-                { "Request-URI Host Port",      "sip.r-uri.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Request-URI Host Port",      "sip.r-uri.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP R-URI Port", HFILL }
         },
         { &hf_sip_ruri_param,
-                { "Request URI parameter",      "sip.r-uri.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Request URI parameter",      "sip.r-uri.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_sip_Status_Code,
-               { "Status-Code",         "sip.Status-Code",
-               FT_UINT32, BASE_DEC,NULL,0x0,
+          { "Status-Code",         "sip.Status-Code",
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "SIP Status Code", HFILL }
         },
         { &hf_sip_Status_Line,
-               { "Status-Line",                 "sip.Status-Line",
-               FT_STRING, BASE_NONE,NULL,0x0,
-                       "SIP Status-Line", HFILL }
-                },
+          { "Status-Line",                 "sip.Status-Line",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "SIP Status-Line", HFILL }
+        },
         { &hf_sip_display,
-            { "SIP Display info",       "sip.display.info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP Display info",       "sip.display.info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Display info", HFILL }
         },
         { &hf_sip_to_addr,
-                { "SIP to address",         "sip.to.addr",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP to address",         "sip.to.addr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: To Address", HFILL }
         },
         { &hf_sip_to_user,
-               { "SIP to address User Part",        "sip.to.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP to address User Part",        "sip.to.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: To Address User", HFILL }
         },
         { &hf_sip_to_host,
-               { "SIP to address Host Part",        "sip.to.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP to address Host Part",        "sip.to.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: To Address Host", HFILL }
         },
         { &hf_sip_to_port,
-               { "SIP to address Host Port",        "sip.to.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP to address Host Port",        "sip.to.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: To Address Port", HFILL }
         },
         { &hf_sip_to_param,
-               { "SIP To URI parameter",        "sip.to.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP To URI parameter",        "sip.to.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_sip_to_tag,
-               { "SIP to tag",          "sip.to.tag",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP to tag",          "sip.to.tag",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: to tag", HFILL }
         },
         { &hf_sip_from_addr,
-               { "SIP from address",        "sip.from.addr",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP from address",        "sip.from.addr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: From Address", HFILL }
         },
         { &hf_sip_from_user,
-               { "SIP from address User Part",      "sip.from.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP from address User Part",      "sip.from.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: From Address User", HFILL }
         },
         { &hf_sip_from_host,
-               { "SIP from address Host Part",      "sip.from.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP from address Host Part",      "sip.from.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: From Address Host", HFILL }
         },
         { &hf_sip_from_port,
-               { "SIP from address Host Port",      "sip.from.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP from address Host Port",      "sip.from.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: From Address Port", HFILL }
         },
         { &hf_sip_from_param,
-               { "SIP From URI parameter",      "sip.from.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP From URI parameter",      "sip.from.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_sip_from_tag,
-               { "SIP from tag",        "sip.from.tag",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP from tag",        "sip.from.tag",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: from tag", HFILL }
         },
 /* etxrab */
         { &hf_sip_curi,
-                { "Contact URI",        "sip.contact.uri",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Contact URI",        "sip.contact.uri",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP C-URI", HFILL }
         },
         { &hf_sip_curi_user,
-                { "Contact URI User Part",      "sip.contact.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Contact URI User Part",      "sip.contact.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP C-URI User", HFILL }
         },
         { &hf_sip_curi_host,
-                { "Contact URI Host Part",      "sip.contact.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Contact URI Host Part",      "sip.contact.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP C-URI Host", HFILL }
         },
         { &hf_sip_curi_port,
-                { "Contact URI Host Port",      "sip.contact.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Contact URI Host Port",      "sip.contact.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: SIP C-URI Port", HFILL }
         },
         { &hf_sip_curi_param,
-                { "Contact URI parameter",      "sip.contact.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Contact URI parameter",      "sip.contact.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
 /* etxjowa */
         { &hf_sip_route,
-                { "Route URI",         "sip.Route.uri",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Route URI",         "sip.Route.uri",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_route_user,
-                { "Route Userinfo",    "sip.Route.user",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Route Userinfo",    "sip.Route.user",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_route_host,
-                { "Route Host Part",   "sip.Route.host",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Route Host Part",   "sip.Route.host",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_route_port,
-                { "Route Host Port",   "sip.Route.port",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Route Host Port",   "sip.Route.port",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_route_param,
-                { "Route URI parameter",   "sip.Route.param",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Route URI parameter",   "sip.Route.param",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_record_route,
-                { "Record-Route URI",         "sip.Record-Route.uri",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Record-Route URI",         "sip.Record-Route.uri",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_record_route_user,
-                { "Record-Route Userinfo",    "sip.Record-Route.user",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Record-Route Userinfo",    "sip.Record-Route.user",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_record_route_host,
-                { "Record-Route Host Part",   "sip.Record-Route.host",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Record-Route Host Part",   "sip.Record-Route.host",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_record_route_port,
-                { "Record-Route Host Port",   "sip.Record-Route.port",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Record-Route Host Port",   "sip.Record-Route.port",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
         { &hf_sip_record_route_param,
-                { "Record-Route URI parameter",   "sip.Record-Route.param",
-               FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
+          { "Record-Route URI parameter",   "sip.Record-Route.param",
+            FT_STRING, BASE_NONE,NULL,0x0,NULL,HFILL }
         },
 /* etxjowa end */
         { &hf_sip_contact_param,
-               { "Contact parameter",       "sip.contact.parameter",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Contact parameter",       "sip.contact.parameter",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: one contact parameter", HFILL }
         },
         { &hf_sip_tag,
-               { "SIP tag",         "sip.tag",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP tag",         "sip.tag",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: tag", HFILL }
         },
         { &hf_sip_pai_addr,
-               { "SIP PAI Address",         "sip.pai.addr",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PAI Address",         "sip.pai.addr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Asserted-Identity Address", HFILL }
         },
         { &hf_sip_pai_user,
-               { "SIP PAI User Part",       "sip.pai.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PAI User Part",       "sip.pai.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Asserted-Identity User", HFILL }
         },
         { &hf_sip_pai_host,
-               { "SIP PAI Host Part",       "sip.pai.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PAI Host Part",       "sip.pai.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Asserted-Identity Host", HFILL }
         },
         { &hf_sip_pai_port,
-               { "SIP PAI Host Port",       "sip.pai.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PAI Host Port",       "sip.pai.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Asserted-Identity Port", HFILL }
         },
         { &hf_sip_pai_param,
-               { "SIP PAI URI parameter",       "sip.pai.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PAI URI parameter",       "sip.pai.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_sip_pmiss_addr,
-               { "SIP PMISS Address",       "sip.pmiss.addr",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PMISS Address",       "sip.pmiss.addr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Permission Missing Address", HFILL }
         },
         { &hf_sip_pmiss_user,
-               { "SIP PMISS User Part",     "sip.pmiss.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PMISS User Part",     "sip.pmiss.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Permission Missing User", HFILL }
         },
         { &hf_sip_pmiss_host,
-               { "SIP PMISS Host Part",     "sip.pmiss.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PMISS Host Part",     "sip.pmiss.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Permission Missing Host", HFILL }
         },
         { &hf_sip_pmiss_port,
-               { "SIP PMISS Host Port",     "sip.pmiss.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PMISS Host Port",     "sip.pmiss.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Permission Missing Port", HFILL }
         },
         { &hf_sip_pmiss_param,
-               { "SIP PMISS URI parameter",     "sip.pmiss.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PMISS URI parameter",     "sip.pmiss.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
 
         { &hf_sip_ppi_addr,
-               { "SIP PPI Address",         "sip.ppi.addr",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PPI Address",         "sip.ppi.addr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Preferred-Identity Address", HFILL }
         },
         { &hf_sip_ppi_user,
-               { "SIP PPI User Part",       "sip.ppi.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PPI User Part",       "sip.ppi.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Preferred-Identity User", HFILL }
         },
         { &hf_sip_ppi_host,
-               { "SIP PPI Host Part",       "sip.ppi.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PPI Host Part",       "sip.ppi.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Preferred-Identity Host", HFILL }
         },
         { &hf_sip_ppi_port,
-               { "SIP PPI Host Port",       "sip.ppi.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PPI Host Port",       "sip.ppi.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Preferred-Identity Port", HFILL }
         },
         { &hf_sip_ppi_param,
-               { "SIP PPI URI parameter",       "sip.ppi.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP PPI URI parameter",       "sip.ppi.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_sip_tc_addr,
-               { "SIP TC Address",      "sip.tc.addr",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP TC Address",      "sip.tc.addr",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Trigger Consent Address", HFILL }
         },
         { &hf_sip_tc_user,
-               { "SIP TC User Part",        "sip.tc.user",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP TC User Part",        "sip.tc.user",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Trigger Consent User", HFILL }
         },
         { &hf_sip_tc_host,
-               { "SIP TC Host Part",        "sip.tc.host",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP TC Host Part",        "sip.tc.host",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Trigger Consent Host", HFILL }
         },
         { &hf_sip_tc_port,
-               { "SIP TC Host Port",        "sip.tc.port",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP TC Host Port",        "sip.tc.port",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Trigger Consent Port", HFILL }
         },
         { &hf_sip_tc_param,
-               { "SIP TC URI parameter",        "sip.tc.param",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP TC URI parameter",        "sip.tc.param",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_sip_tc_turi,
-               { "SIP TC Target URI",       "sip.tc.target-uri",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "SIP TC Target URI",       "sip.tc.target-uri",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: Trigger Consent Target URI", HFILL }
         },
         { &hf_header_array[POS_ACCEPT],
-               { "Accept",      "sip.Accept",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Accept",      "sip.Accept",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Accept Header", HFILL }
         },
         { &hf_header_array[POS_ACCEPT_CONTACT],
-               { "Accept-Contact",      "sip.Accept-Contact",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Accept-Contact",      "sip.Accept-Contact",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3841: Accept-Contact Header", HFILL }
         },
         { &hf_header_array[POS_ACCEPT_ENCODING],
-               { "Accept-Encoding",         "sip.Accept-Encoding",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Accept-Encoding",         "sip.Accept-Encoding",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3841: Accept-Encoding Header", HFILL }
         },
         { &hf_header_array[POS_ACCEPT_LANGUAGE],
-               { "Accept-Language",         "sip.Accept-Language",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Accept-Language",         "sip.Accept-Language",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Accept-Language Header", HFILL }
         },
         { &hf_header_array[POS_ACCEPT_RESOURCE_PRIORITY],
-               { "Accept-Resource-Priority",        "sip.Accept-Resource-Priority",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Accept-Resource-Priority",        "sip.Accept-Resource-Priority",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "Draft: Accept-Resource-Priority Header", HFILL }
         },
         { &hf_header_array[POS_ALERT_INFO],
-               { "Alert-Info",      "sip.Alert-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Alert-Info",      "sip.Alert-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Alert-Info Header", HFILL }
         },
         { &hf_header_array[POS_ALLOW],
-               { "Allow",       "sip.Allow",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Allow",       "sip.Allow",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Allow Header", HFILL }
         },
-                { &hf_header_array[POS_ALLOW_EVENTS],
-               { "Allow-Events",        "sip.Allow-Events",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_ALLOW_EVENTS],
+          { "Allow-Events",        "sip.Allow-Events",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3265: Allow-Events Header", HFILL }
         },
-                { &hf_header_array[POS_ANSWER_MODE],
-               { "Answer-Mode",         "sip.Answer-Mode",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_ANSWER_MODE],
+          { "Answer-Mode",         "sip.Answer-Mode",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 5373: Answer-Mode Header", HFILL }
         },
-                { &hf_header_array[POS_AUTHENTICATION_INFO],
-               { "Authentication-Info",         "sip.Authentication-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_AUTHENTICATION_INFO],
+          { "Authentication-Info",         "sip.Authentication-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Authentication-Info Header", HFILL }
         },
-                { &hf_header_array[POS_AUTHORIZATION],
-               { "Authorization",       "sip.Authorization",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_AUTHORIZATION],
+          { "Authorization",       "sip.Authorization",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Authorization Header", HFILL }
         },
-                { &hf_header_array[POS_CALL_ID],
-               { "Call-ID",         "sip.Call-ID",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CALL_ID],
+          { "Call-ID",         "sip.Call-ID",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Call-ID Header", HFILL }
         },
-                { &hf_header_array[POS_CALL_INFO],
-               { "Call-Info",       "sip.Call-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CALL_INFO],
+          { "Call-Info",       "sip.Call-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Call-Info Header", HFILL }
         },
-                { &hf_header_array[POS_CONTACT],
-               { "Contact",         "sip.Contact",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CONTACT],
+          { "Contact",         "sip.Contact",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Contact Header", HFILL }
         },
-                { &hf_header_array[POS_CONTENT_DISPOSITION],
-               { "Content-Disposition",         "sip.Content-Disposition",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CONTENT_DISPOSITION],
+          { "Content-Disposition",         "sip.Content-Disposition",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Content-Disposition Header", HFILL }
         },
-                { &hf_header_array[POS_CONTENT_ENCODING],
-               { "Content-Encoding",        "sip.Content-Encoding",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CONTENT_ENCODING],
+          { "Content-Encoding",        "sip.Content-Encoding",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Content-Encoding Header", HFILL }
         },
-                { &hf_header_array[POS_CONTENT_LANGUAGE],
-               { "Content-Language",        "sip.Content-Language",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CONTENT_LANGUAGE],
+          { "Content-Language",        "sip.Content-Language",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Content-Language Header", HFILL }
         },
-                { &hf_header_array[POS_CONTENT_LENGTH],
-               { "Content-Length",      "sip.Content-Length",
-               FT_UINT32, BASE_DEC,NULL,0x0,
+        { &hf_header_array[POS_CONTENT_LENGTH],
+          { "Content-Length",      "sip.Content-Length",
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "RFC 3261: Content-Length Header", HFILL }
         },
-                { &hf_header_array[POS_CONTENT_TYPE],
-               { "Content-Type",        "sip.Content-Type",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CONTENT_TYPE],
+          { "Content-Type",        "sip.Content-Type",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Content-Type Header", HFILL }
         },
-                { &hf_header_array[POS_CSEQ],
-               { "CSeq",        "sip.CSeq",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_CSEQ],
+          { "CSeq",        "sip.CSeq",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: CSeq Header", HFILL }
         },
-                { &hf_header_array[POS_DATE],
-               { "Date",        "sip.Date",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_DATE],
+          { "Date",        "sip.Date",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Date Header", HFILL }
         },
-                { &hf_header_array[POS_ERROR_INFO],
-               { "Error-Info",      "sip.Error-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_ERROR_INFO],
+          { "Error-Info",      "sip.Error-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Error-Info Header", HFILL }
         },
-                { &hf_header_array[POS_EVENT],
-               { "Event",       "sip.Event",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_EVENT],
+          { "Event",       "sip.Event",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3265: Event Header", HFILL }
         },
         { &hf_header_array[POS_EXPIRES],
-               { "Expires",         "sip.Expires",
-               FT_UINT32, BASE_DEC,NULL,0x0,
+          { "Expires",         "sip.Expires",
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "RFC 3261: Expires Header", HFILL }
         },
         { &hf_header_array[POS_FEATURE_CAPS],
-               { "Feature-Caps",        "sip.feature_caps",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Feature-Caps",        "sip.feature_caps",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 6809: Feature-Caps", HFILL }
         },
         { &hf_header_array[POS_FLOW_TIMER],
-               { "Flow-Timer",      "sip.Flow-Timer",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Flow-Timer",      "sip.Flow-Timer",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 5626: Flow-Timer", HFILL }
         },
         { &hf_header_array[POS_FROM],
-               { "From",        "sip.From",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "From",        "sip.From",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: From Header", HFILL }
         },
         { &hf_header_array[POS_GEOLOCATION],
-               { "Geolocation",         "sip.Geolocation",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Geolocation",         "sip.Geolocation",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_GEOLOCATION_ERROR],
-               { "Geolocation-Error",       "sip.Geolocation",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Geolocation-Error",       "sip.Geolocation",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_GEOLOCATION_ROUTING],
-               { "Geolocation-Routing",         "sip.Geolocation_Routing",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Geolocation-Routing",         "sip.Geolocation_Routing",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_HISTORY_INFO],
-            { "History-Info",           "sip.History-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "History-Info",           "sip.History-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4244: Request History Information", HFILL }
         },
         { &hf_header_array[POS_IDENTITY],
-            { "Identity",           "sip.Identity",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Identity",           "sip.Identity",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4474: Request Identity", HFILL }
         },
         { &hf_header_array[POS_IDENTITY_INFO],
-            { "Identity-info",          "sip.Identity-info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Identity-info",          "sip.Identity-info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4474: Request Identity-info", HFILL }
         },
         { &hf_header_array[POS_INFO_PKG],
-            { "Info-Package",           "sip.Info-Package",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Info-Package",           "sip.Info-Package",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_IN_REPLY_TO],
-               { "In-Reply-To",         "sip.In-Reply-To",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "In-Reply-To",         "sip.In-Reply-To",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: In-Reply-To Header", HFILL }
         },
         { &hf_header_array[POS_JOIN],
-               { "Join",        "sip.Join",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Join",        "sip.Join",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "Draft: Join Header", HFILL }
         },
-                { &hf_header_array[POS_MAX_BREADTH],
-               { "Max-Breadth",     "sip.Max-Breadth",
-               FT_UINT32, BASE_DEC,NULL,0x0,
+        { &hf_header_array[POS_MAX_BREADTH],
+          { "Max-Breadth",     "sip.Max-Breadth",
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "RFC 5393: Max-Breadth Header", HFILL }
         },
         { &hf_header_array[POS_MAX_FORWARDS],
-               { "Max-Forwards",        "sip.Max-Forwards",
-               FT_UINT32, BASE_DEC,NULL,0x0,
+          { "Max-Forwards",        "sip.Max-Forwards",
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "RFC 3261: Max-Forwards Header", HFILL }
         },
         { &hf_header_array[POS_MIME_VERSION],
-               { "MIME-Version",        "sip.MIME-Version",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "MIME-Version",        "sip.MIME-Version",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: MIME-Version Header", HFILL }
         },
         { &hf_header_array[POS_MIN_EXPIRES],
-               { "Min-Expires",         "sip.Min-Expires",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Min-Expires",         "sip.Min-Expires",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Min-Expires Header", HFILL }
         },
         { &hf_header_array[POS_MIN_SE],
-               { "Min-SE",      "sip.Min-SE",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Min-SE",      "sip.Min-SE",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "Draft: Min-SE Header", HFILL }
         },
-                { &hf_header_array[POS_ORGANIZATION],
-               { "Organization",        "sip.Organization",
-               FT_STRING, BASE_NONE,NULL,0x0,
+        { &hf_header_array[POS_ORGANIZATION],
+          { "Organization",        "sip.Organization",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Organization Header", HFILL }
         },
         { &hf_header_array[POS_P_ACCESS_NETWORK_INFO],
-               { "P-Access-Network-Info",   "sip.P-Access-Network-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Access-Network-Info",   "sip.P-Access-Network-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-Access-Network-Info Header", HFILL }
         },
         { &hf_header_array[POS_P_ANSWER_STATE],
-               { "P-Answer-State",      "sip.P-Answer-State",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Answer-State",      "sip.P-Answer-State",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4964: P-Answer-State Header", HFILL }
         },
         { &hf_header_array[POS_P_ASSERTED_IDENTITY],
-               { "P-Asserted-Identity",     "sip.P-Asserted-Identity",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Asserted-Identity",     "sip.P-Asserted-Identity",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Asserted-Identity Header", HFILL }
         },
         { &hf_header_array[POS_P_ASSERTED_SERV],
-               { "P-Asserted-Service",      "sip.P-Asserted-Service",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Asserted-Service",      "sip.P-Asserted-Service",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_P_ASSOCIATED_URI],
-               { "P-Associated-URI",        "sip.P-Associated-URI",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Associated-URI",        "sip.P-Associated-URI",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3455: P-Associated-URI Header", HFILL }
         },
 
         { &hf_header_array[POS_P_CALLED_PARTY_ID],
-               { "P-Called-Party-ID",       "sip.P-Called-Party-ID",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Called-Party-ID",       "sip.P-Called-Party-ID",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3455: P-Called-Party-ID Header", HFILL }
         },
 
         { &hf_header_array[POS_P_CHARGING_FUNC_ADDRESSES],
-               { "P-Charging-Function-Addresses","sip.P-Charging-Function-Addresses",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Charging-Function-Addresses","sip.P-Charging-Function-Addresses",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
 
         { &hf_header_array[POS_P_CHARGING_VECTOR],
-               { "P-Charging-Vector",       "sip.P-Charging-Vector",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Charging-Vector",       "sip.P-Charging-Vector",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-Charging-Vector Header", HFILL }
         },
 
         { &hf_header_array[POS_P_DCS_TRACE_PARTY_ID],
-               { "P-DCS-Trace-Party-ID",    "sip.P-DCS-Trace-Party-ID",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-DCS-Trace-Party-ID",    "sip.P-DCS-Trace-Party-ID",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-DCS-Trace-Party-ID Header", HFILL }
         },
 
         { &hf_header_array[POS_P_DCS_OSPS],
-               { "P-DCS-OSPS",          "sip.P-DCS-OSPS",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-DCS-OSPS",          "sip.P-DCS-OSPS",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-DCS-OSPS Header", HFILL }
         },
 
         { &hf_header_array[POS_P_DCS_BILLING_INFO],
-               { "P-DCS-Billing-Info",      "sip.P-DCS-Billing-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-DCS-Billing-Info",      "sip.P-DCS-Billing-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-DCS-Billing-Info Header", HFILL }
         },
 
         { &hf_header_array[POS_P_DCS_LAES],
-               { "P-DCS-LAES",          "sip.P-DCS-LAES",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-DCS-LAES",          "sip.P-DCS-LAES",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-DCS-LAES Header", HFILL }
         },
 
         { &hf_header_array[POS_P_DCS_REDIRECT],
-               { "P-DCS-Redirect",      "sip.P-DCS-Redirect",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-DCS-Redirect",      "sip.P-DCS-Redirect",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-DCS-Redirect Header", HFILL }
         },
 
         { &hf_header_array[POS_P_EARLY_MEDIA],
-               { "P-Early-Media",       "sip.P-Early-Media",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Early-Media",       "sip.P-Early-Media",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-Early-Media Header", HFILL }
         },
 
         { &hf_header_array[POS_P_MEDIA_AUTHORIZATION],
-               { "P-Media-Authorization",   "sip.P-Media-Authorization",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               "RFC 3313: P-Media-Authorization Header", HFILL }
+          { "P-Media-Authorization",   "sip.P-Media-Authorization",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3313: P-Media-Authorization Header", HFILL }
         },
 
         { &hf_header_array[POS_P_PREFERRED_IDENTITY],
-               { "P-Preferred-Identity",    "sip.P-Preferred-Identity",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Preferred-Identity",    "sip.P-Preferred-Identity",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3325: P-Preferred-Identity Header", HFILL }
         },
         { &hf_header_array[POS_P_PREFERRED_SERV],
-               { "P-Preferred-Service",     "sip.P-Preferred-Service",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Preferred-Service",     "sip.P-Preferred-Service",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_P_PROFILE_KEY],
-               { "P-Profile-Key",   "sip.P-Profile-Key",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Profile-Key",   "sip.P-Profile-Key",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-Profile-Key Header", HFILL }
         },
         { &hf_header_array[POS_P_REFUSED_URI_LST],
-               { "P-Refused-URI-List",      "sip.P-Refused-URI-List",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Refused-URI-List",      "sip.P-Refused-URI-List",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-Refused-URI-List Header", HFILL }
         },
         { &hf_header_array[POS_P_SERVED_USER],
-               { "P-Served-User",   "sip.P-Served-User",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-Served-User",   "sip.P-Served-User",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_P_USER_DATABASE],
-               { "P-User-Database",     "sip.P-User-Database",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "P-User-Database",     "sip.P-User-Database",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "P-User-Database Header", HFILL }
         },
 
         { &hf_header_array[POS_P_VISITED_NETWORK_ID],
-               { "P-Visited-Network-ID",    "sip.P-Visited-Network-ID",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               "RFC 3455: P-Visited-Network-ID Header", HFILL }
+          { "P-Visited-Network-ID",    "sip.P-Visited-Network-ID",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3455: P-Visited-Network-ID Header", HFILL }
         },
 
         { &hf_header_array[POS_PATH],
-               { "Path",            "sip.Path",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               "RFC 3327: Path Header", HFILL }
+          { "Path",            "sip.Path",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3327: Path Header", HFILL }
         },
 
         { &hf_header_array[POS_PERMISSION_MISSING],
-               { "Permission-Missing",      "sip.Permission-Missing",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               "RFC 5360: Permission Missing Header", HFILL }
+          { "Permission-Missing",      "sip.Permission-Missing",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 5360: Permission Missing Header", HFILL }
         },
         { &hf_header_array[POS_POLICY_CONTACT],
-               { "Policy-Contact",      "sip.Policy_Contact",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               NULL, HFILL }
+          { "Policy-Contact",      "sip.Policy_Contact",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            NULL, HFILL }
         },
         { &hf_header_array[POS_POLICY_ID],
-               { "Policy-ID",       "sip.Policy_ID",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               NULL, HFILL }
+          { "Policy-ID",       "sip.Policy_ID",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            NULL, HFILL }
         },
         { &hf_header_array[POS_PRIORITY],
-               { "Priority",        "sip.Priority",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Priority",        "sip.Priority",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Priority Header", HFILL }
         },
         { &hf_header_array[POS_PRIV_ANSWER_MODE],
-               { "Priv-Answer-mode",    "sip.Priv-Answer-mode",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Priv-Answer-mode",    "sip.Priv-Answer-mode",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_PRIVACY],
-               { "Privacy",             "sip.Privacy",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Privacy",             "sip.Privacy",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "Privacy Header", HFILL }
         },
 
         { &hf_header_array[POS_PROXY_AUTHENTICATE],
-               { "Proxy-Authenticate",      "sip.Proxy-Authenticate",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Proxy-Authenticate",      "sip.Proxy-Authenticate",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Proxy-Authenticate Header", HFILL }
         },
         { &hf_header_array[POS_PROXY_AUTHORIZATION],
-               { "Proxy-Authorization",         "sip.Proxy-Authorization",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Proxy-Authorization",         "sip.Proxy-Authorization",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Proxy-Authorization Header", HFILL }
         },
 
         { &hf_header_array[POS_PROXY_REQUIRE],
-               { "Proxy-Require",       "sip.Proxy-Require",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Proxy-Require",       "sip.Proxy-Require",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Proxy-Require Header", HFILL }
         },
         { &hf_header_array[POS_RACK],
-               { "RAck",        "sip.RAck",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "RAck",        "sip.RAck",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3262: RAck Header", HFILL }
         },
         { &hf_header_array[POS_REASON],
-               { "Reason",          "sip.Reason",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Reason",          "sip.Reason",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3326 Reason Header", HFILL }
         },
         { &hf_header_array[POS_REASON_PHRASE],
-               { "Reason-Phrase",           "sip.Reason-Phrase",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Reason-Phrase",           "sip.Reason-Phrase",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_RECORD_ROUTE],
-               { "Record-Route",        "sip.Record-Route",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Record-Route",        "sip.Record-Route",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Record-Route Header", HFILL }
         },
         { &hf_header_array[POS_RECV_INFO],
-               { "Recv-Info",       "sip.Recv-Info",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Recv-Info",       "sip.Recv-Info",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_REFER_SUB],
-               { "Refer-Sub",       "sip.Refer-Sub",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Refer-Sub",       "sip.Refer-Sub",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4488: Refer-Sub Header", HFILL }
         },
         { &hf_header_array[POS_REFER_TO],
-            { "Refer-To",           "sip.Refer-To",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Refer-To",           "sip.Refer-To",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3515: Refer-To Header", HFILL }
         },
         { &hf_header_array[POS_REFERED_BY],
-               { "Refered By",      "sip.Refered-by",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Refered By",      "sip.Refered-by",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3892: Refered-by Header", HFILL }
         },
         { &hf_header_array[POS_REJECT_CONTACT],
-            { "Reject-Contact",         "sip.Reject-Contact",
+          { "Reject-Contact",         "sip.Reject-Contact",
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3841: Reject-Contact Header", HFILL }
         },
         { &hf_header_array[POS_REPLACES],
-            { "Replaces",       "sip.Replaces",
+          { "Replaces",       "sip.Replaces",
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3891: Replaces Header", HFILL }
         },
         { &hf_header_array[POS_REPLY_TO],
-               { "Reply-To",        "sip.Reply-To",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Reply-To",        "sip.Reply-To",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Reply-To Header", HFILL }
         },
         { &hf_header_array[POS_REQUEST_DISPOSITION],
-               { "Request-Disposition",     "sip.Request-Disposition",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Request-Disposition",     "sip.Request-Disposition",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3841: Request-Disposition Header", HFILL }
         },
         { &hf_header_array[POS_REQUIRE],
-            { "Require",        "sip.Require",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Require",        "sip.Require",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Require Header", HFILL }
         },
         { &hf_header_array[POS_RESOURCE_PRIORITY],
-            { "Resource-Priority",      "sip.Resource-Priority",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Resource-Priority",      "sip.Resource-Priority",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "Draft: Resource-Priority Header", HFILL }
         },
         { &hf_header_array[POS_RETRY_AFTER],
-            { "Retry-After",        "sip.Retry-After",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Retry-After",        "sip.Retry-After",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Retry-After Header", HFILL }
         },
         { &hf_header_array[POS_ROUTE],
-               { "Route",       "sip.Route",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Route",       "sip.Route",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Route Header", HFILL }
         },
         { &hf_header_array[POS_RSEQ],
-               { "RSeq",        "sip.RSeq",
-               FT_UINT32, BASE_DEC,NULL,0x0,
+          { "RSeq",        "sip.RSeq",
+            FT_UINT32, BASE_DEC,NULL,0x0,
             "RFC 3262: RSeq Header", HFILL }
         },
         { &hf_header_array[ POS_SECURITY_CLIENT],
-               { "Security-Client",         "sip.Security-Client",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Security-Client",         "sip.Security-Client",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3329 Security-Client Header", HFILL }
         },
         { &hf_header_array[ POS_SECURITY_SERVER],
-               { "Security-Server",         "sip.Security-Server",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Security-Server",         "sip.Security-Server",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3329 Security-Server Header", HFILL }
         },
         { &hf_header_array[ POS_SECURITY_VERIFY],
-               { "Security-Verify",         "sip.Security-Verify",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Security-Verify",         "sip.Security-Verify",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3329 Security-Verify Header", HFILL }
         },
         { &hf_header_array[POS_SERVER],
-            { "Server",         "sip.Server",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Server",         "sip.Server",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Server Header", HFILL }
         },
         { &hf_header_array[POS_SERVICE_ROUTE],
-               { "Service-Route",       "sip.Service-Route",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Service-Route",       "sip.Service-Route",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3608: Service-Route Header", HFILL }
         },
         { &hf_header_array[POS_SESSION_EXPIRES],
-               { "Session-Expires",         "sip.Session-Expires",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               "RFC 4028: Session-Expires Header", HFILL }
+          { "Session-Expires",         "sip.Session-Expires",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 4028: Session-Expires Header", HFILL }
         },
         { &hf_header_array[POS_SIP_ETAG],
-               { "ETag",        "sip.ETag",
-               FT_STRING, BASE_NONE,NULL,0x0,
-               "RFC 3903: SIP-ETag Header", HFILL }
+          { "ETag",        "sip.ETag",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            "RFC 3903: SIP-ETag Header", HFILL }
         },
         { &hf_header_array[POS_SIP_IF_MATCH],
-               { "If_Match",        "sip.If_Match",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "If_Match",        "sip.If_Match",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3903: SIP-If-Match Header", HFILL }
         },
         { &hf_header_array[POS_SUBJECT],
-               { "Subject",         "sip.Subject",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Subject",         "sip.Subject",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Subject Header", HFILL }
         },
         { &hf_header_array[POS_SUBSCRIPTION_STATE],
-               { "Subscription-State",      "sip.Subscription-State",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Subscription-State",      "sip.Subscription-State",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3265: Subscription-State Header", HFILL }
         },
         { &hf_header_array[POS_SUPPORTED],
-            { "Supported",      "sip.Supported",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Supported",      "sip.Supported",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Supported Header", HFILL }
         },
         { &hf_header_array[POS_SUPPRESS_IF_MATCH],
-            { "Suppress-If-Match",      "sip.Suppress_If_Match",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Suppress-If-Match",      "sip.Suppress_If_Match",
+            FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_TARGET_DIALOG],
-            { "Target-Dialog",      "sip.Target-Dialog",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Target-Dialog",      "sip.Target-Dialog",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 4538: Target-Dialog Header", HFILL }
         },
         { &hf_header_array[POS_TIMESTAMP],
-            { "Timestamp",      "sip.Timestamp",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Timestamp",      "sip.Timestamp",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Timestamp Header", HFILL }
         },
         { &hf_header_array[POS_TO],
-            { "To",         "sip.To",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "To",         "sip.To",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: To Header", HFILL }
         },
 
         { &hf_header_array[POS_TRIGGER_CONSENT],
-            { "Trigger-Consent",        "sip.Trigger-Consent",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Trigger-Consent",        "sip.Trigger-Consent",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 5380: Trigger Consent", HFILL }
         },
 
         { &hf_header_array[POS_UNSUPPORTED],
-            { "Unsupported",        "sip.Unsupported",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Unsupported",        "sip.Unsupported",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Unsupported Header", HFILL }
         },
         { &hf_header_array[POS_USER_AGENT],
-            { "User-Agent",         "sip.User-Agent",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "User-Agent",         "sip.User-Agent",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: User-Agent Header", HFILL }
         },
         { &hf_header_array[POS_VIA],
-            { "Via",        "sip.Via",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Via",        "sip.Via",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Via Header", HFILL }
         },
         { &hf_header_array[POS_WARNING],
-            { "Warning",        "sip.Warning",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Warning",        "sip.Warning",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: Warning Header", HFILL }
         },
 
         { &hf_header_array[POS_WWW_AUTHENTICATE],
-            { "WWW-Authenticate",       "sip.WWW-Authenticate",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "WWW-Authenticate",       "sip.WWW-Authenticate",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 3261: WWW-Authenticate Header", HFILL }
         },
         { &hf_header_array[POS_DIVERSION],
-            { "Diversion",      "sip.Diversion",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "Diversion",      "sip.Diversion",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 5806: Diversion Header", HFILL }
         },
         { &hf_header_array[POS_USER_TO_USER],
-            { "User-to-User",   "sip.uui",
-               FT_STRING, BASE_NONE,NULL,0x0,
+          { "User-to-User",   "sip.uui",
+            FT_STRING, BASE_NONE,NULL,0x0,
             "draft-johnston-sipping-cc-uui-09: User-to-User header", HFILL }
         },
         { &hf_sip_resend,
-            { "Resent Packet", "sip.resend",
+          { "Resent Packet", "sip.resend",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_sip_original_frame,
-            { "Suspected resend of frame",  "sip.resend-original",
+          { "Suspected resend of frame",  "sip.resend-original",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                "Original transmission of frame", HFILL}
+            "Original transmission of frame", HFILL}
         },
         { &hf_sip_matching_request_frame,
-            { "Request Frame",  "sip.response-request",
+          { "Request Frame",  "sip.response-request",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-                NULL, HFILL}
+            NULL, HFILL}
         },
         { &hf_sip_response_time,
-            { "Response Time (ms)",  "sip.response-time",
+          { "Response Time (ms)",  "sip.response-time",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-                "Response time since original request (in milliseconds)", HFILL}
+            "Response time since original request (in milliseconds)", HFILL}
         },
         { &hf_sip_release_time,
-            { "Release Time (ms)",  "sip.release-time",
+          { "Release Time (ms)",  "sip.release-time",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-                "release time since original BYE (in milliseconds)", HFILL}
+            "release time since original BYE (in milliseconds)", HFILL}
         },
         { &hf_sip_auth,
-            { "Authentication",  "sip.auth",
+          { "Authentication",  "sip.auth",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication", HFILL}
+            "SIP Authentication", HFILL}
         },
         { &hf_sip_auth_scheme,
-            { "Authentication Scheme",  "sip.auth.scheme",
+          { "Authentication Scheme",  "sip.auth.scheme",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Scheme", HFILL}
+            "SIP Authentication Scheme", HFILL}
         },
         { &hf_sip_auth_digest_response,
-            { "Digest Authentication Response",  "sip.auth.digest.response",
+          { "Digest Authentication Response",  "sip.auth.digest.response",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Digest Authentication Response Value", HFILL}
+            "SIP Digest Authentication Response Value", HFILL}
         },
         { &hf_sip_auth_nc,
-            { "Nonce Count",  "sip.auth.nc",
+          { "Nonce Count",  "sip.auth.nc",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Nonce count", HFILL}
+            "SIP Authentication Nonce count", HFILL}
         },
         { &hf_sip_auth_username,
-            { "Username",  "sip.auth.username",
+          { "Username",  "sip.auth.username",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Username", HFILL}
+            "SIP Authentication Username", HFILL}
         },
         { &hf_sip_auth_realm,
-            { "Realm",  "sip.auth.realm",
+          { "Realm",  "sip.auth.realm",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Realm", HFILL}
+            "SIP Authentication Realm", HFILL}
         },
         { &hf_sip_auth_nonce,
-            { "Nonce Value",  "sip.auth.nonce",
+          { "Nonce Value",  "sip.auth.nonce",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Nonce", HFILL}
+            "SIP Authentication Nonce", HFILL}
         },
         { &hf_sip_auth_algorithm,
-            { "Algorithm",  "sip.auth.algorithm",
+          { "Algorithm",  "sip.auth.algorithm",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Algorithm", HFILL}
+            "SIP Authentication Algorithm", HFILL}
         },
         { &hf_sip_auth_opaque,
-            { "Opaque Value",  "sip.auth.opaque",
+          { "Opaque Value",  "sip.auth.opaque",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Opaque value", HFILL}
+            "SIP Authentication Opaque value", HFILL}
         },
         { &hf_sip_auth_qop,
-            { "QOP",  "sip.auth.qop",
+          { "QOP",  "sip.auth.qop",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication QOP", HFILL}
+            "SIP Authentication QOP", HFILL}
         },
         { &hf_sip_auth_cnonce,
-            { "CNonce Value",  "sip.auth.cnonce",
+          { "CNonce Value",  "sip.auth.cnonce",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Client Nonce", HFILL}
+            "SIP Authentication Client Nonce", HFILL}
         },
         { &hf_sip_auth_uri,
-            { "Authentication URI",  "sip.auth.uri",
+          { "Authentication URI",  "sip.auth.uri",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication URI", HFILL}
+            "SIP Authentication URI", HFILL}
         },
         { &hf_sip_auth_domain,
-            { "Authentication Domain",  "sip.auth.domain",
+          { "Authentication Domain",  "sip.auth.domain",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Domain", HFILL}
+            "SIP Authentication Domain", HFILL}
         },
         { &hf_sip_auth_stale,
-            { "Stale Flag",  "sip.auth.stale",
+          { "Stale Flag",  "sip.auth.stale",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Stale Flag", HFILL}
+            "SIP Authentication Stale Flag", HFILL}
         },
         { &hf_sip_auth_auts,
-            { "Authentication Token",  "sip.auth.auts",
+          { "Authentication Token",  "sip.auth.auts",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Token", HFILL}
+            "SIP Authentication Token", HFILL}
         },
         { &hf_sip_auth_rspauth,
-            { "Response auth",  "sip.auth.rspauth",
+          { "Response auth",  "sip.auth.rspauth",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Response auth", HFILL}
+            "SIP Authentication Response auth", HFILL}
         },
         { &hf_sip_auth_nextnonce,
-            { "Next Nonce",  "sip.auth.nextnonce",
+          { "Next Nonce",  "sip.auth.nextnonce",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Next Nonce", HFILL}
+            "SIP Authentication Next Nonce", HFILL}
         },
         { &hf_sip_auth_ik,
-            { "Integrity Key",  "sip.auth.ik",
+          { "Integrity Key",  "sip.auth.ik",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Integrity Key", HFILL}
+            "SIP Authentication Integrity Key", HFILL}
         },
         { &hf_sip_auth_ck,
-            { "Cyphering Key",  "sip.auth.ck",
+          { "Cyphering Key",  "sip.auth.ck",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Authentication Cyphering Key", HFILL}
+            "SIP Authentication Cyphering Key", HFILL}
         },
         { &hf_sip_cseq_seq_no,
-            { "Sequence Number",  "sip.CSeq.seq",
+          { "Sequence Number",  "sip.CSeq.seq",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-                "CSeq header sequence number", HFILL}
+            "CSeq header sequence number", HFILL}
         },
         { &hf_sip_cseq_method,
-            { "Method",  "sip.CSeq.method",
+          { "Method",  "sip.CSeq.method",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "CSeq header method", HFILL}
+            "CSeq header method", HFILL}
         },
         { &hf_sip_via_transport,
-            { "Transport",  "sip.Via.transport",
+          { "Transport",  "sip.Via.transport",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "Via header Transport", HFILL}
+            "Via header Transport", HFILL}
         },
         { &hf_sip_via_sent_by_address,
-            { "Sent-by Address",  "sip.Via.sent-by.address",
+          { "Sent-by Address",  "sip.Via.sent-by.address",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "Via header Sent-by Address", HFILL}
+            "Via header Sent-by Address", HFILL}
         },
         { &hf_sip_via_sent_by_port,
-            { "Sent-by port",  "sip.Via.sent-by.port",
+          { "Sent-by port",  "sip.Via.sent-by.port",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-                "Via header Sent-by Port", HFILL}
+            "Via header Sent-by Port", HFILL}
         },
         { &hf_sip_via_branch,
-            { "Branch",  "sip.Via.branch",
+          { "Branch",  "sip.Via.branch",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via Branch", HFILL},
+            "SIP Via Branch", HFILL},
         },
         { &hf_sip_via_maddr,
-            { "Maddr",  "sip.Via.maddr",
+          { "Maddr",  "sip.Via.maddr",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via Maddr", HFILL},
+            "SIP Via Maddr", HFILL},
         },
         { &hf_sip_via_rport,
-            { "RPort",  "sip.Via.rport",
+          { "RPort",  "sip.Via.rport",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via RPort", HFILL},
+            "SIP Via RPort", HFILL},
         },
         { &hf_sip_via_received,
-            { "Received",  "sip.Via.received",
+          { "Received",  "sip.Via.received",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via Received", HFILL},
+            "SIP Via Received", HFILL},
         },
         { &hf_sip_via_ttl,
-            { "TTL",  "sip.Via.ttl",
+          { "TTL",  "sip.Via.ttl",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via TTL", HFILL}
+            "SIP Via TTL", HFILL}
         },
         { &hf_sip_via_comp,
-            { "Comp",  "sip.Via.comp",
+          { "Comp",  "sip.Via.comp",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via comp", HFILL}
+            "SIP Via comp", HFILL}
         },
         { &hf_sip_via_sigcomp_id,
-            { "Sigcomp identifier",  "sip.Via.sigcomp-id",
+          { "Sigcomp identifier",  "sip.Via.sigcomp-id",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "SIP Via sigcomp identifier", HFILL}
+            "SIP Via sigcomp identifier", HFILL}
         },
         { &hf_sip_rack_rseq_no,
-            { "RSeq Sequence Number",  "sip.RAck.RSeq.seq",
+          { "RSeq Sequence Number",  "sip.RAck.RSeq.seq",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-                "RAck RSeq header sequence number (from prov response)", HFILL}
+            "RAck RSeq header sequence number (from prov response)", HFILL}
         },
         { &hf_sip_rack_cseq_no,
-            { "CSeq Sequence Number",  "sip.RAck.CSeq.seq",
+          { "CSeq Sequence Number",  "sip.RAck.CSeq.seq",
             FT_UINT32, BASE_DEC, NULL, 0x0,
-                "RAck CSeq header sequence number (from prov response)", HFILL}
+            "RAck CSeq header sequence number (from prov response)", HFILL}
         },
         { &hf_sip_rack_cseq_method,
-            { "CSeq Method",  "sip.RAck.CSeq.method",
+          { "CSeq Method",  "sip.RAck.CSeq.method",
             FT_STRING, BASE_NONE, NULL, 0x0,
-                "RAck CSeq header method (from prov response)", HFILL}
+            "RAck CSeq header method (from prov response)", HFILL}
         },
         { &hf_sip_msg_body,
-                { "Message Body",           "sip.msg_body",
-                FT_NONE, BASE_NONE, NULL, 0x0,
-                "Message Body in SIP message", HFILL }
+          { "Message Body",           "sip.msg_body",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            "Message Body in SIP message", HFILL }
         },
         { &hf_sip_sec_mechanism,
-            { "[Security-mechanism]",  "sip.sec_mechanism",
+          { "[Security-mechanism]",  "sip.sec_mechanism",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_sip_sec_mechanism_alg,
-            { "alg",  "sip.sec_mechanism.alg",
+          { "alg",  "sip.sec_mechanism.alg",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_sip_sec_mechanism_ealg,
-            { "ealg",  "sip.sec_mechanism.ealg",
+          { "ealg",  "sip.sec_mechanism.ealg",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_sip_sec_mechanism_prot,
-            { "prot",  "sip.sec_mechanism.prot",
+          { "prot",  "sip.sec_mechanism.prot",
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_sip_sec_mechanism_spi_c,
-            { "spi-c",  "sip.sec_mechanism.spi_c",
+          { "spi-c",  "sip.sec_mechanism.spi_c",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL}
         },
         { &hf_sip_sec_mechanism_spi_s,
-            { "spi-s",  "sip.sec_mechanism.spi_s",
+          { "spi-s",  "sip.sec_mechanism.spi_s",
             FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL}
         },
-};
+    };
 
-        /* raw_sip header field(s) */
-        static hf_register_info raw_hf[] = {
+    /* raw_sip header field(s) */
+    static hf_register_info raw_hf[] = {
 
         { &hf_sip_raw_line,
-                { "Raw SIP Line",                "raw_sip.line",
-                    FT_STRING, BASE_NONE,NULL,0x0,
-                NULL, HFILL }
+          { "Raw SIP Line",                "raw_sip.line",
+            FT_STRING, BASE_NONE,NULL,0x0,
+            NULL, HFILL }
         }};
 
     /* Setup protocol subtree array */
@@ -5578,14 +5578,14 @@ void proto_register_sip(void)
 
 
     prefs_register_range_preference(sip_module, "tcp.ports", "SIP TCP ports",
-                    "TCP ports to be decoded as SIP (default: "
-                    DEFAULT_SIP_PORT_RANGE ")",
-                    &global_sip_tcp_port_range, MAX_UDP_PORT);
+        "TCP ports to be decoded as SIP (default: "
+        DEFAULT_SIP_PORT_RANGE ")",
+        &global_sip_tcp_port_range, MAX_UDP_PORT);
 
     prefs_register_uint_preference(sip_module, "tls.port",
-                                 "SIP TLS Port",
-                                 "SIP Server TLS Port",
-                                 10, &sip_tls_port);
+        "SIP TLS Port",
+        "SIP Server TLS Port",
+        10, &sip_tls_port);
 
     prefs_register_bool_preference(sip_module, "display_raw_text",
         "Display raw text for SIP message",
@@ -5593,18 +5593,21 @@ void proto_register_sip(void)
         "SIP message should be displayed "
         "in addition to the dissection tree",
         &global_sip_raw_text);
+
     prefs_register_bool_preference(sip_module, "display_raw_text_without_crlf",
         "Don't show '\\r\\n' in raw SIP messages",
         "If the raw text of the SIP message "
         "is displayed, the trailing carriage "
         "return and line feed are not shown",
         &global_sip_raw_text_without_crlf);
+
     prefs_register_bool_preference(sip_module, "strict_sip_version",
         "Enforce strict SIP version check (" SIP2_HDR ")",
         "If enabled, only " SIP2_HDR " traffic will be dissected as SIP. "
         "Disable it to allow SIP traffic with a different version "
         "to be dissected as SIP.",
         &strict_sip_version);
+
     prefs_register_bool_preference(sip_module, "desegment_headers",
         "Reassemble SIP headers spanning multiple TCP segments",
         "Whether the SIP dissector should reassemble headers "
@@ -5612,6 +5615,7 @@ void proto_register_sip(void)
         "To use this option, you must also enable "
         "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &sip_desegment_headers);
+
     prefs_register_bool_preference(sip_module, "desegment_body",
         "Reassemble SIP bodies spanning multiple TCP segments",
         "Whether the SIP dissector should use the "
@@ -5619,12 +5623,14 @@ void proto_register_sip(void)
         "the body of a request spanning multiple TCP segments, "
         "and reassemble chunked data spanning multiple TCP segments. "
         "To use this option, you must also enable "
-            "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+        "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
         &sip_desegment_body);
+
     prefs_register_bool_preference(sip_module, "retrans_the_same_sport",
         "Retransmissions always use the same source port",
         "Whether retransmissions are detected coming from the same source port only.",
         &sip_retrans_the_same_sport);
+
     prefs_register_bool_preference(sip_module, "delay_sdp_changes",
         "Delay SDP changes for tracking media",
         "Whether SIP should delay tracking the media (e.g., RTP/RTCP) until an SDP offer "
@@ -5688,10 +5694,10 @@ proto_reg_handoff_sip(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

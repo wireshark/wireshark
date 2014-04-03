@@ -176,10 +176,10 @@ main(int argc, char *argv[])
  *
  * Local variables:
  * c-basic-offset: 2
- * tab-width: 2
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab:
- * :indentSize=2:tabSize=2:noTabs=true:
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
  */

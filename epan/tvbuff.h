@@ -326,11 +326,11 @@ WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
  * when reading a capture file.
  */
 #if G_BYTE_ORDER == G_LITTLE_ENDIAN
-#define tvb_get_h_guint16	tvb_get_letohs
-#define tvb_get_h_guint32	tvb_get_letohl
+#define tvb_get_h_guint16   tvb_get_letohs
+#define tvb_get_h_guint32   tvb_get_letohl
 #elif G_BYTE_ORDER == G_BIG_ENDIAN
-#define tvb_get_h_guint16	tvb_get_ntohs
-#define tvb_get_h_guint32	tvb_get_ntohl
+#define tvb_get_h_guint16   tvb_get_ntohs
+#define tvb_get_h_guint32   tvb_get_ntohl
 #else
 #error "Unsupported byte order"
 #endif
@@ -810,10 +810,10 @@ extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
+ * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab:
- * :indentSize=4:tabSize=4:noTabs=true:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
