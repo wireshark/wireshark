@@ -125,7 +125,7 @@ rtp_dyn_payload_t* rtp_dyn_payload_new(void);
    rtp_dyn_payload_free is called. */
 WS_DLL_PUBLIC
 void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
-							const guint8 pt,
+							const guint pt,
 							const gchar* encoding_name,
 							const int sample_rate);
 
@@ -134,25 +134,25 @@ void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
    rtp_dyn_payload_free is called. The replaced encoding name is free'd immediately. */
 WS_DLL_PUBLIC
 void rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
-							const guint8 pt,
+							const guint pt,
 							const gchar* encoding_name,
 							const int sample_rate);
 
 /* removes the given payload type */
 WS_DLL_PUBLIC
-gboolean rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt);
+gboolean rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt);
 
 /* retrieves the encoding name for the given payload type; the string returned is only valid
    until the entry is replaced, removed, or the hash table is destroyed, so duplicate it if
    you need it long. */
 WS_DLL_PUBLIC
-const gchar* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt);
+const gchar* rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt);
 
 /* retrieves the encoding name and sample rate for the given payload type, returning TRUE if
    successful, else FALSE. The encoding string pointed to is only valid until the entry is
    replaced, removed, or the hash table is destroyed, so duplicate it if you need it long. */
 WS_DLL_PUBLIC
-gboolean rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt,
+gboolean rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
 								  const gchar **encoding_name, int *sample_rate);
 
 /* Free's and destroys the dyn_payload hash table; internally this decrements the ref_count

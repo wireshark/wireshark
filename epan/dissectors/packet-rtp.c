@@ -974,7 +974,7 @@ rtp_dyn_payload_ref(rtp_dyn_payload_t *rtp_dyn_payload)
    rtp_dyn_payload_free is called. */
 void
 rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
-                       const guint8 pt,
+                       const guint pt,
                        const gchar* encoding_name,
                        const int sample_rate)
 {
@@ -992,7 +992,7 @@ rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
    rtp_dyn_payload_free is called. */
 void
 rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
-                        const guint8 pt,
+                        const guint pt,
                         const gchar* encoding_name,
                         const int sample_rate)
 {
@@ -1007,7 +1007,7 @@ rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
 
 /* removes the given payload type */
 gboolean
-rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt)
+rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt)
 {
     return (rtp_dyn_payload && rtp_dyn_payload->table &&
             g_hash_table_remove(rtp_dyn_payload->table, GUINT_TO_POINTER(pt)));
@@ -1015,7 +1015,7 @@ rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt)
 
 /* retrieves the encoding name for the given payload type */
 const gchar*
-rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt)
+rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt)
 {
     encoding_name_and_rate_t *encoding_name_and_rate_pt;
 
@@ -1031,7 +1031,7 @@ rtp_dyn_payload_get_name(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt)
    successful, else FALSE. The encoding string pointed to is only valid until the entry is
    replaced, removed, or the hash table is destroyed, so duplicate it if you need it long. */
 gboolean
-rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint8 pt,
+rtp_dyn_payload_get_full(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt,
                          const gchar **encoding_name, int *sample_rate)
 {
     encoding_name_and_rate_t *encoding_name_and_rate_pt;
