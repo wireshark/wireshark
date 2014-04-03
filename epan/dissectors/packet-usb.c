@@ -3040,18 +3040,22 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             }
 
             if (type_2 != RQT_SETUP_TYPE_STANDARD) {
-                if (setup_tvb && tvb_reported_length_remaining(tvb, offset) != 0) {
-                    next_tvb = tvb_new_subset_remaining(tvb, offset);
-                    tvb_composite_append(setup_tvb, next_tvb);
-                    tvb_composite_finalize(setup_tvb);
+                if (setup_tvb) {
+                    if (tvb_reported_length_remaining(tvb, offset) != 0) {
+                        next_tvb = tvb_new_subset_remaining(tvb, offset);
+                        tvb_composite_append(setup_tvb, next_tvb);
+                        tvb_composite_finalize(setup_tvb);
 
-                    next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_length(setup_tvb)), tvb_length(setup_tvb), tvb_length(setup_tvb));
-                    add_new_data_source(pinfo, next_tvb, "Linux USB Control");
+                        next_tvb = tvb_new_child_real_data(tvb, (const guint8 *) tvb_memdup(pinfo->pool, setup_tvb, 0, tvb_length(setup_tvb)), tvb_length(setup_tvb), tvb_length(setup_tvb));
+                        add_new_data_source(pinfo, next_tvb, "Linux USB Control");
 
-                    proto_tree_add_item(setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
-                } else if (!setup_tvb) {
-                    next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
+                        proto_tree_add_item(setup_tree, hf_usb_data_fragment, tvb, offset, -1, ENC_NA);
+                    }
+                    else
+                        tvb_composite_finalize(setup_tvb);
                 }
+                else
+                    next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
 
                 offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type, type_2, urb_type, bus_id, device_address, NULL, NULL);
             }
