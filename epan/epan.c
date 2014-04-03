@@ -146,6 +146,12 @@ epan_cleanup(void)
 #endif
 	except_deinit();
 	addr_resolv_cleanup();
+
+	if (pinfo_pool_cache != NULL) {
+		wmem_destroy_allocator(pinfo_pool_cache);
+		pinfo_pool_cache = NULL;
+	}
+
 	wmem_cleanup();
 }
 
