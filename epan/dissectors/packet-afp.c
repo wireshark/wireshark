@@ -370,6 +370,7 @@ static expert_field ei_afp_ip_port_reused = EI_INIT;
 static int afp_tap			    = -1;
 
 static dissector_handle_t data_handle;
+static dissector_handle_t spotlight_handle;
 
 static const value_string vol_signature_vals[] = {
 	{1, "Flat"},
@@ -1024,8 +1025,6 @@ static int hf_afp_acl_access_bitmap_generic_read    = -1;
 /* Hash functions */
 static gint  afp_equal (gconstpointer v, gconstpointer v2);
 static guint afp_hash  (gconstpointer v);
-
-static gint dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
 
 typedef struct {
 	guint32 conversation;
@@ -4206,6 +4205,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	guint64 complex_query_type;
 	guint byte_order;
 	gboolean mark_exists;
+	tvbuff_t *spotlight_tvb;
 
 	proto_item *item_query;
 	proto_tree *sub_tree;
@@ -4369,7 +4369,8 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 				} else {
 					item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
 					sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-					(void)dissect_spotlight(tvb, pinfo, sub_tree, offset + 8);
+					spotlight_tvb = tvb_new_subset(tvb, offset+8, query_length, query_length);
+					call_dissector(spotlight_handle, spotlight_tvb, pinfo, sub_tree);
 				}
 				break;
 			}
@@ -4406,10 +4407,11 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static gint
-dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	guint encoding;
 	gint i;
+	gint offset = 0;
 	guint64 toc_offset;
 	guint64 querylen;
 	gint toc_entries;
@@ -4441,7 +4443,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 				    8,
 				    "ToC Offset: %" G_GINT64_MODIFIER "u < 8 (bogus)",
 				    toc_offset);
-		return -1;
+		return tvb_captured_length(tvb);
 	}
 	toc_offset -= 8;
 	if (offset + toc_offset + 8 > G_MAXINT) {
@@ -4452,7 +4454,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 				    "ToC Offset: %" G_GINT64_MODIFIER "u > %u (bogus)",
 				    toc_offset,
 				    G_MAXINT - 8 - offset);
-		return -1;
+		return tvb_captured_length(tvb);
 	}
 	querylen = (spotlight_ntoh64(tvb, offset, encoding) & 0xffffffff) * 8;
 	if (querylen < 8) {
@@ -4463,7 +4465,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 				    "ToC Offset: %" G_GINT64_MODIFIER "u Bytes, Query length: %" G_GINT64_MODIFIER "u < 8 (bogus)",
 				    toc_offset,
 				    querylen);
-		return -1;
+		return tvb_captured_length(tvb);
 	}
 	querylen -= 8;
 	if (querylen > G_MAXINT) {
@@ -4475,7 +4477,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 				    toc_offset,
 				    querylen,
 				    G_MAXINT);
-		return -1;
+		return tvb_captured_length(tvb);
 	}
 	proto_tree_add_text(tree,
 			    tvb,
@@ -4506,7 +4508,7 @@ dissect_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 				    (gint)querylen - (gint)toc_offset,
 				    "Complex types ToC (%u < 1 - bogus)",
 				    toc_entries);
-		return -1;
+		return tvb_captured_length(tvb);
 	}
 	toc_entries -= 1;
 	item_toc = proto_tree_add_text(tree,
@@ -4568,6 +4570,7 @@ static gint
 dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, afp_request_val *request_val)
 {
 	gint len;
+	tvbuff_t *spotlight_tvb;
 
 	PAD(1);
 	offset = decode_vol(tree, tvb, offset);
@@ -4600,8 +4603,8 @@ dissect_query_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(tree, hf_afp_spotlight_reqlen, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		offset = dissect_spotlight(tvb, pinfo, tree, offset);
-
+		spotlight_tvb = tvb_new_subset_remaining(tvb, offset);
+		offset += call_dissector(spotlight_handle, spotlight_tvb, pinfo, tree);
 		break;
 	}
 	return offset;
@@ -4790,6 +4793,7 @@ static gint
 dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, afp_request_val *request_val)
 {
 	gint len;
+	tvbuff_t *spotlight_tvb;
 
 	switch (request_val->spotlight_req_command) {
 
@@ -4814,7 +4818,8 @@ dissect_reply_afp_spotlight(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(tree, hf_afp_spotlight_returncode, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		offset = dissect_spotlight(tvb, pinfo, tree, offset);
+		spotlight_tvb = tvb_new_subset_remaining(tvb, offset);
+		offset += call_dissector(spotlight_handle, spotlight_tvb, pinfo, tree);
 		break;
 	}
 	return offset;
@@ -5112,8 +5117,6 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case AFP_SPOTLIGHTRPC:
 			offset = dissect_query_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);
-			if (offset == -1)
-				return tvb_length(tvb);	/* bogus spotlight RPC */
 			break;
 		}
 	}
@@ -5243,8 +5246,6 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case AFP_SPOTLIGHTRPC:
 			offset = dissect_reply_afp_spotlight(tvb, pinfo, afp_tree, offset, request_val);
-			if (offset == -1)
-				return tvb_length(tvb);	/* bogus */
 			break;
 		}
 	}
@@ -6825,6 +6826,7 @@ proto_register_afp(void)
 	register_init_routine(afp_reinit);
 
 	new_register_dissector("afp", dissect_afp, proto_afp);
+	new_register_dissector("afp_spotlight", dissect_spotlight, proto_afp);
 
 	afp_tap = register_tap("afp");
 }
@@ -6833,6 +6835,7 @@ void
 proto_reg_handoff_afp(void)
 {
 	data_handle = find_dissector("data");
+	spotlight_handle = find_dissector("afp_spotlight");
 }
 
 /* -------------------------------
