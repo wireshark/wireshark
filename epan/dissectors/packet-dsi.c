@@ -361,7 +361,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		if ((flag & AFPSRVRINFO_SRVUTF8)) {
 			ofs += 2;
 			utf_ofs =  tvb_get_ntohs(tvb, ofs);
-			proto_tree_add_text(tree, tvb, ofs, 2, "UTF8 server name offset: %d", utf_ofs);
+			proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 server name offset: %d", utf_ofs);
 			utf_ofs += offset;
 		}
 	}
@@ -433,13 +433,13 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				break;
 			case 2: /* IP + port */
 				port = tvb_get_ntohs(tvb, ofs+6);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%d", tvb_ip_to_str(tvb, ofs+2), port);
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP: %s:%d", tvb_ip_to_str(tvb, ofs+2), port);
 				break;
 			case 3: /* DDP, atalk_addr_to_str want host order not network */
 				net  = tvb_get_ntohs(tvb, ofs+2);
 				node = tvb_get_guint8(tvb, ofs +4);
 				port = tvb_get_guint8(tvb, ofs +5);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp: %u.%u:%u",
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "DDP: %u.%u:%u",
 					net, node, port);
 				break;
 			case 4: /* DNS */
@@ -447,7 +447,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				if (len > 2) {
 					tmp = tvb_get_string(wmem_packet_scope(), tvb, ofs +2, len -2);
 					ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "%s: %s",
-								(type==4)?"dns":"ssh tunnel", tmp);
+								(type==4)?"DNS":"IP (SSH tunnel)", tmp);
 					break;
 				}
 				else {
@@ -455,12 +455,12 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 				}
 				break;
 			case 6: /* IP6 */
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6: %s",
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IPv6: %s",
 				                tvb_ip6_to_str(tvb, ofs+2));
 				break;
 			case 7: /* IP6 + 2bytes port */
 				port = tvb_get_ntohs(tvb, ofs+ 2+INET6_ADDRLEN);
-				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip6 %s:%d",
+				ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IPv6: %s:%d",
 						tvb_ip6_to_str(tvb, ofs+2), port);
 				break;
 			default:
@@ -497,7 +497,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		ofs = utf_ofs;
 		ulen = tvb_get_ntohs(tvb, ofs);
 		tmp = tvb_get_string(wmem_packet_scope(), tvb, ofs + 2, ulen);
-		ti = proto_tree_add_text(tree, tvb, ofs, ulen + 2, "UTF8 server name: %s", tmp);
+		ti = proto_tree_add_text(tree, tvb, ofs, ulen + 2, "UTF-8 server name: %s", tmp);
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_utf8_name);
 		proto_tree_add_uint(sub_tree, hf_dsi_utf8_server_name_len, tvb, ofs, 2, ulen);
 		ofs += 2;
@@ -685,11 +685,11 @@ proto_register_dsi(void)
 		    "Reserved for future use.  Should be set to zero.", HFILL }},
 		/* asp , afp */
 		{ &hf_dsi_utf8_server_name_len,
-		  { "Length",          "dsi.utf8_server_name_len",
+		  { "UTF-8 server name length",          "dsi.utf8_server_name_len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
-		    "UTF8 server name length.", HFILL }},
+		    "UTF-8 server name length.", HFILL }},
 		{ &hf_dsi_utf8_server_name,
-		  { "UTF8 Server name",         "dsi.utf8_server_name",
+		  { "UTF-8 server name",         "dsi.utf8_server_name",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
@@ -755,23 +755,23 @@ proto_register_dsi(void)
 		{ &hf_dsi_server_flag_tcpip,
 		  { "Support TCP/IP",      "dsi.server_flag.tcpip",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_TCPIP,
-		    "Server support TCP/IP", HFILL }},
+		    "Server supports TCP/IP", HFILL }},
 		{ &hf_dsi_server_flag_notify,
 		  { "Support server notifications",      "dsi.server_flag.notify",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVNOTIFY,
-		    "Server support notifications", HFILL }},
+		    "Server supports notifications", HFILL }},
 		{ &hf_dsi_server_flag_reconnect,
 		  { "Support server reconnect",      "dsi.server_flag.reconnect",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVRECONNECT,
-		    "Server support reconnect", HFILL }},
+		    "Server supports reconnect", HFILL }},
 		{ &hf_dsi_server_flag_directory,
 		  { "Support directory services",      "dsi.server_flag.directory",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
-		    "Server support directory services", HFILL }},
+		    "Server supports directory services", HFILL }},
 		{ &hf_dsi_server_flag_utf8_name,
-		  { "Support UTF8 server name",      "dsi.server_flag.utf8_name",
+		  { "Support UTF-8 server name",      "dsi.server_flag.utf8_name",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
-		    "Server support UTF8 server name", HFILL }},
+		    "Server supports UTF-8 server name", HFILL }},
 		{ &hf_dsi_server_flag_uuid,
 		  { "Support UUIDs",      "dsi.server_flag.uuids",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_UUID,
@@ -783,7 +783,7 @@ proto_register_dsi(void)
 		{ &hf_dsi_server_flag_fast_copy,
 		  { "Support fast copy",      "dsi.server_flag.fast_copy",
 		    FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
-		    "Server support fast copy", HFILL }},
+		    "Server supports fast copy", HFILL }},
 
 
 		{ &hf_dsi_server_addr_len,

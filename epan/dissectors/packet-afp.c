@@ -6453,7 +6453,7 @@ proto_register_afp(void)
 		    "Message Requested", HFILL }},
 
 		{ &hf_afp_message_bitmap_UTF,
-		  { "Message is UTF8",         "afp.message_bitmap.utf8",
+		  { "Message is UTF-8",         "afp.message_bitmap.utf8",
 		    FT_BOOLEAN, 16, NULL, 0x02,
 		    NULL, HFILL }},
 

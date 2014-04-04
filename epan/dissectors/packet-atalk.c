@@ -1045,7 +1045,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
     if ((flag & AFPSRVRINFO_SRVUTF8) && ofs < machine_ofs) {
       utf_ofs =  tvb_get_ntohs(tvb, ofs);
-      proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 Server name offset: %u", utf_ofs);
+      proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 server name offset: %u", utf_ofs);
       utf_ofs += offset;
     }
   }
@@ -1105,29 +1105,29 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
       type =  tvb_get_guint8(tvb, ofs +1);
       switch (type) {
       case 1:   /* IP */
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s", tvb_ip_to_str(tvb, ofs+2));
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP: %s", tvb_ip_to_str(tvb, ofs+2));
         break;
       case 2: /* IP + port */
         port = tvb_get_ntohs(tvb, ofs+6);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip %s:%u",
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP: %s:%u",
                                  tvb_ip_to_str(tvb, ofs+2), port);
         break;
       case 3: /* DDP, atalk_addr_to_str want host order not network */
         net  = tvb_get_ntohs(tvb, ofs+2);
         node = tvb_get_guint8(tvb, ofs +4);
         port = tvb_get_guint8(tvb, ofs +5);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ddp %u.%u:%u",
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "DDP: %u.%u:%u",
                                  net, node, port);
         break;
       case 5: /* IP + port ssh tunnel */
         port = tvb_get_ntohs(tvb, ofs+6);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "ip (ssh tunnel) %s:%u",
+        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP (SSH tunnel): %s:%u",
                                  tvb_ip_to_str(tvb, ofs+2), port);
         break;
       case 4: /* DNS */
         if (len > 2) {
           tmp = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ofs +2, len -2);
-          ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "dns %s", tmp);
+          ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "DNS: %s", tmp);
           break;
         }
         /* else fall to default malformed record */
@@ -1163,7 +1163,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     ofs = utf_ofs;
     ulen = tvb_get_ntohs(tvb, ofs);
     tmp = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ofs + 2, ulen);
-    ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF8 server name: %s", tmp);
+    ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF-8 server name: %s", tmp);
     sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
     proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);
     ofs += 2;
@@ -2217,9 +2217,9 @@ proto_register_atalk(void)
                 FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
         "Server support directory services", HFILL }},
     { &hf_asp_server_flag_utf8_name,
-      { "Support UTF8 server name",      "asp.server_flag.utf8_name",
+      { "Support UTF-8 server name",      "asp.server_flag.utf8_name",
                 FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
-        "Server support UTF8 server name", HFILL }},
+        "Server support UTF-8 server name", HFILL }},
     { &hf_asp_server_flag_fast_copy,
       { "Support fast copy",      "asp.server_flag.fast_copy",
                 FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
@@ -2241,12 +2241,12 @@ proto_register_atalk(void)
         "Address value", HFILL }},
 
     { &hf_asp_server_utf8_name_len,
-      { "Server name length",         "asp.server_utf8_name_len",
+      { "UTF-8 server name length",         "asp.server_utf8_name_len",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "UTF8 server name length", HFILL }},
+        "UTF-8 server name length", HFILL }},
 
     { &hf_asp_server_utf8_name,
-      { "Server name (UTF8)",         "asp.server_utf8_name",
+      { "UTF-8 server name",         "asp.server_utf8_name",
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
   };
