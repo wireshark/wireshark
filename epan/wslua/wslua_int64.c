@@ -1,6 +1,5 @@
 /*
  * A Lua userdata object for 64-bit signed/unsigned integers.
- * $Id: wslua_int64.c,v 1.0 2013/03/31 02:08:32 hadrielk Exp $
  *
  * I, Hadriel Kaplan, the author of wslua_int6464.c, wish to put it in
  * the Public Domain.  That is not universally accepted, however,

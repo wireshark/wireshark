@@ -1,5 +1,5 @@
 /*
- *  wslua_internals.c
+ * wslua_internals.c
  *
  * Wireshark's interface to the Lua Programming Language
  *
