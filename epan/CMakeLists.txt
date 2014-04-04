@@ -185,6 +185,7 @@ set(DIRTY_PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-eventlog.c
 	dissectors/packet-dcerpc-lsa.c
 	dissectors/packet-dcerpc-mapi.c
+	dissectors/packet-dcerpc-mdssvc.c
 	dissectors/packet-dcerpc-misc.c
 	dissectors/packet-dcerpc-winreg.c
 )

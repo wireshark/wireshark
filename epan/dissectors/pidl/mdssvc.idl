@@ -1,0 +1,60 @@
+import "misc.idl";
+[
+  uuid("885d85fb-c754-4062-a0e7-6872ce0064f4"),
+  endpoint("ncacn_np:[\\pipe\\mdssvc]", "ncacn_ip_tcp:", "ncalrpc:"),
+  version(2.0),
+  helpstring("Spotlight metadata search service")
+]
+interface mdssvc
+{
+	void mdssvc_open(
+		[in,out,ref]                             uint32         *device_id,
+		[in,out,ref]                             uint32         *unkn2, /* always 0x17 ? */
+		[in,out,ref]                             uint32         *unkn3, /* always 0 ? */
+		[in][string,charset(UTF8)]               uint8           share_mount_path[],
+		[in][string,charset(UTF8)]               uint8           share_name[],
+		[out,string,charset(UTF8),size_is(1025)] uint8           share_path[],
+		[out,ref]                                policy_handle  *share_handle
+	);
+
+	void mdssvc_unknown1(
+		[in]        policy_handle   share_handle,
+		[in]        uint32          unkn1, /* always 0, some status ? */
+		[in]        uint32          device_id,
+		[in]        uint32          unkn3, /* = mdssvc_open.unkn2 ? */
+		[in]        uint32          unkn4, /* always 0, some status ? */
+		[in]        uint32          unkn5, /* 0x01f5*/
+		[in]        uint32          unkn6, /* 0x14 */
+		[out,ref]   uint32         *status,
+		[out,ref]   uint32         *flags, /* always 0x6b000001 ? */
+		[out,ref]   uint32         *unkn7  /* always 0 ? */
+	);
+
+	typedef [public] struct {
+		uint32 length;
+		uint32 size;
+		[size_is(size),length_is(length)] uint8 *spotlight_blob;
+	} mdssvc_blob;
+
+	void mdssvc_cmd(
+		[in]        policy_handle   share_handle,
+		[in]        uint32          unkn1, /* always 0, status ? */
+		[in]        uint32          device_id,
+		[in]        uint32          unkn3, /* = mdssvc_open.unkn2 ? */
+		[in]        uint32          unkn4, /* always 0 ? */
+		[in]        uint32          flags, /* always 0x6b000001 ? */
+		[in]        mdssvc_blob     request_blob,
+
+		[in]        uint32          unkn5, /* always 0 ? */
+		[in]        uint32          max_fragment_size1,
+		[in]        uint32          unkn6, /* always 1 ? */
+		[in]        uint32          max_fragment_size2, /* always max_fragment_size1 = max_fragment_size2 ? */
+		[in]        uint32          unkn7, /* always 0 ? */
+		[in]        uint32          unkn8, /* always 0 ? */
+
+
+		[out,ref]   uint32         *status,
+		[out,ref]   mdssvc_blob    *response_blob,
+		[out,ref]   uint32         *unkn9  /* always 0 ? */
+	);
+}
