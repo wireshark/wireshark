@@ -573,15 +573,19 @@ static const value_string tlv_unknown_vals[] = {
 #define VC_FEC          0x80    /* draft-martini-l2circuit-trans-mpls */
 #define GEN_FEC         0x81
 #define P2MP_FEC        0x06
+#define MP2MP_FEC_UP	0x07
+#define MP2MP_FEC_DOWN	0x08
 
-static const value_string fec_types[] = {
-  {WILDCARD_FEC, "Wildcard FEC"},
-  {PREFIX_FEC,   "Prefix FEC"},
-  {HOST_FEC,     "Host Address FEC"},
-  {CRLSP_FEC,    "CR LSP FEC"},
-  {VC_FEC,       "Virtual Circuit FEC"},
-  {GEN_FEC,      "Generalized PWid FEC"},
-  {P2MP_FEC,     "P2MP FEC"},
+const value_string fec_types_vals[] = {
+  {WILDCARD_FEC, 	"Wildcard FEC"},
+  {PREFIX_FEC,   	"Prefix FEC"},
+  {HOST_FEC,     	"Host Address FEC"},
+  {CRLSP_FEC,    	"CR LSP FEC"},
+  {VC_FEC,       	"Virtual Circuit FEC"},
+  {GEN_FEC,      	"Generalized PWid FEC"},
+  {P2MP_FEC,     	"P2MP FEC"},
+  {MP2MP_FEC_UP, 	"MP2MP FEC upstream"},
+  {MP2MP_FEC_DOWN,	"MP2MP FEC Downstream"},
   {0, NULL}
 };
 
@@ -3398,7 +3402,7 @@ proto_register_ldp(void)
 
         { &hf_ldp_tlv_fec_wc,
           { "FEC Element Type", "ldp.msg.tlv.fec.type", FT_UINT8, BASE_DEC,
-            VALS(fec_types), 0x0, "Forwarding Equivalence Class Element Types", HFILL }},
+            VALS(fec_types_vals), 0x0, "Forwarding Equivalence Class Element Types", HFILL }},
 
         { &hf_ldp_tlv_fec_af,
           { "FEC Element Address Type", "ldp.msg.tlv.fec.af", FT_UINT16, BASE_DEC,

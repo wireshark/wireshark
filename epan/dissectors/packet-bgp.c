@@ -62,6 +62,7 @@
 #include <epan/addr_and_mask.h>
 #include <epan/show_exception.h>
 #include <epan/afn.h>
+#include <epan/dissectors/packet-ldp.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
@@ -115,6 +116,9 @@ void proto_reg_handoff_bgp(void);
 #define BGP_SSA_MPLS            4
 #define BGP_SSA_L2TPv3_IN_IPSec 5
 #define BGP_SSA_mGRE_IN_IPSec   6
+
+/* BGP MPLS information */
+#define BGP_MPLS_BOTTOM_L_STACK 0x000001
 
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
@@ -443,6 +447,12 @@ void proto_reg_handoff_bgp(void);
 #define PMSI_TUNNEL_INGRESS      6
 #define PMSI_TUNNEL_MLDP_MP2MP   7
 
+#define PMSI_MLDP_FEC_TYPE_RSVD         0
+#define PMSI_MLDP_FEC_TYPE_GEN_LSP      1
+#define PMSI_MLDP_FEC_TYPE_EXT_TYPE     255
+#define PMSI_MLDP_FEC_ETYPE_RSVD        0
+
+
 /* RFC 5512/5640 Sub-TLV Types */
 #define TUNNEL_SUBTLV_ENCAPSULATION 1
 #define TUNNEL_SUBTLV_PROTO_TYPE    2
@@ -713,10 +723,22 @@ static const value_string pmsi_tunnel_type[] = {
     { 0, NULL }
 };
 
-static const value_string tunnel_type[] = {
+static const value_string pmsi_mldp_fec_opaque_value_type[] = {
+    { PMSI_MLDP_FEC_TYPE_RSVD,          "Reserved" },
+    { PMSI_MLDP_FEC_TYPE_GEN_LSP,       "Generic LSP Identifier" },
+    { PMSI_MLDP_FEC_TYPE_EXT_TYPE,      "Extended Type field in the following two bytes" },
+    { 0, NULL}
+};
+
+static const value_string pmsi_mldp_fec_opa_extented_type[] = {
+    { PMSI_MLDP_FEC_ETYPE_RSVD,         "Reserved" },
+    { 0, NULL}
+};
+
+static const value_string bgp_attr_tunnel_type[] = {
     { TUNNEL_TYPE_L2TP_OVER_IP, "L2TP_OVER_IP" },
-    { TUNNEL_TYPE_GRE, "GRE" },
-    { TUNNEL_TYPE_IP_IN_IP, "IP_IN_IP" },
+    { TUNNEL_TYPE_GRE,          "GRE" },
+    { TUNNEL_TYPE_IP_IN_IP,     "IP_IN_IP" },
     { 0, NULL }
 };
 
@@ -1220,7 +1242,33 @@ static int hf_bgp_update_encaps_tunnel_subtlv_type = -1;
 static int hf_bgp_pmsi_tunnel_flags = -1;
 static int hf_bgp_pmsi_tunnel_type = -1;
 static int hf_bgp_pmsi_tunnel_id = -1;
-static int hf_bgp_pmsi_tunnel_mpls = -1;
+static int hf_bgp_pmsi_tunnel_not_present = -1;
+static int hf_bgp_pmsi_tunnel_rsvp_p2mp_id = -1; /* RFC4875 section 19 */
+static int hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id = -1;
+static int hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4 = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_type = -1; /* RFC 6388 section 2.3 */
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_afi = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev4 = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev6 = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_len = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_type = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_len = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_rn = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_type = -1;
+static int hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len = -1;
+static int hf_bgp_pmsi_tunnel_pimsm_sender = -1;
+static int hf_bgp_pmsi_tunnel_pimsm_pmc_group = -1;
+static int hf_bgp_pmsi_tunnel_pimssm_root_node = -1;
+static int hf_bgp_pmsi_tunnel_pimssm_pmc_group = -1;
+static int hf_bgp_pmsi_tunnel_pimbidir_sender = -1;
+static int hf_bgp_pmsi_tunnel_pimbidir_pmc_group = -1;
+static int hf_bgp_pmsi_tunnel_ingress_rep_addr = -1;
+
+/* MPLS labels decoding */
+static int hf_bgp_update_mpls_label = -1;
+static int hf_bgp_update_mpls_label_value = -1;
 
 /* BGP update path attribute SSA SAFI Specific attribute (deprecated should we keep it ?) */
 
@@ -1542,6 +1590,8 @@ static gint ett_bgp_tunnel_subtlv = -1;
 static gint ett_bgp_tunnel_subtlv_subtree = -1;
 static gint ett_bgp_link_state = -1;
 static gint ett_bgp_evpn_nlri = -1;
+static gint ett_bgp_mpls_labels = -1;
+static gint ett_bgp_pmsi_tunnel_id = -1;
 
 static expert_field ei_bgp_cap_len_bad = EI_INIT;
 static expert_field ei_bgp_cap_gr_helper_mode_only = EI_INIT;
@@ -1551,6 +1601,8 @@ static expert_field ei_bgp_length_invalid = EI_INIT;
 static expert_field ei_bgp_afi_type_not_supported = EI_INIT;
 static expert_field ei_bgp_ls_error = EI_INIT;
 static expert_field ei_bgp_ext_com_len_bad = EI_INIT;
+static expert_field ei_bgp_attr_pmsi_opaque_type = EI_INIT;
+static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
 
 static expert_field ei_bgp_evpn_nlri_rt4_len_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
@@ -2426,7 +2478,7 @@ decode_mdt_safi(proto_tree *tree, tvbuff_t *tvb, gint offset)
 static guint
 decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
 {
-    guint32     label_entry;    /* an MPLS label enrty (label + COS field + stack bit   */
+    guint32     label_entry;    /* an MPLS label entry (label + COS field + stack bit   */
     gint        indx;          /* index for the label stack */
 
     indx = offset ;
@@ -2434,28 +2486,68 @@ decode_MPLS_stack(tvbuff_t *tvb, gint offset, wmem_strbuf_t *stack_strbuf)
 
     wmem_strbuf_truncate(stack_strbuf, 0);
 
-    while ((label_entry & 0x000001) == 0) {
+    while ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
 
         label_entry = tvb_get_ntoh24(tvb, indx) ;
 
         /* withdrawn routes may contain 0 or 0x800000 in the first label */
-        if((indx-offset)==0&&(label_entry==0||label_entry==0x800000)) {
+        if((indx == offset)&&(label_entry==0||label_entry==0x800000)) {
             wmem_strbuf_append(stack_strbuf, "0 (withdrawn)");
             return (1);
         }
 
         wmem_strbuf_append_printf(stack_strbuf, "%u%s", label_entry >> 4,
-                ((label_entry & 0x000001) == 0) ? "," : " (bottom)");
+                ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) ? "," : " (bottom)");
 
         indx += 3 ;
 
-        if ((label_entry & 0x000001) == 0) {
+        if ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
             /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
             wmem_strbuf_append(stack_strbuf, " (BOGUS: Bottom of Stack NOT set!)");
             break;
         }
     }
 
+    return((indx - offset) / 3);
+}
+
+static guint
+decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
+{
+    guint32     label_entry;    /* an MPLS label entry (label + COS field + stack bit)   */
+    gint        indx;          /* index for the label stack */
+    proto_tree  *labels_tree=NULL;
+    proto_item  *labels_item=NULL;
+    proto_item  *label_item=NULL;
+    indx = offset ;
+    label_entry = 0x000000 ;
+
+    labels_item = proto_tree_add_item(parent_tree, hf_bgp_update_mpls_label, tvb, offset, 3, ENC_NA);
+    labels_tree = proto_item_add_subtree(labels_item, ett_bgp_mpls_labels);
+    while ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
+
+        label_entry = tvb_get_ntoh24(tvb, indx);
+        label_item = proto_tree_add_item(labels_tree, hf_bgp_update_mpls_label_value, tvb, indx, 3, ENC_NA);
+        /* withdrawn routes may contain 0 or 0x800000 in the first label */
+        if((indx == offset)&&(label_entry==0||label_entry==0x800000)) {
+            proto_item_append_text(labels_item, " (withdrawn)");
+            proto_item_append_text(label_item, " (withdrawn)");
+            return (1);
+        }
+
+        proto_item_append_text(labels_item, "%u%s", label_entry >> 4,
+                ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) ? "," : " (bottom)");
+        proto_item_append_text(label_item, "%u%s", label_entry >> 4,
+                ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) ? "," : " (bottom)");
+        indx += 3 ;
+
+        if ((label_entry & BGP_MPLS_BOTTOM_L_STACK) == 0) {
+            /* real MPLS multi-label stack in BGP? - maybe later; for now, it must be a bogus packet */
+            proto_item_append_text(labels_item, " (BOGUS: Bottom of Stack NOT set!)");
+            break;
+        }
+    }
+    proto_item_set_len(labels_item, ((indx - offset) / 3));
     return((indx - offset) / 3);
 }
 
@@ -4995,8 +5087,8 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
  * Dissect BGP update extended communities
  */
 
- static int
- dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen, guint tvb_off)
+static int
+dissect_bgp_update_ext_com(proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen, guint tvb_off)
 {
     int             offset=0;
     int             end=0;
@@ -5262,6 +5354,116 @@ heuristic_as2_or_4_from_as_path(tvbuff_t *tvb, gint as_path_offset, gint end_att
     return(0);
 }
 
+static int
+dissect_bgp_update_pmsi_attr(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, guint16 tlen, guint tvb_off)
+{
+    int             offset=0;
+    guint8          tunnel_type=0;
+    guint8          opaque_value_type=0;
+    guint8          rn_addr_length=0;
+    guint16         tunnel_id_len=0;
+    guint16         opaque_value_length=0;
+    proto_item      *tunnel_id_item=NULL;
+    proto_item      *opaque_value_type_item=NULL;
+    proto_item      *pmsi_tunnel_type_item=NULL;
+    proto_tree      *tunnel_id_tree=NULL;
+
+    offset = tvb_off ;
+    tunnel_id_len = tlen - 5;
+
+    proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_flags, tvb, offset,
+                        1, ENC_NA);
+
+    pmsi_tunnel_type_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_type, tvb, offset+1,
+                                                1, ENC_NA);
+    decode_MPLS_stack_tree(tvb, offset+2, parent_tree);
+
+    tunnel_id_item = proto_tree_add_item(parent_tree, hf_bgp_pmsi_tunnel_id, tvb, offset+5,
+                        tunnel_id_len, ENC_NA);
+    tunnel_id_tree = proto_item_add_subtree(tunnel_id_item, ett_bgp_pmsi_tunnel_id);
+
+    tunnel_type = tvb_get_guint8(tvb, offset+1);
+    switch(tunnel_type) {
+        case PMSI_TUNNEL_NOPRESENT:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_not_present, tvb, offset+1, 1, ENC_NA);
+            break;
+        case PMSI_TUNNEL_RSVPTE_P2MP:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_id, tvb, offset+5, 4, ENC_NA);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id, tvb, offset+11, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4, tvb, offset+13, 4, ENC_NA);
+            proto_item_append_text(tunnel_id_item, ": Id %u, Ext Id %s",
+                                tvb_get_ntohs(tvb, offset+11), tvb_ip_to_str(tvb, offset+13));
+            break;
+        case PMSI_TUNNEL_MLDP_P2MP:
+        case PMSI_TUNNEL_MLDP_MP2MP:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_type, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_afi, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+            rn_addr_length = tvb_get_guint8(tvb, offset+8);
+            if( rn_addr_length ==4)
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev4, tvb, offset+9, 4, ENC_NA);
+            else
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev6, tvb, offset+9, 4, ENC_NA);
+
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_len, tvb, offset+9+rn_addr_length, 2, ENC_BIG_ENDIAN);
+            opaque_value_type_item = proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_type,
+                                                         tvb, offset+11+rn_addr_length, 1, ENC_BIG_ENDIAN);
+            opaque_value_type = tvb_get_guint8(tvb, offset+11+rn_addr_length);
+            if(opaque_value_type == PMSI_MLDP_FEC_TYPE_GEN_LSP) {
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_len, tvb, offset+12+rn_addr_length, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_rn, tvb, offset+14+rn_addr_length, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(tunnel_id_item, ": Type: %s root node: %s Id: %u",
+                                       val_to_str_const(tvb_get_guint8(tvb, offset+5), fec_types_vals, "Unknown"),
+                                       tvb_ip_to_str(tvb, offset+9),
+                                       tvb_get_ntohl(tvb, offset+14+rn_addr_length));
+            } else if (opaque_value_type == PMSI_MLDP_FEC_TYPE_EXT_TYPE) {
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_type, tvb, offset+12+rn_addr_length, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len, tvb, offset+14+rn_addr_length, 2, ENC_BIG_ENDIAN);
+                opaque_value_length = tvb_get_ntohs(tvb, offset+14+rn_addr_length);
+                proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str, tvb, offset+16+rn_addr_length,
+                                    opaque_value_length, ENC_ASCII);
+            }
+            else {
+                /* This covers situation when opaque id is 0 (reserved) or any other value */
+                expert_add_info_format(pinfo, opaque_value_type_item, &ei_bgp_attr_pmsi_opaque_type,
+                                            "Opaque Value type %u wrong, must be modulo 1 or 255", opaque_value_type);
+            }
+            break;
+        case PMSI_TUNNEL_PIMSSM:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimssm_root_node, tvb, offset+5, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimssm_pmc_group, tvb, offset+9, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(tunnel_id_item, ": < %s, %s >",
+                                   tvb_ip_to_str(tvb, offset+5),
+                                   tvb_ip_to_str(tvb, offset+9));
+            break;
+        case PMSI_TUNNEL_PIMSM:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimsm_sender, tvb, offset+5, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimsm_pmc_group, tvb, offset+9, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(tunnel_id_item, ": < %s, %s >",
+                                   tvb_ip_to_str(tvb, offset+5),
+                                   tvb_ip_to_str(tvb, offset+9));
+            break;
+        case PMSI_TUNNEL_BIDIR_PIM:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimbidir_sender, tvb, offset+5, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_pimbidir_pmc_group, tvb, offset+9, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(tunnel_id_item, ": < %s, %s >",
+                                   tvb_ip_to_str(tvb, offset+5),
+                                   tvb_ip_to_str(tvb, offset+9));
+            break;
+        case PMSI_TUNNEL_INGRESS:
+            proto_tree_add_item(tunnel_id_tree, hf_bgp_pmsi_tunnel_ingress_rep_addr, tvb, offset+5, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(tunnel_id_item, ": tunnel end point -> %s",
+                                   tvb_ip_to_str(tvb, offset+5));
+            break;
+        default:
+            expert_add_info_format(pinfo, pmsi_tunnel_type_item, &ei_bgp_attr_pmsi_tunnel_type,
+                                            "Tunnel type %u wrong", tunnel_type);
+            break;
+    }
+
+
+    return(0);
+}
 /*
  * Dissect a BGP UPDATE message.
  */
@@ -5292,7 +5494,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     proto_tree      *community_tree;            /* subtree for a community  */
     proto_tree      *cluster_list_tree;         /* subtree for CLUSTER_LIST */
     int             i, j, k;                    /* tmp                      */
-    guint8          tunnel_id_len=0;            /* PMSI Tunnel ID Length    */
     guint8          type=0;                     /* AS_PATH segment type     */
     guint8          length=0;                   /* AS_PATH segment length   */
     wmem_strbuf_t   *junk_emstr;                /* tmp                      */
@@ -5304,9 +5505,6 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     guint16         encaps_tunnel_len;          /* Encapsulation TLV Length */
     guint8          encaps_tunnel_subtype;      /* Encapsulation Tunnel Sub-TLV Type */
     guint8          encaps_tunnel_sublen;       /* Encapsulation TLV Sub-TLV Length */
-    guint labnum;
-    wmem_strbuf_t *stack_strbuf;                /* MPLS label stack                  */
-    proto_item *item;
 
     if (!tree)
         return;
@@ -5910,7 +6108,8 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                         encaps_tunnel_type = tvb_get_ntohs(tvb, q);
                         encaps_tunnel_len = tvb_get_ntohs(tvb, q + 2);
 
-                        ti = proto_tree_add_text(subtree3, tvb, q, encaps_tunnel_len + 4, "%s (%u bytes)", val_to_str_const(encaps_tunnel_type, tunnel_type, "Unknown"), encaps_tunnel_len + 4);
+                        ti = proto_tree_add_text(subtree3, tvb, q, encaps_tunnel_len + 4, "%s (%u bytes)",
+                             val_to_str_const(encaps_tunnel_type, bgp_attr_tunnel_type, "Unknown"), encaps_tunnel_len + 4);
                         subtree4 = proto_item_add_subtree(ti, ett_bgp_tunnel_tlv_subtree);
 
                         proto_tree_add_item(subtree4, hf_bgp_update_encaps_tunnel_tlv_type, tvb, q, 2, ENC_NA);
@@ -5979,25 +6178,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
                     break;
 
                 case BGPTYPE_PMSI_TUNNEL_ATTR:
-
-                    q = o + i + aoff;
-                    tunnel_id_len = tlen - 5;
-
-                    proto_tree_add_item(subtree2, hf_bgp_pmsi_tunnel_flags, tvb, q,
-                                        1, ENC_NA);
-
-                    proto_tree_add_item(subtree2, hf_bgp_pmsi_tunnel_type, tvb, q+1,
-                                        1, ENC_NA);
-
-                    stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-                    labnum = decode_MPLS_stack(tvb, q+2, stack_strbuf);
-                    item = proto_tree_add_item(subtree2, hf_bgp_pmsi_tunnel_mpls, tvb, q+2,
-                                               labnum*3, ENC_NA);
-                    proto_item_set_text(item, "MPLS Label Stack: %s", wmem_strbuf_get_str(stack_strbuf));
-
-                    proto_tree_add_item(subtree2, hf_bgp_pmsi_tunnel_id, tvb, q+5,
-                                        tunnel_id_len, ENC_NA);
-
+                    dissect_bgp_update_pmsi_attr(pinfo, subtree2, tvb, tlen, o+i+aoff);
                     break;
                 default:
                     proto_tree_add_text(subtree2, tvb, o + i + aoff, tlen,
@@ -6812,11 +6993,83 @@ proto_register_bgp(void)
         { "Tunnel Type", "bgp.update.path_attribute.pmsi.tunnel.type", FT_UINT8, BASE_DEC,
           VALS(pmsi_tunnel_type), 0x0, NULL, HFILL}},
       { &hf_bgp_pmsi_tunnel_id,
-        { "Tunnel ID", "bgp.update.path_attribute.pmsi.tunnel.id", FT_BYTES, BASE_NONE,
+        { "Tunnel ID", "bgp.update.path_attribute.pmsi.tunnel.id", FT_NONE, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_pmsi_tunnel_mpls,
-         { "MPLS Label Stack", "bgp.update.path_attribute.pmsi.tunnel.mpls", FT_BYTES,
-           BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_not_present,
+        { "Tunnel ID not present", "bgp.update.path_attribute.pmsi.tunnel_id.not_present", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_mpls_label,
+        { "MPLS Label Stack", "bgp.update.path_attribute.mpls_label", FT_NONE,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_mpls_label_value,
+        { "MPLS Label", "bgp.update.path_attribute.mpls_label_value", FT_UINT24,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_rsvp_p2mp_id, /* RFC4875 section 19 */
+        { "RSVP P2MP id", "bgp.update.path_attribute.pmsi.rsvp.id", FT_IPv4, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_rsvp_p2mp_tunnel_id,
+        { "RSVP P2MP tunnel id", "bgp.update.path_attribute.pmsi.rsvp.tunnel_id", FT_UINT16, BASE_DEC,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_rsvp_p2mp_ext_tunnel_idv4,
+        { "RSVP P2MP extended tunnel id", "bgp.update.path_attribute.pmsi.rsvp.ext_tunnel_idv4", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_type,
+        { "mLDP P2MP FEC element type", "bgp.update.path_attribute.pmsi.mldp.fec.type", FT_UINT8, BASE_DEC,
+         VALS(fec_types_vals), 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_afi,
+        {"mLDP P2MP FEC element address family", "bgp.update.path_attribute.pmsi.mldp.fec.address_family", FT_UINT16, BASE_DEC,
+         VALS(afn_vals), 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_adr_len,
+        {"mLDP P2MP FEC element address length", "bgp.update.path_attribute.pmsi.mldp.fec.address_length", FT_UINT8, BASE_DEC,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev4,
+        {"mLDP P2MP FEC element root node address", "bgp.update.path_attribute.pmsi.mldp.fec.root_nodev4", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_root_nodev6,
+        {"mLDP P2MP FEC element root node address", "bgp.update.path_attribute.pmsi.mldp.fec.root_nodev4", FT_IPv6, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_len,
+        {"mLDP P2MP FEC element opaque length", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_length", FT_UINT16, BASE_DEC,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_type,
+        {"mLDP P2MP FEC element opaque value type", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_value_type", FT_UINT8, BASE_DEC,
+         VALS(pmsi_mldp_fec_opaque_value_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_len,
+        {"mLDP P2MP FEC element opaque value length", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_value_length", FT_UINT16, BASE_DEC,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_rn,
+        {"mLDP P2MP FEC element opaque value unique Id", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_value_unique_id_rn", FT_UINT32, BASE_DEC,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_value_str,
+        {"mLDP P2MP FEC element opaque value unique Id", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_value_unique_id_str", FT_STRING, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_type,
+        {"mLDP P2MP FEC element opaque extended value type", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_ext_value_type", FT_UINT16, BASE_DEC,
+         VALS(pmsi_mldp_fec_opa_extented_type), 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_mldp_fec_el_opa_val_ext_len,
+        {"mLDP P2MP FEC element opaque extended length", "bgp.update.path_attribute.pmsi.mldp.fec.opaque_ext_length", FT_UINT16, BASE_DEC,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_pimsm_sender,
+        {"PIM-SM Tree tunnel sender address", "bgp.update.path_attribute.pmsi.pimsm.sender_address", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_pimsm_pmc_group,
+        {"PIM-SM Tree tunnel P-multicast group", "bgp.update.path_attribute.pmsi.pimsm.pmulticast_group", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_pimssm_root_node,
+        {"PIM-SSM Tree tunnel Root Node", "bgp.update.path_attribute.pmsi.pimssm.root_node", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_pimssm_pmc_group,
+        {"PIM-SSM Tree tunnel P-multicast group", "bgp.update.path_attribute.pmsi.pimssm.pmulticast_group", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_pimbidir_sender,
+        {"BIDIR-PIM Tree Tunnel sender address", "bgp.update.path_attribute.pmsi.bidir_pim_tree.sender", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_pimbidir_pmc_group,
+        {"BIDIR-PIM Tree Tunnel P-multicast group", "bgp.update.path_attribute.pmsi.bidir_pim_tree.pmulticast_group", FT_IPv4, BASE_NONE,
+         NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_pmsi_tunnel_ingress_rep_addr,
+        {"Tunnel type ingress replication IP end point", "bgp.update.path_attribute.pmsi.ingress_rep_ip", FT_IPv4, BASE_NONE,
+        NULL, 0x0, NULL, HFILL}},
 
         /* RFC4456 */
        { &hf_bgp_update_path_attribute_originator_id,
@@ -6835,7 +7088,7 @@ proto_register_bgp(void)
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_tlv_type,
         { "Type code", "bgp.update.encaps_tunnel_tlv_type", FT_UINT16, BASE_DEC,
-          VALS(tunnel_type), 0x0, NULL, HFILL}},
+          VALS(bgp_attr_tunnel_type), 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_len,
         { "length", "bgp.update.encaps_tunnel_tlv_sublen", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -7635,6 +7888,8 @@ proto_register_bgp(void)
       &ett_bgp_tunnel_subtlv_subtree,
       &ett_bgp_link_state,
       &ett_bgp_evpn_nlri,
+      &ett_bgp_mpls_labels,
+      &ett_bgp_pmsi_tunnel_id,
     };
     static ei_register_info ei[] = {
         { &ei_bgp_cap_len_bad, { "bgp.cap.length.bad", PI_MALFORMED, PI_ERROR, "Capability length is wrong", EXPFILL }},
@@ -7647,6 +7902,8 @@ proto_register_bgp(void)
         { &ei_bgp_ext_com_len_bad, { "bgp.ext_com.length.bad", PI_PROTOCOL, PI_ERROR, "Extended community length is wrong", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt4_len_err, { "bgp.evpn.len", PI_MALFORMED, PI_ERROR, "Length is invalid", EXPFILL }},
         { &ei_bgp_evpn_nlri_rt_type_err, { "bgp.evpn.type", PI_MALFORMED, PI_ERROR, "EVPN Route Type is invalid", EXPFILL }},
+        { &ei_bgp_attr_pmsi_tunnel_type, { "bgp.attr.pmsi.tunnel_type", PI_PROTOCOL, PI_ERROR, "Unknown Tunnel type", EXPFILL }},
+        { &ei_bgp_attr_pmsi_opaque_type, { "bgp.attr.pmsi.opaque_type", PI_PROTOCOL, PI_ERROR, "Unvalid pmsi opaque type", EXPFILL }}
     };
 
     module_t *bgp_module;
