@@ -2581,7 +2581,7 @@ find_fragment(guint32 tsn, guint16 stream_id, guint16 stream_seq_num)
 }
 
 
-static sctp_fragment*
+static sctp_fragment *
 add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
              guint16 stream_id, guint16 stream_seq_num, guint8 b_bit, guint8 e_bit)
 {
@@ -2589,6 +2589,10 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   sctp_fragment *fragment, *last_fragment;
   sctp_frag_be *beginend, *last_beginend;
   frag_key *key;
+
+  /* Don't try to do reassembly on error packets */
+  if (pinfo->flags.in_error_pkt)
+    return NULL;
 
   /* lookup message. if not found, create it */
   msg = find_message(stream_id, stream_seq_num);
@@ -4128,7 +4132,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   }
 
   length_item = proto_tree_add_uint(chunk_tree, hf_chunk_length, chunk_tvb, CHUNK_LENGTH_OFFSET, CHUNK_LENGTH_LENGTH, length);
-  if (length > reported_length) {
+  if (length > reported_length && !pinfo->flags.in_error_pkt) {
     expert_add_info_format(pinfo, length_item, &ei_sctp_chunk_length_bad, "Chunk length (%d) is longer than remaining data (%d) in the packet.", length, reported_length);
     /* We'll almost certainly throw an exception shortly... */
   }
