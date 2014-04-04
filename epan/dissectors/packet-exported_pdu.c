@@ -124,8 +124,8 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         switch(tag) {
             case EXP_PDU_TAG_PROTO_NAME:
                 next_proto_type = EXPORTED_PDU_NEXT_PROTO_STR;
-                proto_name = tvb_get_string(wmem_packet_scope(), tvb, offset, tag_len);
-                proto_tree_add_item(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_ASCII|ENC_NA);
+                proto_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(tag_tree, hf_exported_pdu_prot_name, tvb, offset, tag_len, ENC_UTF_8|ENC_NA);
                 break;
             case EXP_PDU_TAG_IPV4_SRC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);

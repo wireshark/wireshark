@@ -597,9 +597,9 @@ dissect_info_string_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto
     return;
   }
 
-  proto_tree_add_item(parameter_tree, hf_sua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_ASCII|ENC_NA);
+  proto_tree_add_item(parameter_tree, hf_sua_info_string, parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_UTF_8|ENC_NA);
   proto_item_append_text(parameter_item, " (%.*s)", info_string_length,
-                         tvb_get_string(wmem_packet_scope(), parameter_tvb, INFO_STRING_OFFSET, info_string_length));
+                         tvb_get_string_enc(wmem_packet_scope(), parameter_tvb, INFO_STRING_OFFSET, info_string_length, ENC_UTF_8|ENC_NA));
 }
 
 #define ROUTING_CONTEXT_LENGTH 4
