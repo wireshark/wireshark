@@ -402,6 +402,9 @@ const value_string ssl_extension_curves[] = {
     { 23, "secp256r1" },
     { 24, "secp384r1" },
     { 25, "secp521r1" },
+    { 26, "brainpoolP256r1" }, /* RFC 7027 */
+    { 27, "brainpoolP384r1" }, /* RFC 7027 */
+    { 28, "brainpoolP512r1" }, /* RFC 7027 */
     { 0xFF01, "arbitrary_explicit_prime_curves" },
     { 0xFF02, "arbitrary_explicit_char2_curves" },
     { 0x00, NULL }
