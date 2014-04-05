@@ -563,6 +563,7 @@ sub debug_print_hash {
 
     ##print "==> $title\n";
     for my $k (sort keys %{$href}) {
-        printf "%-40.40s %5.5s %s\n", $title, $href->{$k} // "undef", $k;
+        my $h = defined($href->{$k}) ?  $href->{$k} : "undef";
+        printf "%-40.40s %5.5s %s\n", $title, $h, $k;
     }
 }
