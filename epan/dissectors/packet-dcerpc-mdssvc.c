@@ -145,7 +145,7 @@ mdssvc_dissect_element_blob_spotlight_blob(tvbuff_t *tvb, int offset, packet_inf
 	if (spotlight_handle)
 	{
 		spotlight_tvb = tvb_new_subset_remaining(tvb, offset + 16);
-		return call_dissector(spotlight_handle, spotlight_tvb, pinfo, tree);
+		return (offset + 16 + call_dissector(spotlight_handle, spotlight_tvb, pinfo, tree));
 	}
 
 	return offset;
