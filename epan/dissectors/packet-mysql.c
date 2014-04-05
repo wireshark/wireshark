@@ -86,6 +86,7 @@ void proto_reg_handoff_mysql(void);
 /* extended capabilities: 4.1+ client only */
 #define MYSQL_CAPS_MS 0x0001
 #define MYSQL_CAPS_MR 0x0002
+#define MYSQL_CAPS_SESSION_TRACK 0x0080
 
 /* status bitfield */
 #define MYSQL_STAT_IT 0x0001
@@ -98,6 +99,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_STAT_LR 0x0080
 #define MYSQL_STAT_DR 0x0100
 #define MYSQL_STAT_BS 0x0200
+#define MYSQL_STAT_SESSION_STATE_CHANGED  (1UL << 14)
 
 /* bitfield for MYSQL_REFRESH */
 #define MYSQL_RFSH_GRANT   1   /* Refresh grant tables */
@@ -366,6 +368,13 @@ static const value_string mysql_option_vals[] = {
 	{0, NULL}
 };
 
+static const value_string mysql_session_track_type_vals[] = {
+	{0, "SESSION_SYSVARS_TRACKER"},
+	{1, "CURRENT_SCHEMA_TRACKER"},
+	{2, "SESSION_STATE_CHANGE_TRACKER"},
+	{0, NULL}
+};
+
 /* protocol id */
 static int proto_mysql = -1;
 
@@ -384,6 +393,8 @@ static gint ett_request = -1;
 static gint ett_refresh = -1;
 static gint ett_field_flags = -1;
 static gint ett_exec_param = -1;
+static gint ett_session_track = -1;
+static gint ett_session_track_data = -1;
 
 /* protocol fields */
 static int hf_mysql_caps_server = -1;
@@ -407,6 +418,7 @@ static int hf_mysql_cap_secure_connect = -1;
 static int hf_mysql_extcaps_client = -1;
 static int hf_mysql_cap_multi_statements = -1;
 static int hf_mysql_cap_multi_results = -1;
+static int hf_mysql_cap_session_track = -1;
 static int hf_mysql_server_language = -1;
 static int hf_mysql_server_status = -1;
 static int hf_mysql_stat_it = -1;
@@ -419,6 +431,7 @@ static int hf_mysql_stat_cr = -1;
 static int hf_mysql_stat_lr = -1;
 static int hf_mysql_stat_dr = -1;
 static int hf_mysql_stat_bs = -1;
+static int hf_mysql_stat_session_state_changed = -1;
 static int hf_mysql_refresh = -1;
 static int hf_mysql_rfsh_grants = -1;
 static int hf_mysql_rfsh_log = -1;
@@ -438,6 +451,17 @@ static int hf_mysql_sqlstate = -1;
 static int hf_mysql_message = -1;
 static int hf_mysql_payload = -1;
 static int hf_mysql_server_greeting = -1;
+static int hf_mysql_session_track = -1;
+static int hf_mysql_session_track_type = -1;
+static int hf_mysql_session_track_length = -1;
+static int hf_mysql_session_track_data = -1;
+static int hf_mysql_session_track_data_length = -1;
+static int hf_mysql_session_track_sysvar_length = -1;
+static int hf_mysql_session_track_sysvar_name = -1;
+static int hf_mysql_session_track_sysvar_value = -1;
+static int hf_mysql_session_track_schema = -1;
+static int hf_mysql_session_track_schema_length = -1;
+static int hf_mysql_session_state_change = -1;
 static int hf_mysql_protocol = -1;
 static int hf_mysql_version  = -1;
 static int hf_mysql_login_request = -1;
@@ -623,7 +647,7 @@ typedef struct mysql_exec_dissector {
 /* function prototypes */
 static int mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree);
 static int mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
-static int mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree);
+static int mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *server_status);
 static int mysql_dissect_caps_server(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps);
 static int mysql_dissect_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps);
 static int mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *caps);
@@ -730,7 +754,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	proto_tree_add_item(greeting_tree, hf_mysql_server_language, tvb, offset, 1, ENC_NA);
 	offset += 1; /* for charset */
 
-	offset = mysql_dissect_server_status(tvb, offset, greeting_tree);
+	offset = mysql_dissect_server_status(tvb, offset, greeting_tree, NULL);
 
 	/* 13 bytes unused */
 	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 13, ENC_ASCII|ENC_NA);
@@ -1279,8 +1303,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	gint response_code;
 	gint lenstr;
-	gint server_status = 0;
 	proto_item *ti;
+	guint16 server_status = 0;
 
 	response_code = tvb_get_guint8(tvb, offset);
 
@@ -1298,8 +1322,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/* pre-4.1 packet ends here */
 		if (tvb_reported_length_remaining(tvb, offset)) {
 			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-			server_status = tvb_get_letohs(tvb, offset+2);
-			offset = mysql_dissect_server_status(tvb, offset+2, tree);
+			offset = mysql_dissect_server_status(tvb, offset+2, tree, &server_status);
 		}
 
 		if (conn_data->state == FIELD_PACKET) {
@@ -1398,15 +1421,78 @@ mysql_dissect_error_packet(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
+/*
+  Add a session track entry to the session tracking subtree
+
+  return bytes read
+*/
+static int
+add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree, int offset) {
+	guint8 data_type; /* session tracker type */
+	guint64 length; /* complete length of session tracking entry */
+	guint64 lenstr, lenfle;
+	int orig_offset = offset;
+	proto_item *item, *ti;
+	proto_tree *session_track_tree;
+
+	ti = proto_tree_add_item(tree, hf_mysql_session_track, tvb, offset, 1, ENC_NA);
+	session_track_tree = proto_item_add_subtree(ti, ett_session_track);
+
+	proto_tree_add_item(session_track_tree, hf_mysql_session_track_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+	data_type = tvb_get_guint8(tvb, offset);
+	offset += 1;
+
+	lenfle = tvb_get_fle(tvb, offset, &length, NULL);
+	proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_length, tvb, offset, lenfle, length);
+	offset += lenfle;
+
+	switch (data_type) {
+	case 0: /* SESSION_SYSVARS_TRACKER */
+		lenfle = tvb_get_fle(tvb, offset, &lenstr, NULL);
+		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_sysvar_length, tvb, offset, lenfle, lenstr);
+		offset += lenfle;
+
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_sysvar_name, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		offset += (int)lenstr;
+
+		lenfle = tvb_get_fle(tvb, offset, &lenstr, NULL);
+		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_sysvar_length, tvb, offset, lenfle, lenstr);
+		offset += lenfle;
+
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_sysvar_value, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		offset += (int)lenstr;
+		break;
+	case 1: /* CURRENT_SCHEMA_TRACKER */
+		lenfle = tvb_get_fle(tvb, offset, &lenstr, NULL);
+		proto_tree_add_uint64(session_track_tree, hf_mysql_session_track_schema_length, tvb, offset, lenfle, lenstr);
+		offset += lenfle;
+
+		proto_tree_add_item(session_track_tree, hf_mysql_session_track_schema, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+		offset += (int)lenstr;
+		break;
+	case 2: /* SESSION_STATE_CHANGE_TRACKER */
+		proto_tree_add_item(session_track_tree, hf_mysql_session_state_change, tvb, offset, 1, ENC_ASCII|ENC_NA);
+		offset++;
+		break;
+	default: /* unsupported types skipped */
+		item = proto_tree_add_item(session_track_tree, hf_mysql_payload, tvb, offset, (gint)length, ENC_NA);
+		expert_add_info_format(pinfo, item, &ei_mysql_dissector_incomplete, "FIXME: unrecognized session tracker data");
+		offset += (int)length;
+	}
+	proto_item_set_len(ti, offset - orig_offset);
+
+	return (offset - orig_offset);
+}
 
 static int
 mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			proto_tree *tree, mysql_conn_data_t *conn_data)
 {
-	gint lenstr;
+	guint64 lenstr;
 	guint64 affected_rows;
 	guint64 insert_id;
 	int fle;
+	guint16 server_status = 0;
 
 	col_append_str(pinfo->cinfo, COL_INFO, " OK" );
 
@@ -1421,20 +1507,49 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	offset += fle;
 
 	if (tvb_reported_length_remaining(tvb, offset) > 0) {
-	        offset = mysql_dissect_server_status(tvb, offset, tree);
+		offset = mysql_dissect_server_status(tvb, offset, tree, &server_status);
 
-	        /* 4.1+ protocol only: 2 bytes number of warnings */
+		/* 4.1+ protocol only: 2 bytes number of warnings */
 		if (conn_data->clnt_caps & conn_data->srv_caps & MYSQL_CAPS_CU) {
 			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		}
 	}
 
-	/* optional: message string */
-	if (tvb_reported_length_remaining(tvb, offset) > 0) {
-		lenstr = tvb_reported_length_remaining(tvb, offset);
-		proto_tree_add_item(tree, hf_mysql_message, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
-		offset += lenstr;
+	if (conn_data->clnt_caps_ext & MYSQL_CAPS_SESSION_TRACK) {
+		guint64 session_track_length;
+		proto_item *tf;
+		proto_item *session_track_tree = NULL;
+		int length;
+
+		offset += tvb_get_fle(tvb, offset, &lenstr, NULL);
+		/* first read the optional message */
+		if (lenstr) {
+			proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+			offset += (int)lenstr;
+		}
+
+		/* session state tracking */
+		if (server_status & MYSQL_STAT_SESSION_STATE_CHANGED) {
+			fle = tvb_get_fle(tvb, offset, &session_track_length, NULL);
+			tf = proto_tree_add_item(tree, hf_mysql_session_track_data, tvb, offset, -1, ENC_NA);
+			session_track_tree = proto_item_add_subtree(tf, ett_session_track_data);
+			proto_tree_add_uint64(tf, hf_mysql_session_track_data_length, tvb, offset, fle, session_track_length);
+			offset += fle;
+
+			while (session_track_length > 0) {
+				length = add_session_tracker_entry_to_tree(tvb, pinfo, session_track_tree, offset);
+				offset += length;
+				session_track_length -= length;
+			}
+		}
+	} else {
+		/* optional: message string */
+		if (tvb_reported_length_remaining(tvb, offset) > 0) {
+			lenstr = tvb_reported_length_remaining(tvb, offset);
+			proto_tree_add_item(tree, hf_mysql_message, tvb, offset, (gint)lenstr, ENC_ASCII|ENC_NA);
+			offset += (int)lenstr;
+		}
 	}
 
 	conn_data->state = REQUEST;
@@ -1443,11 +1558,14 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 
 static int
-mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree)
+mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *server_status)
 {
 	proto_item *tf;
 	proto_item *stat_tree;
 
+	if (server_status) {
+		*server_status = tvb_get_letohs(tvb, offset);
+	}
 	if (tree) {
 		tf= proto_tree_add_item(tree, hf_mysql_server_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		stat_tree= proto_item_add_subtree(tf, ett_stat);
@@ -1461,6 +1579,7 @@ mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree)
 		proto_tree_add_item(stat_tree, hf_mysql_stat_lr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(stat_tree, hf_mysql_stat_dr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(stat_tree, hf_mysql_stat_bs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_session_state_changed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 	offset += 2;
 
@@ -1544,6 +1663,8 @@ mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint
 		extcap_tree = proto_item_add_subtree(tf, ett_extcaps);
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_multi_statements, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_multi_results, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_session_track, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 
 	offset += 2;
@@ -1736,7 +1857,6 @@ my_tvb_strsize(tvbuff_t *tvb, int offset)
 	}
 	return len;
 }
-
 
 /*
  read "field length encoded" value from packet buffer
@@ -2010,6 +2130,61 @@ void proto_register_mysql(void)
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		"MySQL Version", HFILL }},
 
+		{ &hf_mysql_session_track,
+		{ "Session Track", "mysql.session_track",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_type,
+		{ "Session tracking type", "mysql.session_track.type",
+		  FT_UINT8, BASE_DEC, VALS(mysql_session_track_type_vals), 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_length,
+		{ "Session tracking length", "mysql.session_track.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_data,
+		{ "Session tracking data", "mysql.session_track.data",
+		  FT_NONE, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_data_length,
+		{ "Session tracking data length", "mysql.session_track.data.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_sysvar_length,
+		{ "System variable change Length", "mysql.session_track.sysvar.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_sysvar_name,
+		{ "System variable change Name", "mysql.session_track.sysvar.name",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_sysvar_value,
+		{ "System variable change Value", "mysql.session_track.sysvar.value",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_schema_length,
+		{ "Schema change length", "mysql.session_track.schema.length",
+		  FT_UINT64, BASE_DEC, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_track_schema,
+		{ "Schema change", "mysql.session_track.schema",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
+		{ &hf_mysql_session_state_change,
+		{ "State change", "mysql.session_track.state_change",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  NULL, HFILL }},
+
 		{ &hf_mysql_caps_server,
 		{ "Server Capabilities", "mysql.caps.server",
 		FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -2115,6 +2290,11 @@ void proto_register_mysql(void)
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MR,
 		NULL, HFILL }},
 
+		{ &hf_mysql_cap_session_track,
+		{ "Supports session variable tracking","mysql.caps.session_track",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SESSION_TRACK,
+		NULL, HFILL }},
+
 		{ &hf_mysql_login_request,
 		{ "Login Request", "mysql.login_request",
 		FT_NONE, BASE_NONE, NULL,  0x0,
@@ -2218,6 +2398,11 @@ void proto_register_mysql(void)
 		{ &hf_mysql_stat_bs,
 		{ "No backslash escapes", "mysql.stat.bs",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_BS,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_session_state_changed,
+		{ "Session state changed", "mysql.stat.session_state_changed",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_SESSION_STATE_CHANGED,
 		NULL, HFILL }},
 
 		{ &hf_mysql_refresh,
@@ -2627,7 +2812,9 @@ void proto_register_mysql(void)
 		&ett_request,
 		&ett_refresh,
 		&ett_field_flags,
-		&ett_exec_param
+		&ett_exec_param,
+		&ett_session_track,
+		&ett_session_track_data
 	};
 
 	static ei_register_info ei[] = {
