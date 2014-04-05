@@ -1098,6 +1098,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_HEARTBEAT, "Heartbeat" },  /* RFC 6520 */
     { SSL_HND_HELLO_EXT_ALPN, "Application Layer Protocol Negotiation" }, /* draft-ietf-tls-applayerprotoneg-01 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
+    { 18, "signed_certificate_timestamp" }, /* RFC 6962 */
     { 19, "client_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
     { 20, "server_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
