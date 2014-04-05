@@ -959,6 +959,12 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0A9, "TLS_PSK_WITH_AES_256_CCM_8" },
     { 0xC0AA, "TLS_PSK_DHE_WITH_AES_128_CCM_8" },
     { 0xC0AB, "TLS_PSK_DHE_WITH_AES_256_CCM_8" },
+
+    /* http://www.iana.org/go/draft-mcgrew-tls-aes-ccm-ecc-08 */
+    { 0xC0AC, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM" },
+    { 0xC0AD, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM" },
+    { 0xC0AE, "TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8" },
+    { 0xC0AF, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8" },
 /*
 0xC0,0xAB-FF Unassigned
 0xC1-FD,* Unassigned
@@ -1326,6 +1332,10 @@ gint ssl_get_keyex_alg(gint cipher)
     case 0xc039:
     case 0xc03a:
     case 0xc03b:
+    case 0xc0ac:
+    case 0xc0ad:
+    case 0xc0ae:
+    case 0xc0af:
         return KEX_ECDH;
     case 0x002C:
     case 0x008A:
@@ -2050,6 +2060,10 @@ static SslCipherSuite cipher_suites[]={
     {0xC0A9,KEX_PSK,    ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_WITH_AES_256_CCM_8 */
     {0xC0AA,KEX_DH,     ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_DHE_WITH_AES_128_CCM_8 */
     {0xC0AB,KEX_DH,     ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_PSK_DHE_WITH_AES_256_CCM_8 */
+    {0xC0AC,KEX_ECDH,   ENC_AES,         4,128,128,DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM */
+    {0xC0AD,KEX_ECDH,   ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM */
+    {0xC0AE,KEX_ECDH,   ENC_AES,         4,128,128,DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CCM_8 */
+    {0xC0AF,KEX_ECDH,   ENC_AES256,      4,256,256,DIG_NA,     MODE_CCM_8 },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8 */
     {-1,    0,          0,               0,  0,  0,0,          MODE_STREAM}
 };
 
