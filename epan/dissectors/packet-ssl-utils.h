@@ -89,6 +89,7 @@
 #define SSL_HND_FINISHED               20
 #define SSL_HND_CERT_URL               21
 #define SSL_HND_CERT_STATUS            22
+#define SSL_HND_SUPPLEMENTAL_DATA      23
 /* Encrypted Extensions was NextProtocol in draft-agl-tls-nextprotoneg-03 and
  * changed in draft 04 */
 #define SSL_HND_ENCRYPTED_EXTS         67
