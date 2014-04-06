@@ -230,6 +230,9 @@ static int hf_rtp_hdr_ed137a_x_nu      = -1;
 static int hf_rtp_hdr_ed137a_ft_type   = -1;
 static int hf_rtp_hdr_ed137a_ft_len    = -1;
 static int hf_rtp_hdr_ed137a_ft_value  = -1;
+static int hf_rtp_hdr_ed137a_ft_sqi_qidx  = -1;
+static int hf_rtp_hdr_ed137a_ft_sqi_rssi_qidx  = -1;
+static int hf_rtp_hdr_ed137a_ft_sqi_qidx_ml  = -1;
 static gint ett_hdr_ext_ed137s  = -1;
 static gint ett_hdr_ext_ed137   = -1;
 static gint ett_hdr_ext_ed137a   = -1;
@@ -357,6 +360,16 @@ static guint rtp_rfc2198_pt = 99;
 #define RTP_ED137_feature_bss_len     11
 #define RTP_ED137_feature_bss_qidx(octet)   (((octet) & 0x00003FC0) >> 6)
 #define RTP_ED137_feature_bss_qidx_ml(octet)   (((octet) & 0x00000038) >> 2)
+#define RTP_ED137_feature_bss_qidx_ml_rssi      0
+#define RTP_ED137_feature_bss_qidx_rssi_max     15
+
+/* ED137 SQI constants */
+#define RTP_ED137A_feature_sqi_type   0x1
+#define RTP_ED137A_feature_sqi_len    11
+#define RTP_ED137A_feature_sqi_qidx(octet)  (((octet) & 0x000000F8) >> 3)
+#define RTP_ED137A_feature_sqi_qidx_ml(octet)  (((octet) & 0x00000007) >> 0)
+#define RTP_ED137A_feature_sqi_qidx_ml_rssi     0
+#define RTP_ED137A_feature_sqi_qidx_rssi_max    15
 
 /* RFC 5215 one byte header signature */
 #define RTP_RFC5215_ONE_BYTE_SIG        0xBEDE
@@ -503,6 +516,40 @@ static const value_string rtp_ext_ed137a_ft_type[] =
     { 0xD, "Vendor reserved" },
     { 0xE, "Vendor reserved" },
     { 0xF, "Vendor reserved" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137a_ft_sqi_rssi_qidx[] =
+{
+    { 0x00, "lower than -100.00 dBm" },
+    { 0x01, "lower than or equal to -97.86 dBm" },
+    { 0x02, "lower than or equal to -95.71 dBm" },
+    { 0x03, "lower than or equal to -93.57 dBm" },
+    { 0x04, "lower than or equal to -91.43 dBm" },
+    { 0x05, "lower than or equal to -89.29 dBm" },
+    { 0x06, "lower than or equal to -87.14 dBm" },
+    { 0x07, "lower than or equal to -85.00 dBm" },
+    { 0x08, "lower than or equal to -82.86 dBm" },
+    { 0x09, "lower than or equal to -80.71 dBm" },
+    { 0x0a, "lower than or equal to -78.57 dBm" },
+    { 0x0b, "lower than or equal to -76.43 dBm" },
+    { 0x0c, "lower than or equal to -74.29 dBm" },
+    { 0x0d, "lower than or equal to -72.14 dBm" },
+    { 0x0e, "lower than or equal to -70.00 dBm" },
+    { 0x0f, "higher than -70.00 dBm" },
+    { 0, NULL },
+};
+
+static const value_string rtp_ext_ed137a_ft_sqi_qidx_ml[] =
+{
+    { 0x00, "RSSI" },
+    { 0x01, "AGC Level" },
+    { 0x02, "C/N" },
+    { 0x03, "Standardized PSD" },
+    { 0x04, "Vendor specific method" },
+    { 0x05, "Vendor specific method" },
+    { 0x06, "Vendor specific method" },
+    { 0x07, "Vendor specific method" },
     { 0, NULL },
 };
 
@@ -1186,7 +1233,7 @@ srtp_add_address(packet_info *pinfo, address *addr, int port, int other_port,
     }
 
     DPRINT(("#%u: %srtp_add_address(%s, %u, %u, %s, %u)",
-            pinfo->fd->num, (srtp_info)?"s":"", ep_address_to_str(addr), port,
+            pinfo->fd->num, (srtp_info)?"s":"", address_to_str(wmem_packet_scope(), addr), port,
             other_port, setup_method, setup_frame_number));
     DINDENT();
 
@@ -1358,7 +1405,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
     struct srtp_info *srtp_info;
     int offset = 0;
 
-    payload_len = tvb_length_remaining(newtvb, offset);
+    payload_len = tvb_captured_length_remaining(newtvb, offset);
 
     /* first check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
     p_conv_data = (struct _rtp_conversation_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_rtp, 0);
@@ -1759,7 +1806,7 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *rtp_hext_rfc5285_tree = NULL;
     guint ext_offset = 0, start_ext_offset;
 
-    while (ext_offset < tvb_length (tvb)) {
+    while (ext_offset < tvb_captured_length (tvb)) {
         guint8 ext_hdr_hdr;
         guint8 ext_id;
         guint8 ext_length;
@@ -1769,7 +1816,7 @@ dissect_rtp_hext_rfc5215_onebyte( tvbuff_t *tvb, packet_info *pinfo,
         start_ext_offset = ext_offset;
         while (tvb_get_guint8 (tvb, ext_offset) == 0) {
             ext_offset ++;
-            if (ext_offset >= tvb_length (tvb))
+            if (ext_offset >= tvb_captured_length (tvb))
                 return;
         }
 
@@ -1813,7 +1860,7 @@ dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
     proto_tree *rtp_hext_rfc5285_tree = NULL;
     guint ext_offset = 0, start_ext_offset;
 
-    while (ext_offset + 2 < tvb_length (tvb)) {
+    while (ext_offset + 2 < tvb_captured_length (tvb)) {
         guint8 ext_id;
         guint8 ext_length;
         tvbuff_t *subtvb = NULL;
@@ -1821,7 +1868,7 @@ dissect_rtp_hext_rfc5215_twobytes(tvbuff_t *parent_tvb, guint id_offset,
         /* Skip bytes with the value 0, they are padding */
         start_ext_offset = ext_offset;
         while (tvb_get_guint8 (tvb, ext_offset) == 0) {
-            if (ext_offset + 2 >= tvb_length (tvb))
+            if (ext_offset + 2 >= tvb_captured_length (tvb))
                 return;
             ext_offset ++;
         }
@@ -1904,24 +1951,24 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         switch (global_rtp_version0_type) {
         case RTP0_STUN:
             call_dissector(stun_handle, tvb, pinfo, tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         case RTP0_CLASSICSTUN:
             call_dissector(classicstun_handle, tvb, pinfo, tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
         case RTP0_T38:
             call_dissector(t38_handle, tvb, pinfo, tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
         case RTP0_SPRT:
             call_dissector(sprt_handle, tvb, pinfo, tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
 
         case RTP0_INVALID:
             if (!(tvb_memeql(tvb, 4, "ZRTP", 4)))
             {
                 call_dissector(zrtp_handle,tvb,pinfo,tree);
-                return tvb_length(tvb);
+                return tvb_captured_length(tvb);
             }
         default:
             ; /* Unknown or unsupported version (let it fall through) */
@@ -1960,7 +2007,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     if (marker_set && payload_type >= FIRST_RTCP_CONFLICT_PAYLOAD_TYPE && payload_type <=  LAST_RTCP_CONFLICT_PAYLOAD_TYPE) {
         call_dissector(rtcp_handle, tvb, pinfo, tree);
-        return tvb_length(tvb);
+        return tvb_captured_length(tvb);
     }
 
     /* Get the subsequent fields */
@@ -1985,7 +2032,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /*
      * Do we have all the data?
      */
-    length = tvb_length_remaining(tvb, offset);
+    length = tvb_captured_length_remaining(tvb, offset);
     reported_length = tvb_reported_length_remaining(tvb, offset);
     if (reported_length >= 0 && length >= reported_length) {
         /*
@@ -2195,7 +2242,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * the packet; it contains the number of octets
          * that can be ignored at the end of the packet.
          */
-        if (tvb_length(tvb) < tvb_reported_length(tvb)) {
+        if (tvb_captured_length(tvb) < tvb_reported_length(tvb)) {
             /*
              * We don't *have* the last octet of the
              * packet, so we can't get the padding
@@ -2210,7 +2257,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             call_dissector(data_handle,
                 tvb_new_subset_remaining(tvb, offset),
                 pinfo, rtp_tree);
-            return tvb_length(tvb);
+            return tvb_captured_length(tvb);
         }
 
         padding_count = tvb_get_guint8( tvb,
@@ -2219,7 +2266,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_reported_length_remaining( tvb, offset ) - padding_count;
 
         rtp_info->info_payload_offset = offset;
-        rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
+        rtp_info->info_payload_len = tvb_captured_length_remaining(tvb, offset);
         rtp_info->info_padding_count = padding_count;
 
         if (p_conv_data && p_conv_data->bta2dp_info) {
@@ -2293,7 +2340,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
          * No padding.
          */
         rtp_info->info_payload_offset = offset;
-        rtp_info->info_payload_len = tvb_length_remaining(tvb, offset);
+        rtp_info->info_payload_len = tvb_captured_length_remaining(tvb, offset);
 
         if (p_conv_data && p_conv_data->bta2dp_info) {
             if (p_conv_data->bta2dp_info->codec_dissector == sbc_handle) {
@@ -2317,7 +2364,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             /* Ensure that tap is called after packet dissection, even in case of exception */
             TRY {
                 dissect_rtp_data( tvb, pinfo, tree, rtp_tree, offset,
-                          tvb_length_remaining( tvb, offset ),
+                          tvb_captured_length_remaining( tvb, offset ),
                           tvb_reported_length_remaining( tvb, offset ),
                           payload_type);
             } CATCH_ALL {
@@ -2388,9 +2435,9 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                         case RTP_ED137_feature_bss_type:
                             bss_qidx=RTP_ED137_feature_bss_qidx(ext_value);
                             bss_qidx_ml=RTP_ED137_feature_bss_qidx_ml(ext_value);
-                            if (0==bss_qidx_ml) {
+                            if (RTP_ED137_feature_bss_qidx_ml_rssi==bss_qidx_ml) {
                                 /* Special handling for RSSI method */
-                                if (bss_qidx<=15) {
+                                if (bss_qidx<=RTP_ED137_feature_bss_qidx_rssi_max) {
                                     /* Correct range */
                                     proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137_ft_bss_rssi_qidx, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                                 }
@@ -2435,6 +2482,8 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     unsigned int i;
     guint32 ext_value;
     unsigned int ft_type = 0;
+    unsigned int sqi_qidx = 0;
+    unsigned int sqi_qidx_ml = 0;
 
     hdr_extension_len = tvb_reported_length(tvb)/4;
 
@@ -2475,6 +2524,26 @@ dissect_rtp_hdr_ext_ed137a(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
                     ft_type=RTP_ED137A_feature_type(ext_value);
                     switch (ft_type) {
+                        case RTP_ED137A_feature_sqi_type:
+                            sqi_qidx=RTP_ED137A_feature_sqi_qidx(ext_value);
+                            sqi_qidx_ml=RTP_ED137A_feature_sqi_qidx_ml(ext_value);
+                            if (RTP_ED137A_feature_sqi_qidx_ml_rssi==sqi_qidx_ml) {
+                                /* Special handling for RSSI method */
+                                if (sqi_qidx<=RTP_ED137A_feature_sqi_qidx_rssi_max) {
+                                    /* Correct range */
+                                    proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_sqi_rssi_qidx, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
+                                }
+                                else {
+                                    /* Handle as other method */
+                                    proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_sqi_qidx, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
+                                }
+                            }
+                            else {
+                                /* Other SQI method handling */
+                                proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_sqi_qidx, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
+                            }
+                            proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_sqi_qidx_ml, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
+                            break;
                         default:
                             proto_tree_add_item( rtp_hext_tree2, hf_rtp_hdr_ed137a_ft_value, tvb, hdrext_offset, 4, ENC_BIG_ENDIAN);
                             break;
@@ -3232,6 +3301,42 @@ proto_register_rtp(void)
                 BASE_HEX_DEC,
                 NULL,
                 0x000000FF,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137a_ft_sqi_qidx,
+            {
+                "SQI Quality Index",
+                "rtp.ext.ed137A.ft.sqi.qidx",
+                FT_UINT32,
+                BASE_DEC,
+                NULL,
+                0x000000F8,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137a_ft_sqi_rssi_qidx,
+            {
+                "SQI Quality Index",
+                "rtp.ext.ed137A.ft.sqi.qidx",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(rtp_ext_ed137a_ft_sqi_rssi_qidx),
+                0x000000F8,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_rtp_hdr_ed137a_ft_sqi_qidx_ml,
+            {
+                "SQI Quality Index Method",
+                "rtp.ext.ed137A.ft.sqi.qidx-ml",
+                FT_UINT32,
+                BASE_DEC,
+                VALS(rtp_ext_ed137a_ft_sqi_qidx_ml),
+                0x00000007,
                 NULL, HFILL
             }
         },
