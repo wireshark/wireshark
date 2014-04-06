@@ -1243,6 +1243,7 @@ static gboolean
 check_diameter(tvbuff_t *tvb)
 {
 	guint32 diam_len;
+	guint8 flags;
 
 	/* Ensure we don't throw an exception trying to do these heuristics */
 	if (tvb_length(tvb) < 5)
@@ -1257,18 +1258,26 @@ check_diameter(tvbuff_t *tvb)
 	 * is just a practical one (feel free to tune it).
 	 */
 	diam_len = tvb_get_ntoh24(tvb, 1);
-	if (diam_len > 8192)
+	if (diam_len > 65534)
 		return FALSE;
 
+	flags = tvb_get_guint8(tvb, 4);
+
 	/* Check if any of the Reserved flag bits are set */
-	if (tvb_get_guint8(tvb, 4) & 0x0f)
+	if (flags & 0x0f)
+		return FALSE;
+
+	/* Check if both the R- and E-bits are set */
+	if ((flags & DIAM_FLAGS_R) && (flags & DIAM_FLAGS_E))
 		return FALSE;
 
 	return TRUE;
 }
 
-/************************************************/
-/* Main dissection function                     */
+/*****************************************************************/
+/* Main dissection function                                      */
+/* Checks if the message looks like Diameter before accepting it */
+/*****************************************************************/
 static int
 dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1278,7 +1287,7 @@ dissect_diameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 }
 
 static int
-dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	/* Check if we have the start of a PDU or if this is segment */
 	if (!check_diameter(tvb)) {
