@@ -7819,6 +7819,7 @@ jaxer-manager    4328/tcp # Jaxer Manager Command Protocol [Uri_Sarid] [Uri_Sari
 jaxer-manager    4328/udp # Jaxer Manager Command Protocol [Uri_Sarid] [Uri_Sarid] 2008-01-22
 publiqare-sync   4329/tcp # PubliQare Distributed Environment Synchronisation Engine [Tom_Maaswinkel] [Tom_Maaswinkel] 2011-02-07
 dey-sapi         4330/tcp # DEY Storage Administration REST API [DEY_Storage_Systems_Inc] [Garrett_D_Amore] 2013-03-01
+ktickets-rest    4331/tcp # ktickets REST API for event management and ticketing systems (embedded POS devices) [KeyTicket_Solutions] [MANG_Ioan-Alexandru] 2014-04-04
 gaia             4340/tcp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 gaia             4340/udp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 lisp-data        4341/tcp # LISP Data Packets [Dino_Farinacci] [Dino_Farinacci] 2007-11-12
