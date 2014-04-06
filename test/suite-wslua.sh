@@ -170,14 +170,14 @@ wslua_step_file_test() {
 	fi
 
 	# now compare testin and testout - they should be identical
-	# if diff -q ./testout.txt ./testin.txt; then
+	if diff -q ./testout.txt ./testin.txt; then
 		test_step_ok
-	# else
-	# 	echo
-	# 	cat ./testout.txt
-	# 	diff ./testout.txt ./testin.txt
-	# 	test_step_failed "subtest-9 writing the acme sipmsg.log out as pcapng did not match sip.pcapng"
-	# fi
+	else
+		echo
+		cat ./testout.txt
+		diff ./testout.txt ./testin.txt
+		test_step_failed "subtest-9 writing the acme sipmsg.log out as pcapng did not match sip.pcapng"
+	fi
 }
 
 wslua_step_listener_test() {

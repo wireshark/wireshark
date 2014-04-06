@@ -447,7 +447,7 @@ KFW_DIR=$(WIRESHARK_LIB_DIR)\kfw-3-2-2-i386-ws-vc6
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-LUA_DIST=-5.2.3_Win32_dllw4
+LUA_DIST=-5.2.3_Win32_dll10
 LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.3
 
 #
@@ -694,7 +694,7 @@ GNUTLS_PKG=2.12.18-1.2-1
 # If you don't have LUA, comment this line out, so that LUA_DIR
 # isn't defined.
 #
-LUA_DIST=-5.2.3_Win64_dllw4
+LUA_DIST=-5.2.3_Win64_dll10
 LUA_DIR=$(WIRESHARK_LIB_DIR)\lua5.2.3
 
 #
