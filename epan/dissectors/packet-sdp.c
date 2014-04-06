@@ -189,8 +189,10 @@ static int ett_sdp_fmtp = -1;
 static int ett_sdp_key_mgmt = -1;
 static int ett_sdp_crypto_key_parameters = -1;
 
-static expert_field ei_sdp_invalid_key_param = EI_INIT;
-static expert_field ei_sdp_invalid_line = EI_INIT;
+static expert_field ei_sdp_invalid_key_param   = EI_INIT;
+static expert_field ei_sdp_invalid_line_equal  = EI_INIT;
+static expert_field ei_sdp_invalid_line_fields = EI_INIT;
+static expert_field ei_sdp_invalid_line_space  = EI_INIT;
 
 #define SDP_RTP_PROTO       0x00000001
 #define SDP_SRTP_PROTO      0x00000002
@@ -386,6 +388,65 @@ static void sdp_dump_disposable_media_info(const disposable_media_info_t* info) 
  */
 static dissector_table_t key_mgmt_dissector_table;
 
+/* Finds next token (sequence of non-space chars) in tvb from given offset.
+ * The returned value is the token length, or 0 if none found.
+ * The offset is changed to be the starting offset, in case there were one or more
+ * spaces at the beginning. (this will also add expert info in such a case)
+ * The next_offset is set to the next found space after the token, or -1 if the
+ * end of line is hit or no token found.
+ * If this is the last token in the line, tokenlen will not be 0, but next_offset
+ * will be -1.
+ *
+ * The optional param, if TRUE, means no expert error will be issued if no token
+ * is found; if FALSE then a expert error will be issued if no token is found.
+ *
+ * This function expects to be given a tvb of only one line, and does no error
+ * checking of its given arguments.
+ */
+static inline gint
+find_next_optional_token_in_line(tvbuff_t *tvb, proto_tree *tree,
+                                 gint *offset, gint *next_offset,
+                                 const gboolean optional)
+{
+    gint tokenlen = 0;
+    gint next_off = -1;
+    gint off      = *offset;
+
+    if (tvb_offset_exists(tvb, off)) {
+        while (tokenlen == 0) {
+            next_off = tvb_find_guint8(tvb, off, -1, ' ');
+            if (next_off == -1) {
+                tokenlen = tvb_captured_length_remaining(tvb, off);
+                break; /* Nothing more left */
+            }
+
+            tokenlen = next_off - off;
+
+            if (tokenlen == 0) {
+                /* two spaces in a row - illegal, but we'll keep dissecting */
+                proto_tree_add_expert(tree, NULL, &ei_sdp_invalid_line_space, tvb, off-1, 2);
+                off = next_off + 1;
+            }
+        }
+    }
+
+    if (!optional && tokenlen == 0) {
+        proto_tree_add_expert(tree, NULL, &ei_sdp_invalid_line_fields, tvb, 0, -1);
+    }
+
+    *next_offset = next_off;
+    *offset      = off;
+    return tokenlen;
+}
+
+/* Same as above, but always issues an expert error if a token is not found. */
+static inline gint
+find_next_token_in_line(tvbuff_t *tvb, proto_tree *tree, gint *offset, gint *next_offset)
+{
+    return find_next_optional_token_in_line(tvb, tree, offset, next_offset, FALSE);
+}
+
+
 /* Subdissector functions */
 static void
 dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti) {
@@ -397,50 +458,45 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti) {
     sdp_owner_tree = proto_item_add_subtree(ti, ett_sdp_owner);
 
     /* Find the username */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_owner_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_owner_tree, hf_owner_username, tvb, offset, tokenlen,
                         ENC_UTF_8|ENC_NA);
     offset = next_offset  + 1;
 
     /* Find the session id */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_owner_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_owner_tree, hf_owner_sessionid, tvb, offset,
                         tokenlen, ENC_UTF_8|ENC_NA);
     offset = next_offset + 1;
 
     /* Find the version */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_owner_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_owner_tree, hf_owner_version, tvb, offset, tokenlen,
                         ENC_UTF_8|ENC_NA);
     offset = next_offset + 1;
 
     /* Find the network type */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_owner_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_owner_tree, hf_owner_network_type, tvb, offset,
                         tokenlen, ENC_UTF_8|ENC_NA);
     offset = next_offset + 1;
 
     /* Find the address type */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_owner_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_owner_tree, hf_owner_address_type, tvb, offset,
                         tokenlen, ENC_UTF_8|ENC_NA);
@@ -466,10 +522,9 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
                                                       ett_sdp_connection_info);
 
     /* Find the network type */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_connection_info_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_connection_info_tree,
                         hf_connection_info_network_type, tvb, offset, tokenlen,
@@ -477,10 +532,10 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
     offset = next_offset + 1;
 
     /* Find the address type */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_connection_info_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
+
     /* Save connection address type */
     media_info->connection_type = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
@@ -581,11 +636,10 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti) {
     sdp_time_tree = proto_item_add_subtree(ti, ett_sdp_time);
 
     /* get start time */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_time_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
 
-    tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_time_tree, hf_time_start, tvb, offset, tokenlen,
                         ENC_UTF_8|ENC_NA);
 
@@ -597,41 +651,39 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti) {
 static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti) {
     proto_tree *sdp_repeat_time_tree;
     gint        offset, next_offset, tokenlen;
+    gboolean    optional = FALSE;
 
     offset = 0;
 
     sdp_repeat_time_tree = proto_item_add_subtree(ti, ett_sdp_time);
 
     /* get interval */
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_repeat_time_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
 
-    tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_repeat_time_tree, hf_repeat_time_interval, tvb,
                         offset, tokenlen, ENC_UTF_8|ENC_NA);
 
     /* get duration */
     offset = next_offset + 1;
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_repeat_time_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
 
-    tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_repeat_time_tree, hf_repeat_time_duration, tvb,
                         offset, tokenlen, ENC_UTF_8|ENC_NA);
 
     /* get offsets */
     do {
         offset = next_offset +1;
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-        if (next_offset != -1) {
-            tokenlen = next_offset - offset;
-        } else {
-            tokenlen = -1; /* end of tvbuff */
-        }
+        tokenlen = find_next_optional_token_in_line(tvb, sdp_repeat_time_tree,
+                                                    &offset, &next_offset, optional);
+        if (tokenlen == 0)
+            break;
         proto_tree_add_item(sdp_repeat_time_tree, hf_repeat_time_offset,
                             tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
+        optional = TRUE;
     } while (next_offset != -1);
 
 }
@@ -640,29 +692,29 @@ static void
 dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti) {
     proto_tree* sdp_timezone_tree;
     gint        offset, next_offset, tokenlen;
+    gboolean    optional = FALSE;
 
     offset = 0;
 
     sdp_timezone_tree = proto_item_add_subtree(ti, ett_sdp_timezone);
 
     do {
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-        if (next_offset == -1)
+        tokenlen = find_next_optional_token_in_line(tvb, sdp_timezone_tree,
+                                                    &offset, &next_offset, optional);
+        if (tokenlen == 0)
             break;
-        tokenlen = next_offset - offset;
 
         proto_tree_add_item(sdp_timezone_tree, hf_timezone_time, tvb, offset,
                             tokenlen, ENC_UTF_8|ENC_NA);
         offset = next_offset + 1;
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-        if (next_offset != -1) {
-            tokenlen = next_offset - offset;
-        } else {
-            tokenlen = -1; /* end of tvbuff */
-        }
+        tokenlen = find_next_optional_token_in_line(tvb, sdp_timezone_tree,
+                                                    &offset, &next_offset, optional);
+        if (tokenlen == 0)
+            break;
         proto_tree_add_item(sdp_timezone_tree, hf_timezone_offset, tvb, offset,
                             tokenlen, ENC_UTF_8|ENC_NA);
         offset = next_offset + 1;
+        optional = TRUE;
     } while (next_offset != -1);
 
 }
@@ -704,12 +756,10 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
 
     key_tree = proto_item_add_subtree(ti, ett_sdp_key_mgmt);
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, key_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
 
-    tokenlen = next_offset - offset;
     prtcl_id = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
     proto_tree_add_item(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
@@ -773,12 +823,9 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
         if (offset == -1)
             return;
 
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-
-        if (next_offset == -1)
+        tokenlen = find_next_token_in_line(tvb, sdp_session_attribute_tree, &offset, &next_offset);
+        if (tokenlen == 0)
             return;
-
-        tokenlen = next_offset - offset;
 
         proto_tree_add_item(sdp_session_attribute_tree, hf_ipbcp_version, tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
@@ -808,25 +855,26 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 }
 
 
-/* Dissect media description */
+/* Dissect media description - this is passed the line starting after 'm=', so like one of these:
+ *    audio 29156 RTP/AVP 18 0
+ *    video 49170/2 RTP/AVP 31 99
+ */
 static void
 dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
                   transport_info_t *transport_info, disposable_media_info_t *media_info) {
     proto_tree *sdp_media_tree;
     gint        offset, next_offset, tokenlen, idx;
     guint8     *media_format;
+    gboolean    optional = FALSE;
 
     offset = 0;
 
     /* Create tree for media session */
     sdp_media_tree = proto_item_add_subtree(ti, ett_sdp_media);
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_media_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-
-    tokenlen = next_offset - offset;
 
     /* Type of media session */
     proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
@@ -840,10 +888,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
     offset = next_offset + 1;
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-    if (next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_media_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
-    tokenlen = next_offset - offset;
+
     next_offset = tvb_find_guint8(tvb, offset, tokenlen, '/');
 
     if (next_offset != -1) {
@@ -857,20 +905,22 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
         proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
                             atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA)));
+
         offset = next_offset + 1;
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-        if (next_offset == -1)
+        tokenlen = find_next_token_in_line(tvb, sdp_media_tree, &offset, &next_offset);
+        if (tokenlen == 0)
             return;
-        tokenlen = next_offset - offset;
+
+        /* TODO: this puts the (optional) number of ports in the tree, but we don't
+           actually use it for building the extra RTP flows, which we should. */
         proto_tree_add_item(sdp_media_tree, hf_media_portcount, tvb, offset,
                             tokenlen, ENC_UTF_8|ENC_NA);
         offset = next_offset + 1;
     } else {
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-
-        if (next_offset == -1)
+        tokenlen = find_next_token_in_line(tvb, sdp_media_tree, &offset, &next_offset);
+        if (tokenlen == 0)
             return;
-        tokenlen = next_offset - offset;
+
         /* Save port info */
         media_info->media_port[media_info->media_count] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
         DPRINT(("parsed media_port=%s, for media_count=%d",
@@ -882,12 +932,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
         offset = next_offset + 1;
     }
 
-    next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-
-    if ( next_offset == -1)
+    tokenlen = find_next_token_in_line(tvb, sdp_media_tree, &offset, &next_offset);
+    if (tokenlen == 0)
         return;
 
-    tokenlen = next_offset - offset;
     /* Save port protocol */
     media_info->media_proto[media_info->media_count] = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
 
@@ -901,15 +949,10 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
     do {
         offset = next_offset + 1;
-        next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-
-        if (next_offset == -1) {
-            tokenlen = tvb_length_remaining(tvb, offset); /* End of tvbuff */
-            if (tokenlen == 0)
-                break; /* Nothing more left */
-        } else {
-            tokenlen = next_offset - offset;
-        }
+        tokenlen = find_next_optional_token_in_line(tvb, sdp_media_tree,
+                                                    &offset, &next_offset, optional);
+        if (tokenlen == 0)
+            break;
 
         if (!strcmp(media_info->media_proto[media_info->media_count], "RTP/AVP")) {
             media_format = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
@@ -926,6 +969,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
             proto_tree_add_item(sdp_media_tree, hf_media_format, tvb, offset,
                                 tokenlen, ENC_UTF_8|ENC_NA);
         }
+        optional = TRUE;
     } while (next_offset != -1);
 
     /* XXX Dissect traffic to "Port" as "Protocol"
@@ -1537,23 +1581,17 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
             /* We are at the first colon */
             /* tag */
-            next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-            if (next_offset==-1) {
-                /* XXX Add expert item? */
+            tokenlen = find_next_token_in_line(tvb, sdp_media_attribute_tree, &offset, &next_offset);
+            if (tokenlen == 0)
                 return;
-            }
-            tokenlen    = next_offset - offset;
             proto_tree_add_uint(sdp_media_attribute_tree, hf_sdp_crypto_tag, tvb, offset, tokenlen,
                 atoi((char*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA)));
             offset = next_offset + 1;
 
             /* crypto-suite */
-            next_offset = tvb_find_guint8(tvb, offset, -1, ' ');
-            if (next_offset==-1) {
-                /* XXX Add expert item? */
+            tokenlen = find_next_token_in_line(tvb, sdp_media_attribute_tree, &offset, &next_offset);
+            if (tokenlen == 0)
                 return;
-            }
-            tokenlen    = next_offset - offset;
             parameter_item = proto_tree_add_item(sdp_media_attribute_tree, hf_sdp_crypto_crypto_suite,
                 tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             if (tvb_strncaseeql(tvb, offset, "AES_CM_128_HMAC_SHA1_80", tokenlen) == 0) {
@@ -2291,7 +2329,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         delim = tvb_get_guint8(tvb, offset + 1);
         if (delim != '=') {
             proto_item *ti2 = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, ENC_UTF_8|ENC_NA);
-            expert_add_info(pinfo, ti2, &ei_sdp_invalid_line);
+            expert_add_info(pinfo, ti2, &ei_sdp_invalid_line_equal);
             offset = next_offset;
             continue;
         }
@@ -2953,8 +2991,34 @@ proto_register_sdp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_sdp_invalid_key_param, { "sdp.invalid_key_param", PI_MALFORMED, PI_NOTE, "Invalid key-param (no ':' delimiter)", EXPFILL }},
-        { &ei_sdp_invalid_line, { "sdp.invalid_line", PI_MALFORMED, PI_NOTE, "Invalid SDP line (no '=' delimiter)", EXPFILL }},
+        { &ei_sdp_invalid_key_param,
+            { "sdp.invalid_key_param",
+              PI_MALFORMED, PI_NOTE,
+              "Invalid key-param (no ':' delimiter)",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_line_equal,
+            { "sdp.invalid_line.no_equal",
+              PI_MALFORMED, PI_NOTE,
+              "Invalid SDP line (no '=' delimiter)",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_line_fields,
+            { "sdp.invalid_line.missing_fields",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid SDP line (missing required fields)",
+              EXPFILL
+            }
+        },
+        { &ei_sdp_invalid_line_space,
+            { "sdp.invalid_line.extra_space",
+              PI_MALFORMED, PI_ERROR,
+              "Invalid SDP whitespace (extra space character)",
+              EXPFILL
+            }
+        }
     };
 
     module_t *sdp_module;
