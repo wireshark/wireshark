@@ -457,7 +457,6 @@ proto_register_dsi(void)
 		  { "Bitmap",          "dsi.attn_flag.bitmap",
 		    FT_UINT16, BASE_HEX, NULL, 0xfff,
 		    "Attention extended bitmap", HFILL }},
-
 	};
 
 	static gint *ett[] = {
