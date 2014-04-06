@@ -785,7 +785,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
  * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if
  * uncompression succeeded or NULL if uncompression failed.
  */
-extern tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
 
 /* From tvbuff_base64.c */
