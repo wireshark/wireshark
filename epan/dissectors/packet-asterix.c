@@ -3145,13 +3145,11 @@ static const FieldPart I021_076_TOMRV = { 30, 1.0/1073741824.0, FIELD_PART_FLOAT
 static const FieldPart *I021_076_PARTS[] = { &I021_076_FSI, &I021_076_TOMRV, NULL };
 
 /* Quality Indicators */
-#if 0
-static const value_string valstr_021_090_SIL[] = {
+static const value_string valstr_021_090_SIL_SUP[] = {
     { 0, "measured per flight-hour" },
     { 1, "measured per sample" },
     { 0, NULL }
 };
-#endif
 
 static const FieldPart I021_090_NUCR_NACV = { 3, 1.0, FIELD_PART_UINT, &hf_021_090_NUCR_NACV, NULL };
 static const FieldPart I021_090_NUCP_NIC = { 4, 1.0, FIELD_PART_UINT, &hf_021_090_NUCP_NIC, NULL };
@@ -7306,7 +7304,7 @@ void proto_register_asterix (void)
         { &hf_021_090_NIC_BARO, { "NIC BARO", "asterix.021_090_NIC_BARO", FT_UINT8, BASE_DEC, NULL, 0x80, NULL, HFILL } },
         { &hf_021_090_SIL, { "SIL", "asterix.021_090_SIL", FT_UINT8, BASE_DEC, NULL, 0x60, NULL, HFILL } },
         { &hf_021_090_NACP, { "NACP", "asterix.021_090_NACP", FT_UINT8, BASE_DEC, NULL, 0x1e, NULL, HFILL } },
-        { &hf_021_090_SIL_SUP, { "SIL-supplement", "asterix.021_090_SIL_SUP", FT_UINT8, BASE_DEC, NULL, 0x20, NULL, HFILL } },
+        { &hf_021_090_SIL_SUP, { "SIL-supplement", "asterix.021_090_SIL_SUP", FT_UINT8, BASE_DEC, VALS (valstr_021_090_SIL_SUP), 0x20, NULL, HFILL } },
         { &hf_021_090_SDA, { "SDA", "asterix.021_090_SDA", FT_UINT8, BASE_DEC, NULL, 0x18, NULL, HFILL } },
         { &hf_021_090_GVA, { "GVA", "asterix.021_090_GVA", FT_UINT8, BASE_DEC, NULL, 0x06, NULL, HFILL } },
         { &hf_021_090_PIC, { "PIC", "asterix.021_090_PIC", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
