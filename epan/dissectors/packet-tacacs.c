@@ -430,7 +430,7 @@ proto_tree_add_tacplus_common_fields( tvbuff_t *tvb, proto_tree *tree,  int offs
 	proto_tree_add_uint(tree, hf_tacplus_user_len, tvb, offset, 1, val);
 
 	if( val ){
-		proto_tree_add_item(tree, hf_tacplus_user, tvb, var_off, val, ENC_NA);
+		proto_tree_add_item(tree, hf_tacplus_user, tvb, var_off, val, ENC_ASCII|ENC_NA);
 		var_off+=val;
 	}
 	offset++;
@@ -748,11 +748,11 @@ tacplus_print_key_entry( gpointer data, gpointer user_data )
 {
 	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)data;
 	if( user_data ) {
-		printf("%s:%s=%s\n", ep_address_to_str( tacplus_data->s ),
-				ep_address_to_str( tacplus_data->c ), tacplus_data->k );
+		printf("%s:%s=%s\n", address_to_str(wmem_packet_scope(), tacplus_data->s ),
+				address_to_str(wmem_packet_scope(), tacplus_data->c ), tacplus_data->k );
 	} else {
-		printf("%s:%s\n", ep_address_to_str( tacplus_data->s ),
-				ep_address_to_str( tacplus_data->c ) );
+		printf("%s:%s\n", address_to_str(wmem_packet_scope(), tacplus_data->s ),
+				address_to_str(wmem_packet_scope(), tacplus_data->c ) );
 	}
 }
 #endif

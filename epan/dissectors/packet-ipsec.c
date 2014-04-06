@@ -1161,8 +1161,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }else if (pinfo->src.type == AT_IPv6){
             protocol_typ = IPSEC_SA_IPV6;
         }
-        ip_src = ep_address_to_str(&pinfo->src);
-        ip_dst = ep_address_to_str(&pinfo->dst);
+        ip_src = address_to_str(wmem_packet_scope(), &pinfo->src);
+        ip_dst = address_to_str(wmem_packet_scope(), &pinfo->dst);
         get_address_ok = TRUE;
 
         /* The packet cannot be decoded using the SAD */

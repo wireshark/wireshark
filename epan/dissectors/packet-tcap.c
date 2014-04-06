@@ -2281,8 +2281,8 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
     /* Don't have MTP3 PCs (maybe we're over SUA?) */
-    tcaphash_begin_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-    tcaphash_begin_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+    tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+    tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
   tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
@@ -2290,7 +2290,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
   dbg(10,"\n Hbegin #%u ", pinfo->fd->num);
   dbg(11,"key %lx ",tcaphash_begin_key.hashKey);
-  dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+  dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
 #endif
 
@@ -2476,14 +2476,14 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcaphash_cont_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
     /* Don't have MTP3 PCs (maybe we're over SUA?) */
-    tcaphash_cont_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-    tcaphash_cont_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+    tcaphash_cont_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+    tcaphash_cont_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
   tcaphash_cont_key.hashKey=tcaphash_cont_calchash(&tcaphash_cont_key);
 
 #ifdef DEBUG_TCAPSRT
   dbg(11,"Ckey %lx ", tcaphash_cont_key.hashKey);
-  dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+  dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx %lx \n",tcaphash_cont_key.src_tid, tcaphash_cont_key.dst_tid);
 #endif
   p_tcaphash_contcall = find_tcaphash_cont(&tcaphash_cont_key, pinfo);
@@ -2505,14 +2505,14 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
     } else {
       /* Don't have MTP3 PCs (maybe we're over SUA?) */
-      tcaphash_begin_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-      tcaphash_begin_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+      tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+      tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
     }
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Bkey %lx ", tcaphash_begin_key.hashKey);
-    dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+    dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
     dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
 #endif
     p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo, FALSE);
@@ -2545,8 +2545,8 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
       } else {
         /* Don't have MTP3 PCs (maybe we're over SUA?) */
-        tcaphash_end_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-        tcaphash_end_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+        tcaphash_end_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+        tcaphash_end_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
       }
       tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
@@ -2616,14 +2616,14 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
     /* Don't have MTP3 PCs (maybe we're over SUA?) */
-    tcaphash_end_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-    tcaphash_end_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+    tcaphash_end_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+    tcaphash_end_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
   tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
 #ifdef DEBUG_TCAPSRT
   dbg(11,"Ekey %lx ",tcaphash_end_key.hashKey);
-  dbg(11,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+  dbg(11,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx ",tcaphash_end_key.tid);
 #endif
   p_tcaphash_endcall = find_tcaphash_end(&tcaphash_end_key, pinfo,TRUE);
@@ -2640,14 +2640,14 @@ tcaphash_end_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       tcaphash_begin_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
     } else {
       /* Don't have MTP3 PCs (maybe we're over SUA?) */
-      tcaphash_begin_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-      tcaphash_begin_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+      tcaphash_begin_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+      tcaphash_begin_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
     }
     tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
 
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Bkey %lx ", tcaphash_begin_key.hashKey);
-    dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+    dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
     dbg(51,"Tid %lx ",tcaphash_begin_key.tid);
 #endif
     p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo,FALSE);
@@ -2739,8 +2739,8 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcaphash_ansi_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
   } else {
     /* Don't have MTP3 PCs (maybe we're over SUA?) */
-    tcaphash_ansi_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-    tcaphash_ansi_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+    tcaphash_ansi_key.opc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->src));
+    tcaphash_ansi_key.dpc_hash = g_str_hash(address_to_str(wmem_packet_scope(), &pinfo->dst));
   }
   tcaphash_ansi_key.hashKey=tcaphash_ansi_calchash(&tcaphash_ansi_key);
 
@@ -2748,7 +2748,7 @@ tcaphash_ansi_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
   dbg(10,"\n Hansi #%u ", pinfo->fd->num);
   dbg(11,"key %lx ",tcaphash_ansi_key.hashKey);
-  dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
+  dbg(51,"PC %s %s ",address_to_str(wmem_packet_scope(), &pinfo->src), address_to_str(wmem_packet_scope(), &pinfo->dst));
   dbg(51,"Tid %lx ",tcaphash_ansi_key.tid);
 #endif
   p_tcaphash_ansicall = (struct tcaphash_ansicall_t *)

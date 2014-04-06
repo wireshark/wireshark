@@ -317,7 +317,7 @@ dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree,
   offset += ip_length;
 
   proto_tree_add_item(sub_tree, hf_vuze_dht_address_port, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
-  proto_item_append_text( ti, "%s:%d", ep_address_to_str( &addr ), tvb_get_ntohs(tvb,offset) );
+  proto_item_append_text( ti, "%s:%d", address_to_str(wmem_packet_scope(), &addr ), tvb_get_ntohs(tvb,offset) );
   offset += TL_SHORT;
 
   return offset;

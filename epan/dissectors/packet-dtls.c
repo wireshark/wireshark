@@ -511,7 +511,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       dummy.port = pinfo->destport;
     }
     ssl_debug_printf("dissect_dtls server %s:%d\n",
-                     ep_address_to_str(&dummy.addr),dummy.port);
+                     address_to_str(wmem_packet_scope(), &dummy.addr),dummy.port);
 
     /* try to retrieve private key for this service. Do it now 'cause pinfo
      * is not always available

@@ -628,7 +628,7 @@ void srtcp_add_address( packet_info *pinfo,
     }
 
 #ifdef DEBUG
-    printf("#%u: %srtcp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtcp_info)?"s":"", ep_address_to_str(addr), port, other_port, setup_method, setup_frame_number);
+    printf("#%u: %srtcp_add_address(%s, %u, %u, %s, %u\n", pinfo->fd->num, (srtcp_info)?"s":"", address_to_str(wmem_packet_scope(), addr), port, other_port, setup_method, setup_frame_number);
 #endif
 
     SET_ADDRESS(&null_addr, AT_NONE, 0, NULL);
@@ -834,7 +834,7 @@ dissect_rtcp_psfb_remb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_
 
     fci_tree = proto_item_add_subtree( ti, ett_ssrc );
     /* Uniquie identifier 'REMB' */
-    proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_identifier, tvb, offset, 4, ENC_BIG_ENDIAN );
+    proto_tree_add_item( fci_tree, hf_rtcp_psfb_remb_fci_identifier, tvb, offset, 4, ENC_ASCII|ENC_NA );
     offset += 4;
 
     /* Number of ssrcs - they will each be parsed below */
@@ -2341,7 +2341,7 @@ dissect_rtcp_avb( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     offset += 4;
 
     /* Name (ASCII) */
-    proto_tree_add_item( tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII );
+    proto_tree_add_item( tree, hf_rtcp_name_ascii, tvb, offset, 4, ENC_ASCII|ENC_NA );
     offset += 4;
 
 /*    32 bit wide
@@ -2850,7 +2850,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* Report delay in INFO column */
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " (roundtrip delay <-> %s = %dms, using frame %u)  ",
-                    ep_address_to_str(&pinfo->net_src), delay, frame);
+                    address_to_str(wmem_packet_scope(), &pinfo->net_src), delay, frame);
 }
 
 static int

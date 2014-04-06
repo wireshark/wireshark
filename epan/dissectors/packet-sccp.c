@@ -1353,8 +1353,8 @@ get_sccp_assoc(packet_info *pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
   if (assoc)
     return assoc;
 
-  opck = opc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(ep_address_to_str(opc));
-  dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(ep_address_to_str(dpc));
+  opck = opc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)opc->data) : g_str_hash(address_to_str(wmem_packet_scope(), opc));
+  dpck = dpc->type == AT_SS7PC ? mtp3_pc_hash((const mtp3_addr_pc_t *)dpc->data) : g_str_hash(address_to_str(wmem_packet_scope(), dpc));
 
 
   switch (msg_type) {

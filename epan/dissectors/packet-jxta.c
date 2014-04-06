@@ -588,8 +588,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
         }
 
         /* g_message("%d Tpt %s:%d -> %s:%d tvb len=%d\n\t%s %d", pinfo->fd->num,
-                  ep_address_to_str(&pinfo->src), pinfo->srcport,
-                  ep_address_to_str(&pinfo->dst), pinfo->destport,
+                  address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
+                  address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport,
                   tvb_reported_length_remaining(tvb, 0),
                   content_type ? content_type : "[unknown content type]", (gint) content_length); */
 
@@ -616,14 +616,14 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
             /* Use our source and destination addresses if we have them */
             if (NULL != peer_conversation) {
                 /* g_message("%d Tpt %s:%d -> %s:%d", pinfo->fd->num,
-                          ep_address_to_str(&tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
-                          ep_address_to_str(&tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
+                          address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_tpt_address), tpt_conv_data->initiator_tpt_port,
+                          address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_tpt_address), tpt_conv_data->receiver_tpt_port); */
 
                 if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->initiator_tpt_address)
                     && tpt_conv_data->initiator_tpt_port == pinfo->srcport) {
                     /* g_message("%d From initiator : %s -> %s ", pinfo->fd->num,
-                              ep_address_to_str(&tpt_conv_data->initiator_address),
-                              ep_address_to_str(&tpt_conv_data->receiver_address)); */
+                              address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address),
+                              address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address)); */
                     pinfo->src = tpt_conv_data->initiator_address;
                     pinfo->srcport = 0;
                     pinfo->dst = tpt_conv_data->receiver_address;
@@ -632,8 +632,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                 } else if (ADDRESSES_EQUAL(&pinfo->src, &tpt_conv_data->receiver_tpt_address) &&
                            tpt_conv_data->receiver_tpt_port == pinfo->srcport) {
                     /* g_message("%d From receiver : %s -> %s ", pinfo->fd->num,
-                              ep_address_to_str(&tpt_conv_data->receiver_address),
-                              ep_address_to_str(&tpt_conv_data->initiator_address)); */
+                              address_to_str(wmem_packet_scope(), &tpt_conv_data->receiver_address),
+                              address_to_str(wmem_packet_scope(), &tpt_conv_data->initiator_address)); */
                     pinfo->src = tpt_conv_data->receiver_address;
                     pinfo->srcport = 0;
                     pinfo->dst = tpt_conv_data->initiator_address;
@@ -641,8 +641,8 @@ static int dissect_jxta_stream(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                     pinfo->ptype = PT_NONE;
                 } else {
                     /* g_message("%d Nothing matches %s:%d -> %s:%d", pinfo->fd->num,
-                              ep_address_to_str(&pinfo->src), pinfo->srcport,
-                              ep_address_to_str(&pinfo->dst), pinfo->destport); */
+                              address_to_str(wmem_packet_scope(), &pinfo->src), pinfo->srcport,
+                              address_to_str(wmem_packet_scope(), &pinfo->dst), pinfo->destport); */
                 }
             }
 
@@ -1286,9 +1286,9 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     }
 
     src_addr = wmem_strbuf_new_label(wmem_packet_scope());
-    wmem_strbuf_append(src_addr, ep_address_to_str(&pinfo->src));
+    wmem_strbuf_append(src_addr, address_to_str(wmem_packet_scope(), &pinfo->src));
     dst_addr = wmem_strbuf_new_label(wmem_packet_scope());
-    wmem_strbuf_append(dst_addr, ep_address_to_str(&pinfo->dst));
+    wmem_strbuf_append(dst_addr, address_to_str(wmem_packet_scope(), &pinfo->dst));
 
     /* append the port if appropriate */
     if (PT_NONE != pinfo->ptype) {
