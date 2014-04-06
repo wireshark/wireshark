@@ -35,7 +35,6 @@
 #include <epan/arcnet_pids.h>
 #include <epan/atalk-utils.h>
 #include <epan/conversation.h>
-#include <epan/to_str.h>
 #include <wiretap/wtap.h>
 
 #include <epan/prefs.h>
@@ -55,6 +54,7 @@ static reassembly_table atp_reassembly_table;
 static gboolean atp_defragment = TRUE;
 
 static dissector_handle_t afp_handle;
+static dissector_handle_t afp_server_status_handle;
 
 static int proto_llap = -1;
 static int hf_llap_dst = -1;
@@ -224,43 +224,6 @@ static int hf_asp_init_error    = -1;
 static int hf_asp_attn_code     = -1;
 static int hf_asp_seq           = -1;
 static int hf_asp_size          = -1;
-
-/* status stuff same for asp and afp */
-static int hf_asp_server_name = -1;
-static int hf_asp_server_type = -1;
-static int hf_asp_server_vers = -1;
-static int hf_asp_server_uams = -1;
-static int hf_asp_server_icon = -1;
-static int hf_asp_server_directory = -1;
-
-static int hf_asp_server_flag = -1;
-static int hf_asp_server_flag_copyfile  = -1;
-static int hf_asp_server_flag_passwd    = -1;
-static int hf_asp_server_flag_no_save_passwd = -1;
-static int hf_asp_server_flag_srv_msg   = -1;
-static int hf_asp_server_flag_srv_sig   = -1;
-static int hf_asp_server_flag_tcpip     = -1;
-static int hf_asp_server_flag_notify    = -1;
-static int hf_asp_server_flag_reconnect = -1;
-static int hf_asp_server_flag_directory = -1;
-static int hf_asp_server_flag_utf8_name = -1;
-static int hf_asp_server_flag_fast_copy = -1;
-static int hf_asp_server_signature      = -1;
-static int hf_asp_server_utf8_name_len  = -1;
-static int hf_asp_server_utf8_name      = -1;
-
-static int hf_asp_server_addr_len       = -1;
-static int hf_asp_server_addr_type      = -1;
-static int hf_asp_server_addr_value     = -1;
-
-static gint ett_asp_status = -1;
-static gint ett_asp_uams   = -1;
-static gint ett_asp_vers   = -1;
-static gint ett_asp_addr   = -1;
-static gint ett_asp_addr_line = -1;
-static gint ett_asp_directory = -1;
-static gint ett_asp_utf8_name = -1;
-static gint ett_asp_status_server_flag = -1;
 
 typedef struct {
   guint32 conversation;
@@ -951,228 +914,6 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   return;
 }
 
-/*
-  copy and paste from dsi
-  XXX - is the format of this reply dependent on the type of server,
-  with this format being the format for AFP servers?
-*/
-static gint
-dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
-{
-  proto_tree *sub_tree;
-  proto_item *ti;
-
-  guint16     ofs;
-  guint16     flag;
-  guint16     machine_ofs;
-  guint16     sign_ofs = 0;
-  guint16     adr_ofs  = 0;
-  guint16     dir_ofs  = 0;
-  guint16     utf_ofs  = 0;
-  guint8      nbe;
-  guint       len;
-  guint       i;
-
-  proto_tree *adr_tree;
-  char       *tmp;
-  guint16     net;
-  guint8      node;
-  guint16     port;
-
-  guint16     ulen;
-
-  if (!tree)
-    return offset;
-
-  ti = proto_tree_add_text(tree, tvb, offset, -1, "Get Status");
-  tree = proto_item_add_subtree(ti, ett_asp_status);
-
-  machine_ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
-  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_MACHOFF, 2, "Machine offset: %u", machine_ofs);
-  if (machine_ofs)
-    machine_ofs += offset;
-
-  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
-  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_VERSOFF, 2, "Version offset: %u", ofs);
-
-  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
-  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_UAMSOFF, 2, "UAMS offset: %u", ofs);
-
-  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-  proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %u", ofs);
-
-  ofs = offset +AFPSTATUS_FLAGOFF;
-  ti = proto_tree_add_item(tree, hf_asp_server_flag, tvb, ofs, 2, ENC_BIG_ENDIAN);
-  sub_tree = proto_item_add_subtree(ti, ett_asp_status_server_flag);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_copyfile      , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_passwd        , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_no_save_passwd, tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_msg       , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_sig       , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_tcpip         , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_notify        , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_reconnect     , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_directory     , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, ENC_BIG_ENDIAN);
-
-  proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, ENC_ASCII|ENC_NA);
-
-  flag = tvb_get_ntohs(tvb, ofs);
-  if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
-    ofs = offset +AFPSTATUS_PRELEN +tvb_get_guint8(tvb, offset +AFPSTATUS_PRELEN) +1;
-    if ((ofs & 1))
-      ofs++;
-
-    sign_ofs = tvb_get_ntohs(tvb, ofs);
-    proto_tree_add_text(tree, tvb, ofs, 2, "Signature offset: %u", sign_ofs);
-    sign_ofs += offset;
-    ofs += 2;
-
-    if ((flag & AFPSRVRINFO_TCPIP) && ofs < machine_ofs ) {
-      adr_ofs =  tvb_get_ntohs(tvb, ofs);
-      proto_tree_add_text(tree, tvb, ofs, 2, "Network address offset: %u", adr_ofs);
-      adr_ofs += offset;
-      ofs += 2;
-    }
-
-    if ((flag & AFPSRVRINFO_SRVDIRECTORY) && ofs < machine_ofs) {
-      dir_ofs =  tvb_get_ntohs(tvb, ofs);
-      proto_tree_add_text(tree, tvb, ofs, 2, "Directory services offset: %u", dir_ofs);
-      dir_ofs += offset;
-      ofs += 2;
-    }
-
-    if ((flag & AFPSRVRINFO_SRVUTF8) && ofs < machine_ofs) {
-      utf_ofs =  tvb_get_ntohs(tvb, ofs);
-      proto_tree_add_text(tree, tvb, ofs, 2, "UTF-8 server name offset: %u", utf_ofs);
-      utf_ofs += offset;
-    }
-  }
-
-  if (machine_ofs)
-    proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, ENC_ASCII|ENC_NA);
-
-  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
-  if (ofs) {
-    ofs += offset;
-    nbe = tvb_get_guint8(tvb, ofs);
-    ti = proto_tree_add_text(tree, tvb, ofs, 1, "Version list: %u", nbe);
-    ofs++;
-    sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
-    for (i = 0; i < nbe; i++) {
-      len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, ENC_ASCII|ENC_NA);
-      ofs += len + 1;
-    }
-  }
-
-  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_UAMSOFF);
-  if (ofs) {
-    ofs += offset;
-    nbe = tvb_get_guint8(tvb, ofs);
-    ti = proto_tree_add_text(tree, tvb, ofs, 1, "UAMS list: %u", nbe);
-    ofs++;
-    sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
-    for (i = 0; i < nbe; i++) {
-      len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, ENC_ASCII|ENC_NA);
-      ofs += len + 1;
-    }
-  }
-
-  ofs = tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
-  if (ofs) {
-    ofs += offset;
-    proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, ENC_NA);
-  }
-
-  if (sign_ofs) {
-    proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, ENC_NA);
-  }
-
-  if (adr_ofs) {
-
-    ofs = adr_ofs;
-    nbe = tvb_get_guint8(tvb, ofs);
-    ti = proto_tree_add_text(tree, tvb, ofs, 1, "Address list: %u", nbe);
-    ofs++;
-    adr_tree = proto_item_add_subtree(ti, ett_asp_addr);
-    for (i = 0; i < nbe; i++) {
-      guint8 type;
-
-      len = tvb_get_guint8(tvb, ofs);
-      type =  tvb_get_guint8(tvb, ofs +1);
-      switch (type) {
-      case 1:   /* IP */
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP: %s", tvb_ip_to_str(tvb, ofs+2));
-        break;
-      case 2: /* IP + port */
-        port = tvb_get_ntohs(tvb, ofs+6);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP: %s:%u",
-                                 tvb_ip_to_str(tvb, ofs+2), port);
-        break;
-      case 3: /* DDP, atalk_addr_to_str want host order not network */
-        net  = tvb_get_ntohs(tvb, ofs+2);
-        node = tvb_get_guint8(tvb, ofs +4);
-        port = tvb_get_guint8(tvb, ofs +5);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "DDP: %u.%u:%u",
-                                 net, node, port);
-        break;
-      case 5: /* IP + port ssh tunnel */
-        port = tvb_get_ntohs(tvb, ofs+6);
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "IP (SSH tunnel): %s:%u",
-                                 tvb_ip_to_str(tvb, ofs+2), port);
-        break;
-      case 4: /* DNS */
-        if (len > 2) {
-          tmp = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ofs +2, len -2);
-          ti = proto_tree_add_text(adr_tree, tvb, ofs, len, "DNS: %s", tmp);
-          break;
-        }
-        /* else fall to default malformed record */
-      default:
-        ti = proto_tree_add_text(adr_tree, tvb, ofs, len,"Unknown type : %u", type);
-        break;
-      }
-      len -= 2;
-      sub_tree = proto_item_add_subtree(ti,ett_asp_addr_line);
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, ENC_BIG_ENDIAN);
-      ofs++;
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, ENC_BIG_ENDIAN);
-      ofs++;
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, ENC_NA);
-      ofs += len;
-    }
-  }
-
-  if (dir_ofs) {
-    ofs = dir_ofs;
-    nbe = tvb_get_guint8(tvb, ofs);
-    ti = proto_tree_add_text(tree, tvb, ofs, 1, "Directory services list: %u", nbe);
-    ofs++;
-    sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
-    for (i = 0; i < nbe; i++) {
-      len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, ENC_ASCII|ENC_NA);
-      ofs += len + 1;
-    }
-  }
-  if (utf_ofs) {
-
-    ofs = utf_ofs;
-    ulen = tvb_get_ntohs(tvb, ofs);
-    tmp = (gchar*)tvb_get_string(wmem_packet_scope(), tvb, ofs + 2, ulen);
-    ti = proto_tree_add_text(tree, tvb, ofs, ulen +2, "UTF-8 server name: %s", tmp);
-    sub_tree = proto_item_add_subtree(ti, ett_asp_utf8_name);
-    proto_tree_add_uint(sub_tree, hf_asp_server_utf8_name_len, tvb, ofs, 2, ulen);
-    ofs += 2;
-    proto_tree_add_string(sub_tree, hf_asp_server_utf8_name, tvb, ofs, ulen, tmp);
-    ofs += ulen;
-  }
-  return ofs;
-}
-
 /* -----------------------------
    PAP protocol cf. inside appletalk chap. 10
 */
@@ -1186,7 +927,6 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   guint8      connID;
   proto_tree *pap_tree = NULL;
   proto_item *ti;
-  int         len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1239,8 +979,7 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     offset++;
     PAD(1);
     /* follow by data */
-    len = tvb_reported_length_remaining(tvb,offset);
-    call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+    call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
     break;
 
   case PAPTickle:
@@ -1317,7 +1056,6 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
   proto_tree     *asp_tree = NULL;
   proto_item     *ti;
   guint8          fn;
-  int             len;
 
   /* Reject the packet if data is NULL */
   if (data == NULL)
@@ -1381,8 +1119,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       offset++;
       proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      len = tvb_reported_length_remaining(tvb,offset);
-      new_tvb = tvb_new_subset(tvb, offset,-1,len);
+      new_tvb = tvb_new_subset_remaining(tvb, offset);
       call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, aspinfo);
       break;
     case ASPFUNC_WRTCONT:
@@ -1396,8 +1133,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     default:
       proto_item_set_len(asp_tree, 4);
       offset += 3;
-      len = tvb_reported_length_remaining(tvb,offset);
-      call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+      call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
       break;
     }
   }
@@ -1425,7 +1161,9 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     case ASPFUNC_STAT:
       proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_NA);
       offset += 4;
-      dissect_asp_reply_get_status(tvb, pinfo, asp_tree, offset);
+      /* XXX - what if something other than AFP is running atop ASP? */
+      new_tvb = tvb_new_subset_remaining(tvb, offset);
+      call_dissector(afp_server_status_handle, new_tvb, pinfo, asp_tree);
       break;
     case ASPFUNC_CMD:
     case ASPFUNC_WRITE:
@@ -1433,8 +1171,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       aspinfo->code = tvb_get_ntohl(tvb, offset);
       proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
-      len = tvb_reported_length_remaining(tvb,offset);
-      new_tvb = tvb_new_subset(tvb, offset,-1,len);
+      new_tvb = tvb_new_subset_remaining(tvb, offset);
       call_dissector_with_data(afp_handle, new_tvb, pinfo, tree, aspinfo);
       break;
     case ASPFUNC_TICKLE:
@@ -1445,8 +1182,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     default:
       proto_item_set_len(asp_tree, 4);
       offset += 4;
-      len = tvb_reported_length_remaining(tvb,offset);
-      call_dissector(data_handle,tvb_new_subset(tvb, offset,-1,len), pinfo, tree);
+      call_dissector(data_handle,tvb_new_subset_remaining(tvb, offset), pinfo, tree);
       break;
     }
   }
@@ -2139,116 +1875,6 @@ proto_register_atalk(void)
       { "Pad (0)",         "asp.zero_value",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Pad", HFILL }},
-
-        /* asp ,dsi, afp */
-    { &hf_asp_server_name,
-      { "Server name",         "asp.server_name",
-        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_asp_server_type,
-      { "Server type",         "asp.server_type",
-        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_asp_server_vers,
-      { "AFP version",         "asp.server_vers",
-        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_asp_server_uams,
-      { "UAM",         "asp.server_uams",
-        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_asp_server_icon,
-      { "Icon bitmap",         "asp.server_icon",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Server icon bitmap", HFILL }},
-
-    { &hf_asp_server_directory,
-      { "Directory service",         "asp.server_directory",
-        FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-        "Server directory service", HFILL }},
-
-    { &hf_asp_server_signature,
-      { "Server signature",         "asp.server_signature",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_asp_server_flag,
-      { "Flag",         "asp.server_flag",
-        FT_UINT16, BASE_HEX, NULL, 0x0,
-        "Server capabilities flag", HFILL }},
-    { &hf_asp_server_flag_copyfile,
-      { "Support copyfile",      "asp.server_flag.copyfile",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_COPY,
-        "Server supports copyfile", HFILL }},
-    { &hf_asp_server_flag_passwd,
-      { "Support change password",      "asp.server_flag.passwd",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_PASSWD,
-        "Server supports change password", HFILL }},
-    { &hf_asp_server_flag_no_save_passwd,
-      { "Don't allow save password",      "asp.server_flag.no_save_passwd",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_NOSAVEPASSWD,
-        NULL, HFILL }},
-    { &hf_asp_server_flag_srv_msg,
-      { "Support server message",      "asp.server_flag.srv_msg",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVMSGS,
-        NULL, HFILL }},
-    { &hf_asp_server_flag_srv_sig,
-      { "Support server signature",      "asp.server_flag.srv_sig",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVSIGNATURE,
-        NULL, HFILL }},
-    { &hf_asp_server_flag_tcpip,
-      { "Support TCP/IP",      "asp.server_flag.tcpip",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_TCPIP,
-        "Server supports TCP/IP", HFILL }},
-    { &hf_asp_server_flag_notify,
-      { "Support server notifications",      "asp.server_flag.notify",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVNOTIFY,
-        "Server supports notifications", HFILL }},
-    { &hf_asp_server_flag_reconnect,
-      { "Support server reconnect",      "asp.server_flag.reconnect",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVRECONNECT,
-        "Server supports reconnect", HFILL }},
-    { &hf_asp_server_flag_directory,
-      { "Support directory services",      "asp.server_flag.directory",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVDIRECTORY,
-        "Server supports directory services", HFILL }},
-    { &hf_asp_server_flag_utf8_name,
-      { "Support UTF-8 server name",      "asp.server_flag.utf8_name",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_SRVUTF8,
-        "Server supports UTF-8 server name", HFILL }},
-    { &hf_asp_server_flag_fast_copy,
-      { "Support fast copy",      "asp.server_flag.fast_copy",
-                FT_BOOLEAN, 16, NULL, AFPSRVRINFO_FASTBOZO,
-        "Server supports fast copy", HFILL }},
-
-    { &hf_asp_server_addr_len,
-      { "Length",          "asp.server_addr.len",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        "Address length.", HFILL }},
-
-    { &hf_asp_server_addr_type,
-      { "Type",          "asp.server_addr.type",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &afp_server_addr_type_vals_ext, 0x0,
-        "Address type.", HFILL }},
-
-    { &hf_asp_server_addr_value,
-      { "Value",          "asp.server_addr.value",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
-        "Address value", HFILL }},
-
-    { &hf_asp_server_utf8_name_len,
-      { "UTF-8 server name length",         "asp.server_utf8_name_len",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
-
-    { &hf_asp_server_utf8_name,
-      { "UTF-8 server name",         "asp.server_utf8_name",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
   };
 
   static hf_register_info hf_zip[] = {
@@ -2378,16 +2004,6 @@ proto_register_atalk(void)
     &ett_asp,
     &ett_pap,
 
-    /* asp dsi afp */
-    &ett_asp_status,
-    &ett_asp_status_server_flag,
-    &ett_asp_vers,
-    &ett_asp_uams,
-    &ett_asp_addr,
-    &ett_asp_addr_line,
-    &ett_asp_directory,
-    &ett_asp_utf8_name,
-
     &ett_nbp,
     &ett_nbp_info,
     &ett_nbp_node,
@@ -2481,6 +2097,7 @@ proto_reg_handoff_atalk(void)
   register_init_routine( &asp_reinit);
 
   afp_handle  = find_dissector("afp");
+  afp_server_status_handle  = find_dissector("afp_server_status");
   data_handle = find_dissector("data");
 }
 
