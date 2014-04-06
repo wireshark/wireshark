@@ -950,6 +950,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-mq-base.c
 	dissectors/packet-mq-pcf.c
 	dissectors/packet-mq.c
+	dissectors/packet-mqtt.c
 	dissectors/packet-mrcpv2.c
 	dissectors/packet-mrdisc.c
 	dissectors/packet-mrp-mmrp.c
