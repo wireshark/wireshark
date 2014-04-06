@@ -2940,54 +2940,53 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 }
 
                 switch (type_2) {
+                    case RQT_SETUP_TYPE_STANDARD:
+                        /*
+                         * This is a standard request which is managed by this
+                         * dissector
+                         */
+                        proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
 
-                case RQT_SETUP_TYPE_STANDARD:
-                    /*
-                     * This is a standard request which is managed by this
-                     * dissector
-                     */
-                    proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    offset += 1;
+                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+                                val_to_str_ext(usb_trans_info->setup.request, &setup_request_names_vals_ext, "Unknown type %x"));
 
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
-                            val_to_str_ext(usb_trans_info->setup.request, &setup_request_names_vals_ext, "Unknown type %x"));
-
-                    dissector = NULL;
-                    for(tmp = setup_request_dissectors;tmp->dissector;tmp++) {
-                        if (tmp->request == usb_trans_info->setup.request) {
-                            dissector = tmp->dissector;
-                            break;
+                        dissector = NULL;
+                        for(tmp = setup_request_dissectors;tmp->dissector;tmp++) {
+                            if (tmp->request == usb_trans_info->setup.request) {
+                                dissector = tmp->dissector;
+                                break;
+                            }
                         }
-                    }
 
-                    if (dissector) {
-                        offset = dissector(pinfo, setup_tree, tvb, offset, usb_trans_info,
-                                usb_conv_info, bus_id, device_address);
-                    } else {
+                        if (dissector) {
+                            offset = dissector(pinfo, setup_tree, tvb, offset, usb_trans_info,
+                                    usb_conv_info, bus_id, device_address);
+                        } else {
+                            proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                            offset += 2;
+                            proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                            offset += 2;
+                            proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                            offset += 2;
+                        }
+                        break;
+                    default:
+                        /* no dissector found - display generic fields */
+                        proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                        offset += 1;
                         proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         offset += 2;
                         proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         offset += 2;
                         proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                         offset += 2;
-                    }
-                    break;
-                default:
-                    /* no dissector found - display generic fields */
-                    proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                    offset += 1;
-                    proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                    offset += 2;
 
-                    if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
-                        setup_tvb = tvb_new_composite();
-                        next_tvb = tvb_new_subset(tvb, offset - 7, 7, 7);
-                        tvb_composite_append(setup_tvb, next_tvb);
-                    }
+                        if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
+                            setup_tvb = tvb_new_composite();
+                            next_tvb = tvb_new_subset(tvb, offset - 7, 7, 7);
+                            tvb_composite_append(setup_tvb, next_tvb);
+                        }
                 }
             } else {
                 if (header_info & USB_HEADER_IS_LINUX) {
