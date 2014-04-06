@@ -389,7 +389,7 @@ dissect_gmtrailer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void 
 
     dissect_gmtlv(tvb, pinfo, gmhdr_tree, offset, length);
     if (extra_trailer) {
-        proto_tree_add_item(tree, hf_gmhdr_trailer, tvb, length + 5, extra_trailer, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gmhdr_trailer, tvb, length + 5, extra_trailer, ENC_NA);
     }
   }
   return tvblen;

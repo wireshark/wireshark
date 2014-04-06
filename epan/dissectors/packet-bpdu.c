@@ -608,7 +608,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                           BPDU_ROOT_IDENTIFIER , 2,
                           root_identifier_system_id_extension);
       proto_tree_add_item(root_id_tree, hf_bpdu_root_mac, tvb,
-                          BPDU_ROOT_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                          BPDU_ROOT_IDENTIFIER + 2, 6, ENC_NA);
 
     } else {
       root_id_item = proto_tree_add_text(bpdu_tree, tvb,
@@ -621,7 +621,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                           BPDU_ROOT_IDENTIFIER , 2,
                           root_identifier_bridge_priority);
       proto_tree_add_item(root_id_tree, hf_bpdu_root_mac, tvb,
-                          BPDU_ROOT_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                          BPDU_ROOT_IDENTIFIER + 2, 6, ENC_NA);
     }
     /* end of Identifier formatting */
 
@@ -646,7 +646,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                           BPDU_BRIDGE_IDENTIFIER , 2,
                           bridge_identifier_system_id_extension);
       proto_tree_add_item(bridge_id_tree, hf_bpdu_bridge_mac, tvb,
-                          BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                          BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
     } else {
       bridge_id_item = proto_tree_add_text(bpdu_tree, tvb,
                                            BPDU_BRIDGE_IDENTIFIER, 8,
@@ -658,7 +658,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                           BPDU_BRIDGE_IDENTIFIER , 2,
                           bridge_identifier_bridge_priority);
       proto_tree_add_item(bridge_id_tree, hf_bpdu_bridge_mac, tvb,
-                          BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                          BPDU_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
     }
     /* end of Identifier formatting */
 
@@ -803,7 +803,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                               BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                               cist_bridge_identifier_system_id_extension);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                              BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
 
         } else {
           cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
@@ -816,7 +816,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                               BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                               cist_bridge_identifier_bridge_priority);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                              BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
         }
         /* end of Identifier formatting */
 
@@ -847,7 +847,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                               ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                               cist_bridge_identifier_system_id_extension);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
         } else {
           cist_bridge_id_item = proto_tree_add_text(mstp_tree, tvb,
                                                     ALT_BPDU_CIST_BRIDGE_IDENTIFIER, 8,
@@ -859,7 +859,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
                               ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                               cist_bridge_identifier_bridge_priority);
           proto_tree_add_item(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac, tvb,
-                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_BIG_ENDIAN);
+                              ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6, ENC_NA);
         }
         /* end of Identifier formatting */
 
@@ -933,7 +933,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
 
           /* pri, MSTID, Regional root */
           hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
-                                            offset + MSTI_REGIONAL_ROOT + 2, 6, ENC_BIG_ENDIAN);
+                                            offset + MSTI_REGIONAL_ROOT + 2, 6, ENC_NA);
 
           PROTO_ITEM_SET_HIDDEN(hidden_item);
           proto_tree_add_text(msti_tree, tvb, offset + MSTI_REGIONAL_ROOT, 8,
@@ -1021,7 +1021,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean is_bp
 
           /* pri, MSTID, Regional root */
           hidden_item = proto_tree_add_item(msti_tree, hf_bpdu_msti_regional_root_mac, tvb,
-                                            offset + ALT_MSTI_REGIONAL_ROOT + 2, 6, ENC_BIG_ENDIAN);
+                                            offset + ALT_MSTI_REGIONAL_ROOT + 2, 6, ENC_NA);
 
           PROTO_ITEM_SET_HIDDEN(hidden_item);
           proto_tree_add_text(msti_tree, tvb, offset + ALT_MSTI_REGIONAL_ROOT, 8,

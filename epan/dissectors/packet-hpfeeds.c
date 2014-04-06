@@ -120,7 +120,7 @@ static const value_string chan_vals[] = {
 static void
 dissect_hpfeeds_error_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
 {
-    proto_tree_add_item(tree, hf_hpfeeds_errmsg, tvb, offset, -1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_hpfeeds_errmsg, tvb, offset, -1, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -142,11 +142,11 @@ dissect_hpfeeds_info_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
     offset += 1;
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_server, tvb, offset, len,
-        ENC_BIG_ENDIAN);
+        ENC_ASCII|ENC_NA);
     offset += len;
 
     proto_tree_add_item(data_subtree, hf_hpfeeds_nonce, tvb, offset, -1,
-        ENC_BIG_ENDIAN);
+        ENC_NA);
 }
 
 static void
@@ -159,11 +159,11 @@ dissect_hpfeeds_auth_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
                     offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb,
-                    offset, len, ENC_BIG_ENDIAN);
+                    offset, len, ENC_ASCII|ENC_NA);
     offset += len;
 
     proto_tree_add_item(tree, hf_hpfeeds_secret, tvb,
-                    offset, -1, ENC_BIG_ENDIAN);
+                    offset, -1, ENC_NA);
 }
 
 static void
@@ -180,7 +180,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ENC_BIG_ENDIAN);
     offset += 1;
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len,
-        ENC_BIG_ENDIAN);
+        ENC_ASCII|ENC_NA);
     offset += len;
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_hpfeeds_chan_len, tvb, offset, 1,
@@ -192,7 +192,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     */
     strptr = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
     proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, len,
-        ENC_BIG_ENDIAN);
+        ENC_ASCII|ENC_NA);
     offset += len;
     channel = str_to_val(strptr, chan_vals, CH_EINVAL);
     pinfo->private_data = strptr;
@@ -228,11 +228,11 @@ dissect_hpfeeds_subscribe_pdu(tvbuff_t *tvb, proto_tree *tree, guint offset)
     offset += 1;
 
     proto_tree_add_item(tree, hf_hpfeeds_ident, tvb, offset, len,
-        ENC_BIG_ENDIAN);
+        ENC_ASCII|ENC_NA);
     /* move forward inside data */
     offset += len;
     proto_tree_add_item(tree, hf_hpfeeds_channel, tvb, offset, -1,
-        ENC_BIG_ENDIAN);
+        ENC_ASCII|ENC_NA);
 }
 
 /*

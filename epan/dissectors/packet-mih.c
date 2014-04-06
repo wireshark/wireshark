@@ -953,7 +953,7 @@ static gint16 dissect_ip_addr(tvbuff_t *tvb, gint16 offset, proto_tree *tlv_tree
         {
                 /*IPv6 Addr*/
                 len = tvb_get_guint8(tvb, offset + 3);
-                proto_tree_add_item(tlv_tree,hf_ipv6_addr, tvb, offset+2, len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree,hf_ipv6_addr, tvb, offset+2, len, ENC_NA);
                 return (offset+3+len);
         }
         else
@@ -1648,13 +1648,13 @@ static void dissect_mih_tlv(tvbuff_t *tvb,int offset, proto_tree *tlv_tree, guin
                                                 switch(mihf_id_len)
                                                 {
                                                         case 12:  /* checks if the length corresponds to a MAC address */
-                                                                proto_tree_add_item(tlv_tree, hf_mihf_id_mac, tvb_mihf_id, 0, mihf_id_len/2, ENC_BIG_ENDIAN);
+                                                                proto_tree_add_item(tlv_tree, hf_mihf_id_mac, tvb_mihf_id, 0, mihf_id_len/2, ENC_NA);
                                                                 break;
                                                         case 64:  /* checks if the length corresponds to an IPv4 address */
                                                                 proto_tree_add_item(tlv_tree, hf_mihf_id_ipv4, tvb_mihf_id, 0, mihf_id_len/2, ENC_BIG_ENDIAN);
                                                                 break;
                                                         case 128: /* checks if the length corresponds to an IPv6 address */
-                                                                proto_tree_add_item(tlv_tree, hf_mihf_id_ipv6, tvb_mihf_id, 0, mihf_id_len/2, ENC_BIG_ENDIAN);
+                                                                proto_tree_add_item(tlv_tree, hf_mihf_id_ipv6, tvb_mihf_id, 0, mihf_id_len/2, ENC_NA);
                                                                 break;
                                                 }
                                         }

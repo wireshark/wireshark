@@ -1072,7 +1072,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 		if (PINFO_FD_VISITED(pinfo)) {
 			/* No response found - add field and expert info */
 			it = proto_tree_add_item(tree, hf_icmp_no_resp, NULL, 0, 0,
-						 ENC_BIG_ENDIAN);
+						 ENC_NA);
 			PROTO_ITEM_SET_GENERATED(it);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");

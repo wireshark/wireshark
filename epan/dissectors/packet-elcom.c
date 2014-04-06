@@ -510,7 +510,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                  */
 
                 /* We need the length here, hardcode the LOWADR_LEN = 21 */
-                ti = proto_tree_add_item(elcom_tree, hf_elcom_initiator, tvb, offset, TOTAL_LEN, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(elcom_tree, hf_elcom_initiator, tvb, offset, TOTAL_LEN, ENC_NA);
                 offset = dissect_lower_address(ti, ett_elcom_initiator, tvb, offset,
                                                hf_elcom_initiator_endian,
                                                hf_elcom_initiator_ip,
@@ -519,7 +519,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if (tvb_length_remaining(tvb, offset) <= 0)
                         return;
 
-                ti = proto_tree_add_item(elcom_tree, hf_elcom_responder, tvb, offset, TOTAL_LEN, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(elcom_tree, hf_elcom_responder, tvb, offset, TOTAL_LEN, ENC_NA);
                 offset = dissect_lower_address(ti, ett_elcom_responder, tvb, offset,
                                                hf_elcom_responder_endian,
                                                hf_elcom_responder_ip,

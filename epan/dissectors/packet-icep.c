@@ -534,7 +534,7 @@ static void dissect_ice_params(packet_info *pinfo, proto_tree *tree, proto_item 
     }
 
     /* encapsulated params */
-    proto_tree_add_item(tree, hf_icep_params_encapsulated, tvb, offset, (size - ICEP_MIN_PARAMS_SIZE), ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_icep_params_encapsulated, tvb, offset, (size - ICEP_MIN_PARAMS_SIZE), ENC_NA);
 
     (*consumed) += (size - ICEP_MIN_PARAMS_SIZE);
 }

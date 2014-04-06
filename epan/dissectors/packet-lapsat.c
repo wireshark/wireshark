@@ -467,7 +467,7 @@ dissect_lapsat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* FIXME if "S func=GREJ", extend */
 
 	/* Create LAPSat tree */
-	lapsat_ti = proto_tree_add_item(tree, proto_lapsat, tvb, 0, hlen, ENC_BIG_ENDIAN);
+	lapsat_ti = proto_tree_add_item(tree, proto_lapsat, tvb, 0, hlen, ENC_NA);
 	lapsat_tree = proto_item_add_subtree(lapsat_ti, ett_lapsat);
 
 	/* Dissect address field */

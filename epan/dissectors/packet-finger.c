@@ -118,7 +118,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     finger_tree = proto_item_add_subtree(ti, ett_finger);
 
     if (is_query) {
-        expert_ti = proto_tree_add_item(finger_tree, hf_finger_query, tvb, 0, -1, ENC_NA);
+        expert_ti = proto_tree_add_item(finger_tree, hf_finger_query, tvb, 0, -1, ENC_ASCII|ENC_NA);
         if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
             /*
              * From RFC742, Send a single "command line", ending with <CRLF>.
@@ -131,7 +131,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
         }
     } else if (tree && finger_trans->rep_frame) {
-        proto_tree_add_item(finger_tree, hf_finger_response, tvb, 0, -1, ENC_NA);
+        proto_tree_add_item(finger_tree, hf_finger_response, tvb, 0, -1, ENC_ASCII|ENC_NA);
         if (finger_trans->req_frame) {
             nstime_t ns;
 

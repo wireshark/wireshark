@@ -885,7 +885,7 @@ gint WrethIdentPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_t
     proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationState, tvb, Offset + 12, 1, ENC_LITTLE_ENDIAN);
 
     /*Client MAC address*/
-    proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationMacAddr, tvb, Offset + 13, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationMacAddr, tvb, Offset + 13, 6, ENC_NA);
 
     col_set_str(pInfo->cinfo, COL_INFO, "Identification response");
 
@@ -1072,7 +1072,7 @@ gint WrethNackPacket(tvbuff_t *tvb, guint8 Offset, packet_info * pInfo, proto_tr
 
     if(Size == 6)
     {
-        proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationMacAddr, tvb, Offset, 6, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pWrethTree, hf_Wreth_IdentificationMacAddr, tvb, Offset, 6, ENC_NA);
     }
 
     return Offset;

@@ -89,7 +89,7 @@ dissect_atn_cm(
 			ti,
 			ett_atn_cm);
 
-		/* ti = proto_tree_add_item(tree, proto_atn_cm, tvb, 0, 0 , FALSE); */
+		/* ti = proto_tree_add_item(tree, proto_atn_cm, tvb, 0, 0 , ENC_NA); */
 		/* sub_tree = proto_item_add_subtree(ti, ett_atn_cm_pdu); */
 
 		/* determine whether it is uplink or downlink */

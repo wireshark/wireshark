@@ -1870,7 +1870,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_ip_to_str(tvb, offset + 8));
 
         if (tree) {
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* type */
@@ -1878,11 +1878,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 4;
 
             /* home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Care-of-Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
@@ -1897,7 +1897,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_ip_to_str(tvb, offset + 8));
 
        if (tree) {
-           ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+           ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
            a11_tree = proto_item_add_subtree(ti, ett_a11);
 
            /* type */
@@ -1905,15 +1905,15 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
            offset += 3;
 
            /* Reply Code */
-           proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, FALSE);
+           proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
            offset += 1;
 
            /* home address */
-           proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+           proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
            offset += 4;
 
            /* Home Agent */
-           proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+           proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
            offset += 4;
 
            /* Identifier - assumed to be an NTP time here */
@@ -1927,7 +1927,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_ip_to_str(tvb, offset + 8));
 
            if (tree) {
-               ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+               ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
                a11_tree = proto_item_add_subtree(ti, ett_a11);
 
                /* type */
@@ -1949,19 +1949,19 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                offset += 1;
 
                /* lifetime */
-               proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, FALSE);
+               proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
                offset +=2;
 
                /* home address */
-               proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+               proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
                offset += 4;
 
                /* Home Agent */
-               proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+               proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
                offset += 4;
 
                /* Care-of-Address */
-               proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+               proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
                offset += 4;
 
                /* Identifier - assumed to be an NTP time here */
@@ -1980,7 +1980,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -1988,19 +1988,19 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 1;
 
             /* Reply Code */
-            proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             /* Registration Lifetime */
-            proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_life, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Home Agent */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
@@ -2015,7 +2015,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_ip_to_str(tvb, offset + 8));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -2026,11 +2026,11 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 3;
 
             /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Home Agent */
-            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */
@@ -2045,7 +2045,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             tvb_get_guint8(tvb, offset + 3));
         if (tree) {
             /* Add Subtree */
-            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, FALSE);
+            ti = proto_tree_add_item(tree, proto_a11, tvb, offset, -1, ENC_NA);
             a11_tree = proto_item_add_subtree(ti, ett_a11);
 
             /* Type */
@@ -2056,15 +2056,15 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             offset += 2;
 
             /* Ack Status */
-            proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_status, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
             /* Home address */
-            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Care-of-Address */
-            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, FALSE);
+            proto_tree_add_item(a11_tree, hf_a11_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Identifier - assumed to be an NTP time here */

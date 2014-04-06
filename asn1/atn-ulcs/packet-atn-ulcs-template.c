@@ -592,7 +592,7 @@ dissect_atn_ulcs(
 						tvb,
 						0,
 						0 ,
-						FALSE);
+						ENC_NA);
 
 				atn_ulcs_tree = proto_item_add_subtree(
 						ti,

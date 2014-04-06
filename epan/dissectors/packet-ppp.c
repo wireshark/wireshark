@@ -2683,7 +2683,7 @@ dissect_lcp_internationalization_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_tree_add_item(field_tree, hf_lcp_opt_MIBenum, tvb, offset + 2, 4,
         ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_lcp_opt_language_tag, tvb, offset + 6,
-        length - 6, ENC_NA);
+        length - 6, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -3975,7 +3975,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                 ENC_BIG_ENDIAN);
             if (length > 4) {
                 proto_tree_add_item(fh_tree, hf_lcp_message, tvb, offset + 4,
-                    length - 4, ENC_NA);
+                    length - 4, ENC_ASCII|ENC_NA);
             }
         }
         break;
@@ -3992,7 +3992,7 @@ dissect_cp(tvbuff_t *tvb, int proto_id, int proto_subtree_index,
                 (secs_remaining == 0xffffffff) ? "(forever)" : "seconds");
             if (length > 8) {
                 proto_tree_add_item(fh_tree, hf_lcp_message, tvb, offset + 8,
-                    length - 8, ENC_NA);
+                    length - 8, ENC_ASCII|ENC_NA);
             }
         }
         break;

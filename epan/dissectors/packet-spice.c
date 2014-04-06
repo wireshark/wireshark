@@ -1678,7 +1678,7 @@ dissect_spice_common_server_messages(tvbuff_t *tvb, proto_tree *tree, const guin
             message_len = tvb_get_letohl(tvb, offset);
             proto_tree_add_item(tree, hf_notify_message_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_notify_message, tvb, offset, message_len + 1, ENC_ASCII);
+            proto_tree_add_item(tree, hf_notify_message, tvb, offset, message_len + 1, ENC_ASCII|ENC_NA);
             offset += (message_len + 1);
             break;
         default:

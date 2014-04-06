@@ -1,4 +1,5 @@
-/* Routines for UMTS MAC (3GPP TS 25.321) disassembly
+/* packet-umts_mac.c
+ * Routines for UMTS MAC (3GPP TS 25.321) disassembly
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -230,11 +231,11 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
     bitoffs += 2;
     if (ueid_type == MAC_UEID_TYPE_URNTI) {
         proto_tree_add_bits_item(tree, hf_mac_urnti, tvb, bitoffs, 32, ENC_BIG_ENDIAN);
-        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits32(tvb, bitoffs, 32,FALSE);
+        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits32(tvb, bitoffs, 32,ENC_BIG_ENDIAN);
         bitoffs += 32;
     } else if (ueid_type == MAC_UEID_TYPE_CRNTI) {
         proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, ENC_BIG_ENDIAN);
-        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits16(tvb, bitoffs, 16,FALSE);
+        rlcinf->urnti[fpinf->cur_tb] = tvb_get_bits16(tvb, bitoffs, 16,ENC_BIG_ENDIAN);
         bitoffs += 16;
     }
 

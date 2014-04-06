@@ -759,7 +759,7 @@ dissect_rdm_pd_device_model_description(tvbuff_t *tvb, guint offset, proto_tree 
 	switch(cc) {
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_device_model_description, tvb,
-			offset, len, ENC_BIG_ENDIAN);
+			offset, len, ENC_ASCII|ENC_NA);
 		offset +=  len;
 		break;
 	}
@@ -775,7 +775,7 @@ dissect_rdm_pd_device_label(tvbuff_t *tvb, guint offset, proto_tree *tree, guint
 	case RDM_CC_SET_COMMAND:
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_device_label, tvb,
-			offset, len, ENC_BIG_ENDIAN);
+			offset, len, ENC_ASCII|ENC_NA);
 		offset +=  len;
 		break;
 	}
@@ -880,7 +880,7 @@ dissect_rdm_pd_sensor_definition(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_description, tvb,
-			offset, len - 13, ENC_BIG_ENDIAN);
+			offset, len - 13, ENC_ASCII|ENC_NA);
 		offset += (len - 13);
 		break;
 	}
@@ -935,7 +935,7 @@ dissect_rdm_pd_manufacturer_label(tvbuff_t *tvb, guint offset, proto_tree *tree,
 	switch(cc) {
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_manu_label, tvb,
-			offset, len, ENC_BIG_ENDIAN);
+			offset, len, ENC_ASCII|ENC_NA);
 		offset +=  len;
 		break;
 	}
@@ -1104,7 +1104,7 @@ dissect_rdm_pd_status_id_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_status_id_description, tvb,
-			offset, len, ENC_BIG_ENDIAN);
+			offset, len, ENC_ASCII|ENC_NA);
 		offset += len;
 		break;
 	}
@@ -1192,7 +1192,7 @@ dissect_rdm_pd_parameter_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_rdm_pd_parameter_description, tvb,
-			offset, len - 0x14, ENC_BIG_ENDIAN);
+			offset, len - 0x14, ENC_ASCII|ENC_NA);
 		offset += (len - 0x14);
 		break;
 	}
@@ -1238,7 +1238,7 @@ dissect_rdm_pd_language_capabilities(tvbuff_t *tvb, guint offset, proto_tree *tr
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		while (len >= 2) {
 			proto_tree_add_item(tree, hf_rdm_pd_language_code, tvb,
-				offset, 2, ENC_BIG_ENDIAN);
+				offset, 2, ENC_ASCII|ENC_NA);
 			offset += 2;
 			len    -= 2;
 		}
@@ -1255,7 +1255,7 @@ dissect_rdm_pd_language(tvbuff_t *tvb, guint offset, proto_tree *tree, guint8 cc
 	case RDM_CC_SET_COMMAND:
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_language_code, tvb,
-			offset, 2, ENC_BIG_ENDIAN);
+			offset, 2, ENC_ASCII|ENC_NA);
 		offset += 2;
 		break;
 	}
@@ -1269,7 +1269,7 @@ dissect_rdm_pd_software_version_label(tvbuff_t *tvb, guint offset, proto_tree *t
 	switch(cc) {
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_software_version_label, tvb,
-			offset, len, ENC_BIG_ENDIAN);
+			offset, len, ENC_ASCII|ENC_NA);
 		offset += len;
 
 		break;
@@ -1299,7 +1299,7 @@ dissect_rdm_pd_boot_software_version_label(tvbuff_t *tvb, guint offset, proto_tr
 	switch(cc) {
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_boot_software_version_label, tvb,
-			offset, len, ENC_BIG_ENDIAN);
+			offset, len, ENC_ASCII|ENC_NA);
 		offset += len;
 
 		break;
@@ -1337,19 +1337,19 @@ dissect_rdm_pd_dmx_personality_description(tvbuff_t *tvb, guint offset, proto_tr
 	switch(cc) {
 	case RDM_CC_GET_COMMAND:
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_description, tvb,
-			offset, 1, ENC_BIG_ENDIAN);
+			offset, 1, ENC_ASCII|ENC_NA);
 		offset += 1;
 		break;
 
 	case RDM_CC_GET_COMMAND_RESPONSE:
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_description, tvb,
-			offset, 1, ENC_BIG_ENDIAN);
+			offset, 1, ENC_ASCII|ENC_NA);
 		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_slots, tvb,
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_dmx_pers_text, tvb,
-			offset, (len - 3), ENC_BIG_ENDIAN);
+			offset, (len - 3), ENC_ASCII|ENC_NA);
 		offset += (len - 3);
 		break;
 	}
@@ -1397,7 +1397,7 @@ dissect_rdm_pd_slot_description(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 			offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(tree, hf_rdm_pd_slot_description, tvb,
-			offset, (len - 2), ENC_BIG_ENDIAN);
+			offset, (len - 2), ENC_ASCII|ENC_NA);
 		offset += (len - 2);
 		break;
 	}
@@ -1465,7 +1465,7 @@ dissect_rdm_pd_record_sensors(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_sensor_description, tvb,
-			offset, (len - 13), ENC_BIG_ENDIAN);
+			offset, (len - 13), ENC_ASCII|ENC_NA);
 		offset += (len - 13);
 
 		break;
@@ -1708,7 +1708,7 @@ dissect_rdm_pd_self_test_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tree, hf_rdm_pd_selftest_description, tvb,
-			offset, (len - 1), ENC_BIG_ENDIAN);
+			offset, (len - 1), ENC_ASCII|ENC_NA);
 		offset += (len - 1);
 		break;
 	}
@@ -1795,7 +1795,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset += 2;
 
 	hi = proto_tree_add_item(tree, hf_rdm_mdb, tvb,
-			offset, -1, ENC_BIG_ENDIAN);
+			offset, -1, ENC_NA);
 	mdb_tree = proto_item_add_subtree(hi,ett_rdm);
 
 
@@ -1816,7 +1816,7 @@ dissect_rdm_mdb(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
 	if (parameter_data_length > 0) {
 		hi = proto_tree_add_item(mdb_tree, hf_rdm_parameter_data, tvb,
-				offset, parameter_data_length, ENC_BIG_ENDIAN);
+				offset, parameter_data_length, ENC_NA);
 		si = proto_item_add_subtree(hi,ett_rdm);
 
 		switch(param_id) {

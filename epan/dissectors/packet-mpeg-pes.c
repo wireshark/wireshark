@@ -755,7 +755,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (flags2 & PRIVATE_DATA_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_private_data, tvb,
-					offset, 16, ENC_BIG_ENDIAN);
+					offset, 16, ENC_NA);
 			offset += 16;
 		}
 		if (flags2 & PACK_LENGTH_FLAG) {

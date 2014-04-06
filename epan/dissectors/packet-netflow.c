@@ -4324,12 +4324,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
         case 34002: /* cts_sgt_source_name */
             ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_source_name,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
 
         case 34003: /* cts_sgt_destination_name */
             ti = proto_tree_add_item(pdutree, hf_cflow_cts_sgt_destination_name,
-                                     tvb, offset, length, ENC_BIG_ENDIAN);
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
 
         case 37000: /* packets_dropped */

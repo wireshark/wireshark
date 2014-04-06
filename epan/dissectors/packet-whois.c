@@ -118,7 +118,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     whois_tree = proto_item_add_subtree(ti, ett_whois);
 
     if (is_query) {
-        expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_NA);
+        expert_ti = proto_tree_add_item(whois_tree, hf_whois_query, tvb, 0, -1, ENC_ASCII|ENC_NA);
         if ((len < 2) || (tvb_memeql(tvb, len - 2, "\r\n", 2))) {
             /*
              * From RFC3912, section 2:
@@ -132,7 +132,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             PROTO_ITEM_SET_GENERATED(ti);
         }
     } else if (tree && whois_trans->rep_frame) {
-        proto_tree_add_item(whois_tree, hf_whois_answer, tvb, 0, -1, ENC_NA);
+        proto_tree_add_item(whois_tree, hf_whois_answer, tvb, 0, -1, ENC_ASCII|ENC_NA);
         if (whois_trans->req_frame) {
             nstime_t ns;
 

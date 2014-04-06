@@ -1648,7 +1648,7 @@ static void process_control_avps(tvbuff_t *tvb,
 
             if (avp_len == 0)
                 break;
-            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_error_message, tvb, idx, avp_len, ENC_NA);
+            proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_error_message, tvb, idx, avp_len, ENC_ASCII|ENC_NA);
             break;
 
         case PROTOCOL_VERSION:
@@ -1756,14 +1756,14 @@ static void process_control_avps(tvbuff_t *tvb,
             if (avp_len == 0)
                 break;
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_called_number,
-                                tvb, idx, avp_len, ENC_ASCII);
+                                tvb, idx, avp_len, ENC_ASCII|ENC_NA);
             break;
 
         case CALLING_NUMBER:
             if (avp_len == 0)
                 break;
             proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_calling_number,
-                                tvb, idx, avp_len, ENC_ASCII);
+                                tvb, idx, avp_len, ENC_ASCII|ENC_NA);
             break;
 
         case SUB_ADDRESS:

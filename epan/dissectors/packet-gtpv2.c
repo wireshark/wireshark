@@ -2865,16 +2865,16 @@ dissect_gtpv2_authentication_quintuplets(tvbuff_t *tvb, proto_tree *tree, int of
         xres_len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_xres_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_xres, tvb, offset, xres_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_xres, tvb, offset, xres_len, ENC_NA);
         offset += xres_len;
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_ck, tvb, offset, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_qui_tree, hf_gtpv2_ck, tvb, offset, 16, ENC_NA);
         offset += 16;
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_ik, tvb, offset, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_qui_tree, hf_gtpv2_ik, tvb, offset, 16, ENC_NA);
         offset += 16;
         autn_len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_autn_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_autn, tvb, offset, autn_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(auth_qui_tree, hf_gtpv2_mm_context_autn, tvb, offset, autn_len, ENC_NA);
         offset += autn_len;
     }
 
@@ -2910,7 +2910,7 @@ dissect_gtpv2_authentication_quadruplets(tvbuff_t *tvb, proto_tree *tree, int of
             tvb_bytes_to_ep_str(tvb, offset, tmp));
         offset += tmp;
 
-        proto_tree_add_item(tree, hf_gtpv2_mm_context_kasme, tvb, offset, 32, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_mm_context_kasme, tvb, offset, 32, ENC_NA);
 
         offset += 32;
     }
@@ -3127,10 +3127,10 @@ dissect_gtpv2_mm_context_utms_cq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset += 1;
 
     /* Octet 8 to 23  CK */
-    proto_tree_add_item(tree, hf_gtpv2_ck, tvb, offset, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ck, tvb, offset, 16, ENC_NA);
     offset += 16;
     /* Octet 24 to 39 IK */
-    proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_NA);
     offset += 16;
 
     /*
@@ -3334,10 +3334,10 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item(flag_tree, hf_gtpv2_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 8 to 23  CK */
-    proto_tree_add_item(tree, hf_gtpv2_ck, tvb, offset, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ck, tvb, offset, 16, ENC_NA);
     offset += 16;
     /* Octet 24 to 39 IK */
-    proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_NA);
     offset += 16;
 
     /*
@@ -3476,7 +3476,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset += 3;
 
     /* Octet 14-45 */
-    proto_tree_add_item(tree, hf_gtpv2_mm_context_kasme, tvb, offset, 32, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_mm_context_kasme, tvb, offset, 32, ENC_NA);
     offset += 32;
 
     qua_item = proto_tree_add_text(tree, tvb, offset, 0, "Authentication Quadruplets %u", nr_qua);
@@ -3588,10 +3588,10 @@ dissect_gtpv2_mm_context_utms_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     proto_tree_add_item(flag_tree, hf_gtpv2_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /* Octet 8 to 23  CK */
-    proto_tree_add_item(tree, hf_gtpv2_ck, tvb, offset, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ck, tvb, offset, 16, ENC_NA);
     offset += 16;
     /* Octet 24 to 39 IK */
-    proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ik, tvb, offset, 16, ENC_NA);
     offset += 16;
 
     if ( nr_qua )
@@ -3892,7 +3892,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
                 xid_len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid_len, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sub_tree, hf_gtpv2_bss_con_xid, tvb, offset, xid_len, ENC_NA);
             }
             return;
         default:
@@ -4872,7 +4872,7 @@ dissect_gtpv2_tmgi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 
     proto_item_append_text(item, "%012" G_GINT64_MODIFIER "x", tmgi);
 
-    proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_mbms_service_id, tvb, offset, 3, ENC_NA);
     offset += 3;
 
     dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);

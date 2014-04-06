@@ -2338,12 +2338,12 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         case 0xf989:
             /* FF: draft-ietf-tcpm-fastopen-02, TCP Fast Open */
             hidden_item = proto_tree_add_item(exp_tree, hf_tcp_option_fast_open,
-                                              tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                                              tvb, offset + 2, 2, ENC_NA);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             if ((optlen - 2) == 2) {
                 /* Fast Open Cookie Request */
                 proto_tree_add_item(exp_tree, hf_tcp_option_fast_open_cookie_request,
-                                    tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                                    tvb, offset + 2, 2, ENC_NA);
                 col_append_str(pinfo->cinfo, COL_INFO, " TFO=R");
             } else if ((optlen - 2) > 2) {
                 /* Fast Open Cookie */

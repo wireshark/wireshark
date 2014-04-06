@@ -2045,7 +2045,7 @@ dissect_outbound_text_header(proto_tree *tn3270_tree, tvbuff_t *tvb, gint offset
   offset += 2;
 
   proto_tree_add_item(tn3270_tree, hf_tn3270_outbound_text_header_hdr,
-                      tvb, offset, hdr_length, ENC_BIG_ENDIAN);
+                      tvb, offset, hdr_length, ENC_NA);
   offset += hdr_length;
 
   offset += dissect_unknown_data(tn3270_tree, tvb, offset, start, sf_body_length);

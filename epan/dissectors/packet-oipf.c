@@ -120,7 +120,7 @@ dissect_oipf_ciplus(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, voi
         offset += 2;
 
         proto_tree_add_item(oipf_ciplus_tree, hf_oipf_ciplus_data,
-                tvb, offset, dat_len, ENC_BIG_ENDIAN);
+                tvb, offset, dat_len, ENC_NA);
         offset += dat_len;
     }
 

@@ -3453,7 +3453,7 @@ dissect_openflow_tablemod_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset+=3;
 
     /* uint32_t config; */
-    ti = proto_tree_add_item(tree, hf_openflow_v5_tablemod_config, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_openflow_v5_tablemod_config, tvb, offset, 4, ENC_NA);
     conf_tree = proto_item_add_subtree(ti, ett_openflow_v5_tablemod_config);
 
     proto_tree_add_item(conf_tree, hf_openflow_v5_tablemod_config_eviction, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -4396,7 +4396,7 @@ dissect_openflow_table_desc_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=1;
 
     /* uint32_t config; */
-    ti = proto_tree_add_item(desc_tree, hf_openflow_v5_table_desc_config, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(desc_tree, hf_openflow_v5_table_desc_config, tvb, offset, 4, ENC_NA);
     conf_tree = proto_item_add_subtree(ti, ett_openflow_v5_table_desc_config);
 
     proto_tree_add_item(conf_tree, hf_openflow_v5_table_desc_config_eviction, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5656,7 +5656,7 @@ dissect_openflow_role_status_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     offset+=1;
 
     /* uint8_t pad[3]; */
-    proto_tree_add_item(tree, hf_openflow_v5_role_status_pad, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v5_role_status_pad, tvb, offset, 3, ENC_NA);
     offset+=3;
 
     /* uint64_t generation_id; */
@@ -5682,7 +5682,7 @@ dissect_openflow_table_status_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     offset+=1;
 
     /* uint8_t pad[7]; */
-    proto_tree_add_item(tree, hf_openflow_v5_table_status_pad, tvb, offset, 7, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v5_table_status_pad, tvb, offset, 7, ENC_NA);
     offset+=1;
 
     /* struct ofp_table_desc table; */
@@ -5831,7 +5831,7 @@ dissect_openflow_bundle_add_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset+=4;
 
     /* uint16_t pad; */
-    proto_tree_add_item(tree, hf_openflow_v5_bundle_add_pad, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_openflow_v5_bundle_add_pad, tvb, offset, 2, ENC_NA);
     offset+=2;
 
     /* uint16_t flags; */

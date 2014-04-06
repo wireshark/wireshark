@@ -170,7 +170,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (is_ipv6)
         proto_tree_add_item(sap_tree, hf_sap_originating_source_ipv4, tvb, offset, addr_len, ENC_BIG_ENDIAN);
     else
-        proto_tree_add_item(sap_tree, hf_sap_originating_source_ipv6, tvb, offset, addr_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sap_tree, hf_sap_originating_source_ipv6, tvb, offset, addr_len, ENC_NA);
     offset += addr_len;
 
     /* Authentication data lives in its own subtree */

@@ -399,7 +399,7 @@ static int dissect_hazelcast_message(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     offset += 4;
 
     if ( nameLength > 0 ) {
-        proto_tree_add_item(hcast_tree, hf_hazelcast_name, tvb, offset, nameLength, ENC_ASCII);
+        proto_tree_add_item(hcast_tree, hf_hazelcast_name, tvb, offset, nameLength, ENC_ASCII|ENC_NA);
         offset += nameLength;
     }
 

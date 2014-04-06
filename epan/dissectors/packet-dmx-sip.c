@@ -90,7 +90,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree *checksum_tree;
 
 		proto_tree *ti = proto_tree_add_item(tree, proto_dmx_sip, tvb,
-							offset, -1, FALSE);
+							offset, -1, ENC_NA);
 		proto_tree *dmx_sip_tree = proto_item_add_subtree(ti, ett_dmx_sip);
 
 
@@ -153,7 +153,7 @@ dissect_dmx_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (offset < byte_count) {
 			proto_tree_add_item(dmx_sip_tree, hf_dmx_sip_reserved, tvb,
-							offset, byte_count - offset, ENC_BIG_ENDIAN);
+							offset, byte_count - offset, ENC_NA);
 			offset += (byte_count - offset);
 		}
 

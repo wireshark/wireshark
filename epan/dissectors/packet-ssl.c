@@ -3121,7 +3121,7 @@ dissect_ssl3_hnd_cli_cert_verify(tvbuff_t *tvb, proto_tree *tree,
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     /* XXX check that ..._vrfy_sig_len == length-2 */
     proto_tree_add_item(ssl_sig_tree, hf_ssl_handshake_client_cert_vrfy_sig,
-                        tvb, offset+2, length-2, ENC_BIG_ENDIAN);
+                        tvb, offset+2, length-2, ENC_NA);
 }
 
 static void

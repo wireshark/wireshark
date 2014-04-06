@@ -304,7 +304,7 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket_used, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(rh_tree, hf_gre_wccp_redirect_header_valid, tvb, offset, 1, FALSE);
+    proto_tree_add_item(rh_tree, hf_gre_wccp_redirect_header_valid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rh_tree, hf_gre_wccp_service_id, tvb, offset +1, 1, ENC_BIG_ENDIAN);
 

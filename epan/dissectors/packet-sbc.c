@@ -209,7 +209,7 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree_add_item(ritem, hf_sbc_crc_check,          tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        proto_tree_add_item(ritem, hf_sbc_data,  tvb, offset, frame_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ritem, hf_sbc_data,  tvb, offset, frame_length, ENC_NA);
         offset += frame_length;
 
 /* TODO: expert_info for invalid CRC*/

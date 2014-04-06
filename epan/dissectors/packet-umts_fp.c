@@ -1,4 +1,5 @@
-/* Routines for UMTS FP disassembly
+/* packet-umts_fp.c
+ * Routines for UMTS FP disassembly
  *
  * Martin Mathieson
  *
@@ -1010,7 +1011,7 @@ dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
             guint16 calc_crc, read_crc;
             guint8 * data = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, header_length, offset-header_length);
             calc_crc = crc16_8005_noreflect_noxor(data, offset-header_length);
-            read_crc = tvb_get_bits16(tvb, offset*8, 16, FALSE);
+            read_crc = tvb_get_bits16(tvb, offset*8, 16, ENC_BIG_ENDIAN);
 
             if (calc_crc == read_crc) {
                 proto_item_append_text(pi, " [correct]");

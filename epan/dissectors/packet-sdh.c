@@ -164,8 +164,8 @@ dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     h2  = tvb_get_guint8(tvb, 3*level+(3*level*COLUMNS));
     au  = (h2 | ((0x03 & h1) << 8));
 
-    proto_tree_add_item(sdh_tree, hf_sdh_a1, tvb, 0*level, 3*level, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sdh_tree, hf_sdh_a2, tvb, 3*level, 3*level, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_a1, tvb, 0*level, 3*level, ENC_NA);
+    proto_tree_add_item(sdh_tree, hf_sdh_a2, tvb, 3*level, 3*level, ENC_NA);
     proto_tree_add_item(sdh_tree, hf_sdh_j0, tvb, 6*level, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sdh_tree, hf_sdh_b1, tvb, 0*level+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sdh_tree, hf_sdh_e1, tvb, 3*level+(1*level*COLUMNS), 1, ENC_BIG_ENDIAN);
@@ -176,7 +176,7 @@ dissect_sdh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(sdh_tree, hf_sdh_h1, tvb, 0*level+(3*level*COLUMNS), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sdh_tree, hf_sdh_h2, tvb, 3*level+(3*level*COLUMNS), 1, ENC_BIG_ENDIAN);
     proto_tree_add_uint(sdh_tree, hf_sdh_au, tvb, 0*level+(3*level*COLUMNS), 3*level+1, au);
-    proto_tree_add_item(sdh_tree, hf_sdh_b2, tvb, 0*level+(4*level*COLUMNS), 3*level, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sdh_tree, hf_sdh_b2, tvb, 0*level+(4*level*COLUMNS), 3*level, ENC_NA);
     proto_tree_add_item(sdh_tree, hf_sdh_k1, tvb, 3*level+(4*level*COLUMNS), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sdh_tree, hf_sdh_k2, tvb, 6*level+(4*level*COLUMNS), 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sdh_tree, hf_sdh_d4, tvb, 0*level+(5*level*COLUMNS), 1, ENC_BIG_ENDIAN);

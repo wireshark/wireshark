@@ -12970,7 +12970,7 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 
 	/* 4 reserved bytes */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;

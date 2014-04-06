@@ -433,7 +433,7 @@ zebra_interface(proto_tree *tree, tvbuff_t *tvb, int offset, guint8 version)
 		offset += 4;
 		if (maclen > 0)
 			proto_tree_add_item(tree, hf_zebra_mac, tvb,
-					    offset, maclen, ENC_BIG_ENDIAN);
+					    offset, maclen, ENC_NA);
 		offset += maclen;
 	}
 	return offset;

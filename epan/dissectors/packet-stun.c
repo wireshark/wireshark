@@ -673,7 +673,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case REFLECTED_FROM:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_NA);
                 if (att_length < 2)
                     break;
                 proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -713,7 +713,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case OTHER_ADDRESS:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_NA);
                 if (att_length < 2)
                     break;
                 proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -771,7 +771,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case ERROR_CODE:
                 if (att_length < 2)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 2, ENC_NA);
                 if (att_length < 3)
                     break;
                 proto_tree_add_item(att_tree, stun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
@@ -846,7 +846,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case XOR_REFLECTED_FROM:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_NA);
                 if (att_length < 2)
                     break;
                 proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
@@ -918,7 +918,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, stun_att_family, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+1, 3, ENC_NA);
                 break;
             case EVEN_PORT:
                 if (att_length < 1)
@@ -1009,7 +1009,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         val_to_str(protoCode, transportnames, "Unknown (0x%8x)")
                         );
                 }
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+1, 3, ENC_NA);
                 break;
 
             case CHANNEL_NUMBER:
@@ -1025,7 +1025,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         chan
                         );
                 }
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+2, 2, ENC_NA);
                 break;
 
             case BANDWIDTH:

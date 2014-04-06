@@ -295,7 +295,7 @@ dissect_soupbintcp_common(
         /* Create sub-tree for SoupBinTCP details */
         ti = proto_tree_add_item(tree,
                                  proto_soupbintcp,
-                                 tvb, 0, -1, FALSE);
+                                 tvb, 0, -1, ENC_NA);
 
         soupbintcp_tree = proto_item_add_subtree(ti, ett_soupbintcp);
 

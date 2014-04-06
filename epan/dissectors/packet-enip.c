@@ -1290,10 +1290,10 @@ dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *it
    }
 
    proto_tree_add_item(tree, hf_tcpip_lcd_acd_activity, tvb, offset,   1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(tree, hf_tcpip_lcd_remote_mac,   tvb, offset+1, 6, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_tcpip_lcd_remote_mac,   tvb, offset+1, 6, ENC_NA);
 
    if ( tvb_get_guint8(tvb, offset) == 0 )
-      proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_tcpip_lcd_arp_pdu, tvb, offset+7, 28, ENC_NA);
    else
    {
       /* Dissect ARP PDU, but don't have it change column info */
@@ -1441,7 +1441,7 @@ dissect_dlr_last_active_node_on_port_1(packet_info *pinfo, proto_tree *tree, pro
    }
 
    proto_tree_add_item(tree, hf_dlr_lanp1_dev_ip_addr,          tvb, offset,   4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(tree, hf_dlr_lanp1_dev_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_lanp1_dev_physical_address, tvb, offset+4, 6, ENC_NA);
    return 10;
 }
 
@@ -1457,7 +1457,7 @@ dissect_dlr_last_active_node_on_port_2(packet_info *pinfo, proto_tree *tree, pro
    }
 
    proto_tree_add_item(tree, hf_dlr_lanp2_dev_ip_addr,          tvb, offset,   4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(tree, hf_dlr_lanp2_dev_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_lanp2_dev_physical_address, tvb, offset+4, 6, ENC_NA);
    return 10;
 }
 
@@ -1478,7 +1478,7 @@ dissect_dlr_ring_protocol_participants_list(packet_info *pinfo, proto_tree *tree
    while ( pos < total_len)
    {
       proto_tree_add_item(tree, hf_dlr_rppl_dev_ip_addr,          tvb, offset+pos,   4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(tree, hf_dlr_rppl_dev_physical_address, tvb, offset+pos+4, 6, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_dlr_rppl_dev_physical_address, tvb, offset+pos+4, 6, ENC_NA);
       pos+=10;
    }
    return total_len;
@@ -1496,7 +1496,7 @@ dissect_dlr_active_supervisor_address(packet_info *pinfo, proto_tree *tree, prot
    }
 
    proto_tree_add_item(tree, hf_dlr_asa_supervisor_ip_addr,          tvb, offset,   4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(tree, hf_dlr_asa_supervisor_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_asa_supervisor_physical_address, tvb, offset+4, 6, ENC_NA);
    return 10;
 }
 
@@ -1558,7 +1558,7 @@ dissect_dlr_active_gateway_address(packet_info *pinfo, proto_tree *tree, proto_i
    }
 
    proto_tree_add_item(tree, hf_dlr_aga_ip_addr,          tvb, offset,   4, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item(tree, hf_dlr_aga_physical_address, tvb, offset+4, 6, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_dlr_aga_physical_address, tvb, offset+4, 6, ENC_NA);
    return 10;
 }
 
@@ -2326,7 +2326,7 @@ dissect_dlr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       proto_tree_add_item( dlr_tree, hf_dlr_supervisorprecedence, tvb, DLR_BE_SUPERVISOR_PRECEDENCE, 1, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_beaconinterval,       tvb, DLR_BE_BEACON_INTERVAL,       4, ENC_BIG_ENDIAN );
       proto_tree_add_item( dlr_tree, hf_dlr_beacontimeout,        tvb, DLR_BE_BEACON_TIMEOUT,        4, ENC_BIG_ENDIAN );
-      proto_tree_add_item( dlr_tree, hf_dlr_beaconreserved,       tvb, DLR_BE_RESERVED,             20, ENC_BIG_ENDIAN );
+      proto_tree_add_item( dlr_tree, hf_dlr_beaconreserved,       tvb, DLR_BE_RESERVED,             20, ENC_NA );
    }
    else if ( dlr_frametype == DLR_FT_NEIGHBOR_REQ )
    {

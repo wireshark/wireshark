@@ -767,23 +767,23 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             }
             if (tree) {
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_p2mp_id,
-                                    tvb, offset + 4, 4, FALSE);
+                                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1,
-                                    tvb, offset + 8, 2, FALSE);
+                                    tvb, offset + 8, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
-                                    tvb, offset + 10, 2, FALSE);
+                                    tvb, offset + 10, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
                                     "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
                                     tvb_ip_to_str(tvb, offset + 12));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ext_tunnel_id,
-                                                  tvb, offset + 12, 4, FALSE);
+                                                  tvb, offset + 12, 4, ENC_BIG_ENDIAN);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv4_ipv4_sender,
-                                    tvb, offset + 16, 4, FALSE);
+                                    tvb, offset + 16, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz2,
-                                    tvb, offset + 20, 2, FALSE);
+                                    tvb, offset + 20, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_lsp_id,
-                                    tvb, offset + 22, 2, FALSE);
+                                    tvb, offset + 22, 2, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -797,23 +797,23 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
             }
             if (tree) {
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_p2mp_id,
-                                    tvb, offset + 4, 16, FALSE);
+                                    tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_mbz1,
-                                    tvb, offset + 20, 2, FALSE);
+                                    tvb, offset + 20, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_tunnel_id,
-                                    tvb, offset + 22, 2, FALSE);
+                                    tvb, offset + 22, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16, "Extended Tunnel ID: 0x%s (%s)",
                                     tvb_bytes_to_ep_str(tvb, offset + 24, 16),
                                     tvb_ip6_to_str(tvb, offset + 24));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ext_tunnel_id,
-                                                  tvb, offset + 24, 16, FALSE);
+                                                  tvb, offset + 24, 16, ENC_NA);
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ipv6_ipv6_sender,
-                                    tvb, offset + 40, 16, FALSE);
+                                    tvb, offset + 40, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
-                                    tvb, offset + 56, 2, FALSE);
+                                    tvb, offset + 56, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_p2mp_ip_lsp_id,
-                                    tvb, offset + 58, 2, FALSE);
+                                    tvb, offset + 58, 2, ENC_BIG_ENDIAN);
             }
             break;
         case TLV_FEC_STACK_STATIC_LSP:
@@ -1165,7 +1165,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                                              "Empty (Multipath Length = 0)");
                 tlv_ddstlv_map_tree = proto_item_add_subtree(ddsti2, ett_mpls_echo_tlv_ddstlv_map);
                 proto_tree_add_item(tlv_ddstlv_map_tree, hf_mpls_echo_sub_tlv_multipath_info,
-                                    tvb, offset + 4, multipath_length, ENC_BIG_ENDIAN);
+                                    tvb, offset + 4, multipath_length, ENC_NA);
                 break;
 
             case TLV_MULTIPATH_IP_ADDRESS:
@@ -1260,7 +1260,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
                 proto_tree_add_item(tlv_dd_map_tree,
                                     hf_mpls_echo_sub_tlv_multipath_length, tvb, offset + 1, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_sub_tlv_multipath_value, tvb,
-                                    offset + 3, rem, ENC_BIG_ENDIAN);
+                                    offset + 3, rem, ENC_NA);
                 break;
             }
 
@@ -1329,7 +1329,7 @@ dissect_mpls_echo_tlv_dd_map(tvbuff_t *tvb, packet_info *pinfo, guint offset, pr
             tlv_dd_map_tree = proto_item_add_subtree(ddsti, ett_mpls_echo_tlv_dd_map);
             proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_type,   tvb, offset - 4, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_length, tvb, offset - 2, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_value,  tvb, offset, subtlv_length, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_dd_map_tree, hf_mpls_echo_tlv_dd_map_value,  tvb, offset, subtlv_length, ENC_NA);
             rem -= subtlv_length;
             break;
         }
@@ -1565,7 +1565,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
             break;
         }
         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_echo_jitter,
-                            tvb, offset + 4, 4, FALSE);
+                            tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         break;
     case TLV_P2MP_RESPONDER_IDENT: {
         guint16     resp_ident_type, resp_ident_len;
@@ -1584,13 +1584,13 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
                 break;
             }
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_type,
-                                tvb, offset + 4, 2, FALSE);
+                                tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             hidden_item = proto_tree_add_item(mpls_echo_tlv_tree,
                                               hf_mpls_echo_tlv_responder_indent_len, tvb,
-                                              offset + 6, 2, FALSE);
+                                              offset + 6, 2, ENC_BIG_ENDIAN);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
-                                tvb, offset + 8, 4, FALSE);
+                                tvb, offset + 8, 4, ENC_BIG_ENDIAN);
             break;
         case TLV_P2MP_RESPONDER_IDENT_IPV6_EGRESS_ADDR:
         case TLV_P2MP_RESPONDER_IDENT_IPV6_NODE_ADDR:
@@ -1601,12 +1601,12 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
                 break;
             }
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_type,
-                                tvb, offset + 4, 2, FALSE);
+                                tvb, offset + 4, 2, ENC_BIG_ENDIAN);
             hidden_item = proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_len,
-                                              tvb, offset + 6, 2, FALSE);
+                                              tvb, offset + 6, 2, ENC_BIG_ENDIAN);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_responder_indent_ipv4,
-                                tvb, offset + 8, 16, FALSE);
+                                tvb, offset + 8, 16, ENC_BIG_ENDIAN);
             break;
         }
         break;

@@ -1504,7 +1504,7 @@ lsarpc_dissect_element_lsa_LookupNames3_names_X(tvbuff_t *tvb _U_, int offset _U
 	proto_tree *tree = NULL;
 	int old_offset = offset;
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_lsarpc_names, tvb, offset, -1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_lsarpc_names, tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_lsarpc_names);
 	}
 	offset = dissect_ndr_ucarray(tvb, offset, pinfo, tree, di, drep, lsarpc_dissect_element_lsa_LookupNames3_names_);
