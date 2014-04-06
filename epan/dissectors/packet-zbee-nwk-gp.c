@@ -1423,24 +1423,24 @@ dissect_zbee_nwk_heur_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 {
     ieee802154_packet *packet = (ieee802154_packet *)data;
 
+    /* All ZigBee frames must always have a 16-bit source address. */
+    if ( (packet == NULL) ||
+         (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) ) {
+        return FALSE;
+    }
+
     /* Skip ZigBee beacons. */
     if ((packet->frame_type == IEEE802154_FCF_BEACON) && (tvb_get_guint8(tvb, 0) == ZBEE_NWK_BEACON_PROCOL_ID))
         return FALSE;
 
     if (packet->dst_pan == IEEE802154_BCAST_PAN && packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT &&
-        packet->dst16 == IEEE802154_BCAST_ADDR && packet->frame_type != IEEE802154_FCF_BEACON &&
-        packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) {
+        packet->dst16 == IEEE802154_BCAST_ADDR && packet->frame_type != IEEE802154_FCF_BEACON) {
         dissect_zbee_nwk_gp(tvb, pinfo, tree, data);
         return TRUE;
     }
     /* 64-bit destination addressing mode support. */
-    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT && packet->frame_type != IEEE802154_FCF_BEACON &&
-        packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) {
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT && packet->frame_type != IEEE802154_FCF_BEACON) {
         dissect_zbee_nwk_gp(tvb, pinfo, tree, data);
-        return TRUE;
-    }
-    /* All ZigBee 2006, 2007 and PRO frames must always have a 16-bit source address. */
-    if (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) {
         return TRUE;
     }
 
