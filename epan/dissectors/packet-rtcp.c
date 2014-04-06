@@ -2850,7 +2850,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     /* Report delay in INFO column */
     col_append_fstr(pinfo->cinfo, COL_INFO,
                     " (roundtrip delay <-> %s = %dms, using frame %u)  ",
-                    address_to_str(wmem_packet_scope(), &pinfo->net_src), delay, frame);
+                    ep_address_to_str(&pinfo->net_src), delay, frame);
 }
 
 static int

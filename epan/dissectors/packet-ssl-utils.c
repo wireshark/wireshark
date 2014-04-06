@@ -3679,7 +3679,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
         dummy.port = port = pinfo->destport;
     }
     ssl_debug_printf("ssl_find_private_key server %s:%u\n",
-                     address_to_str(wmem_packet_scope(), &dummy.addr),dummy.port);
+                     ep_address_to_str(&dummy.addr),dummy.port);
 
     /* try to retrieve private key for this service. Do it now 'cause pinfo
      * is not always available
@@ -4212,7 +4212,7 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
         }
 
         ssl_debug_printf("ssl_init %s addr '%s' (%s) port '%d' filename '%s' password(only for p12 file) '%s'\n",
-            (addr_type[at] == AT_IPv4) ? "IPv4" : "IPv6", uats->ipaddr, address_to_str(wmem_packet_scope(), &service->addr),
+            (addr_type[at] == AT_IPv4) ? "IPv4" : "IPv6", uats->ipaddr, ep_address_to_str(&service->addr),
             service->port, uats->keyfile, uats->password);
 
         ssl_debug_printf("ssl_init private key file %s successfully loaded.\n", uats->keyfile);
