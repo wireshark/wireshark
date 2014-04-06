@@ -59,7 +59,7 @@ p_compare(gconstpointer a, gconstpointer b)
       return 1;
     }else if (ap -> key == bp -> key){
       return 0;
-	}
+    }
     return -1;
   }else{
     return -1;
@@ -142,12 +142,12 @@ p_remove_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int pro
 
 gchar *
 p_get_proto_name_and_key(wmem_allocator_t *scope, struct _packet_info* pinfo, guint pfd_index){
-	frame_proto_data  *temp;
+  frame_proto_data  *temp;
 
   if (scope == pinfo->pool) {
-	temp = (frame_proto_data*)g_slist_nth_data(pinfo->proto_data, pfd_index);
+    temp = (frame_proto_data*)g_slist_nth_data(pinfo->proto_data, pfd_index);
   } else {
-	temp = (frame_proto_data*)g_slist_nth_data(pinfo->fd->pfd, pfd_index);
+    temp = (frame_proto_data*)g_slist_nth_data(pinfo->fd->pfd, pfd_index);
   }
 
   return ep_strdup_printf("[%s, key %u]",proto_get_protocol_name(temp->proto), temp->key);

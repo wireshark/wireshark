@@ -49,8 +49,8 @@ struct wtap_pkthdr;
 
 /* Types of character encodings */
 typedef enum {
-	PACKET_CHAR_ENC_CHAR_ASCII	 = 0,	/* ASCII */
-	PACKET_CHAR_ENC_CHAR_EBCDIC	 = 1	/* EBCDIC */
+  PACKET_CHAR_ENC_CHAR_ASCII     = 0, /* ASCII */
+  PACKET_CHAR_ENC_CHAR_EBCDIC    = 1  /* EBCDIC */
 } packet_char_enc;
 
 /** The frame number is the ordinal number of the frame in the capture, so
@@ -119,3 +119,16 @@ WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
 /** @} */
 
 #endif  /* __FRAME_DATA__ */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 2
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
+ * :indentSize=2:tabSize=8:noTabs=true:
+ */
