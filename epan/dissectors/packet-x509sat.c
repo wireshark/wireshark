@@ -1505,21 +1505,9 @@ dissect_x509sat_SyntaxIA5String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_x509sat_SyntaxBMPString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 378 "../../asn1/x509sat/x509sat.cnf"
-	tvbuff_t	*wide_tvb = NULL;
-	char		*string;
-
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_BMPString,
                                             actx, tree, tvb, offset, hf_index,
-                                            &wide_tvb);
-
-#line 383 "../../asn1/x509sat/x509sat.cnf"
-	if (! wide_tvb) {
-		return offset;
-	}
-	string = tvb_get_string_enc (wmem_packet_scope(), wide_tvb, 0, tvb_length(wide_tvb), ENC_UCS_2|ENC_BIG_ENDIAN);
-	proto_item_append_text(actx->created_item, " %s", string);
-
+                                            NULL);
 
   return offset;
 }
@@ -1627,7 +1615,7 @@ dissect_x509sat_SyntaxGeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_x509sat_GUID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 392 "../../asn1/x509sat/x509sat.cnf"
+#line 378 "../../asn1/x509sat/x509sat.cnf"
   gint8 ber_class;
   gboolean pc;
   gint32 tag;

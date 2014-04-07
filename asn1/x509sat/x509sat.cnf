@@ -372,20 +372,6 @@ XDayOf/third				third_dayof
 XDayOf/fourth				fourth_dayof
 XDayOf/fifth				fifth_dayof
 
-#.FN_PARS SyntaxBMPString VAL_PTR = &wide_tvb
-
-#.FN_HDR SyntaxBMPString
-	tvbuff_t	*wide_tvb = NULL;
-	char		*string;
-#.END
-
-#.FN_FTR SyntaxBMPString
-	if (! wide_tvb) {
-		return offset;
-	}
-	string = tvb_get_string_enc (wmem_packet_scope(), wide_tvb, 0, tvb_length(wide_tvb), ENC_UCS_2|ENC_BIG_ENDIAN);
-	proto_item_append_text(actx->created_item, " %s", string);
-
 #.END
 
 #.FN_BODY GUID

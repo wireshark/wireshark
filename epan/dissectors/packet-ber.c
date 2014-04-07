@@ -1506,6 +1506,7 @@ dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, pr
     gboolean    pc, ind;
     gint32      tag;
     guint32     len;
+    guint       encoding;
     int         hoffset;
     int         end_offset;
     proto_item *it, *cause;
@@ -1611,7 +1612,86 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n", name);
             length_remaining = len;
         }
         if (hf_id >= 0) {
-            it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, ENC_BIG_ENDIAN);
+            /*
+             * Strings are special.  See X.690 section 8.20 "Encoding for
+             * values of the restricted character string types".
+             */
+            switch (tag) {
+
+            case BER_UNI_TAG_UTF8String:
+                /*
+                 * UTF-8, obviously.
+                 */
+                encoding = ENC_UTF_8|ENC_NA;
+                break;
+
+            case BER_UNI_TAG_NumericString:
+            case BER_UNI_TAG_PrintableString:
+            case BER_UNI_TAG_VisibleString:
+            case BER_UNI_TAG_IA5String:
+                /*
+                 * (Subsets of) Boring Old ASCII, with no(?) ISO 2022
+		 * escape sequences.
+                 */
+                encoding = ENC_ASCII|ENC_NA;
+                break;
+
+            case BER_UNI_TAG_TeletexString:
+                /*
+                 * Teletex character set, with ISO 8022 escape sequences.
+                 * XXX - treat as ASCII for now. Need to handle the
+                 * extensions and the escape sequences.
+                 */
+                encoding = ENC_ASCII|ENC_NA;
+                break;
+
+            case BER_UNI_TAG_VideotexString:
+                /*
+                 * Based on International Reference Version of ISO 646,
+                 * with ISO 8022 escape sequences?
+                 * XXX - treat as ASCII for now. Need to handle the
+                 * C0/C1 characters and the escape sequences?
+                 */
+                encoding = ENC_ASCII|ENC_NA;
+                break;
+
+            case BER_UNI_TAG_GraphicString:
+            case BER_UNI_TAG_GeneralString:
+                /*
+                 * Boring Old ASCII, *with* ISO 2022 escape sequences.
+                 * XXX - need to handle the escape sequences.
+                 */
+                encoding = ENC_ASCII|ENC_NA;
+                break;
+
+            case BER_UNI_TAG_UniversalString:
+                /*
+                 * UCS-4.
+                 */
+                encoding = ENC_UCS_4|ENC_BIG_ENDIAN;
+                break;
+
+            case BER_UNI_TAG_CHARACTERSTRING:
+                /*
+                 * XXX - what's the transfer syntax?
+                 * Treat as ASCII for now.
+                 */
+                encoding = ENC_ASCII|ENC_NA;
+                break;
+
+            case BER_UNI_TAG_BMPString:
+                /*
+                 * UCS-2, not UTF-16; as it says, BMP, as in Basic
+                 * Multilingual Plane.
+                 */
+                encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
+                break;
+
+            default:
+                 encoding = ENC_BIG_ENDIAN;
+                 break;
+            }
+            it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, encoding);
             actx->created_item = it;
             ber_check_length(length_remaining, min_len, max_len, actx, it, FALSE);
         } else {
