@@ -417,14 +417,6 @@ static const true_false_string tfs_v2_options_mt = {
     "Multi-Topology Routing",
     "NO Multi-Topology Routing"
 };
-static const true_false_string tfs_v2_options_o = {
-    "O-bit is SET",
-    "O-bit is NOT set"
-};
-static const true_false_string tfs_v2_options_dn = {
-    "DN-bit is SET",
-    "DN-bit is NOT set"
-};
 
 /* The Options field in the first TLV of the Opaque RI LSA with type field set to "4" for OSPFv2
    and type field set to "12" in OSPFv3, is interpreted as advertizing optional router capabilties.
@@ -454,42 +446,8 @@ static const true_false_string tfs_ri_options_ete = {
     "NOT OSPF Experimental TE"
 };
 
-static const true_false_string tfs_v3_options_v6 = {
-    "V6 is SET",
-    "V6 is NOT set"
-};
-static const true_false_string tfs_v3_options_e = {
-    "E is SET",
-    "E is NOT set"
-};
-static const true_false_string tfs_v3_options_mc = {
-    "MC is SET",
-    "MC is NOT set"
-};
-static const true_false_string tfs_v3_options_n = {
-    "N is SET",
-    "N is NOT set"
-};
-static const true_false_string tfs_v3_options_r = {
-    "R is SET",
-    "R is NOT set"
-};
-static const true_false_string tfs_v3_options_dc = {
-    "DC is SET",
-    "DC is NOT set"
-};
-static const true_false_string tfs_v3_options_af = {
-    "AF is SET",
-    "AF is NOT set"
-};
-static const true_false_string tfs_v3_options_l = {
-    "L is SET",
-    "L is NOT set"
-};
-static const true_false_string tfs_v3_options_at = {
-    "AT is SET",
-    "AT is NOT set"
-};
+
+
 static const true_false_string tfs_dbd_i = {
     "Init bit is SET",
     "Init bit is NOT set"
@@ -3495,10 +3453,10 @@ proto_register_ospf(void)
            TFS(&tfs_v2_options_dc), OSPF_V2_OPTIONS_DC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_O],
          { "O", "ospf.v2.options.o", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_o), OSPF_V2_OPTIONS_O, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V2_OPTIONS_O, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V2_OPTIONS_DN],
          { "DN", "ospf.v2.options.dn", FT_BOOLEAN, 8,
-           TFS(&tfs_v2_options_dn), OSPF_V2_OPTIONS_DN, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V2_OPTIONS_DN, NULL, HFILL }},
 
         {&hf_ospf_filter[OSPFF_RI_OPTIONS],
          { "RI Options", "ospf.ri.options", FT_UINT8, BASE_HEX,
@@ -3532,31 +3490,31 @@ proto_register_ospf(void)
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_V6],
          { "V6", "ospf.v3.options.v6", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_v6), OSPF_V3_OPTIONS_V6, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_V6, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_E],
          { "E", "ospf.v3.options.e", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_e), OSPF_V3_OPTIONS_E, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_E, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_MC],
          { "MC", "ospf.v3.options.mc", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_mc), OSPF_V3_OPTIONS_MC, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_MC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_N],
          { "N", "ospf.v3.options.n", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_n), OSPF_V3_OPTIONS_N, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_N, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_R],
          { "R", "ospf.v3.options.r", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_r), OSPF_V3_OPTIONS_R, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_R, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_DC],
          { "DC", "ospf.v3.options.dc", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_dc), OSPF_V3_OPTIONS_DC, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_DC, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_AF],
          { "AF", "ospf.v3.options.af", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_af), OSPF_V3_OPTIONS_AF, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_AF, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_L],
          { "L", "ospf.v3.options.l", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_l), OSPF_V3_OPTIONS_L, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_L, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_AT],
          { "AT", "ospf.v3.options.at", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_at), OSPF_V3_OPTIONS_AT, NULL, HFILL }},
+           TFS(&tfs_set_notset), OSPF_V3_OPTIONS_AT, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_DBD],
          { "DB Description", "ospf.dbd", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
