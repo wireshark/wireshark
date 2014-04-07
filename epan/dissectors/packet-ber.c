@@ -100,6 +100,7 @@ static gint hf_ber_length = -1;
 static gint hf_ber_bitstring_padding = -1;
 static gint hf_ber_bitstring_empty = -1;
 static gint hf_ber_unknown_OID = -1;
+static gint hf_ber_unknown_relative_OID = -1;
 static gint hf_ber_unknown_BOOLEAN = -1;
 static gint hf_ber_unknown_OCTETSTRING = -1;
 static gint hf_ber_unknown_BER_OCTETSTRING = -1;
@@ -900,7 +901,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
                 offset = dissect_ber_object_identifier_str(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_OID, NULL);
                 break;
             case BER_UNI_TAG_RELATIVE_OID:
-                offset = dissect_ber_relative_oid_str(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_OID, NULL);
+                offset = dissect_ber_relative_oid_str(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_relative_OID, NULL);
                 break;
             case BER_UNI_TAG_NumericString:
                 offset = dissect_ber_octet_string(FALSE, &asn1_ctx, tree, tvb, start_offset, hf_ber_unknown_NumericString, NULL);
@@ -5315,6 +5316,9 @@ proto_register_ber(void)
         { &hf_ber_unknown_OID, {
                 "OID", "ber.unknown.OID", FT_OID, BASE_NONE,
                 NULL, 0, "This is an unknown Object Identifier", HFILL }},
+        { &hf_ber_unknown_relative_OID, {
+                "OID", "ber.unknown.relative_OID", FT_REL_OID, BASE_NONE,
+                NULL, 0, "This is an unknown relative Object Identifier", HFILL }},
         { &hf_ber_unknown_GraphicString, {
                 "GRAPHICSTRING", "ber.unknown.GRAPHICSTRING", FT_STRING, BASE_NONE,
                 NULL, 0, "This is an unknown GRAPHICSTRING", HFILL }},
