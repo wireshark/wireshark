@@ -122,8 +122,7 @@ static const value_string auth_vals[] = {
 #define OSPF_V3_OPTIONS_DC              0x20
 #define OSPF_V3_OPTIONS_AF              0x0100
 #define OSPF_V3_OPTIONS_L               0x0200
-#define OSPF_V3_OPTIONS_I               0x0400
-#define OSPF_V3_OPTIONS_F               0x0800
+#define OSPF_V3_OPTIONS_AT              0x0400
 
 /* Bitmask definitions for the informational capabilities bits. */
 #define OSPF_RI_OPTIONS_GRC             0x80
@@ -487,13 +486,9 @@ static const true_false_string tfs_v3_options_l = {
     "L is SET",
     "L is NOT set"
 };
-static const true_false_string tfs_v3_options_i = {
-    "I is SET",
-    "I is NOT set"
-};
-static const true_false_string tfs_v3_options_f = {
-    "F is SET",
-    "F is NOT set"
+static const true_false_string tfs_v3_options_at = {
+    "AT is SET",
+    "AT is NOT set"
 };
 static const true_false_string tfs_dbd_i = {
     "Init bit is SET",
@@ -708,8 +703,7 @@ enum {
     OSPFF_V3_OPTIONS_DC,
     OSPFF_V3_OPTIONS_AF,
     OSPFF_V3_OPTIONS_L,
-    OSPFF_V3_OPTIONS_I,
-    OSPFF_V3_OPTIONS_F,
+    OSPFF_V3_OPTIONS_AT,
     OSPFF_DBD,
     OSPFF_DBD_R,
     OSPFF_DBD_I,
@@ -887,8 +881,7 @@ static int bf_ri_options[] = {
     OSPFF_RI_OPTIONS_ETE
 };
 static int bf_v3_options[] = {
-    OSPFF_V3_OPTIONS_F,
-    OSPFF_V3_OPTIONS_I,
+    OSPFF_V3_OPTIONS_AT,
     OSPFF_V3_OPTIONS_L,
     OSPFF_V3_OPTIONS_AF,
     OSPFF_V3_OPTIONS_DC,
@@ -3561,12 +3554,9 @@ proto_register_ospf(void)
         {&hf_ospf_filter[OSPFF_V3_OPTIONS_L],
          { "L", "ospf.v3.options.l", FT_BOOLEAN, 24,
            TFS(&tfs_v3_options_l), OSPF_V3_OPTIONS_L, NULL, HFILL }},
-        {&hf_ospf_filter[OSPFF_V3_OPTIONS_I],
-         { "I", "ospf.v3.options.i", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_i), OSPF_V3_OPTIONS_I, NULL, HFILL }},
-        {&hf_ospf_filter[OSPFF_V3_OPTIONS_F],
-         { "F", "ospf.v3.options.f", FT_BOOLEAN, 24,
-           TFS(&tfs_v3_options_f), OSPF_V3_OPTIONS_F, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_V3_OPTIONS_AT],
+         { "AT", "ospf.v3.options.at", FT_BOOLEAN, 24,
+           TFS(&tfs_v3_options_at), OSPF_V3_OPTIONS_AT, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_DBD],
          { "DB Description", "ospf.dbd", FT_UINT8, BASE_HEX,
            NULL, 0x0, NULL, HFILL }},
