@@ -424,6 +424,37 @@ static gint hf_021_400 = -1;
 static gint hf_021_400_RID = -1;
 static gint hf_021_RE = -1;
 static gint hf_021_SP = -1;
+/* Category 023 */
+static gint hf_023_000 = -1;
+static gint hf_023_000_RT = -1;
+static gint hf_023_010 = -1;
+static gint hf_023_015 = -1;
+static gint hf_023_015_SID = -1;
+static gint hf_023_015_STYPE = -1;
+static gint hf_023_070 = -1;
+static gint hf_023_100 = -1;
+static gint hf_023_100_NOGO = -1;
+static gint hf_023_100_ODP = -1;
+static gint hf_023_100_OXT = -1;
+static gint hf_023_100_MSC = -1;
+static gint hf_023_100_TSV = -1;
+static gint hf_023_100_SPO = -1;
+static gint hf_023_100_RN = -1;
+static gint hf_023_100_GSSP = -1;
+static gint hf_023_101 = -1;
+static gint hf_023_101_RP = -1;
+static gint hf_023_101_SC = -1;
+static gint hf_023_101_SSRP = -1;
+static gint hf_023_110 = -1;
+static gint hf_023_110_STAT = -1;
+static gint hf_023_120 = -1;
+static gint hf_023_120_TYPE = -1;
+static gint hf_023_120_REF = -1;
+static gint hf_023_120_COUNTER = -1;
+static gint hf_023_200 = -1;
+static gint hf_023_200_RANGE = -1;
+static gint hf_023_RE = -1;
+static gint hf_023_SP = -1;
 /* Category 034 */
 static gint hf_034_000 = -1;
 static gint hf_034_000_MT = -1;
@@ -1524,6 +1555,37 @@ static gint ett_021_400 = -1;
 static gint ett_021_400_RID = -1;
 static gint ett_021_RE = -1;
 static gint ett_021_SP = -1;
+/* Category 023 */
+static gint ett_023_000 = -1;
+static gint ett_023_000_RT = -1;
+static gint ett_023_010 = -1;
+static gint ett_023_015 = -1;
+static gint ett_023_015_SID = -1;
+static gint ett_023_015_STYPE = -1;
+static gint ett_023_070 = -1;
+static gint ett_023_100 = -1;
+static gint ett_023_100_NOGO = -1;
+static gint ett_023_100_ODP = -1;
+static gint ett_023_100_OXT = -1;
+static gint ett_023_100_MSC = -1;
+static gint ett_023_100_TSV = -1;
+static gint ett_023_100_SPO = -1;
+static gint ett_023_100_RN = -1;
+static gint ett_023_100_GSSP = -1;
+static gint ett_023_101 = -1;
+static gint ett_023_101_RP = -1;
+static gint ett_023_101_SC = -1;
+static gint ett_023_101_SSRP = -1;
+static gint ett_023_110 = -1;
+static gint ett_023_110_STAT = -1;
+static gint ett_023_120 = -1;
+static gint ett_023_120_TYPE = -1;
+static gint ett_023_120_REF = -1;
+static gint ett_023_120_COUNTER = -1;
+static gint ett_023_200 = -1;
+static gint ett_023_200_RANGE = -1;
+static gint ett_023_RE = -1;
+static gint ett_023_SP = -1;
 /* Category 034 */
 static gint ett_034_000 = -1;
 static gint ett_034_000_MT = -1;
@@ -2314,7 +2376,7 @@ static const FieldPart IXXX_3bit_spare = { 3, 1.0, FIELD_PART_UINT, NULL, NULL }
 static const FieldPart IXXX_4bit_spare = { 4, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_5bit_spare = { 5, 1.0, FIELD_PART_UINT, NULL, NULL };
 static const FieldPart IXXX_6bit_spare = { 6, 1.0, FIELD_PART_UINT, NULL, NULL };
-/*static const FieldPart IXXX_7bit_spare = { 7, 1.0, FIELD_PART_UINT, NULL, NULL };*/
+static const FieldPart IXXX_7bit_spare = { 7, 1.0, FIELD_PART_UINT, NULL, NULL };
 
 /* SAC SIC */
 static const FieldPart IXXX_SAC = { 8, 1.0, FIELD_PART_UINT, &hf_XXX_SAC, NULL };
@@ -3150,7 +3212,6 @@ static const value_string valstr_021_090_SIL_SUP[] = {
     { 1, "measured per sample" },
     { 0, NULL }
 };
-
 static const FieldPart I021_090_NUCR_NACV = { 3, 1.0, FIELD_PART_UINT, &hf_021_090_NUCR_NACV, NULL };
 static const FieldPart I021_090_NUCP_NIC = { 4, 1.0, FIELD_PART_UINT, &hf_021_090_NUCP_NIC, NULL };
 static const FieldPart I021_090_NIC_BARO = { 1, 1.0, FIELD_PART_UINT, &hf_021_090_NIC_BARO, NULL };
@@ -3655,6 +3716,175 @@ static const AsterixField ***I021[] = { I021_v2_1 };
 
 static const enum_val_t I021_versions[] = {
     { "I021_v2_1", "Version 2.1", 0 },
+    { NULL, NULL, 0 }
+};
+
+/* *********************** */
+/*      Category 023       */
+/* *********************** */
+/* Fields */
+
+/* Report Type */
+static const value_string valstr_023_000_RT[] = {
+    { 1, "Ground Station Status report" },
+    { 2, "Service Status report" },
+    { 3, "Service Statistics report" },
+    { 0, NULL }
+};
+static const FieldPart I023_000_RT = { 8, 1.0, FIELD_PART_UINT, &hf_023_000_RT, NULL };
+static const FieldPart *I023_000_PARTS[] = { &I023_000_RT, NULL };
+
+/* Tpe of Service */
+static const value_string valstr_023_015_STYP[] = {
+    { 1, "ADS-B VDL4" },
+    { 2, "ADS-B Ext Squitter" },
+    { 3, "ADS-B UAT" },
+    { 4, "TIS-B VDL4" },
+    { 5, "TIS-B Ext Squitter" },
+    { 6, "TIS-B UAT" },
+    { 7, "FIS-B VDL4" },
+    { 8, "GRAS VDL4" },
+    { 9, "MLT" },
+    { 0, NULL }
+};
+static const FieldPart I023_015_SID = { 4, 1.0, FIELD_PART_UINT, &hf_023_015_SID, NULL };
+static const FieldPart I023_015_STYPE = { 4, 1.0, FIELD_PART_UINT, &hf_023_015_STYPE, NULL };
+static const FieldPart *I023_015_PARTS[] = { &I023_015_SID, &I023_015_STYPE, NULL };
+
+/* Ground Station Status */
+static const value_string valstr_023_100_NOGO[] = {
+    { 0, "Data is released for operational use" },
+    { 1, "Data must not be used operationally" },
+    { 0, NULL }
+};
+static const value_string valstr_023_100_ODP[] = {
+    { 0, "Default, no overload" },
+    { 1, "Overload in DP" },
+    { 0, NULL }
+};
+static const value_string valstr_023_100_OXT[] = {
+    { 0, "Default, no overload" },
+    { 1, "Overload in transmission subsystem" },
+    { 0, NULL }
+};
+static const value_string valstr_023_100_MSC[] = {
+    { 0, "Monitoring system not connected or unknown" },
+    { 1, "Monitoring system connected" },
+    { 0, NULL }
+};
+static const value_string valstr_023_100_TSV[] = {
+    { 0, "valid" },
+    { 1, "invalid" },
+    { 0, NULL }
+};
+static const value_string valstr_023_100_SPO[] = {
+    { 0, "no spoofing detected" },
+    { 1, "potential spoofing attack" },
+    { 0, NULL }
+};
+static const value_string valstr_023_100_RN[] = {
+    { 0, "default" },
+    { 1, "track numbering has restarted" },
+    { 0, NULL }
+};
+static const FieldPart I023_100_NOGO = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_NOGO, NULL };
+static const FieldPart I023_100_ODP = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_ODP, NULL };
+static const FieldPart I023_100_OXT = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_OXT, NULL };
+static const FieldPart I023_100_MSC = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_MSC, NULL };
+static const FieldPart I023_100_TSV = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_TSV, NULL };
+static const FieldPart I023_100_SPO = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_SPO, NULL };
+static const FieldPart I023_100_RN = { 1, 1.0, FIELD_PART_UINT, &hf_023_100_RN, NULL };
+static const FieldPart I023_100_GSSP = { 7, 1.0, FIELD_PART_UFLOAT, &hf_023_100_GSSP, NULL };
+static const FieldPart *I023_100_PARTS[] = { &I023_100_NOGO, &I023_100_ODP, &I023_100_OXT, &I023_100_MSC, &I023_100_TSV, &I023_100_SPO, &I023_100_RN, &IXXX_FX,
+                                             &I023_100_GSSP, &IXXX_FX, NULL };
+
+/* Service Configuration */
+static const value_string valstr_023_101_SC[] = {
+    { 0, "No information" },
+    { 1, "NRA class" },
+    { 2, "reserved for future use" },
+    { 3, "reserved for future use" },
+    { 4, "reserved for future use" },
+    { 5, "reserved for future use" },
+    { 6, "reserved for future use" },
+    { 7, "reserved for future use" },
+    { 0, NULL }
+};
+static const FieldPart I023_101_RP = { 8, 0.5, FIELD_PART_UFLOAT, &hf_023_101_RP, NULL };
+static const FieldPart I023_101_SC = { 3, 1, FIELD_PART_UINT, &hf_023_101_SC, NULL };
+static const FieldPart I023_101_SSRP = { 7, 1.0, FIELD_PART_UFLOAT, &hf_023_101_SSRP, NULL };
+static const FieldPart *I023_101_PARTS[] = { &I023_101_RP, &I023_101_SC, &IXXX_4bit_spare, &IXXX_FX,
+                                             &I023_101_SSRP, &IXXX_FX, NULL };
+
+/* Service Status */
+static const value_string valstr_023_110_STAT[] = {
+    { 0, "Unknown" },
+    { 1, "Failed" },
+    { 2, "Disabled" },
+    { 3, "Degraded" },
+    { 4, "Normal" },
+    { 5, "Initialisation" },
+    { 0, NULL }
+};
+static const FieldPart I023_110_STAT = { 3, 1.0, FIELD_PART_UINT, &hf_023_110_STAT, NULL };
+static const FieldPart *I023_110_PARTS[] = { &IXXX_4bit_spare, &I023_110_STAT, &IXXX_FX, NULL };
+
+/* Service Statistics */
+static const value_string valstr_023_120_TYPE[] = {
+    { 0, "Number of unknown messages received" },
+    { 1, "Number of \'too old\' messages received" },
+    { 2, "Number of failed message conversions" },
+    { 3, "Total Number of messages received" },
+    { 4, "Total number of messages transmitted" },
+    { 20, "Number of TIS-B management messages received" },
+    { 21, "Number of \'Basic\' messages received" },
+    { 22, "Number of \'High Dynamic\' messages received" },
+    { 23, "Number of \'Full Position\' messages received" },
+    { 24, "Number of \'Basic Ground\' messages received" },
+    { 25, "Number of \'TCP\' messages received" },
+    { 26, "Number of \'UTC time\' messages received" },
+    { 27, "Number of \'Data\' messages received" },
+    { 28, "Number of \'High Resolution\' messages received" },
+    { 29, "Number of \'Aircraft Target Airborne\' messages received" },
+    { 30, "Number of \'Aircraft Target Ground\' messages received" },
+    { 31, "Number of \'Ground Vehicle Target\' messages received" },
+    { 32, "Number of \'2 slots TCP messages received" },
+    { 0, NULL }
+};
+static const value_string valstr_023_120_REF[] = {
+    { 0, "From midnight" },
+    { 1, "From the last report" },
+    { 0, NULL }
+};
+static const FieldPart I023_120_TYPE = { 8, 1.0, FIELD_PART_UINT, &hf_023_120_TYPE, NULL };
+static const FieldPart I023_120_REF = { 1, 1.0, FIELD_PART_UINT, &hf_023_120_REF, NULL };
+static const FieldPart I023_120_COUNTER = { 32, 1.0, FIELD_PART_UINT, &hf_023_120_COUNTER, NULL };
+static const FieldPart *I023_120_PARTS[] = { &I023_120_TYPE, &I023_120_REF, &IXXX_7bit_spare, &I023_120_COUNTER, NULL };
+
+/* Operational Range */
+static const FieldPart I023_200_RANGE = { 8, 1.0, FIELD_PART_UFLOAT, &hf_023_200_RANGE, NULL };
+static const FieldPart *I023_200_PARTS[] = { &I023_200_RANGE, NULL };
+
+/* Items */
+static const AsterixField I023_000 = { FIXED, 1, 0, 0, &hf_023_000, I023_000_PARTS, { NULL } };
+static const AsterixField I023_010 = { FIXED, 2, 0, 0, &hf_023_010, IXXX_SAC_SIC, { NULL } };
+static const AsterixField I023_015 = { FIXED, 1, 0, 0, &hf_023_015, I023_015_PARTS, { NULL } };
+static const AsterixField I023_070 = { FIXED, 3, 0, 0, &hf_023_070, IXXX_TOD, { NULL } };
+static const AsterixField I023_100 = { FX, 1, 0, 0, &hf_023_100, I023_100_PARTS, { NULL } };
+static const AsterixField I023_101 = { FX, 1, 0, 1, &hf_023_101, I023_101_PARTS, { NULL } };
+static const AsterixField I023_110 = { FX, 1, 0, 0, &hf_023_110, I023_110_PARTS, { NULL } };
+static const AsterixField I023_120 = { REPETITIVE, 6, 1, 0, &hf_023_120, I023_120_PARTS, { NULL } };
+static const AsterixField I023_200 = { FIXED, 1, 0, 0, &hf_023_200, I023_200_PARTS, { NULL } };
+static const AsterixField I023_RE = { RE, 0, 0, 1, &hf_023_RE, NULL, { NULL } };
+static const AsterixField I023_SP = { SP, 0, 0, 1, &hf_023_SP, NULL, { NULL } };
+
+static const AsterixField *I023_v1_2_uap[] = { &I023_010, &I023_000, &I023_015, &I023_070, &I023_100, &I023_101, &I023_200,
+                                               &I023_110, &I023_120, &IX_SPARE, &IX_SPARE, &IX_SPARE, &I023_RE,  &I023_SP, NULL };
+static const AsterixField **I023_v1_2[] = { I023_v1_2_uap, NULL };
+static const AsterixField ***I023[] = { I023_v1_2 };
+
+static const enum_val_t I023_versions[] = {
+    { "I023_v1_2", "Version 1.2", 0 },
     { NULL, NULL, 0 }
 };
 
@@ -6524,7 +6754,7 @@ static const AsterixField ****categories[] = {
     NULL, /* 020 */
     I021, /* 021 */
     NULL, /* 022 */
-    NULL, /* 023 */
+    I023, /* 023 */
     NULL, /* 024 */
     NULL, /* 025 */
     NULL, /* 026 */
@@ -6986,7 +7216,7 @@ static int asterix_field_length (tvbuff_t *tvb, guint offset, const AsterixField
         size = (guint)(field->repetition_counter_size + count * field->length);
     }
     else if (field->type & FX) {
-        for (size = field->length; tvb_get_guint8 (tvb, offset + size - 1) & 1; size += field->length);
+        for (size = field->length + field->header_length; tvb_get_guint8 (tvb, offset + size - 1) & 1; size += field->length);
     }
     else if (field->type & RE) {
         for (i = 0, size = 0; i < field->header_length; i++) {
@@ -7457,6 +7687,37 @@ void proto_register_asterix (void)
         { &hf_021_400_RID, { "RID", "asterix.021_400_RID", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_021_RE, { "Reserved Field", "asterix.021_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_021_SP, { "Special Field", "asterix.021_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        /* Category 023 */
+        { &hf_023_000, { "000, Report Type", "asterix.023_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_000_RT, { "RT", "asterix.023_000_RT", FT_UINT8, BASE_DEC, VALS (valstr_023_000_RT), 0x0, NULL, HFILL } },
+        { &hf_023_010, { "010, Data Source Identifier", "asterix.023_010", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_015, { "015, Service Type and Identification", "asterix.023_015", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_015_SID, { "SID", "asterix.023_015_SID", FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
+        { &hf_023_015_STYPE, { "STYPE", "asterix.023_015_STYPE", FT_UINT8, BASE_DEC, VALS (valstr_023_015_STYP), 0x0f, NULL, HFILL } },
+        { &hf_023_070, { "070, Time of Day", "asterix.023_070", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_100, { "100, Ground Station Status", "asterix.023_100", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_100_NOGO, { "NOGO", "asterix.023_100_NOGO", FT_UINT8, BASE_DEC, VALS (valstr_023_100_NOGO), 0x80, NULL, HFILL } },
+        { &hf_023_100_ODP, { "ODP", "asterix.023_100_ODP", FT_UINT8, BASE_DEC, VALS (valstr_023_100_ODP), 0x40, NULL, HFILL } },
+        { &hf_023_100_OXT, { "OXT", "asterix.023_100_OXT", FT_UINT8, BASE_DEC, VALS (valstr_023_100_OXT), 0x20, NULL, HFILL } },
+        { &hf_023_100_MSC, { "MSC", "asterix.023_100_MSC", FT_UINT8, BASE_DEC, VALS (valstr_023_100_MSC), 0x10, NULL, HFILL } },
+        { &hf_023_100_TSV, { "TSV", "asterix.023_100_TSV", FT_UINT8, BASE_DEC, VALS (valstr_023_100_TSV), 0x08, NULL, HFILL } },
+        { &hf_023_100_SPO, { "SPO", "asterix.023_100_SPO", FT_UINT8, BASE_DEC, VALS (valstr_023_100_SPO), 0x04, NULL, HFILL } },
+        { &hf_023_100_RN, { "RN", "asterix.023_100_RN", FT_UINT8, BASE_DEC, VALS (valstr_023_100_RN), 0x02, NULL, HFILL } },
+        { &hf_023_100_GSSP, { "GSSP [s]", "asterix.023_100_GSSP", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_101, { "101, Service Configuration", "asterix.023_101", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_101_RP, { "RP [s]", "asterix.023_101_RP", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_101_SC, { "SC", "asterix.023_101_SC", FT_UINT8, BASE_DEC, VALS (valstr_023_101_SC), 0xe0, NULL, HFILL } },
+        { &hf_023_101_SSRP, { "SSRP [s]", "asterix.023_101_SSRP", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_110, { "110, Service Status", "asterix.023_110", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_110_STAT, { "STAT", "asterix.023_110_STAT", FT_UINT8, BASE_DEC, VALS (valstr_023_110_STAT), 0x0e, NULL, HFILL } },
+        { &hf_023_120, { "120, Service Statistics", "asterix.023_120", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_120_TYPE, { "TYPE", "asterix.023_120_TYPE", FT_UINT8, BASE_DEC, VALS (valstr_023_120_TYPE), 0x0, NULL, HFILL } },
+        { &hf_023_120_REF, { "REF", "asterix.023_120_REF", FT_UINT8, BASE_DEC, VALS (valstr_023_120_REF), 0x80, NULL, HFILL } },
+        { &hf_023_120_COUNTER, { "COUNTER", "asterix.023_120_COUNTER", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_200, { "200, Operational Range", "asterix.023_200", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_200_RANGE, { "RANGE [NM]", "asterix.023_200_RANGE", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_RE, { "Reserved Field", "asterix.023_RE", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_023_SP, { "Special Field", "asterix.023_SP", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         /* Category 034 */
         { &hf_034_000, { "000, Message Type", "asterix.034_000", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_034_000_MT, { "MT", "asterix.034_000_MT", FT_UINT8, BASE_DEC, VALS (valstr_034_000_MT), 0x0, NULL, HFILL } },
@@ -8560,6 +8821,37 @@ void proto_register_asterix (void)
         &ett_021_400_RID,
         &ett_021_RE,
         &ett_021_SP,
+        /* Category 023 */
+        &ett_023_000,
+        &ett_023_000_RT,
+        &ett_023_010,
+        &ett_023_015,
+        &ett_023_015_SID,
+        &ett_023_015_STYPE,
+        &ett_023_070,
+        &ett_023_100,
+        &ett_023_100_NOGO,
+        &ett_023_100_ODP,
+        &ett_023_100_OXT,
+        &ett_023_100_MSC,
+        &ett_023_100_TSV,
+        &ett_023_100_SPO,
+        &ett_023_100_RN,
+        &ett_023_100_GSSP,
+        &ett_023_101,
+        &ett_023_101_RP,
+        &ett_023_101_SC,
+        &ett_023_101_SSRP,
+        &ett_023_110,
+        &ett_023_110_STAT,
+        &ett_023_120,
+        &ett_023_120_TYPE,
+        &ett_023_120_REF,
+        &ett_023_120_COUNTER,
+        &ett_023_200,
+        &ett_023_200_RANGE,
+        &ett_023_RE,
+        &ett_023_SP,
         /* Category 034 */
         &ett_034_000,
         &ett_034_000_MT,
@@ -9296,6 +9588,7 @@ void proto_register_asterix (void)
     prefs_register_enum_preference (asterix_prefs_module, "i008_version", "I008 version", "Select the CAT008 version", &global_categories_version[8],  I008_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i009_version", "I009 version", "Select the CAT009 version", &global_categories_version[9],  I009_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i021_version", "I021 version", "Select the CAT021 version", &global_categories_version[21], I021_versions, FALSE);
+    prefs_register_enum_preference (asterix_prefs_module, "i023_version", "I023 version", "Select the CAT023 version", &global_categories_version[23], I023_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i034_version", "I034 version", "Select the CAT034 version", &global_categories_version[34], I034_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i048_version", "I048 version", "Select the CAT048 version", &global_categories_version[48], I048_versions, FALSE);
     prefs_register_enum_preference (asterix_prefs_module, "i062_version", "I062 version", "Select the CAT062 version", &global_categories_version[62], I062_versions, FALSE);
