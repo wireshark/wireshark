@@ -867,6 +867,14 @@ set(DISSECTOR_SRC
 	dissectors/packet-lapdm.c
 	dissectors/packet-laplink.c
 	dissectors/packet-lapsat.c
+	dissectors/packet-lbm.c
+	dissectors/packet-lbmc.c
+	dissectors/packet-lbmpdm.c
+	dissectors/packet-lbmpdmtcp.c
+	dissectors/packet-lbmr.c
+	dissectors/packet-lbtrm.c
+	dissectors/packet-lbtru.c
+	dissectors/packet-lbttcp.c
 	dissectors/packet-ldp.c
 	dissectors/packet-ldss.c
 	dissectors/packet-lg8979.c

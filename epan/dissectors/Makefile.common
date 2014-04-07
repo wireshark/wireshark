@@ -787,6 +787,14 @@ DISSECTOR_SRC = \
 	packet-lapdm.c		\
 	packet-laplink.c	\
 	packet-lapsat.c		\
+	packet-lbm.c		\
+	packet-lbmc.c		\
+	packet-lbmpdm.c		\
+	packet-lbmpdmtcp.c	\
+	packet-lbmr.c		\
+	packet-lbtrm.c		\
+	packet-lbtru.c		\
+	packet-lbttcp.c		\
 	packet-ldp.c		\
 	packet-ldss.c		\
 	packet-lg8979.c		\
@@ -1482,6 +1490,9 @@ DISSECTOR_INCLUDES =	\
 	packet-kerberos.h	\
 	packet-klm.h	\
 	packet-l2tp.h	\
+	packet-lbm.h	\
+	packet-lbtrm.h	\
+	packet-lbtru.h	\
 	packet-ldap.h	\
 	packet-lcsap.h	\
 	packet-ldp.h	\
@@ -1696,9 +1707,9 @@ IPMI_SUBPARSERS = \
 # directory, but they're not dissectors themselves, i.e. they're not
 # used to generate "register.c").
 DISSECTOR_SUPPORT_SRC =	\
-	$(IPMI_SUBPARSERS)	\
-	packet-dcerpc-nt.c	\
-	usb.c	\
+	$(IPMI_SUBPARSERS) \
+	packet-dcerpc-nt.c \
+	usb.c \
 	register.c
 
 # this target needed for distribution only

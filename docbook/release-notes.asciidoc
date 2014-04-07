@@ -86,6 +86,7 @@ since version 1.10:
 
 --sort-and-group--
 
+29West
 802.1AE Secure tag
 ACR122
 ADB CS
@@ -113,6 +114,14 @@ ILP
 Kafka
 Kyoto Tycoon
 Landis & Gyr Telegyr 8979
+LBM
+LBMC
+LBMPDM
+LBMPDM-TCP
+LBMR
+LBT-RM
+LBT-RU
+LBT-TCP
 Lightweight Mesh (v1.1.1)
 Linux netlink
 Linux netlink netfilter
