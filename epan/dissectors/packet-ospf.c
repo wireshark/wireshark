@@ -769,6 +769,15 @@ enum {
 };
 
 static int hf_ospf_filter[OSPFF_MAX];
+static int hf_ospf_hello = -1;
+static int hf_ospf_hello_network_mask = -1;
+static int hf_ospf_hello_interface_id = -1;
+static int hf_ospf_hello_hello_interval = -1;
+static int hf_ospf_hello_router_priority = -1;
+static int hf_ospf_hello_router_dead_interval = -1;
+static int hf_ospf_hello_designated_router = -1;
+static int hf_ospf_hello_backup_designated_router = -1;
+static int hf_ospf_hello_active_neighbor = -1;
 
 static gint ospf_msg_type_to_filter (guint8 msg_type)
 {
@@ -1566,58 +1575,39 @@ dissect_ospf_hello(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 version,
     proto_item *ti;
     int orig_offset = offset;
 
-    ti = proto_tree_add_text(tree, tvb, offset, length, "OSPF Hello Packet");
+    ti = proto_tree_add_item(tree, hf_ospf_hello, tvb, offset, length, ENC_NA);
     ospf_hello_tree = proto_item_add_subtree(ti, ett_ospf_hello);
 
-    switch (version ) {
+    switch (version) {
     case OSPF_VERSION_2:
-        proto_tree_add_text(ospf_hello_tree, tvb, offset, 4, "Network Mask: %s",
-                            tvb_ip_to_str(tvb, offset));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 4, 2,
-                            "Hello Interval: %u seconds",
-                            tvb_get_ntohs(tvb, offset + 4));
-
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_network_mask, tvb, offset, 4, ENC_NA);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_hello_interval, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
         dissect_ospf_bitfield(ospf_hello_tree, tvb, offset + 6, &bfinfo_v2_options);
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 7, 1, "Router Priority: %u",
-                            tvb_get_guint8(tvb, offset + 7));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 8, 4, "Router Dead Interval: %u seconds",
-                            tvb_get_ntohl(tvb, offset + 8));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 12, 4, "Designated Router: %s",
-                            tvb_ip_to_str(tvb, offset + 12));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 16, 4, "Backup Designated Router: %s",
-                            tvb_ip_to_str(tvb, offset + 16));
-
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_router_priority, tvb, offset + 7, 1, ENC_NA);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_router_dead_interval, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_designated_router, tvb, offset + 12, 4, ENC_NA);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_backup_designated_router, tvb, offset + 16, 4, ENC_NA);
         offset += 20;
+
         while (orig_offset + length > offset) {
-            proto_tree_add_text(ospf_hello_tree, tvb, offset, 4,
-                                "Active Neighbor: %s",
-                                tvb_ip_to_str(tvb, offset));
+            proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_active_neighbor, tvb, offset, 4, ENC_NA);
             offset += 4;
         }
         break;
     case OSPF_VERSION_3:
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 0, 4, "Interface ID: %u",
-                            tvb_get_ntohl(tvb, offset + 0));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 4, 1, "Router Priority: %u",
-                            tvb_get_guint8(tvb, offset + 4));
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_interface_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_router_priority, tvb, offset + 4, 1, ENC_NA);
         dissect_ospf_bitfield(ospf_hello_tree, tvb, offset + 5, &bfinfo_v3_options);
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 8, 2,
-                            "Hello Interval: %u seconds",
-                            tvb_get_ntohs(tvb, offset + 8));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 10, 2, "Router Dead Interval: %u seconds",
-                            tvb_get_ntohs(tvb, offset + 10));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 12, 4, "Designated Router: %s",
-                            tvb_ip_to_str(tvb, offset + 12));
-        proto_tree_add_text(ospf_hello_tree, tvb, offset + 16, 4, "Backup Designated Router: %s",
-                            tvb_ip_to_str(tvb, offset + 16));
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_hello_interval, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_router_dead_interval, tvb, offset + 10, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_designated_router, tvb, offset + 12, 4, ENC_NA);
+        proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_backup_designated_router, tvb, offset + 16, 4, ENC_NA);
         offset += 20;
+
         while (orig_offset + length > offset) {
-            proto_tree_add_text(ospf_hello_tree, tvb, offset, 4,
-                                "Active Neighbor: %s",
-                                tvb_ip_to_str(tvb, offset));
+            proto_tree_add_item(ospf_hello_tree, hf_ospf_hello_active_neighbor, tvb, offset, 4, ENC_NA);
             offset += 4;
         }
-
         break;
     }
 }
@@ -3334,7 +3324,34 @@ proto_register_ospf(void)
          { "Link State Adv Acknowledgement", "ospf.msg.lsack", FT_BOOLEAN,
            BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-
+        /* Hello Packet */
+        {&hf_ospf_hello,
+         { "OSPF Hello Packet", "ospf.hello", FT_NONE,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_network_mask,
+         { "Network Mask", "ospf.hello.network_mask", FT_IPv4,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_interface_id,
+         { "Interface ID", "ospf.hello.interface_id", FT_UINT32,
+           BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_hello_interval,
+         { "Hello Interval [sec]", "ospf.hello.hello_interval", FT_UINT32,
+           BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_router_priority,
+         { "Router Priority", "ospf.hello.router_priority", FT_UINT8,
+           BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_router_dead_interval,
+         { "Router Dead Interval [sec]", "ospf.hello.router_dead_interval", FT_UINT32,
+           BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_designated_router,
+         { "Designated Router", "ospf.hello.designated_router", FT_IPv4,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_backup_designated_router,
+         { "Backup Designated Router", "ospf.hello.backup_designated_router", FT_IPv4,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_hello_active_neighbor,
+         { "Active Neighbor", "ospf.hello.active_neighbor", FT_IPv4,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         /* LS Types */
         {&hf_ospf_filter[OSPFF_LS_TYPE],
