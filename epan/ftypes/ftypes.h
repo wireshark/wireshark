@@ -53,7 +53,6 @@ enum ftenum {
 	FT_STRING,
 	FT_STRINGZ,	/* for use with proto_tree_add_item() */
 	FT_UINT_STRING,	/* for use with proto_tree_add_item() */
-	/*FT_UCS2_LE, */    /* Unicode, 2 byte, Little Endian     */
 	FT_ETHER,
 	FT_BYTES,
 	FT_UINT_BYTES,
