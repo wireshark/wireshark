@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V10.3.0 (2011-09)
+-- 3GPP TS 36.413 V11.6.0 (2013-12)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -50,11 +50,13 @@ IMPORTS
 	ExtendedRepetitionPeriod,
 	GTP-TEID,
 	GUMMEI,
+	GUMMEIType,
 	HandoverRestrictionList,
 	HandoverType,
 	LAI,
 	LPPa-PDU,
 	ManagementBasedMDTAllowed,
+	MDTPLMNList,
 	MMEname,
 	MMERelaySupportIndicator,
 	MME-UE-S1AP-ID,
@@ -120,7 +122,10 @@ IMPORTS
 	PS-ServiceNotAvailable,
 	GUMMEIList,
 	Correlation-ID,
-	GWContextReleaseIndication
+	GWContextReleaseIndication,
+	PrivacyIndicator,
+	VoiceSupportMatchIndicator,
+	TunnelInformation
 
 
 
@@ -156,8 +161,8 @@ FROM S1AP-Containers
 	id-CriticalityDiagnostics,
 	id-CSFallbackIndicator,
 	id-CSG-Id,
-	id-CSG-IdList, 
-	id-CSGMembershipStatus, 
+	id-CSG-IdList,
+	id-CSGMembershipStatus,
 	id-Data-Forwarding-Not-Possible,
 	id-DefaultPagingDRX,
 	id-Direct-Forwarding-Path-Availability,
@@ -168,6 +173,7 @@ FROM S1AP-Containers
 	id-eNB-UE-S1AP-ID, 
 	id-GERANtoLTEHOInformationRes,
 	id-GUMMEI-ID,
+	id-GUMMEIType,
 	id-HandoverRestrictionList,
 	id-HandoverType,
 	id-InitialContextSetup,
@@ -176,6 +182,7 @@ FROM S1AP-Containers
 	id-LPPa-PDU,
 	id-NAS-DownlinkCount,
 	id-ManagementBasedMDTAllowed,
+	id-ManagementBasedMDTPLMNList,
 	id-MMEname,
 	id-MME-UE-S1AP-ID,
 	id-MSClassmark2,
@@ -274,9 +281,9 @@ FROM S1AP-Containers
 	id-RRC-Establishment-Cause,
 	id-TraceCollectionEntityIPAddress,
 	maxnoofTAIs,
-	maxNrOfErrors,
-	maxNrOfE-RABs,
-	maxNrOfIndividualS1ConnectionsToReset,
+	maxnoofErrors,
+	maxnoofE-RABs,
+	maxnoofIndividualS1ConnectionsToReset,
 	maxnoofEmergencyAreaID,
 	maxnoofCellID,
 	maxnoofTAIforWarning,
@@ -292,7 +299,10 @@ FROM S1AP-Containers
 	id-RelayNode-Indicator,
 	id-Correlation-ID,
 	id-MMERelaySupportIndicator,
-	id-GWContextReleaseIndication
+	id-GWContextReleaseIndication,
+	id-PrivacyIndicator,
+	id-VoiceSupportMatchIndicator,
+	id-Tunnel-Information-for-BBF
 
 
 FROM S1AP-Constants;
@@ -303,9 +313,9 @@ FROM S1AP-Constants;
 --
 -- **************************************************************
 
-E-RAB-IE-ContainerList			{ S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfE-RABs,   {IEsSetParam} }
-E-RAB-IE-ContainerPairList		{ S1AP-PROTOCOL-IES-PAIR : IEsSetParam }	::= ProtocolIE-ContainerPairList { 1, maxNrOfE-RABs,   {IEsSetParam} }
-ProtocolError-IE-ContainerList	{ S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxNrOfE-RABs,   {IEsSetParam} }
+E-RAB-IE-ContainerList			{ S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxnoofE-RABs,   {IEsSetParam} }
+E-RAB-IE-ContainerPairList		{ S1AP-PROTOCOL-IES-PAIR : IEsSetParam }	::= ProtocolIE-ContainerPairList { 1, maxnoofE-RABs,   {IEsSetParam} }
+ProtocolError-IE-ContainerList	{ S1AP-PROTOCOL-IES      : IEsSetParam }	::= ProtocolIE-ContainerList     { 1, maxnoofE-RABs,   {IEsSetParam} }
 
 -- **************************************************************
 --
@@ -320,25 +330,25 @@ ProtocolError-IE-ContainerList	{ S1AP-PROTOCOL-IES      : IEsSetParam }	::= Prot
 -- **************************************************************
 
 HandoverRequired ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { { HandoverRequiredIEs} },
+	protocolIEs			ProtocolIE-Container		{ { HandoverRequiredIEs} },
 	...
 }
 
 HandoverRequiredIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID		 							PRESENCE mandatory }|
-	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID		 							PRESENCE mandatory }|
-	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType		 							PRESENCE mandatory }|
-	{ ID id-Cause									CRITICALITY ignore	TYPE Cause		 									PRESENCE mandatory }|
-	{ ID id-TargetID								CRITICALITY reject	TYPE TargetID	 									PRESENCE mandatory }|
-	{ ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	TYPE Direct-Forwarding-Path-Availability		PRESENCE optional }|
-	{ ID id-SRVCCHOIndication						CRITICALITY reject	TYPE SRVCCHOIndication								PRESENCE optional }|
-	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer 	PRESENCE mandatory }|
-	{ ID id-Source-ToTarget-TransparentContainer-Secondary 	CRITICALITY reject 	TYPE Source-ToTarget-TransparentContainer	PRESENCE optional }|
-	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2									PRESENCE conditional }|
-	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3									PRESENCE conditional }|
-	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id											PRESENCE optional }|
-	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode									PRESENCE optional }|
-	{ ID id-PS-ServiceNotAvailable					CRITICALITY ignore	TYPE PS-ServiceNotAvailable						PRESENCE optional },
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID						PRESENCE mandatory}|
+	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory}|
+	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType						PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause								PRESENCE mandatory}|
+	{ ID id-TargetID								CRITICALITY reject	TYPE TargetID							PRESENCE mandatory}|
+	{ ID id-Direct-Forwarding-Path-Availability		CRITICALITY ignore	TYPE Direct-Forwarding-Path-Availability		PRESENCE optional}|
+	{ ID id-SRVCCHOIndication						CRITICALITY reject	TYPE SRVCCHOIndication					PRESENCE optional}|
+	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer	PRESENCE mandatory}|
+	{ ID id-Source-ToTarget-TransparentContainer-Secondary	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer	PRESENCE optional}|
+	{ ID id-MSClassmark2							CRITICALITY reject	TYPE MSClassmark2						PRESENCE conditional}|
+	{ ID id-MSClassmark3							CRITICALITY ignore	TYPE MSClassmark3						PRESENCE conditional}|
+	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id								PRESENCE optional}|
+	{ ID id-CellAccessMode							CRITICALITY reject	TYPE CellAccessMode						PRESENCE optional}|
+	{ ID id-PS-ServiceNotAvailable					CRITICALITY ignore	TYPE PS-ServiceNotAvailable			PRESENCE optional},
 	...
 }
 
@@ -350,28 +360,28 @@ HandoverRequiredIEs S1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 HandoverCommand ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container { { HandoverCommandIEs} },
+	protocolIEs			ProtocolIE-Container		{ { HandoverCommandIEs} },
 	...
 }
 
 HandoverCommandIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID		 									PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID		 									PRESENCE mandatory	} |
-	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType		 									PRESENCE mandatory	} |
-	{ ID id-NASSecurityParametersfromE-UTRAN		CRITICALITY reject	TYPE NASSecurityParametersfromE-UTRAN					PRESENCE conditional
-	-- This IE shall be present if HandoverType IE is set to value "LTEtoUTRAN" or "LTEtoGERAN" --			}|
-	{ ID id-E-RABSubjecttoDataForwardingList		CRITICALITY ignore	TYPE E-RABSubjecttoDataForwardingList		 			PRESENCE optional	} |
-	{ ID id-E-RABtoReleaseListHOCmd					CRITICALITY ignore	TYPE E-RABList		 										PRESENCE optional	} |
-	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY	reject	TYPE Target-ToSource-TransparentContainer			PRESENCE mandatory }|
-	{ ID id-Target-ToSource-TransparentContainer-Secondary	CRITICALITY	reject	TYPE Target-ToSource-TransparentContainer			PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional	},
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID							PRESENCE mandatory}|
+	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID							PRESENCE mandatory}|
+	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType							PRESENCE mandatory}|
+	{ ID id-NASSecurityParametersfromE-UTRAN		CRITICALITY reject	TYPE NASSecurityParametersfromE-UTRAN			PRESENCE conditional
+	-- This IE shall be present if HandoverType IE is set to value "LTEtoUTRAN" or "LTEtoGERAN" --}|
+	{ ID id-E-RABSubjecttoDataForwardingList		CRITICALITY ignore	TYPE E-RABSubjecttoDataForwardingList			PRESENCE optional}|
+	{ ID id-E-RABtoReleaseListHOCmd					CRITICALITY ignore	TYPE E-RABList								PRESENCE optional}|
+	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY reject	TYPE Target-ToSource-TransparentContainer		PRESENCE mandatory}|
+	{ ID id-Target-ToSource-TransparentContainer-Secondary	CRITICALITY reject	TYPE Target-ToSource-TransparentContainer	PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional},
 	...
 }
 
 E-RABSubjecttoDataForwardingList ::= E-RAB-IE-ContainerList { {E-RABDataForwardingItemIEs} }
 
 E-RABDataForwardingItemIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABDataForwardingItem			CRITICALITY ignore	TYPE E-RABDataForwardingItem			PRESENCE mandatory	},
+	{ ID id-E-RABDataForwardingItem					CRITICALITY ignore	TYPE E-RABDataForwardingItem			PRESENCE mandatory	},
 	...
 }
 
@@ -381,7 +391,7 @@ E-RABDataForwardingItem ::= SEQUENCE {
 	dL-gTP-TEID							GTP-TEID 																OPTIONAL,
 	uL-TransportLayerAddress			TransportLayerAddress													OPTIONAL,
 	uL-GTP-TEID							GTP-TEID																OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { { E-RABDataForwardingItem-ExtIEs} }	OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { E-RABDataForwardingItem-ExtIEs} }			OPTIONAL,
 	...
 }
 
@@ -398,14 +408,14 @@ E-RABDataForwardingItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 HandoverPreparationFailure ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { { HandoverPreparationFailureIEs} },
+	protocolIEs			ProtocolIE-Container		{ { HandoverPreparationFailureIEs} },
 	...
 }
 
 HandoverPreparationFailureIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID		 			PRESENCE mandatory	} |
-	{ ID id-Cause							CRITICALITY ignore	TYPE Cause		 					PRESENCE mandatory	}|
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
@@ -423,37 +433,38 @@ HandoverPreparationFailureIEs S1AP-PROTOCOL-IES ::= {
 -- **************************************************************
 
 HandoverRequest ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container       { {HandoverRequestIEs} },
+	protocolIEs			ProtocolIE-Container		{ {HandoverRequestIEs} },
 	...
 }
 
-HandoverRequestIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID						PRESENCE mandatory}|
-	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType						PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore	TYPE Cause		 						PRESENCE mandatory}|
-	{ ID id-uEaggregateMaximumBitrate				CRITICALITY reject	TYPE UEAggregateMaximumBitrate			PRESENCE mandatory}|
-	{ ID id-E-RABToBeSetupListHOReq					CRITICALITY reject	TYPE E-RABToBeSetupListHOReq			PRESENCE mandatory}|
-	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer	PRESENCE mandatory}|
-	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE mandatory}|
-	{ ID id-HandoverRestrictionList					CRITICALITY ignore	TYPE HandoverRestrictionList			PRESENCE optional}|
-	{ ID id-TraceActivation							CRITICALITY ignore	TYPE TraceActivation					PRESENCE optional}|
-	{ ID id-RequestType								CRITICALITY ignore	TYPE RequestType						PRESENCE optional}|
-	{ ID id-SRVCCOperationPossible					CRITICALITY ignore	TYPE SRVCCOperationPossible			PRESENCE optional}|
-	{ ID id-SecurityContext							CRITICALITY reject	TYPE SecurityContext					PRESENCE mandatory}|
+HandoverRequestIEs S1AP-PROTOCOL-IES ::= {
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType						PRESENCE mandatory	}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause								PRESENCE mandatory	}|
+	{ ID id-uEaggregateMaximumBitrate				CRITICALITY reject	TYPE UEAggregateMaximumBitrate			PRESENCE mandatory	}|
+	{ ID id-E-RABToBeSetupListHOReq					CRITICALITY reject	TYPE E-RABToBeSetupListHOReq			PRESENCE mandatory	}|
+	{ ID id-Source-ToTarget-TransparentContainer	CRITICALITY reject	TYPE Source-ToTarget-TransparentContainer	PRESENCE mandatory	}|
+	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE mandatory	}|
+	{ ID id-HandoverRestrictionList					CRITICALITY ignore	TYPE HandoverRestrictionList			PRESENCE optional	}|
+	{ ID id-TraceActivation							CRITICALITY ignore	TYPE TraceActivation					PRESENCE optional	}|
+	{ ID id-RequestType								CRITICALITY ignore	TYPE RequestType						PRESENCE optional	}|
+	{ ID id-SRVCCOperationPossible					CRITICALITY ignore	TYPE SRVCCOperationPossible			PRESENCE optional	}|
+	{ ID id-SecurityContext							CRITICALITY reject	TYPE SecurityContext					PRESENCE mandatory	}|
 	{ ID id-NASSecurityParameterstoE-UTRAN			CRITICALITY reject	TYPE NASSecurityParameterstoE-UTRAN		PRESENCE conditional
-	-- This IE shall be present if the Handover Type IE is set to the value "UTRANtoLTE" or "GERANtoLTE" --}|
-	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id								PRESENCE optional}|
-	{ ID id-CSGMembershipStatus						CRITICALITY ignore	TYPE CSGMembershipStatus				PRESENCE optional}|
-	{ ID id-GUMMEI-ID								CRITICALITY ignore	TYPE GUMMEI								PRESENCE optional}|
-	{ ID id-MME-UE-S1AP-ID-2						CRITICALITY ignore	TYPE MME-UE-S1AP-ID						PRESENCE optional}|
-	{ ID id-ManagementBasedMDTAllowed				CRITICALITY ignore	TYPE ManagementBasedMDTAllowed			PRESENCE optional},
+	-- This IE shall be present if the Handover Type IE is set to the value "UTRANtoLTE" or "GERANtoLTE" --					}|
+	{ ID id-CSG-Id									CRITICALITY reject	TYPE CSG-Id								PRESENCE optional	}|
+	{ ID id-CSGMembershipStatus						CRITICALITY ignore	TYPE CSGMembershipStatus				PRESENCE optional	}|
+	{ ID id-GUMMEI-ID								CRITICALITY ignore	TYPE GUMMEI								PRESENCE optional	}|
+	{ ID id-MME-UE-S1AP-ID-2						CRITICALITY ignore	TYPE MME-UE-S1AP-ID						PRESENCE optional	}|
+	{ ID id-ManagementBasedMDTAllowed				CRITICALITY ignore	TYPE ManagementBasedMDTAllowed			PRESENCE optional	}|
+	{ ID id-ManagementBasedMDTPLMNList				CRITICALITY ignore	TYPE MDTPLMNList						PRESENCE optional	},
 	...
 }
 
 E-RABToBeSetupListHOReq 					::= E-RAB-IE-ContainerList { {E-RABToBeSetupItemHOReqIEs} }
 
 E-RABToBeSetupItemHOReqIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABToBeSetupItemHOReq			CRITICALITY reject	TYPE E-RABToBeSetupItemHOReq			PRESENCE mandatory	},
+	{ ID id-E-RABToBeSetupItemHOReq				CRITICALITY reject	TYPE E-RABToBeSetupItemHOReq			PRESENCE mandatory	},
 	...
 }
 
@@ -462,12 +473,12 @@ E-RABToBeSetupItemHOReq ::= SEQUENCE {
 	transportLayerAddress				TransportLayerAddress,
 	gTP-TEID							GTP-TEID,
 	e-RABlevelQosParameters				E-RABLevelQoSParameters,
-	iE-Extensions						ProtocolExtensionContainer { {E-RABToBeSetupItemHOReq-ExtIEs} }			OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {E-RABToBeSetupItemHOReq-ExtIEs} }		OPTIONAL,
 	...
 }
 
 E-RABToBeSetupItemHOReq-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ID	id-Data-Forwarding-Not-Possible	   CRITICALITY ignore	EXTENSION  Data-Forwarding-Not-Possible   PRESENCE optional},
+	{ ID id-Data-Forwarding-Not-Possible	CRITICALITY ignore	EXTENSION  Data-Forwarding-Not-Possible		PRESENCE optional},
 	...
 }
 
@@ -483,13 +494,14 @@ HandoverRequestAcknowledge ::= SEQUENCE {
 }
 
 HandoverRequestAcknowledgeIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID							CRITICALITY ignore	TYPE MME-UE-S1AP-ID									PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID							CRITICALITY ignore	TYPE ENB-UE-S1AP-ID									PRESENCE mandatory	} |
-	{ ID id-E-RABAdmittedList						CRITICALITY ignore	TYPE E-RABAdmittedList								PRESENCE mandatory	} |
-	{ ID id-E-RABFailedToSetupListHOReqAck			CRITICALITY ignore	TYPE E-RABFailedtoSetupListHOReqAck			PRESENCE optional	} |
-	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY reject	TYPE Target-ToSource-TransparentContainer	PRESENCE mandatory }|
-	{ ID id-CSG-Id									CRITICALITY ignore	TYPE CSG-Id											PRESENCE optional } |
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional	},
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY ignore	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID							CRITICALITY ignore	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-E-RABAdmittedList						CRITICALITY ignore	TYPE E-RABAdmittedList					PRESENCE mandatory	}|
+	{ ID id-E-RABFailedToSetupListHOReqAck			CRITICALITY ignore	TYPE E-RABFailedtoSetupListHOReqAck		PRESENCE optional	}|
+	{ ID id-Target-ToSource-TransparentContainer	CRITICALITY reject	TYPE Target-ToSource-TransparentContainer	PRESENCE mandatory	}|
+	{ ID id-CSG-Id									CRITICALITY ignore	TYPE CSG-Id								PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	}|
+	{ ID id-CellAccessMode							CRITICALITY ignore	TYPE CellAccessMode						PRESENCE optional	},
 	...
 }
 
@@ -547,9 +559,9 @@ HandoverFailure ::= SEQUENCE {
 }
 
 HandoverFailureIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	} |
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause		 				PRESENCE mandatory	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
 
@@ -571,10 +583,12 @@ HandoverNotify ::= SEQUENCE {
 }
 
 HandoverNotifyIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID			PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID			PRESENCE mandatory	} |
-	{ ID id-EUTRAN-CGI				CRITICALITY ignore	TYPE EUTRAN-CGI				PRESENCE mandatory}|
-	{ ID id-TAI						CRITICALITY ignore	TYPE TAI					PRESENCE mandatory},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID			PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID			PRESENCE mandatory	}|
+	{ ID id-EUTRAN-CGI						CRITICALITY ignore	TYPE EUTRAN-CGI				PRESENCE mandatory	}|
+	{ ID id-TAI								CRITICALITY ignore	TYPE TAI					PRESENCE mandatory	}|
+-- Extension for Release 11 to support BBAI -- 
+	{ ID id-Tunnel-Information-for-BBF		CRITICALITY ignore	TYPE TunnelInformation		PRESENCE optional	},
 	...
 }
 
@@ -596,19 +610,22 @@ PathSwitchRequest ::= SEQUENCE {
 }
 
 PathSwitchRequestIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID	 			PRESENCE mandatory}|
-	{ ID id-E-RABToBeSwitchedDLList			CRITICALITY reject	TYPE E-RABToBeSwitchedDLList	PRESENCE mandatory}|
-	{ ID id-SourceMME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID	 			PRESENCE mandatory}|
-	{ ID id-EUTRAN-CGI						CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory}|
-	{ ID id-TAI								CRITICALITY ignore	TYPE TAI						PRESENCE mandatory}|
-	{ ID id-UESecurityCapabilities			CRITICALITY ignore	TYPE UESecurityCapabilities		PRESENCE mandatory}|
-	{ ID id-CSG-Id							CRITICALITY ignore	TYPE CSG-Id						PRESENCE optional}|
-	{ ID id-CellAccessMode					CRITICALITY ignore	TYPE CellAccessMode				PRESENCE optional}|
-	{ ID id-SourceMME-GUMMEI				CRITICALITY ignore	TYPE GUMMEI						PRESENCE optional},
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-E-RABToBeSwitchedDLList			CRITICALITY reject	TYPE E-RABToBeSwitchedDLList	PRESENCE mandatory	}|
+	{ ID id-SourceMME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-EUTRAN-CGI						CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory	}|
+	{ ID id-TAI								CRITICALITY ignore	TYPE TAI						PRESENCE mandatory	}|
+	{ ID id-UESecurityCapabilities			CRITICALITY ignore	TYPE UESecurityCapabilities		PRESENCE mandatory	}|
+	{ ID id-CSG-Id							CRITICALITY ignore	TYPE CSG-Id						PRESENCE optional	}|
+	{ ID id-CellAccessMode					CRITICALITY ignore	TYPE CellAccessMode				PRESENCE optional	}|
+	{ ID id-SourceMME-GUMMEI				CRITICALITY ignore	TYPE GUMMEI						PRESENCE optional	}|
+	{ ID id-CSGMembershipStatus				CRITICALITY ignore	TYPE CSGMembershipStatus		PRESENCE optional	}|
+-- Extension for Release 11 to support BBAI -- 
+	{ ID id-Tunnel-Information-for-BBF		CRITICALITY ignore	TYPE TunnelInformation			PRESENCE optional	},
 	...
 }
 
-E-RABToBeSwitchedDLList 					::= E-RAB-IE-ContainerList { {E-RABToBeSwitchedDLItemIEs} }
+E-RABToBeSwitchedDLList					::= E-RAB-IE-ContainerList { {E-RABToBeSwitchedDLItemIEs} }
 
 E-RABToBeSwitchedDLItemIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABToBeSwitchedDLItem			CRITICALITY reject	TYPE E-RABToBeSwitchedDLItem			PRESENCE mandatory	},
@@ -617,8 +634,8 @@ E-RABToBeSwitchedDLItemIEs S1AP-PROTOCOL-IES ::= {
 
 E-RABToBeSwitchedDLItem ::= SEQUENCE {
 	e-RAB-ID						E-RAB-ID,
-	transportLayerAddress				TransportLayerAddress,
-	gTP-TEID					GTP-TEID,
+	transportLayerAddress			TransportLayerAddress,
+	gTP-TEID						GTP-TEID,
 	iE-Extensions					ProtocolExtensionContainer { { E-RABToBeSwitchedDLItem-ExtIEs} }			OPTIONAL,
 	...
 }
@@ -639,21 +656,22 @@ PathSwitchRequestAcknowledge ::= SEQUENCE {
 }
 
 PathSwitchRequestAcknowledgeIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory}|
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory}|
-	{ ID id-uEaggregateMaximumBitrate		CRITICALITY ignore	TYPE UEAggregateMaximumBitrate		PRESENCE optional}|
-	{ ID id-E-RABToBeSwitchedULList			CRITICALITY ignore	TYPE E-RABToBeSwitchedULList		PRESENCE optional}|
-	{ ID id-E-RABToBeReleasedList			CRITICALITY ignore	TYPE E-RABList						PRESENCE optional}|
-	{ ID id-SecurityContext					CRITICALITY reject	TYPE SecurityContext				PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional}|
-	{ ID id-MME-UE-S1AP-ID-2				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-uEaggregateMaximumBitrate		CRITICALITY ignore	TYPE UEAggregateMaximumBitrate		PRESENCE optional	}|
+	{ ID id-E-RABToBeSwitchedULList			CRITICALITY ignore	TYPE E-RABToBeSwitchedULList		PRESENCE optional	}|
+	{ ID id-E-RABToBeReleasedList			CRITICALITY ignore	TYPE E-RABList						PRESENCE optional	}|
+	{ ID id-SecurityContext					CRITICALITY reject	TYPE SecurityContext				PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	}|
+	{ ID id-MME-UE-S1AP-ID-2				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE optional	}|
+	{ ID id-CSGMembershipStatus				CRITICALITY ignore	TYPE CSGMembershipStatus			PRESENCE optional	},
 	...
 }
 
 E-RABToBeSwitchedULList ::= E-RAB-IE-ContainerList { {E-RABToBeSwitchedULItemIEs} }
 
 E-RABToBeSwitchedULItemIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABToBeSwitchedULItem		CRITICALITY ignore	TYPE E-RABToBeSwitchedULItem	PRESENCE mandatory	},
+	{ ID id-E-RABToBeSwitchedULItem		CRITICALITY ignore	TYPE E-RABToBeSwitchedULItem		PRESENCE mandatory	},
 	...
 }
 
@@ -661,7 +679,7 @@ E-RABToBeSwitchedULItem ::= SEQUENCE {
 	e-RAB-ID							E-RAB-ID,
 	transportLayerAddress				TransportLayerAddress,
 	gTP-TEID							GTP-TEID,
-	iE-Extensions						ProtocolExtensionContainer { { E-RABToBeSwitchedULItem-ExtIEs} }			OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { { E-RABToBeSwitchedULItem-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -682,9 +700,9 @@ PathSwitchRequestFailure ::= SEQUENCE {
 }
 
 PathSwitchRequestFailureIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	} |
-	{ ID id-Cause							CRITICALITY ignore	TYPE Cause		 					PRESENCE mandatory	}|
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
@@ -707,9 +725,9 @@ HandoverCancel ::= SEQUENCE {
 }
 
 HandoverCancelIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID		 			PRESENCE mandatory	} |
-	{ ID id-Cause					CRITICALITY ignore	TYPE Cause		 			PRESENCE mandatory	},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	},
 	...
 }
 
@@ -725,9 +743,9 @@ HandoverCancelAcknowledge ::= SEQUENCE {
 }
 
 HandoverCancelAcknowledgeIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID		 			PRESENCE mandatory	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
 
@@ -749,14 +767,14 @@ E-RABSetupRequest ::= SEQUENCE {
 }
 
 E-RABSetupRequestIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID	 						PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID	 						PRESENCE mandatory	}|
-	{ ID id-uEaggregateMaximumBitrate		CRITICALITY reject	TYPE UEAggregateMaximumBitrate				PRESENCE optional	}|
-	{ ID id-E-RABToBeSetupListBearerSUReq	CRITICALITY reject	TYPE E-RABToBeSetupListBearerSUReq		PRESENCE mandatory	},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-uEaggregateMaximumBitrate		CRITICALITY reject	TYPE UEAggregateMaximumBitrate			PRESENCE optional	}|
+	{ ID id-E-RABToBeSetupListBearerSUReq	CRITICALITY reject	TYPE E-RABToBeSetupListBearerSUReq	PRESENCE mandatory	},
 	...
 }
 
-E-RABToBeSetupListBearerSUReq ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABToBeSetupItemBearerSUReqIEs} }
+E-RABToBeSetupListBearerSUReq ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABToBeSetupItemBearerSUReqIEs} }
 
 E-RABToBeSetupItemBearerSUReqIEs 	S1AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABToBeSetupItemBearerSUReq	 CRITICALITY reject 	TYPE E-RABToBeSetupItemBearerSUReq 	PRESENCE mandatory },
@@ -766,7 +784,7 @@ E-RABToBeSetupItemBearerSUReqIEs 	S1AP-PROTOCOL-IES ::= {
 E-RABToBeSetupItemBearerSUReq ::= SEQUENCE {
 	e-RAB-ID						E-RAB-ID,
 	e-RABlevelQoSParameters			E-RABLevelQoSParameters,
-	transportLayerAddress 			TransportLayerAddress,
+	transportLayerAddress			TransportLayerAddress,
 	gTP-TEID						GTP-TEID,
 	nAS-PDU							NAS-PDU,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABToBeSetupItemBearerSUReqExtIEs} } OPTIONAL,
@@ -792,16 +810,16 @@ E-RABSetupResponse ::= SEQUENCE {
 }
 
 E-RABSetupResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-E-RABSetupListBearerSURes				CRITICALITY ignore	TYPE E-RABSetupListBearerSURes			PRESENCE optional	}|
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID							CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-E-RABSetupListBearerSURes				CRITICALITY ignore	TYPE E-RABSetupListBearerSURes	PRESENCE optional	}|
 	{ ID id-E-RABFailedToSetupListBearerSURes		CRITICALITY ignore	TYPE E-RABList					PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional	},
 	...
 }
 
 
-E-RABSetupListBearerSURes ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABSetupItemBearerSUResIEs} }
+E-RABSetupListBearerSURes ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABSetupItemBearerSUResIEs} }
 
 E-RABSetupItemBearerSUResIEs 	S1AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABSetupItemBearerSURes	 CRITICALITY ignore 	TYPE E-RABSetupItemBearerSURes 	PRESENCE mandatory },
@@ -841,14 +859,14 @@ E-RABModifyRequest ::= SEQUENCE {
 }
 
 E-RABModifyRequestIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID						CRITICALITY reject	TYPE MME-UE-S1AP-ID								PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID						CRITICALITY reject	TYPE ENB-UE-S1AP-ID								PRESENCE mandatory	}|
-	{ ID id-uEaggregateMaximumBitrate			CRITICALITY reject	TYPE UEAggregateMaximumBitrate				PRESENCE optional	}|
+	{ ID id-MME-UE-S1AP-ID						CRITICALITY reject	TYPE MME-UE-S1AP-ID							PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID						CRITICALITY reject	TYPE ENB-UE-S1AP-ID							PRESENCE mandatory	}|
+	{ ID id-uEaggregateMaximumBitrate			CRITICALITY reject	TYPE UEAggregateMaximumBitrate			PRESENCE optional	}|
 	{ ID id-E-RABToBeModifiedListBearerModReq	CRITICALITY reject	TYPE E-RABToBeModifiedListBearerModReq		PRESENCE mandatory	},
 	...
 }
 
-E-RABToBeModifiedListBearerModReq ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABToBeModifiedItemBearerModReqIEs} }
+E-RABToBeModifiedListBearerModReq ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABToBeModifiedItemBearerModReqIEs} }
 
 E-RABToBeModifiedItemBearerModReqIEs 	S1AP-PROTOCOL-IES ::= {
 	{ ID id-E-RABToBeModifiedItemBearerModReq	 CRITICALITY reject 	TYPE E-RABToBeModifiedItemBearerModReq 	PRESENCE mandatory },
@@ -882,25 +900,25 @@ E-RABModifyResponse ::= SEQUENCE {
 }
 
 E-RABModifyResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-E-RABModifyListBearerModRes				CRITICALITY ignore	TYPE E-RABModifyListBearerModRes		PRESENCE optional	}|
-	{ ID id-E-RABFailedToModifyList		CRITICALITY ignore	TYPE E-RABList				PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-E-RABModifyListBearerModRes		CRITICALITY ignore	TYPE E-RABModifyListBearerModRes		PRESENCE optional	}|
+	{ ID id-E-RABFailedToModifyList			CRITICALITY ignore	TYPE E-RABList							PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
 	...
 }
 
 
-E-RABModifyListBearerModRes ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABModifyItemBearerModResIEs} }
+E-RABModifyListBearerModRes ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABModifyItemBearerModResIEs} }
 
 E-RABModifyItemBearerModResIEs 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABModifyItemBearerModRes	 CRITICALITY ignore 	TYPE E-RABModifyItemBearerModRes 	PRESENCE mandatory },
+	{ ID id-E-RABModifyItemBearerModRes		CRITICALITY ignore	TYPE E-RABModifyItemBearerModRes		PRESENCE mandatory},
 	...
 }
 
 E-RABModifyItemBearerModRes ::= SEQUENCE {
 	e-RAB-ID					E-RAB-ID,
-	iE-Extensions					ProtocolExtensionContainer { {E-RABModifyItemBearerModResExtIEs} } OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {E-RABModifyItemBearerModResExtIEs} } OPTIONAL,
 	...
 }
 
@@ -930,10 +948,10 @@ E-RABReleaseCommand ::= SEQUENCE {
 }
 
 E-RABReleaseCommandIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	}|
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
 	{ ID id-uEaggregateMaximumBitrate		CRITICALITY reject	TYPE UEAggregateMaximumBitrate		PRESENCE optional	}|
-	{ ID id-E-RABToBeReleasedList		CRITICALITY ignore	TYPE E-RABList					PRESENCE mandatory	}|
+	{ ID id-E-RABToBeReleasedList			CRITICALITY ignore	TYPE E-RABList						PRESENCE mandatory	}|
 	{ ID id-NAS-PDU							CRITICALITY ignore	TYPE NAS-PDU						PRESENCE optional	},
 	...
 }
@@ -951,24 +969,24 @@ E-RABReleaseResponse ::= SEQUENCE {
 }
 
 E-RABReleaseResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-E-RABReleaseListBearerRelComp				CRITICALITY ignore	TYPE E-RABReleaseListBearerRelComp		PRESENCE optional	}|
-	{ ID id-E-RABFailedToReleaseList		CRITICALITY ignore	TYPE E-RABList				PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY ignore	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY ignore	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-E-RABReleaseListBearerRelComp	CRITICALITY ignore	TYPE E-RABReleaseListBearerRelComp	PRESENCE optional	}|
+	{ ID id-E-RABFailedToReleaseList		CRITICALITY ignore	TYPE E-RABList							PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
 	...
 }
 
 
-E-RABReleaseListBearerRelComp ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABReleaseItemBearerRelCompIEs} }
+E-RABReleaseListBearerRelComp ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABReleaseItemBearerRelCompIEs} }
 
-E-RABReleaseItemBearerRelCompIEs 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABReleaseItemBearerRelComp	 CRITICALITY ignore 	TYPE E-RABReleaseItemBearerRelComp 	PRESENCE mandatory },
+E-RABReleaseItemBearerRelCompIEs S1AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABReleaseItemBearerRelComp	CRITICALITY ignore	TYPE E-RABReleaseItemBearerRelComp	PRESENCE mandatory },
 	...
 }
 
 E-RABReleaseItemBearerRelComp ::= SEQUENCE {
-	e-RAB-ID					E-RAB-ID,
+	e-RAB-ID						E-RAB-ID,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABReleaseItemBearerRelCompExtIEs} } OPTIONAL,
 	...
 }
@@ -998,9 +1016,9 @@ E-RABReleaseIndication ::= SEQUENCE {
 }
 
 E-RABReleaseIndicationIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	}|
-	{ ID id-E-RABReleasedList			CRITICALITY ignore	TYPE E-RABList					PRESENCE mandatory	},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-E-RABReleasedList				CRITICALITY ignore	TYPE E-RABList						PRESENCE mandatory	},
 	...
 }
 -- **************************************************************
@@ -1021,49 +1039,50 @@ InitialContextSetupRequest ::= SEQUENCE {
 }
 
 InitialContextSetupRequestIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory}|
-	{ ID id-uEaggregateMaximumBitrate	CRITICALITY reject	TYPE UEAggregateMaximumBitrate		PRESENCE mandatory}|
-	{ ID id-E-RABToBeSetupListCtxtSUReq	CRITICALITY reject	TYPE E-RABToBeSetupListCtxtSUReq	PRESENCE mandatory}|
-	{ ID id-UESecurityCapabilities		CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE mandatory}|
-	{ ID id-SecurityKey					CRITICALITY reject	TYPE SecurityKey					PRESENCE mandatory}|
-	{ ID id-TraceActivation				CRITICALITY ignore	TYPE TraceActivation	 			PRESENCE optional}|
-	{ ID id-HandoverRestrictionList		CRITICALITY ignore	TYPE HandoverRestrictionList		PRESENCE optional}|
-	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional}|
-	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional}|
-	{ ID id-CSFallbackIndicator			CRITICALITY reject	TYPE CSFallbackIndicator			PRESENCE optional}|
-	{ ID id-SRVCCOperationPossible		CRITICALITY ignore	TYPE SRVCCOperationPossible			PRESENCE optional}|
-	{ ID id-CSGMembershipStatus			CRITICALITY ignore	TYPE CSGMembershipStatus			PRESENCE optional}|
-	{ ID id-RegisteredLAI				CRITICALITY ignore	TYPE LAI							PRESENCE optional}|
-	{ ID id-GUMMEI-ID					CRITICALITY ignore	TYPE GUMMEI							PRESENCE optional}|
-	{ ID id-MME-UE-S1AP-ID-2			CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE optional}|
-	{ ID id-ManagementBasedMDTAllowed	CRITICALITY ignore	TYPE ManagementBasedMDTAllowed		PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-uEaggregateMaximumBitrate		CRITICALITY reject	TYPE UEAggregateMaximumBitrate		PRESENCE mandatory	}|
+	{ ID id-E-RABToBeSetupListCtxtSUReq		CRITICALITY reject	TYPE E-RABToBeSetupListCtxtSUReq	PRESENCE mandatory	}|
+	{ ID id-UESecurityCapabilities			CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE mandatory	}|
+	{ ID id-SecurityKey						CRITICALITY reject	TYPE SecurityKey					PRESENCE mandatory	}|
+	{ ID id-TraceActivation					CRITICALITY ignore	TYPE TraceActivation				PRESENCE optional	}|
+	{ ID id-HandoverRestrictionList			CRITICALITY ignore	TYPE HandoverRestrictionList		PRESENCE optional	}|
+	{ ID id-UERadioCapability				CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional	}|
+	{ ID id-SubscriberProfileIDforRFP		CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional	}|
+	{ ID id-CSFallbackIndicator				CRITICALITY reject	TYPE CSFallbackIndicator			PRESENCE optional	}|
+	{ ID id-SRVCCOperationPossible			CRITICALITY ignore	TYPE SRVCCOperationPossible			PRESENCE optional	}|
+	{ ID id-CSGMembershipStatus				CRITICALITY ignore	TYPE CSGMembershipStatus			PRESENCE optional	}|
+	{ ID id-RegisteredLAI					CRITICALITY ignore	TYPE LAI							PRESENCE optional	}|
+	{ ID id-GUMMEI-ID						CRITICALITY ignore	TYPE GUMMEI							PRESENCE optional	}|
+	{ ID id-MME-UE-S1AP-ID-2				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE optional	}|
+	{ ID id-ManagementBasedMDTAllowed		CRITICALITY ignore	TYPE ManagementBasedMDTAllowed		PRESENCE optional	}|
+	{ ID id-ManagementBasedMDTPLMNList		CRITICALITY ignore	TYPE MDTPLMNList					PRESENCE optional	},
 	...
 }
 
 
 
 
-E-RABToBeSetupListCtxtSUReq ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABToBeSetupItemCtxtSUReqIEs} }
+E-RABToBeSetupListCtxtSUReq ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABToBeSetupItemCtxtSUReqIEs} }
 
 E-RABToBeSetupItemCtxtSUReqIEs 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABToBeSetupItemCtxtSUReq	 CRITICALITY reject 	TYPE E-RABToBeSetupItemCtxtSUReq 	PRESENCE mandatory },
+	{ ID id-E-RABToBeSetupItemCtxtSUReq	CRITICALITY reject	TYPE E-RABToBeSetupItemCtxtSUReq		PRESENCE mandatory	},
 	...
 }
 
 E-RABToBeSetupItemCtxtSUReq ::= SEQUENCE {
-	e-RAB-ID					E-RAB-ID,
-	e-RABlevelQoSParameters					E-RABLevelQoSParameters,		
-	transportLayerAddress 			TransportLayerAddress,
-	gTP-TEID			GTP-TEID,
-	nAS-PDU				NAS-PDU		OPTIONAL,
+	e-RAB-ID						E-RAB-ID,
+	e-RABlevelQoSParameters			E-RABLevelQoSParameters,
+	transportLayerAddress			TransportLayerAddress,
+	gTP-TEID						GTP-TEID,
+	nAS-PDU							NAS-PDU		OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABToBeSetupItemCtxtSUReqExtIEs} } OPTIONAL,
 	...
 }
 
 
 E-RABToBeSetupItemCtxtSUReqExtIEs S1AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-Correlation-ID		CRITICALITY ignore	EXTENSION Correlation-ID		PRESENCE optional},
+	{ ID id-Correlation-ID					CRITICALITY ignore	EXTENSION Correlation-ID			PRESENCE optional	},
 	...
 }
 
@@ -1080,26 +1099,26 @@ InitialContextSetupResponse ::= SEQUENCE {
 }
 
 InitialContextSetupResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID						CRITICALITY ignore	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory }|
-	{ ID id-eNB-UE-S1AP-ID						CRITICALITY ignore	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory }|
-	{ ID id-E-RABSetupListCtxtSURes				CRITICALITY ignore	TYPE E-RABSetupListCtxtSURes		PRESENCE mandatory }|
-	{ ID id-E-RABFailedToSetupListCtxtSURes		CRITICALITY ignore	TYPE E-RABList						PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	{ ID id-MME-UE-S1AP-ID						CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID						CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-E-RABSetupListCtxtSURes				CRITICALITY ignore	TYPE E-RABSetupListCtxtSURes		PRESENCE mandatory	}|
+	{ ID id-E-RABFailedToSetupListCtxtSURes		CRITICALITY ignore	TYPE E-RABList						PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
 
 
-E-RABSetupListCtxtSURes ::= SEQUENCE (SIZE(1.. maxNrOfE-RABs)) OF ProtocolIE-SingleContainer { {E-RABSetupItemCtxtSUResIEs} }
+E-RABSetupListCtxtSURes ::= SEQUENCE (SIZE(1.. maxnoofE-RABs)) OF ProtocolIE-SingleContainer { {E-RABSetupItemCtxtSUResIEs} }
 
 E-RABSetupItemCtxtSUResIEs 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-E-RABSetupItemCtxtSURes	 CRITICALITY ignore 	TYPE E-RABSetupItemCtxtSURes 	PRESENCE mandatory },
+	{ ID id-E-RABSetupItemCtxtSURes		CRITICALITY ignore	TYPE E-RABSetupItemCtxtSURes	PRESENCE mandatory	},
 	...
 }
 
 E-RABSetupItemCtxtSURes ::= SEQUENCE {
-	e-RAB-ID					E-RAB-ID,
+	e-RAB-ID						E-RAB-ID,
 	transportLayerAddress 			TransportLayerAddress,
-	gTP-TEID			GTP-TEID,
+	gTP-TEID						GTP-TEID,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABSetupItemCtxtSUResExtIEs} } OPTIONAL,
 	...
 }
@@ -1122,10 +1141,10 @@ InitialContextSetupFailure ::= SEQUENCE {
 }
 
 InitialContextSetupFailureIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory }|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory }|
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory }|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
 
@@ -1148,13 +1167,13 @@ Paging ::= SEQUENCE {
 }
 
 PagingIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-UEIdentityIndexValue		CRITICALITY ignore	TYPE UEIdentityIndexValue	PRESENCE mandatory}|
-	{ ID id-UEPagingID					CRITICALITY ignore	TYPE UEPagingID				PRESENCE mandatory}|
-	{ ID id-pagingDRX					CRITICALITY ignore	TYPE PagingDRX				PRESENCE optional}|
-	{ ID id-CNDomain					CRITICALITY ignore	TYPE CNDomain				PRESENCE mandatory}|
-	{ ID id-TAIList						CRITICALITY ignore	TYPE TAIList				PRESENCE mandatory}|
-	{ ID id-CSG-IdList					CRITICALITY ignore	TYPE CSG-IdList				PRESENCE optional}|
-	{ ID id-PagingPriority				CRITICALITY ignore	TYPE PagingPriority			PRESENCE optional},
+	{ ID id-UEIdentityIndexValue		CRITICALITY ignore	TYPE UEIdentityIndexValue			PRESENCE mandatory	}|
+	{ ID id-UEPagingID					CRITICALITY ignore	TYPE UEPagingID						PRESENCE mandatory	}|
+	{ ID id-pagingDRX					CRITICALITY ignore	TYPE PagingDRX						PRESENCE optional	}|
+	{ ID id-CNDomain					CRITICALITY ignore	TYPE CNDomain						PRESENCE mandatory	}|
+	{ ID id-TAIList						CRITICALITY ignore	TYPE TAIList						PRESENCE mandatory	}|
+	{ ID id-CSG-IdList					CRITICALITY ignore	TYPE CSG-IdList						PRESENCE optional	}|
+	{ ID id-PagingPriority				CRITICALITY ignore	TYPE PagingPriority					PRESENCE optional	},
 	...
 }
 
@@ -1184,7 +1203,7 @@ TAIItemExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- UE CONTEXT RELEASE REQUEST
+-- UE Context Release Request
 --
 -- **************************************************************
 
@@ -1194,10 +1213,10 @@ UEContextReleaseRequest ::= SEQUENCE {
 }
 
 UEContextReleaseRequest-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory}|
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory}|
-	{ ID id-GWContextReleaseIndication	CRITICALITY reject	TYPE GWContextReleaseIndication		PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-GWContextReleaseIndication	CRITICALITY reject	TYPE GWContextReleaseIndication		PRESENCE optional	},
 	...
 }
 
@@ -1213,9 +1232,8 @@ UEContextReleaseCommand ::= SEQUENCE {
 }
 
 UEContextReleaseCommand-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-UE-S1AP-IDs				CRITICALITY reject	TYPE UE-S1AP-IDs					PRESENCE mandatory} |
-	
-	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory} ,
+	{ ID id-UE-S1AP-IDs					CRITICALITY reject	TYPE UE-S1AP-IDs					PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	},
 	...
 }
 
@@ -1231,9 +1249,9 @@ UEContextReleaseComplete ::= SEQUENCE {
 }
 
 UEContextReleaseComplete-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
 
@@ -1256,15 +1274,15 @@ UEContextModificationRequest ::= SEQUENCE {
 }
 
 UEContextModificationRequestIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID		 			PRESENCE mandatory}|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory}|
-	{ ID id-SecurityKey					CRITICALITY reject	TYPE SecurityKey		 			PRESENCE optional}|
-	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional}|
-	{ ID id-uEaggregateMaximumBitrate	CRITICALITY ignore	TYPE UEAggregateMaximumBitrate		PRESENCE optional}|
-	{ ID id-CSFallbackIndicator			CRITICALITY reject	TYPE CSFallbackIndicator			PRESENCE optional}|
-	{ ID id-UESecurityCapabilities		CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE optional}|
-	{ ID id-CSGMembershipStatus			CRITICALITY ignore	TYPE CSGMembershipStatus			PRESENCE optional}|
-	{ ID id-RegisteredLAI				CRITICALITY ignore	TYPE LAI							PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-SecurityKey					CRITICALITY reject	TYPE SecurityKey					PRESENCE optional	}|
+	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional	}|
+	{ ID id-uEaggregateMaximumBitrate	CRITICALITY ignore	TYPE UEAggregateMaximumBitrate		PRESENCE optional	}|
+	{ ID id-CSFallbackIndicator			CRITICALITY reject	TYPE CSFallbackIndicator			PRESENCE optional	}|
+	{ ID id-UESecurityCapabilities		CRITICALITY reject	TYPE UESecurityCapabilities			PRESENCE optional	}|
+	{ ID id-CSGMembershipStatus			CRITICALITY ignore	TYPE CSGMembershipStatus			PRESENCE optional	}|
+	{ ID id-RegisteredLAI				CRITICALITY ignore	TYPE LAI							PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -1279,11 +1297,12 @@ UEContextModificationResponse ::= SEQUENCE {
 }
 
 UEContextModificationResponseIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory }|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory }|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
-}-- **************************************************************
+}
+-- **************************************************************
 --
 -- UE Context Modification Failure
 --
@@ -1295,10 +1314,53 @@ UEContextModificationFailure ::= SEQUENCE {
 }
 
 UEContextModificationFailureIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE mandatory }|
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory }|
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory }|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- UE RADIO CAPABILITY MATCH ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- UE Radio Capability Match Request
+--
+-- **************************************************************
+
+UERadioCapabilityMatchRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { UERadioCapabilityMatchRequestIEs} },
+	...
+}
+
+UERadioCapabilityMatchRequestIEs S1AP-PROTOCOL-IES ::= {	
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability				PRESENCE optional	},
+	...
+}
+
+-- **************************************************************
+--
+-- UE Radio Capability Match Response
+--
+-- **************************************************************
+
+UERadioCapabilityMatchResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { UERadioCapabilityMatchResponseIEs} },
+	...
+}
+
+UERadioCapabilityMatchResponseIEs S1AP-PROTOCOL-IES ::= {	
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-VoiceSupportMatchIndicator	CRITICALITY reject	TYPE VoiceSupportMatchIndicator		PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
 	...
 }
 
@@ -1320,11 +1382,11 @@ DownlinkNASTransport ::= SEQUENCE {
 }
 
 DownlinkNASTransport-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory} |
-	{ ID id-NAS-PDU						CRITICALITY reject	TYPE NAS-PDU						PRESENCE mandatory} |
-	{ ID id-HandoverRestrictionList		CRITICALITY ignore	TYPE HandoverRestrictionList		PRESENCE optional} |
-	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-NAS-PDU						CRITICALITY reject	TYPE NAS-PDU						PRESENCE mandatory	}|
+	{ ID id-HandoverRestrictionList		CRITICALITY ignore	TYPE HandoverRestrictionList		PRESENCE optional	}|
+	{ ID id-SubscriberProfileIDforRFP	CRITICALITY ignore	TYPE SubscriberProfileIDforRFP		PRESENCE optional	},
 	...
 }
 
@@ -1341,17 +1403,20 @@ InitialUEMessage ::= SEQUENCE {
 }
 
 InitialUEMessage-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory} |
-	{ ID id-NAS-PDU						CRITICALITY reject	TYPE NAS-PDU						PRESENCE mandatory} |
-	{ ID id-TAI							CRITICALITY reject	TYPE TAI							PRESENCE mandatory} |
-	{ ID id-EUTRAN-CGI					CRITICALITY ignore	TYPE EUTRAN-CGI						PRESENCE mandatory} |
-	{ ID id-RRC-Establishment-Cause		CRITICALITY ignore	TYPE RRC-Establishment-Cause		PRESENCE mandatory} |
-	{ ID id-S-TMSI						CRITICALITY reject	TYPE S-TMSI							PRESENCE optional} |
-	{ ID id-CSG-Id						CRITICALITY reject	TYPE CSG-Id							PRESENCE optional} |
-	{ ID id-GUMMEI-ID					CRITICALITY reject	TYPE GUMMEI							PRESENCE optional} |
-	{ ID id-CellAccessMode				CRITICALITY reject	TYPE CellAccessMode					PRESENCE optional} |
-	{ ID id-GW-TransportLayerAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE optional} |
-	{ ID id-RelayNode-Indicator			CRITICALITY reject	TYPE RelayNode-Indicator			PRESENCE optional},
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-NAS-PDU						CRITICALITY reject	TYPE NAS-PDU						PRESENCE mandatory	}|
+	{ ID id-TAI							CRITICALITY reject	TYPE TAI							PRESENCE mandatory	}|
+	{ ID id-EUTRAN-CGI					CRITICALITY ignore	TYPE EUTRAN-CGI						PRESENCE mandatory	}|
+	{ ID id-RRC-Establishment-Cause		CRITICALITY ignore	TYPE RRC-Establishment-Cause		PRESENCE mandatory	}|
+	{ ID id-S-TMSI						CRITICALITY reject	TYPE S-TMSI							PRESENCE optional	}|
+	{ ID id-CSG-Id						CRITICALITY reject	TYPE CSG-Id							PRESENCE optional	}|
+	{ ID id-GUMMEI-ID					CRITICALITY reject	TYPE GUMMEI							PRESENCE optional	}|
+	{ ID id-CellAccessMode				CRITICALITY reject	TYPE CellAccessMode					PRESENCE optional	}|
+	{ ID id-GW-TransportLayerAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE optional	}|
+	{ ID id-RelayNode-Indicator			CRITICALITY reject	TYPE RelayNode-Indicator			PRESENCE optional	}|
+	{ ID id-GUMMEIType					CRITICALITY ignore	TYPE GUMMEIType						PRESENCE optional	}|
+-- Extension for Release 11 to support BBAI -- 
+	{ ID id-Tunnel-Information-for-BBF	CRITICALITY ignore	TYPE TunnelInformation				PRESENCE optional	},
 	...
 }
 
@@ -1368,12 +1433,12 @@ UplinkNASTransport ::= SEQUENCE {
 }
 
 UplinkNASTransport-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-NAS-PDU						CRITICALITY reject	TYPE NAS-PDU					PRESENCE mandatory} |
-	{ ID id-EUTRAN-CGI					CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory} |
-	{ ID id-TAI							CRITICALITY ignore	TYPE TAI						PRESENCE mandatory} |
-	{ ID id-GW-TransportLayerAddress	CRITICALITY ignore	TYPE TransportLayerAddress		PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-NAS-PDU						CRITICALITY reject	TYPE NAS-PDU						PRESENCE mandatory	}|
+	{ ID id-EUTRAN-CGI					CRITICALITY ignore	TYPE EUTRAN-CGI						PRESENCE mandatory	}|
+	{ ID id-TAI							CRITICALITY ignore	TYPE TAI							PRESENCE mandatory	}|
+	{ ID id-GW-TransportLayerAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -1388,10 +1453,10 @@ NASNonDeliveryIndication ::= SEQUENCE {
 }
 
 NASNonDeliveryIndication-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-NAS-PDU					CRITICALITY ignore	TYPE NAS-PDU				PRESENCE mandatory} |
-	{ ID id-Cause					CRITICALITY ignore	TYPE Cause				PRESENCE mandatory} ,
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-NAS-PDU						CRITICALITY ignore	TYPE NAS-PDU					PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
 	...
 }
 
@@ -1414,13 +1479,13 @@ Reset ::= SEQUENCE {
 
 ResetIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
-	{ ID id-ResetType				CRITICALITY reject	TYPE ResetType			PRESENCE mandatory	},
+	{ ID id-ResetType					CRITICALITY reject	TYPE ResetType					PRESENCE mandatory	},
 	...
 }
 
 ResetType ::= CHOICE {
-	s1-Interface		ResetAll,
-	partOfS1-Interface		UE-associatedLogicalS1-ConnectionListRes,
+	s1-Interface					ResetAll,
+	partOfS1-Interface				UE-associatedLogicalS1-ConnectionListRes,
 	...
 }
 
@@ -1431,10 +1496,10 @@ ResetAll ::= ENUMERATED {
 	...
 }
 
-UE-associatedLogicalS1-ConnectionListRes ::= SEQUENCE (SIZE(1.. maxNrOfIndividualS1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalS1-ConnectionItemRes } }
+UE-associatedLogicalS1-ConnectionListRes ::= SEQUENCE (SIZE(1.. maxnoofIndividualS1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalS1-ConnectionItemRes } }
 
-UE-associatedLogicalS1-ConnectionItemRes 	S1AP-PROTOCOL-IES ::= {
-	{ ID id-UE-associatedLogicalS1-ConnectionItem	 CRITICALITY reject 	TYPE UE-associatedLogicalS1-ConnectionItem 	PRESENCE mandatory },
+UE-associatedLogicalS1-ConnectionItemRes S1AP-PROTOCOL-IES ::= {
+	{ ID id-UE-associatedLogicalS1-ConnectionItem	CRITICALITY reject	TYPE UE-associatedLogicalS1-ConnectionItem	PRESENCE mandatory},
 	...
 }
 
@@ -1456,7 +1521,7 @@ ResetAcknowledgeIEs S1AP-PROTOCOL-IES ::= {
 	...
 }
 
-UE-associatedLogicalS1-ConnectionListResAck ::= SEQUENCE (SIZE(1.. maxNrOfIndividualS1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalS1-ConnectionItemResAck } }
+UE-associatedLogicalS1-ConnectionListResAck ::= SEQUENCE (SIZE(1.. maxnoofIndividualS1ConnectionsToReset)) OF ProtocolIE-SingleContainer { { UE-associatedLogicalS1-ConnectionItemResAck } }
 
 UE-associatedLogicalS1-ConnectionItemResAck 	S1AP-PROTOCOL-IES ::= {
 	{ ID id-UE-associatedLogicalS1-ConnectionItem	 CRITICALITY ignore 	TYPE UE-associatedLogicalS1-ConnectionItem  	PRESENCE mandatory },
@@ -1481,10 +1546,10 @@ ErrorIndication ::= SEQUENCE {
 }
 
 ErrorIndicationIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE optional	} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE optional	} |
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional	} |
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	} ,
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY ignore	TYPE MME-UE-S1AP-ID				PRESENCE optional	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY ignore	TYPE ENB-UE-S1AP-ID				PRESENCE optional	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
 	...
 }
 
@@ -1506,11 +1571,11 @@ S1SetupRequest ::= SEQUENCE {
 }
 
 S1SetupRequestIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Global-ENB-ID	CRITICALITY reject	TYPE Global-ENB-ID	PRESENCE mandatory}|
-	{ ID id-eNBname	CRITICALITY ignore	TYPE ENBname	PRESENCE optional}|
-	{ ID id-SupportedTAs	CRITICALITY reject	TYPE SupportedTAs	PRESENCE mandatory}|
-	{ ID id-DefaultPagingDRX	CRITICALITY ignore	TYPE PagingDRX	PRESENCE mandatory}|
-	{ ID id-CSG-IdList	CRITICALITY reject	TYPE CSG-IdList	PRESENCE optional},
+	{ ID id-Global-ENB-ID				CRITICALITY reject	TYPE Global-ENB-ID			PRESENCE mandatory	}|
+	{ ID id-eNBname						CRITICALITY ignore	TYPE ENBname				PRESENCE optional	}|
+	{ ID id-SupportedTAs				CRITICALITY reject	TYPE SupportedTAs			PRESENCE mandatory	}|
+	{ ID id-DefaultPagingDRX			CRITICALITY ignore	TYPE PagingDRX				PRESENCE mandatory	}|
+	{ ID id-CSG-IdList					CRITICALITY reject	TYPE CSG-IdList				PRESENCE optional	},
 	...
 }
 
@@ -1527,11 +1592,11 @@ S1SetupResponse ::= SEQUENCE {
 
 
 S1SetupResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MMEname						CRITICALITY ignore	TYPE MMEname						PRESENCE optional}|
-	{ ID id-ServedGUMMEIs				CRITICALITY reject	TYPE ServedGUMMEIs					PRESENCE mandatory}|
-	{ ID id-RelativeMMECapacity			CRITICALITY ignore	TYPE RelativeMMECapacity			PRESENCE mandatory}|
-	{ ID id-MMERelaySupportIndicator	CRITICALITY ignore	TYPE MMERelaySupportIndicator		PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	{ ID id-MMEname						CRITICALITY ignore	TYPE MMEname					PRESENCE optional	}|
+	{ ID id-ServedGUMMEIs				CRITICALITY reject	TYPE ServedGUMMEIs				PRESENCE mandatory	}|
+	{ ID id-RelativeMMECapacity			CRITICALITY ignore	TYPE RelativeMMECapacity		PRESENCE mandatory	}|
+	{ ID id-MMERelaySupportIndicator	CRITICALITY ignore	TYPE MMERelaySupportIndicator	PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
 	...
 }
 
@@ -1549,7 +1614,7 @@ S1SetupFailure ::= SEQUENCE {
 S1SetupFailureIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
 	...
 }
 
@@ -1572,9 +1637,9 @@ ENBConfigurationUpdate ::= SEQUENCE {
 
 ENBConfigurationUpdateIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-eNBname				CRITICALITY ignore	TYPE ENBname			PRESENCE optional	}|
-	{ ID id-SupportedTAs		CRITICALITY reject	TYPE SupportedTAs	 	PRESENCE optional	}|
-	{ ID id-CSG-IdList					CRITICALITY reject	TYPE CSG-IdList				PRESENCE optional}|
-	{ ID id-DefaultPagingDRX	CRITICALITY	ignore	TYPE PagingDRX		PRESENCE optional	},
+	{ ID id-SupportedTAs		CRITICALITY reject	TYPE SupportedTAs		PRESENCE optional	}|
+	{ ID id-CSG-IdList			CRITICALITY reject	TYPE CSG-IdList			PRESENCE optional	}|
+	{ ID id-DefaultPagingDRX	CRITICALITY ignore	TYPE PagingDRX			PRESENCE optional	},
 	...
 }
 
@@ -1591,7 +1656,7 @@ ENBConfigurationUpdateAcknowledge ::= SEQUENCE {
 
 
 ENBConfigurationUpdateAcknowledgeIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional	},
 	...
 }
 
@@ -1609,14 +1674,14 @@ ENBConfigurationUpdateFailure ::= SEQUENCE {
 ENBConfigurationUpdateFailureIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics	PRESENCE optional },
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
 ...
 }
 
 
 -- **************************************************************
 --
--- MME Configuration UPDATE ELEMENTARY PROCEDURE
+-- MME CONFIGURATION UPDATE ELEMENTARY PROCEDURE
 --
 -- **************************************************************
 
@@ -1632,9 +1697,9 @@ MMEConfigurationUpdate ::= SEQUENCE {
 }
 
 MMEConfigurationUpdateIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MMEname				CRITICALITY ignore	TYPE MMEname	 		PRESENCE optional	}|
-	{ ID id-ServedGUMMEIs			CRITICALITY reject	TYPE ServedGUMMEIs				PRESENCE optional	}|
-	{ ID id-RelativeMMECapacity	CRITICALITY reject	TYPE RelativeMMECapacity	PRESENCE optional},
+	{ ID id-MMEname					CRITICALITY ignore	TYPE MMEname				PRESENCE optional	}|
+	{ ID id-ServedGUMMEIs			CRITICALITY reject	TYPE ServedGUMMEIs			PRESENCE optional	}|
+	{ ID id-RelativeMMECapacity		CRITICALITY reject	TYPE RelativeMMECapacity	PRESENCE optional	},
 	...
 }
 
@@ -1669,7 +1734,7 @@ MMEConfigurationUpdateFailure ::= SEQUENCE {
 MMEConfigurationUpdateFailureIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
 	{ ID id-TimeToWait					CRITICALITY ignore	TYPE TimeToWait					PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
 	...
 }
 
@@ -1691,12 +1756,12 @@ DownlinkS1cdma2000tunneling ::= SEQUENCE {
 }
 
 DownlinkS1cdma2000tunnelingIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	} |
-	{ ID id-E-RABSubjecttoDataForwardingList		CRITICALITY ignore	TYPE E-RABSubjecttoDataForwardingList		 			PRESENCE optional	} |
-	{ ID id-cdma2000HOStatus				CRITICALITY ignore	TYPE Cdma2000HOStatus 			PRESENCE optional	} |
-	{ ID id-cdma2000RATType				CRITICALITY reject	TYPE Cdma2000RATType 			PRESENCE mandatory	} |
-	{ ID id-cdma2000PDU					CRITICALITY reject	TYPE Cdma2000PDU	 			PRESENCE mandatory	},
+	{ ID id-MME-UE-S1AP-ID						CRITICALITY reject	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID						CRITICALITY reject	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-E-RABSubjecttoDataForwardingList	CRITICALITY ignore	TYPE E-RABSubjecttoDataForwardingList	PRESENCE optional	}|
+	{ ID id-cdma2000HOStatus					CRITICALITY ignore	TYPE Cdma2000HOStatus					PRESENCE optional	}|
+	{ ID id-cdma2000RATType						CRITICALITY reject	TYPE Cdma2000RATType					PRESENCE mandatory	}|
+	{ ID id-cdma2000PDU							CRITICALITY reject	TYPE Cdma2000PDU						PRESENCE mandatory	},
 	...
 }
 
@@ -1718,15 +1783,15 @@ UplinkS1cdma2000tunneling ::= SEQUENCE {
 }
 
 UplinkS1cdma2000tunnelingIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	} |
-	{ ID id-cdma2000RATType				CRITICALITY reject	TYPE Cdma2000RATType 			PRESENCE mandatory	} |
-	{ ID id-cdma2000SectorID			CRITICALITY reject	TYPE Cdma2000SectorID 			PRESENCE mandatory	} |
-	{ ID id-cdma2000HORequiredIndication	CRITICALITY ignore	TYPE Cdma2000HORequiredIndication 			PRESENCE optional	} |
-	{ ID id-cdma2000OneXSRVCCInfo		CRITICALITY reject	TYPE Cdma2000OneXSRVCCInfo 			PRESENCE optional	} |
-	{ ID id-cdma2000OneXRAND			CRITICALITY reject	TYPE Cdma2000OneXRAND 			PRESENCE optional	} |
-	{ ID id-cdma2000PDU					CRITICALITY reject	TYPE Cdma2000PDU	 			PRESENCE mandatory	}|
-	{ ID id-EUTRANRoundTripDelayEstimationInfo	CRITICALITY ignore	TYPE EUTRANRoundTripDelayEstimationInfo		PRESENCE optional},
+	{ ID id-MME-UE-S1AP-ID							CRITICALITY reject	TYPE MME-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID							CRITICALITY reject	TYPE ENB-UE-S1AP-ID						PRESENCE mandatory	}|
+	{ ID id-cdma2000RATType							CRITICALITY reject	TYPE Cdma2000RATType					PRESENCE mandatory	}|
+	{ ID id-cdma2000SectorID						CRITICALITY reject	TYPE Cdma2000SectorID					PRESENCE mandatory	}|
+	{ ID id-cdma2000HORequiredIndication			CRITICALITY ignore	TYPE Cdma2000HORequiredIndication		PRESENCE optional	}|
+	{ ID id-cdma2000OneXSRVCCInfo					CRITICALITY reject	TYPE Cdma2000OneXSRVCCInfo			PRESENCE optional	}|
+	{ ID id-cdma2000OneXRAND						CRITICALITY reject	TYPE Cdma2000OneXRAND					PRESENCE optional	}|
+	{ ID id-cdma2000PDU								CRITICALITY reject	TYPE Cdma2000PDU						PRESENCE mandatory	}|
+	{ ID id-EUTRANRoundTripDelayEstimationInfo		CRITICALITY ignore	TYPE EUTRANRoundTripDelayEstimationInfo		PRESENCE optional	},
 	-- Extension for Release 9 to assist target HRPD access with the acquisition of the UE --
 	...
 }
@@ -1750,9 +1815,9 @@ UECapabilityInfoIndication ::= SEQUENCE {
 }
 
 UECapabilityInfoIndicationIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID	 				PRESENCE mandatory	} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID	 				PRESENCE mandatory	} |
-	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability				PRESENCE mandatory	} ,
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID					PRESENCE mandatory	}|
+	{ ID id-UERadioCapability			CRITICALITY ignore	TYPE UERadioCapability				PRESENCE mandatory	},
 	...
 }
 
@@ -1774,9 +1839,9 @@ ENBStatusTransfer ::= SEQUENCE {
 }
 
 ENBStatusTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-StatusTransfer-TransparentContainer	CRITICALITY reject	TYPE ENB-StatusTransfer-TransparentContainer		PRESENCE mandatory} ,
+	{ ID id-MME-UE-S1AP-ID								CRITICALITY reject	TYPE MME-UE-S1AP-ID		PRESENCE mandatory}|
+	{ ID id-eNB-UE-S1AP-ID								CRITICALITY reject	TYPE ENB-UE-S1AP-ID		PRESENCE mandatory}|
+	{ ID id-eNB-StatusTransfer-TransparentContainer		CRITICALITY reject	TYPE ENB-StatusTransfer-TransparentContainer	PRESENCE mandatory},
 	...
 }
 
@@ -1799,9 +1864,9 @@ MMEStatusTransfer ::= SEQUENCE {
 }
 
 MMEStatusTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-StatusTransfer-TransparentContainer	CRITICALITY reject	TYPE ENB-StatusTransfer-TransparentContainer		PRESENCE mandatory} ,
+	{ ID id-MME-UE-S1AP-ID								CRITICALITY reject	TYPE MME-UE-S1AP-ID			PRESENCE mandatory}|
+	{ ID id-eNB-UE-S1AP-ID								CRITICALITY reject	TYPE ENB-UE-S1AP-ID			PRESENCE mandatory}|
+	{ ID id-eNB-StatusTransfer-TransparentContainer		CRITICALITY reject	TYPE ENB-StatusTransfer-TransparentContainer		PRESENCE mandatory},
 	...
 }
 
@@ -1823,8 +1888,8 @@ TraceStart ::= SEQUENCE {
 }
 
 TraceStartIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
 	{ ID id-TraceActivation				CRITICALITY ignore	TYPE TraceActivation			PRESENCE mandatory	},
 	...
 }
@@ -1841,10 +1906,10 @@ TraceFailureIndication ::= SEQUENCE {
 }
 
 TraceFailureIndicationIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-E-UTRAN-Trace-ID			CRITICALITY ignore	TYPE E-UTRAN-Trace-ID			PRESENCE mandatory} |
-	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory} ,
+	{ ID id-MME-UE-S1AP-ID				CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID				CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-E-UTRAN-Trace-ID			CRITICALITY ignore	TYPE E-UTRAN-Trace-ID			PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
 	...
 }
 
@@ -1856,7 +1921,7 @@ TraceFailureIndicationIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- DEACTIVATE TRACE
+-- Deactivate Trace
 --
 -- **************************************************************
 
@@ -1866,9 +1931,9 @@ DeactivateTrace ::= SEQUENCE {
 }
 
 DeactivateTraceIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID		CRITICALITY reject	TYPE MME-UE-S1AP-ID		PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID		CRITICALITY reject	TYPE ENB-UE-S1AP-ID		PRESENCE mandatory} |
-	{ ID id-E-UTRAN-Trace-ID		CRITICALITY ignore	TYPE E-UTRAN-Trace-ID	 	PRESENCE mandatory	},
+	{ ID id-MME-UE-S1AP-ID		CRITICALITY reject	TYPE MME-UE-S1AP-ID		PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID		CRITICALITY reject	TYPE ENB-UE-S1AP-ID		PRESENCE mandatory	}|
+	{ ID id-E-UTRAN-Trace-ID	CRITICALITY ignore	TYPE E-UTRAN-Trace-ID	PRESENCE mandatory	},
 	...
 }
 
@@ -1880,7 +1945,7 @@ DeactivateTraceIEs S1AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- CELL TRAFFIC TRACE
+-- Cell Traffic Trace
 --
 -- **************************************************************
 
@@ -1890,11 +1955,12 @@ protocolIEs		ProtocolIE-Container	{ { CellTrafficTraceIEs } },
 }
 
 CellTrafficTraceIEs S1AP-PROTOCOL-IES ::= {
-	{ID id-MME-UE-S1AP-ID	CRITICALITY reject	TYPE MME-UE-S1AP-ID	PRESENCE mandatory} |
-	{ID id-eNB-UE-S1AP-ID	CRITICALITY reject	TYPE ENB-UE-S1AP-ID	PRESENCE mandatory} |
-	{ID id-E-UTRAN-Trace-ID	CRITICALITY ignore	TYPE E-UTRAN-Trace-ID	PRESENCE mandatory}|
-	{ID id-EUTRAN-CGI	CRITICALITY ignore	TYPE EUTRAN-CGI	PRESENCE mandatory}|
-	{ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress	PRESENCE mandatory },
+	{ID id-MME-UE-S1AP-ID					CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ID id-eNB-UE-S1AP-ID					CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ID id-E-UTRAN-Trace-ID					CRITICALITY ignore	TYPE E-UTRAN-Trace-ID			PRESENCE mandatory	}|
+	{ID id-EUTRAN-CGI						CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory	}|
+	{ID id-TraceCollectionEntityIPAddress	CRITICALITY ignore	TYPE TransportLayerAddress		PRESENCE mandatory	}|
+	{ID id-PrivacyIndicator					CRITICALITY ignore	TYPE PrivacyIndicator			PRESENCE optional	},
 	...
 }
 
@@ -1916,9 +1982,9 @@ LocationReportingControl ::= SEQUENCE {
 }
 
 LocationReportingControlIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-RequestType				CRITICALITY ignore	TYPE RequestType				PRESENCE mandatory	} ,
+	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-RequestType				CRITICALITY ignore	TYPE RequestType				PRESENCE mandatory	},
 	...
 }
 
@@ -1934,9 +2000,9 @@ LocationReportingFailureIndication ::= SEQUENCE {
 }
 
 LocationReportingFailureIndicationIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory},
+	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-Cause					CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	},
 	...
 }
 
@@ -1952,11 +2018,11 @@ LocationReport ::= SEQUENCE {
 }
 
 LocationReportIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-EUTRAN-CGI				CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory} |
-	{ ID id-TAI						CRITICALITY ignore	TYPE TAI						PRESENCE mandatory} |
-	{ ID id-RequestType				CRITICALITY ignore	TYPE RequestType				PRESENCE mandatory} ,
+	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-EUTRAN-CGI				CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory	}|
+	{ ID id-TAI						CRITICALITY ignore	TYPE TAI						PRESENCE mandatory	}|
+	{ ID id-RequestType				CRITICALITY ignore	TYPE RequestType				PRESENCE mandatory	},
 	...
 }
 
@@ -1978,9 +2044,9 @@ OverloadStart ::= SEQUENCE {
 }
 
 OverloadStartIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-OverloadResponse					CRITICALITY reject	TYPE OverloadResponse				PRESENCE mandatory}|
-	{ ID id-GUMMEIList							CRITICALITY ignore	TYPE GUMMEIList						PRESENCE optional}|
-	{ ID id-TrafficLoadReductionIndication		CRITICALITY ignore	TYPE TrafficLoadReductionIndication	PRESENCE optional},
+	{ ID id-OverloadResponse					CRITICALITY reject	TYPE OverloadResponse				PRESENCE mandatory	}|
+	{ ID id-GUMMEIList							CRITICALITY ignore	TYPE GUMMEIList						PRESENCE optional	}|
+	{ ID id-TrafficLoadReductionIndication		CRITICALITY ignore	TYPE TrafficLoadReductionIndication	PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -1995,7 +2061,7 @@ OverloadStop ::= SEQUENCE {
 }
 
 OverloadStopIEs S1AP-PROTOCOL-IES ::= {	
-{ ID id-GUMMEIList							CRITICALITY ignore	TYPE GUMMEIList				PRESENCE optional },
+{ ID id-GUMMEIList								CRITICALITY ignore	TYPE GUMMEIList						PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -2017,17 +2083,17 @@ WriteReplaceWarningRequest ::= SEQUENCE {
 }
 
 WriteReplaceWarningRequestIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier		PRESENCE mandatory		}|
-	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber			PRESENCE mandatory		}|
-	{ ID id-WarningAreaList				CRITICALITY ignore	TYPE WarningAreaList		PRESENCE optional		}|
-	{ ID id-RepetitionPeriod			CRITICALITY reject	TYPE RepetitionPeriod		PRESENCE mandatory		}|
-	{ ID id-ExtendedRepetitionPeriod	CRITICALITY reject	TYPE ExtendedRepetitionPeriod	PRESENCE optional	}|
-	{ ID id-NumberofBroadcastRequest	CRITICALITY reject	TYPE NumberofBroadcastRequest	PRESENCE mandatory	}|
-	{ ID id-WarningType					CRITICALITY ignore	TYPE WarningType			PRESENCE optional		}|
-	{ ID id-WarningSecurityInfo			CRITICALITY ignore	TYPE WarningSecurityInfo	PRESENCE optional		}|
-	{ ID id-DataCodingScheme			CRITICALITY ignore	TYPE DataCodingScheme		PRESENCE optional		}|
-	{ ID id-WarningMessageContents		CRITICALITY ignore	TYPE WarningMessageContents		PRESENCE optional		}|
-	{ ID id-ConcurrentWarningMessageIndicator	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator		PRESENCE optional		},
+	{ ID id-MessageIdentifier					CRITICALITY reject	TYPE MessageIdentifier					PRESENCE mandatory	}|
+	{ ID id-SerialNumber						CRITICALITY reject	TYPE SerialNumber						PRESENCE mandatory	}|
+	{ ID id-WarningAreaList						CRITICALITY ignore	TYPE WarningAreaList					PRESENCE optional	}|
+	{ ID id-RepetitionPeriod					CRITICALITY reject	TYPE RepetitionPeriod					PRESENCE mandatory	}|
+	{ ID id-ExtendedRepetitionPeriod			CRITICALITY reject	TYPE ExtendedRepetitionPeriod			PRESENCE optional	}|
+	{ ID id-NumberofBroadcastRequest			CRITICALITY reject	TYPE NumberofBroadcastRequest			PRESENCE mandatory	}|
+	{ ID id-WarningType							CRITICALITY ignore	TYPE WarningType						PRESENCE optional	}|
+	{ ID id-WarningSecurityInfo					CRITICALITY ignore	TYPE WarningSecurityInfo				PRESENCE optional	}|
+	{ ID id-DataCodingScheme					CRITICALITY ignore	TYPE DataCodingScheme					PRESENCE optional	}|
+	{ ID id-WarningMessageContents				CRITICALITY ignore	TYPE WarningMessageContents				PRESENCE optional	}|
+	{ ID id-ConcurrentWarningMessageIndicator	CRITICALITY reject	TYPE ConcurrentWarningMessageIndicator	PRESENCE optional	},
 	...
 }
 -- **************************************************************
@@ -2042,10 +2108,10 @@ WriteReplaceWarningResponse ::= SEQUENCE {
 }
 
 WriteReplaceWarningResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier					PRESENCE mandatory }|
-	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber						PRESENCE mandatory }|
-	{ ID id-BroadcastCompletedAreaList	CRITICALITY ignore	TYPE BroadcastCompletedAreaList			PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional },
+	{ ID id-MessageIdentifier				CRITICALITY reject	TYPE MessageIdentifier					PRESENCE mandatory	}|
+	{ ID id-SerialNumber					CRITICALITY reject	TYPE SerialNumber						PRESENCE mandatory	}|
+	{ ID id-BroadcastCompletedAreaList		CRITICALITY ignore	TYPE BroadcastCompletedAreaList			PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
 	...
 }
 
@@ -2067,7 +2133,7 @@ ENBDirectInformationTransfer ::= SEQUENCE {
 }
 
 ENBDirectInformationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Inter-SystemInformationTransferTypeEDT		CRITICALITY reject	TYPE Inter-SystemInformationTransferType			PRESENCE mandatory}  ,
+	{ ID id-Inter-SystemInformationTransferTypeEDT	CRITICALITY reject	TYPE Inter-SystemInformationTransferType		PRESENCE mandatory	},
 	...
 }
 
@@ -2094,7 +2160,7 @@ MMEDirectInformationTransfer ::= SEQUENCE {
 }
 
 MMEDirectInformationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Inter-SystemInformationTransferTypeMDT		CRITICALITY reject	TYPE Inter-SystemInformationTransferType			PRESENCE mandatory}  ,
+	{ ID id-Inter-SystemInformationTransferTypeMDT	CRITICALITY reject	TYPE Inter-SystemInformationTransferType	PRESENCE mandatory	},
 	...
 }
 -- **************************************************************
@@ -2115,7 +2181,7 @@ ENBConfigurationTransfer ::= SEQUENCE {
 }
 
 ENBConfigurationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-SONConfigurationTransferECT		CRITICALITY ignore	TYPE SONConfigurationTransfer				PRESENCE optional}  ,
+	{ ID id-SONConfigurationTransferECT		CRITICALITY ignore	TYPE SONConfigurationTransfer	PRESENCE optional	},
 	...
 }
 
@@ -2137,7 +2203,7 @@ MMEConfigurationTransfer ::= SEQUENCE {
 }
 
 MMEConfigurationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-SONConfigurationTransferMCT		CRITICALITY ignore	TYPE SONConfigurationTransfer				PRESENCE optional}  ,
+	{ ID id-SONConfigurationTransferMCT		CRITICALITY ignore	TYPE SONConfigurationTransfer	PRESENCE optional	},
 	...
 }
 
@@ -2164,6 +2230,12 @@ PrivateMessageIEs S1AP-PRIVATE-IES ::= {
 
 -- **************************************************************
 --
+-- KILL PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
 -- Kill Request
 --
 -- **************************************************************
@@ -2175,9 +2247,9 @@ KillRequest ::= SEQUENCE {
 }
 
 KillRequestIEs S1AP-PROTOCOL-IES ::= {	
-	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier		PRESENCE mandatory }|
-	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber			PRESENCE mandatory }|
-	{ ID id-WarningAreaList				CRITICALITY ignore	TYPE WarningAreaList		PRESENCE optional },
+	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier		PRESENCE mandatory	}|
+	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber			PRESENCE mandatory	}|
+	{ ID id-WarningAreaList				CRITICALITY ignore	TYPE WarningAreaList		PRESENCE optional	},
 	...
 }
 
@@ -2193,10 +2265,10 @@ KillResponse ::= SEQUENCE {
 }
 
 KillResponseIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier				PRESENCE mandatory }|
-	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber					PRESENCE mandatory }|
-	{ ID id-BroadcastCancelledAreaList	CRITICALITY ignore	TYPE BroadcastCancelledAreaList		PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional },
+	{ ID id-MessageIdentifier			CRITICALITY reject	TYPE MessageIdentifier					PRESENCE mandatory	}|
+	{ ID id-SerialNumber				CRITICALITY reject	TYPE SerialNumber						PRESENCE mandatory	}|
+	{ ID id-BroadcastCancelledAreaList	CRITICALITY ignore	TYPE BroadcastCancelledAreaList			PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
 	...
 }
 
@@ -2218,10 +2290,10 @@ DownlinkUEAssociatedLPPaTransport ::= SEQUENCE {
 }
 
 DownlinkUEAssociatedLPPaTransport-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory } |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory } |
-	{ ID id-Routing-ID				CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory } |
-	{ ID id-LPPa-PDU    			CRITICALITY reject	TYPE LPPa-PDU   				PRESENCE mandatory } ,
+	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-Routing-ID				CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory	}|
+	{ ID id-LPPa-PDU    			CRITICALITY reject	TYPE LPPa-PDU					PRESENCE mandatory	},
 	...
 }
 
@@ -2237,10 +2309,10 @@ UplinkUEAssociatedLPPaTransport ::= SEQUENCE {
 }
 
 UplinkUEAssociatedLPPaTransport-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory} |
-	{ ID id-Routing-ID				CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory} |
-	{ ID id-LPPa-PDU    			CRITICALITY reject	TYPE LPPa-PDU   				PRESENCE mandatory} ,
+	{ ID id-MME-UE-S1AP-ID			CRITICALITY reject	TYPE MME-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
+	{ ID id-Routing-ID				CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory	}|
+	{ ID id-LPPa-PDU				CRITICALITY reject	TYPE LPPa-PDU					PRESENCE mandatory	},
 	...
 }
 
@@ -2256,8 +2328,8 @@ DownlinkNonUEAssociatedLPPaTransport ::= SEQUENCE {
 }
 
 DownlinkNonUEAssociatedLPPaTransport-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Routing-ID			    CRITICALITY reject	TYPE Routing-ID				    PRESENCE mandatory} | 
-	{ ID id-LPPa-PDU    			CRITICALITY reject	TYPE LPPa-PDU   				PRESENCE mandatory} ,
+	{ ID id-Routing-ID				CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory	}|
+	{ ID id-LPPa-PDU				CRITICALITY reject	TYPE LPPa-PDU					PRESENCE mandatory	},
 	...
 }
 
@@ -2273,10 +2345,11 @@ UplinkNonUEAssociatedLPPaTransport ::= SEQUENCE {
 }
 
 UplinkNonUEAssociatedLPPaTransport-IEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-Routing-ID			    CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory} | 
-	{ ID id-LPPa-PDU    			CRITICALITY reject	TYPE LPPa-PDU   				PRESENCE mandatory} ,
+	{ ID id-Routing-ID				CRITICALITY reject	TYPE Routing-ID					PRESENCE mandatory	}|
+	{ ID id-LPPa-PDU				CRITICALITY reject	TYPE LPPa-PDU					PRESENCE mandatory	},
 	...
 }
 
 END
+
 

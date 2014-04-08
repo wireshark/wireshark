@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V10.3.0 (2011-09)
+-- 3GPP TS 36.413 V11.6.0 (2013-12)
 -- 9.3.2	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -89,6 +89,8 @@ FROM S1AP-CommonDataTypes
 	UEContextReleaseCommand,
 	UEContextReleaseComplete,
 	UEContextReleaseRequest,
+	UERadioCapabilityMatchRequest,
+	UERadioCapabilityMatchResponse,
 	UplinkUEAssociatedLPPaTransport,
 	UplinkNASTransport,
 	UplinkNonUEAssociatedLPPaTransport,
@@ -142,6 +144,7 @@ FROM S1AP-PDU-Contents
 	id-UEContextModification,
 	id-UEContextRelease,
 	id-UEContextReleaseRequest,
+	id-UERadioCapabilityMatch,
 	id-uplinkUEAssociatedLPPaTransport,
 	id-uplinkNASTransport,
 	id-uplinkNonUEAssociatedLPPaTransport,
@@ -160,10 +163,10 @@ FROM S1AP-Constants;
 
 S1AP-ELEMENTARY-PROCEDURE ::= CLASS {
 	&InitiatingMessage				,
-	&SuccessfulOutcome				OPTIONAL,
-	&UnsuccessfulOutcome				OPTIONAL,
-	&procedureCode			ProcedureCode 	UNIQUE,
-	&criticality			Criticality 	DEFAULT ignore
+	&SuccessfulOutcome							OPTIONAL,
+	&UnsuccessfulOutcome						OPTIONAL,
+	&procedureCode				ProcedureCode 	UNIQUE,
+	&criticality				Criticality 	DEFAULT ignore
 }
 WITH SYNTAX {
 	INITIATING MESSAGE			&InitiatingMessage
@@ -187,21 +190,21 @@ S1AP-PDU ::= CHOICE {
 }
 
 InitiatingMessage ::= SEQUENCE {
-	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode	({S1AP-ELEMENTARY-PROCEDURES}),
-	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		S1AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode		({S1AP-ELEMENTARY-PROCEDURES}),
+	criticality		S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			S1AP-ELEMENTARY-PROCEDURE.&InitiatingMessage	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 SuccessfulOutcome ::= SEQUENCE {
-	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode	({S1AP-ELEMENTARY-PROCEDURES}),
-	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		S1AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode		({S1AP-ELEMENTARY-PROCEDURES}),
+	criticality		S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			S1AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 UnsuccessfulOutcome ::= SEQUENCE {
-	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode	({S1AP-ELEMENTARY-PROCEDURES}),
-	criticality	S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
-	value		S1AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
+	procedureCode	S1AP-ELEMENTARY-PROCEDURE.&procedureCode		({S1AP-ELEMENTARY-PROCEDURES}),
+	criticality		S1AP-ELEMENTARY-PROCEDURE.&criticality			({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode}),
+	value			S1AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome	({S1AP-ELEMENTARY-PROCEDURES}{@procedureCode})
 }
 
 -- **************************************************************
@@ -211,7 +214,7 @@ UnsuccessfulOutcome ::= SEQUENCE {
 -- **************************************************************
 
 S1AP-ELEMENTARY-PROCEDURES S1AP-ELEMENTARY-PROCEDURE ::= {
-	S1AP-ELEMENTARY-PROCEDURES-CLASS-1		|
+	S1AP-ELEMENTARY-PROCEDURES-CLASS-1			|
 	S1AP-ELEMENTARY-PROCEDURES-CLASS-2,	
 	...
 }
@@ -234,7 +237,8 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-1 S1AP-ELEMENTARY-PROCEDURE ::= {
 	eNBConfigurationUpdate			|
 	mMEConfigurationUpdate			|
 	writeReplaceWarning				,
-	...
+	...,
+	uERadioCapabilityMatch
 }
 
 S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {	
@@ -280,68 +284,68 @@ S1AP-ELEMENTARY-PROCEDURES-CLASS-2 S1AP-ELEMENTARY-PROCEDURE ::= {
 -- **************************************************************
 
 handoverPreparation S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	HandoverRequired
-	SUCCESSFUL OUTCOME	HandoverCommand
+	INITIATING MESSAGE		HandoverRequired
+	SUCCESSFUL OUTCOME		HandoverCommand
 	UNSUCCESSFUL OUTCOME	HandoverPreparationFailure
 	PROCEDURE CODE			id-HandoverPreparation
-	CRITICALITY		reject
+	CRITICALITY				reject
 }
 
 handoverResourceAllocation S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	HandoverRequest
-	SUCCESSFUL OUTCOME	HandoverRequestAcknowledge
+	INITIATING MESSAGE		HandoverRequest
+	SUCCESSFUL OUTCOME		HandoverRequestAcknowledge
 	UNSUCCESSFUL OUTCOME	HandoverFailure
 	PROCEDURE CODE			id-HandoverResourceAllocation
-	CRITICALITY		reject
+	CRITICALITY				reject
 }
 
 handoverNotification S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	HandoverNotify
+	INITIATING MESSAGE		HandoverNotify
 	PROCEDURE CODE			id-HandoverNotification
-	CRITICALITY		ignore
+	CRITICALITY				ignore
 }
 
 pathSwitchRequest S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	PathSwitchRequest
-	SUCCESSFUL OUTCOME	PathSwitchRequestAcknowledge
+	INITIATING MESSAGE		PathSwitchRequest
+	SUCCESSFUL OUTCOME		PathSwitchRequestAcknowledge
 	UNSUCCESSFUL OUTCOME	PathSwitchRequestFailure
 	PROCEDURE CODE			id-PathSwitchRequest
-	CRITICALITY		reject
+	CRITICALITY				reject
 }
 
 e-RABSetup S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	E-RABSetupRequest
-	SUCCESSFUL OUTCOME	E-RABSetupResponse
-	PROCEDURE CODE		id-E-RABSetup
-	CRITICALITY		reject
+	INITIATING MESSAGE		E-RABSetupRequest
+	SUCCESSFUL OUTCOME		E-RABSetupResponse
+	PROCEDURE CODE			id-E-RABSetup
+	CRITICALITY				reject
 }
 
 e-RABModify S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	E-RABModifyRequest
-	SUCCESSFUL OUTCOME	E-RABModifyResponse
-	PROCEDURE CODE		id-E-RABModify
-	CRITICALITY		reject
+	INITIATING MESSAGE		E-RABModifyRequest
+	SUCCESSFUL OUTCOME		E-RABModifyResponse
+	PROCEDURE CODE			id-E-RABModify
+	CRITICALITY				reject
 }
 
 e-RABRelease S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	E-RABReleaseCommand
-	SUCCESSFUL OUTCOME	E-RABReleaseResponse
-	PROCEDURE CODE		id-E-RABRelease
-	CRITICALITY		reject
+	INITIATING MESSAGE		E-RABReleaseCommand
+	SUCCESSFUL OUTCOME		E-RABReleaseResponse
+	PROCEDURE CODE			id-E-RABRelease
+	CRITICALITY				reject
 }
 
 e-RABReleaseIndication S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	E-RABReleaseIndication
-	PROCEDURE CODE		id-E-RABReleaseIndication
-	CRITICALITY		ignore
+	INITIATING MESSAGE		E-RABReleaseIndication
+	PROCEDURE CODE			id-E-RABReleaseIndication
+	CRITICALITY				ignore
 }
 
 initialContextSetup S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	InitialContextSetupRequest
-	SUCCESSFUL OUTCOME	InitialContextSetupResponse
-	UNSUCCESSFUL OUTCOME InitialContextSetupFailure
-	PROCEDURE CODE		id-InitialContextSetup
-	CRITICALITY		reject
+	INITIATING MESSAGE		InitialContextSetupRequest
+	SUCCESSFUL OUTCOME		InitialContextSetupResponse
+	UNSUCCESSFUL OUTCOME 	InitialContextSetupFailure
+	PROCEDURE CODE			id-InitialContextSetup
+	CRITICALITY				reject
 }
 
 uEContextReleaseRequest S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -351,9 +355,9 @@ uEContextReleaseRequest S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 paging S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	Paging
-	PROCEDURE CODE		id-Paging
-	CRITICALITY			ignore
+	INITIATING MESSAGE		Paging
+	PROCEDURE CODE			id-Paging
+	CRITICALITY				ignore
 }
 
 downlinkNASTransport S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -380,23 +384,23 @@ nASNonDeliveryIndication S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 handoverCancel S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	HandoverCancel
-	SUCCESSFUL OUTCOME	HandoverCancelAcknowledge
+	INITIATING MESSAGE		HandoverCancel
+	SUCCESSFUL OUTCOME		HandoverCancelAcknowledge
 	PROCEDURE CODE			id-HandoverCancel
-	CRITICALITY		reject
+	CRITICALITY				reject
 }
 
 reset S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	Reset
-	SUCCESSFUL OUTCOME	ResetAcknowledge
-	PROCEDURE CODE		id-Reset
-	CRITICALITY			reject
+	INITIATING MESSAGE		Reset
+	SUCCESSFUL OUTCOME		ResetAcknowledge
+	PROCEDURE CODE			id-Reset
+	CRITICALITY				reject
 }
 
 errorIndication S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	ErrorIndication
-	PROCEDURE CODE		id-ErrorIndication
-	CRITICALITY		ignore
+	INITIATING MESSAGE		ErrorIndication
+	PROCEDURE CODE			id-ErrorIndication
+	CRITICALITY				ignore
 }
 
 s1Setup S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -439,9 +443,8 @@ uEContextModification S1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequest
 	SUCCESSFUL OUTCOME		UEContextModificationResponse
 	UNSUCCESSFUL OUTCOME 	UEContextModificationFailure
-
-	PROCEDURE CODE		id-UEContextModification
-	CRITICALITY		reject
+	PROCEDURE CODE			id-UEContextModification
+	CRITICALITY				reject
 }
 
 uECapabilityInfoIndication S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -476,20 +479,20 @@ deactivateTrace S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 traceStart S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	TraceStart
-	PROCEDURE CODE		id-TraceStart
-	CRITICALITY			ignore
+	INITIATING MESSAGE		TraceStart
+	PROCEDURE CODE			id-TraceStart
+	CRITICALITY				ignore
 }
 
 traceFailureIndication S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	TraceFailureIndication
-	PROCEDURE CODE		id-TraceFailureIndication
-	CRITICALITY			ignore
+	INITIATING MESSAGE		TraceFailureIndication
+	PROCEDURE CODE			id-TraceFailureIndication
+	CRITICALITY				ignore
 }
 cellTrafficTrace S1AP-ELEMENTARY-PROCEDURE ::={
-INITIATING MESSAGE CellTrafficTrace
-PROCEDURE CODE      id-CellTrafficTrace
-CRITICALITY         ignore
+INITIATING MESSAGE		CellTrafficTrace
+PROCEDURE CODE			id-CellTrafficTrace
+CRITICALITY				ignore
 }
 
 locationReportingControl S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -511,34 +514,34 @@ locationReport S1AP-ELEMENTARY-PROCEDURE ::= {
 }
 
 overloadStart S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	OverloadStart
-	PROCEDURE CODE		id-OverloadStart
-	CRITICALITY		ignore
+	INITIATING MESSAGE		OverloadStart
+	PROCEDURE CODE			id-OverloadStart
+	CRITICALITY				ignore
 }
 
 overloadStop S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	OverloadStop
-	PROCEDURE CODE		id-OverloadStop
-	CRITICALITY		reject
+	INITIATING MESSAGE		OverloadStop
+	PROCEDURE CODE			id-OverloadStop
+	CRITICALITY				reject
 }
 
 writeReplaceWarning S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	WriteReplaceWarningRequest
-	SUCCESSFUL OUTCOME	WriteReplaceWarningResponse
-	PROCEDURE CODE		id-WriteReplaceWarning
-	CRITICALITY			reject
+	INITIATING MESSAGE		WriteReplaceWarningRequest
+	SUCCESSFUL OUTCOME		WriteReplaceWarningResponse
+	PROCEDURE CODE			id-WriteReplaceWarning
+	CRITICALITY				reject
 }
 
 eNBDirectInformationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	ENBDirectInformationTransfer
-	PROCEDURE CODE		id-eNBDirectInformationTransfer
-	CRITICALITY			ignore
+	INITIATING MESSAGE		ENBDirectInformationTransfer
+	PROCEDURE CODE			id-eNBDirectInformationTransfer
+	CRITICALITY				ignore
 }
 
 mMEDirectInformationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	MMEDirectInformationTransfer
-	PROCEDURE CODE		id-MMEDirectInformationTransfer
-	CRITICALITY			ignore
+	INITIATING MESSAGE		MMEDirectInformationTransfer
+	PROCEDURE CODE			id-MMEDirectInformationTransfer
+	CRITICALITY				ignore
 }
 
 eNBConfigurationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -555,16 +558,16 @@ mMEConfigurationTransfer S1AP-ELEMENTARY-PROCEDURE ::= {
 
 
 privateMessage S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	PrivateMessage
-	PROCEDURE CODE		id-PrivateMessage
-	CRITICALITY			ignore
+	INITIATING MESSAGE		PrivateMessage
+	PROCEDURE CODE			id-PrivateMessage
+	CRITICALITY				ignore
 }
 
 kill S1AP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE	KillRequest
-	SUCCESSFUL OUTCOME	KillResponse
-	PROCEDURE CODE		id-Kill
-	CRITICALITY			reject
+	INITIATING MESSAGE		KillRequest
+	SUCCESSFUL OUTCOME		KillResponse
+	PROCEDURE CODE			id-Kill
+	CRITICALITY				reject
 }
 
 downlinkUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
@@ -590,5 +593,13 @@ uplinkNonUEAssociatedLPPaTransport S1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+uERadioCapabilityMatch S1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UERadioCapabilityMatchRequest
+	SUCCESSFUL OUTCOME		UERadioCapabilityMatchResponse
+	PROCEDURE CODE			id-UERadioCapabilityMatch
+	CRITICALITY				reject
+}
+
 END
+
 

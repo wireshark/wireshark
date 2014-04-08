@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V10.3.0 (2011-09)
+-- 3GPP TS 36.413 V11.6.0 (2013-12)
 -- B.2	ASN.1 definition
 -- **************************************************************
 --
@@ -23,7 +23,10 @@ SONtransferApplicationIdentity ::= ENUMERATED {
 	...,
 	multi-cell-load-reporting,
 	event-triggered-cell-load-reporting,
-	ho-reporting
+	ho-reporting,
+	eutran-cell-activation,
+	energy-savings-indication,
+	failure-event-reporting
 }
 
 SONtransferRequestContainer ::= CHOICE{
@@ -31,15 +34,21 @@ SONtransferRequestContainer ::= CHOICE{
 	...,
 	multiCellLoadReporting				MultiCellLoadReportingRequest,
 	eventTriggeredCellLoadReporting		EventTriggeredCellLoadReportingRequest,
-	hOReporting							HOReport
+	hOReporting							HOReport,
+	eutranCellActivation				CellActivationRequest,
+	energySavingsIndication				CellStateIndication,
+	failureEventReporting				FailureEventReport
 }
 
 SONtransferResponseContainer ::= CHOICE{
 	cellLoadReporting					CellLoadReportingResponse,
 	...,
 	multiCellLoadReporting				MultiCellLoadReportingResponse,
-	eventTriggeredCellLoadReporting		EventTriggeredCellLoadReportingResponse,
-	hOReporting							NULL
+	eventTriggeredCellLoadReporting	EventTriggeredCellLoadReportingResponse,
+	hOReporting							NULL,
+	eutranCellActivation				CellActivationResponse,
+	energySavingsIndication				NULL,
+	failureEventReporting				NULL
 }
 
 SONtransferCause ::= CHOICE {
@@ -47,7 +56,10 @@ SONtransferCause ::= CHOICE {
 	...,
 	multiCellLoadReporting				CellLoadReportingCause,
 	eventTriggeredCellLoadReporting		CellLoadReportingCause,
-	hOReporting							HOReportingCause
+	hOReporting							HOReportingCause,
+	eutranCellActivation				CellActivationCause,
+	energySavingsIndication				CellStateIndicationCause,
+	failureEventReporting				FailureEventReportingCause
 }
 
 
@@ -59,6 +71,27 @@ CellLoadReportingCause ::= ENUMERATED {
 }
 
 HOReportingCause ::= ENUMERATED {
+	application-container-syntax-error,
+	inconsistent-reporting-cell-identifier,
+	unspecified,
+	...
+}
+
+CellActivationCause ::= ENUMERATED {
+	application-container-syntax-error,
+	inconsistent-reporting-cell-identifier,
+	unspecified,
+	...
+}
+
+CellStateIndicationCause ::= ENUMERATED {
+	application-container-syntax-error,
+	inconsistent-reporting-cell-identifier,
+	unspecified,
+	...
+}
+
+FailureEventReportingCause ::= ENUMERATED {
 	application-container-syntax-error,
 	inconsistent-reporting-cell-identifier,
 	unspecified,
@@ -79,7 +112,7 @@ CellLoadReportingResponse::= CHOICE{
 CompositeAvailableCapacityGroup ::= OCTET STRING
 
 EUTRANcellLoadReportingResponse ::= SEQUENCE {
-	compositeAvailableCapacityGroup					CompositeAvailableCapacityGroup,
+	compositeAvailableCapacityGroup		CompositeAvailableCapacityGroup,
 	...
 }
 
@@ -87,33 +120,39 @@ EUTRANcellLoadReportingResponse ::= SEQUENCE {
 -- IEs for Multi-Cell Load Reporting application
 --
 
---- WS Allready in S1AP
---- EUTRAN-CGI ::= OCTET STRING
+EUTRANResponse::= SEQUENCE {
+	cell-ID			OCTET STRING,
+	eUTRANcellLoadReportingResponse		EUTRANcellLoadReportingResponse,
+	...
+}
 
 IRAT-Cell-ID ::= CHOICE{
-	eUTRAN			EUTRAN-CGI,
+	eUTRAN			OCTET STRING,
 	uTRAN			OCTET STRING,
 	gERAN			OCTET STRING,
 	...
 }
 
-RequestedCellList ::= SEQUENCE (SIZE(1.. maxIRATReportingCells)) OF IRAT-Cell-ID
+RequestedCellList ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF IRAT-Cell-ID
 
 MultiCellLoadReportingRequest::= SEQUENCE {
-	requestedCellList					RequestedCellList,
+	requestedCellList						RequestedCellList,
 	...
 }
 
 ReportingCellList-Item ::= SEQUENCE {
-	cell-ID								IRAT-Cell-ID,
+	cell-ID									IRAT-Cell-ID,
 	...
 }
 
-ReportingCellList ::= SEQUENCE (SIZE(1.. maxIRATReportingCells)) OF ReportingCellList-Item
+ReportingCellList ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF ReportingCellList-Item
 
-MultiCellLoadReportingResponse ::= SEQUENCE {
-	reportingCellList								ReportingCellList,
-	cellLoadReportingResponse						CellLoadReportingResponse,
+MultiCellLoadReportingResponse ::= SEQUENCE (SIZE(1.. maxnoofIRATReportingCells)) OF MultiCellLoadReportingResponse-Item
+
+MultiCellLoadReportingResponse-Item ::= CHOICE{ 
+	eUTRANResponse							EUTRANResponse,
+	uTRANResponse							OCTET STRING,
+	gERANResponse							OCTET STRING,
 	...
 }
 
@@ -170,12 +209,78 @@ HoType ::= ENUMERATED {
 
 HoReportType ::= ENUMERATED {
 	unnecessaryhotoanotherrat,
+	...,
+	earlyirathandover
+}
+
+CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
+
+--
+-- IEs for E-UTRAN Cell Activation application
+--
+
+CellActivationRequest ::= SEQUENCE {
+	cellsToActivateList		CellsToActivateList,
+	minimumActivationTime	INTEGER (1..60)		OPTIONAL,
+...
+}
+
+CellsToActivateList ::= SEQUENCE (SIZE(1.. maxnoofCellineNB)) OF CellsToActivateList-Item
+
+CellsToActivateList-Item ::= SEQUENCE {
+	cell-ID					OCTET STRING,
 	...
 }
 
-maxnoofcandidateCells							INTEGER ::= 16
+CellActivationResponse ::= SEQUENCE {
+	activatedCellsList		ActivatedCellsList,
+	...
+}
 
-CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
+ActivatedCellsList ::= SEQUENCE (SIZE(0.. maxnoofCellineNB)) OF ActivatedCellsList-Item
+
+ActivatedCellsList-Item ::= SEQUENCE {
+	cell-ID					OCTET STRING,
+	...
+}
+
+--
+-- IEs for Energy Savings Indication application
+--
+
+CellStateIndication ::= SEQUENCE {
+	notificationCellList			NotificationCellList,
+	...
+}
+
+NotificationCellList ::= SEQUENCE (SIZE(1.. maxnoofCellineNB)) OF NotificationCellList-Item
+
+NotificationCellList-Item ::= SEQUENCE {
+	cell-ID					OCTET STRING,
+	notifyFlag				NotifyFlag,
+	...
+}
+
+NotifyFlag ::= ENUMERATED {
+	activated,
+	deactivated,
+	...
+}
+
+FailureEventReport::= CHOICE {
+	tooEarlyInterRATHOReportFromEUTRAN			TooEarlyInterRATHOReportReportFromEUTRAN,
+	...
+}
+
+TooEarlyInterRATHOReportReportFromEUTRAN ::= SEQUENCE {
+	uERLFReportContainer	OCTET STRING, -- as defined in TS 36.331 [16] --
+	mobilityInformation		MobilityInformation		OPTIONAL,
+	...
+}
+
+-- WS allready in S1AP-IEs.asn
+--MobilityInformation ::= BIT STRING (SIZE(32))
+
 
 -- **************************************************************
 --
@@ -183,6 +288,9 @@ CandidateCellList ::= SEQUENCE (SIZE(1..maxnoofcandidateCells)) OF IRAT-Cell-ID
 --
 -- **************************************************************
 
-maxIRATReportingCells						INTEGER ::= 128		-- Value is FFS
+maxnoofIRATReportingCells					INTEGER ::= 128
+maxnoofcandidateCells						INTEGER ::= 16
+maxnoofCellineNB							INTEGER ::= 256
 
 END
+
