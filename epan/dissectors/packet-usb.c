@@ -2697,7 +2697,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint8                setup_flag;
     guint16               hdr_len;
     guint32               win32_data_len = 0;
-    proto_tree           *tree           = NULL;
+    proto_tree           *tree;
     guint32               tmp_addr;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint32               src_endpoint, dst_endpoint;
@@ -2720,13 +2720,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
 
     if (header_info & USB_HEADER_IS_LINUX) {
-        /* add usb hdr*/
-        if (parent) {
-            proto_item *ti;
-            ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0,
-                                                (header_info & USB_HEADER_IS_64_BYTES) ? 64 : 48, "USB URB");
-            tree = proto_item_add_subtree(ti, usb_hdr);
-        }
+        proto_item *ti;
+        ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0,
+                (header_info & USB_HEADER_IS_64_BYTES) ? 64 : 48, "USB URB");
+        tree = proto_item_add_subtree(ti, usb_hdr);
 
         dissect_linux_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
         urb_type          = tvb_get_guint8(tvb, 8);
@@ -2738,16 +2735,12 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         setup_flag        = tvb_get_guint8(tvb, 14);
         offset           += 40;           /* skip first part of the pseudo-header */
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
-        guint8  tmp_val8;
+        guint8      tmp_val8;
+        proto_item *ti;
 
         tvb_memcpy(tvb, (guint8 *)&hdr_len, 0, 2);
-        /* add usb hdr */
-        if (parent) {
-            proto_item *ti;
-            ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0,
-                                                hdr_len, "USB URB");
-            tree = proto_item_add_subtree(ti, usb_hdr);
-        }
+        ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, hdr_len, "USB URB");
+        tree = proto_item_add_subtree(ti, usb_hdr);
 
         dissect_win32_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
 
