@@ -106,9 +106,6 @@ include(UseAsn2Wrs)
 
 # Under linux the release mode (CMAKE_BUILD_TYPE=release) defines NDEBUG
 
-# Enable with: "make VERBOSE=1"
-set(CMAKE_VERBOSE_MAKEFILE OFF)
-
 #Defines CMAKE_INSTALL_BINDIR, CMAKE_INSTALL_DATADIR, etc ...
 include(CMakeInstallDirs)
 
