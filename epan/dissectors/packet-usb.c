@@ -2555,7 +2555,7 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
 /* Adds the Linux USB pseudo header fields to the tree. */
 static void
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint *bus_id, guint *device_address)
+        guint *bus_id, guint16 *device_address)
 {
     guint8  transfer_type;
     guint8  endpoint_number;
@@ -2580,7 +2580,7 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
     proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_NA);
-    *device_address = tvb_get_guint8(tvb, 11);
+    *device_address = (guint16)tvb_get_guint8(tvb, 11);
 
     proto_tree_add_item(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN);
     tvb_memcpy(tvb, bus_id, 12, 2);
@@ -2637,7 +2637,7 @@ dissect_linux_usb_pseudo_header_ext(tvbuff_t *tvb, int offset,
 /* Adds the win32 USBPcap pseudo header fields to the tree. */
 static void
 dissect_win32_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint *bus_id, guint *device_address)
+        guint *bus_id, guint16 *device_address)
 {
     guint8  transfer_type;
     guint8  endpoint_number;
@@ -2698,7 +2698,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint16               hdr_len;
     guint32               win32_data_len = 0;
     proto_tree           *tree;
-    guint32               tmp_addr;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint32               src_endpoint, dst_endpoint;
     gboolean              is_request;
@@ -2707,7 +2706,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     conversation_t       *conversation;
     usb_tap_data_t       *tap_data;
     guint                bus_id = 0;
-    guint                device_address = 0;
+    guint16              device_address;
     tvbuff_t             *next_tvb = NULL;
     tvbuff_t             *setup_tvb = NULL;
     device_product_data_t   *device_product_data = NULL;
@@ -2731,7 +2730,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         type              = tvb_get_guint8(tvb, 9);
         endpoint_with_dir = tvb_get_guint8(tvb, 10);
         endpoint          = endpoint_with_dir & (~URB_TRANSFER_IN);
-        tmp_addr          = tvb_get_guint8(tvb, 11);
         setup_flag        = tvb_get_guint8(tvb, 14);
         offset           += 40;           /* skip first part of the pseudo-header */
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
@@ -2756,7 +2754,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         type              = tvb_get_guint8(tvb, 22);
         endpoint_with_dir = tvb_get_guint8(tvb, 21);
         endpoint          = endpoint_with_dir & (~URB_TRANSFER_IN);
-        tmp_addr          = device_address;
 
         win32_data_len = tvb_get_letohl(tvb, 23);
         usbpcap_control_stage = tvb_get_guint8(tvb, 27);
@@ -2780,10 +2777,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (is_request) {
         src_addr.device   = 0xffffffff;
         src_addr.endpoint = src_endpoint = NO_ENDPOINT;
-        dst_addr.device   = GUINT32_TO_LE(tmp_addr);
+        dst_addr.device   = GUINT16_TO_LE(device_address);
         dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
     } else {
-        src_addr.device   = GUINT32_TO_LE(tmp_addr);
+        src_addr.device   = GUINT16_TO_LE(device_address);
         src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
         dst_addr.device   = 0xffffffff;
         dst_addr.endpoint = dst_endpoint = NO_ENDPOINT;
