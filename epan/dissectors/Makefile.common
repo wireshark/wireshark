@@ -1493,6 +1493,7 @@ DISSECTOR_INCLUDES =	\
 	packet-lbm.h	\
 	packet-lbtrm.h	\
 	packet-lbtru.h	\
+	packet-lbttcp.h		\
 	packet-ldap.h	\
 	packet-lcsap.h	\
 	packet-ldp.h	\
