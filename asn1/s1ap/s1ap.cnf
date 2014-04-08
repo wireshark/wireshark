@@ -49,6 +49,8 @@ SourceBSS-ToTargetBSS-TransparentContainer
 TargetBSS-ToSourceBSS-TransparentContainer
 SourceRNC-ToTargetRNC-TransparentContainer
 TargetRNC-ToSourceRNC-TransparentContainer
+ReportingCellList
+ReportingCellList-Item
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
