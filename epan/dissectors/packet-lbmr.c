@@ -2045,7 +2045,8 @@ static gboolean lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * 
     guint32 dest_addr_h;
     guint32 src_addr_h;
 
-    if (pinfo->dst.type != AT_IPv4 || pinfo->src.type != AT_IPv4)
+    if ((pinfo->dst.type != AT_IPv4) || (pinfo->dst.len != 4) ||
+        (pinfo->src.type != AT_IPv4) || (pinfo->src.len != 4))
         return (FALSE);
     dest_addr_h = pntoh32(pinfo->dst.data);
     src_addr_h = pntoh32(pinfo->src.data);
