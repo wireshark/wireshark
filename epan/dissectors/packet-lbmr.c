@@ -25,6 +25,8 @@
 #include "config.h"
 #ifdef HAVE_ARPA_INET_H
     #include <arpa/inet.h>
+#else
+    typedef unsigned int in_addr_t;
 #endif
 #if HAVE_WINSOCK2_H
     #include <winsock2.h>
