@@ -94,8 +94,8 @@ static guint kafka_port = 0;
 #define KAFKA_METADATA      3
 #define KAFKA_LEADER_ISR    4
 #define KAFKA_STOP_REPLICA  5
-#define KAFKA_OFFSET_COMMIT 6
-#define KAFKA_OFFSET_FETCH  7
+#define KAFKA_OFFSET_COMMIT 8
+#define KAFKA_OFFSET_FETCH  9
 static const value_string kafka_apis[] = {
     { KAFKA_PRODUCE,       "Produce"        },
     { KAFKA_FETCH,         "Fetch"          },
