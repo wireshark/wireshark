@@ -72,6 +72,10 @@
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
 #include "io_graph_dialog.h"
+#include "lbm_stream_dialog.h"
+#include "lbm_uimflow_dialog.h"
+#include "lbm_lbtrm_transport_dialog.h"
+#include "lbm_lbtru_transport_dialog.h"
 #include "packet_comment_dialog.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
@@ -419,7 +423,7 @@ void MainWindow::captureFileReadFinished(const capture_file *cf) {
 //        add_menu_recent_capture_file(cf->filename);
 
 //        /* Remember folder for next Open dialog and save it in recent */
-//	dir_path = get_dirname(g_strdup(cf->filename));
+//  dir_path = get_dirname(g_strdup(cf->filename));
 //        wsApp->setLastOpenDir(dir_path);
 //        g_free(dir_path);
 //    }
@@ -1909,6 +1913,100 @@ void MainWindow::openStatisticsTreeDialog(const gchar *abbr)
     connect(this, SIGNAL(setCaptureFile(capture_file*)),
             st_dialog, SLOT(setCaptureFile(capture_file*)));
     st_dialog->show();
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_ads_topic");
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Advertisements_by_Source_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_ads_source");
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Advertisements_by_Transport_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_ads_transport");
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Queries_by_Topic_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_queries_topic");
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Queries_by_Receiver_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_queries_receiver");
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Wildcard_Queries_by_Pattern_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_queries_pattern");
+}
+
+void MainWindow::on_actionStatistics29WestTopics_Wildcard_Queries_by_Receiver_triggered()
+{
+    openStatisticsTreeDialog("lbmr_topic_queries_pattern_receiver");
+}
+
+void MainWindow::on_actionStatistics29WestQueues_Advertisements_by_Queue_triggered()
+{
+    openStatisticsTreeDialog("lbmr_queue_ads_queue");
+}
+
+void MainWindow::on_actionStatistics29WestQueues_Advertisements_by_Source_triggered()
+{
+    openStatisticsTreeDialog("lbmr_queue_ads_source");
+}
+
+void MainWindow::on_actionStatistics29WestQueues_Queries_by_Queue_triggered()
+{
+    openStatisticsTreeDialog("lbmr_queue_queries_queue");
+}
+
+void MainWindow::on_actionStatistics29WestQueues_Queries_by_Receiver_triggered()
+{
+    openStatisticsTreeDialog("lbmr_queue_queries_receiver");
+}
+
+void MainWindow::on_actionStatistics29WestUIM_Streams_triggered()
+{
+    LBMStreamDialog *stream_dialog = new LBMStreamDialog(this, cap_file_);
+//    connect(stream_dialog, SIGNAL(goToPacket(int)),
+//            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            stream_dialog, SLOT(setCaptureFile(capture_file*)));
+    stream_dialog->show();
+}
+
+void MainWindow::on_actionStatistics29WestUIM_Stream_Flow_Graph_triggered()
+{
+    LBMUIMFlowDialog * uimflow_dialog = new LBMUIMFlowDialog(this, cap_file_);
+    connect(uimflow_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            uimflow_dialog, SLOT(setCaptureFile(capture_file*)));
+    uimflow_dialog->show();
+}
+
+void MainWindow::on_actionStatistics29WestLBTRM_triggered()
+{
+    LBMLBTRMTransportDialog * lbtrm_dialog = new LBMLBTRMTransportDialog(this, cap_file_);
+    connect(lbtrm_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            lbtrm_dialog, SLOT(setCaptureFile(capture_file*)));
+    lbtrm_dialog->show();
+}
+void MainWindow::on_actionStatistics29WestLBTRU_triggered()
+{
+    LBMLBTRUTransportDialog * lbtru_dialog = new LBMLBTRUTransportDialog(this, cap_file_);
+    connect(lbtru_dialog, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            lbtru_dialog, SLOT(setCaptureFile(capture_file*)));
+    lbtru_dialog->show();
 }
 
 void MainWindow::on_actionStatisticsANCP_triggered()

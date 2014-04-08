@@ -233,6 +233,10 @@ FORMS += \
     import_text_dialog.ui \
     io_graph_dialog.ui \
     layout_preferences_frame.ui \
+    lbm_lbtrm_transport_dialog.ui \
+    lbm_lbtru_transport_dialog.ui \
+    lbm_stream_dialog.ui \
+    lbm_uimflow_dialog.ui \
     main_welcome.ui \
     main_window.ui \
     main_window_preferences_frame.ui \
@@ -274,6 +278,10 @@ HEADERS += $$HEADERS_WS_C \
     follow_stream_text.h \
     font_color_preferences_frame.h \
     layout_preferences_frame.h \
+    lbm_lbtrm_transport_dialog.h \
+    lbm_lbtru_transport_dialog.h \
+    lbm_stream_dialog.h \
+    lbm_uimflow_dialog.h \
     main_window_preferences_frame.h \
     module_preferences_scroll_area.h \
     packet_comment_dialog.h \
@@ -588,6 +596,10 @@ SOURCES += \
     io_graph_dialog.cpp \
     label_stack.cpp \
     layout_preferences_frame.cpp \
+    lbm_lbtrm_transport_dialog.cpp \
+    lbm_lbtru_transport_dialog.cpp \
+    lbm_stream_dialog.cpp \
+    lbm_uimflow_dialog.cpp \
     main.cpp \
     main_status_bar.cpp \
     main_welcome.cpp \

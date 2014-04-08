@@ -54,6 +54,10 @@ set(WIRESHARK_QT_HEADERS
 	io_graph_dialog.h
 	label_stack.h
 	layout_preferences_frame.h
+	lbm_lbtrm_transport_dialog.h
+	lbm_lbtru_transport_dialog.h
+	lbm_stream_dialog.h
+	lbm_uimflow_dialog.h
 	main_status_bar.h
 	main_welcome.h
 	main_window.h
@@ -130,6 +134,10 @@ set(WIRESHARK_QT_SRC
 	io_graph_dialog.cpp
 	label_stack.cpp
 	layout_preferences_frame.cpp
+	lbm_lbtrm_transport_dialog.cpp
+	lbm_lbtru_transport_dialog.cpp
+	lbm_stream_dialog.cpp
+	lbm_uimflow_dialog.cpp
 	main.cpp
 	main_status_bar.cpp
 	main_welcome.cpp
@@ -199,6 +207,10 @@ set(WIRESHARK_QT_UI
 	import_text_dialog.ui
 	io_graph_dialog.ui
 	layout_preferences_frame.ui
+	lbm_lbtrm_transport_dialog.ui
+	lbm_lbtru_transport_dialog.ui
+	lbm_stream_dialog.ui
+	lbm_uimflow_dialog.ui
 	main_welcome.ui
 	main_window.ui
 	main_window_preferences_frame.ui

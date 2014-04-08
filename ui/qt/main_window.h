@@ -341,6 +341,21 @@ private slots:
 #endif
 
     void openStatisticsTreeDialog(const gchar *abbr);
+    void on_actionStatistics29WestTopics_Advertisements_by_Topic_triggered();
+    void on_actionStatistics29WestTopics_Advertisements_by_Source_triggered();
+    void on_actionStatistics29WestTopics_Advertisements_by_Transport_triggered();
+    void on_actionStatistics29WestTopics_Queries_by_Topic_triggered();
+    void on_actionStatistics29WestTopics_Queries_by_Receiver_triggered();
+    void on_actionStatistics29WestTopics_Wildcard_Queries_by_Pattern_triggered();
+    void on_actionStatistics29WestTopics_Wildcard_Queries_by_Receiver_triggered();
+    void on_actionStatistics29WestQueues_Advertisements_by_Queue_triggered();
+    void on_actionStatistics29WestQueues_Advertisements_by_Source_triggered();
+    void on_actionStatistics29WestQueues_Queries_by_Queue_triggered();
+    void on_actionStatistics29WestQueues_Queries_by_Receiver_triggered();
+    void on_actionStatistics29WestUIM_Streams_triggered();
+    void on_actionStatistics29WestUIM_Stream_Flow_Graph_triggered();
+    void on_actionStatistics29WestLBTRM_triggered();
+    void on_actionStatistics29WestLBTRU_triggered();
     void on_actionStatisticsANCP_triggered();
     void on_actionStatisticsBACappInstanceId_triggered();
     void on_actionStatisticsBACappIP_triggered();

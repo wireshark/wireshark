@@ -326,12 +326,51 @@
      <addaction name="actionStatisticsHTTPRequests"/>
      <addaction name="actionStatisticsHTTPLoadDistribution"/>
     </widget>
+    <widget class="QMenu" name="menu29West">
+     <property name="title">
+      <string>29West</string>
+     </property>
+     <widget class="QMenu" name="menu29WestTopics">
+      <property name="title">
+       <string>Topics</string>
+      </property>
+      <addaction name="actionStatistics29WestTopics_Advertisements_by_Topic"/>
+      <addaction name="actionStatistics29WestTopics_Advertisements_by_Source"/>
+      <addaction name="actionStatistics29WestTopics_Advertisements_by_Transport"/>
+      <addaction name="actionStatistics29WestTopics_Queries_by_Topic"/>
+      <addaction name="actionStatistics29WestTopics_Queries_by_Receiver"/>
+      <addaction name="actionStatistics29WestTopics_Wildcard_Queries_by_Pattern"/>
+      <addaction name="actionStatistics29WestTopics_Wildcard_Queries_by_Receiver"/>
+     </widget>
+     <widget class="QMenu" name="menu29WestQueues">
+      <property name="title">
+       <string>Queues</string>
+      </property>
+      <addaction name="actionStatistics29WestQueues_Advertisements_by_Queue"/>
+      <addaction name="actionStatistics29WestQueues_Advertisements_by_Source"/>
+      <addaction name="actionStatistics29WestQueues_Queries_by_Queue"/>
+      <addaction name="actionStatistics29WestQueues_Queries_by_Receiver"/>
+     </widget>
+     <widget class="QMenu" name="menu29WestUIM">
+      <property name="title">
+       <string>UIM</string>
+      </property>
+      <addaction name="actionStatistics29WestUIM_Streams"/>
+      <addaction name="actionStatistics29WestUIM_Stream_Flow_Graph"/>
+     </widget>
+     <addaction name="menu29WestTopics"/>
+     <addaction name="menu29WestQueues"/>
+     <addaction name="menu29WestUIM"/>
+     <addaction name="actionStatistics29WestLBTRM"/>
+	 <addaction name="actionStatistics29WestLBTRU"/>
+    </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
     <addaction name="actionStatisticsPacketLen"/>
     <addaction name="actionStatisticsIOGraph"/>
     <addaction name="separator"/>
     <addaction name="separator"/>
+    <addaction name="menu29West"/>
     <addaction name="actionStatisticsANCP"/>
     <addaction name="menuBACnet"/>
     <addaction name="actionStatisticsCollectd"/>
@@ -1537,6 +1576,86 @@
    </property>
    <property name="toolTip">
     <string>Change the way packets are dissected</string>
+   </property>
+  </action>
+  <action name="action29West">
+   <property name="text">
+    <string>29West</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Advertisements_by_Topic">
+   <property name="text">
+    <string>Advertisements by Topic</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Advertisements_by_Source">
+   <property name="text">
+    <string>Advertisements by Source</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Advertisements_by_Transport">
+   <property name="text">
+    <string>Advertisements by Transport</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Queries_by_Topic">
+   <property name="text">
+    <string>Queries by Topic</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Queries_by_Receiver">
+   <property name="text">
+    <string>Queries by Receiver</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Wildcard_Queries_by_Pattern">
+   <property name="text">
+    <string>Wildcard Queries by Pattern</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestTopics_Wildcard_Queries_by_Receiver">
+   <property name="text">
+    <string>Wildcard Queries by Receiver</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestQueues_Advertisements_by_Queue">
+   <property name="text">
+    <string>Advertisements by Queue</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestQueues_Advertisements_by_Source">
+   <property name="text">
+    <string>Advertisements by Source</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestQueues_Queries_by_Queue">
+   <property name="text">
+    <string>Queries by Queue</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestQueues_Queries_by_Receiver">
+   <property name="text">
+    <string>Queries by Receiver</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestUIM_Streams">
+   <property name="text">
+    <string>Streams</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestUIM_Stream_Flow_Graph">
+   <property name="text">
+    <string>Stream Flow Graph</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestLBTRM">
+   <property name="text">
+    <string>LBT-RM</string>
+   </property>
+  </action>
+  <action name="actionStatistics29WestLBTRU">
+   <property name="text">
+    <string>LBT-RU</string>
    </property>
   </action>
   <action name="actionSCTPFilterThisAssociation">

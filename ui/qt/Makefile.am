@@ -153,6 +153,14 @@ io_graph_dialog.cpp io_graph_dialog.h: ui_io_graph_dialog.h
 
 layout_preferences_frame.cpp layout_preferences_frame.h: ui_layout_preferences_frame.h
 
+lbm_lbtrm_transport_dialog.cpp lbm_lbtrm_transport_dialog.h: ui_lbm_lbtrm_transport_dialog.h
+
+lbm_lbtru_transport_dialog.cpp lbm_lbtru_transport_dialog.h: ui_lbm_lbtru_transport_dialog.h
+
+lbm_stream_dialog.cpp lbm_stream_dialog.h: ui_lbm_stream_dialog.h
+
+lbm_uimflow_dialog.cpp lbm_uimflow_dialog.h: ui_lbm_uimflow_dialog.h
+
 main_welcome.cpp main_welcome.h: ui_main_welcome.h
 
 main_window.cpp main_window_slots.cpp main_window.h: ui_main_window.h
