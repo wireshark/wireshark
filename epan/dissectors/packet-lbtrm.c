@@ -25,8 +25,6 @@
 #include "config.h"
 #ifdef HAVE_ARPA_INET_H
     #include <arpa/inet.h>
-#else
-    typedef unsigned int in_addr_t;
 #endif
 #if HAVE_WINSOCK2_H
     #include <winsock2.h>
@@ -43,6 +41,7 @@
 #include <epan/conversation.h>
 #include <epan/to_str.h>
 #include <wsutil/inet_aton.h>
+#include <wsutil/pint.h>
 #include "packet-lbm.h"
 #include "packet-lbtrm.h"
 
@@ -742,16 +741,14 @@ static char * lbtrm_tag_find(packet_info * pinfo)
 {
     guint idx;
     lbtrm_tag_entry_t * tag = NULL;
-    in_addr_t dest_addr;
-    in_addr_t dest_addr_h;
+    guint32 dest_addr_h;
 
     if (!lbtrm_use_tag)
     {
         return (NULL);
     }
 
-    dest_addr = *((in_addr_t *)pinfo->dst.data);
-    dest_addr_h = g_ntohl(dest_addr);
+    dest_addr_h = pntoh32(pinfo->dst.data);
     for (idx = 0; idx < lbtrm_tag_count; ++idx)
     {
         tag = &(lbtrm_tag_entry[idx]);
@@ -1531,8 +1528,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * user_data)
 {
-    in_addr_t dest_addr;
-    in_addr_t dest_addr_h;
+    guint32 dest_addr_h;
     gboolean valid_packet = FALSE;
     guint8 ver_type = 0;
     guint8 packet_type = 0;
@@ -1584,8 +1580,7 @@ static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     }
     else
     {
-        dest_addr = *((in_addr_t *)pinfo->dst.data);
-        dest_addr_h = g_ntohl(dest_addr);
+        dest_addr_h = pntoh32(pinfo->dst.data);
 
         /* Is the destination a multicast address? */
         if (IN_MULTICAST(dest_addr_h))
@@ -1633,8 +1628,8 @@ void proto_reg_handoff_lbtrm(void)
 {
     static gboolean already_registered = FALSE;
     struct in_addr addr;
-    in_addr_t dest_addr_h_low;
-    in_addr_t dest_addr_h_high;
+    guint32 dest_addr_h_low;
+    guint32 dest_addr_h_high;
 
     if (!already_registered)
     {

@@ -25,8 +25,6 @@
 #include "config.h"
 #ifdef HAVE_ARPA_INET_H
     #include <arpa/inet.h>
-#else
-    typedef unsigned int in_addr_t;
 #endif
 #if HAVE_WINSOCK2_H
     #include <winsock2.h>
@@ -44,6 +42,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #include <wsutil/inet_aton.h>
+#include <wsutil/pint.h>
 #include "packet-lbm.h"
 #include "packet-lbtru.h"
 #include "packet-lbtrm.h"
@@ -2043,17 +2042,13 @@ static void lbmr_tag_free_cb(void * record)
 
 static gboolean lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * entry)
 {
-    in_addr_t dest_addr;
-    in_addr_t src_addr;
-    in_addr_t dest_addr_h;
-    in_addr_t src_addr_h;
+    guint32 dest_addr_h;
+    guint32 src_addr_h;
 
     if (pinfo->dst.type != AT_IPv4 || pinfo->src.type != AT_IPv4)
         return (FALSE);
-    dest_addr = *((in_addr_t *)pinfo->dst.data);
-    dest_addr_h = g_ntohl(dest_addr);
-    src_addr = *((in_addr_t *)pinfo->src.data);
-    src_addr_h = g_ntohl(src_addr);
+    dest_addr_h = pntoh32(pinfo->dst.data);
+    src_addr_h = pntoh32(pinfo->src.data);
 
     if (IN_MULTICAST(dest_addr_h))
     {
