@@ -23,10 +23,8 @@
  */
 
 #include "config.h"
-#if HAVE_NETINET_IN_H
-    #include <netinet/in.h>
-#else
-typedef unsigned int in_addr_t;
+#ifdef HAVE_ARPA_INET_H
+    #include <arpa/inet.h>
 #endif
 #if HAVE_WINSOCK2_H
     #include <winsock2.h>

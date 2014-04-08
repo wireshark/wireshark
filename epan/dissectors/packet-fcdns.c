@@ -25,10 +25,6 @@
 
 #include "config.h"
 
-#ifdef HAVE_NETINET_IN_H
-# include <netinet/in.h>
-#endif
-
 #include <glib.h>
 
 #include <epan/packet.h>

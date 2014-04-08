@@ -23,11 +23,6 @@
  */
 
 #include "config.h"
-#if HAVE_NETINET_IN_H
-    #include <netinet/in.h>
-#else
-typedef unsigned int in_addr_t;
-#endif
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>

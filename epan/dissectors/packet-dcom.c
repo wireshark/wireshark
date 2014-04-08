@@ -65,15 +65,8 @@
 
 #include "config.h"
 
-/*
- * XXX - are the next two includes necessary?
- */
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
+#ifdef HAVE_ARPA_INET_H
+#include <arpa/inet.h>
 #endif
 
 #ifdef HAVE_WINSOCK2_H

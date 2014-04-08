@@ -23,10 +23,8 @@
  */
 
 #include "config.h"
-#if HAVE_NETINET_IN_H
-    #include <netinet/in.h>
-#else
-typedef unsigned int in_addr_t;
+#ifdef HAVE_ARPA_INET_H
+    #include <arpa/inet.h>
 #endif
 #if HAVE_WINSOCK2_H
     #include <winsock2.h>
@@ -2048,6 +2046,8 @@ static gboolean lbmr_match_packet(packet_info * pinfo, const lbmr_tag_entry_t * 
     in_addr_t dest_addr_h;
     in_addr_t src_addr_h;
 
+    if (pinfo->dst.type != AT_IPv4 || pinfo->src.type != AT_IPv4)
+        return (FALSE);
     dest_addr = *((in_addr_t *)pinfo->dst.data);
     dest_addr_h = g_ntohl(dest_addr);
     src_addr = *((in_addr_t *)pinfo->src.data);

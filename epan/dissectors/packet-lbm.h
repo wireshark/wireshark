@@ -28,9 +28,6 @@
 #include "config.h"
 #include <errno.h>
 #include <glib.h>
-#if HAVE_NETINET_IN_H
-    #include <netinet/in.h>
-#endif
 #include <wsutil/inet_aton.h>
 #include <epan/address.h>
 #include <epan/packet.h>
