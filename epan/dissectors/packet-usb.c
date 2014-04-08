@@ -2699,7 +2699,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint32               win32_data_len = 0;
     proto_tree           *tree;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
-    guint32               src_endpoint, dst_endpoint;
     gboolean              is_request;
     usb_conv_info_t      *usb_conv_info;
     usb_trans_info_t     *usb_trans_info = NULL;
@@ -2776,14 +2775,14 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     /* Set up addresses and ports. */
     if (is_request) {
         src_addr.device   = 0xffffffff;
-        src_addr.endpoint = src_endpoint = NO_ENDPOINT;
+        src_addr.endpoint = NO_ENDPOINT;
         dst_addr.device   = GUINT16_TO_LE(device_address);
-        dst_addr.endpoint = dst_endpoint = GUINT32_TO_LE(endpoint);
+        dst_addr.endpoint = GUINT32_TO_LE(endpoint);
     } else {
         src_addr.device   = GUINT16_TO_LE(device_address);
-        src_addr.endpoint = src_endpoint = GUINT32_TO_LE(endpoint);
+        src_addr.endpoint = GUINT32_TO_LE(endpoint);
         dst_addr.device   = 0xffffffff;
-        dst_addr.endpoint = dst_endpoint = NO_ENDPOINT;
+        dst_addr.endpoint = NO_ENDPOINT;
     }
 
     SET_ADDRESS(&pinfo->net_src, AT_USB, USB_ADDR_LEN, (char *)&src_addr);
@@ -2791,8 +2790,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     SET_ADDRESS(&pinfo->net_dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
     SET_ADDRESS(&pinfo->dst, AT_USB, USB_ADDR_LEN, (char *)&dst_addr);
     pinfo->ptype = PT_USB;
-    pinfo->srcport = src_endpoint;
-    pinfo->destport = dst_endpoint;
+    pinfo->srcport = src_addr.endpoint;
+    pinfo->destport = dst_addr.endpoint;
 
     conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);
 
