@@ -83,7 +83,7 @@ typedef struct _usb_trans_info_t {
  * there is one such structure for each device/endpoint conversation */
 struct _usb_conv_info_t {
     guint16  bus_id;
-    guint8   device_address;
+    guint16  device_address;
     guint8   endpoint;
     gint     direction;
     guint8   transfer_type;

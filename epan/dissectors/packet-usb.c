@@ -2410,7 +2410,7 @@ static const value_string bmrequesttype_recipient_vals[] = {
 
 static gint
 try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
-        usb_conv_info_t *usb_conv_info, gint type, gint type_2, guint8 urb_type, guint16 bus_id, guint8 device_address,
+        usb_conv_info_t *usb_conv_info, gint type, gint type_2, guint8 urb_type, guint16 bus_id, guint16 device_address,
         device_product_data_t *device_product_data, device_protocol_data_t *device_protocol_data)
 {
     wmem_tree_key_t          key[4];
