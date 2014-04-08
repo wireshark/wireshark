@@ -1820,10 +1820,12 @@ static const value_string lbmr_pser_dependent_type[] =
     { 0x0, NULL }
 };
 
+#if 0
 static const value_string lbmr_unknown_dependent_type[] =
 {
     { 0x0, NULL }
 };
+#endif
 
 static const value_string lbmr_option_type[] =
 {

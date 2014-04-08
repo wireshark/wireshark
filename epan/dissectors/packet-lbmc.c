@@ -4408,11 +4408,13 @@ static const value_string lbmc_umq_index_cmd_response_type[] =
     { 0x0, NULL }
 };
 
+#if 0
 static const value_string lbmc_umq_index_cmd_response_error_type[] =
 {
     { LBMC_UMQ_IDX_CMD_RESP_ERR_TYPE, "Error" },
     { 0x0, NULL }
 };
+#endif
 
 static const value_string lbmc_umq_cmd_type[] =
 {
