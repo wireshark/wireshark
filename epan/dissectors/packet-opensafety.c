@@ -43,6 +43,7 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
+#include <epan/ipproto.h>
 #include <epan/wmem/wmem.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
@@ -74,11 +75,6 @@
 #define OPENSAFETY_ACYCLIC_DATA  0x02
 
 #define OPENSAFETY_DEFAULT_DOMAIN       0x1
-
-/* Under linux, this gets defined in netinet/in.h */
-#ifndef IPPROTO_UDP
-#define IPPROTO_UDP 0x11
-#endif
 
 #ifndef OPENSAFETY_PINFO_CONST_DATA
 #define OPENSAFETY_PINFO_CONST_DATA 0xAABBCCDD
@@ -2282,7 +2278,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *t
     if ( ! global_enable_siii )
         return result;
 
-    if ( pinfo->ipproto == IPPROTO_UDP )
+    if ( pinfo->ipproto == IP_PROTO_UDP )
     {
         return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, 0,
                 message_tvb, pinfo, tree, OPENSAFETY_ACYCLIC_DATA );
