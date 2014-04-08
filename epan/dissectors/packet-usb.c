@@ -2698,6 +2698,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     guint16               hdr_len;
     guint32               win32_data_len = 0;
     proto_tree           *tree;
+    proto_item           *item;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     gboolean              is_request;
     usb_conv_info_t      *usb_conv_info;
@@ -2872,18 +2873,16 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
 
     switch(type) {
-    case URB_BULK:
-    case URB_INTERRUPT:
-        {
-        proto_item *item;
+        case URB_BULK:
+        case URB_INTERRUPT:
+            item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
+            PROTO_ITEM_SET_GENERATED(item);
 
-        item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
-        PROTO_ITEM_SET_GENERATED(item);
-
-        if (header_info & USB_HEADER_IS_LINUX) {
-            /* Skip setup/isochronous header - it's not applicable */
-            proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
-            offset += 8;
+            if (header_info & USB_HEADER_IS_LINUX) {
+                /* Skip setup/isochronous header - it's not applicable */
+                proto_tree_add_item(tree, hf_usb_urb_unused_setup_header, tvb, offset, 8, ENC_NA);
+                offset += 8;
+            }
 
             /*
              * If this has a 64-byte header, process the extra 16 bytes of
@@ -2892,9 +2891,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if (header_info & USB_HEADER_IS_64_BYTES) {
                 offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
             }
-        }
-        }
-        break;
+            break;
+
     case URB_CONTROL:
         {
         const usb_setup_dissector_table_t *tmp;
