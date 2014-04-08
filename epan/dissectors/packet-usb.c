@@ -2725,10 +2725,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
         dissect_linux_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
         urb_type          = tvb_get_guint8(tvb, 8);
-        is_request        = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
         type              = tvb_get_guint8(tvb, 9);
         endpoint_with_dir = tvb_get_guint8(tvb, 10);
-        endpoint          = endpoint_with_dir & (~URB_TRANSFER_IN);
         setup_flag        = tvb_get_guint8(tvb, 14);
         offset           += 40;           /* skip first part of the pseudo-header */
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
@@ -2749,10 +2747,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         } else {
             urb_type = URB_SUBMIT;
         }
-        is_request        = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
         type              = tvb_get_guint8(tvb, 22);
         endpoint_with_dir = tvb_get_guint8(tvb, 21);
-        endpoint          = endpoint_with_dir & (~URB_TRANSFER_IN);
 
         win32_data_len = tvb_get_letohl(tvb, 23);
         usbpcap_control_stage = tvb_get_guint8(tvb, 27);
@@ -2771,6 +2767,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         /* Unknown pseudo-header type */
         return;
     }
+
+    endpoint   = endpoint_with_dir & (~URB_TRANSFER_IN);
+    is_request = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
 
     /* Set up addresses and ports. */
     if (is_request) {
