@@ -8,7 +8,7 @@
 "IPX only" ipx
 "TCP only" tcp
 "UDP only" udp
-"UDP port isn't 53 (not DNS), don't use != for this!" !(tcp.port == 53)
+"Non-DNS" !(udp.port == 53 || tcp.port == 53)
 "TCP or UDP port is 80 (HTTP)" tcp.port == 80 || udp.port == 80
 "HTTP" http
 "No ARP and no DNS" not arp and !(udp.port == 53)
