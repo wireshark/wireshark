@@ -62,7 +62,6 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	gint		offset = 0, next_offset;
 	gint		len;
 	const char	*data_name;
-	guint8		word[6];
 	int length = tvb_length(tvb);
 
 	/* Check if this is actually xml
@@ -70,8 +69,7 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	 * <?xml version="1.0" encoding="UTF-8"?>
 	 */
 	if(length > 38){
-		tvb_get_nstringz0(tvb, 0, sizeof(word),word);
-		if (g_ascii_strncasecmp(word, "<?xml", 5) == 0){
+		if (tvb_strncaseeql(tvb, 0, "<?xml", 5) == 0){
 			call_dissector(xml_handle, tvb, pinfo, tree);
 			return tvb_length(tvb);
 		}
