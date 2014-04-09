@@ -371,7 +371,6 @@ static int hf_giop_component_data = -1;
 static int hf_giop_char_data = -1;
 static int hf_giop_wchar_data = -1;
 static int hf_giop_rt_corba_priority = -1;
-static int hf_giop_context_data_len = -1;
 static int hf_giop_context_data = -1;
 static int hf_giop_target_address_discriminant = -1;
 static int hf_giop_target_address_key_addr_len = -1;
@@ -404,8 +403,10 @@ static int hf_giop_type_ushort = -1;
 
 static int hf_giop_iiop_host = -1;
 static int hf_giop_iiop_port = -1;
-static int hf_giop_iop_vscid = -1;
-static int hf_giop_iop_scid = -1;
+static int hf_giop_iiop_sc = -1;
+static int hf_giop_iiop_sc_vscid = -1;
+static int hf_giop_iiop_sc_omg_scid = -1;
+static int hf_giop_iiop_sc_vendor_scid = -1;
 
 static int hf_giop_reply_status = -1;
 static int hf_giop_exception_id = -1;
@@ -438,7 +439,7 @@ static gint ett_giop_locate_reply = -1;
 static gint ett_giop_fragment = -1;
 
 static gint ett_giop_scl = -1;  /* ServiceContextList */
-static gint ett_giop_scl_st1 = -1;
+static gint ett_giop_sc = -1;   /* ServiceContext */
 static gint ett_giop_ior = -1;  /* IOR  */
 
 static expert_field ei_giop_unknown_typecode_datatype = EI_INIT;
@@ -3753,25 +3754,24 @@ dissect_target_address(tvbuff_t * tvb, packet_info *pinfo, int *offset, proto_tr
     break;
   }
 }
-static void decode_CodeSets(tvbuff_t *tvb, proto_tree *tree, int *offset,
-                            gboolean stream_is_be, guint32 boundary) {
+static void decode_CodeSetServiceContext(tvbuff_t *tvb, proto_tree *tree,
+                                         int *offset, gboolean stream_is_be,
+                                         guint32 boundary) {
 
   /* The boundary being passed in is the offset where the context_data
    * sequence begins. */
 
   guint32 code_set_id;
-  if (tree) {
+
   /* We pass in -boundary, because the alignment is calculated relative to
      the beginning of the context_data sequence.
      Inside get_CDR_ulong(), the calculation will be (offset +(- boundary)) % 4
      to determine the correct alignment of the short. */
-    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
-    proto_tree_add_uint(tree, hf_giop_char_data, tvb, *offset - 4, 4, code_set_id);
+  code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
+  proto_tree_add_uint(tree, hf_giop_char_data, tvb, *offset - 4, 4, code_set_id);
 
-    code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
-    proto_tree_add_uint(tree, hf_giop_wchar_data, tvb, *offset - 4, 4, code_set_id);
-  }
-
+  code_set_id = get_CDR_ulong(tvb, offset, stream_is_be, -((gint32) boundary) );
+  proto_tree_add_uint(tree, hf_giop_wchar_data, tvb, *offset - 4, 4, code_set_id);
 }
 
 /*
@@ -3805,28 +3805,19 @@ static void decode_RTCorbaPriority(tvbuff_t *tvb, proto_tree *tree, int *offset,
   proto_tree_add_uint(tree, hf_giop_rt_corba_priority, tvb, *offset - 2, 2, rtpriority);
 }
 
-static void decode_UnknownServiceContext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int *offset,
-                               gboolean stream_is_be, guint32 boundary) {
+static void decode_UnknownServiceContext(tvbuff_t *tvb, proto_tree *tree,
+                                         int *offset, gboolean stream_is_be _U_,
+                                         guint32 boundary _U_,
+                                         guint32 context_data_len) {
 
-  guint32      context_data_len;
   const gchar *context_data;
-  proto_item  *ti;
-
-  /* get sequence length, and NO  encapsulation */
-  context_data_len = get_CDR_ulong(tvb, offset, stream_is_be, boundary);
-  ti = proto_tree_add_uint(tree, hf_giop_context_data_len, tvb, *offset - 4, 4, context_data_len);
-
-  if (context_data_len > (guint32)tvb_reported_length_remaining(tvb, *offset-4)) {
-    expert_add_info_format(pinfo, ti, &ei_giop_length_too_big, "Context data length bigger than packet size");
-    return;
-  }
 
   /* return if zero length sequence */
   if (context_data_len == 0)
     return;
 
   /*
-   * Now decode sequence according to vendor ServiceId, but I dont
+   * Decode sequence according to vendor ServiceId, but I dont
    * have that yet, so just dump it as data.
    */
 
@@ -3858,15 +3849,16 @@ static void decode_UnknownServiceContext(tvbuff_t *tvb, packet_info *pinfo, prot
  *
  */
 
-static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, int *offset,
+static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ptree, int *offset,
                                       gboolean stream_is_be, guint32 boundary) {
 
   guint32     seqlen;           /* sequence length  */
   guint32     context_data_len; /* context data sequence length  */
 
-  proto_tree *tree;             /* ServiceContext tree */
-  proto_tree *sub_tree1 = NULL;
-  proto_item *tf, *tf_st1;
+  proto_tree *tree;             /* ServiceContextList tree */
+  proto_item *tf;
+  proto_item *sc_item;
+  proto_tree *sc_tree;
 
   guint32     context_id;
 
@@ -3877,11 +3869,14 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
   guint32     encapsulation_boundary;
   int         temp_offset;
   int         start_offset = *offset;
+  int         dissected_len;
 
   /* create a subtree */
 
-  /* set length to 0 now and correct with proto_item_set_len() later */
-  tf = proto_tree_add_text (ptree, tvb, *offset, 0, "ServiceContextList");
+  /* set length to -1 (to the end) now and correct with proto_item_set_len()
+   * later
+   */
+  tf = proto_tree_add_text (ptree, tvb, *offset, -1, "ServiceContextList");
   tree = proto_item_add_subtree (tf, ett_giop_scl);
 
   /* Get sequence length (number of elements) */
@@ -3906,60 +3901,93 @@ static void decode_ServiceContextList(tvbuff_t *tvb, packet_info *pinfo, proto_t
   for (i=0; i<seqlen; i++) {
 
     context_id = get_CDR_ulong(tvb, offset, stream_is_be, boundary);
+
+    sc_item = proto_tree_add_item(tree, hf_giop_iiop_sc, tvb, *offset-4, -1, ENC_NA);
+    sc_tree = proto_item_add_subtree (sc_item, ett_giop_sc);
+
     vscid = (context_id & 0xffffff00) >> 8; /* vendor info, top 24 bits */
     scid = context_id  & 0x000000ff; /* standard service info, lower 8 bits */
-
-    tf_st1 = proto_tree_add_uint(tree, hf_giop_iop_vscid, tvb,
+    proto_tree_add_uint(sc_tree, hf_giop_iiop_sc_vscid, tvb,
                           *offset-4, 4, vscid);
-
-    proto_tree_add_uint(tree, hf_giop_iop_scid, tvb,
-                          *offset-4, 4, scid);
-
-    temp_offset = *offset;
-    /* The OMG has vscid of 0 reserved */
-    if ( vscid != 0 || scid > max_service_context_id ) {
-      decode_UnknownServiceContext(tvb, pinfo, tree, offset, stream_is_be, boundary);
-      continue;
+    if (vscid == 0)
+    {
+        proto_tree_add_uint(sc_tree, hf_giop_iiop_sc_omg_scid, tvb,
+                              *offset-4, 4, scid);
+    }
+    else
+    {
+        proto_tree_add_uint(sc_tree, hf_giop_iiop_sc_vendor_scid, tvb,
+                              *offset-4, 4, scid);
     }
 
-    /* get sequence length, new endianness and boundary for encapsulation */
-    context_data_len = get_CDR_encap_info(tvb, sub_tree1, offset,
-                                          stream_is_be, boundary,
-                                          &encapsulation_is_be , &encapsulation_boundary);
+    temp_offset = *offset;
 
-    if ((int)(8 + context_data_len) >= 8)
-      proto_item_set_len(tf_st1, 8 + context_data_len);
-    sub_tree1 = proto_item_add_subtree (tf_st1, ett_giop_scl_st1);
-
-    if (context_data_len == 0)
-      continue;
-
-    /* See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
+    /* get sequence length, new endianness and boundary for encapsulation
+     * See CORBA 3.0.2 standard, section Section 15.3.3 "Encapsulation",
      * for how CDR types can be marshalled into a sequence<octet>.
      * The first octet in the sequence determines endian order,
      * 0 == big-endian, 1 == little-endian
      */
+    context_data_len = get_CDR_encap_info(tvb, sc_tree, offset,
+                                          stream_is_be, boundary,
+                                          &encapsulation_is_be,
+                                          &encapsulation_boundary);
 
-    switch (scid)
+    if (context_data_len != 0)
     {
-    case 0x01: /* Codesets */
-      decode_CodeSets(tvb, sub_tree1, offset,
-                      encapsulation_is_be, encapsulation_boundary);
-      break;
-    case 0x0a: /* RTCorbaPriority */
-      decode_RTCorbaPriority(tvb, sub_tree1, offset,
-                             encapsulation_is_be, encapsulation_boundary);
-      break;
-    default:
+      /* A VSCID of 0 is for the OMG; all others are for vendors.
+       * We only handle OMG service contexts. */
+      if ( vscid != 0)
+      {
+        decode_UnknownServiceContext(tvb, sc_tree, offset, encapsulation_is_be,
+                                     encapsulation_boundary,
+                                     context_data_len - 1);
+      }
+      else
+      {
+        switch (scid)
+        {
+        case 0x01: /* CodeSet */
+          decode_CodeSetServiceContext(tvb, sc_tree, offset,
+                                       encapsulation_is_be,
+                                       encapsulation_boundary);
+          break;
 
-      /* Need to fill these in as we learn them */
-      *offset = temp_offset;
-      decode_UnknownServiceContext(tvb, pinfo, sub_tree1, offset, stream_is_be,
-                                   boundary);
-      break;
+        case 0x0a: /* RTCorbaPriority */
+          decode_RTCorbaPriority(tvb, sc_tree, offset,
+                                 encapsulation_is_be, encapsulation_boundary);
+          break;
+
+        default:
+          /* Need to fill these in as we learn them */
+          decode_UnknownServiceContext(tvb, sc_tree, offset,
+                                       encapsulation_is_be,
+                                       encapsulation_boundary,
+                                       context_data_len - 1);
+          break;
+        }
+      }
     }
-    /* Set the offset to the end of the context_data sequence */
-    *offset = temp_offset + 4 + context_data_len;
+    /* OK, we've processed what *should* be the entire service context.
+     * Was that more than, less than, or equal to the actual data length?
+     */
+    dissected_len = *offset - (temp_offset + 4);
+    if ((guint32)dissected_len > context_data_len)
+    {
+      /* XXX - it's a bit late to detect this *now*; just back up
+       * the offset to where it should be.
+       */
+      *offset = temp_offset + 4 + context_data_len;
+    }
+    else if ((guint32)dissected_len < context_data_len)
+    {
+      /* Extra stuff at the end.  Make sure it exists, and then
+       * skip over it.
+       */
+      tvb_ensure_bytes_exist(tvb, *offset, context_data_len - dissected_len);
+      *offset = temp_offset + 4 + context_data_len;
+    }
+    proto_item_set_end(sc_item, tvb, *offset);
 
   } /* for seqlen  */
 
@@ -5069,11 +5097,6 @@ proto_register_giop (void)
         FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
     },
 
-    { &hf_giop_context_data_len,
-      { "Context Data Length", "giop.context_data_len",
-        FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
-    },
-
     { &hf_giop_target_address_discriminant,
       { "TargetAddress", "giop.target_address.discriminant",
         FT_UINT16, BASE_DEC, VALS(target_address_discriminant_vals), 0x0, NULL, HFILL }
@@ -5256,13 +5279,24 @@ proto_register_giop (void)
      * IIOP ServiceContext
      */
 
-    { &hf_giop_iop_vscid,
-      { "VSCID", "giop.iiop.vscid",
-        FT_UINT32, BASE_HEX, VALS(service_context_ids), 0xffffff00, NULL, HFILL }
+    { &hf_giop_iiop_sc,
+      { "ServiceContext", "giop.iiop.sc",
+        FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    { &hf_giop_iiop_sc_vscid,
+      { "VSCID", "giop.iiop.sc.vscid",
+        FT_UINT32, BASE_HEX, NULL, 0xffffff00, NULL, HFILL }
     },
 
-    { &hf_giop_iop_scid,
-      { "SCID", "giop.iiop.scid",
+    /* SCID for OMG */
+    { &hf_giop_iiop_sc_omg_scid,
+      { "SCID", "giop.iiop.sc.scid",
+        FT_UINT32, BASE_HEX, VALS(service_context_ids), 0x000000ff, NULL, HFILL }
+    },
+
+    /* SCID for vendor */
+    { &hf_giop_iiop_sc_vendor_scid,
+      { "SCID", "giop.iiop.sc.scid",
         FT_UINT32, BASE_HEX, NULL, 0x000000ff, NULL, HFILL }
     },
 
@@ -5369,7 +5403,7 @@ proto_register_giop (void)
     &ett_giop_locate_reply,
     &ett_giop_fragment,
     &ett_giop_scl,
-    &ett_giop_scl_st1,
+    &ett_giop_sc,
     &ett_giop_ior
 
   };
