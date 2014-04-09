@@ -5099,7 +5099,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		const value_string *start_values;
 		const value_string *current;
 
-	    if (hfinfo->display & BASE_EXT_STRING)
+		if (hfinfo->display & BASE_EXT_STRING)
 			start_values = VALUE_STRING_EXT_VS_P(((const value_string_ext*)hfinfo->strings));
 		else
 			start_values = (const value_string*)hfinfo->strings;
