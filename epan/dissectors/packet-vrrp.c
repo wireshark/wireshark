@@ -32,6 +32,7 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 
 void proto_register_vrrp(void);
 void proto_reg_handoff_vrrp(void);
@@ -55,6 +56,8 @@ static gint hf_vrrp_short_adver_int = -1;
 static gint hf_vrrp_ip = -1;
 static gint hf_vrrp_ip6 = -1;
 static gint hf_vrrp_auth_string = -1;
+
+static gboolean g_vrrp_v3_checksum_as_in_v2 = FALSE;
 
 static expert_field ei_vrrp_checksum = EI_INIT;
 
@@ -176,19 +179,21 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
            and isn't truncated, so we can checksum it. */
         switch(hi_nibble(ver_type)) {
             case 3:
-                /* Set up the fields of the pseudo-header. */
-                cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-                cksum_vec[0].len = pinfo->src.len;
-                cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-                cksum_vec[1].len = pinfo->dst.len;
-                cksum_vec[2].ptr = (const guint8 *)&phdr;
-                phdr[0] = g_htonl(vrrp_len);
-                phdr[1] = g_htonl(IP_PROTO_VRRP);
-                cksum_vec[2].len = 8;
-                cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
-                cksum_vec[3].len = vrrp_len;
-                computed_cksum = in_cksum(cksum_vec, 4);
-                break;
+                if(g_vrrp_v3_checksum_as_in_v2 == FALSE){
+                    /* Set up the fields of the pseudo-header. */
+                    cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
+                    cksum_vec[0].len = pinfo->src.len;
+                    cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
+                    cksum_vec[1].len = pinfo->dst.len;
+                    cksum_vec[2].ptr = (const guint8 *)&phdr;
+                    phdr[0] = g_htonl(vrrp_len);
+                    phdr[1] = g_htonl(IP_PROTO_VRRP);
+                    cksum_vec[2].len = 8;
+                    cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
+                    cksum_vec[3].len = vrrp_len;
+                    computed_cksum = in_cksum(cksum_vec, 4);
+                    break;
+                }
             case 2:
             default:
                 cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, vrrp_len);
@@ -321,7 +326,7 @@ void proto_register_vrrp(void)
     };
 
     expert_module_t* expert_vrrp;
-
+    module_t *vrrp_module;
 
     proto_vrrp = proto_register_protocol("Virtual Router Redundancy Protocol",
             "VRRP", "vrrp");
@@ -330,6 +335,15 @@ void proto_register_vrrp(void)
 
     expert_vrrp = expert_register_protocol(proto_vrrp);
     expert_register_field_array(expert_vrrp, ei, array_length(ei));
+
+    vrrp_module = prefs_register_protocol(proto_vrrp, NULL);
+
+   prefs_register_bool_preference(vrrp_module, "v3_checksum_as_in_v2",
+        "Calculate V3 checksum as in V2",
+        "There is some ambigiousy on how to calculate V3 checksums"
+        "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturer)",
+        &g_vrrp_v3_checksum_as_in_v2);
+
 
 }
 
