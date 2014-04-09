@@ -572,8 +572,6 @@ static const true_false_string tfs_v3_prefix_options_p = {
 /* The OSPF filtering keys */
 enum {
 
-    OSPFF_MSG_TYPE,
-
     OSPFF_MSG_MIN,
     OSPFF_MSG_HELLO,
     OSPFF_MSG_DB_DESC,
@@ -615,7 +613,6 @@ enum {
     OSPFF_V3_LS_INTRA_AREA_PREFIX,
     OSPFF_V3_LS_OPAQUE_RI,
 
-    OSPFF_SRC_ROUTER,
     OSPFF_ADV_ROUTER,
     OSPFF_LS_MPLS,
     OSPFF_LS_MPLS_ROUTERID,
@@ -725,6 +722,29 @@ enum {
 };
 
 static int hf_ospf_filter[OSPFF_MAX];
+static int hf_ospf_header = -1;
+static int hf_ospf_header_version = -1;
+static int hf_ospf_header_msg_type = -1;
+static int hf_ospf_header_packet_length = -1;
+static int hf_ospf_header_src_router = -1;
+static int hf_ospf_header_area_id = -1;
+static int hf_ospf_header_checksum = -1;
+
+/* Header OSPF v2 auth */
+static int hf_ospf_header_auth_type = -1;
+static int hf_ospf_header_auth_data_none = -1;
+static int hf_ospf_header_auth_data_simple = -1;
+static int hf_ospf_header_auth_crypt_key_id = -1;
+static int hf_ospf_header_auth_crypt_data_length = -1;
+static int hf_ospf_header_auth_crypt_seq_nbr = -1;
+static int hf_ospf_header_auth_crypt_data = -1;
+static int hf_ospf_header_auth_data_unknown = -1;
+
+/* Header OSPF v3 */
+static int hf_ospf_header_instance_id = -1;
+static int hf_ospf_header_reserved = -1;
+
+/* Hello */
 static int hf_ospf_hello = -1;
 static int hf_ospf_hello_network_mask = -1;
 static int hf_ospf_hello_interface_id = -1;
@@ -1035,7 +1055,7 @@ static void
 dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     proto_tree *ospf_tree = NULL;
-    proto_item *ti, *hidden_item;
+    proto_item *ti, *ti_sum, *hidden_item;
     proto_tree *ospf_header_tree;
     guint8  version;
     guint8  packet_type;
@@ -1046,11 +1066,9 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 cksum, computed_cksum;
     guint length, reported_length;
     guint16 auth_type;
-    guint8 *auth_data;
     int crypto_len = 0;
     unsigned int ospf_header_length;
-    guint8 instance_ID;
-    guint8 reserved;
+    guint8 instance_id;
     guint32 areaid;
     guint8  address_family = OSPF_AF_6;
 
@@ -1074,252 +1092,205 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(packet_type, pt_vals, "Unknown (%u)"));
 
-    if (tree) {
-        ospflen = tvb_get_ntohs(tvb, 2);
+    ospflen = tvb_get_ntohs(tvb, 2);
 
-        ti = proto_tree_add_item(tree, proto_ospf, tvb, 0, -1, ENC_NA);
-        ospf_tree = proto_item_add_subtree(ti, ett_ospf);
+    ti = proto_tree_add_item(tree, proto_ospf, tvb, 0, -1, ENC_NA);
+    ospf_tree = proto_item_add_subtree(ti, ett_ospf);
 
-        ti = proto_tree_add_text(ospf_tree, tvb, 0, ospf_header_length,
-                                 "OSPF Header");
-        ospf_header_tree = proto_item_add_subtree(ti, ett_ospf_hdr);
 
-        proto_tree_add_text(ospf_header_tree, tvb, 0, 1, "OSPF Version: %u",
-                            version);
-        proto_tree_add_item(ospf_header_tree, hf_ospf_filter[OSPFF_MSG_TYPE],
-                            tvb, 1, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(ospf_tree, hf_ospf_header, tvb, 0, ospf_header_length, ENC_NA);
+    ospf_header_tree = proto_item_add_subtree(ti, ett_ospf_hdr);
 
-        if (ospf_msg_type_to_filter(packet_type) != -1) {
-            hidden_item = proto_tree_add_item(ospf_header_tree,
-                                              hf_ospf_filter[ospf_msg_type_to_filter(packet_type)],
-                                              tvb, 1, 1, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
-        }
-        proto_tree_add_text(ospf_header_tree, tvb, 2, 2, "Packet Length: %u",
-                            ospflen);
-        proto_tree_add_item(ospf_header_tree, hf_ospf_filter[OSPFF_SRC_ROUTER],
-                            tvb, 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_header_tree, hf_ospf_header_version, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(ospf_header_tree, hf_ospf_header_msg_type, tvb, 1, 1, ENC_BIG_ENDIAN);
 
-        areaid=tvb_get_ntohl(tvb,8);
-        proto_tree_add_text(ospf_header_tree, tvb, 8, 4, "Area ID: %s%s",
-                            tvb_ip_to_str(tvb, 8), areaid == 0 ? " (Backbone)" : "");
+    if (ospf_msg_type_to_filter(packet_type) != -1) {
+        hidden_item = proto_tree_add_item(ospf_header_tree,
+                                          hf_ospf_filter[ospf_msg_type_to_filter(packet_type)],
+                                          tvb, 1, 1, ENC_BIG_ENDIAN);
+        PROTO_ITEM_SET_HIDDEN(hidden_item);
+    }
+    proto_tree_add_item(ospf_header_tree, hf_ospf_header_packet_length, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_header_tree, hf_ospf_header_src_router, tvb, 4, 4, ENC_BIG_ENDIAN);
 
-        /*
-         * Quit at this point if it's an unknown OSPF version.
-         */
-        switch (version) {
 
-        case OSPF_VERSION_2:
-        case OSPF_VERSION_3:
-            break;
+    ti = proto_tree_add_item(ospf_header_tree, hf_ospf_header_area_id, tvb, 8, 4, ENC_BIG_ENDIAN);
+    areaid = tvb_get_ntohl(tvb,8);
+    if(areaid == 0){
+        proto_item_append_text(ti, " (Backbone)");
+    }
 
-        default:
-            cksum = tvb_get_ntohs(tvb, 12);
-            if (cksum == 0) {
-                /* No checksum supplied in the packet. */
-                proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-                                    "Packet Checksum: 0x%04x (none)", cksum);
-            } else {
-                proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-                                    "Packet Checksum: 0x%04x", cksum);
-            }
-            proto_tree_add_text(ospf_tree, tvb, 14, -1,
-                                "Unknown OSPF version %u", version);
-            return;
-        }
+    ti_sum = proto_tree_add_item(ospf_header_tree, hf_ospf_header_checksum, tvb, 12, 2, ENC_BIG_ENDIAN);
+    cksum = tvb_get_ntohs(tvb, 12);
+    if(cksum == 0){
+        proto_item_append_text(ti_sum, " (None)");
+    }
 
-        cksum = tvb_get_ntohs(tvb, 12);
-        length = tvb_length(tvb);
-        /* XXX - include only the length from the OSPF header? */
-        reported_length = tvb_reported_length(tvb);
-        if (cksum == 0) {
-            /* No checksum supplied in the packet. */
-            proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-                                "Packet Checksum: 0x%04x (none)", cksum);
-        } else if (!pinfo->fragmented && length >= reported_length
-                   && length >= ospf_header_length) {
-            /* The packet isn't part of a fragmented datagram and isn't
-               truncated, so we can checksum it. */
+    /* Quit at this point if it's an unknown OSPF version. */
+    if(version != OSPF_VERSION_2 && version != OSPF_VERSION_3) {
+        return;
+    }
 
-            switch (version) {
-
-            case OSPF_VERSION_2:
-                /* Header, not including the authentication data (the OSPFv2
-                   checksum excludes the 64-bit authentication field). */
-                cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, 16);
-                cksum_vec[0].len = 16;
-                if (length > ospf_header_length) {
-                    /* Rest of the packet, again not including the
-                       authentication data. */
-                    reported_length -= ospf_header_length;
-                    cksum_vec[1].ptr = tvb_get_ptr(tvb, ospf_header_length, reported_length);
-                    cksum_vec[1].len = reported_length;
-                    cksum_vec_len = 2;
-                } else {
-                    /* There's nothing but a header. */
-                    cksum_vec_len = 1;
-                }
-                break;
-
-            case OSPF_VERSION_3:
-                /* IPv6-style checksum, covering the entire OSPF packet
-                   and a prepended IPv6 pseudo-header. */
-
-                /* Set up the fields of the pseudo-header. */
-                cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
-                cksum_vec[0].len = pinfo->src.len;
-                cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
-                cksum_vec[1].len = pinfo->dst.len;
-                cksum_vec[2].ptr = (const guint8 *)&phdr;
-                phdr[0] = g_htonl(ospflen);
-                phdr[1] = g_htonl(IP_PROTO_OSPF);
-                cksum_vec[2].len = 8;
-
-                cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, reported_length);
-                cksum_vec[3].len = reported_length;
-                cksum_vec_len = 4;
-                break;
-
-            default:
-                DISSECTOR_ASSERT_NOT_REACHED();
-                break;
-            }
-            computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
-            if (computed_cksum == 0) {
-                proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-                                    "Packet Checksum: 0x%04x [correct]", cksum);
-            } else {
-                proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-                                    "Packet Checksum: 0x%04x [incorrect, should be 0x%04x]",
-                                    cksum, in_cksum_shouldbe(cksum, computed_cksum));
-            }
-        } else {
-            proto_tree_add_text(ospf_header_tree, tvb, 12, 2,
-                                "Packet Checksum: 0x%04x", cksum);
-        }
-
+    length = tvb_length(tvb);
+    /* XXX - include only the length from the OSPF header? */
+    reported_length = tvb_reported_length(tvb);
+    if (cksum !=0 && !pinfo->fragmented && length >= reported_length
+               && length >= ospf_header_length) {
+        /* The packet isn't part of a fragmented datagram and isn't
+           truncated, so we can checksum it. */
 
         switch (version) {
 
         case OSPF_VERSION_2:
-            /* Authentication is only valid for OSPFv2 */
-            auth_type = tvb_get_ntohs(tvb, 14);
-            proto_tree_add_text(ospf_header_tree, tvb, 14, 2, "Auth Type: %s",
-                                val_to_str(auth_type, auth_vals, "Unknown (%u)"));
-            switch (auth_type) {
-
-            case OSPF_AUTH_NONE:
-                proto_tree_add_text(ospf_header_tree, tvb, 16, 8, "Auth Data (none)");
-                break;
-
-            case OSPF_AUTH_SIMPLE:
-                auth_data = tvb_get_string_enc(wmem_packet_scope(), tvb, 16, 8, ENC_ASCII|ENC_NA);
-                proto_tree_add_text(ospf_header_tree, tvb, 16, 8, "Auth Data: %s", auth_data);
-                break;
-
-            case OSPF_AUTH_CRYPT:
-                proto_tree_add_text(ospf_header_tree, tvb, 18, 1, "Auth Key ID: %u",
-                                    tvb_get_guint8(tvb, 18));
-                crypto_len = tvb_get_guint8(tvb, 19);
-                proto_tree_add_text(ospf_header_tree, tvb, 19, 1, "Auth Data Length: %u",
-                                    crypto_len);
-                proto_tree_add_text(ospf_header_tree, tvb, 20, 4, "Auth Crypto Sequence Number: 0x%x",
-                                    tvb_get_ntohl(tvb, 20));
-
-                /* Show the message digest that was appended to the end of the
-                   OSPF message - but only if it's present (we don't want
-                   to get an exception before we've tried dissecting OSPF
-                   message). */
-                if (tvb_bytes_exist(tvb, ospflen, crypto_len)) {
-                    proto_tree_add_text(ospf_header_tree, tvb, ospflen, crypto_len,
-                                        "Auth Data: %s",
-                                        tvb_bytes_to_ep_str(tvb, ospflen, crypto_len));
-                    proto_tree_set_appendix(ospf_header_tree, tvb, ospflen, crypto_len);
-                }
-                break;
-
-            default:
-                proto_tree_add_text(ospf_header_tree, tvb, 16, 8, "Auth Data (unknown)");
-                break;
+            /* Header, not including the authentication data (the OSPFv2
+               checksum excludes the 64-bit authentication field). */
+            cksum_vec[0].ptr = tvb_get_ptr(tvb, 0, 16);
+            cksum_vec[0].len = 16;
+            if (length > ospf_header_length) {
+                /* Rest of the packet, again not including the
+                   authentication data. */
+                reported_length -= ospf_header_length;
+                cksum_vec[1].ptr = tvb_get_ptr(tvb, ospf_header_length, reported_length);
+                cksum_vec[1].len = reported_length;
+                cksum_vec_len = 2;
+            } else {
+                /* There's nothing but a header. */
+                cksum_vec_len = 1;
             }
             break;
 
         case OSPF_VERSION_3:
-            /* Instance ID and "reserved" is OSPFv3-only */
-            instance_ID = tvb_get_guint8(tvb, 14);
-            ti = proto_tree_add_text(ospf_header_tree, tvb, 14, 1, "Instance ID: %u",
-                                     instance_ID);
+            /* IPv6-style checksum, covering the entire OSPF packet
+               and a prepended IPv6 pseudo-header. */
 
-            if (instance_ID < 32) {
-                proto_item_append_text(ti, " (IPv6 unicast AF)");
-                address_family = OSPF_AF_6;
-            } else if (instance_ID < 64) {
-                proto_item_append_text(ti, " (IPv6 multicast AF)");
-                address_family = OSPF_AF_6;
-            } else if (instance_ID < 96) {
-                proto_item_append_text(ti, " (IPv4 unicast AF)");
-                address_family = OSPF_AF_4;
-            } else if (instance_ID < 128) {
-                proto_item_append_text(ti, " (IPv4 multicast AF)");
-                address_family = OSPF_AF_4;
-            } else {
-                proto_item_append_text(ti, " (Reserved)");
-                address_family = OSPF_AF_6;
-            }
+            /* Set up the fields of the pseudo-header. */
+            cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
+            cksum_vec[0].len = pinfo->src.len;
+            cksum_vec[1].ptr = (const guint8 *)pinfo->dst.data;
+            cksum_vec[1].len = pinfo->dst.len;
+            cksum_vec[2].ptr = (const guint8 *)&phdr;
+            phdr[0] = g_htonl(ospflen);
+            phdr[1] = g_htonl(IP_PROTO_OSPF);
+            cksum_vec[2].len = 8;
 
-            reserved = tvb_get_guint8(tvb, 15);
-            proto_tree_add_text(ospf_header_tree, tvb, 15, 1,
-                                (reserved == 0 ? "Reserved: %u" : "Reserved: %u [incorrect, should be 0]"),
-                                reserved);
+            cksum_vec[3].ptr = tvb_get_ptr(tvb, 0, reported_length);
+            cksum_vec[3].len = reported_length;
+            cksum_vec_len = 4;
             break;
 
         default:
             DISSECTOR_ASSERT_NOT_REACHED();
             break;
         }
+        computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
+        if (computed_cksum == 0) {
+            proto_item_append_text(ti_sum, " [correct]");
+        } else {
+            proto_item_append_text(ti_sum, " [incorrect, should be 0x%04x]", in_cksum_shouldbe(cksum, computed_cksum));
+        }
+    }
 
-        switch (packet_type){
+    switch (version) {
 
-        case OSPF_HELLO:
-            dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version,
-                               (guint16)(ospflen - ospf_header_length));
+    case OSPF_VERSION_2:
+        /* Authentication is only valid for OSPFv2 */
+        proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_type, tvb, 14, 2, ENC_NA);
+        auth_type = tvb_get_ntohs(tvb, 14);
+        switch (auth_type) {
+        case OSPF_AUTH_NONE:
+            proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_data_none, tvb, 16, 8, ENC_NA);
             break;
 
-        case OSPF_DB_DESC:
-            dissect_ospf_db_desc(tvb, (int)ospf_header_length, ospf_tree, version,
-                                 (guint16)(ospflen - ospf_header_length),
-                                 address_family);
+        case OSPF_AUTH_SIMPLE:
+            proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_data_simple, tvb, 16, 8, ENC_ASCII|ENC_NA);
             break;
 
-        case OSPF_LS_REQ:
-            dissect_ospf_ls_req(tvb, (int)ospf_header_length, ospf_tree, version,
-                                (guint16)(ospflen - ospf_header_length));
-            break;
+        case OSPF_AUTH_CRYPT:
+            proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_crypt_key_id, tvb, 18, 1, ENC_NA);
 
-        case OSPF_LS_UPD:
-            dissect_ospf_ls_upd(tvb, (int)ospf_header_length, ospf_tree, version,
-                                (guint16)(ospflen - ospf_header_length),
-                                address_family);
-            break;
+            proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_crypt_data_length, tvb, 19, 1, ENC_NA);
+            crypto_len = tvb_get_guint8(tvb, 19);
 
-        case OSPF_LS_ACK:
-            dissect_ospf_ls_ack(tvb, (int)ospf_header_length, ospf_tree, version,
-                                (guint16)(ospflen - ospf_header_length),
-                                address_family);
+            proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_crypt_seq_nbr, tvb, 20, 4, ENC_BIG_ENDIAN);
+               /* Show the message digest that was appended to the end of the
+               OSPF message - but only if it's present (we don't want
+               to get an exception before we've tried dissecting OSPF
+               message). */
+            if (tvb_bytes_exist(tvb, ospflen, crypto_len)) {
+                proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_crypt_data, tvb, ospflen, crypto_len, ENC_NA);
+                proto_tree_set_appendix(ospf_header_tree, tvb, ospflen, crypto_len);
+            }
             break;
 
         default:
-            call_dissector(data_handle,
-                           tvb_new_subset_remaining(tvb, ospf_header_length), pinfo, tree);
+            proto_tree_add_item(ospf_header_tree, hf_ospf_header_auth_data_unknown, tvb, 16, 8, ENC_NA);
             break;
         }
+        break;
 
-        /* take care of the LLS data block */
-        if (ospf_has_lls_block(tvb, ospf_header_length, packet_type, version)) {
-            dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree,
-                                        version);
+    case OSPF_VERSION_3:
+        /* Instance ID and "reserved" is OSPFv3-only */
+        ti = proto_tree_add_item(ospf_header_tree, hf_ospf_header_instance_id, tvb, 14, 1, ENC_NA);
+        instance_id = tvb_get_guint8(tvb, 14);
+        /* By default set address_family to OSPF_AF_6 */
+        address_family = OSPF_AF_6;
+        if(instance_id > 65 && instance_id < 128) {
+            address_family = OSPF_AF_4;
         }
+
+        ti = proto_tree_add_item(ospf_header_tree, hf_ospf_header_reserved, tvb, 15, 1, ENC_NA);
+        if(tvb_get_guint8(tvb, 15)){
+            proto_item_append_text(ti, " [incorrect, should be 0]");
+        }
+        break;
+
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
+        break;
     }
+
+    switch (packet_type){
+
+    case OSPF_HELLO:
+        dissect_ospf_hello(tvb, ospf_header_length, ospf_tree, version,
+                           (guint16)(ospflen - ospf_header_length));
+        break;
+
+    case OSPF_DB_DESC:
+        dissect_ospf_db_desc(tvb, (int)ospf_header_length, ospf_tree, version,
+                             (guint16)(ospflen - ospf_header_length),
+                                 address_family);
+        break;
+
+    case OSPF_LS_REQ:
+        dissect_ospf_ls_req(tvb, (int)ospf_header_length, ospf_tree, version,
+                            (guint16)(ospflen - ospf_header_length));
+        break;
+
+    case OSPF_LS_UPD:
+        dissect_ospf_ls_upd(tvb, (int)ospf_header_length, ospf_tree, version,
+                            (guint16)(ospflen - ospf_header_length),
+                            address_family);
+        break;
+
+    case OSPF_LS_ACK:
+        dissect_ospf_ls_ack(tvb, (int)ospf_header_length, ospf_tree, version,
+                            (guint16)(ospflen - ospf_header_length),
+                            address_family);
+        break;
+
+    default:
+        call_dissector(data_handle,
+                       tvb_new_subset_remaining(tvb, ospf_header_length), pinfo, tree);
+        break;
+    }
+
+    /* take care of the LLS data block */
+    if (ospf_has_lls_block(tvb, ospf_header_length, packet_type, version)) {
+        dissect_ospf_lls_data_block(tvb, ospflen + crypto_len, ospf_tree,
+                                    version);
+    }
+
 }
 
 static int
@@ -1804,6 +1775,15 @@ static const value_string oif_stlv_str[] = {
     {OIF_TNA_IPv6_ADDRESS, "TNA address"},
     {OIF_TNA_NSAP_ADDRESS, "TNA address"},
     {0, NULL},
+};
+
+static const range_string ospf_instance_id_rvals[] = {
+    { 0, 32, "IPv6 unicast AF" },
+    { 33, 64, "IPv6 multicast AF" },
+    { 65, 96, "IPv4 unicast AF" },
+    { 97, 128, "IPv4 multicast AF" },
+    { 129, 255, "Reserved" },
+    { 0, 0, NULL },
 };
 
 /*
@@ -3261,10 +3241,61 @@ proto_register_ospf(void)
 {
     static hf_register_info ospff_info[] = {
 
+        {&hf_ospf_header,
+         { "OSPF Header", "ospf.header", FT_NONE, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_version,
+         { "Version", "ospf.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
         /* Message type number */
-        {&hf_ospf_filter[OSPFF_MSG_TYPE],
+        {&hf_ospf_header_msg_type,
          { "Message Type", "ospf.msg", FT_UINT8, BASE_DEC, VALS(pt_vals), 0x0,
            NULL, HFILL }},
+        {&hf_ospf_header_packet_length,
+         { "Packet Length", "ospf.packet_length", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_src_router,
+         { "Source OSPF Router", "ospf.srcrouter", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_area_id,
+         { "Area ID", "ospf.area_id", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_checksum,
+         { "Checksum", "ospf.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
+           NULL, HFILL }},
+        /* OSPF Header v2 (Auth) */
+        {&hf_ospf_header_auth_type,
+         { "Auth Type", "ospf.auth.type", FT_UINT16, BASE_DEC, VALS(auth_vals), 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_data_none,
+         { "Auth Data (none)", "ospf.auth.none", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_data_simple,
+         { "Auth Data (Simple)", "ospf.auth.simple", FT_STRING, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_crypt_key_id,
+         { "Auth Crypt Key id", "ospf.auth.crypt.key_id", FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_crypt_data_length,
+         { "Auth Crypt Data Length", "ospf.auth.crypt.data_length", FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_crypt_seq_nbr,
+         { "Auth Crypt Sequence Number", "ospf.auth.crypt.seq_nbr", FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_crypt_data,
+         { "Auth Crypt Data", "ospf.auth.crypt.data", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_auth_data_unknown,
+         { "Auth Unknown", "ospf.auth.unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
+        /* OSPF Header v3 */
+        {&hf_ospf_header_instance_id,
+         { "Instance ID", "ospf.instance_id", FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(ospf_instance_id_rvals), 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_header_reserved,
+         { "Reserved", "ospf.reserved", FT_BYTES, BASE_NONE, NULL, 0x0,
+           "Must be zero", HFILL }},
 
         /* Message types */
         {&hf_ospf_filter[OSPFF_MSG_HELLO],
@@ -3399,9 +3430,6 @@ proto_register_ospf(void)
            NULL, 0x0, NULL, HFILL }},
 
         /* Other interesting OSPF values */
-        {&hf_ospf_filter[OSPFF_SRC_ROUTER],
-         { "Source OSPF Router", "ospf.srcrouter", FT_IPv4, BASE_NONE, NULL, 0x0,
-           NULL, HFILL }},
 
         {&hf_ospf_filter[OSPFF_ADV_ROUTER],
          { "Advertising Router", "ospf.advrouter", FT_IPv4, BASE_NONE, NULL, 0x0,
