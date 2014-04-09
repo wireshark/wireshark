@@ -4057,7 +4057,7 @@ mapi_dissect_element_EcDoRpc_request_(tvbuff_t *tvb _U_, int offset _U_, packet_
 		size = reported_len;
 	}
 	ptr = tvb_get_ptr(tvb, offset, size);
-	decrypted_data = g_malloc(size);
+	decrypted_data = (guint8 *)g_malloc(size);
 	for (i = 0; i < size; i++) {
 		decrypted_data[i] = ptr[i] ^ 0xA5;
 	}
@@ -4300,7 +4300,7 @@ mapi_dissect_element_EcDoRpc_response_(tvbuff_t *tvb _U_, int offset _U_, packet
 		size = reported_len;
 	}
 	ptr = tvb_get_ptr(tvb, offset, size);
-	decrypted_data = g_malloc(size);
+	decrypted_data = (guint8 *)g_malloc(size);
 	for (i = 0; i < size; i++) {
 		decrypted_data[i] = ptr[i] ^ 0xA5;
 	}
