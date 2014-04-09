@@ -173,6 +173,7 @@ set(PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-efs.c
 	dissectors/packet-dcerpc-frstrans.c
 	dissectors/packet-dcerpc-initshutdown.c
+	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-nspi.c
 	dissectors/packet-dcerpc-rfr.c
 	dissectors/packet-dcerpc-srvsvc.c
@@ -184,7 +185,6 @@ set(DIRTY_PIDL_DISSECTOR_SRC
 	dissectors/packet-dcerpc-dnsserver.c
 	dissectors/packet-dcerpc-eventlog.c
 	dissectors/packet-dcerpc-lsa.c
-	dissectors/packet-dcerpc-mapi.c
 	dissectors/packet-dcerpc-mdssvc.c
 	dissectors/packet-dcerpc-misc.c
 	dissectors/packet-dcerpc-winreg.c
