@@ -51,6 +51,7 @@
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
  * RFC 5969: IPv6 Rapid Deployment on IPv4 Infrastructures (6rd)
+ * RFC 6607: Virtual Subnet Selection Options for DHCPv4 and DHCPv6
  * draft-ietf-dhc-fqdn-option-07.txt
  * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: http://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
@@ -371,6 +372,8 @@ static int hf_bootp_option82_server_id_override = -1;			/* 82:11 */
 static int hf_bootp_option82_link_selection_cisco = -1;                 /* 82:150 */
 static int hf_bootp_option82_vrf_name_vpn_id = -1;                      /* 82:151 */
                                                                         /* 82:151 suboptions */
+static int hf_bootp_option82_vrf_name_global = -1;
+static int hf_bootp_option82_vrf_name = -1;
 static int hf_bootp_option82_vrf_name_vpn_id_oui = -1;
 static int hf_bootp_option82_vrf_name_vpn_id_index = -1;
                                                                         /* 82:151 suboptions end */
@@ -2851,12 +2854,15 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				}
 				break;
 			case 151:
-				if (subopt_len != 7) {
-					expert_add_info_format(pinfo, vti, &ei_bootp_bad_length, "length isn't 7");
-					break;
+				if (subopt_len == 1) {
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_global, tvb, suboptoff, 1, ENC_NA);
 				}
-				proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_oui, tvb, suboptoff, 3, ENC_BIG_ENDIAN);
-				proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_index, tvb, suboptoff+3, 4, ENC_BIG_ENDIAN);
+				else if (subopt_len != 7) {
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+				} else {
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_oui, tvb, suboptoff, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_vrf_name_vpn_id_index, tvb, suboptoff+3, 4, ENC_BIG_ENDIAN);
+				}
 				break;
 			default:
 				if (o82_opt[idx].info.phf != NULL)
@@ -6558,17 +6564,27 @@ proto_register_bootp(void)
 		    "Option 82:150 Link selection (Cisco proprietary)", HFILL }},
 
 		{ &hf_bootp_option82_vrf_name_vpn_id,
-		  { "VRF name/VPN ID", "bootp.option.agent_information_option.vrf_name_vpn_id",
+		  { "VRF name/VPN ID", "bootp.option.agent_information_option.vrf_name.vpn_id",
 		    FT_BYTES, BASE_NONE, NULL, 0x00,
 		    "Option 82:151 VRF name/VPN ID", HFILL }},
 
+		{ &hf_bootp_option82_vrf_name_global,
+		  { "Global, default VPN", "bootp.option.agent_information_option.vrf_name.global",
+		    FT_UINT8, BASE_DEC, NULL, 0x00,
+		    "Option 82:151 Global, default VPN", HFILL }},
+
+		{ &hf_bootp_option82_vrf_name,
+		  { "VRF name", "bootp.option.agent_information_option.vrf_name",
+		    FT_STRING, BASE_NONE, NULL, 0x00,
+		    "Option 82:151 VRF name", HFILL }},
+
 		{ &hf_bootp_option82_vrf_name_vpn_id_oui,
-		  { "VRF name/VPN ID OUI", "bootp.option.agent_information_option.vrf_name_vpn_id_oui",
+		  { "VRF name/VPN ID OUI", "bootp.option.agent_information_option.vrf_name.vpn_id.oui",
 		    FT_UINT24, BASE_HEX, NULL, 0x00,
 		    "Option 82:151 VRF name/VPN ID OUI", HFILL }},
 
 		{ &hf_bootp_option82_vrf_name_vpn_id_index,
-		  { "VRF name/VPN ID Index", "bootp.option.agent_information_option.vrf_name_vpn_id_index",
+		  { "VRF name/VPN ID Index", "bootp.option.agent_information_option.vrf_name.vpn_id.index",
 		    FT_UINT32, BASE_HEX, NULL, 0x00,
 		    "Option 82:151 VRF name/VPN ID Index", HFILL }},
 
