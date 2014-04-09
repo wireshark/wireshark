@@ -43,6 +43,7 @@
 #define CHUNK_TYPE_iCCP   MAKE_TYPE_VAL('i', 'C', 'C', 'P')
 #define CHUNK_TYPE_cHRM   MAKE_TYPE_VAL('c', 'H', 'R', 'M')
 #define CHUNK_TYPE_pHYs   MAKE_TYPE_VAL('p', 'H', 'Y', 's')
+#define CHUNK_TYPE_iTXt   MAKE_TYPE_VAL('i', 'T', 'X', 't')
 #define CHUNK_TYPE_tEXt   MAKE_TYPE_VAL('t', 'E', 'X', 't')
 #define CHUNK_TYPE_sBIT   MAKE_TYPE_VAL('s', 'B', 'I', 'T')
 #define CHUNK_TYPE_sRGB   MAKE_TYPE_VAL('s', 'R', 'G', 'B')
@@ -57,6 +58,7 @@ static const value_string chunk_types[] = {
     { CHUNK_TYPE_iCCP, "Embedded ICC profile" },
     { CHUNK_TYPE_cHRM, "Primary chromaticities and white point" },
     { CHUNK_TYPE_pHYs, "Physical pixel dimensions" },
+    { CHUNK_TYPE_iTXt, "International textual data" },
     { CHUNK_TYPE_tEXt, "Textual data" },
     { CHUNK_TYPE_sBIT, "Significant bits" },
     { CHUNK_TYPE_sRGB, "Standard RGB colour space" },
