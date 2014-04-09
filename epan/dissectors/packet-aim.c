@@ -493,16 +493,13 @@ const aim_family
 }
 
 int
-aim_get_buddyname( guchar *name, tvbuff_t *tvb, int len_offset, int name_offset)
+aim_get_buddyname( guint8 **name, tvbuff_t *tvb, int offset)
 {
 	guint8 buddyname_length;
 
-	buddyname_length = tvb_get_guint8(tvb, len_offset);
+	buddyname_length = tvb_get_guint8(tvb, offset);
 
-	if(buddyname_length > MAX_BUDDYNAME_LENGTH )
-		buddyname_length = MAX_BUDDYNAME_LENGTH;
-
-	tvb_get_nstringz0(tvb, name_offset, buddyname_length + 1, name);
+	*name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 1, buddyname_length, ENC_UTF_8|ENC_NA);
 
 	return buddyname_length;
 }

@@ -76,9 +76,9 @@ static int dissect_aim_buddylist_reject(tvbuff_t *tvb, packet_info *pinfo, proto
 
 static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree)
 {
-	guchar buddyname[MAX_BUDDYNAME_LENGTH+1];
+	guint8 *buddyname;
 	int    offset           = 0;
-	int    buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
+	int    buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Oncoming Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
@@ -99,9 +99,9 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *buddy_tree)
 {
 
-	guchar buddyname[MAX_BUDDYNAME_LENGTH+1];
+	guint8 *buddyname;
 	int    offset           = 0;
-	int    buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
+	int    buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
 
 	col_set_str(pinfo->cinfo, COL_INFO, "Offgoing Buddy");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",

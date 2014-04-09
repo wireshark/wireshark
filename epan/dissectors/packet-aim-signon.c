@@ -73,7 +73,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 {
 	guint8 buddyname_length = 0;
 	int offset = 0;
-	guchar buddyname[MAX_BUDDYNAME_LENGTH + 1];
+	guint8 *buddyname;
 
 	/* Info Type */
 	proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -83,7 +83,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 1;
 
 	/* Buddy Name */
-	buddyname_length = aim_get_buddyname( buddyname, tvb, offset, offset + 1 );
+	buddyname_length = aim_get_buddyname( &buddyname, tvb, offset );
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " Username: %s",
 			format_text(buddyname, buddyname_length));

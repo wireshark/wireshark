@@ -320,7 +320,7 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	int offset = 0;
 	const aim_tlv *aim_ch_tlvs = NULL;
 	guint16 channel_id;
-	guchar buddyname[MAX_BUDDYNAME_LENGTH+1];
+	guint8 *buddyname;
 	int buddyname_length;
 
 	/* ICBM Cookie */
@@ -334,8 +334,7 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	offset += 2;
 
 	/* Add the outgoing username to the info column */
-	buddyname_length = aim_get_buddyname(buddyname, tvb, offset,
-							  offset + 1);
+	buddyname_length = aim_get_buddyname(&buddyname, tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, " to: %s",
 			format_text(buddyname, buddyname_length));
 
