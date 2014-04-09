@@ -52,7 +52,6 @@ PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-efs.c	\
 	packet-dcerpc-frstrans.c	\
 	packet-dcerpc-initshutdown.c	\
-	packet-dcerpc-mapi.c	\
 	packet-dcerpc-nspi.c	\
 	packet-dcerpc-rfr.c	\
 	packet-dcerpc-srvsvc.c	\
@@ -68,6 +67,7 @@ DIRTY_PIDL_DISSECTOR_SRC =	\
 	packet-dcerpc-drsuapi.c	\
 	packet-dcerpc-eventlog.c	\
 	packet-dcerpc-lsa.c	\
+	packet-dcerpc-mapi.c	\
 	packet-dcerpc-mdssvc.c	\
 	packet-dcerpc-misc.c	\
 	packet-dcerpc-winreg.c
