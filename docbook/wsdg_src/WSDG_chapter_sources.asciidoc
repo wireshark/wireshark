@@ -33,7 +33,7 @@ repository located at a server at the wireshark.org domain.
 
 Changes to the official repository are managed using the
 https://code.google.com/p/gerrit/[Gerrit] code review sytem. Gerrit
-makes it easy to test and disucss changes before they are
+makes it easy to test and discuss changes before they are
 pushed to the main repository. For an overview of Gerrit see the
 https://code.wireshark.org/review/Documentation/intro-quick.html[Quick
 Introduction].
@@ -99,7 +99,7 @@ repository.
 .Check out from the master branch using Git.
 ====
 Using Git is much easier than synchronizing your source tree by hand using any
-of the snapshot methods mentioned below. Git merges of changes into your
+of the snapshot methods mentioned below. Git merges changes into your
 personal source tree in a very comfortable and quick way. So you can update your
 source tree several times a day without much effort.
 ====
@@ -203,8 +203,8 @@ $ cp tools/pre-commit .git/hooks/
 $ git config --add remote.origin.push HEAD:refs/for/master
 ----
 This will run a few basic checks on commit to make sure that the code
-does not contain tivial errors. It will also warn if it is out of sync
-with its master copy in the tools/.
+does not contain trivial errors. It will also warn if it is out of sync
+with its master copy in the tools/ directory.
 The change in the push address is necessary: We have an asymmetric
 process for pulling and pushing because of gerrit.
 --
@@ -228,9 +228,9 @@ installing the `commit-msg` hook script.
 Recommended for informational purposes only, as only individual files can
 be downloaded.
 
-Age: a few minutes (same as anonymous Subversion access).
+Age: a few minutes (same as anonymous Git access).
 
-The entire source tree of the Subversion repository is available via
+The entire source tree of the Git repository is available via
 a web interface at wireshark-code-browse-url:[].  You can view each
 revision of a particular file, as well as diffs between different
 revisions. You can also download individual files but not entire
@@ -254,8 +254,8 @@ If Git access isn't possible, e.g. if the connection to the server
 isn't possible because of a corporate firewall, the sources can be
 obtained by downloading the buildbot snapshots. However, if you are
 going to maintain your sources in parallel to the "official" sources
-for some time, it's recommended to use the anonymous Subversion access
-if possible (believe it, it will save you a lot of time).
+for some time, it's recommended to use the anonymous (or authenticated)
+Git access if possible (believe it, it will save you a lot of time).
 
 [[ChSrcReleased]]
 
@@ -582,7 +582,7 @@ files). If you want to submit your changes, you should upload them to the code
 review system.
 
 [[ChSrcDiffWhat]]
-//
+
 // ==== What is a diff file (a patch)?
 //
 // A http://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
@@ -979,7 +979,7 @@ directory above that directory, you'd run it in the top-level source
 directory.
 
 If they're relative to a *subdirectory* -- for example,
-if somebody did a patch to 'packet-ip.c' and ran `diff` or `svn diff` in
+if somebody did a patch to 'packet-ip.c' and ran `diff` or `git diff` in
 the 'epan/dissectors' directory -- you'd run it in that subdirectory.
 It is preferred that people *not* submit patches like
 that, especially if they're only patching files that exist in multiple
@@ -987,49 +987,50 @@ directories such as 'Makefile.am'.
 
 [[ChSrcAdd]]
 
-=== Add a new file to the Subversion repository
-
-The recommended way to commit new files is described in <<ChSrcContribute>>.
-However, the following might be of interest for contributing developers as well.
-
-[NOTE]
-====
-These actions can only be performed by the Wireshark core developers who
-have write access to the Subversion repository. It is put in here to have
-all information in one place.
-====
-
-If you (as a core developer) need to add a file to the SVN repository,
-then you need to perform the following steps:
-
-. Verify that that file is complete (has Wireshark boilerplate, `$Id$`, etc).
-
-. Add the new file(s) to the repository:
-+
-----
-$ svn add new_file
-----
-
-. Set the line ending property to 'native' for the new file(s):
-+
-----
-$ svn propset svn:eol-style native new_file
-----
-
-. Set version keyword to 'Id' for the new file(s):
-+
-----
-$ svn propset svn:keywords Id new_file
-----
-
-. Commit your changes, including the added file(s).
-+
-----
-$ svn commit new_file other_files_you_modified
-----
-
-Don't forget a brief description of the reason for the commit so other
-developers don't need to read the diff in order to know what has changed.
+// Rewrite for Git ?
+// === Add a new file to the Subversion repository
+//
+// The recommended way to commit new files is described in <<ChSrcContribute>>.
+// However, the following might be of interest for contributing developers as well.
+//
+// [NOTE]
+// ====
+// These actions can only be performed by the Wireshark core developers who
+// have write access to the Subversion repository. It is put in here to have
+// all information in one place.
+// ====
+//
+// If you (as a core developer) need to add a file to the SVN repository,
+// then you need to perform the following steps:
+//
+// . Verify that that file is complete (has Wireshark boilerplate, `$Id$`, etc).
+//
+// . Add the new file(s) to the repository:
+// +
+// ----
+// $ svn add new_file
+// ----
+//
+// . Set the line ending property to 'native' for the new file(s):
+// +
+// ----
+// $ svn propset svn:eol-style native new_file
+// ----
+//
+// . Set version keyword to 'Id' for the new file(s):
+// +
+// ----
+// $ svn propset svn:keywords Id new_file
+// ----
+//
+// . Commit your changes, including the added file(s).
+// +
+// ----
+// $ svn commit new_file other_files_you_modified
+// ----
+//
+// Don't forget a brief description of the reason for the commit so other
+// developers don't need to read the diff in order to know what has changed.
 
 [[ChSrcBinary]]
 
