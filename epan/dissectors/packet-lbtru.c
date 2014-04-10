@@ -837,6 +837,9 @@ static int hf_lbtru_opt_cid_hdr_len = -1;
 static int hf_lbtru_opt_cid_flags = -1;
 static int hf_lbtru_opt_cid_flags_ignore = -1;
 static int hf_lbtru_opt_cid_client_id = -1;
+static int hf_lbtru_opt_unknown = -1;
+static int hf_lbtru_opt_unknown_next_hdr = -1;
+static int hf_lbtru_opt_unknown_hdr_len = -1;
 static int hf_lbtru_analysis = -1;
 static int hf_lbtru_analysis_prev_frame = -1;
 static int hf_lbtru_analysis_prev_data_frame = -1;
@@ -867,6 +870,7 @@ static int hf_lbtru_analysis_sm_duplicate = -1;
 /* Expert info handles */
 static expert_field ei_lbtru_analysis_unknown_type = EI_INIT;
 static expert_field ei_lbtru_analysis_unknown_header = EI_INIT;
+static expert_field ei_lbtru_analysis_zero_length_header = EI_INIT;
 static expert_field ei_lbtru_analysis_ack = EI_INIT;
 static expert_field ei_lbtru_analysis_ncf = EI_INIT;
 static expert_field ei_lbtru_analysis_ncf_ncf = EI_INIT;
@@ -1318,6 +1322,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
     while (next_hdr != LBTRU_NHDR_DATA)
     {
+        proto_item * hdr_length_item;
         proto_tree * opt_tree = NULL;
         proto_item * opt_flags_item = NULL;
         proto_tree * opt_flags_tree = NULL;
@@ -1332,7 +1337,11 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 fld_item = proto_tree_add_item(lbtru_tree, hf_lbtru_opt_sid, tvb, ofs, L_LBTRU_BASIC_OPT_T + L_LBTRU_SID_OPT_T, ENC_NA);
                 opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
                 next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
-                proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
+                hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
+                if (hdrlen == 0) {
+                    expert_add_info(pinfo, hdr_length_item, &ei_lbtru_analysis_zero_length_header);
+                    return (total_dissected_len);
+                }
                 opt_flags_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_flags, tvb, ofs + O_LBTRU_BASIC_OPT_T_RES, L_LBTRU_BASIC_OPT_T_RES, ENC_NA);
                 opt_flags_tree = proto_item_add_subtree(opt_flags_item, ett_lbtru_opt_sid_flags);
                 proto_tree_add_item(opt_flags_tree, hf_lbtru_opt_sid_flags_ignore, tvb, ofs + O_LBTRU_BASIC_OPT_T_RES, L_LBTRU_BASIC_OPT_T_RES, ENC_BIG_ENDIAN);
@@ -1343,7 +1352,11 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 fld_item = proto_tree_add_item(lbtru_tree, hf_lbtru_opt_cid, tvb, ofs, L_LBTRU_BASIC_OPT_T + L_LBTRU_CID_OPT_T, ENC_NA);
                 opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
                 next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_cid_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
-                proto_tree_add_item(opt_tree, hf_lbtru_opt_cid_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
+                hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_cid_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
+                if (hdrlen == 0) {
+                    expert_add_info(pinfo, hdr_length_item, &ei_lbtru_analysis_zero_length_header);
+                    return (total_dissected_len);
+                }
                 opt_flags_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_cid_flags, tvb, ofs + O_LBTRU_BASIC_OPT_T_RES, L_LBTRU_BASIC_OPT_T_RES, ENC_NA);
                 opt_flags_tree = proto_item_add_subtree(opt_flags_item, ett_lbtru_opt_cid_flags);
                 proto_tree_add_item(opt_flags_tree, hf_lbtru_opt_cid_flags_ignore, tvb, ofs + O_LBTRU_BASIC_OPT_T_RES, L_LBTRU_BASIC_OPT_T_RES, ENC_BIG_ENDIAN);
@@ -1351,6 +1364,14 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 break;
             default:
                 expert_add_info_format(pinfo, next_hdr_item, &ei_lbtru_analysis_unknown_header, "Unrecognized header 0x%02x", next_hdr);
+                fld_item = proto_tree_add_item(lbtru_tree, hf_lbtru_opt_unknown, tvb, ofs, L_LBTRU_BASIC_OPT_T + L_LBTRU_CID_OPT_T, ENC_NA);
+                opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
+                next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_unknown_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
+                hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_unknown_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
+                if (hdrlen == 0) {
+                    expert_add_info(pinfo, hdr_length_item, &ei_lbtru_analysis_zero_length_header);
+                    return (total_dissected_len);
+                }
                 break;
         }
         next_hdr = cur_next_hdr;
@@ -1806,6 +1827,12 @@ void proto_register_lbtru(void)
             { "Ignore", "lbtru.opt_cid.flags.ignore", FT_BOOLEAN, L_LBTRU_BASIC_OPT_T_RES * 8, &(tfs_set_notset), LBTRU_OPT_IGNORE, NULL, HFILL } },
         { &hf_lbtru_opt_cid_client_id,
             { "Client ID", "lbtru.opt_cid.client_id", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbtru_opt_unknown,
+            { "Unknown Option", "lbtru.opt_unknown", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbtru_opt_unknown_next_hdr,
+            { "Next Header", "lbtru.opt_unknown.next_hdr", FT_UINT8, BASE_DEC_HEX, VALS(lbtru_next_header), 0x0, NULL, HFILL } },
+        { &hf_lbtru_opt_unknown_hdr_len,
+            { "Header Length", "lbtru.opt_unknown.hdr_len", FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtru_analysis,
             { "Transport Analysis", "lbtru.analysis", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtru_analysis_prev_frame,
@@ -1885,6 +1912,7 @@ void proto_register_lbtru(void)
     {
         { &ei_lbtru_analysis_unknown_type, { "lbtru.analysis.unknown_type", PI_MALFORMED, PI_ERROR, "Unrecognized type", EXPFILL } },
         { &ei_lbtru_analysis_unknown_header, { "lbtru.analysis.unknown_header", PI_MALFORMED, PI_ERROR, "Unrecognized header", EXPFILL } },
+        { &ei_lbtru_analysis_zero_length_header, { "lbtru.analysis.zero_length_header", PI_MALFORMED, PI_ERROR, "Zero-length header", EXPFILL } },
         { &ei_lbtru_analysis_ack, { "lbtru.analysis.ack", PI_SEQUENCE, PI_CHAT, "ACK", EXPFILL } },
         { &ei_lbtru_analysis_ncf, { "lbtru.analysis.ncf", PI_SEQUENCE, PI_NOTE, "NCF", EXPFILL } },
         { &ei_lbtru_analysis_ncf_ncf, { "lbtru.analysis.ncf.ncf", PI_SEQUENCE, PI_NOTE, "NCF", EXPFILL } },
