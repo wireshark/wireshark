@@ -4284,7 +4284,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_ciplus_svc_lcn, {
             "Logical Channel Number", "mpeg_descr.ciplus_svc.lcn",
-            FT_UINT16, BASE_HEX, NULL, 0x3FFF, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, 0x3FFF, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_ciplus_svc_prov_name, {
