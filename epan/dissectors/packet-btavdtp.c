@@ -509,6 +509,7 @@ typedef struct _channels_info_t {
     gboolean      media_is_local_psm;
     wmem_tree_t  *stream_numbers;
     guint32       disconnect_in_frame;
+    guint32      *l2cap_disconnect_in_frame;
     sep_entry_t  *sep;
 } channels_info_t;
 
@@ -1136,7 +1137,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(channels, key);
     channels_info = (subtree) ? (channels_info_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
-    if (!(channels_info && channels_info->disconnect_in_frame >= pinfo->fd->num)) {
+    if (!(channels_info && *channels_info->l2cap_disconnect_in_frame >= pinfo->fd->num && channels_info->disconnect_in_frame >= pinfo->fd->num)) {
 
         channels_info = (channels_info_t *) wmem_new (wmem_file_scope(), channels_info_t);
         channels_info->control_scid = l2cap_data->scid;
@@ -1144,6 +1145,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         channels_info->media_scid = -1;
         channels_info->media_dcid = -1;
         channels_info->disconnect_in_frame = G_MAXUINT32;
+        channels_info->l2cap_disconnect_in_frame = l2cap_data->disconnect_in_frame;
         channels_info->sep = NULL;
 
         if (!pinfo->fd->flags.visited) {
@@ -1582,7 +1584,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (!pinfo->fd->flags.visited && message_type == MESSAGE_TYPE_ACCEPT &&
-                    channels_info->disconnect_in_frame == G_MAXUINT32) {
+                    channels_info->disconnect_in_frame > pinfo->fd->num) {
                 channels_info->disconnect_in_frame = pinfo->fd->num;
             }
             break;
@@ -1619,7 +1621,7 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             }
             if (!pinfo->fd->flags.visited && message_type == MESSAGE_TYPE_ACCEPT &&
-                    channels_info->disconnect_in_frame == G_MAXUINT32) {
+                    channels_info->disconnect_in_frame > pinfo->fd->num) {
                 channels_info->disconnect_in_frame = pinfo->fd->num;
             }
             break;

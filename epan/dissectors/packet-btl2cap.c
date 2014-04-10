@@ -156,6 +156,8 @@ static dissector_table_t l2cap_service_dissector_table;
  */
 static wmem_tree_t *cid_to_psm_table  = NULL;
 
+static guint32 max_disconnect_in_frame = G_MAXUINT32;
+
 typedef struct _config_data_t {
     guint8      mode;
     guint8      txwindow;
@@ -1390,6 +1392,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
     }
 
+
     return offset;
 }
 
@@ -1713,6 +1716,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
     l2cap_data->first_scid_frame = 0;
+    l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
     l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
     l2cap_data->remote_bd_addr_id = (acl_data) ? acl_data->remote_bd_addr_id : 0;
 
@@ -1885,6 +1889,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         l2cap_data->scid = psm_data->scid;
         l2cap_data->dcid = psm_data->dcid;
         l2cap_data->psm = psm;
+        l2cap_data->disconnect_in_frame = &psm_data->disconnect_in_frame;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
             p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
@@ -2016,6 +2021,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             l2cap_data->is_local_psm = psm_data->local_service;
             l2cap_data->first_scid_frame = psm_data->first_scid_frame;
             l2cap_data->first_dcid_frame = psm_data->first_dcid_frame;
+            l2cap_data->disconnect_in_frame = &psm_data->disconnect_in_frame;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->in);
