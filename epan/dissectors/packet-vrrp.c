@@ -179,7 +179,7 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
            and isn't truncated, so we can checksum it. */
         switch(hi_nibble(ver_type)) {
             case 3:
-                if(g_vrrp_v3_checksum_as_in_v2 == FALSE){
+                if((g_vrrp_v3_checksum_as_in_v2 == FALSE)||(pinfo->src.type == AT_IPv6)){
                     /* Set up the fields of the pseudo-header. */
                     cksum_vec[0].ptr = (const guint8 *)pinfo->src.data;
                     cksum_vec[0].len = pinfo->src.len;
@@ -339,9 +339,9 @@ void proto_register_vrrp(void)
     vrrp_module = prefs_register_protocol(proto_vrrp, NULL);
 
    prefs_register_bool_preference(vrrp_module, "v3_checksum_as_in_v2",
-        "Calculate V3 checksum as in V2",
+        "Calculate V3 checksum as in V2 for IPv4 packets",
         "There is some ambigiousy on how to calculate V3 checksums"
-        "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturer)",
+        "As in V3 will use a pseudo header(which may only be implemented for IPv6 by some manufacturers)",
         &g_vrrp_v3_checksum_as_in_v2);
 
 
