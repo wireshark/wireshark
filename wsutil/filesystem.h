@@ -84,6 +84,7 @@ WS_DLL_PUBLIC char *get_datafile_path(const char *filename);
 
 /*
  * Get the personal plugin dir.
+ * Return value is malloced so the caller should g_free() it.
  */
 WS_DLL_PUBLIC char *get_plugins_pers_dir(void);
 

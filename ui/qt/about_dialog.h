@@ -36,8 +36,8 @@ public:
     explicit AboutDialog(QWidget *parent = 0);
     ~AboutDialog();
 
-    void about_folders_row(const char *, const char *dir, const char *typ_file);
-    void plugins_scan();
+    const QString about_folders_row(const char *, const QString dir, const char *typ_file);
+    const QString plugins_scan();
 private:
     Ui::AboutDialog *ui;
 };

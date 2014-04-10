@@ -51,48 +51,68 @@
 #include "wsutil/tempfile.h"
 #include "wsutil/plugins.h"
 
-#include <QtGui>
+#include "qt_ui_utils.h"
+
+#include <QFontMetrics>
 #include <QTextStream>
+#include <QUrl>
 
 #include "wireshark_application.h"
 
 // To do:
-// - Tweat and enhance ui...
+// - Tweak and enhance ui...
 
-void AboutDialog::about_folders_row(const char *name, const char *dir, const char *typ_file)
+const QString AboutDialog::about_folders_row(const char *name, const QString dir, const char *typ_file)
 {
-    ui->tbFolders->setRowCount(ui->tbFolders->rowCount() + 1);
+    int one_em = fontMetrics().height();
 
-    ui->tbFolders->setItem(ui->tbFolders->rowCount()-1, 0, new QTableWidgetItem(name));
-    ui->tbFolders->setItem(ui->tbFolders->rowCount()-1, 1, new QTableWidgetItem(dir));
-    ui->tbFolders->setItem(ui->tbFolders->rowCount()-1, 2, new QTableWidgetItem(typ_file));
+    QString short_dir = fontMetrics().elidedText(dir, Qt::ElideMiddle, one_em * 18); // Arbitrary
 
+    // It would be really nice to be able to add a tooltip with the
+    // full path here but Qt's rich text doesn't appear to support
+    // "a title=".
+    return QString("<tr><td>%1</td><td><a href=\"%2\">%3</a></td><td>%4</td></tr>\n")
+            .arg(name)
+            .arg(QUrl::fromLocalFile(dir).toString())
+            .arg(short_dir)
+            .arg(typ_file);
 }
 
 static void plugins_add_description(const char *name, const char *version,
                                     const char *types, const char *filename,
                                     void *user_data )
 {
-
-    QTableWidget *tbPlugins = (QTableWidget *)user_data;
-    tbPlugins->setRowCount(tbPlugins->rowCount() + 1);
-
-    tbPlugins->setItem(tbPlugins->rowCount()-1, 0, new QTableWidgetItem(name));
-    tbPlugins->setItem(tbPlugins->rowCount()-1, 1, new QTableWidgetItem(version));
-    tbPlugins->setItem(tbPlugins->rowCount()-1, 2, new QTableWidgetItem(types));
-    tbPlugins->setItem(tbPlugins->rowCount()-1, 3, new QTableWidgetItem(filename));
+    QList<QStringList> *plugin_data = (QList<QStringList> *)user_data;
+    QStringList plugin_row = QStringList() << name << version << types << filename;
+    *plugin_data << plugin_row;
 }
 
 
-void AboutDialog::plugins_scan()
+const QString AboutDialog::plugins_scan()
 {
+    QList<QStringList> plugin_data;
+    QString plugin_table;
+
 #ifdef HAVE_PLUGINS
-    plugins_get_descriptions(plugins_add_description, ui->tbPlugins);
+    plugins_get_descriptions(plugins_add_description, &plugin_data);
 #endif
 
 #ifdef HAVE_LUA
-    wslua_plugins_get_descriptions(plugins_add_description, ui->tbPlugins);
+    wslua_plugins_get_descriptions(plugins_add_description, &plugin_data);
 #endif
+
+    int one_em = fontMetrics().height();
+    QString short_file;
+
+    foreach (QStringList plugin_row, plugin_data) {
+        short_file = fontMetrics().elidedText(plugin_row[3], Qt::ElideMiddle, one_em * 25); // Arbitrary
+        plugin_table += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>\n")
+                .arg(plugin_row[0]) // Name
+                .arg(plugin_row[1]) // Version
+                .arg(plugin_row[2]) // Type
+                .arg(short_file);
+    }
+    return plugin_table;
 }
 
 AboutDialog::AboutDialog(QWidget *parent) :
@@ -104,7 +124,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     QFile f_license;
     char *path = NULL;
     const char *constpath;
-    gchar       *message;
+    QString message;
 #if defined (HAVE_LIBSMI) || defined (HAVE_GEOIP)
     gint i;
     gchar **resultArray;
@@ -114,20 +134,20 @@ AboutDialog::AboutDialog(QWidget *parent) :
     /* Wireshark tab */
 
     /* Construct the message string */
-    message = g_strdup_printf(
-        "Version " VERSION "%s\n"
+    message = QString(
+        "Version " VERSION "%1\n"
         "\n"
-        "%s"
+        "%2"
         "\n"
-        "%s"
+        "%3"
         "\n"
-        "%s"
+        "%4"
         "\n"
         "Wireshark is Open Source Software released under the GNU General Public License.\n"
         "\n"
-        "Check the man page and http://www.wireshark.org for more information.",
-        wireshark_gitversion, get_copyright_info(), comp_info_str->str,
-        runtime_info_str->str);
+        "Check the man page and http://www.wireshark.org for more information.")
+        .arg(wireshark_gitversion).arg(get_copyright_info()).arg(comp_info_str->str)
+        .arg(runtime_info_str->str);
 
     ui->label_wireshark->setTextInteractionFlags(Qt::TextSelectableByMouse);
     ui->label_wireshark->setText(message);
@@ -151,54 +171,48 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     /* Folders */
 
-    /* set column widths */
+    int one_em = fontMetrics().height();
 
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    ui->tbFolders->horizontalHeader()->setResizeMode(2, QHeaderView::Stretch);
-#else
-    ui->tbFolders->horizontalHeader()->setSectionResizeMode(2, QHeaderView::Stretch);
-#endif
-
-    ui->tbFolders->setRowCount(0);
+    // Couldn't get CSS to work.
+    message = QString("<table cellpadding=\"%1\">\n").arg(one_em / 4);
+    message += "<tr><th align=\"left\">Name</th><th align=\"left\">Location</th><th align=\"left\">Typical Files</th></tr>\n";
 
     /* "file open" */
-    about_folders_row("\"File\" dialogs", get_last_open_dir(), "capture files");
+    message += about_folders_row("\"File\" dialogs", get_last_open_dir(), "capture files");
 
     /* temp */
-    about_folders_row("Temp", g_get_tmp_dir(), "untitled capture files");
+    message += about_folders_row("Temp", g_get_tmp_dir(), "untitled capture files");
 
     /* pers conf */
-    path = get_persconffile_path("", FALSE);
-    about_folders_row("Personal configuration", path, "\"dfilters\", \"preferences\", \"ethers\", ...");
-    g_free(path);
+    message += about_folders_row("Personal configuration",
+                                 gchar_free_to_qstring(get_persconffile_path("", FALSE)),
+                                 "<i>dfilters</i>, <i>preferences</i>, <i>ethers</i>, ...");
 
     /* global conf */
     constpath = get_datafile_dir();
     if (constpath != NULL) {
-        about_folders_row("Global configuration", constpath, "\"dfilters\", \"preferences\", \"manuf\", ...");
+        message += about_folders_row("Global configuration", constpath,
+                                     "<i>dfilters</i>, <i>preferences</i>, <i>manuf</i>, ...");
     }
 
     /* system */
-    constpath = get_systemfile_dir();
-    about_folders_row("System", constpath, "\"ethers\", \"ipxnets\"");
+    message += about_folders_row("System", get_systemfile_dir(), "<i>ethers</i>, <i>ipxnets</i>");
 
     /* program */
-    constpath = get_progfile_dir();
-    about_folders_row("Program", constpath, "program files");
+    message += about_folders_row("Program", get_progfile_dir(), "program files");
 
 #if defined(HAVE_PLUGINS) || defined(HAVE_LUA)
     /* pers plugins */
-    path = get_plugins_pers_dir();
-    about_folders_row("Personal Plugins", path, "dissector plugins");
-    g_free(path);
+    message += about_folders_row("Personal Plugins", gchar_free_to_qstring(get_plugins_pers_dir()),
+                      "dissector plugins");
 
     /* global plugins */
-    about_folders_row("Global Plugins", get_plugin_dir(), "dissector plugins");
+    message += about_folders_row("Global Plugins", get_plugin_dir(), "dissector plugins");
 #endif
 
 #ifdef HAVE_PYTHON
     /* global python bindings */
-    about_folders_row("Python Bindings", get_wspython_dir(), "python bindings");
+    message += about_folders_row("Python Bindings", get_wspython_dir(), "python bindings");
 #endif
 
 #ifdef HAVE_GEOIP
@@ -207,8 +221,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
 
-    for(i = 0; resultArray[i]; i++)
-        about_folders_row("GeoIP path", g_strstrip(resultArray[i]), "GeoIP database search path");
+    for(i = 0; resultArray[i]; i++) {
+        message += about_folders_row("GeoIP path", g_strstrip(resultArray[i]),
+                                     "GeoIP database search path");
+    }
     g_strfreev(resultArray);
     g_free(path);
 #endif
@@ -219,20 +235,27 @@ AboutDialog::AboutDialog(QWidget *parent) :
 
     resultArray = g_strsplit(path, G_SEARCHPATH_SEPARATOR_S, 10);
 
-    for(i = 0; resultArray[i]; i++)
-        about_folders_row("MIB/PIB path", g_strstrip(resultArray[i]), "SMI MIB/PIB search path");
+    for(i = 0; resultArray[i]; i++) {
+        message += about_folders_row("MIB/PIB path", g_strstrip(resultArray[i]),
+                                     "SMI MIB/PIB search path");
+    }
     g_strfreev(resultArray);
     g_free(path);
 #endif
 
+    message += "</table>";
+    ui->label_folders->setText(message);
+
 
     /* Plugins */
-#if (QT_VERSION < QT_VERSION_CHECK(5, 0, 0))
-    ui->tbPlugins->horizontalHeader()->setResizeMode(3, QHeaderView::Stretch);
-#else
-    ui->tbPlugins->horizontalHeader()->setSectionResizeMode(3, QHeaderView::Stretch);
-#endif
-    plugins_scan();
+
+    message = QString("<table cellpadding=\"%1\">\n").arg(one_em / 4);
+    message += "<tr><th align=\"left\">Name</th><th align=\"left\">Version</th><th align=\"left\">Type</th><th align=\"left\">Path</th></tr>\n";
+
+    message += plugins_scan();
+
+    message += "</table>";
+    ui->label_plugins->setText(message);
 
     /* License */
 
