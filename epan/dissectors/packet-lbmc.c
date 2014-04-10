@@ -6357,13 +6357,19 @@ static int dissect_nhdr_apphdr_chain_element(tvbuff_t * tvb, int offset, packet_
     proto_tree * subtree = NULL;
     guint8 hdrlen = 0;
     guint8 datalen = 0;
+    proto_item * hdrlen_item;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_HDR_LEN);
     datalen = hdrlen - L_LBMC_APPHDR_CHAIN_ELEMENT_T_MIN;
     subtree_item = proto_tree_add_none_format(tree, hf_lbmc_apphdr_chain_element, tvb, offset, (gint)hdrlen, "%s element", val_to_str(element, lbmc_apphdr_chain_type, "Unknown (0x%02x)"));
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_apphdr_chain_element);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_element_next_hdr, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_NEXT_HDR, L_LBMC_APPHDR_CHAIN_ELEMENT_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_element_hdr_len, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_HDR_LEN, L_LBMC_APPHDR_CHAIN_ELEMENT_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_element_hdr_len, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_HDR_LEN, L_LBMC_APPHDR_CHAIN_ELEMENT_T_HDR_LEN, ENC_BIG_ENDIAN);
+    if (hdrlen == 0)
+    {
+        expert_add_info_format(pinfo, hdrlen_item, &ei_lbmc_analysis_zero_length, "Element header length is zero");
+        return ((int)hdrlen);
+    }
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_element_res, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_RES, L_LBMC_APPHDR_CHAIN_ELEMENT_T_RES, ENC_BIG_ENDIAN);
     if (datalen > 0)
     {
@@ -6378,12 +6384,18 @@ static int dissect_nhdr_apphdr_chain_msgprop_element(tvbuff_t * tvb, int offset,
     proto_tree * subtree = NULL;
     guint8 hdrlen = 0;
     guint32 len;
+    proto_item * hdrlen_item;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_HDR_LEN);
     subtree_item = proto_tree_add_none_format(tree, hf_lbmc_apphdr_chain_msgprop, tvb, offset, (gint)hdrlen, "%s element", val_to_str(element, lbmc_apphdr_chain_type, "Unknown (0x%02x)"));
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_apphdr_chain_msgprop);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_next_hdr, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_NEXT_HDR, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_hdr_len, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_HDR_LEN, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_hdr_len, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_HDR_LEN, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_HDR_LEN, ENC_BIG_ENDIAN);
+    if (hdrlen == 0)
+    {
+        expert_add_info_format(pinfo, hdrlen_item, &ei_lbmc_analysis_zero_length, "Element header length is zero");
+        return ((int)hdrlen);
+    }
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_res, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_RES, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_RES, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_len, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN, ENC_BIG_ENDIAN);
     len = tvb_get_ntohl(tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN);
@@ -6423,6 +6435,10 @@ static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, int offset, packet_info * p
             default:
                 elem_len = dissect_nhdr_apphdr_chain_element(tvb, elem_offset, pinfo, subtree, elem);
                 break;
+        }
+        if (elem_len == 0)
+        {
+            return (len_dissected);
         }
         elem_offset += elem_len;
         datalen -= elem_len;
@@ -10721,7 +10737,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             bhdr.hdr_len = tvb_get_guint8(lbmc_tvb, pkt_offset + O_LBMC_BASIC_HDR_T_HDR_LEN);
             if (bhdr.hdr_len == 0)
             {
-                expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_zero_length, "LBMC header length is zeror");
+                expert_add_info_format(pinfo, NULL, &ei_lbmc_analysis_zero_length, "LBMC header length is zero");
                 return (len_dissected);
             }
             hdr_tvb = tvb_new_subset(lbmc_tvb, pkt_offset, (gint)bhdr.hdr_len, (gint)bhdr.hdr_len);
