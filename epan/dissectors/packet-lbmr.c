@@ -6589,6 +6589,8 @@ void proto_register_lbmr(void)
         &ett_lbmr_topt_ctxinsts_flags,
         &ett_lbmr_topt_ulb,
         &ett_lbmr_topt_ulb_flags,
+        &ett_lbmr_topt_ctxinstq,
+        &ett_lbmr_topt_ctxinstq_flags,
         &ett_lbmr_topt_domain_id,
         &ett_lbmr_topt_domain_id_flags,
         &ett_lbmr_topt_exfunc,
