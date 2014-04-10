@@ -1667,19 +1667,29 @@ void IOGraph::setPlotStyle(int style)
     }
     switch (style) {
     case psLine:
-        graph_->setLineStyle(QCPGraph::lsLine);
+        if (graph_) {
+            graph_->setLineStyle(QCPGraph::lsLine);
+        }
         break;
     case psImpulse:
-        graph_->setLineStyle(QCPGraph::lsImpulse);
+        if (graph_) {
+            graph_->setLineStyle(QCPGraph::lsImpulse);
+        }
         break;
     case psDot:
-        graph_->setScatterStyle(QCPScatterStyle::ssDisc);
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssDisc);
+        }
         break;
     case psSquare:
-        graph_->setScatterStyle(QCPScatterStyle::ssSquare);
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssSquare);
+        }
         break;
     case psDiamond:
-        graph_->setScatterStyle(QCPScatterStyle::ssDiamond);
+        if (graph_) {
+            graph_->setScatterStyle(QCPScatterStyle::ssDiamond);
+        }
         break;
     case psBar:
     case IOGraph::psStackedBar:
