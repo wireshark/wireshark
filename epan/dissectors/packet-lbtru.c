@@ -1338,7 +1338,8 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
                 next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
                 hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_sid_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
-                if (hdrlen == 0) {
+                if (hdrlen == 0)
+                {
                     expert_add_info(pinfo, hdr_length_item, &ei_lbtru_analysis_zero_length_header);
                     return (total_dissected_len);
                 }
@@ -1353,7 +1354,8 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
                 next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_cid_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
                 hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_cid_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
-                if (hdrlen == 0) {
+                if (hdrlen == 0)
+                {
                     expert_add_info(pinfo, hdr_length_item, &ei_lbtru_analysis_zero_length_header);
                     return (total_dissected_len);
                 }
@@ -1368,7 +1370,8 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 opt_tree = proto_item_add_subtree(fld_item, ett_lbtru_opt);
                 next_hdr_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_unknown_next_hdr, tvb, ofs + O_LBTRU_BASIC_OPT_T_NEXT_HDR, L_LBTRU_BASIC_OPT_T_NEXT_HDR, ENC_BIG_ENDIAN);
                 hdr_length_item = proto_tree_add_item(opt_tree, hf_lbtru_opt_unknown_hdr_len, tvb, ofs + O_LBTRU_BASIC_OPT_T_HDR_LEN, L_LBTRU_BASIC_OPT_T_HDR_LEN, ENC_BIG_ENDIAN);
-                if (hdrlen == 0) {
+                if (hdrlen == 0)
+                {
                     expert_add_info(pinfo, hdr_length_item, &ei_lbtru_analysis_zero_length_header);
                     return (total_dissected_len);
                 }

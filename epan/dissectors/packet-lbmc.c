@@ -6312,18 +6312,32 @@ static int dissect_nhdr_topicname(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item * flags_item = NULL;
     proto_tree * flags_tree = NULL;
     guint16 flags = 0;
+    int len_dissected = 0;
+    int namelen = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_TOPICNAME_HDR_T_HDR_LEN);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_topicname, tvb, offset, (gint)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_topicname);
     proto_tree_add_item(subtree, hf_lbmc_topicname_next_hdr, tvb, offset + O_LBMC_TOPICNAME_HDR_T_NEXT_HDR, L_LBMC_TOPICNAME_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_topicname_hdr_len, tvb, offset + O_LBMC_TOPICNAME_HDR_T_HDR_LEN, L_LBMC_TOPICNAME_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_topicname_hdr_len, tvb, offset + O_LBMC_TOPICNAME_HDR_T_HDR_LEN, L_LBMC_TOPICNAME_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     flags = tvb_get_ntohs(tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS);
     flags_item = proto_tree_add_none_format(subtree, hf_lbmc_topicname_flags, tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS, L_LBMC_TOPICNAME_HDR_T_FLAGS, "Flags: 0x%04x", flags);
     flags_tree = proto_item_add_subtree(flags_item, ett_lbmc_topicname_flags);
     proto_tree_add_item(flags_tree, hf_lbmc_topicname_flags_ignore, tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS, L_LBMC_TOPICNAME_HDR_T_FLAGS, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_topicname_topicname, tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS + L_LBMC_TOPICNAME_HDR_T_FLAGS, (gint)(hdrlen - L_LBMC_BASIC_HDR_T), ENC_ASCII|ENC_NA);
-    return ((int)hdrlen);
+    len_dissected = L_LBMC_BASIC_HDR_T;
+    namelen = (int) hdrlen - len_dissected;
+    if (namelen > 0)
+    {
+        proto_tree_add_item(subtree, hf_lbmc_topicname_topicname, tvb, offset + O_LBMC_TOPICNAME_HDR_T_FLAGS + L_LBMC_TOPICNAME_HDR_T_FLAGS, namelen, ENC_ASCII | ENC_NA);
+        len_dissected += namelen;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_apphdr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -6331,24 +6345,36 @@ static int dissect_nhdr_apphdr(tvbuff_t * tvb, int offset, packet_info * pinfo _
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     guint8 hdrlen = 0;
-    guint8 datalen = 0;
     proto_item * code_item = NULL;
     proto_tree * code_tree = NULL;
     guint16 code = 0;
+    int len_dissected = 0;
+    int datalen = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_APPHDR_HDR_T_HDR_LEN);
-    datalen = hdrlen - (O_LBMC_APPHDR_HDR_T_CODE + L_LBMC_APPHDR_HDR_T_CODE);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_apphdr, tvb, offset, (gint)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_apphdr);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_next_hdr, tvb, offset + O_LBMC_APPHDR_HDR_T_NEXT_HDR, L_LBMC_APPHDR_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_apphdr_hdr_len, tvb, offset + O_LBMC_APPHDR_HDR_T_HDR_LEN, L_LBMC_APPHDR_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_apphdr_hdr_len, tvb, offset + O_LBMC_APPHDR_HDR_T_HDR_LEN, L_LBMC_APPHDR_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     code = tvb_get_ntohs(tvb, offset + O_LBMC_APPHDR_HDR_T_CODE);
     code_item = proto_tree_add_none_format(subtree, hf_lbmc_apphdr_code, tvb, offset + O_LBMC_APPHDR_HDR_T_CODE, L_LBMC_APPHDR_HDR_T_CODE, "Code: 0x%04x", code);
     code_tree = proto_item_add_subtree(code_item, ett_lbmc_apphdr_code);
     proto_tree_add_item(code_tree, hf_lbmc_apphdr_code_ignore, tvb, offset + O_LBMC_APPHDR_HDR_T_CODE, L_LBMC_APPHDR_HDR_T_CODE, ENC_BIG_ENDIAN);
     proto_tree_add_item(code_tree, hf_lbmc_apphdr_code_code, tvb, offset + O_LBMC_APPHDR_HDR_T_CODE, L_LBMC_APPHDR_HDR_T_CODE, ENC_BIG_ENDIAN);
-    proto_tree_add_none_format(subtree, hf_lbmc_apphdr_data, tvb, O_LBMC_APPHDR_HDR_T_CODE + L_LBMC_APPHDR_HDR_T_CODE, datalen, "Data (%u bytes)", datalen);
-    return ((int)hdrlen);
+    len_dissected = O_LBMC_APPHDR_HDR_T_CODE + L_LBMC_APPHDR_HDR_T_CODE;
+    datalen = (int) hdrlen - len_dissected;
+    if (datalen > 0)
+    {
+        proto_tree_add_none_format(subtree, hf_lbmc_apphdr_data, tvb, O_LBMC_APPHDR_HDR_T_CODE + L_LBMC_APPHDR_HDR_T_CODE, datalen, "Data (%u bytes)", datalen);
+        len_dissected += datalen;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_apphdr_chain_element(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, guint8 element)
@@ -6356,11 +6382,11 @@ static int dissect_nhdr_apphdr_chain_element(tvbuff_t * tvb, int offset, packet_
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     guint8 hdrlen = 0;
-    guint8 datalen = 0;
     proto_item * hdrlen_item;
+    int datalen = 0;
+    int len_dissected = 0;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_HDR_LEN);
-    datalen = hdrlen - L_LBMC_APPHDR_CHAIN_ELEMENT_T_MIN;
     subtree_item = proto_tree_add_none_format(tree, hf_lbmc_apphdr_chain_element, tvb, offset, (gint)hdrlen, "%s element", val_to_str(element, lbmc_apphdr_chain_type, "Unknown (0x%02x)"));
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_apphdr_chain_element);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_element_next_hdr, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_NEXT_HDR, L_LBMC_APPHDR_CHAIN_ELEMENT_T_NEXT_HDR, ENC_BIG_ENDIAN);
@@ -6371,11 +6397,19 @@ static int dissect_nhdr_apphdr_chain_element(tvbuff_t * tvb, int offset, packet_
         return ((int)hdrlen);
     }
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_element_res, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_RES, L_LBMC_APPHDR_CHAIN_ELEMENT_T_RES, ENC_BIG_ENDIAN);
+    len_dissected = L_LBMC_APPHDR_CHAIN_ELEMENT_T_MIN;
+    datalen = (int) hdrlen - len_dissected;
     if (datalen > 0)
     {
         proto_tree_add_none_format(subtree, hf_lbmc_apphdr_chain_element_data, tvb, offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_RES + L_LBMC_APPHDR_CHAIN_ELEMENT_T_RES, datalen, "Data (%u bytes)", datalen);
+        len_dissected += datalen;
     }
-    return ((int)hdrlen);
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_apphdr_chain_msgprop_element(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, guint8 element, guint32 * msg_prop_len)
@@ -6383,8 +6417,9 @@ static int dissect_nhdr_apphdr_chain_msgprop_element(tvbuff_t * tvb, int offset,
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     guint8 hdrlen = 0;
-    guint32 len;
-    proto_item * hdrlen_item;
+    guint32 datalen;
+    int len_dissected = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_HDR_LEN);
     subtree_item = proto_tree_add_none_format(tree, hf_lbmc_apphdr_chain_msgprop, tvb, offset, (gint)hdrlen, "%s element", val_to_str(element, lbmc_apphdr_chain_type, "Unknown (0x%02x)"));
@@ -6398,9 +6433,15 @@ static int dissect_nhdr_apphdr_chain_msgprop_element(tvbuff_t * tvb, int offset,
     }
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_res, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_RES, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_RES, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_apphdr_chain_msgprop_len, tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN, L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN, ENC_BIG_ENDIAN);
-    len = tvb_get_ntohl(tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN);
-    *msg_prop_len += len;
-    return ((int)hdrlen);
+    len_dissected = L_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T;
+    datalen = tvb_get_ntohl(tvb, offset + O_LBMC_APPHDR_CHAIN_MSGPROP_ELEMENT_T_LEN);
+    if (msg_prop_len != NULL)
+    {
+        *msg_prop_len += datalen;
+    }
+    len_dissected += datalen;
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, guint32 * msg_prop_len)
@@ -6448,6 +6489,7 @@ static int dissect_nhdr_apphdr_chain(tvbuff_t * tvb, int offset, packet_info * p
             elem = tvb_get_guint8(tvb, elem_offset + O_LBMC_APPHDR_CHAIN_ELEMENT_T_NEXT_HDR);
         }
     }
+    proto_item_set_len(subtree_item, len_dissected);
     return (len_dissected);
 }
 
@@ -7087,10 +7129,6 @@ static int dissect_nhdr_tsni(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         hdrlen_remaining -= reclen;
         rec_offset += reclen;
         len_dissected += reclen;
-        if (reclen == 0)
-        {
-            break;
-        }
     }
     proto_item_set_len(subtree_item, len_dissected);
     return (len_dissected);
@@ -7132,7 +7170,7 @@ static int dissect_nhdr_umq_reg_rcv(tvbuff_t * tvb, int offset, packet_info * pi
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_reg_rcv_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_REG_RCV_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_REG_RCV_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_reg_rcv_rcv_type_id, tvb, offset + O_LBMC_CNTL_UMQ_REG_RCV_HDR_T_RCV_TYPE_ID, L_LBMC_CNTL_UMQ_REG_RCV_HDR_T_RCV_TYPE_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_reg_rcv_last_topic_rcr_tsp, tvb, offset + O_LBMC_CNTL_UMQ_REG_RCV_HDR_T_LAST_TOPIC_RCR_TSP, L_LBMC_CNTL_UMQ_REG_RCV_HDR_T_LAST_TOPIC_RCR_TSP, ENC_BIG_ENDIAN);
-    return ((int)L_LBMC_CNTL_UMQ_REG_RCV_HDR_T);
+    return (L_LBMC_CNTL_UMQ_REG_RCV_HDR_T);
 }
 
 static int dissect_nhdr_umq_rcv_dereg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -7144,7 +7182,7 @@ static int dissect_nhdr_umq_rcv_dereg(tvbuff_t * tvb, int offset, packet_info * 
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_umq_reg_rcv_dereg);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_rcv_dereg_rcr_idx, tvb, offset + O_LBMC_CNTL_UMQ_RCV_DEREG_HDR_T_RCR_IDX, L_LBMC_CNTL_UMQ_RCV_DEREG_HDR_T_RCR_IDX, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_rcv_dereg_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_RCV_DEREG_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_RCV_DEREG_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
-    return ((int)L_LBMC_CNTL_UMQ_RCV_DEREG_HDR_T);
+    return (L_LBMC_CNTL_UMQ_RCV_DEREG_HDR_T);
 }
 
 static int dissect_nhdr_umq_reg_ulb_rcv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -7173,7 +7211,7 @@ static int dissect_nhdr_umq_ulb_rcv_dereg(tvbuff_t * tvb, int offset, packet_inf
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_umq_reg_ulb_rcv_dereg);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_ulb_rcv_dereg_ulb_src_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_RCV_DEREG_HDR_T_ULB_SRC_ID, L_LBMC_CNTL_UMQ_ULB_RCV_DEREG_HDR_T_ULB_SRC_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_ulb_rcv_dereg_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_ULB_RCV_DEREG_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_ULB_RCV_DEREG_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
-    return ((int)L_LBMC_CNTL_UMQ_ULB_RCV_DEREG_HDR_T);
+    return (L_LBMC_CNTL_UMQ_ULB_RCV_DEREG_HDR_T);
 }
 
 static int dissect_nhdr_umq_reg_observer_rcv(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -7186,7 +7224,7 @@ static int dissect_nhdr_umq_reg_observer_rcv(tvbuff_t * tvb, int offset, packet_
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_reg_observer_rcv_assign_id, tvb, offset + O_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T_ASSIGN_ID, L_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T_ASSIGN_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_reg_observer_rcv_rcv_type_id, tvb, offset + O_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T_RCV_TYPE_ID, L_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T_RCV_TYPE_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_umq_reg_reg_observer_rcv_last_topic_rcr_tsp, tvb, offset + O_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T_LAST_TOPIC_RCR_TSP, L_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T_LAST_TOPIC_RCR_TSP, ENC_BIG_ENDIAN);
-    return ((int)L_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T);
+    return (L_LBMC_CNTL_UMQ_REG_OBSERVER_RCV_HDR_T);
 }
 
 static int dissect_nhdr_umq_observer_rcv_dereg(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -8108,18 +8146,32 @@ static int dissect_nhdr_storename(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item * flags_item = NULL;
     proto_tree * flags_tree = NULL;
     guint16 flags = 0;
+    int len_dissected = 0;
+    int namelen = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_UME_STORENAME_HDR_T_HDR_LEN);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_ume_storename, tvb, offset, (gint)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_ume_storename);
     proto_tree_add_item(subtree, hf_lbmc_ume_storename_next_hdr, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_NEXT_HDR, L_LBMC_UME_STORENAME_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_ume_storename_hdr_len, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_HDR_LEN, L_LBMC_UME_STORENAME_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_ume_storename_hdr_len, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_HDR_LEN, L_LBMC_UME_STORENAME_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     flags = tvb_get_ntohs(tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS);
     flags_item = proto_tree_add_none_format(subtree, hf_lbmc_ume_storename_flags, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS, L_LBMC_UME_STORENAME_HDR_T_FLAGS, "Flags: 0x%04x", flags);
     flags_tree = proto_item_add_subtree(flags_item, ett_lbmc_ume_storename_flags);
     proto_tree_add_item(flags_tree, hf_lbmc_ume_storename_flags_ignore, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS, L_LBMC_UME_STORENAME_HDR_T_FLAGS, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_ume_storename_store, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS + L_LBMC_UME_STORENAME_HDR_T_FLAGS, (gint)(hdrlen - L_LBMC_BASIC_HDR_T), ENC_ASCII|ENC_NA);
-    return ((int)hdrlen);
+    len_dissected = L_LBMC_BASIC_HDR_T;
+    namelen = (int) hdrlen - len_dissected;
+    if (namelen > 0)
+    {
+        proto_tree_add_item(subtree, hf_lbmc_ume_storename_store, tvb, offset + O_LBMC_UME_STORENAME_HDR_T_FLAGS + L_LBMC_UME_STORENAME_HDR_T_FLAGS, namelen, ENC_ASCII | ENC_NA);
+        len_dissected += namelen;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_umq_ulb_rcr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -8185,12 +8237,14 @@ static int dissect_nhdr_ctxinfo(tvbuff_t * tvb, int offset, packet_info * pinfo 
     guint16 flags = 0;
     wmem_strbuf_t * flagbuf;
     const char * sep = "";
+    int len_dissected = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_HDR_LEN);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_ctxinfo, tvb, offset, (gint)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_ctxinfo);
     proto_tree_add_item(subtree, hf_lbmc_ctxinfo_next_hdr, tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_NEXT_HDR, L_LBMC_CNTL_CTXINFO_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_ctxinfo_hdr_len, tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_HDR_LEN, L_LBMC_CNTL_CTXINFO_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_ctxinfo_hdr_len, tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_HDR_LEN, L_LBMC_CNTL_CTXINFO_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     flags = tvb_get_ntohs(tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_FLAGS);
     flagbuf = wmem_strbuf_new_label(wmem_packet_scope());
     if ((flags & LBMC_CTXINFO_PROXY_FLAG) != 0)
@@ -8257,11 +8311,22 @@ static int dissect_nhdr_ctxinfo(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(subtree, hf_lbmc_ctxinfo_addr, tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_ADDR, L_LBMC_CNTL_CTXINFO_HDR_T_ADDR, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_ctxinfo_domain_id, tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_DOMAIN_ID, L_LBMC_CNTL_CTXINFO_HDR_T_DOMAIN_ID, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_ctxinfo_ctxinst, tvb, offset + O_LBMC_CNTL_CTXINFO_HDR_T_CTXINST, L_LBMC_CNTL_CTXINFO_HDR_T_CTXINST, ENC_NA);
+    len_dissected = L_LBMC_CNTL_CTXINFO_HDR_T;
     if ((flags & LBMC_CTXINFO_NAME_FLAG) != 0)
     {
-        proto_tree_add_item(subtree, hf_lbmc_ctxinfo_name, tvb, offset + L_LBMC_CNTL_CTXINFO_HDR_T, hdrlen - L_LBMC_CNTL_CTXINFO_HDR_T, ENC_ASCII|ENC_NA);
+        int namelen = (int) hdrlen - len_dissected;
+        if (namelen > 0)
+        {
+            proto_tree_add_item(subtree, hf_lbmc_ctxinfo_name, tvb, offset + L_LBMC_CNTL_CTXINFO_HDR_T, hdrlen - L_LBMC_CNTL_CTXINFO_HDR_T, ENC_ASCII | ENC_NA);
+            len_dissected += namelen;
+        }
+        else
+        {
+            expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+        }
     }
-    return ((int)hdrlen);
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_ume_pser(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -9457,18 +9522,32 @@ static int dissect_nhdr_gateway_name(tvbuff_t * tvb, int offset, packet_info * p
     proto_item * flags_item = NULL;
     proto_tree * flags_tree = NULL;
     guint16 flags = 0;
+    int len_dissected = 0;
+    int namelen = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_HDR_LEN);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_gateway_name, tvb, offset, (gint)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_gateway_name);
     proto_tree_add_item(subtree, hf_lbmc_gateway_name_next_hdr, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_NEXT_HDR, L_LBMC_CNTL_GATEWAY_NAME_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_gateway_name_hdr_len, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_HDR_LEN, L_LBMC_CNTL_GATEWAY_NAME_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_gateway_name_hdr_len, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_HDR_LEN, L_LBMC_CNTL_GATEWAY_NAME_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     flags = tvb_get_ntohs(tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS);
     flags_item = proto_tree_add_none_format(subtree, hf_lbmc_gateway_name_flags, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, L_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, "Flags: 0x%04x", flags);
     flags_tree = proto_item_add_subtree(flags_item, ett_lbmc_gateway_name_flags);
     proto_tree_add_item(flags_tree, hf_lbmc_gateway_name_flags_ignore, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, L_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_gateway_name_gateway_name, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS + L_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, (gint)(hdrlen - L_LBMC_BASIC_HDR_T), ENC_ASCII|ENC_NA);
-    return ((int)hdrlen);
+    len_dissected = L_LBMC_BASIC_HDR_T;
+    namelen = (int) hdrlen - len_dissected;
+    if (namelen > 0)
+    {
+        proto_tree_add_item(subtree, hf_lbmc_gateway_name_gateway_name, tvb, offset + O_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS + L_LBMC_CNTL_GATEWAY_NAME_HDR_T_FLAGS, namelen, ENC_ASCII | ENC_NA);
+        len_dissected += namelen;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_auth_request(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -9640,18 +9719,32 @@ static int dissect_nhdr_auth_unknown(tvbuff_t * tvb, int offset, packet_info * p
     guint8 hdrlen = 0;
     proto_item * opid_item = NULL;
     guint8 opid;
+    int len_dissected = 0;
+    int datalen = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_HDR_LEN);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_auth_unknown, tvb, offset, (int) hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_auth_unknown);
     proto_tree_add_item(subtree, hf_lbmc_auth_unknown_next_hdr, tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_NEXT_HDR, L_LBMC_CNTL_AUTH_GENERIC_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_auth_unknown_hdr_len, tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_HDR_LEN, L_LBMC_CNTL_AUTH_GENERIC_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_auth_unknown_hdr_len, tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_HDR_LEN, L_LBMC_CNTL_AUTH_GENERIC_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_lbmc_auth_unknown_flags, tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_FLAGS, L_LBMC_CNTL_AUTH_GENERIC_HDR_T_FLAGS, ENC_BIG_ENDIAN);
     opid_item = proto_tree_add_item(subtree, hf_lbmc_auth_unknown_opid, tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_OPID, L_LBMC_CNTL_AUTH_GENERIC_HDR_T_OPID, ENC_BIG_ENDIAN);
     opid = tvb_get_guint8(tvb, offset + O_LBMC_CNTL_AUTH_GENERIC_HDR_T_OPID);
     expert_add_info_format(pinfo, opid_item, &ei_lbmc_analysis_invalid_value, "Invalid LBMC AUTH OPID 0x%02x", opid);
-    proto_tree_add_item(subtree, hf_lbmc_auth_unknown_data, tvb, offset + L_LBMC_CNTL_AUTH_GENERIC_HDR_T, (int) hdrlen - L_LBMC_CNTL_AUTH_GENERIC_HDR_T, ENC_NA);
-    return ((int) hdrlen);
+    len_dissected = L_LBMC_CNTL_AUTH_GENERIC_HDR_T;
+    datalen = (int) hdrlen - len_dissected;
+    if (datalen > 0)
+    {
+        proto_tree_add_item(subtree, hf_lbmc_auth_unknown_data, tvb, offset + L_LBMC_CNTL_AUTH_GENERIC_HDR_T, datalen, ENC_NA);
+        len_dissected += datalen;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_nhdr_hmac(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
@@ -10038,15 +10131,29 @@ static int dissect_nhdr_unhandled(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_item * subtree_item = NULL;
     proto_tree * subtree = NULL;
     guint8 hdrlen = 0;
+    int len_dissected = 0;
+    int datalen = 0;
+    proto_item * hdrlen_item = NULL;
 
     hdrlen = tvb_get_guint8(tvb, offset + O_LBMC_BASIC_HDR_T_HDR_LEN);
     subtree_item = proto_tree_add_item(tree, hf_lbmc_unhandled, tvb, offset, (gint)hdrlen, ENC_NA);
     subtree = proto_item_add_subtree(subtree_item, ett_lbmc_unhandled_hdr);
     expert_add_info_format(pinfo, subtree_item, &ei_lbmc_analysis_invalid_value, "Invalid LBMC header type 0x%02x", next_hdr);
     proto_tree_add_item(subtree, hf_lbmc_unhandled_next_hdr, tvb, offset + O_LBMC_UNHANDLED_HDR_T_NEXT_HDR, L_LBMC_UNHANDLED_HDR_T_NEXT_HDR, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_unhandled_hdr_len, tvb, offset + O_LBMC_UNHANDLED_HDR_T_HDR_LEN, L_LBMC_UNHANDLED_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lbmc_unhandled_data, tvb, offset + O_LBMC_UNHANDLED_HDR_T_HDR_LEN + L_LBMC_UNHANDLED_HDR_T_HDR_LEN, hdrlen - (L_LBMC_UNHANDLED_HDR_T_NEXT_HDR + L_LBMC_UNHANDLED_HDR_T_HDR_LEN), ENC_NA);
-    return ((int)hdrlen);
+    hdrlen_item = proto_tree_add_item(subtree, hf_lbmc_unhandled_hdr_len, tvb, offset + O_LBMC_UNHANDLED_HDR_T_HDR_LEN, L_LBMC_UNHANDLED_HDR_T_HDR_LEN, ENC_BIG_ENDIAN);
+    len_dissected = L_LBMC_UNHANDLED_HDR_T_NEXT_HDR + L_LBMC_UNHANDLED_HDR_T_HDR_LEN;
+    datalen = (int) hdrlen - len_dissected;
+    if (datalen > 0)
+    {
+        proto_tree_add_item(subtree, hf_lbmc_unhandled_data, tvb, offset + O_LBMC_UNHANDLED_HDR_T_HDR_LEN + L_LBMC_UNHANDLED_HDR_T_HDR_LEN, datalen, ENC_NA);
+        len_dissected += datalen;
+    }
+    else
+    {
+        expert_add_info(pinfo, hdrlen_item, &ei_lbmc_analysis_length_incorrect);
+    }
+    proto_item_set_len(subtree_item, len_dissected);
+    return (len_dissected);
 }
 
 static int dissect_msg_properties(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
@@ -10599,6 +10706,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     address tcp_addr;
     guint16 tcp_port = 0;
     guint64 actual_channel = channel;
+    gboolean tcp_address_valid = FALSE;
 
     while (tvb_reported_length_remaining(tvb, tvb_lbmc_offset) >= L_LBMC_MINIMAL_HDR_T)
     {
@@ -11024,6 +11132,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             pkt_offset += bhdr.hdr_len;
         }
         /* If transport is TCP and we got a TCP SID header, process it. */
+        tcp_address_valid = TRUE;
         if (lbm_channel_is_unknown_transport_source_lbttcp(channel))
         {
             COPY_ADDRESS_SHALLOW(&tcp_addr, &(pinfo->src));
@@ -11034,11 +11143,12 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             COPY_ADDRESS_SHALLOW(&tcp_addr, &(pinfo->dst));
             tcp_port = (guint16)pinfo->destport;
         }
-        /* XXX - do we need to check lbm_channel_is_unknown_stream_tcp(channel)?
-           We must *NOT* call lbttcp_transport_sid_add() unless
-           lbm_channel_is_unknown_transport_lbttcp(channel) is true as, if
-           it's not true, we will *NOT* have set tcp_addr or tcp_port above! */
-        if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel))
+        else
+        {
+            tcp_address_valid = FALSE;
+        }
+        /* Note: it *is* possible for a TCP SID to appear in an LBTTCP non-transport (UIM) message. */
+        if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel) && tcp_address_valid)
         {
             lbttcp_transport_sid_add(&tcp_addr, tcp_port, pinfo->fd->num, tcp_sid_info.session_id);
         }
