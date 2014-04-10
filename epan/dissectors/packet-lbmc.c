@@ -11018,7 +11018,11 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             COPY_ADDRESS_SHALLOW(&tcp_addr, &(pinfo->dst));
             tcp_port = (guint16)pinfo->destport;
         }
-        if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && !lbm_channel_is_known(channel))
+        /* XXX - do we need to check lbm_channel_is_unknown_stream_tcp(channel)?
+           We must *NOT* call lbttcp_transport_sid_add() unless
+           lbm_channel_is_unknown_transport_lbttcp(channel) is true as, if
+           it's not true, we will *NOT* have set tcp_addr or tcp_port above! */
+        if ((pinfo->fd->flags.visited == 0) && (tcp_sid_info.set) && lbm_channel_is_unknown_transport_lbttcp(channel))
         {
             lbttcp_transport_sid_add(&tcp_addr, tcp_port, pinfo->fd->num, tcp_sid_info.session_id);
         }
