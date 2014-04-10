@@ -2137,13 +2137,15 @@ dissect_openflow_action_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     case OFPAT_EXPERIMENTER:
         proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v4_action_undecoded,
                                      tvb, offset, act_length - 8, "Experimenter action body.");
-        offset += act_length - 8;
+        if (act_length > 8)
+            offset += act_length - 8;
         break;
 
     default:
         proto_tree_add_expert_format(act_tree, pinfo, &ei_openflow_v4_action_undecoded,
                                      tvb, offset, act_length - 4, "Unknown action body.");
-        offset += act_length - 4;
+        if (act_length > 4)
+            offset += act_length - 4;
         break;
     }
 
