@@ -179,8 +179,8 @@ typedef struct _psm_data_t {
     guint32       interface_id;
     guint32       adapter_id;
     guint32       chandle;
-    gint32        local_cid;
-    gint32        remote_cid;
+    guint32       local_cid;
+    guint32       remote_cid;
     guint16       psm;
     gboolean      local_service;
     guint32       disconnect_in_frame;
@@ -406,35 +406,71 @@ void proto_reg_handoff_btl2cap(void);
 
 static void btl2cap_cid_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP CID 0x%04x as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV )));
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP CID 0x%04x as", (guint) *value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP CID");
 }
 
 static gpointer btl2cap_cid_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV );
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV);
+
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
 }
 
 static void btl2cap_psm_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP PSM 0x%04x as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV )));
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP PSM 0x%04x as", (guint) *value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP PSM");
 }
 
 static gpointer btl2cap_psm_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV );
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV);
+
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
 }
 
 static void btl2cap_serv_prompt(packet_info *pinfo, gchar* result)
 {
-    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP SERVICE 0x%04x as",
-        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV )));
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV);
+    if (value_data)
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "L2CAP SERVICE 0x%04x as", (guint) *value_data);
+    else
+        g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Unknown L2CAP SERVICE");
 }
 
 static gpointer btl2cap_serv_value(packet_info *pinfo)
 {
-    return p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV );
+    gulong *value_data;
+
+    value_data = (gulong *) p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV);
+
+    if (value_data)
+        return (gpointer) *value_data;
+
+    return NULL;
 }
 
 static guint16
@@ -564,7 +600,12 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
     psm = tvb_get_letohs(tvb, offset);
 
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
+        gulong *value_data;
+
+        value_data = wmem_new(wmem_file_scope(), gulong);
+        *value_data = psm;
+
+        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
     }
 
     if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -622,11 +663,11 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         psm_data = wmem_new(wmem_file_scope(), psm_data_t);
         if (pinfo->p2p_dir == P2P_DIR_RECV) {
-            psm_data->local_cid = 0;
+            psm_data->local_cid = BTL2CAP_UNKNOWN_CID;
             psm_data->remote_cid = scid |  0x80000000;
         } else {
             psm_data->local_cid = scid;
-            psm_data->remote_cid = 0;
+            psm_data->remote_cid = BTL2CAP_UNKNOWN_CID;
         }
         psm_data->psm  = psm;
         psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
@@ -1421,13 +1462,23 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint16            uuid;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
+            gulong *value_data;
+
+            value_data = wmem_new(wmem_file_scope(), gulong);
+            *value_data = psm;
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
         }
 
         uuid = get_service_uuid(pinfo, l2cap_data, psm, is_local_psm);
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER((guint)uuid));
+            gulong *value_data;
+
+            value_data = wmem_new(wmem_file_scope(), gulong);
+            *value_data = uuid;
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, value_data);
         }
 
         if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1586,13 +1637,23 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             guint16            uuid;
 
             if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
+                gulong *value_data;
+
+                value_data = wmem_new(wmem_file_scope(), gulong);
+                *value_data = psm;
+
+                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
             }
 
             uuid = get_service_uuid(pinfo, l2cap_data, psm, psm_data->local_service);
 
             if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER((guint)uuid));
+                gulong *value_data;
+
+                value_data = wmem_new(wmem_file_scope(), gulong);
+                *value_data = uuid;
+
+                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, value_data);
             }
 
             if (psm < BTL2CAP_DYNAMIC_PSM_START) {
@@ -1707,7 +1768,12 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     cid = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV ) == NULL) {
-        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV, GUINT_TO_POINTER((guint)cid));
+        gulong *value_data;
+
+        value_data = wmem_new(wmem_file_scope(), gulong);
+        *value_data = cid;
+
+        p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_CID_CONV, value_data);
     }
     offset += 2;
 
@@ -1720,8 +1786,8 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
     l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
-    l2cap_data->local_cid        = -1;
-    l2cap_data->remote_cid       = -1;
+    l2cap_data->local_cid        = BTL2CAP_UNKNOWN_CID;
+    l2cap_data->remote_cid       = BTL2CAP_UNKNOWN_CID;
     l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
     l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
@@ -1896,16 +1962,21 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         psm = tvb_get_letohs(tvb, offset);
         if (pinfo->p2p_dir == P2P_DIR_RECV) {
             l2cap_data->local_cid = cid;
-            l2cap_data->remote_cid = -1;
+            l2cap_data->remote_cid = BTL2CAP_UNKNOWN_CID;
         } else {
-            l2cap_data->local_cid = -1;
+            l2cap_data->local_cid = BTL2CAP_UNKNOWN_CID;
             l2cap_data->remote_cid = cid;
         }
         l2cap_data->psm = psm;
         l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
-            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
+            gulong *value_data;
+
+            value_data = wmem_new(wmem_file_scope(), gulong);
+            *value_data = psm;
+
+            p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, value_data);
         }
 
         proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1921,7 +1992,12 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             uuid = get_service_uuid(pinfo, l2cap_data, psm, (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE );
 
             if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV ) == NULL) {
-                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, GUINT_TO_POINTER((guint)uuid));
+                gulong *value_data;
+
+                value_data = wmem_new(wmem_file_scope(), gulong);
+                *value_data = uuid;
+
+                p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_SERV_CONV, value_data);
             }
 
             if (!dissector_try_uint_new(l2cap_service_dissector_table, uuid, next_tvb, pinfo, tree, TRUE, l2cap_data)) {

@@ -502,10 +502,10 @@ typedef struct _media_stream_number_value_t {
 } media_stream_number_value_t;
 
 typedef struct _channels_info_t {
-    gint32        control_local_cid;
-    gint32        control_remote_cid;
-    gint32        media_local_cid;
-    gint32        media_remote_cid;
+    guint32       control_local_cid;
+    guint32       control_remote_cid;
+    guint32       media_local_cid;
+    guint32       media_remote_cid;
     wmem_tree_t  *stream_numbers;
     guint32       disconnect_in_frame;
     guint32      *l2cap_disconnect_in_frame;
@@ -1141,8 +1141,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         channels_info = (channels_info_t *) wmem_new (wmem_file_scope(), channels_info_t);
         channels_info->control_local_cid = l2cap_data->local_cid;
         channels_info->control_remote_cid = l2cap_data->remote_cid;
-        channels_info->media_local_cid = -1;
-        channels_info->media_remote_cid = -1;
+        channels_info->media_local_cid = BTL2CAP_UNKNOWN_CID;
+        channels_info->media_remote_cid = BTL2CAP_UNKNOWN_CID;
         channels_info->disconnect_in_frame = G_MAXUINT32;
         channels_info->l2cap_disconnect_in_frame = l2cap_data->disconnect_in_frame;
         channels_info->sep = NULL;
@@ -1162,11 +1162,11 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (!(l2cap_data->local_cid == channels_info->control_local_cid &&
             l2cap_data->remote_cid == channels_info->control_remote_cid) &&
-            (channels_info->media_local_cid == -1 ||
+            (channels_info->media_local_cid == BTL2CAP_UNKNOWN_CID ||
             (l2cap_data->local_cid == channels_info->media_local_cid &&
             l2cap_data->remote_cid == channels_info->media_remote_cid))) {
 
-        if (!pinfo->fd->flags.visited && channels_info->media_local_cid == -1) {
+        if (!pinfo->fd->flags.visited && channels_info->media_local_cid == BTL2CAP_UNKNOWN_CID) {
             channels_info->media_local_cid = l2cap_data->local_cid;
             channels_info->media_remote_cid = l2cap_data->remote_cid;
         }

@@ -49,13 +49,15 @@
 #define BTL2CAP_FIXED_CID_AMP_TEST  0x003F
 #define BTL2CAP_FIXED_CID_LAST      0x003F
 
+#define BTL2CAP_UNKNOWN_CID 0xFFFFFFFF
+
 typedef struct _btl2cap_data_t {
     guint32   interface_id;
     guint32   adapter_id;
     guint16   chandle;  /* only low 12 bits used */
     guint16   cid;
-    gint32    local_cid;
-    gint32    remote_cid;
+    guint32   local_cid;
+    guint32   remote_cid;
     guint32  *disconnect_in_frame;
     gboolean  is_local_psm; /* otherwise it is PSM in remote device */
     guint16   psm;
