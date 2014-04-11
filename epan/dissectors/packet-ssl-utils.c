@@ -3811,7 +3811,7 @@ ssl_cipher_setiv(SSL_CIPHER_CTX *cipher _U_, guchar* iv _U_, gint iv_len _U_)
     return 0;
 }
 
-#endif /* HAVE_LIBGNUTLS */
+#endif /* defined(HAVE_LIBGNUTLS) && defined(HAVE_LIBGCRYPT) */
 
 /* get ssl data for this session. if no ssl data is found allocate a new one*/
 void

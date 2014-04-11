@@ -44,15 +44,17 @@
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
 
+#ifdef HAVE_LIBGCRYPT
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
 #ifdef SSL_FAST
 #define SSL_PRIVATE_KEY gcry_mpi_t
 #else /* SSL_FAST */
 #define SSL_PRIVATE_KEY struct gcry_sexp
 #endif /* SSL_FAST */
-#else  /* HAVE_LIBGNUTLS */
+#else  /* HAVE_LIBGCRYPT */
 #define SSL_CIPHER_CTX void*
 #define SSL_PRIVATE_KEY void
+#endif /* HAVE_LIBGCRYPT */
 #endif /* HAVE_LIBGNUTLS */
 
 
