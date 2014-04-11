@@ -3300,6 +3300,9 @@ dissect_openflow_multipart_request_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     proto_tree_add_item(tree, hf_openflow_v4_multipart_request_type , tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                  val_to_str_const(type, openflow_v4_multipart_type_values, "Unknown type"));
+
     /* uint16_t flags; */
     ti = proto_tree_add_item(tree, hf_openflow_v4_multipart_request_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     flags_tree = proto_item_add_subtree(ti, ett_openflow_v4_multipart_request_flags);
@@ -4116,6 +4119,9 @@ dissect_openflow_multipart_reply_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     type = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(tree, hf_openflow_v4_multipart_reply_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+                  val_to_str_const(type, openflow_v4_multipart_type_values, "Unknown type"));
 
     /* uint16_t flags; */
     ti = proto_tree_add_item(tree, hf_openflow_v4_multipart_reply_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
