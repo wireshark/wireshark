@@ -502,11 +502,10 @@ typedef struct _media_stream_number_value_t {
 } media_stream_number_value_t;
 
 typedef struct _channels_info_t {
-    gint32        control_scid;
-    gint32        control_dcid;
-    gint32        media_scid;
-    gint32        media_dcid;
-    gboolean      media_is_local_psm;
+    gint32        control_local_cid;
+    gint32        control_remote_cid;
+    gint32        media_local_cid;
+    gint32        media_remote_cid;
     wmem_tree_t  *stream_numbers;
     guint32       disconnect_in_frame;
     guint32      *l2cap_disconnect_in_frame;
@@ -1140,10 +1139,10 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (!(channels_info && *channels_info->l2cap_disconnect_in_frame >= pinfo->fd->num && channels_info->disconnect_in_frame >= pinfo->fd->num)) {
 
         channels_info = (channels_info_t *) wmem_new (wmem_file_scope(), channels_info_t);
-        channels_info->control_scid = l2cap_data->scid;
-        channels_info->control_dcid = l2cap_data->dcid;
-        channels_info->media_scid = -1;
-        channels_info->media_dcid = -1;
+        channels_info->control_local_cid = l2cap_data->local_cid;
+        channels_info->control_remote_cid = l2cap_data->remote_cid;
+        channels_info->media_local_cid = -1;
+        channels_info->media_remote_cid = -1;
         channels_info->disconnect_in_frame = G_MAXUINT32;
         channels_info->l2cap_disconnect_in_frame = l2cap_data->disconnect_in_frame;
         channels_info->sep = NULL;
@@ -1161,16 +1160,15 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
     }
 
-    if (!(l2cap_data->scid == channels_info->control_scid &&
-            l2cap_data->dcid == channels_info->control_dcid) &&
-            (channels_info->media_scid == -1 ||
-            (l2cap_data->scid == channels_info->media_scid &&
-            l2cap_data->dcid == channels_info->media_dcid))) {
+    if (!(l2cap_data->local_cid == channels_info->control_local_cid &&
+            l2cap_data->remote_cid == channels_info->control_remote_cid) &&
+            (channels_info->media_local_cid == -1 ||
+            (l2cap_data->local_cid == channels_info->media_local_cid &&
+            l2cap_data->remote_cid == channels_info->media_remote_cid))) {
 
-        if (!pinfo->fd->flags.visited && channels_info->media_scid == -1) {
-            channels_info->media_scid = l2cap_data->scid;
-            channels_info->media_dcid = l2cap_data->dcid;
-            channels_info->media_is_local_psm = l2cap_data->is_local_psm;
+        if (!pinfo->fd->flags.visited && channels_info->media_local_cid == -1) {
+            channels_info->media_local_cid = l2cap_data->local_cid;
+            channels_info->media_remote_cid = l2cap_data->remote_cid;
         }
         /* Media Channel */
 
@@ -1286,8 +1284,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         return tvb_length(tvb);
-    } else if (!(l2cap_data->scid == channels_info->control_scid &&
-            l2cap_data->dcid == channels_info->control_dcid)) {
+    } else if (!(l2cap_data->local_cid == channels_info->control_local_cid &&
+            l2cap_data->remote_cid == channels_info->control_remote_cid)) {
         /* Unknown Stream Channel */
         ti = proto_tree_add_item(tree, proto_btavdtp, tvb, offset, -1, ENC_NA);
         btavdtp_tree = proto_item_add_subtree(ti, ett_btavdtp);

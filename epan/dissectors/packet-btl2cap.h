@@ -54,13 +54,11 @@ typedef struct _btl2cap_data_t {
     guint32   adapter_id;
     guint16   chandle;  /* only low 12 bits used */
     guint16   cid;
-    gint32    scid;
-    gint32    dcid;
+    gint32    local_cid;
+    gint32    remote_cid;
     guint32  *disconnect_in_frame;
     gboolean  is_local_psm; /* otherwise it is PSM in remote device */
     guint16   psm;
-    guint32   first_scid_frame;
-    guint32   first_dcid_frame;
     guint32   remote_bd_addr_oui;
     guint32   remote_bd_addr_id;
 } btl2cap_data_t;

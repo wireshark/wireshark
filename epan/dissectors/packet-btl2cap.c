@@ -152,7 +152,8 @@ static dissector_table_t l2cap_service_dissector_table;
 
 /* This table maps cid values to psm values.
  * The same table is used both for SCID and DCID.
- * For received CIDs we 'or' the cid with 0x80000000 in this table
+ * For Remote CIDs (Receive Request SCID or Sent Response DCID)
+ * we 'or' the CID with 0x80000000 in this table
  */
 static wmem_tree_t *cid_to_psm_table  = NULL;
 
@@ -178,10 +179,8 @@ typedef struct _psm_data_t {
     guint32       interface_id;
     guint32       adapter_id;
     guint32       chandle;
-    gint32        scid;
-    gint32        dcid;
-    guint32       first_scid_frame;
-    guint32       first_dcid_frame;
+    gint32        local_cid;
+    gint32        remote_cid;
     guint16       psm;
     gboolean      local_service;
     guint32       disconnect_in_frame;
@@ -622,11 +621,14 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         k_frame_number = pinfo->fd->num;
 
         psm_data = wmem_new(wmem_file_scope(), psm_data_t);
-        psm_data->scid = (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000));
-        psm_data->dcid = 0;
+        if (pinfo->p2p_dir == P2P_DIR_RECV) {
+            psm_data->local_cid = 0;
+            psm_data->remote_cid = scid |  0x80000000;
+        } else {
+            psm_data->local_cid = scid;
+            psm_data->remote_cid = 0;
+        }
         psm_data->psm  = psm;
-        psm_data->first_scid_frame = 0;
-        psm_data->first_dcid_frame = 0;
         psm_data->local_service = (pinfo->p2p_dir == P2P_DIR_RECV) ? TRUE : FALSE;
         psm_data->in.mode      = 0;
         psm_data->in.txwindow  = 0;
@@ -876,7 +878,8 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->dcid == cid &&
+                ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
+                (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
                 psm_data->disconnect_in_frame > pinfo->fd->num) {
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->out);
@@ -1070,7 +1073,8 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->scid == cid &&
+                ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->local_cid == cid) ||
+                (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->remote_cid == cid)) &&
                 psm_data->disconnect_in_frame > pinfo->fd->num) {
             if (pinfo->p2p_dir == P2P_DIR_RECV)
                 config_data = &(psm_data->out);
@@ -1158,7 +1162,8 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->scid == (scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000)) &&
+                ((pinfo->p2p_dir == P2P_DIR_SENT && psm_data->remote_cid == cid) ||
+                (pinfo->p2p_dir == P2P_DIR_RECV && psm_data->local_cid == cid)) &&
                 psm_data->disconnect_in_frame > pinfo->fd->num) {
             cid = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
 
@@ -1181,7 +1186,10 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
             key[5].length = 0;
             key[5].key    = NULL;
 
-            psm_data->dcid = cid;
+            if (pinfo->p2p_dir == P2P_DIR_RECV)
+                psm_data->remote_cid = cid;
+            else
+                psm_data->local_cid = cid;
 
             wmem_tree_insert32_array(cid_to_psm_table, key, psm_data);
         }
@@ -1327,12 +1335,13 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
             interface_id = HCI_INTERFACE_DEFAULT;
         adapter_id   = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
         chandle      = (acl_data) ? acl_data->chandle : 0;
-        if (is_request) {
-            key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
-            key_scid     = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
+        if ((is_request && pinfo->p2p_dir == P2P_DIR_SENT) ||
+                (!is_request && pinfo->p2p_dir == P2P_DIR_RECV)) {
+            key_dcid     = dcid | 0x80000000;
+            key_scid     = scid;
         } else {
-            key_dcid     = dcid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x80000000 : 0x00000000);
-            key_scid     = scid | ((pinfo->p2p_dir == P2P_DIR_RECV) ? 0x00000000 : 0x80000000);
+            key_dcid     = scid | 0x80000000;
+            key_scid     = dcid;
         }
 
         k_interface_id = interface_id;
@@ -1358,7 +1367,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->dcid == key_dcid &&
+                psm_data->remote_cid == key_dcid &&
                 psm_data->disconnect_in_frame == G_MAXUINT32) {
             psm_data->disconnect_in_frame = pinfo->fd->num;
         }
@@ -1386,7 +1395,7 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo,
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                psm_data->scid == key_scid &&
+                psm_data->local_cid == key_scid &&
                 psm_data->disconnect_in_frame == G_MAXUINT32) {
             psm_data->disconnect_in_frame = pinfo->fd->num;
         }
@@ -1711,11 +1720,10 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
     l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
     l2cap_data->cid              = cid;
-    l2cap_data->scid             = -1;
-    l2cap_data->dcid             = -1;
+    l2cap_data->local_cid        = -1;
+    l2cap_data->remote_cid       = -1;
     l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
-    l2cap_data->first_scid_frame = 0;
     l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
     l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
     l2cap_data->remote_bd_addr_id = (acl_data) ? acl_data->remote_bd_addr_id : 0;
@@ -1886,10 +1894,15 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
 
         psm = tvb_get_letohs(tvb, offset);
-        l2cap_data->scid = psm_data->scid;
-        l2cap_data->dcid = psm_data->dcid;
+        if (pinfo->p2p_dir == P2P_DIR_RECV) {
+            l2cap_data->local_cid = cid;
+            l2cap_data->remote_cid = -1;
+        } else {
+            l2cap_data->local_cid = -1;
+            l2cap_data->remote_cid = cid;
+        }
         l2cap_data->psm = psm;
-        l2cap_data->disconnect_in_frame = &psm_data->disconnect_in_frame;
+        l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
 
         if (p_get_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV ) == NULL) {
             p_add_proto_data(pinfo->pool, pinfo, proto_btl2cap, BTL2CAP_PSM_CONV, GUINT_TO_POINTER((guint)psm));
@@ -1999,28 +2012,16 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (psm_data && psm_data->interface_id == interface_id &&
                 psm_data->adapter_id == adapter_id &&
                 psm_data->chandle == chandle &&
-                (psm_data->scid == key_cid ||
-                psm_data->dcid == key_cid) &&
+                (psm_data->local_cid == key_cid ||
+                psm_data->remote_cid == key_cid) &&
                 psm_data->disconnect_in_frame > pinfo->fd->num) {
             config_data_t  *config_data;
 
-            if ((psm_data->scid == key_cid) &&
-                    psm_data->first_scid_frame == 0) {
-                psm_data->first_scid_frame = pinfo->fd->num;
-            }
-
-            if ((psm_data->dcid == key_cid) &&
-                    psm_data->first_dcid_frame == 0) {
-                psm_data->first_dcid_frame = pinfo->fd->num;
-            }
-
             psm = psm_data->psm;
-            l2cap_data->scid = psm_data->scid;
-            l2cap_data->dcid = psm_data->dcid;
+            l2cap_data->local_cid = psm_data->local_cid;
+            l2cap_data->remote_cid = psm_data->remote_cid;
             l2cap_data->psm = psm;
             l2cap_data->is_local_psm = psm_data->local_service;
-            l2cap_data->first_scid_frame = psm_data->first_scid_frame;
-            l2cap_data->first_dcid_frame = psm_data->first_dcid_frame;
             l2cap_data->disconnect_in_frame = &psm_data->disconnect_in_frame;
 
             if (pinfo->p2p_dir == P2P_DIR_RECV)
@@ -2555,7 +2556,7 @@ proto_register_btl2cap(void)
     expert_btl2cap = expert_register_protocol(proto_btl2cap);
     expert_register_field_array(expert_btl2cap, ei, array_length(ei));
 
-    cid_to_psm_table     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* scid: psm */
+    cid_to_psm_table     = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     register_decode_as(&btl2cap_cid_da);
     register_decode_as(&btl2cap_psm_da);
