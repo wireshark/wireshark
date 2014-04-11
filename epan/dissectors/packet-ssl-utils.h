@@ -32,9 +32,9 @@
 #include <epan/tvbuff.h>
 #include <epan/proto.h>
 #include <epan/expert.h>
+#include <wsutil/wsgcrypt.h>
 
 #ifdef HAVE_LIBGNUTLS
-#include <wsutil/wsgcrypt.h>
 #include <gnutls/x509.h>
 #include <gnutls/pkcs12.h>
 
@@ -43,6 +43,7 @@
 
 /* #define SSL_FAST 1 */
 #define SSL_DECRYPT_DEBUG
+#endif /* HAVE_LIBGNUTLS */
 
 #ifdef HAVE_LIBGCRYPT
 #define SSL_CIPHER_CTX gcry_cipher_hd_t
@@ -55,7 +56,6 @@
 #define SSL_CIPHER_CTX void*
 #define SSL_PRIVATE_KEY void
 #endif /* HAVE_LIBGCRYPT */
-#endif /* HAVE_LIBGNUTLS */
 
 
 /* version state tables */
