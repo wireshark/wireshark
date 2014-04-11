@@ -338,7 +338,7 @@ wmem_time_allocators(void)
     wmem_time_allocator(WMEM_ALLOCATOR_BLOCK);
     block_time = g_test_timer_elapsed();
 
-    printf("(simple: %lf; block: %lf) ", simple_time, block_time);
+    printf("(simple: %f; block: %f) ", simple_time, block_time);
     g_assert(simple_time > block_time);
 }
 
