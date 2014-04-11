@@ -202,6 +202,7 @@ static expert_field ei_dtls_handshake_fragment_length_too_long = EI_INIT;
 static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_handshake_sig_hash_alg_len_bad = EI_INIT;
+static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
 static GHashTable         *dtls_session_hash         = NULL;
 static GHashTable         *dtls_key_hash             = NULL;
@@ -360,7 +361,8 @@ static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 /* heartbeat message dissector */
 static void dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
-                                   guint *conv_version, guint32 record_length);
+                                   guint *conv_version, guint32 record_length,
+                                   gboolean decrypted);
 
 
 static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
@@ -1073,11 +1075,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
     decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
     if (decrypted) {
       dissect_dtls_heartbeat(decrypted, pinfo, dtls_record_tree, 0,
-                             conv_version, record_length);
+                             conv_version, tvb_length (decrypted), TRUE);
       add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
     } else {
       dissect_dtls_heartbeat(tvb, pinfo, dtls_record_tree, offset,
-                             conv_version, record_length);
+                             conv_version, record_length, FALSE);
     }
     break;
   }
@@ -1570,7 +1572,8 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint* conv_version, guint32 record_length)
+                       guint* conv_version, guint32 record_length,
+                       gboolean decrypted)
 {
   /*     struct {
    *         HeartbeatMessageType type;
@@ -1610,7 +1613,7 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (tree) {
-    if (type && (payload_length <= record_length - 16 - 3)) {
+    if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
       proto_item_set_text(tree, "%s Record Layer: Heartbeat "
                                 "%s",
                                 val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
@@ -1618,9 +1621,18 @@ dissect_dtls_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
       proto_tree_add_item(dtls_heartbeat_tree, hf_dtls_heartbeat_message_type,
                           tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
-      proto_tree_add_uint(dtls_heartbeat_tree, hf_dtls_heartbeat_message_payload_length,
-                          tvb, offset, 2, payload_length);
+      ti = proto_tree_add_uint(dtls_heartbeat_tree, hf_dtls_heartbeat_message_payload_length,
+                               tvb, offset, 2, payload_length);
       offset += 2;
+      if (payload_length > record_length - 16 - 3) {
+        expert_add_info_format(pinfo, ti, &ei_dtls_heartbeat_payload_length,
+                               "Invalid heartbeat payload length (%d)", payload_length);
+        /* Invalid heartbeat payload length, adjust to try decoding */
+        payload_length = record_length - 16 - 3;
+        padding_length = 16;
+        proto_item_append_text (ti, " (invalid, using %u to decode payload)", payload_length);
+
+      }
       proto_tree_add_bytes_format(dtls_heartbeat_tree, hf_dtls_heartbeat_message_payload,
                                   tvb, offset, payload_length,
                                   NULL, "Payload (%u byte%s)",
@@ -3326,6 +3338,8 @@ proto_register_dtls(void)
      { &ei_dtls_handshake_fragment_past_end_msg, { "dtls.handshake.fragment_past_end_msg", PI_PROTOCOL, PI_ERROR, "Fragment runs past the end of the message", EXPFILL }},
      { &ei_dtls_msg_len_diff_fragment, { "dtls.msg_len_diff_fragment", PI_PROTOCOL, PI_ERROR, "Message length differs from value in earlier fragment", EXPFILL }},
      { &ei_dtls_handshake_sig_hash_alg_len_bad, { "dtls.handshake.sig_hash_alg_len.bad", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
+     { &ei_dtls_heartbeat_payload_length, {"dtls.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
+
      SSL_COMMON_EI_LIST(dissect_dtls_hf, "dtls")
   };
 

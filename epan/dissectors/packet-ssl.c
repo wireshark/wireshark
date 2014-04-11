@@ -284,7 +284,7 @@ static gint ett_ssl_segment           = -1;
 static expert_field ei_ssl_handshake_cipher_suites_mult2 = EI_INIT;
 static expert_field ei_ssl_handshake_sig_hash_algs_mult2 = EI_INIT;
 static expert_field ei_ssl2_handshake_session_id_len_error = EI_INIT;
-
+static expert_field ei_ssl3_heartbeat_payload_length = EI_INIT;
 
 /* not all of the hf_fields below make sense for SSL but we have to provide
    them anyways to comply with the api (which was aimed for ip fragment
@@ -522,7 +522,8 @@ static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 /* heartbeat message dissector */
 static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
-                                   guint *conv_version, guint32 record_length);
+                                   guint *conv_version, guint32 record_length,
+                                   gboolean decrypted);
 
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                                        proto_tree *tree,
@@ -1765,9 +1766,9 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         decrypted = ssl_get_record_info(tvb, proto_ssl, pinfo, offset);
         if (decrypted) {
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
-            dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, conv_version, record_length);
+            dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, conv_version, tvb_length (decrypted), TRUE);
         } else {
-            dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, conv_version, record_length);
+            dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, conv_version, record_length, FALSE);
         }
         break;
     }
@@ -2140,7 +2141,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint *conv_version, guint32 record_length)
+                       guint *conv_version, guint32 record_length,
+                       gboolean decrypted)
 {
     /*     struct {
      *         HeartbeatMessageType type;
@@ -2177,14 +2179,14 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
     padding_length = record_length - 3 - payload_length;
 
     /* now set the text in the record layer line */
-    if (type && (payload_length <= record_length - 16 - 3)) {
+    if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
     } else {
         col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
     }
 
     if (tree) {
-        if (type && (payload_length <= record_length - 16 - 3)) {
+        if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
             proto_item_set_text(tree, "%s Record Layer: Heartbeat "
                                 "%s",
                                 val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
@@ -2192,9 +2194,17 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item(tls_heartbeat_tree, hf_ssl_heartbeat_message_type,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            proto_tree_add_uint(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload_length,
-                                tvb, offset, 2, payload_length);
+            ti = proto_tree_add_uint(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload_length,
+                                     tvb, offset, 2, payload_length);
             offset += 2;
+            if (payload_length > record_length - 16 - 3) {
+                expert_add_info_format(pinfo, ti, &ei_ssl3_heartbeat_payload_length,
+                                       "Invalid payload heartbeat length (%d)", payload_length);
+                /* Invalid heartbeat payload length, adjust to try decoding */
+                payload_length = record_length - 16 - 3;
+                padding_length = 16;
+                proto_item_append_text (ti, " (invalid, using %u to decode payload)", payload_length);
+            }
             proto_tree_add_bytes_format(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload,
                                         tvb, offset, payload_length,
                                         NULL, "Payload (%u byte%s)",
@@ -5521,6 +5531,7 @@ proto_register_ssl(void)
         { &ei_ssl_handshake_cipher_suites_mult2, { "ssl.handshake.cipher_suites_length.mult2", PI_MALFORMED, PI_ERROR, "Cipher suite length must be a multiple of 2", EXPFILL }},
         { &ei_ssl_handshake_sig_hash_algs_mult2, { "ssl.handshake.sig_hash_alg_len.mult2", PI_MALFORMED, PI_ERROR, "Signature Hash Algorithm length must be a multiple of 2", EXPFILL }},
         { &ei_ssl2_handshake_session_id_len_error, { "ssl.handshake.session_id_length.error", PI_MALFORMED, PI_ERROR, "Session ID length error", EXPFILL }},
+        { &ei_ssl3_heartbeat_payload_length, {"ssl.heartbeat_message.payload_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid heartbeat payload length", EXPFILL }},
         SSL_COMMON_EI_LIST(dissect_ssl3_hf, "ssl")
     };
 
