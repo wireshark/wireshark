@@ -574,7 +574,6 @@ static const value_string tckind_vals[] = {
  *  These values are taken from the CORBA 3.0.2 standard,
  *  section 13.7.1 "Standard Service Contexts".
  */
-static const guint32 max_service_context_id = 0x10;
 static const value_string service_context_ids[] = {
   { 0x00, "TransactionService" },
   { 0x01, "CodeSets"},

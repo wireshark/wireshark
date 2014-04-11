@@ -66,6 +66,7 @@ static int debuglevel = 0;
  * the BER encoding may take 5 octets to encode.
  */
 
+#ifdef HAVE_LIBSMI
 static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, 1};
 static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   0};
 static const oid_value_type_t oid_type =        { FT_OID,    BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID,         1,  -1, OID_KEY_TYPE_OID,     0};
@@ -84,6 +85,8 @@ static const oid_value_type_t double_type =     { FT_DOUBLE, BASE_DEC,  BER_CLAS
 static const oid_value_type_t ether_type =      { FT_ETHER,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 6,   6, OID_KEY_TYPE_ETHER,   6};
 static const oid_value_type_t string_type =     { FT_STRING, BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_STRING,  0};
 static const oid_value_type_t date_and_time_type = { FT_STRING,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 8,  11, OID_KEY_TYPE_DATE_AND_TIME,   0};
+#endif /* HAVE_LIBSMI */
+
 static const oid_value_type_t unknown_type =    { FT_BYTES,  BASE_NONE, BER_CLASS_ANY, BER_TAG_ANY,             0,  -1, OID_KEY_TYPE_WRONG,   0};
 
 static oid_info_t oid_root = { 0, NULL, OID_KIND_UNKNOWN, NULL, &unknown_type, -2, NULL, NULL, NULL};
