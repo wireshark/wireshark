@@ -246,7 +246,7 @@ glusterfs_rpc_dissect_mode(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 
 	if (tree)
 		proto_tree_add_bitmask(tree, tvb, offset, hfindex,
-			ett_glusterfs_mode, mode_bits, ENC_LITTLE_ENDIAN);
+			ett_glusterfs_mode, mode_bits, ENC_BIG_ENDIAN);
 
 	offset += 4;
 	return offset;
@@ -413,11 +413,11 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 	};
 
 	if (tree) {
-		flag_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_glusterfs_flags, ett_glusterfs_flags, flag_bits, ENC_LITTLE_ENDIAN);
+		flag_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_glusterfs_flags, ett_glusterfs_flags, flag_bits, ENC_BIG_ENDIAN);
 
 		/* rdonly is TRUE only when no flags are set */
 		rdonly = (tvb_get_ntohl(tvb, offset) == 0);
-		proto_tree_add_item(flag_tree, hf_glusterfs_flags_rdonly, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(flag_tree, hf_glusterfs_flags_rdonly, tvb, offset, 4, ENC_BIG_ENDIAN);
 		if (rdonly) {
 			rdonly_hf = proto_registrar_get_nth(hf_glusterfs_flags_rdonly);
 			proto_item_append_text(flag_tree, ", %s", rdonly_hf->name);
@@ -470,7 +470,7 @@ glusterfs_rpc_dissect_statfs(proto_tree *tree, tvbuff_t *tvb, int offset)
 	if (tree)
 		proto_tree_add_bitmask(tree, tvb, offset + 4,
 			hf_glusterfs_mnt_flags, ett_glusterfs_mnt_flags,
-			flag_bits, ENC_LITTLE_ENDIAN);
+			flag_bits, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_namemax, offset);
