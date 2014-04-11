@@ -374,6 +374,7 @@ OriginatorAndDLExpansionHistory				N p1.extension 30
 ReportingDLName								N p1.extension 31
 ReportingMTACertificate						N p1.extension 32
 ReportOriginAuthenticationCheck				N p1.extension 33
+OriginatingMTACertificate						N p1.extension 34
 ProofOfSubmission							N p1.extension 35
 
 TraceInformation							N p1.extension 37
