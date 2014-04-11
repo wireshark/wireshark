@@ -242,6 +242,14 @@ static int hf_btavdtp_atrac_vbr_supported                                  = -1;
 static int hf_btavdtp_atrac_bit_rate                                       = -1;
 static int hf_btavdtp_atrac_maximum_sul                                    = -1;
 static int hf_btavdtp_atrac_rfa3                                           = -1;
+static int hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000        = -1;
+static int hf_btavdtp_vendor_specific_aptx_sampling_frequency_32000        = -1;
+static int hf_btavdtp_vendor_specific_aptx_sampling_frequency_44100        = -1;
+static int hf_btavdtp_vendor_specific_aptx_sampling_frequency_48000        = -1;
+static int hf_btavdtp_vendor_specific_aptx_channel_mode_mono               = -1;
+static int hf_btavdtp_vendor_specific_aptx_channel_mode_dual_channel       = -1;
+static int hf_btavdtp_vendor_specific_aptx_channel_mode_stereo             = -1;
+static int hf_btavdtp_vendor_specific_aptx_channel_mode_joint_stereo       = -1;
 static int hf_btavdtp_h263_level_10                                        = -1;
 static int hf_btavdtp_h263_level_20                                        = -1;
 static int hf_btavdtp_h263_level_30                                        = -1;
@@ -254,6 +262,7 @@ static int hf_btavdtp_mpeg4_level_rfa                                      = -1;
 static int hf_btavdtp_vendor_id                                            = -1;
 static int hf_btavdtp_vendor_specific_codec_id                             = -1;
 static int hf_btavdtp_vendor_specific_value                                = -1;
+static int hf_btavdtp_vendor_specific_apt_codec_id                         = -1;
 static int hf_btavdtp_capabilities                                         = -1;
 static int hf_btavdtp_service                                              = -1;
 static int hf_btavdtp_service_multiplexing_entry                           = -1;
@@ -286,6 +295,8 @@ static gint ett_bta2dp_cph_scms_t               = -1;
 static int hf_bta2dp_acp_seid                           = -1;
 static int hf_bta2dp_int_seid                           = -1;
 static int hf_bta2dp_codec                              = -1;
+static int hf_bta2dp_vendor_id                          = -1;
+static int hf_bta2dp_vendor_codec_id                    = -1;
 static int hf_bta2dp_content_protection                 = -1;
 static int hf_bta2dp_stream_number                      = -1;
 static int hf_bta2dp_l_bit                              = -1;
@@ -335,6 +346,17 @@ static const enum_val_t pref_vdp_codec[] = {
     { "mp4v-es", "MPEG4 VSP", CODEC_MPEG4_VSP },
     { NULL, NULL, 0 }
 };
+
+/* APT-X Codec */
+static int  proto_aptx                            = -1;
+static int  hf_aptx_data                          = -1;
+static int  hf_aptx_cummulative_frame_duration    = -1;
+static int  hf_aptx_delta_time                    = -1;
+static int  hf_aptx_delta_time_from_the_beginning = -1;
+static int  hf_aptx_cummulative_duration          = -1;
+static int  hf_aptx_diff                          = -1;
+static gint ett_aptx                              = -1;
+static dissector_handle_t aptx_handle;
 
 
 static const value_string message_type_vals[] = {
@@ -469,6 +491,11 @@ static const value_string content_protection_type_vals[] = {
     { 0, NULL }
 };
 
+static const value_string vendor_apt_codec_vals[] = {
+    { 0x0001,  "APT-X" },
+    { 0, NULL }
+};
+
 extern value_string_ext bthci_evt_comp_id_ext;
 
 enum sep_state {
@@ -478,17 +505,22 @@ enum sep_state {
 };
 
 typedef struct _sep_entry_t {
-    guint8 seid;
-    guint8 type;
-    guint8 media_type;
-    guint8 int_seid;
-    gint   codec;
-    gint   content_protection_type;
+    guint8         seid;
+    guint8         type;
+    guint8         media_type;
+    guint8         int_seid;
+    gint           codec;
+    guint32        vendor_id;
+    guint16        vendor_codec;
+    gint           content_protection_type;
+
     enum sep_state state;
 } sep_entry_t;
 
 typedef struct _sep_data_t {
     gint      codec;
+    guint32   vendor_id;
+    guint16   vendor_codec;
     guint8    acp_seid;
     guint8    int_seid;
     gint      content_protection_type;
@@ -521,6 +553,7 @@ void proto_register_bta2dp_content_protection_header_scms_t(void);
 void proto_register_btvdp(void);
 void proto_reg_handoff_btvdp(void);
 void proto_register_btvdp_content_protection_header_scms_t(void);
+void proto_register_aptx(void);
 
 
 static const char *
@@ -669,11 +702,12 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 
 
 static gint
-dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
-        guint losc, gint media_type, gint media_codec_type)
+dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_item *service_item, proto_tree *tree, gint offset,
+        guint losc, gint media_type, gint media_codec_type, guint32 *vendor_id, guint16 *vendor_codec)
 {
     proto_item    *pitem;
-    guint         bitpool;
+    guint32        value;
+    guint8        *value8 = (guint8 *) &value;
 
     switch(media_type) {
         case MEDIA_TYPE_AUDIO:
@@ -698,16 +732,73 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                     proto_tree_add_item(tree, hf_btavdtp_sbc_allocation_method_loudness, tvb, offset + 1, 1, ENC_NA);
 
                     pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_min_bitpool, tvb, offset + 2, 1, ENC_NA);
-                    bitpool = tvb_get_guint8(tvb, offset + 2);
-                    if (bitpool < 2 || bitpool > 250) {
+                    value = tvb_get_guint8(tvb, offset + 2);
+                    if (value < 2 || value > 250) {
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_min_bitpool_out_of_range);
                     }
 
                     pitem = proto_tree_add_item(tree, hf_btavdtp_sbc_max_bitpool, tvb, offset + 3, 1, ENC_NA);
-                    bitpool = tvb_get_guint8(tvb, offset + 3);
-                    if (bitpool < 2 || bitpool > 250) {
+                    value = tvb_get_guint8(tvb, offset + 3);
+                    if (value < 2 || value > 250) {
                         expert_add_info(pinfo, pitem, &ei_btavdtp_sbc_max_bitpool_out_of_range);
                     }
+
+                    value = tvb_get_h_guint32(tvb, offset);
+                    if (value) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%s%s%s%s| %s%s%s%s%s| block: %s%s%s%s%s| subbands: %s%s%s| allocation: %s%s%s| bitpool: %u..%u)",
+                            (value8[0] & 0x80) ? "16000 " : "",
+                            (value8[0] & 0x40) ? "32000 " : "",
+                            (value8[0] & 0x20) ? "44100 " : "",
+                            (value8[0] & 0x10) ? "48000 " : "",
+                            (value8[0] & 0xF0) ? "" : "not set ",
+                            (value8[0] & 0x08) ? "Mono " : "",
+                            (value8[0] & 0x04) ? "DualChannel " : "",
+                            (value8[0] & 0x02) ? "Stereo " : "",
+                            (value8[0] & 0x01) ? "JointStereo " : "",
+                            (value8[0] & 0x0F) ? "" : "not set ",
+                            (value8[1] & 0x80) ? "4 " : "",
+                            (value8[1] & 0x40) ? "8 " : "",
+                            (value8[1] & 0x20) ? "12 " : "",
+                            (value8[1] & 0x10) ? "16 " : "",
+                            (value8[1] & 0xF0) ? "" : "not set ",
+                            (value8[1] & 0x08) ? "4 " : "",
+                            (value8[1] & 0x04) ? "8 " : "",
+                            (value8[1] & 0x0C) ? "" : "not set ",
+                            (value8[1] & 0x02) ? "SNR " : "",
+                            (value8[1] & 0x01) ? "Loudness " : "",
+                            (value8[0] & 0x03) ? "" : "not set ",
+                            value8[2],
+                            value8[3]);
+
+                        proto_item_append_text(service_item, " (%s%s%s%s%s| %s%s%s%s%s| block: %s%s%s%s%s| subbands: %s%s%s| allocation: %s%s%s| bitpool: %u..%u)",
+                            (value8[0] & 0x80) ? "16000 " : "",
+                            (value8[0] & 0x40) ? "32000 " : "",
+                            (value8[0] & 0x20) ? "44100 " : "",
+                            (value8[0] & 0x10) ? "48000 " : "",
+                            (value8[0] & 0xF0) ? "" : "not set ",
+                            (value8[0] & 0x08) ? "Mono " : "",
+                            (value8[0] & 0x04) ? "DualChannel " : "",
+                            (value8[0] & 0x02) ? "Stereo " : "",
+                            (value8[0] & 0x01) ? "JointStereo " : "",
+                            (value8[0] & 0x0F) ? "" : "not set ",
+                            (value8[1] & 0x80) ? "4 " : "",
+                            (value8[1] & 0x40) ? "8 " : "",
+                            (value8[1] & 0x20) ? "12 " : "",
+                            (value8[1] & 0x10) ? "16 " : "",
+                            (value8[1] & 0xF0) ? "" : "not set ",
+                            (value8[1] & 0x08) ? "4 " : "",
+                            (value8[1] & 0x04) ? "8 " : "",
+                            (value8[1] & 0x0C) ? "" : "not set ",
+                            (value8[1] & 0x02) ? "SNR " : "",
+                            (value8[1] & 0x01) ? "Loudness " : "",
+                            (value8[0] & 0x03) ? "" : "not set ",
+                            value8[2],
+                            value8[3]);
+                    } else {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (none)");
+                        proto_item_append_text(service_item, " (none)");
+                    }
+
                     break;
                 case CODEC_MPEG12_AUDIO:
                     proto_tree_add_item(tree, hf_btavdtp_mpeg12_layer_1, tvb, offset, 1, ENC_NA);
@@ -777,8 +868,71 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
                     break;
                 case CODEC_VENDOR: /* non-A2DP */
                     proto_tree_add_item(tree, hf_btavdtp_vendor_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
-                    proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
+
+                    if (vendor_id)
+                        *vendor_id = tvb_get_letohl(tvb, offset);
+
+                    if (vendor_codec)
+                        *vendor_codec = tvb_get_letohs(tvb, offset + 4);
+
+                    switch (tvb_get_letohl(tvb, offset)) {
+                        case 0x004F: /* APT Licensing Ltd. */
+                            proto_tree_add_item(tree, hf_btavdtp_vendor_specific_apt_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+                            value = tvb_get_letohs(tvb, offset + 4);
+
+                            if (value == 0x0001) { /* APT-X Codec */
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_32000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_44100, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_sampling_frequency_48000, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_mono, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_dual_channel, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_stereo, tvb, offset + 6, 1, ENC_NA);
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_aptx_channel_mode_joint_stereo, tvb, offset + 6, 1, ENC_NA);
+
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (%s -",
+                                    val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
+                                proto_item_append_text(service_item, " (%s -",
+                                    val_to_str_const(value, vendor_apt_codec_vals, "unknown codec"));
+
+                                value = tvb_get_guint8(tvb, offset + 6);
+                                if (value) {
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s%s%s%s,%s%s%s%s%s)",
+                                        (value & 0x80) ? " 16000" : "",
+                                        (value & 0x40) ? " 32000" : "",
+                                        (value & 0x20) ? " 44100" : "",
+                                        (value & 0x10) ? " 48000" : "",
+                                        (value & 0xF0) ? "" : "not set ",
+                                        (value & 0x08) ? " Mono" : "",
+                                        (value & 0x04) ? " DualChannel" : "",
+                                        (value & 0x02) ? " Stereo" : "",
+                                        (value & 0x01) ? " JointStereo" : "",
+                                        (value & 0x0F) ? "" : "not set ");
+
+                                    proto_item_append_text(service_item, "%s%s%s%s%s,%s%s%s%s%s)",
+                                        (value & 0x80) ? " 16000" : "",
+                                        (value & 0x40) ? " 32000" : "",
+                                        (value & 0x20) ? " 44100" : "",
+                                        (value & 0x10) ? " 48000" : "",
+                                        (value & 0xF0) ? "" : "not set ",
+                                        (value & 0x08) ? " Mono" : "",
+                                        (value & 0x04) ? " DualChannel" : "",
+                                        (value & 0x02) ? " Stereo" : "",
+                                        (value & 0x01) ? " JointStereo" : "",
+                                        (value & 0x0F) ? "" : "not set ");
+                                } else {
+                                    col_append_fstr(pinfo->cinfo, COL_INFO, " none)");
+                                    proto_item_append_text(service_item, " none)");
+                                }
+                            } else {
+                                proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
+                            }
+                            break;
+                        default:
+                            proto_tree_add_item(tree, hf_btavdtp_vendor_specific_codec_id, tvb, offset + 4, 2, ENC_LITTLE_ENDIAN);
+                            proto_tree_add_item(tree, hf_btavdtp_vendor_specific_value, tvb, offset + 6, losc - 6, ENC_NA);
+                    }
+
                     break;
                 default:
                     proto_tree_add_item(tree, hf_btavdtp_data, tvb, offset, losc, ENC_NA);
@@ -823,7 +977,7 @@ dissect_codec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
 static gint
 dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, gint offset, gint *codec,
-        gint *content_protection_type)
+        gint *content_protection_type, guint32 *vendor_id, guint16 *vendor_codec)
 {
     proto_item  *pitem                                        = NULL;
     proto_item  *ptree                                        = NULL;
@@ -842,9 +996,14 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
     capabilities_item = proto_tree_add_item(tree, hf_btavdtp_capabilities, tvb, offset, tvb_length(tvb) - offset, ENC_NA);
     capabilities_tree = proto_item_add_subtree(capabilities_item, ett_btavdtp_capabilities);
 
-    if (codec) {
+    if (codec)
         *codec = -1;
-    }
+
+    if (vendor_id)
+        *vendor_id = 0x003F; /* Bluetooth SIG */
+
+    if (vendor_codec)
+        *vendor_codec = 0;
 
     while (tvb_length_remaining(tvb, offset) > 0) {
         service_category = tvb_get_guint8(tvb, offset);
@@ -924,7 +1083,9 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 offset += 1;
                 losc -= 1;
 
-                offset = dissect_codec(tvb, pinfo, service_tree, offset, losc, media_type, media_codec_type);
+                offset = dissect_codec(tvb, pinfo, service_item, service_tree,
+                        offset, losc, media_type, media_codec_type,
+                        vendor_id, vendor_codec);
                 losc = 0;
                 break;
             case SERVICE_CATEGORY_CONTENT_PROTECTION:
@@ -932,6 +1093,9 @@ dissect_capabilities(tvbuff_t *tvb, packet_info *pinfo,
                 if (content_protection_type) {
                     *content_protection_type = tvb_get_letohs(tvb, offset);
                 }
+                proto_item_append_text(service_item, " - %s",
+                    val_to_str_const(tvb_get_letohs(tvb, offset), content_protection_type_vals, "unknown"));
+
                 offset += 2;
                 losc -= 2;
 
@@ -1196,9 +1360,11 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 nstime_t                      first_abs_ts;
                 gdouble                       cummulative_frame_duration;
 
-                sep_data.codec    = channels_info->sep->codec;
-                sep_data.acp_seid = channels_info->sep->seid;
-                sep_data.int_seid = channels_info->sep->int_seid;
+                sep_data.codec        = channels_info->sep->codec;
+                sep_data.vendor_id    = channels_info->sep->vendor_id;
+                sep_data.vendor_codec = channels_info->sep->vendor_codec;
+                sep_data.acp_seid     = channels_info->sep->seid;
+                sep_data.int_seid     = channels_info->sep->int_seid;
                 sep_data.content_protection_type = channels_info->sep->content_protection_type;
 
                 media_stream_number_value = (media_stream_number_value_t *) wmem_tree_lookup32_le(channels_info->stream_numbers, frame_number - 1);
@@ -1356,11 +1522,13 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
-            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL);
+            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL, NULL, NULL);
             break;
         case SIGNAL_ID_SET_CONFIGURATION:
             if (message_type == MESSAGE_TYPE_COMMAND) {
                 guint32  int_seid;
+                guint32  vendor_id;
+                guint16  vendor_codec;
 
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                         SEID_ACP, 0, &seid, interface_id,
@@ -1368,7 +1536,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                         SEID_INT, 0, &int_seid, interface_id,
                         adapter_id, chandle, frame_number);
-                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
+                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset,
+                        &codec, &content_protection_type, &vendor_id, &vendor_codec);
 
                 key[0].length = 1;
                 key[0].key    = &interface_id;
@@ -1387,6 +1556,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
                 if (sep) {
                     sep->codec = codec;
+                    sep->vendor_id = vendor_id;
+                    sep->vendor_codec = vendor_codec;
                     sep->content_protection_type = content_protection_type;
                     sep->int_seid = int_seid;
                 }
@@ -1414,14 +1585,18 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 1;
                 break;
             }
-            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL);
+            offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, NULL, NULL, NULL, NULL);
             break;
         case SIGNAL_ID_RECONFIGURE:
             if (message_type == MESSAGE_TYPE_COMMAND) {
+                guint32  vendor_id;
+                guint16  vendor_codec;
+
                 offset = dissect_seid(tvb, pinfo, btavdtp_tree, offset,
                         SEID_ACP, 0, &seid, interface_id,
                         adapter_id, chandle, frame_number);
-                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset, &codec, &content_protection_type);
+                offset = dissect_capabilities(tvb, pinfo, btavdtp_tree, offset,
+                        &codec, &content_protection_type, &vendor_id, &vendor_codec);
 
                 key[0].length = 1;
                 key[0].key    = &interface_id;
@@ -1440,6 +1615,8 @@ dissect_btavdtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sep = (subtree) ? (sep_entry_t *) wmem_tree_lookup32_le(subtree, frame_number) : NULL;
                 if (sep) {
                     sep->codec = codec;
+                    sep->vendor_id = vendor_id;
+                    sep->vendor_codec = vendor_codec;
                     sep->content_protection_type = content_protection_type;
                 }
 
@@ -2293,6 +2470,51 @@ proto_register_btavdtp(void)
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_btavdtp_vendor_specific_apt_codec_id,
+            { "Codec",                          "btavdtp.codec.vendor.codec_id",
+            FT_UINT16, BASE_HEX, VALS(vendor_apt_codec_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_sampling_frequency_16000,
+            { "Sampling Frequency 16000 Hz",    "btavdtp.codec.aptx.sampling_frequency.16000",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_sampling_frequency_32000,
+            { "Sampling Frequency 32000 Hz",    "btavdtp.codec.aptx.sampling_frequency.32000",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_sampling_frequency_44100,
+            { "Sampling Frequency 44100 Hz",    "btavdtp.codec.aptx.sampling_frequency.44100",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_sampling_frequency_48000,
+            { "Sampling Frequency 48000 Hz",    "btavdtp.codec.aptx.sampling_frequency.48000",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_channel_mode_mono,
+            { "Channel Mode Mono",              "btavdtp.codec.aptx.channel_mode.mono",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_channel_mode_dual_channel,
+            { "Channel Mode Dual Channel",      "btavdtp.codec.aptx.channel_mode.dual_channel",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_channel_mode_stereo,
+            { "Channel Mode Stereo",            "btavdtp.codec.aptx.channel_mode.stereo",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_btavdtp_vendor_specific_aptx_channel_mode_joint_stereo,
+            { "Channel Mode Joint Stereo",      "btavdtp.codec.aptx.channel_mode.joint_stereo",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
         { &hf_btavdtp_capabilities,
             { "Capabilities",                   "btavdtp.capabilities",
             FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2350,6 +2572,141 @@ proto_reg_handoff_btavdtp(void)
     dissector_add_uint("btl2cap.psm", BTL2CAP_PSM_AVDTP, btavdtp_handle);
 
     dissector_add_handle("btl2cap.cid", btavdtp_handle);
+}
+
+
+static gint
+dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    proto_item          *aptx_item;
+    proto_tree          *aptx_tree;
+    proto_item          *pitem;
+    bta2dp_codec_info_t *info;
+    gdouble              cummulative_frame_duration = 0;
+
+    info = (bta2dp_codec_info_t *) data;
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "APT-X");
+
+    switch (pinfo->p2p_dir) {
+
+    case P2P_DIR_SENT:
+        col_set_str(pinfo->cinfo, COL_INFO, "Sent ");
+        break;
+
+    case P2P_DIR_RECV:
+        col_set_str(pinfo->cinfo, COL_INFO, "Rcvd ");
+        break;
+
+    case P2P_DIR_UNKNOWN:
+        col_clear(pinfo->cinfo, COL_INFO);
+        break;
+
+    default:
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown direction %d ",
+            pinfo->p2p_dir);
+        break;
+    }
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, "APT-X");
+
+    aptx_item = proto_tree_add_item(tree, proto_aptx, tvb, 0, -1, ENC_NA);
+    aptx_tree = proto_item_add_subtree(aptx_item, ett_aptx);
+
+    proto_tree_add_item(aptx_tree, hf_aptx_data, tvb, 0, -1, ENC_NA);
+    {
+    /*       expected_speed_data = (frame_length * frequency) / (sbc_subbands * sbc_blocks);
+        frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
+        cummulative_frame_duration += frame_duration;*/
+    double expected_speed_data;
+    double frame_duration;
+    double frame_length = 2 * 2 * 4;
+
+    /* INT 32 = 2 channels * 4 *4
+     OUT 4 (2*2)*/
+
+    expected_speed_data = 48000.0 * (16.0 / 8.0) * 2.0;
+    frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
+
+    cummulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
+    }
+    pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_frame_duration, tvb, 0, 0, cummulative_frame_duration);
+    proto_item_append_text(pitem, " ms");
+    PROTO_ITEM_SET_GENERATED(pitem);
+
+    if (info) {
+        nstime_t  delta;
+
+        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->abs_ts);
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time, tvb, 0, 0, nstime_to_msec(&delta));
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        nstime_delta(&delta, &pinfo->fd->abs_ts, &info->previous_media_packet_info->first_abs_ts);
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        if (!pinfo->fd->flags.visited)
+            info->current_media_packet_info->cummulative_frame_duration += cummulative_frame_duration;
+
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_cummulative_duration, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration);
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cummulative_frame_duration - nstime_to_msec(&delta));
+        proto_item_append_text(pitem, " ms");
+        PROTO_ITEM_SET_GENERATED(pitem);
+    }
+
+    return tvb_reported_length(tvb);
+}
+
+void
+proto_register_aptx(void)
+{
+    static hf_register_info hf[] = {
+        { &hf_aptx_data,
+            { "Data",                            "aptx.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_aptx_cummulative_frame_duration,
+            { "Cummulative Frame Duration",      "aptx.cummulative_frame_duration",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_aptx_delta_time,
+            { "Delta time",                      "aptx.delta_time",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_aptx_delta_time_from_the_beginning,
+            { "Delta time from the beginning",   "aptx.delta_time_from_the_beginning",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_aptx_cummulative_duration,
+            { "Cummulative Music Duration",      "aptx.cummulative_music_duration",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_aptx_diff,
+            { "Diff",                            "aptx.diff",
+            FT_DOUBLE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+    };
+
+    static gint *ett[] = {
+        &ett_aptx
+    };
+
+    proto_aptx = proto_register_protocol("APT-X Codec", "APT-X", "aptx");
+    proto_register_field_array(proto_bta2dp, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
+
+    aptx_handle = new_register_dissector("aptx", dissect_aptx, proto_aptx);
 }
 
 
@@ -2424,6 +2781,17 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_codec, tvb, 0, 0, sep_data.codec);
     PROTO_ITEM_SET_GENERATED(pitem);
 
+    if (sep_data.codec == 0xFF) { /* Vendor Specific Codec */
+        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_vendor_id, tvb, 0, 0, sep_data.vendor_id);
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_vendor_codec_id, tvb, 0, 0, sep_data.vendor_codec);
+        PROTO_ITEM_SET_GENERATED(pitem);
+
+        if (sep_data.vendor_id == 0x004F && sep_data.vendor_codec == 0x0001)
+            codec_dissector = aptx_handle;
+    }
+
     if (sep_data.content_protection_type > 0) {
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
         PROTO_ITEM_SET_GENERATED(pitem);
@@ -2488,6 +2856,16 @@ proto_register_bta2dp(void)
             FT_UINT8, BASE_HEX, VALS(media_codec_audio_type_vals), 0x00,
             NULL, HFILL }
         },
+        { &hf_bta2dp_vendor_id,
+            { "Vendor ID",                       "bta2dp.codec.vendor.vendor_id",
+            FT_UINT32, BASE_HEX|BASE_EXT_STRING, &bthci_evt_comp_id_ext, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_bta2dp_vendor_codec_id,
+            { "Vendor Codec",                    "bta2dp.codec.vendor.codec_id",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_bta2dp_content_protection,
             { "Content Protection",              "bta2dp.content_protection",
             FT_UINT16, BASE_HEX, VALS(content_protection_type_vals), 0x0000,
@@ -2534,6 +2912,7 @@ proto_reg_handoff_bta2dp(void)
     mpeg_audio_handle = find_dissector("mpeg-audio");
 /* TODO: ATRAC dissector does not exist yet */
     atrac_handle = find_dissector("atrac");
+    aptx_handle = find_dissector("aptx");
 
     rtp_handle   = find_dissector("rtp");
 
