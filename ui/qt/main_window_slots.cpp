@@ -65,6 +65,7 @@
 #include "ui/help_url.h"
 #include "ui/main_statusbar.h"
 #include "ui/preference_utils.h"
+#include "ui/recent_utils.h"
 #include "ui/ssl_key_export.h"
 
 #ifdef HAVE_SOFTWARE_UPDATE
@@ -420,17 +421,17 @@ void MainWindow::captureFileReadStarted(const capture_file *cf) {
 void MainWindow::captureFileReadFinished(const capture_file *cf) {
     if (cf != cap_file_) return;
 
-//    gchar *dir_path;
+    gchar *dir_path;
 
-//    if (!cf->is_tempfile && cf->filename) {
-//        /* Add this filename to the list of recent files in the "Recent Files" submenu */
-//        add_menu_recent_capture_file(cf->filename);
+    if (!cf->is_tempfile && cf->filename) {
+        /* Add this filename to the list of recent files in the "Recent Files" submenu */
+        add_menu_recent_capture_file(cf->filename);
 
-//        /* Remember folder for next Open dialog and save it in recent */
-//  dir_path = get_dirname(g_strdup(cf->filename));
-//        wsApp->setLastOpenDir(dir_path);
-//        g_free(dir_path);
-//    }
+        /* Remember folder for next Open dialog and save it in recent */
+        dir_path = get_dirname(g_strdup(cf->filename));
+        wsApp->setLastOpenDir(dir_path);
+        g_free(dir_path);
+    }
 
     /* Update the appropriate parts of the main window. */
     updateForUnsavedChanges();
