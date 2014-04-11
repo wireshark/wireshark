@@ -3551,7 +3551,7 @@ get_hfi_and_length(int hfindex, tvbuff_t *tvb, const gint start, gint *length,
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
-			*length = tvb_ensure_length_remaining(tvb, start);
+			*length = tvb_length_remaining(tvb, start);
 			DISSECTOR_ASSERT(*length >= 0);
 			break;
 
