@@ -18689,9 +18689,11 @@ dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1
       /* SI message */
       if (gsm_a_dtap_handle) {
         tvbuff_t *si_tvb = tvb_new_composite();
-        guint8 *pd = (guint8 *) wmem_alloc(actx->pinfo->pool, 1);
+        guint8 *pd = (guint8 *)g_malloc(1);
+        tvbuff_t *pd_tvb = tvb_new_child_real_data(sys_info_list_tvb, pd, 1, 1);
+        tvb_set_free_cb(pd_tvb, g_free);
         pd[0] = 0x06;
-        tvb_composite_append(si_tvb, tvb_new_real_data(pd, 1, 1));
+        tvb_composite_append(si_tvb, pd_tvb);
         tvb_composite_append(si_tvb, sys_info_list_tvb);
         tvb_composite_finalize(si_tvb);
         add_new_data_source(actx->pinfo, si_tvb, "System Information");
