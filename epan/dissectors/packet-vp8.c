@@ -165,8 +165,6 @@ static const true_false_string vp8_hdr_frametype_vals = {
     "keyframe"
 };
 
-void proto_reg_handoff_vp8(void);
-
 static void
 dissect_vp8(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
