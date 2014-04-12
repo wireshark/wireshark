@@ -45,7 +45,7 @@ static void
 dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
    proto_item *ti;
-   proto_tree *symantec_tree = NULL;
+   proto_tree *symantec_tree;
    guint16 etypev2, etypev3;
    tvbuff_t *next_tvb;
 
@@ -81,17 +81,15 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    if (etypev3 == 0) {    /* SEF and SGS v2 processing */
       col_set_str(pinfo->cinfo, COL_INFO, "Symantec Enterprise Firewall");
-      if (tree) {
-         ti = proto_tree_add_protocol_format(tree, proto_symantec, tvb,
-               0, 44, "Symantec firewall");
-         symantec_tree = proto_item_add_subtree(ti, ett_symantec);
-      }
-      if (tree) {
-         proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
-               0, 4, ENC_BIG_ENDIAN);
-         proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
-               6, 2, etypev2);
-      }
+
+      ti = proto_tree_add_protocol_format(tree, proto_symantec, tvb,
+            0, 44, "Symantec firewall");
+      symantec_tree = proto_item_add_subtree(ti, ett_symantec);
+      proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
+            0, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
+            6, 2, etypev2);
+
       next_tvb = tvb_new_subset_remaining(tvb, 44);
       dissector_try_uint(ethertype_dissector_table, etypev2, next_tvb, pinfo,
             tree);
@@ -99,17 +97,15 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    if (etypev2 == 0) {    /* SGS v3 processing */
       col_set_str(pinfo->cinfo, COL_INFO, "Symantec SGS v3");
-      if (tree) {
-         ti = proto_tree_add_protocol_format(tree, proto_symantec, tvb,
-               0, 56, "Symantec SGSv3");
-         symantec_tree = proto_item_add_subtree(ti, ett_symantec);
-      }
-      if (tree) {
-         proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
-               0, 4, ENC_BIG_ENDIAN);
-         proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
-               10, 2, etypev3);
-      }
+
+      ti = proto_tree_add_protocol_format(tree, proto_symantec, tvb,
+            0, 56, "Symantec SGSv3");
+      symantec_tree = proto_item_add_subtree(ti, ett_symantec);
+      proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
+            0, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
+            10, 2, etypev3);
+
       /*
        * Dissection of VLAN information will have to wait until
        * availability of a capture file from an SGSv3 box using VLAN
