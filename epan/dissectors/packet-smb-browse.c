@@ -570,6 +570,7 @@ dissect_smb_server_type_flags(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	return offset;
 }
 
+#define HOST_NAME_LEN	16
 
 static void
 dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
@@ -579,8 +580,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	proto_tree *tree = NULL;
 	proto_item *item = NULL;
 	guint32 periodicity;
-	gchar host_name[17];
-	gchar *utf8_host_name;
+	guint8 *host_name;
 	gint namelen;
 	guint8 server_count, reset_cmd;
 	guint8 os_major_ver, os_minor_ver;
@@ -621,22 +621,16 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 4;
 
 		/* server name */
-		tvb_get_nstringz0(tvb, offset, sizeof(host_name), host_name);
-		utf8_host_name = g_convert(host_name, strlen(host_name),
-			"UTF-8", "CP437", NULL, NULL, NULL);
-		if (utf8_host_name == NULL)
-			utf8_host_name = host_name;
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", utf8_host_name);
+		host_name = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, HOST_NAME_LEN, ENC_CP437|ENC_NA);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
 		proto_tree_add_string_format(tree, hf_server_name,
-			tvb, offset, 16,
-			utf8_host_name,
+			tvb, offset, HOST_NAME_LEN,
+			host_name,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 				"Domain/Workgroup: %s":
 				"Host Name: %s",
-			utf8_host_name);
-		if (utf8_host_name != host_name)
-			g_free(utf8_host_name);
-		offset += 16;
+			host_name);
+		offset += HOST_NAME_LEN;
 
 		/* Windows version (See "OSVERSIONINFO Structure" on MSDN) */
 		os_major_ver = tvb_get_guint8(tvb, offset);
@@ -838,7 +832,6 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	/* Put in something, and replace it later */
 	col_add_str(pinfo->cinfo, COL_INFO, val_to_str(cmd, commands, "Unknown command:0x%02x"));
 
-
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_smb_browse, tvb, offset, -1, ENC_NA);
 
@@ -853,7 +846,6 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	case BROWSE_DOMAIN_ANNOUNCEMENT:
 	case BROWSE_LOCAL_MASTER_ANNOUNCEMENT:
 	case BROWSE_HOST_ANNOUNCE:
-
 		/* update count */
 		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
@@ -888,7 +880,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 2;
 
 		/* server name */
-		host_name = tvb_get_const_stringz(tvb, offset, &namelen);
+		host_name = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &namelen, ENC_CP437|ENC_NA);
 		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
 
 		proto_tree_add_item(tree, hf_server_name,
@@ -900,7 +892,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		proto_tree_add_item(tree,
 			(cmd==BROWSE_DOMAIN_ANNOUNCEMENT)?
 			    hf_mb_server_name : hf_server_comment,
-			tvb, offset, namelen, ENC_ASCII|ENC_NA);
+			tvb, offset, namelen, ENC_CP437|ENC_NA);
 		break;
 	}
 }

@@ -138,6 +138,8 @@ QString DecodeAsDialog::entryString(const gchar *table_name, gpointer value)
 
     case FT_STRING:
     case FT_STRINGZ:
+    case FT_UINT_STRING:
+    case FT_STRINGZPAD:
         entry_str = (char *)value;
         break;
 
@@ -341,7 +343,7 @@ void DecodeAsDialog::fillTypeColumn(QTreeWidgetItem *item)
 
     ftenum_t selector_type = get_dissector_table_selector_type(table_name);
 
-    if (selector_type == FT_STRING || selector_type == FT_STRINGZ) {
+    if (IS_FT_STRING(selector_type)) {
         item->setText(type_col_, tr("String"));
     } else {
         QString type_desc = tr("Integer, base ");
@@ -430,7 +432,7 @@ void DecodeAsDialog::tableNamesCurrentIndexChanged(const QString &text)
         selector_combo_box_->setCurrentIndex(0);
     } else {
         ftenum_t selector_type = get_dissector_table_selector_type(ui_name_to_name_[text]);
-        if (selector_type == FT_STRING || selector_type == FT_STRINGZ) {
+        if (IS_FT_STRING(selector_type)) {
             selector_combo_box_->setEditText(default_str_selector_);
         } else {
             selector_combo_box_->setEditText(default_int_selector_);
@@ -463,7 +465,7 @@ void DecodeAsDialog::selectorEditTextChanged(const QString &text)
     ftenum_t selector_type = get_dissector_table_selector_type(table_name);
     dissector_handle_t dissector;
 
-    if (selector_type == FT_STRING || selector_type == FT_STRINGZ) {
+    if (IS_FT_STRING(selector_type)) {
         dissector = dissector_get_default_string_handle(table_name, text.toUtf8().constData());
     } else {
         dissector = dissector_get_default_uint_handle(table_name, text.toInt(NULL, 0));

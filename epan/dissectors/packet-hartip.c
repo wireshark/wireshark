@@ -384,26 +384,7 @@ dissect_float(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset)
 }
 
 static gint
-dissect_string(proto_tree *tree, int hf, const char *name, int len,
-               tvbuff_t *tvb, gint offset)
-{
-  proto_item *ti;
-  char       *str;
-
-  str = (char *)wmem_alloc(wmem_packet_scope(), 256);
-
-  ti = proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
-  if (len < 256) {
-    (void) tvb_get_nstringz0(tvb, offset, len + 1, str);
-    proto_item_set_text(ti, "%s: %s", name, str);
-  }
-
-  return len;
-}
-
-static gint
-dissect_packAscii(proto_tree *tree, int hf, const char *name, int len,
-                  tvbuff_t *tvb, gint offset)
+dissect_packAscii(proto_tree *tree, int hf, tvbuff_t *tvb, gint offset, int len)
 {
   gushort     usIdx;
   gushort     usGroupCnt;
@@ -411,18 +392,15 @@ dissect_packAscii(proto_tree *tree, int hf, const char *name, int len,
   gushort     usMask;
   gint        iIndex;
   gint        i   = 0;
-  proto_item *ti;
   gushort     buf[4];
   guint8     *tmp;
   char       *str = NULL;
 
-  str = (char *)wmem_alloc(wmem_packet_scope(), 256+1);
-
-  ti = proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
-
-  DISSECTOR_ASSERT(len < 3 * (256/4));
   tmp = (guint8 *)wmem_alloc0(wmem_packet_scope(), len);
   tvb_memcpy(tvb, tmp, offset, len);
+
+  /* Maximum possible unpacked length = (len / 3) * 4 */
+  str = (char *)wmem_alloc(wmem_packet_scope(), ((len / 3) * 4)+1);
 
   iIndex = 0;
   usMaxGroups = (gushort)(len / 3);
@@ -446,7 +424,8 @@ dissect_packAscii(proto_tree *tree, int hf, const char *name, int len,
     }
   }
   str[i] = '\0';
-  proto_item_set_text(ti, "%s: %s", name, str);
+
+  proto_tree_add_string(tree, hf, tvb, offset, len, str);
 
   return len;
 }
@@ -630,8 +609,8 @@ static gint
 dissect_cmd13(proto_tree *body_tree, tvbuff_t *tvb, gint offset, gint bodylen)
 {
   if (bodylen >= 21) {
-    offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_tag, "Tag", 6,                       tvb, offset);
-    offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_packed_descriptor, "descriptor", 12, tvb, offset);
+    offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_tag, tvb, offset, 6);
+    offset += dissect_packAscii(body_tree, hf_hartip_pt_rsp_packed_descriptor, tvb, offset, 12);
     offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_day,                                 tvb, offset);
     offset += dissect_byte(body_tree,      hf_hartip_pt_rsp_month,                               tvb, offset);
     /*offset += */dissect_byte(body_tree,      hf_hartip_pt_rsp_year,                                tvb, offset);
@@ -688,13 +667,16 @@ dissect_parse_hart_cmds(proto_tree *body_tree, tvbuff_t *tvb, guint8 cmd,
     return dissect_cmd9(body_tree, tvb, offset, bodylen);
   case 12:
     if (bodylen >= 24)
-      return dissect_packAscii(body_tree, hf_hartip_pt_rsp_message, "Message", 24, tvb, offset);
+      return dissect_packAscii(body_tree, hf_hartip_pt_rsp_message, tvb, offset, 24);
     break;
   case 13:
     return dissect_cmd13(body_tree, tvb, offset, bodylen);
   case 20:
-    if (bodylen >= 32)
-      return dissect_string(body_tree, hf_hartip_pt_rsp_tag, "Tag", 32, tvb, offset);
+    if (bodylen >= 32) {
+      proto_tree_add_item(body_tree, hf_hartip_pt_rsp_tag, tvb, offset, 32,
+                          ENC_ASCII|ENC_NA);
+      return 32;
+    }
     break;
   case 48:
     return dissect_cmd48(body_tree, tvb, offset, bodylen);
@@ -1438,7 +1420,7 @@ proto_register_hartip(void)
     /* command 13 */
     { &hf_hartip_pt_rsp_packed_descriptor,
       { "Descriptor",           "hart_ip.pt.rsp.descriptor",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_hartip_pt_rsp_day,
@@ -1460,14 +1442,14 @@ proto_register_hartip(void)
     /* Tag */
     { &hf_hartip_pt_rsp_tag,
       { "Tag",           "hart_ip.pt.rsp.tag",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
 
     /* Message */
     { &hf_hartip_pt_rsp_message,
       { "Message",           "hart_ip.pt.rsp.message",
-        FT_BYTES, BASE_NONE, NULL, 0x0,
+        FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
 

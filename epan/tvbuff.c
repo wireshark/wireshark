@@ -2533,6 +2533,24 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 }
 
 /*
+ * This is like tvb_get_string_enc(), except that it handles null-padded
+ * strings.
+ *
+ * Currently, string values are stored as UTF-8 null-terminated strings,
+ * so nothing needs to be done differently for null-padded strings; we
+ * could save a little memory by not storing the null padding.
+ *
+ * If we ever store string values differently, in a fashion that doesn't
+ * involve null termination, that might change.
+ */
+guint8 *
+tvb_get_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
+		   const gint length, const guint encoding)
+{
+	return tvb_get_string_enc(scope, tvb, offset, length, encoding);
+}
+
+/*
  * These routines are like the above routines, except that they handle
  * null-terminated strings.  They find the length of that string (and
  * throw an exception if the tvbuff ends before we find the null), and

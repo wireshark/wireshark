@@ -336,6 +336,8 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
 
     case FT_STRING:
     case FT_STRINGZ:
+    case FT_UINT_STRING:
+    case FT_STRINGZPAD:
         selector_name = (gchar *)key;
         break;
 

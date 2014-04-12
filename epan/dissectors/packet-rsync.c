@@ -123,17 +123,19 @@ static dissector_handle_t rsync_handle;
 
 static guint glb_rsync_tcp_port = TCP_PORT_RSYNC;
 
+#define VERSION_LEN     4           /* 2 digits for main version; '.'; 1 digit for sub version */
+
 static void
 dissect_rsync_version_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rsync_tree, enum rsync_who me)
 {
     int   offset = 0;
-    gchar version[5];           /* 2 digits for main version; '.'; 1 digit for sub version; NULL */
+    guint8 *version;
 
     proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_magic, tvb, offset, RSYNCD_MAGIC_HEADER_LEN, ENC_ASCII|ENC_NA);
     offset += RSYNCD_MAGIC_HEADER_LEN;
     offset += 1; /* skip the space */
-    proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, sizeof(version)-1, ENC_ASCII|ENC_NA);
-    tvb_get_nstringz0(tvb, offset, sizeof(version), version);
+    proto_tree_add_item(rsync_tree, &hfi_rsync_hdr_version, tvb, offset, VERSION_LEN, ENC_ASCII|ENC_NA);
+    version = tvb_get_string_enc(wmem_packet_scope(),tvb, offset, VERSION_LEN, ENC_ASCII|ENC_NA);
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s Initialisation (Version %s)", (me == SERVER ? "Server" : "Client"), version);
 }

@@ -1231,7 +1231,7 @@ extern proto_item *
 proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
-/** Add a FT_STRING to a proto_tree.
+/** Add a FT_STRING or FT_STRINGZPAD to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -1243,9 +1243,9 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const char* value);
 
-/** Add a formatted FT_STRING to a proto_tree, with the format generating
-    the string for the value and with the field name being included
-    automatically.
+/** Add a formatted FT_STRING or FT_STRINGZPAD to a proto_tree, with the
+    format generating the string for the value and with the field name
+    being included automatically.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -1260,8 +1260,9 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	gint start, gint length, const char* value, const char *format, ...)
 	G_GNUC_PRINTF(7,8);
 
-/** Add a formatted FT_STRING to a proto_tree, with the format generating
-    the entire string for the entry, including any field name.
+/** Add a formatted FT_STRING or FT_STRINGZPAD to a proto_tree, with the
+    format generating the entire string for the entry, including any field
+    name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data

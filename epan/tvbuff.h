@@ -557,6 +557,29 @@ WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
 
 /**
+ * Given an allocator scope, a tvbuff, a byte offset, a byte length, and
+ * a string encoding, with the specified offset and length referring to
+ * a null-padded string in the specified encoding:
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    convert the string from the specified encoding to UTF-8, possibly
+ *    mapping some characters or invalid octet sequences to the Unicode
+ *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
+ *    trailing '\0', into that buffer;
+ *
+ *    and return a pointer to the buffer.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ *
+ * If scope is set to NULL it is the user's responsibility to wmem_free()
+ * the memory allocated. Otherwise memory is automatically freed when the
+ * scope lifetime is reached.
+ */
+WS_DLL_PUBLIC guint8 *tvb_get_stringzpad(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint offset, const gint length, const guint encoding);
+
+/**
  * Given an allocator scope, a tvbuff, a byte offset, a pointer to a
  * gint, and a string encoding, with the specified offset referring to
  * a null-terminated string in the specified encoding:

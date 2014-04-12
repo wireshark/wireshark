@@ -1641,6 +1641,19 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			new_fi->length = n + length;
 			break;
 
+		case FT_STRINGZPAD:
+			/*
+			 * XXX - currently, string values are null-
+			 * terminated, so a "zero-padded" string
+			 * isn't special.  If we represent string
+			 * values as something that includes a counted
+			 * array of bytes, we'll need to strip
+			 * trailing NULs.
+			 */
+			proto_tree_set_string_tvb(new_fi, tvb, start, length,
+			    encoding);
+			break;
+
 		case FT_ABSOLUTE_TIME:
 			/*
 			 * Absolute times can be in any of a number of
@@ -2665,8 +2678,8 @@ proto_tree_set_int64_tvb(field_info *fi, tvbuff_t *tvb, gint start,
 	proto_tree_set_uint64(fi, value);
 }
 
-/* Add a FT_STRING or FT_STRINGZ to a proto_tree. Creates own copy of string,
- * and frees it when the proto_tree is destroyed. */
+/* Add a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD to a proto_tree. Creates
+ * own copy of string, and frees it when the proto_tree is destroyed. */
 proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, const char* value)
@@ -2676,7 +2689,7 @@ proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
-	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
+	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ || hfinfo->type == FT_STRINGZPAD);
 
 	if (hfinfo->display == STR_UNICODE) {
 		DISSECTOR_ASSERT(g_utf8_validate(value, -1, NULL));
@@ -2728,9 +2741,9 @@ proto_tree_add_string_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return pi;
 }
 
-/* Appends string data to a FT_STRING or FT_STRINGZ, allowing progressive
- * field info update instead of only updating the representation as does
- * proto_item_append_text()
+/* Appends string data to a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD,
+ * allowing progressive field info update instead of only updating the
+ * representation as does proto_item_append_text()
  */
 /* NOTE: this function will break with the TRY_TO_FAKE_THIS_ITEM()
  * speed optimization.
@@ -2764,7 +2777,7 @@ proto_item_append_string(proto_item *pi, const char *str)
 		/* TRY_TO_FAKE_THIS_ITEM() speed optimization: silently skip */
 		return;
 	}
-	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ);
+	DISSECTOR_ASSERT(hfinfo->type == FT_STRING || hfinfo->type == FT_STRINGZ || hfinfo->type == FT_STRINGZPAD);
 	old_str = (guint8 *)fvalue_get(&fi->value);
 	if (old_str && old_str[0])
 		new_str = ep_strconcat(old_str, str, NULL);
@@ -3541,9 +3554,9 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 	 */
 	if (*length == -1) {
 		/*
-		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, and FT_STRING fields,
-		 * a length of -1 means "set the length to what remains in
-		 * the tvbuff".
+		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, FT_STRING, and
+		 * FT_STRINGZPAD fields, a length of -1 means "set the
+		 * length to what remains in the tvbuff".
 		 *
 		 * The assumption is either that
 		 *
@@ -3605,6 +3618,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
+		case FT_STRINGZPAD:
 			*length = tvb_ensure_captured_length_remaining(tvb, start);
 			DISSECTOR_ASSERT(*length >= 0);
 			break;
@@ -4076,6 +4090,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 			case FT_STRING:
 			case FT_STRINGZ:
 			case FT_UINT_STRING:
+			case FT_STRINGZPAD:
 				bytes = (guint8 *)fvalue_get(&finfo->value);
 				offset_r += protoo_strlcpy(result+offset_r,
 							   hfinfo_format_text(hfinfo, bytes),
@@ -4987,22 +5002,23 @@ static const value_string hf_types[] = {
 	{ FT_DOUBLE,	    "FT_DOUBLE"	       },
 	{ FT_ABSOLUTE_TIME, "FT_ABSOLUTE_TIME" },
 	{ FT_RELATIVE_TIME, "FT_RELATIVE_TIME" },
-	{ FT_STRING,	    "FT_STRING"	       },
-	{ FT_STRINGZ,	    "FT_STRINGZ"       },
+	{ FT_STRING,        "FT_STRING"        },
+	{ FT_STRINGZ,       "FT_STRINGZ"       },
 	{ FT_UINT_STRING,   "FT_UINT_STRING"   },
-	{ FT_ETHER,	    "FT_ETHER"	       },
-	{ FT_BYTES,	    "FT_BYTES"	       },
+	{ FT_ETHER,         "FT_ETHER"         },
+	{ FT_BYTES,         "FT_BYTES"         },
 	{ FT_UINT_BYTES,    "FT_UINT_BYTES"    },
-	{ FT_IPv4,	    "FT_IPv4"	       },
-	{ FT_IPv6,	    "FT_IPv6"	       },
-	{ FT_IPXNET,	    "FT_IPXNET"	       },
-	{ FT_FRAMENUM,	    "FT_FRAMENUM"      },
-	{ FT_PCRE,	    "FT_PCR"	       },
-	{ FT_GUID,	    "FT_GUID"	       },
-	{ FT_OID,	    "FT_OID"	       },
-	{ FT_REL_OID,	    "FT_REL_OID"       },
-	{ FT_SYSTEM_ID,	    "FT_SYSTEM_ID"       },
-	{ 0,		    NULL } };
+	{ FT_IPv4,          "FT_IPv4"          },
+	{ FT_IPv6,          "FT_IPv6"          },
+	{ FT_IPXNET,        "FT_IPXNET"        },
+	{ FT_FRAMENUM,      "FT_FRAMENUM"      },
+	{ FT_PCRE,          "FT_PCRE"          },
+	{ FT_GUID,          "FT_GUID"          },
+	{ FT_OID,           "FT_OID"           },
+	{ FT_REL_OID,       "FT_REL_OID"       },
+	{ FT_SYSTEM_ID,     "FT_SYSTEM_ID"     },
+	{ FT_STRINGZPAD,    "FT_STRINGZPAD"    },
+	{ 0,                NULL } };
 
 static const value_string hf_display[] = {
 	{ BASE_NONE,			  "BASE_NONE"			   },
@@ -5213,6 +5229,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
+		case FT_STRINGZPAD:
 			switch (hfinfo->display) {
 				case STR_ASCII:
 				case STR_UNICODE:
@@ -5671,6 +5688,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRING:
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
+		case FT_STRINGZPAD:
 			bytes = (guint8 *)fvalue_get(&fi->value);
 			label_fill(label_str, 0, hfinfo, hfinfo_format_text(hfinfo, bytes));
 			break;

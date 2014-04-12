@@ -1042,7 +1042,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16 cksum, computed_cksum;
     guint length, reported_length;
     guint16 auth_type;
-    char auth_data[8+1];
+    guint8 *auth_data;
     int crypto_len = 0;
     unsigned int ospf_header_length;
     guint8 instance_ID;
@@ -1210,7 +1210,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
 
             case OSPF_AUTH_SIMPLE:
-                tvb_get_nstringz0(tvb, 16, 8+1, auth_data);
+                auth_data = tvb_get_string_enc(wmem_packet_scope(), tvb, 16, 8, ENC_ASCII|ENC_NA);
                 proto_tree_add_text(ospf_header_tree, tvb, 16, 8, "Auth Data: %s", auth_data);
                 break;
 

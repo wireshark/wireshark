@@ -612,7 +612,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
                     if (hfi && hfi->parent == -1) {
                         /* Protocol only */
                         buf = se_strdup(cfile.cinfo.col_expr.col_expr[column]);
-                    } else if (hfi && hfi->type == FT_STRING) {
+                    } else if (hfi && IS_FT_STRING(hfi->type)) {
                         /* Custom string, add quotes */
                         buf = se_strdup_printf("%s == \"%s\"", cfile.cinfo.col_expr.col_expr[column],
                                                cfile.cinfo.col_expr.col_expr_val[column]);

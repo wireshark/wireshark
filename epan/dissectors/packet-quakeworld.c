@@ -90,8 +90,8 @@ static	char	com_token[MAX_TEXT_SIZE+1];
 static	int	com_token_start;
 static	int	com_token_length;
 
-static char *
-COM_Parse (char *data)
+static const char *
+COM_Parse (const char *data)
 {
 	int	c;
 	int	len;
@@ -198,7 +198,7 @@ Cmd_Argv_length(int arg)
 
 
 static void
-Cmd_TokenizeString(char* text)
+Cmd_TokenizeString(const char* text)
 {
 	int start;
 
@@ -349,7 +349,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 {
 	proto_tree	*cl_tree   = NULL;
 	proto_tree	*text_tree = NULL;
-	guint8		text[MAX_TEXT_SIZE+1];
+	guint8		*text;
 	int		len;
 	int		offset;
 	guint32		marker;
@@ -370,13 +370,13 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 	/* all the rest of the packet is just text */
         offset = 4;
 
-        len = tvb_get_nstringz0(tvb, offset, sizeof(text), text);
+	text = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII|ENC_NA);
 	/* actually, we should look for a eol char and stop already there */
 
         if (cl_tree) {
 		proto_item *text_item;
                 text_item = proto_tree_add_string(cl_tree, hf_quakeworld_connectionless_text,
-						  tvb, offset, len + 1, text);
+						  tvb, offset, len, text);
 		text_tree = proto_item_add_subtree(text_item, ett_quakeworld_connectionless_text);
         }
 
@@ -469,7 +469,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 					tvb, offset, command_len, command);
 				argument_item = proto_tree_add_string(text_tree,
 					hf_quakeworld_connectionless_arguments,
-					tvb, offset + Cmd_Argv_start(1), len + 1 - Cmd_Argv_start(1),
+					tvb, offset + Cmd_Argv_start(1), len - Cmd_Argv_start(1),
 					text + Cmd_Argv_start(1));
 				argument_tree =	proto_item_add_subtree(argument_item,
 								       ett_quakeworld_connectionless_arguments);
@@ -504,7 +504,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			command_len = 1;
 		} else {
 			command = "Unknown";
-			command_len = len;
+			command_len = len - 1;
 		}
 	}
 	else {
@@ -529,7 +529,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			/* string, atoi */
 		} else {
 			command = "Unknown";
-			command_len = len;
+			command_len = len - 1;
 		}
 	}
 
@@ -539,7 +539,7 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree_add_string(text_tree, hf_quakeworld_connectionless_command,
 			tvb, offset, command_len, command);
 	}
-        /*offset += len + 1;*/
+	/*offset += len;*/
 }
 
 

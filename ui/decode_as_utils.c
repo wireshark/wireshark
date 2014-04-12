@@ -130,7 +130,7 @@ read_set_decode_as_entries(gchar *key, const gchar *value,
             }
 
             if (is_valid) {
-                if (selector_type == FT_STRING || selector_type == FT_STRINGZ) {
+                if (IS_FT_STRING(selector_type)) {
                     dissector_change_string(values[0], values[1], lookup.handle);
                 } else {
                     dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
@@ -191,6 +191,8 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 
     case FT_STRING:
     case FT_STRINGZ:
+    case FT_UINT_STRING:
+    case FT_STRINGZPAD:
         item->ddi_selector.sel_string = (char *)key;
         break;
 
@@ -223,6 +225,8 @@ decode_clear_all(void)
 
         case FT_STRING:
         case FT_STRINGZ:
+        case FT_UINT_STRING:
+        case FT_STRINGZPAD:
             dissector_reset_string(item->ddi_table_name,
                                    item->ddi_selector.sel_string);
             break;

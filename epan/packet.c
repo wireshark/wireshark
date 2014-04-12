@@ -1174,6 +1174,7 @@ find_string_dtbl_entry(dissector_table_t const sub_dissectors, const gchar *patt
 
 	case FT_STRING:
 	case FT_STRINGZ:
+	case FT_STRINGZPAD:
 		/*
 		 * You can do a string lookup in these tables.
 		 */
@@ -1220,6 +1221,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 
 	case FT_STRING:
 	case FT_STRINGZ:
+	case FT_STRINGZPAD:
 		/*
 		 * You can do a string lookup in these tables.
 		 */
@@ -1780,6 +1782,7 @@ register_dissector_table(const char *name, const char *ui_name, const ftenum_t t
 
 	case FT_STRING:
 	case FT_STRINGZ:
+	case FT_STRINGZPAD:
 		sub_dissectors->hash_table = g_hash_table_new_full( g_str_hash,
 							       g_str_equal,
 							       &g_free,

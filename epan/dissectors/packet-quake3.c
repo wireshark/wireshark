@@ -144,7 +144,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree	*cl_tree = NULL;
 	proto_item	*text_item = NULL;
 	proto_tree	*text_tree = NULL;
-	guint8		text[2048];
+	guint8		*text;
 	int		len;
 	int		offset;
 	guint32		marker;
@@ -165,11 +165,21 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* all the rest of the packet is just text */
 	offset = 4;
 
-	len = tvb_get_nstringz0(tvb, offset, sizeof(text), text);
+	/*
+	 * XXX - is there ever more than one null-terminated string in
+	 * the packet?
+	 *
+	 * XXX - is the string guaranteed to be null-terminated (so
+	 * that if there's no NUL at the end, it's an error)?
+	 *
+	 * XXX - are non-ASCII characters supported and, if so, what
+	 * encoding is used for them?
+	 */
+	text = tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, &len, ENC_ASCII|ENC_NA);
         if (cl_tree) {
 		text_item = proto_tree_add_string(cl_tree,
 				hf_quake3_connectionless_text,
-				tvb, offset, len + 1, text);
+				tvb, offset, len, text);
 		text_tree = proto_item_add_subtree(text_item, ett_quake3_connectionless_text);
 	}
 
@@ -321,7 +331,7 @@ dissect_quake3_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo _U_,
 					val_to_str_const(command, names_command, "Unknown"));
         }
 
-        /*offset += len + 1;*/
+        /*offset += len;*/
 
 }
 

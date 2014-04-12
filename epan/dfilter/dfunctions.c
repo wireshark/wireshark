@@ -61,26 +61,18 @@ string_walk(GList* arg1list, GList **retval, gchar(*conv_func)(gchar))
     arg1 = arg1list;
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
-        switch (fvalue_type_ftenum(arg_fvalue)) {
-            case FT_STRING:
-            case FT_STRINGZ:
-            case FT_UINT_STRING:
-                s = (char *)ep_strdup((gchar *)fvalue_get(arg_fvalue));
-                for (c = s; *c; c++) {
-                        /**c = string_ascii_to_lower(*c);*/
-                        *c = conv_func(*c);
-                }
+        /* XXX - it would be nice to handle FT_TVBUFF, too */
+        if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
+            s = (char *)ep_strdup((gchar *)fvalue_get(arg_fvalue));
+            for (c = s; *c; c++) {
+                    /**c = string_ascii_to_lower(*c);*/
+                    *c = conv_func(*c);
+            }
 
-                new_ft_string = fvalue_new(FT_STRING);
-                fvalue_set_string(new_ft_string, s);
-                *retval = g_list_append(*retval, new_ft_string);
-                break;
-
-            /* XXX - it would be nice to handle FT_TVBUFF, too */
-
-            default:
-                break;
-        }
+            new_ft_string = fvalue_new(FT_STRING);
+            fvalue_set_string(new_ft_string, s);
+            *retval = g_list_append(*retval, new_ft_string);
+	}
         arg1 = arg1->next;
     }
 
@@ -112,19 +104,11 @@ df_func_len(GList* arg1list, GList *arg2junk _U_, GList **retval)
     arg1 = arg1list;
     while (arg1) {
         arg_fvalue = (fvalue_t *)arg1->data;
-        switch (fvalue_type_ftenum(arg_fvalue)) {
-            case FT_STRING:
-            case FT_STRINGZ:
-            case FT_UINT_STRING:
-                ft_len = fvalue_new(FT_UINT32);
-                fvalue_set_uinteger(ft_len, (guint) strlen((char *)fvalue_get(arg_fvalue)));
-                *retval = g_list_append(*retval, ft_len);
-                break;
-
-            /* XXX - it would be nice to handle other types */
-
-            default:
-                break;
+        /* XXX - it would be nice to handle other types */
+        if (IS_FT_STRING(fvalue_type_ftenum(arg_fvalue))) {
+            ft_len = fvalue_new(FT_UINT32);
+            fvalue_set_uinteger(ft_len, (guint) strlen((char *)fvalue_get(arg_fvalue)));
+            *retval = g_list_append(*retval, ft_len);
         }
         arg1 = arg1->next;
     }
@@ -187,8 +171,7 @@ ul_semcheck_params(int param_num, stnode_t *st_node)
             case STTYPE_FIELD:
                 hfinfo = (header_field_info *)stnode_data(st_node);
                 ftype = hfinfo->type;
-                if (ftype != FT_STRING && ftype != FT_STRINGZ
-                        && ftype != FT_UINT_STRING) {
+                if (IS_FT_STRING(ftype)) {
                     dfilter_fail("Only strings can be used in upper() or lower() or len()");
                     THROW(TypeError);
                 }

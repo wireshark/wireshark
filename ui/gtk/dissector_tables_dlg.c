@@ -145,6 +145,8 @@ decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
 
         case FT_STRING:
         case FT_STRINGZ:
+        case FT_UINT_STRING:
+        case FT_STRINGZPAD:
             str = (gchar*) key;
             proto_add_to_list(tree_info, store, str, proto_name);
             break;
@@ -230,6 +232,8 @@ display_dissector_table_names(const char *table_name, const char *ui_name, gpoin
             break;
         case FT_STRING:
         case FT_STRINGZ:
+        case FT_UINT_STRING:
+        case FT_STRINGZPAD:
             table_name_add_to_list(tree_info, dis_tbl_trees->str_tree_wgt, table_name, ui_name);
             break;
         default:

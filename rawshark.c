@@ -1256,6 +1256,8 @@ static const char* ftenum_to_string(header_field_info *hfi)
             return "FT_REL_OID";
         case FT_SYSTEM_ID:
             return "FT_SYSTEM_ID";
+        case FT_STRINGZPAD:
+            return "FT_STRIGZPAD";
         case FT_NUM_TYPES:
             return "FT_NUM_TYPES";
         default:
@@ -1343,7 +1345,7 @@ static gboolean print_field_value(field_info *finfo, int cmd_line_index)
                               fs_buf);
 
         /* String types are quoted. Remove them. */
-        if ((finfo->value.ftype->ftype == FT_STRING || finfo->value.ftype->ftype == FT_STRINGZ) && fs_len > 2) {
+        if (IS_FT_STRING(finfo->value.ftype->ftype) && fs_len > 2) {
             fs_buf[fs_len - 1] = '\0';
             fs_ptr++;
         }

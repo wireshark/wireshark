@@ -605,7 +605,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 		gtk_spin_button_set_numeric(GTK_SPIN_BUTTON(fvalue_edit), TRUE);
 		g_signal_connect(fvalue_edit, "value-changed", G_CALLBACK(finfo_integer_changed), DataPtr);
 
-	} else if (finfo_type == FT_STRING || finfo_type == FT_STRINGZ) {
+	} else if (finfo_type == FT_STRING || finfo_type == FT_STRINGZ || finfo_type == FT_STRINGZPAD) {
 		fvalue_edit = gtk_entry_new();
 		gtk_entry_set_max_length(GTK_ENTRY(fvalue_edit), finfo->length);
 		gtk_entry_set_text(GTK_ENTRY(fvalue_edit), (const gchar*) fvalue_get(&finfo->value));
