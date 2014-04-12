@@ -2497,6 +2497,14 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
 		break;
 
+	case ENC_MAC_ROMAN:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_mac_roman);
+		break;
+
+	case ENC_CP437:
+		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp437);
+		break;
+
 	case ENC_3GPP_TS_23_038_7BITS:
 		{
 			gint bit_offset = offset << 3;
@@ -2794,6 +2802,14 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_WINDOWS_1250:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+		break;
+
+	case ENC_MAC_ROMAN:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_mac_roman);
+		break;
+
+	case ENC_CP437:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp437);
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS:

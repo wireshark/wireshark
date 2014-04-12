@@ -62,6 +62,12 @@ extern const gunichar2 charset_table_iso_8859_14[0x80];
 extern const gunichar2 charset_table_iso_8859_15[0x80];
 extern const gunichar2 charset_table_iso_8859_16[0x80];
 
+/* Tables for Mac character sets */
+extern const gunichar2 charset_table_mac_roman[0x80];
+
+/* Tables for DOS code pages */
+extern const gunichar2 charset_table_cp437[0x80];
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

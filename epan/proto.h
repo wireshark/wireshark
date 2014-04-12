@@ -307,6 +307,8 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_WINDOWS_1250		0x0000002A
 #define ENC_3GPP_TS_23_038_7BITS	0x0000002C
 #define ENC_EBCDIC			0x0000002E
+#define ENC_MAC_ROMAN			0x00000030
+#define ENC_CP437			0x00000032
 
 /*
  * TODO:
