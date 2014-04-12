@@ -36,10 +36,13 @@
 #include "config.h"
 
 #include <string.h>
+#include <stdio.h>
+#include <errno.h>
 
 #include "wsutil/pint.h"
 #include "wsutil/sign_ext.h"
 #include "wsutil/unicode-utils.h"
+#include "wsutil/nstime.h"
 #include "tvbuff.h"
 #include "tvbuff-int.h"
 #include "strutil.h"
@@ -47,6 +50,18 @@
 #include "charsets.h"
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 #include "exceptions.h"
+
+/*  
+ * Just make sure we include the prototype for strptime as well 55 
+ * (needed for glibc 2.2) but make sure we do this only if not 56 
+ * yet defined. 57 
+ */ 
+#include <time.h> 
+/*#ifdef NEED_STRPTIME_H*/ 
+#ifndef strptime
+#include "wsutil/strptime.h"
+#endif 
+ /*#endif*/ 
 
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
@@ -56,6 +71,9 @@ _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset);
 
 static inline const guint8*
 ensure_contiguous(tvbuff_t *tvb, const gint offset, const gint length);
+
+static inline guint8 *
+tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length);
 
 tvbuff_t *
 tvb_new(const struct tvb_ops *ops)
@@ -1268,6 +1286,250 @@ tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
 #endif
 }
 
+static inline void
+validate_single_byte_ascii_encoding(const guint encoding)
+{
+	const guint enc = encoding & ~ENC_STR_MASK;
+
+	switch (enc) {
+	    case ENC_UTF_16:
+	    case ENC_UCS_2:
+	    case ENC_UCS_4:
+	    case ENC_3GPP_TS_23_038_7BITS:
+	    case ENC_EBCDIC:
+		REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
+		break;
+	    default:
+		break;
+	}
+	/* make sure something valid was set */
+	if (enc == 0)
+	    REPORT_DISSECTOR_BUG("No string encoding type passed to tvb_get_string_XXX");
+}
+
+/* converts a broken down date representation, relative to UTC,
+ * to a timestamp; it uses timegm() if it's available.
+ * Copied from Glib source gtimer.c
+ */
+static time_t
+mktime_utc (struct tm *tm)
+{
+  time_t retval;
+
+#ifndef HAVE_TIMEGM
+  static const gint days_before[] =
+  {
+    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+  };
+#endif
+
+#ifndef HAVE_TIMEGM
+  if (tm->tm_mon < 0 || tm->tm_mon > 11)
+    return (time_t) -1;
+
+  retval = (tm->tm_year - 70) * 365;
+  retval += (tm->tm_year - 68) / 4;
+  retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
+
+  if (tm->tm_year % 4 == 0 && tm->tm_mon < 2)
+    retval -= 1;
+
+  retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
+#else
+  retval = timegm (tm);
+#endif /* !HAVE_TIMEGM */
+
+  return retval;
+}
+
+/* support hex-encoded time values? */
+nstime_t*
+tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
+		    const guint encoding, nstime_t *ns, gint *endoff)
+{
+	const gchar *begin = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
+	const gchar *ptr = begin;
+	const gchar *end = NULL;
+	struct tm tm;
+	nstime_t* retval = NULL;
+	char sign = '+';
+	int off_hr = 0;
+	int off_min = 0;
+	int num_chars = 0;
+	gboolean matched = FALSE;
+
+	errno = EDOM;
+
+	validate_single_byte_ascii_encoding(encoding);
+
+	DISSECTOR_ASSERT(ns);
+
+	memset(&tm, 0, sizeof(tm));
+	tm.tm_isdst = -1;
+	ns->secs    = 0;
+	ns->nsecs   = 0;
+
+	while (*ptr == ' ') ptr++;
+
+	if (*ptr) {
+		/* note: sscanf is known to be inconsistent across platforms with respect
+		   to whether a %n is counted as a return value or not, so we have to use
+		   '>=' a lot */
+		if ((encoding & ENC_ISO_8601_DATE_TIME) == ENC_ISO_8601_DATE_TIME) {
+			/* TODO: using sscanf this many times is probably slow; might want
+			   to parse it by hand in the future */
+			/* 2014-04-07T05:41:56+00:00 */
+			if (sscanf(ptr, "%d-%d-%d%*c%d:%d:%d%c%d:%d%n",
+			    &tm.tm_year,
+			    &tm.tm_mon,
+			    &tm.tm_mday,
+			    &tm.tm_hour,
+			    &tm.tm_min,
+			    &tm.tm_sec,
+			    &sign,
+			    &off_hr,
+			    &off_min,
+			    &num_chars) >= 9)
+			{
+				matched = TRUE;
+			}
+			/* no seconds is ok */
+			else if (sscanf(ptr, "%d-%d-%d%*c%d:%d%c%d:%d%n",
+			    &tm.tm_year,
+			    &tm.tm_mon,
+			    &tm.tm_mday,
+			    &tm.tm_hour,
+			    &tm.tm_min,
+			    &sign,
+			    &off_hr,
+			    &off_min,
+			    &num_chars) >= 8)
+			{
+				matched = TRUE;
+			}
+			/* 2007-04-05T14:30:56Z */
+			else if (sscanf(ptr, "%d-%d-%d%*c%d:%d:%dZ%n",
+			    &tm.tm_year,
+			    &tm.tm_mon,
+			    &tm.tm_mday,
+			    &tm.tm_hour,
+			    &tm.tm_min,
+			    &tm.tm_sec,
+			    &num_chars) >= 6)
+			{
+				matched = TRUE;
+				off_hr = 0;
+				off_min = 0;
+			}
+			/* 2007-04-05T14:30Z no seconds is ok */
+			else if (sscanf(ptr, "%d-%d-%d%*c%d:%dZ%n",
+			    &tm.tm_year,
+			    &tm.tm_mon,
+			    &tm.tm_mday,
+			    &tm.tm_hour,
+			    &tm.tm_min,
+			    &num_chars) >= 5)
+			{
+				matched = TRUE;
+				off_hr = 0;
+				off_min = 0;
+			}
+
+			if (matched) {
+				errno = 0;
+				end = ptr + num_chars;
+				tm.tm_mon--;
+				if (tm.tm_year > 1900) tm.tm_year -= 1900;
+				if (sign == '-') off_hr = -off_hr;
+			}
+		}
+		else if (encoding & ENC_ISO_8601_DATE) {
+			/* 2014-04-07 */
+			if (sscanf(ptr, "%d-%d-%d%n",
+			    &tm.tm_year,
+			    &tm.tm_mon,
+			    &tm.tm_mday,
+			    &num_chars) >= 3)
+			{
+				errno = 0;
+				end = ptr + num_chars;
+				tm.tm_mon--;
+				if (tm.tm_year > 1900) tm.tm_year -= 1900;
+			}
+		}
+		else if (encoding & ENC_ISO_8601_TIME) {
+			/* 2014-04-07 */
+			if (sscanf(ptr, "%d:%d:%d%n",
+			    &tm.tm_hour,
+			    &tm.tm_min,
+			    &tm.tm_sec,
+			    &num_chars) >= 2)
+			{
+				/* what should we do about day/month/year? */
+				/* setting it to "now" for now */
+				time_t time_now = time(NULL);
+				struct tm *tm_now = gmtime(&time_now);
+				tm.tm_year = tm_now->tm_year;
+				tm.tm_mon  = tm_now->tm_mon;
+				tm.tm_mday = tm_now->tm_mday;
+				end = ptr + num_chars;
+				errno = 0;
+
+			}
+		}
+		else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
+			if (encoding & ENC_RFC_822) {
+				/* this will unfortunately match ENC_RFC_1123 style
+				   strings too, partially - probably need to do this the long way */
+				end = strptime(ptr, "%a, %d %b %y %H:%M:%S", &tm);
+				if (!end) end = strptime(ptr, "%a, %d %b %y %H:%M", &tm);
+				if (!end) end = strptime(ptr, "%d %b %y %H:%M:%S", &tm);
+				if (!end) end = strptime(ptr, "%d %b %y %H:%M", &tm);
+			}
+			else if (encoding & ENC_RFC_1123) {
+				end = strptime(ptr, "%a, %d %b %Y %H:%M:%S", &tm);
+				if (!end) end = strptime(ptr, "%a, %d %b %Y %H:%M", &tm);
+				if (!end) end = strptime(ptr, "%d %b %Y %H:%M:%S", &tm);
+				if (!end) end = strptime(ptr, "%d %b %Y %H:%M", &tm);
+			}
+			if (end) {
+				errno = 0;
+				if (*end == ' ') end++;
+				if (g_ascii_strncasecmp(end, "UT", 2) == 0)
+				{
+					end += 2;
+				}
+				else if (g_ascii_strncasecmp(end, "GMT", 3) == 0)
+				{
+					end += 3;
+				}
+				else if (sscanf(end, "%c%2d%2d%n",
+				    &sign,
+				    &off_hr,
+				    &off_min,
+				    &num_chars) < 3)
+				{
+					errno = ERANGE;
+				}
+				if (sign == '-') off_hr = -off_hr;
+			}
+		}
+	}
+
+	if (errno == 0) {
+		ns->secs = mktime_utc (&tm);
+		if (off_hr > 0)
+			ns->secs += (off_hr * 3600) + (off_min * 60);
+		else if (off_hr < 0)
+			ns->secs -= ((-off_hr) * 3600) + (off_min * 60);
+		retval = ns;
+		if (endoff)
+		    *endoff = (gint)(offset + (end - begin));
+	}
+
+	return retval;
+}
+
 /* Fetch an IPv4 address, in network byte order.
  * We do *not* convert them to host byte order; we leave them in
  * network byte order. */
@@ -1894,6 +2156,35 @@ tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
 	tvb_memcpy(tvb, strbuf, offset, length);
 	strbuf[length] = '\0';
+	return strbuf;
+}
+
+/*
+ * Given a tvbuff, an offset, and a length, treat the string of bytes
+ * referred to by them as a raw string, and return a pointer to that
+ * string. This means a null is appended at the end, but no replacement
+ * checking is done otherwise. Currently tvb_get_utf_8_string() does
+ * not replace either, but it might in the future.
+ *
+ * Also, this one allows a length of -1 to mean get all, but does not
+ * allow a negative offset.
+ */
+static inline guint8 *
+tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
+{
+	guint8       *strbuf;
+	gint          abs_length = length;
+
+	DISSECTOR_ASSERT(offset     >=  0);
+	DISSECTOR_ASSERT(abs_length >= -1);
+
+	if (abs_length < 0)
+		abs_length = tvb->length - offset;
+
+	tvb_ensure_bytes_exist(tvb, offset, abs_length);
+	strbuf = (guint8 *)wmem_alloc(scope, abs_length + 1);
+	tvb_memcpy(tvb, strbuf, offset, abs_length);
+	strbuf[abs_length] = '\0';
 	return strbuf;
 }
 

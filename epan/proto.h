@@ -332,6 +332,33 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  */
 #define ENC_NA			0x00000000
 
+/* For cases where either native type or string encodings could both be
+ * valid arguments, we need something to distinguish which one is being
+ * passed as the argument, because ENC_BIG_ENDIAN and ENC_ASCII are both
+ * 0x00000000. So we use ENC_STR_NUM or ENC_STR_HEX bit-or'ed with
+ * ENC_ASCII and its ilk.
+ */
+/* this is for strings as numbers "12345" */
+#define ENC_STR_NUM             0x01000000
+/* this is for strings as hex "1a2b3c" */
+#define ENC_STR_HEX             0x02000000
+/* a convenience macro for either of the above */
+#define ENC_STRING              0x03000000
+/* mask out ENC_STR_* and related bits - should this replace ENC_CHARENCODING_MASK? */
+#define ENC_STR_MASK            0x0000FFFE
+
+/* For cases where a string encoding contains a timestamp, use one
+ * of these (but only one). These values can collide with above, because
+ * you can't do both at the same time.
+ */
+#define ENC_ISO_8601_DATE       0x00010000
+#define ENC_ISO_8601_TIME       0x00020000
+#define ENC_ISO_8601_DATE_TIME  0x00030000
+#define ENC_RFC_822             0x00040000
+#define ENC_RFC_1123            0x00080000
+/* a convenience macro for the above - for internal use only */
+#define ENC_STR_TIME_MASK       0x000F0000
+
 /* Values for header_field_info.display */
 
 /* For integral types, the display format is a BASE_* field_display_e value
@@ -921,6 +948,42 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint s
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_time(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const nstime_t* value_ptr);
+
+/** Get and add a FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree.
+ The item is extracted from the tvbuff handed to it, based on the ENC_* passed
+ in for the encoding, and the retrieved value is also set to *retval so the
+ caller gets it back for other uses.
+
+ This function retrieves the value even if the passed-in tree param is NULL,
+ so that it can be used by dissectors at all times to both get the value
+ and set the tree item to it.
+
+ Like other proto_tree_add functions, if there is a tree and the value cannot
+ be decoded from the tvbuff, then an expert info error is reported. For string
+ encoding, this means that a failure to decode the time value from the string
+ results in an expert info error being added to the tree.
+
+ If encoding is string-based, it will convert using tvb_get_string_time(); see
+ that function's comments for details.
+
+ @note The nstime_t *retval must be pre-allocated as a nstime_t.
+
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, ENC_UTF_8|ENC_ISO_8601_DATE_TIME, etc.)
+ @param[in,out] retval points to a nstime_t which will be set to the value
+ @param[in,out] endoff if not NULL, gets set to the character after those consumed.
+ @param[in,out] err if not NULL, gets set to 0 if no failure, else the errno code (e.g., EDOM, ERANGE).
+ @return the newly created item, and retval is set to the decoded value
+ */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding,
+    nstime_t *retval, gint *endoff, gint *err);
+
 
 /** Add a formatted FT_ABSOLUTE_TIME or FT_RELATIVE_TIME to a proto_tree, with
     the format generating the string for the value and with the field name

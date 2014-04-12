@@ -55,6 +55,7 @@ struct tvbuff;
 typedef struct tvbuff tvbuff_t;
 
 struct e_in6_addr; /* ipv6-utils.h */
+struct nstime_t;   /* nstime.h */
 
 /** @defgroup tvbuff Testy, Virtual(-izable) Buffers
  *
@@ -334,6 +335,37 @@ WS_DLL_PUBLIC gdouble tvb_get_letohieee_double(tvbuff_t *tvb,
 #else
 #error "Unsupported byte order"
 #endif
+
+
+/* Fetch a time value from an ASCII-style string in the tvb.
+ *
+ * @param[in] offset The beginning offset in the tvb (cannot be negative)
+ * @param[in] length The field's length in the tvb (or -1 for remaining)
+ * @param[in] encoding The ENC_* that defines the format (e.g., ENC_ISO_8601_DATE_TIME)
+ * @param[in,out] ns The pre-allocated nstime_t that will be set to the decoded value
+ * @param[out] endoff if not NULL, should point to a gint that this
+ *     routine will then set to be the offset to the character after
+ *     the last character used in the conversion. This is useful because
+ *     they may not consume the whole section.
+ *
+ * @return a pointer to the nstime_t passed-in, or NULL on failure; if no
+ *    valid conversion could be performed, *endoff is set to 0, and errno will be
+ *    EDOM or ERANGE, and the nstime_t* passed-in will be cleared.
+ *
+ * @note The conversion ignores leading spaces, and will succeed even if it does
+ *    not consume the entire string. If you care about such things, always compare
+ *    the *endoff to where you expect it to be (namely, offset+length).
+ *
+ * This routine will not throw an error unless the passed-in arguments are
+ * invalid (e.g., offset is beyond the tvb's length).
+ *
+ * @warning This only works for string encodings which encode ASCII characters in
+ * a single byte: ENC_ASCII, ENC_UTF_8, ENC_ISO_8859_*, etc. It does NOT work
+ * for purely multi-byte encodings such as ENC_UTF_16, ENC_UCS_*, etc.
+ */
+WS_DLL_PUBLIC
+struct nstime_t* tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
+                              const guint encoding, struct nstime_t* ns, gint *endoff);
 
 /**
  * Fetch an IPv4 address, in network byte order.

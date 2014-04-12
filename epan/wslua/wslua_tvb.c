@@ -1055,8 +1055,10 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
 
 WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 	/* Obtain a time_t structure from a `TvbRange`, as an `NSTime` object. */
+#define WSLUA_OPTARG_TvbRange_nstime_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     NSTime nstime;
+    const guint encoding = luaL_optint(L, WSLUA_OPTARG_TvbRange_nstime_ENCODING, 0);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1066,21 +1068,41 @@ WSLUA_METHOD TvbRange_nstime(lua_State* L) {
 
     nstime = g_new(nstime_t,1);
 
-    if (tvbr->len == 4) {
-      nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
-      nstime->nsecs = 0;
-    } else if (tvbr->len == 8) {
-      nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
-      nstime->nsecs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset + 4);
-    } else {
-      g_free(nstime);
-      WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
-      return 0;
+    if (encoding == 0) {
+        if (tvbr->len == 4) {
+          nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
+          nstime->nsecs = 0;
+        } else if (tvbr->len == 8) {
+          nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
+          nstime->nsecs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset + 4);
+        } else {
+          g_free(nstime);
+          WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
+          return 0;
+        }
+        pushNSTime(L, nstime);
+        lua_pushinteger(L, tvbr->len);
+    }
+    else if (encoding & ~ENC_STR_TIME_MASK) {
+        WSLUA_OPTARG_ERROR(TvbRange_nstime, ENCODING, "invalid encoding value");
+    }
+    else {
+        gint endoff = 0;
+        nstime_t *retval = tvb_get_string_time(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
+                                               encoding, nstime, &endoff);
+        if (!retval || endoff == 0) {
+            g_free(nstime);
+            /* push nil nstime and offset */
+            lua_pushnil(L);
+            lua_pushnil(L);
+        }
+        else {
+            pushNSTime(L, nstime);
+            lua_pushinteger(L, endoff);
+        }
     }
 
-    pushNSTime(L, nstime);
-
-    WSLUA_RETURN(1); /* The `NSTime` object. */
+    WSLUA_RETURN(2); /* The `NSTime` object and number of bytes used, or nil on failure. */
 }
 
 WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {

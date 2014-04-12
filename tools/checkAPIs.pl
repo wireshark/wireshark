@@ -1625,7 +1625,7 @@ sub check_proto_tree_add_XXX_encoding($$)
                 $args =~ s/\(.*\)//sg;
 
                 if ($args =~ /,\s*ENC_/xos) {
-                        if (!($func =~ /proto_tree_add_(item|bitmask|bits_item|bits_ret_val)/xos)
+                        if (!($func =~ /proto_tree_add_(time|item|bitmask|bits_item|bits_ret_val)/xos)
                            ) {
                                 print STDERR "Error: ".$filename." uses $func with ENC_*.\n";
                                 $errorCount++;

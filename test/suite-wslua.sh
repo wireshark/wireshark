@@ -364,6 +364,22 @@ wslua_step_struct_test() {
 	fi
 }
 
+wslua_step_tvb_test() {
+	if [ $HAVE_LUA -ne 0 ]; then
+		test_step_skipped
+		return
+	fi
+
+	# Tshark catches lua script failures, so we have to parse the output.
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/tvb.lua > testout.txt 2>&1
+	if grep -q "All tests passed!" testout.txt; then
+		test_step_ok
+	else
+		cat testout.txt
+		test_step_failed "didn't find pass marker"
+	fi
+}
+
 wslua_cleanup_step() {
 	rm -f ./testout.txt
 	rm -f ./testin.txt
@@ -385,6 +401,7 @@ wslua_suite() {
 	test_step_add "wslua proto/protofield" wslua_step_proto_test
 	test_step_add "wslua script arguments" wslua_step_args_test
 	test_step_add "wslua struct" wslua_step_struct_test
+	test_step_add "wslua tvb" wslua_step_tvb_test
 }
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html

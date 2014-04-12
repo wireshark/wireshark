@@ -32,6 +32,8 @@
 /* WSLUA_MODULE Tree Adding information to the dissection tree */
 
 #include "wslua.h"
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 static gint wslua_ett = -1;
 
@@ -50,19 +52,113 @@ WSLUA_CLASS_DEFINE(TreeItem,FAIL_ON_NULL_OR_EXPIRED("TreeItem"),NOP);
 /* `TreeItem`s represent information in the packet-details pane.
    A root `TreeItem` is passed to dissectors as the third argument. */
 
+/* the following is used by TreeItem_add_packet_field() - this can THROW errors */
+static proto_item *
+try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int hfid,
+                     const ftenum_t type, const guint encoding, gint *ret_err)
+{
+    gint err = 0;
+    proto_item* item = NULL;
+    gint endoff = 0;
+
+    switch(type) {
+        case FT_ABSOLUTE_TIME:
+        case FT_RELATIVE_TIME:
+            {
+               /* nstime_t will be g_free'd by Lua */
+                nstime_t *nstime = (nstime_t *) g_malloc0(sizeof(nstime_t));
+                item = proto_tree_add_time_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                   tvbr->offset, tvbr->len, encoding,
+                                                   nstime, &endoff, &err);
+                if (err == 0) {
+                    pushNSTime(L,nstime);
+                    lua_pushinteger(L, endoff);
+                }
+            }
+            break;
+
+        /* anything else just needs to be done the old fashioned way */
+        default:
+            item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, encoding);
+            lua_pushnil(L);
+            lua_pushnil(L);
+            break;
+    }
+
+    if (ret_err) *ret_err = err;
+
+    return item;
+}
+
 WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     /*
-     Adds an child item to a given item, returning the child.
-     tree_item:add_packet_field([proto_field], [tvbrange], [encoding], ...)
+     Adds a new child tree for the given `ProtoField` object to this tree item,
+     returning the new child `TreeItem`.
+
+     Unlike `TreeItem:add()` and `TreeItem:add_le()`, the `ProtoField` argument
+     is not optional, and cannot be a `Proto` object. Instead, this function always
+     uses the `ProtoField` to determine the type of field to extract from the
+     passed-in `TvbRange`, highlighting the relevant bytes in the Packet Bytes pane
+     of the GUI (if there is a GUI), etc.  If no `TvbRange` is given, no bytes are
+     highlighted and the field's value cannot be determined; the `ProtoField` must
+     have been defined/created not to have a length in such a case, or an error will
+     occur.  For backwards-compatibility reasons the `encoding` argument, however,
+     must still be given.
+
+     Unlike `TreeItem:add()` and `TreeItem:add_le()`, this function performs both
+     big-endian and little-endian decoding, by setting the `encoding` argument to
+     be `ENC_BIG_ENDIAN` or `ENC_LITTLE_ENDIAN`.
+
+     The signature of this function:
+     @code
+     tree_item:add_packet_field(proto_field [,tvbrange], encoding, ...)
+     @endcode
+
+     In Wireshark version 1.11.3, this function was changed to return more than
+     just the new child `TreeItem`. The child is the first return value, so that
+     function chaining will still work as before; but it now also returns the value
+     of the extracted field (i.e., a number, `UInt64`, `Address`, etc.). If the
+     value could not be extracted from the `TvbRange`, the child `TreeItem` is still
+     returned, but the second returned value is `nil`.
+
+     Another new feature added to this function in Wireshark version 1.11.3 is the
+     ability to extract native number `ProtoField`s from string encoding in the
+     `TvbRange`, for ASCII-based and similar string encodings. For example, a
+     `ProtoField` of as `ftypes.UINT32` type can be extracted from a `TvbRange`
+     containing the ASCII string "123", and it will correctly decode the ASCII to
+     the number `123`, both in the tree as well as for the second return value of
+     this function. To do so, you must set the `encoding` argument of this function
+     to the appropriate string `ENC_*` value, bitwise-or'd with the `ENC_STRING`
+     value (see `init.lua`). `ENC_STRING` is guaranteed to be a unique bit flag, and
+     thus it can added instead of bitwise-or'ed as well. Only single-byte ASCII digit
+     string encoding types can be used for this, such as `ENC_ASCII` and `ENC_UTF_8`.
+
+     For example, assuming the `Tvb` named "`tvb`" contains the string "123":
+     @code
+     -- this is done earlier in the script
+     local myfield = ProtoField.new("Transaction ID", "myproto.trans_id", ftypes.UINT16)
+
+     -- this is done inside a dissector, post-dissector, or heuristic function
+     -- child will be the created child tree, and value will be the number 123 or nil on failure
+     local child, value = tree:add_packet_field(myfield, tvb:range(0,3), ENC_UTF_8 + ENC_STRING)
+     @encode
+
     */
+#define WSLUA_ARG_TreeItem_add_packet_field_PROTOFIELD 2 /* The ProtoField field object to add to the tree. */
+#define WSLUA_OPTARG_TreeItem_add_packet_field_TVBRANGE 3 /* The `TvbRange` of bytes in the packet this tree item covers/represents. */
+#define WSLUA_ARG_TreeItem_add_packet_field_ENCODING 4 /* The field's encoding in the `TvbRange`. */
+#define WSLUA_OPTARG_TreeItem_add_packet_field_LABEL 5 /* One or more strings to append to the created `TreeItem`. */
     TvbRange tvbr;
     ProtoField field;
     int hfid;
     int ett;
     ftenum_t type;
-    TreeItem tree_item  = shiftTreeItem(L,1);
+    TreeItem tree_item = shiftTreeItem(L,1);
     guint encoding;
     proto_item* item = NULL;
+    int nargs;
+    gint err = 0;
+    const char *volatile error = NULL;
 
     if (!tree_item) {
         return luaL_error(L,"not a TreeItem!");
@@ -92,6 +188,14 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 
     encoding = wslua_checkguint(L,1);
     lua_remove(L,1);
+
+    /* get the number of additional args before we add more to the stack */
+    nargs = lua_gettop(L);
+
+    /* XXX: why is this being done? If the length was -1, FT_STRINGZ figures out
+     * the right length in tvb_get_stringz_enc(); if it was 0, it should remain zero;
+     * if it was greater than zero, then it's the length the caller wanted.
+     */
     if (type == FT_STRINGZ) {
         switch (encoding & ENC_CHARENCODING_MASK) {
 
@@ -105,13 +209,29 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
             break;
         }
     }
-    item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, encoding);
 
-    while(lua_gettop(L)) {
+    TRY {
+
+        item = try_add_packet_field(L, tree_item, tvbr, hfid, type, encoding, &err);
+
+    } CATCH_ALL {
+        show_exception(tvbr->tvb->ws_tvb, lua_pinfo, tree_item->tree, EXCEPT_CODE, GET_MESSAGE);
+        error = "Lua programming error";
+    } ENDTRY;
+
+    if (error) { WSLUA_ERROR(TreeItem_add_packet_field,error); }
+
+    if (err != 0) {
+        lua_pushnil(L);
+        lua_pushnil(L);
+    }
+
+    while(nargs) {
         const gchar* s;
         s = lua_tostring(L,1);
         if (s) proto_item_append_text(item, " %s", s);
         lua_remove(L,1);
+        nargs--;
     }
 
     tree_item = (TreeItem)g_malloc(sizeof(struct _wslua_treeitem));
@@ -121,7 +241,10 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 
     PUSH_TREEITEM(L,tree_item);
 
-    WSLUA_RETURN(1); /* The new child TreeItem. */
+    /* move the tree object before the field value */
+    lua_insert(L, 1);
+
+    WSLUA_RETURN(3); /* The new child `TreeItem`, the field's extracted value or nil, and offset or nil. */
 }
 
 static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
