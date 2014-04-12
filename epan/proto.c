@@ -4983,43 +4983,6 @@ const guchar fld_abbrev_chars[256] = {
 	0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, /* 0xF0-0xFF */
 };
 
-static const value_string hf_types[] = {
-	{ FT_NONE,	    "FT_NONE"	       },
-	{ FT_PROTOCOL,	    "FT_PROTOCOL"      },
-	{ FT_BOOLEAN,	    "FT_BOOLEAN"       },
-	{ FT_UINT8,	    "FT_UINT8"	       },
-	{ FT_UINT16,	    "FT_UINT16"	       },
-	{ FT_UINT24,	    "FT_UINT24"	       },
-	{ FT_UINT32,	    "FT_UINT32"	       },
-	{ FT_UINT64,	    "FT_UINT64"	       },
-	{ FT_INT8,	    "FT_INT8"	       },
-	{ FT_INT16,	    "FT_INT16"	       },
-	{ FT_INT24,	    "FT_INT24"	       },
-	{ FT_INT32,	    "FT_INT32"	       },
-	{ FT_INT64,	    "FT_INT64"	       },
-	{ FT_EUI64,	    "FT_EUI64"	       },
-	{ FT_FLOAT,	    "FT_FLOAT"	       },
-	{ FT_DOUBLE,	    "FT_DOUBLE"	       },
-	{ FT_ABSOLUTE_TIME, "FT_ABSOLUTE_TIME" },
-	{ FT_RELATIVE_TIME, "FT_RELATIVE_TIME" },
-	{ FT_STRING,        "FT_STRING"        },
-	{ FT_STRINGZ,       "FT_STRINGZ"       },
-	{ FT_UINT_STRING,   "FT_UINT_STRING"   },
-	{ FT_ETHER,         "FT_ETHER"         },
-	{ FT_BYTES,         "FT_BYTES"         },
-	{ FT_UINT_BYTES,    "FT_UINT_BYTES"    },
-	{ FT_IPv4,          "FT_IPv4"          },
-	{ FT_IPv6,          "FT_IPv6"          },
-	{ FT_IPXNET,        "FT_IPXNET"        },
-	{ FT_FRAMENUM,      "FT_FRAMENUM"      },
-	{ FT_PCRE,          "FT_PCRE"          },
-	{ FT_GUID,          "FT_GUID"          },
-	{ FT_OID,           "FT_OID"           },
-	{ FT_REL_OID,       "FT_REL_OID"       },
-	{ FT_SYSTEM_ID,     "FT_SYSTEM_ID"     },
-	{ FT_STRINGZPAD,    "FT_STRINGZPAD"    },
-	{ 0,                NULL } };
-
 static const value_string hf_display[] = {
 	{ BASE_NONE,			  "BASE_NONE"			   },
 	{ BASE_DEC,			  "BASE_DEC"			   },
@@ -5087,8 +5050,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		    (hfinfo->type == FT_PROTOCOL) ))
 		g_error("Field '%s' (%s) has a 'strings' value but is of type %s"
 			" (which is not allowed to have strings)\n",
-			hfinfo->name, hfinfo->abbrev,
-			val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+			hfinfo->name, hfinfo->abbrev, ftype_name(hfinfo->type));
 
 	/* TODO: This check may slow down startup, and output quite a few warnings.
 	   It would be good to be able to enable this (and possibly other checks?)
@@ -5163,7 +5125,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 				case BASE_HEX_DEC:
 					g_error("Field '%s' (%s) is signed (%s) but is being displayed unsigned (%s)\n",
 						hfinfo->name, hfinfo->abbrev,
-						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+						ftype_name(hfinfo->type),
 						val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			}
 			/* FALL THROUGH */
@@ -5191,7 +5153,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					g_error("Field '%s' (%s) is an integral value (%s)"
 						" but is being displayed as %s\n",
 						hfinfo->name, hfinfo->abbrev,
-						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+						ftype_name(hfinfo->type),
 						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
 			}
 			break;
@@ -5201,12 +5163,12 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			if (hfinfo->display != BASE_NONE)
 				g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					ftype_name(hfinfo->type),
 					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					ftype_name(hfinfo->type));
 			break;
 
 		case FT_BOOLEAN:
@@ -5218,12 +5180,12 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 			      hfinfo->display == ABSOLUTE_TIME_DOY_UTC))
 				g_error("Field '%s' (%s) is a %s but is being displayed as %s instead of as a time\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					ftype_name(hfinfo->type),
 					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					ftype_name(hfinfo->type));
 			break;
 
 		case FT_STRING:
@@ -5239,34 +5201,34 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 					g_error("Field '%s' (%s) is an string value (%s)"
 						" but is being displayed as %s\n",
 						hfinfo->name, hfinfo->abbrev,
-						val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+						ftype_name(hfinfo->type),
 						val_to_str(hfinfo->display, hf_display, "(Unknown: 0x%x)"));
 			}
 
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					ftype_name(hfinfo->type));
 			if (hfinfo->strings != NULL)
 				g_error("Field '%s' (%s) is an %s but has a strings value\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					ftype_name(hfinfo->type));
 			break;
 
 		default:
 			if (hfinfo->display != BASE_NONE)
 				g_error("Field '%s' (%s) is an %s but is being displayed as %s instead of BASE_NONE\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"),
+					ftype_name(hfinfo->type),
 					val_to_str(hfinfo->display, hf_display, "(Bit count: %d)"));
 			if (hfinfo->bitmask != 0)
 				g_error("Field '%s' (%s) is an %s but has a bitmask\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					ftype_name(hfinfo->type));
 			if (hfinfo->strings != NULL)
 				g_error("Field '%s' (%s) is an %s but has a strings value\n",
 					hfinfo->name, hfinfo->abbrev,
-					val_to_str(hfinfo->type, hf_types, "(Unknown: %d)"));
+					ftype_name(hfinfo->type));
 			break;
 	}
 }
