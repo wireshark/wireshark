@@ -131,6 +131,7 @@ Logcat
 MBIM
 MiNT
 MP4 / ISOBMFF file format
+MQTT
 Novell PKIS certificate extensions
 NXP PN532 HCI
 OpenFlow
