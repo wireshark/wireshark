@@ -8,10 +8,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Wireshark</source>
         <translation type="unfinished"></translation>
     </message>
@@ -28,31 +24,7 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Name</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Folder</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Typical Files</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Plugins</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Version</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Type</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Path</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -219,6 +191,10 @@
     </message>
     <message>
         <source>more than %1 (preview timeout)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -570,6 +546,10 @@
         <source>Display filter selector</source>
         <translation></translation>
     </message>
+    <message>
+        <source>Select from previously used filters</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterEdit</name>
@@ -587,6 +567,22 @@
     </message>
     <message>
         <source>Enter a display filter %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bookmark this filter string</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear the filter string and update the display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Apply this filter string to the display</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&quot;%1&quot; may have unexpected results (see the User&apos;s Guide)</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -677,6 +673,17 @@
     </message>
     <message>
         <source>Some files could not be saved.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>ExportPDUDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -826,10 +833,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Error following stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Please make sure you have an SSL packet selected.</source>
         <translation type="unfinished"></translation>
     </message>
@@ -909,6 +912,405 @@
     </message>
     <message>
         <source>Sample deprecated filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>IOGraph</name>
+    <message>
+        <source>Unknown</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>IOGraphDialog</name>
+    <message>
+        <source>Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message utf8="true">
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+
+&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
+&lt;table&gt;&lt;tbody&gt;
+
+&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Move up 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Move down 10 pixels&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Move up 1 pixel&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Move down 1 pixel&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
+
+&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Toggle mouse drag / zoom&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
+
+&lt;/tbody&gt;&lt;/table&gt;
+&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Color</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Style</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Y Axis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Y Field</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Smoothing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Change the dissection behavior for a protocol.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove this dissection behavior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy this dissection behavior.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mouse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag using the mouse button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>drags</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select using the mouse button.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>zooms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time of day</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Log scale</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset the graph to its initial state.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom In</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zoom Out</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>-</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 10 Pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 10 pixels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Up 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Up</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Left 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Right 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move Down 1 Pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 1 pixel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+Down</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go To Packet Under Cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to packet currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>G</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Drag / Zoom</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle mouse drag / zoom behavior</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Z</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture / Session Time Origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle capture / session time origin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>T</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Crosshairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toggle crosshairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Space</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.001 sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.01 sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>0.1 sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>10 sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>1 min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>10 min</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time (s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark IO Graphs: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Capture Data</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>TCP errors</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Hover over the graph for details.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No packets in interval</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to select packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 (%2s%3).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Release to zoom, x = %1 to %2, y = %3 to %4</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to select range.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Click to select a portion of the graph.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Document Format (*.pdf)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Portable Network Graphics (*.png)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Windows Bitmap (*.bmp)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wireshark: Save Graph As...</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1316,19 +1718,7 @@ live packets from your network</source>
         <translation></translation>
     </message>
     <message>
-        <source>File</source>
-        <translation></translation>
-    </message>
-    <message>
         <source>Open Recent</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <translation></translation>
-    </message>
-    <message>
-        <source>Capture</source>
         <translation></translation>
     </message>
     <message>
@@ -1382,10 +1772,6 @@ live packets from your network</source>
     <message>
         <source>Clear Menu</source>
         <translation></translation>
-    </message>
-    <message>
-        <source>Help</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Wireshark Filter</source>
@@ -1452,10 +1838,6 @@ live packets from your network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>900000000; </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Go to packet</source>
         <translation type="unfinished"></translation>
     </message>
@@ -1465,14 +1847,6 @@ live packets from your network</source>
     </message>
     <message>
         <source>File Set</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>View</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1884,10 +2258,6 @@ live packets from your network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Analyze</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Apply as Filter</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2232,10 +2602,6 @@ live packets from your network</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>TCP Stream Graphs</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2245,10 +2611,6 @@ live packets from your network</source>
     </message>
     <message>
         <source>HTTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Telephony</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2497,6 +2859,86 @@ live packets from your network</source>
     </message>
     <message>
         <source>Please wait while Wireshark is initializing . . .</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>900000000</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Capture</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Help</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Go</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;View</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Toolbars</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Statistics</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Telephon&amp;y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Edit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Main Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter Toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export PDUs to File</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;I/O Graph</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Create graphs based on display filter fields</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show/hide the main toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show/hide the display filter toolbar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Continue &amp;without Saving</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -3011,6 +3453,82 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <source>Window Size (B)</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Packets/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bytes/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bits/s</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SUM(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>COUNT FRAMES(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>COUNT FIELDS(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MAX(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>MIN(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>AVG(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>LOAD(Y Field)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Line</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Impulse</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stacked Bar</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Dot</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Square</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Diamond</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 interval SMA</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>SCTPAllAssocsDialog</name>
@@ -3067,19 +3585,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Zoom in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>+</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3091,19 +3601,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move up 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move left 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3115,19 +3617,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move right 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3139,19 +3633,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move up 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move left 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3163,19 +3649,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move right 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3923,19 +4401,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move up 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move left 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3947,19 +4417,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move right 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3971,19 +4433,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move up 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move left 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3995,19 +4449,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move right 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4502,10 +4948,6 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>%.3f bytes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Bytes</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4515,6 +4957,10 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Avg. MBit/sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4628,19 +5074,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Zoom in</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>+</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom Out</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zoom out</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4652,19 +5090,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move up 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move left 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4676,19 +5106,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move right 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4700,19 +5122,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move up 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move left 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4724,19 +5138,11 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move right 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
