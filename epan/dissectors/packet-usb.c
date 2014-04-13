@@ -2662,38 +2662,48 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
 }
 
 
-/* Adds the Linux USB pseudo header fields to the tree. */
-static void
+/* dissect the linux-specific USB pseudo header and fill the conversation struct
+   return the number of dissected bytes */
+static gint
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        guint *bus_id, guint16 *device_address)
+        usb_conv_info_t *usb_conv_info)
 {
     guint8  transfer_type;
-    guint8  endpoint_number;
+    guint8  endpoint_byte;
     guint8  transfer_type_and_direction;
-    guint8  type;
+    guint8  urb_type;
     guint8  flag[2];
 
     proto_tree_add_item(tree, hf_usb_urb_id, tvb, 0, 8, ENC_HOST_ENDIAN);
 
-    /* show the event type of this URB as string and as a character */
-    type = tvb_get_guint8(tvb, 8);
+    /* show the urb type of this URB as string and as a character */
+    urb_type = tvb_get_guint8(tvb, 8);
+    usb_conv_info->is_request = (urb_type==URB_SUBMIT);
     proto_tree_add_uint_format_value(tree, hf_usb_urb_type, tvb, 8, 1,
-        type, "%s ('%c')", val_to_str(type, usb_urb_type_vals, "Unknown %d"),
-        g_ascii_isprint(type) ? type : '.');
+        urb_type, "%s ('%c')", val_to_str(urb_type, usb_urb_type_vals, "Unknown %d"),
+        g_ascii_isprint(urb_type) ? urb_type : '.');
     proto_tree_add_item(tree, hf_usb_transfer_type, tvb, 9, 1, ENC_NA);
 
-    transfer_type   = tvb_get_guint8(tvb, 9);
-    endpoint_number = tvb_get_guint8(tvb, 10);
-    transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_number & 0x80);
+    transfer_type = tvb_get_guint8(tvb, 9);
+    usb_conv_info->transfer_type = transfer_type;
+
+    endpoint_byte = tvb_get_guint8(tvb, 10);   /* direction bit | endpoint */
+    usb_conv_info->endpoint = endpoint_byte & 0x7F;
+    if (endpoint_byte & URB_TRANSFER_IN)
+        usb_conv_info->direction = P2P_DIR_RECV;
+    else
+        usb_conv_info->direction = P2P_DIR_SENT;
+
+    transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
     col_append_str(pinfo->cinfo, COL_INFO,
                     val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
 
     proto_tree_add_bitmask(tree, tvb, 10, hf_usb_endpoint_number, ett_usb_endpoint, usb_endpoint_fields, ENC_NA);
     proto_tree_add_item(tree, hf_usb_device_address, tvb, 11, 1, ENC_NA);
-    *device_address = (guint16)tvb_get_guint8(tvb, 11);
+    usb_conv_info->device_address = (guint16)tvb_get_guint8(tvb, 11);
 
     proto_tree_add_item(tree, hf_usb_bus_id, tvb, 12, 2, ENC_HOST_ENDIAN);
-    tvb_memcpy(tvb, bus_id, 12, 2);
+    tvb_memcpy(tvb, &usb_conv_info->bus_id, 12, 2);
 
     /* Right after the pseudo header we always have
      * sizeof(struct usb_device_setup_hdr) bytes. The content of these
@@ -2702,8 +2712,10 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     flag[0] = tvb_get_guint8(tvb, 14);
     flag[1] = '\0';
     if (flag[0] == 0) {
+        usb_conv_info->is_setup = TRUE;
         proto_tree_add_string(tree, hf_usb_setup_flag, tvb, 14, 1, "relevant (0)");
     } else {
+        usb_conv_info->is_setup = FALSE;
         proto_tree_add_string_format_value(tree, hf_usb_setup_flag, tvb,
             14, 1, flag, "not relevant ('%c')", g_ascii_isprint(flag[0]) ? flag[0]: '.');
     }
@@ -2722,6 +2734,8 @@ dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     proto_tree_add_item(tree, hf_usb_urb_status, tvb, 28, 4, ENC_HOST_ENDIAN);
     proto_tree_add_item(tree, hf_usb_urb_len, tvb, 32, 4, ENC_HOST_ENDIAN);
     proto_tree_add_item(tree, hf_usb_urb_data_len, tvb, 36, 4, ENC_HOST_ENDIAN);
+
+    return 40;
 }
 
 static int
@@ -2890,20 +2904,18 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    guint8 header_info)
 {
     gint                  offset = 0;
-    proto_item           *tree_ti;
     gint                  new_offset;
-    int                   type = 0, endpoint, endpoint_with_dir = 0;
+    int                   endpoint;
     gint                  type_2 = 0;
     guint8                urb_type, usbpcap_control_stage = 0;
-    guint8                setup_flag = 0;
     guint16               hdr_len = 0;
     guint32               win32_data_len = 0;
-    proto_tree           *tree = NULL;
+    proto_item           *tree_ti;
+    proto_tree           *tree;
     proto_item           *item;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     usb_conv_info_t      *usb_conv_info;
     conversation_t       *conversation;
-    guint                bus_id = 0;
     guint16              device_address;
     tvbuff_t             *next_tvb = NULL;
     tvbuff_t             *setup_tvb = NULL;
@@ -2938,27 +2950,25 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst, pinfo->srcport, pinfo->destport);
     usb_conv_info = get_usb_conv_info(conversation);
 
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
     tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
     tree = proto_item_add_subtree(tree_ti, usb_hdr);
 
     if (header_info & USB_HEADER_IS_LINUX) {
-        dissect_linux_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
-        urb_type          = tvb_get_guint8(tvb, 8);
-        type              = tvb_get_guint8(tvb, 9);
-        endpoint_with_dir = tvb_get_guint8(tvb, 10);
-        setup_flag        = tvb_get_guint8(tvb, 14);
-        offset           += 40;           /* skip first part of the pseudo-header */
         proto_item_set_len(tree_ti, (header_info&USB_HEADER_IS_64_BYTES) ? 64 : 48);
-    } else if (header_info & USB_HEADER_IS_USBPCAP) {
-        guint8      tmp_val8;
+        offset = dissect_linux_usb_pseudo_header(tvb, pinfo, tree, usb_conv_info);
 
-        tvb_memcpy(tvb, (guint8 *)&hdr_len, 0, 2);
+    } else if (header_info & USB_HEADER_IS_USBPCAP) {
+        guint8  setup_flag;
+        guint   bus_id = 0;
+        int     type, endpoint_with_dir;
+        guint8  tmp_val8;
 
         dissect_win32_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
 
         hdr_len = tvb_get_letohs(tvb, 0);
+        proto_item_set_len(tree_ti, hdr_len);
+
         tmp_val8 = tvb_get_guint8(tvb, 16);
         /* TODO: Handle errors */
         if (tmp_val8 & 0x01) {
@@ -2982,21 +2992,19 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         } else {
             offset += hdr_len; /* Skip the pseudo-header */
         }
-        proto_item_set_len(tree_ti, hdr_len);
-    }
 
-    usb_conv_info->bus_id = bus_id;
-    usb_conv_info->device_address = device_address;
-    usb_conv_info->endpoint = endpoint;
-    usb_conv_info->transfer_type = type;
-    usb_conv_info->is_request = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
-    usb_conv_info->is_setup = (setup_flag == 0x00);
-    usb_conv_info->setup_requesttype = 0;
+        usb_conv_info->bus_id = bus_id;
+        usb_conv_info->device_address = device_address;
+        usb_conv_info->endpoint = endpoint;
+        usb_conv_info->transfer_type = type;
+        usb_conv_info->is_request = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
+        usb_conv_info->is_setup = (setup_flag == 0x00);
 
-    if (endpoint_with_dir & URB_TRANSFER_IN) {
-        usb_conv_info->direction = P2P_DIR_RECV;
-    } else {
-        usb_conv_info->direction = P2P_DIR_SENT;
+        if (endpoint_with_dir & URB_TRANSFER_IN) {
+            usb_conv_info->direction = P2P_DIR_RECV;
+        } else {
+            usb_conv_info->direction = P2P_DIR_SENT;
+        }
     }
 
     usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_info, usb_conv_info);
