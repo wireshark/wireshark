@@ -167,7 +167,7 @@ const gchar *get_conn_cfilter(void) {
     }
     if ((env = getenv("SSH_CONNECTION")) != NULL) {
         tokens = g_strsplit(env, " ", 4);
-        if (tokens[3]) {
+        if (g_strv_length(tokens) == 4) {
             remip = sanitize_filter_ip(tokens[0]);
             locip = sanitize_filter_ip(tokens[2]);
             g_string_printf(filter_str, "not (tcp port %s and %s host %s "
@@ -175,15 +175,17 @@ const gchar *get_conn_cfilter(void) {
                 tokens[3], host_ip_af(locip), locip);
             g_free(remip);
             g_free(locip);
-            return filter_str->str;
         }
+        g_strfreev(tokens);
     } else if ((env = getenv("SSH_CLIENT")) != NULL) {
         tokens = g_strsplit(env, " ", 3);
-        remip = sanitize_filter_ip(tokens[2]);
-        g_string_printf(filter_str, "not (tcp port %s and %s host %s "
-            "and tcp port %s)", tokens[1], host_ip_af(remip), tokens[0], remip);
-        g_free(remip);
-        return filter_str->str;
+        if (g_strv_length(tokens) == 3) {
+            remip = sanitize_filter_ip(tokens[2]);
+            g_string_printf(filter_str, "not (tcp port %s and %s host %s "
+                "and tcp port %s)", tokens[1], host_ip_af(remip), tokens[0], remip);
+            g_free(remip);
+        }
+        g_strfreev(tokens);
     } else if ((env = getenv("REMOTEHOST")) != NULL) {
         /* FreeBSD 7.0 sets REMOTEHOST to an empty string */
         if (g_ascii_strcasecmp(env, "localhost") == 0 ||
@@ -194,7 +196,6 @@ const gchar *get_conn_cfilter(void) {
         remip = sanitize_filter_ip(env);
         g_string_printf(filter_str, "not %s host %s", host_ip_af(remip), remip);
         g_free(remip);
-        return filter_str->str;
     } else if ((env = getenv("DISPLAY")) != NULL) {
         /*
          * This mirrors what _X11TransConnectDisplay() does.
@@ -325,15 +326,15 @@ const gchar *get_conn_cfilter(void) {
         g_string_printf(filter_str, "not %s host %s",
             host_ip_af(phostname), phostname);
         g_free(phostname);
-        return filter_str->str;
 #ifdef _WIN32
     } else if (GetSystemMetrics(SM_REMOTESESSION)) {
         /* We have a remote session: http://msdn.microsoft.com/en-us/library/aa380798%28VS.85%29.aspx */
         g_string_printf(filter_str, "not tcp port 3389");
-        return filter_str->str;
 #endif /* _WIN32 */
+    } else {
+        return "";
     }
-    return "";
+    return filter_str->str;
 }
 
 /*
