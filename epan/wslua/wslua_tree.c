@@ -62,6 +62,25 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
     gint endoff = 0;
 
     switch(type) {
+        /* these all generate ByteArrays */
+        case FT_BYTES:
+        case FT_UINT_BYTES:
+        case FT_OID:
+        case FT_REL_OID:
+        case FT_SYSTEM_ID:
+            {
+                /* GByteArray and its data will be g_free'd by Lua */
+                GByteArray *gba = g_byte_array_new();
+                item = proto_tree_add_bytes_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
+                                                   tvbr->offset, tvbr->len, encoding,
+                                                   gba, &endoff, &err);
+                if (err == 0) {
+                    pushByteArray(L, gba);
+                    lua_pushinteger(L, endoff);
+                }
+            }
+            break;
+
         case FT_ABSOLUTE_TIME:
         case FT_RELATIVE_TIME:
             {
@@ -77,6 +96,9 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
             }
             break;
 
+        /* XXX: what about these? */
+        case FT_NONE:
+        case FT_PROTOCOL:
         /* anything else just needs to be done the old fashioned way */
         default:
             item = proto_tree_add_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len, encoding);

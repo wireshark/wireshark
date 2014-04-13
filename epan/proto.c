@@ -87,8 +87,9 @@ struct ptvcursor {
  @param tree the tree to append this item to
  @param hfindex field index
  @param hfinfo header_field
+ @param free_block a code block to call to free resources if this returns
  @return the header field matching 'hfinfo' */
-#define TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo) \
+#define TRY_TO_FAKE_THIS_ITEM_OR_FREE(tree, hfindex, hfinfo, free_block) \
 	/* If this item is not referenced we dont have to do much work	\
 	   at all but we should still return a node so that field items	\
 	   below this node (think proto_item_add_subtree()) will still	\
@@ -100,10 +101,13 @@ struct ptvcursor {
 	   We fake FT_PROTOCOL unless some clients have requested us	\
 	   not to do so. \
 	*/								\
-	if (!tree)							\
+	if (!tree) {							\
+		free_block;						\
 		return NULL;						\
+	}								\
 	PTREE_DATA(tree)->count++;					\
 	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
+		free_block;						\
 		if (getenv("WIRESHARK_ABORT_ON_TOO_MANY_ITEMS") != NULL) \
 			g_error("More than %d items in the tree -- possible infinite loop", MAX_TREE_ITEMS); \
 		/* Let the exception handler add items to the tree */	\
@@ -117,11 +121,21 @@ struct ptvcursor {
 			if ((hfinfo->ref_type != HF_REF_TYPE_DIRECT)	\
 			    && (hfinfo->type != FT_PROTOCOL ||		\
 				PTREE_DATA(tree)->fake_protocols)) {	\
+				free_block;				\
 				/* just return tree back to the caller */\
 				return tree;				\
 			}						\
 		}							\
 	}
+
+/** See inlined comments.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param hfinfo header_field
+ @return the header field matching 'hfinfo' */
+#define TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo) \
+	TRY_TO_FAKE_THIS_ITEM_OR_FREE(tree, hfindex, hfinfo, ((void)0))
+
 
 /** See inlined comments.
  @param pi the created protocol item we're about to return */
@@ -181,6 +195,8 @@ static void
 proto_tree_set_bytes(field_info *fi, const guint8* start_ptr, gint length);
 static void
 proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length);
+static void
+proto_tree_set_bytes_gbytearray(field_info *fi, const GByteArray *value);
 static void
 proto_tree_set_time(field_info *fi, const nstime_t *value_ptr);
 static void
@@ -1955,6 +1971,133 @@ proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	return proto_tree_add_item_new(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
 }
 
+/* which FT_ types can use proto_tree_add_bytes_item() */
+static inline gboolean
+validate_proto_tree_add_bytes_ftype(const enum ftenum type)
+{
+	return (type == FT_BYTES      ||
+		type == FT_UINT_BYTES ||
+		type == FT_OID        ||
+		type == FT_REL_OID    ||
+		type == FT_SYSTEM_ID  );
+}
+
+/* Note: this does no validation that the byte array of an FT_OID or
+   FT_REL_OID is actually valid; and neither does proto_tree_add_item(),
+   so I think it's ok to continue not validating it?
+ */
+proto_item *
+proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+			   const gint start, gint length, const guint encoding,
+			   GByteArray *retval, gint *endoff, gint *err)
+{
+	field_info	  *new_fi;
+	GByteArray	  *bytes = retval;
+	GByteArray	  *created_bytes = NULL;
+	gint		   saved_err = 0;
+	guint32		   n = 0;
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	gboolean	   generate = (bytes || tree) ? TRUE : FALSE;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	DISSECTOR_ASSERT_HINT(validate_proto_tree_add_bytes_ftype(hfinfo->type),
+		"Called proto_tree_add_bytes_item but not a bytes-based FT_XXX type");
+
+	/* length has to be -1 or > 0 regardless of encoding */
+	/* invalid FT_UINT_BYTES length is caught in get_uint_value() */
+	if (length < -1 || length == 0) {
+		REPORT_DISSECTOR_BUG(wmem_strdup_printf(wmem_packet_scope(),
+		    "Invalid length %d passed to proto_tree_add_bytes_item for %s",
+		    length, ftype_name(hfinfo->type)));
+	}
+
+	if (encoding & ENC_STR_NUM) {
+		REPORT_DISSECTOR_BUG("Decoding number strings for byte arrays is not supported");
+	}
+
+	if (generate && (encoding & ENC_STR_HEX)) {
+		if (hfinfo->type == FT_UINT_BYTES) {
+			/* can't decode FT_UINT_BYTES from strings */
+			REPORT_DISSECTOR_BUG("proto_tree_add_bytes_item called for "
+			    "FT_UINT_BYTES type, but as ENC_STR_HEX");
+		}
+
+		if (!bytes) {
+			/* caller doesn't care about return value, but we need it to
+			   call tvb_get_string_bytes() and set the tree later */
+			bytes = created_bytes = g_byte_array_new();
+		}
+
+		/* bytes might be NULL after this, but can't add expert error until later */
+		bytes = tvb_get_string_bytes(tvb, start, length, encoding, bytes, endoff);
+
+		/* grab the errno now before it gets overwritten */
+		saved_err = errno;
+	}
+	else if (generate) {
+		tvb_ensure_bytes_exist(tvb, start, length);
+
+		if (!bytes) {
+			/* caller doesn't care about return value, but we need it to
+			   call tvb_get_string_bytes() and set the tree later */
+			bytes = created_bytes = g_byte_array_new();
+		}
+
+		if (hfinfo->type == FT_UINT_BYTES) {
+			n = length; /* n is now the "header" length */
+			length = get_uint_value(tree, tvb, start, n, encoding);
+			/* length is now the value's length; only store the value in the array */
+			g_byte_array_append(bytes, tvb_get_ptr(tvb, start + n, length), length);
+		}
+		else if (length > 0) {
+			g_byte_array_append(bytes, tvb_get_ptr(tvb, start, length), length);
+		}
+
+		if (endoff)
+		    *endoff = start + n + length;
+	}
+
+	if (err) *err = saved_err;
+
+	TRY_TO_FAKE_THIS_ITEM_OR_FREE(tree, hfinfo->id, hfinfo,
+		{
+		    if (created_bytes)
+			g_byte_array_free(created_bytes, TRUE);
+		    created_bytes = NULL;
+		    bytes = NULL;
+		} );
+
+	/* n will be zero except when it's a FT_UINT_BYTES */
+	new_fi = new_field_info(tree, hfinfo, tvb, start, n + length);
+
+	if (new_fi == NULL)
+		return NULL;
+
+	if (encoding & ENC_STRING) {
+		if (saved_err == ERANGE)
+		    expert_add_info(NULL, tree, &ei_number_string_decoding_erange_error);
+		else if (!bytes || saved_err != 0)
+		    expert_add_info(NULL, tree, &ei_number_string_decoding_failed_error);
+
+		if (bytes)
+		    proto_tree_set_bytes_gbytearray(new_fi, bytes);
+
+		if (created_bytes)
+		    g_byte_array_free(created_bytes, TRUE);
+	}
+	else {
+		/* n will be zero except when it's a FT_UINT_BYTES */
+		proto_tree_set_bytes_tvb(new_fi, tvb, start + n, length);
+
+		FI_SET_FLAG(new_fi,
+			(encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN);
+	}
+
+	return proto_tree_add_node(tree, new_fi);
+}
+
+
 proto_item *
 proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 			   const gint start, gint length, const guint encoding,
@@ -2203,6 +2346,18 @@ static void
 proto_tree_set_bytes_tvb(field_info *fi, tvbuff_t *tvb, gint offset, gint length)
 {
 	proto_tree_set_bytes(fi, tvb_get_ptr(tvb, offset, length), length);
+}
+
+static void
+proto_tree_set_bytes_gbytearray(field_info *fi, const GByteArray *value)
+{
+	GByteArray *bytes;
+
+	DISSECTOR_ASSERT(value != NULL);
+
+	bytes = byte_array_dup(value);
+
+	fvalue_set_byte_array(&fi->value, bytes);
 }
 
 /* Add a FT_*TIME to a proto_tree */

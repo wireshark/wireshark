@@ -106,6 +106,27 @@ WSLUA_METAMETHOD ByteArray__concat(lua_State* L) {
     WSLUA_RETURN(1); /* The new composite `ByteArray`. */
 }
 
+WSLUA_METAMETHOD ByteArray__eq(lua_State* L) {
+    /* Compares two ByteArray values.
+
+       @since 1.11.4
+     */
+#define WSLUA_ARG_ByteArray__eq_FIRST 1 /* First array. */
+#define WSLUA_ARG_ByteArray__eq_SECOND 2 /* Second array. */
+    ByteArray ba1 = checkByteArray(L,WSLUA_ARG_ByteArray__eq_FIRST);
+    ByteArray ba2 = checkByteArray(L,WSLUA_ARG_ByteArray__eq_SECOND);
+    gboolean result = FALSE;
+
+    if (ba1->len == ba2->len) {
+        if (memcmp(ba1->data, ba2->data, ba1->len) == 0)
+            result = TRUE;
+    }
+
+    lua_pushboolean(L,result);
+
+    return 1;
+}
+
 WSLUA_METHOD ByteArray_prepend(lua_State* L) {
 	/* Prepend a `ByteArray` to this `ByteArray`. */
 #define WSLUA_ARG_ByteArray_prepend_PREPENDED 2 /* `ByteArray` to be prepended. */
@@ -325,6 +346,7 @@ WSLUA_METHODS ByteArray_methods[] = {
 WSLUA_META ByteArray_meta[] = {
     WSLUA_CLASS_MTREG(ByteArray,tostring),
     WSLUA_CLASS_MTREG(ByteArray,concat),
+    WSLUA_CLASS_MTREG(ByteArray,eq),
     {"__call",ByteArray_subset},
     { NULL, NULL }
 };
@@ -1309,9 +1331,25 @@ WSLUA_METHOD TvbRange_le_ustringz(lua_State* L) {
 }
 
 WSLUA_METHOD TvbRange_bytes(lua_State* L) {
-	/* Obtain a `ByteArray` from a `TvbRange`. */
+	/* Obtain a `ByteArray` from a `TvbRange`.
+
+       Starting in 1.11.4, this function also takes an optional `encoding` argument,
+       which can be set to `ENC_STR_HEX` to decode a hex-string from the `TvbRange`
+       into the returned `ByteArray`. The `encoding` can be bitwise-or'ed with one
+       or more separator encodings, such as `ENC_SEP_COLON`, to allow separators
+       to occur between each pair of hex characters.
+
+       The return value also now returns the number of bytes used as a second return value.
+
+       On failure or error, nil is returned for both return values.
+
+       @note The encoding type of the hex string should also be set, for example
+       `ENC_ASCII` or `ENC_UTF_8`, along with `ENC_STR_HEX`.
+     */
+#define WSLUA_OPTARG_TvbRange_bytes_ENCODING 2 /* An optional ENC_* encoding value to use */
     TvbRange tvbr = checkTvbRange(L,1);
     GByteArray* ba;
+    const guint encoding = luaL_optint(L, WSLUA_OPTARG_TvbRange_bytes_ENCODING, 0);
 
     if ( !(tvbr && tvbr->tvb)) return 0;
     if (tvbr->tvb->expired) {
@@ -1320,11 +1358,32 @@ WSLUA_METHOD TvbRange_bytes(lua_State* L) {
     }
 
     ba = g_byte_array_new();
-    g_byte_array_append(ba,(const guint8 *)tvb_memdup(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
 
-    pushByteArray(L,ba);
+    if (encoding == 0) {
+        g_byte_array_append(ba,(const guint8 *)tvb_memdup(wmem_packet_scope(),tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len),tvbr->len);
+        pushByteArray(L,ba);
+        lua_pushinteger(L, tvbr->len);
+    }
+    else if ((encoding & ENC_STR_HEX) == 0) {
+        WSLUA_OPTARG_ERROR(TvbRange_nstime, ENCODING, "invalid encoding value");
+    }
+    else {
+        gint endoff = 0;
+        GByteArray* retval = tvb_get_string_bytes(tvbr->tvb->ws_tvb, tvbr->offset, tvbr->len,
+                                                  encoding, ba, &endoff);
+        if (!retval || endoff == 0) {
+            g_byte_array_free(ba, TRUE);
+            /* push nil nstime and offset */
+            lua_pushnil(L);
+            lua_pushnil(L);
+        }
+        else {
+            pushByteArray(L,ba);
+            lua_pushinteger(L, endoff);
+        }
+    }
 
-    WSLUA_RETURN(1); /* The `ByteArray` object. */
+    WSLUA_RETURN(2); /* The `ByteArray` object or nil, and number of bytes consumed or nil. */
 }
 
 WSLUA_METHOD TvbRange_bitfield(lua_State* L) {

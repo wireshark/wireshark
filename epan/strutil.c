@@ -30,6 +30,7 @@
 #include "emem.h"
 
 #include <wsutil/str_util.h>
+#include <epan/proto.h>
 
 #ifdef _WIN32
 #include <windows.h>
@@ -545,6 +546,132 @@ hex_str_to_bytes(const char *hex_str, GByteArray *bytes, gboolean force_separato
     return TRUE;
 }
 
+static inline gchar
+get_valid_byte_sep(gchar c, const guint encoding)
+{
+    gchar retval = -1; /* -1 means failure */
+
+    switch (c) {
+        case ':':
+            if (encoding & ENC_SEP_COLON)
+                retval = c;
+            break;
+        case '-':
+            if (encoding & ENC_SEP_DASH)
+                retval = c;
+            break;
+        case '.':
+            if (encoding & ENC_SEP_DOT)
+                retval = c;
+            break;
+        case ' ':
+            if (encoding & ENC_SEP_SPACE)
+                retval = c;
+            break;
+        case '\0':
+            /* we were given the end of the string, so it's fine */
+            retval = 0;
+            break;
+        default:
+            if (isxdigit(c) && (encoding & ENC_SEP_NONE))
+                retval = 0;
+            /* anything else means we've got a failure */
+            break;
+    }
+
+    return retval;
+}
+
+/* Turn a string of hex digits with optional separators (defined by is_byte_sep())
+ * into a byte array. Unlike hex_str_to_bytes(), this will read as many hex-char
+ * pairs as possible and not error if it hits a non-hex-char; instead it just ends
+ * there. (i.e., like strtol()/atoi()/etc.) Unless fail_if_partial is TRUE.
+ *
+ * The **endptr, if not NULL, is set to the char after the last hex character.
+ */
+gboolean
+hex_str_to_bytes_encoding(const gchar *hex_str, GByteArray *bytes, const gchar **endptr,
+                          const guint encoding, const gboolean fail_if_partial)
+{
+    gchar c, d;
+    guint8 val;
+    const gchar *end = hex_str;
+    gboolean retval = FALSE;
+    gchar sep = -1;
+
+    /* a map from ASCII hex chars to their value */
+    static const gchar str_to_nibble[256] = {
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+         0, 1, 2, 3, 4, 5, 6, 7, 8, 9,-1,-1,-1,-1,-1,-1,
+        -1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,10,11,12,13,14,15,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,
+        -1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1
+    };
+
+    /* we must see two hex chars at the beginning, or fail */
+    if (bytes && *end && isxdigit(*end) && isxdigit(*(end+1))) {
+        retval = TRUE;
+
+        /* set the separator character we'll allow; if this returns a -1, it means something's
+         * invalid after the hex, but we'll let the while-loop grab the first hex-pair anyway
+         */
+        sep = get_valid_byte_sep(*(end+2), encoding);
+
+        while (*end) {
+            c = str_to_nibble[(int)*end];
+            if (c < 0) {
+                if (fail_if_partial) retval = FALSE;
+                break;
+            }
+            ++end;
+
+            d = str_to_nibble[(int)*end];
+            if (d < 0) {
+                if (fail_if_partial) retval = FALSE;
+                break;
+            }
+            val = ((guint8)c * 16) + d;
+            g_byte_array_append(bytes, &val, 1);
+            ++end;
+
+            /* check for separator and peek at next char to make sure we should keep going */
+            if (sep > 0 && *end == sep && str_to_nibble[(int)*(end+1)] > -1) {
+                /* yes, it's the right sep and followed by more hex, so skip the sep */
+                ++end;
+            } else if (sep != 0 && *end) {
+                /* we either need a separator, but we don't see one; or the get_valid_byte_sep()
+                   earlier didn't find a valid one to begin with */
+                if (fail_if_partial) retval = FALSE;
+                break;
+            }
+            /* otherwise, either no separator allowed, or *end is null, or *end is an invalid
+             * sep, or *end is a valid sep but after it is not a hex char - in all those
+             * cases, just loop back up and let it fail later naturally.
+             */
+        }
+    }
+
+    if (!retval) {
+        if (bytes) g_byte_array_set_size(bytes, 0);
+        end = hex_str;
+    }
+
+    if (endptr) *endptr = end;
+
+    return retval;
+}
+
 /*
  * Turn an RFC 3986 percent-encoded string into a byte array.
  * XXX - We don't check for reserved characters.
@@ -666,7 +793,7 @@ format_uri(const GByteArray *bytes, const gchar *reserved_chars)
  *
  */
 GByteArray *
-byte_array_dup(GByteArray *ba) {
+byte_array_dup(const GByteArray *ba) {
     GByteArray *new_ba;
 
     if (!ba)

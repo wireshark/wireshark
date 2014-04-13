@@ -112,6 +112,34 @@ WS_DLL_PUBLIC
 gboolean   hex_str_to_bytes(const char *hex_str, GByteArray *bytes,
     gboolean force_separators);
 
+/* Turn a string of hex digits with optional separators (defined by encoding)
+ * into a byte array. Unlike hex_str_to_bytes(), this will read as many hex-char
+ * pairs as possible and not error if it hits a non-hex-char; instead it just ends
+ * there. (i.e., like strtol()/atoi()/etc.) But it must see two hex chars at the
+ * beginning or it will return FALSE.
+ *
+ * @param hex_str The string of hex digits.
+ * @param bytes The GByteArray that will receive the bytes.  This
+ *        must be initialized by the caller.
+ * @param endptr if not NULL, is set to the char after the last hex character consumed.
+ * @param encoding set to one or more bitwise-or'ed ENC_SEP_* (see proto.h)
+ * @param fail_if_partial If set to TRUE, then the conversion fails if the whole
+ *    hex_str is not consumed.
+ * @return FALSE only if no bytes were generated; or if fail_if_partial is TRUE
+ *    and the entire hex_str was not consumed.
+ *
+ * If no ENC_SEP_* is set, then no separators are allowed. If multiple ENC_SEP_* are
+ * bit-or'ed, any of them can be a separator, but once the separator is seen then
+ * only its same type is accepted for the rest of the string. (i.e., it won't convert
+ * a "01:23-4567" even if ENC_SEP_COLON|ENC_SEP_DASH|ENC_SEP_NONE is passed in)
+ *
+ * This is done this way because it's likely a malformed scenario if they're mixed,
+ * and this routine is used by dissectors via tvb_get_string_XXX routines.
+ */
+WS_DLL_PUBLIC
+gboolean hex_str_to_bytes_encoding(const char *hex_str, GByteArray *bytes, const char **endptr,
+                                   const guint encoding, const gboolean fail_if_partial);
+
 /** Turn an RFC 3986 percent-encoded string into a byte array.
  *
  * @param uri_str The string of hex digits.
@@ -169,7 +197,7 @@ gboolean   oid_str_to_bytes(const char *oid_str, GByteArray *bytes);
  * @todo - Should this be in strutil.c?
  */
 WS_DLL_PUBLIC
-GByteArray *byte_array_dup(GByteArray *ba);
+GByteArray *byte_array_dup(const GByteArray *ba);
 
 /**
  * Compare the contents of two GByteArrays

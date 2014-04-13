@@ -75,7 +75,16 @@ WSLUA_METAMETHOD FieldInfo__unm(lua_State* L) {
 /* WSLUA_ATTRIBUTE FieldInfo_value RO The value of this field. */
 WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
     /*
-       Obtain the Value of the field
+       Obtain the Value of the field.
+
+       Previous to 1.11.4, this function retrieved the value for most field types,
+       but for `ftypes.UINT_BYTES` it retrieved the `ByteArray` of the field's entire `TvbRange`.
+       In other words, it returned a `ByteArray` that included the leading length byte(s),
+       instead of just the *value* bytes. That was a bug, and has been changed in 1.11.4.
+       Furthermore, it retrieved an `ftypes.GUID` as a `ByteArray`, which is also incorrect.
+
+       If you wish to still get a `ByteArray` of the `TvbRange`, use `FieldInfo:get_range()`
+       to get the `TvbRange`, and then use `Tvb:bytes()` to convert it to a `ByteArray`.
        */
     FieldInfo fi = checkFieldInfo(L,1);
 
@@ -165,16 +174,18 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
                 /* FALLTHROUGH */
         case FT_BYTES:
         case FT_UINT_BYTES:
-        case FT_GUID:
         case FT_PROTOCOL:
         case FT_REL_OID:
         case FT_SYSTEM_ID:
-        case FT_OID: {
+        case FT_OID:
+            {
                 ByteArray ba = g_byte_array_new();
-                g_byte_array_append(ba, (const guint8 *)tvb_memdup(wmem_packet_scope(),fi->ws_fi->ds_tvb,fi->ws_fi->start,fi->ws_fi->length),fi->ws_fi->length);
+                g_byte_array_append(ba, (const guint8 *) fvalue_get(&fi->ws_fi->value),
+                                    fvalue_length(&fi->ws_fi->value));
                 pushByteArray(L,ba);
                 return 1;
             }
+        case FT_GUID:
         default:
                 luaL_error(L,"FT_ not yet supported");
                 return 1;

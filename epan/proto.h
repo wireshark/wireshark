@@ -347,6 +347,22 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 /* mask out ENC_STR_* and related bits - should this replace ENC_CHARENCODING_MASK? */
 #define ENC_STR_MASK            0x0000FFFE
 
+/* for cases where the number is allowed to have a leading '+'/'-' */
+/* this can't collide with ENC_SEP_* because they can be used simultaneously */
+#define ENC_NUM_PREF    0x00200000
+
+/* For cases where a string encoding contains hex, bit-or one or more
+ * of these for the allowed separator(s), as well as with ENC_STR_HEX.
+ * See hex_str_to_bytes_encoding() in epan/strutil.h for details.
+ */
+#define ENC_SEP_NONE    0x00010000
+#define ENC_SEP_COLON   0x00020000
+#define ENC_SEP_DASH    0x00040000
+#define ENC_SEP_DOT   0x00080000
+#define ENC_SEP_SPACE   0x00100000
+/* a convenience macro for the above */
+#define ENC_SEP_MASK    0x001F0000
+
 /* For cases where a string encoding contains a timestamp, use one
  * of these (but only one). These values can collide with above, because
  * you can't do both at the same time.
@@ -904,6 +920,44 @@ proto_tree_add_protocol_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gin
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 	gint length, const guint8* start_ptr);
+
+/** Get and add a byte-array-based FT_* to a proto_tree.
+
+ Supported: FT_BYTES, FT_UINT_BYTES, FT_OID, FT_REL_OID, and FT_SYSTEM_ID.
+
+ The item is extracted from the tvbuff handed to it, based on the ENC_* passed
+ in for the encoding, and the retrieved byte array is also set to *retval so the
+ caller gets it back for other uses.
+
+ This function retrieves the value even if the passed-in tree param is NULL,
+ so that it can be used by dissectors at all times to both get the value
+ and set the tree item to it.
+
+ Like other proto_tree_add functions, if there is a tree and the value cannot
+ be decoded from the tvbuff, then an expert info error is reported. For string
+ encoding, this means that a failure to decode the hex value from the string
+ results in an expert info error being added to the tree.
+
+ If encoding is string-based, it will convert using tvb_get_string_bytes(); see
+ that function's comments for details.
+
+ @note The GByteArray retval must be pre-constructed using g_byte_array_new().
+
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param start start of data in tvb
+ @param length length of data in tvb
+ @param encoding data encoding (e.g, ENC_LITTLE_ENDIAN, or ENC_UTF_8|ENC_STR_HEX)
+ @param[in,out] retval points to a GByteArray which will be set to the bytes from the Tvb.
+ @param[in,out] endoff if not NULL, gets set to the character after those consumed.
+ @param[in,out] err if not NULL, gets set to 0 if no failure, else the errno code (e.g., EDOM, ERANGE).
+ @return the newly created item, and retval is set to the decoded value
+ */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding,
+    GByteArray *retval, gint *endoff, gint *err);
 
 /** Add a formatted FT_BYTES to a proto_tree, with the format generating
     the string for the value and with the field name being included

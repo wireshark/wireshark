@@ -371,6 +371,14 @@ wslua_step_tvb_test() {
 	fi
 
 	# Tshark catches lua script failures, so we have to parse the output.
+	# perform this twice: once with a tree, once without
+	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/tvb.lua -V > testout.txt 2>&1
+	grep -q "All tests passed!" testout.txt
+	if [ $? -ne 0 ]; then
+		cat testout.txt
+		test_step_failed "lua_args_test test 1 failed"
+	fi
+
 	$TSHARK -r $CAPTURE_DIR/dns_port.pcap -X lua_script:$TESTS_DIR/lua/tvb.lua > testout.txt 2>&1
 	if grep -q "All tests passed!" testout.txt; then
 		test_step_ok

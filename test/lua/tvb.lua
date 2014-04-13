@@ -45,7 +45,7 @@ end
 --
 -- CHANGE THIS TO MATCH HOW MANY TESTS THERE ARE
 --
-local taptests = { [FRAME]=4, [OTHER]=247 }
+local taptests = { [FRAME]=4, [OTHER]=312 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -132,14 +132,21 @@ end
 
 
 ----------------------------------------
--- a table of all of our Protocol's fields and test input and expected output
+-- a table of all of our Protocol's fields
 local testfield =
 {
     basic =
     {
-        STRING  = ProtoField.string ("test.basic.string",  "Basic string"),
-        BOOLEAN = ProtoField.bool   ("test.basic.boolean", "Basic boolean", 16, {"yes","no"}, 0x0001),
-        UINT16  = ProtoField.uint16 ("test.basic.uint16",  "Basic uint16")
+        STRING         = ProtoField.string ("test.basic.string",  "Basic string"),
+        BOOLEAN        = ProtoField.bool   ("test.basic.boolean", "Basic boolean", 16, {"yes","no"}, 0x0001),
+        UINT16         = ProtoField.uint16 ("test.basic.uint16",  "Basic uint16"),
+        BYTES          = ProtoField.bytes  ("test.basic.bytes",   "Basic Bytes"),
+        UINT_BYTES     = ProtoField.ubytes ("test.basic.ubytes",  "Basic Uint Bytes"),
+        OID            = ProtoField.oid    ("test.basic.oid",     "Basic OID"),
+        REL_OID        = ProtoField.rel_oid("test.basic.rel_oid", "Basic Relative OID"),
+        ABSOLUTE_LOCAL = ProtoField.absolute_time("test.basic.absolute.local","Basic absolute local"),
+        ABSOLUTE_UTC   = ProtoField.absolute_time("test.basic.absolute.utc",  "Basic absolute utc", 1001),
+        -- GUID           = ProtoField.guid   ("test.basic.guid",    "Basic GUID"),
     },
 
     time =
@@ -148,6 +155,14 @@ local testfield =
         ABSOLUTE_UTC   = ProtoField.absolute_time("test.time.absolute.utc",  "Time absolute utc", 1001),
     },
 
+    bytes =
+    {
+        BYTES      = ProtoField.bytes  ("test.bytes.bytes",   "Bytes"),
+        UINT_BYTES = ProtoField.ubytes ("test.bytes.ubytes",  "Uint Bytes"),
+        OID        = ProtoField.oid    ("test.bytes.oid",     "OID"),
+        REL_OID    = ProtoField.rel_oid("test.bytes.rel_oid", "Relative OID"),
+        -- GUID       = ProtoField.guid   ("test.bytes.guid",    "GUID"),
+    },
 }
 
 -- create a flat array table of the above that can be registered
@@ -168,9 +183,16 @@ local getfield =
 {
     basic =
     {
-        STRING  = Field.new ("test.basic.string"),
-        BOOLEAN = Field.new ("test.basic.boolean"),
-        UINT16  = Field.new ("test.basic.uint16")
+        STRING         = Field.new ("test.basic.string"),
+        BOOLEAN        = Field.new ("test.basic.boolean"),
+        UINT16         = Field.new ("test.basic.uint16"),
+        BYTES          = Field.new ("test.basic.bytes"),
+        UINT_BYTES     = Field.new ("test.basic.ubytes"),
+        OID            = Field.new ("test.basic.oid"),
+        REL_OID        = Field.new ("test.basic.rel_oid"),
+        ABSOLUTE_LOCAL = Field.new ("test.basic.absolute.local"),
+        ABSOLUTE_UTC   = Field.new ("test.basic.absolute.utc"),
+        -- GUID           = Field.new ("test.basic.guid"),
     },
 
     time =
@@ -179,7 +201,17 @@ local getfield =
         ABSOLUTE_UTC   = Field.new ("test.time.absolute.utc"),
     },
 
+    bytes =
+    {
+        BYTES      = Field.new ("test.bytes.bytes"),
+        UINT_BYTES = Field.new ("test.bytes.ubytes"),
+        OID        = Field.new ("test.bytes.oid"),
+        REL_OID    = Field.new ("test.bytes.rel_oid"),
+        -- GUID       = Field.new ("test.bytes.guid"),
+    },
 }
+
+print("test_proto Fields created")
 
 local function addMatchFields(match_fields, ... )
     match_fields[#match_fields + 1] = { ... }
@@ -303,14 +335,14 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     incPktCount(FRAME)
     incPktCount(OTHER)
 
-    testing(OTHER, "Basic")
+    testing(OTHER, "Basic string")
 
     local tree = root:add(test_proto, tvbuf:range(0,tvbuf:len()))
 
     -- create a fake Tvb to use for testing
     local teststring = "this is the string for the first test"
-    local bytearray = ByteArray.new(teststring, true)
-    local tvb = bytearray:tvb("Basic")
+    local bytearray  = ByteArray.new(teststring, true)
+    local tvb_string = bytearray:tvb("Basic string")
 
     local function callTreeAdd(tree,...)
         tree:add(...)
@@ -318,61 +350,242 @@ function test_proto.dissector(tvbuf,pktinfo,root)
 
     local string_match_fields = {}
 
-    execute ("basic-string", tree:add(testfield.basic.STRING, tvb:range(0,tvb:len())) ~= nil )
+    execute ("basic-tvb_get_string", tvb_string:range():string() == teststring )
+
+    execute ("basic-string", tree:add(testfield.basic.STRING, tvb_string:range(0,tvb_string:len())) ~= nil )
     addMatchFields(string_match_fields, teststring)
 
-    execute ("basic-string", pcall (callTreeAdd, tree, testfield.basic.STRING, tvb:range() ) )
+    execute ("basic-string", pcall (callTreeAdd, tree, testfield.basic.STRING, tvb_string:range() ) )
     addMatchFields(string_match_fields, teststring)
 
     verifyFields("basic.STRING", string_match_fields)
 
-    tvb = ByteArray.new("00FF 0001 8000"):tvb("Basic")
+----------------------------------------
+    testing(OTHER, "Basic boolean")
+
+    local barray_bytes_hex  = "00FF00018000"
+    local barray_bytes      = ByteArray.new(barray_bytes_hex)
+    local tvb_bytes         = barray_bytes:tvb("Basic bytes")
     local bool_match_fields = {}
 
-    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb:range(0,2)) )
+    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(0,2)) )
     addMatchFields(bool_match_fields, true)
 
-    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb:range(2,2)) )
+    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(2,2)) )
     addMatchFields(bool_match_fields, true)
 
-    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb:range(4,2)) )
+    execute ("basic-boolean", pcall (callTreeAdd, tree, testfield.basic.BOOLEAN, tvb_bytes:range(4,2)) )
     addMatchFields(bool_match_fields, false)
 
     verifyFields("basic.BOOLEAN", bool_match_fields )
 
+----------------------------------------
+    testing(OTHER, "Basic uint16")
+
     local uint16_match_fields = {}
 
-    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb:range(0,2)) )
+    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(0,2)) )
     addMatchFields(uint16_match_fields, 255)
 
-    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb:range(2,2)) )
+    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(2,2)) )
     addMatchFields(uint16_match_fields, 1)
 
-    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb:range(4,2)) )
+    execute ("basic-uint16", pcall (callTreeAdd, tree, testfield.basic.UINT16, tvb_bytes:range(4,2)) )
     addMatchFields(uint16_match_fields, 32768)
 
     verifyFields("basic.UINT16", uint16_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic uint16-le")
 
     local function callTreeAddLE(tree,...)
         tree:add_le(...)
     end
 
-    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb:range(0,2)) )
+    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(0,2)) )
     addMatchFields(uint16_match_fields, 65280)
 
-    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb:range(2,2)) )
+    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(2,2)) )
     addMatchFields(uint16_match_fields, 256)
 
-    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb:range(4,2)) )
+    execute ("basic-uint16-le", pcall (callTreeAddLE, tree, testfield.basic.UINT16, tvb_bytes:range(4,2)) )
     addMatchFields(uint16_match_fields, 128)
 
     verifyFields("basic.UINT16", uint16_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic bytes")
+
+    local bytes_match_fields = {}
+
+    execute ("basic-tvb_get_string_bytes",
+             string.lower(tostring(tvb_bytes:range():bytes())) == string.lower(barray_bytes_hex))
+
+    execute ("basic-bytes", pcall (callTreeAdd, tree, testfield.basic.BYTES, tvb_bytes:range()) )
+    addMatchFields(bytes_match_fields, barray_bytes)
+
+    -- TODO: it's silly that tree:add_packet_field() requires an encoding argument
+    --  need to fix that separately in a bug fix
+    execute ("add_pfield-bytes", treeAddPField(tree, testfield.basic.BYTES,
+                                               tvb_bytes:range(), ENC_BIG_ENDIAN))
+    addMatchFields(bytes_match_fields, barray_bytes)
+
+    verifyFields("basic.BYTES", bytes_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic uint bytes")
+
+    local len_string        = string.format("%02x", barray_bytes:len())
+    local barray_uint_bytes = ByteArray.new(len_string) .. barray_bytes
+    local tvb_uint_bytes    = barray_uint_bytes:tvb("Basic UINT_BYTES")
+    local uint_bytes_match_fields = {}
+
+    execute ("basic-uint-bytes", pcall (callTreeAdd, tree, testfield.basic.UINT_BYTES,
+                                        tvb_uint_bytes:range(0,1)) )
+    addMatchFields(uint_bytes_match_fields, barray_bytes)
+
+    execute ("add_pfield-uint-bytes", treeAddPField(tree, testfield.basic.UINT_BYTES,
+                                                    tvb_uint_bytes:range(0,1), ENC_BIG_ENDIAN) )
+    addMatchFields(uint_bytes_match_fields, barray_bytes)
+
+    verifyFields("basic.UINT_BYTES", uint_bytes_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic OID")
+
+    -- note: the tvb being dissected and compared isn't actually a valid OID.
+    -- tree:add() and tree:add_packet-field() don't care about its validity right now.
+
+    local oid_match_fields = {}
+
+    execute ("basic-oid", pcall(callTreeAdd, tree, testfield.basic.OID, tvb_bytes:range()) )
+    addMatchFields(oid_match_fields, barray_bytes)
+
+    execute ("add_pfield-oid", treeAddPField(tree, testfield.basic.OID,
+                                             tvb_bytes:range(), ENC_BIG_ENDIAN) )
+    addMatchFields(oid_match_fields, barray_bytes)
+
+    verifyFields("basic.OID", oid_match_fields)
+
+----------------------------------------
+    testing(OTHER, "Basic REL_OID")
+
+    -- note: the tvb being dissected and compared isn't actually a valid OID.
+    -- tree:add() and tree:add_packet-field() don't care about its validity right now.
+
+    local rel_oid_match_fields = {}
+
+    execute ("basic-rel-oid", pcall(callTreeAdd, tree, testfield.basic.REL_OID, tvb_bytes:range()))
+    addMatchFields(rel_oid_match_fields, barray_bytes)
+
+    execute ("add_pfield-rel_oid", treeAddPField(tree, testfield.basic.REL_OID,
+                                                 tvb_bytes:range(), ENC_BIG_ENDIAN) )
+    addMatchFields(rel_oid_match_fields, barray_bytes)
+
+    verifyFields("basic.REL_OID", rel_oid_match_fields)
+
+    -- TODO: a FT_GUID is not really a ByteArray, so we can't simply treat it as one
+    -- local barray_guid       = ByteArray.new("00FF0001 80001234 567890AB CDEF00FF")
+    -- local tvb_guid          = barray_guid:tvb("Basic GUID")
+    -- local guid_match_fields = {}
+
+    -- execute ("basic-guid", pcall(callTreeAdd, tree, testfield.basic.GUID, tvb_guid:range()) )
+    -- addMatchFields(guid_match_fields, barray_guid)
+
+    -- execute ("add_pfield-guid", treeAddPField(tree, testfield.basic.GUID,
+    --                                          tvb_guid:range(), ENC_BIG_ENDIAN) )
+    -- addMatchFields(guid_match_fields, barray_guid)
+
+    -- verifyFields("basic.GUID", guid_match_fields)
+
+
+----------------------------------------
+    testing(OTHER, "tree:add_packet_field Bytes")
+
+    resetResults()
+    bytes_match_fields = {}
+    local bytes_match_values = {}
+
+    -- something to make this easier to read
+    local function addMatch(...)
+        addMatchFieldValues(bytes_match_fields, bytes_match_values, ...)
+    end
+
+    local bytesstring1 =   "deadbeef0123456789DEADBEEFabcdef"
+    local bytesstring = ByteArray.new(bytesstring1) -- the binary version of above, for comparing
+    local bytestvb1 = ByteArray.new(bytesstring1, true):tvb("Bytes hex-string 1")
+    local bytesstring2 = "  de:ad:be:ef:01:23:45:67:89:DE:AD:BE:EF:ab:cd:ef"
+    local bytestvb2 = ByteArray.new(bytesstring2 .. "-f0-00 foobar", true):tvb("Bytes hex-string 2")
+
+    local bytestvb1_decode = bytestvb1:range():bytes(ENC_STR_HEX + ENC_SEP_NONE + ENC_SEP_COLON + ENC_SEP_DASH)
+    execute ("tvb_get_string_bytes", string.lower(tostring(bytestvb1_decode)) == string.lower(tostring(bytesstring1)))
+
+    execute ("add_pfield-bytes1", treeAddPField(tree, testfield.bytes.BYTES,
+                                               bytestvb1:range(),
+                                               ENC_STR_HEX + ENC_SEP_NONE +
+                                               ENC_SEP_COLON + ENC_SEP_DASH))
+    addMatch(bytesstring, string.len(bytesstring1))
+
+    execute ("add_pfield-bytes2", treeAddPField(tree, testfield.bytes.BYTES,
+                                               bytestvb2:range(),
+                                               ENC_STR_HEX + ENC_SEP_NONE +
+                                               ENC_SEP_COLON + ENC_SEP_DASH))
+    addMatch(bytesstring, string.len(bytesstring2))
+
+    verifyResults("add_pfield-bytes", bytes_match_values)
+    verifyFields("bytes.BYTES", bytes_match_fields)
+
+
+----------------------------------------
+    testing(OTHER, "tree:add_packet_field OID")
+
+    resetResults()
+    bytes_match_fields = {}
+    bytes_match_values = {}
+
+    execute ("add_pfield-oid1", treeAddPField(tree, testfield.bytes.OID,
+                                               bytestvb1:range(),
+                                               ENC_STR_HEX + ENC_SEP_NONE +
+                                               ENC_SEP_COLON + ENC_SEP_DASH))
+    addMatch(bytesstring, string.len(bytesstring1))
+
+    execute ("add_pfield-oid2", treeAddPField(tree, testfield.bytes.OID,
+                                               bytestvb2:range(),
+                                               ENC_STR_HEX + ENC_SEP_NONE +
+                                               ENC_SEP_COLON + ENC_SEP_DASH))
+    addMatch(bytesstring, string.len(bytesstring2))
+
+    verifyResults("add_pfield-oid", bytes_match_values)
+    verifyFields("bytes.OID", bytes_match_fields)
+
+
+----------------------------------------
+    testing(OTHER, "tree:add_packet_field REL_OID")
+
+    resetResults()
+    bytes_match_fields = {}
+    bytes_match_values = {}
+
+    execute ("add_pfield-rel_oid1", treeAddPField(tree, testfield.bytes.REL_OID,
+                                               bytestvb1:range(),
+                                               ENC_STR_HEX + ENC_SEP_NONE +
+                                               ENC_SEP_COLON + ENC_SEP_DASH))
+    addMatch(bytesstring, string.len(bytesstring1))
+
+    execute ("add_pfield-rel_oid2", treeAddPField(tree, testfield.bytes.REL_OID,
+                                               bytestvb2:range(),
+                                               ENC_STR_HEX + ENC_SEP_NONE +
+                                               ENC_SEP_COLON + ENC_SEP_DASH))
+    addMatch(bytesstring, string.len(bytesstring2))
+
+    verifyResults("add_pfield-rel_oid", bytes_match_values)
+    verifyFields("bytes.REL_OID", bytes_match_fields)
 
 
 ----------------------------------------
     testing(OTHER, "tree:add Time")
 
-    tvb = ByteArray.new("00000000 00000000 0000FF0F 00FF000F"):tvb("Time")
+    local tvb = ByteArray.new("00000000 00000000 0000FF0F 00FF000F"):tvb("Time")
     local ALOCAL = testfield.time.ABSOLUTE_LOCAL
     local alocal_match_fields = {}
 
@@ -414,7 +627,7 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     local autc_match_values = {}
 
     -- something to make this easier to read
-    local function addMatch(...)
+    addMatch = function(...)
         addMatchFieldValues(autc_match_fields, autc_match_values, ...)
     end
 

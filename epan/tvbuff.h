@@ -367,6 +367,18 @@ WS_DLL_PUBLIC
 struct nstime_t* tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
                               const guint encoding, struct nstime_t* ns, gint *endoff);
 
+/* Similar to above, but returns a GByteArray based on the case-insensitive
+ * hex-char strings with optional separators, and with optional leading spaces.
+ * The separators allowed are based on the ENC_SEP_* passed in the encoding param.
+ *
+ * The passed-in bytes is set to the values, and its pointer is also the return
+ * value or NULL on error. The GByteArray bytes must be pre-constructed with
+ * g_byte_array_new().
+ */
+WS_DLL_PUBLIC
+GByteArray* tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
+                                 const guint encoding, GByteArray* bytes, gint *endoff);
+
 /**
  * Fetch an IPv4 address, in network byte order.
  * We do *not* convert it to host byte order; we leave it in

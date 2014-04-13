@@ -1307,6 +1307,36 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    REPORT_DISSECTOR_BUG("No string encoding type passed to tvb_get_string_XXX");
 }
 
+GByteArray*
+tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
+		     const guint encoding, GByteArray *bytes, gint *endoff)
+{
+	const gchar *ptr = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
+	const gchar *begin = ptr;
+	const gchar *end = NULL;
+	GByteArray* retval = NULL;
+
+	errno = EDOM;
+
+	validate_single_byte_ascii_encoding(encoding);
+
+	if (endoff) *endoff = 0;
+
+	while (*begin == ' ') begin++;
+
+	if (*begin && bytes) {
+		if (hex_str_to_bytes_encoding(begin, bytes, &end, encoding, FALSE)) {
+			if (bytes->len > 0) {
+				if (endoff) *endoff = offset + (gint)(end - ptr);
+				errno = 0;
+				retval = bytes;
+			}
+		}
+	}
+
+	return retval;
+}
+
 /* converts a broken down date representation, relative to UTC,
  * to a timestamp; it uses timegm() if it's available.
  * Copied from Glib source gtimer.c

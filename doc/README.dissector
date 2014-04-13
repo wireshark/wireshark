@@ -320,6 +320,16 @@ gchar *tvb_bytes_to_str_punct(tvbuff_t *tvb, gint offset, gint len, gchar punct)
 This function is similar to tvb_bytes_to_str(...) except that 'punct' is inserted
 between the hex representation of each byte.
 
+GByteArray *tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
+                                 const guint encoding, GByteArray* bytes, gint *endoff)
+
+Given a tvbuff, an offset into the tvbuff, and a length that starts
+at that offset (which may be -1 for "all the way to the end of the
+tvbuff"), fetch the hex-decoded byte values of the tvbuff into the
+passed-in 'bytes' array, based on the passed-in encoding. In other
+words, convert from a hex-ascii string in tvbuff, into the supplied
+GByteArray.
+
 gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len, dgt_set_t *dgt, gboolean skip_first);
 
 Given a tvbuff, an offset into the tvbuff, and a length that starts
@@ -1098,6 +1108,10 @@ protocol or field labels to the proto_tree:
     proto_tree_add_bytes(tree, id, tvb, start, length, start_ptr);
 
     proto_item *
+    proto_tree_add_bytes_item(tree, id, tvb, start, length, encoding,
+        retval, endoff, err);
+
+    proto_item *
     proto_tree_add_bytes_format(tree, id, tvb, start, length, start_ptr,
         format, ...);
 
@@ -1107,6 +1121,10 @@ protocol or field labels to the proto_tree:
 
     proto_item *
     proto_tree_add_time(tree, id, tvb, start, length, value_ptr);
+
+    proto_item *
+    proto_tree_add_time_item(tree, id, tvb, start, length, encoding,
+        retval, endoff, err);
 
     proto_item *
     proto_tree_add_time_format(tree, id, tvb, start, length, value_ptr,
@@ -1475,6 +1493,34 @@ naturally expect them to. You'd type "sna.th.fid == 0xf" to find Adjacent
 Subarea Nodes. The user does not have to shift the value of the FID to
 the high nibble of the byte ("sna.th.fid == 0xf0") as was necessary
 in the past.
+
+proto_tree_add_XXX_item()
+---------------------
+proto_tree_add_XXX_item is used when you wish to do no special formatting,
+but also either wish for the retrieved value from the tvbuff to be handed
+back (to avoid doing tvb_get_...), and/or wish to have the value be decoded
+from the tvbuff in a string-encoded format.
+
+The item added to the GUI tree will contain the name (as passed in the
+proto_register_*() function) and a value.  The value will be fetched
+from the tvbuff, based on the type of the XXX name and the encoding of
+the value as specified by the "encoding" argument.
+
+This function retrieves the value even if the passed-in tree param is NULL,
+so that it can be used by dissectors at all times to both get the value
+and set the tree item to it.
+
+Like other proto_tree_add functions, if there is a tree and the value cannot
+be decoded from the tvbuff, then an expert info error is reported. For string
+encoding, this means that a failure to decode the hex value from the string
+results in an expert info error being added to the tree.
+
+For string-decoding, the passed-in encoding argument needs to specify the
+string encoding (e.g., ENC_ASCII, ENC_UTF_8) as well as the format.  For
+some XXX types, the format is constrained - for example for the encoding format
+for proto_tree_add_time_item() can only be one of the ENC_ISO_8601_* ones
+or ENC_RFC_822 or ENC_RFC_1123. For proto_tree_add_bytes_item() it can only
+be ENC_STR_HEX bit-or'ed with one or more of the ENC_SEP_* separator types.
 
 proto_tree_add_protocol_format()
 --------------------------------
