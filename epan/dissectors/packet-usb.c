@@ -2829,17 +2829,17 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
     tap_data->urb_type      = urb_type;
-    tap_data->transfer_type = (guint8)type;
+    tap_data->transfer_type = (guint8)(usb_conv_info->transfer_type);
     tap_data->conv_info     = usb_conv_info;
     tap_data->trans_info    = usb_trans_info;
 
-    if (type != URB_CONTROL) {
+    if (usb_conv_info->transfer_type != URB_CONTROL) {
         tap_queue_packet(usb_tap, pinfo, tap_data);
     }
 
 
 
-    switch(type) {
+    switch(usb_conv_info->transfer_type) {
         case URB_BULK:
         case URB_INTERRUPT:
             item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
