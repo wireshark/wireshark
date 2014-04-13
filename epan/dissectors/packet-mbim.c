@@ -542,7 +542,7 @@ static gint ett_mbim_fragment = -1;
 static gint ett_mbim_fragments = -1;
 
 static dissector_table_t dss_dissector_table;
-static dissector_handle_t proactive_handle;
+static dissector_handle_t bertlv_handle;
 static dissector_handle_t etsi_cat_handle;
 static dissector_handle_t gsm_sms_handle;
 static dissector_handle_t cdma_sms_handle;
@@ -1337,8 +1337,8 @@ static const value_string mbim_stk_pac_profile_vals[] = {
     { 3, "Handled By Function Notification To Host Possible"},
     { 4, "Handled By Function Notification To Host Enabled"},
     { 5, "Handled By Function Can Be Overridden By Host"},
-    { 6, "Handled ByHostFunction Not Able To Handle"},
-    { 7, "Handled ByHostFunction Able To Handle"},
+    { 6, "Handled By Host Function Not Able To Handle"},
+    { 7, "Handled By Host Function Able To Handle"},
     { 0, NULL}
 };
 #endif
@@ -3997,10 +3997,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
                                     ti = proto_tree_add_item(subtree, hf_mbim_set_stk_envelope_data_buffer,
                                                              frag_tvb, offset, info_buff_len, ENC_NA);
-                                    if (etsi_cat_handle) {
+                                    if (bertlv_handle) {
                                         env_tree = proto_item_add_subtree(ti, ett_mbim_buffer);
                                         env_tvb = tvb_new_subset(frag_tvb, offset, info_buff_len, info_buff_len);
-                                        call_dissector(etsi_cat_handle, env_tvb, pinfo, env_tree);
+                                        call_dissector(bertlv_handle, env_tvb, pinfo, env_tree);
                                     }
                                 } else if (info_buff_len) {
                                         proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
@@ -4469,10 +4469,10 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                     offset += 4;
                                     pac_length = info_buff_len - 4;
                                     ti = proto_tree_add_item(subtree, hf_mbim_stk_pac_pac, frag_tvb, offset, pac_length, ENC_NA);
-                                    if (proactive_handle) {
+                                    if (bertlv_handle) {
                                         pac_tree = proto_item_add_subtree(ti, ett_mbim_buffer);
                                         pac_tvb = tvb_new_subset(frag_tvb, offset, pac_length, pac_length);
-                                        call_dissector(proactive_handle, pac_tvb, pinfo, pac_tree);
+                                        call_dissector(bertlv_handle, pac_tvb, pinfo, pac_tree);
                                     }
                                 }
                                 break;
@@ -7345,7 +7345,7 @@ proto_reg_handoff_mbim(void)
     dissector_handle_t mbim_control_handle;
 
     if (!initialized) {
-        proactive_handle = find_dissector("gsm_sim.bertlv");
+        bertlv_handle = find_dissector("gsm_sim.bertlv");
         etsi_cat_handle = find_dissector("etsi_cat");
         gsm_sms_handle = find_dissector("gsm_sms");
         cdma_sms_handle = find_dissector("ansi_637_trans");
