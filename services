@@ -1366,8 +1366,8 @@ dhcp-failover2    847/tcp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 dhcp-failover2    847/udp # dhcp-failover 2 [Bernard_Volz] [Bernard_Volz]
 gdoi              848/tcp # GDOI [RFC3547]
 gdoi              848/udp # GDOI [RFC3547]
-iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
-iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
+iscsi             860/tcp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
+iscsi             860/udp # iSCSI [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 owamp-control     861/tcp # OWAMP-Control [RFC4656]
 owamp-control     861/udp # OWAMP-Control [RFC4656]
 twamp-control     862/tcp # Two-way Active Measurement Protocol (TWAMP) Control [RFC5357]
@@ -4143,10 +4143,9 @@ service-ctrl     2367/tcp # Service Control [Humberto_Sanchez] [Humberto_Sanchez
 service-ctrl     2367/udp # Service Control [Humberto_Sanchez] [Humberto_Sanchez]
 opentable        2368/tcp # OpenTable [Brett_Goldstein] [Brett_Goldstein]
 opentable        2368/udp # OpenTable [Brett_Goldstein] [Brett_Goldstein]
-l3-hbmon         2370/tcp # L3-HBMon [Dolores_Scott] [Dolores_Scott] Port 2370 Unofficially used by Compaq
-l3-hbmon         2370/udp # L3-HBMon [Dolores_Scott] [Dolores_Scott] Port 2370 Unofficially used by Compaq
-worldwire        2371/tcp # Compaq WorldWire Port [Michael_Spratte] [Michael_Spratte]
-worldwire        2371/udp # Compaq WorldWire Port [Michael_Spratte] [Michael_Spratte]
+l3-hbmon         2370/tcp # L3-HBMon [Dolores_Scott] [Dolores_Scott] 2014-04-09
+l3-hbmon         2370/udp # L3-HBMon [Dolores_Scott] [Dolores_Scott] 2014-04-09
+hp-rda           2371/tcp # HP Remote Device Access [Hewlett_Packard_3] [Michael_Spratte][Steve_Roscio] 2014-04-09
 lanmessenger     2372/tcp # LanMessenger [Garrett_Padera] [Garrett_Padera] 2008-02-01
 lanmessenger     2372/udp # LanMessenger [Garrett_Padera] [Garrett_Padera] 2008-02-01
 remographlm      2373/tcp # Remograph License Manager [Per_Fahlberg] [Per_Fahlberg] 2009-01-21
@@ -5098,8 +5097,7 @@ ispipes          2853/tcp # ISPipes [Rajesh_Nandyalam] [Rajesh_Nandyalam]
 ispipes          2853/udp # ISPipes [Rajesh_Nandyalam] [Rajesh_Nandyalam]
 infomover        2854/tcp # InfoMover [Carla_Caputo] [Carla_Caputo]
 infomover        2854/udp # InfoMover [Carla_Caputo] [Carla_Caputo]
-msrp             2855/tcp # MSRP over TCP [RFC4975]
-msrp             2855/udp # MSRP [RFC4975]
+msrp             2855/tcp # MSRP over TCP 2014-04-09 [RFC4976]
 cesdinv          2856/tcp # cesdinv [Yoshiaki_Tokumoto] [Yoshiaki_Tokumoto]
 cesdinv          2856/udp # cesdinv [Yoshiaki_Tokumoto] [Yoshiaki_Tokumoto]
 simctlp          2857/tcp # SimCtIP [Christian_Zietz] [Christian_Zietz]
@@ -5534,8 +5532,8 @@ videobeans       3058/tcp # videobeans [Hiroyuki_Takahashi] [Hiroyuki_Takahashi]
 videobeans       3058/udp # videobeans [Hiroyuki_Takahashi] [Hiroyuki_Takahashi]
 qsoft            3059/tcp # qsoft [James_Kunz] [James_Kunz]
 qsoft            3059/udp # qsoft [James_Kunz] [James_Kunz]
-interserver      3060/tcp # interserver [Madhukar_N_Thakur] [Madhukar_N_Thakur]
-interserver      3060/udp # interserver [Madhukar_N_Thakur] [Madhukar_N_Thakur]
+interserver      3060/tcp # interserver [Madhukar_N_Thakur] [Madhukar_N_Thakur] Known Unauthorized Use on port 3060
+interserver      3060/udp # interserver [Madhukar_N_Thakur] [Madhukar_N_Thakur] Known Unauthorized Use on port 3060
 cautcpd          3061/tcp # cautcpd
 cautcpd          3061/udp # cautcpd
 ncacn-ip-tcp     3062/tcp # ncacn-ip-tcp
@@ -5672,8 +5670,8 @@ netport-id       3129/tcp # NetPort Discovery Port [P_T_K_Farrar] [P_T_K_Farrar]
 netport-id       3129/udp # NetPort Discovery Port [P_T_K_Farrar] [P_T_K_Farrar]
 icpv2            3130/tcp # ICPv2 [Duane_Wessels] [Duane_Wessels]
 icpv2            3130/udp # ICPv2 [Duane_Wessels] [Duane_Wessels]
-netbookmark      3131/tcp # Net Book Mark [Yiftach_Ravid] [Yiftach_Ravid]
-netbookmark      3131/udp # Net Book Mark [Yiftach_Ravid] [Yiftach_Ravid]
+netbookmark      3131/tcp # Net Book Mark [Yiftach_Ravid] [Yiftach_Ravid] Known Unauthorized Use on port 3131
+netbookmark      3131/udp # Net Book Mark [Yiftach_Ravid] [Yiftach_Ravid] Known Unauthorized Use on port 3131
 ms-rule-engine   3132/tcp # Microsoft Business Rule Engine Update Service [Anush_Kumar] [Anush_Kumar]
 ms-rule-engine   3132/udp # Microsoft Business Rule Engine Update Service [Anush_Kumar] [Anush_Kumar]
 prism-deploy     3133/tcp # Prism Deploy User Port [Joan_Linck] [Joan_Linck]
@@ -5930,8 +5928,8 @@ ivecon-port      3258/tcp # Ivecon Server Port [Serguei_Tevs] [Serguei_Tevs] 200
 ivecon-port      3258/udp # Ivecon Server Port [Serguei_Tevs] [Serguei_Tevs] 2002-02
 epncdp2          3259/tcp # Epson Network Common Devi [Oishi_Toshiaki] [Oishi_Toshiaki] 2002-02
 epncdp2          3259/udp # Epson Network Common Devi [Oishi_Toshiaki] [Oishi_Toshiaki] 2002-02
-iscsi-target     3260/tcp # iSCSI port [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
-iscsi-target     3260/udp # iSCSI port [IESG] [IETF_Chair] 2013-08-27 [RFC-ietf-storm-iscsi-cons-10]
+iscsi-target     3260/tcp # iSCSI port [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
+iscsi-target     3260/udp # iSCSI port [IESG] [IETF_Chair] 2013-08-27 [RFC7143]
 winshadow        3261/tcp # winShadow [Colin_Barry] [Colin_Barry]
 winshadow        3261/udp # winShadow [Colin_Barry] [Colin_Barry]
 necp             3262/tcp # NECP [Alberto_Cerpa] [Alberto_Cerpa]
@@ -7818,6 +7816,9 @@ jaxer-manager    4328/udp # Jaxer Manager Command Protocol [Uri_Sarid] [Uri_Sari
 publiqare-sync   4329/tcp # PubliQare Distributed Environment Synchronisation Engine [Tom_Maaswinkel] [Tom_Maaswinkel] 2011-02-07
 dey-sapi         4330/tcp # DEY Storage Administration REST API [DEY_Storage_Systems_Inc] [Garrett_D_Amore] 2013-03-01
 ktickets-rest    4331/tcp # ktickets REST API for event management and ticketing systems (embedded POS devices) [KeyTicket_Solutions] [MANG_Ioan-Alexandru] 2014-04-04
+ahsp             4333/tcp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
+ahsp             4333/udp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
+ahsp             4333/sctp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
 gaia             4340/tcp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 gaia             4340/udp # Gaia Connector Protocol [Philippe_Detournay] [Philippe_Detournay] 2007-11-12
 lisp-data        4341/tcp # LISP Data Packets [Dino_Farinacci] [Dino_Farinacci] 2007-11-12
@@ -7933,8 +7934,8 @@ vop              4433/tcp # Versile Object Protocol [Versile_AS] [Tore_Skaug] 20
 netblox          4441/udp # Netblox Protocol [Brian_S_Locke] [Brian_S_Locke] 2008-07-10
 saris            4442/tcp # Saris
 saris            4442/udp # Saris
-pharos           4443/tcp # Pharos [TeleConsult] [TeleConsult]
-pharos           4443/udp # Pharos [TeleConsult] [TeleConsult]
+pharos           4443/tcp # Pharos [TeleConsult] [TeleConsult] Known Unauthorized Use on port 4443
+pharos           4443/udp # Pharos [TeleConsult] [TeleConsult] Known Unauthorized Use on port 4443
 krb524           4444/tcp # KRB524 [B_Clifford_Neuman] [B_Clifford_Neuman] krb524 assigned the port, nv used it without an assignment
 krb524           4444/udp # KRB524 [B_Clifford_Neuman] [B_Clifford_Neuman] krb524 assigned the port, nv used it without an assignment
 nv-video         4444/tcp # NV Video default [Ron_Frederick] [Ron_Frederick] krb524 assigned the port, nv used it without an assignment
@@ -8381,10 +8382,12 @@ intecom-ps2      5057/udp # Intecom Pointspan 2 [David_Meermans] [David_Meermans
 locus-disc       5058/udp # Locus Discovery [Alan_King] [Alan_King] 2009-08-13
 sds              5059/tcp # SIP Directory Services [Arthur_Wilton] [Arthur_Wilton] 2006-03
 sds              5059/udp # SIP Directory Services [Arthur_Wilton] [Arthur_Wilton] 2006-03
-sip              5060/tcp # SIP [Henning_Schulzrinne] [Henning_Schulzrinne]
-sip              5060/udp # SIP [Henning_Schulzrinne] [Henning_Schulzrinne]
-sip-tls          5061/tcp # SIP-TLS [Henning_Schulzrinne] [Henning_Schulzrinne]
-sip-tls          5061/udp # SIP-TLS [Henning_Schulzrinne] [Henning_Schulzrinne]
+sip              5060/tcp # SIP 2014-04-09 [RFC3263]
+sip              5060/udp # SIP 2014-04-09 [RFC3263]
+sip              5060/sctp # SIP [RFC4168]
+sips             5061/tcp # SIP-TLS 2014-04-09 [RFC3263]
+sips             5061/udp # SIP-TLS 2014-04-09 [RFC3263]
+sips             5061/sctp # SIP-TLS [RFC4168]
 na-localise      5062/tcp # Localisation access [Jean_Pierre_Garcia_2] [Jean_Pierre_Garcia_2] 2009-10-28
 na-localise      5062/udp # Localisation access [Jean_Pierre_Garcia_2] [Jean_Pierre_Garcia_2] 2009-10-28
 csrpc            5063/tcp # centrify secure RPC [Paul_Moore] [Paul_Moore] 2009-10-28
@@ -8480,7 +8483,7 @@ asctrl-agent     5155/udp # Oracle asControl Agent [Todd_Guay] [Todd_Guay] 2005-
 rugameonline     5156/tcp # Russian Online Game [Andrey_Mohov] [Andrey_Mohov] 2010-08-17
 mediat           5157/tcp # Mediat Remote Object Exchange [Oliver_Anan] [Oliver_Anan] 2010-09-02
 snmpssh          5161/tcp # SNMP over SSH Transport Model [RFC5592]
-snmpssh-trap     5162/tcp # SNMP Notification over SSH Transport Model [RFC5592]
+snmpssh-trap     5162/tcp # SNMP Notification over SSH Transport Model [RFC5592] Known Unauthorized Use on port 5162
 sbackup          5163/tcp # Shadow Backup [Glenn_Allen] [Glenn_Allen] 2009-08-05
 vpa              5164/tcp # Virtual Protocol Adapter [Douglas_Goodall] [Douglas_Goodall] 2009-08-05
 vpa-disc         5164/udp # Virtual Protocol Adapter Discovery [Douglas_Goodall] [Douglas_Goodall] 2009-08-05
@@ -8765,8 +8768,8 @@ sgi-esphttp      5554/tcp # SGI ESP HTTP [Vladimir_Legalov] [Vladimir_Legalov]
 sgi-esphttp      5554/udp # SGI ESP HTTP [Vladimir_Legalov] [Vladimir_Legalov]
 personal-agent   5555/tcp # Personal Agent [Jackie_Wu] [Jackie_Wu] Known UNAUTHORIZED USEs on port 5555
 personal-agent   5555/udp # Personal Agent [Jackie_Wu] [Jackie_Wu] Known UNAUTHORIZED USEs on port 5555
-freeciv          5556/tcp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01
-freeciv          5556/udp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01
+freeciv          5556/tcp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01 Known Unauthorized Use on port 5556
+freeciv          5556/udp # Freeciv gameplay [Reinier_Post_and_Pau] [Reinier_Post_and_Pau] 2006-01 Known Unauthorized Use on port 5556
 farenet          5557/tcp # Sandlab FARENET [Kay_T_Labinsky] [Kay_T_Labinsky] 2010-05-03
 westec-connect   5566/tcp # Westec Connect [Jon_Bolen] [Jon_Bolen] 2009-03-18
 enc-eps-mc-sec   5567/tcp # EMIT protocol stack multicast/secure transport [Panasonic_Intranet_Panasonic_North_America_PEWLA] [Bryant_Eastham] 2004-11 2012-11-12
@@ -9004,8 +9007,8 @@ consul-insight   5992/tcp # Consul InSight Security [Arthur_Hillenaar] [Arthur_H
 consul-insight   5992/udp # Consul InSight Security [Arthur_Hillenaar] [Arthur_Hillenaar] 2006-01
 cvsup            5999/tcp # CVSup [Randall_Atkinson_2] [Randall_Atkinson_2]
 cvsup            5999/udp # CVSup [Randall_Atkinson_2] [Randall_Atkinson_2]
-x11             6000-6063/tcp # X Window System [Stephen_Gildea] [Stephen_Gildea]
-x11             6000-6063/udp # X Window System [Stephen_Gildea] [Stephen_Gildea]
+x11             6000-6063/tcp # X Window System [Stephen_Gildea] [Stephen_Gildea] Known Unauthorized Use on port 6003
+x11             6000-6063/udp # X Window System [Stephen_Gildea] [Stephen_Gildea] Known Unauthorized Use on port 6003
 ndl-ahp-svc      6064/tcp # NDL-AHP-SVC [John_Richmond_2] [John_Richmond_2]
 ndl-ahp-svc      6064/udp # NDL-AHP-SVC [John_Richmond_2] [John_Richmond_2]
 winpharaoh       6065/tcp # WinPharaoh [Basil_Lee] [Basil_Lee]
@@ -9041,8 +9044,8 @@ ldss             6087/udp # Local Download Sharing Service [Clifford_Heath] [Cli
 doglms           6088/tcp # SuperDog License Manager [SafeNet] [Rob_Tao] 2012-07-26
 doglms-notify    6088/udp # SuperDog License Manager Notifier [SafeNet] [Rob_Tao] 2012-07-26
 raxa-mgmt        6099/tcp # RAXA Management [Sukanta_Ganguly] [Sukanta_Ganguly]
-synchronet-db    6100/tcp # SynchroNet-db [Arne_Haugland] [Arne_Haugland]
-synchronet-db    6100/udp # SynchroNet-db [Arne_Haugland] [Arne_Haugland]
+synchronet-db    6100/tcp # SynchroNet-db [Arne_Haugland] [Arne_Haugland] Known Unauthorized Use on port 6100
+synchronet-db    6100/udp # SynchroNet-db [Arne_Haugland] [Arne_Haugland] Known Unauthorized Use on port 6100
 synchronet-rtc   6101/tcp # SynchroNet-rtc [Arne_Haugland] [Arne_Haugland]
 synchronet-rtc   6101/udp # SynchroNet-rtc [Arne_Haugland] [Arne_Haugland]
 synchronet-upd   6102/tcp # SynchroNet-upd [Arne_Haugland] [Arne_Haugland]
@@ -9112,8 +9115,8 @@ patrol-coll      6162/tcp # PATROL Collector [Portnoy_Boxman] [Portnoy_Boxman] 2
 patrol-coll      6162/udp # PATROL Collector [Portnoy_Boxman] [Portnoy_Boxman] 2005-01
 pscribe          6163/tcp # Precision Scribe Cnx Port [Robert_W_Hodges] [Robert_W_Hodges] 2005-01
 pscribe          6163/udp # Precision Scribe Cnx Port [Robert_W_Hodges] [Robert_W_Hodges] 2005-01
-lm-x             6200/tcp # LM-X License Manager by X-Formation [Henrik_Goldman] [Henrik_Goldman] 2006-10
-lm-x             6200/udp # LM-X License Manager by X-Formation [Henrik_Goldman] [Henrik_Goldman] 2006-10
+lm-x             6200/tcp # LM-X License Manager by X-Formation [Henrik_Goldman] [Henrik_Goldman] 2006-10 Known Unauthorized Use on port 6200
+lm-x             6200/udp # LM-X License Manager by X-Formation [Henrik_Goldman] [Henrik_Goldman] 2006-10 Known Unauthorized Use on port 6200
 thermo-calc      6201/udp # Management of service nodes in a processing grid for thermodynamic calculations [Thermo-Calc_Software] [Thomas_Revesz] 2012-06-28
 radmind          6222/tcp # Radmind Access Protocol [Patrick_M_McNeal] [Patrick_M_McNeal] 2006-03
 radmind          6222/udp # Radmind Access Protocol [Patrick_M_McNeal] [Patrick_M_McNeal] 2006-03
@@ -9231,8 +9234,8 @@ sun-sr-admin     6489/tcp # Service Registry Default Admin Domain [Paul_Sterk] [
 sun-sr-admin     6489/udp # Service Registry Default Admin Domain [Paul_Sterk] [Paul_Sterk] 2006-03
 boks             6500/tcp # BoKS Master [Magnus_Nystrom] [Magnus_Nystrom]
 boks             6500/udp # BoKS Master [Magnus_Nystrom] [Magnus_Nystrom]
-boks-servc       6501/tcp # BoKS ServcIANA assigned this well-formed service name as a replacement for "boks_servc". [Magnus_Nystrom] [Magnus_Nystrom]
-boks_servc       6501/tcp # BoKS Servc [Magnus_Nystrom] [Magnus_Nystrom] This entry is an alias to "boks-servc".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
+boks-servc       6501/tcp # BoKS ServcIANA assigned this well-formed service name as a replacement for "boks_servc". [Magnus_Nystrom] [Magnus_Nystrom] Known Unauthorized Use on port 6501
+boks_servc       6501/tcp # BoKS Servc [Magnus_Nystrom] [Magnus_Nystrom] Known Unauthorized Use on port 6501 This entry is an alias to "boks-servc".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 boks-servc       6501/udp # BoKS ServcIANA assigned this well-formed service name as a replacement for "boks_servc". [Magnus_Nystrom] [Magnus_Nystrom]
 boks_servc       6501/udp # BoKS Servc [Magnus_Nystrom] [Magnus_Nystrom] This entry is an alias to "boks-servc".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 boks-servm       6502/tcp # BoKS ServmIANA assigned this well-formed service name as a replacement for "boks_servm". [Magnus_Nystrom] [Magnus_Nystrom]
@@ -9440,16 +9443,16 @@ iatp-normalpri   6999/tcp # IATP-normalPri [John_Murphy] [John_Murphy]
 iatp-normalpri   6999/udp # IATP-normalPri [John_Murphy] [John_Murphy]
 afs3-fileserver  7000/tcp # file server itself
 afs3-fileserver  7000/udp # file server itself
-afs3-callback    7001/tcp # callbacks to cache managers
-afs3-callback    7001/udp # callbacks to cache managers
-afs3-prserver    7002/tcp # users & groups database
-afs3-prserver    7002/udp # users & groups database
+afs3-callback    7001/tcp # callbacks to cache managers Known Unauthorized Use on port 7001
+afs3-callback    7001/udp # callbacks to cache managers Known Unauthorized Use on port 7001
+afs3-prserver    7002/tcp # users & groups database Known Unauthorized Use on port 7002
+afs3-prserver    7002/udp # users & groups database Known Unauthorized Use on port 7002
 afs3-vlserver    7003/tcp # volume location database
 afs3-vlserver    7003/udp # volume location database
 afs3-kaserver    7004/tcp # AFS/Kerberos authentication service
 afs3-kaserver    7004/udp # AFS/Kerberos authentication service
-afs3-volser      7005/tcp # volume managment server
-afs3-volser      7005/udp # volume managment server
+afs3-volser      7005/tcp # volume managment server Known Unauthorized Use on port 7005
+afs3-volser      7005/udp # volume managment server Known Unauthorized Use on port 7005
 afs3-errors      7006/tcp # error interpretation service
 afs3-errors      7006/udp # error interpretation service
 afs3-bos         7007/tcp # basic overseer process
@@ -9620,8 +9623,8 @@ telops-lmd       7491/tcp # telops-lmd [David_Spencer] [David_Spencer]
 telops-lmd       7491/udp # telops-lmd [David_Spencer] [David_Spencer]
 silhouette       7500/tcp # Silhouette User [Anthony_Payne] [Anthony_Payne] 2004-02
 silhouette       7500/udp # Silhouette User [Anthony_Payne] [Anthony_Payne] 2004-02
-ovbus            7501/tcp # HP OpenView Bus Daemon [David_M_Rhodes] [David_M_Rhodes]
-ovbus            7501/udp # HP OpenView Bus Daemon [David_M_Rhodes] [David_M_Rhodes]
+ovbus            7501/tcp # HP OpenView Bus Daemon [David_M_Rhodes] [David_M_Rhodes] Known Unauthorized Use on port 7501
+ovbus            7501/udp # HP OpenView Bus Daemon [David_M_Rhodes] [David_M_Rhodes] Known Unauthorized Use on port 7501
 adcp             7508/tcp # Automation Device Configuration Protocol [Festo_AG] [Joerg_Ullmann] 2011-05-27 2012-07-26
 acplt            7509/tcp # ACPLT - process automation service [Chair_for_Process_Control_Engineering] [Ulrich_Epple] 2010-12-07 2012-08-07
 ovhpas           7510/tcp # HP OpenView Application Server [Jeff_Conrad] [Jeff_Conrad]
@@ -9715,20 +9718,20 @@ raqmon-pdu       7744/tcp # RAQMON PDU [RFC4712]
 raqmon-pdu       7744/udp # RAQMON PDU [RFC4712]
 prgp             7747/tcp # Put/Run/Get Protocol [Jayasooriah] [Jayasooriah] 2008-02-22
 prgp             7747/udp # Put/Run/Get Protocol [Jayasooriah] [Jayasooriah] 2008-02-22
-cbt              7777/tcp # cbt [Tony_Ballardie] [Tony_Ballardie]
-cbt              7777/udp # cbt [Tony_Ballardie] [Tony_Ballardie]
+cbt              7777/tcp # cbt [Tony_Ballardie] [Tony_Ballardie] Known Unauthorized Use on port 7777
+cbt              7777/udp # cbt [Tony_Ballardie] [Tony_Ballardie] Known Unauthorized Use on port 7777
 interwise        7778/tcp # Interwise [Joseph_Gray] [Joseph_Gray]
 interwise        7778/udp # Interwise [Joseph_Gray] [Joseph_Gray]
 vstat            7779/tcp # VSTAT [Vinh_Nguyn] [Vinh_Nguyn]
 vstat            7779/udp # VSTAT [Vinh_Nguyn] [Vinh_Nguyn]
 accu-lmgr        7781/tcp # accu-lmgr [Moises_E_Hernandez] [Moises_E_Hernandez]
 accu-lmgr        7781/udp # accu-lmgr [Moises_E_Hernandez] [Moises_E_Hernandez]
-minivend         7786/tcp # MINIVEND [Mike_Heins] [Mike_Heins]
-minivend         7786/udp # MINIVEND [Mike_Heins] [Mike_Heins]
-popup-reminders  7787/tcp # Popup Reminders Receive [Robert_Harvey] [Robert_Harvey] 2006-01
-popup-reminders  7787/udp # Popup Reminders Receive [Robert_Harvey] [Robert_Harvey] 2006-01
-office-tools     7789/tcp # Office Tools Pro Receive [Robert_Harvey] [Robert_Harvey] 2006-01
-office-tools     7789/udp # Office Tools Pro Receive [Robert_Harvey] [Robert_Harvey] 2006-01
+minivend         7786/tcp # MINIVEND [Mike_Heins] [Mike_Heins] Known Unauthorized Use on port 7786
+minivend         7786/udp # MINIVEND [Mike_Heins] [Mike_Heins] Known Unauthorized Use on port 7786
+popup-reminders  7787/tcp # Popup Reminders Receive [Robert_Harvey] [Robert_Harvey] 2006-01 Known Unauthorized Use on port 7787
+popup-reminders  7787/udp # Popup Reminders Receive [Robert_Harvey] [Robert_Harvey] 2006-01 Known Unauthorized Use on port 7787
+office-tools     7789/tcp # Office Tools Pro Receive [Robert_Harvey] [Robert_Harvey] 2006-01 Known Unauthorized Use on port 7789
+office-tools     7789/udp # Office Tools Pro Receive [Robert_Harvey] [Robert_Harvey] 2006-01 Known Unauthorized Use on port 7789
 q3ade            7794/tcp # Q3ADE Cluster Service [Uffe_Harksen] [Uffe_Harksen] 2005-08
 q3ade            7794/udp # Q3ADE Cluster Service [Uffe_Harksen] [Uffe_Harksen] 2005-08
 pnet-conn        7797/tcp # Propel Connector port
@@ -9787,8 +9790,8 @@ irdmi2           7999/tcp # iRDMI2
 irdmi2           7999/udp # iRDMI2
 irdmi            8000/tcp # iRDMI [Gil_Shafriri] [Gil_Shafriri]
 irdmi            8000/udp # iRDMI [Gil_Shafriri] [Gil_Shafriri]
-vcom-tunnel      8001/tcp # VCOM Tunnel [Mark_Lewandowski] [Mark_Lewandowski]
-vcom-tunnel      8001/udp # VCOM Tunnel [Mark_Lewandowski] [Mark_Lewandowski]
+vcom-tunnel      8001/tcp # VCOM Tunnel [Mark_Lewandowski] [Mark_Lewandowski] Known Unauthorized Use on port 8001
+vcom-tunnel      8001/udp # VCOM Tunnel [Mark_Lewandowski] [Mark_Lewandowski] Known Unauthorized Use on port 8001
 teradataordbms   8002/tcp # Teradata ORDBMS [Curt_Ellmann] [Curt_Ellmann]
 teradataordbms   8002/udp # Teradata ORDBMS [Curt_Ellmann] [Curt_Ellmann]
 mcreport         8003/tcp # Mulberry Connect Reporting Service [Dave_Stoneham] [Dave_Stoneham] 2008-03-10
@@ -10059,12 +10062,12 @@ cddbp-alt        8880/udp # CDDBP [Steve_Scherf] [Steve_Scherf]
 galaxy4d         8881/tcp # Galaxy4D Online Game Engine [Galaxy4D] [Olivier_St-Laurent] 2012-06-18
 secure-mqtt      8883/tcp # Secure MQTT [Arthur_Barr] [Arthur_Barr] 2008-02-27
 secure-mqtt      8883/udp # Secure MQTT [Arthur_Barr] [Arthur_Barr] 2008-02-27
-ddi-tcp-1        8888/tcp # NewsEDGE server TCP (TCP 1) [Fred_Yao] [Fred_Yao]
-ddi-udp-1        8888/udp # NewsEDGE server UDP (UDP 1) [Fred_Yao] [Fred_Yao]
-ddi-tcp-2        8889/tcp # Desktop Data TCP 1 [Fred_Yao] [Fred_Yao]
-ddi-udp-2        8889/udp # NewsEDGE server broadcast [Fred_Yao] [Fred_Yao]
-ddi-tcp-3        8890/tcp # Desktop Data TCP 2 [Fred_Yao] [Fred_Yao]
-ddi-udp-3        8890/udp # NewsEDGE client broadcast [Fred_Yao] [Fred_Yao]
+ddi-tcp-1        8888/tcp # NewsEDGE server TCP (TCP 1) [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8888
+ddi-udp-1        8888/udp # NewsEDGE server UDP (UDP 1) [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8888
+ddi-tcp-2        8889/tcp # Desktop Data TCP 1 [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8889
+ddi-udp-2        8889/udp # NewsEDGE server broadcast [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8889
+ddi-tcp-3        8890/tcp # Desktop Data TCP 2 [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8890
+ddi-udp-3        8890/udp # NewsEDGE client broadcast [Fred_Yao] [Fred_Yao] Known Unauthorized Use on port 8890
 ddi-tcp-4        8891/tcp # Desktop Data TCP 3: NESS application [Fred_Yao] [Fred_Yao]
 ddi-udp-4        8891/udp # Desktop Data UDP 3: NESS application [Fred_Yao] [Fred_Yao]
 ddi-tcp-5        8892/tcp # Desktop Data TCP 4: FARM product [Fred_Yao] [Fred_Yao]
@@ -10102,8 +10105,8 @@ bctp             8999/tcp # Brodos Crypto Trade Protocol [Alexander_Sahler] [Ale
 bctp             8999/udp # Brodos Crypto Trade Protocol [Alexander_Sahler] [Alexander_Sahler] 2002-02
 cslistener       9000/tcp # CSlistener [David_Jones] [David_Jones]
 cslistener       9000/udp # CSlistener [David_Jones] [David_Jones]
-etlservicemgr    9001/tcp # ETL Service Manager [Stephen_McCrea] [Stephen_McCrea] 2002-03
-etlservicemgr    9001/udp # ETL Service Manager [Stephen_McCrea] [Stephen_McCrea] 2002-03
+etlservicemgr    9001/tcp # ETL Service Manager [Stephen_McCrea] [Stephen_McCrea] 2002-03 Known Unauthorized Use on port 9001
+etlservicemgr    9001/udp # ETL Service Manager [Stephen_McCrea] [Stephen_McCrea] 2002-03 Known Unauthorized Use on port 9001
 dynamid          9002/tcp # DynamID authentication [Jerome_Dusautois] [Jerome_Dusautois] 2002-03
 dynamid          9002/udp # DynamID authentication [Jerome_Dusautois] [Jerome_Dusautois] 2002-03
 ogs-client       9007/udp # Open Grid Services Client [Gareth_Nelson_2] [Gareth_Nelson_2] 2008-08-22
@@ -10729,7 +10732,7 @@ ptp             15740/tcp # Picture Transfer Protocol [Petronel_Bigioi] [Petrone
 ptp             15740/udp # Picture Transfer Protocol [Petronel_Bigioi] [Petronel_Bigioi] 2004-11 Defined TXT keys: guid=<Device guid>
 2ping           15998/udp # 2ping Bi-Directional Ping Service [Ryan_Finnie] [Ryan_Finnie] 2010-10-06
 programmar      15999/tcp # ProGrammar Enterprise [Norman_Wilson] [Norman_Wilson] 2010-10-06
-fmsas           16000/tcp # Administration Server Access [Mark_Davidson] [Mark_Davidson] 2010-10-06
+fmsas           16000/tcp # Administration Server Access [Mark_Davidson] [Mark_Davidson] 2010-10-06 Known Unauthorized Use on port 16000
 fmsascon        16001/tcp # Administration Server Connector [Mark_Davidson] [Mark_Davidson] 2010-10-06
 gsms            16002/tcp # GoodSync Mediation Service [Vadim_Maslov] [Vadim_Maslov] 2010-10-06
 alfin           16003/udp # Automation and Control by REGULACE.ORG [Ing_Tomas_Halabala] [Ing_Tomas_Halabala] 2010-10-06
