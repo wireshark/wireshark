@@ -334,100 +334,8 @@ static dissector_handle_t ansi_637_trans_handle;
 
 static guint32 ansi_637_trans_tele_id;
 static char ansi_637_bigbuf[1024];
-static char ia5_637_bigbuf[1024];
 static dissector_table_t tele_dissector_table;
 static proto_tree *g_tree;
-
-/* FUNCTIONS */
-
-/*
- * last_bit must be from 1 to 8
- * '1' means there is one bit remaining in 'last_oct' (i.e. 0x01)
- * '3' means there are 3 bits remaining in 'last_oct' (i.e. 0x07)
- */
-static int
-decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oct, guint8 *last_bit, gchar *buf)
-{
-    guint8      oct, oct2, bit;
-    guint32     i;
-
-    if (num_fields == 0)
-    {
-        return 0;
-    }
-
-    oct = oct2 = *last_oct;
-    bit = *last_bit;
-
-    if (bit == 1)
-    {
-        oct2 = tvb_get_guint8(tvb, *offset);
-        (*offset) += 1;
-    }
-
-    for (i=0; i < num_fields; i++)
-    {
-        if (bit != 1)
-        {
-            oct = oct2;
-
-            /*
-             * cannot grab an octet if we are getting
-             * the last field and bit is 7 or 8
-             * because there may not be another octet
-             */
-            if (((i + 1) != num_fields) ||
-                ((bit != 7) && (bit != 8)))
-            {
-                oct2 = tvb_get_guint8(tvb, *offset);
-                (*offset) += 1;
-            }
-        }
-
-        switch (bit)
-        {
-        case 1:
-            buf[i] = ((oct & 0x01) << 6) | ((oct2 & 0xfc) >> 2);
-            break;
-
-        case 2:
-            buf[i] = ((oct & 0x03) << 5) | ((oct2 & 0xf8) >> 3);
-            break;
-
-        case 3:
-            buf[i] = ((oct & 0x07) << 4) | ((oct2 & 0xf0) >> 4);
-            break;
-
-        case 4:
-            buf[i] = ((oct & 0x0f) << 3) | ((oct2 & 0xe0) >> 5);
-            break;
-
-        case 5:
-            buf[i] = ((oct & 0x1f) << 2) | ((oct2 & 0xc0) >> 6);
-            break;
-
-        case 6:
-            buf[i] = ((oct & 0x3f) << 1) | ((oct2 & 0x80) >> 7);
-            break;
-
-        case 7:
-            buf[i] = oct & 0x7f;
-            break;
-
-        case 8:
-            buf[i] = (oct & 0xfe) >> 1;
-            break;
-        }
-
-        bit = (bit % 8) + 1;
-    }
-
-    buf[i] = '\0';
-    *last_bit = bit;
-    *last_oct = (bit == 1) ? oct : oct2;
-
-    return i;
-}
 
 /* PARAM FUNCTIONS */
 
@@ -462,11 +370,8 @@ decode_7_bits(tvbuff_t *tvb, guint32 *offset, guint8 num_fields, guint8 *last_oc
 static void
 text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint8 encoding, guint8 num_fields, guint16 num_bits, guint8 unused_bits, guint8 fill_bits)
 {
-    guint8      oct;
     guint8      bit;
     guint32     required_octs;
-    guint32     out_len;
-    const gchar *str = NULL;
     tvbuff_t    *tvb_out = NULL;
 
     GIConv      cd;
@@ -494,30 +399,21 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     case 0x02: /* 7-bit ASCII */
 
         offset = 0;
-        oct = tvb_get_guint8(tvb_out, offset);
-        offset += 1;
-        bit = 8;
+        bit = 0;
 
-        (void) decode_7_bits(tvb_out, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
-
-        proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, 0,
-            offset, ansi_637_bigbuf);
+        proto_tree_add_ascii_7bits_item(tree, hf_ansi_637_tele_user_data_text, tvb_out, (offset << 3) + bit, num_fields);
         break;
 
     case 0x03: /* IA5 */
 
         offset = 0;
-        oct = tvb_get_guint8(tvb_out, offset);
-        offset += 1;
-        bit = 8;
+        bit = 0;
 
-        out_len =
-            decode_7_bits(tvb_out, &offset, num_fields, &oct, &bit, ansi_637_bigbuf);
-
-        IA5_7BIT_decode(ia5_637_bigbuf, ansi_637_bigbuf, out_len);
+        ustr = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3) + bit, num_fields);
+        IA5_7BIT_decode(ansi_637_bigbuf, ustr, num_fields);
 
         proto_tree_add_string(tree, hf_ansi_637_tele_user_data_text, tvb_out, 0,
-            offset, ia5_637_bigbuf);
+            offset, ansi_637_bigbuf);
         break;
 
     case 0x04: /* UNICODE */
@@ -564,8 +460,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
             else
             {
                 proto_tree_add_expert_format(tree, pinfo, &ei_ansi_637_failed_conversion, tvb_out, offset, required_octs,
-                    "Failed iconv conversion on %s - (report to wireshark.org)",
-                    str);
+                    "Failed iconv conversion on EUC-KR - (report to wireshark.org)");
             }
             if (ustr)
             {

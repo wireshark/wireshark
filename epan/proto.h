@@ -309,6 +309,7 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
 #define ENC_EBCDIC			0x0000002E
 #define ENC_MAC_ROMAN			0x00000030
 #define ENC_CP437			0x00000032
+#define ENC_ASCII_7BITS			0x00000034
 
 /*
  * TODO:
@@ -317,7 +318,6 @@ WS_DLL_PUBLIC WS_MSVC_NORETURN void proto_report_dissector_bug(const char *messa
  *
  *	"IBM MS DBCS"
  *	JIS C 6226
- *	7-bit encodings such as 7 bits ASCII used in packet-ansi_637.c
  *
  * As those are added, change code such as the code in packet-bacapp.c
  * to use them.
@@ -2155,6 +2155,17 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvb
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ts_23_038_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+	const guint bit_offset, const gint no_of_chars);
+
+/** Add a FT_STRING with ENC_ASCII_7BITS encoding to a proto_tree.
+ @param tree the tree to append this item to
+ @param hfindex field index
+ @param tvb the tv buffer of the current data
+ @param bit_offset start of data in tvb expressed in bits
+ @param no_of_chars number of 7bits characters to display
+ @return the newly created item */
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_ascii_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	const guint bit_offset, const gint no_of_chars);
 
 /** Check if given string is a valid field name

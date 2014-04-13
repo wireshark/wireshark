@@ -1389,7 +1389,6 @@ currently supported are:
     ENC_UCS_2 - UCS-2-encoded subset of Unicode, with no surrogate pairs
         and thus no code points above 0xFFFF
     ENC_UCS_4 - UCS-4-encoded Unicode
-    ENC_EBCDIC - EBCDIC
     ENC_WINDOWS_1250 - Windows-1250 code page
     ENC_ISO_8859_1 - ISO 8859-1
     ENC_ISO_8859_2 - ISO 8859-2
@@ -1406,8 +1405,13 @@ currently supported are:
     ENC_ISO_8859_14 - ISO 8859-14
     ENC_ISO_8859_15 - ISO 8859-15
     ENC_ISO_8859_16 - ISO 8859-16
+    ENC_WINDOWS_1250 - Windows-1250
     ENC_3GPP_TS_23_038_7BITS - GSM 7 bits alphabet as described
         in 3GPP TS 23.038
+    ENC_EBCDIC - EBCDIC
+    ENC_MAC_ROMAN - MAC ROMAN
+    ENC_CP437 - DOS CP437
+    ENC_ASCII_7BITS - 7 bits ASCII
 
 Other encodings will be added in the future.
 

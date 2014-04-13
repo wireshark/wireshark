@@ -2311,10 +2311,10 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	ptr = ensure_contiguous(tvb, in_offset, length);
 
-	strbuf = wmem_strbuf_new(scope, NULL);
+	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
 	for(char_count = 0; char_count < no_of_chars;) {
 		/* Get the next byte from the string. */
-		in_byte = *ptr;;
+		in_byte = *ptr;
 		ptr++;
 
 		/*
@@ -2361,6 +2361,71 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 		 * CHARACTER.
 		 */
 		wmem_strbuf_append_unichar(strbuf, UNREPL);
+	}
+
+	return (gchar*)wmem_strbuf_finalize(strbuf);
+}
+
+gchar *
+tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+	const gint bit_offset, gint no_of_chars)
+{
+	wmem_strbuf_t *strbuf;
+	gint           char_count;                  /* character counter for tvbuff */
+	gint           in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
+	guint8         in_byte, out_byte, rest = 0x00;
+	int            bits;
+	const guint8 *ptr;
+	gint length;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	bits = bit_offset & 0x07;
+	if (!bits) {
+		bits = 7;
+	}
+
+	length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
+	ptr = ensure_contiguous(tvb, in_offset, length);
+
+	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+	for(char_count = 0; char_count < no_of_chars;) {
+		/* Get the next byte from the string. */
+		in_byte = *ptr;
+		ptr++;
+
+		/*
+		 * Combine the bits we've accumulated with bits from
+		 * that byte to make a 7-bit code point.
+		 */
+		out_byte = (in_byte >> (8 - bits)) | rest;
+
+		/*
+		 * Leftover bits used in that code point.
+		 */
+		rest = (in_byte << (bits - 1)) & 0x7f;
+
+		/*
+		 * If we don't start from 0th bit, we shouldn't go to the
+		 * next char. Under *out_num we have now 0 and under Rest -
+		 * _first_ part of the char.
+		 */
+		if (char_count || (bits == 7)) {
+			wmem_strbuf_append_c(strbuf, out_byte);
+			char_count++;
+		}
+
+		/*
+		 * After reading 7 octets we have read 7 full characters
+		 * but we have 7 bits as well. This is the next character.
+		 */
+		if ((bits == 1) && (char_count < no_of_chars)) {
+			wmem_strbuf_append_c(strbuf, rest);
+			char_count++;
+			bits = 7;
+			rest = 0x00;
+		} else
+			bits--;
 	}
 
 	return (gchar*)wmem_strbuf_finalize(strbuf);
@@ -2510,6 +2575,14 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 			gint bit_offset = offset << 3;
 			gint no_of_chars = (length << 3) / 7;
 			strbuf = tvb_get_ts_23_038_7bits_string(scope, tvb, bit_offset, no_of_chars);
+		}
+		break;
+
+	case ENC_ASCII_7BITS:
+		{
+			gint bit_offset = offset << 3;
+			gint no_of_chars = (length << 3) / 7;
+			strbuf = tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
@@ -2832,6 +2905,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_3GPP_TS_23_038_7BITS:
 		REPORT_DISSECTOR_BUG("TS 23.038 7bits has no null character and doesn't support null-terminated strings");
+		break;
+
+	case ENC_ASCII_7BITS:
+		REPORT_DISSECTOR_BUG("tvb_get_stringz_enc function with ENC_ASCII_7BITS not implemented yet");
 		break;
 
 	case ENC_EBCDIC:
