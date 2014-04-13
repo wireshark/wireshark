@@ -36,6 +36,7 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_map.h"
@@ -345,6 +346,7 @@ static int hf_mbim_sms_cdma_record_size_in_characters = -1;
 static int hf_mbim_sms_cdma_record_address = -1;
 static int hf_mbim_sms_cdma_record_timestamp = -1;
 static int hf_mbim_sms_cdma_record_encoded_message = -1;
+static int hf_mbim_sms_cdma_record_encoded_message_text = -1;
 static int hf_mbim_sms_read_req_format = -1;
 static int hf_mbim_sms_read_req_flag = -1;
 static int hf_mbim_sms_read_req_message_index = -1;
@@ -365,6 +367,7 @@ static int hf_mbim_sms_send_cdma_size_in_bytes = -1;
 static int hf_mbim_sms_send_cdma_size_in_characters = -1;
 static int hf_mbim_sms_send_cdma_address = -1;
 static int hf_mbim_sms_send_cdma_encoded_message = -1;
+static int hf_mbim_sms_send_cdma_encoded_message_text = -1;
 static int hf_mbim_set_sms_send_format = -1;
 static int hf_mbim_sms_send_info_message_reference = -1;
 static int hf_mbim_set_sms_delete_flag = -1;
@@ -1246,17 +1249,28 @@ static const value_string mbim_sms_cdma_lang_vals[] = {
     { 0, NULL}
 };
 
+#define MBIM_ENCODING_OCTET        0
+#define MBIM_ENCODING_EPM          1
+#define MBIM_ENCODING_7BIT_ASCII   2
+#define MBIM_ENCODING_IA5          3
+#define MBIM_ENCODING_UNICODE      4
+#define MBIM_ENCODING_SHIFT_JIS    5
+#define MBIM_ENCODING_KOREAN       6
+#define MBIM_ENCODING_LATIN_HEBREW 7
+#define MBIM_ENCODING_LATIN        8
+#define MBIM_ENCODING_GSM_7BIT     9
+
 static const value_string mbim_sms_cdma_encoding_vals[] = {
-    { 0, "Octet"},
-    { 1, "EPM"},
-    { 2, "7 Bit ASCII"},
-    { 3, "IA5"},
-    { 4, "Unicode"},
-    { 5, "Shift-JIS"},
-    { 6, "Korean"},
-    { 7, "Latin Hebrew"},
-    { 8, "Latin"},
-    { 9, "GSM 7 Bit"},
+    { MBIM_ENCODING_OCTET, "Octet"},
+    { MBIM_ENCODING_EPM, "EPM"},
+    { MBIM_ENCODING_7BIT_ASCII, "7 Bit ASCII"},
+    { MBIM_ENCODING_IA5, "IA5"},
+    { MBIM_ENCODING_UNICODE, "Unicode"},
+    { MBIM_ENCODING_SHIFT_JIS, "Shift-JIS"},
+    { MBIM_ENCODING_KOREAN, "Korean"},
+    { MBIM_ENCODING_LATIN_HEBREW, "Latin Hebrew"},
+    { MBIM_ENCODING_LATIN, "Latin"},
+    { MBIM_ENCODING_GSM_7BIT, "GSM 7 Bit"},
     { 0, NULL}
 };
 
@@ -2893,12 +2907,46 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 }
 
+static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int hfindex, gint offset,
+                                      guint32 encoding_id, guint32 size_in_bytes, guint32 size_in_chars)
+{
+    unsigned char *src, *dest;
+
+    switch (encoding_id) {
+        case MBIM_ENCODING_7BIT_ASCII:
+            proto_tree_add_ascii_7bits_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
+            break;
+        case MBIM_ENCODING_IA5:
+            src = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
+            dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), size_in_chars+1);
+            IA5_7BIT_decode(dest, src, size_in_chars);
+            proto_tree_add_string(tree, hfindex, tvb, offset, size_in_bytes, dest);
+            break;
+        case MBIM_ENCODING_UNICODE:
+            proto_tree_add_item(tree, hfindex, tvb, offset, size_in_bytes, ENC_UCS_2|ENC_BIG_ENDIAN);
+            break;
+        case MBIM_ENCODING_LATIN_HEBREW:
+            proto_tree_add_item(tree, hfindex, tvb, offset, size_in_bytes, ENC_ISO_8859_8|ENC_NA);
+            break;
+        case MBIM_ENCODING_LATIN:
+            proto_tree_add_item(tree, hfindex, tvb, offset, size_in_bytes, ENC_ISO_8859_1|ENC_NA);
+            break;
+        case MBIM_ENCODING_GSM_7BIT:
+            proto_tree_add_ts_23_038_7bits_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
+            break;
+        default:
+            break;
+    }
+}
+
 static void
 mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
     gint base_offset;
-    guint32 address_offset, address_size, timestamp_offset, timestamp_size, encoded_message_offset,
-            size_in_bytes;
+    guint32 address_offset, address_size, timestamp_offset, timestamp_size, encoding_id,
+            encoded_message_offset, size_in_bytes, size_in_chars;
+    proto_item *ti;
+    proto_tree *subtree;
 
     base_offset = offset;
     proto_tree_add_item(tree, hf_mbim_sms_cdma_record_message_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2917,7 +2965,8 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     timestamp_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_cdma_record_timestamp_size, tvb, offset, 4, timestamp_size);
     offset += 4;
-    proto_tree_add_item(tree, hf_mbim_sms_cdma_record_encoding_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    encoding_id = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_mbim_sms_cdma_record_encoding_id, tvb, offset, 4, encoding_id);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_sms_cdma_record_language_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -2928,7 +2977,8 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     size_in_bytes = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_cdma_record_size_in_bytes, tvb, offset, 4, size_in_bytes);
     offset += 4;
-    proto_tree_add_item(tree, hf_mbim_sms_cdma_record_size_in_characters, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    size_in_chars = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_mbim_sms_cdma_record_size_in_characters, tvb, offset, 4, size_in_chars);
     /*offset += 4;*/
     if (address_offset && address_size) {
         proto_tree_add_item(tree, hf_mbim_sms_cdma_record_address, tvb, base_offset + address_offset,
@@ -2939,8 +2989,11 @@ mbim_dissect_sms_cdma_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                             timestamp_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
     }
     if (encoded_message_offset && size_in_bytes) {
-        proto_tree_add_item(tree, hf_mbim_sms_cdma_record_encoded_message, tvb, base_offset + encoded_message_offset,
-                            size_in_bytes, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_mbim_sms_cdma_record_encoded_message, tvb, base_offset + encoded_message_offset,
+                                 size_in_bytes, ENC_NA);
+        subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+        mbim_decode_sms_cdma_text(tvb, subtree, hf_mbim_sms_cdma_record_encoded_message_text,
+                                  (base_offset + encoded_message_offset), encoding_id, size_in_bytes, size_in_chars);
     }
 }
 
@@ -3055,10 +3108,14 @@ static void
 mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
 {
     gint base_offset;
-    guint32 address_offset, address_size, encoded_message_offset, size_in_bytes;
+    guint32 encoding_id, address_offset, address_size, encoded_message_offset,
+            size_in_bytes, size_in_chars;
+    proto_item *ti;
+    proto_tree *subtree;
 
     base_offset = offset;
-    proto_tree_add_item(tree, hf_mbim_sms_send_cdma_encoding_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    encoding_id = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_mbim_sms_send_cdma_encoding_id, tvb, offset, 4, encoding_id);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_sms_send_cdma_language_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -3075,15 +3132,19 @@ mbim_dissect_sms_send_cdma(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     size_in_bytes = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(tree, hf_mbim_sms_send_cdma_size_in_bytes, tvb, offset, 4, size_in_bytes);
     offset += 4;
-    proto_tree_add_item(tree, hf_mbim_sms_send_cdma_size_in_characters, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    size_in_chars = tvb_get_letohl(tvb, offset);
+    proto_tree_add_uint(tree, hf_mbim_sms_send_cdma_size_in_characters, tvb, offset, 4, size_in_chars);
     /*offset += 4;*/
     if (address_offset && address_size) {
         proto_tree_add_item(tree, hf_mbim_sms_send_cdma_address, tvb, base_offset + address_offset,
                             address_size, ENC_LITTLE_ENDIAN|ENC_UTF_16);
     }
     if (encoded_message_offset && size_in_bytes) {
-        proto_tree_add_item(tree, hf_mbim_sms_send_cdma_encoded_message, tvb, base_offset + encoded_message_offset,
-                            size_in_bytes, ENC_NA);
+        ti = proto_tree_add_item(tree, hf_mbim_sms_send_cdma_encoded_message, tvb, base_offset + encoded_message_offset,
+                                 size_in_bytes, ENC_NA);
+        subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+        mbim_decode_sms_cdma_text(tvb, subtree, hf_mbim_sms_send_cdma_encoded_message_text,
+                                  (base_offset + encoded_message_offset), encoding_id, size_in_bytes, size_in_chars);
     }
 }
 
@@ -6350,6 +6411,11 @@ proto_register_mbim(void)
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_sms_cdma_record_encoded_message_text,
+            { "Text", "mbim.control.sms_cdma_record.encoded_message.text",
+            FT_STRING, STR_UNICODE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_mbim_sms_read_req_format,
             { "Format", "mbim.control.sms_read_req.format",
                FT_UINT32, BASE_DEC, VALS(mbim_sms_format_vals), 0,
@@ -6449,6 +6515,11 @@ proto_register_mbim(void)
             { "Encoded Message", "mbim.control.sms_send_cdma.encoded_message",
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
+        },
+        { &hf_mbim_sms_send_cdma_encoded_message_text,
+            { "Text", "mbim.control.sms_send_cdma.encoded_message.text",
+            FT_STRING, STR_UNICODE, NULL, 0,
+            NULL, HFILL }
         },
         { &hf_mbim_set_sms_send_format,
             { "Format", "mbim.control.set_sms_send.format",
