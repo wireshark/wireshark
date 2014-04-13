@@ -3308,7 +3308,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     k_frame_number = pinfo->fd->num;
     k_device_address = device_address;
-    k_bus_id = bus_id;
+    k_bus_id = usb_conv_info->bus_id;
 
     key[0].length = 1;
     key[0].key    = &k_device_address;
@@ -3320,7 +3320,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     key[3].key    = NULL;
 
     device_product_data = (device_product_data_t *) wmem_tree_lookup32_array_le(device_to_product_table, key);
-    if (device_product_data && device_product_data->bus_id == bus_id &&
+    if (device_product_data && device_product_data->bus_id == usb_conv_info->bus_id &&
             device_product_data->device_address == device_address) {
         p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_VENDOR_ID, GUINT_TO_POINTER((guint)device_product_data->vendor));
         p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_PRODUCT_ID, GUINT_TO_POINTER((guint)device_product_data->product));
@@ -3329,7 +3329,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     }
 
     device_protocol_data = (device_protocol_data_t *) wmem_tree_lookup32_array_le(device_to_protocol_table, key);
-    if (device_protocol_data && device_protocol_data->bus_id == bus_id &&
+    if (device_protocol_data && device_protocol_data->bus_id == usb_conv_info->bus_id &&
             device_protocol_data->device_address == device_address) {
         p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_CLASS, GUINT_TO_POINTER(device_protocol_data->protocol >> 16));
         p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_SUBCLASS, GUINT_TO_POINTER((device_protocol_data->protocol >> 8) & 0xFF));
@@ -3339,7 +3339,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         device_protocol_data = NULL;
     }
 
-    p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID, GUINT_TO_POINTER(bus_id));
+    p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID,
+            GUINT_TO_POINTER(usb_conv_info->bus_id));
     p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_ADDRESS, GUINT_TO_POINTER((guint)device_address));
 
     if (tvb_length_remaining(tvb, offset) > 0) {
