@@ -2868,7 +2868,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         proto_tree *setup_tree = NULL;
 
         if (is_request) {
-            if (setup_flag == 0) {
+            if (usb_conv_info->is_setup) {
                 /* this is a request */
 
                 /* Dissect the setup header - it's applicable */
@@ -3076,7 +3076,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
              * wiretap/pcap-common.c, pcap_process_linux_usb_pseudoheader().
              */
 
-            if (setup_flag == 0) {
+            if (usb_conv_info->is_setup) {
                 proto_item *ti;
                 proto_tree *setup_tree;
 
@@ -3118,7 +3118,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             if (header_info & USB_HEADER_IS_64_BYTES)
                 offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
 
-            if (setup_flag != 0) {
+            if (usb_conv_info->is_setup) {
                 proto_tree   *urb_tree;
                 guint32       i;
                 unsigned int  data_base;
@@ -3267,7 +3267,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     default:
         /* dont know */
-        if (setup_flag == 0) {
+        if (usb_conv_info->is_setup) {
             proto_item *ti;
             proto_tree *setup_tree;
 
