@@ -212,7 +212,7 @@
     <string>Zoom In</string>
    </property>
    <property name="toolTip">
-    <string>Zoom in</string>
+    <string>Zoom In</string>
    </property>
    <property name="shortcut">
     <string>+</string>

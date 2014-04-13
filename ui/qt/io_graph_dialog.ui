@@ -303,7 +303,7 @@
     <string>Zoom In</string>
    </property>
    <property name="toolTip">
-    <string>Zoom in</string>
+    <string>Zoom In</string>
    </property>
    <property name="shortcut">
     <string>+</string>
@@ -314,7 +314,7 @@
     <string>Zoom Out</string>
    </property>
    <property name="toolTip">
-    <string>Zoom out</string>
+    <string>Zoom Out</string>
    </property>
    <property name="shortcut">
     <string>-</string>
@@ -325,7 +325,7 @@
     <string>Move Up 10 Pixels</string>
    </property>
    <property name="toolTip">
-    <string>Move up 10 pixels</string>
+    <string>Move Up 10 pixels</string>
    </property>
    <property name="shortcut">
     <string>Up</string>
@@ -336,7 +336,7 @@
     <string>Move Left 10 Pixels</string>
    </property>
    <property name="toolTip">
-    <string>Move left 10 pixels</string>
+    <string>Move Left 10 pixels</string>
    </property>
    <property name="shortcut">
     <string>Left</string>
@@ -347,7 +347,7 @@
     <string>Move Right 10 Pixels</string>
    </property>
    <property name="toolTip">
-    <string>Move right 10 pixels</string>
+    <string>Move Right 10 pixels</string>
    </property>
    <property name="shortcut">
     <string>Right</string>
@@ -358,7 +358,7 @@
     <string>Move Down 10 Pixels</string>
    </property>
    <property name="toolTip">
-    <string>Move down 10 pixels</string>
+    <string>Move Down 10 pixels</string>
    </property>
    <property name="shortcut">
     <string>Down</string>
@@ -369,7 +369,7 @@
     <string>Move Up 1 Pixel</string>
    </property>
    <property name="toolTip">
-    <string>Move up 1 pixel</string>
+    <string>Move Up 1 pixel</string>
    </property>
    <property name="shortcut">
     <string>Shift+Up</string>
@@ -380,7 +380,7 @@
     <string>Move Left 1 Pixel</string>
    </property>
    <property name="toolTip">
-    <string>Move left 1 pixel</string>
+    <string>Move Left 1 pixel</string>
    </property>
    <property name="shortcut">
     <string>Shift+Left</string>
@@ -391,7 +391,7 @@
     <string>Move Right 1 Pixel</string>
    </property>
    <property name="toolTip">
-    <string>Move right 1 pixel</string>
+    <string>Move Right 1 pixel</string>
    </property>
    <property name="shortcut">
     <string>Shift+Right</string>
