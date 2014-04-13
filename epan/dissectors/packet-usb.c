@@ -2376,7 +2376,7 @@ static const value_string bmrequesttype_recipient_vals[] = {
 
 static gint
 try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
-        usb_conv_info_t *usb_conv_info, gint type_2, guint8 urb_type, guint16 device_address,
+        usb_conv_info_t *usb_conv_info, gint type_2, guint8 urb_type,
         device_product_data_t *device_product_data, device_protocol_data_t *device_protocol_data)
 {
     wmem_tree_key_t          key[4];
@@ -2386,9 +2386,9 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
 
     /* try dissect by "usb.device" */
     if (tvb_length(next_tvb) > 0 &&
-            !dissector_try_uint_new(device_to_dissector, (guint32) (usb_conv_info->bus_id << 8 | device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
+            !dissector_try_uint_new(device_to_dissector, (guint32) (usb_conv_info->bus_id << 8 | usb_conv_info->device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
         k_frame_number = pinfo->fd->num;
-        k_device_address = device_address;
+        k_device_address = usb_conv_info->device_address;
         k_bus_id = usb_conv_info->bus_id;
 
         key[0].length = 1;
@@ -2404,14 +2404,14 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
         if (!device_protocol_data)
             device_protocol_data = (device_protocol_data_t *)wmem_tree_lookup32_array_le(device_to_protocol_table, key);
         if (device_protocol_data && device_protocol_data->bus_id == usb_conv_info->bus_id &&
-                device_protocol_data->device_address == device_address &&
+                device_protocol_data->device_address == usb_conv_info->device_address &&
                 dissector_try_uint_new(protocol_to_dissector, (guint32) device_protocol_data->protocol, next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
             offset += tvb_length(next_tvb);
         } else { /* try dissect by "usb.product" */
             if (!device_product_data)
                 device_product_data = (device_product_data_t *)wmem_tree_lookup32_array_le(device_to_product_table, key);
             if (device_product_data && device_product_data->bus_id == usb_conv_info->bus_id &&
-                    device_product_data->device_address == device_address &&
+                    device_product_data->device_address == usb_conv_info->device_address &&
                     dissector_try_uint_new(product_to_dissector, (guint32) (device_product_data->vendor << 16 | device_product_data->product),
                                            next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
                 offset += tvb_length(next_tvb);
@@ -2975,7 +2975,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 else
                     next_tvb = tvb_new_subset_remaining(tvb, offset - 7);
 
-                offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, device_address, NULL, NULL);
+                offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, NULL, NULL);
             }
         } else {
             /* this is a response */
@@ -3040,7 +3040,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     /* Try to find a non-standard specific dissector */
                     if (tvb_reported_length_remaining(tvb, offset) != 0) {
                             next_tvb = tvb_new_subset_remaining(tvb, offset);
-                            new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, device_address, NULL, NULL);
+                            new_offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, NULL, NULL);
                             if (new_offset > offset)
                                 offset = new_offset;
                     }
@@ -3344,7 +3344,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     if (tvb_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
 
-        offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, device_address, device_product_data, device_protocol_data);
+        offset = try_dissect_next_protocol(tree, parent, next_tvb, offset, pinfo, usb_conv_info, type_2, urb_type, device_product_data, device_protocol_data);
     }
 
     if (tvb_length_remaining(tvb, offset) > 0) {
