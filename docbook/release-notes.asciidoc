@@ -33,10 +33,12 @@ since version 1.11.2:
 ** The Capture Interfaces dialog has been added.
 ** The Decode As dialog has been added. It managed to swallow up the
 User Specified Decodes dialog as well.
+** The Export PDU dialog has been added.
 ** Several SCTP dialogs have been added.
 ** The statistics tree (the backend for many Statistics and Telephony menu
 items) dialog has been added.
 ** The I/O Graph dialog has been added.
+** French translation has updated.
 
 The following features are new (or have been significantly updated)
 since version 1.11.1:
