@@ -1213,6 +1213,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-socketcan.c
 	dissectors/packet-socks.c
 	dissectors/packet-soupbintcp.c
+	dissectors/packet-spdy.c
 	dissectors/packet-spice.c
 	dissectors/packet-spp.c
 	dissectors/packet-spray.c

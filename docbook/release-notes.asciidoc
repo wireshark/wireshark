@@ -156,6 +156,7 @@ SAE J1939
 SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line Dissection
 Sippy RTPproxy
 SMB-Direct
+SPDY
 STANAG 4607
 STANAG 5066 DTS
 STANAG 5066 SIS
