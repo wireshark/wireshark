@@ -141,7 +141,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
      -- this is done inside a dissector, post-dissector, or heuristic function
      -- child will be the created child tree, and value will be the number 123 or nil on failure
      local child, value = tree:add_packet_field(myfield, tvb:range(0,3), ENC_UTF_8 + ENC_STRING)
-     @encode
+     @endcode
 
     */
 #define WSLUA_ARG_TreeItem_add_packet_field_PROTOFIELD 2 /* The ProtoField field object to add to the tree. */
