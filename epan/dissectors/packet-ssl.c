@@ -2137,51 +2137,57 @@ dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
     payload_length = tvb_get_ntohs(tvb, offset + 1);
     padding_length = record_length - 3 - payload_length;
 
+    /* assume plaintext if the (expected) record size is smaller than the type
+     * (1), length (2)[, payload] and padding (16) fields combined */
+    if (record_length <= 19u || 3u + payload_length + 16 <= record_length) {
+        decrypted = TRUE;
+    }
+
     /* now set the text in the record layer line */
-    if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
+    if (type && decrypted) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Heartbeat %s", type);
     } else {
         col_append_str(pinfo->cinfo, COL_INFO, "Encrypted Heartbeat");
     }
 
-    if (tree) {
-        if (type && ((payload_length <= record_length - 16 - 3) || decrypted)) {
-            proto_item_set_text(tree, "%s Record Layer: Heartbeat "
-                                "%s",
-                                val_to_str_const(session->version, ssl_version_short_names, "SSL"),
-                                type);
-            proto_tree_add_item(tls_heartbeat_tree, hf_ssl_heartbeat_message_type,
-                                tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            ti = proto_tree_add_uint(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload_length,
-                                     tvb, offset, 2, payload_length);
-            offset += 2;
-            if (payload_length > record_length - 16 - 3) {
-                expert_add_info_format(pinfo, ti, &ei_ssl3_heartbeat_payload_length,
-                                       "Invalid payload heartbeat length (%d)", payload_length);
-                /* Invalid heartbeat payload length, adjust to try decoding */
-                payload_length = record_length - 16 - 3;
-                padding_length = 16;
-                proto_item_append_text (ti, " (invalid, using %u to decode payload)", payload_length);
-            }
-            proto_tree_add_bytes_format(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload,
-                                        tvb, offset, payload_length,
-                                        NULL, "Payload (%u byte%s)",
-                                        payload_length,
-                                        plurality(payload_length, "", "s"));
-            offset += payload_length;
+    if (type && decrypted) {
+        proto_item_set_text(tree, "%s Record Layer: Heartbeat "
+                            "%s",
+                            val_to_str_const(session->version, ssl_version_short_names, "SSL"),
+                            type);
+        proto_tree_add_item(tls_heartbeat_tree, hf_ssl_heartbeat_message_type,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        ti = proto_tree_add_uint(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload_length,
+                                 tvb, offset, 2, payload_length);
+        offset += 2;
+        if (3u + payload_length + 16 > record_length) {
+            expert_add_info_format(pinfo, ti, &ei_ssl3_heartbeat_payload_length,
+                                   "Invalid heartbeat payload length (%d)", payload_length);
+            /* There is no room for padding... truncate the payload such that
+             * the field can be selected (for the interested). */
+            payload_length = record_length - 3;
+            padding_length = 0;
+            proto_item_append_text (ti, " (invalid, using %u to decode payload)", payload_length);
+        }
+        proto_tree_add_bytes_format(tls_heartbeat_tree, hf_ssl_heartbeat_message_payload,
+                                    tvb, offset, payload_length,
+                                    NULL, "Payload (%u byte%s)",
+                                    payload_length,
+                                    plurality(payload_length, "", "s"));
+        offset += payload_length;
+        if (padding_length)
             proto_tree_add_bytes_format(tls_heartbeat_tree, hf_ssl_heartbeat_message_padding,
                                         tvb, offset, padding_length,
                                         NULL, "Padding and HMAC (%u byte%s)",
                                         padding_length,
                                         plurality(padding_length, "", "s"));
-        } else {
-            proto_item_set_text(tree,
-                                "%s Record Layer: Encrypted Heartbeat",
-                                val_to_str_const(session->version, ssl_version_short_names, "SSL"));
-            proto_item_set_text(tls_heartbeat_tree,
-                                "Encrypted Heartbeat Message");
-        }
+    } else {
+        proto_item_set_text(tree,
+                            "%s Record Layer: Encrypted Heartbeat",
+                            val_to_str_const(session->version, ssl_version_short_names, "SSL"));
+        proto_item_set_text(tls_heartbeat_tree,
+                            "Encrypted Heartbeat Message");
     }
 }
 
