@@ -142,6 +142,7 @@ static int hf_isis_lsp_rt_capable_trees_length = -1;
 static int hf_isis_lsp_mt_cap_spbm_service_identifier_base_vid = -1;
 static int hf_isis_lsp_64_bit_administrative_tag = -1;
 static int hf_isis_lsp_grp_address_number_of_sources = -1;
+static int hf_isis_lsp_ext_is_reachability = -1;
 static int hf_isis_lsp_ext_is_reachability_traffic_engineering_default_metric = -1;
 static int hf_isis_lsp_grp_address_group_address = -1;
 static int hf_isis_lsp_rt_capable_tree_root_id_nickname = -1;
@@ -1948,10 +1949,11 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
  * Name: dissect_lsp_ext_is_reachability_clv()
  *
  * Description: Decode a Extended IS Reachability CLV - code 22
+ * RFC 3784
  *
  *   The extended IS reachability TLV is an extended version
  *   of the IS reachability TLV (code 2). It encodes the metric
- *   as a 24-bit unsigned interger and allows to add sub-CLV(s).
+ *   as a 24-bit unsigned integer and allows to add sub-CLV(s).
  *
  *   CALLED BY TLV 222 DISSECTOR
  *
@@ -1976,9 +1978,10 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 	guint      clv_code, clv_len;
 
 	while (length > 0) {
-		ti = proto_tree_add_item(tree, hf_isis_lsp_ext_is_reachability_is_neighbor, tvb, offset, 7, ENC_NA);
-		proto_item_set_len(ti, -1);
+		ti = proto_tree_add_item(tree, hf_isis_lsp_ext_is_reachability, tvb, offset, -1, ENC_NA);
 		ntree = proto_item_add_subtree (ti, ett_isis_lsp_part_of_clv_ext_is_reachability );
+
+		proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_is_neighbor, tvb, offset, 7, ENC_NA);
 
 		proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_metric, tvb, offset+7, 3, ENC_BIG_ENDIAN);
 
@@ -2864,6 +2867,7 @@ proto_register_isis_lsp(void)
       { &hf_isis_lsp_eis_neighbors_error_metric, { "Error Metric", "isis.lsp.eis_neighbors.error_metric", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
       { &hf_isis_lsp_maximum_link_bandwidth, { "Maximum link bandwidth", "isis.lsp.maximum_link_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_reservable_link_bandwidth, { "Reservable link bandwidth", "isis.lsp.reservable_link_bandwidth", FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_lsp_ext_is_reachability, { "Extended Reachability IS", "isis.lsp.ext_is_reachability", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_is_neighbor, { "IS neighbor", "isis.lsp.ext_is_reachability.is_neighbor", FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_metric, { "Metric", "isis.lsp.ext_is_reachability.metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_lsp_ext_is_reachability_link_local_identifier, { "Link Local Identifier", "isis.lsp.ext_is_reachability.link_local_identifier", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
