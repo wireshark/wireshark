@@ -420,7 +420,7 @@ gboolean AirpcapGetMonitorMode(PAirpcapHandle AdapterHandle, gboolean * PMonitor
    for a reference on how to decode 802.11 frames with this link type.
   - \ref AIRPCAP_LT_802_11_PLUS_RADIO, to capture 802.11 frames (including control frames) with a radiotap header
   that contains power and channel information. More information about the radiotap header can be found in the
-  \ref radiotap section. Moreover, the "Capture_radio" example application in
+  radiotap section. Moreover, the "Capture_radio" example application in
   the developer's pack can be used as a reference on how to decode 802.11 frames with radiotap headers.
   - \ref AIRPCAP_LT_802_11_PLUS_PPI, to capture 802.11 frames (including control frames) with a Per Packet Information (PPI)
     header that contains per-packet meta information like channel and power information. More details on the PPI header can
@@ -441,7 +441,7 @@ gboolean AirpcapSetLinkType(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLin
    for a reference on how to decode 802.11 frames with this link type.
   - AIRPCAP_LT_802_11_PLUS_RADIO, to capture 802.11 frames (including control frames) with a radiotap header
   that contains power and channel information. More information about the radiotap header can be found int the
-  \ref radiotap section. Moreover, the "Capture_radio" example application in
+  radiotap section. Moreover, the "Capture_radio" example application in
   the developer's pack can be used as a reference on how to decode 802.11 frames with radiotap headers.
 */
 gboolean AirpcapGetLinkType(PAirpcapHandle AdapterHandle, PAirpcapLinkType PLinkType);
