@@ -166,11 +166,11 @@ sub read_repo_info {
 				$last_change = $line;
 			}
 
-			# Commits in current (master-1.10) branch. We may want to use
-			# a different number.
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --match v1.10.0-rc1});
+			# Commits since last annotated tag.
+			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --always --match "v*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
+				$git_description = $line;
 				$num_commits = $parts[-2];
 				$commit_id = $parts[-1];
 			}
@@ -185,11 +185,6 @@ sub read_repo_info {
 			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
-			}
-
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --match "v*"});
-			if (defined($line)) {
-				$git_description = $line;
 			}
 
 			1;
