@@ -704,11 +704,13 @@ packet_list_change_record(PacketList *packet_list, PacketListRecord *record, gin
 		/* !! FALL-THROUGH!! */
 
 		default:
-			col_text_len = strlen(cinfo->col_data[col]);
-			if (col_text_len > G_MAXUSHORT)
-				col_text_len = G_MAXUSHORT;
+			if(cinfo->col_data[col]){
+				col_text_len = strlen(cinfo->col_data[col]);
+				if (col_text_len > G_MAXUSHORT)
+					col_text_len = G_MAXUSHORT;
 
-			record->col_text_len[text_col] = (gushort) col_text_len;
+				record->col_text_len[text_col] = (gushort) col_text_len;
+			}
 			if (!record->col_text_len[text_col]) {
 				record->col_text[text_col] = "";
 #ifdef PACKET_LIST_STATISTICS
