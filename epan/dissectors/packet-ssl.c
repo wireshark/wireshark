@@ -1768,7 +1768,16 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_heartbeat(decrypted, pinfo, ssl_record_tree, 0, conv_version, tvb_length (decrypted), TRUE);
         } else {
-            dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, conv_version, record_length, FALSE);
+            gboolean plaintext = TRUE;
+            /* heartbeats before ChangeCipherSpec are unencrypted */
+            if (ssl) {
+                if (ssl_packet_from_server(ssl, ssl_associations, pinfo)) {
+                    plaintext = ssl->server == NULL;
+                } else {
+                    plaintext = ssl->client == NULL;
+                }
+            }
+            dissect_ssl3_heartbeat(tvb, pinfo, ssl_record_tree, offset, conv_version, record_length, plaintext);
         }
         break;
     }
