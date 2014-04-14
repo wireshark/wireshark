@@ -31,10 +31,12 @@ since version 1.11.2:
 
 ** The About dialog has been added
 ** The Capture Interfaces dialog has been added.
-** The Decode As dialog has been added.
+** The Decode As dialog has been added. It managed to swallow up the
+User Specified Decodes dialog as well.
 ** Several SCTP dialogs have been added.
 ** The statistics tree (the backend for many Statistics and Telephony menu
 items) dialog has been added.
+** The I/O Graph dialog has been added.
 
 The following features are new (or have been significantly updated)
 since version 1.11.1:
@@ -89,7 +91,9 @@ since version 1.10:
 29West
 802.1AE Secure tag
 ACR122
-ADB CS
+ADB Client-Server
+AllJoyn
+Apple PKTAP
 Aruba Instant AP
 ASTERIX
 ATN
@@ -102,6 +106,7 @@ Bluetooth Low Energy RF Info
 CARP
 CFDP
 Cisco MetaData
+DCE/RPC MDSSVC
 DeviceNet
 ELF file format
 EXPORTED PDU
@@ -111,6 +116,7 @@ HTTP2
 IDRP
 IEEE 1722a
 ILP
+iWARP Direct Data Placement and Remote Direct Memory Access Protocol
 Kafka
 Kyoto Tycoon
 Landis & Gyr Telegyr 8979
@@ -131,11 +137,12 @@ Logcat
 MBIM
 MiNT
 MP4 / ISOBMFF file format
-MQTT
+MQ Telemetry Transport Protocol
 Novell PKIS certificate extensions
 NXP PN532 HCI
 OpenFlow
 Open Sound Control
+PDC
 Pathport
 Picture Transfer Protocol Over IP
 PKTAP
@@ -157,6 +164,7 @@ USB Device Firmware Upgrade
 VP8
 WHOIS
 Wi-Fi Display
+ZigBee Green Power profile
 
 --sort-and-group--
 
