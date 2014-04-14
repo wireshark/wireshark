@@ -105,7 +105,7 @@ const QString AboutDialog::plugins_scan()
     QString short_file;
 
     foreach (QStringList plugin_row, plugin_data) {
-        short_file = fontMetrics().elidedText(plugin_row[3], Qt::ElideMiddle, one_em * 25); // Arbitrary
+        short_file = fontMetrics().elidedText(plugin_row[3], Qt::ElideMiddle, one_em * 22); // Arbitrary
         plugin_table += QString("<tr><td>%1</td><td>%2</td><td>%3</td><td>%4</td></tr>\n")
                 .arg(plugin_row[0]) // Name
                 .arg(plugin_row[1]) // Version
