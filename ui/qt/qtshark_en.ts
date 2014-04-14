@@ -1323,12 +1323,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="325"/>
-        <source>Move Up 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="328"/>
-        <source>Move Up 10 pixels</source>
+        <source>Move Up 10 Pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1338,12 +1334,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="336"/>
-        <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="339"/>
-        <source>Move Left 10 pixels</source>
+        <source>Move Left 10 Pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1353,12 +1345,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="347"/>
-        <source>Move Right 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="350"/>
-        <source>Move Right 10 pixels</source>
+        <source>Move Right 10 Pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1368,12 +1356,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="358"/>
-        <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="361"/>
-        <source>Move Down 10 pixels</source>
+        <source>Move Down 10 Pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1383,12 +1367,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="369"/>
-        <source>Move Up 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="372"/>
-        <source>Move Up 1 pixel</source>
+        <source>Move Up 1 Pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1398,12 +1378,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="380"/>
-        <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="383"/>
-        <source>Move Left 1 pixel</source>
+        <source>Move Left 1 Pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1413,12 +1389,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="391"/>
-        <source>Move Right 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="io_graph_dialog.ui" line="394"/>
-        <source>Move Right 1 pixel</source>
+        <source>Move Right 1 Pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1433,7 +1405,8 @@
     </message>
     <message>
         <location filename="io_graph_dialog.ui" line="405"/>
-        <source>Move down 1 pixel</source>
+        <source>Move down 1 Pixel</source>
+        <oldsource>Move down 1 pixel</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5890,7 +5863,8 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <location filename="stats_tree_dialog.cpp" line="137"/>
-        <source>Each type of tree can only be generated one at at time.</source>
+        <source>Each type of tree can only be generated one at time.</source>
+        <oldsource>Each type of tree can only be generated one at at time.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6058,7 +6032,8 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <location filename="summary_dialog.ui" line="378"/>
-        <source>Link size</source>
+        <source>Link type</source>
+        <oldsource>Link size</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -1066,19 +1066,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move Up 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move Left 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1090,19 +1082,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move Right 10 pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 10 Pixels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move Down 10 pixels</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1114,19 +1098,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move Up 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Up</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move Left 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1138,19 +1114,11 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Move Right 1 pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Shift+Right</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Move down 1 pixel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1311,6 +1279,10 @@
     </message>
     <message>
         <source>Wireshark: Save Graph As...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Move down 1 Pixel</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4649,10 +4621,6 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Each type of tree can only be generated one at at time.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>%1 failed to attach to tap</source>
         <translation type="unfinished"></translation>
     </message>
@@ -4670,6 +4638,10 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Error saving file %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Each type of tree can only be generated one at time.</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4773,10 +4745,6 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>Capture filter</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Link size</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -4961,6 +4929,10 @@ Do you want to switch to &quot;Seconds Since Beginning of Capture&quot; now?</so
     </message>
     <message>
         <source>%</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Link type</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
