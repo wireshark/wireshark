@@ -187,6 +187,8 @@ static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
 static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
+static int hf_lte_rrc_sr_config_periodicity = -1;
+static int hf_lte_rrc_sr_config_subframe_offset = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -207,6 +209,7 @@ static gint ett_lte_rrc_warningType = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
+static gint ett_lte_rrc_sr_ConfigIndex = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -2216,6 +2219,37 @@ static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
   }
 }
 
+/* Break sr-configIndex down into periodicity and offset.  From 36.231, 10.1 */
+static void sr_lookup_configindex(guint32 config_index, guint16 *periodicity, guint16 *offset)
+{
+  if (config_index < 5) {
+    *periodicity = 5;
+    *offset = config_index;
+  } else if (config_index < 15) {
+    *periodicity = 10;
+    *offset = config_index - 5;
+  }
+  else if (config_index < 35) {
+    *periodicity = 20;
+    *offset = config_index - 15;
+  }
+  else if (config_index < 75) {
+    *periodicity = 40;
+    *offset = config_index - 35;
+  }
+  else if (config_index < 155) {
+    *periodicity = 80;
+    *offset = config_index - 75;
+  }
+  else if (config_index < 157) {
+    *periodicity = 2;
+    *offset = config_index - 155;
+  }
+  else {
+    *periodicity = 1;
+    *offset = 0;
+  }
+}
 
 #include "packet-lte-rrc-fn.c"
 
@@ -2789,7 +2823,15 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2,
       { "Bit 2", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit2",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_val), 0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+    { &hf_lte_rrc_sr_config_periodicity,
+      { "Periodicity", "lte-rrc.sr_Periodicity",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sr_config_subframe_offset,
+      { "Subframe Offset", "lte-rrc.sr_SubframeOffset",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -2810,7 +2852,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_warningType,
     &ett_lte_rrc_dataCodingScheme,
     &ett_lte_rrc_warningMessageSegment,
-    &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig
+    &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
+    &ett_lte_rrc_sr_ConfigIndex
   };
 
   static ei_register_info ei[] = {

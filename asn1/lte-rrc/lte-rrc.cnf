@@ -1571,3 +1571,19 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
 %(DEFAULT_BODY)s
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->integrity = (enum security_integrity_algorithm_e)value;
+
+#.FN_BODY SchedulingRequestConfig/setup/sr-ConfigIndex VAL_PTR=&value
+  guint32 value;
+  guint16 periodicity, subframe_offset;
+  proto_item *ti;
+  proto_tree *subtree;
+  gint index_offset = offset;
+%(DEFAULT_BODY)s
+  /* Break config index into its parts */
+  sr_lookup_configindex(value, &periodicity, &subframe_offset);
+  /* Show parts as generated fields */
+  subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sr_ConfigIndex);
+  ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_periodicity, tvb, index_offset>>3, 1, periodicity);
+  PROTO_ITEM_SET_GENERATED(ti);
+  ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_subframe_offset, tvb, index_offset>>3, 1, subframe_offset);
+  PROTO_ITEM_SET_GENERATED(ti);

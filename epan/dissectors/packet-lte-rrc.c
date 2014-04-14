@@ -1639,7 +1639,7 @@ static int hf_lte_rrc_n1PUCCH_AN_P1_r10 = -1;     /* INTEGER_0_2047 */
 static int hf_lte_rrc_fdd = -1;                   /* T_fdd */
 static int hf_lte_rrc_setup_27 = -1;              /* T_setup_25 */
 static int hf_lte_rrc_sr_PUCCH_ResourceIndex = -1;  /* INTEGER_0_2047 */
-static int hf_lte_rrc_sr_ConfigIndex = -1;        /* INTEGER_0_157 */
+static int hf_lte_rrc_sr_ConfigIndex = -1;        /* T_sr_ConfigIndex */
 static int hf_lte_rrc_dsr_TransMax = -1;          /* T_dsr_TransMax */
 static int hf_lte_rrc_sr_PUCCH_ResourceIndexP1_r10 = -1;  /* INTEGER_0_2047 */
 static int hf_lte_rrc_setup_28 = -1;              /* T_setup_26 */
@@ -2437,6 +2437,8 @@ static int hf_lte_rrc_warningMessageSegment_nb_pages = -1;
 static int hf_lte_rrc_warningMessageSegment_decoded_page = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit1 = -1;
 static int hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2 = -1;
+static int hf_lte_rrc_sr_config_periodicity = -1;
+static int hf_lte_rrc_sr_config_subframe_offset = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -3535,7 +3537,7 @@ static gint ett_lte_rrc_CandidateCellInfoList_r10 = -1;
 static gint ett_lte_rrc_CandidateCellInfo_r10 = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 195 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 197 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_featureGroupIndRel9Add = -1;
@@ -3551,6 +3553,7 @@ static gint ett_lte_rrc_warningType = -1;
 static gint ett_lte_rrc_dataCodingScheme = -1;
 static gint ett_lte_rrc_warningMessageSegment = -1;
 static gint ett_lte_rrc_interBandTDD_CA_WithDifferentConfig = -1;
+static gint ett_lte_rrc_sr_ConfigIndex = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -5560,6 +5563,37 @@ static void drx_check_config_sane(drx_config_t *config, asn1_ctx_t *actx)
   }
 }
 
+/* Break sr-configIndex down into periodicity and offset.  From 36.231, 10.1 */
+static void sr_lookup_configindex(guint32 config_index, guint16 *periodicity, guint16 *offset)
+{
+  if (config_index < 5) {
+    *periodicity = 5;
+    *offset = config_index;
+  } else if (config_index < 15) {
+    *periodicity = 10;
+    *offset = config_index - 5;
+  }
+  else if (config_index < 35) {
+    *periodicity = 20;
+    *offset = config_index - 15;
+  }
+  else if (config_index < 75) {
+    *periodicity = 40;
+    *offset = config_index - 35;
+  }
+  else if (config_index < 155) {
+    *periodicity = 80;
+    *offset = config_index - 75;
+  }
+  else if (config_index < 157) {
+    *periodicity = 2;
+    *offset = config_index - 155;
+  }
+  else {
+    *periodicity = 1;
+    *offset = 0;
+  }
+}
 
 
 /*--- Included file: packet-lte-rrc-fn.c ---*/
@@ -15076,9 +15110,23 @@ dissect_lte_rrc_T_antennaInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
-dissect_lte_rrc_INTEGER_0_157(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_sr_ConfigIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  guint16 periodicity, subframe_offset;
+  proto_item *ti;
+  proto_tree *subtree;
+  gint index_offset = offset;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 157U, NULL, FALSE);
+                                                            0U, 157U, &value, FALSE);
+
+  /* Break config index into its parts */
+  sr_lookup_configindex(value, &periodicity, &subframe_offset);
+  /* Show parts as generated fields */
+  subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sr_ConfigIndex);
+  ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_periodicity, tvb, index_offset>>3, 1, periodicity);
+  PROTO_ITEM_SET_GENERATED(ti);
+  ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_subframe_offset, tvb, index_offset>>3, 1, subframe_offset);
+  PROTO_ITEM_SET_GENERATED(ti);
 
   return offset;
 }
@@ -15108,7 +15156,7 @@ dissect_lte_rrc_T_dsr_TransMax(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static const per_sequence_t T_setup_25_sequence[] = {
   { &hf_lte_rrc_sr_PUCCH_ResourceIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_2047 },
-  { &hf_lte_rrc_sr_ConfigIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_INTEGER_0_157 },
+  { &hf_lte_rrc_sr_ConfigIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_sr_ConfigIndex },
   { &hf_lte_rrc_dsr_TransMax, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_dsr_TransMax },
   { NULL, 0, 0, NULL }
 };
@@ -22303,6 +22351,7 @@ dissect_lte_rrc_T_integrityProtAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1
 
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->integrity = (enum security_integrity_algorithm_e)value;
+
 
   return offset;
 }
@@ -34983,7 +35032,7 @@ static int dissect_UEAssistanceInformation_r11_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 2221 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2255 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -40944,7 +40993,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_sr_ConfigIndex,
       { "sr-ConfigIndex", "lte-rrc.sr_ConfigIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_157", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_dsr_TransMax,
       { "dsr-TransMax", "lte-rrc.dsr_TransMax",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_dsr_TransMax_vals), 0,
@@ -43691,7 +43740,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 2368 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2402 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -44116,7 +44165,15 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2,
       { "Bit 2", "lte-rrc.interBandTDD_CA_WithDifferentConfig.bit2",
         FT_BOOLEAN, BASE_NONE, TFS(&lte_rrc_interBandTDD_CA_WithDifferentConfig_bit2_val), 0,
-        NULL, HFILL }}
+        NULL, HFILL }},
+    { &hf_lte_rrc_sr_config_periodicity,
+      { "Periodicity", "lte-rrc.sr_Periodicity",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_lte_rrc_sr_config_subframe_offset,
+      { "Subframe Offset", "lte-rrc.sr_SubframeOffset",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
   };
 
   /* List of subtrees */
@@ -45216,7 +45273,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_CandidateCellInfo_r10,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 2799 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2841 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_featureGroupIndRel9Add,
@@ -45231,7 +45288,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_warningType,
     &ett_lte_rrc_dataCodingScheme,
     &ett_lte_rrc_warningMessageSegment,
-    &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig
+    &ett_lte_rrc_interBandTDD_CA_WithDifferentConfig,
+    &ett_lte_rrc_sr_ConfigIndex
   };
 
   static ei_register_info ei[] = {
@@ -45284,7 +45342,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 2851 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 2894 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
   register_init_routine(&lte_rrc_init_protocol);
 }
