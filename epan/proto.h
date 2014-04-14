@@ -381,7 +381,7 @@ typedef enum {
 /* String types */
 	STR_ASCII    = BASE_NONE, /**< shows non-printable ASCII characters as C-style escapes */
 	/* XXX, support for format_text_wsp() ? */
-	STR_UNICODE  = 7          /**< shows non-printable UNICODE characters as \uXXXX (XXX for now non-printable characters display depends on UI) */
+	STR_UNICODE  = 7          /**< shows non-printable UNICODE characters as \\uXXXX (XXX for now non-printable characters display depends on UI) */
 } field_display_e;
 
 /* Following constants have to be ORed with a field_display_e when dissector
