@@ -53,6 +53,8 @@ void load_decode_as_entries(void);
  * protocol, i.e. the ethernet type code, IP port number, TCP port
  * number, etc.
  *
+ * @param selector_type The type of the selector in that dissector table
+ *
  * @param value A pointer to the value for this entry in the dissector
  * hash table.  This is an opaque pointer that can only be handed back
  * to routine in the file packet.c - but it's unused.
