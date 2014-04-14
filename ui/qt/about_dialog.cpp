@@ -122,10 +122,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
     QFile f_authors;
     QFile f_license;
-    char *path = NULL;
     const char *constpath;
     QString message;
 #if defined (HAVE_LIBSMI) || defined (HAVE_GEOIP)
+    char *path = NULL;
     gint i;
     gchar **resultArray;
 #endif
