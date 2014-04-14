@@ -43,12 +43,24 @@ stat_group_name(register_stat_group_t group);
  *
  * Same as register_stat_menu_item() but with optional stock item.
  *
+ * @param gui_path the path to gui
+ *
  * @param name the menu label
  *
  * @param stock_id the stock_id (icon) to show, or NULL
  *
+ * @param label the label
+ *
+ * @param accelerator the accelerator key
+ *
+ * @param tooltip the tooltip menu
+ *
  * @param callback gets called when the menu item is selected; it should do
  * the work of creating the stat window.
+ *
+ * @param callback_data data for callback function
+ *
+ * @param enabled enable or not the bar menu
  *
  * @param selected_packet_enabled gets called by set_menus_for_selected_packet();
  * it's passed a pointer to the "frame_data" structure for the current frame,
@@ -62,8 +74,6 @@ stat_group_name(register_stat_group_t group);
  * and should return TRUE if the stat will work now (which might depend on
  * whether a tree row is selected and, if one is, on the tree row) and
  * FALSE if not.
- *
- * @param callback_data data for callback function
  */
 void register_menu_bar_menu_items(
     const char   *gui_path,
