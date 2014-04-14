@@ -134,7 +134,7 @@ void StatsTreeDialog::fillTree()
 
     if (st_cfg_->in_use) {
         QMessageBox::warning(this, tr("%1 already open").arg(display_name),
-                             tr("Each type of tree can only be generated one at at time."));
+                             tr("Each type of tree can only be generated one at time."));
         reject();
     }
 
