@@ -126,6 +126,7 @@ lib/
 AUTHORS-SHORT
 AUTHORS-SHORT-FORMAT
 doxygen.cfg
+doxygen-*.tag
 help/faq.txt
 pod2htm[di].tmp
 wireshark.pod
@@ -142,7 +143,8 @@ docbook/wsdg.validated
 docbook/wsluarm
 docbook/wsluarm_src/
 docbook/wsug.validated
-
+wsar_html/
+wsar_html.zip
 
 # Qt #
 ######
