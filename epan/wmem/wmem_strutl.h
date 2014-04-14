@@ -80,14 +80,14 @@ wmem_strsplit(wmem_allocator_t *allocator, const gchar *src,
 /**
  * wmem_ascii_strdown:
  * Based on g_ascii_strdown
- * @allocator: An enumeration of the different types of available allocators.
- * @str: a string.
- * @len: length of @str in bytes, or -1 if @str is nul-terminated.
+ * @param allocator: An enumeration of the different types of available allocators.
+ * @param str: a string.
+ * @param len: length of @param str in bytes, or -1 if @param str is nul-terminated.
  *
  * Converts all upper case ASCII letters to lower case ASCII letters.
  *
  * Return value: a newly-allocated string, with all the upper case
- *               characters in @str converted to lower case, with
+ *               characters in @param str converted to lower case, with
  *               semantics that exactly match g_ascii_tolower(). (Note
  *               that this is unlike the old g_strdown(), which modified
  *               the string in place.)
