@@ -516,7 +516,7 @@ static gboolean check_is_802_2(tvbuff_t *tvb, int fcs_len)
           length = reported_length;
         }
         /* Only allow inspection of 'length' number of bytes. */
-        captured_length = tvb_length_remaining(tvb, ETH_HEADER_SIZE);
+        captured_length = tvb_captured_length_remaining(tvb, ETH_HEADER_SIZE);
         if (captured_length > length)
           captured_length = length;
 
@@ -585,7 +585,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     gboolean has_fcs = FALSE;
     tvbuff_t *real_trailer_tvb;
 
-    trailer_length = tvb_length(trailer_tvb);
+    trailer_length = tvb_captured_length(trailer_tvb);
     trailer_reported_length = tvb_reported_length(trailer_tvb);
 
     /* There can not have been padding when the length of the frame (including the
@@ -676,7 +676,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
     if (has_fcs) {
       guint32 sent_fcs = tvb_get_ntohl(trailer_tvb, padding_length+trailer_length);
       if(eth_check_fcs){
-        guint32 fcs = crc32_802_tvb(tvb, tvb_length(tvb) - 4);
+        guint32 fcs = crc32_802_tvb(tvb, tvb_captured_length(tvb) - 4);
         if (fcs == sent_fcs) {
           item = proto_tree_add_uint_format_value(fh_tree, hf_eth_fcs, trailer_tvb,
                                             padding_length+trailer_length, 4, sent_fcs,
@@ -717,7 +717,7 @@ add_ethernet_trailer(packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
       }
       trailer_length += 4;
     }
-    proto_tree_set_appendix(fh_tree, tvb, tvb_length(tvb) - padding_length - trailer_length, padding_length + trailer_length);
+    proto_tree_set_appendix(fh_tree, tvb, tvb_captured_length(tvb) - padding_length - trailer_length, padding_length + trailer_length);
   }
 }
 
@@ -732,7 +732,7 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      putting the frame on the network. Make sure these packets get
      a proper trailer (even though the sliced frame might not
      properly dissect. */
-  if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_length(tvb)) ) {
+  if ( (eth_trailer_length > 0) && (eth_trailer_length < tvb_captured_length(tvb)) ) {
     tvbuff_t *next_tvb;
     guint total_trailer_length;
 
@@ -740,12 +740,12 @@ dissect_eth_maybefcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Dissect the tvb up to, but not including the trailer */
     next_tvb = tvb_new_subset(tvb, 0,
-                              tvb_length(tvb) - total_trailer_length,
+                              tvb_captured_length(tvb) - total_trailer_length,
                               tvb_reported_length(tvb) - total_trailer_length);
     fh_tree = dissect_eth_common(next_tvb, pinfo, tree, 0);
 
     /* Now handle the ethernet trailer and optional FCS */
-    next_tvb = tvb_new_subset_remaining(tvb, tvb_length(tvb) - total_trailer_length);
+    next_tvb = tvb_new_subset_remaining(tvb, tvb_captured_length(tvb) - total_trailer_length);
     add_ethernet_trailer(pinfo, tree, fh_tree, hf_eth_trailer, tvb, next_tvb,
                          eth_assume_fcs ? 4 : pinfo->pseudo_header->eth.fcs_len);
   } else {

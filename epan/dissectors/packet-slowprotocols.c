@@ -1839,7 +1839,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
     { /* padding */
         gint padding_size;
-        padding_size = tvb_length_remaining(tvb, offset);
+        padding_size = tvb_captured_length_remaining(tvb, offset);
         if (0 != padding_size)
         {
             proto_tree* tree_a;
@@ -2115,7 +2115,7 @@ dissect_oampdu_information(tvbuff_t *tvb, proto_tree *tree)
 
     while (1)
     {
-        bytes = tvb_length_remaining(tvb, offset);
+        bytes = tvb_captured_length_remaining(tvb, offset);
         if (bytes < 1) break;
 
         info_type = tvb_get_guint8(tvb, offset);
@@ -2303,7 +2303,7 @@ dissect_oampdu_event_notification(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     while (1)
     {
-        bytes = tvb_length_remaining(tvb, offset);
+        bytes = tvb_captured_length_remaining(tvb, offset);
         if (bytes < 1) break;
 
         event_type = tvb_get_guint8(tvb, offset);
@@ -2751,7 +2751,7 @@ dissect_oampdu_loopback_control(tvbuff_t *tvb, proto_tree *tree)
 
     offset = OAMPDU_HEADER_SIZE;
 
-    bytes = tvb_length_remaining(tvb, offset);
+    bytes = tvb_captured_length_remaining(tvb, offset);
 
     if (bytes >= 1)
     {
@@ -2810,7 +2810,7 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
 
     offset = OAMPDU_HEADER_SIZE;
 
-    bytes = tvb_length_remaining(tvb, offset);
+    bytes = tvb_captured_length_remaining(tvb, offset);
 
     if (bytes >= 3)
     {
