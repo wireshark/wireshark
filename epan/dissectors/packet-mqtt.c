@@ -59,6 +59,9 @@
 
 #define MQTT_MASK_SUBQOS        0x03
 
+void proto_register_mqtt(void);
+void proto_reg_handoff_mqtt(void);
+
 static const value_string mqtt_msgtype_vals[] = {
   { MQTT_RESERVED,          "Reserved" },
   { MQTT_CONNECT,           "Connect Command" },

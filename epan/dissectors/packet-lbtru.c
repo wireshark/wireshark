@@ -37,6 +37,9 @@
 #include "packet-lbm.h"
 #include "packet-lbtru.h"
 
+void proto_register_lbtru(void);
+void proto_reg_handoff_lbtru(void);
+
 /* Protocol handle */
 static int proto_lbtru = -1;
 

@@ -113,6 +113,7 @@
 
 void proto_register_ieee80211(void);
 void proto_reg_handoff_ieee80211(void);
+void proto_register_wlan_rsna_eapol(void);
 
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 

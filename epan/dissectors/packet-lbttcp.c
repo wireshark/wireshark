@@ -37,6 +37,10 @@
 #include "packet-lbm.h"
 #include "packet-lbttcp.h"
 
+
+void proto_register_lbttc(void);
+void proto_reg_handoff_lbttc(void);
+
 /* Protocol handle */
 static int proto_lbttcp = -1;
 

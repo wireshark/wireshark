@@ -29,6 +29,9 @@
 #include <epan/prefs.h>
 #include "packet-lbm.h"
 
+void proto_register_lbm(void);
+void proto_reg_handoff_lbm(void);
+
 /* Protocol handle */
 static int lbm_protocol_handle = -1;
 

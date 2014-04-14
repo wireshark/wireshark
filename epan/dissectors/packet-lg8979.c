@@ -29,6 +29,8 @@
 #include "packet-tcp.h"
 #include <epan/prefs.h>
 
+void proto_register_lg8979(void);
+
 /* Initialize the protocol and registered fields */
 static int proto_lg8979                    = -1;
 static int hf_lg8979_header                = -1;

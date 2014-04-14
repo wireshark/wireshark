@@ -43,6 +43,9 @@
 #define PDM_MSG_HDR_LE_MAGIC_BYTE_3 0x1C
 #define PDM_MSG_HDR_LE_MAGIC_BYTE_4 0xA7
 
+void proto_register_lbmpdm(void);
+void proto_reg_handoff_lbmpdm(void);
+
 /*------------*/
 /* PDM header */
 /*------------*/
@@ -345,7 +348,7 @@ static int hf_lbmpdm_segment_def_fixed_req_section_len = -1;
 static int hf_lbmpdm_segment_def_field_info_len = -1;
 static int hf_lbmpdm_segment_def_field = -1;
 static int hf_lbmpdm_segment_def_field_def_len = -1;
-static int hf_lbmpdm_segment_def_field_id = -1;;
+static int hf_lbmpdm_segment_def_field_id = -1;
 static int hf_lbmpdm_segment_def_field_len = -1;
 static int hf_lbmpdm_segment_def_field_fixed_str_len = -1;
 static int hf_lbmpdm_segment_def_field_num_arr_elem = -1;

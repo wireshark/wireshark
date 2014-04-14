@@ -1431,7 +1431,7 @@ decode_epl_address (guchar adr)
 	}
 }
 
-gint
+static gint
 dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
 	gint off = 0;

@@ -50,6 +50,9 @@
 
 #define LBMR_MAX_NAMELEN 256
 
+void proto_register_lbmr(void);
+void proto_reg_handoff_lbmr(void);
+
 /*----------------------------------------------------------------------------*/
 /* LBT-IPC transport management.                                              */
 /*----------------------------------------------------------------------------*/

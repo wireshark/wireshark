@@ -45,6 +45,9 @@
 #include "packet-lbm.h"
 #include "packet-lbtrm.h"
 
+void proto_register_lbtrm(void);
+void proto_reg_handoff_lbtrm(void);
+
 /* Protocol handle */
 static int proto_lbtrm = -1;
 

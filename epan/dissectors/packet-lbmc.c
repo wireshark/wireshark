@@ -36,6 +36,10 @@
 #include "packet-lbm.h"
 #include "packet-lbttcp.h"
 
+
+void proto_register_lbmc(void);
+void proto_reg_handoff_lbmc(void);
+
 /*----------------------------------------------------------------------------*/
 /* Stream management.                                                         */
 /*----------------------------------------------------------------------------*/

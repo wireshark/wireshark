@@ -35,6 +35,9 @@
 #include <epan/conversation.h>
 #include "packet-lbm.h"
 
+void proto_register_lbmpdm_tcp(void);
+void proto_reg_handoff_lbmpdm_tcp(void);
+
 /* Protocol handle */
 static int lbmpdm_tcp_protocol_handle = -1;
 

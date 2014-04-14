@@ -33,6 +33,8 @@
 
 #include "packet-tcp.h"
 
+void proto_register_bencode(void);
+
 static int proto_bencode = -1;
 
 static gint hf_bencode_str_length   = -1;
