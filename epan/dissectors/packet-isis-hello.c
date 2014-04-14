@@ -963,7 +963,7 @@ dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	offset += 1;
 
 	proto_tree_add_item(hello_tree, hf_isis_hello_source_id, tvb, offset, id_length, ENC_NA);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", System-ID: %s", tvb_print_system_id( tvb, offset, id_length ));
 
 	offset += id_length;
 

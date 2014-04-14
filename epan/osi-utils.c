@@ -30,6 +30,7 @@
 #include <string.h>
 #include <glib.h>
 
+#include "tvbuff.h"
 #include "osi-utils.h"
 #include "emem.h"
 
@@ -85,6 +86,12 @@ print_system_id( const guint8 *ad, int length )
   cur = (gchar *)ep_alloc(MAX_SYSTEMID_LEN * 3 + 5);
   print_system_id_buf(ad, length, cur, MAX_SYSTEMID_LEN * 3 + 5);
   return( cur );
+}
+
+gchar *
+tvb_print_system_id( tvbuff_t *tvb, const gint offset, int length )
+{
+  return( print_system_id(tvb_get_ptr(tvb, offset, length), length) );
 }
 
 void

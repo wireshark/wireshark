@@ -1691,6 +1691,7 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			proto_tree_add_item(ntree, hf_isis_lsp_eis_neighbors_error_metric_ie, tvb, offset+3, 1, ENC_NA);
 			proto_tree_add_item(ntree, is_eis ? hf_isis_lsp_eis_neighbors_es_neighbor_id : hf_isis_lsp_eis_neighbors_is_neighbor_id,
 									tvb, offset+4, id_length, ENC_NA);
+			proto_item_append_text(ti, ": %s", tvb_print_system_id(tvb, offset+4, id_length));
 		}
 		offset += tlen;
 		length -= tlen;
@@ -1981,6 +1982,7 @@ dissect_lsp_ext_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
 		ntree = proto_item_add_subtree (ti, ett_isis_lsp_part_of_clv_ext_is_reachability );
 
 		proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_is_neighbor_id, tvb, offset, 7, ENC_NA);
+		proto_item_append_text(ti, ": %s", tvb_print_system_id(tvb, offset, 7));
 
 		proto_tree_add_item(ntree, hf_isis_lsp_ext_is_reachability_metric, tvb, offset+7, 3, ENC_BIG_ENDIAN);
 
@@ -2601,7 +2603,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 	offset_checksum = offset;
 
 	proto_tree_add_item(lsp_tree, hf_isis_lsp_lsp_id, tvb, offset, id_length + 2, ENC_NA);
-	system_id = print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2);
+	system_id = tvb_print_system_id( tvb, offset, id_length+2 );
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", LSP-ID: %s", system_id);
 
 	offset += (id_length + 2);

@@ -322,17 +322,17 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 	offset += 2;
 
 	proto_tree_add_item(csnp_tree, hf_isis_csnp_source_id, tvb, offset, id_length, ENC_NA);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, id_length ));
 	offset += id_length + 1;
 
 	proto_tree_add_item(csnp_tree, hf_isis_csnp_start_lsp_id, tvb, offset, id_length + 2, ENC_NA);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Start LSP-ID: %s",
-					print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ));
+					tvb_print_system_id( tvb, offset, id_length+2 ));
 	offset += id_length + 2;
 
 	proto_tree_add_item(csnp_tree, hf_isis_csnp_end_lsp_id, tvb, offset, id_length + 2, ENC_NA);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", End LSP-ID: %s",
-					print_system_id( tvb_get_ptr(tvb, offset, id_length+2), id_length+2 ));
+					tvb_print_system_id( tvb, offset, id_length+2 ));
 	offset += id_length + 2;
 
 	len = pdu_length - header_length;
@@ -385,7 +385,7 @@ dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 	offset += 2;
 
 	proto_tree_add_item(psnp_tree, hf_isis_psnp_source_id, tvb, offset, id_length, ENC_NA);
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", print_system_id( tvb_get_ptr(tvb, offset, id_length), id_length ));
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, id_length ));
 
 	offset += id_length + 1;
 

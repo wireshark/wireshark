@@ -50,6 +50,7 @@ void       print_nsap_net_buf( const guint8 *, int, gchar *, int);
 gchar*     print_area     ( const guint8 *, int );
 void       print_area_buf ( const guint8 *, int, gchar *, int);
 gchar*     print_system_id( const guint8 *, int );
+gchar*     tvb_print_system_id( tvbuff_t *, const gint, int );
 void       print_system_id_buf( const guint8 *, int, gchar *, int);
 
 #endif /* __OSI_UTILS_H__ */
