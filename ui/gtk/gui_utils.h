@@ -265,6 +265,7 @@ extern void set_tree_styles_all(void);
  */
 extern GtkWidget *xpm_to_widget(const char ** xpm);
 
+#if 0
 /** Convert an xpm picture into a GtkWidget showing it.
  * Beware: the given parent window must already be visible!
  *
@@ -272,7 +273,8 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  * @param xpm the character array containing the picture
  * @return a newly created GtkWidget showing the picture
  */
-/*extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);*/
+extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
+#endif
 
 /** Convert an pixbuf data to a GtkWidget
  *
