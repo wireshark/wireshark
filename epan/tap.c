@@ -58,7 +58,7 @@ typedef struct _tap_packet_t {
 	const void *tap_specific_data;
 } tap_packet_t;
 
-#define TAP_PACKET_QUEUE_LEN 100
+#define TAP_PACKET_QUEUE_LEN 5000
 static tap_packet_t tap_packet_array[TAP_PACKET_QUEUE_LEN];
 static guint tap_packet_index;
 
