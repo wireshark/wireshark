@@ -62,7 +62,8 @@ pcapng_write_session_header_block(FILE* pfile,  /**< Write information */
                                                          */
                                   guint64 section_length, /**< Length of section */
                                   guint64 *bytes_written, /**< Number of written bytes */
-                                  int *err); /**< Error type */
+                                  int *err /**< Error type */
+                                  );
 
 extern gboolean
 pcapng_write_interface_description_block(FILE* pfile,
