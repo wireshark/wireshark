@@ -38,6 +38,7 @@ void proto_reg_handoff_macctrl(void);
 static int proto_macctrl = -1;
 
 static int hf_macctrl_opcode       = -1;
+static int hf_macctrl_timestamp    = -1;
 static int hf_macctrl_pause_time   = -1;
 static int hf_macctrl_cbfc_enbv    = -1;
 static int hf_macctrl_cbfc_enbv_c0 = -1;
@@ -56,6 +57,14 @@ static int hf_macctrl_cbfc_pause_time_c4 = -1;
 static int hf_macctrl_cbfc_pause_time_c5 = -1;
 static int hf_macctrl_cbfc_pause_time_c6 = -1;
 static int hf_macctrl_cbfc_pause_time_c7 = -1;
+
+static int hf_reg_flags      = -1;
+static int hf_reg_req_grants = -1;
+static int hf_reg_grants     = -1;
+static int hf_reg_port       = -1;
+static int hf_reg_ack_port   = -1;
+static int hf_reg_time       = -1;
+static int hf_reg_ack_time   = -1;
 
 static gint ett_macctrl            = -1;
 static gint ett_macctrl_cbfc_enbv  = -1;
@@ -85,13 +94,33 @@ static const int *macctrl_cbfc_pause_times_list[] = {
 };
 
 #define MACCTRL_PAUSE                        0x0001
+#define MACCTRL_GATE                         0x0002
+#define MACCTRL_REPORT                       0x0003
+#define MACCTRL_REGISTER_REQ                 0x0004
+#define MACCTRL_REGISTER                     0x0005
+#define MACCTRL_REGISTER_ACK                 0x0006
 #define MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE 0x0101
 
 static const value_string opcode_vals[] = {
-  { MACCTRL_PAUSE, "Pause" },
+  { MACCTRL_PAUSE, "MPCP Pause" },
+  { MACCTRL_GATE, "MPCP Gate" },
+  { MACCTRL_REPORT, "MPCP Report" },
+  { MACCTRL_REGISTER_REQ, "MPCP Register Req" },
+  { MACCTRL_REGISTER, "MPCP Register" },
+  { MACCTRL_REGISTER_ACK, "MPCP Register Ack" },
   { MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE, "Class Based Flow Control [CBFC] Pause" },
   { 0, NULL }
 };
+
+static const value_string reg_flags_vals[] = {
+  { 1, "Register" },
+  { 2, "Deregister" },
+  { 3, "Ack" },
+  { 4, "Nack" },
+  { 0, NULL }
+};
+
+
 
 static void
 dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -100,43 +129,91 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *macctrl_tree = NULL;
   proto_tree *pause_times_tree = NULL;
   guint16     opcode;
+  guint32     timestamp;
   guint16     pause_time;
+  int i;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC CTRL");
   col_clear(pinfo->cinfo, COL_INFO);
 
   opcode = tvb_get_ntohs(tvb, 0);
-  if (tree) {
-    ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 46, ENC_NA);
-    macctrl_tree = proto_item_add_subtree(ti, ett_macctrl);
+  timestamp = tvb_get_ntohl(tvb, 2);
 
-    proto_tree_add_uint(macctrl_tree, hf_macctrl_opcode, tvb, 0, 2, opcode);
-  }
+  ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 46, ENC_NA);
+  macctrl_tree = proto_item_add_subtree(ti, ett_macctrl);
+
+  proto_tree_add_uint(macctrl_tree, hf_macctrl_opcode, tvb, 0, 2, opcode);
+  proto_tree_add_uint(macctrl_tree, hf_macctrl_timestamp, tvb, 2, 4, timestamp);
+  col_add_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, opcode_vals, "Unknown"));
 
   switch (opcode) {
 
     case MACCTRL_PAUSE:
-      pause_time = tvb_get_ntohs(tvb, 2);
-      col_add_fstr(pinfo->cinfo, COL_INFO, "MAC PAUSE: pause_time: %u quanta",
-                   pause_time);
-      if (tree)
-        proto_tree_add_uint(macctrl_tree, hf_macctrl_pause_time, tvb, 2, 2,
-                            pause_time);
+      pause_time = tvb_get_ntohs(tvb, 6);
+      col_append_fstr(pinfo->cinfo, COL_INFO, ": pause_time: %u quanta",
+                      pause_time);
+      proto_tree_add_uint(macctrl_tree, hf_macctrl_pause_time, tvb, 6, 2,
+                          pause_time);
+      break;
+
+    case MACCTRL_GATE:
+      break;
+
+    case MACCTRL_REPORT:
+      break;
+
+    case MACCTRL_REGISTER_REQ:
+      /* Flags */
+      proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
+                          6, 1, ENC_NA);
+
+      /* Pending Grants */
+      proto_tree_add_item(macctrl_tree, hf_reg_req_grants, tvb,
+                          7, 1, ENC_NA);
+      break;
+
+    case MACCTRL_REGISTER:
+
+      /* Assigned Port */
+      proto_tree_add_item(macctrl_tree, hf_reg_port, tvb,
+                          6, 2, ENC_NA);
+
+      /* Flags */
+      proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
+                          8, 1, ENC_NA);
+      /* Synch Time */
+      proto_tree_add_item(macctrl_tree, hf_reg_time, tvb,
+                          9, 2, ENC_NA);
+
+      /* Echoed Pending Grants */
+      proto_tree_add_item(macctrl_tree, hf_reg_grants, tvb,
+                          11, 1, ENC_NA);
+      break;
+
+    case MACCTRL_REGISTER_ACK:
+
+      /* Flags */
+      proto_tree_add_item(macctrl_tree, hf_reg_flags, tvb,
+                          6, 1, ENC_NA);
+
+      /* Echoed Assigned Port */
+      proto_tree_add_item(macctrl_tree, hf_reg_ack_port, tvb,
+                          7, 2, ENC_NA);
+
+      /* Echoed Synch Time */
+      proto_tree_add_item(macctrl_tree, hf_reg_ack_time, tvb,
+                          9, 2, ENC_NA);
       break;
 
     case MACCTRL_CLASS_BASED_FLOW_CNTRL_PAUSE:
-      col_set_str(pinfo->cinfo, COL_INFO, "MAC CLASS BASED FLOW CONTROL PAUSE");
-      if (tree) {
-        int i;
-        proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv,
-                               ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, ENC_BIG_ENDIAN);
+      proto_tree_add_bitmask(macctrl_tree, tvb, 2, hf_macctrl_cbfc_enbv,
+                             ett_macctrl_cbfc_enbv, macctrl_cbfc_enbv_list, ENC_BIG_ENDIAN);
 
-        ti = proto_tree_add_text(macctrl_tree, tvb, 4, 8*2, "CBFC Class Pause Times");
-        pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);
+      ti = proto_tree_add_text(macctrl_tree, tvb, 4, 8*2, "CBFC Class Pause Times");
+      pause_times_tree = proto_item_add_subtree(ti, ett_macctrl_cbfc_pause_times);
 
-        for (i=0; i<8; i++) {
-          proto_tree_add_item(pause_times_tree, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, ENC_BIG_ENDIAN);
-        }
+      for (i=0; i<8; i++) {
+        proto_tree_add_item(pause_times_tree, *macctrl_cbfc_pause_times_list[i], tvb, 4+i*2, 2, ENC_BIG_ENDIAN);
       }
       break;
 
@@ -149,7 +226,11 @@ proto_register_macctrl(void)
   static hf_register_info hf[] = {
     { &hf_macctrl_opcode,
       { "Opcode", "macc.opcode", FT_UINT16, BASE_HEX,
-        VALS(opcode_vals), 0x0, "MAC Control opcode", HFILL}},
+        VALS(opcode_vals), 0x0, "MAC Control Opcode", HFILL}},
+
+    { &hf_macctrl_timestamp,
+      { "Timestamp", "macc.timestamp", FT_UINT32, BASE_DEC,
+        NULL, 0x0, "MAC Control Timestamp", HFILL }},
 
     { &hf_macctrl_pause_time,
       { "pause_time", "macc.pause_time", FT_UINT16, BASE_DEC,
@@ -221,8 +302,35 @@ proto_register_macctrl(void)
 
     { &hf_macctrl_cbfc_pause_time_c7,
       { "C7", "macc.cbfc.pause_time.c7", FT_UINT16, BASE_DEC,
-        NULL, 0x00, NULL, HFILL }}
+        NULL, 0x00, NULL, HFILL }},
 
+    { &hf_reg_flags,
+      { "Flags", "macc.reg.flags", FT_UINT8, BASE_HEX,
+        VALS(reg_flags_vals), 0x00, NULL, HFILL }},
+
+    { &hf_reg_req_grants,
+      { "Pending Grants", "macc.regreq.grants", FT_UINT8, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_reg_grants,
+      { "Echoed Pending Grants", "macc.reg.grants", FT_UINT8, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_reg_port,
+      { "Assigned Port (LLID)", "macc.reg.assignedport", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_reg_ack_port,
+      { "Echoed Assigned Port (LLID)", "macc.regack.assignedport", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_reg_time,
+      { "Sync Time", "macc.reg.synctime", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }},
+
+    { &hf_reg_ack_time,
+      { "Echoed Sync Time", "macc.regack.synctime", FT_UINT16, BASE_DEC,
+        NULL, 0x00, NULL, HFILL }}
   };
 
   static gint *ett[] = {
