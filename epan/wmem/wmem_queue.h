@@ -36,7 +36,7 @@ extern "C" {
 
 /** @addtogroup wmem
  *  @{
- *    @defgroup wmem-stack Queue
+ *    @defgroup wmem-queue Queue
  *
  *    A queue implementation on top of wmem.
  *
