@@ -136,55 +136,48 @@ dissect_lmi_pvc_status(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_lmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree    *lmi_tree = NULL, *lmi_subtree;
+    proto_tree    *lmi_tree, *lmi_subtree;
     proto_item    *ti;
-    int        offset = 2, len;
+    int           offset = 2, len;
     guint8        msg_type;
     guint8        ele_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "LMI");
     col_clear(pinfo->cinfo, COL_INFO);
 
-    if (tree) {
-        ti = proto_tree_add_item(tree, proto_lmi, tvb, 0, 3, ENC_NA);
-        lmi_tree = proto_item_add_subtree(ti, ett_lmi_ele);
+    ti = proto_tree_add_item(tree, proto_lmi, tvb, 0, 3, ENC_NA);
+    lmi_tree = proto_item_add_subtree(ti, ett_lmi_ele);
 
-        proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_item(lmi_tree, hf_lmi_call_ref, tvb, 0, 1, ENC_BIG_ENDIAN);
+
     msg_type = tvb_get_guint8( tvb, 1);
     col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str(msg_type, msg_type_str, "Unknown message type (0x%02x)"));
 
-    if (tree) {
-        proto_tree_add_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, msg_type);
+    proto_tree_add_uint(lmi_tree, hf_lmi_msg_type, tvb, 1, 1, msg_type);
 
-        /* Display the LMI elements */
-        while (tvb_reported_length_remaining(tvb, offset) > 0) {
-            ele_id = tvb_get_guint8( tvb, offset);
-            len =  tvb_get_guint8( tvb, offset + 1);
+    /* Display the LMI elements */
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        ele_id = tvb_get_guint8( tvb, offset);
+        len =  tvb_get_guint8( tvb, offset + 1);
 
-            ti = proto_tree_add_text(lmi_tree, tvb, offset, len + 2,
-                    "Information Element: %s",
-                    val_to_str(ele_id, element_type_str, "Unknown (%u)"));
+        ti = proto_tree_add_text(lmi_tree, tvb, offset, len + 2,
+                "Information Element: %s",
+                val_to_str(ele_id, element_type_str, "Unknown (%u)"));
+        lmi_subtree = proto_item_add_subtree(ti, ett_lmi_ele);
 
-            lmi_subtree = proto_item_add_subtree(ti, ett_lmi_ele);
-
-            proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1,
-                    ele_id);
-            ++offset;
-            proto_tree_add_uint(lmi_subtree, hf_lmi_inf_len, tvb, offset, 1, len);
-            ++offset;
-            if (( ele_id == 1) || (ele_id == 51))
-                dissect_lmi_report_type( tvb, offset, lmi_subtree);
-            else if (( ele_id == 3) || (ele_id == 53))
-                dissect_lmi_link_int( tvb, offset, lmi_subtree);
-            else if (( ele_id == 7) || (ele_id == 57))
-                dissect_lmi_pvc_status( tvb, offset, lmi_subtree);
-            offset += len;
-        }
-    }
-    else {
-        lmi_tree = NULL;
+        proto_tree_add_uint(lmi_subtree, hf_lmi_inf_ele, tvb, offset, 1,
+                ele_id);
+        ++offset;
+        proto_tree_add_uint(lmi_subtree, hf_lmi_inf_len, tvb, offset, 1, len);
+        ++offset;
+        if (( ele_id == 1) || (ele_id == 51))
+            dissect_lmi_report_type( tvb, offset, lmi_subtree);
+        else if (( ele_id == 3) || (ele_id == 53))
+            dissect_lmi_link_int( tvb, offset, lmi_subtree);
+        else if (( ele_id == 7) || (ele_id == 57))
+            dissect_lmi_pvc_status( tvb, offset, lmi_subtree);
+        offset += len;
     }
 }
 
