@@ -4579,7 +4579,7 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     length = tvb_get_ntohs(tvb, 2);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-                  val_to_str_const(type, openflow_v4_type_values, "Unknown Messagetype"));
+                  val_to_str_const(type, openflow_v4_type_values, "Unknown message type"));
 
     /* Create display subtree for the protocol */
     ti = proto_tree_add_item(tree, proto_openflow_v4, tvb, 0, -1, ENC_NA);
