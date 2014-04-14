@@ -3016,6 +3016,9 @@ dissect_openflow_table_feature_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     proto_tree_add_item(prop_tree, hf_openflow_v4_table_feature_prop_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
+    if (prop_length < 4)
+        return offset;
+
     body_end = offset + prop_length - 4;
 
     /* body */
