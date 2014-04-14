@@ -2658,12 +2658,13 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    guint8 header_info)
 {
     gint                  offset = 0;
+    proto_item           *tree_ti;
     gint                  new_offset;
     int                   type = 0, endpoint, endpoint_with_dir = 0;
     gint                  type_2 = 0;
     guint8                urb_type, usbpcap_control_stage = 0;
     guint8                setup_flag = 0;
-    guint16               hdr_len;
+    guint16               hdr_len = 0;
     guint32               win32_data_len = 0;
     proto_tree           *tree = NULL;
     proto_item           *item;
@@ -2728,26 +2729,21 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USB");
+    tree_ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, -1, "USB URB");
+    tree = proto_item_add_subtree(tree_ti, usb_hdr);
 
     if (header_info & USB_HEADER_IS_LINUX) {
-        proto_item *ti;
-        ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0,
-                (header_info & USB_HEADER_IS_64_BYTES) ? 64 : 48, "USB URB");
-        tree = proto_item_add_subtree(ti, usb_hdr);
-
         dissect_linux_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
         urb_type          = tvb_get_guint8(tvb, 8);
         type              = tvb_get_guint8(tvb, 9);
         endpoint_with_dir = tvb_get_guint8(tvb, 10);
         setup_flag        = tvb_get_guint8(tvb, 14);
         offset           += 40;           /* skip first part of the pseudo-header */
+        proto_item_set_len(tree_ti, (header_info&USB_HEADER_IS_64_BYTES) ? 64 : 48);
     } else if (header_info & USB_HEADER_IS_USBPCAP) {
         guint8      tmp_val8;
-        proto_item *ti;
 
         tvb_memcpy(tvb, (guint8 *)&hdr_len, 0, 2);
-        ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, 0, hdr_len, "USB URB");
-        tree = proto_item_add_subtree(ti, usb_hdr);
 
         dissect_win32_usb_pseudo_header(tvb, pinfo, tree, &bus_id, &device_address);
 
@@ -2775,6 +2771,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         } else {
             offset += hdr_len; /* Skip the pseudo-header */
         }
+        proto_item_set_len(tree_ti, hdr_len);
     }
 
 
