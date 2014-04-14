@@ -1790,7 +1790,9 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     l2cap_data->remote_cid       = BTL2CAP_UNKNOWN_CID;
     l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
-    l2cap_data->disconnect_in_frame = &max_disconnect_in_frame;
+    l2cap_data->disconnect_in_frame         = &max_disconnect_in_frame;
+    l2cap_data->hci_disconnect_in_frame     = &max_disconnect_in_frame;
+    l2cap_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
     l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
     l2cap_data->remote_bd_addr_id = (acl_data) ? acl_data->remote_bd_addr_id : 0;
 
