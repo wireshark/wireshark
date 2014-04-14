@@ -5987,7 +5987,7 @@ dissect_openflow_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     type = tvb_get_guint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-                  val_to_str_const(type, openflow_v5_type_values, "Unknown Messagetype"));
+                  val_to_str_const(type, openflow_v5_type_values, "Unknown message type"));
 
     ti = proto_tree_add_item(tree, proto_openflow_v5, tvb, 0, -1, ENC_NA);
     openflow_tree = proto_item_add_subtree(ti, ett_openflow_v5);

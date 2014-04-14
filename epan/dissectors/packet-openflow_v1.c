@@ -711,7 +711,7 @@ dissect_openflow_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     type    = tvb_get_guint8(tvb, 1);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Type: %s",
-                  val_to_str_const(type, openflow_1_0_type_values, "Unknown Messagetype"));
+                  val_to_str_const(type, openflow_1_0_type_values, "Unknown message type"));
 
     /* Stop the Ethernet frame from overwriting the columns */
     if((type == OFPT_1_0_PACKET_IN) || (type == OFPT_1_0_PACKET_OUT)){
