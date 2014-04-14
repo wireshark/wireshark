@@ -463,6 +463,11 @@ parse_num (const char *str, int offset)
     guint32  num;
     char    *c;
 
+    if (str == NULL) {
+        fprintf(stderr, "FATAL ERROR: str is NULL\n");
+        exit(1);
+    }
+
     num = (guint32)strtoul(str, &c, offset ? offset_base : 16);
     if (c == str) {
         fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
