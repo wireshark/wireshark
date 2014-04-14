@@ -375,7 +375,7 @@
      </column>
      <column>
       <property name="text">
-       <string>Link size</string>
+       <string>Link type</string>
       </property>
      </column>
      <column>
