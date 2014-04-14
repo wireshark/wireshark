@@ -148,15 +148,15 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
 #define WSLUA_OPTARG_TreeItem_add_packet_field_TVBRANGE 3 /* The `TvbRange` of bytes in the packet this tree item covers/represents. */
 #define WSLUA_ARG_TreeItem_add_packet_field_ENCODING 4 /* The field's encoding in the `TvbRange`. */
 #define WSLUA_OPTARG_TreeItem_add_packet_field_LABEL 5 /* One or more strings to append to the created `TreeItem`. */
-    TvbRange tvbr;
+    volatile TvbRange tvbr;
     ProtoField field;
     int hfid;
-    int ett;
+    volatile int ett;
     ftenum_t type;
     TreeItem tree_item = shiftTreeItem(L,1);
     guint encoding;
     proto_item* item = NULL;
-    int nargs;
+    volatile int nargs;
     gint err = 0;
     const char *volatile error = NULL;
 
