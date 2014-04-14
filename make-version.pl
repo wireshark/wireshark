@@ -116,7 +116,7 @@ sub read_repo_info {
 	my $do_hack = 1;
 	my $info_source = "Unknown";
 
-	if ($version_pref{"pkg_enable"}) {
+	if ($version_pref{"pkg_enable"} > 0) {
 		$package_format = $version_pref{"pkg_format"};
 	}
 
@@ -139,8 +139,8 @@ sub read_repo_info {
 	# A small ugly hash: git rev-parse --short HEAD
 	# 1ddc838
 	#
-	# The upstream branch path: git rev-parse --abbrev-ref --symbolic-full-name origin
-	# origin/master-1.8
+	# The upstream branch path: git rev-parse --abbrev-ref --symbolic-full-name @{upstream}
+	# origin/master
 	#
 	# A version description: git describe --tags --dirty
 	# wireshark-1.8.12-15-g1ddc838
@@ -165,32 +165,24 @@ sub read_repo_info {
 			}
 
 			# Commits since last annotated tag.
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --always});
+			chomp($line = qx{git --git-dir=$srcdir/.git describe --long --always --match "v*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
+				$git_description = $line;
 				$num_commits = $parts[-2];
 				$commit_id = $parts[-1];
 			}
 
-			# Current short hash prefixed with "g"
-			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --short HEAD});
-			if ($? == 0 && length($line) > 1) {
-			}
-
-			chomp($line = qx{git --git-dir=$srcdir/.git ls-remote --get-url origin});
-			if ($? == 0 && length($line) > 1) {
+			chomp($line = qx{git ls-remote --get-url origin});
+			if (defined($line)) {
 				$repo_url = $line;
 			}
 
-			# Probably not quite what we're looking for
-			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name origin});
+			# This will break in some cases. Hopefully not during
+			# official package builds.
+			chomp($line = qx{git --git-dir=$srcdir/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\}});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
-			}
-
-			chomp($line = qx{git --git-dir=$srcdir/.git describe --dirty --match "v*"});
-			if ($? == 0 && length($line) > 1) {
-				$git_description = "wireshark-" . substr($line, 1);
 			}
 
 			1;
@@ -650,7 +642,7 @@ sub get_config {
 	}
 
 	while (<FILE>) {
-		chomp;
+		s/^\s+|\s+$//g; # chomp() may not handle CR
 		next if (/^#/);
 		next unless (/^(\w+)(:|=)\s*(\S.*)/);
 		$version_pref{$1} = $3;
