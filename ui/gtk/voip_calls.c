@@ -2340,19 +2340,15 @@ static void mgcpCallerID(gchar *signalStr, gchar **callerId)
 	/* if there is no signalStr, just return false */
 	if (signalStr == NULL) return;
 
-	arrayStr = g_strsplit(signalStr, "\"", 10);
-
-	if (arrayStr[0] == NULL) return;
+	arrayStr = g_strsplit(signalStr, "\"", 3);
 
 	/* look for the ci signal */
-	if (strstr(arrayStr[0], "ci(") && (arrayStr[1] != NULL) ) {
+	if (g_strv_length(arrayStr) == 3 && strstr(arrayStr[0], "ci(")) {
 		/* free the previous "From" field of the call, and assign the new */
 		g_free(*callerId);
 		*callerId = g_strdup(arrayStr[1]);
 	}
 	g_strfreev(arrayStr);
-
-	return;
 }
 
 
