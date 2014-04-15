@@ -61,6 +61,7 @@ static void  dissect_zcl_attr_id (tvbuff_t *tvb, proto_tree *tree, guint *offset
 static void  zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree);
 
 static void dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num);
+static void dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num);
 
 /********************
  * Global Variables *
@@ -117,6 +118,10 @@ static int hf_zbee_zcl_attr_str = -1;
 static int hf_zbee_zcl_attr_ostr = -1;
 static int hf_zbee_zcl_attr_array_elements_type = -1;
 static int hf_zbee_zcl_attr_array_elements_num = -1;
+static int hf_zbee_zcl_attr_set_elements_type = -1;
+static int hf_zbee_zcl_attr_set_elements_num = -1;
+static int hf_zbee_zcl_attr_bag_elements_type = -1;
+static int hf_zbee_zcl_attr_bag_elements_num = -1;
 
 static int hf_zbee_zcl_ias_zone_client_cmd_id = -1;
 static int hf_zbee_zcl_ias_zone_client_zer_erc = -1;
@@ -2252,14 +2257,32 @@ void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint
             break;
 
         case ZBEE_ZCL_SET:
-            /* ToDo */
+            /* BYTE 0 - Elements type */
+            elements_type = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_set_elements_type, tvb, *offset, 1, elements_type);
+            *offset += 1;
+            /* BYTE 1-2 - Element number */
+            elements_num = tvb_get_letohs(tvb, *offset);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_set_elements_num, tvb, *offset, 2, elements_num);
+            *offset += 2;
+            /* BYTE ... - Elements */
+            dissect_zcl_set_type(tvb, tree, offset, elements_type, elements_num);
+            break;
+
+        case ZBEE_ZCL_BAG: /* Same as ZBEE_ZCL_SET, but using different filter fields */
+            /* BYTE 0 - Elements type */
+            elements_type = tvb_get_guint8(tvb, *offset);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_bag_elements_type, tvb, *offset, 1, elements_type);
+            *offset += 1;
+            /* BYTE 1-2 - Element number */
+            elements_num = tvb_get_letohs(tvb, *offset);
+            proto_tree_add_uint(tree, hf_zbee_zcl_attr_bag_elements_num, tvb, *offset, 2, elements_num);
+            *offset += 2;
+            /* BYTE ... - Elements */
+            dissect_zcl_set_type(tvb, tree, offset, elements_type, elements_num);
             break;
 
         case ZBEE_ZCL_STRUCT:
-            /* ToDo */
-            break;
-
-        case ZBEE_ZCL_BAG:
             /* ToDo */
             break;
 
@@ -2378,18 +2401,66 @@ dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 el
     guint tvb_len;
     guint i = 1;   /* First element has a 1-index value */
 
-    tvb_len = tvb_length(tvb);
-    while ( (*offset < tvb_len) && (i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT) && (elements_num != 0) ) {
+    tvb_len = tvb_captured_length(tvb);
+    while ( (*offset < tvb_len) && (elements_num != 0) ) {
         /* Create subtree for array element field */
         ti = proto_tree_add_text(tree, tvb, *offset, 0, "Element #%d", i);
-        sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[i]);
+
+        /* Have "common" use case give individual tree control to all elements,
+           but don't prevent dissection if list is large */
+        if (i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1)
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[i]);
+        else
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1]);
+
         dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type);
         elements_num--;
         i++;
     }
-
-    return;
 } /* dissect_zcl_array_type */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_zcl_set_type
+ *  DESCRIPTION
+ *      Helper dissector for ZCL attribute set and bag types.
+ *  PARAMETERS
+ *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
+ *      proto_tree *tree    - pointer to data tree wireshark uses to display packet.
+ *      offset              - offset into the tvb to begin dissection.
+ *      elements_type       - element type
+ *      elements_num        - elements number
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void
+dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num)
+{
+    proto_item *ti       = NULL;
+    proto_tree *sub_tree = NULL;
+
+    guint tvb_len;
+    guint i = 1;   /* First element has a 1-index value */
+
+    tvb_len = tvb_captured_length(tvb);
+    while ( (*offset < tvb_len) && (elements_num != 0) ) {
+        /* Create subtree for array element field */
+        ti = proto_tree_add_text(tree, tvb, *offset, 0, "Element");
+
+        /* Piggyback on array ett_ variables */
+        /* Have "common" use case give individual tree control to all elements,
+           but don't prevent dissection if list is large */
+        if (i < ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1)
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[i]);
+        else
+            sub_tree = proto_item_add_subtree(ti, ett_zbee_zcl_array_elements[ZBEE_ZCL_NUM_ARRAY_ELEM_ETT-1]);
+
+        dissect_zcl_attr_data(tvb, sub_tree, offset, elements_type);
+        elements_num--;
+        i++;
+    }
+} /* dissect_zcl_set_type */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2689,6 +2760,24 @@ void proto_register_zbee_zcl(void)
 
         { &hf_zbee_zcl_attr_array_elements_num,
             { "Elements Number",   "zbee_zcl.attr.array.elements_num", FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_set_elements_type,
+            { "Elements Type",   "zbee_zcl.attr.set.elements_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &zbee_zcl_data_type_names_ext, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_set_elements_num,
+            { "Elements Number",   "zbee_zcl.attr.set.elements_num", FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bag_elements_type,
+            { "Elements Type",   "zbee_zcl.attr.bag.elements_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+                &zbee_zcl_data_type_names_ext, 0x0,
+                NULL, HFILL }},
+
+        { &hf_zbee_zcl_attr_bag_elements_num,
+            { "Elements Number",   "zbee_zcl.attr.bag.elements_num", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
 
         { &hf_zbee_zcl_ias_zone_client_cmd_id,
