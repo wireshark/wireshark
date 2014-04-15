@@ -669,11 +669,11 @@ dissect_osc_heur_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     /* peek first string */
     if(tvb_strneql(tvb, 0, bundle_str, 8) != 0) /* no OSC bundle */
     {
-        gint         offset = 0;
-        gint         slen;
-        gint         rem;
-        const gchar *str;
-        gboolean     valid  = FALSE;
+        gint               offset = 0;
+        gint               slen;
+        gint               rem;
+        const gchar       *str;
+        volatile gboolean  valid  = FALSE;
 
         /* Check for valid path */
         /* Don't propagate any exceptions upwards during heuristics check  */
