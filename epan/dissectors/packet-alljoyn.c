@@ -1080,7 +1080,7 @@ handle_message_field(tvbuff_t    *tvb,
                      guint8      **signature,
                      guint8      *signature_length)
 {
-    proto_tree *tree = NULL, *field_tree = NULL;
+    proto_tree *field_tree = NULL;
     proto_item *item, *field_item;
     guint8 field_code;
     guint8 type_id;
