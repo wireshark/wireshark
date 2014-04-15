@@ -1,5 +1,7 @@
 = Wireshark wireshark-version:[] Release Notes
-// $Id$
+
+This is an experimental release intended to test new features for the next
+stable release.
 
 == What is Wireshark?
 
