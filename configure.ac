@@ -494,7 +494,10 @@ AC_ARG_WITH([gtk3],
 
 # GnuTLS
 # Version 3.0 switched from LGPLv2.1+ to LGPLv3+, then switched back to
-# LGPLv2.1+ in version 3.1.10
+# LGPLv2.1+ in version 3.1.10.
+# GnuTLS depends on GMP which switched from LGPLv2.1+ to LGPLv3+ in
+# version 4.2.2, the switched to LGPLv3+ / GPLv2+ in version 6.0.0.
+
 tls_message="no"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
@@ -1335,6 +1338,7 @@ AC_SUBST(QT_MIN_VERSION)
 # force all programs to be built with GTK+ or Qt.
 #
 # Release dates for GTK+ versions:
+# http://en.wikipedia.org/wiki/GTK+#Releases
 # 2.12.0: 14 Sep 2007
 # 2.14.0: 04 Sep 2008
 # 2.16.0: 13 Mar 2009
@@ -1347,6 +1351,17 @@ AC_SUBST(QT_MIN_VERSION)
 # 3.4.0:  26 Mar 2012
 # 3.6.0:  24 Sep 2012
 # 3.8.0:  25 Mar 2013
+# 3.10.0: 23 Sep 2013
+# 3.12.0: 25 Mar 2014
+#
+# Release dates for Qt versions:
+# http://en.wikipedia.org/wiki/List_of_Qt_releases
+# 4.6.0:  01 Dec 2009
+# 4.7.0:  21 Sep 2010
+# 4.8.0:  15 Dec 2011
+# 5.0.0:  19 Dec 2012
+# 5.1.0:  03 Jul 2013
+# 5.2.0:  12 Dec 2013
 
 have_qt=no
 have_gtk=no
@@ -1456,6 +1471,8 @@ AC_SUBST(GLIB_MIN_VERSION)
 # 2.32.0: 24 Mar 2012
 # 2.34.0: 24 Sep 2012
 # 2.36.0: 25 Mar 2013
+# 2.38.0: 23 Sep 2013
+# 2.40.0: 24 Mar 2014
 
 use_glib_cflags="true"
 if test "$have_gtk" = "yes" -a "$have_qt" = "yes" ; then
