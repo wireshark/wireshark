@@ -2,8 +2,6 @@
  * Routines for AllJoyn (AllJoyn.org) packet dissection
  * Copyright (c) 2013-2014, The Linux Foundation.
  *
- * $Id$
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -257,7 +255,7 @@ static const value_string header_field_encoding_vals[] = {
     { HDR_ERROR_NAME, "Error Name" },     /* The name of the error that occurred, for errors. */
     { HDR_REPLY_SERIAL, "Reply Serial" }, /* The serial number of the message this message is a reply to. */
     { HDR_DESTINATION, "Destination" },   /* The name of the connection this message is intended for. */
-    { HDR_SENDER, "Sender" },             /* Unique name of the sending connection. */ 
+    { HDR_SENDER, "Sender" },             /* Unique name of the sending connection. */
     { HDR_SIGNATURE, "Signature" },       /* The signature of the message body. */
     { HDR_HANDLES, "Handles" },           /* The number of handles (Unix file descriptors) that
                                              accompany the message.  */
@@ -397,6 +395,7 @@ find_sasl_command(tvbuff_t *tvb,
  * If more bytes are needed then return the negative of the bytes expected.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
+ * we update as we dissect the packet.
  * @param offset is the offset into the packet to start processing.
  * we update as we dissect the packet.
  * @param message_item is the subtree that any connect data items should be added to.
@@ -465,6 +464,7 @@ handle_message_sasl(tvbuff_t    *tvb,
 /* This is called by handle_message_header_body() to get the endianness from
  * message headers.
  * @param tvb is the incoming network data buffer.
+ * @param offset is the current offset into network data buffer.
  * @return The type of encoding, ENC_LITTLE_ENDIAN or ENC_BIG_ENDIAN, for
  * the message.
  */
@@ -497,6 +497,7 @@ get_message_header_endianness(tvbuff_t   *tvb,
 /* This is called by handle_message_header_body() to handle endianness in message
  * headers.
  * @param tvb is the incoming network data buffer.
+ * @param offset is the current offset into network data buffer.
  * @param header_item is the subtree that we connect data items to.
  * the message.
  */
@@ -518,6 +519,8 @@ handle_message_header_endianness(tvbuff_t   *tvb,
 /* This is called by handle_message_header_body() to handle the message type
  * in message headers.
  * @param tvb is the incoming network data buffer.
+ * @param pinfo contains information about the incoming packet which
+ * we update as we dissect the packet.
  * @param offset is the offset into the packet to start processing.
  * @param header_item is the subtree that we connect data items to.
  * @param encoding is the type of big/little endian encoding used.
@@ -1458,7 +1461,7 @@ handle_message_field(tvbuff_t    *tvb,
  * @param encoding indicates big (ENC_BIG_ENDIAN) or little (ENC_LITTLE_ENDIAN)
  * @param offset contains the offset into tvb for the start of the header fields.
  * @param header_length contains the length of the message fields.
- * endianness.
+ * @param signature_length contains the signature field length.
  */
 static guint8 *
 handle_message_header_fields(tvbuff_t    *tvb,
@@ -1497,7 +1500,7 @@ handle_message_header_fields(tvbuff_t    *tvb,
  * @param offset contains the offset into tvb for the start of the parameters.
  * @param body_length contains the length of the body parameters.
  * @param signature the signature of the parameters.
- * endianness.
+ * @param signature_length contains the signature field length.
  */
 static gint
 handle_message_body_parameters(tvbuff_t    *tvb,
@@ -1678,8 +1681,6 @@ protocol_is_ours(tvbuff_t *tvb)
  * in the proto_reg_handoff_AllJoyn() function. This function handles
  * the packets for the traffic on port 9955.
  * @param tvb is the incoming network data buffer.
- * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
  * @param pinfo contains information about the incoming packet which
  * we update as we dissect the packet.
  * @param tree is the tree data items should be added to.
@@ -2494,10 +2495,6 @@ proto_register_AllJoyn(void)
     proto_register_subtree_array(ett, array_length(ett));
 }
 
-/* Simple form of proto_reg_handoff_AllJoyn which can be used if there are
-   no prefs-dependent registration function calls.
-   See doc\README.developer.
- */
 void
 proto_reg_handoff_AllJoyn(void)
 {
