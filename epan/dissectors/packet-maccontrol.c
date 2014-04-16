@@ -129,7 +129,6 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *macctrl_tree = NULL;
   proto_tree *pause_times_tree = NULL;
   guint16     opcode;
-  guint32     timestamp;
   guint16     pause_time;
   int i;
 
@@ -137,14 +136,13 @@ dissect_macctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   opcode = tvb_get_ntohs(tvb, 0);
-  timestamp = tvb_get_ntohl(tvb, 2);
 
   ti = proto_tree_add_item(tree, proto_macctrl, tvb, 0, 46, ENC_NA);
   macctrl_tree = proto_item_add_subtree(ti, ett_macctrl);
 
   proto_tree_add_uint(macctrl_tree, hf_macctrl_opcode, tvb, 0, 2, opcode);
-  proto_tree_add_uint(macctrl_tree, hf_macctrl_timestamp, tvb, 2, 4, timestamp);
-  col_add_fstr(pinfo->cinfo, COL_INFO, val_to_str(opcode, opcode_vals, "Unknown"));
+  proto_tree_add_item(macctrl_tree, hf_macctrl_timestamp, tvb, 2, 4, ENC_BIG_ENDIAN);
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, opcode_vals, "Unknown"));
 
   switch (opcode) {
 
