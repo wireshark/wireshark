@@ -1420,22 +1420,21 @@ static const value_string nbss_error_codes[] = {
  * frequently split over multiple segments, which frustrates decoding
  * (MMM). ]
  */
-static int
-dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
-		    proto_tree *tree, int is_cifs)
+static void
+dissect_nbss_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                    int is_cifs)
 {
+    int          offset = 0;
     proto_tree   *nbss_tree = NULL;
     proto_item   *ti        = NULL;
     proto_tree   *field_tree;
     proto_item   *tf;
     guint8	  msg_type;
     guint8	  flags;
-    volatile int  length;
-    int           length_remaining;
+    guint32       length;
     int           len;
     char	 *name;
     int           name_type;
-    gint	  reported_len;
     guint8        error_code;
     tvbuff_t     *next_tvb;
     const char   *saved_proto;
@@ -1443,75 +1442,9 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
 
-    /* Desegmentation */
-    length_remaining = tvb_length_remaining(tvb, offset);
-
-    /*
-     * Can we do reassembly?
-     */
-    if (nbss_desegment && pinfo->can_desegment) {
-        /*
-         * Yes - is the NBSS header split across segment boundaries?
-         */
-        if (length_remaining < 4) {
-            /*
-             * Yes.  Tell our caller how many more bytes
-             * we need.
-             */
-            return -(4 - length_remaining);
-        }
-    }
-
-    /*
-     * Get the length of the NBSS message.
-     */
-    if (is_cifs) {
-        flags = 0;
-        length = tvb_get_ntoh24(tvb, offset + 1);
-    } else {
-        flags  = tvb_get_guint8(tvb, offset + 1);
-        length = tvb_get_ntohs(tvb, offset + 2);
-        if (flags & NBSS_FLAGS_E)
-            length += 65536;
-    }
-
-    /* give a hint to TCP where the next PDU starts
-     * so that it can attempt to find it in case it starts
-     * somewhere in the middle of a segment.
-     */
-    if(!pinfo->fd->flags.visited){
-        /* 'Only' SMB is transported ontop of this  so make sure
-         * there is an SMB header there ...
-         */
-        if( ((length+4)>tvb_reported_length_remaining(tvb, offset))
-            &&(tvb_length_remaining(tvb, offset) >= 8)
-            &&(tvb_get_guint8(tvb,offset+5) == 'S')
-            &&(tvb_get_guint8(tvb,offset+6) == 'M')
-            &&(tvb_get_guint8(tvb,offset+7) == 'B') ){
-            pinfo->want_pdu_tracking = 2;
-            pinfo->bytes_until_next_pdu = (length+4)-tvb_reported_length_remaining(tvb, offset);
-        }
-    }
-
-    /*
-     * Can we do reassembly?
-     */
-    if (nbss_desegment && pinfo->can_desegment) {
-        /*
-         * Yes - is the NBSS message split across segment boundaries?
-         */
-        if (length_remaining < length + 4) {
-            /*
-             * Yes.  Tell our caller how many more bytes
-             * we need.
-             */
-            return -((length + 4) - length_remaining);
-        }
-    }
-
     msg_type = tvb_get_guint8(tvb, offset);
 
-    ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, length + 4, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_nbss, tvb, offset, -1, ENC_NA);
     nbss_tree = proto_item_add_subtree(ti, ett_nbss);
 
     proto_tree_add_item(nbss_tree, hf_nbss_type, tvb, offset, 1, ENC_NA);
@@ -1522,16 +1455,19 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
         proto_tree_add_item(nbss_tree, hf_nbss_cifs_length, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
     } else {
+        flags = tvb_get_guint8(tvb, offset);
         if (tree) {
             tf = proto_tree_add_uint(nbss_tree, hf_nbss_flags, tvb, offset, 1, flags);
             field_tree = proto_item_add_subtree(tf, ett_nbss_flags);
             proto_tree_add_item(field_tree, hf_nbss_flags_e, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
-        offset += 1;
 
-        proto_tree_add_uint(nbss_tree, hf_nbss_length, tvb, offset, 2, length);
+        length = tvb_get_ntohs(tvb, offset + 1);
+        if (flags & NBSS_FLAGS_E)
+            length += 0x10000;
+        proto_tree_add_uint(nbss_tree, hf_nbss_length, tvb, offset, 3, length);
 
-        offset += 2;
+        offset += 3;
     }
 
     switch (msg_type) {
@@ -1585,14 +1521,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Set the length of our top-level tree item to include
          * only our stuff.
          */
-        len = tvb_length_remaining(tvb, offset);
-        reported_len = tvb_reported_length_remaining(tvb, offset);
-        if (len > length)
-	    len = length;
-        if (reported_len > length)
-	    reported_len = length;
-
-        next_tvb = tvb_new_subset(tvb, offset, len, reported_len);
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /*
          * Dissect the message.
@@ -1624,7 +1553,6 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     }
-    return length + 4;
 }
 
 static int
@@ -1652,12 +1580,14 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     struct tcpinfo *tcpinfo;
     int             offset  = 0;
+    guint           length_remaining;
+    guint           plen;
     int             max_data;
     guint8	    msg_type;
     guint8	    flags;
     guint32	    length;
-    int             len;
     gboolean        is_cifs;
+    tvbuff_t       *next_tvb;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -1836,22 +1766,102 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 val_to_str(msg_type, message_types, "Unknown (%02x)"));
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        len = dissect_nbss_packet(tvb, offset, pinfo, tree, is_cifs);
-        if (len < 0) {
+        /*
+         * We use "tvb_ensure_length_remaining()" to make sure there actually
+         * *is* data remaining.  The protocol we're handling could conceivably
+         * consists of a sequence of fixed-length PDUs, and therefore the
+         * "get_pdu_len" routine might not actually fetch anything from
+         * the tvbuff, and thus might not cause an exception to be thrown if
+         * we've run past the end of the tvbuff.
+         *
+         * This means we're guaranteed that "length_remaining" is positive.
+         */
+        length_remaining = tvb_ensure_length_remaining(tvb, offset);
+
+        /*
+         * Can we do reassembly?
+         */
+        if (nbss_desegment && pinfo->can_desegment) {
             /*
-             * We need more data to dissect this, and
-             * desegmentation is enabled.  "-len" is the
-             * number of additional bytes of data we need.
-             *
-             * Tell the TCP dissector where the data for this
-             * message starts in the data it handed us, and
-             * how many more bytes we need, and return.
+             * Yes - is the NBSS header split across segment boundaries?
              */
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len = -len;
-            return tvb_length(tvb);
+            if (length_remaining < 4) {
+                /*
+                 * Yes.  Tell the TCP dissector where the data for this message
+                 * starts in the data it handed us and that we need "some more
+                 * data."  Don't tell it exactly how many bytes we need because
+                 * if/when we ask for even more (after the header) that will
+                 * break reassembly.
+                 */
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+                return tvb_length(tvb);
+            }
         }
-        offset += len;
+
+        /*
+         * Get the length of the NBSS message.
+         */
+        if (is_cifs) {
+            flags = 0;
+            length = tvb_get_ntoh24(tvb, offset + 1);
+        } else {
+            flags  = tvb_get_guint8(tvb, offset + 1);
+            length = tvb_get_ntohs(tvb, offset + 2);
+            if (flags & NBSS_FLAGS_E)
+                length += 65536;
+        }
+        plen = length + 4; /* Include length of NBSS header */
+
+        /* give a hint to TCP where the next PDU starts
+         * so that it can attempt to find it in case it starts
+         * somewhere in the middle of a segment.
+         */
+        if(!pinfo->fd->flags.visited){
+            /* 'Only' SMB is transported ontop of this  so make sure
+             * there is an SMB header there ...
+             */
+            if( ((int)plen>tvb_reported_length_remaining(tvb, offset))
+                &&(tvb_length_remaining(tvb, offset) >= 8)
+                &&(tvb_get_guint8(tvb,offset+5) == 'S')
+                &&(tvb_get_guint8(tvb,offset+6) == 'M')
+                &&(tvb_get_guint8(tvb,offset+7) == 'B') ){
+                pinfo->want_pdu_tracking = 2;
+                pinfo->bytes_until_next_pdu = (length+4)-tvb_reported_length_remaining(tvb, offset);
+            }
+        }
+
+        /*
+         * Can we do reassembly?
+         */
+        if (nbss_desegment && pinfo->can_desegment) {
+            /*
+             * Yes - is the NBSS message split across segment boundaries?
+             */
+            if (length_remaining < plen) {
+                /*
+                 * Yes.  Tell the TCP dissector where the data for this message
+                 * starts in the data it handed us, and how many more bytes we
+                 * need, and return.
+                 */
+                pinfo->desegment_offset = offset;
+                pinfo->desegment_len = plen - length_remaining;
+                return tvb_length(tvb);
+            }
+        }
+
+        /*
+         * Construct a tvbuff containing the amount of the payload we have
+         * available.  Make its reported length the amount of data in the PDU.
+         */
+        length = length_remaining;
+        if (length > plen)
+            length = plen;
+        next_tvb = tvb_new_subset(tvb, offset, length, plen);
+
+        dissect_nbss_packet(next_tvb, pinfo, tree, is_cifs);
+
+        offset += plen;
     }
 
     return tvb_length(tvb);
@@ -2018,7 +2028,7 @@ proto_register_nbt(void)
             NULL, HFILL }},
         { &hf_nbss_length,
           { "Length",		"nbss.length",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT24, BASE_DEC, NULL, 0x0,
             "Length of trailer (payload) following this field in bytes", HFILL }},
         { &hf_nbss_cifs_length,
           { "Length",		"nbss.length",
