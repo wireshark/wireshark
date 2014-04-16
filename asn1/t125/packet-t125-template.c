@@ -95,7 +95,7 @@ dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
   gint32 tag;
   guint32 choice_index = 100;
   asn1_ctx_t asn1_ctx;
-  gboolean failed;
+  volatile gboolean failed;
 
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
 

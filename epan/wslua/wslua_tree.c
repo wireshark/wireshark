@@ -157,7 +157,7 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     guint encoding;
     proto_item* item = NULL;
     volatile int nargs;
-    gint err = 0;
+    volatile gint err = 0;
     const char *volatile error = NULL;
 
     if (!tree_item) {
@@ -211,9 +211,9 @@ WSLUA_METHOD TreeItem_add_packet_field(lua_State *L) {
     }
 
     TRY {
-
-        item = try_add_packet_field(L, tree_item, tvbr, hfid, type, encoding, &err);
-
+        gint errx = 0;
+        item = try_add_packet_field(L, tree_item, tvbr, hfid, type, encoding, &errx);
+        err = errx;
     } CATCH_ALL {
         show_exception(tvbr->tvb->ws_tvb, lua_pinfo, tree_item->tree, EXCEPT_CODE, GET_MESSAGE);
         error = "Lua programming error";

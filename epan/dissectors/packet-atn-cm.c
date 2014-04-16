@@ -689,7 +689,7 @@ dissect_atn_cm_heur(
 		void *data _U_)
 {
 		atn_conversation_t *atn_cv = NULL;
-		gboolean is_atn_cm = FALSE;
+		volatile gboolean is_atn_cm = FALSE;
 		int type;
 
 		/* determine whether it is uplink or downlink */

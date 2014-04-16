@@ -216,8 +216,8 @@ dissect_atn_cpdlc_heur(
 		void *data _U_)
 {
 		atn_conversation_t *atn_cv = NULL;
-		gboolean is_atn_cpdlc = FALSE;
-		gboolean is_pm = FALSE;
+		volatile gboolean is_atn_cpdlc = FALSE;
+		volatile gboolean is_pm = FALSE;
 		int type = no_msg;
 
 		type = check_heur_msg_type(pinfo);
