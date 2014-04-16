@@ -1120,7 +1120,7 @@ proto_register_openflow_v1(void)
                NULL, HFILL }
         },
         { &hf_openflow_buffer_id,
-            { "Buffser Id", "openflow.buffer_id",
+            { "Buffer Id", "openflow.buffer_id",
                FT_UINT32, BASE_HEX, NULL, 0x0,
                NULL, HFILL }
         },
