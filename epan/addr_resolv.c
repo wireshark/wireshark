@@ -338,7 +338,7 @@ ipv6_equal(gconstpointer v1, gconstpointer v2)
 /*
  * Flag controlling what names to resolve.
  */
-e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, TRUE, TRUE, TRUE, FALSE};
+e_addr_resolve gbl_resolv_flags = {TRUE, FALSE, FALSE, TRUE, TRUE, FALSE};
 #if defined(HAVE_C_ARES) || defined(HAVE_GNU_ADNS)
 static guint name_resolve_concurrency = 500;
 #endif
