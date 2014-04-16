@@ -249,29 +249,33 @@ extern value_string_ext scsi_asc_val_ext;
  *
  * Please see dissect_spc_inquiry() for an example how to use these
  * macros.
+ *
+ * Note that try_tvb & try_offset are initialized to be  used in the code
+ *  bounded by TRY_SCSI_ALLOC_LEN and END_TRY_SCSI_CDB_ALLOC_LEN
  */
-#define TRY_SCSI_CDB_ALLOC_LEN(pinfo, tvb, offset, length)		\
+
+#define TRY_SCSI_CDB_ALLOC_LEN(length_arg)				\
     {									\
-	volatile gboolean short_packet;					\
-	tvbuff_t *new_tvb;						\
-	guint32 end_data_offset=0;					\
+	volatile gboolean try_short_packet;				\
+	tvbuff_t *try_tvb;						\
+	guint     try_offset;                                           \
+	guint32   try_end_data_offset=0;				\
 									\
-	short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
-	new_tvb=tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);\
-	tvb=new_tvb;							\
-	offset=0;							\
+	try_short_packet=pinfo->fd->cap_len<pinfo->fd->pkt_len;		\
+	try_tvb=tvb_new_subset(tvb_a, offset_a, tvb_length_remaining(tvb_a, offset_a), length_arg); \
+	try_offset=0;							\
 	TRY {
 
 #define END_TRY_SCSI_CDB_ALLOC_LEN 					\
-		    if(end_data_offset){				\
+		    if(try_end_data_offset){				\
 			/* just verify we can read all the bytes we were\
 			 * supposed to.					\
 			 */						\
-			tvb_get_guint8(tvb,end_data_offset);		\
+			tvb_get_guint8(try_tvb,try_end_data_offset);	\
 	    	}							\
 	    } /* TRY */							\
 	CATCH(BoundsError) {						\
-		if(short_packet){					\
+		if(try_short_packet){					\
 			/* this was a short packet */			\
 			RETHROW;					\
 		} else {						\
@@ -285,7 +289,7 @@ extern value_string_ext scsi_asc_val_ext;
 		}							\
 	    }								\
 	CATCH(ReportedBoundsError) {					\
-		if(short_packet){					\
+		if(try_short_packet){					\
 			/* this was a short packet */			\
 			RETHROW;					\
 		} else {						\
@@ -307,8 +311,21 @@ extern value_string_ext scsi_asc_val_ext;
  * the future. There is no harm in teaching the dissector about how long
  * the data pdu is supposed to be according to alloc_len in the data pdu
  */
-#define SET_SCSI_DATA_END(offset)					\
-	end_data_offset=offset;
+#define SET_SCSI_DATA_END(offset_arg)		\
+	try_end_data_offset=offset_arg;
 
 
 #endif
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
