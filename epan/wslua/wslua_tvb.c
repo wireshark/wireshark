@@ -1399,8 +1399,10 @@ static int TvbRange_uncompress(lua_State* L) {
 	/* Obtain a uncompressed TvbRange from a TvbRange */
 #define WSLUA_ARG_TvbRange_uncompress_NAME 2 /* The name to be given to the new data-source. */
     TvbRange tvbr = checkTvbRange(L,1);
+#ifdef HAVE_LIBZ
     const gchar* name = luaL_optstring(L,WSLUA_ARG_TvbRange_uncompress_NAME,"Uncompressed");
     tvbuff_t *uncompr_tvb;
+#endif
 
     if (!(tvbr && tvbr->tvb)) return 0;
 
