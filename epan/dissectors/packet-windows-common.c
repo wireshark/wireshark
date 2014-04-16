@@ -94,7 +94,7 @@ static gint ett_nt_security_information = -1;
 /* WERR error codes */
 
 VALUE_STRING_ARRAY2_GLOBAL_DEF(WERR_errors); /* XXX: Remove GLOBAL_DEF once all PIDL generated dissectors
-                                                     ref WERR_errors_ext */
+                                                       ref WERR_errors_ext */
 value_string_ext WERR_errors_ext = VALUE_STRING_EXT_INIT(WERR_errors);
 
 /*
@@ -2204,21 +2204,22 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 }
 
 static int
-dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	       proto_tree *parent_tree, guint8 *drep, const char *name,
 	       struct access_mask_info *ami)
 {
 	proto_item *volatile item = NULL;
-	proto_tree *volatile tree = NULL;
-	int old_offset = offset;
+	proto_tree *tree = NULL;
+	int old_offset = offset_a;
 	int pre_ace_offset;
 	guint16 revision;
-	guint32 volatile num_aces;
-	gboolean volatile missing_data = FALSE;
-	gboolean volatile bad_ace = FALSE;
+	guint32 num_aces;
+	volatile int offset_v = offset_a;
+	volatile gboolean missing_data = FALSE;
+	volatile gboolean bad_ace = FALSE;
 
 	if(parent_tree) {
-		item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+		item = proto_tree_add_text(parent_tree, tvb, offset_v, -1,
 					   "NT %s ACL", name);
 		tree = proto_item_add_subtree(item, ett_nt_acl);
 	}
@@ -2237,18 +2238,18 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * always zero, the old code would dissect it correctly
 	 * also.
 	 */
-	revision = tvb_get_letohs(tvb, offset);
+	revision = tvb_get_letohs(tvb, offset_v);
 	proto_tree_add_uint(tree, hf_nt_acl_revision,
-		tvb, offset, 2, revision);
-	offset += 2;
+		tvb, offset_v, 2, revision);
+	offset_v += 2;
 
 	switch(revision){
 	case ACL_REVISION_NT4:
 	case ACL_REVISION_ADS:
 	case 3:  /* weirdo type */
 	  /* size */
-	  proto_tree_add_item(tree, hf_nt_acl_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-	  offset += 2;
+	  proto_tree_add_item(tree, hf_nt_acl_size, tvb, offset_v, 2, ENC_LITTLE_ENDIAN);
+	  offset_v += 2;
 
 	  /* number of ace structures */
 	  /*
@@ -2256,22 +2257,22 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	   * says it's 2 bytes of count followed by two bytes of
 	   * zero padding.
 	   */
-	  num_aces = tvb_get_letohl(tvb, offset);
+	  num_aces = tvb_get_letohl(tvb, offset_v);
 	  proto_tree_add_uint(tree, hf_nt_acl_num_aces,
-			      tvb, offset, 4, num_aces);
-	  offset += 4;
+			      tvb, offset_v, 4, num_aces);
+	  offset_v += 4;
 
 	  while(num_aces-- && !missing_data && !bad_ace) {
-		pre_ace_offset = offset;
+		pre_ace_offset = offset_v;
 
 		/*
-		 * These are at an offset later in the packet; don't
+		 * These are at an offset_v later in the packet; don't
 		 * fail if we can't fetch them, just note the problem
 		 * and dissect the stuff before it.
 		 */
 		TRY {
-		  offset = dissect_nt_v2_ace(tvb, offset, pinfo, tree, drep, ami);
-		  if (pre_ace_offset == offset) {
+		  offset_v = dissect_nt_v2_ace(tvb, offset_v, pinfo, tree, drep, ami);
+		  if (pre_ace_offset == offset_v) {
 			/*
 			 * Bogus ACE, with a length < 4.
 			 */
@@ -2280,12 +2281,12 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		}
 
 		CATCH(BoundsError) {
-			proto_tree_add_text(tree, tvb, offset, 0, "ACE Extends beyond end of captured data");
+			proto_tree_add_text(tree, tvb, offset_v, 0, "ACE Extends beyond end of captured data");
 			missing_data = TRUE;
 		}
 
 		CATCH(ReportedBoundsError) {
-			proto_tree_add_text(tree, tvb, offset, 0, "ACE Extends beyond end of reassembled data");
+			proto_tree_add_text(tree, tvb, offset_v, 0, "ACE Extends beyond end of reassembled data");
 			missing_data = TRUE;
 		}
 
@@ -2293,8 +2294,8 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	  }
 	}
 
-	proto_item_set_len(item, offset-old_offset);
-	return offset;
+	proto_item_set_len(item, offset_v-old_offset);
+	return offset_v;
 }
 
 static const true_false_string tfs_sec_desc_type_owner_defaulted = {
@@ -2456,7 +2457,7 @@ dissect_nt_security_information(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 }
 
 int
-dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
+dissect_nt_sec_desc(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 		    proto_tree *parent_tree, guint8 *drep,
 		    gboolean len_supplied _U_, int len,
 		    struct access_mask_info *ami)
@@ -2464,70 +2465,71 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	guint16 revision;
-	int start_offset = offset;
-	int volatile end_offset;
-	int item_offset;
+	int start_offset = offset_a;
+	volatile int offset_v=offset_a;
+	volatile int end_offset;
+	volatile int item_offset;
 	guint32 owner_sid_offset;
-	guint32 volatile group_sid_offset;
-	guint32 volatile sacl_offset;
-	guint32 volatile dacl_offset;
+	volatile guint32 group_sid_offset;
+	volatile guint32 sacl_offset;
+	volatile guint32 dacl_offset;
 
-	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
+	item = proto_tree_add_text(parent_tree, tvb, offset_v, -1,
 				   "NT Security Descriptor");
 	tree = proto_item_add_subtree(item, ett_nt_sec_desc);
 
 	/* revision */
-	revision = tvb_get_letohs(tvb, offset);
+	revision = tvb_get_letohs(tvb, offset_v);
 	proto_tree_add_uint(tree, hf_nt_sec_desc_revision,
-		tvb, offset, 2, revision);
-	offset += 2;
+		tvb, offset_v, 2, revision);
+	offset_v += 2;
 
 	switch(revision){
 	case 1:  /* only version we will ever see of this structure?*/
 	  /* type */
-	  offset = dissect_nt_sec_desc_type(tvb, offset, tree);
+	  offset_v = dissect_nt_sec_desc_type(tvb, offset_v, tree);
 
-	  /* offset to owner sid */
-	  owner_sid_offset = tvb_get_letohl(tvb, offset);
+	  /* offset_v to owner sid */
+	  owner_sid_offset = tvb_get_letohl(tvb, offset_v);
 	  if(owner_sid_offset != 0 && owner_sid_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %u (bogus, must be >= 20)", owner_sid_offset);
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to owner SID: %u (bogus, must be >= 20)", owner_sid_offset);
 	    owner_sid_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to owner SID: %u", owner_sid_offset);
-	  offset += 4;
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to owner SID: %u", owner_sid_offset);
+	  offset_v += 4;
 
 	  /* offset to group sid */
-	  group_sid_offset = tvb_get_letohl(tvb, offset);
+	  group_sid_offset = tvb_get_letohl(tvb, offset_v);
 	  if(group_sid_offset != 0 && group_sid_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %u (bogus, must be >= 20)", group_sid_offset);
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to group SID: %u (bogus, must be >= 20)", group_sid_offset);
 	    group_sid_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to group SID: %u", group_sid_offset);
-	  offset += 4;
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to group SID: %u", group_sid_offset);
+	  offset_v += 4;
 
 	  /* offset to sacl */
-	  sacl_offset = tvb_get_letohl(tvb, offset);
+	  sacl_offset = tvb_get_letohl(tvb, offset_v);
 	  if(sacl_offset != 0 && sacl_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %u (bogus, must be >= 20)", sacl_offset);
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to SACL: %u (bogus, must be >= 20)", sacl_offset);
 	    sacl_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to SACL: %u", sacl_offset);
-	  offset += 4;
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to SACL: %u", sacl_offset);
+	  offset_v += 4;
 
 	  /* offset to dacl */
-	  dacl_offset = tvb_get_letohl(tvb, offset);
+	  dacl_offset = tvb_get_letohl(tvb, offset_v);
 	  if(dacl_offset != 0 && dacl_offset < 20){
 	    /* Bogus value - points into fixed portion of descriptor */
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %u (bogus, must be >= 20)", dacl_offset);
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to DACL: %u (bogus, must be >= 20)", dacl_offset);
 	    dacl_offset = 0;
 	  } else
-	    proto_tree_add_text(tree, tvb, offset, 4, "Offset to DACL: %u", dacl_offset);
-	  offset += 4;
+	    proto_tree_add_text(tree, tvb, offset_v, 4, "Offset to DACL: %u", dacl_offset);
+	  offset_v += 4;
 
-	  end_offset = offset;
+	  end_offset = offset_v;
 
 	  /*owner SID*/
 	  if(owner_sid_offset){
@@ -2539,9 +2541,9 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      THROW(ReportedBoundsError);
 	    }
 	    TRY{
-	      offset = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
-	      if (offset > end_offset)
-	        end_offset = offset;
+	      offset_v = dissect_nt_sid(tvb, item_offset, tree, "Owner", NULL, -1);
+	      if (offset_v > end_offset)
+	        end_offset = offset_v;
 	    }
 
 	    CATCH(BoundsError) {
@@ -2565,9 +2567,9 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	      THROW(ReportedBoundsError);
 	    }
 	    TRY {
-	      offset = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
-	      if (offset > end_offset)
-	        end_offset = offset;
+	      offset_v = dissect_nt_sid(tvb, item_offset, tree, "Group", NULL, -1);
+	      if (offset_v > end_offset)
+	        end_offset = offset_v;
 	    }
 
 	    CATCH(BoundsError) {
@@ -2590,10 +2592,10 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree,
+	    offset_v = dissect_nt_acl(tvb, item_offset, pinfo, tree,
 				    drep, "System (SACL)", ami);
-	    if (offset > end_offset)
-	      end_offset = offset;
+	    if (offset_v > end_offset)
+	      end_offset = offset_v;
 	  }
 
 	  /* dacl */
@@ -2605,23 +2607,23 @@ dissect_nt_sec_desc(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	       */
 	      THROW(ReportedBoundsError);
 	    }
-	    offset = dissect_nt_acl(tvb, item_offset, pinfo, tree,
+	    offset_v = dissect_nt_acl(tvb, item_offset, pinfo, tree,
 				    drep, "User (DACL)", ami);
-	    if (offset > end_offset)
-	      end_offset = offset;
+	    if (offset_v > end_offset)
+	      end_offset = offset_v;
 	  }
 
 	  break;
 
 	default:
-	  end_offset = offset;
+	  end_offset = offset_v;
 	  break;
 	}
 
 	len = end_offset - start_offset;
 	proto_item_set_len(item, len);
 
-	return offset;
+	return offset_v;
 }
 
 /*
@@ -2998,3 +3000,16 @@ proto_do_register_windows_common(int proto_smb)
 	proto_register_subtree_array(ett, array_length(ett));
 	proto_register_field_array(proto_smb, hf, array_length(hf));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
