@@ -1097,7 +1097,7 @@ static int dissect_spdy_header_payload(
       break;
     default:
       /* Unhandled case. This should never happen. */
-      g_assert(FALSE);
+      DISSECTOR_ASSERT_NOT_REACHED();
   }
 
   /* Add the header block. */
