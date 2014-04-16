@@ -73,6 +73,7 @@
 
 #include <wsutil/file_util.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/strutil.h>
 
 #include <epan/conversation.h>
@@ -2021,7 +2022,7 @@ void proto_register_kerberos(void) {
 
 }
 static int wrap_dissect_gss_kerb(tvbuff_t *tvb, int offset, packet_info *pinfo,
-				 proto_tree *tree, guint8 *drep _U_)
+				 proto_tree *tree, dcerpc_info *di _U_,guint8 *drep _U_)
 {
 	tvbuff_t *auth_tvb;
 
@@ -2075,7 +2076,7 @@ proto_reg_handoff_kerberos(void)
 	kerberos_handle_udp = new_create_dissector_handle(dissect_kerberos_udp,
 	proto_kerberos);
 
-	kerberos_handle_tcp = create_dissector_handle(dissect_kerberos_tcp,
+	kerberos_handle_tcp = new_create_dissector_handle(dissect_kerberos_tcp,
 	proto_kerberos);
 
 	dissector_add_uint("udp.port", UDP_PORT_KERBEROS, kerberos_handle_udp);

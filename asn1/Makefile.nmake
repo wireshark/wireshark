@@ -69,7 +69,7 @@ BER_LIST= \
 	idmp			\
 	inap			\
 	isdn-sup		\
-###	kerberos		\
+	kerberos		\
 	ldap 			\
 	logotypecertextn	\
 	mms			\

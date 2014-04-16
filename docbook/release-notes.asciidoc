@@ -82,11 +82,14 @@ since version 1.10:
 * "malformed" display filter has been renamed to "_ws.malformed".  A handful of
   other filters have been given the "_ws." prefix to note they are Wireshark
   application specific filters and not dissector filters.
+* The Kerberos dissector has been replaced with an auto generated one from ASN1
+  protocol description, changing a lot of filter names.  
 
 === Removed dissectors
 
 * The ASN1 plugin has been removed as it's deemed obsolete.
 * The GNM dissector has been removed as it was never used.
+* The Kerberos hand made dissector has been replaced by one generated from ASN1 code.
 
 === New Protocol Support
 

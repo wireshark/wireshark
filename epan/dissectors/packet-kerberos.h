@@ -1,4 +1,14 @@
+/* Do not modify this file. Changes will be overwritten.                      */
+/* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
+/* packet-kerberos.h                                                          */
+/* ../../tools/asn2wrs.py -b -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../../epan/dissectors KerberosV5Spec2.asn k5.asn */
+
+/* Input file: packet-kerberos-template.h */
+
+#line 1 "../../asn1/kerberos/packet-kerberos-template.h"
 /* packet-kerberos.h
+ * Routines for kerberos packet dissection
+ * Copyright 2007, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -91,4 +101,14 @@ void read_keytab_file_from_preferences(void);
 
 #endif /* HAVE_KERBEROS */
 
-#endif /* __PACKET_KERBEROS_H */
+
+
+/*--- Included file: packet-kerberos-exp.h ---*/
+#line 1 "../../asn1/kerberos/packet-kerberos-exp.h"
+
+/*--- End of included file: packet-kerberos-exp.h ---*/
+#line 98 "../../asn1/kerberos/packet-kerberos-template.h"
+
+#endif  /* __PACKET_KERBEROS_H */
+
+
