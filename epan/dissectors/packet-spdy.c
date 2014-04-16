@@ -63,8 +63,8 @@ typedef struct _spdy_conv_t {
 #ifdef HAVE_LIBZ
   z_streamp rqst_decompressor;
   z_streamp rply_decompressor;
+  uLong     dictionary_id;
 #endif
-  guint32   dictionary_id;
   wmem_tree_t  *streams;
 } spdy_conv_t;
 
@@ -469,7 +469,7 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
       conv_data->dictionary_id = adler32(0L, Z_NULL, 0);
       conv_data->dictionary_id = adler32(conv_data->dictionary_id,
                                          spdy_dictionary,
-                                         sizeof(spdy_dictionary));
+                                         (uInt)sizeof(spdy_dictionary));
 #endif
     }
 
@@ -938,20 +938,22 @@ body_dissected:
  * The returned buffer is automatically scoped to the lifetime of the capture
  * (via se_memdup()).
  */
+#define DECOMPRESS_BUFSIZE	16384
+
 static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
                                             z_streamp decomp,
-                                            guint32 dictionary_id,
+                                            uLong dictionary_id,
                                             int offset,
                                             guint32 length,
                                             guint *uncomp_length) {
   int retcode;
-  size_t bufsize = 16384;
   const guint8 *hptr = tvb_get_ptr(tvb, offset, length);
-  guint8 *uncomp_block = (guint8 *)wmem_alloc(wmem_packet_scope(), bufsize);
+  guint8 *uncomp_block = (guint8 *)wmem_alloc(wmem_packet_scope(), DECOMPRESS_BUFSIZE);
+
   decomp->next_in = (Bytef *)hptr;
   decomp->avail_in = length;
   decomp->next_out = uncomp_block;
-  decomp->avail_out = bufsize;
+  decomp->avail_out = DECOMPRESS_BUFSIZE;
   retcode = inflate(decomp, Z_SYNC_FLUSH);
   if (retcode == Z_NEED_DICT) {
     if (decomp->adler == dictionary_id) {
@@ -970,7 +972,7 @@ static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
   }
 
   /* Handle successful inflation. */
-  *uncomp_length = bufsize - decomp->avail_out;
+  *uncomp_length = DECOMPRESS_BUFSIZE - decomp->avail_out;
 
   return (guint8 *)wmem_memdup(wmem_file_scope(), uncomp_block, *uncomp_length);
 }
@@ -1146,7 +1148,7 @@ static int dissect_spdy_header_payload(
         decomp = conv_data->rply_decompressor;
       } else {
         /* Unhandled case. This should never happen. */
-        g_assert(FALSE);
+        DISSECTOR_ASSERT_NOT_REACHED();
       }
 
       /* Decompress. */
