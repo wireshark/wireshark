@@ -2386,7 +2386,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
 
     /* try dissect by "usb.device" */
     if (tvb_length(next_tvb) > 0 &&
-            !dissector_try_uint_new(device_to_dissector, (guint32) (usb_conv_info->bus_id << 8 | usb_conv_info->device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
+            !dissector_try_uint_new(device_to_dissector, (guint32) (usb_conv_info->bus_id << 16 | usb_conv_info->device_address), next_tvb, pinfo, parent, FALSE, usb_conv_info)) {
         k_frame_number = pinfo->fd->num;
         k_device_address = usb_conv_info->device_address;
         k_bus_id = usb_conv_info->bus_id;
