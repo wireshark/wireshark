@@ -23,6 +23,9 @@
 /*
  * 04/26/2010: WMeier: "Class-Based Flow Control [CBFC] Pause Frame"  dissection added
  *             See: http://www.ieee802.org/1/files/public/docs2007/new-cm-barrass-pause-proposal.pdf
+ * 2014-04:    David Miller <d.miller[at]cablelabs.com> and
+ *             Philip Rosenberg-Watt <p.rosenberg-watt[at]cablelabs.com>
+ *             + Added MPCP Gate, Report, and Register messages.
  */
 
 #include "config.h"
