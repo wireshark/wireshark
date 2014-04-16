@@ -85,6 +85,9 @@ static int hf_nbdgm_node_type = -1;
 static int hf_nbdgm_datagram_id = -1;
 static int hf_nbdgm_src_ip = -1;
 static int hf_nbdgm_src_port = -1;
+static int hf_nbdgm_datagram_length = -1;
+static int hf_nbdgm_packet_offset = -1;
+static int hf_nbdgm_error_code = -1;
 
 static gint ett_nbdgm = -1;
 
@@ -94,6 +97,9 @@ static int hf_nbss_flags = -1;
 static int hf_nbss_flags_e = -1;
 static int hf_nbss_length = -1;
 static int hf_nbss_cifs_length = -1;
+static int hf_nbss_error_code = -1;
+static int hf_nbss_retarget_ip_address = -1;
+static int hf_nbss_retarget_port = -1;
 
 static gint ett_nbss = -1;
 static gint ett_nbss_flags = -1;
@@ -1205,6 +1211,13 @@ static const value_string node_type_vals[] = {
     { 0, NULL }
 };
 
+static const value_string nbds_error_codes[] = {
+    { 0x82, "Destination name not present" },
+    { 0x83, "Invalid source name format" },
+    { 0x84, "Invalid destination name format" },
+    { 0x00, NULL }
+};
+
 static void
 dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1215,63 +1228,35 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     int                  flags;
     tvbuff_t		*next_tvb;
 
-    static const value_string error_codes[] = {
-        { 0x82, "Destination name not present" },
-        { 0x83, "Invalid source name format" },
-        { 0x84, "Invalid destination name format" },
-        { 0x00,	NULL }
-    };
-
     char *name;
     int name_type;
     int len;
 
-    name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
-
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NBDS");
     col_clear(pinfo->cinfo, COL_INFO);
 
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset, -1,
+                                 ENC_NA);
+        nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
+    }
+
     header.msg_type = tvb_get_guint8(tvb, offset);
-
-    flags = tvb_get_guint8(tvb, offset+1);
-    header.flags.more      = flags & 1;
-    header.flags.first     = (flags & 2) >> 1;
-    header.flags.node_type = (flags & 12) >> 2;
-
-    header.dgm_id          = tvb_get_ntohs(tvb, offset+2);
-    header.src_ip          = tvb_get_ipv4( tvb, offset+4);
-    header.src_port        = tvb_get_ntohs(tvb, offset+8);
-
-    /* avoid gcc warnings */
-    header.dgm_length      = 0;
-    header.pkt_offset      = 0;
-    header.error_code      = 0;
-    switch (header.msg_type) {
-
-    case NBDS_DIRECT_UNIQUE:
-    case NBDS_DIRECT_GROUP:
-    case NBDS_BROADCAST:
-        header.dgm_length = tvb_get_ntohs(tvb, offset+10);
-        header.pkt_offset = tvb_get_ntohs(tvb, offset+12);
-        break;
-
-    case NBDS_ERROR:
-        header.error_code = tvb_get_guint8(tvb, offset+10);
-        break;
+    if (tree) {
+        proto_tree_add_uint(nbdgm_tree, hf_nbdgm_type, tvb,
+                            offset, 1,
+                            header.msg_type);
     }
 
     col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(header.msg_type, nbds_msgtype_vals,
                            "Unknown message type (0x%02X)"));
 
+    flags = tvb_get_guint8(tvb, offset+1);
+    header.flags.more      = flags & 1;
+    header.flags.first     = (flags & 2) >> 1;
+    header.flags.node_type = (flags & 12) >> 2;
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_nbdgm, tvb, offset, -1,
-                                 ENC_NA);
-        nbdgm_tree = proto_item_add_subtree(ti, ett_nbdgm);
-
-        proto_tree_add_uint(nbdgm_tree, hf_nbdgm_type, tvb,
-                            offset, 1,
-                            header.msg_type);
         proto_tree_add_boolean(nbdgm_tree, hf_nbdgm_fragment, tvb,
                                offset+1, 1,
                                header.flags.more);
@@ -1281,14 +1266,24 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(nbdgm_tree, hf_nbdgm_node_type, tvb,
                             offset+1, 1,
                             header.flags.node_type);
+    }
 
+    header.dgm_id          = tvb_get_ntohs(tvb, offset+2);
+    if (tree) {
         proto_tree_add_uint(nbdgm_tree, hf_nbdgm_datagram_id, tvb,
                             offset+2, 2, header.dgm_id);
+    }
+
+    header.src_ip          = tvb_get_ipv4( tvb, offset+4);
+    if (tree) {
         proto_tree_add_ipv4(nbdgm_tree, hf_nbdgm_src_ip, tvb,
                             offset+4, 4, header.src_ip);
+    }
+
+    header.src_port        = tvb_get_ntohs(tvb, offset+8);
+    if (tree) {
         proto_tree_add_uint(nbdgm_tree, hf_nbdgm_src_port, tvb,
                             offset+8, 2, header.src_port);
-
     }
 
     offset += 10;
@@ -1299,13 +1294,22 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case NBDS_DIRECT_GROUP:
     case NBDS_BROADCAST:
         if (tree) {
-            proto_tree_add_text(nbdgm_tree, tvb, offset, 2,
-                                "Datagram length: %d bytes", header.dgm_length);
-            proto_tree_add_text(nbdgm_tree, tvb, offset+2, 2,
-                                "Packet offset: %d bytes", header.pkt_offset);
+            header.dgm_length = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_uint_format_value(nbdgm_tree, hf_nbdgm_datagram_length,
+                                             tvb, offset, 2, header.dgm_length,
+                                             "%u bytes", header.dgm_length);
+        }
+
+        if (tree) {
+            header.pkt_offset = tvb_get_ntohs(tvb, offset+2);
+            proto_tree_add_uint_format_value(nbdgm_tree, hf_nbdgm_packet_offset,
+                                             tvb, offset, 2, header.pkt_offset,
+                                             "%u bytes", header.pkt_offset);
         }
 
         offset += 4;
+
+        name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
 
         /* Source name */
         len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
@@ -1330,7 +1334,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Set the length of our top-level tree item to include
          * only our stuff.
          *
-         * XXX - take the datagram length into account?
+         * XXX - take the datagram length into account, including
+         * doing datagram reassembly?
          */
         if (ti != NULL)
             proto_item_set_len(ti, offset);
@@ -1340,8 +1345,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case NBDS_ERROR:
         if (tree) {
-            proto_tree_add_text(nbdgm_tree, tvb, offset, 1, "Error code: %s",
-				val_to_str(header.error_code, error_codes, "Unknown (0x%x)"));
+            proto_tree_add_item(nbdgm_tree, hf_nbdgm_error_code, tvb, offset,
+                                1, ENC_NA);
         }
         offset += 1;
         if (ti != NULL)
@@ -1351,6 +1356,8 @@ dissect_nbdgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case NBDS_QUERY_REQUEST:
     case NBDS_POS_QUERY_RESPONSE:
     case NBDS_NEG_QUERY_RESPONSE:
+        name = (char *)wmem_alloc(wmem_packet_scope(), MAX_NAME_LEN);
+
         /* Destination name */
         len = get_nbns_name(tvb, offset, offset, name, MAX_NAME_LEN, &name_type);
 
@@ -1390,7 +1397,7 @@ static const value_string message_types[] = {
  */
 #define	NBSS_FLAGS_E			0x1
 
-static const value_string error_codes[] = {
+static const value_string nbss_error_codes[] = {
     { 0x80, "Not listening on called name" },
     { 0x81, "Not listening for called name" },
     { 0x82, "Called name not present" },
@@ -1429,6 +1436,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
     char	 *name;
     int           name_type;
     gint	  reported_len;
+    guint8        error_code;
     tvbuff_t     *next_tvb;
     const char   *saved_proto;
     void	 *pd_save;
@@ -1548,30 +1556,26 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case NEGATIVE_SESSION_RESPONSE:
+        error_code = tvb_get_guint8(tvb, offset);
         if (tree)
-	    proto_tree_add_text(nbss_tree, tvb, offset, 1,
-				"Error code: %s",
-				val_to_str(tvb_get_guint8(tvb, offset),
-					   error_codes, "Unknown (%x)"));
+	    proto_tree_add_uint(nbss_tree, hf_nbss_error_code, tvb, offset, 1,
+	                        error_code);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
-                        val_to_str(tvb_get_guint8(tvb, offset),
-                                   error_codes, "Unknown (%x)"));
+                        val_to_str(error_code, nbss_error_codes, "Unknown (%x)"));
 
         break;
 
     case RETARGET_SESSION_RESPONSE:
         if (tree)
-	    proto_tree_add_text(nbss_tree, tvb, offset, 4,
-				"Retarget IP address: %s",
-				tvb_ip_to_str(tvb, offset));
+	    proto_tree_add_item(nbss_tree, hf_nbss_retarget_ip_address,
+	                        tvb, offset, 4, ENC_BIG_ENDIAN);
 
         offset += 4;
 
         if (tree)
-	    proto_tree_add_text(nbss_tree, tvb, offset, 2,
-				"Retarget port: %u",
-				tvb_get_ntohs(tvb, offset));
+	    proto_tree_add_item(nbss_tree, hf_nbss_retarget_port,
+	                        tvb, offset, 2, ENC_BIG_ENDIAN);
 
         break;
 
@@ -1984,7 +1988,19 @@ proto_register_nbt(void)
         { &hf_nbdgm_src_port,
           { "Source Port",		"nbdgm.src.port",
             FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }}
+            NULL, HFILL }},
+        { &hf_nbdgm_datagram_length,
+          { "Datagram length",		"nbdgm.dgram_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_nbdgm_packet_offset,
+          { "Packet offset",		"nbdgm.pkt_offset",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_nbdgm_error_code,
+          { "Error code",		"nbdgm.error_code",
+            FT_UINT8, BASE_HEX, VALS(nbds_error_codes), 0x0,
+            NULL, HFILL }},
     };
 
     static hf_register_info hf_nbss[] = {
@@ -2007,7 +2023,19 @@ proto_register_nbt(void)
         { &hf_nbss_cifs_length,
           { "Length",		"nbss.length",
             FT_UINT24, BASE_DEC, NULL, 0x0,
-            "Length trailer (payload) following this field in bytes", HFILL }}
+            "Length trailer (payload) following this field in bytes", HFILL }},
+        { &hf_nbss_error_code,
+          { "Error code",	"nbss.error_code",
+            FT_UINT8, BASE_HEX, VALS(nbss_error_codes), 0x0,
+            NULL, HFILL }},
+        { &hf_nbss_retarget_ip_address,
+          { "Retarget IP address",	"nbss.retarget_ip_address",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_nbss_retarget_port,
+          { "Retarget port",	"nbss.retarget_port",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
     };
     static gint *ett[] = {
         &ett_nbns,
