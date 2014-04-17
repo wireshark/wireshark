@@ -8,7 +8,9 @@
  * Polynom: (x^8 + x^2 + x^1 + 1)
  *
  * 2011 Hans-Christoph Schemmel <hans-christoph.schemmel[AT]cinterion.com>
- *
+ * 2014 Philip Rosenberg-Watt <p.rosenberg-watt[at]cablelabs.com>
+ *  + Added CRC-8 for IEEE 802.3 EPON, with shift register initialized to 0x00
+ *    See IEEE Std 802.3-2012 Section 5, Clause 65.1.3.2.3.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -44,5 +46,6 @@
 #define __CRC8_TVB_H__
 
 extern gboolean check_fcs(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs);
+extern guint8 get_crc8_ieee8023_epon(tvbuff_t *p, guint8 len, guint8 offset);
 
 #endif /* __CRC8_TVB_H__ */
