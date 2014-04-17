@@ -2143,6 +2143,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint length;
     tvbuff_t *next_tvb;
     proto_item *item=NULL;
+    const char *saved_proto;
     void *pd_save;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -2285,6 +2286,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * stop dissecting PDUs within this frame or chunk of reassembled
          * data.
          */
+        saved_proto = pinfo->current_proto;
         pd_save = pinfo->private_data;
         TRY {
             (*dissect_pdu)(next_tvb, pinfo, tree, dissector_data);
@@ -2296,6 +2298,13 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              */
             pinfo->private_data = pd_save;
             show_exception(tvb, pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+
+            /*
+             * Restore the saved protocol as well; we do this after
+             * show_exception(), so that the "Malformed packet" indication
+             * shows the protocol for which dissection failed.
+             */
+	    pinfo->current_proto = saved_proto;
         }
         ENDTRY;
 
