@@ -74,12 +74,12 @@ typedef struct _value_string {
 /* -- Public -- */
 #define VALUE_STRING_ENUM(             array_name) _VS_ENUM_XXX( array_name, _VS_ENUM_ENTRY)
 #define VALUE_STRING_ARRAY(            array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY, static)
-#define VALUE_STRING_ARRAY_GLOBAL_DEF( array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY, )
+#define VALUE_STRING_ARRAY_GLOBAL_DEF( array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY, extern)
 #define VALUE_STRING_ARRAY_GLOBAL_DCL( array_name) _VS_ARRAY_SC_TYPE_NAME(array_name, extern)
 
 #define VALUE_STRING_ENUM2(             array_name) _VS_ENUM_XXX( array_name, _VS_ENUM_ENTRY2)
 #define VALUE_STRING_ARRAY2(            array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY2, static)
-#define VALUE_STRING_ARRAY2_GLOBAL_DEF( array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY2, )
+#define VALUE_STRING_ARRAY2_GLOBAL_DEF( array_name) _VS_ARRAY_XXX(array_name, _VS_ARRAY_ENTRY2, extern)
 #define VALUE_STRING_ARRAY2_GLOBAL_DCL( array_name) _VS_ARRAY_SC_TYPE_NAME(array_name, extern)
 
 /* -- Private -- */
