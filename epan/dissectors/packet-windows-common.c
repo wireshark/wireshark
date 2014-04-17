@@ -2209,11 +2209,11 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	       struct access_mask_info *ami)
 {
 	proto_item *volatile item = NULL;
-	proto_tree *tree = NULL;
+	proto_tree *volatile tree = NULL;
 	int old_offset = offset_a;
 	int pre_ace_offset;
 	guint16 revision;
-	guint32 num_aces;
+	volatile guint32 num_aces;
 	volatile int offset_v = offset_a;
 	volatile gboolean missing_data = FALSE;
 	volatile gboolean bad_ace = FALSE;
