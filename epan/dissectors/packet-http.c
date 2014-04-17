@@ -98,6 +98,7 @@ static int hf_http_user_agent = -1;
 static int hf_http_host = -1;
 static int hf_http_connection = -1;
 static int hf_http_cookie = -1;
+static int hf_http_cookie_pair = -1;
 static int hf_http_accept = -1;
 static int hf_http_referer = -1;
 static int hf_http_accept_language = -1;
@@ -2231,6 +2232,7 @@ typedef struct {
 #define HDR_TRANSFER_ENCODING	6
 #define HDR_HOST		7
 #define HDR_UPGRADE		8
+#define HDR_COOKIE		9
 
 static const header_info headers[] = {
 	{ "Authorization", &hf_http_authorization, HDR_AUTHORIZATION },
@@ -2245,7 +2247,7 @@ static const header_info headers[] = {
 	{ "User-Agent",	&hf_http_user_agent, HDR_NO_SPECIAL },
 	{ "Host", &hf_http_host, HDR_HOST },
 	{ "Connection", &hf_http_connection, HDR_NO_SPECIAL },
-	{ "Cookie", &hf_http_cookie, HDR_NO_SPECIAL },
+	{ "Cookie", &hf_http_cookie, HDR_COOKIE },
 	{ "Accept", &hf_http_accept, HDR_NO_SPECIAL },
 	{ "Referer", &hf_http_referer, HDR_NO_SPECIAL },
 	{ "Accept-Language", &hf_http_accept_language, HDR_NO_SPECIAL },
@@ -2599,6 +2601,39 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				eh_ptr->upgrade = UPGRADE_HTTP2;
 			}
 			break;
+
+		case HDR_COOKIE:
+			if (hdr_item) {
+				proto_tree *cookie_tree;
+				char *part, *part_end;
+				int part_len;
+
+				cookie_tree = proto_item_add_subtree(hdr_item, ett_http_header_item);
+				for (i = 0; i < value_len; ) {
+					/* skip whitespace and ';' (terminates at '\0' or earlier) */
+					c = value[i];
+					while (c == ';' || g_ascii_isspace(c))
+						c = value[++i];
+
+					if (i >= value_len)
+						break;
+
+					/* find "cookie=foo " in "cookie=foo ; bar" */
+					part = value + i;
+					part_end = (char *)memchr(part, ';', value_len - i);
+					if (part_end)
+						part_len = part_end - part;
+					else
+						part_len = value_len - i;
+
+					/* finally add cookie to tree */
+					it = proto_tree_add_item(cookie_tree, hf_http_cookie_pair,
+						tvb, value_offset + i, part_len, ENC_NA|ENC_ASCII);
+					i += part_len;
+				}
+			}
+			break;
+
 		}
 	}
 }
@@ -2928,6 +2963,10 @@ proto_register_http(void)
 	      { "Cookie",	"http.cookie",
 		FT_STRING, BASE_NONE, NULL, 0x0,
 		"HTTP Cookie", HFILL }},
+	    { &hf_http_cookie_pair,
+	      { "Cookie pair",	"http.cookie_pair",
+		FT_STRING, BASE_NONE, NULL, 0x0,
+		"A name/value HTTP cookie pair", HFILL }},
 	    { &hf_http_accept,
 	      { "Accept",	"http.accept",
 		FT_STRING, BASE_NONE, NULL, 0x0,
