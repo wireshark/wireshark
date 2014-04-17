@@ -383,7 +383,9 @@ static int hf_mrcpv2_Waveform_URI = -1;
 static int hf_mrcpv2_Weight = -1;
 
 /* Global MRCPv2 port pref */
-static guint global_mrcpv2_tcp_port = 6075;
+#define TCP_DEFAULT_RANGE "6075, 30000-30200"
+static range_t *global_mrcpv2_tcp_range = NULL;
+static range_t *mrcpv2_tcp_range = NULL;
 
 /* Initialize the subtree pointers */
 static gint ett_mrcpv2 = -1;
@@ -1503,6 +1505,9 @@ proto_register_mrcpv2(void)
         &ett_Status_Code
     };
 
+    range_convert_str(&global_mrcpv2_tcp_range, TCP_DEFAULT_RANGE, 65535);
+    mrcpv2_tcp_range = range_empty();	
+
     proto_mrcpv2 = proto_register_protocol(
         "Media Resource Control Protocol Version 2 (MRCPv2)",
         "MRCPv2",
@@ -1513,9 +1518,10 @@ proto_register_mrcpv2(void)
 
     mrcpv2_module = prefs_register_protocol(proto_mrcpv2, proto_reg_handoff_mrcpv2);
 
-    prefs_register_uint_preference(mrcpv2_module, "tcp.port", "MRCPv2 TCP Port",
-         "MRCPv2 TCP port if other than the default",
-         10, &global_mrcpv2_tcp_port);
+    prefs_register_obsolete_preference(mrcpv2_module, "tcp.port");	
+    prefs_register_range_preference(mrcpv2_module, "tcp.port_range", "MRCPv2 TCP Port",
+         "MRCPv2 TCP Ports Range",
+         &global_mrcpv2_tcp_range, 65535);
 }
 
 void
@@ -1523,17 +1529,17 @@ proto_reg_handoff_mrcpv2(void)
 {
     static gboolean initialized = FALSE;
     static dissector_handle_t mrcpv2_handle;
-    static int TCPPort;
 
     if (!initialized) {
         mrcpv2_handle = new_create_dissector_handle(dissect_mrcpv2_tcp, proto_mrcpv2);
         initialized = TRUE;
     } else {
-        dissector_delete_uint("tcp.port", TCPPort, mrcpv2_handle);
+        dissector_delete_uint_range ("tcp.port", mrcpv2_tcp_range, mrcpv2_handle);
+        g_free (mrcpv2_tcp_range);
     }
 
-    TCPPort = global_mrcpv2_tcp_port;
-    dissector_add_uint("tcp.port", TCPPort, mrcpv2_handle);
+    mrcpv2_tcp_range = range_copy (global_mrcpv2_tcp_range);
+    dissector_add_uint_range ("tcp.port", mrcpv2_tcp_range, mrcpv2_handle);
 }
 /*
  * Editor modelines
