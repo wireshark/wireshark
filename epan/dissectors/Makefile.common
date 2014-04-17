@@ -203,6 +203,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-cosnaming.c	\
 	packet-gprscdr.c	\
 	packet-gsm_map.c	\
+	packet-kerberos.c	\
 	packet-ldap.c	\
 	packet-m3ap.c	\
 	packet-p1.c	\
@@ -771,7 +772,6 @@ DISSECTOR_SRC = \
 	packet-kafka.c		\
 	packet-kdp.c		\
 	packet-kdsp.c		\
-	packet-kerberos.c	\
 	packet-kerberos4.c	\
 	packet-kingfisher.c	\
 	packet-kink.c		\
