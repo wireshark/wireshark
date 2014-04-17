@@ -29,10 +29,12 @@
 
 #include <glib.h>
 
-/**
- * Define different common tap names to extract PDU:s at different layers, otherwise one packet may
- * be exported several times at different layers if all taps are run.
- * NOTE if a new tap is added here it needs to be added to export_pdu_dlg.c and packet-exported_pdu.c
+/*
+ * Define different common tap names to extract PDUs at different layers,
+ * otherwise one packet may be exported several times at different layers
+ * if all taps are run.
+ * NOTE if a new tap is added here it needs to be added to export_pdu_dlg.c
+ * and packet-exported_pdu.c
  * TODO: Use an enum_val_t instead?
  */
 #define EXPORT_PDU_TAP_NAME_LAYER_3 "OSI layer 3"
@@ -62,11 +64,16 @@
  * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  */
 
-/* WARNING this is a first draft and tag values can be changed and tags removed
- * if you want to use this feature outside of Wireshark request a tag freeze
- * on Wireshark-dev mailing list.
+/*  Tag values
+ *
+ *  Do NOT add new values to this list without asking
+ *  wireshark-dev[AT]wireshark.org for a value. Otherwise, you run the risk of
+ *  using a value that's already being used for some other purpose, and of
+ *  having tools that read exported_pdu captures not being able to handle
+ *  captures with your new tag value, with no hope that they will ever be
+ *  changed to do so (as that would destroy their ability to read captures
+ *  using that value for that other purpose).
  */
-/* Tag values */
 #define EXP_PDU_TAG_END_OF_OPT         0 /**< End-of-options Tag. */
 /* 1 - 9 reserved */
 #define EXP_PDU_TAG_OPTIONS_LENGTH    10 /**< Total length of the options excluding this TLV */
@@ -77,7 +84,9 @@
                                           * of the short protocol name used by Wireshark e.g "sip"
                                           * Will be used to call the next dissector.
                                           */
-/* Add protocol type related tags here NOTE Only one protocol type tag may be present in a packet, the first one found will be used*/
+/* Add protocol type related tags here.
+ * NOTE Only one protocol type tag may be present in a packet, the first one
+ * found will be used*/
 /* 13 - 19 reserved */
 #define EXP_PDU_TAG_IPV4_SRC        20
 #define EXP_PDU_TAG_IPV4_DST        21
