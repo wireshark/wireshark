@@ -73,6 +73,6 @@
 
 #endif /* __CLANG__ */
 
-#endif /* HAVE_LIBGRYPT */
+#endif /* HAVE_LIBGCRYPT */
 
 #endif /* __WSGCRYPT_H__ */
