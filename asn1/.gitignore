@@ -38,6 +38,7 @@ h450-ros/h450-ros-exp.cnf
 idmp/idmp-exp.cnf
 inap/inap-exp.cnf
 isdn-sup/isdn-sup-exp.cnf
+kerberos/kerberos-exp.cnf
 lcsap/lcsap-exp.cnf
 ldap/ldap-exp.cnf
 lpp/lpp-exp.cnf
