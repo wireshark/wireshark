@@ -44,10 +44,6 @@ typedef int (*ber_callback)(gboolean imp_tag, tvbuff_t *tvb, int offset, asn1_ct
 typedef int (*ber_type_fn)(gboolean, tvbuff_t*, int, asn1_ctx_t *actx, proto_tree*, int);
 /* To be removed when the transition to the "New" type is complete */
 
-typedef int (*ber_old_callback)(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx);
-typedef int (*ber_old_type_fn)(gboolean, tvbuff_t*, int, asn1_ctx_t *actx, proto_tree*, int);
-
-
 #define BER_CLASS_UNI	0
 #define BER_CLASS_APP	1
 #define BER_CLASS_CON	2
@@ -112,7 +108,6 @@ WS_DLL_PUBLIC int dissect_ber_tagged_type(gboolean implicit_tag, asn1_ctx_t *act
 extern int dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb);
 WS_DLL_PUBLIC int dissect_ber_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb);
 extern int dissect_ber_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_callback func);
-extern int dissect_ber_old_octet_string_wcb(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, ber_old_callback func);
 
 WS_DLL_PUBLIC int dissect_ber_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, gint64 *value);
 extern int dissect_ber_constrained_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint64 min_len, gint64 max_len, gint hf_id, gint64 *value);
@@ -139,23 +134,12 @@ typedef struct _ber_sequence_t {
 	guint32	flags;
 	ber_callback	func;
 } ber_sequence_t;
-/* To be removed when the transition to the "New" type is complete */
-typedef struct _ber_old_sequence_t {
-	gint8	ber_class;
-	gint32	tag;
-	guint32	flags;
-	ber_old_callback	func;
-} ber_old_sequence_t;
+
 /*
  * This function dissects a BER sequence
  */
 WS_DLL_PUBLIC int dissect_ber_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 WS_DLL_PUBLIC int dissect_ber_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
-
-/* To be removed when the transition to the "New" type is complete */
-WS_DLL_PUBLIC int dissect_ber_old_sequence(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
-extern int dissect_ber_old_set(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
-
 
 typedef struct _ber_choice_t {
 	guint32	value;
@@ -166,19 +150,11 @@ typedef struct _ber_choice_t {
 	ber_callback	func;
 } ber_choice_t;
 
-typedef struct _ber_old_choice_t {
-	guint32	value;
-	gint8	ber_class;
-	gint32	tag;
-	guint32	flags;
-	ber_old_callback	func;
-} ber_old_choice_t;
 /*
  * This function dissects a BER choice
  */
 WS_DLL_PUBLIC int dissect_ber_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
 /* To be removed when the transition to the "New" type is complete */
-WS_DLL_PUBLIC int dissect_ber_old_choice(asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_choice_t *ch, gint hf_id, gint ett_id, gint *branch_taken);
 
 /*
  * This function dissects a BER strings
@@ -205,11 +181,6 @@ WS_DLL_PUBLIC int dissect_ber_sequence_of(gboolean implicit_tag, asn1_ctx_t *act
 
 extern int dissect_ber_constrained_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const ber_sequence_t *seq, gint hf_id, gint ett_id);
 WS_DLL_PUBLIC int dissect_ber_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_sequence_t *seq, gint hf_id, gint ett_id);
-
-/* To be removed when the transition to the "New" type is complete */
-WS_DLL_PUBLIC int dissect_ber_old_sequence_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
-extern int dissect_ber_old_set_of(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const ber_old_sequence_t *seq, gint hf_id, gint ett_id);
-
 
 WS_DLL_PUBLIC int dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
