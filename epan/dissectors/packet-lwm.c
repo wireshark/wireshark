@@ -97,7 +97,7 @@ void proto_reg_handoff_lwm(void);
 static dissector_handle_t       data_handle;
 
 /* Dissection Routines. */
-static void dissect_lwm                       (tvbuff_t *, packet_info *, proto_tree *);
+static int  dissect_lwm                       (tvbuff_t *, packet_info *, proto_tree *, void *data);
 static int  dissect_lwm_cmd_frame_ack         (tvbuff_t *, packet_info *, proto_tree *);
 static int  dissect_lwm_cmd_frame_route_err   (tvbuff_t *, packet_info *, proto_tree *);
 static int  dissect_lwm_cmd_frame_route_req   (tvbuff_t *, packet_info *, proto_tree *);
@@ -172,16 +172,18 @@ static const value_string lwm_cmd_multi_names[] = {
  *---------------------------------------------------------------
  */
 static gboolean
-dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-
     /* 1) first byte must have bits 0000xxxx */
     if(tvb_get_guint8(tvb, 0) & LWM_FCF_RESERVED)
         return (FALSE);
 
-    dissect_lwm(tvb, pinfo, tree);
-    return (TRUE);
+    /* The header should be at least long enough for the base header. */
+    if (tvb_reported_length(tvb) < LWM_HEADER_BASE_LEN)
+        return (FALSE);
 
+    dissect_lwm(tvb, pinfo, tree, data);
+    return (TRUE);
 } /* dissect_lwm_heur */
 
 /*FUNCTION:------------------------------------------------------
@@ -194,10 +196,10 @@ dissect_lwm_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
  *      packet_info *pinfo  - pointer to packet information fields
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *  RETURNS
- *      void
+ *      int                 - length of data processed, or 0 if not LWM.
  *---------------------------------------------------------------
  */
-static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint       lwm_header_len;
 
@@ -378,7 +380,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         expert_add_info(pinfo, lwm_tree, &ei_lwm_empty_payload);
         col_append_str(pinfo->cinfo, COL_INFO, "[Empty LwMesh Payload]");
 
-        return;
+        return tvb_captured_length(tvb);
     }
 
     new_tvb = tvb_new_subset_remaining(tvb, lwm_header_len);
@@ -403,11 +405,9 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      tvb_reported_length(new_tvb) - LWM_MIC_LEN);
         tvb_set_reported_length(new_tvb, tvb_reported_length(new_tvb) - LWM_MIC_LEN);
         call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
-        return;
     }
-
     /*stack command endpoint 0 and not secured*/
-    if( (lwm_src_endp == 0) && (lwm_dst_endp == 0) ){
+    else if( (lwm_src_endp == 0) && (lwm_dst_endp == 0) ){
         proto_tree *lwm_cmd_tree;
         guint8      lwm_cmd;
         guint       len;
@@ -451,8 +451,7 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*Unknown command*/
             expert_add_info_format(pinfo, lwm_cmd_tree, &ei_lwm_mal_error, "Unknown command");
             call_dissector(data_handle, new_tvb, pinfo, lwm_cmd_tree);
-            return;
-            break;
+            return tvb_captured_length(tvb);
         }
 
         proto_item_set_len(ti, len);
@@ -468,16 +467,13 @@ static void dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             new_tvb = tvb_new_subset_remaining(new_tvb, len);
             call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
         }
-        return;
     }
     else{
         /*unknown data*/
         call_dissector(data_handle, new_tvb, pinfo, lwm_tree);
-        return;
-
     }
-
-} /* dissect_lwm*/
+    return tvb_captured_length(tvb);
+} /* dissect_lwm */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -797,7 +793,7 @@ void proto_register_lwm(void)
     expert_register_field_array(expert_lwm, ei, array_length(ei));
 
     /*  Register dissector with Wireshark. */
-    register_dissector("lwm", dissect_lwm, proto_lwm);
+    new_register_dissector("lwm", dissect_lwm, proto_lwm);
 
 } /* proto_register_lwm */
 
@@ -818,6 +814,7 @@ void proto_reg_handoff_lwm(void)
     data_handle     = find_dissector("data");
 
     /* Register our dissector with IEEE 802.15.4 */
+    dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("lwm"));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_lwm_heur, proto_lwm);
 
 } /* proto_reg_handoff_lwm */

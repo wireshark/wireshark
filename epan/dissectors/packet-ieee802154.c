@@ -66,6 +66,7 @@
 #include <glib.h>
 
 #include <epan/wmem/wmem.h>
+#include <epan/decode_as.h>
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <wsutil/pint.h>
@@ -175,6 +176,7 @@ static void dissect_ieee802154_fcf          (tvbuff_t *, packet_info *, proto_tr
 static void dissect_ieee802154_superframe   (tvbuff_t *, packet_info *, proto_tree *, guint *);
 static void dissect_ieee802154_gtsinfo      (tvbuff_t *, packet_info *, proto_tree *, guint *);
 static void dissect_ieee802154_pendaddr     (tvbuff_t *, packet_info *, proto_tree *, guint *);
+static void dissect_ieee802154_command      (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 static void dissect_ieee802154_assoc_req    (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 static void dissect_ieee802154_assoc_rsp    (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
 static void dissect_ieee802154_disassoc     (tvbuff_t *, packet_info *, proto_tree *, ieee802154_packet *);
@@ -295,8 +297,15 @@ static expert_field ei_ieee802154_decrypt_error = EI_INIT;
 static expert_field ei_ieee802154_dst = EI_INIT;
 static expert_field ei_ieee802154_src = EI_INIT;
 
-/*  Dissector handles */
+/*
+ * Dissector handles
+ *  - beacon dissection is always heuristic.
+ *  - the PANID table is for stateful dissectors only (ie: Decode-As)
+ *  - otherwise, data dissectors fall back to the heuristic dissectors.
+ */
 static dissector_handle_t       data_handle;
+static dissector_table_t        panid_dissector_table;
+static heur_dissector_list_t    ieee802154_beacon_subdissector_list;
 static heur_dissector_list_t    ieee802154_heur_subdissector_list;
 
 /* Name Strings */
@@ -380,7 +389,6 @@ static gboolean ieee802154_extend_auth = TRUE;
 #define IEEE802154_CRC_SEED     0x0000
 #define IEEE802154_CRC_XOROUT   0xFFFF
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
-
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -768,9 +776,13 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
         offset += 2;
     }
-    else {
-        /* Set the panID field in case the intra-pan condition was met. */
+    /* Set the panID field in case the intra-pan condition was met. */
+    else if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) {
         packet->src_pan = packet->dst_pan;
+    }
+    /* If all else fails, consider it a broadcast PANID. */
+    else {
+        packet->src_pan = IEEE802154_BCAST_PAN;
     }
 
     if (ieee_hints) {
@@ -1068,108 +1080,40 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     saved_proto = pinfo->current_proto;
     /* Try to dissect the payload. */
     TRY {
-        if ((packet->frame_type == IEEE802154_FCF_BEACON) ||
-            (packet->frame_type == IEEE802154_FCF_DATA)) {
-            /* Beacon and Data packets contain a payload. */
-            if ((fcs_ok || !ieee802154_fcs_ok) && (tvb_reported_length(payload_tvb)>0)) {
-                /* Attempt heuristic subdissection. */
-                if (!dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, packet)) {
-                    /* Could not subdissect, call the data dissector instead. */
-                    call_dissector(data_handle, payload_tvb, pinfo, tree);
-                }
-            }
-            else {
-                /* If no sub-dissector was called, call the data dissector. */
+        switch (packet->frame_type) {
+        case IEEE802154_FCF_BEACON:
+            if (!dissector_try_heuristic(ieee802154_beacon_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, packet)) {
+                /* Could not subdissect, call the data dissector instead. */
                 call_dissector(data_handle, payload_tvb, pinfo, tree);
             }
-        }
-        /* If the packet is a command, try to dissect the payload. */
-        else if (packet->frame_type == IEEE802154_FCF_CMD) {
-            switch (packet->command_id) {
-              case IEEE802154_CMD_ASRQ:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
-                    (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE));
-                dissect_ieee802154_assoc_req(payload_tvb, pinfo, ieee802154_tree, packet);
+            break;
+        case IEEE802154_FCF_CMD:
+            dissect_ieee802154_command(payload_tvb, pinfo, ieee802154_tree, packet);
+            break;
+        case IEEE802154_FCF_DATA:
+            /* Sanity-check. */
+            if ((!fcs_ok && ieee802154_fcs_ok) || !tvb_reported_length(payload_tvb)) {
+                call_dissector(data_handle, payload_tvb, pinfo, tree);
                 break;
-
-              case IEEE802154_CMD_ASRSP:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
-                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
-                dissect_ieee802154_assoc_rsp(payload_tvb, pinfo, ieee802154_tree, packet);
+            }
+            /* Try the PANID dissector table for stateful dissection. */
+            if (dissector_try_uint_new(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, TRUE, packet)) {
                 break;
-
-              case IEEE802154_CMD_DISAS:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
-                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
-                dissect_ieee802154_disassoc(payload_tvb, pinfo, ieee802154_tree, packet);
+            }
+            /* Try again with the destination PANID (if different) */
+            if (((packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) ||
+                 (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT)) &&
+                    (packet->dst_pan != packet->src_pan) &&
+                    dissector_try_uint_new(panid_dissector_table, packet->src_pan, payload_tvb, pinfo, tree, TRUE, packet)) {
                 break;
-
-              case IEEE802154_CMD_DATA_RQ:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id, packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE);
-                /* No payload expected. */
-                break;
-
-              case IEEE802154_CMD_PANID_ERR:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
-                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
-                /* No payload expected. */
-                break;
-
-              case IEEE802154_CMD_ORPH_NOTIF:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
-                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
-                    (packet->dst16 == IEEE802154_BCAST_ADDR) &&
-                    (packet->src_pan == IEEE802154_BCAST_PAN) &&
-                    (packet->dst_pan == IEEE802154_BCAST_PAN));
-                /* No payload expected. */
-                break;
-
-              case IEEE802154_CMD_BCN_RQ:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) &&
-                    (packet->dst16 == IEEE802154_BCAST_ADDR) &&
-                    (packet->dst_pan == IEEE802154_BCAST_PAN));
-                /* No payload expected. */
-                break;
-
-              case IEEE802154_CMD_COORD_REAL:
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
-                    (packet->dst_pan == IEEE802154_BCAST_PAN) &&
-                    (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE));
-                if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-                    /* If directed to a 16-bit address, check that it is being broadcast. */
-                    IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id, packet->dst16 == IEEE802154_BCAST_ADDR);
-                }
-                dissect_ieee802154_realign(payload_tvb, pinfo, ieee802154_tree, packet);
-                break;
-
-              case IEEE802154_CMD_GTS_REQ:
-                /* Check that the addressing is correct for this command type. */
-                IEEE802154_CMD_ADDR_CHECK(pinfo, proto_root, packet->command_id,
-                    (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
-                    (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&
-                    (packet->src16 != IEEE802154_BCAST_ADDR) &&
-                    (packet->src16 != IEEE802154_NO_ADDR16));
-                dissect_ieee802154_gtsreq(payload_tvb, pinfo, ieee802154_tree, packet);
-                break;
-
-              default:
-                /* Unknown Command */
-                call_dissector(data_handle, payload_tvb, pinfo, ieee802154_tree);
-                break;
-            } /* switch */
-        }
-        /* Otherwise, dump whatever is left over to the data dissector. */
-        else {
+            }
+            /* Try heuristic dissection. */
+            if (dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, packet)) break;
+            /* Fall-through to dump undissectable payloads. */
+        default:
+            /* Could not subdissect, call the data dissector instead. */
             call_dissector(data_handle, payload_tvb, pinfo, tree);
-        }
+        } /* switch */
     }
     CATCH_ALL {
         /*
@@ -1750,6 +1694,103 @@ dissect_ieee802154_gtsreq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         call_dissector(data_handle, tvb_new_subset_remaining(tvb, 1), pinfo, tree);
     }
 } /* dissect_ieee802154_gtsreq */
+
+/*FUNCTION:------------------------------------------------------
+ *  NAME
+ *      dissect_ieee802154_command
+ *  DESCRIPTION
+ *      Subdissector routine all commands.
+ *  PARAMETERS
+ *      tvbuff_t    *tvb            - pointer to buffer containing raw packet.
+ *      packet_info *pinfo          - pointer to packet information fields (unused).
+ *      proto_tree  *tree           - pointer to protocol tree.
+ *      ieee802154_packet *packet   - IEEE 802.15.4 packet information (unused).
+ *  RETURNS
+ *      void
+ *---------------------------------------------------------------
+ */
+static void
+dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ieee802154_packet *packet)
+{
+    switch (packet->command_id) {
+    case IEEE802154_CMD_ASRQ:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+            (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE));
+        dissect_ieee802154_assoc_req(tvb, pinfo, tree, packet);
+        break;
+
+    case IEEE802154_CMD_ASRSP:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+            (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
+        dissect_ieee802154_assoc_rsp(tvb, pinfo, tree, packet);
+        break;
+
+      case IEEE802154_CMD_DISAS:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+            (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
+        dissect_ieee802154_disassoc(tvb, pinfo, tree, packet);
+        return;
+
+      case IEEE802154_CMD_DATA_RQ:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id, packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE);
+        /* No payload expected. */
+        break;
+
+      case IEEE802154_CMD_PANID_ERR:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+            (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT));
+        /* No payload expected. */
+        break;
+
+      case IEEE802154_CMD_ORPH_NOTIF:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+            (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
+            (packet->dst16 == IEEE802154_BCAST_ADDR) &&
+            (packet->src_pan == IEEE802154_BCAST_PAN) &&
+            (packet->dst_pan == IEEE802154_BCAST_PAN));
+        /* No payload expected. */
+        break;
+
+      case IEEE802154_CMD_BCN_RQ:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) &&
+            (packet->dst16 == IEEE802154_BCAST_ADDR) &&
+            (packet->dst_pan == IEEE802154_BCAST_PAN));
+        /* No payload expected. */
+        break;
+
+      case IEEE802154_CMD_COORD_REAL:
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_EXT) &&
+            (packet->dst_pan == IEEE802154_BCAST_PAN) &&
+            (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE));
+        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            /* If directed to a 16-bit address, check that it is being broadcast. */
+            IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id, packet->dst16 == IEEE802154_BCAST_ADDR);
+        }
+        dissect_ieee802154_realign(tvb, pinfo, tree, packet);
+        return;
+
+      case IEEE802154_CMD_GTS_REQ:
+        /* Check that the addressing is correct for this command type. */
+        IEEE802154_CMD_ADDR_CHECK(pinfo, tree, packet->command_id,
+            (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) &&
+            (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) &&
+            (packet->src16 != IEEE802154_BCAST_ADDR) &&
+            (packet->src16 != IEEE802154_NO_ADDR16));
+        dissect_ieee802154_gtsreq(tvb, pinfo, tree, packet);
+        return;
+    } /* switch */
+
+    /* Dump unexpected, or unknown command payloads. */
+    call_dissector(data_handle, tvb, pinfo, tree);
+} /* dissect_ieee802154_command */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2338,7 +2379,6 @@ gboolean ieee802154_long_addr_invalidate(guint64 long_addr, guint fnum)
     return FALSE;
 } /* ieee802154_long_addr_invalidate */
 
-
 /*FUNCTION:------------------------------------------------------
  *  NAME
  *      proto_init_ieee802154
@@ -2374,6 +2414,23 @@ proto_init_ieee802154(void)
     } /* for */
 } /* proto_init_ieee802154 */
 
+/* Returns the prompt string for the Decode-As dialog. */
+static void ieee802154_da_prompt(packet_info *pinfo _U_, gchar* result)
+{
+    ieee802154_hints_t *hints;
+    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "IEEE 802.15.4 PAN 0x%04x as", hints->src_pan);
+} /* iee802154_da_prompt */
+
+/* Returns the value to index the panid decode table with (source PAN)*/
+static gpointer ieee802154_da_value(packet_info *pinfo _U_)
+{
+    ieee802154_hints_t *hints;
+    hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
+    return GUINT_TO_POINTER(hints->src_pan);
+} /* iee802154_da_value */
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -2693,6 +2750,14 @@ void proto_register_ieee802154(void)
         UAT_END_FIELDS
     };
 
+    static build_valid_func     ieee802154_da_build_value[1] = {ieee802154_da_value};
+    static decode_as_value_t    ieee802154_da_values = {ieee802154_da_prompt, 1, ieee802154_da_build_value};
+    static decode_as_t          ieee802154_da = {
+        IEEE802154_PROTOABBREV_WPAN, "PAN", IEEE802154_PROTOABBREV_WPAN_PANID,
+        1, 0, &ieee802154_da_values, NULL, NULL,
+        decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL
+    };
+
     /* Register the init routine. */
     register_init_routine(proto_init_ieee802154);
 
@@ -2765,13 +2830,18 @@ void proto_register_ieee802154(void)
                                    &ieee802154_extend_auth);
 
     /* Register the subdissector list */
+    panid_dissector_table = register_dissector_table(IEEE802154_PROTOABBREV_WPAN_PANID, "IEEE 802.15.4 PANID", FT_UINT16, BASE_HEX);
     register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN, &ieee802154_heur_subdissector_list);
+    register_heur_dissector_list(IEEE802154_PROTOABBREV_WPAN_BEACON, &ieee802154_beacon_subdissector_list);
 
     /*  Register dissectors with Wireshark. */
     register_dissector(IEEE802154_PROTOABBREV_WPAN, dissect_ieee802154, proto_ieee802154);
     register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
     register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
+
+    /* Register a Decode-As handler. */
+    register_decode_as(&ieee802154_da);
 } /* proto_register_ieee802154 */
 
 

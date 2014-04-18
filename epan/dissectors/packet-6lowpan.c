@@ -453,7 +453,7 @@ struct lowpan_nhdr {
 /* Dissector prototypes */
 static void         proto_init_6lowpan          (void);
 static void         prefs_6lowpan_apply         (void);
-static void         dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int          dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 static tvbuff_t *   dissect_6lowpan_ipv6        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_hc1         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid);
 static tvbuff_t *   dissect_6lowpan_bc0         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -850,34 +850,41 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, gint offset)
 static gboolean
 dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
+    guint    offset = 0;
+
     /* Check for valid patterns. */
-    do {
+    for (;;) {
         /* Parse patterns until we find a match. */
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_IPV6_BITS) == LOWPAN_PATTERN_IPV6) break;
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_HC1_BITS)  == LOWPAN_PATTERN_HC1) break;
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_BC0_BITS)  == LOWPAN_PATTERN_BC0) break;
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) break;
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_MESH_BITS) == LOWPAN_PATTERN_MESH)
-        {
-            ieee802154_packet *packet = (ieee802154_packet *)data;
-            DISSECTOR_ASSERT(packet);
-            if (!(packet->dst_pan == IEEE802154_BCAST_PAN && packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT &&
-                packet->dst16 == IEEE802154_BCAST_ADDR && packet->frame_type != IEEE802154_FCF_BEACON &&
-                packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT && tvb_get_bits8(tvb, 2, 4) ==
-                ZBEE_VERSION_GREEN_POWER))
-            {
-                break;
-            }
+        if (!tvb_reported_length_remaining(tvb, offset)) return FALSE;
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_IPV6_BITS) == LOWPAN_PATTERN_IPV6) break;
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_HC1_BITS)  == LOWPAN_PATTERN_HC1) break;
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_BC0_BITS)  == LOWPAN_PATTERN_BC0) {
+            /* Broadcast headers must be followed by another valid header. */
+            offset += 2;
+            continue;
         }
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAG1) break;
-        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAGN) break;
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) break;
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_MESH_BITS) == LOWPAN_PATTERN_MESH) {
+            /* Mesh headers must be followed by another valid header. */
+            guint8 mesh = tvb_get_guint8(tvb, offset++);
+            offset += (mesh & LOWPAN_MESH_HEADER_V) ? sizeof(guint16) : sizeof(guint64);
+            offset += (mesh & LOWPAN_MESH_HEADER_F) ? sizeof(guint16) : sizeof(guint64);
+            if ((mesh & LOWPAN_MESH_HEADER_HOPS) == LOWPAN_MESH_HEADER_HOPS) offset++;
+            continue;
+        }
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAG1) {
+            /* First fragment headers must be followed by another valid header. */
+            offset += 4;
+            continue;
+        }
+        if (tvb_get_bits8(tvb, offset*8, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAGN) break;
 
         /* If we get here, then we couldn't match to any pattern. */
         return FALSE;
-    } while(0);
+    } /* for */
 
     /* If we get here, then we found a matching pattern. */
-    dissect_6lowpan(tvb, pinfo, tree);
+    dissect_6lowpan(tvb, pinfo, tree, data);
     return TRUE;
 } /* dissect_6lowpan_heur */
 
@@ -890,12 +897,13 @@ dissect_6lowpan_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
  *      tvb             ; packet buffer.
  *      pinfo           ; packet info.
  *      tree            ; protocol display tree.
+ *      data            ; Packet data (ieee 802.15.4).
  *  RETURNS
- *      void            ;
+ *      int             ; Length of data processed, or 0 if not 6LoWPAN.
  *---------------------------------------------------------------
  */
-static void
-dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int
+dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *volatile    lowpan_tree = NULL;
     proto_item *volatile    lowpan_root = NULL;
@@ -919,11 +927,11 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Mesh and Broadcast headers always come first in a 6LoWPAN frame. */
     if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_MESH_BITS) == LOWPAN_PATTERN_MESH) {
         next = dissect_6lowpan_mesh(next, pinfo, lowpan_tree);
-        if (!next) return;
+        if (!next) return tvb_captured_length(tvb);
     }
     if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_BC0_BITS) == LOWPAN_PATTERN_BC0) {
         next = dissect_6lowpan_bc0(next, pinfo, lowpan_tree);
-        if (!next) return;
+        if (!next) return tvb_captured_length(tvb);
     }
 
     /* After the mesh and broadcast headers, process dispatch codes recursively. */
@@ -948,13 +956,14 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Unknown 6LoWPAN dispatch type */
     else {
         dissect_6lowpan_unknown(next, pinfo, lowpan_tree);
-        return;
+        return tvb_captured_length(tvb);
     }
 
     /* The last step should have returned an uncompressed IPv6 datagram. */
     if (next) {
         call_dissector(ipv6_handle, next, pinfo, tree);
     }
+    return tvb_captured_length(tvb);
 } /* dissect_6lowpan */
 
 /*FUNCTION:------------------------------------------------------
@@ -2154,18 +2163,13 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_bits_item(flag_tree, hf_6lowpan_pattern, tvb, offset * 8, LOWPAN_PATTERN_MESH_BITS, ENC_BIG_ENDIAN);
         proto_tree_add_boolean(flag_tree, hf_6lowpan_mesh_v, tvb, offset, (int)sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_V);
         proto_tree_add_boolean(flag_tree, hf_6lowpan_mesh_f, tvb, offset, (int)sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_F);
-        if ((mesh_header & LOWPAN_MESH_HEADER_HOPS)==15)
-        {
-          guint8 HopsLeft;
-          proto_tree_add_uint(flag_tree, hf_6lowpan_mesh_hops, tvb, offset, (int)sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_HOPS);
-          offset += (int)sizeof(guint8);
-          HopsLeft=tvb_get_guint8(tvb, offset);
-          proto_tree_add_uint(mesh_tree, hf_6lowpan_mesh_hops8, tvb, offset, (int)sizeof(guint8), HopsLeft);
-        }
-        else
-          proto_tree_add_uint(flag_tree, hf_6lowpan_mesh_hops, tvb, offset, (int)sizeof(guint8), mesh_header & LOWPAN_MESH_HEADER_HOPS);
+        proto_tree_add_uint(flag_tree, hf_6lowpan_mesh_hops, tvb, offset, 1, mesh_header & LOWPAN_MESH_HEADER_HOPS);
     }
     offset += (int)sizeof(guint8);
+    if ((mesh_header & LOWPAN_MESH_HEADER_HOPS) == LOWPAN_MESH_HEADER_HOPS) {
+        if (tree) proto_tree_add_item(mesh_tree, hf_6lowpan_mesh_hops8, tvb, offset, 1, ENC_NA);
+        offset += (int)sizeof(guint8);
+    }
 
     /* Get and display the originator address. */
     if (!(mesh_header & LOWPAN_MESH_HEADER_V)) {
@@ -2456,7 +2460,14 @@ dissect_6lowpan_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get and display the pattern. */
     if (tree) {
-        proto_tree_add_bits_item(tree, hf_6lowpan_pattern, tvb, 0, 8, ENC_BIG_ENDIAN);
+        /* Give a special case for NALP. */
+        if (tvb_get_bits8(tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
+            proto_tree_add_bits_item(tree, hf_6lowpan_pattern, tvb, 0, LOWPAN_PATTERN_IPHC_BITS, ENC_BIG_ENDIAN);
+        }
+        else {
+            guint8 pattern = tvb_get_guint8(tvb, 0);
+            proto_tree_add_uint_bits_format_value(tree, hf_6lowpan_pattern, tvb, 0, 8, pattern, "Unknown (0x%02x)", pattern);
+        }
     }
 
     /* Create a tvbuff subset for the remaining data. */
@@ -2745,7 +2756,7 @@ proto_register_6lowpan(void)
     expert_register_field_array(expert_6lowpan, ei, array_length(ei));
 
     /* Register the dissector with wireshark. */
-    register_dissector("6lowpan", dissect_6lowpan, proto_6lowpan);
+    new_register_dissector("6lowpan", dissect_6lowpan, proto_6lowpan);
 
     /* Register the dissector init function */
     register_init_routine(proto_init_6lowpan);
@@ -2849,6 +2860,7 @@ proto_reg_handoff_6lowpan(void)
     ipv6_handle = find_dissector("ipv6");
 
     /* Register the 6LoWPAN dissector with IEEE 802.15.4 */
+    dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector("6lowpan"));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_6lowpan_heur, proto_6lowpan);
 } /* proto_reg_handoff_6lowpan */
 

@@ -42,7 +42,6 @@
 #include "packet-zbee-zcl.h"
 #include <wsutil/wsgcrypt.h>
 
-
 void proto_register_zbee_nwk_gp(void);
 void proto_reg_handoff_zbee_nwk_gp(void);
 
@@ -1394,14 +1393,13 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
             add_new_data_source(pinfo, payload_tvb, "Decrypted GP Payload");
             dissect_zbee_nwk_gp_cmd(payload_tvb, pinfo, nwk_tree, data);
             g_free(dec_buffer);
-            return packet.payload_len;
         } else {
             g_free(dec_buffer);
             payload_tvb = tvb_new_subset(tvb, offset - packet.payload_len - packet.mic_size, packet.payload_len, -1);
             call_dissector(data_handle, payload_tvb, pinfo, tree);
         }
     }
-    return 0;
+    return tvb_captured_length(tvb);
 } /* dissect_zbee_nwk_gp */
 
 /*FUNCTION:------------------------------------------------------
@@ -1421,25 +1419,27 @@ dissect_zbee_nwk_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 static gboolean
 dissect_zbee_nwk_heur_gp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    ieee802154_packet *packet = (ieee802154_packet *)data;
+    ieee802154_packet   *packet = (ieee802154_packet *)data;
+    guint8              fcf;
 
-    /* All ZigBee frames must always have a 16-bit source address. */
-    if ( (packet == NULL) ||
-         (packet->src_addr_mode != IEEE802154_FCF_ADDR_SHORT) ) {
-        return FALSE;
-    }
+    /* We must have the IEEE 802.15.4 headers. */
+    if (packet == NULL) return FALSE;
+    /* ZigBee green power never uses 16-bit source addresses. */
+    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) return FALSE;
 
-    /* Skip ZigBee beacons. */
-    if ((packet->frame_type == IEEE802154_FCF_BEACON) && (tvb_get_guint8(tvb, 0) == ZBEE_NWK_BEACON_PROCOL_ID))
-        return FALSE;
+    /* If the frame type and version are not sane, then it's probably not ZGP. */
+    fcf = tvb_get_guint8(tvb, 0);
+    if (zbee_get_bit_field(fcf, ZBEE_NWK_GP_FCF_VERSION) != ZBEE_VERSION_GREEN_POWER) return FALSE;
+    if (!try_val_to_str(zbee_get_bit_field(fcf, ZBEE_NWK_FCF_FRAME_TYPE), zbee_nwk_gp_frame_types)) return FALSE;
 
+    /* ZigBee greenpower frames are either sent to broadcast or the extended address. */
     if (packet->dst_pan == IEEE802154_BCAST_PAN && packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT &&
-        packet->dst16 == IEEE802154_BCAST_ADDR && packet->frame_type != IEEE802154_FCF_BEACON) {
+        packet->dst16 == IEEE802154_BCAST_ADDR) {
         dissect_zbee_nwk_gp(tvb, pinfo, tree, data);
         return TRUE;
     }
     /* 64-bit destination addressing mode support. */
-    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT && packet->frame_type != IEEE802154_FCF_BEACON) {
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT) {
         dissect_zbee_nwk_gp(tvb, pinfo, tree, data);
         return TRUE;
     }
@@ -1753,6 +1753,7 @@ proto_reg_handoff_zbee_nwk_gp(void)
     /* Find the other dissectors we need. */
     data_handle = find_dissector("data");
     /* Register our dissector with IEEE 802.15.4. */
+    dissector_add_handle(IEEE802154_PROTOABBREV_WPAN_PANID, find_dissector(ZBEE_PROTOABBREV_NWK_GP));
     heur_dissector_add(IEEE802154_PROTOABBREV_WPAN, dissect_zbee_nwk_heur_gp, proto_zbee_nwk_gp);
 } /* proto_reg_handoff_zbee */
 
