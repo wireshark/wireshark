@@ -26,6 +26,10 @@
 #define PACKET_LBM_H_INCLUDED
 
 #include "config.h"
+#if defined(__FreeBSD__)
+#include <sys/types.h>
+#include <netinet/in.h>
+#endif
 #include <errno.h>
 #include <glib.h>
 #include <wsutil/inet_aton.h>
