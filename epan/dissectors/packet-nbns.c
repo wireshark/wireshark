@@ -1803,7 +1803,6 @@ dissect_nbss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          * Get the length of the NBSS message.
          */
         if (is_cifs) {
-            flags = 0;
             length = tvb_get_ntoh24(tvb, offset + 1);
         } else {
             flags  = tvb_get_guint8(tvb, offset + 1);
