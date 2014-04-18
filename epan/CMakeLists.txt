@@ -226,6 +226,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-ilp.c
 	dissectors/packet-inap.c
 	dissectors/packet-isdn-sup.c
+	dissectors/packet-kerberos.c
 	dissectors/packet-lcsap.c
 	dissectors/packet-logotypecertextn.c
 	dissectors/packet-lpp.c
@@ -851,7 +852,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-kafka.c
 	dissectors/packet-kdp.c
 	dissectors/packet-kdsp.c
-	dissectors/packet-kerberos.c
 	dissectors/packet-kerberos4.c
 	dissectors/packet-kingfisher.c
 	dissectors/packet-kink.c
