@@ -462,7 +462,7 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
       conv_data->rply_decompressor = (z_streamp)wmem_alloc0(wmem_file_scope(), sizeof(z_stream));
       retcode = inflateInit(conv_data->rqst_decompressor);
       if (retcode == Z_OK) {
-        retcode = inflateInit(conv_data->rply_decompressor);
+        inflateInit(conv_data->rply_decompressor);
       }
 
       /* XXX - use wsutil/adler32.h? */
@@ -1421,7 +1421,6 @@ static int dissect_spdy_ping_payload(tvbuff_t *tvb, int offset, packet_info *pin
   /* Add proto item for ping ID. */
   proto_tree_add_item(frame_tree, hf_spdy_ping_id, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_item_append_text(frame_tree, ", ID: %u", ping_id);
-  offset += 4;
 
   /* Add ping ID to info column. */
   col_append_fstr(pinfo->cinfo, COL_INFO, " ID=%u", ping_id);
@@ -1477,7 +1476,6 @@ static int dissect_spdy_window_update_payload(
   /* Add proto item for window update delta. */
   proto_tree_add_item(frame_tree, hf_spdy_window_update_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_item_append_text(frame_tree, ", Delta: %u", window_update_delta);
-  offset += 4;
 
   /* Add delta to info column. */
   col_append_fstr(pinfo->cinfo, COL_INFO, " Delta=%u", window_update_delta);
