@@ -3620,6 +3620,17 @@ dissect_mip6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         col_set_str(pinfo->cinfo, COL_INFO, "Fast Neighbor Advertisement[Fast Binding Update]");
     }
+
+    if ((type == MIP6_FBACK) && (pproto == IP_PROTO_AH)) {
+        tvbuff_t *ipv6_tvb;
+
+        ipv6_tvb = tvb_new_subset_remaining(tvb, len + offset);
+
+        /* Call the IPv6 dissector */
+        dissector_try_uint(ip_dissector_table, pproto, ipv6_tvb, pinfo, tree);
+
+        col_set_str(pinfo->cinfo, COL_INFO, "Fast Binding Acknowledgment");
+    }
 }
 
 /* Register the protocol with Wireshark */
