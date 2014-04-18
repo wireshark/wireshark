@@ -1066,6 +1066,7 @@ static const value_string krb5_error_codes[] = {
 };
 
 
+#if 0
 #define PAC_LOGON_INFO		1
 #define PAC_CREDENTIAL_TYPE	2
 #define PAC_SERVER_CHECKSUM	6
@@ -1085,7 +1086,6 @@ static const value_string w2k_pac_types[] = {
 };
 
 
-
 static const value_string krb5_princ_types[] = {
     { KRB5_NT_UNKNOWN              , "Unknown" },
     { KRB5_NT_PRINCIPAL            , "Principal" },
@@ -1103,6 +1103,7 @@ static const value_string krb5_princ_types[] = {
     { KRB5_NT_SRV_INST_AND_SID     , "SPN and SID (MS specific)"},
     { 0                            , NULL },
 };
+#endif
 
 static const value_string krb5_preauthentication_types[] = {
     { KRB5_PA_TGS_REQ              , "PA-TGS-REQ" },
@@ -1143,6 +1144,7 @@ static const value_string krb5_preauthentication_types[] = {
     { 0                            , NULL },
 };
 
+#if 0
 static const value_string krb5_encryption_types[] = {
     { KRB5_ENCTYPE_NULL           , "NULL" },
     { KRB5_ENCTYPE_DES_CBC_CRC    , "des-cbc-crc" },
@@ -1205,6 +1207,7 @@ static const value_string krb5_checksum_types[] = {
     { KRB5_CHKSUM_GSSAPI	  , "gssapi-8003" },
     { 0                           , NULL },
 };
+#endif
 
 #define KRB5_AD_IF_RELEVANT			1
 #define KRB5_AD_INTENDED_FOR_SERVER		2
@@ -1219,6 +1222,7 @@ static const value_string krb5_checksum_types[] = {
 #define KRB5_AD_OSF_DCE_PKI_CERTID		66
 #define KRB5_AD_WIN2K_PAC				128
 #define KRB5_AD_SIGNTICKET			0xffffffef
+#if 0
 static const value_string krb5_ad_types[] = {
     { KRB5_AD_IF_RELEVANT	  		, "AD-IF-RELEVANT" },
     { KRB5_AD_INTENDED_FOR_SERVER		, "AD-Intended-For-Server" },
@@ -1252,6 +1256,7 @@ static const value_string krb5_address_types[] = {
     { KRB5_ADDR_IPv6,		"IPv6"},
     { 0,                        NULL },
 };
+#endif
 
 static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_TICKET,		"Ticket" },

@@ -54,6 +54,9 @@ PROV-SRV-LOCATION
 SAMFlags
 TYPED-DATA
 
+#.NO_EMIT ONLY_VALS
+Applications
+
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 guint32 msgtype;
 
