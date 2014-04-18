@@ -788,9 +788,9 @@ if (parameter_tvb){
 
 	if (len){
 		col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
-	   	for(i=0;i<len;i++)
-        		  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
+		for(i=0;i<len;i++)
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+		col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
 	}
 
 }
@@ -866,9 +866,9 @@ if (parameter_tvb){
 	if (len){
 		col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
-          		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
-        	col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
-	   }
+			col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
+		col_append_str(actx->pinfo->cinfo, COL_INFO, ") ");
+	}
 }
 
 
