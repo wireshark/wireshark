@@ -1967,6 +1967,8 @@ dissect_fmip6_opt_lla(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
     tf = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
+    proto_tree_add_item(field_tree, hf_mip6_opt_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+
     proto_tree_add_item(field_tree, hf_fmip6_lla_optcode, tvb,
             offset + FMIP6_LLA_OPTCODE_OFF, FMIP6_LLA_OPTCODE_LEN, ENC_BIG_ENDIAN);
 
