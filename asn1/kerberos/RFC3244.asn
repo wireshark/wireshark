@@ -1,0 +1,12 @@
+-- Extracted from RFC 3244
+
+RFC3244 DEFINITIONS ::=
+BEGIN
+
+ChangePasswdData ::=  SEQUENCE {
+	newpasswd[0]   OCTET STRING,
+	targname[1]    PrincipalName OPTIONAL,
+	targrealm[2]   Realm OPTIONAL
+}
+
+END

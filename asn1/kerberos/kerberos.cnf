@@ -2,6 +2,9 @@
 # kerberos conformation file
 # Copyright 2008 Anders Broman
 
+#.EXPORTS
+ChangePasswdData
+
 #.FIELD_RENAME
 #EncryptedData/etype encryptedData_etype
 KDC-REQ-BODY/etype kDC-REQ-BODY_etype

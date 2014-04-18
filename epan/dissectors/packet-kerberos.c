@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-kerberos.c                                                          */
-/* ../../tools/asn2wrs.py -b -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../../epan/dissectors KerberosV5Spec2.asn k5.asn */
+/* ../../tools/asn2wrs.py -b -p kerberos -c ./kerberos.cnf -s ./packet-kerberos-template -D . -O ../../epan/dissectors KerberosV5Spec2.asn k5.asn RFC3244.asn */
 
 /* Input file: packet-kerberos-template.c */
 
@@ -276,6 +276,9 @@ static int hf_kerberos_ETYPE_INFO2_item = -1;     /* ETYPE_INFO2_ENTRY */
 static int hf_kerberos_name = -1;                 /* PrincipalName */
 static int hf_kerberos_auth = -1;                 /* GeneralString */
 static int hf_kerberos_include_pac = -1;          /* BOOLEAN */
+static int hf_kerberos_newpasswd = -1;            /* OCTET_STRING */
+static int hf_kerberos_targname = -1;             /* PrincipalName */
+static int hf_kerberos_targrealm = -1;            /* Realm */
 /* named bits */
 static int hf_kerberos_APOptions_reserved = -1;
 static int hf_kerberos_APOptions_use_session_key = -1;
@@ -378,6 +381,7 @@ static gint ett_kerberos_TicketFlags = -1;
 static gint ett_kerberos_KDCOptions = -1;
 static gint ett_kerberos_PA_S4U2Self = -1;
 static gint ett_kerberos_KERB_PA_PAC_REQUEST = -1;
+static gint ett_kerberos_ChangePasswdData = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
 #line 153 "../../asn1/kerberos/packet-kerberos-template.c"
@@ -3922,6 +3926,22 @@ dissect_kerberos_KERB_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
+static const ber_sequence_t ChangePasswdData_sequence[] = {
+  { &hf_kerberos_newpasswd  , BER_CLASS_CON, 0, 0, dissect_kerberos_OCTET_STRING },
+  { &hf_kerberos_targname   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_kerberos_PrincipalName },
+  { &hf_kerberos_targrealm  , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_kerberos_Realm },
+  { NULL, 0, 0, 0, NULL }
+};
+
+int
+dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   ChangePasswdData_sequence, hf_index, ett_kerberos_ChangePasswdData);
+
+  return offset;
+}
+
+
 /*--- End of included file: packet-kerberos-fn.c ---*/
 #line 1687 "../../asn1/kerberos/packet-kerberos-template.c"
 
@@ -4713,6 +4733,18 @@ void proto_register_kerberos(void) {
       { "include-pac", "kerberos.include_pac",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_kerberos_newpasswd,
+      { "newpasswd", "kerberos.newpasswd",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_kerberos_targname,
+      { "targname", "kerberos.targname_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PrincipalName", HFILL }},
+    { &hf_kerberos_targrealm,
+      { "targrealm", "kerberos.targrealm",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Realm", HFILL }},
     { &hf_kerberos_APOptions_reserved,
       { "reserved", "kerberos.reserved",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -4929,6 +4961,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KDCOptions,
     &ett_kerberos_PA_S4U2Self,
     &ett_kerberos_KERB_PA_PAC_REQUEST,
+    &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
 #line 1993 "../../asn1/kerberos/packet-kerberos-template.c"

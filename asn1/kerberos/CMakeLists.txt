@@ -33,6 +33,7 @@ set( EXT_ASN_FILE_LIST
 set( ASN_FILE_LIST
 	KerberosV5Spec2.asn
 	k5.asn
+	RFC3244.asn
 )
 
 set( EXTRA_DIST
