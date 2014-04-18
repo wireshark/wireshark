@@ -1154,7 +1154,8 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     case OFPMT_STANDARD:
         proto_tree_add_expert_format(match_tree, pinfo, &ei_openflow_v4_match_undecoded,
                                      tvb, offset, match_length - 4, "Standard match body (deprecated).");
-        offset+=match_length-4;
+        if (match_length > 4)
+            offset+=match_length-4;
         break;
 
     case OFPMT_OXM:
@@ -1167,7 +1168,8 @@ dissect_openflow_match_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     default:
         proto_tree_add_expert_format(match_tree, pinfo, &ei_openflow_v4_match_undecoded,
                                      tvb, offset, match_length - 4, "Unknown match body.");
-        offset+=match_length-4;
+        if (match_length > 4)
+            offset+=match_length-4;
         break;
     }
 
@@ -1258,13 +1260,15 @@ dissect_openflow_meter_band_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         /* uint32_t experimenter_data[0]; */
         proto_tree_add_expert_format(band_tree, pinfo, &ei_openflow_v4_meter_band_undecoded,
                                      tvb, offset, offset - 16 + band_len, "Experimenter meter band body.");
-        offset+=band_len-16;
+        if (band_len > 16)
+            offset+=band_len-16;
         break;
 
     default:
         proto_tree_add_expert_format(band_tree, pinfo, &ei_openflow_v4_meter_band_undecoded,
                                      tvb, offset, offset - 12 + band_len, "Unknown meter band body.");
-        offset+=band_len-12;
+        if (band_len > 12)
+            offset+=band_len-12;
         break;
     }
 
@@ -1305,13 +1309,15 @@ dissect_openflow_hello_element_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     case OFPHET_VERSIONBITMAP:
         /* bitmap */
         proto_tree_add_item(elem_tree, hf_openflow_v4_hello_element_version_bitmap, tvb, offset, elem_length - 4, ENC_NA);
-        offset += elem_length - 4;
+        if (elem_length > 4)
+            offset += elem_length - 4;
         break;
 
     default:
         proto_tree_add_expert_format(tree, pinfo, &ei_openflow_v4_hello_element_undecoded,
                                      tvb, offset, elem_length - 4, "Unknown hello element body.");
-        offset += elem_length - 4;
+        if (elem_length > 4)
+            offset += elem_length - 4;
         break;
     }
 
@@ -4331,13 +4337,15 @@ dissect_openflow_queue_prop_v4(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         /* uint8_t data[0]; */
         proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v4_queue_prop_undecoded,
                                      tvb, offset, prop_len - 16, "Experimenter queue property body.");
-        offset+=prop_len-16;
+        if (prop_len > 16)
+            offset+=prop_len-16;
         break;
 
     default:
         proto_tree_add_expert_format(prop_tree, pinfo, &ei_openflow_v4_queue_prop_undecoded,
                                      tvb, offset, prop_len - 8, "Unknown queue property body.");
-        offset+=prop_len-8;
+        if (prop_len > 8)
+            offset+=prop_len-8;
         break;
     }
 
