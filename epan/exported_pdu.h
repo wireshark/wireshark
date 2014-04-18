@@ -113,18 +113,17 @@ typedef struct _exp_pdu_data_t {
     tvbuff_t    *pdu_tvb;
 } exp_pdu_data_t;
 
-#define EXP_PDU_TAG_IP_SRC_BIT          0x00000001
-#define EXP_PDU_TAG_IP_DST_BIT          0x00000002
+/* 1st byte of optional tags bitmap */
+#define EXP_PDU_TAG_IP_SRC_BIT          0x01
+#define EXP_PDU_TAG_IP_DST_BIT          0x02
+#define EXP_PDU_TAG_SRC_PORT_BIT        0x04
+#define EXP_PDU_TAG_DST_PORT_BIT        0x08
+#define EXP_PDU_TAG_SS7_OPC_BIT         0x20
+#define EXP_PDU_TAG_SS7_DPC_BIT         0x40
+#define EXP_PDU_TAG_ORIG_FNO_BIT        0x80
 
-#define EXP_PDU_TAG_SRC_PORT_BIT        0x00000004
-#define EXP_PDU_TAG_DST_PORT_BIT        0x00000008
-
-#define EXP_PDU_TAG_SS7_OPC_BIT         0x00000020
-#define EXP_PDU_TAG_SS7_DPC_BIT         0x00000040
-
-#define EXP_PDU_TAG_ORIG_FNO_BIT        0x00000080
-
-#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x00000100
+/* 2nd byte of optional tags bitmap */
+#define EXP_PDU_TAG_DVBCI_EVT_BIT       0x01
 
 #define EXP_PDU_TAG_IPV4_SRC_LEN        4
 #define EXP_PDU_TAG_IPV4_DST_LEN        4
@@ -144,12 +143,13 @@ typedef struct _exp_pdu_data_t {
 
 /**
  * Allocates and fills the exp_pdu_data_t struct according to the wanted_exp_tags
- * bit_fileld, if proto_name is != NULL, wtap_encap must be -1 or vice-versa
+ * bit field of wanted_exp_tags_len bytes length
+ * If proto_name is != NULL, wtap_encap must be -1 or vice-versa
  *
  * The tags in the tag buffer SHOULD be added in numerical order.
  */
-WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo,
-                                const char* proto_name, int wtap_encap, guint32 wanted_exp_tags);
+WS_DLL_PUBLIC exp_pdu_data_t *load_export_pdu_tags(packet_info *pinfo, const char* proto_name,
+                                int wtap_encap, guint8 *wanted_exp_tags, guint16 wanted_exp_tags_len);
 
 #endif /* EXPORTED_PDU_H */
 
