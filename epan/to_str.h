@@ -51,7 +51,6 @@ struct     e_in6_addr;
 
 WS_DLL_PUBLIC gchar* address_to_str(wmem_allocator_t *scope, const address *addr);
 WS_DLL_PUBLIC gchar* ep_address_to_str(const address *);
-extern gchar*	se_address_to_str(const address *);
 WS_DLL_PUBLIC void     address_to_str_buf(const address *addr, gchar *buf, int buf_len);
 WS_DLL_PUBLIC const gchar*	ether_to_str(const guint8 *);
 WS_DLL_PUBLIC const gchar*	tvb_ether_to_str(tvbuff_t *tvb, const gint offset);

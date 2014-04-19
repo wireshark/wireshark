@@ -1055,34 +1055,6 @@ solve_address_to_name(const address *addr)
     }
 }
 
-static const gchar *
-se_solve_address_to_name(const address *addr)
-{
-    switch (addr->type) {
-
-        case AT_ETHER:
-            return get_ether_name((const guint8 *)addr->data);
-
-        case AT_IPv4: {
-                          guint32 ip4_addr;
-                          memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
-                          return get_hostname(ip4_addr);
-                      }
-
-        case AT_IPv6: {
-                          struct e_in6_addr ip6_addr;
-                          memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
-                          return get_hostname6(&ip6_addr);
-                      }
-
-        case AT_STRINGZ:
-                      return se_strdup((const gchar *)addr->data);
-
-        default:
-                      return NULL;
-    }
-}
-
 /*
  * Ethernet / manufacturer resolution
  *
@@ -3036,25 +3008,42 @@ get_addr_name(const address *addr)
     return ep_address_to_str(addr);
 }
 
+/*
+ * XXX - we should rename get_addr_name() to ep_addr_name(), to indicate
+ * that the scope of the string it returns may be as short-lived as
+ * an ep_allocated string (although it may be longer-lived), and
+ * rename this to get_addr_name(), as its strings have the same scope
+ * as the get_XXX_name() routines it calls.
+ */
 const gchar *
 se_get_addr_name(const address *addr)
 {
-    const gchar *result;
+    guint32 ip4_addr;
+    struct e_in6_addr ip6_addr;
 
-    result = se_solve_address_to_name(addr);
+    /*
+     * Try to look up a name for this address.
+     * If it's not found, this might return a string corresponding to
+     * the address, or it might return NULL.
+     *
+     * Whatever string is returned has at least session scope.
+     */
+    switch (addr->type) {
 
-    if (result != NULL)
-        return result;
+    case AT_ETHER:
+        return get_ether_name((const guint8 *)addr->data);
 
-    /* if it gets here, either it is of type AT_NONE, */
-    /* or it should be solvable in se_address_to_str -unless addr->type is wrongly defined */
+    case AT_IPv4:
+        memcpy(&ip4_addr, addr->data, sizeof ip4_addr);
+        return get_hostname(ip4_addr);
 
-    if (addr->type == AT_NONE){
-        return "NONE";
+    case AT_IPv6:
+        memcpy(&ip6_addr.bytes, addr->data, sizeof ip6_addr.bytes);
+        return get_hostname6(&ip6_addr);
+
+    default:
+        return NULL;
     }
-
-    /* We need a "permanently" allocated string */
-    return se_address_to_str(addr);
 }
 
 void

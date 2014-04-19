@@ -541,17 +541,6 @@ ep_address_to_str(const address *addr)
     return str;
 }
 
-/* The called routines use se_alloc'ed memory */
-gchar*
-se_address_to_str(const address *addr)
-{
-    gchar *str;
-
-    str=(gchar *)se_alloc(MAX_ADDR_STR_LEN);
-    address_to_str_buf(addr, str, MAX_ADDR_STR_LEN);
-    return str;
-}
-
 void
 address_to_str_buf(const address *addr, gchar *buf, int buf_len)
 {

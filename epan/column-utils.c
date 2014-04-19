@@ -1590,15 +1590,19 @@ static void
 col_set_addr(packet_info *pinfo, const int col, const address *addr, const gboolean is_src,
              const gboolean fill_col_exprs, const gboolean res)
 {
+  const char *name;
+
   if (addr->type == AT_NONE) {
     /* No address, nothing to do */
     return;
   }
 
-  if (res)
-    pinfo->cinfo->col_data[col] = se_get_addr_name(addr);
-  else
-    pinfo->cinfo->col_data[col] = se_address_to_str(addr);
+  if (res && (name = se_get_addr_name(addr)) != NULL)
+    pinfo->cinfo->col_data[col] = name;
+  else {
+    pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];
+    address_to_str_buf(addr, pinfo->cinfo->col_buf[col], COL_MAX_LEN);
+  }
 
   if (!fill_col_exprs)
     return;

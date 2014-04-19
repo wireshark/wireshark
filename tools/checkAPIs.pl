@@ -163,7 +163,6 @@ my %APIs = (
                 'se_strdup_vprintf',
                 'se_strdup_printf',
                 'se_alloc_array',
-                'se_address_to_str',
                 'se_tree_create',
                 'se_tree_insert32',
                 'se_tree_lookup32',
