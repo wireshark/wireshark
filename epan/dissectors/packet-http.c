@@ -796,11 +796,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		col_set_str(pinfo->cinfo, COL_INFO, "Continuation or non-HTTP traffic");
 
 	orig_offset = offset;
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1,
-		    ENC_NA);
-		http_tree = proto_item_add_subtree(ti, ett_http);
-	}
 
 	/*
 	 * Process the packet data, a line at a time.
@@ -959,9 +954,15 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 
 	is_http:
+		if ((tree) && (http_tree == NULL)) {
+			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
+			http_tree = proto_item_add_subtree(ti, ett_http);
+		}
+
 		/*
 		 * Process this line.
 		 */
+
 		if (linelen == 0) {
 			/*
 			 * This is a blank line, which means that
