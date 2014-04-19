@@ -193,8 +193,8 @@ mcaststream_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, const
 
 	/* not in the list? then create a new entry */
 	if (!strinfo) {
-		/*printf("nov sip %s sp %d dip %s dp %d\n", g_strdup(get_addr_name(&(pinfo->src))),
-			pinfo->srcport, g_strdup(get_addr_name(&(pinfo->dst))), pinfo->destport);*/
+		/*printf("nov sip %s sp %d dip %s dp %d\n", g_strdup(ep_address_to_display(&(pinfo->src))),
+			pinfo->srcport, g_strdup(ep_address_to_display(&(pinfo->dst))), pinfo->destport);*/
 		tmp_strinfo.npackets = 0;
 		tmp_strinfo.apackets = 0;
 		tmp_strinfo.first_frame_num = pinfo->fd->num;

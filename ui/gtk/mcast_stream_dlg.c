@@ -179,9 +179,9 @@ mcaststream_on_select_row(GtkTreeSelection *selection, gpointer data _U_)
 	{
 		gtk_tree_model_get(GTK_TREE_MODEL(list_store), &list_iter, MC_COL_DATA, &selected_stream_fwd, -1);
 		g_snprintf(label_text, sizeof(label_text), "Selected: %s:%u -> %s:%u",
-			get_addr_name(&(selected_stream_fwd->src_addr)),
+			ep_address_to_display(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
-			get_addr_name(&(selected_stream_fwd->dest_addr)),
+			ep_address_to_display(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port
 		);
 		gtk_label_set_text(GTK_LABEL(label_fwd), label_text);
@@ -373,9 +373,9 @@ add_to_list_store(mcast_stream_info_t* strinfo)
 	/* switch to "C" locale to avoid problems with localized decimal separators
 		in g_snprintf("%f") functions */
 	setlocale(LC_NUMERIC, "C");
-	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
+	data[0] = g_strdup(ep_address_to_display(&(strinfo->src_addr)));
 	data[1] = g_strdup_printf("%u", strinfo->src_port);
-	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
+	data[2] = g_strdup(ep_address_to_display(&(strinfo->dest_addr)));
 	data[3] = g_strdup_printf("%u", strinfo->dest_port);
 	data[4] = g_strdup_printf("%u", strinfo->npackets);
 	data[5] = g_strdup_printf("%u /s", strinfo->apackets);

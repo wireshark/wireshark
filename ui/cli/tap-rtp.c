@@ -107,9 +107,9 @@ rtp_streams_stat_draw(void *arg _U_)
         }
 
         printf("%15s %5u %15s %5u 0x%08X %16s %5u %5d (%.1f%%) %15.2f %15.2f %15.2f %s\n",
-            get_addr_name(&(strinfo->src_addr)),
+            ep_address_to_display(&(strinfo->src_addr)),
 	    strinfo->src_port,
-	    get_addr_name(&(strinfo->dest_addr)),
+	    ep_address_to_display(&(strinfo->dest_addr)),
 	    strinfo->dest_port,
 	    strinfo->ssrc,
 	    payload_type,

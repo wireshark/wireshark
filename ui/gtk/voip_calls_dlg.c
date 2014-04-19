@@ -437,7 +437,7 @@ add_to_list_store(voip_calls_info_t* strinfo)
 	h323_calls_info_t *h323info;
 	gboolean flag = FALSE;
 
-	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", get_addr_name(&(strinfo->initial_speaker)));
+	g_snprintf(field[CALL_COL_INITIAL_SPEAKER], 30, "%s", ep_address_to_display(&(strinfo->initial_speaker)));
 	g_snprintf(field[CALL_COL_FROM],            50, "%s", strinfo->from_identity);
 	g_snprintf(field[CALL_COL_TO],              50, "%s", strinfo->to_identity);
 	g_snprintf(field[CALL_COL_PROTOCOL],        15, "%s",

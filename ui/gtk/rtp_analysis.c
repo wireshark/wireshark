@@ -873,13 +873,13 @@ dialog_graph_set_title(user_data_t* user_data)
 	}
 
 	title = g_strdup_printf("RTP Graph Analysis Forward: %s:%u to %s:%u   Reverse: %s:%u to %s:%u",
-			get_addr_name(&(user_data->src_fwd)),
+			ep_address_to_display(&(user_data->src_fwd)),
 			user_data->port_src_fwd,
-			get_addr_name(&(user_data->dst_fwd)),
+			ep_address_to_display(&(user_data->dst_fwd)),
 			user_data->port_dst_fwd,
-			get_addr_name(&(user_data->src_rev)),
+			ep_address_to_display(&(user_data->src_rev)),
 			user_data->port_src_rev,
-			get_addr_name(&(user_data->dst_rev)),
+			ep_address_to_display(&(user_data->dst_rev)),
 			user_data->port_dst_rev);
 
 	gtk_window_set_title(GTK_WINDOW(user_data->dlg.dialog_graph.window), title);
@@ -915,9 +915,9 @@ dialog_graph_reset(user_data_t* user_data)
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
 				   graph_descr[i],
-				   get_addr_name(&(user_data->src_fwd)),
+				   ep_address_to_display(&(user_data->src_fwd)),
 				   user_data->port_src_fwd,
-				   get_addr_name(&(user_data->dst_fwd)),
+				   ep_address_to_display(&(user_data->dst_fwd)),
 				   user_data->port_dst_fwd,
 				   user_data->ssrc_fwd);
 		/* it is reverse */
@@ -926,9 +926,9 @@ dialog_graph_reset(user_data_t* user_data)
 				   sizeof(user_data->dlg.dialog_graph.graph[0].title),
 				   "%s: %s:%u to %s:%u (SSRC=0x%X)",
 				   graph_descr[i],
-				   get_addr_name(&(user_data->src_rev)),
+				   ep_address_to_display(&(user_data->src_rev)),
 				   user_data->port_src_rev,
-				   get_addr_name(&(user_data->dst_rev)),
+				   ep_address_to_display(&(user_data->dst_rev)),
 				   user_data->port_dst_rev,
 				   user_data->ssrc_rev);
 		}
@@ -3548,8 +3548,8 @@ create_rtp_dialog(user_data_t* user_data)
 	gtk_widget_show(main_vb);
 
 	/* Notebooks... */
-	g_strlcpy(str_src, get_addr_name(&(user_data->src_fwd)), sizeof(str_src));
-	g_strlcpy(str_dst, get_addr_name(&(user_data->dst_fwd)), sizeof(str_dst));
+	g_strlcpy(str_src, ep_address_to_display(&(user_data->src_fwd)), sizeof(str_src));
+	g_strlcpy(str_dst, ep_address_to_display(&(user_data->dst_fwd)), sizeof(str_dst));
 
 	g_snprintf(label_forward, sizeof(label_forward),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X",
@@ -3561,8 +3561,8 @@ create_rtp_dialog(user_data_t* user_data)
 		str_src, user_data->port_src_fwd, str_dst, user_data->port_dst_fwd, user_data->ssrc_fwd);
 
 
-	g_strlcpy(str_src, get_addr_name(&(user_data->src_rev)), sizeof(str_src));
-	g_strlcpy(str_dst, get_addr_name(&(user_data->dst_rev)), sizeof(str_dst));
+	g_strlcpy(str_src, ep_address_to_display(&(user_data->src_rev)), sizeof(str_src));
+	g_strlcpy(str_dst, ep_address_to_display(&(user_data->dst_rev)), sizeof(str_dst));
 
 	g_snprintf(label_reverse, sizeof(label_reverse),
 		"Analysing stream from  %s port %u  to  %s port %u   SSRC = 0x%X \n"

@@ -369,8 +369,8 @@ add_rtp_packet(const struct _rtp_info *rtp_info, packet_info *pinfo)
 	 * uses: src_ip:src_port dst_ip:dst_port ssrc
 	 */
 	key_str = g_string_new("");
-	g_string_printf(key_str, "%s:%d %s:%d %d", get_addr_name(&(pinfo->src)),
-		pinfo->srcport, get_addr_name(&(pinfo->dst)),
+	g_string_printf(key_str, "%s:%d %s:%d %d", ep_address_to_display(&(pinfo->src)),
+		pinfo->srcport, ep_address_to_display(&(pinfo->dst)),
 		pinfo->destport, rtp_info->info_sync_src );
 
 	/* lookup for this RTP packet in the stream hash table */
@@ -601,8 +601,8 @@ decode_rtp_stream(rtp_stream_info_t *rsi, gpointer ptr)
 	 * uses: src_ip:src_port dst_ip:dst_port call_num
 	 */
 	key_str = g_string_new("");
-	g_string_printf(key_str, "%s:%d %s:%d %d %u", get_addr_name(&(rsi->src_addr)),
-		rsi->src_port, get_addr_name(&(rsi->dest_addr)),
+	g_string_printf(key_str, "%s:%d %s:%d %d %u", ep_address_to_display(&(rsi->src_addr)),
+		rsi->src_port, ep_address_to_display(&(rsi->dest_addr)),
 		rsi->dest_port, rsi->call_num, info->current_channel);
 
 	/* create the rtp_channels_hash table if it doesn't exist */
@@ -1789,15 +1789,15 @@ add_channel_to_window(gchar *key _U_ , rtp_channel_info_t *rci, guint *counter _
 	label = g_string_new("");
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp))) {
 		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Out of Seq: %d(%.1f%%)   Wrong Timestamp: %d(%.1f%%)",
-		get_addr_name(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
-		get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,
+		ep_address_to_display(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
+		ep_address_to_display(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,
 		(double)rci->samples->len/sample_rate,
 		rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets,
 		rci->wrong_timestamp, (double)rci->wrong_timestamp * 100 / (double)rci->num_packets);
 	} else {
 		g_string_printf(label, "From %s:%d to %s:%d   Duration:%.2f   Drop by Jitter Buff:%d(%.1f%%)   Out of Seq: %d(%.1f%%)   Wrong Timestamp: %d(%.1f%%)",
-		get_addr_name(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
-		get_addr_name(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,
+		ep_address_to_display(&(rci->first_stream->src_addr)), rci->first_stream->src_port,
+		ep_address_to_display(&(rci->first_stream->dest_addr)), rci->first_stream->dest_port,
 		(double)rci->samples->len/sample_rate,
 		rci->drop_by_jitter_buff, (double)rci->drop_by_jitter_buff * 100 / (double)rci->num_packets,
 		rci->out_of_seq, (double)rci->out_of_seq * 100 / (double)rci->num_packets,

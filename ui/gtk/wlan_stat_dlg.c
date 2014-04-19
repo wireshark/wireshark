@@ -361,7 +361,7 @@ is_broadcast(const address *addr)
 {
 #if 0
     /* doesn't work if MAC resolution is disable */
-    return strcmp(get_addr_name(addr), "Broadcast") == 0;
+    return strcmp(ep_address_to_display(addr), "Broadcast") == 0;
 #endif
     return ADDRESSES_EQUAL(&broadcast, addr);
 }
@@ -502,7 +502,7 @@ wlanstat_draw_details(wlanstat_t *hs, wlan_ep_t *wlan_ep, gboolean clear)
         }
 
         if (hs->resolve_names) {
-            g_strlcpy (addr, get_addr_name(&tmp->addr), sizeof(addr));
+            g_strlcpy (addr, ep_address_to_display(&tmp->addr), sizeof(addr));
         } else {
             g_strlcpy (addr, ep_address_to_str(&tmp->addr), sizeof(addr));
         }
@@ -569,7 +569,7 @@ wlanstat_draw(void *phs)
         f = (float)(((float)tmp->number_of_packets * 100.0) / hs->number_of_packets);
 
         if (hs->resolve_names) {
-            g_strlcpy (bssid, get_addr_name(&tmp->bssid), sizeof(bssid));
+            g_strlcpy (bssid, ep_address_to_display(&tmp->bssid), sizeof(bssid));
         } else {
             g_strlcpy (bssid, ep_address_to_str(&tmp->bssid), sizeof(bssid));
         }

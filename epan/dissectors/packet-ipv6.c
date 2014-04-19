@@ -1820,7 +1820,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  offset + (int)offsetof(struct ip6_hdr, ip6_src),
                                  16, (guint8 *)&ipv6.ip6_src);
         PROTO_ITEM_SET_HIDDEN(ti);
-        name = get_addr_name(&pinfo->src);
+        name = ep_address_to_display(&pinfo->src);
         if (ipv6_summary_in_tree) {
             proto_item_append_text(ipv6_item, ", Src: %s (%s)", name, ip6_to_str(&ipv6.ip6_src));
         }
@@ -1907,7 +1907,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  offset + (int)offsetof(struct ip6_hdr, ip6_dst),
                                  16, (guint8 *)&ipv6.ip6_dst);
         PROTO_ITEM_SET_HIDDEN(ti);
-        name = get_addr_name(&pinfo->dst);
+        name = ep_address_to_display(&pinfo->dst);
         if (ipv6_summary_in_tree) {
             proto_item_append_text(ipv6_item, ", Dst: %s (%s)", name, ip6_to_str(&ipv6.ip6_dst));
         }

@@ -2988,7 +2988,7 @@ get_sctp_port(guint port)
 } /* get_sctp_port */
 
 const gchar *
-get_addr_name(const address *addr)
+ep_address_to_display(const address *addr)
 {
     const gchar *result;
 
@@ -3008,15 +3008,8 @@ get_addr_name(const address *addr)
     return ep_address_to_str(addr);
 }
 
-/*
- * XXX - we should rename get_addr_name() to ep_addr_name(), to indicate
- * that the scope of the string it returns may be as short-lived as
- * an ep_allocated string (although it may be longer-lived), and
- * rename this to get_addr_name(), as its strings have the same scope
- * as the get_XXX_name() routines it calls.
- */
 const gchar *
-se_get_addr_name(const address *addr)
+get_addr_name(const address *addr)
 {
     guint32 ip4_addr;
     struct e_in6_addr ip6_addr;
@@ -3049,7 +3042,7 @@ se_get_addr_name(const address *addr)
 void
 get_addr_name_buf(const address *addr, gchar *buf, gsize size)
 {
-    const gchar *result = get_addr_name(addr);
+    const gchar *result = ep_address_to_display(addr);
 
     g_strlcpy(buf, result, size);
 } /* get_addr_name_buf */

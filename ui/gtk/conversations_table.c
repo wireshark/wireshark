@@ -1970,7 +1970,7 @@ get_ct_table_address(conversations_table *ct, conv_t *conv, const char **entries
     if(!ct->resolve_names)
         entries[0] = ep_address_to_str(&conv->src_address);
     else {
-        entries[0] = (const char *)get_addr_name(&conv->src_address);
+        entries[0] = (const char *)ep_address_to_display(&conv->src_address);
     }
 
     pt = conv->port_type;
@@ -1993,7 +1993,7 @@ get_ct_table_address(conversations_table *ct, conv_t *conv, const char **entries
     if(!ct->resolve_names)
         entries[2]=ep_address_to_str(&conv->dst_address);
     else {
-        entries[2]=(const char *)get_addr_name(&conv->dst_address);
+        entries[2]=(const char *)ep_address_to_display(&conv->dst_address);
     }
 
     switch(pt) {

@@ -635,9 +635,9 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
 
 	if (selected_stream_fwd) {
 		g_snprintf(label_text, sizeof(label_text), "Forward: %s:%u -> %s:%u, SSRC=0x%X",
-			get_addr_name(&(selected_stream_fwd->src_addr)),
+			ep_address_to_display(&(selected_stream_fwd->src_addr)),
 			selected_stream_fwd->src_port,
-			get_addr_name(&(selected_stream_fwd->dest_addr)),
+			ep_address_to_display(&(selected_stream_fwd->dest_addr)),
 			selected_stream_fwd->dest_port,
 			selected_stream_fwd->ssrc
 		);
@@ -651,9 +651,9 @@ rtpstream_view_selection_func(GtkTreeSelection *selection, GtkTreeModel *model, 
 
 	if (selected_stream_rev) {
 		g_snprintf(label_text, sizeof(label_text), "Reverse: %s:%u -> %s:%u, SSRC=0x%X",
-			get_addr_name(&(selected_stream_rev->src_addr)),
+			ep_address_to_display(&(selected_stream_rev->src_addr)),
 			selected_stream_rev->src_port,
-			get_addr_name(&(selected_stream_rev->dest_addr)),
+			ep_address_to_display(&(selected_stream_rev->dest_addr)),
 			selected_stream_rev->dest_port,
 			selected_stream_rev->ssrc
 		);
@@ -686,9 +686,9 @@ add_to_list_store(rtp_stream_info_t* strinfo)
 		in g_snprintf("%f") functions */
 	setlocale(LC_NUMERIC, "C");
 
-	data[0] = g_strdup(get_addr_name(&(strinfo->src_addr)));
+	data[0] = g_strdup(ep_address_to_display(&(strinfo->src_addr)));
 	data[1] = NULL;
-	data[2] = g_strdup(get_addr_name(&(strinfo->dest_addr)));
+	data[2] = g_strdup(ep_address_to_display(&(strinfo->dest_addr)));
 	data[3] = NULL;
 	data[4] = g_strdup_printf("0x%X", strinfo->ssrc);
 	if (strinfo->info_payload_type_str != NULL) {

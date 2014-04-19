@@ -625,7 +625,7 @@ get_hostlist_table_address(hostlist_table *hl, hostlist_talker_t *host, const ch
     if (!hl->resolve_names)
         entries[0] = ep_address_to_str(&host->myaddress);
     else
-        entries[0] = (char *)get_addr_name(&host->myaddress);
+        entries[0] = (char *)ep_address_to_display(&host->myaddress);
 
     pt = host->port_type;
     if(!hl->resolve_names) pt = PT_NONE;

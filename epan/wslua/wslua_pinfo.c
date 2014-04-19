@@ -378,7 +378,7 @@ WSLUA_METHODS Address_methods[] = {
 WSLUA_METAMETHOD Address__tostring(lua_State* L) {
     Address addr = checkAddress(L,1);
 
-    lua_pushstring(L,get_addr_name(addr));
+    lua_pushstring(L,ep_address_to_display(addr));
 
     WSLUA_RETURN(1); /* The string representing the address. */
 }

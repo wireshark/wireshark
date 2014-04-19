@@ -1597,7 +1597,7 @@ col_set_addr(packet_info *pinfo, const int col, const address *addr, const gbool
     return;
   }
 
-  if (res && (name = se_get_addr_name(addr)) != NULL)
+  if (res && (name = get_addr_name(addr)) != NULL)
     pinfo->cinfo->col_data[col] = name;
   else {
     pinfo->cinfo->col_data[col] = pinfo->cinfo->col_buf[col];

@@ -617,7 +617,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	for (i=0; i<user_data->graph_info->num_nodes; i++) {
 		/* print the node identifiers */
 		/* XXX we assign 5 pixels per character in the node identity */
-		g_strlcpy(label_string, get_addr_name(&(user_data->graph_info->nodes[i])), NODE_WIDTH/5);
+		g_strlcpy(label_string, ep_address_to_display(&(user_data->graph_info->nodes[i])), NODE_WIDTH/5);
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)

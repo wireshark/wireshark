@@ -358,7 +358,7 @@ void SequenceDialog::fillDiagram()
     QFontMetrics vfm = QFontMetrics(sp->xAxis2->labelFont());
     node_label_w_ = 0;
     for (guint i = 0; i < seq_analysis_.num_nodes; i++) {
-        int label_w = vfm.width(get_addr_name(&(seq_analysis_.nodes[i])));
+        int label_w = vfm.width(ep_address_to_display(&(seq_analysis_.nodes[i])));
         if (node_label_w_ < label_w) {
             node_label_w_ = label_w;
         }

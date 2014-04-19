@@ -131,7 +131,7 @@ void rtp_write_header(rtp_stream_info_t *strinfo, FILE *file)
 	guint16 padding;       /* 2 padding bytes */
 
 	fprintf(file, "#!rtpplay%s %s/%u\n", RTPFILE_VERSION,
-		get_addr_name(&(strinfo->dest_addr)),
+		ep_address_to_display(&(strinfo->dest_addr)),
 		strinfo->dest_port);
 
 	start_sec = g_htonl(strinfo->start_sec);
