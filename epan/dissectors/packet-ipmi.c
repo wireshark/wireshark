@@ -990,7 +990,7 @@ ipmi_fmt_channel(gchar *s, guint32 v)
 void
 ipmi_fmt_udpport(gchar *s, guint32 v)
 {
-	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", get_udp_port(v), v);
+	g_snprintf(s, ITEM_LABEL_LENGTH, "%s (%d)", ep_udp_port_to_display(v), v);
 }
 
 void

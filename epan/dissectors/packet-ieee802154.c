@@ -742,9 +742,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->dst, AT_EUI64, 8, &addr);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Dst: %s", get_eui64_name(packet->dst64));
+            proto_item_append_text(proto_root, ", Dst: %s", ep_eui64_to_display(packet->dst64));
         }
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", get_eui64_name(packet->dst64));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", ep_eui64_to_display(packet->dst64));
         offset += 8;
     }
     else if (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE) {
@@ -850,10 +850,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         SET_ADDRESS(&pinfo->src, AT_EUI64, 8, &addr);
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            proto_item_append_text(proto_root, ", Src: %s", get_eui64_name(packet->src64));
+            proto_item_append_text(proto_root, ", Src: %s", ep_eui64_to_display(packet->src64));
         }
 
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", get_eui64_name(packet->src64));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", ep_eui64_to_display(packet->src64));
         offset += 8;
     }
     else if (packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) {

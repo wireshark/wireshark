@@ -461,18 +461,18 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
-    get_udp_port(udph->uh_sport), get_udp_port(udph->uh_dport));
+    ep_udp_port_to_display(udph->uh_sport), ep_udp_port_to_display(udph->uh_dport));
 
   if (tree) {
     if (udp_summary_in_tree) {
       if (ip_proto == IP_PROTO_UDP) {
         ti = proto_tree_add_protocol_format(tree, hfi_udp->id, tvb, offset, 8,
         "User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-        get_udp_port(udph->uh_sport), udph->uh_sport, get_udp_port(udph->uh_dport), udph->uh_dport);
+        ep_udp_port_to_display(udph->uh_sport), udph->uh_sport, ep_udp_port_to_display(udph->uh_dport), udph->uh_dport);
       } else {
         ti = proto_tree_add_protocol_format(tree, hfi_udplite->id, tvb, offset, 8,
         "Lightweight User Datagram Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-        get_udp_port(udph->uh_sport), udph->uh_sport, get_udp_port(udph->uh_dport), udph->uh_dport);
+        ep_udp_port_to_display(udph->uh_sport), udph->uh_sport, ep_udp_port_to_display(udph->uh_dport), udph->uh_dport);
       }
     } else {
       ti = proto_tree_add_item(tree, (ip_proto == IP_PROTO_UDP) ? hfi_udp : hfi_udplite, tvb, offset, 8, ENC_NA);
@@ -480,7 +480,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
     udp_tree = proto_item_add_subtree(ti, ett_udp);
 
     port_item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_srcport.id, tvb, offset, 2, udph->uh_sport,
-                                                 "%s (%u)", get_udp_port(udph->uh_sport), udph->uh_sport);
+                                                 "%s (%u)", ep_udp_port_to_display(udph->uh_sport), udph->uh_sport);
     /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
      * further assumes that 3 attempts are made per hop */
     if ((udph->uh_sport > (32768 + 666)) && (udph->uh_sport <= (32768 + 666 + 30)))
@@ -490,7 +490,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                                    );
 
     port_item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_dstport.id, tvb, offset + 2, 2, udph->uh_dport,
-        "%s (%u)", get_udp_port(udph->uh_dport), udph->uh_dport);
+        "%s (%u)", ep_udp_port_to_display(udph->uh_dport), udph->uh_dport);
     if ((udph->uh_dport > (32768 + 666)) && (udph->uh_dport <= (32768 + 666 + 30)))
             expert_add_info_format(pinfo, port_item, &ei_udp_possible_traceroute, "Possible traceroute: hop #%u, attempt #%u",
                                    ((udph->uh_dport - 32768 - 666 - 1) / 3) + 1,

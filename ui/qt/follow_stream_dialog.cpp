@@ -1039,16 +1039,16 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     switch (follow_type_)
     {
     case FOLLOW_TCP:
-        port0 = get_tcp_port(stats.port[0]);
-        port1 = get_tcp_port(stats.port[1]);
+        port0 = ep_tcp_port_to_display(stats.port[0]);
+        port1 = ep_tcp_port_to_display(stats.port[1]);
         break;
     case FOLLOW_UDP:
-        port0 = get_udp_port(stats.port[0]);
-        port1 = get_udp_port(stats.port[1]);
+        port0 = ep_udp_port_to_display(stats.port[0]);
+        port1 = ep_udp_port_to_display(stats.port[1]);
         break;
     case FOLLOW_SSL:
-        port0 = get_tcp_port(stats.port[0]);
-        port1 = get_tcp_port(stats.port[1]);
+        port0 = ep_tcp_port_to_display(stats.port[0]);
+        port1 = ep_tcp_port_to_display(stats.port[1]);
         break;
     }
 

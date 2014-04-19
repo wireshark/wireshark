@@ -28,7 +28,7 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/addr_resolv.h> /* this is for get_hostname and get_udp_port */
+#include <epan/addr_resolv.h> /* this is for get_hostname and ep_udp_port_to_display */
 
 void proto_register_tpcp(void);
 void proto_reg_handoff_tpcp(void);
@@ -134,7 +134,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
 		val_to_str_const(tpcph.type, type_vals, "Unknown"),
 		tpcph.id,
-		get_udp_port(tpcph.cport),
+		ep_udp_port_to_display(tpcph.cport),
 		ip_to_str((guint8 *)&tpcph.caddr),
 		ip_to_str((guint8 *)&tpcph.saddr));
 
@@ -159,7 +159,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tpcp_tree, hf_tpcp_id, tvb, 4, 2, tpcph.id);
 
 		proto_tree_add_uint_format_value(tpcp_tree, hf_tpcp_cport, tvb, 6, 2, tpcph.cport,
-			"%s", get_udp_port(tpcph.cport));
+			"%s", ep_udp_port_to_display(tpcph.cport));
 
 		proto_tree_add_ipv4(tpcp_tree, hf_tpcp_caddr, tvb, 8, 4, tpcph.caddr);
 

@@ -1977,13 +1977,13 @@ get_ct_table_address(conversations_table *ct, conv_t *conv, const char **entries
     if(!ct->resolve_names) pt = PT_NONE;
     switch(pt) {
     case(PT_TCP):
-        entries[1] = get_tcp_port(conv->src_port);
+        entries[1] = ep_tcp_port_to_display(conv->src_port);
         break;
     case(PT_UDP):
-        entries[1] = get_udp_port(conv->src_port);
+        entries[1] = ep_udp_port_to_display(conv->src_port);
         break;
     case(PT_SCTP):
-        entries[1] = get_sctp_port(conv->src_port);
+        entries[1] = ep_sctp_port_to_display(conv->src_port);
         break;
     default:
         port=ct_port_to_str(conv->port_type, conv->src_port);
@@ -1998,13 +1998,13 @@ get_ct_table_address(conversations_table *ct, conv_t *conv, const char **entries
 
     switch(pt) {
     case(PT_TCP):
-        entries[3]=get_tcp_port(conv->dst_port);
+        entries[3]=ep_tcp_port_to_display(conv->dst_port);
         break;
     case(PT_UDP):
-        entries[3]=get_udp_port(conv->dst_port);
+        entries[3]=ep_udp_port_to_display(conv->dst_port);
         break;
     case(PT_SCTP):
-        entries[3]=get_sctp_port(conv->dst_port);
+        entries[3]=ep_sctp_port_to_display(conv->dst_port);
         break;
     default:
         port=ct_port_to_str(conv->port_type, conv->dst_port);

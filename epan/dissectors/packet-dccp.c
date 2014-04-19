@@ -652,14 +652,14 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_uint_format_value(dccp_tree, hf_dccp_srcport, tvb,
                                      offset, 2, dccph->sport,
                                      "%s (%u)",
-                                     get_dccp_port(dccph->sport),
+                                     ep_dccp_port_to_display(dccph->sport),
                                      dccph->sport);
     if (dccp_summary_in_tree) {
         proto_item_append_text(dccp_item, ", Src Port: %s (%u)",
-                               get_dccp_port(dccph->sport), dccph->sport);
+                               ep_dccp_port_to_display(dccph->sport), dccph->sport);
     }
     col_add_fstr(pinfo->cinfo, COL_INFO,
-                 "%s ", get_dccp_port(dccph->sport));
+                 "%s ", ep_dccp_port_to_display(dccph->sport));
     hidden_item =
         proto_tree_add_uint(dccp_tree, hf_dccp_port, tvb, offset, 2,
                             dccph->sport);
@@ -670,14 +670,14 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     proto_tree_add_uint_format_value(dccp_tree, hf_dccp_dstport, tvb,
                                      offset, 2, dccph->dport,
                                      "%s (%u)",
-                                     get_dccp_port(dccph->dport),
+                                     ep_dccp_port_to_display(dccph->dport),
                                      dccph->dport);
     if (dccp_summary_in_tree) {
         proto_item_append_text(dccp_item, ", Dst Port: %s (%u)",
-                               get_dccp_port(dccph->dport), dccph->dport);
+                               ep_dccp_port_to_display(dccph->dport), dccph->dport);
     }
     col_append_fstr(pinfo->cinfo, COL_INFO, " > %s",
-                    get_dccp_port(dccph->dport));
+                    ep_dccp_port_to_display(dccph->dport));
     hidden_item =
         proto_tree_add_uint(dccp_tree, hf_dccp_port, tvb, offset, 2,
                             dccph->dport);

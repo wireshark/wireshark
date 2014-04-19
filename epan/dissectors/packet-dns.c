@@ -1905,11 +1905,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
               switch (protocol) {
 
                 case IP_PROTO_TCP:
-                  wmem_strbuf_append(bitnames, get_tcp_port(port_num));
+                  wmem_strbuf_append(bitnames, ep_tcp_port_to_display(port_num));
                   break;
 
                 case IP_PROTO_UDP:
-                  wmem_strbuf_append(bitnames, get_udp_port(port_num));
+                  wmem_strbuf_append(bitnames, ep_udp_port_to_display(port_num));
                   break;
 
                 default:

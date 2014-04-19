@@ -149,7 +149,7 @@ zdp_parse_neighbor_table_entry(proto_tree *tree, tvbuff_t *tvb, guint *offset, g
     }
 
     ext_addr = tvb_get_letoh64(tvb, *offset + len);
-    if (tree) proto_item_append_text(ti, ", Extended Addr: %s", get_eui64_name(ext_addr));
+    if (tree) proto_item_append_text(ti, ", Extended Addr: %s", ep_eui64_to_display(ext_addr));
     len += 8;
 
     device = tvb_get_letohs(tvb, *offset + len);
@@ -425,7 +425,7 @@ dissect_zbee_zdp_req_mgmt_leave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         offset += 1;
     }
 
-    zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", ep_eui64_to_display(ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -455,7 +455,7 @@ dissect_zbee_zdp_req_mgmt_direct_join(tvbuff_t *tvb, packet_info *pinfo, proto_t
     ext_addr = zbee_parse_eui64(tree, hf_zbee_zdp_ext_addr, tvb, &offset, 8, NULL);
     /*cinfo    =*/ zdp_parse_cinfo(tree, ett_zbee_zdp_cinfo, tvb, &offset);
 
-    zbee_append_info(tree, pinfo, ", Device: %s", get_eui64_name(ext_addr));
+    zbee_append_info(tree, pinfo, ", Device: %s", ep_eui64_to_display(ext_addr));
 
     /* Dump any leftover bytes. */
     zdp_dump_excess(tvb, offset, pinfo, tree);
@@ -871,7 +871,7 @@ dissect_zbee_zdp_rsp_mgmt_cache(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         guint16 addr16 = tvb_get_letohs(tvb, offset+8);
 
         if (field_tree) {
-            proto_tree_add_text(field_tree, tvb, offset, 2+8, "{%s = 0x%04x}", get_eui64_name(addr64), addr16);
+            proto_tree_add_text(field_tree, tvb, offset, 2+8, "{%s = 0x%04x}", ep_eui64_to_display(addr64), addr16);
         }
         offset += 2+8;
     } /* for */

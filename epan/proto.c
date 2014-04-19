@@ -5910,7 +5910,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_EUI64:
 			integer64 = fvalue_get_integer64(&fi->value);
 			label_fill_descr(label_str, 0, hfinfo,
-				   get_eui64_name(integer64),
+				   ep_eui64_to_display(integer64),
 				   eui64_to_str(integer64));
 			break;
 		case FT_STRING:

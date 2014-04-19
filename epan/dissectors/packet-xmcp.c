@@ -408,19 +408,19 @@ add_xmcp_port_name (void)
   switch(xmcp_service_protocol) {
   case IP_PROTO_TCP:
     proto_item_append_text(xmcp_it_service_port, " (TCP: %s)",
-                           get_tcp_port(xmcp_service_port));
+                           ep_tcp_port_to_display(xmcp_service_port));
     break;
   case IP_PROTO_UDP:
     proto_item_append_text(xmcp_it_service_port, " (UDP: %s)",
-                           get_udp_port(xmcp_service_port));
+                           ep_udp_port_to_display(xmcp_service_port));
     break;
   case IP_PROTO_DCCP:
     proto_item_append_text(xmcp_it_service_port, " (DCCP: %s)",
-                           get_dccp_port(xmcp_service_port));
+                           ep_dccp_port_to_display(xmcp_service_port));
     break;
   case IP_PROTO_SCTP:
     proto_item_append_text(xmcp_it_service_port, " (SCTP: %s)",
-                           get_sctp_port(xmcp_service_port));
+                           ep_sctp_port_to_display(xmcp_service_port));
     break;
   default:
     break;

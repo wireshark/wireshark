@@ -1470,7 +1470,7 @@ static int dissect_zbee_beacon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         offset += 8;
 
         /* Update the Info Column with the EPID. */
-        col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", get_eui64_name(epid));
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", EPID: %s", ep_eui64_to_display(epid));
 
         /*
          * In ZigBee 2006 the Tx-Offset is optional, while in the 2007 and

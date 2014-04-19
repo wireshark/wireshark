@@ -185,8 +185,8 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
         hostname1 = get_hostname(ipaddr);
     }
 
-    port0 = get_udp_port(stats.port[0]);
-    port1 = get_udp_port(stats.port[1]);
+    port0 = ep_udp_port_to_display(stats.port[0]);
+    port1 = ep_udp_port_to_display(stats.port[1]);
 
     follow_info->is_ipv6 = stats.is_ipv6;
 

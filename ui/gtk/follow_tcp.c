@@ -261,8 +261,8 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     follow_info->is_ipv6 = stats.is_ipv6;
 
-    port0 = get_tcp_port(stats.port[0]);
-    port1 = get_tcp_port(stats.port[1]);
+    port0 = ep_tcp_port_to_display(stats.port[0]);
+    port1 = ep_tcp_port_to_display(stats.port[1]);
 
     /* Host 0 --> Host 1 */
     if(sc.src_port == stats.port[0]) {

@@ -1889,13 +1889,13 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
         if (port_item) {
-            if (ip_proto==LSC_TCP && get_tcp_port(port)) {
+            if (ip_proto==LSC_TCP && ep_tcp_port_to_display(port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        get_tcp_port(port));
+                        ep_tcp_port_to_display(port));
             }
-            else if (ip_proto==LSC_UDP && get_udp_port(port)) {
+            else if (ip_proto==LSC_UDP && ep_udp_port_to_display(port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        get_udp_port(port));
+                        ep_udp_port_to_display(port));
             }
         }
         store_lsc_msg_dissector(circuit, ip_proto, port);
@@ -1916,13 +1916,13 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,  circuit_t *circuit,
                 hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset +=2;
         if (port_item) {
-            if (ip_proto==LSC_TCP && get_tcp_port(port)) {
+            if (ip_proto==LSC_TCP && ep_tcp_port_to_display(port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        get_tcp_port(port));
+                        ep_tcp_port_to_display(port));
             }
-            else if (ip_proto==LSC_UDP && get_udp_port(port)) {
+            else if (ip_proto==LSC_UDP && ep_udp_port_to_display(port)) {
                 proto_item_append_text(port_item, " (%s)",
-                        get_udp_port(port));
+                        ep_udp_port_to_display(port));
             }
         }
         store_lsc_msg_dissector(circuit, ip_proto, port);

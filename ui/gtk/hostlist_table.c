@@ -631,13 +631,13 @@ get_hostlist_table_address(hostlist_table *hl, hostlist_talker_t *host, const ch
     if(!hl->resolve_names) pt = PT_NONE;
     switch(pt) {
     case(PT_TCP):
-        entries[1] = get_tcp_port(host->port);
+        entries[1] = ep_tcp_port_to_display(host->port);
         break;
     case(PT_UDP):
-        entries[1] = get_udp_port(host->port);
+        entries[1] = ep_udp_port_to_display(host->port);
         break;
     case(PT_SCTP):
-        entries[1] = get_sctp_port(host->port);
+        entries[1] = ep_sctp_port_to_display(host->port);
         break;
     default:
         port=hostlist_port_to_str(host->port_type, host->port);

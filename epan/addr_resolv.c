@@ -2940,7 +2940,7 @@ manually_resolve_cleanup(void)
 }
 
 gchar *
-get_udp_port(guint port)
+ep_udp_port_to_display(guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
@@ -2949,10 +2949,10 @@ get_udp_port(guint port)
 
     return serv_name_lookup(port, PT_UDP);
 
-} /* get_udp_port */
+} /* ep_udp_port_to_display */
 
 gchar *
-get_dccp_port(guint port)
+ep_dccp_port_to_display(guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
@@ -2961,10 +2961,10 @@ get_dccp_port(guint port)
 
     return serv_name_lookup(port, PT_DCCP);
 
-} /* get_dccp_port */
+} /* ep_dccp_port_to_display */
 
 gchar *
-get_tcp_port(guint port)
+ep_tcp_port_to_display(guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
@@ -2973,10 +2973,10 @@ get_tcp_port(guint port)
 
     return serv_name_lookup(port, PT_TCP);
 
-} /* get_tcp_port */
+} /* ep_tcp_port_to_display */
 
 gchar *
-get_sctp_port(guint port)
+ep_sctp_port_to_display(guint port)
 {
 
     if (!gbl_resolv_flags.transport_name) {
@@ -2985,7 +2985,7 @@ get_sctp_port(guint port)
 
     return serv_name_lookup(port, PT_SCTP);
 
-} /* get_sctp_port */
+} /* ep_sctp_port_to_display */
 
 const gchar *
 ep_address_to_display(const address *addr)
@@ -3225,7 +3225,7 @@ tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset)
 }
 
 const gchar *
-get_eui64_name(const guint64 addr_eui64)
+ep_eui64_to_display(const guint64 addr_eui64)
 {
     gchar *cur, *name;
     guint8 *addr = (guint8 *)ep_alloc(8);
@@ -3240,11 +3240,11 @@ get_eui64_name(const guint64 addr_eui64)
     cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
     return cur;
 
-} /* get_eui64_name */
+} /* ep_eui64_to_display */
 
 
 const gchar *
-get_eui64_name_if_known(const guint64 addr_eui64)
+ep_eui64_to_display_if_known(const guint64 addr_eui64)
 {
     gchar *cur, *name;
     guint8 *addr = (guint8 *)ep_alloc(8);
@@ -3259,7 +3259,7 @@ get_eui64_name_if_known(const guint64 addr_eui64)
     cur=ep_strdup_printf("%s_%02x:%02x:%02x:%02x:%02x", name, addr[3], addr[4], addr[5], addr[6], addr[7]);
     return cur;
 
-} /* get_eui64_name_if_known */
+} /* ep_eui64_to_display_if_known */
 
 #ifdef HAVE_C_ARES
 #define GHI_TIMEOUT (250 * 1000)

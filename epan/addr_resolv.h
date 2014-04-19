@@ -109,28 +109,28 @@ extern gchar *g_pipxnets_path;
 /* Functions in addr_resolv.c */
 
 /*
- * get_udp_port() returns the port name corresponding to that UDP port,
+ * ep_udp_port_to_display() returns the port name corresponding to that UDP port,
  * or the port number as a string if not found.
  */
-WS_DLL_PUBLIC gchar *get_udp_port(guint port);
+WS_DLL_PUBLIC gchar *ep_udp_port_to_display(guint port);
 
 /*
- * get_tcp_port() returns the port name corresponding to that TCP port,
+ * ep_tcp_port_to_display() returns the port name corresponding to that TCP port,
  * or the port number as a string if not found.
  */
-WS_DLL_PUBLIC gchar *get_tcp_port(guint port);
+WS_DLL_PUBLIC gchar *ep_tcp_port_to_display(guint port);
 
 /*
- * get_dccp_port() returns the port name corresponding to that DCCP port,
+ * ep_dccp_port_to_display() returns the port name corresponding to that DCCP port,
  * or the port number as a string if not found.
  */
-extern gchar *get_dccp_port(guint port);
+extern gchar *ep_dccp_port_to_display(guint port);
 
 /*
- * get_sctp_port() returns the port name corresponding to that SCTP port,
+ * ep_sctp_port_to_display() returns the port name corresponding to that SCTP port,
  * or the port number as a string if not found.
  */
-WS_DLL_PUBLIC gchar *get_sctp_port(guint port);
+WS_DLL_PUBLIC gchar *ep_sctp_port_to_display(guint port);
 
 /* ep_address_to_display takes as input an "address", as defined in address.h */
 /* it returns a string that contains: */
@@ -223,12 +223,12 @@ WS_DLL_PUBLIC const gchar *tvb_get_manuf_name(tvbuff_t *tvb, gint offset);
  */
 WS_DLL_PUBLIC const gchar *tvb_get_manuf_name_if_known(tvbuff_t *tvb, gint offset);
 
-/* get_eui64_name returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
+/* ep_eui64_to_display returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known
    "%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x:%02x" */
-extern const gchar *get_eui64_name(const guint64 addr);
+extern const gchar *ep_eui64_to_display(const guint64 addr);
 
-/* get_eui64_name_if_known returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known else NULL */
-extern const gchar *get_eui64_name_if_known(const guint64 addr);
+/* ep_eui64_to_display_if_known returns "<vendor>_%02x:%02x:%02x:%02x:%02x:%02x" if the vendor code is known else NULL */
+extern const gchar *ep_eui64_to_display_if_known(const guint64 addr);
 
 
 /* get_ipxnet_name returns the logical name if found in an ipxnets file,

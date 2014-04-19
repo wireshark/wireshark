@@ -190,20 +190,20 @@ iousers_udpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if(udph->uh_sport>udph->uh_dport){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_src),ep_udp_port_to_display(udph->uh_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_dst),ep_udp_port_to_display(udph->uh_dport));
 	} else if(udph->uh_sport<udph->uh_dport){
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_src),ep_udp_port_to_display(udph->uh_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),ep_udp_port_to_display(udph->uh_dport));
 	} else if(CMP_ADDRESS(&udph->ip_src, &udph->ip_dst)>0){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_src),ep_udp_port_to_display(udph->uh_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_dst),ep_udp_port_to_display(udph->uh_dport));
 	} else {
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_src),get_udp_port(udph->uh_sport));
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),get_udp_port(udph->uh_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&udph->ip_src),ep_udp_port_to_display(udph->uh_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&udph->ip_dst),ep_udp_port_to_display(udph->uh_dport));
 	}
 
 	iousers_process_name_packet(iu, name1, name2, direction, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts);
@@ -253,20 +253,20 @@ iousers_tcpip_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 	if(tcph->th_sport>tcph->th_dport){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_src),ep_tcp_port_to_display(tcph->th_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),ep_tcp_port_to_display(tcph->th_dport));
 	} else if(tcph->th_sport<tcph->th_dport){
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_src),ep_tcp_port_to_display(tcph->th_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),ep_tcp_port_to_display(tcph->th_dport));
 	} else if(CMP_ADDRESS(&tcph->ip_src, &tcph->ip_dst)>0){
 		direction=0;
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_src),ep_tcp_port_to_display(tcph->th_sport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),ep_tcp_port_to_display(tcph->th_dport));
 	} else {
 		direction=1;
-		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_src),get_tcp_port(tcph->th_sport));
-		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),get_tcp_port(tcph->th_dport));
+		g_snprintf(name2,256,"%s:%s",ep_address_to_str(&tcph->ip_src),ep_tcp_port_to_display(tcph->th_sport));
+		g_snprintf(name1,256,"%s:%s",ep_address_to_str(&tcph->ip_dst),ep_tcp_port_to_display(tcph->th_dport));
 	}
 
 	iousers_process_name_packet_with_conv_id(iu, name1, name2, tcph->th_stream, direction, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->fd->abs_ts);
