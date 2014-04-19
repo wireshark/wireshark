@@ -2909,8 +2909,7 @@ free_manually_resolved_ipv4(gpointer data, gpointer user_data _U_)
 {
     resolved_ipv4_t *resolved_ipv4_entry = (resolved_ipv4_t *)data;
 
-	g_free(resolved_ipv4_entry);
-
+    g_free(resolved_ipv4_entry);
 }
 
 static void
@@ -2918,23 +2917,22 @@ free_manually_resolved_ipv6(gpointer data, gpointer user_data _U_)
 {
     resolved_ipv6_t *resolved_ipv6_entry = (resolved_ipv6_t *)data;
 
-	g_free(resolved_ipv6_entry);
-
+    g_free(resolved_ipv6_entry);
 }
 
 void
 manually_resolve_cleanup(void)
 {
     if(manually_resolved_ipv4_list){
-		g_slist_foreach(manually_resolved_ipv4_list, free_manually_resolved_ipv4, NULL);
+        g_slist_foreach(manually_resolved_ipv4_list, free_manually_resolved_ipv4, NULL);
         g_slist_free(manually_resolved_ipv4_list);
-		manually_resolved_ipv4_list = NULL;
-	}
+        manually_resolved_ipv4_list = NULL;
+    }
 
     if(manually_resolved_ipv6_list){
-		g_slist_foreach(manually_resolved_ipv6_list, free_manually_resolved_ipv6, NULL);
+        g_slist_foreach(manually_resolved_ipv6_list, free_manually_resolved_ipv6, NULL);
         g_slist_free(manually_resolved_ipv6_list);
-		manually_resolved_ipv6_list = NULL;
+        manually_resolved_ipv6_list = NULL;
     }
 
 }
