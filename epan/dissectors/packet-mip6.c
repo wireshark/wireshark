@@ -785,8 +785,7 @@ static const value_string mip6_mng_id_type_vals[] = {
 #define PMIP6_BRI_RTRIGGER_LEN   1
 #define PMIP6_BRI_STATUS_LEN     1
 #define PMIP6_BRI_SEQNR_LEN      2
-#define PMIP6_BRI_FLAGS_LEN      1
-#define PMIP6_BRI_RES_LEN        1
+#define PMIP6_BRI_FLAGS_LEN      2
 
 /* Field offsets & field and option lengths for mobility options.
  * The option length does *not* include the option type and length
@@ -1100,7 +1099,8 @@ static int hf_pmip6_bri_status = -1;
 static int hf_pmip6_bri_seqnr = -1;
 static int hf_pmip6_bri_ip_flag = -1;
 static int hf_pmip6_bri_ap_flag = -1;
-static int hf_pmip6_bri_ia_flag = -1;
+static int hf_pmip6_bri_iv_flag = -1;
+static int hf_pmip6_bri_av_flag = -1;
 static int hf_pmip6_bri_ig_flag = -1;
 static int hf_pmip6_bri_ag_flag = -1;
 static int hf_pmip6_bri_res = -1;
@@ -1638,14 +1638,14 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
             proto_tree_add_item(field_tree, hf_pmip6_bri_ip_flag, tvb,
                 PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
-            proto_tree_add_item(field_tree, hf_pmip6_bri_ia_flag, tvb,
+            proto_tree_add_item(field_tree, hf_pmip6_bri_iv_flag, tvb,
                 PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_ig_flag, tvb,
                 PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_res, tvb,
-                PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, ENC_BIG_ENDIAN);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
         }
     } else if ( br_type == ACKNOWLEDGE ) {
 
@@ -1670,11 +1670,14 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
             proto_tree_add_item(field_tree, hf_pmip6_bri_ap_flag, tvb,
                 PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
+            proto_tree_add_item(field_tree, hf_pmip6_bri_av_flag, tvb,
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
+
             proto_tree_add_item(field_tree, hf_pmip6_bri_ag_flag, tvb,
                 PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_res, tvb,
-                PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, ENC_BIG_ENDIAN);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
         }
     }
 
@@ -4368,38 +4371,43 @@ proto_register_mip6(void)
 
     { &hf_pmip6_bri_ip_flag,
       { "Proxy Binding (P) Flag", "mip6.bri_ip",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000,
         NULL, HFILL }
     },
 
-    { &hf_pmip6_bri_ia_flag,
-      { "Acknowledge (A) Flag", "mip6.bri_ia",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+    { &hf_pmip6_bri_iv_flag,
+      { "IPv4 HoA Binding Only (V) Flag", "mip6.bri_iv",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000,
         NULL, HFILL }
     },
 
     { &hf_pmip6_bri_ig_flag,
       { "Global (G) Flag", "mip6.bri_ig",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x2000,
         NULL, HFILL }
     },
 
     { &hf_pmip6_bri_ap_flag,
       { "Proxy Binding (P) Flag", "mip6.bri_ap",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x8000,
+        NULL, HFILL }
+    },
+    { &hf_pmip6_bri_av_flag,
+      { "IPv4 HoA Binding Only (V) Flag", "mip6.bri_av",
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x4000,
         NULL, HFILL }
     },
 
     { &hf_pmip6_bri_ag_flag,
       { "Global (G) Flag", "mip6.bri_ag",
-        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+        FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x2000,
         NULL, HFILL }
     },
 
     { &hf_pmip6_bri_res,
-      { "Reserved: 1 byte", "mip6.bri_res",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }
+      { "Reserved", "mip6.bri_res",
+        FT_UINT16, BASE_HEX, NULL, 0x1FFF,
+        "Must be zero", HFILL }
     },
 
     { &hf_mip6_opt_mng_sub_type,
