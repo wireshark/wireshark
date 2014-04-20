@@ -115,6 +115,7 @@ CFDP
 Cisco MetaData
 DCE/RPC MDSSVC
 DeviceNet
+Ethernet Local Management Interface (E-LMI)
 ELF file format
 EXPORTED PDU
 FINGER
