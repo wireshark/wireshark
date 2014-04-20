@@ -1900,8 +1900,8 @@ extern gint proto_registrar_get_length(const int n);
 WS_DLL_PUBLIC int proto_get_first_protocol(void **cookie);
 WS_DLL_PUBLIC int proto_get_data_protocol(void *cookie);
 WS_DLL_PUBLIC int proto_get_next_protocol(void **cookie);
-WS_DLL_PUBLIC header_field_info *proto_get_first_protocol_field(const int proto_id, void **cookle);
-WS_DLL_PUBLIC header_field_info *proto_get_next_protocol_field(void **cookle);
+WS_DLL_PUBLIC header_field_info *proto_get_first_protocol_field(const int proto_id, void **cookie);
+WS_DLL_PUBLIC header_field_info *proto_get_next_protocol_field(const int proto_id, void **cookie);
 
 /** Given a protocol's filter_name.
  @param filter_name the filter name to search for

@@ -280,8 +280,7 @@ struct _protocol {
 	const char *name;         /* long description */
 	const char *short_name;   /* short description */
 	const char *filter_name;  /* name of this protocol in filters */
-	GSList     *fields;       /* fields for this protocol */
-	GSList     *last_field;   /* pointer to end of list of fields */
+	GPtrArray  *fields;       /* fields for this protocol */
 	int         proto_id;     /* field ID for this protocol */
 	gboolean    is_enabled;   /* TRUE if protocol is enabled */
 	gboolean    can_toggle;   /* TRUE if is_enabled can be changed */
@@ -534,7 +533,7 @@ proto_cleanup(void)
 		DISSECTOR_ASSERT(protocol->proto_id == hfinfo->id);
 
 		g_slice_free(header_field_info, hfinfo);
-		g_slist_free(protocol->fields);
+		g_ptr_array_free(protocol->fields, TRUE);
 		protocols = g_list_remove(protocols, protocol);
 		g_free(protocol);
 	}
@@ -4825,7 +4824,7 @@ proto_register_protocol(const char *name, const char *short_name,
 	protocol->name = name;
 	protocol->short_name = short_name;
 	protocol->filter_name = filter_name;
-	protocol->fields = NULL;
+	protocol->fields = g_ptr_array_new();
 	protocol->is_enabled = TRUE; /* protocol is enabled by default */
 	protocol->can_toggle = TRUE;
 	protocol->is_private = FALSE;
@@ -4913,26 +4912,28 @@ proto_get_next_protocol(void **cookie)
 header_field_info *
 proto_get_first_protocol_field(const int proto_id, void **cookie)
 {
-	protocol_t       *protocol = find_protocol_by_id(proto_id);
+	protocol_t *protocol = find_protocol_by_id(proto_id);
 
-	if ((protocol == NULL) || (protocol->fields == NULL))
+	if ((protocol == NULL) || (protocol->fields->len == 0))
 		return NULL;
 
-	*cookie = protocol->fields;
-	return (header_field_info *)protocol->fields->data;
+	*cookie = GINT_TO_POINTER(0);
+	return (header_field_info *)g_ptr_array_index(protocol->fields, 0);
 }
 
 header_field_info *
-proto_get_next_protocol_field(void **cookie)
+proto_get_next_protocol_field(const int proto_id, void **cookie)
 {
-	GSList           *list_item = (GSList *)*cookie;
+	protocol_t *protocol = find_protocol_by_id(proto_id);
+	guint       index    = GPOINTER_TO_INT(*cookie);
 
-	list_item = g_slist_next(list_item);
-	if (list_item == NULL)
+	index++;
+
+	if (index >= protocol->fields->len)
 		return NULL;
 
-	*cookie = list_item;
-	return (header_field_info *)list_item->data;
+	*cookie = GINT_TO_POINTER(index);
+	return (header_field_info *)g_ptr_array_index(protocol->fields, index);
 }
 
 protocol_t *
@@ -5096,13 +5097,7 @@ static int
 proto_register_field_common(protocol_t *proto, header_field_info *hfi, const int parent)
 {
 	if (proto != NULL) {
-		if (proto->fields == NULL) {
-			proto->fields = g_slist_append(NULL, hfi);
-			proto->last_field = proto->fields;
-		} else {
-			proto->last_field =
-				g_slist_append(proto->last_field, hfi)->next;
-		}
+		g_ptr_array_add(proto->fields, hfi);
 	}
 
 	return proto_register_field_init(hfi, parent);
@@ -5188,25 +5183,23 @@ proto_unregister_field (const int parent, gint hf_id)
 {
 	hf_register_info *hf;
 	protocol_t       *proto;
-	GSList           *field;
+	guint             i;
 
 	if (hf_id == -1 || hf_id == 0)
 		return;
 
 	proto = find_protocol_by_id (parent);
-	if (!proto || !proto->fields) {
+	if (!proto || proto->fields->len == 0) {
 		return;
 	}
 
-	for (field = proto->fields; field; field = field->next) {
-		hf = (hf_register_info *)field->data;
+	for (i = 0; i < proto->fields->len; i++) {
+		hf = (hf_register_info *)g_ptr_array_index(proto->fields, i);
 		if (*hf->p_id == hf_id) {
 			/* Found the hf_id in this protocol */
 			g_hash_table_steal(gpa_name_map, hf->hfinfo.abbrev);
-			/* XXX, memleak? g_slist_delete_link() */
-			proto->fields = g_slist_remove_link (proto->fields, field);
-			proto->last_field = g_slist_last (proto->fields);
-			break;
+			g_ptr_array_remove_index_fast(proto->fields, i);
+			return;
 		}
 	}
 }

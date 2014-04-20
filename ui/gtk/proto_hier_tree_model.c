@@ -98,7 +98,7 @@ proto_hier_tree_iter_nth_child(GtkTreeModel *tree_model, GtkTreeIter *iter, GtkT
 					break;
 				n--;
 			}
-			hfinfo = proto_get_next_protocol_field(&cookie);
+			hfinfo = proto_get_next_protocol_field(proto_id, &cookie);
 		}
 
 		/* not found? */
@@ -238,13 +238,14 @@ proto_hier_tree_iter_next(GtkTreeModel *tree_model, GtkTreeIter *iter)
 	{
 		void *cookie2 = iter->user_data2;
 		header_field_info *hfinfo;
+		int proto_id = proto_get_data_protocol(iter->user_data);
 
-		hfinfo = proto_get_next_protocol_field(&cookie2);
+		hfinfo = proto_get_next_protocol_field(proto_id, &cookie2);
 		/* get next field */
 		while (hfinfo) {
 			if (hfinfo->same_name_prev_id == -1)
 				break;
-			hfinfo = proto_get_next_protocol_field(&cookie2);
+			hfinfo = proto_get_next_protocol_field(proto_id, &cookie2);
 		}
 
 		/* not found? */
@@ -289,7 +290,7 @@ proto_hier_tree_iter_n_children(GtkTreeModel *tree_model, GtkTreeIter *iter)
 		p_id = proto_get_data_protocol(iter->user_data);
 
 		/* count not-duplicated fields */
-		for (hfinfo = proto_get_first_protocol_field(p_id, &cookie); hfinfo; hfinfo = proto_get_next_protocol_field(&cookie)) {
+		for (hfinfo = proto_get_first_protocol_field(p_id, &cookie); hfinfo; hfinfo = proto_get_next_protocol_field(p_id, &cookie)) {
 			if (hfinfo->same_name_prev_id != -1)
 				continue;
 			count++;
@@ -350,7 +351,7 @@ proto_hier_tree_get_path(GtkTreeModel *tree_model, GtkTreeIter *iter)
 		header_field_info *hfinfo;
 
 		pos = 0;
-		for (hfinfo = proto_get_first_protocol_field(p_id, &cookie); hfinfo && hfinfo != iter->user_data3; hfinfo = proto_get_next_protocol_field(&cookie)) {
+		for (hfinfo = proto_get_first_protocol_field(p_id, &cookie); hfinfo && hfinfo != iter->user_data3; hfinfo = proto_get_next_protocol_field(p_id, &cookie)) {
 			if (hfinfo->same_name_prev_id != -1)
 				continue;
 			pos++;

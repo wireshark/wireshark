@@ -255,7 +255,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
          i = proto_get_next_protocol(&cookie)) {
 
 	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-		 hfinfo = proto_get_next_protocol_field(&cookie2)) {
+		 hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
 		    if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
 			    continue;
@@ -283,7 +283,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 
 	    count = 0;
 	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-		 hfinfo = proto_get_next_protocol_field(&cookie2)) {
+		 hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
 		    if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
 			    continue;
@@ -296,7 +296,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    insert_text(w, buffer, len);
 
 	    for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-		 hfinfo = proto_get_next_protocol_field(&cookie2)) {
+		 hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
 		    if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
 			    continue;

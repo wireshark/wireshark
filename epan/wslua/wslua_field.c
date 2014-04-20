@@ -538,7 +538,7 @@ WSLUA_CONSTRUCTOR Field_list(lua_State *L) {
          i = proto_get_next_protocol(&cookie)) {
 
         for (hfinfo = proto_get_first_protocol_field(i, &cookie2); hfinfo != NULL;
-         hfinfo = proto_get_next_protocol_field(&cookie2)) {
+         hfinfo = proto_get_next_protocol_field(i, &cookie2)) {
 
             if (hfinfo->same_name_prev_id != -1) /* ignore duplicate names */
                 continue;
