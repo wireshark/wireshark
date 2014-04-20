@@ -773,9 +773,9 @@ AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR
 # These are not enabled by default, because the warnings they produce
 # are very hard or impossible to eliminate.
 #
-AC_ARG_ENABLE(extra-compiler-checks,
-  AC_HELP_STRING( [--enable-extra-compiler-checks],
-		  [do additional -W checks @<:@default=no@:>@]),
+AC_ARG_ENABLE(extra-warnings,
+  AC_HELP_STRING( [--enable-extra-warnings],
+		  [do additional compiler warnings @<:@default=no@:>@]),
 [
 	wireshark_extra_flags=$enableval
 	if test $enableval != no
