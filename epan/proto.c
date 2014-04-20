@@ -326,8 +326,8 @@ typedef struct _gpa_hfinfo_t {
 
 static gpa_hfinfo_t gpa_hfinfo;
 
-/* Balanced tree of abbreviations and IDs */
-static GTree *gpa_name_tree = NULL;
+/* Hash table of abbreviations and IDs */
+static GHashTable *gpa_name_map = NULL;
 static header_field_info *same_name_hfinfo;
 
 static void save_same_name_hfinfo(gpointer data)
@@ -455,7 +455,7 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	gpa_hfinfo.len           = 0;
 	gpa_hfinfo.allocated_len = 0;
 	gpa_hfinfo.hfi           = NULL;
-	gpa_name_tree            = g_tree_new_full(wrs_strcmp_with_data, NULL, NULL, save_same_name_hfinfo);
+	gpa_name_map             = g_hash_table_new_full(g_str_hash, g_str_equal, NULL, save_same_name_hfinfo);
 
 	/* Initialize the ftype subsystem */
 	ftypes_initialize();
@@ -522,9 +522,9 @@ void
 proto_cleanup(void)
 {
 	/* Free the abbrev/ID GTree */
-	if (gpa_name_tree) {
-		g_tree_destroy(gpa_name_tree);
-		gpa_name_tree = NULL;
+	if (gpa_name_map) {
+		g_hash_table_destroy(gpa_name_map);
+		gpa_name_map = NULL;
 	}
 
 	while (protocols) {
@@ -867,7 +867,7 @@ proto_registrar_get_byname(const char *field_name)
 	if (!field_name)
 		return NULL;
 
-	hfinfo = (header_field_info *)g_tree_lookup(gpa_name_tree, field_name);
+	hfinfo = (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
 
 	if (hfinfo)
 		return hfinfo;
@@ -882,7 +882,7 @@ proto_registrar_get_byname(const char *field_name)
 		return NULL;
 	}
 
-	return (header_field_info *)g_tree_lookup(gpa_name_tree, field_name);
+	return (header_field_info *)g_hash_table_lookup(gpa_name_map, field_name);
 }
 
 int
@@ -5202,7 +5202,7 @@ proto_unregister_field (const int parent, gint hf_id)
 		hf = (hf_register_info *)field->data;
 		if (*hf->p_id == hf_id) {
 			/* Found the hf_id in this protocol */
-			g_tree_steal (gpa_name_tree, hf->hfinfo.abbrev);
+			g_hash_table_steal(gpa_name_map, hf->hfinfo.abbrev);
 			/* XXX, memleak? g_slist_delete_link() */
 			proto->fields = g_slist_remove_link (proto->fields, field);
 			proto->last_field = g_slist_last (proto->fields);
@@ -5585,7 +5585,7 @@ proto_register_field_init(header_field_info *hfinfo, const int parent)
 
 		same_name_hfinfo = NULL;
 
-		g_tree_insert(gpa_name_tree, (gpointer) (hfinfo->abbrev), hfinfo);
+		g_hash_table_insert(gpa_name_map, (gpointer) (hfinfo->abbrev), hfinfo);
 		/* GLIB 2.x - if it is already present
 		 * the previous hfinfo with the same name is saved
 		 * to same_name_hfinfo by value destroy callback */
