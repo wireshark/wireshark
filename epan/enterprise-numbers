@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-04-11)
+(last updated 2014-04-19)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -7266,7 +7266,7 @@ Decimal
     (33) 51 41 41
       89decision&calva.net
 1813
-  VTEL CorporationBill Black
+  VTEL Corporationâ€, Contact_Name = â€œBill Black
     
       bblack&vtel.com
 1814
@@ -72507,9 +72507,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Ryan Hodgson
       ryan&skylinkdesign.com
 18239
-  Digital Theater Systems, Inc
-    Brian Berg
-      bberg&dtsonline.com
+  DTS, Inc. (previous was 'Digital Theater Systems, Inc')
+    Phil Maness
+      phillip.maness&dts.com
 18240
   berger.de
     Thomas Berger
@@ -98134,9 +98134,9 @@ Bahia
     Del Miller
       del&allodialsolutions.com
 24642
-  University in Sarajevo - Faculty of Electrical Engineering
+  University of Sarajevo - Faculty of Electrical Engineering
     Ernedin Zajko
-      oid.admin&etf.unsa.ba
+      ezajko&etf.unsa.ba
 24643
   Cedval Info inc.
     Francois Meehan
@@ -115406,7 +115406,7 @@ Decentralization / Helenic Public Administra
 28956
   Allen Martin Ltd
     Paul Davies
-      help&allen-martin.co.uk
+      box2&allen-martin.co.uk
 28957
   Institut für Graphische und Parallele Datenverarbeitung, Universität Linz
     Roland Hopferwieser
@@ -119433,8 +119433,8 @@ Decentralization / Helenic Public Administra
       pen-admin&tagsystems.fi
 29963
   Iron Council
-    Joseph Harrison
-      jharrison&ironcouncil.net
+    Amelia Wilhelm
+      awilhelm&ironcouncil.net
 29964
   Tribunal de Contas dos Municipios do Estado do Pará
     Sérgio Cunha
@@ -119461,7 +119461,6 @@ Decentralization / Helenic Public Administra
       root&morishima.net
 29970
   Zervina Technologies LLC
-
     Rich Vaughn
       rvaughn&zervina.com
 29971
@@ -136010,9 +136009,9 @@ Decentralization / Helenic Public Administra
     Petr Absolon
       iana&tescoma.com
 34107
-  SELEX GALILEO
+  SELEX ES LTD (previous was 'SELEX GALILEO')
     Davina Forster
-      davina.forster&selexgalileo.com
+      davina.forster&selex-es.com
 34108
   IAM Solutions GmbH & Co. KG
     Michael Raunft
@@ -151309,7 +151308,7 @@ Decentralization / Helenic Public Administra
 37931
   Bob Greene
     Bob Greene
-      bobg&liquidnetworx.com
+      onms.bg&gmail.com
 37932
   Jack Storm
     Jack Storm
@@ -173009,7 +173008,7 @@ Decentralization / Helenic Public Administra
 43356
   Mimosa Networks, Inc
     Alexander Gostrer
-      agostrer&gmail.com
+      alex&mimosa.co
 43357
   Thomas Fagart (Brozs)
     Thomas Fagart
@@ -173818,6 +173817,174 @@ Decentralization / Helenic Public Administra
   GitHub, Inc
     Hugh Bawt
       ops&github.com
+43559
+  ENKOM AG
+    Patrick Bruegger
+      info&enkom.com
+43560
+  New Orleans East Hospital
+    Kimberly Jones-Williams
+      Kim.JWilliams&NOEHospital.org
+43561
+  Micro-Research Finland Oy
+    Jukka Pietarinen
+      jukka.pietarinen&mrf.fi
+43562
+  ZepMed, LLC
+    Nathan White
+      natewhite44&gmail.com
+43563
+  pedro paulo medeiros
+    Pedro Paulo Medeiros
+      ppmedeiros&ig.com.br
+43564
+  TSC AUTO ID Technology Co., Ltd.
+    Phil Liu
+      phil&tscprinters.com
+43565
+  Reliance Jio Infocomm Limited
+    Sudhanshu Purwar
+      sudhanshu.purwar&ril.com
+43566
+  Engineering Center REGIONAL SYSTEMS, Limited
+    Alexey Gordichuk
+      a.gordichuk&ec-rs.ru
+43567
+  Yongjia County Board of Education
+    Li Chengdao
+      lcd&yje.cn
+43568
+  EMICON
+    Rifat Abdulkaumov
+      rifat&emicon.ru
+43569
+  Hong Yun Technology
+    Hong Yun
+      hongyuntech&gmail.com
+43570
+  Coopérative Forestière Bourgogne Limousin (CFBL)
+    Chantal BRODIN PREVOSTO
+      chantal.prevosto&cfbl.fr
+43571
+  SOCIETE DES TRANSPORTS ROCHATTE
+    Rose-Marie ROCHATTE
+      str&transports-rochatte.com
+43572
+  Foundation for Research and Technology Hellas
+    Panagiotis Sikas
+      sikas&ics.forth.gr
+43573
+  VSAT-SERVICE
+    Shishkov Alexey
+      shan&vsat-s.ru
+43574
+  Lansing Makers Network
+    Michael Johnson
+      itstaff&lansingmakersnetwork.org
+43575
+  OpenPeak
+    Dustin Oprea
+      dustin&openpeak.com
+43576
+  IntSec.NET
+    Alessio Bravi
+      alessio&bravi.org
+43577
+  CNPC Beijing Richfit Information Technology Co.,LTD.
+    Songjiajia
+      songphd&hotmail.com
+43578
+  42technology AG
+    Stephan Koch
+      sw-development&42technology.ch
+43579
+  EASYPROTO di Giacomo Cesari
+    giacomo cesari
+      info&easyproto.it
+43580
+  SutherlandGlobalServices
+    Arunbabu Rajmohan
+      Arunbabu.r&sutherlandglobal.com
+43581
+  Ooyala Inc.
+    Bao Nguyen
+      ngqbao&gmail.com
+43582
+  Document Centric Solutions Ltd
+    David Randall
+      sysadmin&doccentrics.com
+43583
+  ReMake Electric
+    Karl Palsson
+      developers&remake-electric.com
+43584
+  Trizetto Provider Solutions
+    Kyle Pott
+      kyle.pott&trizetto.com
+43585
+  SAMSON AG
+    Axel Goettmann
+      agoettmann&samson.de
+43586
+  SVS TELEKOMÜNİKASYON HİZ. TİC. SAN. A.Ş. 
+    Muhammet Fatih OKUTAN
+      fatih.okutan&svstelekom.com.tr
+43587
+  Roave, LLC.
+    Evan Coury
+      info&roave.com
+43588
+  SAA Topnet GmbH
+    Suzanne Epp
+      epp&saatopnet.de
+43589
+  KEKLOLWTF AS
+    Jan Egil Vestbø
+      iana&keklolw.tf
+43590
+  HAL9k hackerspace
+    Georg Sluyterman
+      bestyrelse&lists.hal9k.dk
+43591
+  Erlang Solutions LTD
+    Michal Tomczuk
+      sysadmin&erlang-solutions.com
+43592
+  Campbell Scientific, Incorporated
+    Sam Utley
+      sutley&campbellsci.com
+43593
+  Crimson Innovative
+    Sudhakara Rao
+      sudhakarmurala03&gmail.com
+43594
+  Interhyp AG
+    Norman Bauer
+      _IT_Windows_Services&interhyp.de
+43595
+  MolinoSoft (Julian Bourne)
+    Julian Bourne
+      julian&britesc.com
+43596
+  Carnegie Fitness 
+    Clark Chiu
+      clark&carnegie-fitness.com
+43597
+  Comprehensive Health Management, Inc.
+    Oscar Galdona
+      oscar.galdona&wellcare.com
+43598
+  STORM
+    Sernin van de Krol
+      chip&storm.vu
+43599
+  Paneidos Desu
+    Sernin van de Krol
+      sernin&paneidosdesu.com
+43600
+  Beijing Easesky Netcom Technology Co.,Ltd
+    David Xu
+      davidxu&easeskytech.com
 
 
 End of Document
