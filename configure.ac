@@ -773,8 +773,8 @@ AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR
 # These are not enabled by default, because the warnings they produce
 # are very hard or impossible to eliminate.
 #
-AC_ARG_ENABLE(extra-warnings,
-  AC_HELP_STRING( [--enable-extra-warnings],
+AC_ARG_ENABLE(extra-compiler-warnings,
+  AC_HELP_STRING( [--enable-extra-compiler-warnings],
 		  [do additional compiler warnings @<:@default=no@:>@]),
 [
 	wireshark_extra_flags=$enableval
@@ -1002,7 +1002,7 @@ warnings_as_errors_default="yes"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
-		  [treat warnings as errors (only for GCC or clang) @<:@default=yes, unless extra warnings are enabled@:>@]),
+		  [treat warnings as errors (only for GCC or clang) @<:@default=yes, unless extra compiler warnings are enabled@:>@]),
 [
   if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes"; then
     with_warnings_as_errors="yes"
