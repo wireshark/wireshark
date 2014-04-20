@@ -2,6 +2,9 @@
  * Routines for Ethernet Local Management Interface (E-LMI) dissection
  * Copyright 2014, Martin Kaiser <martin@kaiser.cx>
  *
+ * based on a dissector written in lua
+ * Copyright 2013, Werner Fischer (fischer-interactive.de)
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
