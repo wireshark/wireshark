@@ -51,17 +51,17 @@
 #include "proto.h"	/* XXX - only used for DISSECTOR_ASSERT, probably a new header file? */
 #include "exceptions.h"
 
-/*  
- * Just make sure we include the prototype for strptime as well 55 
- * (needed for glibc 2.2) but make sure we do this only if not 56 
- * yet defined. 57 
- */ 
-#include <time.h> 
-/*#ifdef NEED_STRPTIME_H*/ 
+/*
+ * Just make sure we include the prototype for strptime as well
+ * (needed for glibc 2.2) but make sure we do this only if not
+ * yet defined.
+ */
+#include <time.h>
+/*#ifdef NEED_STRPTIME_H*/
 #ifndef strptime
 #include "wsutil/strptime.h"
-#endif 
- /*#endif*/ 
+#endif
+ /*#endif*/
 
 static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits);
@@ -243,7 +243,7 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 				 guint *offset_ptr, guint *length_ptr)
 {
 	guint end_offset;
-	int exception;
+	int   exception;
 
 	DISSECTOR_ASSERT(offset_ptr);
 	DISSECTOR_ASSERT(length_ptr);
@@ -426,7 +426,7 @@ static inline gint
 _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
-	int exception;
+	int   exception;
 
 	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
 	if (exception)
@@ -439,7 +439,7 @@ gint
 tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
-	int exception;
+	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -489,7 +489,7 @@ gboolean
 tvb_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length)
 {
 	guint abs_offset, abs_length;
-	int exception;
+	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -578,7 +578,7 @@ gboolean
 tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset;
-	int exception;
+	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -609,7 +609,7 @@ gint
 tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset;
-	int exception;
+	int   exception;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -661,7 +661,7 @@ static inline const guint8*
 ensure_contiguous_no_exception(tvbuff_t *tvb, const gint offset, const gint length, int *pexception)
 {
 	guint abs_offset, abs_length;
-	int exception;
+	int   exception;
 
 	exception = check_offset_length_no_exception(tvb, offset, length, &abs_offset, &abs_length);
 	if (exception) {
@@ -811,8 +811,8 @@ tvb_memcpy(tvbuff_t *tvb, void *target, const gint offset, size_t length)
 void *
 tvb_memdup(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, size_t length)
 {
-	guint	abs_offset, abs_length;
-	void	*duped;
+	guint  abs_offset, abs_length;
+	void  *duped;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -1094,7 +1094,7 @@ tvb_get_ntohieee_float(tvbuff_t *tvb, const int offset)
 	return get_ieee_float(tvb_get_ntohl(tvb, offset));
 #else
 	union {
-		gfloat f;
+		gfloat	f;
 		guint32 w;
 	} ieee_fp_union;
 
@@ -1311,10 +1311,10 @@ GByteArray*
 tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 		     const guint encoding, GByteArray *bytes, gint *endoff)
 {
-	const gchar *ptr = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
-	const gchar *begin = ptr;
-	const gchar *end = NULL;
-	GByteArray* retval = NULL;
+	const gchar *ptr    = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
+	const gchar *begin  = ptr;
+	const gchar *end    = NULL;
+	GByteArray  *retval = NULL;
 
 	errno = EDOM;
 
@@ -1344,32 +1344,32 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 static time_t
 mktime_utc (struct tm *tm)
 {
-  time_t retval;
+	time_t retval;
 
 #ifndef HAVE_TIMEGM
-  static const gint days_before[] =
-  {
-    0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
-  };
+	static const gint days_before[] =
+		{
+			0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
+		};
 #endif
 
 #ifndef HAVE_TIMEGM
-  if (tm->tm_mon < 0 || tm->tm_mon > 11)
-    return (time_t) -1;
+	if (tm->tm_mon < 0 || tm->tm_mon > 11)
+		return (time_t) -1;
 
-  retval = (tm->tm_year - 70) * 365;
-  retval += (tm->tm_year - 68) / 4;
-  retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
+	retval = (tm->tm_year - 70) * 365;
+	retval += (tm->tm_year - 68) / 4;
+	retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
 
-  if (tm->tm_year % 4 == 0 && tm->tm_mon < 2)
-    retval -= 1;
+	if (tm->tm_year % 4 == 0 && tm->tm_mon < 2)
+		retval -= 1;
 
-  retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
+	retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
 #else
-  retval = timegm (tm);
+	retval = timegm (tm);
 #endif /* !HAVE_TIMEGM */
 
-  return retval;
+	return retval;
 }
 
 /* support hex-encoded time values? */
@@ -1377,16 +1377,16 @@ nstime_t*
 tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 		    const guint encoding, nstime_t *ns, gint *endoff)
 {
-	const gchar *begin = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
-	const gchar *ptr = begin;
-	const gchar *end = NULL;
-	struct tm tm;
-	nstime_t* retval = NULL;
-	char sign = '+';
-	int off_hr = 0;
-	int off_min = 0;
-	int num_chars = 0;
-	gboolean matched = FALSE;
+	const gchar *begin     = (gchar*) tvb_get_raw_string(wmem_packet_scope(), tvb, offset, length);
+	const gchar *ptr       = begin;
+	const gchar *end       = NULL;
+	struct tm    tm;
+	nstime_t*    retval    = NULL;
+	char	     sign      = '+';
+	int	     off_hr    = 0;
+	int	     off_min   = 0;
+	int	     num_chars = 0;
+	gboolean     matched   = FALSE;
 
 	errno = EDOM;
 
@@ -1675,8 +1675,8 @@ static guint64
 _tvb_get_bits64(tvbuff_t *tvb, guint bit_offset, const gint total_no_of_bits)
 {
 	guint64 value;
-	guint octet_offset = bit_offset >> 3;
-	guint8 required_bits_in_first_octet = 8 - (bit_offset % 8);
+	guint	octet_offset = bit_offset >> 3;
+	guint8	required_bits_in_first_octet = 8 - (bit_offset % 8);
 
 	if(required_bits_in_first_octet > total_no_of_bits)
 	{
@@ -2150,7 +2150,7 @@ static guint8 *
 tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
 	wmem_strbuf_t *str;
-	const guint8 *ptr;
+	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
 
@@ -2180,7 +2180,7 @@ tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint l
 static guint8 *
 tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
 {
-	guint8       *strbuf;
+	guint8 *strbuf;
 
 	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
 	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
@@ -2202,8 +2202,8 @@ tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 static inline guint8 *
 tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
 {
-	guint8       *strbuf;
-	gint          abs_length = length;
+	guint8 *strbuf;
+	gint    abs_length = length;
 
 	DISSECTOR_ASSERT(offset     >=  0);
 	DISSECTOR_ASSERT(abs_length >= -1);
@@ -2228,14 +2228,14 @@ static guint8 *
 tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
 	wmem_strbuf_t *str;
-	const guint8 *ptr;
+	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
 
 	str = wmem_strbuf_sized_new(scope, length+1, 0);
 
 	while (length > 0) {
-		guint8 ch =  *ptr;
+		guint8 ch = *ptr;
 
 		if (ch < 0x80)
 			wmem_strbuf_append_c(str, ch);
@@ -2268,7 +2268,7 @@ static guint8 *
 tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[0x80])
 {
 	wmem_strbuf_t *str;
-	const guint8 *ptr;
+	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
 
@@ -2309,7 +2309,7 @@ tvb_extract_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 	gunichar2      uchar;
 	gint           i;       /* Byte counter for tvbuff */
 	wmem_strbuf_t *strbuf;
-	const guint8 *ptr;
+	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
 
@@ -2362,7 +2362,7 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 	gunichar2      uchar2, lead_surrogate;
 	gunichar       uchar;
 	gint           i;       /* Byte counter for tvbuff */
-	const guint8 *ptr;
+	const guint8  *ptr;
 
 	/* make sure length = -1 fails */
 	if (length < 0) {
@@ -2582,7 +2582,7 @@ char_def_alphabet_decode(unsigned char value)
 
 static gboolean
 handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
-    gboolean saw_escape)
+		      gboolean saw_escape)
 {
 	gunichar       uchar;
 
@@ -2619,7 +2619,7 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	guint8         in_byte, out_byte, rest = 0x00;
 	gboolean       saw_escape = FALSE;
 	int            bits;
-	const guint8 *ptr;
+	const guint8  *ptr;
 	gint length;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -2696,7 +2696,7 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	gint           in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
 	guint8         in_byte, out_byte, rest = 0x00;
 	int            bits;
-	const guint8 *ptr;
+	const guint8  *ptr;
 	gint length;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -2893,7 +2893,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_3GPP_TS_23_038_7BITS:
 		{
-			gint bit_offset = offset << 3;
+			gint bit_offset  = offset << 3;
 			gint no_of_chars = (length << 3) / 7;
 			strbuf = tvb_get_ts_23_038_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
@@ -2901,7 +2901,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_ASCII_7BITS:
 		{
-			gint bit_offset = offset << 3;
+			gint bit_offset  = offset << 3;
 			gint no_of_chars = (length << 3) / 7;
 			strbuf = tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
@@ -2956,14 +2956,14 @@ tvb_get_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 static guint8 *
 tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
 {
-	guint   size, i;
+	guint	       size, i;
 	wmem_strbuf_t *str;
-	const guint8 *ptr;
+	const guint8  *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	str = wmem_strbuf_sized_new(scope, size+1, 0);
+	str  = wmem_strbuf_sized_new(scope, size+1, 0);
 
-	ptr = ensure_contiguous(tvb, offset, size);
+	ptr  = ensure_contiguous(tvb, offset, size);
 
 	for (i = 0; i < size; i++) {
 		guint8 ch = *ptr;
@@ -3001,7 +3001,7 @@ tvb_get_stringz_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint
 {
 	guint size;
 
-	/* XXX, convertion between signed/unsigned integer */
+	/* XXX, conversion between signed/unsigned integer */
 	*lengthp = size = tvb_strsize(tvb, offset);
 
 	return tvb_get_string_8859_1(scope, tvb, offset, size);
@@ -3012,7 +3012,7 @@ tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gi
 {
 	guint size;
 
-	/* XXX, convertion between signed/unsigned integer */
+	/* XXX, conversion between signed/unsigned integer */
 	*lengthp = size = tvb_strsize(tvb, offset);
 
 	return tvb_get_string_unichar2(scope, tvb, offset, size, table);
