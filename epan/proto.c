@@ -2263,6 +2263,11 @@ proto_tree_add_bytes(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
+	gint		  item_length;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
+	test_length(hfinfo, tvb, start, item_length);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2283,6 +2288,11 @@ proto_tree_add_bytes_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item	  *pi;
 	va_list		   ap;
 	header_field_info *hfinfo;
+	gint		  item_length;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
+	test_length(hfinfo, tvb, start, item_length);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
@@ -2308,6 +2318,11 @@ proto_tree_add_bytes_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	proto_item	  *pi;
 	va_list		   ap;
 	header_field_info *hfinfo;
+	gint		  item_length;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	get_hfi_length(hfinfo, tvb, start, &length, &item_length);
+	test_length(hfinfo, tvb, start, item_length);
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hfindex, hfinfo);
 
