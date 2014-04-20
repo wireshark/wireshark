@@ -769,11 +769,13 @@ AC_WIRESHARK_CHECK_UNKNOWN_WARNING_OPTION_ERROR
 AC_WIRESHARK_CHECK_NON_CXX_WARNING_OPTION_ERROR
 
 #
-# Try to add some additional gcc checks to CFLAGS
+# Try to add some additional checks to CFLAGS.
+# These are not enabled by default, because the warnings they produce
+# are very hard or impossible to eliminate.
 #
-AC_ARG_ENABLE(extra-gcc-checks,
-  AC_HELP_STRING( [--enable-extra-gcc-checks],
-		  [do additional -W checks in GCC @<:@default=no@:>@]),
+AC_ARG_ENABLE(extra-compiler-checks,
+  AC_HELP_STRING( [--enable-extra-compiler-checks],
+		  [do additional -W checks @<:@default=no@:>@]),
 [
 	wireshark_extra_flags=$enableval
 	if test $enableval != no
@@ -812,21 +814,14 @@ AC_ARG_ENABLE(extra-gcc-checks,
 		# this one for now.
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
-	fi
-],)
-
-#
-# Try to add some additional clang checks to CFLAGS
-#
-AC_ARG_ENABLE(extra-clang-checks,
-  AC_HELP_STRING( [--enable-extra-clang-checks],
-		  [do additional -W checks in Clang @<:@default=no@:>@]),
-[
-	wireshark_extra_flags=$enableval
-	if test $enableval != no
-	then
+		#
+		# Some code blocks this for now.
+		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
-		#AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
+		#
+		# Some code blocks this for now.
+		#
+		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
 	fi
 ],)
 

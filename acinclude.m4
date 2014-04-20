@@ -2219,7 +2219,7 @@ CC is not __clang__
     ]])],
     [
       CC_IS_CLANG='yes'
-      CFLAGS="$CFLAGS -Qunused-arguments"
+      CFLAGS="$CFLAGS"
     ],
     CC_IS_CLANG='no'
     )

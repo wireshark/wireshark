@@ -199,10 +199,11 @@ else()
 		-Wattributes
 		-Wdiv-by-zero
 		-Wignored-qualifiers
+		-Wpragmas
 		-Wno-overlength-strings
 		-Wwrite-strings
 		-Wno-long-long
-		-Wpragmas
+		-Wheader-guard
 	)
 
 	set(WIRESHARK_C_ONLY_FLAGS
@@ -223,43 +224,69 @@ else()
 	set(WIRESHARK_CPP_ONLY_FLAGS
 	)
 
-	set(WIRESHARK_EXTRA_GCC_C_FLAGS
+	set(WIRESHARK_EXTRA_COMPILER_C_FLAGS
 		-pedantic
 		-Woverflow
+		#
+		# Various code blocks this one.
+		#
 		-fstrict-overflow -Wstrict-overflow=4
-		-Wunsafe-loop-optimizations
-		-Wcast-align
+		#
+		# Due to various places where APIs we don't control
+		# require us to cast away constness, we can probably
+		# never enable this one with -Werror.
+		#
 		-Wcast-qual
-		-Wformat-security
+		#
+		# Some generated ASN.1 dissectors block this one;
+		# multiple function declarations for the same
+		# function are being generated.
+		#
 		-Wredundant-decls
-		-Wheader-guard
+		#
+		# Some loops are safe, but it's hard to convince the
+		# compiler of that.
+		#
+		-Wunsafe-loop-optimizations
+		#
+		# All the registration functions block this for now.
+		#
+		-Wmissing-declarations
+		#
+		# A bunch of "that might not work on SPARC" code blocks
+		# this one for now.
+		#
+		-Wcast-align
+		#
+		# Some code blocks this for now.
+		#
+		-Wunreachable-code
+		#
+		# Some code blocks this for now.
+		#
+		-Wdocumentation
 		-fwrapv
 		-fno-strict-overflow
 		-fno-delete-null-pointer-checks
-		# All the registration functions block these for now.
-		-Wmissing-declarations
 	)
 
-	set(WIRESHARK_EXTRA_GCC_C_ONLY_FLAGS
+	set(WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS
 		# The following are C only, not C++
+		#
+		# Due to various places where APIs we don't control
+		# require us to cast away constness, we can probably
+		# never enable this one with -Werror.
+		#
 		-Wbad-function-cast
-		# All the registration functions block these for now.
+		#
+		# All the registration functions block this for now.
+		#
 		-Wmissing-prototypes
 	)
 
-	set(WIRESHARK_EXTRA_GCC_CPP_ONLY_FLAGS
+	set(WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS
 	)
 
-	set(WIRESHARK_EXTRA_CLANG_C_FLAGS
-		-Wunreachable-code
-		#-Wdocumentation
-	)
-
-	set(WIRESHARK_EXTRA_CLANG_C_ONLY_FLAGS
-	)
-
-	set(WIRESHARK_EXTRA_CLANG_CPP_ONLY_FLAGS
-	)
 	# With clang some tests don't fail properly during testing but only
 	# during real compiles
 
@@ -277,10 +304,10 @@ else()
 		)
 	endif()
 
-	if(ENABLE_EXTRA_GCC_CHECKS)   # This overrides -Werror
-		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_GCC_C_FLAGS})
-		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_GCC_C_ONLY_FLAGS})
-		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_GCC_CPP_ONLY_FLAGS})
+	if(ENABLE_EXTRA_COMPILER_CHECKS)   # This overrides -Werror
+		set(WIRESHARK_C_FLAGS ${WIRESHARK_C_FLAGS} ${WIRESHARK_EXTRA_COMPILER_C_FLAGS})
+		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS})
+		set(WIRESHARK_CPP_ONLY_FLAGS ${WIRESHARK_CPP_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_CPP_ONLY_FLAGS})
 	endif()
 
 	if(ENABLE_EXTRA_CLANG_CHECKS)   # This overrides -Werror
@@ -302,7 +329,7 @@ set( CPP_FLAG_TESTS ${WIRESHARK_C_FLAGS} ${WIRESHARK_CPP_ONLY_FLAGS} )
 include(CheckCCompilerFlag)
 include(CheckCXXCompilerFlag)
 
-if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_GCC_CHECKS)
+if(NOT DISABLE_WERROR AND NOT ENABLE_EXTRA_COMPILER_CHECKS)
 	check_c_compiler_flag(-Werror=unknown-warning-option WERR_UNKNOWN)
 	check_c_compiler_flag(-Werror WERROR)
 else()
