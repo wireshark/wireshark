@@ -16,28 +16,28 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
-* ws-salink:2014-05[]
+* ws-salink:2014-06[]
 +
-A dissector went awry.
-// Fixed in master: ga1b2c3d4
-// Fixed in master-1.10: ga1b2c3d4
-// Fixed in master-1.8: ga1b2c3d4
-(ws-buglink:0000[])
+The RTP dissector could crash.
+// Fixed in master: g30ba425
+// Fixed in master-1.10: g1559f77f
+(ws-buglink:9885[])
 +
-Versions affected: 1.10.0 to 1.10.6, 1.8.0 to 1.8.13
+Versions affected: 1.10.0 to 1.10.6
 //+
 //cve-idlink:2014-2281[]
 
 The following bugs have been fixed:
 
+// Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+* RTP not decoded inside the conversation in v.1.10.1 (ws-buglink:9021[])
 * SIP/SDP: disabled second media stream disables all media streams (ws-buglink:9835[])
 * Lua: trying to get/access a Preference before its registered causes a segfault (ws-buglink:9853[])
-* RTP not decoded inside the conversation in v.1.10.1 (ws-buglink:9021[])
-* Buildbot crash output: fuzz-2014-03-14-15333.pcap (ws-buglink:9885[])
-* Fix crash when calling "MAP Summary" dialog when no file is open (ws-buglink:9934[])
+* Some value_string strings contain newlines. (ws-buglink:9878[])
 * Tighten the NO_MORE_DATA_CHECK macros (ws-buglink:9932[])
-* fix comparing a sequence number of TCP fragment when its value wraps over uint32_t limit (ws-buglink:9936[])
+* Fix crash when calling "MAP Summary" dialog when no file is open (ws-buglink:9934[])
+* Fix comparing a sequence number of TCP fragment when its value wraps over uint32_t limit (ws-buglink:9936[])
 
 === New and Updated Features
 
@@ -71,7 +71,7 @@ TCP
 
 --sort-and-group--
 
-.
+There are no changes in this release.
 
 --sort-and-group--
 
