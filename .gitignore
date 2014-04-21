@@ -111,6 +111,17 @@ doxygen.cfg
 help/faq.txt
 pod2htm[di].tmp
 wireshark.pod
+docbook/*-guide-*.fo
+docbook/*-guide-*.pdf
+docbook/ws?g_html/
+docbook/ws?g_html_chunked/
+docbook/git_version.xml
+docbook/release-notes-*.pdf
+docbook/release-notes.txt
+docbook/wsdg.validated
+docbook/wsluarm
+docbook/wsluarm_src/
+docbook/wsug.validated
 
 # Qt #
 ######
