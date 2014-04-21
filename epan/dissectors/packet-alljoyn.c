@@ -525,7 +525,8 @@ handle_message_header_expected_byte(tvbuff_t   *tvb,
 #define ARG_STRUCT            '('    /* AllJoyn struct container type */
 #define ARG_DICT_ENTRY        '{'    /* AllJoyn dictionary or map container type - an array of key-value pairs */
 
-gint pad_according_to_type(gint offset, gint max_offset, guint8 type)
+static gint
+pad_according_to_type(gint offset, gint max_offset, guint8 type)
 {
     switch(type)
     {
