@@ -30,6 +30,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 
+void proto_register_epm (void);
+void proto_reg_handoff_epm (void);
 
 static int proto_epm3 = -1;
 static int proto_epm4 = -1;

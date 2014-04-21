@@ -51,6 +51,9 @@
 #include <zlib.h>
 #endif
 
+void proto_register_spdy(void);
+void proto_reg_handoff_spdy(void);
+
 #define MIN_SPDY_VERSION 3
 
 #define SPDY_STREAM_ID_MASK 0x7FFFFFFF

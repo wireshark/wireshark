@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_roverride (void);
+void proto_reg_handoff_roverride (void);
 
 static int proto_roverride = -1;
 static int hf_roverride_opnum = -1;
@@ -44,12 +46,12 @@ static guint16  ver_roverride = 1;
 
 
 static dcerpc_sub_dissector roverride_dissectors[] = {
-	{ 0, "roverride_get_login_info", NULL, NULL},
-	{ 1, "roverride_check_passwd", NULL, NULL},
-	{ 2, "roverride_is_passwd_overridden", NULL, NULL},
-	{ 3, "roverride_get_by_unix_num", NULL, NULL},
-	{ 4, "roverride_get_group_info", NULL, NULL},
-	{ 5, "roverride_check_group_passwd", NULL, NULL},
+	{ 0, "roverride_get_login_info",        NULL, NULL},
+	{ 1, "roverride_check_passwd",          NULL, NULL},
+	{ 2, "roverride_is_passwd_overridden",  NULL, NULL},
+	{ 3, "roverride_get_by_unix_num",       NULL, NULL},
+	{ 4, "roverride_get_group_info",        NULL, NULL},
+	{ 5, "roverride_check_group_passwd",    NULL, NULL},
 	{ 6, "roverride_is_grp_pwd_overridden", NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };

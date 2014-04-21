@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rpriv (void);
+void proto_reg_handoff_rpriv (void);
 
 static int proto_rpriv = -1;
 static int hf_rpriv_opnum = -1;

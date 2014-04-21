@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_prop_plcy (void);
+void proto_reg_handoff_rs_prop_plcy (void);
+
 static int proto_rs_prop_plcy = -1;
 static int hf_rs_prop_plcy_opnum = -1;
 
@@ -44,9 +47,9 @@ static guint16 ver_rs_prop_plcy = 1;
 
 
 static dcerpc_sub_dissector rs_prop_plcy_dissectors[] = {
-  {0, "rs_prop_properties_set_info", NULL, NULL},
-  {1, "rs_prop_plcy_set_info", NULL, NULL},
-  {2, "rs_prop_auth_plcy_set_info", NULL, NULL},
+  {0, "rs_prop_properties_set_info",     NULL, NULL},
+  {1, "rs_prop_plcy_set_info",           NULL, NULL},
+  {2, "rs_prop_auth_plcy_set_info",      NULL, NULL},
   {3, "rs_prop_plcy_set_dom_cache_info", NULL, NULL},
   {0, NULL, NULL, NULL}
 };

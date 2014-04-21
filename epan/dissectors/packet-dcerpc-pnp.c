@@ -29,6 +29,9 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-pnp.h"
 
+void proto_register_dcerpc_pnp(void);
+void proto_reg_handoff_dcerpc_pnp(void);
+
 static int proto_dcerpc_pnp = -1;
 
 static int hf_pnp_opnum = -1;

@@ -32,6 +32,9 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 
+void proto_register_dcerpc_trksvr(void);
+void proto_reg_handoff_dcerpc_trksvr(void);
+
 static int proto_dcerpc_trksvr = -1;
 static int hf_trksvr_opnum = -1;
 /* static int hf_trksvr_rc = -1; */

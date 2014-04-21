@@ -32,6 +32,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_cds_clerkserver (void);
+void proto_reg_handoff_cds_clerkserver (void);
 
 static int proto_cds_clerkserver = -1;
 static int hf_cds_clerkserver_opnum = -1;
@@ -46,33 +48,33 @@ static guint16  ver_cds_clerkserver = 1;
 
 
 static dcerpc_sub_dissector cds_clerkserver_dissectors[] = {
-	{  0, "AddReplica", NULL, NULL},
-	{  1, "AllowClearinghouses", NULL, NULL},
-	{  2, "Combine", NULL, NULL},
-	{  3, "CreateChild", NULL, NULL},
-	{  4, "CreateDirectory", NULL, NULL},
-	{  5, "CreateSoftLink", NULL, NULL},
-	{  6, "CreateObject", NULL, NULL},
-	{  7, "DeleteChild", NULL, NULL},
-	{  8, "DeleteObject", NULL, NULL},
-	{  9, "DeleteSoftLink", NULL, NULL},
-	{ 10, "DeleteDirectory", NULL, NULL},
+	{  0, "AddReplica",             NULL, NULL},
+	{  1, "AllowClearinghouses",    NULL, NULL},
+	{  2, "Combine",                NULL, NULL},
+	{  3, "CreateChild",            NULL, NULL},
+	{  4, "CreateDirectory",        NULL, NULL},
+	{  5, "CreateSoftLink",         NULL, NULL},
+	{  6, "CreateObject",           NULL, NULL},
+	{  7, "DeleteChild",            NULL, NULL},
+	{  8, "DeleteObject",           NULL, NULL},
+	{  9, "DeleteSoftLink",         NULL, NULL},
+	{ 10, "DeleteDirectory",        NULL, NULL},
 	{ 11, "DisallowClearinghouses", NULL, NULL},
-	{ 12, "DoUpdate", NULL, NULL},
-	{ 13, "EnumerateAttributes", NULL, NULL},
-	{ 14, "EnumerateChildren", NULL, NULL},
-	{ 15, "EnumerateObjects", NULL, NULL},
-	{ 16, "EnumerateSoftLinks", NULL, NULL},
-	{ 17, "LinkReplica", NULL, NULL},
-	{ 18, "ModifyAttribute", NULL, NULL},
-	{ 19, "ModifyReplica", NULL, NULL},
-	{ 20, "NewEpoch", NULL, NULL},
-	{ 21, "ReadAttribute", NULL, NULL},
-	{ 22, "RemoveReplica", NULL, NULL},
-	{ 23, "ResolveName", NULL, NULL},
-	{ 24, "Skulk", NULL, NULL},
-	{ 25, "TestAttribute", NULL, NULL},
-	{ 26, "TestGroup", NULL, NULL},
+	{ 12, "DoUpdate",               NULL, NULL},
+	{ 13, "EnumerateAttributes",    NULL, NULL},
+	{ 14, "EnumerateChildren",      NULL, NULL},
+	{ 15, "EnumerateObjects",       NULL, NULL},
+	{ 16, "EnumerateSoftLinks",     NULL, NULL},
+	{ 17, "LinkReplica",            NULL, NULL},
+	{ 18, "ModifyAttribute",        NULL, NULL},
+	{ 19, "ModifyReplica",          NULL, NULL},
+	{ 20, "NewEpoch",               NULL, NULL},
+	{ 21, "ReadAttribute",          NULL, NULL},
+	{ 22, "RemoveReplica",          NULL, NULL},
+	{ 23, "ResolveName",            NULL, NULL},
+	{ 24, "Skulk",                  NULL, NULL},
+	{ 25, "TestAttribute",          NULL, NULL},
+	{ 26, "TestGroup",              NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };
 

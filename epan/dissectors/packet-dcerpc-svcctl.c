@@ -33,6 +33,9 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 
+void proto_register_dcerpc_svcctl(void);
+void proto_reg_handoff_dcerpc_svcctl(void);
+
 static int proto_dcerpc_svcctl = -1;
 static int hf_svcctl_opnum = -1;
 static int hf_svcctl_machinename = -1;

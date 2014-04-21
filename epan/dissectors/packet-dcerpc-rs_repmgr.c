@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_repmgr (void);
+void proto_reg_handoff_rs_repmgr (void);
+
 static int proto_rs_repmgr = -1;
 static int hf_rs_repmgr_opnum = -1;
 
@@ -44,14 +47,14 @@ static guint16 ver_rs_repmgr = 2;
 
 
 static dcerpc_sub_dissector rs_repmgr_dissectors[] = {
-  {0, "get_info_and_creds", NULL, NULL},
-  {1, "init", NULL, NULL},
-  {2, "init_done", NULL, NULL},
-  {3, "i_am_slave", NULL, NULL},
-  {4, "i_am_master", NULL, NULL},
-  {5, "become_master", NULL, NULL},
-  {6, "copy_all", NULL, NULL},
-  {7, "copy_propq", NULL, NULL},
+  {0, "get_info_and_creds",   NULL, NULL},
+  {1, "init",                 NULL, NULL},
+  {2, "init_done",            NULL, NULL},
+  {3, "i_am_slave",           NULL, NULL},
+  {4, "i_am_master",          NULL, NULL},
+  {5, "become_master",        NULL, NULL},
+  {6, "copy_all",             NULL, NULL},
+  {7, "copy_propq",           NULL, NULL},
   {8, "stop_until_compat_sw", NULL, NULL},
   {0, NULL, NULL, NULL}
 };

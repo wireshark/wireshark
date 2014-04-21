@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rdaclif (void);
+void proto_reg_handoff_rdaclif (void);
+
 static int proto_rdaclif = -1;
 static int hf_rdaclif_opnum = -1;
 
@@ -44,14 +47,14 @@ static guint16 ver_rdaclif = 1;
 
 
 static dcerpc_sub_dissector rdaclif_dissectors[] = {
-  {0, "lookup", NULL, NULL},
-  {1, "replace", NULL, NULL},
-  {2, "get_access", NULL, NULL},
-  {3, "test_access", NULL, NULL},
-  {4, "test_access_on_behalf", NULL, NULL},
-  {5, "get_manager_types", NULL, NULL},
-  {6, "get_printstring", NULL, NULL},
-  {7, "get_referral", NULL, NULL},
+  {0, "lookup",                  NULL, NULL},
+  {1, "replace",                 NULL, NULL},
+  {2, "get_access",              NULL, NULL},
+  {3, "test_access",             NULL, NULL},
+  {4, "test_access_on_behalf",   NULL, NULL},
+  {5, "get_manager_types",       NULL, NULL},
+  {6, "get_printstring",         NULL, NULL},
+  {7, "get_referral",            NULL, NULL},
   {8, "get_mgr_types_semantics", NULL, NULL},
   {0, NULL, NULL, NULL}
 };

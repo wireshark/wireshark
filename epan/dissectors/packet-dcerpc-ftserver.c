@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_ftserver (void);
+void proto_reg_handoff_ftserver (void);
 
 static int proto_ftserver = -1;
 static int hf_ftserver_opnum = -1;
@@ -45,27 +47,27 @@ static guint16  ver_ftserver = 4;
 
 
 static dcerpc_sub_dissector ftserver_dissectors[] = {
-	{  0, "CreateTrans", NULL, NULL },
-	{  1, "AbortTrans", NULL, NULL },
-	{  2, "DeleteTrans", NULL, NULL },
-	{  3, "CreateVolume", NULL, NULL },
-	{  4, "DeleteVolume", NULL, NULL },
-	{  5, "Dump", NULL, NULL },
-	{  6, "Restore", NULL, NULL },
-	{  7, "Forward", NULL, NULL },
-	{  8, "Clone", NULL, NULL },
-	{  9, "ReClone", NULL, NULL },
-	{ 10, "GetFlags", NULL, NULL },
-	{ 11, "SetFlags", NULL, NULL },
-	{ 12, "GetStatus", NULL, NULL },
-	{ 13, "SetStatus", NULL, NULL },
-	{ 14, "ListVolumes", NULL, NULL },
-	{ 15, "ListAggregates", NULL, NULL },
-	{ 16, "AggregateInfo", NULL, NULL },
-	{ 17, "Monitor", NULL, NULL },
-	{ 18, "GetOneVolStatus", NULL, NULL },
+	{  0, "CreateTrans",         NULL, NULL },
+	{  1, "AbortTrans",          NULL, NULL },
+	{  2, "DeleteTrans",         NULL, NULL },
+	{  3, "CreateVolume",        NULL, NULL },
+	{  4, "DeleteVolume",        NULL, NULL },
+	{  5, "Dump",                NULL, NULL },
+	{  6, "Restore",             NULL, NULL },
+	{  7, "Forward",             NULL, NULL },
+	{  8, "Clone",               NULL, NULL },
+	{  9, "ReClone",             NULL, NULL },
+	{ 10, "GetFlags",            NULL, NULL },
+	{ 11, "SetFlags",            NULL, NULL },
+	{ 12, "GetStatus",           NULL, NULL },
+	{ 13, "SetStatus",           NULL, NULL },
+	{ 14, "ListVolumes",         NULL, NULL },
+	{ 15, "ListAggregates",      NULL, NULL },
+	{ 16, "AggregateInfo",       NULL, NULL },
+	{ 17, "Monitor",             NULL, NULL },
+	{ 18, "GetOneVolStatus",     NULL, NULL },
 	{ 19, "GetServerInterfaces", NULL, NULL },
-	{ 20, "SwapIDs", NULL, NULL },
+	{ 20, "SwapIDs",             NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
 

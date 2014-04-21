@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_replist (void);
+void proto_reg_handoff_rs_replist (void);
 
 static int proto_rs_replist = -1;
 static int hf_rs_replist_opnum = -1;
@@ -44,16 +46,16 @@ static guint16  ver_rs_replist = 2;
 
 
 static dcerpc_sub_dissector rs_replist_dissectors[] = {
-	{ 0, "rs_replist_add_replica", NULL, NULL},
+	{ 0, "rs_replist_add_replica",     NULL, NULL},
 	{ 1, "rs_replist_replace_replica", NULL, NULL},
-	{ 2, "rs_replist_delete_replica", NULL, NULL},
-	{ 3, "rs_replist_read", NULL, NULL},
-	{ 4, "rs_replist_read_full", NULL, NULL},
-	{ 5, "rs_replist_add_replica", NULL, NULL},
+	{ 2, "rs_replist_delete_replica",  NULL, NULL},
+	{ 3, "rs_replist_read",            NULL, NULL},
+	{ 4, "rs_replist_read_full",       NULL, NULL},
+	{ 5, "rs_replist_add_replica",     NULL, NULL},
 	{ 6, "rs_replist_replace_replica", NULL, NULL},
-	{ 7, "rs_replist_delete_replica", NULL, NULL},
-	{ 8, "rs_replist_read", NULL, NULL},
-	{ 9, "rs_replist_read_full", NULL, NULL},
+	{ 7, "rs_replist_delete_replica",  NULL, NULL},
+	{ 8, "rs_replist_read",            NULL, NULL},
+	{ 9, "rs_replist_read_full",       NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };
 

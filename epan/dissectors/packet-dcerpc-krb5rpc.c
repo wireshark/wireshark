@@ -34,6 +34,9 @@
 #include "packet-kerberos.h"
 #include "packet-dcerpc-dce122.h"
 
+void proto_register_krb5rpc (void);
+void proto_reg_handoff_krb5rpc (void);
+
 static int proto_krb5rpc = -1;
 
 static gint ett_krb5rpc = -1;

@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_dcerpc_rs_plcy(void);
+void proto_reg_handoff_dcerpc_rs_plcy(void);
+
 /* Global hf index fields */
 
 static int proto_dcerpc_rs_plcy = -1;
@@ -44,16 +47,16 @@ static e_uuid_t uuid_dcerpc_rs_plcy = {
 static guint16 ver_dcerpc_rs_plcy = 1;
 
 static dcerpc_sub_dissector dcerpc_rs_plcy_dissectors[] = {
-	{ 0,  "rs_properties_get_info", NULL, NULL },
-	{ 1,  "rs_properties_set_info ", NULL, NULL },
-	{ 2,  "rs_policy_get_info", NULL, NULL },
-	{ 3,  "rs_policy_set_info", NULL, NULL },
-	{ 4,  "rs_policy_get_effective", NULL, NULL },
-	{ 5,  "rs_policy_get_override_info", NULL, NULL },
-	{ 6,  "rs_policy_set_override_info", NULL, NULL },
-	{ 7,  "rs_auth_policy_get_info", NULL, NULL },
+	{ 0,  "rs_properties_get_info",       NULL, NULL },
+	{ 1,  "rs_properties_set_info ",      NULL, NULL },
+	{ 2,  "rs_policy_get_info",           NULL, NULL },
+	{ 3,  "rs_policy_set_info",           NULL, NULL },
+	{ 4,  "rs_policy_get_effective",      NULL, NULL },
+	{ 5,  "rs_policy_get_override_info",  NULL, NULL },
+	{ 6,  "rs_policy_set_override_info",  NULL, NULL },
+	{ 7,  "rs_auth_policy_get_info",      NULL, NULL },
 	{ 8,  "rs_auth_policy_get_effective", NULL, NULL },
-	{ 9,  "rs_auth_policy_set_info", NULL, NULL },
+	{ 9,  "rs_auth_policy_set_info",      NULL, NULL },
         { 0, NULL, NULL,  NULL }
 };
 

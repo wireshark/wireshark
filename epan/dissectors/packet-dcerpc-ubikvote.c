@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_ubikvote (void);
+void proto_reg_handoff_ubikvote (void);
 
 static int proto_ubikvote = -1;
 static int hf_ubikvote_opnum = -1;
@@ -44,13 +46,13 @@ static guint16  ver_ubikvote = 4;
 
 
 static dcerpc_sub_dissector ubikvote_dissectors[] = {
-	{ 0, "Beacon", NULL, NULL},
-	{ 1, "Debug", NULL, NULL},
-	{ 2, "SDebug", NULL, NULL},
+	{ 0, "Beacon",              NULL, NULL},
+	{ 1, "Debug",               NULL, NULL},
+	{ 2, "SDebug",              NULL, NULL},
 	{ 3, "GetServerInterfaces", NULL, NULL},
-	{ 4, "GetSyncSite", NULL, NULL},
-	{ 5, "DebugV2", NULL, NULL},
-	{ 6, "SDebugV2", NULL, NULL},
+	{ 4, "GetSyncSite",         NULL, NULL},
+	{ 5, "DebugV2",             NULL, NULL},
+	{ 6, "SDebugV2",            NULL, NULL},
 	{ 7, "GetSyncSiteIdentity", NULL, NULL},
         { 0, NULL, NULL, NULL }
 };

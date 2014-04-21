@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_prop_acct (void);
+void proto_reg_handoff_rs_prop_acct (void);
+
 static int proto_rs_prop_acct = -1;
 static int hf_rs_prop_acct_opnum = -1;
 
@@ -40,13 +43,13 @@ static guint16  ver_rs_prop_acct = 1;
 
 
 static dcerpc_sub_dissector rs_prop_acct_dissectors[] = {
-{ 0, "rs_prop_acct_add", NULL, NULL },
-{ 1, "rs_prop_acct_delete", NULL, NULL },
-{ 2, "rs_prop_acct_rename", NULL, NULL },
-{ 3, "rs_prop_acct_replace", NULL, NULL },
-{ 4, "rs_prop_acct_add_key_version", NULL, NULL },
-{ 2, "rs_prop_acct_rename", NULL, NULL },
-{ 0, NULL, NULL, NULL }
+	{ 0, "rs_prop_acct_add",	     NULL, NULL },
+	{ 1, "rs_prop_acct_delete",	     NULL, NULL },
+	{ 2, "rs_prop_acct_rename",	     NULL, NULL },
+	{ 3, "rs_prop_acct_replace",	     NULL, NULL },
+	{ 4, "rs_prop_acct_add_key_version", NULL, NULL },
+	{ 2, "rs_prop_acct_rename",	     NULL, NULL },
+	{ 0, NULL, NULL, NULL }
 };
 
 void

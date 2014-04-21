@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rsec_login (void);
+void proto_reg_handoff_rsec_login (void);
 
 static int proto_rsec_login = -1;
 static int hf_rsec_login_opnum = -1;

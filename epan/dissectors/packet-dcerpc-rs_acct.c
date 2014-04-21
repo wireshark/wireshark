@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_acct (void);
+void proto_reg_handoff_rs_acct (void);
 
 static int proto_rs_acct = -1;
 static int hf_rs_acct_opnum = -1;
@@ -104,11 +106,11 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 
 
 static dcerpc_sub_dissector rs_acct_dissectors[] = {
-        { 0, "add", NULL, NULL},
-        { 1, "delete", NULL, NULL},
-        { 2, "rename", NULL, NULL},
-        { 3, "lookup", rs_acct_dissect_lookup_rqst, NULL},
-        { 4, "replace", NULL, NULL},
+        { 0, "add",          NULL,                              NULL},
+        { 1, "delete",       NULL,                              NULL},
+        { 2, "rename",       NULL,                              NULL},
+        { 3, "lookup",       rs_acct_dissect_lookup_rqst,       NULL},
+        { 4, "replace",      NULL,                              NULL},
         { 5, "get_projlist", rs_acct_dissect_get_projlist_rqst, NULL},
         { 0, NULL, NULL, NULL }
 };

@@ -35,6 +35,9 @@
 #include "packet-iwarp-ddp-rdmap.h"
 #include "packet-infiniband.h"
 
+void proto_register_smb_direct(void);
+void proto_reg_handoff_smb_direct(void);
+
 static int proto_smb_direct = -1;
 
 static gint ett_smb_direct = -1;

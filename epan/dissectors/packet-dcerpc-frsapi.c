@@ -29,6 +29,9 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-frsapi.h"
 
+void proto_register_dcerpc_frsapi(void);
+void proto_reg_handoff_dcerpc_frsapi(void);
+
 static int proto_dcerpc_frsapi = -1;
 
 static int hf_frsapi_opnum = -1;
@@ -51,16 +54,16 @@ static guint16 ver_dcerpc_frsapi = 1;
 
 
 static dcerpc_sub_dissector dcerpc_frsapi_dissectors[] = {
-	{  FRSAPI_VERIFY_PROMOTION, "VerifyPromotion", NULL, NULL },
-	{  FRSAPI_PROMOTION_STATUS, "PromotionStatus", NULL, NULL },
-	{  FRSAPI_START_DEMOTION, "StartDemotion", NULL, NULL },
-	{  FRSAPI_COMMIT_DEMOTION, "CommitDemotion", NULL, NULL },
+	{  FRSAPI_VERIFY_PROMOTION,          "VerifyPromotion",        NULL, NULL },
+	{  FRSAPI_PROMOTION_STATUS,          "PromotionStatus",        NULL, NULL },
+	{  FRSAPI_START_DEMOTION,            "StartDemotion",          NULL, NULL },
+	{  FRSAPI_COMMIT_DEMOTION,           "CommitDemotion",         NULL, NULL },
 	{  FRSAPI_SET_DS_POLLING_INTERVAL_W, "Set_DsPollingIntervalW", NULL, NULL },
 	{  FRSAPI_GET_DS_POLLING_INTERVAL_W, "Get_DsPollingIntervalW", NULL, NULL },
-	{  FRSAPI_VERIFY_PROMOTION_W, "VerifyPromotionW", NULL, NULL },
-	{  FRSAPI_INFO_W, "InfoW", NULL, NULL },
-	{  FRSAPI_IS_PATH_REPLICATED, "IsPathReplicated", NULL, NULL },
-	{  FRSAPI_WRITER_COMMAND, "WriterCommand", NULL, NULL },
+	{  FRSAPI_VERIFY_PROMOTION_W,        "VerifyPromotionW",       NULL, NULL },
+	{  FRSAPI_INFO_W,                    "InfoW",                  NULL, NULL },
+	{  FRSAPI_IS_PATH_REPLICATED,        "IsPathReplicated",       NULL, NULL },
+	{  FRSAPI_WRITER_COMMAND,            "WriterCommand",          NULL, NULL },
 	{ 0, NULL, NULL,  NULL }
 };
 

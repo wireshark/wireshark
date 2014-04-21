@@ -48,6 +48,9 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcerpc-nt.h>
 
+void proto_register_dcerpc(void);
+void proto_reg_handoff_dcerpc(void);
+
 static int dcerpc_tap = -1;
 
 /* 32bit Network Data Representation, see DCE/RPC Appendix I */

@@ -37,6 +37,9 @@
 #include "packet-dcerpc-nt.h"
 #include "packet-windows-common.h"
 
+void proto_register_dcerpc_browser(void);
+void proto_reg_handoff_dcerpc_browser(void);
+
 static int proto_dcerpc_browser = -1;
 static int hf_browser_opnum = -1;
 static int hf_browser_rc = -1;

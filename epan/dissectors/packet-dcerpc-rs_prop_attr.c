@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_prop_attr (void);
+void proto_reg_handoff_rs_prop_attr (void);
+
 static int proto_rs_prop_attr = -1;
 static int hf_rs_prop_attr_opnum = -1;
 

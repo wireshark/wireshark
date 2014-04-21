@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_unix (void);
+void proto_reg_handoff_rs_unix (void);
 
 static int proto_rs_unix = -1;
 static int hf_rs_unix_opnum = -1;

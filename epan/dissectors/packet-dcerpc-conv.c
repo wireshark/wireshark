@@ -29,6 +29,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
+void proto_register_conv (void);
+void proto_reg_handoff_conv (void);
 
 static int proto_conv = -1;
 static int hf_conv_opnum = -1;

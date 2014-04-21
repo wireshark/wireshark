@@ -32,6 +32,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
+void proto_register_fldb (void);
+void proto_reg_handoff_fldb (void);
 
 static int proto_fldb = -1;
 static int hf_fldb_opnum = -1;

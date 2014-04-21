@@ -29,6 +29,8 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-nt.h"
 
+void proto_register_mgmt (void);
+void proto_reg_handoff_mgmt (void);
 
 static int proto_mgmt = -1;
 static int hf_mgmt_opnum = -1;

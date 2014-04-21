@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_tkn4int (void);
+void proto_reg_handoff_tkn4int (void);
 
 static int proto_tkn4int = -1;
 static int hf_tkn4int_opnum = -1;
@@ -44,15 +46,15 @@ static guint16  ver_tkn4int = 4;
 
 
 static dcerpc_sub_dissector tkn4int_dissectors[] = {
-	{ 0, "Probe", NULL, NULL},
-	{ 1, "InitTokenState", NULL, NULL},
-	{ 2, "TokenRevoke", NULL, NULL},
-	{ 3, "GetCellName", NULL, NULL},
-	{ 4, "GetLock", NULL, NULL},
-	{ 5, "GetCE", NULL, NULL},
+	{ 0, "Probe",               NULL, NULL},
+	{ 1, "InitTokenState",      NULL, NULL},
+	{ 2, "TokenRevoke",         NULL, NULL},
+	{ 3, "GetCellName",         NULL, NULL},
+	{ 4, "GetLock",             NULL, NULL},
+	{ 5, "GetCE",               NULL, NULL},
 	{ 6, "GetServerInterfaces", NULL, NULL},
-	{ 7, "SetParams", NULL, NULL},
-	{ 8, "AsyncGrant", NULL, NULL},
+	{ 7, "SetParams",           NULL, NULL},
+	{ 8, "AsyncGrant",          NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 
 };

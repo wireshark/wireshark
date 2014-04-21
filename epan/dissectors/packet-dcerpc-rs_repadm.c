@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_repadm (void);
+void proto_reg_handoff_rs_repadm (void);
 
 static int proto_rs_repadm = -1;
 static int hf_rs_repadm_opnum = -1;
@@ -46,17 +48,17 @@ static guint16  ver_rs_repadm = 1;
 
 
 static dcerpc_sub_dissector rs_repadm_dissectors[] = {
-	{ 0, "stop", NULL, NULL},
-	{ 1, "maint", NULL, NULL},
-	{ 2, "mkey", NULL, NULL},
-	{ 3, "info", NULL, NULL},
-	{ 4, "info_full", NULL, NULL},
-	{ 5, "destroy", NULL, NULL},
-	{ 6, "init_replica", NULL, NULL},
-	{ 7, "change_master", NULL, NULL},
-	{ 8, "become_master", NULL, NULL},
-	{ 9, "become_slave", NULL, NULL},
-	{ 10, "set_sw_rev", NULL, NULL},
+	{ 0, "stop",              NULL, NULL},
+	{ 1, "maint",             NULL, NULL},
+	{ 2, "mkey",              NULL, NULL},
+	{ 3, "info",              NULL, NULL},
+	{ 4, "info_full",         NULL, NULL},
+	{ 5, "destroy",           NULL, NULL},
+	{ 6, "init_replica",      NULL, NULL},
+	{ 7, "change_master",     NULL, NULL},
+	{ 8, "become_master",     NULL, NULL},
+	{ 9, "become_slave",      NULL, NULL},
+	{ 10, "set_sw_rev",       NULL, NULL},
 	{ 11, "get_sw_vers_info", NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };

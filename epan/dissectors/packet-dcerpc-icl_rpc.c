@@ -30,6 +30,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_icl_rpc (void);
+void proto_reg_handoff_icl_rpc (void);
+
 static int proto_icl_rpc = -1;
 static int hf_icl_rpc_opnum = -1;
 
@@ -46,9 +49,9 @@ static dcerpc_sub_dissector icl_rpc_dissectors[] = {
 	{ 1, "DFSTRACE_SetSetInfo", NULL, NULL },
 	{ 2, "DFSTRACE_GetLogInfo", NULL, NULL },
 	{ 3, "DFSTRACE_SetLogInfo", NULL, NULL },
-	{ 4, "DFSTRACE_ClearSet", NULL, NULL },
-	{ 5, "DFSTRACE_ClearLog", NULL, NULL },
-	{ 6, "DFSTRACE_DumpSet", NULL, NULL },
+	{ 4, "DFSTRACE_ClearSet",   NULL, NULL },
+	{ 5, "DFSTRACE_ClearLog",   NULL, NULL },
+	{ 6, "DFSTRACE_DumpSet",    NULL, NULL },
 	{ 0, NULL, NULL, NULL }
 };
 

@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_attr (void);
+void proto_reg_handoff_rs_attr (void);
 
 static int proto_rs_attr = -1;
 static int hf_rs_attr_opnum = -1;
@@ -44,15 +46,15 @@ static guint16  ver_rs_attr = 0;
 
 
 static dcerpc_sub_dissector rs_attr_dissectors[] = {
-	{ 0, "rs_attr_cursor_init", NULL, NULL},
-	{ 1, "rs_attr_lookup_by_id", NULL, NULL},
+	{ 0, "rs_attr_cursor_init",      NULL, NULL},
+	{ 1, "rs_attr_lookup_by_id",     NULL, NULL},
 	{ 2, "rs_attr_lookup_no_expand", NULL, NULL},
-	{ 3, "rs_attr_lookup_by_name", NULL, NULL},
-	{ 4, "rs_attr_update", NULL, NULL},
-	{ 5, "rs_attr_test_and_update", NULL, NULL},
-	{ 6, "rs_attr_delete", NULL, NULL},
-	{ 7, "rs_attr_get_referral", NULL, NULL},
-	{ 8, "rs_attr_get_effective", NULL, NULL},
+	{ 3, "rs_attr_lookup_by_name",   NULL, NULL},
+	{ 4, "rs_attr_update",           NULL, NULL},
+	{ 5, "rs_attr_test_and_update",  NULL, NULL},
+	{ 6, "rs_attr_delete",           NULL, NULL},
+	{ 7, "rs_attr_get_referral",     NULL, NULL},
+	{ 8, "rs_attr_get_effective",    NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };
 

@@ -39,6 +39,9 @@
 #include "packet-dcerpc-spoolss.h"
 #include "packet-windows-common.h"
 
+void proto_register_dcerpc_spoolss(void);
+void proto_reg_handoff_dcerpc_spoolss(void);
+
 /* GetPrinterDriver2 */
 
 static int hf_clientmajorversion = -1;

@@ -39,6 +39,9 @@
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
 #include <wiretap/pcap-encap.h>
 
+void proto_register_pktap(void);
+void proto_reg_handoff_pktap(void);
+
 /*
  * Apple's PKTAP header.
  */

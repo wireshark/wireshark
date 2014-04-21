@@ -31,6 +31,9 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
+void proto_register_dtsprovider (void);
+void proto_reg_handoff_dtsprovider (void);
+
 static int proto_dtsprovider = -1;
 static int hf_dtsprovider_opnum = -1;
 /* static int hf_dtsprovider_status = -1; */

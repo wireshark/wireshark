@@ -31,6 +31,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_ubikdisk (void);
+void proto_reg_handoff_ubikdisk (void);
 
 static int proto_ubikdisk = -1;
 static int hf_ubikdisk_opnum = -1;

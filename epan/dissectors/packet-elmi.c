@@ -34,6 +34,7 @@
 
 static int proto_elmi = -1;
 
+void proto_register_elmi(void);
 void proto_reg_handoff_elmi(void);
 
 static gint ett_elmi = -1;

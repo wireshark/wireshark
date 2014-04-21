@@ -48,7 +48,11 @@
 #include "packet-kerberos.h"
 /* for decoding */
 
+void proto_register_dcerpc_netlogon(void);
+void proto_reg_handoff_dcerpc_netlogon(void);
+
 extern const char *gbl_nt_password;
+
 #ifdef DEBUG_NETLOGON
 #include <stdio.h>
 #define debugprintf(...) fprintf(stderr,__VA_ARGS__)

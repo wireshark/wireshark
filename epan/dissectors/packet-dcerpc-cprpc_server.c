@@ -30,6 +30,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_cprpc_server (void);
+void proto_reg_handoff_cprpc_server (void);
 
 static int proto_cprpc_server = -1;
 static int hf_cprpc_server_opnum = -1;

@@ -33,6 +33,9 @@
 #include "packet-dcerpc-tapi.h"
 #include "packet-windows-common.h"
 
+void proto_register_dcerpc_tapi(void);
+void proto_reg_handoff_dcerpc_tapi(void);
+
 static int proto_dcerpc_tapi = -1;
 static int hf_tapi_opnum = -1;
 static int hf_tapi_rc = -1;

@@ -31,6 +31,9 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_rs_prop_acl (void);
+void proto_reg_handoff_rs_prop_acl (void);
+
 static int proto_rs_prop_acl = -1;
 static int hf_rs_prop_acl_opnum = -1;
 
@@ -38,7 +41,7 @@ static int hf_rs_prop_acl_opnum = -1;
 static gint ett_rs_prop_acl = -1;
 static e_uuid_t uuid_rs_prop_acl =
   { 0x591d87d0, 0xde64, 0x11ca, {0xa1, 0x1c, 0x08, 0x00, 0x1e, 0x03, 0x94,
-				 0xc7} };
+                                 0xc7} };
 
 static guint16 ver_rs_prop_acl = 1;
 
@@ -73,6 +76,6 @@ proto_reg_handoff_rs_prop_acl (void)
 {
   /* Register the protocol as dcerpc */
   dcerpc_init_uuid (proto_rs_prop_acl, ett_rs_prop_acl, &uuid_rs_prop_acl,
-		    ver_rs_prop_acl, rs_prop_acl_dissectors,
-		    hf_rs_prop_acl_opnum);
+                    ver_rs_prop_acl, rs_prop_acl_dissectors,
+                    hf_rs_prop_acl_opnum);
 }

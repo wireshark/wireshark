@@ -30,6 +30,8 @@
 #include <epan/packet.h>
 #include "packet-dcerpc.h"
 
+void proto_register_dtsstime_req (void);
+void proto_reg_handoff_dtsstime_req (void);
 
 static int proto_dtsstime_req = -1;
 static int hf_dtsstime_req_opnum = -1;
@@ -43,7 +45,7 @@ static guint16  ver_dtsstime_req = 1;
 
 
 static dcerpc_sub_dissector dtsstime_req_dissectors[] = {
-	{ 0, "ClerkRequestTime", NULL, NULL},
+	{ 0, "ClerkRequestTime",  NULL, NULL},
 	{ 1, "ServerRequestTime", NULL, NULL},
 	{ 0, NULL, NULL, NULL }
 };

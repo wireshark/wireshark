@@ -49,6 +49,8 @@
 #include "ui/gtk/edit_packet_comment_dlg.h"
 #include "ui/gtk/capture_comment_icons.h"
 
+void register_tap_listener_expert_comp(void);
+
 enum
 {
     NO_COLUMN_C_TABLE,

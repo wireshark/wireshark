@@ -34,6 +34,9 @@
 #include "packet-dcerpc.h"
 #include "packet-dcerpc-dce122.h"
 
+void proto_register_fileexp (void);
+void proto_reg_handoff_fileexp (void);
+
 #define AFS_SETMODTIME  1
 #define AFS_SETOWNER  2
 #define AFS_SETGROUP  4
