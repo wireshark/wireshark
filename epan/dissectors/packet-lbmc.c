@@ -3990,6 +3990,29 @@ typedef struct
 #define LBMC_UMQ_IDX_CMD_RESP_RCV_RESERVE_IDX_ASSIGN_TYPE 0x7
 #define LBMC_UMQ_IDX_CMD_RESP_ULB_RCV_RESERVE_IDX_ASSIGN_TYPE 0x8
 
+#define UMQUEUE_CTX_REG_EDUPREGID 0x1
+#define UMQUEUE_SRC_REG_EREGID 0x2
+#define UMQUEUE_SRC_REG_ENOPATTERN 0x3
+#define UMQUEUE_SRC_REG_ENOTOPICNAME 0x4
+#define UMQUEUE_RCV_REG_ENOTOPICNAME 0x5
+#define UMQUEUE_RCV_REG_EREGID 0x6
+#define UMQUEUE_RCV_REG_ENOPATTERN 0x7
+#define UMQUEUE_RCV_REG_EASSIGNIDINUSE 0x8
+#define UMQUEUE_RCV_REG_ERCVTYPEID 0x9
+#define UMQUEUE_RCV_REG_EINVAL 0xa
+#define UMQUEUE_REG_EAUTHFAIL 0x10
+
+#define UMQUEUE_RCV_IDX_CMD_EREGID 0x1
+#define UMQUEUE_RCV_IDX_CMD_EIDXNOTASSIGNED 0x2
+#define UMQUEUE_RCV_IDX_CMD_EIDXINELIGIBLE 0x3
+#define UMQUEUE_RCV_IDX_CMD_EIDXINUSE 0x4
+#define UMQUEUE_RCV_IDX_CMD_EIDXALREADYASSIGNED 0x5
+#define UMQUEUE_RCV_IDX_CMD_EAUTHFAIL 0x10
+#define LBM_UMQ_ULB_RCV_IDX_CMD_EIDXNOTASSIGNED 0xA
+#define LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINELIGIBLE 0xB
+#define LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINUSE 0xC
+#define LBM_UMQ_ULB_RCV_IDX_CMD_EIDXALREADYASSIGNED 0xD
+
 #define LBMC_UMQ_IDX_CMD_RESP_ERR_TYPE 0xFF
 #define LBMC_UMQ_IDX_CMD_RESP_ERR_L_FLAG 0x20
 #define LBM_UMQ_INDEX_FLAG_NUMERIC 0x1
@@ -4331,6 +4354,37 @@ static const value_string lbmc_umq_reg_response_type[] =
     { 0x0, NULL }
 };
 
+static const value_string lbmc_umq_reg_response_error_code[] =
+{
+    { UMQUEUE_CTX_REG_EDUPREGID, "Registration ID in use by different IP/port (ctx)" },
+    { UMQUEUE_SRC_REG_EREGID, "Registration ID not found (src)" },
+    { UMQUEUE_SRC_REG_ENOPATTERN, "Topic not specified in queue configuration (src)" },
+    { UMQUEUE_SRC_REG_ENOTOPICNAME, "No topic name (src)" },
+    { UMQUEUE_RCV_REG_ENOTOPICNAME, "No topic name (rcv)" },
+    { UMQUEUE_RCV_REG_EREGID, "Registration ID not found (rcv)" },
+    { UMQUEUE_RCV_REG_ENOPATTERN, "Topic not specified in queue configuration (rcv)"},
+    { UMQUEUE_RCV_REG_EASSIGNIDINUSE, "Assignment ID already in use (rcv)" },
+    { UMQUEUE_RCV_REG_ERCVTYPEID, "Invalid receiver-type ID (rcv)" },
+    { UMQUEUE_RCV_REG_EINVAL, "Invalid value (rcv)" },
+    { UMQUEUE_REG_EAUTHFAIL, "Authorization failure" },
+    { 0x0, NULL }
+};
+
+static const value_string lbmc_umq_idx_cmd_response_error_code[] =
+{
+    { UMQUEUE_RCV_IDX_CMD_EREGID, "Receiver/list not found" },
+    { UMQUEUE_RCV_IDX_CMD_EIDXNOTASSIGNED, "Index not assigned" },
+    { UMQUEUE_RCV_IDX_CMD_EIDXINELIGIBLE, "Receiver ineligible for index" },
+    { UMQUEUE_RCV_IDX_CMD_EIDXINUSE, "Index assigned to another receiver" },
+    { UMQUEUE_RCV_IDX_CMD_EIDXALREADYASSIGNED, "Index already assigned to this receiver" },
+    { UMQUEUE_RCV_IDX_CMD_EAUTHFAIL, "Authorization failure" },
+    { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXNOTASSIGNED, "Index not assigned" },
+    { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINELIGIBLE, "Receiver ineligible for index" },
+    { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXINUSE, "Indes already assigned or unavailable" },
+    { LBM_UMQ_ULB_RCV_IDX_CMD_EIDXALREADYASSIGNED, "Index already assigned to this receiver" },
+    { 0x0, NULL }
+};
+
 static const value_string lbmc_umq_ack_type[] =
 {
     { LBMC_UMQ_ACK_STABLE_TYPE, "Stable" },
@@ -4406,14 +4460,6 @@ static const value_string lbmc_umq_index_cmd_response_type[] =
     { LBMC_UMQ_IDX_CMD_RESP_ULB_RCV_RESERVE_IDX_ASSIGN_TYPE, "Reserve ULB receiver index assignment" },
     { 0x0, NULL }
 };
-
-#if 0
-static const value_string lbmc_umq_index_cmd_response_error_type[] =
-{
-    { LBMC_UMQ_IDX_CMD_RESP_ERR_TYPE, "Error" },
-    { 0x0, NULL }
-};
-#endif
 
 static const value_string lbmc_umq_cmd_type[] =
 {
@@ -12328,7 +12374,7 @@ void proto_register_lbmc(void)
         { &hf_lbmc_umq_reg_resp_err_reserved,
             { "Reserved", "lbmc.umq_reg_resp.err.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_reg_resp_err_code,
-            { "Code", "lbmc.umq_reg_resp.err.code", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Code", "lbmc.umq_reg_resp.err.code", FT_UINT16, BASE_HEX_DEC, VALS(lbmc_umq_reg_response_error_code), 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_reg_resp_reg_src,
             { "Source Registration Response", "lbmc.umq_reg_resp.reg_src", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_reg_resp_reg_src_rcr_idx,
@@ -13112,7 +13158,7 @@ void proto_register_lbmc(void)
         { &hf_lbmc_umq_idx_cmd_resp_err_reserved,
             { "Reserved", "lbmc.umq_idx_cmd_resp.err.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_idx_cmd_resp_err_code,
-            { "Code", "lbmc.umq_idx_cmd_resp.err.code", FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Code", "lbmc.umq_idx_cmd_resp.err.code", FT_UINT16, BASE_DEC_HEX, VALS(lbmc_umq_idx_cmd_response_error_code), 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_idx_cmd_resp_err_error_string,
             { "Error String", "lbmc.umq_idx_cmd_resp.err.error_string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_idx_cmd_resp_stop_assign,
