@@ -23,13 +23,14 @@
 
 #include "config.h"
 #include <epan/packet.h>
-#include <epan/prefs.h>
-#include <epan/proto.h>
 
 #include <glib.h>
 
+void proto_register_AllJoyn(void);
+void proto_reg_handoff_AllJoyn(void);
+
 static const int name_server_port = 9956;
-static const int message_port = 9955;
+static const int message_port     = 9955;
 
 /* DBus limits array length to 2^26. AllJoyn limits it to 2^17 */
 #define MAX_ARRAY_LEN 131072
@@ -115,15 +116,15 @@ static int hf_alljoyn_ns_answers = -1;
 static int hf_alljoyn_ns_timer = -1;
 
 /* These are bit masks for version 0 "who has" records. */
-/* These bits are depricated and do not exist for version 1. */
+/* These bits are deprecated and do not exist for version 1. */
 #define WHOHAS_T 0x08
 #define WHOHAS_U 0x04
 #define WHOHAS_S 0x02
 #define WHOHAS_F 0x01
 
 static int hf_alljoyn_ns_whohas = -1;
-static int hf_alljoyn_ns_whohas_t_flag = -1;   /* 0x8 -- TCP */
-static int hf_alljoyn_ns_whohas_u_flag = -1;   /* 0x4 -- UDP */
+static int hf_alljoyn_ns_whohas_t_flag = -1;   /* 0x8 -- TCP  */
+static int hf_alljoyn_ns_whohas_u_flag = -1;   /* 0x4 -- UDP  */
 static int hf_alljoyn_ns_whohas_s_flag = -1;   /* 0x2 -- IPV6 */
 static int hf_alljoyn_ns_whohas_f_flag = -1;   /* 0x1 -- IPV4 */
 /* End of version 0 bit masks. */
@@ -206,6 +207,7 @@ static gint ett_alljoyn_header = -1;
 static gint ett_alljoyn_header_flags = -1;
 static gint ett_alljoyn_mess_header_field = -1;
 static gint ett_alljoyn_mess_header = -1;
+static gint ett_alljoyn_mess_body_parameters = -1;
 
 #define ROUND_TO_2BYTE(len) ((len + 1) & ~1)
 #define ROUND_TO_4BYTE(len) ((len + 3) & ~3)
@@ -224,11 +226,11 @@ static const value_string endian_encoding_vals[] = {
 #define MESSAGE_TYPE_SIGNAL         4
 
 static const value_string message_header_encoding_vals[] = {
-    { MESSAGE_TYPE_INVALID, "Invalid type" },
-    { MESSAGE_TYPE_METHOD_CALL, "Method call" },
+    { MESSAGE_TYPE_INVALID,      "Invalid type" },
+    { MESSAGE_TYPE_METHOD_CALL,  "Method call" },
     { MESSAGE_TYPE_METHOD_REPLY, "Method reply with returned data" },
-    { MESSAGE_TYPE_ERROR_REPLY, "Error reply" },
-    { MESSAGE_TYPE_SIGNAL, "Signal emission" },
+    { MESSAGE_TYPE_ERROR_REPLY,  "Error reply" },
+    { MESSAGE_TYPE_SIGNAL,       "Signal emission" },
     { 0, NULL }
 };
 
@@ -256,24 +258,24 @@ static const value_string message_header_encoding_vals[] = {
 #define HDR_SESSION_ID            0x13
 
 static const value_string header_field_encoding_vals[] = {
-    { HDR_INVALID, "Invalid" },           /* Not a valid field name (error if it appears in a message). */
-    { HDR_OBJ_PATH, "Object Path" },      /* The object to send a call to, or the object a signal
-                                             is emitted from. */
-    { HDR_INTERFACE, "Interface" },       /* The interface to invoke a method call on, or that a
-                                             signal is emitted from. Optional for method calls,
-                                             required for signals. */
-    { HDR_MEMBER, "Member" },             /* The member, either the method name or signal name. */
-    { HDR_ERROR_NAME, "Error Name" },     /* The name of the error that occurred, for errors. */
-    { HDR_REPLY_SERIAL, "Reply Serial" }, /* The serial number of the message this message is a reply to. */
-    { HDR_DESTINATION, "Destination" },   /* The name of the connection this message is intended for. */
-    { HDR_SENDER, "Sender" },             /* Unique name of the sending connection. */
-    { HDR_SIGNATURE, "Signature" },       /* The signature of the message body. */
-    { HDR_HANDLES, "Handles" },           /* The number of handles (Unix file descriptors) that
-                                             accompany the message.  */
-    { HDR_TIMESTAMP, "Time stamp" },
-    { HDR_TIME_TO_LIVE, "Time to live" },
+    { HDR_INVALID,           "Invalid" },           /* Not a valid field name (error if it appears in a message). */
+    { HDR_OBJ_PATH,          "Object Path" },       /* The object to send a call to, or the object a signal
+                                                       is emitted from. */
+    { HDR_INTERFACE,         "Interface" },         /* The interface to invoke a method call on, or that a
+                                                       signal is emitted from. Optional for method calls,
+                                                       required for signals. */
+    { HDR_MEMBER,            "Member" },            /* The member, either the method name or signal name. */
+    { HDR_ERROR_NAME,        "Error Name" },        /* The name of the error that occurred, for errors. */
+    { HDR_REPLY_SERIAL,      "Reply Serial" },      /* The serial number of the message this message is a reply to. */
+    { HDR_DESTINATION,       "Destination" },       /* The name of the connection this message is intended for. */
+    { HDR_SENDER,            "Sender" },            /* Unique name of the sending connection. */
+    { HDR_SIGNATURE,         "Signature" },         /* The signature of the message body. */
+    { HDR_HANDLES,           "Handles" },           /* The number of handles (Unix file descriptors) that
+                                                       accompany the message.  */
+    { HDR_TIMESTAMP,         "Time stamp" },
+    { HDR_TIME_TO_LIVE,      "Time to live" },
     { HDR_COMPRESSION_TOKEN, "Compression token" },
-    { HDR_SESSION_ID, "Session ID" },
+    { HDR_SESSION_ID,        "Session ID" },
     { 0, NULL }
 };
 
@@ -287,18 +289,12 @@ static const value_string header_field_encoding_vals[] = {
  */
 static guint32
 get_uint32(tvbuff_t *tvb,
-           gint32   offset,
-           gint     encoding)
+           gint32    offset,
+           gint      encoding)
 {
-    guint32 return_value;
-
-    if(ENC_BIG_ENDIAN == encoding) {
-        return_value = tvb_get_ntohl(tvb, offset);
-    } else {
-        return_value = tvb_get_letohl(tvb, offset);
-    }
-
-    return return_value;
+    return (ENC_BIG_ENDIAN == encoding) ?
+        tvb_get_ntohl(tvb, offset) :
+        tvb_get_letohl(tvb, offset);
 }
 
 /* This is called by dissect_AllJoyn_message() to handle the initial byte for
@@ -308,7 +304,7 @@ get_uint32(tvbuff_t *tvb,
  * byte message or unhandled return 0.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param offset is the offset into the packet to check for the connect message.
  * @param message_tree is the subtree that any connect data items should be added to.
  * @returns the offset into the packet that has successfully been handled or
@@ -317,7 +313,7 @@ get_uint32(tvbuff_t *tvb,
 static gint
 handle_message_connect(tvbuff_t    *tvb,
                        packet_info *pinfo,
-                       gint offset,
+                       gint         offset,
                        proto_tree  *message_tree)
 {
     guint8 the_one_byte;
@@ -329,7 +325,7 @@ handle_message_connect(tvbuff_t    *tvb,
 
         /* Now add the value as a subtree to the inital byte. */
         proto_tree_add_item(message_tree, hf_alljoyn_connect_byte_value, tvb, offset, 1, ENC_NA);
-        offset++;
+        offset += 1;
     }
 
     return offset;
@@ -338,7 +334,7 @@ handle_message_connect(tvbuff_t    *tvb,
 typedef struct _sasl_cmd
 {
     const gchar *text;
-    guint length;
+    guint        length;
 } sasl_cmd;
 
 static const gchar CMD_AUTH[]     = "AUTH";
@@ -365,24 +361,23 @@ static const sasl_cmd sasl_commands[] = {
 
 static const gint sasl_commands_count = G_N_ELEMENTS(sasl_commands);
 
-static const sasl_cmd*
+static const sasl_cmd *
 find_sasl_command(tvbuff_t *tvb,
-                  gint offset)
+                  gint      offset)
 {
-    const sasl_cmd *return_value = NULL;
     gint command_index;
 
-    for(command_index = 0; NULL == return_value && command_index < sasl_commands_count; command_index++) {
+    for(command_index = 0; command_index < sasl_commands_count; command_index++) {
         const sasl_cmd *cmd;
 
         cmd = &sasl_commands[command_index];
 
         if(0 == tvb_strneql(tvb, offset, cmd->text, cmd->length)) {
-            return_value = cmd;
+            return cmd;
         }
     }
 
-    return return_value;
+    return NULL;
 }
 
 /* This is called by dissect_AllJoyn_message() to handle SASL messages.
@@ -391,7 +386,7 @@ find_sasl_command(tvbuff_t *tvb,
  * If more bytes are needed then return the negative of the bytes expected.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param offset is the offset into the packet to start processing.
  * @param message_tree is the subtree that any connect data items should be added to.
  */
@@ -401,7 +396,7 @@ handle_message_sasl(tvbuff_t    *tvb,
                     gint         offset,
                     proto_tree  *message_tree)
 {
-    gint return_value = offset;
+    gint            return_value = offset;
     const sasl_cmd *command;
 
     command = find_sasl_command(tvb, offset);
@@ -457,11 +452,11 @@ handle_message_sasl(tvbuff_t    *tvb,
  * the message.
  */
 static guint32
-get_message_header_endianness(tvbuff_t   *tvb,
-                              gint       offset)
+get_message_header_endianness(tvbuff_t *tvb,
+                              gint      offset)
 {
     guint8 endianness;
-    guint encoding;
+    guint  encoding;
 
     /* The endianness field. */
     endianness = tvb_get_guint8(tvb, offset + ENDIANNESS_OFFSET);
@@ -496,7 +491,7 @@ handle_message_header_expected_byte(tvbuff_t   *tvb,
                                     guint8      expected_value)
 {
     proto_item *item;
-    guint8 byte_value;
+    guint8      byte_value;
 
     item = proto_tree_add_item(field_tree, hf_alljoyn_uint8, tvb, offset, 1, ENC_NA);
     byte_value = tvb_get_guint8(tvb, offset);
@@ -592,12 +587,12 @@ gint pad_according_to_type(gint offset, gint max_offset, guint8 type)
 static void
 append_struct_signature(proto_item   *item,
                         guint8       *signature,
-                        gint         signature_max_length,
-                        const guint8 type_stop)
+                        gint          signature_max_length,
+                        const guint8  type_stop)
 {
-    int depth = 0;
+    int    depth            = 0;
     guint8 type_start;
-    gint signature_length = 0;
+    gint   signature_length = 0;
 
     proto_item_append_text(item, "%c", ' ');
     type_start = *signature;
@@ -623,43 +618,42 @@ append_struct_signature(proto_item   *item,
  * to handle arrays and structures.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param header_item, if not NULL, is appended with the text name of the data type.
  * @param encoding indicates big (ENC_BIG_ENDIAN) or little (ENC_LITTLE_ENDIAN)
  * @param offset is the offset into tvb to get the field from.
  * @param field_tree is the tree to which this argument should be attached.
  * @param is_reply_to, if TRUE, means this uint32 value should be used to update
- * header_item and pinfo->cinfo with a special message.
+ *         header_item and pinfo->cinfo with a special message.
  * @param type_id is the type of this argument.
  * @param field_code is the type of header, or HDR_INVALID if not used, which this
- * arg is a part of. If field_code is HDR_MEMBER or HDR_SIGNATURE then
- * pinfo->cinfo is updated with information.
+ *         arg is a part of. If field_code is HDR_MEMBER or HDR_SIGNATURE then
+ *         pinfo->cinfo is updated with information.
  * @param signature is a pointer to the signature of the parameters. If type_id is
- * ARG_SIGNATURE this is a return value for the caller to pass to the function
- * that parses the parameters. If type_id is something like ARG_STRUCT then it points
- * to the actual signature of the type.
+ *         ARG_SIGNATURE this is a return value for the caller to pass to the function
+ *         that parses the parameters. If type_id is something like ARG_STRUCT then it points
+ *         to the actual signature of the type.
  * @param signature_length is a pointer to the length of the signature and if type_id is
- * ARG_SIGNATURE this is a return value for the caller to pass to the function
- * that parses the parameters.
+ *         ARG_SIGNATURE this is a return value for the caller to pass to the function
+ *         that parses the parameters.
  * @return The new offset into the buffer after removing the field code and value.
- * the message or the packet length to stop further processing if "really bad"
- * parameters come in.
+ *         the message or the packet length to stop further processing if "really bad"
+ *         parameters come in.
  */
 static gint
-parse_arg(tvbuff_t    *tvb,
-          packet_info *pinfo,
-          proto_item  *header_item,
-          guint       encoding,
-          gint        offset,
-          proto_tree  *field_tree,
-          gboolean    is_reply_to,
-          guint8      type_id,
-          guint8      field_code,
+parse_arg(tvbuff_t     *tvb,
+          packet_info  *pinfo,
+          proto_item   *header_item,
+          guint         encoding,
+          gint          offset,
+          proto_tree   *field_tree,
+          gboolean      is_reply_to,
+          guint8        type_id,
+          guint8        field_code,
           guint8      **signature,
-          guint8      *signature_length)
+          guint8       *signature_length)
 {
     gint length;
-    proto_tree *tree = NULL;
     const gchar *header_type_name = NULL;
 
     switch(type_id)
@@ -671,13 +665,14 @@ parse_arg(tvbuff_t    *tvb,
 
     case ARG_ARRAY:      /* AllJoyn array container type */
         {
-            static gchar bad_array_format[] = "BAD DATA: Array length (in bytes) is %d. Remaining packet length is %d.";
-            proto_item *item = NULL;
-            guint8 *sig_saved = NULL;
-            gint starting_offset;
-            gint number_of_items = 0;
-            guint8 remaining_sig_length = *signature_length;
-            gint packet_length = (gint)tvb_reported_length(tvb);
+            static gchar  bad_array_format[]  = "BAD DATA: Array length (in bytes) is %d. Remaining packet length is %d.";
+            proto_item   *item;
+            proto_tree   *tree;
+            guint8       *sig_saved;
+            gint          starting_offset;
+            gint          number_of_items      = 0;
+            guint8        remaining_sig_length = *signature_length;
+            gint          packet_length        = (gint)tvb_reported_length(tvb);
 
             header_type_name = "array";
 
@@ -693,23 +688,18 @@ parse_arg(tvbuff_t    *tvb,
             /* This is the length of the entire array in bytes but does not include the length value. */
             length = (gint)get_uint32(tvb, offset, encoding);
 
-            /* The + 4 is for the length specifier. */
-            if(length < 0 || length > MAX_ARRAY_LEN || offset + 4 + length > packet_length) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, bad_array_format, length, tvb_reported_length_remaining(tvb, offset + 4));
+            starting_offset = pad_according_to_type(offset + 4, packet_length, *sig_saved); /* Advance to the data elements. */
+
+            if(length < 0 || length > MAX_ARRAY_LEN || starting_offset + length > packet_length) {
+                col_add_fstr(pinfo->cinfo, COL_INFO, bad_array_format, length, tvb_reported_length_remaining(tvb, starting_offset));
                 return tvb_reported_length(tvb);
             }
 
-            /* This item is the entire array including the length specifier. */
-            item = proto_tree_add_item(field_tree, hf_alljoyn_mess_body_array, tvb, offset, length, encoding);
+            /* This item is the entire array including the length specifier plus any pad bytes. */
+            item = proto_tree_add_item(field_tree, hf_alljoyn_mess_body_array, tvb, offset, (starting_offset-offset) + length, encoding);
+            tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
-            offset = pad_according_to_type(offset + 4, packet_length, *sig_saved); /* Advance to the data elements. */
-
-            if(offset + length > packet_length) {
-                col_add_fstr(pinfo->cinfo, COL_INFO, bad_array_format, length, tvb_reported_length_remaining(tvb, offset));
-                return tvb_reported_length(tvb);
-            }
-
-            starting_offset = offset;
+            offset = starting_offset;
 
             while((offset - starting_offset) < length) {
                 guint8 *sig_pointer;
@@ -723,7 +713,7 @@ parse_arg(tvbuff_t    *tvb,
                                    header_item,
                                    encoding,
                                    offset,
-                                   item,
+                                   tree,
                                    is_reply_to,
                                    *sig_pointer,
                                    field_code,
@@ -759,7 +749,7 @@ parse_arg(tvbuff_t    *tvb,
         break;
 
     case ARG_SIGNATURE:  /* AllJoyn signature basic type */
-        header_type_name = "signature";
+        header_type_name  = "signature";
         *signature_length = tvb_get_guint8(tvb, offset);
 
         if(*signature_length + 2 > tvb_reported_length_remaining(tvb, offset)) {
@@ -816,7 +806,7 @@ parse_arg(tvbuff_t    *tvb,
         length = get_uint32(tvb, offset, encoding) + 1;
 
         /* The + 4 is for the length specifier. Object pathes may be of "any length"
-           according to D-Bus spec. But there are practical limit. */
+           according to D-Bus spec. But there are practical limits. */
         if(length < 0 || length > MAX_ARRAY_LEN || length + 4 > tvb_reported_length_remaining(tvb, offset)) {
             col_add_fstr(pinfo->cinfo, COL_INFO, "BAD DATA: Object path length is %d. Only %d bytes left in packet.",
                 length, tvb_reported_length_remaining(tvb, offset + 4));
@@ -877,37 +867,36 @@ parse_arg(tvbuff_t    *tvb,
         break;
 
     case ARG_UINT32:     /* AllJoyn 32-bit unsigned integer basic type */
-            header_type_name = "uint32";
-            offset = ROUND_TO_4BYTE(offset);
+        header_type_name = "uint32";
+        offset = ROUND_TO_4BYTE(offset);
 
-            if(is_reply_to) {
-                static const gchar format[] = " Replies to: %09u";
-                guint32 replies_to;
+        if(is_reply_to) {
+            static const gchar format[] = " Replies to: %09u";
+            guint32 replies_to;
 
-                replies_to = get_uint32(tvb, offset, encoding);
-                col_append_fstr(pinfo->cinfo, COL_INFO, format, replies_to);
+            replies_to = get_uint32(tvb, offset, encoding);
+            col_append_fstr(pinfo->cinfo, COL_INFO, format, replies_to);
 
-                if(header_item) {
-                    proto_item *item;
+            if(header_item) {
+                proto_item *item;
 
-                    proto_item_append_text(header_item, "uint32");
-                    item = proto_tree_add_item(tree, hf_alljoyn_uint32, tvb, offset, 4, encoding);
-
-                    proto_item_set_text(item, format + 1, replies_to);
-                }
-            } else {
-                proto_tree_add_item(field_tree, hf_alljoyn_uint32, tvb, offset, 4, encoding);
+                item = proto_tree_add_item(field_tree, hf_alljoyn_uint32, tvb, offset, 4, encoding);
+                proto_item_set_text(item, format + 1, replies_to);
             }
+        } else {
+            proto_tree_add_item(field_tree, hf_alljoyn_uint32, tvb, offset, 4, encoding);
+        }
 
-            offset += 4;
+        offset += 4;
         break;
 
     case ARG_VARIANT:    /* AllJoyn variant container type */
         {
-            proto_item *item = NULL;
-            guint8 *sig_saved = NULL;
-            guint8 *sig_pointer = NULL;
-            guint8 variant_sig_length;
+            proto_item *item;
+            proto_tree *tree;
+            guint8     *sig_saved;
+            guint8     *sig_pointer;
+            guint8      variant_sig_length;
 
             header_type_name = "variant";
 
@@ -926,16 +915,14 @@ parse_arg(tvbuff_t    *tvb,
 
             /* This length (4) will be updated later with the length of the entire variant object. */
             item = proto_tree_add_item(field_tree, hf_alljoyn_mess_body_variant, tvb, offset, 4, encoding);
-            tree = proto_item_add_subtree(item, ett_alljoyn_mess);
+            tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
             proto_tree_add_item(tree, hf_alljoyn_mess_body_signature_length, tvb, offset, 1, encoding);
 
             offset += 1;
 
-            if(item) {
-                tree = proto_item_add_subtree(item, ett_alljoyn_mess);
-                proto_tree_add_item(tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA);
-            }
+            tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
+            proto_tree_add_item(tree, hf_alljoyn_mess_body_signature, tvb, offset, length, ENC_ASCII|ENC_NA);
 
             sig_saved = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
 
@@ -946,14 +933,12 @@ parse_arg(tvbuff_t    *tvb,
             while(((sig_pointer - sig_saved) < (length - 1)) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
                 proto_item_append_text(item, "%c", *sig_pointer);
 
-                offset = parse_arg(tvb, pinfo, header_item, encoding, offset, item, is_reply_to,
+                offset = parse_arg(tvb, pinfo, header_item, encoding, offset, tree, is_reply_to,
                                    *sig_pointer, field_code, &sig_pointer, &variant_sig_length);
             }
 
-            if(item) {
-                proto_item_append_text(item, "'");
-                proto_item_set_end(item, tvb, offset);
-            }
+            proto_item_append_text(item, "'");
+            proto_item_set_end(item, tvb, offset);
         }
         break;
 
@@ -975,9 +960,10 @@ parse_arg(tvbuff_t    *tvb,
     case ARG_DICT_ENTRY: /* AllJoyn dictionary or map container type - an array of key-value pairs */
     case ARG_STRUCT:     /* AllJoyn struct container type */
         {
-            proto_item *item = NULL;
-            int hf;
-            guint8 type_stop;
+            proto_item *item;
+            proto_tree *tree;
+            int         hf;
+            guint8      type_stop;
 
             if(type_id == ARG_STRUCT) {
                 header_type_name = "structure";
@@ -997,6 +983,7 @@ parse_arg(tvbuff_t    *tvb,
             /* This length (4) will be updated later with the length of the entire struct. */
             item = proto_tree_add_item(field_tree, hf, tvb, offset, 4, encoding);
             append_struct_signature(item, *signature, *signature_length, type_stop);
+            tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
             offset = pad_according_to_type(offset, tvb_reported_length(tvb), type_id);
 
@@ -1009,7 +996,7 @@ parse_arg(tvbuff_t    *tvb,
                                    header_item,
                                    encoding,
                                    offset,
-                                   item,
+                                   tree,
                                    is_reply_to,
                                    **signature,
                                    field_code,
@@ -1017,9 +1004,7 @@ parse_arg(tvbuff_t    *tvb,
                                    signature_length);
             }
 
-            if(item) {
-                proto_item_set_end(item, tvb, offset);
-            }
+            proto_item_set_end(item, tvb, offset);
         }
         break;
 
@@ -1059,32 +1044,32 @@ alljoyn_typeid( gchar *result, guint32 type )
  * message header field.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param header_item is the subtree that we connect data items to.
  * @param encoding indicates big (ENC_BIG_ENDIAN) or little (ENC_LITTLE_ENDIAN)
  * @param offset is the offset into tvb to get the field from.
- * endianness.
+ *         endianness.
  * @param signature pointer to the signature of the parameters. This is a return
- * value for the caller to pass to the function that parses the parameters.
+ *         value for the caller to pass to the function that parses the parameters.
  * @param signature_length pointer to the length of the signature. This is a return
- * value for the caller to pass to the function that parses the parameters.
+ *         value for the caller to pass to the function that parses the parameters.
  * @return The new offset into the buffer after removing the field code and value.
- * the message.
+ *         the message.
  */
 static gint
-handle_message_field(tvbuff_t    *tvb,
-                     packet_info *pinfo,
-                     proto_item  *header_tree,
-                     guint       encoding,
-                     gint        offset,
+handle_message_field(tvbuff_t     *tvb,
+                     packet_info  *pinfo,
+                     proto_item   *header_tree,
+                     guint         encoding,
+                     gint          offset,
                      guint8      **signature,
-                     guint8      *signature_length)
+                     guint8       *signature_length)
 {
-    proto_tree *field_tree = NULL;
+    proto_tree *field_tree;
     proto_item *item, *field_item;
-    guint8 field_code;
-    guint8 type_id;
-    gboolean is_reply_to = FALSE;
+    guint8      field_code;
+    guint8      type_id;
+    gboolean    is_reply_to = FALSE;
 
     field_code = tvb_get_guint8(tvb, offset);
 
@@ -1136,7 +1121,7 @@ handle_message_field(tvbuff_t    *tvb,
 /* This is called by handle_message() to handle the message body.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param header_tree is the subtree that we connect data items to.
  * @param encoding indicates big (ENC_BIG_ENDIAN) or little (ENC_LITTLE_ENDIAN)
  * @param offset contains the offset into tvb for the start of the header fields.
@@ -1152,10 +1137,10 @@ handle_message_header_fields(tvbuff_t    *tvb,
                              guint32     header_length,
                              guint8      *signature_length)
 {
-    gint end_of_header;
+    gint        end_of_header;
     proto_item *item;
     proto_tree *tree;
-    guint8 *signature = NULL;
+    guint8     *signature = NULL;
 
     item = proto_tree_add_item(header_tree, hf_alljoyn_mess_header_fields, tvb, offset, header_length, ENC_NA);
     tree = proto_item_add_subtree(item, ett_alljoyn_mess_header);
@@ -1188,13 +1173,15 @@ handle_message_body_parameters(tvbuff_t    *tvb,
                                guint8      *signature,
                                guint8      signature_length)
 {
-    gint packet_length, end_of_body;
-    proto_item *item = NULL;
+    gint        packet_length, end_of_body;
+    proto_tree *tree;
+    proto_item *item;
 
     packet_length = tvb_reported_length(tvb);
 
     /* Add a subtree/row for the message body parameters. */
     item = proto_tree_add_item(header_tree, hf_alljoyn_mess_body_parameters, tvb, offset, body_length, ENC_NA);
+    tree = proto_item_add_subtree(item, ett_alljoyn_mess_body_parameters);
 
     end_of_body = offset + body_length;
 
@@ -1208,7 +1195,7 @@ handle_message_body_parameters(tvbuff_t    *tvb,
                            NULL,
                            encoding,
                            offset,
-                           item,    /* Add the args to the Parameters tree. */
+                           tree,    /* Add the args to the Parameters tree. */
                            FALSE,
                            *signature,
                            HDR_INVALID,
@@ -1220,11 +1207,11 @@ handle_message_body_parameters(tvbuff_t    *tvb,
 }
 
 #define MESSAGE_HEADER_LENGTH   16
-#define TYPE_OFFSET             1
-#define FLAGS_OFFSET            2
-#define MAJORVERSION_OFFSET     3
-#define BODY_LENGTH_OFFSET      4
-#define SERIAL_OFFSET           8
+#define TYPE_OFFSET              1
+#define FLAGS_OFFSET             2
+#define MAJORVERSION_OFFSET      3
+#define BODY_LENGTH_OFFSET       4
+#define SERIAL_OFFSET            8
 #define HEADER_LENGTH_OFFSET    12
 
 /* This is called by dissect_AllJoyn_message() to handle the actual message.
@@ -1235,22 +1222,22 @@ handle_message_body_parameters(tvbuff_t    *tvb,
  * @param offset is the offset into the packet to start processing.
  * @param message_tree is the subtree that any connect data items should be added to.
  * @returns the offset into the packet that has successfully been handled or
- * the input offset value if it was not a message header body..
+ *         the input offset value if it was not a message header body..
  */
 static gint
 handle_message_header_body(tvbuff_t    *tvb,
                            packet_info *pinfo,
-                           gint        offset,
+                           gint         offset,
                            proto_item  *message_tree)
 {
-    gint return_value;
-    gint remaining_packet_length;
-    guint8 *signature = NULL;
-    guint8 signature_length = 0;
+    gint        return_value;
+    gint        remaining_packet_length;
+    guint8     *signature;
+    guint8      signature_length = 0;
     proto_tree *header_tree, *flag_tree;
     proto_item *header_item, *flag_item;
-    guint encoding;
-    gint header_length = 0, body_length = 0;
+    guint       encoding;
+    gint        header_length = 0, body_length = 0;
 
     return_value = offset;
     encoding = get_message_header_endianness(tvb, offset);
@@ -1289,22 +1276,22 @@ handle_message_header_body(tvbuff_t    *tvb,
     proto_tree_add_item(header_tree, hf_alljoyn_mess_header_type, tvb, offset + TYPE_OFFSET, 1, ENC_NA);
 
     /* The flags byte. */
-    flag_item = proto_tree_add_item(header_tree, hf_alljoyn_mess_header_flags, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
+    flag_item = proto_tree_add_item(header_tree, hf_alljoyn_mess_header_flags,    tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
     flag_tree = proto_item_add_subtree(flag_item, ett_alljoyn_header_flags);
 
     /* Now the individual bits. */
-    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_encrypted, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
-    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_compressed, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_encrypted,        tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_compressed,       tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
     proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_global_broadcast, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
-    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_sessionless, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_sessionless,      tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
     proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_allow_remote_msg, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
-    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_no_auto_start, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
-    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_no_reply, tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_no_auto_start,    tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(flag_tree, hf_alljoyn_mess_header_flags_no_reply,         tvb, offset + FLAGS_OFFSET, 1, ENC_NA);
 
-    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_majorversion, tvb, offset + MAJORVERSION_OFFSET, 1, ENC_NA);
-    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_body_length, tvb, offset + BODY_LENGTH_OFFSET, 4, encoding);
+    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_majorversion,         tvb, offset + MAJORVERSION_OFFSET, 1, ENC_NA);
+    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_body_length,          tvb, offset + BODY_LENGTH_OFFSET, 4, encoding);
 
-    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_serial, tvb, offset + SERIAL_OFFSET, 4, encoding);
+    proto_tree_add_item(header_tree, hf_alljoyn_mess_header_serial,               tvb, offset + SERIAL_OFFSET, 4, encoding);
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message %010u: '%s'", get_uint32(tvb, offset + SERIAL_OFFSET, encoding),
             val_to_str_const(tvb_get_guint8(tvb, offset + TYPE_OFFSET), message_header_encoding_vals, "Unexpected message type"));
 
@@ -1337,20 +1324,20 @@ protocol_is_ours(tvbuff_t *tvb)
 {
     int length = tvb_captured_length(tvb);
 
-    if (length < 1)
+    if(length < 1)
         return FALSE;
 
     /* initial byte for a connect message. */
-    if (tvb_get_guint8(tvb, 0) == 0)
+    if(tvb_get_guint8(tvb, 0) == 0)
         return TRUE;
 
-    if (find_sasl_command(tvb, 0) != NULL)
+    if(find_sasl_command(tvb, 0) != NULL)
         return TRUE;
 
-    if (get_message_header_endianness(tvb, 0) == ENC_ALLJOYN_BAD_ENCODING)
+    if(get_message_header_endianness(tvb, 0) == ENC_ALLJOYN_BAD_ENCODING)
         return FALSE;
 
-    if ((length < 2) || (try_val_to_str(tvb_get_guint8(tvb, 1), message_header_encoding_vals) == NULL))
+    if((length < 2) || (try_val_to_str(tvb_get_guint8(tvb, 1), message_header_encoding_vals) == NULL))
         return FALSE;
 
     return TRUE;
@@ -1361,12 +1348,12 @@ protocol_is_ours(tvbuff_t *tvb)
  * the packets for the traffic on port 9955.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param tree is the tree data items should be added to.
  * @return The offset into the buffer we have dissected (which should normally
- * be the packet length), 0 if not AllJoyn message protocol, or 0 (with
- * pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT set) if another segment
- * is needed, or the packet length if "really bad" parameters come in.
+ *         be the packet length), 0 if not AllJoyn message protocol, or 0 (with
+ *         pinfo->desegment_len == DESEGMENT_ONE_MORE_SEGMENT set) if another segment
+ *         is needed, or the packet length if "really bad" parameters come in.
  */
 static gint
 dissect_AllJoyn_message(tvbuff_t    *tvb,
@@ -1374,11 +1361,11 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
                         proto_tree  *tree,
                         void *data   _U_)
 {
-    gint offset = 0;
+    gint        offset      = 0;
     proto_item *message_item;
     proto_tree *message_tree;
-    gint last_offset = -1;
-    gint packet_length;
+    gint        last_offset = -1;
+    gint        packet_length;
 
     if(!protocol_is_ours(tvb)) {
         return 0;
@@ -1425,10 +1412,10 @@ dissect_AllJoyn_message(tvbuff_t    *tvb,
 static void
 ns_parse_questions(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8 questions, guint message_version)
 {
-    while (questions--) {
-        proto_item *alljoyn_questions_ti = NULL;
-        proto_tree *alljoyn_questions_tree = NULL;
-        gint count = 0;
+    while(questions--) {
+        proto_item *alljoyn_questions_ti;
+        proto_tree *alljoyn_questions_tree;
+        gint        count;
 
         alljoyn_questions_ti = proto_tree_add_item(alljoyn_tree, hf_alljoyn_ns_whohas, tvb, *offset, 2, ENC_NA); /* "Who-Has Message" */
         alljoyn_questions_tree = proto_item_add_subtree(alljoyn_questions_ti, ett_alljoyn_whohas);
@@ -1440,16 +1427,16 @@ ns_parse_questions(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8
             proto_tree_add_item(alljoyn_questions_tree, hf_alljoyn_ns_whohas_f_flag, tvb, *offset, 1, ENC_NA);
         }
 
-        (*offset)++;
+        (*offset) += 1;
 
         proto_tree_add_item(alljoyn_questions_tree, hf_alljoyn_ns_whohas_count, tvb, *offset, 1, ENC_NA);
         count = tvb_get_guint8(tvb, *offset);
-        (*offset)++;
+        (*offset) += 1;
 
-        while (count--) {
-            proto_item *alljoyn_bus_name_ti = NULL;
-            proto_tree *alljoyn_bus_name_tree = NULL;
-            gint bus_name_size = 0;
+        while(count--) {
+            proto_item *alljoyn_bus_name_ti;
+            proto_tree *alljoyn_bus_name_tree;
+            gint        bus_name_size = 0;
 
             bus_name_size = tvb_get_guint8(tvb, *offset);
 
@@ -1458,7 +1445,7 @@ ns_parse_questions(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8
             alljoyn_bus_name_tree = proto_item_add_subtree(alljoyn_bus_name_ti, ett_alljoyn_ns_string);
 
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
-            (*offset)++;
+            (*offset) += 1;
 
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII|ENC_NA);
             (*offset) += bus_name_size;
@@ -1506,11 +1493,11 @@ ns_parse_questions(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8
 static void
 ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8 answers)
 {
-    while (answers--) {
-        proto_item *alljoyn_answers_ti = NULL;
-        proto_tree *alljoyn_answers_tree = NULL;
-        gint flags = 0;
-        gint count = 0;
+    while(answers--) {
+        proto_item *alljoyn_answers_ti;
+        proto_tree *alljoyn_answers_tree;
+        gint        flags;
+        gint        count;
 
         alljoyn_answers_ti = proto_tree_add_item(alljoyn_tree, hf_alljoyn_answer, tvb, *offset, 2, ENC_NA);
         alljoyn_answers_tree = proto_item_add_subtree(alljoyn_answers_ti, ett_alljoyn_ns_answers);
@@ -1522,29 +1509,29 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_s_flag, tvb, *offset, 1, ENC_NA);
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_f_flag, tvb, *offset, 1, ENC_NA);
         flags = tvb_get_guint8(tvb, *offset);
-        (*offset)++;
+        (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_count, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_count,  tvb, *offset, 1, ENC_NA);
         count = tvb_get_guint8(tvb, *offset);
-        (*offset)++;
+        (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port, tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_port,   tvb, *offset, 2, ENC_NA);
         (*offset) += 2;
 
-        if (flags & ISAT_S) {
+        if(flags & ISAT_S) {
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv6, tvb, *offset, 16, ENC_NA);
             (*offset) += 16;
         }
 
-        if (flags & ISAT_F) {
+        if(flags & ISAT_F) {
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
             (*offset) += 4;
         }
 
-        if (flags & ISAT_G) {
-            proto_item *alljoyn_string_ti = NULL;
-            proto_tree *alljoyn_string_tree = NULL;
-            gint guid_size = 0;
+        if(flags & ISAT_G) {
+            proto_item *alljoyn_string_ti;
+            proto_tree *alljoyn_string_tree;
+            gint        guid_size = 0;
 
             guid_size = tvb_get_guint8(tvb, *offset);
 
@@ -1553,18 +1540,18 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             alljoyn_string_tree = proto_item_add_subtree(alljoyn_string_ti, ett_alljoyn_ns_guid_string);
 
             proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
-            (*offset)++;
+            (*offset) += 1;
 
             proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_data, tvb, *offset, guid_size, ENC_ASCII|ENC_NA);
             (*offset) += guid_size;
         }
 
-        while (count--) {
-            proto_item *alljoyn_entry_ti = NULL;
-            proto_tree *alljoyn_entry_tree= NULL;
-            proto_item *alljoyn_bus_name_ti = NULL;
-            proto_tree *alljoyn_bus_name_tree = NULL;
-            gint bus_name_size = tvb_get_guint8(tvb, *offset);
+        while(count--) {
+            proto_item *alljoyn_entry_ti;
+            proto_tree *alljoyn_entry_tree;
+            proto_item *alljoyn_bus_name_ti;
+            proto_tree *alljoyn_bus_name_tree;
+            gint        bus_name_size = tvb_get_guint8(tvb, *offset);
 
             alljoyn_entry_ti = proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_isat_entry, tvb,
                 *offset, 1 + bus_name_size, ENC_NA);
@@ -1635,17 +1622,17 @@ ns_parse_answers_v0(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
 static void
 ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint8 answers)
 {
-    while (answers--) {
-        proto_item *alljoyn_answers_ti = NULL;
-        proto_tree *alljoyn_answers_tree = NULL;
-        gint flags = 0;
-        gint count = 0;
+    while(answers--) {
+        proto_item *alljoyn_answers_ti;
+        proto_tree *alljoyn_answers_tree;
+        gint        flags;
+        gint        count;
 
         alljoyn_answers_ti = proto_tree_add_item(alljoyn_tree, hf_alljoyn_answer, tvb, *offset, 2, ENC_NA);
         alljoyn_answers_tree = proto_item_add_subtree(alljoyn_answers_ti, ett_alljoyn_ns_answers);
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_g_flag, tvb, *offset, 1, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_c_flag, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_g_flag,  tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_c_flag,  tvb, *offset, 1, ENC_NA);
 
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_r4_flag, tvb, *offset, 1, ENC_NA);
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_u4_flag, tvb, *offset, 1, ENC_NA);
@@ -1654,27 +1641,27 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_u6_flag, tvb, *offset, 1, ENC_NA);
 
         flags = tvb_get_guint8(tvb, *offset);
-        (*offset)++;
+        (*offset) += 1;
 
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_count, tvb, *offset, 1, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_count,   tvb, *offset, 1, ENC_NA);
         count = tvb_get_guint8(tvb, *offset);
-        (*offset)++;
+        (*offset) += 1;
 
         /* The entire transport mask. */
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask, tvb, *offset, 2, ENC_NA);
 
         /* The individual bits of the transport mask. */
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wfd, tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_ice, tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_lan, tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wwan, tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_tcp, tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wfd,       tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_ice,       tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_lan,       tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_wwan,      tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_tcp,       tvb, *offset, 2, ENC_NA);
         proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_bluetooth, tvb, *offset, 2, ENC_NA);
-        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_local, tvb, *offset, 2, ENC_NA);
+        proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_transport_mask_local,     tvb, *offset, 2, ENC_NA);
 
         (*offset) += 2;
 
-        if (flags & ISAT_R4) {
+        if(flags & ISAT_R4) {
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
             (*offset) += 4;
 
@@ -1682,7 +1669,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             (*offset) += 2;
         }
 
-        if (flags & ISAT_U4) {
+        if(flags & ISAT_U4) {
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv4, tvb, *offset, 4, ENC_NA);
             (*offset) += 4;
 
@@ -1690,7 +1677,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             (*offset) += 2;
         }
 
-        if (flags & ISAT_R6) {
+        if(flags & ISAT_R6) {
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv6, tvb, *offset, 16, ENC_NA);
             (*offset) += 16;
 
@@ -1698,7 +1685,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             (*offset) += 2;
         }
 
-        if (flags & ISAT_U6) {
+        if(flags & ISAT_U6) {
             proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_ns_isat_ipv6, tvb, *offset, 16, ENC_NA);
             (*offset) += 16;
 
@@ -1706,10 +1693,10 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             (*offset) += 2;
         }
 
-        if (flags & ISAT_G) {
-            proto_item *alljoyn_string_ti = NULL;
-            proto_tree *alljoyn_string_tree = NULL;
-            gint guid_size = 0;
+        if(flags & ISAT_G) {
+            proto_item *alljoyn_string_ti;
+            proto_tree *alljoyn_string_tree;
+            gint        guid_size;
 
             guid_size = tvb_get_guint8(tvb, *offset);
 
@@ -1718,20 +1705,20 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             alljoyn_string_tree = proto_item_add_subtree(alljoyn_string_ti, ett_alljoyn_ns_guid_string);
 
             proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
-            (*offset)++;
+            (*offset) += 1;
 
             proto_tree_add_item(alljoyn_string_tree, hf_alljoyn_string_data, tvb, *offset, guid_size, ENC_ASCII|ENC_NA);
             (*offset) += guid_size;
         }
 
         /* The string data records. */
-        while (count--) {
-            proto_item *alljoyn_entry_ti = NULL;
-            proto_tree *alljoyn_entry_tree= NULL;
+        while(count--) {
+            proto_item *alljoyn_entry_ti;
+            proto_tree *alljoyn_entry_tree;
 
-            proto_tree *alljoyn_bus_name_ti = NULL;
-            proto_tree *alljoyn_bus_name_tree = NULL;
-            gint bus_name_size = tvb_get_guint8(tvb, *offset);
+            proto_tree *alljoyn_bus_name_ti;
+            proto_tree *alljoyn_bus_name_tree;
+            gint        bus_name_size = tvb_get_guint8(tvb, *offset);
 
             alljoyn_entry_ti = proto_tree_add_item(alljoyn_answers_tree, hf_alljoyn_isat_entry, tvb,
                 *offset, 1 + bus_name_size, ENC_NA);
@@ -1742,7 +1729,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
             alljoyn_bus_name_tree = proto_item_add_subtree(alljoyn_bus_name_ti, ett_alljoyn_string);
 
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_size_8bit, tvb, *offset, 1, ENC_NA);
-            (*offset)++;
+            (*offset) += 1;
 
             proto_tree_add_item(alljoyn_bus_name_tree, hf_alljoyn_string_data, tvb, *offset, bus_name_size, ENC_ASCII|ENC_NA);
             (*offset) += bus_name_size;
@@ -1755,7 +1742,7 @@ ns_parse_answers_v1(tvbuff_t *tvb, gint* offset, proto_tree* alljoyn_tree, guint
    the packets for the name server traffic.
  * @param tvb is the incoming network data buffer.
  * @param pinfo contains information about the incoming packet which
- * we update as we dissect the packet.
+ *         we update as we dissect the packet.
  * @param tree is the tree data items should be added to.
  */
 static int
@@ -1766,9 +1753,9 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
 {
     proto_item *alljoyn_item, *header_item;
     proto_tree *alljoyn_tree, *header_tree;
-    guint8 questions, answers;
-    guint8 version;
-    int offset = 0;
+    guint8      questions, answers;
+    guint8      version;
+    int         offset = 0;
 
     /* This is name service traffic. Mark it as such at the top level. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ALLJOYN-NS");
@@ -1789,7 +1776,7 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
     offset += 1;
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "VERSION %u", version);
-    if (version > 1)
+    if(version > 1)
         col_append_str(pinfo->cinfo, COL_INFO, " (UNSUPPORTED)");
 
     proto_tree_add_item(header_tree, hf_alljoyn_ns_questions, tvb, offset, 1, ENC_NA);
@@ -1800,17 +1787,17 @@ dissect_AllJoyn_name_server(tvbuff_t    *tvb,
     answers = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    if (answers > 0)
+    if(answers > 0)
         col_append_str(pinfo->cinfo, COL_INFO, " ISAT");
 
-    if (questions > 0)
+    if(questions > 0)
         col_append_str(pinfo->cinfo, COL_INFO, " WHOHAS");
 
     proto_tree_add_item(header_tree, hf_alljoyn_ns_timer, tvb, offset, 1, ENC_NA);
     offset += 1;
 
 
-    if (tree) {  /* we are being asked for details */
+    if(tree) {  /* we are being asked for details */
         ns_parse_questions(tvb, &offset, alljoyn_tree, questions, version);
 
         switch(version) {
@@ -1847,230 +1834,438 @@ proto_register_AllJoyn(void)
         /******************
          * Wireshark header fields for the name service protocol.
          ******************/
-        {&hf_alljoyn_ns_header, {"Header", "alljoyn.header", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_ns_sender_version, {"Sender Version", "alljoyn.header.sendversion", FT_UINT8, BASE_DEC, NULL, 0xF0, NULL, HFILL}},
-        {&hf_alljoyn_ns_message_version, {"Message Version", "alljoyn.header.messageversion", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL}},
-        {&hf_alljoyn_ns_questions, {"Questions", "alljoyn.header.questions", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_ns_answers, {"Answers", "alljoyn.header.answers", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_ns_timer, {"Timer", "alljoyn.header.timer", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_ns_header,
+         {"Header", "alljoyn.header",
+          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_sender_version,
+         {"Sender Version", "alljoyn.header.sendversion",
+          FT_UINT8, BASE_DEC, NULL, 0xF0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_message_version,
+         {"Message Version", "alljoyn.header.messageversion",
+          FT_UINT8, BASE_DEC, NULL, 0x0F,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_questions,
+         {"Questions", "alljoyn.header.questions",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_answers,
+         {"Answers", "alljoyn.header.answers",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_timer,
+         {"Timer", "alljoyn.header.timer",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
 
-        {&hf_alljoyn_ns_whohas, {"Who-Has Message", "alljoyn.whohas", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_ns_whohas_t_flag, {"TCP", "alljoyn.whohas.T", FT_BOOLEAN, 8, NULL, WHOHAS_T, NULL, HFILL}},
-        {&hf_alljoyn_ns_whohas_u_flag, {"UDP", "alljoyn.whohas.U", FT_BOOLEAN, 8, NULL, WHOHAS_U, NULL, HFILL}},
-        {&hf_alljoyn_ns_whohas_s_flag, {"IPv6", "alljoyn.whohas.S", FT_BOOLEAN, 8, NULL, WHOHAS_S, NULL, HFILL}},
-        {&hf_alljoyn_ns_whohas_f_flag, {"IPv4", "alljoyn.whohas.F", FT_BOOLEAN, 8, NULL, WHOHAS_F, NULL, HFILL}},
-        {&hf_alljoyn_ns_whohas_count, {"Count", "alljoyn.whohas.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_ns_whohas,
+         {"Who-Has Message", "alljoyn.whohas",
+          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_whohas_t_flag,
+         {"TCP", "alljoyn.whohas.T",
+          FT_BOOLEAN, 8, NULL, WHOHAS_T,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_whohas_u_flag,
+         {"UDP", "alljoyn.whohas.U",
+          FT_BOOLEAN, 8, NULL, WHOHAS_U,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_whohas_s_flag,
+         {"IPv6", "alljoyn.whohas.S",
+          FT_BOOLEAN, 8, NULL, WHOHAS_S,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_whohas_f_flag,
+         {"IPv4", "alljoyn.whohas.F",
+          FT_BOOLEAN, 8, NULL, WHOHAS_F,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_whohas_count,
+         {"Count", "alljoyn.whohas.count",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
 
-        {&hf_alljoyn_answer, {"Is-At Message", "alljoyn.isat", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_isat_entry, {"Advertisement Entry", "alljoyn.isat_entry", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_isat_guid_string, {"GUID String", "alljoyn.isat_guid_string", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_answer,
+         {"Is-At Message", "alljoyn.isat",
+          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_isat_entry,
+         {"Advertisement Entry", "alljoyn.isat_entry",
+          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_isat_guid_string,
+         {"GUID String", "alljoyn.isat_guid_string",
+          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
 
         /* Common to V0 and V1 IS-AT messages. */
-        {&hf_alljoyn_ns_isat_g_flag, {"GUID", "alljoyn.isat.G", FT_BOOLEAN, 8, NULL, ISAT_G, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_c_flag, {"Complete", "alljoyn.isat.C", FT_BOOLEAN, 8, NULL, ISAT_C, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_count, {"Count", "alljoyn.isat.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_ipv6, {"IPv6 Address", "alljoyn.isat.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_ipv4, {"IPv4 Address", "alljoyn.isat.ipv4", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_ns_isat_g_flag,
+         {"GUID", "alljoyn.isat.G",
+          FT_BOOLEAN, 8, NULL, ISAT_G,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_c_flag,
+         {"Complete", "alljoyn.isat.C",
+          FT_BOOLEAN, 8, NULL, ISAT_C,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_count,
+         {"Count", "alljoyn.isat.count",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_ipv6,
+         {"IPv6 Address", "alljoyn.isat.ipv6",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_ipv4,
+         {"IPv4 Address", "alljoyn.isat.ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
 
         /* Version 0 IS-AT messages. */
-        {&hf_alljoyn_ns_isat_t_flag, {"TCP", "alljoyn.isat.T", FT_BOOLEAN, 8, NULL, ISAT_T, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_u_flag, {"UDP", "alljoyn.isat.U", FT_BOOLEAN, 8, NULL, ISAT_U, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_s_flag, {"IPv6", "alljoyn.isat.S", FT_BOOLEAN, 8, NULL, ISAT_S, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_f_flag, {"IPv4", "alljoyn.isat.F", FT_BOOLEAN, 8, NULL, ISAT_F, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_port, {"Port", "alljoyn.isat.port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_ns_isat_t_flag,
+         {"TCP", "alljoyn.isat.T",
+          FT_BOOLEAN, 8, NULL, ISAT_T,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_u_flag,
+         {"UDP", "alljoyn.isat.U",
+          FT_BOOLEAN, 8, NULL, ISAT_U,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_s_flag,
+         {"IPv6", "alljoyn.isat.S",
+          FT_BOOLEAN, 8, NULL, ISAT_S,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_f_flag,
+         {"IPv4", "alljoyn.isat.F",
+          FT_BOOLEAN, 8, NULL, ISAT_F,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_port,
+         {"Port", "alljoyn.isat.port",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
 
         /* Version 1 IS-AT messages. */
-        {&hf_alljoyn_ns_isat_u6_flag, {"IPv6 UDP", "alljoyn.isat.U6", FT_BOOLEAN, 8, NULL, ISAT_U6, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_r6_flag, {"IPv6 TCP", "alljoyn.isat.R6", FT_BOOLEAN, 8, NULL, ISAT_R6, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_u4_flag, {"IPv4 UDP", "alljoyn.isat.U4", FT_BOOLEAN, 8, NULL, ISAT_U4, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_r4_flag, {"IPv4 TCP", "alljoyn.isat.R4", FT_BOOLEAN, 8, NULL, ISAT_R4, NULL, HFILL}},
+        {&hf_alljoyn_ns_isat_u6_flag,
+         {"IPv6 UDP", "alljoyn.isat.U6",
+          FT_BOOLEAN, 8, NULL, ISAT_U6,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_r6_flag,
+         {"IPv6 TCP", "alljoyn.isat.R6",
+          FT_BOOLEAN, 8, NULL, ISAT_R6,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_u4_flag,
+         {"IPv4 UDP", "alljoyn.isat.U4",
+          FT_BOOLEAN, 8, NULL, ISAT_U4,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_r4_flag,
+         {"IPv4 TCP", "alljoyn.isat.R4",
+          FT_BOOLEAN, 8, NULL, ISAT_R4,
+          NULL, HFILL}
+        },
 
-        {&hf_alljoyn_ns_isat_transport_mask, {"Transport Mask", "alljoyn.isat.TransportMask", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_ns_isat_transport_mask,
+         {"Transport Mask", "alljoyn.isat.TransportMask",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
 
-        {&hf_alljoyn_ns_isat_transport_mask_local, {"Local Transport", "alljoyn.isat.TransportMask.Local", FT_BOOLEAN, 16, NULL, TRANSPORT_LOCAL, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_transport_mask_bluetooth, {"Bluetooth Transport", "alljoyn.isat.TransportMask.Bluetooth", FT_BOOLEAN, 16, NULL, TRANSPORT_BLUETOOTH, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_transport_mask_tcp, {"TCP Transport", "alljoyn.isat.TransportMask.TCP", FT_BOOLEAN, 16, NULL, TRANSPORT_TCP, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_transport_mask_wwan, {"Wirelesss WAN Transport", "alljoyn.isat.TransportMask.WWAN", FT_BOOLEAN, 16, NULL, TRANSPORT_WWAN, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_transport_mask_lan, {"Wired LAN Transport", "alljoyn.isat.TransportMask.LAN", FT_BOOLEAN, 16, NULL, TRANSPORT_LAN, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_transport_mask_ice, {"ICE protocol Transport", "alljoyn.isat.TransportMask.ICE", FT_BOOLEAN, 16, NULL, TRANSPORT_ICE, NULL, HFILL}},
-        {&hf_alljoyn_ns_isat_transport_mask_wfd, {"Wi-Fi Direct Transport", "alljoyn.isat.TransportMask.WFD", FT_BOOLEAN, 16, NULL, TRANSPORT_WFD, NULL, HFILL}},
+        {&hf_alljoyn_ns_isat_transport_mask_local,
+         {"Local Transport", "alljoyn.isat.TransportMask.Local",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_LOCAL,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_transport_mask_bluetooth,
+         {"Bluetooth Transport", "alljoyn.isat.TransportMask.Bluetooth",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_BLUETOOTH,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_transport_mask_tcp,
+         {"TCP Transport", "alljoyn.isat.TransportMask.TCP",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_TCP,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_transport_mask_wwan,
+         {"Wirelesss WAN Transport", "alljoyn.isat.TransportMask.WWAN",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_WWAN,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_transport_mask_lan,
+         {"Wired LAN Transport", "alljoyn.isat.TransportMask.LAN",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_LAN,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_transport_mask_ice,
+         {"ICE protocol Transport", "alljoyn.isat.TransportMask.ICE",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_ICE,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_ns_isat_transport_mask_wfd,
+         {"Wi-Fi Direct Transport", "alljoyn.isat.TransportMask.WFD",
+          FT_BOOLEAN, 16, NULL, TRANSPORT_WFD,
+          NULL, HFILL}
+        },
 
         /******************
          * Wireshark header fields for the message protocol.
          ******************/
-        {&hf_alljoyn_connect_byte_value, {"Connect Initial Byte", "alljoyn.InitialByte", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_connect_byte_value,
+         {"Connect Initial Byte", "alljoyn.InitialByte",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
 
         /*
          * Wireshark header fields for the SASL messages.
          */
-        {&hf_alljoyn_sasl_command, {"SASL command", "alljoyn.SASL.command", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
-        {&hf_alljoyn_sasl_parameter, {"SASL parameter", "alljoyn.SASL.parameter", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        {&hf_alljoyn_sasl_command,
+         {"SASL command", "alljoyn.SASL.command",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        {&hf_alljoyn_sasl_parameter,
+         {"SASL parameter", "alljoyn.SASL.parameter",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
 
         /*
          * Wireshark header fields for the AllJoyn message header.
          */
         {&hf_alljoyn_mess_header,
-            {"Message Header", "alljoyn.header",
-             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+         {"Message Header", "alljoyn.header",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_endian,
-            {"Endianness", "alljoyn.header.endianess",
-             FT_UINT8, BASE_DEC, VALS(endian_encoding_vals), 0x0, NULL, HFILL}
+         {"Endianness", "alljoyn.header.endianess",
+          FT_UINT8, BASE_DEC, VALS(endian_encoding_vals), 0x0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_type,
-            {"Message type", "alljoyn.header.type",
-             FT_UINT8, BASE_DEC, VALS(message_header_encoding_vals), 0x0, NULL, HFILL}
+         {"Message type", "alljoyn.header.type",
+          FT_UINT8, BASE_DEC, VALS(message_header_encoding_vals), 0x0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags,
-            {"Flags", "alljoyn.header.flags",
-             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+         {"Flags", "alljoyn.header.flags",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
         },
 
         /* Individual fields of the flags byte. */
         {&hf_alljoyn_mess_header_flags_no_reply,
-            {"No reply expected", "alljoyn.header.flags.noreply",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_NO_REPLY_EXPECTED, NULL, HFILL}
+         {"No reply expected", "alljoyn.header.flags.noreply",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_NO_REPLY_EXPECTED,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_no_auto_start,
-            {"No auto start", "alljoyn.header.flags.noautostart",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_NO_AUTO_START, NULL, HFILL}
+         {"No auto start", "alljoyn.header.flags.noautostart",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_NO_AUTO_START,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_allow_remote_msg,
-            {"Allow remote messages", "alljoyn.header.flags.allowremotemessages",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_ALLOW_REMOTE_MSG, NULL, HFILL}
+         {"Allow remote messages", "alljoyn.header.flags.allowremotemessages",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_ALLOW_REMOTE_MSG,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_sessionless,
-            {"Sessionless", "alljoyn.header.flags.sessionless",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_SESSIONLESS, NULL, HFILL}
+         {"Sessionless", "alljoyn.header.flags.sessionless",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_SESSIONLESS,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_global_broadcast,
-            {"Allow global broadcast", "alljoyn.header.flags.globalbroadcast",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_GLOBAL_BROADCAST, NULL, HFILL}
+         {"Allow global broadcast", "alljoyn.header.flags.globalbroadcast",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_GLOBAL_BROADCAST,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_compressed,
-            {"Compressed", "alljoyn.header.flags.compressed",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_COMPRESSED, NULL, HFILL}
+         {"Compressed", "alljoyn.header.flags.compressed",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_COMPRESSED,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_flags_encrypted,
-            {"Encrypted", "alljoyn.header.flags.encrypted",
-             FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_ENCRYPTED, NULL, HFILL}
+         {"Encrypted", "alljoyn.header.flags.encrypted",
+          FT_BOOLEAN, 8, NULL, MESSAGE_HEADER_FLAG_ENCRYPTED,
+          NULL, HFILL}
         },
 
         {&hf_alljoyn_mess_header_majorversion,
-            {"Major version", "alljoyn.header.majorversion",
-             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Major version", "alljoyn.header.majorversion",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_body_length,
-            {"Body length", "alljoyn.header.bodylength",
-             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Body length", "alljoyn.header.bodylength",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_serial,
-            {"Serial number", "alljoyn.header.serial",
-             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Serial number", "alljoyn.header.serial",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_header_length,
-            {"Header length", "alljoyn.header.headerlength",
-             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Header length", "alljoyn.header.headerlength",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
 
         {&hf_alljoyn_mess_header_fields,
-            {"Header fields", "alljoyn.headerfields",
-             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"Header fields", "alljoyn.headerfields",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_header_field,
-            {"Header field", "alljoyn.headerfield",
-             FT_UINT8, BASE_HEX, VALS(header_field_encoding_vals), 0, NULL, HFILL}
+         {"Header field", "alljoyn.headerfield",
+          FT_UINT8, BASE_HEX, VALS(header_field_encoding_vals), 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_header_fieldcode,
-            {"Field code", "alljoyn.message.fieldcode",
-             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL}
+         {"Field code", "alljoyn.message.fieldcode",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_header_typeid,
-            {"Type ID", "alljoyn.message.typeid",
-             FT_UINT8, BASE_CUSTOM, alljoyn_typeid, 0, NULL, HFILL}
+         {"Type ID", "alljoyn.message.typeid",
+          FT_UINT8, BASE_CUSTOM, alljoyn_typeid, 0,
+          NULL, HFILL}
         },
 
         {&hf_alljoyn_mess_body_parameters,
-            {"Parameters", "alljoyn.parameters",
-             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"Parameters", "alljoyn.parameters",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_array,
-            {"Array", "alljoyn.array",
-             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"Array", "alljoyn.array",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_structure,
-            {"struct", "alljoyn.structure",
-             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"struct", "alljoyn.structure",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_dictionary_entry,
-            {"dictionary entry", "alljoyn.dictionary_entry",
-             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"dictionary entry", "alljoyn.dictionary_entry",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_variant,
-            {"Variant '", "alljoyn.variant",
-             FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"Variant '", "alljoyn.variant",
+          FT_NONE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_signature_length,
-            {"Signature length", "alljoyn.parameter.signature_length",
-             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Signature length", "alljoyn.parameter.signature_length",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_mess_body_signature,
-            {"Signature", "alljoyn.parameter.signature",
-             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+         {"Signature", "alljoyn.parameter.signature",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
 
         {&hf_alljoyn_boolean,
-            {"Boolean", "alljoyn.boolean",
-             FT_BOOLEAN, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"Boolean", "alljoyn.boolean",
+          FT_BOOLEAN, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_uint8,
-            {"Unsigned byte", "alljoyn.uint8",
-             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Unsigned byte", "alljoyn.uint8",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_int16,
-            {"Signed int16", "alljoyn.int16",
-             FT_INT16, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Signed int16", "alljoyn.int16",
+          FT_INT16, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_uint16,
-            {"Unsigned int16", "alljoyn.uint16",
-             FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Unsigned int16", "alljoyn.uint16",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_handle,
-            {"Handle", "alljoyn.handle",
-             FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL}
+         {"Handle", "alljoyn.handle",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_int32,
-            {"Signed int32", "alljoyn.int32",
-             FT_INT32, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Signed int32", "alljoyn.int32",
+          FT_INT32, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_uint32,
-            {"Unsigned int32", "alljoyn.uint32",
-             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Unsigned int32", "alljoyn.uint32",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_int64,
-            {"Signed int64", "alljoyn.int64",
-             FT_INT64, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Signed int64", "alljoyn.int64",
+          FT_INT64, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_uint64,
-            {"Unsigned int64", "alljoyn.uint64",
-             FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL}
+         {"Unsigned int64", "alljoyn.uint64",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL}
         },
         {&hf_alljoyn_double,
-            {"Double", "alljoyn.double",
-             FT_DOUBLE, BASE_NONE, NULL, 0, NULL, HFILL}
+         {"Double", "alljoyn.double",
+          FT_DOUBLE, BASE_NONE, NULL, 0,
+          NULL, HFILL}
         },
 
         /*
          * Strings are composed of a size and a data arrray.
          */
         {&hf_alljoyn_string,
-            {"Bus Name", "alljoyn.string", FT_PROTOCOL, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+         {"Bus Name", "alljoyn.string",
+          FT_PROTOCOL, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
         {&hf_alljoyn_string_size_8bit,
-            {"String Size 8-bit", "alljoyn.string.size8bit", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+         {"String Size 8-bit", "alljoyn.string.size8bit",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
         {&hf_alljoyn_string_size_32bit,
-            {"String Size 32-bit", "alljoyn.string.size32bit", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+         {"String Size 32-bit", "alljoyn.string.size32bit",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
         {&hf_alljoyn_string_data,
-            {"String Data", "alljoyn.string.data",
-             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL}},
+         {"String Data", "alljoyn.string.data",
+          FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
     };
 
     static gint *ett[] = {
@@ -2087,7 +2282,8 @@ proto_register_AllJoyn(void)
         &ett_alljoyn_header,
         &ett_alljoyn_header_flags,
         &ett_alljoyn_mess_header_field,
-        &ett_alljoyn_mess_header
+        &ett_alljoyn_mess_header,
+        &ett_alljoyn_mess_body_parameters
     };
 
     /* The following are protocols as opposed to data within a protocol. These appear
