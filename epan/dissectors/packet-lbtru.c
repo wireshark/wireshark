@@ -31,6 +31,7 @@
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/to_str.h>
+#include <epan/tap.h>
 #include "packet-lbm.h"
 #include "packet-lbtru.h"
 
@@ -42,6 +43,9 @@ static int proto_lbtru = -1;
 
 /* Dissector handle */
 static dissector_handle_t lbtru_dissector_handle;
+
+/* Tap handle */
+static int lbtru_tap_handle = -1;
 
 /*----------------------------------------------------------------------------*/
 /* LBT-RU transport management.                                               */
@@ -401,19 +405,32 @@ static lbm_transport_frame_t * lbtru_client_transport_frame_add(lbtru_client_tra
     return (frame_entry);
 }
 
-char * lbtru_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id)
+static char * lbtru_transport_source_string_format(const address * source_address, guint16 source_port, guint32 session_id)
 {
+    /* Returns a packet-scoped string. */
     char * bufptr = NULL;
 
     if (session_id == 0)
     {
-        bufptr = wmem_strdup_printf(wmem_file_scope(), "LBT-RU:%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), source_address), source_port);
+        bufptr = wmem_strdup_printf(wmem_packet_scope(), "LBT-RU:%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), source_address), source_port);
     }
     else
     {
-        bufptr = wmem_strdup_printf(wmem_file_scope(), "LBT-RU:%s:%" G_GUINT16_FORMAT ":%08x", address_to_str(wmem_packet_scope(), source_address), source_port, session_id);
+        bufptr = wmem_strdup_printf(wmem_packet_scope(), "LBT-RU:%s:%" G_GUINT16_FORMAT ":%08x", address_to_str(wmem_packet_scope(), source_address), source_port, session_id);
     }
     return (bufptr);
+}
+
+char * lbtru_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id)
+{
+    /* Returns a file-scoped string. */
+    return (wmem_strdup(wmem_file_scope(), lbtru_transport_source_string_format(source_address, source_port, session_id)));
+}
+
+static char * lbtru_transport_source_string_transport(lbtru_transport_t * transport)
+{
+    /* Returns a packet-scoped string. */
+    return (lbtru_transport_source_string(&(transport->source_address), transport->source_port, transport->session_id));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -507,10 +524,6 @@ typedef struct
 #define L_LBTRU_NCF_HDR_T (gint) (sizeof(lbtru_ncf_hdr_t))
 
 #define LBTRU_NCF_SELECTIVE_FORMAT 0x0
-#define LBTRU_NCF_REASON_NO_RETRY 0x0
-#define LBTRU_NCF_REASON_IGNORED 0x1
-#define LBTRU_NCF_REASON_RX_DELAY 0x2
-#define LBTRU_NCF_REASON_SHED 0x3
 #define LBTRU_NCF_HDR_REASON(x) ((x & 0xF0) >> 4)
 #define LBTRU_NCF_HDR_FORMAT(x) (x & 0xF)
 #define LBTRU_NCF_HDR_REASON_MASK 0xF0
@@ -563,11 +576,6 @@ typedef struct
 #define LBTRU_NHDR_DATA 0x00
 #define LBTRU_NHDR_SID 0x01
 #define LBTRU_NHDR_CID 0x02
-
-/* CREQ and RST use the normal header */
-#define LBTRU_CREQ_REQUEST_SYN 0x0
-
-#define LBTRU_RST_REASON_DEFAULT 0x0
 
 /*----------------------------------------------------------------------------*/
 /* Value translation tables.                                                  */
@@ -902,7 +910,7 @@ static int dissect_lbtru_data_contents(tvbuff_t * tvb, int offset, packet_info *
 /*----------------------------------------------------------------------------*/
 /* LBT-RU ACK packet dissection functions.                                    */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtru_ack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+static int dissect_lbtru_ack(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbm_lbtru_tap_info_t * tap_info)
 {
     proto_tree * ack_tree = NULL;
     proto_item * ack_item = NULL;
@@ -912,13 +920,14 @@ static int dissect_lbtru_ack(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     ack_tree = proto_item_add_subtree(ack_item, ett_lbtru_ack);
     ack = proto_tree_add_item(ack_tree, hf_lbtru_ack_sqn, tvb, offset + O_LBTRU_ACK_HDR_T_ACK_SQN, L_LBTRU_ACK_HDR_T_ACK_SQN, ENC_BIG_ENDIAN);
     expert_add_info(pinfo, ack, &ei_lbtru_analysis_ack);
+    tap_info->sqn = tvb_get_ntohl(tvb, offset + O_LBTRU_ACK_HDR_T_ACK_SQN);
     return (L_LBTRU_ACK_HDR_T);
 }
 
 /*----------------------------------------------------------------------------*/
 /* LBT-RU NAK confirmation packet dissection functions.                       */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtru_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, int ncf_count, int reason)
+static int dissect_lbtru_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, int ncf_count, int reason, lbm_lbtru_tap_info_t * tap_info)
 {
     proto_tree * ncf_tree = NULL;
     proto_item * ncf_item = NULL;
@@ -939,24 +948,27 @@ static int dissect_lbtru_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
         {
             expert_add_info_format(pinfo, sep_ncf_item, &ei_lbtru_analysis_ncf_ncf, "NCF 0x%08x %s", ncf, val_to_str(reason, lbtru_ncf_reason, "Unknown (0x%02x)"));
         }
+        tap_info->sqns[idx] = ncf;
         len += (int)sizeof(lbm_uint32_t);
     }
     proto_item_set_len(ncf_item, len);
     return (len);
 }
 
-static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbm_lbtru_tap_info_t * tap_info)
 {
     int len_dissected;
-    guint16 num_ncfs;
     guint8 reason_format;
     proto_tree * ncf_tree = NULL;
     proto_item * ncf_item = NULL;
     proto_tree * rf_tree = NULL;
     proto_item * rf_item = NULL;
+    guint16 num_ncfs = 0;
 
     ncf_item = proto_tree_add_item(tree, hf_lbtru_ncf, tvb, offset, -1, ENC_NA);
     ncf_tree = proto_item_add_subtree(ncf_item, ett_lbtru_ncf);
+    reason_format = tvb_get_guint8(tvb, offset + O_LBTRU_NCF_HDR_T_REASON_FORMAT);
+    num_ncfs = tvb_get_ntohs(tvb, offset + O_LBTRU_NCF_HDR_T_NUM_NCFS);
     proto_tree_add_item(ncf_tree, hf_lbtru_ncf_trail_sqn, tvb, offset + O_LBTRU_NCF_HDR_T_TRAIL_SQN, L_LBTRU_NCF_HDR_T_TRAIL_SQN, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtru_ncf_num, tvb, offset + O_LBTRU_NCF_HDR_T_NUM_NCFS, L_LBTRU_NCF_HDR_T_NUM_NCFS, ENC_BIG_ENDIAN);
     proto_tree_add_item(ncf_tree, hf_lbtru_ncf_reserved, tvb, offset + O_LBTRU_NCF_HDR_T_RESERVED, L_LBTRU_NCF_HDR_T_RESERVED, ENC_BIG_ENDIAN);
@@ -965,13 +977,14 @@ static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     proto_tree_add_item(rf_tree, hf_lbtru_ncf_reason, tvb, offset + O_LBTRU_NCF_HDR_T_REASON_FORMAT, L_LBTRU_NCF_HDR_T_REASON_FORMAT, ENC_BIG_ENDIAN);
     proto_tree_add_item(rf_tree, hf_lbtru_ncf_format, tvb, offset + O_LBTRU_NCF_HDR_T_REASON_FORMAT, L_LBTRU_NCF_HDR_T_REASON_FORMAT, ENC_BIG_ENDIAN);
     len_dissected = L_LBTRU_NCF_HDR_T;
-    num_ncfs = tvb_get_ntohs(tvb, offset + O_LBTRU_NCF_HDR_T_NUM_NCFS);
-    reason_format = tvb_get_guint8(tvb, offset + O_LBTRU_NCF_HDR_T_REASON_FORMAT);
-    len_dissected += dissect_lbtru_ncf_list(tvb, offset + L_LBTRU_NCF_HDR_T, pinfo, ncf_tree, num_ncfs, LBTRU_NCF_HDR_REASON(reason_format));
     if (!lbtru_expert_separate_ncfs)
     {
         expert_add_info_format(pinfo, ncf_item, &ei_lbtru_analysis_ncf, "NCF %s", val_to_str(LBTRU_NCF_HDR_REASON(reason_format), lbtru_ncf_reason, "Unknown (0x%02x)"));
     }
+    tap_info->ncf_reason = LBTRU_NCF_HDR_REASON(reason_format);;
+    tap_info->num_sqns = num_ncfs;
+    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_ncfs);
+    len_dissected += dissect_lbtru_ncf_list(tvb, offset + L_LBTRU_NCF_HDR_T, pinfo, ncf_tree, num_ncfs, LBTRU_NCF_HDR_REASON(reason_format), tap_info);
     proto_item_set_len(ncf_item, len_dissected);
     return (len_dissected);
 }
@@ -979,7 +992,7 @@ static int dissect_lbtru_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 /*----------------------------------------------------------------------------*/
 /* LBT-RU NAK packet dissection functions.                                    */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtru_nak_list(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, int nak_count)
+static int dissect_lbtru_nak_list(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, int nak_count, lbm_lbtru_tap_info_t * tap_info)
 {
     proto_tree * nak_tree = NULL;
     proto_item * nak_item = NULL;
@@ -1000,34 +1013,37 @@ static int dissect_lbtru_nak_list(tvbuff_t * tvb, int offset, packet_info * pinf
         {
             expert_add_info_format(pinfo, sep_nak_item, &ei_lbtru_analysis_nak_nak, "NAK 0x%08x", nak);
         }
+        tap_info->sqns[idx] = nak;
         len += (int)sizeof(lbm_uint32_t);
     }
     proto_item_set_len(nak_item, len);
     return (len);
 }
 
-static int dissect_lbtru_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree)
+static int dissect_lbtru_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, lbm_lbtru_tap_info_t * tap_info)
 {
     int len_dissected;
-    guint16 num_naks;
     proto_tree * nak_tree = NULL;
     proto_item * nak_item = NULL;
     proto_tree * format_tree = NULL;
     proto_item * format_item = NULL;
+    guint16 num_naks = 0;
 
     nak_item = proto_tree_add_item(tree, hf_lbtru_nak, tvb, offset, -1, ENC_NA);
     nak_tree = proto_item_add_subtree(nak_item, ett_lbtru_nak);
+    num_naks = tvb_get_ntohs(tvb, offset + O_LBTRU_NAK_HDR_T_NUM_NAKS);
     proto_tree_add_item(nak_tree, hf_lbtru_nak_num, tvb, offset + O_LBTRU_NAK_HDR_T_NUM_NAKS, L_LBTRU_NAK_HDR_T_NUM_NAKS, ENC_BIG_ENDIAN);
     format_item = proto_tree_add_item(nak_tree, hf_lbtru_nak_format, tvb, offset + O_LBTRU_NAK_HDR_T_FORMAT, L_LBTRU_NAK_HDR_T_FORMAT, ENC_NA);
     format_tree = proto_item_add_subtree(format_item, ett_lbtru_nak_format);
     proto_tree_add_item(format_tree, hf_lbtru_nak_format_format, tvb, offset + O_LBTRU_NAK_HDR_T_FORMAT, L_LBTRU_NAK_HDR_T_FORMAT, ENC_BIG_ENDIAN);
     len_dissected = L_LBTRU_NAK_HDR_T;
-    num_naks = tvb_get_ntohs(tvb, offset + O_LBTRU_NAK_HDR_T_NUM_NAKS);
-    len_dissected += dissect_lbtru_nak_list(tvb, offset + L_LBTRU_NAK_HDR_T, pinfo, nak_tree, num_naks);
     if (!lbtru_expert_separate_naks)
     {
         expert_add_info(pinfo, nak_item, &ei_lbtru_analysis_nak);
     }
+    tap_info->num_sqns = num_naks;
+    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_naks);
+    len_dissected += dissect_lbtru_nak_list(tvb, offset + L_LBTRU_NAK_HDR_T, pinfo, nak_tree, num_naks, tap_info);
     proto_item_set_len(nak_item, len_dissected);
     return (len_dissected);
 }
@@ -1035,7 +1051,7 @@ static int dissect_lbtru_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 /*----------------------------------------------------------------------------*/
 /* LBT-RU session message packet dissection function.                         */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtru_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, int syn)
+static int dissect_lbtru_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, int syn, lbm_lbtru_tap_info_t * tap_info)
 {
     proto_tree * sm_tree = NULL;
     proto_item * sm_item = NULL;
@@ -1054,13 +1070,14 @@ static int dissect_lbtru_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     {
         expert_add_info(pinfo, sm_sqn, &ei_lbtru_analysis_sm);
     }
+    tap_info->sqn = tvb_get_ntohl(tvb, offset + O_LBTRU_SM_HDR_T_SM_SQN);
     return (L_LBTRU_SM_HDR_T);
 }
 
 /*----------------------------------------------------------------------------*/
 /* LBT-RU data packet dissection functions.                                   */
 /*----------------------------------------------------------------------------*/
-static int dissect_lbtru_data(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree)
+static int dissect_lbtru_data(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, lbm_lbtru_tap_info_t * tap_info)
 {
     proto_tree * data_tree = NULL;
     proto_item * data_item = NULL;
@@ -1069,6 +1086,7 @@ static int dissect_lbtru_data(tvbuff_t * tvb, int offset, packet_info * pinfo _U
     data_tree = proto_item_add_subtree(data_item, ett_lbtru_data);
     proto_tree_add_item(data_tree, hf_lbtru_data_sqn, tvb, offset + O_LBTRU_DATA_HDR_T_SQN, L_LBTRU_DATA_HDR_T_SQN, ENC_BIG_ENDIAN);
     proto_tree_add_item(data_tree, hf_lbtru_data_trail_sqn, tvb, offset + O_LBTRU_DATA_HDR_T_TRAIL_SQN, L_LBTRU_DATA_HDR_T_TRAIL_SQN, ENC_BIG_ENDIAN);
+    tap_info->sqn = tvb_get_ntohl(tvb, offset + O_LBTRU_DATA_HDR_T_SQN);
     return (L_LBTRU_DATA_HDR_T);
 }
 
@@ -1142,6 +1160,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_item * ei_item = NULL;
     proto_item * type_item = NULL;
     proto_item * next_hdr_item = NULL;
+    lbm_lbtru_tap_info_t * tapinfo = NULL;
 
     col_add_str(pinfo->cinfo, COL_PROTOCOL, "LBT-RU");
     if (lbtru_use_tag)
@@ -1180,6 +1199,9 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     PROTO_ITEM_SET_GENERATED(channel_item);
     channel_tree = proto_item_add_subtree(channel_item, ett_lbtru_channel);
 
+    tapinfo = wmem_new0(wmem_packet_scope(), lbm_lbtru_tap_info_t);
+    tapinfo->type = packet_type;
+
     header_item = proto_tree_add_item(lbtru_tree, hf_lbtru_hdr, tvb, 0, -1, ENC_NA);
     header_tree = proto_item_add_subtree(header_item, ett_lbtru_hdr);
     ver_type_item = proto_tree_add_none_format(header_tree, hf_lbtru_hdr_ver_type, tvb, O_LBTRU_HDR_T_VER_TYPE, L_LBTRU_HDR_T_VER_TYPE, "Version/Type: Version %u, Type %s",
@@ -1198,6 +1220,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
             if ((flags_or_res & LBTRU_RETRANSMISSION_FLAG) != 0)
             {
                 retransmission = TRUE;
+                tapinfo->retransmission = TRUE;
             }
             if (retransmission)
             {
@@ -1247,7 +1270,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         default:
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",  "Unknown (0x%02x)", LBTRU_HDR_TYPE(ver_type));
             expert_add_info_format(pinfo, type_item, &ei_lbtru_analysis_unknown_type, "Unrecognized type 0x%02x", LBTRU_HDR_TYPE(ver_type));
-            return (0);
+            return (total_dissected_len);
             break;
     }
 
@@ -1290,22 +1313,30 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
 
     /* Handle the packet-specific data */
-    switch (LBTRU_HDR_TYPE(ver_type))
+    switch (packet_type)
     {
         case LBTRU_PACKET_TYPE_DATA:
-            dissected_len = dissect_lbtru_data(tvb, L_LBTRU_HDR_T, pinfo, lbtru_tree);
+            dissected_len = dissect_lbtru_data(tvb, L_LBTRU_HDR_T, pinfo, lbtru_tree, tapinfo);
             break;
         case LBTRU_PACKET_TYPE_SM:
-            dissected_len = dissect_lbtru_sm(tvb, L_LBTRU_HDR_T, pinfo, lbtru_tree, (flags_or_res & LBTRU_SM_SYN_FLAG));
+            dissected_len = dissect_lbtru_sm(tvb, L_LBTRU_HDR_T, pinfo, lbtru_tree, (flags_or_res & LBTRU_SM_SYN_FLAG), tapinfo);
             break;
         case LBTRU_PACKET_TYPE_NAK:
-            dissected_len = dissect_lbtru_nak(tvb, ofs, pinfo, lbtru_tree);
+            dissected_len = dissect_lbtru_nak(tvb, ofs, pinfo, lbtru_tree, tapinfo);
             break;
         case LBTRU_PACKET_TYPE_NCF:
-            dissected_len = dissect_lbtru_ncf(tvb, ofs, pinfo, lbtru_tree);
+            dissected_len = dissect_lbtru_ncf(tvb, ofs, pinfo, lbtru_tree, tapinfo);
             break;
         case LBTRU_PACKET_TYPE_ACK:
-            dissected_len = dissect_lbtru_ack(tvb, ofs, pinfo, lbtru_tree);
+            dissected_len = dissect_lbtru_ack(tvb, ofs, pinfo, lbtru_tree, tapinfo);
+            break;
+        case LBTRU_PACKET_TYPE_CREQ:
+            dissected_len = 0;
+            tapinfo->creq_type = flags_or_res;
+            break;
+        case LBTRU_PACKET_TYPE_RST:
+            dissected_len = 0;
+            tapinfo->rst_type = flags_or_res;
             break;
         default:
             dissected_len = 0;
@@ -1422,10 +1453,7 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         {
             client = lbtru_client_transport_find(transport, &receiver_address, receiver_port, pinfo->fd->num);
         }
-    }
-
-    if (transport != NULL)
-    {
+        tapinfo->transport = lbtru_transport_source_string_transport(transport);
         channel = transport->channel;
         fld_item = proto_tree_add_uint64(channel_tree, hf_lbtru_channel_id, tvb, 0, 0, channel);
         PROTO_ITEM_SET_GENERATED(fld_item);
@@ -1633,6 +1661,10 @@ static int dissect_lbtru(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                 }
             }
         }
+    }
+    if (tapinfo->transport != NULL)
+    {
+        tap_queue_packet(lbtru_tap_handle, pinfo, (void *) tapinfo);
     }
     return (total_dissected_len);
 }

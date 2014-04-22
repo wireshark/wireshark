@@ -219,6 +219,18 @@ typedef struct
 #define LBTRU_PACKET_TYPE_CREQ 0x06
 #define LBTRU_PACKET_TYPE_RST 0x07
 
+/* LBT-RU NCF reason types */
+#define LBTRU_NCF_REASON_NO_RETRY 0x0
+#define LBTRU_NCF_REASON_IGNORED 0x1
+#define LBTRU_NCF_REASON_RX_DELAY 0x2
+#define LBTRU_NCF_REASON_SHED 0x3
+
+/* LBT-RU CREQ types */
+#define LBTRU_CREQ_REQUEST_SYN 0x0
+
+/* LBT-RU RST reasons */
+#define LBTRU_RST_REASON_DEFAULT 0x0
+
 gboolean lbmc_test_lbmc_header(tvbuff_t * tvb, int offset);
 int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, const char * tag_name, guint64 channel);
 int lbmc_get_minimum_length(void);

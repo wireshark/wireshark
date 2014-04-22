@@ -67,19 +67,12 @@ static lbtrm_transport_t * lbtrm_transport_unicast_find(const address * source_a
     conversation_t * conv = NULL;
     wmem_tree_t * session_tree = NULL;
 
-    conv = find_conversation(0, source_address, &lbtrm_null_address, PT_UDP, source_port, 0, 0);
+    conv = find_conversation(frame, source_address, &lbtrm_null_address, PT_UDP, source_port, 0, 0);
     if (conv != NULL)
     {
-        if (frame != 0)
+        if (frame > conv->last_frame)
         {
-            if (conv->setup_frame == 0)
-            {
-                conv->setup_frame = frame;
-            }
-            if (frame > conv->last_frame)
-            {
-                conv->last_frame = frame;
-            }
+            conv->last_frame = frame;
         }
         session_tree = (wmem_tree_t *) conversation_get_proto_data(conv, proto_lbtrm);
         if (session_tree != NULL)
@@ -90,16 +83,16 @@ static lbtrm_transport_t * lbtrm_transport_unicast_find(const address * source_a
     return (transport);
 }
 
-static void lbtrm_transport_unicast_add(const address * source_address, guint16 source_port, guint32 session_id, lbtrm_transport_t * transport)
+static void lbtrm_transport_unicast_add(const address * source_address, guint16 source_port, guint32 session_id, guint32 frame, lbtrm_transport_t * transport)
 {
     conversation_t * conv = NULL;
     wmem_tree_t * session_tree = NULL;
     lbtrm_transport_t * transport_entry = NULL;
 
-    conv = find_conversation(0, source_address, &lbtrm_null_address, PT_UDP, source_port, 0, 0);
+    conv = find_conversation(frame, source_address, &lbtrm_null_address, PT_UDP, source_port, 0, 0);
     if (conv == NULL)
     {
-        conv = conversation_new(0, source_address, &lbtrm_null_address, PT_UDP, source_port, 0, 0);
+        conv = conversation_new(frame, source_address, &lbtrm_null_address, PT_UDP, source_port, 0, 0);
     }
     session_tree = (wmem_tree_t *) conversation_get_proto_data(conv, proto_lbtrm);
     if (session_tree == NULL)
@@ -123,16 +116,9 @@ static lbtrm_transport_t * lbtrm_transport_find(const address * source_address, 
     conv = find_conversation(frame, source_address, multicast_group, PT_UDP, source_port, dest_port, 0);
     if (conv != NULL)
     {
-        if (frame != 0)
+        if (frame > conv->last_frame)
         {
-            if (conv->setup_frame == 0)
-            {
-                conv->setup_frame = frame;
-            }
-            if (frame > conv->last_frame)
-            {
-                conv->last_frame = frame;
-            }
+            conv->last_frame = frame;
         }
         session_tree = (wmem_tree_t *) conversation_get_proto_data(conv, proto_lbtrm);
         if (session_tree != NULL)
@@ -154,16 +140,9 @@ lbtrm_transport_t * lbtrm_transport_add(const address * source_address, guint16 
     {
         conv = conversation_new(frame, source_address, multicast_group, PT_UDP, source_port, dest_port, 0);
     }
-    if (frame != 0)
+    if (frame > conv->last_frame)
     {
-        if (conv->setup_frame == 0)
-        {
-            conv->setup_frame = frame;
-        }
-        if (frame > conv->last_frame)
-        {
-            conv->last_frame = frame;
-        }
+        conv->last_frame = frame;
     }
     session_tree = (wmem_tree_t *) conversation_get_proto_data(conv, proto_lbtrm);
     if (session_tree == NULL)
@@ -194,7 +173,7 @@ lbtrm_transport_t * lbtrm_transport_add(const address * source_address, guint16 
     entry->data_high_sqn = 0;
     entry->sm_high_sqn = 0;
     wmem_tree_insert32(session_tree, session_id, (void *) entry);
-    lbtrm_transport_unicast_add(source_address, source_port, session_id, entry);
+    lbtrm_transport_unicast_add(source_address, source_port, session_id, frame, entry);
     return (entry);
 }
 
@@ -366,15 +345,23 @@ static lbm_transport_frame_t * lbtrm_transport_frame_add(lbtrm_transport_t * tra
     return (frame_entry);
 }
 
+static char * lbtrm_transport_source_string_format(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
+{
+    /* Returns a packet-scoped string. */
+    return (wmem_strdup_printf(wmem_packet_scope(), "LBTRM:%s:%" G_GUINT16_FORMAT ":%08x:%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), source_address), source_port, session_id,
+            address_to_str(wmem_packet_scope(), multicast_group), dest_port));
+}
+
 char * lbtrm_transport_source_string(const address * source_address, guint16 source_port, guint32 session_id, const address * multicast_group, guint16 dest_port)
 {
-    return (wmem_strdup_printf(wmem_file_scope(), "LBTRM:%s:%" G_GUINT16_FORMAT ":%08x:%s:%" G_GUINT16_FORMAT, address_to_str(wmem_packet_scope(), source_address), source_port, session_id,
-            address_to_str(wmem_packet_scope(), multicast_group), dest_port));
+    /* Returns a file-scoped string. */
+    return (wmem_strdup(wmem_file_scope(), lbtrm_transport_source_string_format(source_address, source_port, session_id, multicast_group, dest_port)));
 }
 
 static char * lbtrm_transport_source_string_transport(lbtrm_transport_t * transport)
 {
-    return (lbtrm_transport_source_string(&(transport->source_address), transport->source_port, transport->session_id, &(transport->multicast_group), transport->dest_port));
+    /* Returns a packet-scoped string. */
+    return (lbtrm_transport_source_string_format(&(transport->source_address), transport->source_port, transport->session_id, &(transport->multicast_group), transport->dest_port));
 }
 
 /*----------------------------------------------------------------------------*/
@@ -927,10 +914,7 @@ static int dissect_lbtrm_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
         {
             expert_add_info_format(pinfo, sep_ncf_item, &ei_lbtrm_analysis_ncf_ncf, "NCF 0x%08x %s", ncf, val_to_str(reason, lbtrm_ncf_reason, "Unknown (0x%02x)"));
         }
-        if (tap_info != NULL)
-        {
-            tap_info->sqns[idx] = ncf;
-        }
+        tap_info->sqns[idx] = ncf;
         len += 4;
     }
     return (len);
@@ -965,12 +949,9 @@ static int dissect_lbtrm_ncf(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     {
         expert_add_info_format(pinfo, reason_item, &ei_lbtrm_analysis_ncf, "NCF %s", val_to_str(LBTRM_NCF_HDR_REASON(reason), lbtrm_ncf_reason, "Unknown (0x%02x)"));
     }
-    if (tap_info != NULL)
-    {
-        tap_info->ncf_reason = LBTRM_NCF_HDR_REASON(reason);
-        tap_info->num_sqns = num_ncfs;
-        tap_info->sqns = wmem_alloc_array(wmem_file_scope(), guint32, num_ncfs);
-    }
+    tap_info->ncf_reason = LBTRM_NCF_HDR_REASON(reason);
+    tap_info->num_sqns = num_ncfs;
+    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_ncfs);
     len += dissect_lbtrm_ncf_list(tvb, offset + len, pinfo, ncf_tree, num_ncfs, LBTRM_NCF_HDR_REASON(reason), tap_info);
     proto_item_set_len(ncf_item, len);
     return (len);
@@ -1000,10 +981,7 @@ static int dissect_lbtrm_nak_list(tvbuff_t * tvb, int offset, packet_info * pinf
         {
             expert_add_info_format(pinfo, sep_nak_item, &ei_lbtrm_analysis_nak_nak, "NAK 0x%08x", nak);
         }
-        if (tap_info != NULL)
-        {
-            tap_info->sqns[idx] = nak;
-        }
+        tap_info->sqns[idx] = nak;
         len += 4;
     }
     return (len);
@@ -1026,11 +1004,8 @@ static int dissect_lbtrm_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
     {
         expert_add_info(pinfo, nak_item, &ei_lbtrm_analysis_nak);
     }
-    if (tap_info != NULL)
-    {
-        tap_info->num_sqns = num_naks;
-        tap_info->sqns = wmem_alloc_array(wmem_file_scope(), guint32, num_naks);
-    }
+    tap_info->num_sqns = num_naks;
+    tap_info->sqns = wmem_alloc_array(wmem_packet_scope(), guint32, num_naks);
     len += dissect_lbtrm_nak_list(tvb, offset + len, pinfo, nak_tree, num_naks, tap_info);
     proto_item_set_len(nak_item, len);
     return (len);
@@ -1067,10 +1042,7 @@ static int dissect_lbtrm_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     {
         *sequence = sqn;
     }
-    if (tap_info != NULL)
-    {
-        tap_info->sqn = sqn;
-    }
+    tap_info->sqn = sqn;
     return (L_LBTRM_SM_HDR_T);
 }
 
@@ -1086,6 +1058,7 @@ static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     proto_item * sqn_item = NULL;
     guint8 flags;
     guint32 sqn;
+    gboolean is_retransmission = FALSE;
 
     data_item = proto_tree_add_item(tree, hf_lbtrm_data, tvb, offset, L_LBTRM_DATA_HDR_T, ENC_NA);
     data_tree = proto_item_add_subtree(data_item, ett_lbtrm_data);
@@ -1104,26 +1077,17 @@ static int dissect_lbtrm_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
     {
         *sequence = sqn;
     }
-    if (retransmission != NULL)
-    {
-        *retransmission = FALSE;
-    }
     if ((flags & LBTRM_DATA_RETRANSMISSION_FLAG) != 0)
     {
+        is_retransmission = TRUE;
         expert_add_info_format(pinfo, sqn_item, &ei_lbtrm_analysis_rx, "RX 0x%08x", sqn);
-        if (retransmission != NULL)
-        {
-            *retransmission = TRUE;
-        }
-        if (tap_info != NULL)
-        {
-            tap_info->retransmission = TRUE;
-        }
     }
-    if (tap_info != NULL)
+    if (retransmission != NULL)
     {
-        tap_info->sqn = sqn;
+        *retransmission = is_retransmission;
     }
+    tap_info->retransmission = is_retransmission;
+    tap_info->sqn = sqn;
     return (L_LBTRM_DATA_HDR_T);
 }
 
@@ -1261,12 +1225,12 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
         item = proto_tree_add_string(lbtrm_tree, hf_lbtrm_tag, tvb, 0, 0, tag_name);
         PROTO_ITEM_SET_GENERATED(item);
     }
+    tapinfo = wmem_new0(wmem_packet_scope(), lbm_lbtrm_tap_info_t);
     if (transport != NULL)
     {
-        tapinfo = wmem_new0(wmem_file_scope(), lbm_lbtrm_tap_info_t);
         tapinfo->transport = lbtrm_transport_source_string_transport(transport);
-        tapinfo->type = packet_type;
     }
+    tapinfo->type = packet_type;
 
     hdr_item = proto_tree_add_item(lbtrm_tree, hf_lbtrm_hdr, tvb, O_LBTRM_HDR_T_VER_TYPE, L_LBTRM_HDR_T, ENC_NA);
     hdr_tree = proto_item_add_subtree(hdr_item, ett_lbtrm_hdr);
@@ -1520,9 +1484,9 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     {
         total_dissected_len += dissect_lbtrm_data_contents(tvb, offset, pinfo, tree, tag_name, channel);
     }
-    if (tapinfo != NULL)
+    if (tapinfo->transport != NULL)
     {
-        tap_queue_packet(lbtrm_tap_handle, pinfo, (void *)tapinfo);
+        tap_queue_packet(lbtrm_tap_handle, pinfo, (void *) tapinfo);
     }
     return (total_dissected_len);
 }

@@ -203,7 +203,7 @@ gboolean lbttcp_transport_sid_find(const address * source_address, guint16 sourc
     lbttcp_transport_conv_data_t * conv_data = NULL;
     lbttcp_transport_t * transport = NULL;
 
-    conv = find_conversation(0, source_address, &lbttcp_null_address, PT_TCP, source_port, 0, 0);
+    conv = find_conversation(frame, source_address, &lbttcp_null_address, PT_TCP, source_port, 0, 0);
     if (conv == NULL)
     {
         return (FALSE);
@@ -232,10 +232,10 @@ void lbttcp_transport_sid_add(const address * source_address, guint16 source_por
     lbttcp_transport_conv_data_t * conv_data = NULL;
     lbttcp_transport_t * transport = NULL;
 
-    conv = find_conversation(0, source_address, &lbttcp_null_address, PT_TCP, source_port, 0, 0);
+    conv = find_conversation(frame, source_address, &lbttcp_null_address, PT_TCP, source_port, 0, 0);
     if (conv == NULL)
     {
-        conv = conversation_new(0, source_address, &lbttcp_null_address, PT_TCP, source_port, 0, 0);
+        conv = conversation_new(frame, source_address, &lbttcp_null_address, PT_TCP, source_port, 0, 0);
     }
     conv_data = (lbttcp_transport_conv_data_t *) conversation_get_proto_data(conv, proto_lbttcp);
     if (conv_data == NULL)

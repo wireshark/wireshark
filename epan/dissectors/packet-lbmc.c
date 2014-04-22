@@ -10556,9 +10556,10 @@ static const gchar * lbmc_determine_msg_type(const guint8 * header_array)
 
 static lbm_uim_stream_info_t * lbmc_dup_stream_info(const lbm_uim_stream_info_t * info)
 {
+    /* Returns a packet-scoped copy. */
     lbm_uim_stream_info_t * ptr = NULL;
 
-    ptr = wmem_new(wmem_file_scope(), lbm_uim_stream_info_t);
+    ptr = wmem_new(wmem_packet_scope(), lbm_uim_stream_info_t);
     ptr->channel = info->channel;
     ptr->sqn = info->sqn;
     ptr->endpoint_a.type = info->endpoint_a.type;
@@ -10579,7 +10580,7 @@ static lbm_uim_stream_info_t * lbmc_dup_stream_info(const lbm_uim_stream_info_t 
     {
         ptr->endpoint_b.stream_info.dest = info->endpoint_b.stream_info.dest;
     }
-    ptr->description = wmem_strdup(wmem_file_scope(), info->description);
+    ptr->description = wmem_strdup(wmem_packet_scope(), info->description);
     return (ptr);
 }
 
@@ -11272,15 +11273,15 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         PROTO_ITEM_SET_GENERATED(pi);
                         proto_tree_move_item(subtree, last_initial_item, stream_item);
 
-                        stream_tap_info = wmem_new(wmem_file_scope(), lbm_uim_stream_tap_info_t);
+                        stream_tap_info = wmem_new0(wmem_packet_scope(), lbm_uim_stream_tap_info_t);
                         stream_tap_info->channel = inst_stream->channel;
                         stream_tap_info->substream_id = inst_substream->substream_id;
                         stream_tap_info->bytes = msglen;
                         stream_tap_info->endpoint_a.type = lbm_uim_instance_stream;
-                        memcpy((void *)stream_tap_info->endpoint_a.stream_info.ctxinst.ctxinst, (void *)stream_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+                        memcpy((void *) stream_tap_info->endpoint_a.stream_info.ctxinst.ctxinst, (void *)stream_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
                         stream_tap_info->endpoint_b.type = lbm_uim_instance_stream;
-                        memcpy((void *)stream_tap_info->endpoint_b.stream_info.ctxinst.ctxinst, (void *)ctxinstd_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
-                        tap_queue_packet(lbmc_stream_tap_handle, pinfo, (void *)stream_tap_info);
+                        memcpy((void *) stream_tap_info->endpoint_b.stream_info.ctxinst.ctxinst, (void *)ctxinstd_info.ctxinst, LBM_CONTEXT_INSTANCE_BLOCK_SZ);
+                        tap_queue_packet(lbmc_stream_tap_handle, pinfo, (void *) stream_tap_info);
                     }
                     uim_stream_info.channel = inst_stream->channel;
                     uim_stream_info.sqn = stream_info.sqn;
@@ -11322,7 +11323,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         PROTO_ITEM_SET_GENERATED(pi);
                         proto_tree_move_item(subtree, last_initial_item, stream_item);
 
-                        stream_tap_info = wmem_new(wmem_file_scope(), lbm_uim_stream_tap_info_t);
+                        stream_tap_info = wmem_new0(wmem_packet_scope(), lbm_uim_stream_tap_info_t);
                         stream_tap_info->channel = dom_stream->channel;
                         stream_tap_info->substream_id = dom_substream->substream_id;
                         stream_tap_info->bytes = msglen;
@@ -11330,7 +11331,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                         stream_tap_info->endpoint_a.stream_info.dest = destination_info.endpoint_a;
                         stream_tap_info->endpoint_b.type = lbm_uim_domain_stream;
                         stream_tap_info->endpoint_b.stream_info.dest = destination_info.endpoint_b;
-                        tap_queue_packet(lbmc_stream_tap_handle, pinfo, (void *)stream_tap_info);
+                        tap_queue_packet(lbmc_stream_tap_handle, pinfo, (void *) stream_tap_info);
                     }
                     uim_stream_info.channel = dom_stream->channel;
                     uim_stream_info.sqn = stream_info.sqn;
@@ -11597,6 +11598,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     {
                         puim_stream_info->description = "DATA";
                     }
+                    /* The dup is needed since there may be multiple stream infos per packet. */
                     msg_info = lbmc_dup_stream_info(puim_stream_info);
                     tap_queue_packet(lbmc_uim_tap_handle, pinfo, (void *)msg_info);
                 }
@@ -11616,6 +11618,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                     lbm_uim_stream_info_t * msg_info;
 
                     puim_stream_info->description = msg_type;
+                    /* The dup is needed since there may be multiple stream infos per packet. */
                     msg_info = lbmc_dup_stream_info(puim_stream_info);
                     tap_queue_packet(lbmc_uim_tap_handle, pinfo, (void *)msg_info);
                 }
