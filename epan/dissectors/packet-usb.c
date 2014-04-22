@@ -2668,7 +2668,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     proto_tree           *tree = NULL;
     proto_item           *item;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
-    gboolean              is_request;
     usb_conv_info_t      *usb_conv_info;
     usb_trans_info_t     *usb_trans_info = NULL;
     conversation_t       *conversation;
@@ -2778,13 +2777,12 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
     }
 
-    is_request = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
 
     usb_conv_info->bus_id = bus_id;
     usb_conv_info->device_address = device_address;
     usb_conv_info->endpoint = endpoint;
     usb_conv_info->transfer_type = type;
-    usb_conv_info->is_request = is_request;
+    usb_conv_info->is_request = (urb_type == URB_SUBMIT) ? TRUE : FALSE;
     usb_conv_info->is_setup = (setup_flag == 0x00);
     usb_conv_info->setup_requesttype = 0;
 
@@ -2797,7 +2795,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     /* request/response matching so we can keep track of transaction specific
      * data.
      */
-    if (is_request) {
+    if (usb_conv_info->is_request) {
         /* this is a request */
         usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
         if (!usb_trans_info) {
@@ -2883,7 +2881,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
 
-        if (is_request) {
+        if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
                 /* this is a request */
 
@@ -3235,8 +3233,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 }
 
                 /* If this packet does not contain isochrounous data, do not try to display it */
-                if (!((is_request && !(endpoint_with_dir & URB_TRANSFER_IN)) ||
-                        (!is_request && (endpoint_with_dir & URB_TRANSFER_IN)))) {
+                if (!((usb_conv_info->is_request && !(endpoint_with_dir & URB_TRANSFER_IN)) ||
+                        (!usb_conv_info->is_request && (endpoint_with_dir & URB_TRANSFER_IN)))) {
                     iso_len = 0;
                 }
 
@@ -3251,7 +3249,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     /* Isochronous IN transfer.
                      * Length field is being set by host controller.
                      */
-                    if (is_request) {
+                    if (usb_conv_info->is_request) {
                         /* Length was not yet set */
                         proto_item_append_text(ti, " (irrelevant)");
                     } else {
@@ -3273,8 +3271,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 if (iso_len && data_start_offset + this_offset + iso_len <= tvb_length(tvb))
                     proto_tree_add_item(tree, hf_usb_iso_data, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len, ENC_NA);
             }
-            if ((is_request && !(endpoint_with_dir & URB_TRANSFER_IN)) ||
-                (!is_request && (endpoint_with_dir & URB_TRANSFER_IN))) {
+            if ((usb_conv_info->is_request && !(endpoint_with_dir & URB_TRANSFER_IN)) ||
+                (!usb_conv_info->is_request && (endpoint_with_dir & URB_TRANSFER_IN))) {
                 /* We have dissected all the isochronous data */
                 offset += win32_data_len;
             }
