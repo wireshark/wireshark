@@ -375,6 +375,8 @@ guint32 msgtype;
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
 
+#.TYPE_ATTR
+HostAddress/addr-type TYPE=FT_UINT32 DISPLAY=BASE_DEC STRINGS=VALS(krb5_address_types)
 
 #.FN_BODY KDC-REQ-BODY
 	conversation_t *conversation;
@@ -412,4 +414,3 @@ guint32 msgtype;
 	if (new_tvb) {
 		call_kerberos_callbacks(actx->pinfo, tree, new_tvb, KRB_CBTAG_PRIV_USER_DATA, (kerberos_callbacks*)actx->private_data);
 	}
-

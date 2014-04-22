@@ -1244,6 +1244,7 @@ static const value_string krb5_transited_types[] = {
     { 1                           , "DOMAIN-X500-COMPRESS" },
     { 0                           , NULL }
 };
+#endif
 
 static const value_string krb5_address_types[] = {
     { KRB5_ADDR_IPv4,		"IPv4"},
@@ -1252,11 +1253,10 @@ static const value_string krb5_address_types[] = {
     { KRB5_ADDR_ISO,		"ISO"},
     { KRB5_ADDR_DECNET,		"DECNET"},
     { KRB5_ADDR_APPLETALK,	"APPLETALK"},
-    { KRB5_ADDR_NETBIOS,     	"NETBIOS"},
+    { KRB5_ADDR_NETBIOS,	"NETBIOS"},
     { KRB5_ADDR_IPv6,		"IPv6"},
-    { 0,                        NULL },
+    { 0,					NULL },
 };
-#endif
 
 static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_TICKET,		"Ticket" },
