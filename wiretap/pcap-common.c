@@ -427,7 +427,10 @@ static const struct {
 	/* Apple PKTAP */
 	{ 258,		WTAP_ENCAP_PKTAP },
 
-	/*
+	/* Ethernet Passive Optical Network */
+	{ 259,		WTAP_ENCAP_EPON },
+
+  /*
 	 * To repeat:
 	 *
 	 * If you need a new encapsulation type for libpcap files, do

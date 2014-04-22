@@ -263,6 +263,7 @@ extern "C" {
 #define WTAP_ENCAP_LOGCAT_THREADTIME            170
 #define WTAP_ENCAP_LOGCAT_LONG                  171
 #define WTAP_ENCAP_PKTAP                        172
+#define WTAP_ENCAP_EPON                         173
 /* After adding new item here, please also add new item to encap_table_base array */
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()

@@ -732,6 +732,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_PKTAP */
 	{ "Apple PKTAP", "pktap" },
+
+	/* WTAP_ENCAP_EPON */
+	{ "Ethernet Passive Optical Network", "epon" },
 };
 
 WS_DLL_LOCAL

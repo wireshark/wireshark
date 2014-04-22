@@ -121,6 +121,7 @@ Cisco MetaData
 DCE/RPC MDSSVC
 DeviceNet
 Ethernet Local Management Interface (E-LMI)
+Ethernet Passive Optical Network (EPON)
 ELF file format
 EXPORTED PDU
 FINGER
