@@ -16,15 +16,24 @@ The following vulnerabilities have been fixed.
 //* ws-salink:2013-11[]
 //* cve-idlink:2013-2486[]
 
+* ws-salink:2014-07[]
++
+A dissector went awry.
+// Fixed in master: ga1b2c3d4
+// Fixed in master-1.10: ga1b2c3d4
+// Fixed in master-1.8: ga1b2c3d4
+(ws-buglink:0000[])
++
+Versions affected: 1.10.0 to 1.10.7, 1.8.0 to 1.8.14
+//+
+//cve-idlink:2014-0000[]
+
 The following bugs have been fixed:
 
 // Should be sorted numerically.
 //* Wireshark will strip the paint off your car, then apply a hideous
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
-* Lua: trying to get/access a Preference before its registered causes a segfault (ws-buglink:9853[])
-* Some value_string strings contain newlines. (ws-buglink:9878[])
-* Tighten the NO_MORE_DATA_CHECK macros (ws-buglink:9932[])
 
 === New and Updated Features
 
@@ -38,10 +47,7 @@ There are no new protocols in this release.
 
 --sort-and-group--
 
-ANSI A
-DVB-CI
-IEEE 802.11
-MAC LTE
+.
 
 --sort-and-group--
 
