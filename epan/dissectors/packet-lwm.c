@@ -90,6 +90,7 @@
 #define LWM_MULTI_GROUP_STRING          "(Group ID)"
 
 /*  Function declarations */
+void proto_register_lwm(void);
 void proto_reg_handoff_lwm(void);
 
 /*  Dissector handles */
