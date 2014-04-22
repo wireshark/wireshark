@@ -4524,11 +4524,7 @@ prefs_pref_is_default(pref_t *pref) {
 char *
 prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     const char *pref_text = "[Unknown]";
-    guint pref_uint;
-    gboolean pref_boolval;
-    gint pref_enumval;
-    const char *pref_string;
-    range_t *pref_range;
+    void *valp; /* pointer to preference value */
     color_t *pref_color;
 
     if (!pref) {
@@ -4537,27 +4533,18 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
 
     switch (source) {
         case pref_default:
-            pref_uint = pref->default_val.uint;
-            pref_boolval = pref->default_val.boolval;
-            pref_enumval = pref->default_val.enumval;
-            pref_string = pref->default_val.string;
-            pref_range = pref->default_val.range;
+            valp = &pref->default_val;
+            /* valp = &boolval, &enumval, etc. are implied by union property */
             pref_color = &pref->default_val.color;
             break;
         case pref_stashed:
-            pref_uint = pref->stashed_val.uint;
-            pref_boolval = pref->stashed_val.boolval;
-            pref_enumval = pref->stashed_val.enumval;
-            pref_string = pref->stashed_val.string;
-            pref_range = pref->stashed_val.range;
+            valp = &pref->stashed_val;
+            /* valp = &boolval, &enumval, etc. are implied by union property */
             pref_color = &pref->stashed_val.color;
             break;
         case pref_current:
-            pref_uint = *pref->varp.uint;
-            pref_boolval = *pref->varp.boolp;
-            pref_enumval = *pref->varp.enump;
-            pref_string = *pref->varp.string;
-            pref_range = *pref->varp.range;
+            valp = pref->varp.uint;
+            /* valp = boolval, enumval, etc. are implied by union property */
             pref_color = pref->varp.colorp;
             break;
         default:
@@ -4567,28 +4554,28 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     switch (pref->type) {
 
     case PREF_UINT:
+    {
+        guint pref_uint = *(guint *) valp;
         switch (pref->info.base) {
 
         case 10:
             return g_strdup_printf("%u", pref_uint);
-            break;
 
         case 8:
             return g_strdup_printf("%#o", pref_uint);
-            break;
 
         case 16:
             return g_strdup_printf("%#x", pref_uint);
-            break;
         }
         break;
+    }
 
     case PREF_BOOL:
-        return g_strdup_printf("%s", pref_boolval ? "TRUE" : "FALSE");
-        break;
+        return g_strdup_printf("%s", (*(gboolean *) valp) ? "TRUE" : "FALSE");
 
     case PREF_ENUM:
     {
+        gint pref_enumval = *(gint *) valp;
         /*
          * For now, we return the "description" value, so that if we
          * save the preferences older versions of Wireshark can at
@@ -4608,11 +4595,10 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
     case PREF_STRING:
     case PREF_FILENAME:
     case PREF_DIRNAME:
-        return g_strdup(pref_string);
-        break;
+        return g_strdup(*(const char **) valp);
 
     case PREF_RANGE:
-        pref_text = range_convert_range(pref_range);
+        pref_text = range_convert_range(*(range_t **) valp);
         break;
 
     case PREF_COLOR:
@@ -4620,7 +4606,6 @@ prefs_pref_to_str(pref_t *pref, pref_source_t source) {
                    (pref_color->red * 255 / 65535),
                    (pref_color->green * 255 / 65535),
                    (pref_color->blue * 255 / 65535));
-        break;
 
     case PREF_CUSTOM:
         if (pref->custom_cbs.to_str_cb)
