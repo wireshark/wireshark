@@ -3304,8 +3304,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 }
 
                 /* If this packet does not contain isochrounous data, do not try to display it */
-                if (!((usb_conv_info->is_request && !(endpoint_with_dir & URB_TRANSFER_IN)) ||
-                        (!usb_conv_info->is_request && (endpoint_with_dir & URB_TRANSFER_IN)))) {
+                if (!((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
+                        (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV))) {
                     iso_len = 0;
                 }
 
@@ -3313,7 +3313,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 offset += 4;
 
                 ti = proto_tree_add_item(tree, hf_usb_win32_iso_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-                if (!(endpoint_with_dir & URB_TRANSFER_IN)) {
+                if (usb_conv_info->direction==P2P_DIR_SENT) {
                     /* Isochronous OUT transfer */
                     proto_item_append_text(ti, " (not used)");
                 } else {
@@ -3342,8 +3342,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 if (iso_len && data_start_offset + this_offset + iso_len <= tvb_length(tvb))
                     proto_tree_add_item(tree, hf_usb_iso_data, tvb, (gint)(data_start_offset + this_offset), (gint)iso_len, ENC_NA);
             }
-            if ((usb_conv_info->is_request && !(endpoint_with_dir & URB_TRANSFER_IN)) ||
-                (!usb_conv_info->is_request && (endpoint_with_dir & URB_TRANSFER_IN))) {
+            if ((usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_SENT) ||
+                (!usb_conv_info->is_request && usb_conv_info->direction==P2P_DIR_RECV)) {
                 /* We have dissected all the isochronous data */
                 offset += win32_data_len;
             }
