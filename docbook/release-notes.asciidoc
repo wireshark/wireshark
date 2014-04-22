@@ -24,8 +24,8 @@ The RTP dissector could crash.
 (ws-buglink:9885[])
 +
 Versions affected: 1.10.0 to 1.10.6
-//+
-//cve-idlink:2014-2281[]
++
+cve-idlink:2014-2907[]
 
 The following bugs have been fixed:
 
