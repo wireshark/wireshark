@@ -51,9 +51,9 @@ static severity_level_t lowest_report_level = chat_level;
 typedef struct expert_entry
 {
     guint32      group;
+    int          frequency;
     const gchar  *protocol;
     gchar        *summary;
-    int          frequency;
 } expert_entry;
 
 
@@ -128,16 +128,14 @@ expert_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U
     }
 
     /* Else Add new item to end of list for severity level */
-    g_array_append_val(data->ei_array[severity_level], tmp_entry);
-
-    /* Get pointer to newly-allocated item */
-    entry = &g_array_index(data->ei_array[severity_level], expert_entry,
-                           data->ei_array[severity_level]->len - 1); /* ugly */
+    entry = &tmp_entry;
     /* Copy/Store protocol and summary strings efficiently using GStringChunk */
     entry->protocol = g_string_chunk_insert_const(data->text, ei->protocol);
     entry->summary = g_string_chunk_insert_const(data->text, ei->summary);
     entry->group = ei->group;
     entry->frequency = 1;
+    /* Store a copy of the expert entry */
+    g_array_append_val(data->ei_array[severity_level], tmp_entry);
 
     return 1;
 }
@@ -244,7 +242,7 @@ static void expert_stat_init(const char *opt_arg, void *userdata _U_)
 
     /* Allocate GArray for each severity level */
     for (n=0; n < max_level; n++) {
-        hs->ei_array[n] = g_array_sized_new(FALSE, FALSE, sizeof(expert_info_t), 1000);
+        hs->ei_array[n] = g_array_sized_new(FALSE, FALSE, sizeof(expert_entry), 1000);
     }
 
     /**********************************************/
