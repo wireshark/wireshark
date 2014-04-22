@@ -35,7 +35,6 @@
 #define MAX_ALLOC_SIZE          (1024*64)
 #define MAX_SIMULTANEOUS_ALLOCS  1024
 #define CONTAINER_ITERS          10000
-#define MANY_ITERS               (CONTAINER_ITERS * 100)
 
 typedef void (*wmem_verify_func)(wmem_allocator_t *allocator);
 
@@ -607,6 +606,55 @@ wmem_test_list(void)
 }
 
 static void
+wmem_test_map(void)
+{
+    wmem_allocator_t *allocator;
+    wmem_map_t       *map;
+    gchar            *str_key;
+    unsigned int      i;
+    void             *ret;
+
+    allocator = wmem_allocator_new(WMEM_ALLOCATOR_STRICT);
+
+    /* insertion, lookup and removal of simple integer keys */
+    map = wmem_map_new(allocator, g_direct_hash, g_direct_equal);
+    g_assert(map);
+
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        ret = wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(777777));
+        g_assert(ret == NULL);
+        ret = wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(i));
+        g_assert(ret == GINT_TO_POINTER(777777));
+        ret = wmem_map_insert(map, GINT_TO_POINTER(i), GINT_TO_POINTER(i));
+        g_assert(ret == GINT_TO_POINTER(i));
+    }
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        ret = wmem_map_lookup(map, GINT_TO_POINTER(i));
+        g_assert(ret == GINT_TO_POINTER(i));
+        ret = wmem_map_remove(map, GINT_TO_POINTER(i));
+        g_assert(ret == GINT_TO_POINTER(i));
+        ret = wmem_map_lookup(map, GINT_TO_POINTER(i));
+        g_assert(ret == NULL);
+        ret = wmem_map_remove(map, GINT_TO_POINTER(i));
+        g_assert(ret == NULL);
+    }
+    wmem_free_all(allocator);
+
+    map = wmem_map_new(allocator, wmem_str_hash, g_str_equal);
+    g_assert(map);
+
+    /* string keys and for-each */
+    for (i=0; i<CONTAINER_ITERS; i++) {
+        str_key = wmem_test_rand_string(allocator, 1, 64);
+        wmem_map_insert(map, str_key, GINT_TO_POINTER(i));
+        ret = wmem_map_lookup(map, str_key);
+        g_assert(ret == GINT_TO_POINTER(i));
+    }
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
 wmem_test_queue(void)
 {
     wmem_allocator_t   *allocator;
@@ -917,6 +965,10 @@ wmem_test_tree(void)
 int
 main(int argc, char **argv)
 {
+    int ret;
+
+    wmem_init();
+
     g_test_init(&argc, &argv, NULL);
 
     g_test_add_func("/wmem/allocator/block",     wmem_test_allocator_block);
@@ -929,6 +981,7 @@ main(int argc, char **argv)
 
     g_test_add_func("/wmem/datastruct/array",  wmem_test_array);
     g_test_add_func("/wmem/datastruct/list",   wmem_test_list);
+    g_test_add_func("/wmem/datastruct/map",    wmem_test_map);
     g_test_add_func("/wmem/datastruct/queue",  wmem_test_queue);
     g_test_add_func("/wmem/datastruct/stack",  wmem_test_stack);
     g_test_add_func("/wmem/datastruct/strbuf", wmem_test_strbuf);
@@ -936,7 +989,11 @@ main(int argc, char **argv)
 
     g_test_add_func("/wmem/timing/allocators", wmem_time_allocators);
 
-    return g_test_run();
+    ret = g_test_run();
+
+    wmem_cleanup();
+
+    return ret;
 }
 
 /*

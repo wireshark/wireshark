@@ -1,6 +1,6 @@
-/* wmem.h
- * Definitions for the Wireshark Memory Manager
- * Copyright 2012, Evan Huus <eapache@gmail.com>
+/* wmem_map_int.h
+ * Definitions for the Wireshark Memory Manager Hash Map Internals
+ * Copyright 2014, Evan Huus <eapache@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -21,23 +21,22 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __WMEM_H__
-#define __WMEM_H__
+#ifndef __WMEM_MAP_INT_H__
+#define __WMEM_MAP_INT_H__
 
-#include "wmem_array.h"
-#include "wmem_core.h"
-#include "wmem_list.h"
-#include "wmem_map.h"
-#include "wmem_miscutl.h"
-#include "wmem_queue.h"
-#include "wmem_scopes.h"
-#include "wmem_stack.h"
-#include "wmem_strbuf.h"
-#include "wmem_strutl.h"
-#include "wmem_tree.h"
-#include "wmem_user_cb.h"
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
-#endif /* __WMEM_H__ */
+WS_DLL_LOCAL
+void
+wmem_init_hashing(void);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
+
+#endif /* __WMEM_MAP_INT_H__ */
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

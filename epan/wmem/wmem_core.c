@@ -27,6 +27,7 @@
 
 #include "wmem_core.h"
 #include "wmem_scopes.h"
+#include "wmem_map_int.h"
 #include "wmem_user_cb_int.h"
 #include "wmem_allocator.h"
 #include "wmem_allocator_simple.h"
@@ -206,6 +207,7 @@ wmem_init(void)
     }
 
     wmem_init_scopes();
+    wmem_init_hashing();
 }
 
 void
