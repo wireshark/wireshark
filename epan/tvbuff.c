@@ -2375,7 +2375,7 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 
 	for(i = 0; i + 1 < length; i += 2) {
 		if (encoding == ENC_BIG_ENDIAN)
-			uchar2 = pletoh16(ptr + i);
+			uchar2 = pntoh16(ptr + i);
 		else
 			uchar2 = pletoh16(ptr + i);
 
@@ -2397,7 +2397,7 @@ tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint off
 			}
 			lead_surrogate = uchar2;
 			if (encoding == ENC_BIG_ENDIAN)
-				uchar2 = pletoh16(ptr + i);
+				uchar2 = pntoh16(ptr + i);
 			else
 				uchar2 = pletoh16(ptr + i);
 			if (IS_TRAIL_SURROGATE(uchar2)) {
@@ -2484,7 +2484,7 @@ tvb_extract_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 
 	for(i = 0; i + 3 < length; i += 4) {
 		if (encoding == ENC_BIG_ENDIAN)
-			uchar = pletoh16(ptr + i);
+			uchar = pntoh16(ptr + i);
 		else
 			uchar = pletoh16(ptr + i);
 
