@@ -185,7 +185,7 @@ static int
 dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
     int offset = 0;
-    guint8      oct;
+    guint8      oct, hours, minutes;
     char        sign;
     diam_sub_dis_t *diam_sub_dis = (diam_sub_dis_t*)data;
 
@@ -201,8 +201,10 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     oct = tvb_get_guint8(tvb, offset);
     sign = (oct & 0x08) ? '-' : '+';
     oct = (oct >> 4) + (oct & 0x07) * 10;
+	hours =  oct / 4;
+	minutes = oct % 4 * 15;
 
-    proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c %d hours %d minutes", sign, oct / 4, oct % 4 * 15);
+    proto_tree_add_text(tree, tvb, offset, 1, "Timezone: GMT %c %d hours %d minutes", sign, hours, minutes);
     offset++;
 
     oct = tvb_get_guint8(tvb, offset) & 0x3;
@@ -211,8 +213,8 @@ dissect_diameter_3gpp_ms_timezone(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     diam_sub_dis->avp_str = wmem_strdup_printf(wmem_packet_scope(), "Timezone: GMT %c %d hours %d minutes %s", 
         sign, 
-        oct / 4, 
-        oct % 4 * 15,
+        hours, 
+        minutes,
         val_to_str_const(oct, daylight_saving_time_vals, "Unknown"));
 
     return offset;
