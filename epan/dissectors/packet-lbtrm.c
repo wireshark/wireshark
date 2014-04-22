@@ -32,10 +32,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/value_string.h>
 #include <epan/wmem/wmem.h>
 #include <epan/tap.h>
 #include <epan/conversation.h>
@@ -1626,67 +1624,6 @@ static gboolean test_lbtrm_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     return (FALSE);
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbtrm(void)
-{
-    static gboolean already_registered = FALSE;
-    struct in_addr addr;
-    guint32 dest_addr_h_low;
-    guint32 dest_addr_h_high;
-
-    if (!already_registered)
-    {
-        lbtrm_dissector_handle = new_create_dissector_handle(dissect_lbtrm, proto_lbtrm);
-        dissector_add_uint("udp.port", 0, lbtrm_dissector_handle);
-        heur_dissector_add("udp", test_lbtrm_packet, proto_lbtrm);
-        lbtrm_tap_handle = register_tap("lbtrm");
-    }
-
-    /* Make sure the low MC address is <= the high MC address. If not, don't change them. */
-    inet_aton(global_lbtrm_mc_address_low, &addr);
-    dest_addr_h_low = g_ntohl(addr.s_addr);
-    inet_aton(global_lbtrm_mc_address_high, &addr);
-    dest_addr_h_high = g_ntohl(addr.s_addr);
-    if (dest_addr_h_low <= dest_addr_h_high)
-    {
-        lbtrm_mc_address_low_host = dest_addr_h_low;
-        lbtrm_mc_address_high_host = dest_addr_h_high;
-    }
-
-    /* Make sure the low destination port is <= the high destination port. If not, don't change them. */
-    if (global_lbtrm_dest_port_low <= global_lbtrm_dest_port_high)
-    {
-        lbtrm_dest_port_low = global_lbtrm_dest_port_low;
-        lbtrm_dest_port_high = global_lbtrm_dest_port_high;
-    }
-
-    /* Make sure the low source port is <= the high source port. If not, don't change them. */
-    if (global_lbtrm_src_port_low <= global_lbtrm_src_port_high)
-    {
-        lbtrm_src_port_low = global_lbtrm_src_port_low;
-        lbtrm_src_port_high = global_lbtrm_src_port_high;
-    }
-
-    /* Add the dissector hooks for the MIM MC groups. */
-    inet_aton(global_mim_incoming_mc_address, &addr);
-    mim_incoming_mc_address_host = g_htonl(addr.s_addr);
-    inet_aton(global_mim_outgoing_mc_address, &addr);
-    mim_outgoing_mc_address_host = g_htonl(addr.s_addr);
-
-    /* Add the dissector hooks for the MIM ports. */
-    mim_incoming_dest_port = global_mim_incoming_dest_port;
-    mim_outgoing_dest_port = global_mim_outgoing_dest_port;
-
-    lbtrm_expert_separate_naks = global_lbtrm_expert_separate_naks;
-    lbtrm_expert_separate_ncfs = global_lbtrm_expert_separate_ncfs;
-
-    lbtrm_sequence_analysis = global_lbtrm_sequence_analysis;
-
-    lbtrm_use_tag = global_lbtrm_use_tag;
-
-    already_registered = TRUE;
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_lbtrm(void)
 {
@@ -1978,6 +1915,67 @@ void proto_register_lbtrm(void)
         "LBT-RM Tags",
         "A table to define LBT-RM tags",
         tag_uat);
+}
+
+/* The registration hand-off routine */
+void proto_reg_handoff_lbtrm(void)
+{
+    static gboolean already_registered = FALSE;
+    struct in_addr addr;
+    guint32 dest_addr_h_low;
+    guint32 dest_addr_h_high;
+
+    if (!already_registered)
+    {
+        lbtrm_dissector_handle = new_create_dissector_handle(dissect_lbtrm, proto_lbtrm);
+        dissector_add_handle("udp.port", lbtrm_dissector_handle); /* for "decode as* */
+        heur_dissector_add("udp", test_lbtrm_packet, proto_lbtrm);
+        lbtrm_tap_handle = register_tap("lbtrm");
+    }
+
+    /* Make sure the low MC address is <= the high MC address. If not, don't change them. */
+    inet_aton(global_lbtrm_mc_address_low, &addr);
+    dest_addr_h_low = g_ntohl(addr.s_addr);
+    inet_aton(global_lbtrm_mc_address_high, &addr);
+    dest_addr_h_high = g_ntohl(addr.s_addr);
+    if (dest_addr_h_low <= dest_addr_h_high)
+    {
+        lbtrm_mc_address_low_host = dest_addr_h_low;
+        lbtrm_mc_address_high_host = dest_addr_h_high;
+    }
+
+    /* Make sure the low destination port is <= the high destination port. If not, don't change them. */
+    if (global_lbtrm_dest_port_low <= global_lbtrm_dest_port_high)
+    {
+        lbtrm_dest_port_low = global_lbtrm_dest_port_low;
+        lbtrm_dest_port_high = global_lbtrm_dest_port_high;
+    }
+
+    /* Make sure the low source port is <= the high source port. If not, don't change them. */
+    if (global_lbtrm_src_port_low <= global_lbtrm_src_port_high)
+    {
+        lbtrm_src_port_low = global_lbtrm_src_port_low;
+        lbtrm_src_port_high = global_lbtrm_src_port_high;
+    }
+
+    /* Add the dissector hooks for the MIM MC groups. */
+    inet_aton(global_mim_incoming_mc_address, &addr);
+    mim_incoming_mc_address_host = g_htonl(addr.s_addr);
+    inet_aton(global_mim_outgoing_mc_address, &addr);
+    mim_outgoing_mc_address_host = g_htonl(addr.s_addr);
+
+    /* Add the dissector hooks for the MIM ports. */
+    mim_incoming_dest_port = global_mim_incoming_dest_port;
+    mim_outgoing_dest_port = global_mim_outgoing_dest_port;
+
+    lbtrm_expert_separate_naks = global_lbtrm_expert_separate_naks;
+    lbtrm_expert_separate_ncfs = global_lbtrm_expert_separate_ncfs;
+
+    lbtrm_sequence_analysis = global_lbtrm_sequence_analysis;
+
+    lbtrm_use_tag = global_lbtrm_use_tag;
+
+    already_registered = TRUE;
 }
 
 /*

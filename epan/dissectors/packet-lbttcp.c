@@ -23,11 +23,9 @@
  */
 
 #include "config.h"
-#include <stdio.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
 #include <epan/wmem/wmem.h>
@@ -37,9 +35,8 @@
 #include "packet-lbm.h"
 #include "packet-lbttcp.h"
 
-
-void proto_register_lbttc(void);
-void proto_reg_handoff_lbttc(void);
+void proto_register_lbttcp(void);
+void proto_reg_handoff_lbttcp(void);
 
 /* Protocol handle */
 static int proto_lbttcp = -1;
@@ -701,44 +698,6 @@ static gboolean test_lbttcp_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tr
     return (TRUE);
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbttcp(void)
-{
-    static gboolean already_registered = FALSE;
-
-    if (!already_registered)
-    {
-        lbttcp_dissector_handle = new_create_dissector_handle(dissect_lbttcp, proto_lbttcp);
-        dissector_add_uint("tcp.port", 0, lbttcp_dissector_handle);
-        heur_dissector_add("tcp", test_lbttcp_packet, proto_lbttcp);
-    }
-
-    /* Make sure the source port low is <= the source port high. If not, don't change them. */
-    if (global_lbttcp_source_port_low <= global_lbttcp_source_port_high)
-    {
-        lbttcp_source_port_low = global_lbttcp_source_port_low;
-        lbttcp_source_port_high = global_lbttcp_source_port_high;
-    }
-
-    /* Make sure the request port low is <= the request port high. If not, don't change them. */
-    if (global_lbttcp_request_port_low <= global_lbttcp_request_port_high)
-    {
-        lbttcp_request_port_low = global_lbttcp_request_port_low;
-        lbttcp_request_port_high = global_lbttcp_request_port_high;
-    }
-
-    /* Make sure the store port low is <= the store port high. If not, don't change them. */
-    if (global_lbttcp_store_port_low <= global_lbttcp_store_port_high)
-    {
-        lbttcp_store_port_low = global_lbttcp_store_port_low;
-        lbttcp_store_port_high = global_lbttcp_store_port_high;
-    }
-
-    lbttcp_use_tag = global_lbttcp_use_tag;
-
-    already_registered = TRUE;
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_lbttcp(void)
 {
@@ -832,6 +791,44 @@ void proto_register_lbttcp(void)
         "LBT-TCP Tags",
         "A table to define LBT-TCP tags",
         tag_uat);
+}
+
+/* The registration hand-off routine */
+void proto_reg_handoff_lbttcp(void)
+{
+    static gboolean already_registered = FALSE;
+
+    if (!already_registered)
+    {
+        lbttcp_dissector_handle = new_create_dissector_handle(dissect_lbttcp, proto_lbttcp);
+        dissector_add_handle("tcp.port", lbttcp_dissector_handle); /* for decode as */
+        heur_dissector_add("tcp", test_lbttcp_packet, proto_lbttcp);
+    }
+
+    /* Make sure the source port low is <= the source port high. If not, don't change them. */
+    if (global_lbttcp_source_port_low <= global_lbttcp_source_port_high)
+    {
+        lbttcp_source_port_low = global_lbttcp_source_port_low;
+        lbttcp_source_port_high = global_lbttcp_source_port_high;
+    }
+
+    /* Make sure the request port low is <= the request port high. If not, don't change them. */
+    if (global_lbttcp_request_port_low <= global_lbttcp_request_port_high)
+    {
+        lbttcp_request_port_low = global_lbttcp_request_port_low;
+        lbttcp_request_port_high = global_lbttcp_request_port_high;
+    }
+
+    /* Make sure the store port low is <= the store port high. If not, don't change them. */
+    if (global_lbttcp_store_port_low <= global_lbttcp_store_port_high)
+    {
+        lbttcp_store_port_low = global_lbttcp_store_port_low;
+        lbttcp_store_port_high = global_lbttcp_store_port_high;
+    }
+
+    lbttcp_use_tag = global_lbttcp_use_tag;
+
+    already_registered = TRUE;
 }
 
 /*

@@ -26,11 +26,8 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/tfs.h>
-#include <epan/value_string.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
 #include <epan/to_str.h>
@@ -634,9 +631,9 @@ static const value_string lbtru_next_header[] =
 /*----------------------------------------------------------------------------*/
 
 /* Preferences default values. */
-#define LBTRU_DEFAULT_SOURCE_PORT_LOW 14380
-#define LBTRU_DEFAULT_SOURCE_PORT_HIGH 14389
-#define LBTRU_DEFAULT_RECEIVER_PORT_LOW 14360
+#define LBTRU_DEFAULT_SOURCE_PORT_LOW    14380
+#define LBTRU_DEFAULT_SOURCE_PORT_HIGH   14389
+#define LBTRU_DEFAULT_RECEIVER_PORT_LOW  14360
 #define LBTRU_DEFAULT_RECEIVER_PORT_HIGH 14379
 
 /* Global preferences variables (altered by the preferences dialog). */
@@ -1690,42 +1687,6 @@ static gboolean test_lbtru_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tre
     return (FALSE);
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbtru(void)
-{
-    static gboolean already_registered = FALSE;
-
-    if (!already_registered)
-    {
-        lbtru_dissector_handle = new_create_dissector_handle(dissect_lbtru, proto_lbtru);
-        dissector_add_uint("udp.port", 0, lbtru_dissector_handle);
-        heur_dissector_add("udp", test_lbtru_packet, proto_lbtru);
-    }
-
-    /* Make sure the low source port is <= the high source port. If not, don't change them. */
-    if (global_lbtru_source_port_low <= global_lbtru_source_port_high)
-    {
-        lbtru_source_port_low = global_lbtru_source_port_low;
-        lbtru_source_port_high = global_lbtru_source_port_high;
-    }
-
-    /* Make sure the low receiver port is <= the high receiver port. If not, don't change them. */
-    if (global_lbtru_receiver_port_low <= global_lbtru_receiver_port_high)
-    {
-        lbtru_receiver_port_low = global_lbtru_receiver_port_low;
-        lbtru_receiver_port_high = global_lbtru_receiver_port_high;
-    }
-
-    lbtru_expert_separate_naks = global_lbtru_expert_separate_naks;
-    lbtru_expert_separate_ncfs = global_lbtru_expert_separate_ncfs;
-
-    lbtru_sequence_analysis = global_lbtru_sequence_analysis;
-
-    lbtru_use_tag = global_lbtru_use_tag;
-
-    already_registered = TRUE;
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_lbtru(void)
 {
@@ -2020,6 +1981,42 @@ void proto_register_lbtru(void)
         "LBT-RU Tags",
         "A table to define LBT-RU tags",
         tag_uat);
+}
+
+/* The registration hand-off routine */
+void proto_reg_handoff_lbtru(void)
+{
+    static gboolean already_registered = FALSE;
+
+    if (!already_registered)
+    {
+        lbtru_dissector_handle = new_create_dissector_handle(dissect_lbtru, proto_lbtru);
+        dissector_add_handle("udp.port", lbtru_dissector_handle);  /* for "decode as" */
+        heur_dissector_add("udp", test_lbtru_packet, proto_lbtru);
+    }
+
+    /* Make sure the low source port is <= the high source port. If not, don't change them. */
+    if (global_lbtru_source_port_low <= global_lbtru_source_port_high)
+    {
+        lbtru_source_port_low = global_lbtru_source_port_low;
+        lbtru_source_port_high = global_lbtru_source_port_high;
+    }
+
+    /* Make sure the low receiver port is <= the high receiver port. If not, don't change them. */
+    if (global_lbtru_receiver_port_low <= global_lbtru_receiver_port_high)
+    {
+        lbtru_receiver_port_low = global_lbtru_receiver_port_low;
+        lbtru_receiver_port_high = global_lbtru_receiver_port_high;
+    }
+
+    lbtru_expert_separate_naks = global_lbtru_expert_separate_naks;
+    lbtru_expert_separate_ncfs = global_lbtru_expert_separate_ncfs;
+
+    lbtru_sequence_analysis = global_lbtru_sequence_analysis;
+
+    lbtru_use_tag = global_lbtru_use_tag;
+
+    already_registered = TRUE;
 }
 
 /*

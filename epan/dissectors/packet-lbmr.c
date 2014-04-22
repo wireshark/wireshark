@@ -31,15 +31,13 @@
 #endif
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/address.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
 #include <epan/expert.h>
 #include <epan/uat.h>
-#include <epan/value_string.h>
-#include <epan/wmem/wmem.h>
 #include <epan/to_str.h>
 #include <wsutil/inet_aton.h>
 #include <wsutil/pint.h>
@@ -5620,41 +5618,6 @@ static gboolean test_lbmr_packet(tvbuff_t * tvb, packet_info * pinfo, proto_tree
     return (FALSE);
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbmr(void)
-{
-    static gboolean already_registered = FALSE;
-    struct in_addr addr;
-
-    if (!already_registered)
-    {
-        lbmr_dissector_handle = new_create_dissector_handle(dissect_lbmr, proto_lbmr);
-        dissector_add_uint("udp.port", 0, lbmr_dissector_handle);
-        heur_dissector_add("udp", test_lbmr_packet, proto_lbmr);
-    }
-
-    lbmr_mc_incoming_udp_port = global_lbmr_mc_incoming_udp_port;
-    lbmr_mc_outgoing_udp_port = global_lbmr_mc_outgoing_udp_port;
-    inet_aton(global_lbmr_mc_incoming_address, &addr);
-    lbmr_mc_incoming_address_host = g_ntohl(addr.s_addr);
-
-    inet_aton(global_lbmr_mc_outgoing_address, &addr);
-    lbmr_mc_outgoing_address_host = g_ntohl(addr.s_addr);
-
-    /* Make sure the low port is <= the high port. If not, don't change them. */
-    if (global_lbmr_uc_port_low <= global_lbmr_uc_port_high)
-    {
-        lbmr_uc_port_high = global_lbmr_uc_port_high;
-        lbmr_uc_port_low = global_lbmr_uc_port_low;
-    }
-    lbmr_uc_dest_port = global_lbmr_uc_dest_port;
-    inet_aton(global_lbmr_uc_address, &addr);
-    lbmr_uc_address_host = g_ntohl(addr.s_addr);
-    lbmr_use_tag = global_lbmr_use_tag;
-
-    already_registered = TRUE;
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_lbmr(void)
 {
@@ -6832,6 +6795,41 @@ void proto_register_lbmr(void)
     lbtsmx_transport_init();
     lbtipc_transport_init();
     lbtrdma_transport_init();
+}
+
+/* The registration hand-off routine */
+void proto_reg_handoff_lbmr(void)
+{
+    static gboolean already_registered = FALSE;
+    struct in_addr addr;
+
+    if (!already_registered)
+    {
+        lbmr_dissector_handle = new_create_dissector_handle(dissect_lbmr, proto_lbmr);
+        dissector_add_handle("udp.port", lbmr_dissector_handle);  /* for "decode as" */
+        heur_dissector_add("udp", test_lbmr_packet, proto_lbmr);
+    }
+
+    lbmr_mc_incoming_udp_port = global_lbmr_mc_incoming_udp_port;
+    lbmr_mc_outgoing_udp_port = global_lbmr_mc_outgoing_udp_port;
+    inet_aton(global_lbmr_mc_incoming_address, &addr);
+    lbmr_mc_incoming_address_host = g_ntohl(addr.s_addr);
+
+    inet_aton(global_lbmr_mc_outgoing_address, &addr);
+    lbmr_mc_outgoing_address_host = g_ntohl(addr.s_addr);
+
+    /* Make sure the low port is <= the high port. If not, don't change them. */
+    if (global_lbmr_uc_port_low <= global_lbmr_uc_port_high)
+    {
+        lbmr_uc_port_high = global_lbmr_uc_port_high;
+        lbmr_uc_port_low = global_lbmr_uc_port_low;
+    }
+    lbmr_uc_dest_port = global_lbmr_uc_dest_port;
+    inet_aton(global_lbmr_uc_address, &addr);
+    lbmr_uc_address_host = g_ntohl(addr.s_addr);
+    lbmr_use_tag = global_lbmr_use_tag;
+
+    already_registered = TRUE;
 }
 
 /*

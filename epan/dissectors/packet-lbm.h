@@ -25,19 +25,10 @@
 #ifndef PACKET_LBM_H_INCLUDED
 #define PACKET_LBM_H_INCLUDED
 
-#include "config.h"
 #if defined(__FreeBSD__)
 #include <sys/types.h>
 #include <netinet/in.h>
 #endif
-#include <errno.h>
-#include <glib.h>
-#include <wsutil/inet_aton.h>
-#include <epan/address.h>
-#include <epan/packet.h>
-#include <epan/wmem/wmem.h>
-#include <epan/tfs.h>
-#include <epan/value_string.h>
 
 typedef guint8 lbm_uint8_t;
 typedef guint16 lbm_uint16_t;

@@ -25,13 +25,6 @@
 #ifndef PACKET_LBTRM_H_INCLUDED
 #define PACKET_LBTRM_H_INCLUDED
 
-#include "config.h"
-#include <glib.h>
-#include <epan/address.h>
-#include <epan/value_string.h>
-#include <epan/wmem/wmem.h>
-#include "packet-lbm.h"
-
 typedef struct
 {
     address source_address;

@@ -25,11 +25,6 @@
 #ifndef PACKET_LBTTCP_H_INCLUDED
 #define PACKET_LBTTCP_H_INCLUDED
 
-#include "config.h"
-#include <glib.h>
-#include <epan/address.h>
-#include <epan/wmem/wmem.h>
-
 typedef struct
 {
     address source_address;

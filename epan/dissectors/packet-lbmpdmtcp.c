@@ -23,12 +23,10 @@
  */
 
 #include "config.h"
-#include <stdlib.h>
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/uat.h>
 #include <epan/address.h>
@@ -124,14 +122,14 @@ static lbmtcp_transport_t * lbmtcp_transport_add(const address * address1, guint
 #define LBMPDM_TCP_DEFAULT_PORT_HIGH 14390
 
 /* Global preferences variables (altered by the preferences dialog). */
-static guint32 global_lbmpdm_tcp_port_low = LBMPDM_TCP_DEFAULT_PORT_LOW;
+static guint32 global_lbmpdm_tcp_port_low   = LBMPDM_TCP_DEFAULT_PORT_LOW;
 static guint32 global_lbmpdm_tcp_port_high  = LBMPDM_TCP_DEFAULT_PORT_HIGH;
-static gboolean global_lbmpdm_tcp_use_tag = FALSE;
+static gboolean global_lbmpdm_tcp_use_tag   = FALSE;
 
 /* Local preferences variables (used by the dissector). */
-static guint32 lbmpdm_tcp_port_low = LBMPDM_TCP_DEFAULT_PORT_LOW;
+static guint32 lbmpdm_tcp_port_low  = LBMPDM_TCP_DEFAULT_PORT_LOW;
 static guint32 lbmpdm_tcp_port_high = LBMPDM_TCP_DEFAULT_PORT_HIGH;
-static gboolean lbmpdm_tcp_use_tag = FALSE;
+static gboolean lbmpdm_tcp_use_tag  = FALSE;
 
 /* Tag definitions. */
 typedef struct
@@ -370,30 +368,6 @@ static gboolean test_lbmpdm_tcp_packet(tvbuff_t * tvb, packet_info * pinfo, prot
     return (TRUE);
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbmpdm_tcp(void)
-{
-    static gboolean already_registered = FALSE;
-
-    if (!already_registered)
-    {
-        lbmpdm_tcp_dissector_handle = create_dissector_handle(dissect_lbmpdm_tcp, lbmpdm_tcp_protocol_handle);
-        dissector_add_uint("tcp.port", 0, lbmpdm_tcp_dissector_handle);
-        heur_dissector_add("tcp", test_lbmpdm_tcp_packet, lbmpdm_tcp_protocol_handle);
-    }
-
-    /* Make sure the port low is <= the port high. If not, don't change them. */
-    if (global_lbmpdm_tcp_port_low <= global_lbmpdm_tcp_port_high)
-    {
-        lbmpdm_tcp_port_low = global_lbmpdm_tcp_port_low;
-        lbmpdm_tcp_port_high = global_lbmpdm_tcp_port_high;
-    }
-
-    lbmpdm_tcp_use_tag = global_lbmpdm_tcp_use_tag;
-
-    already_registered = TRUE;
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_lbmpdm_tcp(void)
 {
@@ -454,6 +428,30 @@ void proto_register_lbmpdm_tcp(void)
         "LBMPDM-TCP Tags",
         "A table to define LBMPDM-TCP tags",
         tag_uat);
+}
+
+/* The registration hand-off routine */
+void proto_reg_handoff_lbmpdm_tcp(void)
+{
+    static gboolean already_registered = FALSE;
+
+    if (!already_registered)
+    {
+        lbmpdm_tcp_dissector_handle = create_dissector_handle(dissect_lbmpdm_tcp, lbmpdm_tcp_protocol_handle);
+        dissector_add_handle("tcp.port", lbmpdm_tcp_dissector_handle); /* for "decode as" */
+        heur_dissector_add("tcp", test_lbmpdm_tcp_packet, lbmpdm_tcp_protocol_handle);
+    }
+
+    /* Make sure the port low is <= the port high. If not, don't change them. */
+    if (global_lbmpdm_tcp_port_low <= global_lbmpdm_tcp_port_high)
+    {
+        lbmpdm_tcp_port_low = global_lbmpdm_tcp_port_low;
+        lbmpdm_tcp_port_high = global_lbmpdm_tcp_port_high;
+    }
+
+    lbmpdm_tcp_use_tag = global_lbmpdm_tcp_use_tag;
+
+    already_registered = TRUE;
 }
 
 /*

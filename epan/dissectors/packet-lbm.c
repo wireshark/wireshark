@@ -25,12 +25,9 @@
 #include "config.h"
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
-#include <epan/prefs.h>
 #include "packet-lbm.h"
 
 void proto_register_lbm(void);
-void proto_reg_handoff_lbm(void);
 
 /* Protocol handle */
 static int lbm_protocol_handle = -1;
@@ -68,16 +65,10 @@ static void lbm_init(void)
     lbm_channel_reset();
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbm(void)
-{
-}
-
 /* Register all the bits needed with the filtering engine */
 void proto_register_lbm(void)
 {
-    lbm_protocol_handle = proto_register_protocol("LBM Protocol", "LBM", "lbm");
-    (void)prefs_register_protocol_subtree("29West", lbm_protocol_handle, proto_reg_handoff_lbm);
+    lbm_protocol_handle = proto_register_protocol("LBM Protocol", "LBM", "lbm"); /* XXX: not used/needed ? */
 
     register_init_routine(lbm_init);
 }
@@ -218,6 +209,7 @@ gboolean lbm_channel_is_known(guint64 channel)
     return (!lbm_channel_is_unknown_transport_lbttcp(channel) && !lbm_channel_is_unknown_stream_tcp(channel));
 }
 
+#if 0 /* XXX:not used ?? */
 guint64 lbm_channel_id(guint64 channel)
 {
     guint64 id;
@@ -225,6 +217,7 @@ guint64 lbm_channel_id(guint64 channel)
     id = (channel & LBM_CHANNEL_VALUE_MASK) >> LBM_CHANNEL_VALUE_SHIFT_COUNT;
     return (id);
 }
+#endif
 
 /*----------------------------------------------------------------------------*/
 /* Frame/SQN interface.                                                       */

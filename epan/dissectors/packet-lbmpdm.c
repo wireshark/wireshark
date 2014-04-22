@@ -25,10 +25,6 @@
 #include "config.h"
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
-#include <epan/expert.h>
-#include <epan/tap.h>
-#include <epan/value_string.h>
 #include <wsutil/nstime.h>
 #include <epan/wmem/wmem.h>
 #include "packet-lbm.h"
@@ -44,7 +40,6 @@
 #define PDM_MSG_HDR_LE_MAGIC_BYTE_4 0xA7
 
 void proto_register_lbmpdm(void);
-void proto_reg_handoff_lbmpdm(void);
 
 /*------------*/
 /* PDM header */
@@ -1339,15 +1334,9 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     return (dissected_len);
 }
 
-/* The registration hand-off routine */
-void proto_reg_handoff_lbmpdm(void)
+int lbmpdm_get_minimum_length(void)
 {
-    static gboolean already_registered = FALSE;
-
-    if (!already_registered)
-    {}
-
-    already_registered = TRUE;
+    return (L_LBMPDM_MSG_HDR_T);
 }
 
 /* Register all the bits needed with the filtering engine */
@@ -1504,11 +1493,6 @@ void proto_register_lbmpdm(void)
     proto_register_field_array(proto_lbmpdm, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     lbmpdm_definition_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
-}
-
-int lbmpdm_get_minimum_length(void)
-{
-    return (L_LBMPDM_MSG_HDR_T);
 }
 
 /*
