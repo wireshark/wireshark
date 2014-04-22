@@ -117,8 +117,10 @@ static int hf_get_Tango_Device_status_status = -1;
 static int hf_get_Tango_Device_adm_name_adm_name = -1;
         /* Struct filters */
 static int hf_Tango_DevVarLongStringArray_lvalue = -1;
+static int hf_Tango_DevVarLongStringArray_lvalue_loop = -1;
 static int hf_Tango_DevVarLongStringArray_svalue = -1;
 static int hf_Tango_DevVarDoubleStringArray_dvalue = -1;
+static int hf_Tango_DevVarDoubleStringArray_dvalue_loop = -1;
 static int hf_Tango_DevVarDoubleStringArray_svalue = -1;
 static int hf_Tango_TimeVal_tv_sec = -1;
 static int hf_Tango_TimeVal_tv_usec = -1;
@@ -1719,7 +1721,7 @@ decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
     u_octet4_loop_Tango_DevVarLongStringArray_lvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_lvalue, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_lvalue);
+    item = proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_lvalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_lvalue);
 
     for (i_Tango_DevVarLongStringArray_lvalue=0; i_Tango_DevVarLongStringArray_lvalue < u_octet4_loop_Tango_DevVarLongStringArray_lvalue; i_Tango_DevVarLongStringArray_lvalue++) {
 
@@ -1755,7 +1757,7 @@ decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_dvalue, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue);
+    item = proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_dvalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue);
 
     for (i_Tango_DevVarDoubleStringArray_dvalue=0; i_Tango_DevVarDoubleStringArray_dvalue < u_octet4_loop_Tango_DevVarDoubleStringArray_dvalue; i_Tango_DevVarDoubleStringArray_dvalue++) {
 
@@ -2732,11 +2734,14 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_command_inout_command, {"command","giop-tango.Device.command_inout.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_get_attribute_config_return, {"Seq length of AttributeConfigList","giop-tango.Device.get_attribute_config.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_get_attribute_config_names, {"Seq length of names","giop-tango.Device.get_attribute_config.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_get_attribute_config_names, {"names","giop-tango.Device.get_attribute_config.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_set_attribute_config_new_conf, {"Seq length of new_conf","giop-tango.Device.set_attribute_config.new_conf",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_read_attributes_return, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_read_attributes_names, {"Seq length of names","giop-tango.Device.read_attributes.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_read_attributes_names, {"names","giop-tango.Device.read_attributes.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_write_attributes_values, {"Seq length of values","giop-tango.Device.write_attributes.values",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_black_box_return, {"Seq length of DevVarStringArray","giop-tango.Device.black_box.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_black_box_return, {"DevVarStringArray","giop-tango.Device.black_box.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_black_box_n, {"n","giop-tango.Device.black_box.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_command_list_query_return, {"Seq length of DevCmdInfoList","giop-tango.Device.command_list_query.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_command_query_command, {"command","giop-tango.Device.command_query.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -2744,9 +2749,11 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_2_command_inout_2_source, {"source","giop-tango.Device.command_inout_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attributes_2_return, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attributes_2_names, {"Seq length of names","giop-tango.Device.read_attributes_2.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attributes_2_names, {"names","giop-tango.Device.read_attributes_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attributes_2_source, {"source","giop-tango.Device.read_attributes_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_get_attribute_config_2_return, {"Seq length of AttributeConfigList_2","giop-tango.Device.get_attribute_config_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_get_attribute_config_2_names, {"Seq length of names","giop-tango.Device.get_attribute_config_2.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_get_attribute_config_2_names, {"names","giop-tango.Device.get_attribute_config_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_command_list_query_2_return, {"Seq length of DevCmdInfoList_2","giop-tango.Device.command_list_query_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_command_query_2_command, {"command","giop-tango.Device.command_query_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_command_inout_history_2_return, {"Seq length of DevCmdHistoryList","giop-tango.Device.command_inout_history_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2757,6 +2764,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_2_read_attribute_history_2_n, {"n","giop-tango.Device.read_attribute_history_2.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attributes_3_return, {"Seq length of AttributeValueList_3","giop-tango.Device.read_attributes_3.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attributes_3_names, {"Seq length of names","giop-tango.Device.read_attributes_3.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attributes_3_names, {"names","giop-tango.Device.read_attributes_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attributes_3_source, {"source","giop-tango.Device.read_attributes_3.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_write_attributes_3_values, {"Seq length of values","giop-tango.Device.write_attributes_3.values",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attribute_history_3_return, {"Seq length of DevAttrHistoryList_3","giop-tango.Device.read_attribute_history_3.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2764,6 +2772,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_3_read_attribute_history_3_n, {"n","giop-tango.Device.read_attribute_history_3.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_get_attribute_config_3_return, {"Seq length of AttributeConfigList_3","giop-tango.Device.get_attribute_config_3.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_get_attribute_config_3_names, {"Seq length of names","giop-tango.Device.get_attribute_config_3.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_get_attribute_config_3_names, {"names","giop-tango.Device.get_attribute_config_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_set_attribute_config_3_new_conf, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_3.new_conf",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Attribute filters */
         {&hf_get_Tango_Device_name_name, {"name","giop-tango.Device.name.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -2772,10 +2781,14 @@ void proto_register_giop_tango(void)
         {&hf_get_Tango_Device_status_status, {"status","giop-tango.Device.status.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_get_Tango_Device_adm_name_adm_name, {"adm_name","giop-tango.Device.adm_name.get",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Struct filters */
-        {&hf_Tango_DevVarLongStringArray_lvalue, {"Seq length of DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_lvalue_loop, {"Seq length of DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_lvalue, {"DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarLongStringArray_svalue, {"Seq length of DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarDoubleStringArray_dvalue, {"Seq length of DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_svalue, {"DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_dvalue_loop, {"Seq length of DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_dvalue, {"DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarDoubleStringArray_svalue, {"Seq length of DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_svalue, {"DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_TimeVal_tv_sec, {"TimeVal_tv_sec","giop-tango.TimeVal.tv_sec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_TimeVal_tv_usec, {"TimeVal_tv_usec","giop-tango.TimeVal.tv_usec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_TimeVal_tv_nsec, {"TimeVal_tv_nsec","giop-tango.TimeVal.tv_nsec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2817,6 +2830,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_max_alarm, {"AttributeConfig_max_alarm","giop-tango.AttributeConfig.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_writable_attr_name, {"AttributeConfig_writable_attr_name","giop-tango.AttributeConfig.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_extensions, {"Seq length of AttributeConfig_extensions","giop-tango.AttributeConfig.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_extensions, {"AttributeConfig_extensions","giop-tango.AttributeConfig.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_name, {"AttributeConfig_2_name","giop-tango.AttributeConfig_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_writable, {"AttributeConfig_2_writable","giop-tango.AttributeConfig_2.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_data_format, {"AttributeConfig_2_data_format","giop-tango.AttributeConfig_2.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
@@ -2836,6 +2850,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_2_writable_attr_name, {"AttributeConfig_2_writable_attr_name","giop-tango.AttributeConfig_2.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_level, {"AttributeConfig_2_level","giop-tango.AttributeConfig_2.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_extensions, {"Seq length of AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_extensions, {"AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeValue_quality, {"AttributeValue_quality","giop-tango.AttributeValue.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeValue_name, {"AttributeValue_name","giop-tango.AttributeValue.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeValue_dim_x, {"AttributeValue_dim_x","giop-tango.AttributeValue.dim_x",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2848,12 +2863,15 @@ void proto_register_giop_tango(void)
         {&hf_Tango_ChangeEventProp_rel_change, {"ChangeEventProp_rel_change","giop-tango.ChangeEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ChangeEventProp_abs_change, {"ChangeEventProp_abs_change","giop-tango.ChangeEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ChangeEventProp_extensions, {"Seq length of ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ChangeEventProp_extensions, {"ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_PeriodicEventProp_period, {"PeriodicEventProp_period","giop-tango.PeriodicEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_PeriodicEventProp_extensions, {"Seq length of PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PeriodicEventProp_extensions, {"PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_rel_change, {"ArchiveEventProp_rel_change","giop-tango.ArchiveEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_abs_change, {"ArchiveEventProp_abs_change","giop-tango.ArchiveEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_period, {"ArchiveEventProp_period","giop-tango.ArchiveEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_extensions, {"Seq length of ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_extensions, {"ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_min_alarm, {"AttributeAlarm_min_alarm","giop-tango.AttributeAlarm.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_max_alarm, {"AttributeAlarm_max_alarm","giop-tango.AttributeAlarm.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_min_warning, {"AttributeAlarm_min_warning","giop-tango.AttributeAlarm.min_warning",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -2861,6 +2879,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeAlarm_delta_t, {"AttributeAlarm_delta_t","giop-tango.AttributeAlarm.delta_t",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_delta_val, {"AttributeAlarm_delta_val","giop-tango.AttributeAlarm.delta_val",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_extensions, {"Seq length of AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_extensions, {"AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_name, {"AttributeConfig_3_name","giop-tango.AttributeConfig_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_writable, {"AttributeConfig_3_writable","giop-tango.AttributeConfig_3.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_data_format, {"AttributeConfig_3_data_format","giop-tango.AttributeConfig_3.data_format",FT_UINT32,BASE_DEC,VALS(Tango_AttrDataFormat),0x0,NULL,HFILL}},
@@ -2878,7 +2897,9 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_3_writable_attr_name, {"AttributeConfig_3_writable_attr_name","giop-tango.AttributeConfig_3.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_level, {"AttributeConfig_3_level","giop-tango.AttributeConfig_3.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_extensions, {"Seq length of AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_extensions, {"AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_sys_extensions, {"Seq length of AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_sys_extensions, {"AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevInfo_dev_class, {"DevInfo_dev_class","giop-tango.DevInfo.dev_class",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevInfo_server_id, {"DevInfo_server_id","giop-tango.DevInfo.server_id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevInfo_server_host, {"DevInfo_server_host","giop-tango.DevInfo.server_host",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
