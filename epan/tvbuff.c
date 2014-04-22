@@ -1369,6 +1369,8 @@ mktime_utc (struct tm *tm)
 		{
 			0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334
 		};
+
+	int yr;
 #endif
 
 #ifndef HAVE_TIMEGM
@@ -1376,11 +1378,14 @@ mktime_utc (struct tm *tm)
 		return (time_t) -1;
 
 	retval = (tm->tm_year - 70) * 365;
-	retval += (tm->tm_year - 68) / 4;
-	retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
 
-	if (tm->tm_year % 4 == 0 && tm->tm_mon < 2)
-		retval -= 1;
+	/* count number of leap years */
+	yr  = tm->tm_year + 1900;
+	if (tm->tm_mon + 1 < 3 && (yr % 4) == 0 && ((yr % 100) != 0 || (yr % 400) == 0))
+		yr--;
+	retval += (((yr / 4) - (yr / 100) + (yr / 400)) - 477); /* 477 = ((1970 / 4) - (1970 / 100) + (1970 / 400)) */
+
+	retval += days_before[tm->tm_mon] + tm->tm_mday - 1;
 
 	retval = ((((retval * 24) + tm->tm_hour) * 60) + tm->tm_min) * 60 + tm->tm_sec;
 #else
