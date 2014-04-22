@@ -2253,13 +2253,14 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /*
                  * Display the PDU length as a field
                  */
-                item=proto_tree_add_uint(tree ? tree->last_child : NULL,
+                item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num),
                                          hf_tcp_pdu_size,
                                          tvb, offset, plen, plen);
                 PROTO_ITEM_SET_GENERATED(item);
 #if 0
         } else {
-                item = proto_tree_add_text(tree ? tree->last_child : NULL, tvb, offset, -1,
+                item = proto_tree_add_text((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num),
+                                        tvb, offset, -1,
                     "PDU Size: %u cut short at %u",plen,length_remaining);
                 PROTO_ITEM_SET_GENERATED(item);
         }
@@ -4125,6 +4126,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, ENC_NA);
         }
         tcp_tree = proto_item_add_subtree(ti, ett_tcp);
+        p_add_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num, tcp_tree);
 
         proto_tree_add_uint_format_value(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
                                    "%s (%u)", ep_tcp_port_to_display(tcph->th_sport), tcph->th_sport);
