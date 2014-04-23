@@ -3840,34 +3840,26 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		switch (hfinfo->type) {
 
 		case FT_PROTOCOL:
-			/*
-			 * We allow this to be zero-length - for
-			 * example, an ONC RPC NULL procedure has
-			 * neither arguments nor reply, so the
-			 * payload for that protocol is empty.
-			 *
-			 * However, if the length is negative, the
-			 * start offset is *past* the byte past the
-			 * end of the tvbuff, so we throw an
-			 * exception.
-			 */
-			*length = tvb_captured_length_remaining(tvb, start);
-			if (*length < 0) {
-				/*
-				 * Use "tvb_ensure_bytes_exist()"
-				 * to force the appropriate exception
-				 * to be thrown.
-				 */
-				tvb_ensure_bytes_exist(tvb, start, 0);
-			}
-			DISSECTOR_ASSERT(*length >= 0);
-			break;
-
 		case FT_NONE:
 		case FT_BYTES:
 		case FT_STRING:
 		case FT_STRINGZPAD:
-			*length = tvb_captured_length_remaining(tvb, start);
+			/*
+			 * We allow FT_PROTOCOLs to be zero-length -
+			 * for example, an ONC RPC NULL procedure has
+			 * neither arguments nor reply, so the
+			 * payload for that protocol is empty.
+			 *
+			 * We also allow the others to be zero-length -
+			 * because that's the way the code has been for a
+			 * long, long time.
+			 *
+			 * However, we want to ensure that the start
+			 * offset is not *past* the byte past the end
+			 * of the tvbuff: we throw an exception in that
+			 * case.
+			 */
+			*length = tvb_ensure_captured_length_remaining(tvb, start);
 			DISSECTOR_ASSERT(*length >= 0);
 			break;
 
@@ -5680,7 +5672,7 @@ label_mark_truncated(char *label_str, gsize name_pos)
 
 		/* in general, label_str is UTF-8
 		   we can truncate it only at the beginning of a new character
-		   we go backwards from the byte right after our buffer and 
+		   we go backwards from the byte right after our buffer and
 		    find the next starting byte of a UTF-8 character, this is
 		    where we cut
 		   there's no need to use g_utf8_find_prev_char(), the search
