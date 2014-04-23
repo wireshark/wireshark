@@ -372,11 +372,9 @@ guint32 msgtype;
 		offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	}
 
-#.FN_BODY HostAddress/addr-type
+#.FN_BODY ADDR-TYPE VAL_PTR=(guint32*)actx->value_ptr
 	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
-
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									(guint32*)actx->value_ptr);
+%(DEFAULT_BODY)s
 
 #.FN_BODY KDC-REQ-BODY
 	conversation_t *conversation;
