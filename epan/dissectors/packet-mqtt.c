@@ -219,7 +219,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     mqtt_msg_len = (gint) msg_len;
 
     /* Add each MQTT message as a subtree to main Tree */
-    ti_mqtt = proto_tree_add_text(mqtt_tree, tvb, offset, mqtt_msg_len,
+    ti_mqtt = proto_tree_add_text(mqtt_tree, tvb, offset, mqtt_msg_len, "%s",
                                   val_to_str_ext(mqtt_msg_type, &mqtt_msgtype_vals_ext, "Unknown (0x%02x)"));
     mqtt_msg_tree = proto_item_add_subtree(ti_mqtt, ett_mqtt_msg);
 
