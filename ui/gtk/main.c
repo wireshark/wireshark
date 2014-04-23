@@ -2278,7 +2278,7 @@ main(int argc, char *argv[])
     profile_store_persconffiles (TRUE);
 
     /* Read the profile independent recent file.  We have to do this here so we can */
-    /* set the profile before it can be set from the command line parameterts */
+    /* set the profile before it can be set from the command line parameter */
     recent_read_static(&rf_path, &rf_open_errno);
     if (rf_path != NULL && rf_open_errno != 0) {
         simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
