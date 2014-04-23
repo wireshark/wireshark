@@ -3485,6 +3485,7 @@ add_pipe_cb(gpointer w _U_)
     device.if_info.vendor_description = NULL;
     device.if_info.addrs = NULL;
     device.if_info.loopback = FALSE;
+    device.if_info.type = IF_PIPE;
 #if defined(HAVE_PCAP_CREATE)
     device.monitor_mode_enabled   = FALSE;
     device.monitor_mode_supported = FALSE;
