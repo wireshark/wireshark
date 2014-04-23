@@ -780,7 +780,7 @@ static int dissect_jxta_welcome(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             return 0;
         } else {
             /* ask for more bytes */
-            return -1;
+            return -DESEGMENT_ONE_MORE_SEGMENT;
         }
     }
 
