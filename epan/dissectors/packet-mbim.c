@@ -2878,10 +2878,10 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
         if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
-            sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
-                                     pdu_data_size + 1 + sc_address_size, ENC_NA);
+                                     pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+            sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
             ti = proto_tree_add_text(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
                                      "Service Center Address");
             sc_tree = proto_item_add_subtree(ti, ett_mbim_sc_address);
@@ -2891,10 +2891,13 @@ mbim_dissect_sms_pdu_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 de_cld_party_bcd_num(tvb, sc_tree, pinfo, base_offset + pdu_data_offset + 1,
                                      sc_address_size, NULL, 0);
             }
-            sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
-                                     pdu_data_size, pdu_data_size);
-            pinfo->p2p_dir = (message_status < 2) ? P2P_DIR_SENT : P2P_DIR_RECV;
-            call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
+            if (pdu_data_size > (guint32)(sc_address_size + 1)) {
+                pdu_data_size -= sc_address_size + 1;
+                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
+                                         pdu_data_size, pdu_data_size);
+                pinfo->p2p_dir = (message_status < 2) ? P2P_DIR_SENT : P2P_DIR_RECV;
+                call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
+            }
         } else {
             ti = proto_tree_add_item(tree, hf_mbim_sms_pdu_record_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
@@ -3075,10 +3078,10 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     /*offset += 4;*/
     if (pdu_data_offset && pdu_data_size) {
         if ((mbim_conv->cellular_class & MBIM_CELLULAR_CLASS_GSM) && gsm_sms_handle) {
-            sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
             ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
-                                     pdu_data_size + 1 + sc_address_size, ENC_NA);
+                                     pdu_data_size, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_mbim_buffer);
+            sc_address_size = tvb_get_guint8(tvb, base_offset + pdu_data_offset);
             ti = proto_tree_add_text(subtree, tvb, base_offset + pdu_data_offset, 1 + sc_address_size,
                                      "Service Center Address");
             sc_tree = proto_item_add_subtree(ti, ett_mbim_sc_address);
@@ -3088,10 +3091,12 @@ mbim_dissect_sms_send_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 de_cld_party_bcd_num(tvb, sc_tree, pinfo, base_offset + pdu_data_offset + 1,
                                      sc_address_size, NULL, 0);
             }
-            sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
-                                     pdu_data_size, pdu_data_size);
-            pinfo->p2p_dir = P2P_DIR_RECV;
-            call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
+            if (pdu_data_size > (guint32)(sc_address_size + 1)) {
+                sms_tvb = tvb_new_subset(tvb, base_offset + pdu_data_offset + 1 + sc_address_size,
+                                         pdu_data_size, pdu_data_size);
+                pinfo->p2p_dir = P2P_DIR_RECV;
+                call_dissector(gsm_sms_handle, sms_tvb, pinfo, subtree);
+            }
         } else {
             ti = proto_tree_add_item(tree, hf_mbim_sms_send_pdu_pdu_data, tvb, base_offset + pdu_data_offset,
                                      pdu_data_size, ENC_NA);
