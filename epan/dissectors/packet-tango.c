@@ -69,15 +69,21 @@ static int hf_Tango_Device_command_inout_return = -1;
 static int hf_Tango_Device_command_inout_command = -1;
 static int hf_Tango_Device_command_inout_argin = -1;
 static int hf_Tango_Device_get_attribute_config_return = -1;
+static int hf_Tango_Device_get_attribute_config_return_loop = -1;
 static int hf_Tango_Device_get_attribute_config_names = -1;
+static int hf_Tango_Device_get_attribute_config_names_loop = -1;
 static int hf_Tango_Device_set_attribute_config_new_conf = -1;
 static int hf_Tango_Device_read_attributes_return = -1;
+static int hf_Tango_Device_read_attributes_return_loop = -1;
 static int hf_Tango_Device_read_attributes_names = -1;
+static int hf_Tango_Device_read_attributes_names_loop = -1;
 static int hf_Tango_Device_write_attributes_values = -1;
 static int hf_Tango_Device_black_box_return = -1;
+static int hf_Tango_Device_black_box_return_loop = -1;
 static int hf_Tango_Device_black_box_n = -1;
 static int hf_Tango_Device_info_return = -1;
 static int hf_Tango_Device_command_list_query_return = -1;
+static int hf_Tango_Device_command_list_query_return_loop = -1;
 static int hf_Tango_Device_command_query_return = -1;
 static int hf_Tango_Device_command_query_command = -1;
 static int hf_Tango_Device_2_command_inout_2_return = -1;
@@ -85,29 +91,41 @@ static int hf_Tango_Device_2_command_inout_2_command = -1;
 static int hf_Tango_Device_2_command_inout_2_argin = -1;
 static int hf_Tango_Device_2_command_inout_2_source = -1;
 static int hf_Tango_Device_2_read_attributes_2_return = -1;
+static int hf_Tango_Device_2_read_attributes_2_return_loop = -1;
 static int hf_Tango_Device_2_read_attributes_2_names = -1;
+static int hf_Tango_Device_2_read_attributes_2_names_loop = -1;
 static int hf_Tango_Device_2_read_attributes_2_source = -1;
 static int hf_Tango_Device_2_get_attribute_config_2_return = -1;
+static int hf_Tango_Device_2_get_attribute_config_2_return_loop = -1;
 static int hf_Tango_Device_2_get_attribute_config_2_names = -1;
+static int hf_Tango_Device_2_get_attribute_config_2_names_loop = -1;
 static int hf_Tango_Device_2_command_list_query_2_return = -1;
+static int hf_Tango_Device_2_command_list_query_2_return_loop = -1;
 static int hf_Tango_Device_2_command_query_2_return = -1;
 static int hf_Tango_Device_2_command_query_2_command = -1;
 static int hf_Tango_Device_2_command_inout_history_2_return = -1;
+static int hf_Tango_Device_2_command_inout_history_2_return_loop = -1;
 static int hf_Tango_Device_2_command_inout_history_2_command = -1;
 static int hf_Tango_Device_2_command_inout_history_2_n = -1;
 static int hf_Tango_Device_2_read_attribute_history_2_return = -1;
+static int hf_Tango_Device_2_read_attribute_history_2_return_loop = -1;
 static int hf_Tango_Device_2_read_attribute_history_2_name = -1;
 static int hf_Tango_Device_2_read_attribute_history_2_n = -1;
 static int hf_Tango_Device_3_read_attributes_3_return = -1;
+static int hf_Tango_Device_3_read_attributes_3_return_loop = -1;
 static int hf_Tango_Device_3_read_attributes_3_names = -1;
+static int hf_Tango_Device_3_read_attributes_3_names_loop = -1;
 static int hf_Tango_Device_3_read_attributes_3_source = -1;
 static int hf_Tango_Device_3_write_attributes_3_values = -1;
 static int hf_Tango_Device_3_read_attribute_history_3_return = -1;
+static int hf_Tango_Device_3_read_attribute_history_3_return_loop = -1;
 static int hf_Tango_Device_3_read_attribute_history_3_name = -1;
 static int hf_Tango_Device_3_read_attribute_history_3_n = -1;
 static int hf_Tango_Device_3_info_3_return = -1;
 static int hf_Tango_Device_3_get_attribute_config_3_return = -1;
+static int hf_Tango_Device_3_get_attribute_config_3_return_loop = -1;
 static int hf_Tango_Device_3_get_attribute_config_3_names = -1;
+static int hf_Tango_Device_3_get_attribute_config_3_names_loop = -1;
 static int hf_Tango_Device_3_set_attribute_config_3_new_conf = -1;
         /* Attribute filters */
 static int hf_get_Tango_Device_name_name = -1;
@@ -119,9 +137,11 @@ static int hf_get_Tango_Device_adm_name_adm_name = -1;
 static int hf_Tango_DevVarLongStringArray_lvalue = -1;
 static int hf_Tango_DevVarLongStringArray_lvalue_loop = -1;
 static int hf_Tango_DevVarLongStringArray_svalue = -1;
+static int hf_Tango_DevVarLongStringArray_svalue_loop = -1;
 static int hf_Tango_DevVarDoubleStringArray_dvalue = -1;
 static int hf_Tango_DevVarDoubleStringArray_dvalue_loop = -1;
 static int hf_Tango_DevVarDoubleStringArray_svalue = -1;
+static int hf_Tango_DevVarDoubleStringArray_svalue_loop = -1;
 static int hf_Tango_TimeVal_tv_sec = -1;
 static int hf_Tango_TimeVal_tv_usec = -1;
 static int hf_Tango_TimeVal_tv_nsec = -1;
@@ -163,6 +183,7 @@ static int hf_Tango_AttributeConfig_min_alarm = -1;
 static int hf_Tango_AttributeConfig_max_alarm = -1;
 static int hf_Tango_AttributeConfig_writable_attr_name = -1;
 static int hf_Tango_AttributeConfig_extensions = -1;
+static int hf_Tango_AttributeConfig_extensions_loop = -1;
 static int hf_Tango_AttributeConfig_2_name = -1;
 static int hf_Tango_AttributeConfig_2_writable = -1;
 static int hf_Tango_AttributeConfig_2_data_format = -1;
@@ -182,6 +203,7 @@ static int hf_Tango_AttributeConfig_2_max_alarm = -1;
 static int hf_Tango_AttributeConfig_2_writable_attr_name = -1;
 static int hf_Tango_AttributeConfig_2_level = -1;
 static int hf_Tango_AttributeConfig_2_extensions = -1;
+static int hf_Tango_AttributeConfig_2_extensions_loop = -1;
 static int hf_Tango_AttributeValue_value = -1;
 static int hf_Tango_AttributeValue_quality = -1;
 static int hf_Tango_AttributeValue_time = -1;
@@ -200,12 +222,15 @@ static int hf_Tango_AttributeValue_3_err_list = -1;
 static int hf_Tango_ChangeEventProp_rel_change = -1;
 static int hf_Tango_ChangeEventProp_abs_change = -1;
 static int hf_Tango_ChangeEventProp_extensions = -1;
+static int hf_Tango_ChangeEventProp_extensions_loop = -1;
 static int hf_Tango_PeriodicEventProp_period = -1;
 static int hf_Tango_PeriodicEventProp_extensions = -1;
+static int hf_Tango_PeriodicEventProp_extensions_loop = -1;
 static int hf_Tango_ArchiveEventProp_rel_change = -1;
 static int hf_Tango_ArchiveEventProp_abs_change = -1;
 static int hf_Tango_ArchiveEventProp_period = -1;
 static int hf_Tango_ArchiveEventProp_extensions = -1;
+static int hf_Tango_ArchiveEventProp_extensions_loop = -1;
 static int hf_Tango_EventProperties_ch_event = -1;
 static int hf_Tango_EventProperties_per_event = -1;
 static int hf_Tango_EventProperties_arch_event = -1;
@@ -216,6 +241,7 @@ static int hf_Tango_AttributeAlarm_max_warning = -1;
 static int hf_Tango_AttributeAlarm_delta_t = -1;
 static int hf_Tango_AttributeAlarm_delta_val = -1;
 static int hf_Tango_AttributeAlarm_extensions = -1;
+static int hf_Tango_AttributeAlarm_extensions_loop = -1;
 static int hf_Tango_AttributeConfig_3_name = -1;
 static int hf_Tango_AttributeConfig_3_writable = -1;
 static int hf_Tango_AttributeConfig_3_data_format = -1;
@@ -235,7 +261,9 @@ static int hf_Tango_AttributeConfig_3_level = -1;
 static int hf_Tango_AttributeConfig_3_att_alarm = -1;
 static int hf_Tango_AttributeConfig_3_event_prop = -1;
 static int hf_Tango_AttributeConfig_3_extensions = -1;
+static int hf_Tango_AttributeConfig_3_extensions_loop = -1;
 static int hf_Tango_AttributeConfig_3_sys_extensions = -1;
+static int hf_Tango_AttributeConfig_3_sys_extensions_loop = -1;
 static int hf_Tango_DevInfo_dev_class = -1;
 static int hf_Tango_DevInfo_server_id = -1;
 static int hf_Tango_DevInfo_server_host = -1;
@@ -661,7 +689,7 @@ decode_Tango_Device_get_attribute_config(tvbuff_t *tvb _U_, packet_info *pinfo _
     case Request:
         u_octet4_loop_Tango_Device_get_attribute_config_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_Tango_Device_get_attribute_config_names, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_get_attribute_config_names);
+        item = proto_tree_add_uint(tree, hf_Tango_Device_get_attribute_config_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_get_attribute_config_names);
 
         for (i_Tango_Device_get_attribute_config_names=0; i_Tango_Device_get_attribute_config_names < u_octet4_loop_Tango_Device_get_attribute_config_names; i_Tango_Device_get_attribute_config_names++) {
 
@@ -769,7 +797,7 @@ decode_Tango_Device_read_attributes(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     case Request:
         u_octet4_loop_Tango_Device_read_attributes_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_Tango_Device_read_attributes_names, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_read_attributes_names);
+        item = proto_tree_add_uint(tree, hf_Tango_Device_read_attributes_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_read_attributes_names);
 
         for (i_Tango_Device_read_attributes_names=0; i_Tango_Device_read_attributes_names < u_octet4_loop_Tango_Device_read_attributes_names; i_Tango_Device_read_attributes_names++) {
 
@@ -912,7 +940,7 @@ decode_Tango_Device_black_box(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
         case NO_EXCEPTION:
             u_octet4_loop_Tango_Device_black_box_return = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
             /* coverity[returned_pointer] */
-            item = proto_tree_add_uint(tree, hf_Tango_Device_black_box_return, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_black_box_return);
+            item = proto_tree_add_uint(tree, hf_Tango_Device_black_box_return_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_black_box_return);
 
             for (i_Tango_Device_black_box_return=0; i_Tango_Device_black_box_return < u_octet4_loop_Tango_Device_black_box_return; i_Tango_Device_black_box_return++) {
 
@@ -1115,7 +1143,7 @@ decode_Tango_Device_2_read_attributes_2(tvbuff_t *tvb _U_, packet_info *pinfo _U
     case Request:
         u_octet4_loop_Tango_Device_2_read_attributes_2_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_names, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attributes_2_names);
+        item = proto_tree_add_uint(tree, hf_Tango_Device_2_read_attributes_2_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_read_attributes_2_names);
 
         for (i_Tango_Device_2_read_attributes_2_names=0; i_Tango_Device_2_read_attributes_2_names < u_octet4_loop_Tango_Device_2_read_attributes_2_names; i_Tango_Device_2_read_attributes_2_names++) {
 
@@ -1178,7 +1206,7 @@ decode_Tango_Device_2_get_attribute_config_2(tvbuff_t *tvb _U_, packet_info *pin
     case Request:
         u_octet4_loop_Tango_Device_2_get_attribute_config_2_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_Tango_Device_2_get_attribute_config_2_names, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_get_attribute_config_2_names);
+        item = proto_tree_add_uint(tree, hf_Tango_Device_2_get_attribute_config_2_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_2_get_attribute_config_2_names);
 
         for (i_Tango_Device_2_get_attribute_config_2_names=0; i_Tango_Device_2_get_attribute_config_2_names < u_octet4_loop_Tango_Device_2_get_attribute_config_2_names; i_Tango_Device_2_get_attribute_config_2_names++) {
 
@@ -1421,7 +1449,7 @@ decode_Tango_Device_3_read_attributes_3(tvbuff_t *tvb _U_, packet_info *pinfo _U
     case Request:
         u_octet4_loop_Tango_Device_3_read_attributes_3_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_names, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attributes_3_names);
+        item = proto_tree_add_uint(tree, hf_Tango_Device_3_read_attributes_3_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_read_attributes_3_names);
 
         for (i_Tango_Device_3_read_attributes_3_names=0; i_Tango_Device_3_read_attributes_3_names < u_octet4_loop_Tango_Device_3_read_attributes_3_names; i_Tango_Device_3_read_attributes_3_names++) {
 
@@ -1616,7 +1644,7 @@ decode_Tango_Device_3_get_attribute_config_3(tvbuff_t *tvb _U_, packet_info *pin
     case Request:
         u_octet4_loop_Tango_Device_3_get_attribute_config_3_names = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_Tango_Device_3_get_attribute_config_3_names, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_get_attribute_config_3_names);
+        item = proto_tree_add_uint(tree, hf_Tango_Device_3_get_attribute_config_3_names_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_Device_3_get_attribute_config_3_names);
 
         for (i_Tango_Device_3_get_attribute_config_3_names=0; i_Tango_Device_3_get_attribute_config_3_names < u_octet4_loop_Tango_Device_3_get_attribute_config_3_names; i_Tango_Device_3_get_attribute_config_3_names++) {
 
@@ -1731,7 +1759,7 @@ decode_Tango_DevVarLongStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
     u_octet4_loop_Tango_DevVarLongStringArray_svalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_svalue, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_svalue);
+    item = proto_tree_add_uint(tree, hf_Tango_DevVarLongStringArray_svalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarLongStringArray_svalue);
 
     for (i_Tango_DevVarLongStringArray_svalue=0; i_Tango_DevVarLongStringArray_svalue < u_octet4_loop_Tango_DevVarLongStringArray_svalue; i_Tango_DevVarLongStringArray_svalue++) {
 
@@ -1767,7 +1795,7 @@ decode_Tango_DevVarDoubleStringArray_st(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
     u_octet4_loop_Tango_DevVarDoubleStringArray_svalue = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_svalue, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_svalue);
+    item = proto_tree_add_uint(tree, hf_Tango_DevVarDoubleStringArray_svalue_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_DevVarDoubleStringArray_svalue);
 
     for (i_Tango_DevVarDoubleStringArray_svalue=0; i_Tango_DevVarDoubleStringArray_svalue < u_octet4_loop_Tango_DevVarDoubleStringArray_svalue; i_Tango_DevVarDoubleStringArray_svalue++) {
 
@@ -1943,7 +1971,7 @@ decode_Tango_AttributeConfig_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     u_octet4_loop_Tango_AttributeConfig_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_extensions);
 
     for (i_Tango_AttributeConfig_extensions=0; i_Tango_AttributeConfig_extensions < u_octet4_loop_Tango_AttributeConfig_extensions; i_Tango_AttributeConfig_extensions++) {
 
@@ -2010,7 +2038,7 @@ decode_Tango_AttributeConfig_2_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
     u_octet4_loop_Tango_AttributeConfig_2_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_2_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_2_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_2_extensions);
 
     for (i_Tango_AttributeConfig_2_extensions=0; i_Tango_AttributeConfig_2_extensions < u_octet4_loop_Tango_AttributeConfig_2_extensions; i_Tango_AttributeConfig_2_extensions++) {
 
@@ -2120,7 +2148,7 @@ decode_Tango_ChangeEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
     u_octet4_loop_Tango_ChangeEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_ChangeEventProp_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_ChangeEventProp_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_ChangeEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ChangeEventProp_extensions);
 
     for (i_Tango_ChangeEventProp_extensions=0; i_Tango_ChangeEventProp_extensions < u_octet4_loop_Tango_ChangeEventProp_extensions; i_Tango_ChangeEventProp_extensions++) {
 
@@ -2146,7 +2174,7 @@ decode_Tango_PeriodicEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
     u_octet4_loop_Tango_PeriodicEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_PeriodicEventProp_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_PeriodicEventProp_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_PeriodicEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_PeriodicEventProp_extensions);
 
     for (i_Tango_PeriodicEventProp_extensions=0; i_Tango_PeriodicEventProp_extensions < u_octet4_loop_Tango_PeriodicEventProp_extensions; i_Tango_PeriodicEventProp_extensions++) {
 
@@ -2176,7 +2204,7 @@ decode_Tango_ArchiveEventProp_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
 
     u_octet4_loop_Tango_ArchiveEventProp_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_ArchiveEventProp_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_ArchiveEventProp_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_ArchiveEventProp_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_ArchiveEventProp_extensions);
 
     for (i_Tango_ArchiveEventProp_extensions=0; i_Tango_ArchiveEventProp_extensions < u_octet4_loop_Tango_ArchiveEventProp_extensions; i_Tango_ArchiveEventProp_extensions++) {
 
@@ -2228,7 +2256,7 @@ decode_Tango_AttributeAlarm_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
     u_octet4_loop_Tango_AttributeAlarm_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_AttributeAlarm_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeAlarm_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_AttributeAlarm_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeAlarm_extensions);
 
     for (i_Tango_AttributeAlarm_extensions=0; i_Tango_AttributeAlarm_extensions < u_octet4_loop_Tango_AttributeAlarm_extensions; i_Tango_AttributeAlarm_extensions++) {
 
@@ -2299,7 +2327,7 @@ decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
     /*  End struct "Tango_EventProperties"  */
     u_octet4_loop_Tango_AttributeConfig_3_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_extensions);
 
     for (i_Tango_AttributeConfig_3_extensions=0; i_Tango_AttributeConfig_3_extensions < u_octet4_loop_Tango_AttributeConfig_3_extensions; i_Tango_AttributeConfig_3_extensions++) {
 
@@ -2309,7 +2337,7 @@ decode_Tango_AttributeConfig_3_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pro
 
     u_octet4_loop_Tango_AttributeConfig_3_sys_extensions = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_sys_extensions, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_sys_extensions);
+    item = proto_tree_add_uint(tree, hf_Tango_AttributeConfig_3_sys_extensions_loop, tvb,*offset-4, 4, u_octet4_loop_Tango_AttributeConfig_3_sys_extensions);
 
     for (i_Tango_AttributeConfig_3_sys_extensions=0; i_Tango_AttributeConfig_3_sys_extensions < u_octet4_loop_Tango_AttributeConfig_3_sys_extensions; i_Tango_AttributeConfig_3_sys_extensions++) {
 
@@ -2733,14 +2761,14 @@ void proto_register_giop_tango(void)
         /* Operation filters */
         {&hf_Tango_Device_command_inout_command, {"command","giop-tango.Device.command_inout.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_get_attribute_config_return, {"Seq length of AttributeConfigList","giop-tango.Device.get_attribute_config.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_get_attribute_config_names, {"Seq length of names","giop-tango.Device.get_attribute_config.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_get_attribute_config_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_get_attribute_config_names, {"names","giop-tango.Device.get_attribute_config.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_set_attribute_config_new_conf, {"Seq length of new_conf","giop-tango.Device.set_attribute_config.new_conf",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_read_attributes_return, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_read_attributes_names, {"Seq length of names","giop-tango.Device.read_attributes.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_read_attributes_names_loop, {"Seq length of names","giop-tango.Device.read_attributes.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_read_attributes_names, {"names","giop-tango.Device.read_attributes.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_write_attributes_values, {"Seq length of values","giop-tango.Device.write_attributes.values",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_black_box_return, {"Seq length of DevVarStringArray","giop-tango.Device.black_box.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_black_box_return_loop, {"Seq length of DevVarStringArray","giop-tango.Device.black_box.return.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_black_box_return, {"DevVarStringArray","giop-tango.Device.black_box.return",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_black_box_n, {"n","giop-tango.Device.black_box.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_command_list_query_return, {"Seq length of DevCmdInfoList","giop-tango.Device.command_list_query.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2748,11 +2776,11 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_2_command_inout_2_command, {"command","giop-tango.Device.command_inout_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_command_inout_2_source, {"source","giop-tango.Device.command_inout_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attributes_2_return, {"Seq length of AttributeValueList","giop-tango.Device.read_attributes_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_read_attributes_2_names, {"Seq length of names","giop-tango.Device.read_attributes_2.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_read_attributes_2_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_2.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attributes_2_names, {"names","giop-tango.Device.read_attributes_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attributes_2_source, {"source","giop-tango.Device.read_attributes_2.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_get_attribute_config_2_return, {"Seq length of AttributeConfigList_2","giop-tango.Device.get_attribute_config_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_2_get_attribute_config_2_names, {"Seq length of names","giop-tango.Device.get_attribute_config_2.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_2_get_attribute_config_2_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_2.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_get_attribute_config_2_names, {"names","giop-tango.Device.get_attribute_config_2.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_command_list_query_2_return, {"Seq length of DevCmdInfoList_2","giop-tango.Device.command_list_query_2.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_command_query_2_command, {"command","giop-tango.Device.command_query_2.command",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -2763,7 +2791,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_2_read_attribute_history_2_name, {"name","giop-tango.Device.read_attribute_history_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_2_read_attribute_history_2_n, {"n","giop-tango.Device.read_attribute_history_2.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attributes_3_return, {"Seq length of AttributeValueList_3","giop-tango.Device.read_attributes_3.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_read_attributes_3_names, {"Seq length of names","giop-tango.Device.read_attributes_3.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_read_attributes_3_names_loop, {"Seq length of names","giop-tango.Device.read_attributes_3.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attributes_3_names, {"names","giop-tango.Device.read_attributes_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attributes_3_source, {"source","giop-tango.Device.read_attributes_3.source",FT_UINT32,BASE_DEC,VALS(Tango_DevSource),0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_write_attributes_3_values, {"Seq length of values","giop-tango.Device.write_attributes_3.values",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2771,7 +2799,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_Device_3_read_attribute_history_3_name, {"name","giop-tango.Device.read_attribute_history_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_read_attribute_history_3_n, {"n","giop-tango.Device.read_attribute_history_3.n",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_get_attribute_config_3_return, {"Seq length of AttributeConfigList_3","giop-tango.Device.get_attribute_config_3.return",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_Device_3_get_attribute_config_3_names, {"Seq length of names","giop-tango.Device.get_attribute_config_3.names",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_Device_3_get_attribute_config_3_names_loop, {"Seq length of names","giop-tango.Device.get_attribute_config_3.names.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_get_attribute_config_3_names, {"names","giop-tango.Device.get_attribute_config_3.names",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_Device_3_set_attribute_config_3_new_conf, {"Seq length of new_conf","giop-tango.Device.set_attribute_config_3.new_conf",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Attribute filters */
@@ -2783,11 +2811,11 @@ void proto_register_giop_tango(void)
         /* Struct filters */
         {&hf_Tango_DevVarLongStringArray_lvalue_loop, {"Seq length of DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarLongStringArray_lvalue, {"DevVarLongStringArray_lvalue","giop-tango.DevVarLongStringArray.lvalue",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarLongStringArray_svalue, {"Seq length of DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarLongStringArray_svalue_loop, {"Seq length of DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarLongStringArray_svalue, {"DevVarLongStringArray_svalue","giop-tango.DevVarLongStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarDoubleStringArray_dvalue_loop, {"Seq length of DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarDoubleStringArray_dvalue, {"DevVarDoubleStringArray_dvalue","giop-tango.DevVarDoubleStringArray.dvalue",FT_DOUBLE,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_DevVarDoubleStringArray_svalue, {"Seq length of DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_DevVarDoubleStringArray_svalue_loop, {"Seq length of DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevVarDoubleStringArray_svalue, {"DevVarDoubleStringArray_svalue","giop-tango.DevVarDoubleStringArray.svalue",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_TimeVal_tv_sec, {"TimeVal_tv_sec","giop-tango.TimeVal.tv_sec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_TimeVal_tv_usec, {"TimeVal_tv_usec","giop-tango.TimeVal.tv_usec",FT_INT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
@@ -2829,7 +2857,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_min_alarm, {"AttributeConfig_min_alarm","giop-tango.AttributeConfig.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_max_alarm, {"AttributeConfig_max_alarm","giop-tango.AttributeConfig.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_writable_attr_name, {"AttributeConfig_writable_attr_name","giop-tango.AttributeConfig.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_extensions, {"Seq length of AttributeConfig_extensions","giop-tango.AttributeConfig.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_extensions_loop, {"Seq length of AttributeConfig_extensions","giop-tango.AttributeConfig.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_extensions, {"AttributeConfig_extensions","giop-tango.AttributeConfig.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_name, {"AttributeConfig_2_name","giop-tango.AttributeConfig_2.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_writable, {"AttributeConfig_2_writable","giop-tango.AttributeConfig_2.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
@@ -2849,7 +2877,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_2_max_alarm, {"AttributeConfig_2_max_alarm","giop-tango.AttributeConfig_2.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_writable_attr_name, {"AttributeConfig_2_writable_attr_name","giop-tango.AttributeConfig_2.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_level, {"AttributeConfig_2_level","giop-tango.AttributeConfig_2.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_2_extensions, {"Seq length of AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_2_extensions_loop, {"Seq length of AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_2_extensions, {"AttributeConfig_2_extensions","giop-tango.AttributeConfig_2.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeValue_quality, {"AttributeValue_quality","giop-tango.AttributeValue.quality",FT_UINT32,BASE_DEC,VALS(Tango_AttrQuality),0x0,NULL,HFILL}},
         {&hf_Tango_AttributeValue_name, {"AttributeValue_name","giop-tango.AttributeValue.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -2862,15 +2890,15 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeValue_3_err_list, {"Seq length of AttributeValue_3_err_list","giop-tango.AttributeValue_3.err_list",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ChangeEventProp_rel_change, {"ChangeEventProp_rel_change","giop-tango.ChangeEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ChangeEventProp_abs_change, {"ChangeEventProp_abs_change","giop-tango.ChangeEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ChangeEventProp_extensions, {"Seq length of ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ChangeEventProp_extensions_loop, {"Seq length of ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ChangeEventProp_extensions, {"ChangeEventProp_extensions","giop-tango.ChangeEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_PeriodicEventProp_period, {"PeriodicEventProp_period","giop-tango.PeriodicEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_PeriodicEventProp_extensions, {"Seq length of PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_PeriodicEventProp_extensions_loop, {"Seq length of PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_PeriodicEventProp_extensions, {"PeriodicEventProp_extensions","giop-tango.PeriodicEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_rel_change, {"ArchiveEventProp_rel_change","giop-tango.ArchiveEventProp.rel_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_abs_change, {"ArchiveEventProp_abs_change","giop-tango.ArchiveEventProp.abs_change",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_period, {"ArchiveEventProp_period","giop-tango.ArchiveEventProp.period",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_ArchiveEventProp_extensions, {"Seq length of ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_ArchiveEventProp_extensions_loop, {"Seq length of ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_ArchiveEventProp_extensions, {"ArchiveEventProp_extensions","giop-tango.ArchiveEventProp.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_min_alarm, {"AttributeAlarm_min_alarm","giop-tango.AttributeAlarm.min_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_max_alarm, {"AttributeAlarm_max_alarm","giop-tango.AttributeAlarm.max_alarm",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
@@ -2878,7 +2906,7 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeAlarm_max_warning, {"AttributeAlarm_max_warning","giop-tango.AttributeAlarm.max_warning",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_delta_t, {"AttributeAlarm_delta_t","giop-tango.AttributeAlarm.delta_t",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_delta_val, {"AttributeAlarm_delta_val","giop-tango.AttributeAlarm.delta_val",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeAlarm_extensions, {"Seq length of AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeAlarm_extensions_loop, {"Seq length of AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeAlarm_extensions, {"AttributeAlarm_extensions","giop-tango.AttributeAlarm.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_name, {"AttributeConfig_3_name","giop-tango.AttributeConfig_3.name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_writable, {"AttributeConfig_3_writable","giop-tango.AttributeConfig_3.writable",FT_UINT32,BASE_DEC,VALS(Tango_AttrWriteType),0x0,NULL,HFILL}},
@@ -2896,9 +2924,9 @@ void proto_register_giop_tango(void)
         {&hf_Tango_AttributeConfig_3_max_value, {"AttributeConfig_3_max_value","giop-tango.AttributeConfig_3.max_value",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_writable_attr_name, {"AttributeConfig_3_writable_attr_name","giop-tango.AttributeConfig_3.writable_attr_name",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_level, {"AttributeConfig_3_level","giop-tango.AttributeConfig_3.level",FT_UINT32,BASE_DEC,VALS(Tango_DispLevel),0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_extensions, {"Seq length of AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_extensions_loop, {"Seq length of AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_extensions, {"AttributeConfig_3_extensions","giop-tango.AttributeConfig_3.extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_Tango_AttributeConfig_3_sys_extensions, {"Seq length of AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_Tango_AttributeConfig_3_sys_extensions_loop, {"Seq length of AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_AttributeConfig_3_sys_extensions, {"AttributeConfig_3_sys_extensions","giop-tango.AttributeConfig_3.sys_extensions",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevInfo_dev_class, {"DevInfo_dev_class","giop-tango.DevInfo.dev_class",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_Tango_DevInfo_server_id, {"DevInfo_server_id","giop-tango.DevInfo.server_id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},

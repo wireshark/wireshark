@@ -312,6 +312,7 @@ class wireshark_gen_C:
             if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
                 #self.get_CDR_alias(rt, rt.name() )
                 self.st.out(self.template_hf, name=sname + "_return")
+                self.st.out(self.template_hf, name=sname + "_return_loop")
             else:
                 self.st.out(self.template_hf, name=sname + "_return")
 
@@ -400,6 +401,9 @@ class wireshark_gen_C:
         for uc in un.cases():           # for all UnionCase objects in this union
             for cl in uc.labels():      # for all Caselabel objects in this UnionCase
                 self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier())
+                if (uc.caseType().unalias().kind() == idltype.tk_sequence):
+                    if (self.isSeqNativeType(uc.caseType().unalias().seqType())):
+                        self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier() + "_loop")
 
 
     #
@@ -1076,6 +1080,16 @@ class wireshark_gen_C:
         elif pt ==  idltype.tk_double:
             return 1
         elif pt ==  idltype.tk_boolean:
+            return 1
+        elif pt ==  idltype.tk_octet:
+            return 1
+        elif pt ==  idltype.tk_enum:
+            return 1
+        elif pt ==  idltype.tk_string:
+            return 1
+        elif pt ==  idltype.tk_wstring:
+            return 1
+        elif pt ==  idltype.tk_wchar:
             return 1
         elif pt ==  idltype.tk_char:
             return 1
