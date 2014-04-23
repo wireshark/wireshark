@@ -84,11 +84,13 @@ endif		# HAVE_DOXYGEN
 checkapi: checkapi-base checkapi-todo
 
 checkapi-base:
-	$(PERL) ../../tools/checkAPIs.pl -g deprecated-gtk -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g deprecated-gtk -build \
+	-sourcedir=$(srcdir) \
 	$(TSHARK_TAP_SRC)
 
 checkapi-todo:
-	$(PERL) ../../tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -M -g deprecated-gtk-todo -build \
+	-sourcedir=$(srcdir) \
 	$(TSHARK_TAP_SRC)
 
 EXTRA_DIST = \

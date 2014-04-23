@@ -1218,7 +1218,8 @@ dumpabi:
 	$(MAKE) -C wsutil dumpabi-libwsutil
 
 checkapi_local:
-	$(PERL) tools/checkAPIs.pl -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -build \
+	-sourcedir=$(srcdir) \
 	$(TSHARK_TAP_SRC) \
 	$(wireshark_SOURCES)
 #	$(EXTRA_wireshark_SOURCES)

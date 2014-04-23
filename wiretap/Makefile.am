@@ -104,5 +104,7 @@ dumpabi-libwiretap: all abi-descriptor.xml
 
 checkapi:
 ## 'abort' checking disabled for now pending resolution of existing use of g_assert & g_error
-##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
-	$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(NONGENERATED_C_FILES) $(GENERATOR_FILES)
+##	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
+	-sourcedir=$(srcdir) \
+	$(NONGENERATED_C_FILES) $(GENERATOR_FILES)

@@ -332,4 +332,6 @@ dumpabi-libwireshark: all abi-descriptor.xml
 	cd .libs && ln -sf libwireshark_*.abi.tar.gz libwireshark.abi.tar.gz
 
 checkapi:
-	$(AM_V_GEN)$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(LIBWIRESHARK_SRC)
+	$(AM_V_GEN)$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
+	-sourcedir=$(srcdir) \
+	$(LIBWIRESHARK_SRC)

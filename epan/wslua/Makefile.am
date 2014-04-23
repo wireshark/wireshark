@@ -126,7 +126,8 @@ init.lua: template-init.lua make-init-lua.pl ../ftypes/ftypes.h ../../wiretap/wt
 	$(PERL) $(srcdir)/make-init-lua.pl $(top_srcdir) $(srcdir)/template-init.lua > init.lua
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
+	-sourcedir=$(srcdir) \
 	init_wslua.c \
 	register_wslua.c \
 	taps_wslua.c \

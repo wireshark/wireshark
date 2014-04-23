@@ -143,5 +143,6 @@ MAINTAINERCLEANFILES =	\
 	Makefile.in
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g abort -g termoutput -build \
-		$(ALL_DISSECTORS_SRC) $(DISSECTOR_INCLUDES) $(DISSECTOR_SUPPORT_SRC)
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
+	-sourcedir=$(srcdir) \
+	$(ALL_DISSECTORS_SRC) $(DISSECTOR_INCLUDES) $(DISSECTOR_SUPPORT_SRC)

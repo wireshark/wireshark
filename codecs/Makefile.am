@@ -46,7 +46,8 @@ libcodec_a_DEPENDENCIES =
 AM_CPPFLAGS = -I$(top_srcdir) -I$(top_srcdir)/wiretap
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput -build \
+	-sourcedir=$(srcdir) \
 	$(LIBCODEC_SRC)
 
 EXTRA_DIST = \

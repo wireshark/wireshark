@@ -56,7 +56,8 @@ EXTRA_DIST = \
 	wmem_test.c
 
 checkapi:
-	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
+	-sourcedir=$(srcdir) \
 	$(LIBWMEM_SRC)
 
 #

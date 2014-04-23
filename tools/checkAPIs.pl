@@ -1855,6 +1855,7 @@ sub print_usage
 {
         print "Usage: checkAPIs.pl [-M] [-h] [-g group1] [-g group2] ... \n";
         print "                    [--build] [-s group1] [-s group2] ... \n";
+        print "                    [--sourcedir=srcdir] \n";
         print "                    [--nocheck-value-string-array] \n";
         print "                    [--nocheck-addtext] [--nocheck-hf] [--debug] file1 file2 ...\n";
         print "\n";
@@ -1999,6 +2000,7 @@ my $check_hf = 1;                                       # default: enabled
 my $check_addtext = 1;                                  # default: enabled
 my $debug_flag = 0;                                     # default: disabled
 my $buildbot_flag = 0;
+my $source_dir = "";
 my $help_flag = 0;
 my $pre_commit = 0;
 
@@ -2010,6 +2012,7 @@ my $result = GetOptions(
                         'check-hf!' => \$check_hf,
                         'check-addtext!' => \$check_addtext,
                         'build' => \$buildbot_flag,
+                        'sourcedir=s' => \$source_dir,
                         'debug' => \$debug_flag,
                         'pre-commit' => \$pre_commit,
                         'help' => \$help_flag
@@ -2048,6 +2051,9 @@ while ($_ = $ARGV[0])
         my @foundAPIs = ();
         my $line;
 
+        if ($source_dir and ! -e $filename) {
+		$filename = $source_dir . '/' . $filename;
+	}
         if (! -e $filename) {
                 warn "No such file: \"$filename\"";
                 next;

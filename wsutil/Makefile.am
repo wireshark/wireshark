@@ -121,8 +121,10 @@ dumpabi-libwsutil: all abi-descriptor.xml
 	cd .libs && ln -sf libwsutil_*.abi.tar.gz libwsutil.abi.tar.gz
 
 checkapi:
-	$(PERL) ../tools/checkAPIs.pl -g termoutput -build \
+	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g termoutput -build \
+	-sourcedir=$(srcdir) \
 	$(LIBWSUTIL_SRC)
 
-#	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \
+#	$(PERL) $(top_srcdir)/tools/checkAPIs.pl -g abort -g termoutput \
+#	-sourcedir=$(srcdir) \
 #	file_util.c unicode-utils.c
