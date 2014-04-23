@@ -2484,9 +2484,9 @@ tvb_extract_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 
 	for(i = 0; i + 3 < length; i += 4) {
 		if (encoding == ENC_BIG_ENDIAN)
-			uchar = pntoh16(ptr + i);
+			uchar = pntoh32(ptr + i);
 		else
-			uchar = pletoh16(ptr + i);
+			uchar = pletoh32(ptr + i);
 
 		wmem_strbuf_append_unichar(strbuf, uchar);
 	}
