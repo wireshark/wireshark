@@ -1446,8 +1446,19 @@ class wireshark_gen_C:
         if (st.kind() == idltype.tk_enum):
             std = st.decl()
             self.st.out(self.template_comment_union_code_discriminant, uname=std.repoId() )
-            self.st.out(self.template_union_code_save_discriminant_enum, discname=un.identifier() )
-            self.addvar(self.c_s_disc + un.identifier() + ";")
+
+            #count the number of cases to ensure variable is needed
+            num = 0
+            num_defaults = 0
+            for uc in un.cases():           # for all UnionCase objects in this union
+                num += len(uc.labels())
+                for cl in uc.labels():
+                    if cl.default():
+                        num_defaults += 1
+
+            if ((num != 1) or (num_defaults != 1)):
+                self.st.out(self.template_union_code_save_discriminant_enum, discname=un.identifier() )
+                self.addvar(self.c_s_disc + un.identifier() + ";")
 
         elif (st.kind() == idltype.tk_long):
             self.st.out(self.template_union_code_save_discriminant_long, discname=un.identifier() )
