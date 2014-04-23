@@ -450,6 +450,24 @@ tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 	return rem_length;
 }
 
+/* Just like tvb_ensure_captured_length_remaining except it doesn't have to
+ * guarantee that at least one byte is available, it simply guarantees that the
+ * offset exists (so a 0 offset in a 0-length tvb won't throw) */
+guint
+tvb_ensure_captured_length_remaining_cheat(const tvbuff_t *tvb, const gint offset)
+{
+	guint abs_offset, rem_length;
+	int   exception;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	if (exception)
+		THROW(exception);
+
+	return rem_length;
+}
+
 guint
 tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {

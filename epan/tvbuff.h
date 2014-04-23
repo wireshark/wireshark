@@ -240,6 +240,12 @@ WS_DLL_PUBLIC gint tvb_captured_length_remaining(const tvbuff_t *tvb, const gint
 WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining(const tvbuff_t *tvb,
     const gint offset);
 
+/** Same as above, but permits offsets at the end of the tvbuff (such as an
+ * offset of 0 in a tvbuff with a snapshot length of 0, which is a silly thing
+ * to do but we have to be able to handle it gracefully). */
+WS_DLL_PUBLIC guint tvb_ensure_captured_length_remaining_cheat(
+    const tvbuff_t *tvb, const gint offset);
+
 /* DEPRECATED, do not use in new code, call tvb_ensure_captured_length_remaining directly! */
 #define tvb_ensure_length_remaining tvb_ensure_captured_length_remaining
 
