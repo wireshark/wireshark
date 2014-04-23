@@ -220,7 +220,7 @@ guint32
 wmem_strong_hash(const guint8 *buf, const size_t len)
 {
     const guint8 * const end = (const guint8 *)buf + len;
-    guint32 hash = preseed + len;
+    guint32 hash = preseed + (guint32)len;
 
     while (buf < end) {
         hash += (hash << 10);
