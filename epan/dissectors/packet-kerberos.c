@@ -2625,10 +2625,10 @@ guint32 msgtype;
 	}
 	gbl_do_col_info=FALSE;
 
+#if 0
 	/* append the application type to the tree */
 	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
-
-
+#endif
 
   return offset;
 }
@@ -4059,7 +4059,7 @@ dissect_kerberos_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	asn1_ctx.private_data = cb;
 
 	TRY {
-		offset=dissect_kerberos_Applications(FALSE, tvb, 0, &asn1_ctx , tree, /* hf_index */ -1);
+		offset=dissect_kerberos_Applications(FALSE, tvb, 0, &asn1_ctx , kerberos_tree, /* hf_index */ -1);
 	} CATCH_BOUNDS_ERRORS {
 		RETHROW;
 	} ENDTRY;
