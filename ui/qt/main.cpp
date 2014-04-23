@@ -484,6 +484,7 @@ int main(int argc, char *argv[])
     QString locale;
     QString *cf_name = NULL;
     QString *display_filter = NULL;
+    int optind_initial;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
     // In Qt 5, C strings are treated always as UTF-8 when converted to
@@ -496,13 +497,6 @@ int main(int argc, char *argv[])
     QTextCodec::setCodecForTr(utf8codec);
 #endif
 
-    // Init the main window (and splash)
-    main_w = new(MainWindow);
-    main_w->show();
-    // We may not need a queued connection here but it would seem to make sense
-    // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
-            main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
 
     // XXX Should the remaining code be in WiresharkApplcation::WiresharkApplication?
 #ifdef HAVE_LIBPCAP
@@ -522,12 +516,10 @@ int main(int argc, char *argv[])
 #endif
 
 #define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
-
     struct option     long_options[] = {
         {(char *)"read-file", required_argument, NULL, (int)'r' },
         {0, 0, 0, 0 }
     };
-
     static const char optstring[] = OPTSTRING;
 
     /* Assemble the compile-time version information string */
@@ -634,82 +626,163 @@ int main(int argc, char *argv[])
     }
     wsApp->emitAppSignal(WiresharkApplication::StaticRecentFilesRead);
 
+
+    /* "pre-scan" the command line parameters, if we have "console only"
+       parameters.  We do this so we don't start Qt if we're only showing
+       command-line help or version information.
+
+        XXX - this pre-scan is done before we start Qt. That means that Qt
+       arguments have not been removed from the argument list; those arguments
+       begin with "--", and will be treated as an error by getopt().
+
+       We thus ignore errors - *and* set "opterr" to 0 to suppress the
+       error messages.*/
+
+    opterr = 0;
+    optind_initial = optind;
+    while ((opt = getopt(argc, argv, optstring)) != -1) {
+        switch (opt) {
+            case 'C':        /* Configuration Profile */
+                if (profile_exists (optarg, FALSE)) {
+                    set_profile_name (optarg);
+                } else {
+                    cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
+                    exit(1);
+                }
+                break;
+            case 'D':        /* Print a list of capture devices and exit */
+#ifdef HAVE_LIBPCAP
+                if_list = capture_interface_list(&err, &err_str,main_window_update);
+                if (if_list == NULL) {
+                    switch (err) {
+                        case CANT_GET_INTERFACE_LIST:
+                        case DONT_HAVE_PCAP:
+                            cmdarg_err("%s", err_str);
+                            g_free(err_str);
+                            break;
+
+                        case NO_INTERFACES_FOUND:
+                            cmdarg_err("There are no interfaces on which a capture can be done");
+                            break;
+                    }
+                    exit(2);
+                }
+#ifdef _WIN32
+                create_console();
+#endif /* _WIN32 */
+                capture_opts_print_interfaces(if_list);
+                free_interface_list(if_list);
+#ifdef _WIN32
+                destroy_console();
+#endif /* _WIN32 */
+                exit(0);
+#else /* HAVE_LIBPCAP */
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
+#endif /* HAVE_LIBPCAP */
+                break;
+            case 'h':        /* Print help and exit */
+                print_usage(TRUE);
+                exit(0);
+                break;
+#ifdef _WIN32
+            case 'i':
+                if (strcmp(optarg, "-") == 0)
+                    set_stdin_capture(TRUE);
+                break;
+#endif
+            case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
+                if (!persfilepath_opt(opt, optarg)) {
+                    cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
+                    exit(2);
+                }
+                break;
+            case 'v':        /* Show version and exit */
+#ifdef _WIN32
+                create_console();
+#endif
+                show_version();
+#ifdef _WIN32
+                destroy_console();
+#endif
+                exit(0);
+                break;
+            case 'X':
+                /*
+                 *  Extension command line options have to be processed before
+                 *  we call epan_init() as they are supposed to be used by dissectors
+                 *  or taps very early in the registration process.
+                 */
+                ex_opt_add(optarg);
+                break;
+            case '?':        /* Ignore errors - the "real" scan will catch them. */
+                break;
+        }
+    }
+
+    /* Init the "Open file" dialog directory */
+    /* (do this after the path settings are processed) */
+
+    /* Read the profile dependent (static part) of the recent file. */
+    /* Only the static part of it will be read, as we don't have the gui now to fill the */
+    /* recent lists which is done in the dynamic part. */
+    /* We have to do this already here, so command line parameters can overwrite these values. */
+    recent_read_profile_static(&rf_path, &rf_open_errno);
+    if (rf_path != NULL && rf_open_errno != 0) {
+        simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
+                      "Could not open recent file\n\"%s\": %s.",
+                      rf_path, g_strerror(rf_open_errno));
+    }
+
+
+    /* Set getopt index back to initial value, so it will start with the
+       first command line parameter again.  Also reset opterr to 1, so that
+       error messages are printed by getopt().
+
+       XXX - this seems to work on most platforms, but time will tell.
+       The Single UNIX Specification says "The getopt() function need
+       not be reentrant", so this isn't guaranteed to work.  The Mac
+       OS X 10.4[.x] getopt() man page says
+
+         In order to use getopt() to evaluate multiple sets of arguments, or to
+         evaluate a single set of arguments multiple times, the variable optreset
+         must be set to 1 before the second and each additional set of calls to
+         getopt(), and the variable optind must be reinitialized.
+
+           ...
+
+         The optreset variable was added to make it possible to call the getopt()
+         function multiple times.  This is an extension to the IEEE Std 1003.2
+         (``POSIX.2'') specification.
+
+       which I think comes from one of the other BSDs.
+
+       XXX - if we want to control all the command-line option errors, so
+       that we can display them where we choose (e.g., in a window), we'd
+       want to leave opterr as 0, and produce our own messages using optopt.
+       We'd have to check the value of optopt to see if it's a valid option
+       letter, in which case *presumably* the error is "this option requires
+       an argument but none was specified", or not a valid option letter,
+       in which case *presumably* the error is "this option isn't valid".
+       Some versions of getopt() let you supply a option string beginning
+       with ':', which means that getopt() will return ':' rather than '?'
+       for "this option requires an argument but none was specified", but
+       not all do. */
+    optind = optind_initial;
+    opterr = 1;
+
+    // Init the main window (and splash)
+    main_w = new(MainWindow);
+    main_w->show();
+    // We may not need a queued connection here but it would seem to make sense
+    // to force the issue.
+    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString&,QString&,unsigned int)),
+            main_w, SLOT(openCaptureFile(QString&,QString&,unsigned int)));
+
     while ((opt = getopt_long(argc, argv, optstring, long_options, NULL)) != -1) {
         switch (opt) {
-        case 'C':        /* Configuration Profile */
-            if (profile_exists (optarg, FALSE)) {
-                set_profile_name (optarg);
-            } else {
-                cmdarg_err("Configuration Profile \"%s\" does not exist", optarg);
-                exit(1);
-            }
-            break;
-        case 'D':        /* Print a list of capture devices and exit */
-#ifdef HAVE_LIBPCAP
-            if_list = capture_interface_list(&err, &err_str, main_window_update);
-            if (if_list == NULL) {
-                switch (err) {
-                case CANT_GET_INTERFACE_LIST:
-                    cmdarg_err("%s", err_str);
-                    g_free(err_str);
-                    break;
-
-                case NO_INTERFACES_FOUND:
-                    cmdarg_err("There are no interfaces on which a capture can be done");
-                    break;
-                }
-                exit(2);
-            }
-#ifdef _WIN32
-            create_console();
-#endif /* _WIN32 */
-            capture_opts_print_interfaces(if_list);
-            free_interface_list(if_list);
-#ifdef _WIN32
-            destroy_console();
-#endif /* _WIN32 */
-            exit(0);
-#else /* HAVE_LIBPCAP */
-            capture_option_specified = TRUE;
-            arg_error = TRUE;
-#endif /* HAVE_LIBPCAP */
-            break;
-        case 'h':        /* Print help and exit */
-            print_usage(TRUE);
-            exit(0);
-            break;
-#ifdef _WIN32
-        case 'i':
-            if (strcmp(optarg, "-") == 0)
-                set_stdin_capture(TRUE);
-            break;
-#endif
-        case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
-            if (!persfilepath_opt(opt, optarg)) {
-                cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
-                exit(2);
-            }
-            break;
-        case 'v':        /* Show version and exit */
-#ifdef _WIN32
-            create_console();
-#endif
-            show_version();
-#ifdef _WIN32
-            destroy_console();
-#endif
-            exit(0);
-            break;
         case 'r':
             cf_name = new QString(optarg);
-            break;
-        case 'X':
-            /*
-             *  Extension command line options have to be processed before
-             *  we call epan_init() as they are supposed to be used by dissectors
-             *  or taps very early in the registration process.
-             */
-            ex_opt_add(optarg);
             break;
         case '?':
             print_usage(TRUE);
