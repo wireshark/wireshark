@@ -283,7 +283,10 @@ read_keytab_file(const char *filename)
 	enc_key_t *new_key;
 	static gboolean first_time=TRUE;
 
-printf("read keytab file %s\n", filename);
+	if (filename == NULL || filename[0] == 0) {
+		return;
+	}
+
 	if(first_time){
 		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
@@ -419,6 +422,10 @@ read_keytab_file(const char *filename)
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
 	static gboolean first_time=TRUE;
+
+	if (filename == NULL || filename[0] == 0) {
+		return;
+	}
 
 	if(first_time){
 		first_time=FALSE;

@@ -534,7 +534,10 @@ read_keytab_file(const char *filename)
 	enc_key_t *new_key;
 	static gboolean first_time=TRUE;
 
-printf("read keytab file %s\n", filename);
+	if (filename == NULL || filename[0] == 0) {
+		return;
+	}
+
 	if(first_time){
 		first_time=FALSE;
 		ret = krb5_init_context(&krb5_ctx);
@@ -670,6 +673,10 @@ read_keytab_file(const char *filename)
 	krb5_kt_cursor cursor;
 	enc_key_t *new_key;
 	static gboolean first_time=TRUE;
+
+	if (filename == NULL || filename[0] == 0) {
+		return;
+	}
 
 	if(first_time){
 		first_time=FALSE;
@@ -3960,7 +3967,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1667 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1674 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -4916,7 +4923,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 1966 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1973 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   /* List of subtrees */
@@ -4981,7 +4988,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 1973 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1980 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   static ei_register_info ei[] = {
