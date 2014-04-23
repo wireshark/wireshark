@@ -28,7 +28,6 @@ AD-AND-OR
 AD-KDCIssued
 AD-LoginAlias
 AD-MANDATORY-FOR-KDC
-ADDR-TYPE
 AUTHDATA-TYPE
 ChangePasswdDataMS
 EncryptedData
@@ -60,6 +59,9 @@ TYPED-DATA
 #.NO_EMIT ONLY_VALS
 Applications
 
+#.MAKE_DEFINES
+ADDR-TYPE TYPE_PREFIX
+
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
 guint32 msgtype;
 
@@ -73,9 +75,10 @@ guint32 msgtype;
 	}
 	gbl_do_col_info=FALSE;
 
+##if 0
 	/* append the application type to the tree */
 	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
-
+##endif
 
 #.FN_BODY ERROR-CODE VAL_PTR = &krb5_errorcode
 %(DEFAULT_BODY)s
@@ -195,11 +198,11 @@ guint32 msgtype;
 	address_str=(char*)wmem_alloc(wmem_packet_scope(), ADDRESS_STR_BUFSIZ);
 	address_str[0]=0;
 	switch(addr_type){
-	case KRB5_ADDR_IPv4:
+	case KERBEROS_ADDR_TYPE_IPV4:
 		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		g_snprintf(address_str,ADDRESS_STR_BUFSIZ,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
 		break;
-	case KRB5_ADDR_NETBIOS:
+	case KERBEROS_ADDR_TYPE_NETBIOS:
 		{
 		char netbios_name[(NETBIOS_NAME_LEN - 1)*4 + 1];
 		int netbios_name_type;
@@ -210,7 +213,7 @@ guint32 msgtype;
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}
 		break;
-	case KRB5_ADDR_IPv6:
+	case KERBEROS_ADDR_TYPE_IPV6:
 		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
 		g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
 		break;
@@ -374,9 +377,6 @@ guint32 msgtype;
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									(guint32*)actx->value_ptr);
-
-#.TYPE_ATTR
-HostAddress/addr-type TYPE=FT_UINT32 DISPLAY=BASE_DEC STRINGS=VALS(krb5_address_types)
 
 #.FN_BODY KDC-REQ-BODY
 	conversation_t *conversation;

@@ -160,6 +160,8 @@ static guint32 krb5_errorcode;
 static guint32 gbl_keytype;
 static gboolean gbl_do_col_info;
 
+#include "packet-kerberos-val.h"
+
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
 {
@@ -778,16 +780,6 @@ g_warning("woohoo decrypted keytype:%d in frame:%u\n", keytype, pinfo->fd->num);
 #define KRB5_MSG_ENC_KRB_CRED_PART     	29	/* EncKrbCredPart */
 #define KRB5_MSG_ERROR    		30	/* KRB-ERROR type */
 
-/* address type constants */
-#define KRB5_ADDR_IPv4       0x02
-#define KRB5_ADDR_CHAOS      0x05
-#define KRB5_ADDR_XEROX      0x06
-#define KRB5_ADDR_ISO        0x07
-#define KRB5_ADDR_DECNET     0x0c
-#define KRB5_ADDR_APPLETALK  0x10
-#define KRB5_ADDR_NETBIOS    0x14
-#define KRB5_ADDR_IPv6       0x18
-
 /* encryption type constants */
 #define KRB5_ENCTYPE_NULL                0
 #define KRB5_ENCTYPE_DES_CBC_CRC         1
@@ -1245,18 +1237,6 @@ static const value_string krb5_transited_types[] = {
     { 0                           , NULL }
 };
 #endif
-
-static const value_string krb5_address_types[] = {
-    { KRB5_ADDR_IPv4,		"IPv4"},
-    { KRB5_ADDR_CHAOS,		"CHAOS"},
-    { KRB5_ADDR_XEROX,		"XEROX"},
-    { KRB5_ADDR_ISO,		"ISO"},
-    { KRB5_ADDR_DECNET,		"DECNET"},
-    { KRB5_ADDR_APPLETALK,	"APPLETALK"},
-    { KRB5_ADDR_NETBIOS,	"NETBIOS"},
-    { KRB5_ADDR_IPv6,		"IPv6"},
-    { 0,					NULL },
-};
 
 static const value_string krb5_msg_types[] = {
 	{ KRB5_MSG_TICKET,		"Ticket" },
