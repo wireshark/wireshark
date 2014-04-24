@@ -170,7 +170,7 @@ static void io_graph_free_cb(void* p) {
 } // extern "C"
 
 
-Q_DECLARE_METATYPE(IOGraph *);
+Q_DECLARE_METATYPE(IOGraph *)
 
 IOGraphDialog::IOGraphDialog(QWidget *parent, capture_file *cf) :
     QDialog(parent),
