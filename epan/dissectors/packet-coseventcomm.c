@@ -65,9 +65,6 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 static int hf_operationrequest = -1;/* Request_Operation field */
 
         /* Operation filters */
-static int hf_CosEventComm_PushConsumer_push_data = -1;
-static int hf_CosEventComm_PullSupplier_pull_return = -1;
-static int hf_CosEventComm_PullSupplier_try_pull_return = -1;
 static int hf_CosEventComm_PullSupplier_try_pull_has_event = -1;
         /* User exception filters */
         /* Expert info filters */

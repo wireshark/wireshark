@@ -311,16 +311,31 @@ class wireshark_gen_C:
         if (rt.kind() != idltype.tk_void):
             if (rt.kind() == idltype.tk_alias): # a typdef return val possibly ?
                 #self.get_CDR_alias(rt, rt.name() )
-                self.st.out(self.template_hf, name=sname + "_return")
-                self.st.out(self.template_hf, name=sname + "_return_loop")
-            else:
+                if (rt.unalias().kind() == idltype.tk_sequence):
+                    self.st.out(self.template_hf, name=sname + "_return_loop")
+                    if (self.isSeqNativeType(rt.unalias().seqType())):
+                        self.st.out(self.template_hf, name=sname + "_return")
+                elif ((rt.unalias().kind() != idltype.tk_struct) and \
+                      (rt.unalias().kind() != idltype.tk_objref) and \
+                      (rt.unalias().kind() != idltype.tk_any)):
+                    self.st.out(self.template_hf, name=sname + "_return")
+
+            elif ((rt.kind() != idltype.tk_struct) and \
+                  (rt.kind() != idltype.tk_objref) and \
+                  (rt.kind() != idltype.tk_union) and \
+                  (rt.kind() != idltype.tk_any)):
                 self.st.out(self.template_hf, name=sname + "_return")
 
         for p in op.parameters():
-            self.st.out(self.template_hf, name=sname + "_" + p.identifier())
             if (p.paramType().unalias().kind() == idltype.tk_sequence):
+                self.st.out(self.template_hf, name=sname + "_" + p.identifier() + "_loop")
                 if (self.isSeqNativeType(p.paramType().unalias().seqType())):
-                    self.st.out(self.template_hf, name=sname + "_" + p.identifier() + "_loop")
+                    self.st.out(self.template_hf, name=sname + "_" + p.identifier())
+            elif ((p.paramType().unalias().kind() != idltype.tk_any) and \
+                  (p.paramType().unalias().kind() != idltype.tk_struct) and \
+                  (p.paramType().unalias().kind() != idltype.tk_objref) and \
+                  (p.paramType().unalias().kind() != idltype.tk_union)):
+                self.st.out(self.template_hf, name=sname + "_" + p.identifier())
 
     #
     # genAtDeclares()
@@ -356,11 +371,14 @@ class wireshark_gen_C:
         sname = self.namespace(st, "_")
 
         for m in st.members():
-            for decl in m.declarators():
-                self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
-            if (m.memberType().unalias().kind() == idltype.tk_sequence):
-                if (self.isSeqNativeType(m.memberType().unalias().seqType())):
-                    self.st.out(self.template_hf, name=sname + "_" + decl.identifier() + "_loop")
+            if ((self.isSeqNativeType(m.memberType())) or (m.memberType().unalias().kind() == idltype.tk_sequence)):
+                for decl in m.declarators():
+                    if (m.memberType().unalias().kind() == idltype.tk_sequence):
+                        self.st.out(self.template_hf, name=sname + "_" + decl.identifier() + "_loop")
+                        if (self.isSeqNativeType(m.memberType().unalias().seqType())):
+                            self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
+                    else:
+                        self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
 
     #
     # genExDeclares()
@@ -378,10 +396,10 @@ class wireshark_gen_C:
 
         for m in ex.members():
             for decl in m.declarators():
-                self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
-            if (m.memberType().unalias().kind() == idltype.tk_sequence):
-                if (self.isSeqNativeType(m.memberType().unalias().seqType())):
+                if (m.memberType().unalias().kind() == idltype.tk_sequence):
                     self.st.out(self.template_hf, name=sname + "_" + decl.identifier() + "_loop")
+                else:
+                    self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
 
     #
     # genUnionDeclares()
@@ -400,11 +418,12 @@ class wireshark_gen_C:
 
         for uc in un.cases():           # for all UnionCase objects in this union
             for cl in uc.labels():      # for all Caselabel objects in this UnionCase
-                self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier())
                 if (uc.caseType().unalias().kind() == idltype.tk_sequence):
+                    self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier() + "_loop")
                     if (self.isSeqNativeType(uc.caseType().unalias().seqType())):
-                        self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier() + "_loop")
-
+                        self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier())
+                elif (self.isSeqNativeType(uc.caseType())):
+                    self.st.out(self.template_hf, name=sname + "_" + uc.declarator().identifier())
 
     #
     # genExpertInfoDeclares()
@@ -1261,10 +1280,6 @@ class wireshark_gen_C:
     def get_CDR_objref(self,type,pn):
         self.st.out(self.template_get_CDR_object)
 
-    def get_CDR_sequence_len(self,pn):
-        self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
-
-
     def get_CDR_union(self,type,pn):
         if self.DEBUG:
             print "XXX Union type =" , type, " pn = ",pn
@@ -1427,12 +1442,9 @@ class wireshark_gen_C:
         self.st.out(self.template_get_CDR_sequence_octet_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
 
     def get_CDR_sequence_hf(self,type,pn,desc,filter,diss):
+        self.st.out(self.template_get_CDR_sequence_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
         if (self.isSeqNativeType(type.unalias().seqType())):
-            self.st.out(self.template_get_CDR_sequence_loop_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
-        else:
-            self.st.out(self.template_get_CDR_sequence_hf, hfname=pn, dissector_name=diss, descname=desc, filtername=filter)
-
-        self.getCDR_hf(type.unalias().seqType(),desc,filter,pn)
+            self.getCDR_hf(type.unalias().seqType(),desc,filter,pn)
 
     def get_CDR_alias_hf(self,type,pn):
         if self.DEBUG:
@@ -1648,9 +1660,6 @@ class wireshark_gen_C:
 
 
         else:                           # a simple typdef
-            if self.DEBUG:
-                print "XXX get_CDR_alias, type = " ,type , " pn = " , pn
-                print "XXX get_CDR_alias, type.decl() = " ,type.decl()
 
             self.getCDR(type, pn )
 
@@ -1738,10 +1747,7 @@ class wireshark_gen_C:
 
 
     def get_CDR_sequence(self,type,pn):
-        if (self.isSeqNativeType(type.unalias().seqType())):
-            self.st.out(self.template_get_CDR_sequence_loop_length, seqname=pn )
-        else:
-            self.st.out(self.template_get_CDR_sequence_length, seqname=pn )
+        self.st.out(self.template_get_CDR_sequence_length, seqname=pn )
         self.st.out(self.template_get_CDR_sequence_loop_start, seqname=pn )
         self.addvar(self.c_i_lim + pn + ";" )
         self.addvar(self.c_i + pn + ";")
@@ -2338,11 +2344,6 @@ get_CDR_object(tvb, pinfo, tree, offset, stream_is_big_endian, boundary);
     template_get_CDR_sequence_length = """\
 u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
 /* coverity[returned_pointer] */
-item = proto_tree_add_uint(tree, hf_@seqname@, tvb,*offset-4, 4, u_octet4_loop_@seqname@);
-"""
-    template_get_CDR_sequence_loop_length = """\
-u_octet4_loop_@seqname@ = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
-/* coverity[returned_pointer] */
 item = proto_tree_add_uint(tree, hf_@seqname@_loop, tvb,*offset-4, 4, u_octet4_loop_@seqname@);
 """
     template_get_CDR_sequence_loop_start = """\
@@ -2436,9 +2437,6 @@ for (i_@aname@=0; i_@aname@ < @aval@; i_@aname@++) {
         {&hf_@hfname@, {"@descname@","giop-@dissector_name@.@filtername@",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
 
     template_get_CDR_sequence_hf = """\
-        {&hf_@hfname@, {"Seq length of @descname@","giop-@dissector_name@.@filtername@",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
-
-    template_get_CDR_sequence_loop_hf = """\
         {&hf_@hfname@_loop, {"Seq length of @descname@","giop-@dissector_name@.@filtername@.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},"""
 
     template_get_CDR_sequence_octet_hf = """\

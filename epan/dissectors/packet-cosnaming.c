@@ -65,38 +65,29 @@ static guint32  boundary = GIOP_HEADER_SIZE;  /* initial value */
 static int hf_operationrequest = -1;/* Request_Operation field */
 
         /* Operation filters */
-static int hf_CosNaming_NamingContext_bind_n = -1;
-static int hf_CosNaming_NamingContext_bind_obj = -1;
-static int hf_CosNaming_NamingContext_rebind_n = -1;
-static int hf_CosNaming_NamingContext_rebind_obj = -1;
-static int hf_CosNaming_NamingContext_bind_context_n = -1;
-static int hf_CosNaming_NamingContext_bind_context_nc = -1;
-static int hf_CosNaming_NamingContext_rebind_context_n = -1;
-static int hf_CosNaming_NamingContext_rebind_context_nc = -1;
-static int hf_CosNaming_NamingContext_resolve_return = -1;
-static int hf_CosNaming_NamingContext_resolve_n = -1;
-static int hf_CosNaming_NamingContext_unbind_n = -1;
-static int hf_CosNaming_NamingContext_new_context_return = -1;
-static int hf_CosNaming_NamingContext_bind_new_context_return = -1;
-static int hf_CosNaming_NamingContext_bind_new_context_n = -1;
+static int hf_CosNaming_NamingContext_bind_n_loop = -1;
+static int hf_CosNaming_NamingContext_rebind_n_loop = -1;
+static int hf_CosNaming_NamingContext_bind_context_n_loop = -1;
+static int hf_CosNaming_NamingContext_rebind_context_n_loop = -1;
+static int hf_CosNaming_NamingContext_resolve_n_loop = -1;
+static int hf_CosNaming_NamingContext_unbind_n_loop = -1;
+static int hf_CosNaming_NamingContext_bind_new_context_n_loop = -1;
 static int hf_CosNaming_NamingContext_list_how_many = -1;
-static int hf_CosNaming_NamingContext_list_bl = -1;
-static int hf_CosNaming_NamingContext_list_bi = -1;
+static int hf_CosNaming_NamingContext_list_bl_loop = -1;
 static int hf_CosNaming_BindingIterator_next_one_return = -1;
-static int hf_CosNaming_BindingIterator_next_one_b = -1;
 static int hf_CosNaming_BindingIterator_next_n_return = -1;
 static int hf_CosNaming_BindingIterator_next_n_how_many = -1;
-static int hf_CosNaming_BindingIterator_next_n_bl = -1;
+static int hf_CosNaming_BindingIterator_next_n_bl_loop = -1;
         /* Struct filters */
 static int hf_CosNaming_NameComponent_id = -1;
 static int hf_CosNaming_NameComponent_kind = -1;
-static int hf_CosNaming_Binding_binding_name = -1;
+static int hf_CosNaming_Binding_binding_name_loop = -1;
 static int hf_CosNaming_Binding_binding_type = -1;
         /* User exception filters */
 static int hf_CosNaming_NamingContext_NotFound_why = -1;
-static int hf_CosNaming_NamingContext_NotFound_rest_of_name = -1;
+static int hf_CosNaming_NamingContext_NotFound_rest_of_name_loop = -1;
 static int hf_CosNaming_NamingContext_CannotProceed_cxt = -1;
-static int hf_CosNaming_NamingContext_CannotProceed_rest_of_name = -1;
+static int hf_CosNaming_NamingContext_CannotProceed_rest_of_name_loop = -1;
         /* Expert info filters */
 static expert_field ei_cosnaming_unknown_giop_msg = EI_INIT;
 static expert_field ei_cosnaming_unknown_exception = EI_INIT;
@@ -168,7 +159,7 @@ decode_ex_CosNaming_NamingContext_NotFound(tvbuff_t *tvb _U_, packet_info *pinfo
 
     u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_NotFound_rest_of_name, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name);
+    item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_NotFound_rest_of_name_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name);
 
     for (i_CosNaming_NamingContext_NotFound_rest_of_name=0; i_CosNaming_NamingContext_NotFound_rest_of_name < u_octet4_loop_CosNaming_NamingContext_NotFound_rest_of_name; i_CosNaming_NamingContext_NotFound_rest_of_name++) {
 
@@ -196,7 +187,7 @@ decode_ex_CosNaming_NamingContext_CannotProceed(tvbuff_t *tvb _U_, packet_info *
 
     u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_CannotProceed_rest_of_name, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name);
+    item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_CannotProceed_rest_of_name_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name);
 
     for (i_CosNaming_NamingContext_CannotProceed_rest_of_name=0; i_CosNaming_NamingContext_CannotProceed_rest_of_name < u_octet4_loop_CosNaming_NamingContext_CannotProceed_rest_of_name; i_CosNaming_NamingContext_CannotProceed_rest_of_name++) {
 
@@ -255,7 +246,7 @@ decode_CosNaming_NamingContext_bind(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
     case Request:
         u_octet4_loop_CosNaming_NamingContext_bind_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_n);
 
         for (i_CosNaming_NamingContext_bind_n=0; i_CosNaming_NamingContext_bind_n < u_octet4_loop_CosNaming_NamingContext_bind_n; i_CosNaming_NamingContext_bind_n++) {
 
@@ -306,7 +297,7 @@ decode_CosNaming_NamingContext_rebind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     case Request:
         u_octet4_loop_CosNaming_NamingContext_rebind_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_n);
 
         for (i_CosNaming_NamingContext_rebind_n=0; i_CosNaming_NamingContext_rebind_n < u_octet4_loop_CosNaming_NamingContext_rebind_n; i_CosNaming_NamingContext_rebind_n++) {
 
@@ -357,7 +348,7 @@ decode_CosNaming_NamingContext_bind_context(tvbuff_t *tvb _U_, packet_info *pinf
     case Request:
         u_octet4_loop_CosNaming_NamingContext_bind_context_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_context_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_context_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_context_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_context_n);
 
         for (i_CosNaming_NamingContext_bind_context_n=0; i_CosNaming_NamingContext_bind_context_n < u_octet4_loop_CosNaming_NamingContext_bind_context_n; i_CosNaming_NamingContext_bind_context_n++) {
 
@@ -408,7 +399,7 @@ decode_CosNaming_NamingContext_rebind_context(tvbuff_t *tvb _U_, packet_info *pi
     case Request:
         u_octet4_loop_CosNaming_NamingContext_rebind_context_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_context_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_context_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_rebind_context_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_rebind_context_n);
 
         for (i_CosNaming_NamingContext_rebind_context_n=0; i_CosNaming_NamingContext_rebind_context_n < u_octet4_loop_CosNaming_NamingContext_rebind_context_n; i_CosNaming_NamingContext_rebind_context_n++) {
 
@@ -459,7 +450,7 @@ decode_CosNaming_NamingContext_resolve(tvbuff_t *tvb _U_, packet_info *pinfo _U_
     case Request:
         u_octet4_loop_CosNaming_NamingContext_resolve_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_resolve_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_resolve_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_resolve_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_resolve_n);
 
         for (i_CosNaming_NamingContext_resolve_n=0; i_CosNaming_NamingContext_resolve_n < u_octet4_loop_CosNaming_NamingContext_resolve_n; i_CosNaming_NamingContext_resolve_n++) {
 
@@ -508,7 +499,7 @@ decode_CosNaming_NamingContext_unbind(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
     case Request:
         u_octet4_loop_CosNaming_NamingContext_unbind_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_unbind_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_unbind_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_unbind_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_unbind_n);
 
         for (i_CosNaming_NamingContext_unbind_n=0; i_CosNaming_NamingContext_unbind_n < u_octet4_loop_CosNaming_NamingContext_unbind_n; i_CosNaming_NamingContext_unbind_n++) {
 
@@ -588,7 +579,7 @@ decode_CosNaming_NamingContext_bind_new_context(tvbuff_t *tvb _U_, packet_info *
     case Request:
         u_octet4_loop_CosNaming_NamingContext_bind_new_context_n = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
         /* coverity[returned_pointer] */
-        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_new_context_n, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_new_context_n);
+        item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_bind_new_context_n_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_bind_new_context_n);
 
         for (i_CosNaming_NamingContext_bind_new_context_n=0; i_CosNaming_NamingContext_bind_new_context_n < u_octet4_loop_CosNaming_NamingContext_bind_new_context_n; i_CosNaming_NamingContext_bind_new_context_n++) {
 
@@ -676,7 +667,7 @@ decode_CosNaming_NamingContext_list(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
 
             u_octet4_loop_CosNaming_NamingContext_list_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
             /* coverity[returned_pointer] */
-            item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_list_bl, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_list_bl);
+            item = proto_tree_add_uint(tree, hf_CosNaming_NamingContext_list_bl_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_NamingContext_list_bl);
 
             for (i_CosNaming_NamingContext_list_bl=0; i_CosNaming_NamingContext_list_bl < u_octet4_loop_CosNaming_NamingContext_list_bl; i_CosNaming_NamingContext_list_bl++) {
 
@@ -763,7 +754,7 @@ decode_CosNaming_BindingIterator_next_n(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
             u_octet4_loop_CosNaming_BindingIterator_next_n_bl = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
             /* coverity[returned_pointer] */
-            item = proto_tree_add_uint(tree, hf_CosNaming_BindingIterator_next_n_bl, tvb,*offset-4, 4, u_octet4_loop_CosNaming_BindingIterator_next_n_bl);
+            item = proto_tree_add_uint(tree, hf_CosNaming_BindingIterator_next_n_bl_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_BindingIterator_next_n_bl);
 
             for (i_CosNaming_BindingIterator_next_n_bl=0; i_CosNaming_BindingIterator_next_n_bl < u_octet4_loop_CosNaming_BindingIterator_next_n_bl; i_CosNaming_BindingIterator_next_n_bl++) {
 
@@ -846,7 +837,7 @@ decode_CosNaming_Binding_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
     u_octet4_loop_CosNaming_Binding_binding_name = get_CDR_ulong(tvb, offset, stream_is_big_endian, boundary);
     /* coverity[returned_pointer] */
-    item = proto_tree_add_uint(tree, hf_CosNaming_Binding_binding_name, tvb,*offset-4, 4, u_octet4_loop_CosNaming_Binding_binding_name);
+    item = proto_tree_add_uint(tree, hf_CosNaming_Binding_binding_name_loop, tvb,*offset-4, 4, u_octet4_loop_CosNaming_Binding_binding_name);
 
     for (i_CosNaming_Binding_binding_name=0; i_CosNaming_Binding_binding_name < u_octet4_loop_CosNaming_Binding_binding_name; i_CosNaming_Binding_binding_name++) {
 
@@ -1053,29 +1044,29 @@ void proto_register_giop_cosnaming(void)
         /* field that indicates the currently ongoing request/reply exchange */
             {&hf_operationrequest, {"Request_Operation","giop-cosnaming.Request_Operation",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         /* Operation filters */
-        {&hf_CosNaming_NamingContext_bind_n, {"Seq length of n","giop-cosnaming.NamingContext.bind.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_rebind_n, {"Seq length of n","giop-cosnaming.NamingContext.rebind.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_bind_context_n, {"Seq length of n","giop-cosnaming.NamingContext.bind_context.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_rebind_context_n, {"Seq length of n","giop-cosnaming.NamingContext.rebind_context.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_resolve_n, {"Seq length of n","giop-cosnaming.NamingContext.resolve.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_unbind_n, {"Seq length of n","giop-cosnaming.NamingContext.unbind.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_bind_new_context_n, {"Seq length of n","giop-cosnaming.NamingContext.bind_new_context.n",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_bind_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.bind.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_rebind_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.rebind.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_bind_context_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.bind_context.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_rebind_context_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.rebind_context.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_resolve_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.resolve.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_unbind_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.unbind.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_bind_new_context_n_loop, {"Seq length of n","giop-cosnaming.NamingContext.bind_new_context.n.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_CosNaming_NamingContext_list_how_many, {"how_many","giop-cosnaming.NamingContext.list.how_many",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_list_bl, {"Seq length of bl","giop-cosnaming.NamingContext.list.bl",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_list_bl_loop, {"Seq length of bl","giop-cosnaming.NamingContext.list.bl.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_CosNaming_BindingIterator_next_one_return, {"Return value","giop-cosnaming.BindingIterator.next_one.return",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
         {&hf_CosNaming_BindingIterator_next_n_return, {"Return value","giop-cosnaming.BindingIterator.next_n.return",FT_BOOLEAN,8,NULL,0x01,NULL,HFILL}},
         {&hf_CosNaming_BindingIterator_next_n_how_many, {"how_many","giop-cosnaming.BindingIterator.next_n.how_many",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_BindingIterator_next_n_bl, {"Seq length of bl","giop-cosnaming.BindingIterator.next_n.bl",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_BindingIterator_next_n_bl_loop, {"Seq length of bl","giop-cosnaming.BindingIterator.next_n.bl.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Attribute filters */
         /* Struct filters */
         {&hf_CosNaming_NameComponent_id, {"NameComponent_id","giop-cosnaming.NameComponent.id",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
         {&hf_CosNaming_NameComponent_kind, {"NameComponent_kind","giop-cosnaming.NameComponent.kind",FT_STRING,BASE_NONE,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_Binding_binding_name, {"Seq length of Binding_binding_name","giop-cosnaming.Binding.binding_name",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_Binding_binding_name_loop, {"Seq length of Binding_binding_name","giop-cosnaming.Binding.binding_name.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         {&hf_CosNaming_Binding_binding_type, {"Binding_binding_type","giop-cosnaming.Binding.binding_type",FT_UINT32,BASE_DEC,VALS(CosNaming_BindingType),0x0,NULL,HFILL}},
         /* User exception filters */
         {&hf_CosNaming_NamingContext_NotFound_why, {"NotFound_why","giop-cosnaming.NamingContext.NotFound_why",FT_UINT32,BASE_DEC,VALS(CosNaming_NamingContext_NotFoundReason),0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_NotFound_rest_of_name, {"Seq length of NotFound_rest_of_name","giop-cosnaming.NamingContext.NotFound_rest_of_name",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
-        {&hf_CosNaming_NamingContext_CannotProceed_rest_of_name, {"Seq length of CannotProceed_rest_of_name","giop-cosnaming.NamingContext.CannotProceed_rest_of_name",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_NotFound_rest_of_name_loop, {"Seq length of NotFound_rest_of_name","giop-cosnaming.NamingContext.NotFound_rest_of_name.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
+        {&hf_CosNaming_NamingContext_CannotProceed_rest_of_name_loop, {"Seq length of CannotProceed_rest_of_name","giop-cosnaming.NamingContext.CannotProceed_rest_of_name.size",FT_UINT32,BASE_DEC,NULL,0x0,NULL,HFILL}},
         /* Union filters */
 
     };
