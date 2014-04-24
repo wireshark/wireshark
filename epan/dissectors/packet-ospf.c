@@ -1178,7 +1178,6 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             default:
                 DISSECTOR_ASSERT_NOT_REACHED();
-                cksum_vec_len = 0;
                 break;
             }
             computed_cksum = in_cksum(cksum_vec, cksum_vec_len);
