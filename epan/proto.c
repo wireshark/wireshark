@@ -1965,7 +1965,10 @@ proto_item *
 proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 		    const gint start, gint length, const guint encoding)
 {
-	return proto_tree_add_item_new(tree, proto_registrar_get_nth(hfindex), tvb, start, length, encoding);
+	register header_field_info *hfinfo;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
+	return proto_tree_add_item_new(tree, hfinfo, tvb, start, length, encoding);
 }
 
 /* which FT_ types can use proto_tree_add_bytes_item() */
@@ -1993,8 +1996,10 @@ proto_tree_add_bytes_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	GByteArray	  *created_bytes = NULL;
 	gint		   saved_err = 0;
 	guint32		   n = 0;
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
 	gboolean	   generate = (bytes || tree) ? TRUE : FALSE;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
@@ -2103,7 +2108,9 @@ proto_tree_add_time_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 	field_info	  *new_fi;
 	nstime_t	   time_stamp;
 	gint		   saved_err = 0;
-	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	header_field_info *hfinfo;
+
+	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);
 
 	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
 
@@ -4043,9 +4050,12 @@ protoo_strlcpy(gchar *dest, const gchar *src, gsize dest_size)
 static header_field_info *
 hfinfo_same_name_get_prev(const header_field_info *hfinfo)
 {
+	header_field_info *dup_hfinfo;
+
 	if (hfinfo->same_name_prev_id == -1)
 		return NULL;
-	return proto_registrar_get_nth(hfinfo->same_name_prev_id);
+	PROTO_REGISTRAR_GET_NTH(hfinfo->same_name_prev_id, dup_hfinfo);
+	return dup_hfinfo;
 }
 
 /* -------------------------- */
@@ -4074,7 +4084,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 
 	g_assert(field_id >= 0);
 
-	hfinfo = proto_registrar_get_nth((guint)field_id);
+	PROTO_REGISTRAR_GET_NTH((guint)field_id, hfinfo);
 
 	/* do we need to rewind ? */
 	if (!hfinfo)
@@ -4083,7 +4093,7 @@ proto_custom_set(proto_tree* tree, const int field_id, gint occurrence,
 	if (occurrence < 0) {
 		/* Search other direction */
 		while (hfinfo->same_name_prev_id != -1) {
-			hfinfo = proto_registrar_get_nth(hfinfo->same_name_prev_id);
+			PROTO_REGISTRAR_GET_NTH(hfinfo->same_name_prev_id, hfinfo);
 		}
 	}
 
@@ -7301,7 +7311,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	tree = proto_item_add_subtree(item, ett);
 	while (*fields) {
 		guint32 present_bits;
-		hf = proto_registrar_get_nth(**fields);
+		PROTO_REGISTRAR_GET_NTH(**fields,hf);
 		DISSECTOR_ASSERT(hf->bitmask != 0);
 
 		/* Skip fields that aren't fully present */
@@ -7414,7 +7424,7 @@ proto_tree_add_bitmask(proto_tree *parent_tree, tvbuff_t *tvb,
 	header_field_info *hf;
 	int                len;
 
-	hf = proto_registrar_get_nth(hf_hdr);
+	PROTO_REGISTRAR_GET_NTH(hf_hdr,hf);
 	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
 	len = ftype_length(hf->type);
 
@@ -7450,7 +7460,7 @@ proto_tree_add_bitmask_len(proto_tree *parent_tree, tvbuff_t *tvb,
 	guint   decodable_offset;
 	guint32 decodable_value;
 
-	hf = proto_registrar_get_nth(hf_hdr);
+	PROTO_REGISTRAR_GET_NTH(hf_hdr, hf);
 	DISSECTOR_ASSERT(IS_FT_INT(hf->type) || IS_FT_UINT(hf->type));
 
 	decodable_offset = offset;
