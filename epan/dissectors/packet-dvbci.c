@@ -4641,12 +4641,12 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 direction)
 {
     proto_item    *ti;
-    proto_tree    *link_tree   = NULL;
+    proto_tree    *link_tree;
     guint32        payload_len;
     guint8         tcid, more_last;
     proto_item    *pi;
-    tvbuff_t      *payload_tvb = NULL;
-    fragment_head *frag_msg    = NULL;
+    tvbuff_t      *payload_tvb;
+    fragment_head *frag_msg;
 
 
     payload_len = tvb_reported_length(tvb);
