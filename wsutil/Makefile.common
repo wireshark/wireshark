@@ -58,6 +58,7 @@ LIBWSUTIL_SRC = 	\
 	rc4.c		\
 	report_err.c	\
 	tempfile.c	\
+	time_util.c	\
 	type_util.c	\
 	u3.c		\
 	unicode-utils.c
@@ -98,6 +99,7 @@ LIBWSUTIL_INCLUDES = 	\
 	rc4.h		\
 	report_err.h	\
 	tempfile.h	\
+	time_util.h	\
 	type_util.h	\
 	u3.h		\
 	unicode-utils.h

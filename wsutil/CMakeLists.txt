@@ -64,6 +64,7 @@ set(WSUTIL_FILES
   rc4.c
   report_err.c
   tempfile.c
+  time_util.c
   type_util.c
   u3.c
   unicode-utils.c
