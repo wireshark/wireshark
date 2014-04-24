@@ -4161,7 +4161,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, circuit_t *circuit,
         packet_info *pinfo, proto_tree *tree, guint8 direction)
 {
     proto_item  *ti;
-    proto_tree  *app_tree = NULL;
+    proto_tree  *app_tree;
     guint32      apdu_len, tag, len_field;
     const gchar *tag_str;
     gint         offset;
@@ -4259,8 +4259,8 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 direction, guint8 tcid)
 {
     guint32            spdu_len;
-    proto_item        *ti          = NULL;
-    proto_tree        *sess_tree   = NULL;
+    proto_item        *ti;
+    proto_tree        *sess_tree;
     guint8             tag;
     const gchar       *tag_str;
     circuit_t         *circuit     = NULL;
@@ -4569,8 +4569,8 @@ dissect_dvbci_tpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 direction, guint8 lpdu_tcid)
 {
     guint32        tpdu_len, body_len;
-    proto_item    *ti                     = NULL;
-    proto_tree    *trans_tree             = NULL;
+    proto_item    *ti;
+    proto_tree    *trans_tree;
     gint           offset, status_len;
     guint8         hdr_tag                = NO_TAG;
     tvbuff_t      *body_tvb, *payload_tvb = NULL;
