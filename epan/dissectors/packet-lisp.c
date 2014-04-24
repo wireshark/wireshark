@@ -623,7 +623,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     guint8 min, sec;
     guint32 alt;
     guint16 afi;
-    const gchar *address;
+    const gchar *ip_address;
     const guint16 mask = 0x7FFF;   /* prepare mask for N or E bit */
     proto_item *ti_lat, *ti_lon, *ti_alt;
     proto_tree *lat_tree, *lon_tree;
@@ -722,9 +722,9 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     proto_tree_add_item(tree, hf_lisp_lcaf_geo_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    address = get_addr_str(tvb, offset, afi, &addr_len);
-    if (address && afi)
-        proto_item_append_text(tir, ", Address: %s", address);
+    ip_address = get_addr_str(tvb, offset, afi, &addr_len);
+    if (ip_address && afi)
+        proto_item_append_text(tir, ", Address: %s", ip_address);
 
     switch (afi) {
         case AFNUM_RESERVED:
