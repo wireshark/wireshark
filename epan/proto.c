@@ -1409,8 +1409,6 @@ get_time_value(tvbuff_t *tvb, const gint start, const gint length, const guint e
 
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
-			time_stamp->secs = (time_t)0;
-			time_stamp->nsecs = 0;
 			break;
 	}
 }
