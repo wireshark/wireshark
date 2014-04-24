@@ -504,7 +504,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 remaining -= INET_ADDRLEN;
                 break;
             case AFNUM_INET6:
-                proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_ipv6, tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+                proto_tree_add_item(lisp_afi_list_tree, hf_lisp_lcaf_afi_list_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
                 proto_item_append_text(tir, " %d. IPv6 Address: %s", i, tvb_ip6_to_str(tvb, offset));
                 proto_item_set_len(tir, 2 + INET6_ADDRLEN);
                 offset    += INET6_ADDRLEN;
@@ -1685,7 +1685,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     proto_tree_add_item(lisp_tree, hf_lisp_info_res2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    ti_prefix = proto_tree_add_item(lisp_tree, hf_lisp_info_prefix, tvb, offset, 3, ENC_BIG_ENDIAN);
+    ti_prefix = proto_tree_add_item(lisp_tree, hf_lisp_info_prefix, tvb, offset, 3, ENC_ASCII|ENC_NA);
     prefix_tree = proto_item_add_subtree(ti_prefix, ett_lisp_info_prefix);
 
     proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_masklen, tvb, offset, 1, ENC_NA);
@@ -1709,7 +1709,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
             proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_ipv4, tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
             break;
         case AFNUM_INET6:
-            proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_ipv6, tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+            proto_tree_add_item(prefix_tree, hf_lisp_info_prefix_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
             break;
     }
 
@@ -1866,7 +1866,7 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     }
 
     /* Return the amount of data this dissector was able to dissect */
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 
