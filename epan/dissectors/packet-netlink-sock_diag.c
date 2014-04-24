@@ -650,7 +650,6 @@ dissect_sock_diag_inet_sockid(tvbuff_t *tvb, netlink_sock_diag_info_t *info, pro
 
 		default:
 			DISSECTOR_ASSERT_NOT_REACHED();
-			offset += 32;
 			break;
 	}
 
