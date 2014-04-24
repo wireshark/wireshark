@@ -1,6 +1,8 @@
 /* packet-lisp.c
  * Routines for Locator/ID Separation Protocol (LISP) Control Message dissection
- * Copyright 2011, Lorand Jakab <lj@lispmon.net>
+ * Copyright 2011, 2014 Lorand Jakab <ljakab@ac.upc.edu>
+ *
+ * Geo Coordinates LCAF dissection based on previous work by Radu Terciu
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -253,6 +255,22 @@ static int hf_lisp_lcaf_afi_list_ipv6 = -1;
 /* LCAF IID fields */
 static int hf_lisp_lcaf_iid = -1;
 
+/* LCAF Geo Coordinates fields */
+static int hf_lisp_lcaf_geo_lat = -1;
+static int hf_lisp_lcaf_geo_lat_hemisphere = -1;
+static int hf_lisp_lcaf_geo_lat_deg = -1;
+static int hf_lisp_lcaf_geo_lat_min = -1;
+static int hf_lisp_lcaf_geo_lat_sec = -1;
+static int hf_lisp_lcaf_geo_lon = -1;
+static int hf_lisp_lcaf_geo_lon_hemisphere = -1;
+static int hf_lisp_lcaf_geo_lon_deg = -1;
+static int hf_lisp_lcaf_geo_lon_min = -1;
+static int hf_lisp_lcaf_geo_lon_sec = -1;
+static int hf_lisp_lcaf_geo_alt = -1;
+static int hf_lisp_lcaf_geo_afi = -1;
+static int hf_lisp_lcaf_geo_ipv4 = -1;
+static int hf_lisp_lcaf_geo_ipv6 = -1;
+
 /* LCAF NATT fields */
 static int hf_lisp_lcaf_natt_msport = -1;
 static int hf_lisp_lcaf_natt_etrport = -1;
@@ -271,6 +289,8 @@ static gint ett_lisp_itr = -1;
 static gint ett_lisp_record = -1;
 static gint ett_lisp_lcaf = -1;
 static gint ett_lisp_lcaf_header = -1;
+static gint ett_lisp_lcaf_geo_lat = -1;
+static gint ett_lisp_lcaf_geo_lon = -1;
 static gint ett_lisp_loc = -1;
 static gint ett_lisp_loc_flags = -1;
 static gint ett_lisp_info_prefix = -1;
@@ -279,6 +299,7 @@ static gint ett_lisp_afi_list = -1;
 static expert_field ei_lisp_undecoded = EI_INIT;
 static expert_field ei_lisp_lcaf_type = EI_INIT;
 static expert_field ei_lisp_expected_field = EI_INIT;
+static expert_field ei_lisp_invalid_field = EI_INIT;
 static expert_field ei_lisp_unexpected_field = EI_INIT;
 
 static dissector_handle_t lisp_handle;
@@ -339,9 +360,20 @@ const value_string lcaf_typevals[] = {
     { 0,                    NULL}
 };
 
+const value_string lat_typevals[] = {
+    { 0,                    "S" },
+    { 1,                    "N" },
+    { 0,                    NULL}
+};
+
+const value_string lon_typevals[] = {
+    { 0,                    "W" },
+    { 1,                    "E" },
+    { 0,                    NULL}
+};
 
 static int
-dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset);
+dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip);
 
 static int
 get_lcaf_data(tvbuff_t *tvb, gint offset, guint8 *lcaf_type, guint16 *len)
@@ -434,7 +466,7 @@ dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, int idx)
+        gint offset, int idx, proto_item *tip)
 {
     guint16      addr_len = 0;
     guint16      hop_afi;
@@ -451,6 +483,8 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 "Unexpected reencap hop AFI (%d), cannot decode", hop_afi);
         return offset;
     }
+
+    proto_item_append_text(tip, ", %s", hop_str);
 
     if (idx) {
         ti = proto_tree_add_text(tree, tvb, offset - 4, addr_len + 4, "Reencap hop %d: %s", idx, hop_str);
@@ -515,7 +549,7 @@ dissect_lcaf_afi_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 lcaf_str = get_addr_str(tvb, offset, afi, &addr_len);
                 proto_item_append_text(tir, " %d. %s", i, lcaf_str);
                 proto_item_set_len(tir, 2 + addr_len);
-                offset = dissect_lcaf(tvb, pinfo, lisp_afi_list_tree, offset);
+                offset = dissect_lcaf(tvb, pinfo, lisp_afi_list_tree, offset, tir);
                 remaining -= (offset - old_offset);
                 break;
             default:
@@ -555,6 +589,163 @@ dissect_lcaf_iid(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     proto_tree_add_item(tree, hf_lisp_lcaf_iid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
+    return offset;
+}
+
+
+/*
+ * Dissector code for Geo Coordinates LCAF
+ *
+ *   0                   1                   2                   3
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |           AFI = 16387         |     Rsvd1     |     Flags     |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |   Type = 5    |     Rsvd2     |            12 + n             |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |N|     Latitude Degrees        |    Minutes    |    Seconds    |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |E|     Longitude Degrees       |    Minutes    |    Seconds    |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |                            Altitude                           |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |              AFI = x          |         Address  ...          |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ */
+
+static int
+dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tir)
+{
+    guint16 addr_len = 0;
+    gboolean north, east;
+    guint16 deg;
+    guint8 min, sec;
+    guint32 alt;
+    guint16 afi;
+    const gchar *address;
+    const guint16 mask = 0x7FFF;   /* prepare mask for N or E bit */
+    proto_item *ti_lat, *ti_lon, *ti_alt;
+    proto_tree *lat_tree, *lon_tree;
+
+    /* PROCESS LATITUDE */
+
+    ti_lat = proto_tree_add_item(tree, hf_lisp_lcaf_geo_lat, tvb, offset, 4, ENC_NA);
+    lat_tree = proto_item_add_subtree(ti_lat, ett_lisp_lcaf_geo_lat);
+
+    /* Hemisphere and degrees (2 bytes) */
+    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_hemisphere, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_deg, tvb, offset, 2, ENC_BIG_ENDIAN);
+    deg = tvb_get_ntohs(tvb, offset);
+    north = deg >> 15;
+    deg &= mask;
+    if (deg > 90)
+        expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
+                "Invalid latitude degrees value (%d)", deg);
+    offset += 2;
+
+    /* Minutes (1 byte) */
+    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_min, tvb, offset, 1, ENC_NA);
+    min = tvb_get_guint8(tvb, offset);
+    if (min > 60)
+        expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
+                "Invalid latitude minutes value (%d)", min);
+    offset += 1;
+
+    /* Seconds (1 byte) */
+    proto_tree_add_item(lat_tree, hf_lisp_lcaf_geo_lat_sec, tvb, offset, 1, ENC_NA);
+    sec = tvb_get_guint8(tvb, offset);
+    if (sec > 60)
+        expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
+                "Invalid latitude seconds value (%d)", min);
+    offset += 1;
+
+    proto_item_append_text(ti_lat, ": %s %d\302\260 %d' %d\"",
+            val_to_str(north, lat_typevals, ""), deg, min, sec);
+    proto_item_append_text(tir, ": (%s%d\302\260%d'%d\"",
+            val_to_str(north, lat_typevals, ""), deg, min, sec);
+
+    /* PROCESS LONGITUDE */
+
+    ti_lon = proto_tree_add_item(tree, hf_lisp_lcaf_geo_lon, tvb, offset, 4, ENC_NA);
+    lon_tree = proto_item_add_subtree(ti_lon, ett_lisp_lcaf_geo_lon);
+
+    /* Hemisphere and degrees (2 bytes) */
+    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_hemisphere, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_deg, tvb, offset, 2, ENC_BIG_ENDIAN);
+    deg = tvb_get_ntohs(tvb, offset);
+    east = deg >> 15;
+    deg &= mask;
+    if (deg > 180)
+        expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
+                "Invalid longitude degrees value (%d)", deg);
+    offset += 2;
+
+    /* Minutes (1 byte) */
+    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_min, tvb, offset, 1, ENC_NA);
+    min = tvb_get_guint8(tvb, offset);
+    if (min > 60)
+        expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
+                "Invalid longitude minutes value (%d)", min);
+    offset += 1;
+
+    /* Seconds (1 byte) */
+    proto_tree_add_item(lon_tree, hf_lisp_lcaf_geo_lon_sec, tvb, offset, 1, ENC_NA);
+    sec = tvb_get_guint8(tvb, offset);
+    if (sec > 60)
+        expert_add_info_format(pinfo, tree, &ei_lisp_invalid_field,
+                "Invalid longitude seconds value (%d)", min);
+    offset += 1;
+
+    proto_item_append_text(ti_lon, ": %s %d\302\260 %d' %d\"",
+            val_to_str(east, lon_typevals, ""), deg, min, sec);
+    proto_item_append_text(tir, ", %s%d\302\260%d'%d\")",
+            val_to_str(east, lon_typevals, ""), deg, min, sec);
+
+    /* PROCESS ALTITUDE */
+
+    ti_alt = proto_tree_add_item(tree, hf_lisp_lcaf_geo_alt, tvb, offset, 4, ENC_NA);
+    alt = tvb_get_ntohl(tvb, offset);
+    /* if altitude equals 0x7fffffff then no altitude information encoded */
+    if (alt == 0x7fffffff) {
+        proto_item_append_text(ti_alt, ": no value encoded");
+    } else {
+        proto_item_append_text(ti_alt, ": %d m", alt);
+        proto_item_append_text(tir, ", Altitude: %d m", alt);
+    }
+    offset += 4;
+
+    /* PROCESS ADDRESS */
+
+    /* AFI (2 bytes) */
+    afi = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_lisp_lcaf_geo_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    address = get_addr_str(tvb, offset, afi, &addr_len);
+    if (address && afi)
+        proto_item_append_text(tir, ", Address: %s", address);
+
+    switch (afi) {
+        case AFNUM_RESERVED:
+            break;
+        case AFNUM_INET:
+            proto_tree_add_item(tree, hf_lisp_lcaf_geo_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(tree, hf_lisp_lcaf_geo_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
+                    "Unexpected Geo Coordinates AFI (%d), cannot decode", afi);
+    }
     return offset;
 }
 
@@ -652,14 +843,14 @@ dissect_lcaf_natt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_lcaf_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-        gint offset, guint16 length)
+        gint offset, guint16 length, proto_item *tir)
 {
     gint len;
     gint remaining = length;
     gint i = 1;
 
     while (remaining > 0) {
-        len = dissect_lcaf_elp_hop(tvb, pinfo, tree, offset, i);
+        len = dissect_lcaf_elp_hop(tvb, pinfo, tree, offset, i, tir);
         offset += len;
         remaining -= len;
         i++;
@@ -700,11 +891,11 @@ dissect_lcaf_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  */
 
 static int
-dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
     guint8       lcaf_type;
     guint16      len;
-    proto_item  *tir, *ti_header;
+    proto_item  *tir, *ti_header, *ti;
     proto_tree  *lcaf_tree, *lcaf_header_tree;
 
     len = tvb_get_ntohs(tvb, offset + 4);
@@ -726,7 +917,7 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     /* Type (8 bits) */
     proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     lcaf_type = tvb_get_guint8(tvb, offset);
-    proto_item_append_text(tir, ": %s (Length %d bytes)", val_to_str(lcaf_type, lcaf_typevals, "Unknown (%d)"), len);
+    proto_item_append_text(tir, ": %s", val_to_str(lcaf_type, lcaf_typevals, "Unknown (%d)"));
     offset += 1;
 
     /* Reserved bits (8 bits) */
@@ -737,6 +928,8 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
     proto_tree_add_item(lcaf_header_tree, hf_lisp_lcaf_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    ti = (tip) ? tip : tir;
+
     switch (lcaf_type) {
         case LCAF_NULL:
             break;
@@ -746,11 +939,14 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
         case LCAF_IID:
             offset = dissect_lcaf_iid(tvb, lcaf_tree, offset);
             break;
+        case LCAF_GEO:
+            offset = dissect_lcaf_geo(tvb, pinfo, lcaf_tree, offset, ti);
+            break;
         case LCAF_NATT:
             offset = dissect_lcaf_natt(tvb, pinfo, lcaf_tree, offset, len);
             break;
         case LCAF_ELP:
-            offset = dissect_lcaf_elp(tvb, pinfo, lcaf_tree, offset, len);
+            offset = dissect_lcaf_elp(tvb, pinfo, lcaf_tree, offset, len, ti);
             break;
         default:
             if (lcaf_type < 16)
@@ -839,7 +1035,7 @@ dissect_lisp_locator(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_mapping
     if (loc_afi == AFNUM_LCAF) {
         /* Create a sub-tree for the mapping */
         lisp_lcaf_tree = proto_item_add_subtree(tir, ett_lisp_lcaf);
-        offset = dissect_lcaf(tvb, pinfo, lisp_lcaf_tree, offset);
+        offset = dissect_lcaf(tvb, pinfo, lisp_lcaf_tree, offset, NULL);
     } else {
         proto_tree_add_string(lisp_loc_tree, hf_lisp_loc_locator, tvb, offset, addr_len, locator);
         offset += addr_len;
@@ -1734,7 +1930,7 @@ dissect_lisp_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
                     "Expecting LCAF AFI (%d), found %d, incorrect packet!",
                     AFNUM_LCAF, afi);
         } else {
-            offset = dissect_lcaf(tvb, pinfo, lisp_tree, offset);
+            offset = dissect_lcaf(tvb, pinfo, lisp_tree, offset, NULL);
         }
     }
 
@@ -2182,6 +2378,48 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_iid,
             { "Instance ID", "lisp.lcaf.iid",
             FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lat,
+            { "Latitude", "lisp.lcaf.geo.lat",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lat_hemisphere,
+            { "Hemisphere", "lisp.lcaf.geo.lat.hemisphere",
+            FT_UINT16, BASE_DEC, VALS(lat_typevals), 0x8000, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lat_deg,
+            { "Degrees", "lisp.lcaf.geo.lat.deg",
+            FT_UINT16, BASE_DEC, NULL, 0x7FFF, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lat_min,
+            { "Minutes", "lisp.lcaf.geo.lat.min",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lat_sec,
+            { "Seconds", "lisp.lcaf.geo.lat.sec",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lon,
+            { "Longitude", "lisp.lcaf.geo.lon",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lon_hemisphere,
+            { "Hemisphere", "lisp.lcaf.geo.lon.hemisphere",
+            FT_UINT16, BASE_DEC, VALS(lon_typevals), 0x8000, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lon_deg,
+            { "Degrees", "lisp.lcaf.geo.lon.deg",
+            FT_UINT16, BASE_DEC, NULL, 0x7FFF, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lon_min,
+            { "Minutes", "lisp.lcaf.geo.lon.min",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_lon_sec,
+            { "Seconds", "lisp.lcaf.geo.lon.sec",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_alt,
+            { "Altitude", "lisp.lcaf.geo.alt",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_afi,
+            { "Address AFI", "lisp.lcaf.geo.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_ipv4,
+            { "Address", "lisp.lcaf.geo.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_geo_ipv6,
+            { "Address", "lisp.lcaf.geo.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_natt_msport,
             { "MS UDP Port Number", "lisp.lcaf.natt.msport",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2200,6 +2438,8 @@ proto_register_lisp(void)
         &ett_lisp_record,
         &ett_lisp_lcaf,
         &ett_lisp_lcaf_header,
+        &ett_lisp_lcaf_geo_lat,
+        &ett_lisp_lcaf_geo_lon,
         &ett_lisp_loc,
         &ett_lisp_loc_flags,
         &ett_lisp_info_prefix,
@@ -2209,6 +2449,7 @@ proto_register_lisp(void)
     static ei_register_info ei[] = {
         { &ei_lisp_undecoded, { "lisp.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
         { &ei_lisp_unexpected_field, { "lisp.unexpected_field", PI_PROTOCOL, PI_ERROR, "Unexpected field", EXPFILL }},
+        { &ei_lisp_invalid_field, { "lisp.invalid_field", PI_PROTOCOL, PI_WARN, "Invalid field", EXPFILL }},
         { &ei_lisp_lcaf_type, { "lisp.lcaf.type.invalid", PI_PROTOCOL, PI_ERROR, "LCAF type is not defined in draft-ietf-lisp-lcaf-X", EXPFILL }},
         { &ei_lisp_expected_field, { "lisp.expected_field", PI_PROTOCOL, PI_ERROR, "Expecting field", EXPFILL }},
     };
