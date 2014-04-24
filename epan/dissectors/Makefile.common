@@ -138,6 +138,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-ilp.c	\
 	packet-inap.c	\
 	packet-isdn-sup.c	\
+	packet-kerberos.c	\
 	packet-lcsap.c	\
 	packet-logotypecertextn.c	\
 	packet-lpp.c	\
@@ -203,7 +204,6 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-cosnaming.c	\
 	packet-gprscdr.c	\
 	packet-gsm_map.c	\
-	packet-kerberos.c	\
 	packet-ldap.c	\
 	packet-m3ap.c	\
 	packet-p1.c	\
