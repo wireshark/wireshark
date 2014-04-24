@@ -37,6 +37,12 @@ void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
 WS_DLL_PUBLIC
 guint8 EBCDIC_to_ASCII1(guint8 c);
 
+WS_DLL_PUBLIC gunichar
+GSM_to_UNICHAR(guint8 c);
+
+WS_DLL_PUBLIC gunichar
+GSMext_to_UNICHAR(guint8 c);
+
 /*
  * Translation tables that map the upper 128 code points in single-byte
  * "extended ASCII" character encodings to Unicode code points in the

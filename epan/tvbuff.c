@@ -2500,68 +2500,12 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  */
 #define GN_BYTE_MASK ((1 << bits) - 1)
 
-#define GN_CHAR_ALPHABET_SIZE 128
-
 #define GN_CHAR_ESCAPE 0x1b
-
-static const gunichar gsm_default_alphabet[GN_CHAR_ALPHABET_SIZE] = {
-
-	/* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
-
-	'@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
-	0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
-	0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
-	0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
-	' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
-	'(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
-	'0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
-	'8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
-	0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
-	'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
-	'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
-	'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
-	0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
-	'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
-	'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
-	'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
-};
 
 static gboolean
 char_is_escape(unsigned char value)
 {
 	return (value == GN_CHAR_ESCAPE);
-}
-
-static gunichar
-char_def_alphabet_ext_decode(unsigned char value)
-{
-	switch (value)
-	{
-	case 0x0a: return 0x0c; /* form feed */
-	case 0x14: return '^';
-	case 0x28: return '{';
-	case 0x29: return '}';
-	case 0x2f: return '\\';
-	case 0x3c: return '[';
-	case 0x3d: return '~';
-	case 0x3e: return ']';
-	case 0x40: return '|';
-	case 0x65: return 0x20ac; /* euro */
-	default: return UNREPL; /* invalid character */
-	}
-}
-
-static gunichar
-char_def_alphabet_decode(unsigned char value)
-{
-	if (value < GN_CHAR_ALPHABET_SIZE)
-	{
-		return gsm_default_alphabet[value];
-	}
-	else
-	{
-		return UNREPL;
-	}
 }
 
 static gboolean
@@ -2584,9 +2528,9 @@ handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
 		 */
 		if (saw_escape) {
 			saw_escape = FALSE;
-			uchar = char_def_alphabet_ext_decode(code_point);
+			uchar = GSMext_to_UNICHAR(code_point);
 		} else {
-			uchar = char_def_alphabet_decode(code_point);
+			uchar = GSM_to_UNICHAR(code_point);
 		}
 		wmem_strbuf_append_unichar(strbuf, uchar);
 	}

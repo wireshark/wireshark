@@ -26,6 +26,9 @@
 
 #include "charsets.h"
 
+/* REPLACEMENT CHARACTER */
+#define UNREPL 0xFFFD
+
 /*
  * Wikipedia's "Character encoding" template, giving a pile of character encodings and
  * Wikipedia pages for them:
@@ -167,13 +170,66 @@ EBCDIC_to_ASCII1(guint8 c)
 }
 
 /*
+ * FROM GNOKII
+ * gsm-encoding.c
+ * gsm-sms.c
+ */
+
+/* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
+static const gunichar2 gsm_default_alphabet[0x80] = {
+    '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
+    0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
+    0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
+    0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
+    ' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
+    '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
+    '0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
+    '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
+    0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
+    'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
+    'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
+    'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
+    0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
+    'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
+    'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
+    'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
+};
+
+gunichar
+GSMext_to_UNICHAR(guint8 c)
+{
+    switch (c)
+    {
+        case 0x0a: return 0x0c; /* form feed */
+        case 0x14: return '^';
+        case 0x28: return '{';
+        case 0x29: return '}';
+        case 0x2f: return '\\';
+        case 0x3c: return '[';
+        case 0x3d: return '~';
+        case 0x3e: return ']';
+        case 0x40: return '|';
+        case 0x65: return 0x20ac; /* euro */
+    }
+
+    return UNREPL; /* invalid character */
+}
+
+gunichar
+GSM_to_UNICHAR(guint8 c)
+{
+    if (c < G_N_ELEMENTS(gsm_default_alphabet))
+        return gsm_default_alphabet[c];
+
+    return UNREPL;
+}
+
+
+/*
  * Translation tables that map the upper 128 code points in single-byte
  * "extended ASCII" character encodings to Unicode code points in the
  * Basic Multilingual Plane.
  */
-
-/* REPLACEMENT CHARACTER */
-#define UNREPL 0xFFFD
 
 /* ISO-8859-2 (http://en.wikipedia.org/wiki/ISO/IEC_8859-2#Code_page_layout) */
 const gunichar2 charset_table_iso_8859_2[0x80] = {
@@ -515,6 +571,7 @@ const gunichar2 charset_table_cp437[0x80] = {
     0x2261, 0x00b1, 0x2265, 0x2264, 0x2320, 0x2321, 0x00f7, 0x2248,        /* 0xF0 -      */
     0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0,        /*      - 0xFF */
 };
+
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
