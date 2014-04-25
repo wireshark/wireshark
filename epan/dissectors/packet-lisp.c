@@ -132,6 +132,10 @@ void proto_reg_handoff_lisp(void);
 #define ECM_FLAG_S          0x08000000
 #define ECM_FLAG_D          0x04000000
 
+#define ELP_FLAG_L          0x0004
+#define ELP_FLAG_P          0x0002
+#define ELP_FLAG_S          0x0001
+
 /* Initialize the protocol and registered fields */
 static int proto_lisp = -1;
 static int hf_lisp_type = -1;
@@ -280,6 +284,17 @@ static int hf_lisp_lcaf_geo_ipv6 = -1;
 static int hf_lisp_lcaf_natt_msport = -1;
 static int hf_lisp_lcaf_natt_etrport = -1;
 
+/* LCAF ELP fields */
+static int hf_lisp_lcaf_elp_hop = -1;
+static int hf_lisp_lcaf_elp_hop_flags = -1;
+static int hf_lisp_lcaf_elp_hop_flags_res = -1;
+static int hf_lisp_lcaf_elp_hop_flags_lookup = -1;
+static int hf_lisp_lcaf_elp_hop_flags_probe = -1;
+static int hf_lisp_lcaf_elp_hop_flags_strict = -1;
+static int hf_lisp_lcaf_elp_hop_afi = -1;
+static int hf_lisp_lcaf_elp_hop_ipv4 = -1;
+static int hf_lisp_lcaf_elp_hop_ipv6 = -1;
+
 /* Encapsulated Control Message fields */
 static int hf_lisp_ecm_flags_sec = -1;
 static int hf_lisp_ecm_flags_ddt = -1;
@@ -296,6 +311,8 @@ static gint ett_lisp_lcaf = -1;
 static gint ett_lisp_lcaf_header = -1;
 static gint ett_lisp_lcaf_geo_lat = -1;
 static gint ett_lisp_lcaf_geo_lon = -1;
+static gint ett_lisp_lcaf_elp_hop = -1;
+static gint ett_lisp_lcaf_elp_hop_flags = -1;
 static gint ett_lisp_loc = -1;
 static gint ett_lisp_loc_flags = -1;
 static gint ett_lisp_info_prefix = -1;
@@ -477,31 +494,67 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16      hop_afi;
     guint16      hop_flags;
     const gchar *hop_str;
-    proto_item  *ti;
+    proto_item  *ti, *ti_flags;
+    proto_tree  *hop_tree, *flags_tree;
 
-    hop_afi   = tvb_get_ntohs(tvb, offset); offset += 2;
-    hop_flags = tvb_get_ntohs(tvb, offset); offset += 2;
-    hop_str   = get_addr_str(tvb, offset, hop_afi, &addr_len);
+    ti = proto_tree_add_item(tree, hf_lisp_lcaf_elp_hop, tvb, offset, 2, ENC_NA);
+    hop_tree = proto_item_add_subtree(ti, ett_lisp_lcaf_elp_hop);
 
-    if (hop_str == NULL) {
-        expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
-                "Unexpected reencap hop AFI (%d), cannot decode", hop_afi);
-        return offset;
+    /* AFI (2 bytes) */
+    proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    hop_afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Flags (2 bytes) */
+    ti_flags = proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+    flags_tree = proto_item_add_subtree(ti_flags, ett_lisp_lcaf_elp_hop_flags);
+    proto_tree_add_item(flags_tree, hf_lisp_lcaf_elp_hop_flags_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_lisp_lcaf_elp_hop_flags_lookup, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_lisp_lcaf_elp_hop_flags_probe, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_lisp_lcaf_elp_hop_flags_strict, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+    hop_flags = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Reencap hop */
+    hop_str = get_addr_str(tvb, offset, hop_afi, &addr_len);
+
+    switch (hop_afi) {
+        case AFNUM_INET:
+            proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, hop_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, hop_tree, &ei_lisp_unexpected_field,
+                    "Unexpected Reencap Hop AFI (%d), cannot decode", hop_afi);
     }
-
-    proto_item_append_text(tip, ", %s", hop_str);
 
     if (idx) {
-        ti = proto_tree_add_text(tree, tvb, offset - 4, addr_len + 4, "Reencap hop %d: %s", idx, hop_str);
+        proto_item_append_text(ti, " %d.", idx);
     } else {
-        ti = proto_tree_add_text(tree, tvb, offset - 4, addr_len + 4, "Reencap hop: %s", hop_str);
+        proto_item_append_text(ti, ":");
     }
+
+    proto_item_append_text(ti, " %s", hop_str);
+    proto_item_set_len(ti, 4 + addr_len);
+
     if (hop_flags & 0x04)
         proto_item_append_text(ti, ", Lookup");
     if (hop_flags & 0x02)
         proto_item_append_text(ti, ", RLOC-Probe");
     if (hop_flags & 0x01)
         proto_item_append_text(ti, ", Strict");
+
+    proto_item_append_text(tip, ", %s", hop_str);
 
     return addr_len + 4;
 }
@@ -2496,6 +2549,33 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_geo_ipv6,
             { "Address", "lisp.lcaf.geo.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop,
+            { "Reencap Hop", "lisp.lcaf.elp_hop",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_flags,
+            { "Flags", "lisp.lcaf.elp_hop.flags",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_flags_res,
+            { "Reserved", "lisp.lcaf.elp_hop.flags.res",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF8, "Must be zero", HFILL }},
+        { &hf_lisp_lcaf_elp_hop_flags_lookup,
+            { "Lookup", "lisp.lcaf.elp_hop.flags.local",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), ELP_FLAG_L, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_flags_probe,
+            { "Probe", "lisp.lcaf.elp_hop.flags.probe",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), ELP_FLAG_P, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_flags_strict,
+            { "Strict", "lisp.lcaf_elp_hop.flags.strict",
+            FT_BOOLEAN, 16, TFS(&tfs_set_notset), ELP_FLAG_S, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_afi,
+            { "Reencap Hop AFI", "lisp.lcaf.elp_hop.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_ipv4,
+            { "Reencap Hop", "lisp.lcaf.elp_hop.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_elp_hop_ipv6,
+            { "Reencap Hop", "lisp.lcaf.elp_hop.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_natt_msport,
             { "MS UDP Port Number", "lisp.lcaf.natt.msport",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2516,6 +2596,8 @@ proto_register_lisp(void)
         &ett_lisp_lcaf_header,
         &ett_lisp_lcaf_geo_lat,
         &ett_lisp_lcaf_geo_lon,
+        &ett_lisp_lcaf_elp_hop,
+        &ett_lisp_lcaf_elp_hop_flags,
         &ett_lisp_loc,
         &ett_lisp_loc_flags,
         &ett_lisp_info_prefix,
