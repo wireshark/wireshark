@@ -3504,7 +3504,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
     ret = gnutls_pkcs12_init(&ssl_p12);
     if (ret < 0) {
-        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
+        *err = se_strdup_printf("gnutls_pkcs12_init(&st_p12) - %s", gnutls_strerror(ret));
         ssl_debug_printf("%s\n", *err);
         g_free(private_key);
         g_free(data.data);
@@ -3514,12 +3514,12 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
     /* load PKCS#12 in DER or PEM format */
     ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_DER, 0);
     if (ret < 0) {
-        *err = wmem_strdup_printf(wmem_file_scope(), "could not load PKCS#12 in DER format: %s", gnutls_strerror(ret));
+        *err = se_strdup_printf("could not load PKCS#12 in DER format: %s", gnutls_strerror(ret));
         ssl_debug_printf("%s\n", *err);
 
         ret = gnutls_pkcs12_import(ssl_p12, &data, GNUTLS_X509_FMT_PEM, 0);
         if (ret < 0) {
-            *err = wmem_strdup_printf(wmem_file_scope(), "could not load PKCS#12 in PEM format: %s", gnutls_strerror(ret));
+            *err = se_strdup_printf("could not load PKCS#12 in PEM format: %s", gnutls_strerror(ret));
             ssl_debug_printf("%s\n", *err);
         } else {
             *err = NULL;
@@ -3566,7 +3566,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
                     ret = gnutls_x509_crt_init(&ssl_cert);
                     if (ret < 0) {
-                        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_x509_crt_init(&ssl_cert) - %s", gnutls_strerror(ret));
+                        *err = se_strdup_printf("gnutls_x509_crt_init(&ssl_cert) - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3574,7 +3574,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
                     ret = gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER);
                     if (ret < 0) {
-                        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER) - %s", gnutls_strerror(ret));
+                        *err = se_strdup_printf("gnutls_x509_crt_import(ssl_cert, &data, GNUTLS_X509_FMT_DER) - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3600,7 +3600,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
 
                     ret = gnutls_x509_privkey_init(&ssl_pkey);
                     if (ret < 0) {
-                        *err = wmem_strdup_printf(wmem_file_scope(), "gnutls_x509_privkey_init(&ssl_pkey) - %s", gnutls_strerror(ret));
+                        *err = se_strdup_printf("gnutls_x509_privkey_init(&ssl_pkey) - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
@@ -3608,7 +3608,7 @@ ssl_load_pkcs12(FILE* fp, const gchar *cert_passwd, const char** err) {
                     ret = gnutls_x509_privkey_import_pkcs8(ssl_pkey, &data, GNUTLS_X509_FMT_DER, cert_passwd,
                                                            (bag_type==GNUTLS_BAG_PKCS8_KEY) ? GNUTLS_PKCS_PLAIN : 0);
                     if (ret < 0) {
-                        *err = wmem_strdup_printf(wmem_file_scope(), "Can not decrypt private key - %s", gnutls_strerror(ret));
+                        *err = se_strdup_printf("Can not decrypt private key - %s", gnutls_strerror(ret));
                         ssl_debug_printf("%s\n", *err);
                         g_free(private_key);
                         return 0;
