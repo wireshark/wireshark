@@ -951,17 +951,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 
 	is_http:
-        if (first_loop) {
+		if (first_loop) {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 
-	        if (is_request_or_reply) {
-		        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
-	        }
-	        else
-		        col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+			if (is_request_or_reply)
+				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
+			else
+				col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
 
 			first_loop = FALSE;
-        }
+		}
 
 		if ((tree) && (http_tree == NULL)) {
 			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
@@ -998,13 +997,14 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			}
 			expert_add_info_format(pinfo, hdr_item, &ei_http_chat, "%s", text);
 			if (reqresp_dissector) {
-				if (tree) req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
-				else req_tree = NULL;
+				if (tree)
+					req_tree = proto_item_add_subtree(hdr_item, ett_http_request);
+				else
+					req_tree = NULL;
 
 				reqresp_dissector(tvb, req_tree, offset, line,
 						  lineend, conv_data);
 			}
-
 		} else {
 			/*
 			 * Header.
