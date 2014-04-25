@@ -444,7 +444,7 @@ void
 ssl_free_key(Ssl_private_key_t* key);
 
 /* Find private key in associations */
-extern gint
+extern void
 ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo);
 
 /** Search for the specified cipher suite id

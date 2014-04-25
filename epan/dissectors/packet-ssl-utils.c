@@ -3659,7 +3659,7 @@ void ssl_free_key(Ssl_private_key_t* key)
     g_free((Ssl_private_key_t*)key);
 }
 
-gint
+void
 ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree* associations, packet_info *pinfo) {
     SslService dummy;
     char       ip_addr_any[] = {0,0,0,0};
@@ -3667,7 +3667,7 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     Ssl_private_key_t * private_key;
 
     if (!ssl_session) {
-        return 0;
+        return;
     }
 
     /* we need to know which side of the conversation is speaking */
@@ -3713,8 +3713,6 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     } else {
         ssl_session->private_key = private_key->sexp_pkey;
     }
-
-    return 0;
 }
 
 void
