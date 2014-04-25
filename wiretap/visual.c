@@ -550,12 +550,6 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         return FALSE;
     }
 
-    /* Sanity check */
-    if (phdr->len < phdr->caplen)
-    {
-        phdr->len = phdr->caplen;
-    }
-
     /* Read the packet data */
     if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
         return FALSE;
