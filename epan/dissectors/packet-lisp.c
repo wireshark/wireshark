@@ -617,7 +617,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             break;
         case AFNUM_INET6:
             proto_tree_add_item(tree, hf_lisp_lcaf_iid_ipv6,
-                    tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
             offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
@@ -774,7 +774,7 @@ dissect_lcaf_geo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             break;
         case AFNUM_INET6:
             proto_tree_add_item(tree, hf_lisp_lcaf_geo_ipv6,
-                    tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
             offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
@@ -1218,7 +1218,7 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree,
             offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
-            ti_lcaf_prefix = proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_lcaf, tvb, offset, addr_len, ENC_NA);
+            ti_lcaf_prefix = proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_eid_lcaf, tvb, offset, addr_len, ENC_ASCII|ENC_NA);
             proto_item_append_text(ti_lcaf_prefix, "%s", prefix);
             lcaf_prefix_tree = proto_item_add_subtree(ti_lcaf_prefix, ett_lisp_lcaf);
             dissect_lcaf(tvb, pinfo, lcaf_prefix_tree, offset, NULL);
@@ -1357,7 +1357,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
             break;
         case AFNUM_LCAF:
             src_eid = get_addr_str(tvb, offset, src_eid_afi, &addr_len);
-            ti_lcaf_src_eid = proto_tree_add_item(lisp_tree, hf_lisp_mreq_srceid_lcaf, tvb, offset, addr_len, ENC_NA);
+            ti_lcaf_src_eid = proto_tree_add_item(lisp_tree, hf_lisp_mreq_srceid_lcaf, tvb, offset, addr_len, ENC_ASCII|ENC_NA);
             proto_item_append_text(ti_lcaf_src_eid, "%s", src_eid);
             lcaf_src_eid_tree = proto_item_add_subtree(ti_lcaf_src_eid, ett_lisp_lcaf);
             dissect_lcaf(tvb, pinfo, lcaf_src_eid_tree, offset, NULL);
@@ -1452,7 +1452,7 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
                 offset += INET6_ADDRLEN;
                 break;
             case AFNUM_LCAF:
-                ti_lcaf_prefix = proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_lcaf, tvb, offset, addr_len, ENC_NA);
+                ti_lcaf_prefix = proto_tree_add_item(lisp_record_tree, hf_lisp_mreq_record_prefix_lcaf, tvb, offset, addr_len, ENC_ASCII|ENC_NA);
                 proto_item_append_text(ti_lcaf_prefix, "%s", prefix);
                 lcaf_prefix_tree = proto_item_add_subtree(ti_lcaf_prefix, ett_lisp_lcaf);
                 dissect_lcaf(tvb, pinfo, lcaf_prefix_tree, offset, NULL);
