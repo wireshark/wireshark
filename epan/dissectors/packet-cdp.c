@@ -134,6 +134,21 @@ add_multi_line_string_to_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
 #define TYPE_NRGYZ              0x001d /* EnergyWise over CDP */
 #define TYPE_SPARE_POE          0x001f /* Spare Pair PoE */
 
+#define TYPE_HP_BSSID           0x1000 /* BSSID */
+#define TYPE_HP_SERIAL          0x1001 /* Serial number */
+#define TYPE_HP_SSID            0x1002 /* SSID */
+#define TYPE_HP_RADIO1_CH       0x1003 /* Radio1 channel */
+/*                              0x1004 */
+/*                              0x1005 */
+#define TYPE_HP_SNMP_PORT       0x1006 /* SNMP listening UDP port */
+#define TYPE_HP_MGMT_PORT       0x1007 /* Web interface TCP port */
+#define TYPE_HP_SOURCE_MAC      0x1008 /* Sender MAC address for the AP, bouth wired and wireless */
+#define TYPE_HP_RADIO2_CH       0x1009 /* Radio2 channel */
+#define TYPE_HP_RADIO1_OMODE    0x100A /* Radio1 Operating mode */
+#define TYPE_HP_RADIO2_OMODE    0x100B /* Radio2 Operating mode */
+#define TYPE_HP_RADIO1_RMODE    0x100C /* Radio1 Radio mode */
+#define TYPE_HP_RADIO2_RMODE    0x100D /* Radio2 Radio mode */
+
 static const value_string type_vals[] = {
     { TYPE_DEVICE_ID,       "Device ID" },
     { TYPE_ADDRESS,         "Addresses" },
@@ -162,6 +177,18 @@ static const value_string type_vals[] = {
     { TYPE_PORT_UNIDIR,     "Port Unidirectional" },
     { TYPE_NRGYZ,           "EnergyWise" },
     { TYPE_SPARE_POE,       "Spare PoE" },
+    { TYPE_HP_BSSID,        "BSSID" },
+    { TYPE_HP_SERIAL,       "Serial number" },
+    { TYPE_HP_SSID,         "SSID" },
+    { TYPE_HP_RADIO1_CH,    "Radio1 channel" },
+    { TYPE_HP_SNMP_PORT,    "SNMP UDP port" },
+    { TYPE_HP_MGMT_PORT,    "Web TCP port" },
+    { TYPE_HP_SOURCE_MAC,   "Source MAC address" },
+    { TYPE_HP_RADIO2_CH,    "Radio2 channel" },
+    { TYPE_HP_RADIO1_OMODE, "Radio1 Operating mode" },
+    { TYPE_HP_RADIO2_OMODE, "Radio2 Operating mode" },
+    { TYPE_HP_RADIO1_RMODE, "Radio1 Radio mode" },
+    { TYPE_HP_RADIO2_RMODE, "Radio2 Radio mode" },
     { 0, NULL }
 };
 
@@ -915,6 +942,182 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 4;
             length -= 4;
             dissect_spare_poe_tlv(tvb, offset, length, tlv_tree);
+            offset += length;
+            break;
+
+        case TYPE_HP_BSSID:
+            /* BSSID */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "BSSID: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_SERIAL:
+            /* Serial number */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Serial: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_SSID:
+            /* SSID */
+            if (tree) {
+                if (length == 4) {
+                    tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                               offset, length, "SSID: [Empty]");
+                    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                    proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                } else {
+                    tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                               offset, length, "SSID: %s",
+                                               tvb_format_text(tvb, offset + 4, length - 4));
+                    tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                    proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+                }
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_RADIO1_CH:
+            /* Radio1 channel */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Radio 1 channel: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_SNMP_PORT:
+            /* SNMP listening UDP port */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "SNMP port: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_MGMT_PORT:
+            /* Web interface TCP port */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Web mgmt port: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_SOURCE_MAC:
+            /* Sender MAC address for the AP, bouth wired and wireless */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Source MAC: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_RADIO2_CH:
+            /* Radio2 channel */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Radio 2 channel: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_RADIO1_OMODE:
+            /* Radio1 Operating mode */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Radio 1 operating mode: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_RADIO2_OMODE:
+            /* Radio2 Operating mode */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Radio 2 operating mode: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_RADIO1_RMODE:
+            /* Radio1 Radio mode */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Radio 1 radio mode: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
+            offset += length;
+            break;
+
+        case TYPE_HP_RADIO2_RMODE:
+            /* Radio2 Radio mode */
+            if (tree) {
+                tlvi = proto_tree_add_text(cdp_tree, tvb,
+                                           offset, length, "Radio 2 radio mode: %s",
+                                           tvb_format_text(tvb, offset + 4, length - 4));
+                tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
+            }
             offset += length;
             break;
 
