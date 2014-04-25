@@ -163,67 +163,59 @@ tvb_add_to_chain(tvbuff_t *parent, tvbuff_t *child)
 	}
 }
 
-/*
- * Check whether that offset goes more than one byte past the
- * end of the buffer.
- *
- * If not, return 0; otherwise, return exception
- */
-static inline int
-validate_offset(const tvbuff_t *tvb, const guint abs_offset)
-{
-	if (G_LIKELY(abs_offset <= tvb->length))
-		return 0;
-	else if (abs_offset <= tvb->reported_length)
-		return BoundsError;
-	else if (tvb->flags & TVBUFF_FRAGMENT)
-		return FragmentBoundsError;
-	else
-		return ReportedBoundsError;
-}
+#define COMPUTE_OFFSET(tvb, offset, offset_ptr, exception) \
+	if (offset >= 0) { \
+		/* Positive offset - relative to the beginning of the packet. */ \
+		if ((guint) offset <= tvb->length) { \
+			*offset_ptr = offset; \
+		} else if ((guint) offset <= tvb->reported_length) { \
+			exception = BoundsError; \
+		} else if (tvb->flags & TVBUFF_FRAGMENT) { \
+			exception = FragmentBoundsError; \
+		} else { \
+			exception = ReportedBoundsError; \
+		} \
+	} \
+	else { \
+		/* Negative offset - relative to the end of the packet. */ \
+		if ((guint) -offset <= tvb->length) { \
+			*offset_ptr = tvb->length + offset; \
+		} else if ((guint) -offset <= tvb->reported_length) { \
+			exception =  BoundsError; \
+		} else if (tvb->flags & TVBUFF_FRAGMENT) { \
+			exception = FragmentBoundsError; \
+		} else { \
+			exception = ReportedBoundsError; \
+		} \
+	} \
 
-static inline int
-compute_offset(const tvbuff_t *tvb, const gint offset, guint *offset_ptr)
-{
-	if (offset >= 0) {
-		/* Positive offset - relative to the beginning of the packet. */
-		if ((guint) offset <= tvb->length) {
-			*offset_ptr = offset;
-		} else if ((guint) offset <= tvb->reported_length) {
-			return BoundsError;
-		} else if (tvb->flags & TVBUFF_FRAGMENT) {
-			return FragmentBoundsError;
-		} else {
-			return ReportedBoundsError;
-		}
-	}
-	else {
-		/* Negative offset - relative to the end of the packet. */
-		if ((guint) -offset <= tvb->length) {
-			*offset_ptr = tvb->length + offset;
-		} else if ((guint) -offset <= tvb->reported_length) {
-			return BoundsError;
-		} else if (tvb->flags & TVBUFF_FRAGMENT) {
-			return FragmentBoundsError;
-		} else {
-			return ReportedBoundsError;
-		}
-	}
-
-	return 0;
-}
-
-static inline int
-compute_offset_and_remaining(const tvbuff_t *tvb, const gint offset, guint *offset_ptr, guint *rem_len)
-{
-	int exception;
-
-	exception = compute_offset(tvb, offset, offset_ptr);
-	if (!exception)
-		*rem_len = tvb->length - *offset_ptr;
-
-	return exception;
-}
+#define COMPUTE_OFFSET_AND_REMAINING(tvb, offset, offset_ptr, rem_len, exception) \
+	if (offset >= 0) { \
+		/* Positive offset - relative to the beginning of the packet. */ \
+		if ((guint) offset <= tvb->length) { \
+			*offset_ptr = offset; \
+		} else if ((guint) offset <= tvb->reported_length) { \
+			exception = BoundsError; \
+		} else if (tvb->flags & TVBUFF_FRAGMENT) { \
+			exception = FragmentBoundsError; \
+		} else { \
+			exception = ReportedBoundsError; \
+		} \
+	} \
+	else { \
+		/* Negative offset - relative to the end of the packet. */ \
+		if ((guint) -offset <= tvb->length) { \
+			*offset_ptr = tvb->length + offset; \
+		} else if ((guint) -offset <= tvb->reported_length) { \
+			exception =  BoundsError; \
+		} else if (tvb->flags & TVBUFF_FRAGMENT) { \
+			exception = FragmentBoundsError; \
+		} else { \
+			exception = ReportedBoundsError; \
+		} \
+	} \
+	if (!exception) \
+		rem_len = tvb->length - *offset_ptr; \
 
 /* Computes the absolute offset and length based on a possibly-negative offset
  * and a length that is possible -1 (which means "to the end of the data").
@@ -244,13 +236,13 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 				 guint *offset_ptr, guint *length_ptr)
 {
 	guint end_offset;
-	int   exception;
+	int   exception = 0;
 
 	DISSECTOR_ASSERT(offset_ptr);
 	DISSECTOR_ASSERT(length_ptr);
 
 	/* Compute the offset */
-	exception = compute_offset(tvb, offset, offset_ptr);
+	COMPUTE_OFFSET(tvb, offset, offset_ptr, exception);
 	if (exception)
 		return exception;
 
@@ -276,7 +268,21 @@ check_offset_length_no_exception(const tvbuff_t *tvb,
 	if (end_offset < *offset_ptr)
 		return BoundsError;
 
-	return validate_offset(tvb, end_offset);
+	/*
+	 * Check whether that offset goes more than one byte past the
+	 * end of the buffer.
+	 *
+	 * If not, return 0; otherwise, return exception
+	 */
+	if (G_LIKELY(end_offset <= tvb->length))
+		return 0;
+	else if (end_offset <= tvb->reported_length)
+		return BoundsError;
+	else if (tvb->flags & TVBUFF_FRAGMENT)
+		return FragmentBoundsError;
+	else
+		return ReportedBoundsError;
+
 }
 
 /* Checks (+/-) offset and length and throws an exception if
@@ -427,9 +433,9 @@ static inline gint
 _tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
-	int   exception;
+	int   exception = 0;
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	COMPUTE_OFFSET_AND_REMAINING(tvb, offset, &abs_offset, rem_length, exception);
 	if (exception)
 		return 0;
 
@@ -440,11 +446,11 @@ gint
 tvb_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
-	int   exception;
+	int   exception = 0;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	COMPUTE_OFFSET_AND_REMAINING(tvb, offset, &abs_offset, rem_length, exception);
 	if (exception)
 		return 0;
 
@@ -458,11 +464,11 @@ guint
 tvb_ensure_captured_length_remaining_cheat(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
-	int   exception;
+	int   exception = 0;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	COMPUTE_OFFSET_AND_REMAINING(tvb, offset, &abs_offset, rem_length, exception);
 	if (exception)
 		THROW(exception);
 
@@ -473,11 +479,11 @@ guint
 tvb_ensure_captured_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
 	guint abs_offset, rem_length;
-	int   exception;
+	int   exception = 0;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset_and_remaining(tvb, offset, &abs_offset, &rem_length);
+	COMPUTE_OFFSET_AND_REMAINING(tvb, offset, &abs_offset, rem_length, exception);
 	if (exception)
 		THROW(exception);
 
@@ -596,19 +602,19 @@ tvb_ensure_bytes_exist(const tvbuff_t *tvb, const gint offset, const gint length
 gboolean
 tvb_offset_exists(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset;
-	int   exception;
+	guint offset_ptr;
+	int   exception = 0;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset(tvb, offset, &abs_offset);
+	COMPUTE_OFFSET(tvb, offset, &offset_ptr, exception);
 	if (exception)
 		return FALSE;
 
 	/* compute_offset only throws an exception on >, not >= because of the
 	 * comment above check_offset_length_no_exception, but here we want the
 	 * opposite behaviour so we check ourselves... */
-	if (abs_offset < tvb->length) {
+	if (offset_ptr < tvb->length) {
 		return TRUE;
 	}
 	else {
@@ -627,17 +633,17 @@ tvb_reported_length(const tvbuff_t *tvb)
 gint
 tvb_reported_length_remaining(const tvbuff_t *tvb, const gint offset)
 {
-	guint abs_offset;
-	int   exception;
+	guint offset_ptr;
+	int   exception = 0;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	exception = compute_offset(tvb, offset, &abs_offset);
+	COMPUTE_OFFSET(tvb, offset, &offset_ptr, exception);
 	if (exception)
 		return 0;
 
-	if (tvb->reported_length >= abs_offset)
-		return tvb->reported_length - abs_offset;
+	if (tvb->reported_length >= offset_ptr)
+		return tvb->reported_length - offset_ptr;
 	else
 		return 0;
 }
