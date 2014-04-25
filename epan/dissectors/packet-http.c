@@ -690,7 +690,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	proto_item	*hidden_item;
-	const guchar	*line;
+	const guchar	*line, *firstline;
 	gint		next_offset;
 	const guchar	*linep, *lineend;
 	int		orig_offset;
@@ -708,6 +708,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int		reported_datalen = -1;
 	dissector_handle_t handle;
 	gboolean	dissected = FALSE;
+	gboolean	first_loop = TRUE;
 	/*guint		i;*/
 	/*http_info_value_t *si;*/
 	http_eo_t       *eo_info;
@@ -777,7 +778,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 	/*
 	 * Put the first line from the buffer into the summary
 	 * if it's an HTTP request or reply (but leave out the
@@ -789,18 +789,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
 	if (is_request_or_reply) {
-	    line = tvb_get_ptr(tvb, offset, first_linelen);
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(line, first_linelen));
+	    firstline = line = tvb_get_ptr(tvb, offset, first_linelen);
 	}
-	else
-		col_set_str(pinfo->cinfo, COL_INFO, "Continuation or non-HTTP traffic");
 
 	orig_offset = offset;
-	if (tree) {
-		ti = proto_tree_add_item(tree, proto_http, tvb, offset, -1,
-		    ENC_NA);
-		http_tree = proto_item_add_subtree(ti, ett_http);
-	}
 
 	/*
 	 * Process the packet data, a line at a time.
@@ -959,9 +951,27 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 
 	is_http:
+        if (first_loop) {
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
+
+	        if (is_request_or_reply) {
+		        col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
+	        }
+	        else
+		        col_set_str(pinfo->cinfo, COL_INFO, "Continuation");
+
+			first_loop = FALSE;
+        }
+
+		if ((tree) && (http_tree == NULL)) {
+			ti = proto_tree_add_item(tree, proto_http, tvb, orig_offset, -1, ENC_NA);
+			http_tree = proto_item_add_subtree(ti, ett_http);
+		}
+
 		/*
 		 * Process this line.
 		 */
+
 		if (linelen == 0) {
 			/*
 			 * This is a blank line, which means that
