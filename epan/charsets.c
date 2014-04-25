@@ -74,22 +74,22 @@
 guint8 *
 get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
-	wmem_strbuf_t *str;
+    wmem_strbuf_t *str;
 
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	while (length > 0) {
-		guint8 ch = *ptr;
+    while (length > 0) {
+        guint8 ch = *ptr;
 
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else
-			wmem_strbuf_append_unichar(str, UNREPL);
-		ptr++;
-		length--;
-	}
+        if (ch < 0x80)
+            wmem_strbuf_append_c(str, ch);
+        else
+            wmem_strbuf_append_unichar(str, UNREPL);
+        ptr++;
+        length--;
+    }
 
-	return (guint8 *) wmem_strbuf_finalize(str);
+    return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
@@ -100,29 +100,29 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 guint8 *
 get_8859_1_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
-	wmem_strbuf_t *str;
+    wmem_strbuf_t *str;
 
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	while (length > 0) {
-		guint8 ch = *ptr;
+    while (length > 0) {
+        guint8 ch = *ptr;
 
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else {
-			/*
-			 * Note: we assume here that the code points
-			 * 0x80-0x9F are used for C1 control characters,
-			 * and thus have the same value as the corresponding
-			 * Unicode code points.
-			 */
-			wmem_strbuf_append_unichar(str, ch);
-		}
-		ptr++;
-		length--;
-	}
+        if (ch < 0x80)
+            wmem_strbuf_append_c(str, ch);
+        else {
+            /*
+             * Note: we assume here that the code points
+             * 0x80-0x9F are used for C1 control characters,
+             * and thus have the same value as the corresponding
+             * Unicode code points.
+             */
+            wmem_strbuf_append_unichar(str, ch);
+        }
+        ptr++;
+        length--;
+    }
 
-	return (guint8 *) wmem_strbuf_finalize(str);
+    return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
@@ -484,22 +484,22 @@ const gunichar2 charset_table_cp437[0x80] = {
 guint8 *
 get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[0x80])
 {
-	wmem_strbuf_t *str;
+    wmem_strbuf_t *str;
 
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	while (length > 0) {
-		guint8 ch = *ptr;
+    while (length > 0) {
+        guint8 ch = *ptr;
 
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else
-			wmem_strbuf_append_unichar(str, table[ch-0x80]);
-		ptr++;
-		length--;
-	}
+        if (ch < 0x80)
+            wmem_strbuf_append_c(str, ch);
+        else
+            wmem_strbuf_append_unichar(str, table[ch-0x80]);
+        ptr++;
+        length--;
+    }
 
-	return (guint8 *) wmem_strbuf_finalize(str);
+    return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
@@ -521,26 +521,26 @@ get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, con
 guint8 *
 get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
 {
-	gunichar2      uchar;
-	gint           i;       /* Byte counter for string */
-	wmem_strbuf_t *strbuf;
+    gunichar2      uchar;
+    gint           i;       /* Byte counter for string */
+    wmem_strbuf_t *strbuf;
 
-	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	for(i = 0; i + 1 < length; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN){
-			uchar = pntoh16(ptr + i);
-		}else{
-			uchar = pletoh16(ptr + i);
-		}
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
+    for(i = 0; i + 1 < length; i += 2) {
+        if (encoding == ENC_BIG_ENDIAN){
+            uchar = pntoh16(ptr + i);
+        }else{
+            uchar = pletoh16(ptr + i);
+        }
+        wmem_strbuf_append_unichar(strbuf, uchar);
+    }
 
-	/*
-	 * XXX - if i < length, this means we were handed an odd
-	 * number of bytes, so we're not a valid UCS-2 string.
-	 */
-	return (guint8 *) wmem_strbuf_finalize(strbuf);
+    /*
+     * XXX - if i < length, this means we were handed an odd
+     * number of bytes, so we're not a valid UCS-2 string.
+     */
+    return (guint8 *) wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -560,78 +560,78 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
 guint8 *
 get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
 {
-	wmem_strbuf_t *strbuf;
-	gunichar2      uchar2, lead_surrogate;
-	gunichar       uchar;
-	gint           i;       /* Byte counter for string */
+    wmem_strbuf_t *strbuf;
+    gunichar2      uchar2, lead_surrogate;
+    gunichar       uchar;
+    gint           i;       /* Byte counter for string */
 
-	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	for(i = 0; i + 1 < length; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar2 = pntoh16(ptr + i);
-		else
-			uchar2 = pletoh16(ptr + i);
+    for(i = 0; i + 1 < length; i += 2) {
+        if (encoding == ENC_BIG_ENDIAN)
+            uchar2 = pntoh16(ptr + i);
+        else
+            uchar2 = pletoh16(ptr + i);
 
-		if (IS_LEAD_SURROGATE(uchar2)) {
-			/*
-			 * Lead surrogate.  Must be followed by
-			 * a trail surrogate.
-			 */
-			i += 2;
-			if (i + 1 >= length) {
-				/*
-				 * Oops, string ends with a lead surrogate.
-				 * Ignore this for now.
-				 * XXX - insert "substitute" character?
-				 * Report the error in some other
-				 * fashion?
-				 */
-				break;
-			}
-			lead_surrogate = uchar2;
-			if (encoding == ENC_BIG_ENDIAN)
-				uchar2 = pntoh16(ptr + i);
-			else
-				uchar2 = pletoh16(ptr + i);
-			if (IS_TRAIL_SURROGATE(uchar2)) {
-				/* Trail surrogate. */
-				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
-				wmem_strbuf_append_unichar(strbuf, uchar);
-			} else {
-				/*
-				 * Not a trail surrogate.
-				 * Ignore the entire pair.
-				 * XXX - insert "substitute" character?
-				 * Report the error in some other
-				 * fashion?
-				 */
-				 ;
-			}
-		} else {
-			if (IS_TRAIL_SURROGATE(uchar2)) {
-				/*
-				 * Trail surrogate without a preceding
-				 * lead surrogate.  Ignore it.
-				 * XXX - insert "substitute" character?
-				 * Report the error in some other
-				 * fashion?
-				 */
-				;
-			} else {
-				/*
-				 * Non-surrogate; just append it.
-				 */
-				wmem_strbuf_append_unichar(strbuf, uchar2);
-			}
-		}
-	}
+        if (IS_LEAD_SURROGATE(uchar2)) {
+            /*
+             * Lead surrogate.  Must be followed by
+             * a trail surrogate.
+             */
+            i += 2;
+            if (i + 1 >= length) {
+                /*
+                 * Oops, string ends with a lead surrogate.
+                 * Ignore this for now.
+                 * XXX - insert "substitute" character?
+                 * Report the error in some other
+                 * fashion?
+                 */
+                break;
+            }
+            lead_surrogate = uchar2;
+            if (encoding == ENC_BIG_ENDIAN)
+                uchar2 = pntoh16(ptr + i);
+            else
+                uchar2 = pletoh16(ptr + i);
+            if (IS_TRAIL_SURROGATE(uchar2)) {
+                /* Trail surrogate. */
+                uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+                wmem_strbuf_append_unichar(strbuf, uchar);
+            } else {
+                /*
+                 * Not a trail surrogate.
+                 * Ignore the entire pair.
+                 * XXX - insert "substitute" character?
+                 * Report the error in some other
+                 * fashion?
+                 */
+                 ;
+            }
+        } else {
+            if (IS_TRAIL_SURROGATE(uchar2)) {
+                /*
+                 * Trail surrogate without a preceding
+                 * lead surrogate.  Ignore it.
+                 * XXX - insert "substitute" character?
+                 * Report the error in some other
+                 * fashion?
+                 */
+                ;
+            } else {
+                /*
+                 * Non-surrogate; just append it.
+                 */
+                wmem_strbuf_append_unichar(strbuf, uchar2);
+            }
+        }
+    }
 
-	/*
-	 * XXX - if i < length, this means we were handed an odd
-	 * number of bytes, so we're not a valid UTF-16 string.
-	 */
-	return (guint8 *) wmem_strbuf_finalize(strbuf);
+    /*
+     * XXX - if i < length, this means we were handed an odd
+     * number of bytes, so we're not a valid UTF-16 string.
+     */
+    return (guint8 *) wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -652,27 +652,27 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
 guint8 *
 get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
 {
-	gunichar       uchar;
-	gint           i;       /* Byte counter for string */
-	wmem_strbuf_t *strbuf;
+    gunichar       uchar;
+    gint           i;       /* Byte counter for string */
+    wmem_strbuf_t *strbuf;
 
-	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+    strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	for(i = 0; i + 3 < length; i += 4) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar = pntoh32(ptr + i);
-		else
-			uchar = pletoh32(ptr + i);
+    for(i = 0; i + 3 < length; i += 4) {
+        if (encoding == ENC_BIG_ENDIAN)
+            uchar = pntoh32(ptr + i);
+        else
+            uchar = pletoh32(ptr + i);
 
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
+        wmem_strbuf_append_unichar(strbuf, uchar);
+    }
 
-	/*
-	 * XXX - if i < length, this means we were handed a number
-	 * of bytes that's not a multiple of 4, so we're not a valid
-	 * UCS-4 string.
-	 */
-	return (gchar *)wmem_strbuf_finalize(strbuf);
+    /*
+     * XXX - if i < length, this means we were handed a number
+     * of bytes that's not a multiple of 4, so we're not a valid
+     * UCS-4 string.
+     */
+    return (gchar *)wmem_strbuf_finalize(strbuf);
 }
 
 /*
@@ -737,171 +737,171 @@ GSMext_to_UNICHAR(guint8 c)
 static gboolean
 char_is_escape(unsigned char value)
 {
-	return (value == GN_CHAR_ESCAPE);
+    return (value == GN_CHAR_ESCAPE);
 }
 
 static gboolean
 handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
-		      gboolean saw_escape)
+                      gboolean saw_escape)
 {
-	gunichar       uchar;
+    gunichar       uchar;
 
-	if (char_is_escape(code_point)) {
-		/*
-		 * XXX - if saw_escape is TRUE here, then this is
-		 * the case where we escape to "another extension table",
-		 * but TS 128 038 V11.0 doesn't specify such an extension
-		 * table.
-		 */
-		saw_escape = TRUE;
-	} else {
-		/*
-		 * Have we seen an escape?
-		 */
-		if (saw_escape) {
-			saw_escape = FALSE;
-			uchar = GSMext_to_UNICHAR(code_point);
-		} else {
-			uchar = GSM_to_UNICHAR(code_point);
-		}
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
-	return saw_escape;
+    if (char_is_escape(code_point)) {
+        /*
+         * XXX - if saw_escape is TRUE here, then this is
+         * the case where we escape to "another extension table",
+         * but TS 128 038 V11.0 doesn't specify such an extension
+         * table.
+         */
+        saw_escape = TRUE;
+    } else {
+        /*
+         * Have we seen an escape?
+         */
+        if (saw_escape) {
+            saw_escape = FALSE;
+            uchar = GSMext_to_UNICHAR(code_point);
+        } else {
+            uchar = GSM_to_UNICHAR(code_point);
+        }
+        wmem_strbuf_append_unichar(strbuf, uchar);
+    }
+    return saw_escape;
 }
 
 guint8 *
 get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
-	const gint bit_offset, gint no_of_chars)
+                           const gint bit_offset, gint no_of_chars)
 {
-	wmem_strbuf_t *strbuf;
-	gint           char_count;                  /* character counter for string */
-	guint8         in_byte, out_byte, rest = 0x00;
-	gboolean       saw_escape = FALSE;
-	int            bits;
+    wmem_strbuf_t *strbuf;
+    gint           char_count;                  /* character counter for string */
+    guint8         in_byte, out_byte, rest = 0x00;
+    gboolean       saw_escape = FALSE;
+    int            bits;
 
-	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+    strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
 
-	bits = bit_offset & 0x07;
-	if (!bits) {
-		bits = 7;
-	}
+    bits = bit_offset & 0x07;
+    if (!bits) {
+        bits = 7;
+    }
 
-	for(char_count = 0; char_count < no_of_chars;) {
-		/* Get the next byte from the string. */
-		in_byte = *ptr;
-		ptr++;
+    for(char_count = 0; char_count < no_of_chars;) {
+        /* Get the next byte from the string. */
+        in_byte = *ptr;
+        ptr++;
 
-		/*
-		 * Combine the bits we've accumulated with bits from
-		 * that byte to make a 7-bit code point.
-		 */
-		out_byte = ((in_byte & GN_BYTE_MASK) << (7 - bits)) | rest;
+        /*
+         * Combine the bits we've accumulated with bits from
+         * that byte to make a 7-bit code point.
+         */
+        out_byte = ((in_byte & GN_BYTE_MASK) << (7 - bits)) | rest;
 
-		/*
-		 * Leftover bits used in that code point.
-		 */
-		rest = in_byte >> bits;
+        /*
+         * Leftover bits used in that code point.
+         */
+        rest = in_byte >> bits;
 
-		/*
-		 * If we don't start from 0th bit, we shouldn't go to the
-		 * next char. Under *out_num we have now 0 and under Rest -
-		 * _first_ part of the char.
-		 */
-		if (char_count || (bits == 7)) {
-			saw_escape = handle_ts_23_038_char(strbuf, out_byte,
-			    saw_escape);
-			char_count++;
-		}
+        /*
+         * If we don't start from 0th bit, we shouldn't go to the
+         * next char. Under *out_num we have now 0 and under Rest -
+         * _first_ part of the char.
+         */
+        if (char_count || (bits == 7)) {
+            saw_escape = handle_ts_23_038_char(strbuf, out_byte,
+                saw_escape);
+            char_count++;
+        }
 
-		/*
-		 * After reading 7 octets we have read 7 full characters
-		 * but we have 7 bits as well. This is the next character.
-		 */
-		if ((bits == 1) && (char_count < no_of_chars)) {
-			saw_escape = handle_ts_23_038_char(strbuf, rest,
-			    saw_escape);
-			char_count++;
-			bits = 7;
-			rest = 0x00;
-		} else
-			bits--;
-	}
+        /*
+         * After reading 7 octets we have read 7 full characters
+         * but we have 7 bits as well. This is the next character.
+         */
+        if ((bits == 1) && (char_count < no_of_chars)) {
+            saw_escape = handle_ts_23_038_char(strbuf, rest,
+                saw_escape);
+            char_count++;
+            bits = 7;
+            rest = 0x00;
+        } else
+            bits--;
+    }
 
-	if (saw_escape) {
-		/*
-		 * Escape not followed by anything.
-		 *
-		 * XXX - for now, show the escape as a REPLACEMENT
-		 * CHARACTER.
-		 */
-		wmem_strbuf_append_unichar(strbuf, UNREPL);
-	}
+    if (saw_escape) {
+        /*
+         * Escape not followed by anything.
+         *
+         * XXX - for now, show the escape as a REPLACEMENT
+         * CHARACTER.
+         */
+        wmem_strbuf_append_unichar(strbuf, UNREPL);
+    }
 
-	return (guint8 *)wmem_strbuf_finalize(strbuf);
+    return (guint8 *)wmem_strbuf_finalize(strbuf);
 }
 
 guint8 *
 get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
-	const gint bit_offset, gint no_of_chars)
+                       const gint bit_offset, gint no_of_chars)
 {
-	wmem_strbuf_t *strbuf;
-	gint           char_count;                  /* character counter for string */
-	guint8         in_byte, out_byte, rest = 0x00;
-	int            bits;
+    wmem_strbuf_t *strbuf;
+    gint           char_count;                  /* character counter for string */
+    guint8         in_byte, out_byte, rest = 0x00;
+    int            bits;
 
-	bits = bit_offset & 0x07;
-	if (!bits) {
-		bits = 7;
-	}
+    bits = bit_offset & 0x07;
+    if (!bits) {
+        bits = 7;
+    }
 
-	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
-	for(char_count = 0; char_count < no_of_chars;) {
-		/* Get the next byte from the string. */
-		in_byte = *ptr;
-		ptr++;
+    strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+    for(char_count = 0; char_count < no_of_chars;) {
+        /* Get the next byte from the string. */
+        in_byte = *ptr;
+        ptr++;
 
-		/*
-		 * Combine the bits we've accumulated with bits from
-		 * that byte to make a 7-bit code point.
-		 */
-		out_byte = (in_byte >> (8 - bits)) | rest;
+        /*
+         * Combine the bits we've accumulated with bits from
+         * that byte to make a 7-bit code point.
+         */
+        out_byte = (in_byte >> (8 - bits)) | rest;
 
-		/*
-		 * Leftover bits used in that code point.
-		 */
-		rest = (in_byte << (bits - 1)) & 0x7f;
+        /*
+         * Leftover bits used in that code point.
+         */
+        rest = (in_byte << (bits - 1)) & 0x7f;
 
-		/*
-		 * If we don't start from 0th bit, we shouldn't go to the
-		 * next char. Under *out_num we have now 0 and under Rest -
-		 * _first_ part of the char.
-		 */
-		if (char_count || (bits == 7)) {
-			wmem_strbuf_append_c(strbuf, out_byte);
-			char_count++;
-		}
+        /*
+         * If we don't start from 0th bit, we shouldn't go to the
+         * next char. Under *out_num we have now 0 and under Rest -
+         * _first_ part of the char.
+         */
+        if (char_count || (bits == 7)) {
+            wmem_strbuf_append_c(strbuf, out_byte);
+            char_count++;
+        }
 
-		/*
-		 * After reading 7 octets we have read 7 full characters
-		 * but we have 7 bits as well. This is the next character.
-		 */
-		if ((bits == 1) && (char_count < no_of_chars)) {
-			wmem_strbuf_append_c(strbuf, rest);
-			char_count++;
-			bits = 7;
-			rest = 0x00;
-		} else
-			bits--;
-	}
+        /*
+         * After reading 7 octets we have read 7 full characters
+         * but we have 7 bits as well. This is the next character.
+         */
+        if ((bits == 1) && (char_count < no_of_chars)) {
+            wmem_strbuf_append_c(strbuf, rest);
+            char_count++;
+            bits = 7;
+            rest = 0x00;
+        } else
+            bits--;
+    }
 
-	return (guint8 *)wmem_strbuf_finalize(strbuf);
+    return (guint8 *)wmem_strbuf_finalize(strbuf);
 }
 
 /* ASCII/EBCDIC conversion tables from
  * http://www.room42.com/store/computer_center/code_tables.shtml
  */
 #if 0
-static guint8 ASCII_translate_EBCDIC [ 256 ] = {
+static const guint8 ASCII_translate_EBCDIC [ 256 ] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
@@ -956,7 +956,7 @@ ASCII_to_EBCDIC1(guint8 c)
 }
 #endif
 
-static guint8 EBCDIC_translate_ASCII [ 256 ] = {
+static const guint8 EBCDIC_translate_ASCII [ 256 ] = {
     0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
     0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18,
@@ -1019,19 +1019,19 @@ EBCDIC_to_ASCII1(guint8 c)
 guint8 *
 get_ebcdic_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
-	wmem_strbuf_t *str;
+    wmem_strbuf_t *str;
 
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
+    str = wmem_strbuf_sized_new(scope, length+1, 0);
 
-	while (length > 0) {
-		guint8 ch = *ptr;
+    while (length > 0) {
+        guint8 ch = *ptr;
 
-		wmem_strbuf_append_unichar(str, EBCDIC_translate_ASCII[ch]);
-		ptr++;
-		length--;
-	}
+        wmem_strbuf_append_unichar(str, EBCDIC_translate_ASCII[ch]);
+        ptr++;
+        length--;
+    }
 
-	return (guint8 *) wmem_strbuf_finalize(str);
+    return (guint8 *) wmem_strbuf_finalize(str);
 }
 
 /*
