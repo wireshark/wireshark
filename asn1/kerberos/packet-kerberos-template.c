@@ -105,6 +105,16 @@ typedef struct kerberos_key {
 	const guint8 *keyvalue;
 } kerberos_key_t;
 
+typedef struct {
+	guint32 etype;
+	guint32 padata_type;
+	guint32 enctype;
+	kerberos_key_t key;
+	guint32 ad_type;
+	guint32 addr_type;
+	guint32 checksum_type;
+} kerberos_private_data_t;
+
 static dissector_handle_t kerberos_handle_udp;
 
 /* Forward declarations */
@@ -179,7 +189,14 @@ call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
 	return;
 }
 
-
+static kerberos_private_data_t*
+kerberos_get_private_data(asn1_ctx_t *actx)
+{
+	if (!actx->private_data) {
+		actx->private_data = wmem_new0(wmem_packet_scope(), kerberos_private_data_t);
+	}
+	return (kerberos_private_data_t *)(actx->private_data);
+}
 
 #ifdef HAVE_KERBEROS
 
@@ -1312,21 +1329,17 @@ dissect_krb5_decrypt_ticket_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
 
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
-
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
 	 * All Ticket encrypted parts use usage == 2
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 2, next_tvb, private_data->etype, NULL);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -1347,15 +1360,11 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
-
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1363,10 +1372,10 @@ dissect_krb5_decrypt_authenticator_data (gboolean imp_tag _U_, tvbuff_t *tvb, in
 	 * == 7 or
 	 * == 11
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 7, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 7, next_tvb, private_data->etype, NULL);
 
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 11, next_tvb, etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 11, next_tvb, private_data->etype, NULL);
 	}
 
 	if(plaintext){
@@ -1388,15 +1397,11 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
-
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
@@ -1405,14 +1410,14 @@ dissect_krb5_decrypt_KDC_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offs
 	 * == 8 or
 	 * == 9
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 3, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 3, next_tvb, private_data->etype, NULL);
 
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 8, next_tvb, etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 8, next_tvb, private_data->etype, NULL);
 	}
 
 	if(!plaintext){
-		plaintext=decrypt_krb5_data(tree, actx->pinfo, 9, next_tvb, etype, NULL);
+		plaintext=decrypt_krb5_data(tree, actx->pinfo, 9, next_tvb, private_data->etype, NULL);
 	}
 
 	if(plaintext){
@@ -1434,22 +1439,18 @@ dissect_krb5_decrypt_PA_ENC_TIMESTAMP (gboolean imp_tag _U_, tvbuff_t *tvb, int 
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
-
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
 
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
 	 * AS-REQ PA_ENC_TIMESTAMP are encrypted with usage
 	 * == 1
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 1, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 1, next_tvb, private_data->etype, NULL);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -1470,21 +1471,17 @@ dissect_krb5_decrypt_AP_REP_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offse
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
 
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
-
 	/* draft-ietf-krb-wg-kerberos-clarifications-05.txt :
 	 * 7.5.1
 	 * AP-REP are encrypted with usage == 12
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 12, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 12, next_tvb, private_data->etype, NULL);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -1505,21 +1502,17 @@ dissect_krb5_decrypt_PRIV_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
 
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
-
 	/* RFC4120 :
 	 * EncKrbPrivPart encrypted with usage
 	 * == 13
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 13, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 13, next_tvb, private_data->etype, NULL);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;
@@ -1540,21 +1533,17 @@ dissect_krb5_decrypt_CRED_data (gboolean imp_tag _U_, tvbuff_t *tvb, int offset,
 {
 	guint8 *plaintext;
 	int length;
-	guint32 etype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	tvbuff_t *next_tvb;
 
 	next_tvb=tvb_new_subset_remaining(tvb, offset);
 	length=tvb_length_remaining(tvb, offset);
 
-	if (actx->value_ptr) {
-		etype = *((guint32*)actx->value_ptr);
-	}
-
 	/* RFC4120 :
 	 * EncKrbCredPart encrypted with usage
 	 * == 14
 	 */
-	plaintext=decrypt_krb5_data(tree, actx->pinfo, 14, next_tvb, etype, NULL);
+	plaintext=decrypt_krb5_data(tree, actx->pinfo, 14, next_tvb, private_data->etype, NULL);
 
 	if(plaintext){
 		tvbuff_t *child_tvb;

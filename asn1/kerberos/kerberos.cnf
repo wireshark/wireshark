@@ -115,35 +115,25 @@ guint32 msgtype;
 	}
 
 
-#.FN_BODY Int32 VAL_PTR = (guint32*)actx->value_ptr
+#.FN_BODY PADATA-TYPE VAL_PTR=&(private_data->padata_type)
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 %(DEFAULT_BODY)s
-
-#.FN_BODY PADATA-TYPE
-
-	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
-
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									(guint32*)actx->value_ptr);
-
+#.FN_FTR PADATA-TYPE
 	if(tree){
 		proto_item_append_text(tree, " %s",
-			val_to_str(*((guint32*)actx->value_ptr), krb5_preauthentication_types,
+			val_to_str(private_data->padata_type, krb5_preauthentication_types,
 			"Unknown:%d"));
 	}
 
 #.FN_BODY PA-DATA/padata-value
 	proto_tree *sub_tree=tree;
-	guint32 PA_DATA_type = 0;
-
-	if (actx->value_ptr) {
-		PA_DATA_type = *((guint32*)actx->value_ptr);
-	}
+	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
 
 	if(actx->created_item){
 		sub_tree=proto_item_add_subtree(actx->created_item, ett_kerberos_PA_DATA);
 	}
 
-	switch(PA_DATA_type){
+	switch(private_data->padata_type){
 	case KRB5_PA_TGS_REQ:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Applications);
  		break;
@@ -185,19 +175,15 @@ guint32 msgtype;
 	guint32 len;
 	char *address_str;
 	proto_item *it=NULL;
-	guint32 addr_type = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	/* read header and len for the octet string */
 	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
 	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
-	if (actx->value_ptr) {
-		addr_type = *((guint32*)actx->value_ptr);
-	}
-
 	address_str=(char*)wmem_alloc(wmem_packet_scope(), ADDRESS_STR_BUFSIZ);
 	address_str[0]=0;
-	switch(addr_type){
+	switch(private_data->addr_type){
 	case KERBEROS_ADDR_TYPE_IPV4:
 		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		g_snprintf(address_str,ADDRESS_STR_BUFSIZ,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
@@ -235,84 +221,76 @@ guint32 msgtype;
 #.TYPE_ATTR
 #xxx TYPE = FT_UINT16  DISPLAY = BASE_DEC  STRINGS = VALS(xx_vals)
 
-#.FN_BODY ENCTYPE
-	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
-
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									(guint32*)actx->value_ptr);
+#.FN_BODY ENCTYPE VAL_PTR=&(private_data->etype)
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+%(DEFAULT_BODY)s
 
 #.FN_BODY EncryptedTicketData/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_ticket_data);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 #.FN_BODY EncryptedAuthorizationData/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_authenticator_data);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 #.FN_BODY EncryptedKDCREPData/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_KDC_REP_data);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 #.FN_BODY PA-ENC-TIMESTAMP/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PA_ENC_TIMESTAMP);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 #.FN_BODY EncryptedAPREPData/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_AP_REP_data);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 #.FN_BODY EncryptedKrbPrivData/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_PRIV_data);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 #.FN_BODY EncryptedKrbCredData/cipher
-/**/#ifdef HAVE_KERBEROS
+##ifdef HAVE_KERBEROS
 	offset=dissect_ber_octet_string_wcb(FALSE, actx, tree, tvb, offset, hf_index, dissect_krb5_decrypt_CRED_data);
-/**/#else
+##else
 %(DEFAULT_BODY)s
-/**/#endif
+##endif
 	return offset;
 
 
-#.FN_BODY CKSUMTYPE
-	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
-
-	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									(guint32*)actx->value_ptr);
+#.FN_BODY CKSUMTYPE VAL_PTR=&(private_data->checksum_type)
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+%(DEFAULT_BODY)s
 
 #.FN_BODY Checksum/checksum
 	tvbuff_t *next_tvb;
-	guint32 checksum_type = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	if (actx->value_ptr) {
-		checksum_type = *((guint32*)actx->value_ptr);
-	}
-
-	switch(checksum_type){
+	switch(private_data->checksum_type){
 	case KRB5_CHKSUM_GSSAPI:
 		offset=dissect_ber_octet_string(FALSE, actx, tree, tvb, offset, hf_index, &next_tvb);
 		dissect_krb5_rfc1964_checksum(actx, tree, next_tvb);
@@ -322,49 +300,41 @@ guint32 msgtype;
 	}
 	return offset;
 
-#.FN_BODY EncryptionKey/keytype
-	kerberos_key_t* key = (kerberos_key_t*)wmem_alloc(wmem_packet_scope(), sizeof(kerberos_key_t));
-	actx->value_ptr = key;
+#.FN_BODY EncryptionKey/keytype VAL_PTR=&gbl_keytype
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
 									&gbl_keytype);
-	key->keytype = gbl_keytype;
+	private_data->key.keytype = gbl_keytype;
 
 #.FN_BODY EncryptionKey/keyvalue
-	kerberos_key_t* key = (kerberos_key_t*)actx->value_ptr;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	if (key != NULL) {
-		key->keylength = tvb_length_remaining(tvb, offset);
-		key->keyvalue = tvb_get_ptr(tvb, offset, key->keylength);
-	}
+	private_data->key.keylength = tvb_length_remaining(tvb, offset);
+	private_data->key.keyvalue = tvb_get_ptr(tvb, offset, private_data->key.keylength);
 
 %(DEFAULT_BODY)s
 
 #.FN_BODY EncryptionKey
-	kerberos_key_t* key = (kerberos_key_t*)actx->value_ptr;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
 	%(DEFAULT_BODY)s
 
-	if (key != NULL) {
-/**/#ifdef HAVE_KERBEROS
-		add_encryption_key(actx->pinfo, key->keytype, key->keylength, key->keyvalue, "key");
-/**/#endif
+	if (private_data->key.keytype != 0) {
+##ifdef HAVE_KERBEROS
+		add_encryption_key(actx->pinfo, private_data->key.keytype, private_data->key.keylength, private_data->key.keyvalue, "key");
+##endif
 	}
 
 #.FN_BODY AuthorizationData/_item/ad-type
-	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
-
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 	offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-									(guint32*)actx->value_ptr);
+									&(private_data->ad_type));
 
 #.FN_BODY AuthorizationData/_item/ad-data
-	guint32 adtype = 0;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
-	if (actx->value_ptr) {
-		adtype = *((guint32*)actx->value_ptr);
-	}
-
-	switch(adtype){
+	switch(private_data->ad_type){
 	case KRB5_AD_IF_RELEVANT:
 		offset=dissect_ber_octet_string_wcb(implicit_tag, actx, tree, tvb, offset, hf_index, dissect_kerberos_AD_IF_RELEVANT);
 		break;
@@ -372,8 +342,8 @@ guint32 msgtype;
 		offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
 	}
 
-#.FN_BODY ADDR-TYPE VAL_PTR=(guint32*)actx->value_ptr
-	actx->value_ptr = wmem_alloc(wmem_packet_scope(), sizeof(guint32));
+#.FN_BODY ADDR-TYPE VAL_PTR=&(private_data->addr_type)
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 %(DEFAULT_BODY)s
 
 #.FN_BODY KDC-REQ-BODY
