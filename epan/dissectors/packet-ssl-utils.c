@@ -4183,6 +4183,9 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
             continue;
         }
 
+        /* reset the data pointer for the second iteration */
+        rewind(fp);
+
         if ((gint)strlen(uats->password) == 0) {
             private_key = ssl_load_key(fp);
         } else {
