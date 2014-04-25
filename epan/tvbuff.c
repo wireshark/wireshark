@@ -2190,7 +2190,7 @@ tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, co
 
 /*
  * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
- * of bytes referred to by the tvbuff, the offset, and the length  as an
+ * of bytes referred to by the tvbuff, the offset, and the length as an
  * ISO 8859/1 string, and return a pointer to a UTF-8 string, allocated
  * using the wmem scope.
  */
@@ -2227,8 +2227,8 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
  * giving the byte order, treat the string of bytes referred to by the
  * tvbuff, the offset, and the length as a UCS-2 encoded string in
  * the byte order in question, containing characters from the Basic
- * Multilingual Plane (plane 0) of Unicode, return a pointer to a UTF-8
- * string, allocated with the wmem scope.
+ * Multilingual Plane (plane 0) of Unicode, and return a pointer to a
+ * UTF-8 string, allocated with the wmem scope.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
@@ -2252,7 +2252,7 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * Given a wmem scope, a tvbuff, an offset, a length, and an encoding
  * giving the byte order, treat the string of bytes referred to by the
  * tvbuff, the offset, and the length as a UTF-16 encoded string in
- * the byte order in question, return a pointer to a UTF-8 string,
+ * the byte order in question, and return a pointer to a UTF-8 string,
  * allocated with the wmem scope.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
@@ -2269,10 +2269,6 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 {
 	const guint8  *ptr;
 
-	/* make sure length = -1 fails */
-	if (length < 0) {
-		THROW(ReportedBoundsError);
-	}
 	ptr = ensure_contiguous(tvb, offset, length);
 	return get_utf_16_string(scope, ptr, length, encoding);
 }
@@ -2281,7 +2277,7 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
  * Given a wmem scope, a tvbuff, an offset, a length, and an encoding
  * giving the byte order, treat the string of bytes referred to by the
  * tvbuff, the offset, and the length as a UCS-4 encoded string in
- * the byte order in question, return a pointer to a UTF-8 string,
+ * the byte order in question, and return a pointer to a UTF-8 string,
  * allocated with the wmem scope.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
@@ -2298,11 +2294,6 @@ static gchar *
 tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
 	const guint8 *ptr;
-
-	/* make sure length = -1 fails */
-	if (length < 0) {
-		THROW(ReportedBoundsError);
-	}
 
 	ptr = ensure_contiguous(tvb, offset, length);
 	return get_ucs_4_string(scope, ptr, length, encoding);
@@ -2337,6 +2328,21 @@ tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 }
 
 /*
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
+ * of bytes referred to by the tvbuff, offset, and length as a string encoded
+ * in EBCDIC using one octet per character, and return a pointer to a
+ * UTF-8 string, allocated using the wmem scope.
+ */
+static guint8 *
+tvb_get_ebcdic_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_ebcdic_string(scope, ptr, length);
+}
+
+/*
  * Given a tvbuff, an offset, a length, and an encoding, allocate a
  * buffer big enough to hold a non-null-terminated string of that length
  * at that offset, plus a trailing '\0', copy into the buffer the
@@ -2347,8 +2353,7 @@ guint8 *
 tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 			     const gint length, const guint encoding)
 {
-	const guint8 *ptr;
-	guint8       *strbuf;
+	guint8 *strptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
@@ -2370,7 +2375,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * encoding value, and passed non-zero values
 		 * other than TRUE to mean "little-endian".
 		 */
-		strbuf = tvb_get_ascii_string(scope, tvb, offset, length);
+		strptr = tvb_get_ascii_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_UTF_8:
@@ -2380,21 +2385,21 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * XXX - should map code points > 10FFFF to REPLACEMENT
 		 * CHARACTERs.
 		 */
-		strbuf = tvb_get_utf_8_string(scope, tvb, offset, length);
+		strptr = tvb_get_utf_8_string(scope, tvb, offset, length);
 		break;
 
 	case ENC_UTF_16:
-		strbuf = tvb_get_utf_16_string(scope, tvb, offset, length,
+		strptr = tvb_get_utf_16_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
 	case ENC_UCS_2:
-		strbuf = tvb_get_ucs_2_string(scope, tvb, offset, length,
+		strptr = tvb_get_ucs_2_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
 	case ENC_UCS_4:
-		strbuf = tvb_get_ucs_4_string(scope, tvb, offset, length,
+		strptr = tvb_get_ucs_4_string(scope, tvb, offset, length,
 		    encoding & ENC_LITTLE_ENDIAN);
 		break;
 
@@ -2404,82 +2409,82 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * to the equivalent Unicode code point value, so
 		 * no translation table is needed.
 		 */
-		strbuf = tvb_get_string_8859_1(scope, tvb, offset, length);
+		strptr = tvb_get_string_8859_1(scope, tvb, offset, length);
 		break;
 
 	case ENC_ISO_8859_2:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_2);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_2);
 		break;
 
 	case ENC_ISO_8859_3:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_3);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_3);
 		break;
 
 	case ENC_ISO_8859_4:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_4);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_4);
 		break;
 
 	case ENC_ISO_8859_5:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_5);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_5);
 		break;
 
 	case ENC_ISO_8859_6:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_6);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_6);
 		break;
 
 	case ENC_ISO_8859_7:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_7);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_7);
 		break;
 
 	case ENC_ISO_8859_8:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_8);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_8);
 		break;
 
 	case ENC_ISO_8859_9:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_9);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_9);
 		break;
 
 	case ENC_ISO_8859_10:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_10);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_10);
 		break;
 
 	case ENC_ISO_8859_11:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_11);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_11);
 		break;
 
 	case ENC_ISO_8859_13:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_13);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_13);
 		break;
 
 	case ENC_ISO_8859_14:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_14);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_14);
 		break;
 
 	case ENC_ISO_8859_15:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_15);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_15);
 		break;
 
 	case ENC_ISO_8859_16:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_16);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_iso_8859_16);
 		break;
 
 	case ENC_WINDOWS_1250:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1250);
 		break;
 
 	case ENC_MAC_ROMAN:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_mac_roman);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_mac_roman);
 		break;
 
 	case ENC_CP437:
-		strbuf = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp437);
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp437);
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS:
 		{
 			gint bit_offset  = offset << 3;
 			gint no_of_chars = (length << 3) / 7;
-			strbuf = tvb_get_ts_23_038_7bits_string(scope, tvb, bit_offset, no_of_chars);
+			strptr = tvb_get_ts_23_038_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
@@ -2487,27 +2492,18 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		{
 			gint bit_offset  = offset << 3;
 			gint no_of_chars = (length << 3) / 7;
-			strbuf = tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
+			strptr = tvb_get_ascii_7bits_string(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
 	case ENC_EBCDIC:
 		/*
-		 * XXX - do the copy and conversion in one pass.
-		 *
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
-		tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-		strbuf = (guint8 *)wmem_alloc(scope, length + 1);
-		if (length != 0) {
-			ptr = ensure_contiguous(tvb, offset, length);
-			memcpy(strbuf, ptr, length);
-			EBCDIC_to_ASCII(strbuf, length);
-		}
-		strbuf[length] = '\0';
+		strptr = tvb_get_ebcdic_string(scope, tvb, offset, length);
 		break;
 	}
-	return strbuf;
+	return strptr;
 }
 
 /*
@@ -2668,10 +2664,23 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 	return get_ucs_4_string(scope, ptr, size, encoding);
 }
 
+static guint8 *
+tvb_get_ebcdic_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint	       size;
+	const guint8  *ptr;
+
+	size = tvb_strsize(tvb, offset);
+	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
+	if (lengthp)
+		*lengthp = size;
+	return get_ebcdic_string(scope, ptr, size);
+}
+
 guint8 *
 tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
-	guint   size;
 	guint8 *strptr;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
@@ -2804,16 +2813,9 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_EBCDIC:
 		/*
-		 * XXX - do the copy and conversion in one pass.
-		 *
 		 * XXX - multiple "dialects" of EBCDIC?
 		 */
-		size = tvb_strsize(tvb, offset);
-		strptr = (guint8 *)wmem_alloc(scope, size);
-		tvb_memcpy(tvb, strptr, offset, size);
-		EBCDIC_to_ASCII(strptr, size);
-		if (lengthp)
-			*lengthp = size;
+		strptr = tvb_get_ebcdic_stringz(scope, tvb, offset, lengthp);
 		break;
 	}
 
