@@ -37,12 +37,6 @@ void EBCDIC_to_ASCII(guint8 *buf, guint bytes);
 WS_DLL_PUBLIC
 guint8 EBCDIC_to_ASCII1(guint8 c);
 
-WS_DLL_PUBLIC gunichar
-GSM_to_UNICHAR(guint8 c);
-
-WS_DLL_PUBLIC gunichar
-GSMext_to_UNICHAR(guint8 c);
-
 /*
  * Translation tables that map the upper 128 code points in single-byte
  * "extended ASCII" character encodings to Unicode code points in the
@@ -73,6 +67,41 @@ extern const gunichar2 charset_table_mac_roman[0x80];
 
 /* Tables for DOS code pages */
 extern const gunichar2 charset_table_cp437[0x80];
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by the pointer and length as an ASCII string, with all bytes
+ * with the high-order bit set being invalid, and return a pointer to a
+ * UTF-8 string, allocated using the wmem scope.
+ *
+ * Octets with the highest bit set will be converted to the Unicode
+ * REPLACEMENT CHARACTER.
+ */
+WS_DLL_PUBLIC guint8 *
+get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
+
+WS_DLL_PUBLIC guint8 *
+get_8859_1_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
+
+WS_DLL_PUBLIC guint8 *
+get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[0x80]);
+
+WS_DLL_PUBLIC guint8 *
+get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
+
+WS_DLL_PUBLIC guint8 *
+get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
+
+WS_DLL_PUBLIC guint8 *
+get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
+
+WS_DLL_PUBLIC guint8 *
+get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
+	const gint bit_offset, gint no_of_chars);
+	
+WS_DLL_PUBLIC guint8 *
+get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
+	const gint bit_offset, gint no_of_chars);
 
 #ifdef __cplusplus
 }

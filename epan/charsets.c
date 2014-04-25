@@ -24,6 +24,12 @@
 
 #include <glib.h>
 
+#include <epan/proto.h>
+#include <epan/wmem/wmem.h>
+
+#include <wsutil/pint.h>
+#include <wsutil/unicode-utils.h>
+
 #include "charsets.h"
 
 /* REPLACEMENT CHARACTER */
@@ -170,60 +176,67 @@ EBCDIC_to_ASCII1(guint8 c)
 }
 
 /*
- * FROM GNOKII
- * gsm-encoding.c
- * gsm-sms.c
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by the pointer and length as an ASCII string, with all bytes
+ * with the high-order bit set being invalid, and return a pointer to a
+ * UTF-8 string, allocated using the wmem scope.
+ *
+ * Octets with the highest bit set will be converted to the Unicode
+ * REPLACEMENT CHARACTER.
  */
-
-/* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
-static const gunichar2 gsm_default_alphabet[0x80] = {
-    '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
-    0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
-    0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
-    0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
-    ' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
-    '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
-    '0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
-    '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
-    0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
-    'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
-    'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
-    'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
-    0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
-    'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
-    'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
-    'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
-};
-
-gunichar
-GSMext_to_UNICHAR(guint8 c)
+guint8 *
+get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
-    switch (c)
-    {
-        case 0x0a: return 0x0c; /* form feed */
-        case 0x14: return '^';
-        case 0x28: return '{';
-        case 0x29: return '}';
-        case 0x2f: return '\\';
-        case 0x3c: return '[';
-        case 0x3d: return '~';
-        case 0x3e: return ']';
-        case 0x40: return '|';
-        case 0x65: return 0x20ac; /* euro */
-    }
+	wmem_strbuf_t *str;
 
-    return UNREPL; /* invalid character */
+	str = wmem_strbuf_sized_new(scope, length+1, 0);
+
+	while (length > 0) {
+		guint8 ch = *ptr;
+
+		if (ch < 0x80)
+			wmem_strbuf_append_c(str, ch);
+		else
+			wmem_strbuf_append_unichar(str, UNREPL);
+		ptr++;
+		length--;
+	}
+
+	return (guint8 *) wmem_strbuf_finalize(str);
 }
 
-gunichar
-GSM_to_UNICHAR(guint8 c)
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by them as an ISO 8859/1 string, and return a pointer to a
+ * UTF-8 string, allocated using the wmem scope.
+ */
+guint8 *
+get_8859_1_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 {
-    if (c < G_N_ELEMENTS(gsm_default_alphabet))
-        return gsm_default_alphabet[c];
+	wmem_strbuf_t *str;
 
-    return UNREPL;
+	str = wmem_strbuf_sized_new(scope, length+1, 0);
+
+	while (length > 0) {
+		guint8 ch = *ptr;
+
+		if (ch < 0x80)
+			wmem_strbuf_append_c(str, ch);
+		else {
+			/*
+			 * Note: we assume here that the code points
+			 * 0x80-0x9F are used for C1 control characters,
+			 * and thus have the same value as the corresponding
+			 * Unicode code points.
+			 */
+			wmem_strbuf_append_unichar(str, ch);
+		}
+		ptr++;
+		length--;
+	}
+
+	return (guint8 *) wmem_strbuf_finalize(str);
 }
-
 
 /*
  * Translation tables that map the upper 128 code points in single-byte
@@ -572,6 +585,429 @@ const gunichar2 charset_table_cp437[0x80] = {
     0x00b0, 0x2219, 0x00b7, 0x221a, 0x207f, 0x00b2, 0x25a0, 0x00a0,        /*      - 0xFF */
 };
 
+/*
+ * Given a wmem scope, a pointer, and a length, and a translation table,
+ * treat the string of bytes referred to by them as a string encoded
+ * using one octet per character, with octets with the high-order bit
+ * clear being ASCII and octets with the high-order bit set being
+ * mapped by the translation table to 2-byte Unicode Basic Multilingual
+ * Plane characters (including REPLACEMENT CHARACTER), and return a
+ * pointer to a UTF-8 string, allocated using the wmem scope.
+ */
+guint8 *
+get_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[0x80])
+{
+	wmem_strbuf_t *str;
+
+	str = wmem_strbuf_sized_new(scope, length+1, 0);
+
+	while (length > 0) {
+		guint8 ch = *ptr;
+
+		if (ch < 0x80)
+			wmem_strbuf_append_c(str, ch);
+		else
+			wmem_strbuf_append_unichar(str, table[ch-0x80]);
+		ptr++;
+		length--;
+	}
+
+	return (guint8 *) wmem_strbuf_finalize(str);
+}
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by them as a UCS-2 encoded string containing characters
+ * from the Basic Multilingual Plane (plane 0) of Unicode, return a
+ * pointer to a UTF-8 string, allocated with the wmem scope.
+ *
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ *
+ * Specify length in bytes.
+ *
+ * XXX - should map lead and trail surrogate values to REPLACEMENT
+ * CHARACTERs (0xFFFD)?
+ * XXX - if there are an odd number of bytes, should put a
+ * REPLACEMENT CHARACTER at the end.
+ */
+guint8 *
+get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
+{
+	gunichar2      uchar;
+	gint           i;       /* Byte counter for string */
+	wmem_strbuf_t *strbuf;
+
+	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+
+	for(i = 0; i + 1 < length; i += 2) {
+		if (encoding == ENC_BIG_ENDIAN){
+			uchar = pntoh16(ptr + i);
+		}else{
+			uchar = pletoh16(ptr + i);
+		}
+		wmem_strbuf_append_unichar(strbuf, uchar);
+	}
+
+	/*
+	 * XXX - if i < length, this means we were handed an odd
+	 * number of bytes, so we're not a valid UCS-2 string.
+	 */
+	return (guint8 *) wmem_strbuf_finalize(strbuf);
+}
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by them as a UTF-16 encoded string, return a pointer to
+ * a UTF-8 string, allocated with the wmem scope.
+ *
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
+ *
+ * Specify length in bytes.
+ *
+ * XXX - should map surrogate errors to REPLACEMENT CHARACTERs (0xFFFD).
+ * XXX - should map code points > 10FFFF to REPLACEMENT CHARACTERs.
+ * XXX - if there are an odd number of bytes, should put a
+ * REPLACEMENT CHARACTER at the end.
+ */
+guint8 *
+get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
+{
+	wmem_strbuf_t *strbuf;
+	gunichar2      uchar2, lead_surrogate;
+	gunichar       uchar;
+	gint           i;       /* Byte counter for string */
+
+	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+
+	for(i = 0; i + 1 < length; i += 2) {
+		if (encoding == ENC_BIG_ENDIAN)
+			uchar2 = pntoh16(ptr + i);
+		else
+			uchar2 = pletoh16(ptr + i);
+
+		if (IS_LEAD_SURROGATE(uchar2)) {
+			/*
+			 * Lead surrogate.  Must be followed by
+			 * a trail surrogate.
+			 */
+			i += 2;
+			if (i + 1 >= length) {
+				/*
+				 * Oops, string ends with a lead surrogate.
+				 * Ignore this for now.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other
+				 * fashion?
+				 */
+				break;
+			}
+			lead_surrogate = uchar2;
+			if (encoding == ENC_BIG_ENDIAN)
+				uchar2 = pntoh16(ptr + i);
+			else
+				uchar2 = pletoh16(ptr + i);
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/* Trail surrogate. */
+				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
+				wmem_strbuf_append_unichar(strbuf, uchar);
+			} else {
+				/*
+				 * Not a trail surrogate.
+				 * Ignore the entire pair.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other
+				 * fashion?
+				 */
+				 ;
+			}
+		} else {
+			if (IS_TRAIL_SURROGATE(uchar2)) {
+				/*
+				 * Trail surrogate without a preceding
+				 * lead surrogate.  Ignore it.
+				 * XXX - insert "substitute" character?
+				 * Report the error in some other
+				 * fashion?
+				 */
+				;
+			} else {
+				/*
+				 * Non-surrogate; just append it.
+				 */
+				wmem_strbuf_append_unichar(strbuf, uchar2);
+			}
+		}
+	}
+
+	/*
+	 * XXX - if i < length, this means we were handed an odd
+	 * number of bytes, so we're not a valid UTF-16 string.
+	 */
+	return (guint8 *) wmem_strbuf_finalize(strbuf);
+}
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by them as a UCS-4 encoded string, return a pointer to
+ * a UTF-8 string, allocated with the wmem scope.
+ *
+ * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
+ *
+ * Specify length in bytes
+ *
+ * XXX - should map lead and trail surrogate values to a "substitute"
+ * UTF-8 character?
+ * XXX - should map code points > 10FFFF to REPLACEMENT CHARACTERs.
+ * XXX - if the number of bytes isn't a multiple of 4, should put a
+ * REPLACEMENT CHARACTER at the end.
+ */
+guint8 *
+get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
+{
+	gunichar       uchar;
+	gint           i;       /* Byte counter for string */
+	wmem_strbuf_t *strbuf;
+
+	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
+
+	for(i = 0; i + 3 < length; i += 4) {
+		if (encoding == ENC_BIG_ENDIAN)
+			uchar = pntoh32(ptr + i);
+		else
+			uchar = pletoh32(ptr + i);
+
+		wmem_strbuf_append_unichar(strbuf, uchar);
+	}
+
+	/*
+	 * XXX - if i < length, this means we were handed a number
+	 * of bytes that's not a multiple of 4, so we're not a valid
+	 * UCS-4 string.
+	 */
+	return (gchar *)wmem_strbuf_finalize(strbuf);
+}
+
+/*
+ * FROM GNOKII
+ * gsm-encoding.c
+ * gsm-sms.c
+ */
+
+/* ETSI GSM 03.38, version 6.0.1, section 6.2.1; Default alphabet */
+static const gunichar2 gsm_default_alphabet[0x80] = {
+    '@',   0xa3,  '$',   0xa5,  0xe8,  0xe9,  0xf9,  0xec,
+    0xf2,  0xc7,  '\n',  0xd8,  0xf8,  '\r',  0xc5,  0xe5,
+    0x394, '_',   0x3a6, 0x393, 0x39b, 0x3a9, 0x3a0, 0x3a8,
+    0x3a3, 0x398, 0x39e, 0xa0,  0xc6,  0xe6,  0xdf,  0xc9,
+    ' ',   '!',   '\"',  '#',   0xa4,  '%',   '&',   '\'',
+    '(',   ')',   '*',   '+',   ',',   '-',   '.',   '/',
+    '0',   '1',   '2',   '3',   '4',   '5',   '6',   '7',
+    '8',   '9',   ':',   ';',   '<',   '=',   '>',   '?',
+    0xa1,  'A',   'B',   'C',   'D',   'E',   'F',   'G',
+    'H',   'I',   'J',   'K',   'L',   'M',   'N',   'O',
+    'P',   'Q',   'R',   'S',   'T',   'U',   'V',   'W',
+    'X',   'Y',   'Z',   0xc4,  0xd6,  0xd1,  0xdc,  0xa7,
+    0xbf,  'a',   'b',   'c',   'd',   'e',   'f',   'g',
+    'h',   'i',   'j',   'k',   'l',   'm',   'n',   'o',
+    'p',   'q',   'r',   's',   't',   'u',   'v',   'w',
+    'x',   'y',   'z',   0xe4,  0xf6,  0xf1,  0xfc,  0xe0
+};
+
+static gunichar
+GSM_to_UNICHAR(guint8 c)
+{
+    if (c < G_N_ELEMENTS(gsm_default_alphabet))
+        return gsm_default_alphabet[c];
+
+    return UNREPL;
+}
+
+static gunichar
+GSMext_to_UNICHAR(guint8 c)
+{
+    switch (c)
+    {
+        case 0x0a: return 0x0c; /* form feed */
+        case 0x14: return '^';
+        case 0x28: return '{';
+        case 0x29: return '}';
+        case 0x2f: return '\\';
+        case 0x3c: return '[';
+        case 0x3d: return '~';
+        case 0x3e: return ']';
+        case 0x40: return '|';
+        case 0x65: return 0x20ac; /* euro */
+    }
+
+    return UNREPL; /* invalid character */
+}
+
+#define GN_BYTE_MASK ((1 << bits) - 1)
+
+#define GN_CHAR_ESCAPE 0x1b
+
+static gboolean
+char_is_escape(unsigned char value)
+{
+	return (value == GN_CHAR_ESCAPE);
+}
+
+static gboolean
+handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
+		      gboolean saw_escape)
+{
+	gunichar       uchar;
+
+	if (char_is_escape(code_point)) {
+		/*
+		 * XXX - if saw_escape is TRUE here, then this is
+		 * the case where we escape to "another extension table",
+		 * but TS 128 038 V11.0 doesn't specify such an extension
+		 * table.
+		 */
+		saw_escape = TRUE;
+	} else {
+		/*
+		 * Have we seen an escape?
+		 */
+		if (saw_escape) {
+			saw_escape = FALSE;
+			uchar = GSMext_to_UNICHAR(code_point);
+		} else {
+			uchar = GSM_to_UNICHAR(code_point);
+		}
+		wmem_strbuf_append_unichar(strbuf, uchar);
+	}
+	return saw_escape;
+}
+
+guint8 *
+get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
+	const gint bit_offset, gint no_of_chars)
+{
+	wmem_strbuf_t *strbuf;
+	gint           char_count;                  /* character counter for string */
+	guint8         in_byte, out_byte, rest = 0x00;
+	gboolean       saw_escape = FALSE;
+	int            bits;
+
+	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+
+	bits = bit_offset & 0x07;
+	if (!bits) {
+		bits = 7;
+	}
+
+	for(char_count = 0; char_count < no_of_chars;) {
+		/* Get the next byte from the string. */
+		in_byte = *ptr;
+		ptr++;
+
+		/*
+		 * Combine the bits we've accumulated with bits from
+		 * that byte to make a 7-bit code point.
+		 */
+		out_byte = ((in_byte & GN_BYTE_MASK) << (7 - bits)) | rest;
+
+		/*
+		 * Leftover bits used in that code point.
+		 */
+		rest = in_byte >> bits;
+
+		/*
+		 * If we don't start from 0th bit, we shouldn't go to the
+		 * next char. Under *out_num we have now 0 and under Rest -
+		 * _first_ part of the char.
+		 */
+		if (char_count || (bits == 7)) {
+			saw_escape = handle_ts_23_038_char(strbuf, out_byte,
+			    saw_escape);
+			char_count++;
+		}
+
+		/*
+		 * After reading 7 octets we have read 7 full characters
+		 * but we have 7 bits as well. This is the next character.
+		 */
+		if ((bits == 1) && (char_count < no_of_chars)) {
+			saw_escape = handle_ts_23_038_char(strbuf, rest,
+			    saw_escape);
+			char_count++;
+			bits = 7;
+			rest = 0x00;
+		} else
+			bits--;
+	}
+
+	if (saw_escape) {
+		/*
+		 * Escape not followed by anything.
+		 *
+		 * XXX - for now, show the escape as a REPLACEMENT
+		 * CHARACTER.
+		 */
+		wmem_strbuf_append_unichar(strbuf, UNREPL);
+	}
+
+	return (guint8 *)wmem_strbuf_finalize(strbuf);
+}
+
+guint8 *
+get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
+	const gint bit_offset, gint no_of_chars)
+{
+	wmem_strbuf_t *strbuf;
+	gint           char_count;                  /* character counter for string */
+	guint8         in_byte, out_byte, rest = 0x00;
+	int            bits;
+
+	bits = bit_offset & 0x07;
+	if (!bits) {
+		bits = 7;
+	}
+
+	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
+	for(char_count = 0; char_count < no_of_chars;) {
+		/* Get the next byte from the string. */
+		in_byte = *ptr;
+		ptr++;
+
+		/*
+		 * Combine the bits we've accumulated with bits from
+		 * that byte to make a 7-bit code point.
+		 */
+		out_byte = (in_byte >> (8 - bits)) | rest;
+
+		/*
+		 * Leftover bits used in that code point.
+		 */
+		rest = (in_byte << (bits - 1)) & 0x7f;
+
+		/*
+		 * If we don't start from 0th bit, we shouldn't go to the
+		 * next char. Under *out_num we have now 0 and under Rest -
+		 * _first_ part of the char.
+		 */
+		if (char_count || (bits == 7)) {
+			wmem_strbuf_append_c(strbuf, out_byte);
+			char_count++;
+		}
+
+		/*
+		 * After reading 7 octets we have read 7 full characters
+		 * but we have 7 bits as well. This is the next character.
+		 */
+		if ((bits == 1) && (char_count < no_of_chars)) {
+			wmem_strbuf_append_c(strbuf, rest);
+			char_count++;
+			bits = 7;
+			rest = 0x00;
+		} else
+			bits--;
+	}
+
+	return (guint8 *)wmem_strbuf_finalize(strbuf);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

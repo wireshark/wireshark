@@ -2122,10 +2122,10 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
  */
 
 /*
- * Given a tvbuff, an offset, and a length, treat the string of bytes
- * referred to by them as an ASCII string, with all bytes with the
- * high-order bit set being invalid, and return a pointer to a
- * UTF-8 string.
+ * Given a wmem scope, tvbuff, an offset, and a length, treat the string
+ * of bytes referred to by the tvbuff, offset, and length as an ASCII string,
+ * with all bytes with the high-order bit set being invalid, and return a
+ * pointer to a UTF-8 string, allocated using the wmem scope.
  *
  * Octets with the highest bit set will be converted to the Unicode
  * REPLACEMENT CHARACTER.
@@ -2133,31 +2133,16 @@ tvb_format_stringzpad_wsp(tvbuff_t *tvb, const gint offset, const gint size)
 static guint8 *
 tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
-	wmem_strbuf_t *str;
 	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
-
-	while (length > 0) {
-		guint8 ch = *ptr;
-
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else
-			wmem_strbuf_append_unichar(str, UNREPL);
-		ptr++;
-		length--;
-	}
-
-	return (guint8 *) wmem_strbuf_finalize(str);
+	return get_ascii_string(scope, ptr, length);
 }
 
 /*
- * Given a tvbuff, an offset, and a length, treat the string of bytes
- * referred to by them as a UTF-8 string, and return a pointer to that
- * string.
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
+ * of bytes referred to by the tvbuff, the offset. and the length as a UTF-8
+ * string, and return a pointer to that string, allocated using the wmem scope.
  *
  * XXX - should map invalid UTF-8 sequences to UNREPL.
  */
@@ -2174,11 +2159,12 @@ tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 }
 
 /*
- * Given a tvbuff, an offset, and a length, treat the string of bytes
- * referred to by them as a raw string, and return a pointer to that
- * string. This means a null is appended at the end, but no replacement
- * checking is done otherwise. Currently tvb_get_utf_8_string() does
- * not replace either, but it might in the future.
+ * Given a wmem scope, tvbuff, an offset, and a length, treat the string
+ * of bytes referred to by the tvbuff, the offset, and the length as a
+ * raw string, and return a pointer to that string, allocated using the
+ * wmem scope. This means a null is appended at the end, but no replacement
+ * checking is done otherwise. Currently tvb_get_utf_8_string() does not
+ * replace either, but it might in the future.
  *
  * Also, this one allows a length of -1 to mean get all, but does not
  * allow a negative offset.
@@ -2203,80 +2189,46 @@ tvb_get_raw_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, co
 }
 
 /*
- * Given a tvbuff, an offset, and a length, treat the string of bytes
- * referred to by them as an ISO 8859/1 string, with all bytes with the
- * high-order bit set being invalid, and return a pointer to a UTF-8
- * string.
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
+ * of bytes referred to by the tvbuff, the offset, and the length  as an
+ * ISO 8859/1 string, and return a pointer to a UTF-8 string, allocated
+ * using the wmem scope.
  */
 static guint8 *
 tvb_get_string_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
-	wmem_strbuf_t *str;
 	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
-
-	while (length > 0) {
-		guint8 ch = *ptr;
-
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else {
-			/*
-			 * Note: we assume here that the code points
-			 * 0x80-0x9F are used for C1 control characters,
-			 * and thus have the same value as the corresponding
-			 * Unicode code points.
-			 */
-			wmem_strbuf_append_unichar(str, ch);
-		}
-		ptr++;
-		length--;
-	}
-
-	return (guint8 *) wmem_strbuf_finalize(str);
+	return get_8859_1_string(scope, ptr, length);
 }
 
 /*
- * Given a tvbuff, an offset, and a length, and a translation table,
- * treat the string of bytes referred to by them as a string encoded
- * using one octet per character, with octets with the high-order bit
- * clear being ASCII and octets with the high-order bit set being
- * mapped by the translation table to 2-byte Unicode Basic Multilingual
- * Plane characters (including REPLACEMENT CHARACTER), and return a
- * pointer to a UTF-8 string.
+ * Given a wmem scope, a tvbuff, an offset, and a length, and a translation
+ * table, treat the string of bytes referred to by the tvbuff, the offset,
+ * and the length as a string encoded using one octet per character, with
+ * octets with the high-order bit clear being ASCII and octets with the
+ * high-order bit set being mapped by the translation table to 2-byte
+ * Unicode Basic Multilingual Plane characters (including REPLACEMENT
+ * CHARACTER), and return a pointer to a UTF-8 string, allocated with the
+ * wmem scope.
  */
 static guint8 *
 tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[0x80])
 {
-	wmem_strbuf_t *str;
 	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-
-	str = wmem_strbuf_sized_new(scope, length+1, 0);
-
-	while (length > 0) {
-		guint8 ch = *ptr;
-
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else
-			wmem_strbuf_append_unichar(str, table[ch-0x80]);
-		ptr++;
-		length--;
-	}
-
-	return (guint8 *) wmem_strbuf_finalize(str);
+	return get_unichar2_string(scope, ptr, length, table);
 }
 
 /*
- * Given a tvbuff, and offset, and a length, treat the string of bytes
- * referred to by them as a UCS-2 encoded string containing characters
- * from the Basic Multilingual Plane (plane 0) of Unicode, return a
- * pointer to a UTF-8 string.
+ * Given a wmem scope, a tvbuff, an offset, a length, and an encoding
+ * giving the byte order, treat the string of bytes referred to by the
+ * tvbuff, the offset, and the length as a UCS-2 encoded string in
+ * the byte order in question, containing characters from the Basic
+ * Multilingual Plane (plane 0) of Unicode, return a pointer to a UTF-8
+ * string, allocated with the wmem scope.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
@@ -2287,48 +2239,21 @@ tvb_get_string_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gin
  * XXX - if there are an odd number of bytes, should put a
  * REPLACEMENT CHARACTER at the end.
  */
-static wmem_strbuf_t *
-tvb_extract_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+static guint8 *
+tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	gunichar2      uchar;
-	gint           i;       /* Byte counter for tvbuff */
-	wmem_strbuf_t *strbuf;
 	const guint8  *ptr;
 
 	ptr = ensure_contiguous(tvb, offset, length);
-
-	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
-
-	for(i = 0; i + 1 < length; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN){
-			uchar = pntoh16(ptr + i);
-		}else{
-			uchar = pletoh16(ptr + i);
-		}
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
-
-	/*
-	 * XXX - if i < length, this means we were handed an odd
-	 * number of bytes, so we're not a valid UCS-2 string.
-	 */
-	return strbuf;
-}
-
-static gchar *
-tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
-{
-	wmem_strbuf_t *strbuf;
-
-	/*tvb_ensure_bytes_exist(tvb, offset, length); xhecked in the called routine */
-	strbuf = tvb_extract_ucs_2_string(scope, tvb, offset, length, encoding);
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+	return get_ucs_2_string(scope, ptr, length, encoding);
 }
 
 /*
- * Given a tvbuff, and offset, and a length, treat the string of bytes
- * referred to by them as a UTF-16 encoded string, return a pointer to
- * a UTF-8 string.
+ * Given a wmem scope, a tvbuff, an offset, a length, and an encoding
+ * giving the byte order, treat the string of bytes referred to by the
+ * tvbuff, the offset, and the length as a UTF-16 encoded string in
+ * the byte order in question, return a pointer to a UTF-8 string,
+ * allocated with the wmem scope.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN.
  *
@@ -2339,105 +2264,25 @@ tvb_get_ucs_2_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * XXX - if there are an odd number of bytes, should put a
  * REPLACEMENT CHARACTER at the end.
  */
-static wmem_strbuf_t *
-tvb_extract_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+static guint8 *
+tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	wmem_strbuf_t *strbuf;
-	gunichar2      uchar2, lead_surrogate;
-	gunichar       uchar;
-	gint           i;       /* Byte counter for tvbuff */
 	const guint8  *ptr;
 
 	/* make sure length = -1 fails */
 	if (length < 0) {
 		THROW(ReportedBoundsError);
 	}
-
 	ptr = ensure_contiguous(tvb, offset, length);
-
-	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
-
-	for(i = 0; i + 1 < length; i += 2) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar2 = pntoh16(ptr + i);
-		else
-			uchar2 = pletoh16(ptr + i);
-
-		if (IS_LEAD_SURROGATE(uchar2)) {
-			/*
-			 * Lead surrogate.  Must be followed by
-			 * a trail surrogate.
-			 */
-			i += 2;
-			if (i + 1 >= length) {
-				/*
-				 * Oops, string ends with a lead surrogate.
-				 * Ignore this for now.
-				 * XXX - insert "substitute" character?
-				 * Report the error in some other
-				 * fashion?
-				 */
-				break;
-			}
-			lead_surrogate = uchar2;
-			if (encoding == ENC_BIG_ENDIAN)
-				uchar2 = pntoh16(ptr + i);
-			else
-				uchar2 = pletoh16(ptr + i);
-			if (IS_TRAIL_SURROGATE(uchar2)) {
-				/* Trail surrogate. */
-				uchar = SURROGATE_VALUE(lead_surrogate, uchar2);
-				wmem_strbuf_append_unichar(strbuf, uchar);
-			} else {
-				/*
-				 * Not a trail surrogate.
-				 * Ignore the entire pair.
-				 * XXX - insert "substitute" character?
-				 * Report the error in some other
-				 * fashion?
-				 */
-				 ;
-			}
-		} else {
-			if (IS_TRAIL_SURROGATE(uchar2)) {
-				/*
-				 * Trail surrogate without a preceding
-				 * lead surrogate.  Ignore it.
-				 * XXX - insert "substitute" character?
-				 * Report the error in some other
-				 * fashion?
-				 */
-				;
-			} else {
-				/*
-				 * Non-surrogate; just append it.
-				 */
-				wmem_strbuf_append_unichar(strbuf, uchar2);
-			}
-		}
-	}
-
-	/*
-	 * XXX - if i < length, this means we were handed an odd
-	 * number of bytes, so we're not a valid UTF-16 string.
-	 */
-	return strbuf;
-}
-
-static gchar *
-tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
-{
-	wmem_strbuf_t *strbuf;
-
-	/*tvb_ensure_bytes_exist(tvb, offset, length); checked in the called routine */
-	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, length, encoding);
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+	return get_utf_16_string(scope, ptr, length, encoding);
 }
 
 /*
- * Given a tvbuff, and offset, and a length, treat the string of bytes
- * referred to by them as a UCS-4 encoded string, return a pointer to
- * a UTF-8 string.
+ * Given a wmem scope, a tvbuff, an offset, a length, and an encoding
+ * giving the byte order, treat the string of bytes referred to by the
+ * tvbuff, the offset, and the length as a UCS-4 encoded string in
+ * the byte order in question, return a pointer to a UTF-8 string,
+ * allocated with the wmem scope.
  *
  * Encoding parameter should be ENC_BIG_ENDIAN or ENC_LITTLE_ENDIAN
  *
@@ -2449,12 +2294,9 @@ tvb_get_utf_16_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
  * XXX - if the number of bytes isn't a multiple of 4, should put a
  * REPLACEMENT CHARACTER at the end.
  */
-static wmem_strbuf_t *
-tvb_extract_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
+static gchar *
+tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
 {
-	gunichar       uchar;
-	gint           i;       /* Byte counter for tvbuff */
-	wmem_strbuf_t *strbuf;
 	const guint8 *ptr;
 
 	/* make sure length = -1 fails */
@@ -2463,221 +2305,35 @@ tvb_extract_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offs
 	}
 
 	ptr = ensure_contiguous(tvb, offset, length);
-
-	strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
-
-	for(i = 0; i + 3 < length; i += 4) {
-		if (encoding == ENC_BIG_ENDIAN)
-			uchar = pntoh32(ptr + i);
-		else
-			uchar = pletoh32(ptr + i);
-
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
-
-	/*
-	 * XXX - if i < length, this means we were handed a number
-	 * of bytes that's not a multiple of 4, so we're not a valid
-	 * UCS-4 string.
-	 */
-	return strbuf;
-}
-
-static gchar *
-tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint length, const guint encoding)
-{
-	wmem_strbuf_t *strbuf;
-
-	/*tvb_ensure_bytes_exist(tvb, offset, length); checked in the called routine*/
-	strbuf = tvb_extract_ucs_4_string(scope, tvb, offset, length, encoding);
-	return (gchar*)wmem_strbuf_finalize(strbuf);
-}
-
-/*
- * FROM GNOKII
- * gsm-encoding.c
- * gsm-sms.c
- */
-#define GN_BYTE_MASK ((1 << bits) - 1)
-
-#define GN_CHAR_ESCAPE 0x1b
-
-static gboolean
-char_is_escape(unsigned char value)
-{
-	return (value == GN_CHAR_ESCAPE);
-}
-
-static gboolean
-handle_ts_23_038_char(wmem_strbuf_t *strbuf, guint8 code_point,
-		      gboolean saw_escape)
-{
-	gunichar       uchar;
-
-	if (char_is_escape(code_point)) {
-		/*
-		 * XXX - if saw_escape is TRUE here, then this is
-		 * the case where we escape to "another extension table",
-		 * but TS 128 038 V11.0 doesn't specify such an extension
-		 * table.
-		 */
-		saw_escape = TRUE;
-	} else {
-		/*
-		 * Have we seen an escape?
-		 */
-		if (saw_escape) {
-			saw_escape = FALSE;
-			uchar = GSMext_to_UNICHAR(code_point);
-		} else {
-			uchar = GSM_to_UNICHAR(code_point);
-		}
-		wmem_strbuf_append_unichar(strbuf, uchar);
-	}
-	return saw_escape;
+	return get_ucs_4_string(scope, ptr, length, encoding);
 }
 
 gchar *
 tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const gint bit_offset, gint no_of_chars)
 {
-	wmem_strbuf_t *strbuf;
-	gint           char_count;                  /* character counter for tvbuff */
 	gint           in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	guint8         in_byte, out_byte, rest = 0x00;
-	gboolean       saw_escape = FALSE;
-	int            bits;
+	gint           length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	const guint8  *ptr;
-	gint length;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	bits = bit_offset & 0x07;
-	if (!bits) {
-		bits = 7;
-	}
-
-	length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	ptr = ensure_contiguous(tvb, in_offset, length);
-
-	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
-	for(char_count = 0; char_count < no_of_chars;) {
-		/* Get the next byte from the string. */
-		in_byte = *ptr;
-		ptr++;
-
-		/*
-		 * Combine the bits we've accumulated with bits from
-		 * that byte to make a 7-bit code point.
-		 */
-		out_byte = ((in_byte & GN_BYTE_MASK) << (7 - bits)) | rest;
-
-		/*
-		 * Leftover bits used in that code point.
-		 */
-		rest = in_byte >> bits;
-
-		/*
-		 * If we don't start from 0th bit, we shouldn't go to the
-		 * next char. Under *out_num we have now 0 and under Rest -
-		 * _first_ part of the char.
-		 */
-		if (char_count || (bits == 7)) {
-			saw_escape = handle_ts_23_038_char(strbuf, out_byte,
-			    saw_escape);
-			char_count++;
-		}
-
-		/*
-		 * After reading 7 octets we have read 7 full characters
-		 * but we have 7 bits as well. This is the next character.
-		 */
-		if ((bits == 1) && (char_count < no_of_chars)) {
-			saw_escape = handle_ts_23_038_char(strbuf, rest,
-			    saw_escape);
-			char_count++;
-			bits = 7;
-			rest = 0x00;
-		} else
-			bits--;
-	}
-
-	if (saw_escape) {
-		/*
-		 * Escape not followed by anything.
-		 *
-		 * XXX - for now, show the escape as a REPLACEMENT
-		 * CHARACTER.
-		 */
-		wmem_strbuf_append_unichar(strbuf, UNREPL);
-	}
-
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+	return get_ts_23_038_7bits_string(scope, ptr, bit_offset, no_of_chars);
 }
 
 gchar *
 tvb_get_ascii_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const gint bit_offset, gint no_of_chars)
 {
-	wmem_strbuf_t *strbuf;
-	gint           char_count;                  /* character counter for tvbuff */
 	gint           in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
-	guint8         in_byte, out_byte, rest = 0x00;
-	int            bits;
+	gint           length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	const guint8  *ptr;
-	gint length;
 
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
-	bits = bit_offset & 0x07;
-	if (!bits) {
-		bits = 7;
-	}
-
-	length = ((no_of_chars + 1) * 7 + (bit_offset & 0x07)) >> 3;
 	ptr = ensure_contiguous(tvb, in_offset, length);
-
-	strbuf = wmem_strbuf_sized_new(scope, no_of_chars+1, 0);
-	for(char_count = 0; char_count < no_of_chars;) {
-		/* Get the next byte from the string. */
-		in_byte = *ptr;
-		ptr++;
-
-		/*
-		 * Combine the bits we've accumulated with bits from
-		 * that byte to make a 7-bit code point.
-		 */
-		out_byte = (in_byte >> (8 - bits)) | rest;
-
-		/*
-		 * Leftover bits used in that code point.
-		 */
-		rest = (in_byte << (bits - 1)) & 0x7f;
-
-		/*
-		 * If we don't start from 0th bit, we shouldn't go to the
-		 * next char. Under *out_num we have now 0 and under Rest -
-		 * _first_ part of the char.
-		 */
-		if (char_count || (bits == 7)) {
-			wmem_strbuf_append_c(strbuf, out_byte);
-			char_count++;
-		}
-
-		/*
-		 * After reading 7 octets we have read 7 full characters
-		 * but we have 7 bits as well. This is the next character.
-		 */
-		if ((bits == 1) && (char_count < no_of_chars)) {
-			wmem_strbuf_append_c(strbuf, rest);
-			char_count++;
-			bits = 7;
-			rest = 0x00;
-		} else
-			bits--;
-	}
-
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+	return get_ascii_7bits_string(scope, ptr, bit_offset, no_of_chars);
 }
 
 /*
@@ -2884,30 +2540,15 @@ tvb_get_stringzpad(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 static guint8 *
 tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
 {
-	guint	       size, i;
-	wmem_strbuf_t *str;
+	guint	       size;
 	const guint8  *ptr;
 
 	size = tvb_strsize(tvb, offset);
-	str  = wmem_strbuf_sized_new(scope, size+1, 0);
-
-	ptr  = ensure_contiguous(tvb, offset, size);
-
-	for (i = 0; i < size; i++) {
-		guint8 ch = *ptr;
-
-		if (ch < 0x80)
-			wmem_strbuf_append_c(str, ch);
-		else
-			wmem_strbuf_append_unichar(str, UNREPL);
-		ptr++;
-	}
-	/* No need to append '\0' - we processed the NUL in the loop above. */
-
+ 	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-
-	return (guint8 *) wmem_strbuf_finalize(str);
+	return get_ascii_string(scope, ptr, size);
 }
 
 static guint8 *
@@ -2928,22 +2569,28 @@ static guint8 *
 tvb_get_stringz_8859_1(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
 {
 	guint size;
+	const guint8  *ptr;
 
+	size = tvb_strsize(tvb, offset);
+	ptr = ensure_contiguous(tvb, offset, size);
 	/* XXX, conversion between signed/unsigned integer */
-	*lengthp = size = tvb_strsize(tvb, offset);
-
-	return tvb_get_string_8859_1(scope, tvb, offset, size);
+	if (lengthp)
+		*lengthp = size;
+	return get_8859_1_string(scope, ptr, size);
 }
 
 static guint8 *
 tvb_get_stringz_unichar2(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp, const gunichar2 table[0x80])
 {
 	guint size;
+	const guint8  *ptr;
 
+	size = tvb_strsize(tvb, offset);
+	ptr = ensure_contiguous(tvb, offset, size);
 	/* XXX, conversion between signed/unsigned integer */
-	*lengthp = size = tvb_strsize(tvb, offset);
-
-	return tvb_get_string_unichar2(scope, tvb, offset, size, table);
+	if (lengthp)
+		*lengthp = size;
+	return get_unichar2_string(scope, ptr, size, table);
 }
 
 /*
@@ -2976,40 +2623,36 @@ static gchar *
 tvb_get_ucs_2_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
 	gint           size;    /* Number of bytes in string */
-	wmem_strbuf_t *strbuf;
+	const guint8  *ptr;
 
 	size = tvb_unicode_strsize(tvb, offset);
-
-	strbuf = tvb_extract_ucs_2_string(scope, tvb, offset, size, encoding);
-
+	ptr = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+	return get_ucs_2_string(scope, ptr, size, encoding);
 }
 
 static gchar *
 tvb_get_utf_16_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
 	gint           size;
-	wmem_strbuf_t *strbuf;
+	const guint8  *ptr;
 
 	size = tvb_unicode_strsize(tvb, offset);
-
-	strbuf = tvb_extract_utf_16_string(scope, tvb, offset, size, encoding);
-
+	ptr = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+	return get_utf_16_string(scope, ptr, size, encoding);
 }
 
 static gchar *
 tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
+	gint           size;
 	gunichar       uchar;
-	gint           size;    /* Number of bytes in string */
-	wmem_strbuf_t *strbuf;
+	const guint8  *ptr;
 
 	size = 0;
 	do {
@@ -3018,12 +2661,11 @@ tvb_get_ucs_4_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		size += 4;
 	} while(uchar != 0);
 
-	strbuf = tvb_extract_ucs_4_string(scope, tvb, offset, size, encoding);
-
+	ptr = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
-		*lengthp = size; /* Number of *bytes* processed */
-
-	return (gchar*)wmem_strbuf_finalize(strbuf);
+		*lengthp = size;
+	return get_ucs_4_string(scope, ptr, size, encoding);
 }
 
 guint8 *

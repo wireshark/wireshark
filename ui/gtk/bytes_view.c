@@ -34,6 +34,7 @@
 
 #include <string.h>
 
+#include <epan/wmem/wmem.h>
 #include <epan/charsets.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
