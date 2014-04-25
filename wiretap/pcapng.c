@@ -1036,12 +1036,6 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                 }
         }
 
-        if (wblock->data.packet.cap_len > wblock->data.packet.packet_len) {
-                *err = WTAP_ERR_BAD_FILE;
-                *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than packet_len %u.",
-                    wblock->data.packet.cap_len, wblock->data.packet.packet_len);
-                return 0;
-        }
         if (wblock->data.packet.cap_len > WTAP_MAX_PACKET_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
                 *err_info = g_strdup_printf("pcapng_read_packet_block: cap_len %u is larger than WTAP_MAX_PACKET_SIZE %u.",
