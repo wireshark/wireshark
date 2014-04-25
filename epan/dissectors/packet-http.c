@@ -690,7 +690,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	proto_item	*hidden_item;
-	const guchar	*line, *firstline = NULL;
+	const guchar	*line, *firstline;
 	gint		next_offset;
 	const guchar	*linep, *lineend;
 	int		orig_offset;
@@ -740,7 +740,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*
 	 * Is the first line a request or response?
 	 */
-	line = tvb_get_ptr(tvb, offset, first_linelen);
+	firstline = line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
 	is_request_or_reply = is_http_request_or_reply((const gchar *)line,
 	    first_linelen, &http_type, NULL, conv_data);
