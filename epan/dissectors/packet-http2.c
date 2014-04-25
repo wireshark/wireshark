@@ -2,6 +2,7 @@
  * Routines for HTTP2 dissection
  * Copyright 2013, Alexis La Goutte <alexis.lagoutte@gmail.com>
  * Copyright 2013, Stephen Ludin <sludin@ludin.org>
+ * Copyright 2014, Daniel Stenberg <daniel@haxx.se>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -24,8 +25,8 @@
 
 /*
  * The information used comes from:
- * Hypertext Transfer Protocol version 2.0 draft-ietf-httpbis-http2-09
- * HTTP Header Compression draft-ietf-httpbis-header-compression-05
+ * Hypertext Transfer Protocol version 2.0 draft-ietf-httpbis-http2-12
+ * HTTP Header Compression draft-ietf-httpbis-header-compression-07
  *
  * TODO
 * Support HTTP Header Compression (draft-ietf-httpbis-header-compression)
@@ -60,45 +61,47 @@ static int hf_http2_unknown = -1;
 /* Flags */
 static int hf_http2_flags = -1;
 static int hf_http2_flags_end_stream = -1;
+static int hf_http2_flags_end_segment = -1;
 static int hf_http2_flags_end_headers = -1;
+static int hf_http2_flags_pad_low = -1;
+static int hf_http2_flags_pad_high = -1;
 static int hf_http2_flags_priority = -1;
-static int hf_http2_flags_end_push_promise = -1;
+static int hf_http2_flags_compressed = -1;
 static int hf_http2_flags_settings_ack = -1;
 static int hf_http2_flags_ping_ack = -1;
-static int hf_http2_flags_reserved = -1;
-static int hf_http2_flags_reserved1 = -1;
-#if 0
-static int hf_http2_flags_reserved2 = -1;
-#endif
-static int hf_http2_flags_reserved3 = -1;
-static int hf_http2_flags_reserved4 = -1;
+
+/* generic */
+static int hf_http2_pad_high = -1;
+static int hf_http2_pad_low = -1;
+static int hf_http2_weight = -1;
+static int hf_http2_stream_dependency = -1;
+static int hf_http2_excl_dependency = -1;
+/* Data */
+static int hf_http2_data_data = -1;
+static int hf_http2_data_padding = -1;
 /* Headers */
-static int hf_http2_headers_r = -1;
-static int hf_http2_headers_priority = -1;
 static int hf_http2_headers    = -1;
-/* Priority */
-static int hf_http2_priority_r = -1;
-static int hf_http2_priority = -1;
+static int hf_http2_headers_padding = -1;
 /* RST Stream */
 static int hf_http2_rst_stream_error = -1;
 /* Settings */
 static int hf_http2_settings = -1;
-static int hf_http2_settings_r = -1;
 static int hf_http2_settings_identifier = -1;
 static int hf_http2_settings_header_table_size = -1;
 static int hf_http2_settings_enable_push = -1;
 static int hf_http2_settings_max_concurrent_streams = -1;
 static int hf_http2_settings_initial_window_size = -1;
-static int hf_http2_settings_flow_control_options = -1;
+static int hf_http2_settings_compress_data = -1;
 static int hf_http2_settings_unknown = -1;
 /* Push Promise */
 static int hf_http2_push_promise_r = -1;
 static int hf_http2_push_promise_promised_stream_id = -1;
 static int hf_http2_push_promise_header = -1;
+static int hf_http2_push_promise_padding = -1;
 /* Ping */
 static int hf_http2_ping = -1;
 static int hf_http2_pong = -1;
-/* Priority */
+/* Goaway */
 static int hf_http2_goaway_r = -1;
 static int hf_http2_goaway_last_stream_id = -1;
 static int hf_http2_goaway_error = -1;
@@ -108,21 +111,30 @@ static int hf_http2_window_update_r = -1;
 static int hf_http2_window_update_window_size_increment = -1;
 /* Continuation */
 static int hf_http2_continuation_header = -1;
+/* Altsvc */
+static int hf_http2_altsvc_maxage = -1;
+static int hf_http2_altsvc_port = -1;
+static int hf_http2_altsvc_res = -1;
+static int hf_http2_altsvc_proto_len = -1;
+static int hf_http2_altsvc_protocol = -1;
+static int hf_http2_altsvc_host_len = -1;
+static int hf_http2_altsvc_host = -1;
+static int hf_http2_altsvc_origin = -1;
+/* Blocked */
+
 
 static gint ett_http2 = -1;
 static gint ett_http2_header = -1;
 static gint ett_http2_flags = -1;
 static gint ett_http2_settings = -1;
 
-static expert_field ei_http2_flags_epp_old = EI_INIT;
-
 static dissector_handle_t data_handle;
 static dissector_handle_t http2_handle;
 
 #define FRAME_HEADER_LENGTH     8
 #define MAGIC_FRAME_LENGTH      24
-#define MASK_HTTP2_LENGTH       0X1FFF
-#define MASK_HTTP2_LEN_RSV      0XE000
+#define MASK_HTTP2_LENGTH       0X3FFF
+#define MASK_HTTP2_LEN_RSV      0XC000
 #define MASK_HTTP2_RESERVED     0x80000000
 #define MASK_HTTP2_STREAMID     0X7FFFFFFF
 #define MASK_HTTP2_PRIORITY     0X7FFFFFFF
@@ -136,8 +148,10 @@ static dissector_handle_t http2_handle;
 #define HTTP2_PUSH_PROMISE  5
 #define HTTP2_PING          6
 #define HTTP2_GOAWAY        7
-#define HTTP2_WINDOW_UPDATE 9
-#define HTTP2_CONTINUATION  10
+#define HTTP2_WINDOW_UPDATE 8
+#define HTTP2_CONTINUATION  9
+#define HTTP2_ALTSVC        0xA
+#define HTTP2_BLOCKED       0xB
 
 static const value_string http2_type_vals[] = {
     { HTTP2_DATA,           "DATA" },
@@ -150,20 +164,25 @@ static const value_string http2_type_vals[] = {
     { HTTP2_GOAWAY,         "GOAWAY" },
     { HTTP2_WINDOW_UPDATE,  "WINDOW_UPDATE" },
     { HTTP2_CONTINUATION,   "CONTINUATION" },
+    { HTTP2_ALTSVC,         "ALTSVC" },
+    { HTTP2_BLOCKED,        "BLOCKED" },
     { 0, NULL }
 };
 
 /* Flags */
-#define HTTP2_FLAGS_ES          0x01
-#define HTTP2_FLAGS_EH          0x04
-#define HTTP2_FLAGS_PR          0x08
-#define HTTP2_FLAGS_EPP_OLD     0x01 /* from draft-04 */
-#define HTTP2_FLAGS_EPP         0x04
-#define HTTP2_FLAGS_ACK         0x01
+#define HTTP2_FLAGS_ACK         0x01 /* for PING and SETTINGS */
+
+#define HTTP2_FLAGS_END_STREAM  0x01
+#define HTTP2_FLAGS_END_SEGMENT 0x02
+#define HTTP2_FLAGS_END_HEADERS 0x04
+#define HTTP2_FLAGS_PAD_LOW     0x08
+#define HTTP2_FLAGS_PAD_HIGH    0x10
+#define HTTP2_FLAGS_PRIORITY    0x20
+#define HTTP2_FLAGS_COMPRESSED  0x20
+
 #define HTTP2_FLAGS_R           0xFF
 #define HTTP2_FLAGS_R1          0xFE
 #define HTTP2_FLAGS_R2          0xFA
-#define HTTP2_FLAGS_R3          0xF2
 #define HTTP2_FLAGS_R4          0xFB
 
 /* Magic Header : PRI * HTTP/2.0\r\n\r\nSM\r\n\r\n */
@@ -188,7 +207,7 @@ static    guint8 kMagicHello[] = {
 #define EC_ENHANCE_YOUR_CALM    420
 
 static const value_string http2_error_codes_vals[] = {
-    { EC_NO_ERROR,              "NO8ERROR" },
+    { EC_NO_ERROR,              "NO_ERROR" },
     { EC_PROTOCOL_ERROR,        "PROTOCOL_ERROR" },
     { EC_INTERNAL_ERROR,        "INTERNAL_ERROR" },
     { EC_FLOW_CONTROL_ERROR,    "FLOW_CONTROL_ERROR" },
@@ -206,40 +225,21 @@ static const value_string http2_error_codes_vals[] = {
 /* Settings */
 #define HTTP2_SETTINGS_HEADER_TABLE_SIZE        1
 #define HTTP2_SETTINGS_ENABLE_PUSH              2
-#define HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS   4
-#define HTTP2_SETTINGS_INITIAL_WINDOW_SIZE      7
-#define HTTP2_SETTINGS_FLOW_CONTROL_OPTIONS     10
+#define HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS   3
+#define HTTP2_SETTINGS_INITIAL_WINDOW_SIZE      4
+#define HTTP2_SETTINGS_COMPRESS_DATA            5
 
 static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_HEADER_TABLE_SIZE,      "Header table size" },
     { HTTP2_SETTINGS_ENABLE_PUSH,            "Enable PUSH" },
     { HTTP2_SETTINGS_MAX_CONCURRENT_STREAMS, "Max concurrent streams" },
     { HTTP2_SETTINGS_INITIAL_WINDOW_SIZE,    "Initial Windows size" },
-    { HTTP2_SETTINGS_FLOW_CONTROL_OPTIONS,   "Flow Control Options" },
+    { HTTP2_SETTINGS_COMPRESS_DATA,          "Compress data" },
     { 0, NULL }
 };
 
-/* Flags
-   +--------+---------------+---------------------------+--------------+
-   | Frame  | Name          | Flags                     | Section      |
-   | Type   |               |                           |              |
-   +--------+---------------+---------------------------+--------------+
-   | 0      | DATA          | END_STREAM(1)             | Section 6.1  |
-   | 1      | HEADERS       | END_STREAM(1),            | Section 6.2  |
-   |        |               | END_HEADERS(4),           |              |
-   |        |               | PRIORITY(8)               |              |
-   | 2      | PRIORITY      | -                         | Section 6.3  |
-   | 3      | RST_STREAM    | -                         | Section 6.4  |
-   | 4      | SETTINGS      | ACK(1)                    | Section 6.5  |
-   | 5      | PUSH_PROMISE  | END_PUSH_PROMISE(4)       | Section 6.6  |
-   | 6      | PING          | ACK(1)                    | Section 6.7  |
-   | 7      | GOAWAY        | -                         | Section 6.8  |
-   | 9      | WINDOW_UPDATE | -                         | Section 6.9  |
-   | 10     | CONTINUATION  | END_HEADERS(4)            | Section 6.10 |
-   +--------+---------------+---------------------------+--------------+
-*/
 static guint8
-dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_tree, guint offset, guint8 type)
+dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 type)
 {
     proto_item *ti_flags;
     proto_tree *flags_tree;
@@ -252,74 +252,147 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http2_
     switch(type){
         case HTTP2_DATA:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved1, tvb, offset, 1, ENC_NA);
-        break;
+            proto_tree_add_item(flags_tree, hf_http2_flags_end_segment, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_pad_low, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_pad_high, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_compressed, tvb, offset, 1, ENC_NA);
+            break;
         case HTTP2_HEADERS:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_end_segment, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_pad_low, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_pad_high, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_priority, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved3, tvb, offset, 1, ENC_NA);
-        break;
-        case HTTP2_PUSH_PROMISE:
-            if(flags & HTTP2_FLAGS_EPP_OLD)
-            {
-                expert_add_info(pinfo, ti_flags, &ei_http2_flags_epp_old );
-            }
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_push_promise, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved4, tvb, offset, 1, ENC_NA);
-        break;
-        case HTTP2_PING:
-            proto_tree_add_item(flags_tree, hf_http2_flags_ping_ack, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved1, tvb, offset, 1, ENC_NA);
-        break;
-        case HTTP2_CONTINUATION:
-            proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved4, tvb, offset, 1, ENC_NA);
-        break;
+            break;
         case HTTP2_PRIORITY:
+            /* The PRIORITY frame does not define any flags */
+            break;
         case HTTP2_RST_STREAM:
+            /* The RST_STREAM frame does not define any flags */
+            break;
         case HTTP2_SETTINGS:
             proto_tree_add_item(flags_tree, hf_http2_flags_settings_ack, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved1, tvb, offset, 1, ENC_NA);
+            break;
+        case HTTP2_PUSH_PROMISE:
+        case HTTP2_CONTINUATION:
+            proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_pad_low, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_pad_high, tvb, offset, 1, ENC_NA);
+            break;
+        case HTTP2_PING:
+            proto_tree_add_item(flags_tree, hf_http2_flags_ping_ack, tvb, offset, 1, ENC_NA);
+            break;
         case HTTP2_GOAWAY:
+            /* The GOAWAY frame does not define any flags. */
+            break;
         case HTTP2_WINDOW_UPDATE:
+            /* The WINDOW_UPDATE frame does not define any flags */
+            break;
+        case HTTP2_ALTSVC:
+            /* The ALTSVC frame does not define any flags */
+            break;
+        case HTTP2_BLOCKED:
+            /* The BLOCKED frame does not define any flags */
+            break;
         default:
-            /* No flags !*/
-            proto_tree_add_item(flags_tree, hf_http2_flags_reserved, tvb, offset, 1, ENC_NA);
-        break;
+            break;
     }
 
 
     return flags;
 }
 
+/* helper function to get the padding data for the frames that feature them */
+static guint
+dissect_frame_padding(tvbuff_t *tvb, guint16 *padding, proto_tree *http2_tree,
+                      guint offset, guint8 flags)
+{
+    *padding = 0;
+    if(flags & HTTP2_FLAGS_PAD_HIGH)
+    {
+        *padding = tvb_get_guint8(tvb, offset) << 8; /* read a single octet */
+        proto_tree_add_item(http2_tree, hf_http2_pad_high, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+
+    if(flags & HTTP2_FLAGS_PAD_LOW)
+    {
+        *padding |= tvb_get_guint8(tvb, offset); /* read a single octet */
+        proto_tree_add_item(http2_tree, hf_http2_pad_low, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+
+    return offset;
+}
+
+/* helper function to get the priority dependence for the frames that feature them:
+   HEADERS and PRIORITY */
+static guint
+dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, guint offset, guint8 flags)
+{
+    if(flags & HTTP2_FLAGS_PRIORITY)
+    {
+        proto_tree_add_item(http2_tree, hf_http2_excl_dependency, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_NA);
+        offset += 4;
+        proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_NA);
+        offset++;
+    }
+
+    return offset;
+}
+
+
+/* Data (0) */
+static int
+dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                   guint offset, guint8 flags)
+{
+    guint16 padding;
+    size_t datalen;
+
+    offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
+    datalen = tvb_reported_length_remaining(tvb, offset) - padding;
+    proto_tree_add_item(http2_tree, hf_http2_data_data, tvb, offset, datalen, ENC_ASCII|ENC_NA);
+    offset += datalen;
+
+    proto_tree_add_item(http2_tree, hf_http2_data_padding, tvb, offset, padding, ENC_NA);
+    offset += padding;
+
+    return offset;
+}
+
 /* Headers */
 static int
-dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags)
+dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                      guint offset, guint8 flags)
 {
+    guint16 padding;
+    size_t headlen = 0;
 
-    if(flags & HTTP2_FLAGS_PR)
-    {
-            proto_tree_add_item(http2_tree, hf_http2_headers_r, tvb, offset, 4, ENC_NA);
-            proto_tree_add_item(http2_tree, hf_http2_headers_priority, tvb, offset, 4, ENC_NA);
-            offset += 4;
-    }
+    offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
+    offset = dissect_frame_prio(tvb, http2_tree, offset, flags);
+
     /* TODO : Support header decompression */
-    proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, -1, ENC_ASCII|ENC_NA);
-    offset +=  tvb_reported_length_remaining(tvb, offset);
+    headlen = tvb_reported_length_remaining(tvb, offset) - padding;
+    proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, headlen, ENC_ASCII|ENC_NA);
+    offset += headlen;
 
+    proto_tree_add_item(http2_tree, hf_http2_headers_padding, tvb, offset, padding, ENC_NA);
+    offset += padding;
     return offset;
 }
 
 /* Priority */
 static int
-dissect_http2_priority(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_priority(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                       guint offset, guint8 flags)
 {
-
-    proto_tree_add_item(http2_tree, hf_http2_priority_r, tvb, offset, 4, ENC_NA);
-    proto_tree_add_item(http2_tree, hf_http2_priority, tvb, offset, 4, ENC_NA);
-    offset += 4;
-
+    /* we pretend the HTTP2_FLAGS_PRIORITY flag is set to share the dissect
+       function */
+    offset = dissect_frame_prio(tvb, http2_tree, offset,
+                                flags | HTTP2_FLAGS_PRIORITY);
     return offset;
 }
 
@@ -344,14 +417,13 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
-        ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 8, ENC_NA);
+        ti_settings = proto_tree_add_item(http2_tree, hf_http2_settings, tvb, offset, 5, ENC_NA);
         settings_tree = proto_item_add_subtree(ti_settings, ett_http2_settings);
-        proto_tree_add_item(settings_tree, hf_http2_settings_r, tvb, offset, 1, ENC_NA);
-        offset +=1;
-        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 3, ENC_NA);
-        settingsid = tvb_get_ntoh24(tvb, offset);
-        proto_item_append_text(ti_settings, " - %s", val_to_str( settingsid, http2_settings_vals, "Unknown (%u)") );
-        offset +=3;
+        proto_tree_add_item(settings_tree, hf_http2_settings_identifier, tvb, offset, 1, ENC_NA);
+        settingsid = tvb_get_guint8(tvb, offset);
+        proto_item_append_text(ti_settings, " - %s",
+                               val_to_str( settingsid, http2_settings_vals, "Unknown (%u)") );
+        offset++;
 
 
         switch(settingsid){
@@ -367,8 +439,8 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
             case HTTP2_SETTINGS_INITIAL_WINDOW_SIZE:
                 proto_tree_add_item(settings_tree, hf_http2_settings_initial_window_size, tvb, offset, 4, ENC_NA);
             break;
-            case HTTP2_SETTINGS_FLOW_CONTROL_OPTIONS:
-                proto_tree_add_item(settings_tree, hf_http2_settings_flow_control_options, tvb, offset, 4, ENC_NA);
+            case HTTP2_SETTINGS_COMPRESS_DATA:
+                proto_tree_add_item(settings_tree, hf_http2_settings_compress_data, tvb, offset, 4, ENC_NA);
             break;
             default:
                 proto_tree_add_item(settings_tree, hf_http2_settings_unknown, tvb, offset, 4, ENC_NA);
@@ -383,15 +455,29 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
 
 /* Push Promise */
 static int
-dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                           guint offset, guint8 flags _U_)
 {
+    guint16 padding;
+    size_t headerfrag = 0;
 
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 4, ENC_NA);
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_promised_stream_id, tvb, offset, 4, ENC_NA);
+    offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
+
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_r, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_promised_stream_id, tvb,
+                        offset, 4, ENC_NA);
     offset += 4;
 
     /* TODO : Support header decompression */
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, -1, ENC_ASCII|ENC_NA);
+    headerfrag = tvb_reported_length_remaining(tvb, offset) - padding;
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, headerfrag,
+                        ENC_ASCII|ENC_NA);
+
+    offset += headerfrag;
+
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_padding, tvb,
+                        offset, padding, ENC_NA);
+
     offset +=  tvb_reported_length_remaining(tvb, offset);
 
     return offset;
@@ -399,7 +485,8 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 
 /* Ping */
 static int
-dissect_http2_ping(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags)
+dissect_http2_ping(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                   guint offset, guint8 flags)
 {
     /* TODO : Add Response time */
     if(flags & HTTP2_FLAGS_ACK)
@@ -455,12 +542,56 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     return offset;
 }
 
+
+/* Altsvc */
+static int
+dissect_http2_altsvc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree,
+                     guint offset, guint8 flags _U_, guint16 length)
+{
+    guint8 pidlen;
+    guint8 hostlen;
+    int remain;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_maxage, tvb, offset, 4, ENC_NA);
+    offset+=4;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_port, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_res, tvb, offset, 1, ENC_NA);
+    offset ++;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_proto_len, tvb, offset, 1, ENC_NA);
+    pidlen = tvb_get_guint8(tvb, offset);
+    offset ++;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_protocol, tvb, offset, pidlen, ENC_ASCII|ENC_NA);
+    offset += pidlen;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_host_len, tvb, offset, 1, ENC_NA);
+    hostlen = tvb_get_guint8(tvb, offset);
+    offset ++;
+
+    proto_tree_add_item(http2_tree, hf_http2_altsvc_host, tvb, offset, hostlen, ENC_ASCII|ENC_NA);
+    offset += hostlen;
+
+    remain = length - offset;
+    if(remain > -8) {
+        /* 8 is the fixed size of the http2 frame header */
+        proto_tree_add_item(http2_tree, hf_http2_altsvc_origin, tvb,
+                            offset, remain + 8, ENC_ASCII|ENC_NA);
+        offset += remain;
+    }
+
+    return offset;
+}
+
+
 static int
 dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ )
 {
     proto_item *ti;
     proto_tree *http2_tree;
-    tvbuff_t *next_tvb;
     guint offset = 0;
     guint8 type, flags;
     guint16 length;
@@ -524,9 +655,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
     switch(type){
         case HTTP2_DATA: /* Data (0) */
-            /* TODO: Enhance dissect (Display in text ?) */
-            next_tvb = tvb_new_subset_remaining(tvb, offset);
-            call_dissector(data_handle, next_tvb, pinfo, http2_tree);
+            dissect_http2_data(tvb, pinfo, http2_tree, offset, flags);
         break;
 
         case HTTP2_HEADERS: /* Headers (1) */
@@ -557,12 +686,20 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             dissect_http2_goaway(tvb, pinfo, http2_tree, offset, flags);
         break;
 
-        case HTTP2_WINDOW_UPDATE: /* Window Update (9) */
+        case HTTP2_WINDOW_UPDATE: /* Window Update (8) */
             dissect_http2_window_update(tvb, pinfo, http2_tree, offset, flags);
         break;
 
-        case HTTP2_CONTINUATION: /* Continuation (10) */
+        case HTTP2_CONTINUATION: /* Continuation (9) */
             dissect_http2_continuation(tvb, pinfo, http2_tree, offset, flags);
+        break;
+
+        case HTTP2_ALTSVC: /* ALTSVC (10) */
+            dissect_http2_altsvc(tvb, pinfo, http2_tree, offset, flags, length);
+        break;
+
+        case HTTP2_BLOCKED: /* BLOCKED (11) */
+            /* no payload! */
         break;
 
         default:
@@ -597,7 +734,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_http2, tvb, 0, -1, ENC_NA);
-    proto_item_append_text(ti, " (draft-09)");
+    proto_item_append_text(ti, " (draft-12)");
 
     http2_tree = proto_item_add_subtree(ti, ett_http2);
 
@@ -653,6 +790,12 @@ proto_register_http2(void)
                FT_UINT32, BASE_HEX, NULL, MASK_HTTP2_RESERVED,
               "The semantics of this bit are undefined and the bit MUST remain unset (0) when sending and MUST be ignored when receiving", HFILL }
         },
+
+        { &hf_http2_weight,
+            { "Weight", "http2.headers.weight",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "An 8-bit weight for the identified priority", HFILL }
+        },
         { &hf_http2_streamid,
             { "Stream Identifier", "http2.streamid",
                FT_UINT32, BASE_DEC, NULL, MASK_HTTP2_STREAMID,
@@ -675,25 +818,41 @@ proto_register_http2(void)
               "Flags are assigned semantics specific to the indicated frame type", HFILL }
         },
         { &hf_http2_flags_end_stream,
-            { "End Stream", "http2.flags.es",
-               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_ES,
+            { "End Stream", "http2.flags.end_stream",
+              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_END_STREAM,
               "Indicates that this frame is the last that the endpoint will send for the identified stream", HFILL }
+        },
+        { &hf_http2_flags_end_segment,
+            { "End Segment", "http2.flags.end_segment",
+              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_END_SEGMENT,
+              "Indicates that this frame is the last for the current segment", HFILL }
         },
         { &hf_http2_flags_end_headers,
             { "End Headers", "http2.flags.eh",
-               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_EH,
+              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_END_HEADERS,
               "Indicates that this frame contains an entire header block  and is not followed by any CONTINUATION frames.", HFILL }
         },
+        { &hf_http2_flags_pad_low,
+            { "Pad Low", "http2.flags.pad_low",
+              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_PAD_LOW,
+              "Indicates that the Pad Low field is present", HFILL }
+        },
+        { &hf_http2_flags_pad_high,
+            { "Pad High", "http2.flags.pad_high",
+              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_PAD_HIGH,
+              "Indicates that the Pad High field is present", HFILL }
+        },
         { &hf_http2_flags_priority,
-            { "Priority", "http2.flags.pr",
-               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_PR,
-              "Set indicates that the first four octets of this frame contain a single reserved bit and a 31-bit priority", HFILL }
+            { "Priority", "http2.flags.priority",
+               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_PRIORITY,
+              "Indicates that the Exclusive Flag (E), Stream Dependency, and Weight fields are present", HFILL }
         },
-        { &hf_http2_flags_end_push_promise,
-            { "End Push Promise", "http2.flags.epp",
-               FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_EPP,
-              "Set indicates that this frame ends the sequence of header block fragments necessary to provide a complete set of headers", HFILL }
+        { &hf_http2_flags_compressed,
+            { "Compressed", "http2.flags.compressed",
+              FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_COMPRESSED,
+              "Indicates that the data in the frame has been compressed with GZIP compression", HFILL }
         },
+
         { &hf_http2_flags_ping_ack,
             { "ACK", "http2.flags.ack.ping",
                FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_ACK,
@@ -704,60 +863,49 @@ proto_register_http2(void)
                FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_ACK,
               "Indicates that this frame acknowledges receipt and application of the peer's SETTINGS frame", HFILL }
         },
-        { &hf_http2_flags_reserved,
-            { "Reserved", "http2.flags.r",
-               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_R,
-              "(Must be zero)", HFILL }
+        { &hf_http2_pad_high,
+            { "Pad High", "http2.pad_high",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              "Padding size high bits", HFILL }
         },
-        { &hf_http2_flags_reserved1,
-            { "Reserved", "http2.flags.r1",
-               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_R1,
-              "(Must be zero)", HFILL }
+        { &hf_http2_pad_low,
+            { "Pad Low", "http2.pad_low",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              "Padding size low bits", HFILL }
         },
-#if 0
-        { &hf_http2_flags_reserved2,
-            { "Reserved", "http2.flags.r2",
-               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_R2,
-              "(Must be zero)", HFILL }
+        { &hf_http2_excl_dependency,
+            { "Exclusive", "http2.exclusive",
+              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              "A single bit flag indicates that the stream dependency is exclusive", HFILL }
         },
-#endif
-        { &hf_http2_flags_reserved3,
-            { "Reserved", "http2.flags.r3",
-               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_R3,
-              "(Must be zero)", HFILL }
-        },
-        { &hf_http2_flags_reserved4,
-            { "Reserved", "http2.flags.r4",
-               FT_UINT8, BASE_HEX, NULL, HTTP2_FLAGS_R4,
-              "(Must be zero)", HFILL }
-        },
-        /* Headers */
-        { &hf_http2_headers_r,
-            { "Reserved", "http2.headers.r",
-               FT_UINT32, BASE_HEX, NULL, MASK_HTTP2_RESERVED,
-              "Must be zero", HFILL }
-        },
-        { &hf_http2_headers_priority,
-            { "Priority", "http2.headers.priority",
-               FT_UINT32, BASE_DEC, NULL, MASK_HTTP2_PRIORITY,
-              "Priority for the stream (0 is the highest priority)", HFILL }
-        },
-        { &hf_http2_headers,
-            { "Headers", "http2.headers",
-               FT_STRING, BASE_NONE, NULL, 0x0,
-              NULL, HFILL }
+        { &hf_http2_stream_dependency,
+            { "Stream Dependency", "http2.stream_dependency",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              "An identifier for the stream that this stream depends on", HFILL }
         },
 
-        /* Priority */
-        { &hf_http2_priority_r,
-            { "Reserved", "http2.priority.r",
-               FT_UINT32, BASE_HEX, NULL, MASK_HTTP2_RESERVED,
-              "Must be zero", HFILL }
+        /* Data */
+        { &hf_http2_data_data,
+            { "Data", "http2.data.data",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Application data", HFILL }
         },
-        { &hf_http2_priority,
-            { "Priority", "http2.priority",
-               FT_UINT32, BASE_DEC, NULL, MASK_HTTP2_PRIORITY,
-              "Priority for the stream (0 is the highest priority)", HFILL }
+        { &hf_http2_data_padding,
+            { "Padding", "http2.data.padding",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Padding octets", HFILL }
+        },
+
+        /* Headers */
+        { &hf_http2_headers,
+            { "Header Block Fragment", "http2.headers",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "A header block fragment", HFILL }
+        },
+        { &hf_http2_headers_padding,
+            { "Padding", "http2.headers.padding",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Padding octets", HFILL }
         },
 
         /* RST Stream */
@@ -773,20 +921,15 @@ proto_register_http2(void)
                FT_NONE, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_http2_settings_r,
-            { "Reserved", "http2.settings.r",
-               FT_UINT8, BASE_HEX, NULL, 0x0,
-              "Must be zero", HFILL }
-        },
         { &hf_http2_settings_identifier,
             { "Settings Identifier", "http2.settings.id",
-               FT_UINT24, BASE_DEC, VALS(http2_settings_vals), 0x0,
+               FT_UINT8, BASE_DEC, VALS(http2_settings_vals), 0x0,
               NULL, HFILL }
         },
         { &hf_http2_settings_header_table_size,
             { "Header table size", "http2.settings.header_table_size",
                FT_UINT32, BASE_DEC, NULL, 0x0,
-              "Allows the sender to inform the remote endpoint of the size of the header compression table used to decode header blocks. The initial value is 4096 byte", HFILL }
+              "Allows the sender to inform the remote endpoint of the size of the header compression table used to decode header blocks. The initial value is 4096 bytes", HFILL }
         },
         { &hf_http2_settings_enable_push,
             { "Enable PUSH", "http2.settings.enable_push",
@@ -803,10 +946,10 @@ proto_register_http2(void)
                FT_UINT32, BASE_DEC, NULL, 0x0,
               "Indicates the sender's initial window size (in bytes) for stream level flow control", HFILL }
         },
-        { &hf_http2_settings_flow_control_options,
-            { "Flow Control Options", "http2.settings.flow_control_options",
+        { &hf_http2_settings_compress_data,
+            { "Compress Data", "http2.settings.compress_data",
                FT_UINT32, BASE_DEC, NULL, 0x0,
-              "Indicates flow control options", HFILL }
+              "Enables GZip compression of DATA frames. Values other than 0 or 1 are invalid", HFILL }
         },
         { &hf_http2_settings_unknown,
             { "Unknown Settings", "http2.settings.unknown",
@@ -820,6 +963,7 @@ proto_register_http2(void)
                FT_UINT32, BASE_HEX, NULL, MASK_HTTP2_RESERVED,
               "Must be zero", HFILL }
         },
+
         { &hf_http2_push_promise_promised_stream_id,
             { "Promised-Stream-ID", "http2.push_promise.promised_stream_id",
                FT_UINT32, BASE_DEC, NULL, MASK_HTTP2_PRIORITY,
@@ -829,6 +973,11 @@ proto_register_http2(void)
             { "Header", "http2.push_promise.header",
                FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
+        },
+        { &hf_http2_push_promise_padding,
+            { "Padding", "http2.push_promise.padding",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Padding octets", HFILL }
         },
 
         /* Ping / Pong */
@@ -884,11 +1033,51 @@ proto_register_http2(void)
               "Contains a header block fragment", HFILL }
         },
 
-    };
+        /* Altsvc */
+        { &hf_http2_altsvc_maxage,
+            { "Max-Age", "http2.altsvc.max-age",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+              "An unsigned, 32-bit integer indicating the freshness lifetime of the alternative service association", HFILL }
+        },
+        { &hf_http2_altsvc_port,
+            { "Port", "http2.altsvc.port",
+               FT_UINT16, BASE_DEC, NULL, 0x0,
+              "An unsigned, 16-bit integer indicating the port that the alternative service is available upon", HFILL }
+        },
+        { &hf_http2_altsvc_res,
+            { "Reserved", "http2.altsvc.reserved",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "For future use.", HFILL }
+        },
+        { &hf_http2_altsvc_proto_len,
+            { "Proto-Len", "http2.altsvc.proto_len",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "An unsigned, 8-bit integer indicating the length, in octets, of the PROTOCOL-ID field", HFILL }
+        },
+        { &hf_http2_altsvc_protocol,
+            { "Protocol-ID", "http2.altsvc.protocol",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+              "A sequence of bytes containing the ALPN protocol identifier", HFILL }
+        },
+        { &hf_http2_altsvc_host_len,
+            { "Host-Len", "http2.altsvc.host_len",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "An unsigned, 8-bit integer indicating the length, in octets, of the Host field", HFILL }
+        },
+        { &hf_http2_altsvc_host,
+            { "Host", "http2.altsvc.host",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+              "ASCII string indicating the host that the alternative service is available upon", HFILL }
+        },
+        { &hf_http2_altsvc_origin,
+            { "Origin", "http2.altsvc.origin",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+              "A sequence of characters containing ASCII serialisation of an "
+              "origin that the alternate service is applicable to.", HFILL }
+        },
 
-  static ei_register_info ei[] = {
-     { &ei_http2_flags_epp_old, { "http2.flags.epp_old", PI_PROTOCOL, PI_WARN, "Deprecated End Push Promise flags (Now need to use 0x04)", EXPFILL }},
-  };
+
+    };
 
     static gint *ett[] = {
         &ett_http2,
@@ -897,14 +1086,10 @@ proto_register_http2(void)
         &ett_http2_settings
     };
 
-    expert_module_t* expert_http2;
-
     proto_http2 = proto_register_protocol("HyperText Transfer Protocol 2", "HTTP2", "http2");
 
     proto_register_field_array(proto_http2, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-    expert_http2 = expert_register_protocol(proto_http2);
-    expert_register_field_array(expert_http2, ei, array_length(ei));
 
     new_register_dissector("http2", dissect_http2, proto_http2);
 }
