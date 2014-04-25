@@ -744,9 +744,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	 * is not longer than what's in the buffer, so the
 	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
-	firstline = line = tvb_get_ptr(tvb, offset, first_linelen);
+	firstline = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
-	is_request_or_reply = is_http_request_or_reply((const gchar *)line,
+	is_request_or_reply = is_http_request_or_reply((const gchar *)firstline,
 	    first_linelen, &http_type, NULL, conv_data);
 	if (is_request_or_reply) {
 		/*
