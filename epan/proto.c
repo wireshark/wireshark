@@ -176,10 +176,6 @@ static field_info *
 new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 	       const gint start, const gint item_length);
 
-static field_info *
-alloc_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
-		 const gint start, gint *length);
-
 static proto_item *
 proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 		  gint start, gint *length);
@@ -3777,8 +3773,10 @@ proto_tree_add_pi(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, gi
 {
 	proto_item *pi;
 	field_info *fi;
+	gint		item_length;
 
-	fi = alloc_field_info(tree, hfinfo, tvb, start, length);
+	get_hfi_length(hfinfo, tvb, start, length, &item_length);
+	fi = new_field_info(tree, hfinfo, tvb, start, item_length);
 	pi = proto_tree_add_node(tree, fi);
 
 	return pi;
@@ -3934,17 +3932,6 @@ new_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb,
 
 	return fi;
 }
-
-static field_info *
-alloc_field_info(proto_tree *tree, header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
-		 gint *length)
-{
-	gint		   item_length;
-
-	get_hfi_length(hfinfo, tvb, start, length, &item_length);
-	return new_field_info(tree, hfinfo, tvb, start, item_length);
-}
-
 
 /* If the protocol tree is to be visible, set the representation of a
    proto_tree entry with the name of the field for the item and with
