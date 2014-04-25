@@ -690,7 +690,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree	*http_tree = NULL;
 	proto_item	*ti = NULL;
 	proto_item	*hidden_item;
-	const guchar	*line, *firstline;
+	const guchar	*line, *firstline = NULL;
 	gint		next_offset;
 	const guchar	*linep, *lineend;
 	int		orig_offset;
