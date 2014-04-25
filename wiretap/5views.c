@@ -297,7 +297,7 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	hdr->Utc = pletoh32(&hdr->Utc);
 	hdr->NanoSecondes = pletoh32(&hdr->NanoSecondes);
 
-	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
+	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->ts.secs = hdr->Utc;
 	phdr->ts.nsecs = hdr->NanoSecondes;
 	phdr->caplen = hdr->RecSize;
