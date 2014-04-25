@@ -739,6 +739,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/*
 	 * Is the first line a request or response?
+	 *
+	 * Note that "tvb_find_line_end()" will return a value that
+	 * is not longer than what's in the buffer, so the
+	 * "tvb_get_ptr()" call won't throw an exception.
 	 */
 	firstline = line = tvb_get_ptr(tvb, offset, first_linelen);
 	http_type = HTTP_OTHERS;	/* type not known yet */
@@ -778,20 +782,6 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		break;
 	}
 
-	/*
-	 * Put the first line from the buffer into the summary
-	 * if it's an HTTP request or reply (but leave out the
-	 * line terminator).
-	 * Otherwise, just call it a continuation.
-	 *
-	 * Note that "tvb_find_line_end()" will return a value that
-	 * is not longer than what's in the buffer, so the
-	 * "tvb_get_ptr()" call won't throw an exception.
-	 */
-	if (is_request_or_reply) {
-	    firstline = line = tvb_get_ptr(tvb, offset, first_linelen);
-	}
-
 	orig_offset = offset;
 
 	/*
@@ -822,6 +812,10 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		/*
 		 * Get a buffer that refers to the line.
+		 *
+		 * Note that "tvb_find_line_end()" will return a value that
+		 * is not longer than what's in the buffer, so the
+		 * "tvb_get_ptr()" call won't throw an exception.
 		 */
 		line = tvb_get_ptr(tvb, offset, linelen);
 		lineend = line + linelen;
@@ -954,6 +948,12 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if (first_loop) {
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, proto_tag);
 
+			/*
+			 * Put the first line from the buffer into the summary
+			 * if it's an HTTP request or reply (but leave out the
+			 * line terminator).
+			 * Otherwise, just call it a continuation.
+			 */
 			if (is_request_or_reply)
 				col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", format_text(firstline, first_linelen));
 			else
