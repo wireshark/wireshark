@@ -3681,6 +3681,14 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     ssl_debug_printf("ssl_find_private_key server %s:%u\n",
                      ep_address_to_str(&dummy.addr),dummy.port);
 
+    if (g_hash_table_size(key_hash) == 0) {
+        ssl_debug_printf("ssl_find_private_key: no keys found\n");
+        return;
+    } else {
+        ssl_debug_printf("ssl_find_private_key: testing %i keys\n",
+            g_hash_table_size(key_hash));
+    }
+
     /* try to retrieve private key for this service. Do it now 'cause pinfo
      * is not always available
      * Note that with HAVE_LIBGNUTLS undefined private_key is allways 0
