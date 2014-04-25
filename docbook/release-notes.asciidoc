@@ -126,6 +126,7 @@ ELF file format
 EXPORTED PDU
 FINGER
 HDMI
+High-Speed LAN Instrument Protocol (HiSLIP)
 HTTP2
 IDRP
 IEEE 1722a
