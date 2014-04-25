@@ -283,6 +283,10 @@ static int hf_lisp_lcaf_geo_ipv6 = -1;
 /* LCAF NATT fields */
 static int hf_lisp_lcaf_natt_msport = -1;
 static int hf_lisp_lcaf_natt_etrport = -1;
+static int hf_lisp_lcaf_natt_rloc = -1;
+static int hf_lisp_lcaf_natt_rloc_afi = -1;
+static int hf_lisp_lcaf_natt_rloc_ipv4 = -1;
+static int hf_lisp_lcaf_natt_rloc_ipv6 = -1;
 
 /* LCAF ELP fields */
 static int hf_lisp_lcaf_elp_hop = -1;
@@ -311,6 +315,7 @@ static gint ett_lisp_lcaf = -1;
 static gint ett_lisp_lcaf_header = -1;
 static gint ett_lisp_lcaf_geo_lat = -1;
 static gint ett_lisp_lcaf_geo_lon = -1;
+static gint ett_lisp_lcaf_natt_rloc = -1;
 static gint ett_lisp_lcaf_elp_hop = -1;
 static gint ett_lisp_lcaf_elp_hop_flags = -1;
 static gint ett_lisp_loc = -1;
@@ -467,21 +472,47 @@ dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint16      addr_len = 0;
     guint16      rloc_afi;
     const gchar *rloc_str;
+    proto_item  *ti;
+    proto_tree  *rloc_tree;
 
-    rloc_afi = tvb_get_ntohs(tvb, offset); offset += 2;
+    ti = proto_tree_add_item(tree, hf_lisp_lcaf_natt_rloc, tvb, offset, 2, ENC_NA);
+    rloc_tree = proto_item_add_subtree(ti, ett_lisp_lcaf_natt_rloc);
+
+    /* AFI (2 bytes) */
+    proto_tree_add_item(rloc_tree, hf_lisp_lcaf_natt_rloc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    rloc_afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Reencap hop */
     rloc_str = get_addr_str(tvb, offset, rloc_afi, &addr_len);
 
-    if (rloc_str == NULL) {
-        expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
-                "Unexpected RLOC AFI (%d), cannot decode", rloc_afi);
-        return offset;
+    switch (rloc_afi) {
+        case AFNUM_RESERVED:
+            break;
+        case AFNUM_INET:
+            proto_tree_add_item(rloc_tree, hf_lisp_lcaf_natt_rloc_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(rloc_tree, hf_lisp_lcaf_natt_rloc_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, rloc_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, rloc_tree, &ei_lisp_unexpected_field,
+                    "Unexpected NAT-T RLOC AFI (%d), cannot decode", rloc_afi);
     }
 
     if (idx) {
-        proto_tree_add_text(tree, tvb, offset - 2, 2 + addr_len, str, idx, rloc_str);
+        proto_item_append_text(ti, str, idx, rloc_str);
     } else {
-        proto_tree_add_text(tree, tvb, offset - 2, 2 + addr_len, str, rloc_str);
+        proto_item_append_text(ti, str, rloc_str);
     }
+    proto_item_set_len(ti, 2 + addr_len);
 
     return addr_len + 2;
 }
@@ -873,10 +904,10 @@ dissect_lcaf_natt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint         i;
     gint         len;
     gint         remaining   = length;
-    const gchar *global_etr  = "Global ETR RLOC: %s";
-    const gchar *ms          = "MS RLOC: %s";
-    const gchar *private_etr = "Private ETR RLOC: %s";
-    const gchar *rtr         = "RTR RLOC %d: %s";
+    const gchar *global_etr  = " of Global ETR: %s";
+    const gchar *ms          = " of MS: %s";
+    const gchar *private_etr = " of Private ETR: %s";
+    const gchar *rtr         = " of RTR %d: %s";
 
     remaining -= 4;
 
@@ -2576,6 +2607,18 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_elp_hop_ipv6,
             { "Reencap Hop", "lisp.lcaf.elp_hop.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_natt_rloc,
+            { "RLOC", "lisp.lcaf.natt.rloc",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_natt_rloc_afi,
+            { "RLOC AFI", "lisp.lcaf.natt.rloc.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_natt_rloc_ipv4,
+            { "RLOC", "lisp.lcaf.natt.rloc.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_natt_rloc_ipv6,
+            { "RLOC", "lisp.lcaf.natt.rloc.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_natt_msport,
             { "MS UDP Port Number", "lisp.lcaf.natt.msport",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -2596,6 +2639,7 @@ proto_register_lisp(void)
         &ett_lisp_lcaf_header,
         &ett_lisp_lcaf_geo_lat,
         &ett_lisp_lcaf_geo_lon,
+        &ett_lisp_lcaf_natt_rloc,
         &ett_lisp_lcaf_elp_hop,
         &ett_lisp_lcaf_elp_hop_flags,
         &ett_lisp_loc,
