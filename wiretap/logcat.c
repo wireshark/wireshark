@@ -162,86 +162,24 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     return 0;
 }
 
-static gboolean logcat_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     gint                 bytes_read;
     gint                 packet_size;
     guint16              payload_length;
-    guint16              tmp;
-    guint8              *buf;
-    struct logcat_phdr  *logcat;
+    guint                tmp[2];
+    guint8              *pd;
 
-    *data_offset = file_tell(wth->fh);
-
-    bytes_read = file_read(&tmp, 2, wth->fh);
+    bytes_read = file_read(&tmp, 2, fh);
     if (bytes_read != 2) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0 && bytes_read != 0)
-            *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
-    }
-    payload_length = pletoh16(&tmp);
-
-    if (file_seek(wth->fh, *data_offset, SEEK_SET, err) == -1)
-        return FALSE;
-
-    logcat = (struct logcat_phdr *) wth->priv;
-
-    if (logcat->version == 1) {
-        packet_size = 5 * 4 + payload_length;
-    } else if (logcat->version == 2) {
-        packet_size = 6 * 4 + payload_length;
-    } else {
-        return FALSE;
-    }
-
-    buffer_assure_space(wth->frame_buffer, packet_size);
-    buf = buffer_start_ptr(wth->frame_buffer);
-
-    bytes_read = file_read(buf, packet_size, wth->fh);
-    if (bytes_read != packet_size) {
-        *err = file_error(wth->fh, err_info);
-        if (*err == 0)
-            *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
-    }
-
-    wth->phdr.presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
-    wth->phdr.ts.secs = (time_t) pletoh32(buf + 12);
-    wth->phdr.ts.nsecs = (int) pletoh32(buf + 16);
-    wth->phdr.caplen = packet_size;
-    wth->phdr.len = packet_size;
-
-    wth->phdr.pseudo_header.logcat.version = logcat->version;
-
-    return TRUE;
-}
-
-static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf,
-    int *err, gchar **err_info)
-{
-    gint                 bytes_read;
-    gint                 packet_size;
-    guint16              payload_length;
-    guint                tmp[4];
-    struct logcat_phdr  *logcat;
-
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
-
-    bytes_read = file_read(&tmp, 2, wth->random_fh);
-    if (bytes_read != 2) {
-        *err = file_error(wth->random_fh, err_info);
+        *err = file_error(fh, err_info);
         if (*err == 0 && bytes_read != 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
     payload_length = pletoh16(tmp);
 
-    logcat = (struct logcat_phdr *) wth->priv;
-
     if (logcat->version == 1) {
         packet_size = 5 * 4 + payload_length;
     } else if (logcat->version == 2) {
@@ -250,39 +188,55 @@ static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
     }
 
-    if (file_seek(wth->random_fh, seek_off + 12, SEEK_SET, err) == -1)
-        return FALSE;
+    buffer_assure_space(buf, packet_size);
+    pd = buffer_start_ptr(buf);
 
-    bytes_read = file_read(&tmp, 4, wth->random_fh);
-    if (bytes_read != 4) {
-        *err = file_error(wth->random_fh, err_info);
-        if (*err == 0 && bytes_read != 0)
+    /* Copy the first two bytes of the packet. */
+    memcpy(pd, tmp, 2);
+
+    /* Read the rest of the packet. */
+    bytes_read = file_read(pd + 2, packet_size - 2, fh);
+    if (bytes_read != packet_size - 2) {
+        *err = file_error(fh, err_info);
+        if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
     }
 
-    phdr->ts.secs = (time_t) pletoh32(tmp);
-
-    bytes_read = file_read(tmp, 4, wth->random_fh);
-    if (bytes_read != 4) {
-        *err = file_error(wth->random_fh, err_info);
-        if (*err == 0 && bytes_read != 0)
-            *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
-    }
-
-    phdr->ts.nsecs = (int) pletoh32(tmp);
-
-    phdr->presence_flags = WTAP_HAS_TS | WTAP_HAS_CAP_LEN;
+    phdr->presence_flags = WTAP_HAS_TS;
+    phdr->ts.secs = (time_t) pletoh32(pd + 12);
+    phdr->ts.nsecs = (int) pletoh32(pd + 16);
     phdr->caplen = packet_size;
     phdr->len = packet_size;
 
     phdr->pseudo_header.logcat.version = logcat->version;
 
+    return TRUE;
+}
+
+static gboolean logcat_read(wtap *wth, int *err, gchar **err_info,
+    gint64 *data_offset)
+{
+    *data_offset = file_tell(wth->fh);
+
+    return logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
+        &wth->phdr, wth->frame_buffer, err, err_info);
+}
+
+static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, Buffer *buf,
+    int *err, gchar **err_info)
+{
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
-    return wtap_read_packet_bytes(wth->random_fh, buf, packet_size, err, err_info);
+    if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->random_fh,
+         phdr, buf, err, err_info)) {
+        if (*err == 0)
+            *err = WTAP_ERR_SHORT_READ;
+        return FALSE;
+    }
+    return TRUE;
 }
 
 int logcat_open(wtap *wth, int *err, gchar **err_info _U_)
