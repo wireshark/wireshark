@@ -1075,5 +1075,23 @@ gboolean
 wtap_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	return wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info);
+	if (!wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info))
+		return FALSE;
+
+	/*
+	 * It makes no sense for the captured data length to be bigger
+	 * than the actual data length.
+	 */
+	if (wth->phdr.caplen > wth->phdr.len)
+		wth->phdr.caplen = wth->phdr.len;
+
+	/*
+	 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
+	 * probably means the file has that encapsulation type
+	 * but the read routine didn't set this packet's
+	 * encapsulation type.
+	 */
+	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
+
+	return TRUE;
 }
