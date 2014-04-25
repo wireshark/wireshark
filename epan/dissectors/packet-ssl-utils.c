@@ -3908,6 +3908,7 @@ ssl_private_key_hash  (gconstpointer v)
     key  = (const SslService *)v;
     hash = key->port;
     len  = key->addr.len;
+    hash |= len << 16;
     cur  = (const guint*) key->addr.data;
 
     for (l=4; (l<len); l+=4, cur++)
