@@ -1089,7 +1089,7 @@ const value_string tls_hello_extension_types[] = {
     { 6, "user_mapping" },  /* RFC 4681 */
     { 7, "client_authz" },
     { 8, "server_authz" },
-    { 9, "cert_type" },  /* RFC 5081 */
+    { SSL_HND_HELLO_EXT_CERT_TYPE, "cert_type" },  /* RFC 5081 */
     { SSL_HND_HELLO_EXT_ELLIPTIC_CURVES, "elliptic_curves" },  /* RFC 4492 */
     { SSL_HND_HELLO_EXT_EC_POINT_FORMATS, "ec_point_formats" },  /* RFC 4492 */
     { 12, "srp" },  /* RFC 5054 */
@@ -1099,8 +1099,8 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_ALPN, "Application Layer Protocol Negotiation" }, /* draft-ietf-tls-applayerprotoneg-01 */
     { SSL_HND_HELLO_EXT_STATUS_REQUEST_V2, "status_request_v2" }, /* RFC 6961 */
     { 18, "signed_certificate_timestamp" }, /* RFC 6962 */
-    { 19, "client_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
-    { 20, "server_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
+    { SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE, "client_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
+    { SSL_HND_HELLO_EXT_SERVER_CERT_TYPE, "server_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
     { SSL_HND_HELLO_EXT_PADDING, "Padding" }, /* http://tools.ietf.org/html/draft-agl-tls-padding */
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
@@ -5019,6 +5019,53 @@ ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb
     return offset + ext_len;
 }
 
+static gint
+ssl_dissect_hnd_hello_ext_cert_type(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                    proto_tree *tree, guint32 offset, guint32 ext_len,
+                                    gboolean is_client, guint16 ext_type, SslSession *session)
+{
+    guint8      cert_list_length;
+    guint8      cert_type;
+    proto_tree *cert_list_tree;
+    proto_item *ti;
+
+    if (is_client) {
+        cert_list_length = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf->hf.hs_ext_cert_types_len,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        if (ext_len != (guint32)cert_list_length + 1)
+            return offset;
+
+        ti = proto_tree_add_item(tree, hf->hf.hs_ext_cert_types, tvb, offset,
+                                 cert_list_length, cert_list_length);
+        proto_item_append_text(ti, " (%d)", cert_list_length);
+
+        /* make this a subtree */
+        cert_list_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_cert_types);
+
+        /* loop over all point formats */
+        while (cert_list_length > 0)
+        {
+            proto_tree_add_item(cert_list_tree, hf->hf.hs_ext_cert_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            cert_list_length--;
+        }
+    } else {
+        cert_type = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf->hf.hs_ext_cert_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        if (ext_type == SSL_HND_HELLO_EXT_CERT_TYPE || ext_type == SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE) {
+            session->client_cert_type = cert_type;
+        }
+        if (ext_type == SSL_HND_HELLO_EXT_CERT_TYPE || ext_type == SSL_HND_HELLO_EXT_SERVER_CERT_TYPE) {
+            session->server_cert_type = cert_type;
+        }
+    }
+
+    return offset;
+}
+
 void
 ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
@@ -5222,7 +5269,8 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
 
 gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client, SslDecryptSession *ssl)
+                          guint32 offset, guint32 left, gboolean is_client,
+                          SslSession *session, SslDecryptSession *ssl)
 {
     guint16     extension_length;
     guint16     ext_type;
@@ -5304,6 +5352,11 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_SESSION_TICKET:
             offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, is_client, ssl);
+            break;
+        case SSL_HND_HELLO_EXT_CERT_TYPE:
+        case SSL_HND_HELLO_EXT_SERVER_CERT_TYPE:
+        case SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE:
+            offset = ssl_dissect_hnd_hello_ext_cert_type(hf, tvb, ext_tree, offset, ext_len, is_client, ext_type, session);
             break;
         default:
             proto_tree_add_bytes_format(ext_tree, hf->hf.hs_ext_data,
