@@ -1935,8 +1935,6 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
         /* store selected compression method for decompression */
         ssl->compression = tvb_get_guint8(tvb, offset+2);
       }
-      if (!tree)
-        return offset;
 
       /* now the server-selected cipher suite */
       proto_tree_add_item(tree, hf_dtls_handshake_cipher_suite,
