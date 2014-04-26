@@ -3717,6 +3717,13 @@ ssl_find_private_key(SslDecryptSession *ssl_session, GHashTable *key_hash, GTree
     }
 
     if (!private_key) {
+        ssl_debug_printf("ssl_find_private_key can't find private key for this server! Try it again with universal address 0.0.0.0 and universal port 0\n");
+
+        dummy.port = 0;
+        private_key = (Ssl_private_key_t *)g_hash_table_lookup(key_hash, &dummy);
+    }
+
+    if (!private_key) {
         ssl_debug_printf("ssl_find_private_key can't find any private key!\n");
     } else {
         ssl_session->private_key = private_key->sexp_pkey;
