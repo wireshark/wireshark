@@ -337,8 +337,8 @@ void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
 
 
 /* Preference settings for deciphering and integrity checking.  Currently all default to off */
-static gboolean global_pdcp_decipher_signalling = FALSE;
-static gboolean global_pdcp_decipher_userplane = FALSE;
+static gboolean global_pdcp_decipher_signalling = TRUE;
+static gboolean global_pdcp_decipher_userplane = FALSE;  /* Can be slow, so default to FALSE */
 static gboolean global_pdcp_check_integrity = FALSE;
 
 
