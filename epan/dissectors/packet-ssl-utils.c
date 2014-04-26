@@ -1140,7 +1140,7 @@ const value_string tls_signature_algorithm[] = {
 const value_string tls_certificate_type[] = {
     { 0, "X.509" },
     { 1, "OpenPGP" },
-    { 2, "Raw Public Key" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
+    { SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY, "Raw Public Key" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
     { 0, NULL }
 };
 

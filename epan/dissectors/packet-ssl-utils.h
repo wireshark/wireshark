@@ -176,6 +176,7 @@
 #define SSL_HND_CERT_URL_TYPE_PKIPATH               2
 #define SSL_HND_CERT_STATUS_TYPE_OCSP        1
 #define SSL_HND_CERT_STATUS_TYPE_OCSP_MULTI  2
+#define SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY     2
 
 /*
  * Lookup tables

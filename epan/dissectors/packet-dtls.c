@@ -337,7 +337,7 @@ dtls_parse_old_keys(void)
 /* record layer dissector */
 static gint dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint32 offset,
-                                SslSession *session,
+                                SslSession *session, gint is_from_server,
                                 SslDecryptSession *conv_data);
 
 /* change cipher spec dissector */
@@ -355,7 +355,7 @@ static void dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
-                                   SslSession *session,
+                                   SslSession *session, gint is_from_server,
                                    SslDecryptSession *conv_data, guint8 content_type);
 
 /* heartbeat message dissector */
@@ -388,7 +388,8 @@ static void dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
                                        guint32 offset, guint32 length);
 
 static void dissect_dtls_hnd_cert(tvbuff_t *tvb,
-                                  proto_tree *tree, guint32 offset, packet_info *pinfo);
+                                  proto_tree *tree, guint32 offset, packet_info *pinfo,
+                                  SslSession *session, gint is_from_server);
 
 static void dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -470,6 +471,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean           first_record_in_frame;
   SslDecryptSession *ssl_session;
   SslSession        *session;
+  gint               is_from_server;
   Ssl_private_key_t *private_key;
 
   ti                    = NULL;
@@ -529,6 +531,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
   session = &ssl_session->session;
+  is_from_server = ssl_packet_from_server(ssl_session, dtls_associations, pinfo);
 
   /* try decryption only the first time we see this packet
    * (to keep cipher synchronized) */
@@ -565,12 +568,12 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case SSL_VER_DTLS:
       case SSL_VER_DTLS_OPENSSL:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                     offset, session,
+                                     offset, session, is_from_server,
                                      ssl_session);
         break;
       case SSL_VER_DTLS1DOT2:
         offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                     offset, session,
+                                     offset, session, is_from_server,
                                      ssl_session);
         break;
 
@@ -582,7 +585,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           {
             /* looks like dtls */
             offset = dissect_dtls_record(tvb, pinfo, dtls_tree,
-                                         offset, session,
+                                         offset, session, is_from_server,
                                          ssl_session);
           }
         else
@@ -780,7 +783,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 static gint
 dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
-                    SslSession *session,
+                    SslSession *session, gint is_from_server,
                     SslDecryptSession* ssl)
 {
 
@@ -985,11 +988,13 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       decrypted = ssl_get_record_info(tvb, proto_dtls, pinfo, offset);
       if (decrypted) {
         dissect_dtls_handshake(decrypted, pinfo, dtls_record_tree, 0,
-                               tvb_length(decrypted), session, ssl, content_type);
+                               tvb_length(decrypted), session, is_from_server,
+                               ssl, content_type);
         add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
       } else {
         dissect_dtls_handshake(tvb, pinfo, dtls_record_tree, offset,
-                               record_length, session, ssl, content_type);
+                               record_length, session, is_from_server, ssl,
+                               content_type);
       }
       break;
     }
@@ -1195,6 +1200,7 @@ static void
 dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
                        guint32 record_length, SslSession *session,
+                       gint is_from_server,
                        SslDecryptSession* ssl, guint8 content_type)
 {
   /*     struct {
@@ -1488,7 +1494,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CERTIFICATE:
-            dissect_dtls_hnd_cert(sub_tvb, ssl_hand_tree, 0, pinfo);
+            dissect_dtls_hnd_cert(sub_tvb, ssl_hand_tree, 0, pinfo, session, is_from_server);
             break;
 
           case SSL_HND_SERVER_KEY_EXCHG:
@@ -2026,7 +2032,8 @@ dissect_dtls_hnd_new_ses_ticket(tvbuff_t *tvb,
 
 static void
 dissect_dtls_hnd_cert(tvbuff_t *tvb,
-                      proto_tree *tree, guint32 offset, packet_info *pinfo)
+                      proto_tree *tree, guint32 offset, packet_info *pinfo,
+                      SslSession *session, gint is_from_server)
 {
 
   /* opaque ASN.1Cert<2^24-1>;
@@ -2071,7 +2078,12 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
        proto_tree_add_item(subtree, hf_dtls_handshake_certificate_len, tvb, offset, 3, ENC_BIG_ENDIAN);
        offset += 3;
 
-       dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
+       if ((is_from_server && session->server_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY) ||
+          (!is_from_server && session->client_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY)) {
+          dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
+       } else {
+          dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
+       }
        offset += cert_length;
      }
   }

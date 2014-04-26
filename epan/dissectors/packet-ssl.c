@@ -495,7 +495,7 @@ ssl_association_info(void)
 /* record layer dissector */
 static gint dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                                 proto_tree *tree, guint32 offset,
-                                SslSession *session,
+                                SslSession *session, gint is_from_server,
                                 gboolean *need_desegmentation,
                                 SslDecryptSession *conv_data,
                                 const gboolean first_record_in_frame);
@@ -515,7 +515,7 @@ static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
-                                   SslSession *session,
+                                   SslSession *session, gint is_from_server,
                                    SslDecryptSession *conv_data, const guint8 content_type);
 
 /* heartbeat message dissector */
@@ -542,7 +542,8 @@ static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
                                        SslDecryptSession *ssl);
 
 static void dissect_ssl3_hnd_cert(tvbuff_t *tvb,
-                                  proto_tree *tree, guint32 offset, packet_info *pinfo);
+                                  proto_tree *tree, guint32 offset, packet_info *pinfo,
+                                  const SslSession *session, gint is_from_server);
 
 static void dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
                                       proto_tree *tree,
@@ -694,6 +695,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean           need_desegmentation;
     SslDecryptSession *ssl_session;
     SslSession        *session;
+    gint               is_from_server;
 
     ti = NULL;
     ssl_tree   = NULL;
@@ -731,6 +733,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         conversation_add_proto_data(conversation, proto_ssl, ssl_session);
     }
     session = &ssl_session->session;
+    is_from_server = ssl_packet_from_server(ssl_session, ssl_associations, pinfo);
 
     /* try decryption only the first time we see this packet
      * (to keep cipher synchronized) */
@@ -808,7 +811,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else
             {
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
-                                             offset, session,
+                                             offset, session, is_from_server,
                                              &need_desegmentation,
                                              ssl_session,
                                              first_record_in_frame);
@@ -832,7 +835,7 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 /* looks like sslv3 or tls */
                 offset = dissect_ssl3_record(tvb, pinfo, ssl_tree,
-                                             offset, session,
+                                             offset, session, is_from_server,
                                              &need_desegmentation,
                                              ssl_session,
                                              first_record_in_frame);
@@ -1436,7 +1439,7 @@ dissect_ssl_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
 static gint
 dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                     proto_tree *tree, guint32 offset,
-                    SslSession *session,
+                    SslSession *session, gint is_from_server,
                     gboolean *need_desegmentation,
                     SslDecryptSession *ssl, const gboolean first_record_in_frame)
 {
@@ -1713,10 +1716,12 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             /* add desegmented data to the data source list */
             add_new_data_source(pinfo, decrypted, "Decrypted SSL record");
             dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
-                 tvb_length(decrypted), session, ssl, content_type);
+                                   tvb_length(decrypted), session,
+                                   is_from_server, ssl, content_type);
         } else {
             dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
-                               record_length, session, ssl, content_type);
+                                   record_length, session, is_from_server, ssl,
+                                   content_type);
         }
         break;
     }
@@ -1893,6 +1898,7 @@ static void
 dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
                        guint32 record_length, SslSession *session,
+                       gint is_from_server,
                        SslDecryptSession *ssl, const guint8 content_type)
 {
     /*     struct {
@@ -2043,7 +2049,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CERTIFICATE:
-                dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset, pinfo);
+                dissect_ssl3_hnd_cert(tvb, ssl_hand_tree, offset, pinfo, session, is_from_server);
                 break;
 
             case SSL_HND_SERVER_KEY_EXCHG: {
@@ -2574,7 +2580,8 @@ dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb, proto_tree *tree,
 
 static void
 dissect_ssl3_hnd_cert(tvbuff_t *tvb,
-                      proto_tree *tree, guint32 offset, packet_info *pinfo)
+                      proto_tree *tree, guint32 offset, packet_info *pinfo,
+                      const SslSession *session, gint is_from_server)
 {
 
     /* opaque ASN.1Cert<2^24-1>;
@@ -2626,7 +2633,13 @@ dissect_ssl3_hnd_cert(tvbuff_t *tvb,
                                     tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
 
-                (void)dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_certificate);
+                if ((is_from_server && session->server_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY) ||
+                   (!is_from_server && session->client_cert_type == SSL_HND_CERT_TYPE_RAW_PUBLIC_KEY)) {
+                    dissect_x509af_SubjectPublicKeyInfo(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_certificate);
+                } else {
+                    dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_ssl_handshake_certificate);
+                }
+
                 offset += cert_length;
             }
         }
