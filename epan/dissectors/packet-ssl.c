@@ -515,7 +515,7 @@ static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
-                                   const SslSession *session,
+                                   SslSession *session,
                                    SslDecryptSession *conv_data, const guint8 content_type);
 
 /* heartbeat message dissector */
@@ -527,11 +527,13 @@ static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
+                                       SslSession *session,
                                        SslDecryptSession *ssl);
 
 static void dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
+                                       SslSession *session,
                                        SslDecryptSession *ssl);
 
 static void dissect_ssl3_hnd_new_ses_ticket(tvbuff_t *tvb,
@@ -1890,7 +1892,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint32 record_length, const SslSession *session,
+                       guint32 record_length, SslSession *session,
                        SslDecryptSession *ssl, const guint8 content_type)
 {
     /*     struct {
@@ -2029,11 +2031,11 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 break;
 
             case SSL_HND_CLIENT_HELLO:
-                dissect_ssl3_hnd_cli_hello(tvb, pinfo, ssl_hand_tree, offset, length, ssl);
+                dissect_ssl3_hnd_cli_hello(tvb, pinfo, ssl_hand_tree, offset, length, session, ssl);
                 break;
 
             case SSL_HND_SERVER_HELLO:
-                dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset, length, ssl);
+                dissect_ssl3_hnd_srv_hello(tvb, ssl_hand_tree, offset, length, session, ssl);
                 break;
 
             case SSL_HND_NEWSESSION_TICKET:
@@ -2326,7 +2328,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 static void
 dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
        proto_tree *tree, guint32 offset, guint32 length,
-       SslDecryptSession*ssl)
+       SslSession *session, SslDecryptSession*ssl)
 {
     /* struct {
      *     ProtocolVersion client_version;
@@ -2446,14 +2448,16 @@ dissect_ssl3_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
         if (length > offset - start_offset)
         {
             ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
-                                       length - (offset - start_offset), TRUE, ssl);
+                                      length - (offset - start_offset), TRUE,
+                                      session, ssl);
         }
     }
 }
 
 static void
 dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset, guint32 length, SslDecryptSession *ssl)
+                           proto_tree *tree, guint32 offset, guint32 length,
+                           SslSession *session, SslDecryptSession *ssl)
 {
     /* struct {
      *     ProtocolVersion server_version;
@@ -2521,7 +2525,8 @@ no_cipher:
         if (length > offset - start_offset)
         {
             ssl_dissect_hnd_hello_ext(&dissect_ssl3_hf, tvb, tree, offset,
-                                       length - (offset - start_offset), FALSE, ssl);
+                                      length - (offset - start_offset), FALSE,
+                                      session, ssl);
         }
     }
 }

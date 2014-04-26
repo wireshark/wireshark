@@ -158,12 +158,15 @@
 
 #define SSL_HND_HELLO_EXT_SERVER_NAME        0x0
 #define SSL_HND_HELLO_EXT_STATUS_REQUEST     0x0005
+#define SSL_HND_HELLO_EXT_CERT_TYPE          0x0009
 #define SSL_HND_HELLO_EXT_ELLIPTIC_CURVES    0x000a
 #define SSL_HND_HELLO_EXT_EC_POINT_FORMATS   0x000b
 #define SSL_HND_HELLO_EXT_SIG_HASH_ALGS      0x000d
 #define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
 #define SSL_HND_HELLO_EXT_ALPN               0x0010
 #define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2  0x0011
+#define SSL_HND_HELLO_EXT_CLIENT_CERT_TYPE   0x0013
+#define SSL_HND_HELLO_EXT_SERVER_CERT_TYPE   0x0014
 #define SSL_HND_HELLO_EXT_PADDING            0x0015
 #define SSL_HND_HELLO_EXT_SESSION_TICKET     0x0023
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
@@ -339,6 +342,8 @@ typedef struct _SslSession {
     gint cipher;
     gint compression;
     guint32 version;
+    gint8 client_cert_type;
+    gint8 server_cert_type;
 } SslSession;
 
 typedef struct _SslDecryptSession {
@@ -604,6 +609,9 @@ typedef struct ssl_common_dissect {
         gint hs_ext_cert_url_url;
         gint hs_ext_cert_url_url_hash_list_len;
         gint hs_ext_cert_url_url_len;
+        gint hs_ext_cert_type;
+        gint hs_ext_cert_types;
+        gint hs_ext_cert_types_len;
         gint hs_ext_data;
         gint hs_ext_ec_point_format;
         gint hs_ext_ec_point_formats_len;
@@ -632,6 +640,7 @@ typedef struct ssl_common_dissect {
     struct {
         gint hs_ext;
         gint hs_ext_alpn;
+        gint hs_ext_cert_types;
         gint hs_ext_curves;
         gint hs_ext_curves_point_formats;
         gint hs_ext_npn;
@@ -649,7 +658,8 @@ typedef struct ssl_common_dissect {
 
 extern gint
 ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
-                          guint32 offset, guint32 left, gboolean is_client, SslDecryptSession *ssl);
+                          guint32 offset, guint32 left, gboolean is_client,
+                          SslSession *session, SslDecryptSession *ssl);
 
 extern gint
 ssl_dissect_hash_alg_list(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
@@ -663,10 +673,10 @@ ssl_common_dissect_t name = {   \
     /* hf */ {                  \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
     },                                                                  \
     /* ett */ {                                                         \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT,                                                        \
@@ -809,6 +819,21 @@ ssl_common_dissect_t name = {   \
         FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
+    { & name .hf.hs_ext_cert_type,                                      \
+      { "Certificate Type", prefix ".handshake.cert_type.type",         \
+        FT_UINT8, BASE_HEX, VALS(tls_certificate_type), 0x0,            \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_types,                                     \
+      { "Certificate Type List", prefix ".handshake.cert_type.types",   \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_cert_types_len,                                 \
+      { "Certificate Type List Length", prefix ".handshake.cert_type.types_len",       \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
     { & name .hf.hs_ext_cert_url_url,                                   \
       { "URL", prefix ".handshake.cert_url.url_hash_len",               \
         FT_STRING, BASE_NONE, NULL, 0x0,                                \
@@ -879,6 +904,7 @@ ssl_common_dissect_t name = {   \
 #define SSL_COMMON_ETT_LIST(name)                   \
         & name .ett.hs_ext,                         \
         & name .ett.hs_ext_alpn,                    \
+        & name .ett.hs_ext_cert_types,              \
         & name .ett.hs_ext_curves,                  \
         & name .ett.hs_ext_curves_point_formats,    \
         & name .ett.hs_ext_npn,                     \

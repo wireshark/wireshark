@@ -355,7 +355,7 @@ static void dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                                    proto_tree *tree, guint32 offset,
                                    guint32 record_length,
-                                   const SslSession *session,
+                                   SslSession *session,
                                    SslDecryptSession *conv_data, guint8 content_type);
 
 /* heartbeat message dissector */
@@ -369,11 +369,13 @@ static void dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
                                        packet_info *pinfo,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
+                                       SslSession *session,
                                        SslDecryptSession* ssl);
 
 static int dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
                                        proto_tree *tree,
                                        guint32 offset, guint32 length,
+                                       SslSession *session,
                                        SslDecryptSession* ssl);
 
 static int dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb,
@@ -1192,7 +1194,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
 static void
 dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                        proto_tree *tree, guint32 offset,
-                       guint32 record_length, const SslSession *session,
+                       guint32 record_length, SslSession *session,
                        SslDecryptSession* ssl, guint8 content_type)
 {
   /*     struct {
@@ -1470,11 +1472,11 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             break;
 
           case SSL_HND_CLIENT_HELLO:
-            dissect_dtls_hnd_cli_hello(sub_tvb, pinfo, ssl_hand_tree, 0, length, ssl);
+            dissect_dtls_hnd_cli_hello(sub_tvb, pinfo, ssl_hand_tree, 0, length, session, ssl);
             break;
 
           case SSL_HND_SERVER_HELLO:
-            dissect_dtls_hnd_srv_hello(sub_tvb, ssl_hand_tree, 0, length, ssl);
+            dissect_dtls_hnd_srv_hello(sub_tvb, ssl_hand_tree, 0, length, session, ssl);
             break;
 
           case SSL_HND_HELLO_VERIFY_REQUEST:
@@ -1735,7 +1737,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 static void
 dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
                            proto_tree *tree, guint32 offset, guint32 length,
-                           SslDecryptSession*ssl)
+                           SslSession *session, SslDecryptSession *ssl)
 {
   /* struct {
    *     ProtocolVersion client_version;
@@ -1862,15 +1864,16 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb, packet_info *pinfo,
       if (length > offset - start_offset)
         {
           ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
-                                              length -
-                                              (offset - start_offset), TRUE, ssl);
+                                    length - (offset - start_offset), TRUE,
+                                    session, ssl);
         }
     }
 }
 
 static int
 dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
-                           proto_tree *tree, guint32 offset, guint32 length, SslDecryptSession* ssl)
+                           proto_tree *tree, guint32 offset, guint32 length,
+                           SslSession *session, SslDecryptSession *ssl)
 {
   /* struct {
    *     ProtocolVersion server_version;
@@ -1947,8 +1950,8 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
       if (length > offset - start_offset)
         {
           offset = ssl_dissect_hnd_hello_ext(&dissect_dtls_hf, tvb, tree, offset,
-                                              length -
-                                              (offset - start_offset), FALSE, ssl);
+                                             length - (offset - start_offset),
+                                             FALSE, session, ssl);
         }
     }
     return offset;
