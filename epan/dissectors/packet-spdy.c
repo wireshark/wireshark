@@ -169,6 +169,8 @@ typedef struct _spdy_header_info_t {
   guint16 frame_type;
 } spdy_header_info_t;
 
+static wmem_list_t *header_info_list;
+
 /*
  * This structures keeps track of all the data frames
  * associated with a stream, so that they can be
@@ -454,6 +456,15 @@ static gboolean inflate_end_cb (wmem_allocator_t *allocator _U_,
 #endif
 
 /*
+ * Protocol initialization
+ */
+static void
+spdy_init_protocol(void)
+{
+   header_info_list = NULL;
+}
+
+/*
  * Returns conversation data for a given packet. If conversation data can't be
  * found, creates and returns new conversation data.
  */
@@ -470,13 +481,13 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
   conv_data = (spdy_conv_t *)conversation_get_proto_data(conversation, proto_spdy);
   if (!conv_data) {
     /* Set up the conversation structure itself */
-    conv_data = (spdy_conv_t *)wmem_alloc0(wmem_file_scope(), sizeof(spdy_conv_t));
+    conv_data = wmem_new0(wmem_file_scope(), spdy_conv_t);
 
     conv_data->streams = NULL;
     if (spdy_decompress_headers) {
 #ifdef HAVE_LIBZ
-      conv_data->rqst_decompressor = (z_streamp)wmem_alloc0(wmem_file_scope(), sizeof(z_stream));
-      conv_data->rply_decompressor = (z_streamp)wmem_alloc0(wmem_file_scope(), sizeof(z_stream));
+      conv_data->rqst_decompressor = wmem_new0(wmem_file_scope(), z_stream);
+      conv_data->rply_decompressor = wmem_new0(wmem_file_scope(), z_stream);
       retcode = inflateInit(conv_data->rqst_decompressor);
       if (retcode == Z_OK) {
         wmem_register_callback(wmem_file_scope(), inflate_end_cb,
@@ -513,7 +524,7 @@ static void spdy_save_stream_info(spdy_conv_t *conv_data,
   spdy_stream_info_t *si;
 
   if (conv_data->streams == NULL) {
-    conv_data->streams = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    conv_data->streams = wmem_tree_new(wmem_file_scope());
   }
 
   si = (spdy_stream_info_t *)wmem_alloc(wmem_file_scope(), sizeof(spdy_stream_info_t));
@@ -624,7 +635,7 @@ static spdy_stream_info_t* spdy_assemble_data_frames(spdy_conv_t *conv_data,
       dflist = si->data_frames;
       offset = 0;
       frame = wmem_list_frame_next(wmem_list_head(dflist));
-      while (dflist != NULL) {
+      while (frame != NULL) {
         df = (spdy_data_frame_t *)wmem_list_frame_data(frame);
         memcpy(data+offset, df->data, df->length);
         offset += df->length;
@@ -757,7 +768,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       if (!pinfo->fd->flags.visited) {
         if (!is_single_chunk) {
           if (spdy_assemble_entity_bodies) {
-            copied_data = (guint8 *)tvb_memdup(wmem_packet_scope(),next_tvb, 0, frame->length);
+            copied_data = (guint8 *)tvb_memdup(wmem_file_scope(),next_tvb, 0, frame->length);
             spdy_add_data_chunk(conv_data, stream_id, pinfo->fd->num, copied_data, frame->length);
           } else {
             spdy_increment_data_chunk_count(conv_data, stream_id);
@@ -876,9 +887,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
         goto body_dissected;
       }
     }
-    if (si != NULL) {
-      wmem_destroy_list(si->data_frames);
-    }
+
     /*
      * Do subdissector checks.
      *
@@ -1005,37 +1014,42 @@ static guint8* spdy_decompress_header_block(tvbuff_t *tvb,
 /*
  * Saves state on header data for a given stream.
  */
-static spdy_header_info_t* spdy_save_header_block(packet_info *pinfo,
+static spdy_header_info_t* spdy_save_header_block(packet_info *pinfo _U_,
                                                   guint32 stream_id,
                                                   guint16 frame_type,
                                                   guint8 *header,
                                                   guint length) {
-  GSList *filist = (GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0);
-  spdy_header_info_t *header_info = (spdy_header_info_t *)wmem_alloc(wmem_file_scope(), sizeof(spdy_header_info_t));
-  if (filist != NULL)
-    p_remove_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0);
+  spdy_header_info_t *header_info;
+
+  if (header_info_list == NULL)
+    header_info_list = wmem_list_new(wmem_file_scope());
+
+  header_info = wmem_new(wmem_file_scope(), spdy_header_info_t);
   header_info->stream_id = stream_id;
   header_info->header_block = header;
   header_info->header_block_len = length;
   header_info->frame_type = frame_type;
-  filist = g_slist_append(filist, header_info);
-  p_add_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0, filist);
+  wmem_list_append(header_info_list, header_info);
   return header_info;
-  /* TODO(ers) these need to get deleted when no longer needed */
 }
 
 /*
  * Retrieves saved state for a given stream.
  */
-static spdy_header_info_t* spdy_find_saved_header_block(packet_info *pinfo,
+static spdy_header_info_t* spdy_find_saved_header_block(packet_info *pinfo _U_,
                                                         guint32 stream_id,
                                                         guint16 frame_type) {
-  GSList *filist = (GSList *)p_get_proto_data(wmem_file_scope(), pinfo, proto_spdy, 0);
-  while (filist != NULL) {
-      spdy_header_info_t *hi = (spdy_header_info_t *)filist->data;
+  wmem_list_frame_t *frame;
+
+  if ((header_info_list == NULL) || (wmem_list_head(header_info_list) == NULL))
+      return NULL;
+
+  frame = wmem_list_frame_next(wmem_list_head(header_info_list));
+  while (frame != NULL) {
+      spdy_header_info_t *hi = (spdy_header_info_t *)wmem_list_frame_data(frame);
       if (hi->stream_id == stream_id && hi->frame_type == frame_type)
           return hi;
-      filist = g_slist_next(filist);
+      frame = wmem_list_frame_next(frame);
   }
   return NULL;
 }
@@ -1242,9 +1256,9 @@ static int dissect_spdy_header_payload(
                              "Not enough frame data for header name.");
       break;
     }
-    header_name = (gchar *)tvb_get_string(wmem_packet_scope(), header_tvb,
+    header_name = (gchar *)tvb_get_string_enc(wmem_packet_scope(), header_tvb,
                                                     hdr_offset,
-                                                    header_name_length);
+                                                    header_name_length, ENC_ASCII|ENC_NA);
     hdr_offset += header_name_length;
 
     /* Get header value details. */
@@ -1261,9 +1275,9 @@ static int dissect_spdy_header_payload(
                              "Not enough frame data for header value.");
       break;
     }
-    header_value = (gchar *)tvb_get_string(wmem_packet_scope(),header_tvb,
+    header_value = (gchar *)tvb_get_string_enc(wmem_packet_scope(),header_tvb,
                                                      hdr_offset,
-                                                     header_value_length);
+                                                     header_value_length, ENC_ASCII|ENC_NA);
     hdr_offset += header_value_length;
 
     /* Populate tree with header name/value details. */
@@ -1386,8 +1400,20 @@ static int dissect_spdy_settings_payload(
   proto_tree *setting_tree;
   proto_tree *flags_tree;
 
+  /* Make sure that we have enough room for our number of entries field. */
+  if (frame->length < 4) {
+    expert_add_info(pinfo, frame_tree, &ei_spdy_mal_setting_frame);
+    return -1;
+  }
+
   /* Get number of entries, and make sure we have enough room for them. */
   num_entries = tvb_get_ntohl(tvb, offset);
+  if (frame->length < num_entries * 8) {
+    expert_add_info_format(pinfo, frame_tree, &ei_spdy_mal_setting_frame,
+        "SETTINGS frame too small [num_entries=%d]", num_entries);
+    return -1;
+  }
+
   proto_tree_add_item(frame_tree, hf_spdy_num_settings, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
@@ -1529,7 +1555,7 @@ int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   spdy_tree = proto_item_add_subtree(spdy_item, ett_spdy);
 
   /* Add control bit. */
-  control_bit = tvb_get_guint8(tvb, offset) & 1;
+  control_bit = tvb_get_guint8(tvb, offset) & 0x80;
   proto_tree_add_item(spdy_tree, hf_spdy_control_bit, tvb, offset, 1, ENC_NA);
 
   /* Process first four bytes of frame, formatted depending on control bit. */
@@ -1925,6 +1951,8 @@ void proto_register_spdy(void)
 
   /** Create dissector handle and register for dissection. */
   spdy_handle = new_create_dissector_handle(dissect_spdy, proto_spdy);
+
+  register_init_routine(&spdy_init_protocol);
 
   /*
    * Register for tapping
