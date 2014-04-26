@@ -18,7 +18,14 @@ option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 
 option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
 option(ENABLE_EXTRA_COMPILER_WARNINGS "Do additional compiler warnings (disables -Werror)" OFF)
-option(ENABLE_GTK3       "Use GTK3 instead of GTK2 to build wireshark" ON)
+#
+# Leave GTK2 the default on Windows, looks better than GTK3
+#
+if(WIN32)
+	option(ENABLE_GTK3       "Use GTK3 instead of GTK2 to build wireshark" OFF)
+else()
+	option(ENABLE_GTK3       "Use GTK3 instead of GTK2 to build wireshark" ON)
+endif()
 option(ENABLE_QT5        "Use Qt5 instead of Qt4 to build qtshark" ON)
 option(ENABLE_PCAP       "Enable libpcap support (required for capturing)" ON)
 option(WANT_PACKET_EDITOR	"Enable packet editor (experimental)" ON)

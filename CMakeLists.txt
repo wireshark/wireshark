@@ -711,7 +711,9 @@ add_subdirectory( ui )
 add_subdirectory( wiretap )
 add_subdirectory( wsutil )
 
-add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libfiletap dumpabi-libwiretap dumpabi-libwsutil color.h)
+if(NOT WIN32)
+	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libfiletap dumpabi-libwiretap dumpabi-libwsutil color.h)
+endif()
 
 if(ENABLE_ECHLD)
 	add_subdirectory( echld )
