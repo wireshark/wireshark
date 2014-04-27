@@ -22,12 +22,21 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 use strict;
+use File::Spec;
+
+my ($vol, $script_dir, $file) = File::Spec->splitpath( __FILE__ );
+my $epan_dir = File::Spec->catpath($vol, $script_dir, '../epan');
+chdir($epan_dir) || die("Can't find $epan_dir");
 
 my $in = shift;
 
-$in = "http://www.iana.org/assignments/enterprise-numbers/enterprise-numbers" unless(defined $in);
+$in = "http://www.iana.org/assignments/enterprise-numbers" unless(defined $in);
 
 my @in_lines;
+my $revision = '2014-04-27';
+
+my $min_entries = 100;
+my $smi_total = 0;
 
 my $revision = '$Revision$';
 if ($revision !~ /[0-9]/ ) { $revision = "unknown"; }
@@ -43,7 +52,6 @@ if($in =~ m/^http:/i) {
 	warn "starting to fetch $in ...\n";
 
 	my $request  = HTTP::Request->new(GET => $in);
-
 
 	if (-f "enterprise-numbers") {
 		my $mtime;
@@ -80,8 +88,6 @@ if($in =~ m/^http:/i) {
 }
 
 
-open OUT, "> sminmpec.c";
-
 my $body = '';
 my $code;
 my $prev_code = -1;  ## Assumption: First code in enterprise file is 0;
@@ -112,8 +118,15 @@ for(@in_lines) {
 		}
 		$prev_code = $code;
 		$body .= "    { $code, \"$name\" },\n";
+		$smi_total++;
 	}
 }
+
+# If this happens check what IANA is serving.
+# XXX We already overwrote enterprise-numbers above.
+if ($smi_total < $smi_total) { die "Too few SMI entries ($smi_total)\n"; }
+
+open OUT, "> sminmpec.c";
 
 print OUT <<"_SMINMPEC";
 /*
