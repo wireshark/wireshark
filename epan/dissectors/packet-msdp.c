@@ -577,3 +577,16 @@ proto_reg_handoff_msdp(void)
 
         ip_handle = find_dissector("ip");
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=8 tabstop=8 expandtab:
+ * :indentSize=8:tabSize=8:noTabs=true:
+ */
