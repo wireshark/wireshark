@@ -1500,6 +1500,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (http_type == HTTP_RESPONSE && pinfo->desegment_offset<=0 && pinfo->desegment_len<=0) {
 		conv_data->upgrade = headers.upgrade;
 		conv_data->startframe = pinfo->fd->num + 1;
+		SE_COPY_ADDRESS(&conv_data->server_addr, &pinfo->src);
+		conv_data->server_port = pinfo->srcport;
 	}
 
 	tap_queue_packet(http_tap, pinfo, stat_info);
@@ -1954,6 +1956,8 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 	proto_item *item;
 	proto_tree *proxy_tree;
 	conversation_t *conv;
+	gboolean from_server = pinfo->srcport == conv_data->server_port &&
+		addresses_equal(&conv_data->server_addr, &pinfo->src);
 
 	/* Grab the destination port number from the request URI to find the right subdissector */
 	strings = g_strsplit(conv_data->request_uri, ":", 2);
@@ -1978,7 +1982,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 
 		uri_port = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
 
-		if (value_is_in_range(http_tcp_range, pinfo->destport)) {
+		if (!from_server) {
 			srcport = pinfo->srcport;
 			destport = uri_port;
 		} else {
@@ -1997,7 +2001,7 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 			call_dissector(data_handle, tvb, pinfo, tree);
 		} else {
 			/* set pinfo->{src/dst port} and call the TCP sub-dissector lookup */
-			if (value_is_in_range(http_tcp_range, pinfo->destport))
+			if (!from_server)
 				ptr = &pinfo->destport;
 			else
 				ptr = &pinfo->srcport;

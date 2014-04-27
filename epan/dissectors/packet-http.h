@@ -73,6 +73,9 @@ typedef struct _http_conv_t {
 	gchar   *request_uri;
 	guint8   upgrade;
 	guint32	startframe;	/* First frame of proxied connection */
+	/* Server address and port, known after first server response */
+	address server_addr;
+	guint16 server_port;
 	/** the tail node of req_res */
 	http_req_res_t *req_res_tail;
 	/** the number of requests on the conversation. */
