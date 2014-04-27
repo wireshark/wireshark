@@ -2953,6 +2953,7 @@ kmscontrol       1773/tcp # KMSControl [Roy_Chastain] [Roy_Chastain]
 kmscontrol       1773/udp # KMSControl [Roy_Chastain] [Roy_Chastain]
 global-dtserv    1774/tcp # global-dtserv [Nicholas_Davies] [Nicholas_Davies]
 global-dtserv    1774/udp # global-dtserv [Nicholas_Davies] [Nicholas_Davies]
+vdab             1775/tcp # data interchange between visual processing containers [MJA_Technology_LLC] [Mark_J._App] 2014-04-23
 femis            1776/tcp # Federal Emergency Management Information System [Larry_Gerhardstein] [Larry_Gerhardstein]
 femis            1776/udp # Federal Emergency Management Information System [Larry_Gerhardstein] [Larry_Gerhardstein]
 powerguardian    1777/tcp # powerguardian [Charles_Bennett] [Charles_Bennett] 2008-08-29
