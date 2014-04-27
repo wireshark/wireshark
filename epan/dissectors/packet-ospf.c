@@ -3747,3 +3747,16 @@ proto_reg_handoff_ospf(void)
     dissector_add_uint("ip.proto", IP_PROTO_OSPF, ospf_handle);
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
