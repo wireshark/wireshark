@@ -714,6 +714,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	http_eo_t       *eo_info;
 
 	/*
+	 * If this should be a request or response, do this quick check to see if
+	 * it begins with a string...
+	 * Otherwise, looking for the end of line in a binary file can take a long time
+	 * and this probably isn't HTTP
+	 */
+	if ((tvb_reported_length_remaining(tvb, offset) < 1) || !g_ascii_isprint(tvb_get_guint8(tvb, offset))) {
+		return -1;
+	}
+
+	/*
 	 * Is this a request or response?
 	 *
 	 * Note that "tvb_find_line_end()" will return a value that
