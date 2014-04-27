@@ -3816,3 +3816,16 @@ void proto_reg_handoff_gvcp(void)
 		gvcp_handle = new_create_dissector_handle((new_dissector_t)dissect_gvcp, proto_gvcp);
 		dissector_add_uint("udp.port", global_gvcp_port, gvcp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
