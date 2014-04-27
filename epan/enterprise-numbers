@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-04-19)
+(last updated 2014-04-25)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -1903,8 +1903,8 @@ Decimal
       harley&premisys.com
 472
   Bell South Telecommunications
-    
-      Johnny Walker 205-988-7105
+    Johnny Walker
+      205-988-7105
 473
   J. Stainsbury PLC
     Steve Parker
@@ -2103,8 +2103,8 @@ Decimal
       DIA-DMS&DDN-CONUS.DDN.MIL
 522
   Telesystems SLW Inc.
-    
-      Joe Magony 416-441-9966
+    Joe Magony
+      416-441-9966
 523
   APT Communications
     David Kloper
@@ -3939,8 +3939,8 @@ Decimal
       alan&arktel.com
 981
   National Security Agency (NSA)
-    
-      Cynthia Beighley maedeen&romulus.ncsc.mil
+    Cynthia Beighley
+      maedeen&romulus.ncsc.mil
 982
   Southwestern Bell Corporation
     Brian Bearden
@@ -7266,20 +7266,20 @@ Decimal
     (33) 51 41 41
       89decision&calva.net
 1813
-  VTEL Corporationâ€, Contact_Name = â€œBill Black
-    
+  VTEL Corporation
+    Bill Black
       bblack&vtel.com
 1814
-  Bloomberg, L.P.Franko Rahimi
-    
+  Bloomberg, L.P.
+    Franko Rahimi
       frahimi&bny18.bloomberg.com
 1815
   Witness Systems, Inc
     Joe Watson
       jwatson&witness.com
 1816
-  Rose-Hulman Institute of TechnologyLans H. Carstensen
-    
+  Rose-Hulman Institute of Technology
+    Lans H. Carstensen
       Lans.H.Carstensen&rose-hulman.edu
 1817
   Aether Technologies
@@ -7298,16 +7298,16 @@ Decimal
     
       lmreseau&calva.net
 1821
-  Total Entertainment NetworkWill Coertnik
-    
+  Total Entertainment Network
+    Will Coertnik
       will&tenetwork.com
 1822
-  Open Port TechnologyJeffrey Nowland
-    312 867 5050
+  Open Port Technology
+    Jeffrey Nowland
       jnowland&openport.com
 1823
-  Mikroelektronik Anwendungszentrum Hamburg GmbHZbynek Bazanowski
-    
+  Mikroelektronik Anwendungszentrum Hamburg GmbHZ
+    bynek Bazanowski
       ba&maz-hh.de
 1824
   International Management Consulting, Inc.
@@ -8626,9 +8626,9 @@ Decimal
     Ed Bernosky
       eddy&dlcmhc.com
 2153
-  Insider Technologies Ltd Paul Hancock 706001.1542 compuserv.com
-    
-      ---none---
+  Insider Technologies Ltd Paul Hancock
+    Paul Hancock
+      706001.1542 compuserv.com
 2154
   Berkeley Networks
     Bob Thomas
@@ -92811,8 +92811,8 @@ Urzêdzie Wojewódzkim w Olsztynie
       markus&macab.se
 23312
   IntelliCom Innovation AB
-    Lars-Ake Ekstrand
-      laek&intellicom.se
+    Jens Jakobsen
+      ianacontact&hms.se
 23313
   Tesla a.s.
     ing. Zdenek Kotalik
@@ -94697,9 +94697,9 @@ Development Institute
     Michal Wrobel
       mwrobel&asn.pl
 23783
-  Tellurian Networks, Inc.
+  iTellus Holdings, Inc. (previous was 'Tellurian Networks, Inc.')
     Robert Boyle
-      robert&tellurian.net
+      robert&itellus.com
 23784
   StrataLight Communications
     Roberto Marcoccia
@@ -130389,7 +130389,6 @@ Decentralization / Helenic Public Administra
       dominik.pekarek&loyaltypartner.com
 32702
   Joint Stock Company "NPO RusBITech"
-
     Vladimir Podobaev
       rusbitech_cct&mail.ru
 32703
@@ -170991,7 +170990,7 @@ Decentralization / Helenic Public Administra
       robm&fidelityvoice.com
 42852
   Bank Gospodarstwa Krajowego
-    Przemyslaw Wasaznik
+    Przemyslaw Wasa
       pwasa&BGK.com.pl
 42853
   DunnCox
@@ -173985,6 +173984,122 @@ Decentralization / Helenic Public Administra
   Beijing Easesky Netcom Technology Co.,Ltd
     David Xu
       davidxu&easeskytech.com
+43601
+  Nuri Technology Co., Ltd.
+    Kwang-Wook, Lee
+      nuritec&nuritec.co.kr
+43602
+  Rossiya Segodnya
+    Andrey Belokurov
+      postmaster&rian.ru
+43603
+  The Twelve Tribes
+    Patrick McCourt
+      patrick.mccourt&twelvetribes.org
+43604
+  Arkansas Educational Television Network (AETN)
+    Greg Barber
+      gbarber&aetn.org
+43605
+  Metatrust
+    Jorge Rocha
+      jorge.rocha&metatrust.com.mx
+43606
+  nobaq.net
+    Nikolaus Hammler
+      noc&nobaq.net
+43607
+  Funda Real Estate B.V.
+    Remie Bolte
+      beheer&funda.nl
+43608
+  Raben Group
+    Marcin Piotrowski
+      it.admin&raben-group.com
+43609
+  NetCracker Technology Corp.
+    Nikita Sizykh
+      ldap.snmp.oids.group&netcracker.com
+43610
+  ColosseoEAS, a.s.
+    Miroslav Petrak
+      miroslav.petrak&colosseoeas.com
+43611
+  Power Ethernet
+    James Gardiner
+      james.gardiner&powerethernet.com
+43612
+  IOLAN
+    Ernst Lemm
+      e.lemm&iolan.com
+43613
+  Skylife Engineering
+    Antonio Rodriguez
+      itadmin&skylife-eng.com
+43614
+  phaenovum  Schülerforschungszentrum Lörrach-Dreiländereck e.V.
+    Lars Möllendorf
+      it-robotik&phaenovum.eu
+43615
+  VonRoll
+    Bilal Karaagac
+      bilal.karaagac&vonroll.com
+43616
+  Aventura Technologies Inc.
+    Michael Wangner
+      info&aventuratechnologies.com
+43617
+  Vidant Health
+    Kirk Davis
+      kirk.davis&vidanthealth.com
+43618
+  Camtrace
+    Alain Dumouchel
+      alcodu1812&gmail.com
+43619
+  LianYunGang E-Port Information Development Co.,Ltd
+    Yaokun Zhang
+      postmaster&lygeport.gov.cn
+43620
+  Shenzhen Headsun Technology
+    Bo Liu
+      18929378839&189.cn
+43621
+  Medical Effect
+    Dr. Roman Zolow
+      zolow&medical-effect.com
+43622
+  WebPerative LLC
+    Alan McCluney
+      alan&webperative.com
+43623
+  Umensis - Guillaume Pannatier
+    Guillaume Pannatier
+      guillaume.pannatier&gmail.com
+43624
+  Jaroslav Sendler (xsendl00)
+    Jaroslav Sendler
+      sendler.jaroslav&gmail.com
+43625
+  Core Technology
+    Krzysztof Kielak
+      contact&moosefs.com
+43626
+  NewB
+    Catherine Blancquaert
+      info&newb.coop
+43627
+  Devani Creative
+    Sernin van de Krol
+      sernin&devani.nl
+43628
+  The Rubicon Project
+    Sean Michael Byron
+      poc&rubiconproject.com
+43629
+  PSITEX, LLC
+    Jack D. Pond
+      jack.pond&psitex.com
 
 
 End of Document
