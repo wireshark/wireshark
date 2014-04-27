@@ -2098,7 +2098,7 @@ static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 	{
 		proto_item *item = NULL;
 
-		if (gvcp_trans->req_frame)
+		if (gvcp_trans && gvcp_trans->req_frame)
 		{
 			item = proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_response_to, tvb, 0, 0, gvcp_trans->req_frame);
 			PROTO_ITEM_SET_GENERATED(item);
