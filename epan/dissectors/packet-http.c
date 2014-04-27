@@ -2626,7 +2626,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 					part = value + i;
 					part_end = (char *)memchr(part, ';', value_len - i);
 					if (part_end)
-						part_len = part_end - part;
+						part_len =(int)(part_end - part);
 					else
 						part_len = value_len - i;
 
