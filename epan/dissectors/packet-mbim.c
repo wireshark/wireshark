@@ -44,6 +44,14 @@
 #include "packet-usb.h"
 #include "packet-mbim.h"
 
+#if !GLIB_CHECK_VERSION(2,22,0)
+gboolean
+g_int64_equal(gconstpointer v1, gconstpointer v2)
+{
+  return *((const gint64*) v1) == *((const gint64*) v2);
+}
+#endif
+
 void proto_register_mbim(void);
 void proto_reg_handoff_mbim(void);
 
