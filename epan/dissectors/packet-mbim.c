@@ -576,7 +576,7 @@ static const fragment_items mbim_frag_items = {
 };
 
 struct mbim_conv_info {
-    wmem_tree_t *trans;
+    wmem_map_t *trans;
     wmem_tree_t *open;
     guint32 open_count;
     guint32 cellular_class;
@@ -3571,7 +3571,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_tree *mbim_tree, *header_tree, *subtree;
     gint offset = 0;
     guint32 msg_type, msg_length, trans_id, open_count;
-    wmem_tree_key_t trans_id_key[3];
+    guint64 trans_id_key, *p_trans_id_key;
     conversation_t *conversation;
     struct mbim_conv_info *mbim_conv;
     struct mbim_info *mbim_info = NULL;
@@ -3595,7 +3595,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     mbim_conv = (struct mbim_conv_info *)conversation_get_proto_data(conversation, proto_mbim);
     if (!mbim_conv) {
         mbim_conv = wmem_new(wmem_file_scope(), struct mbim_conv_info);
-        mbim_conv->trans = wmem_tree_new(wmem_file_scope());
+        mbim_conv->trans = wmem_map_new(wmem_file_scope(), wmem_int64_hash, g_int64_equal);
         mbim_conv->open = wmem_tree_new(wmem_file_scope());
         mbim_conv->cellular_class = 0;
         mbim_conv->open_count = 0;
@@ -3678,19 +3678,16 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 }
 
                 open_count = GPOINTER_TO_UINT(wmem_tree_lookup32_le(mbim_conv->open, PINFO_FD_NUM(pinfo)));
-                trans_id_key[0].length = 1;
-                trans_id_key[0].key = &open_count;
-                trans_id_key[1].length = 1;
-                trans_id_key[1].key = &trans_id;
-                trans_id_key[2].length = 0;
-                trans_id_key[2].key = NULL;
+                trans_id_key = ((guint64)open_count << 32) | trans_id;
                 if (!PINFO_FD_VISITED(pinfo)) {
+                    p_trans_id_key = wmem_new(wmem_file_scope(), guint64);
+                    *p_trans_id_key = trans_id_key;
                     mbim_info = wmem_new(wmem_file_scope(), struct mbim_info);
                     mbim_info->req_frame = PINFO_FD_NUM(pinfo);
                     mbim_info->resp_frame = 0;
-                    wmem_tree_insert32_array(mbim_conv->trans, trans_id_key, mbim_info);
+                    wmem_map_insert(mbim_conv->trans, p_trans_id_key, mbim_info);
                 } else {
-                    mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
+                    mbim_info = (struct mbim_info *)wmem_map_lookup(mbim_conv->trans, &trans_id_key);
                     if (mbim_info && mbim_info->resp_frame) {
                         proto_item *resp_it;
 
@@ -4145,19 +4142,13 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             break;
         case MBIM_FUNCTION_ERROR_MSG:
             open_count = GPOINTER_TO_UINT(wmem_tree_lookup32_le(mbim_conv->open, PINFO_FD_NUM(pinfo)));
-            trans_id_key[0].length = 1;
-            trans_id_key[0].key = &open_count;
-            trans_id_key[1].length = 1;
-            trans_id_key[1].key = &trans_id;
-            trans_id_key[2].length = 0;
-            trans_id_key[2].key = NULL;
+            trans_id_key = ((guint64)open_count << 32) | trans_id;
+            mbim_info = (struct mbim_info *)wmem_map_lookup(mbim_conv->trans, &trans_id_key);
             if (!PINFO_FD_VISITED(pinfo)) {
-                mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                 if (mbim_info) {
                     mbim_info->resp_frame = PINFO_FD_NUM(pinfo);
                 }
             } else {
-                mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                 if (mbim_info && mbim_info->req_frame) {
                     proto_item *req_it;
 
@@ -4210,19 +4201,13 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
                 if (msg_type == MBIM_COMMAND_DONE) {
                     open_count = GPOINTER_TO_UINT(wmem_tree_lookup32_le(mbim_conv->open, PINFO_FD_NUM(pinfo)));
-                    trans_id_key[0].length = 1;
-                    trans_id_key[0].key = &open_count;
-                    trans_id_key[1].length = 1;
-                    trans_id_key[1].key = &trans_id;
-                    trans_id_key[2].length = 0;
-                    trans_id_key[2].key = NULL;
+                    trans_id_key = ((guint64)open_count << 32) | trans_id;
+                    mbim_info = (struct mbim_info *)wmem_map_lookup(mbim_conv->trans, &trans_id_key);
                     if (!PINFO_FD_VISITED(pinfo)) {
-                        mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                         if (mbim_info) {
                             mbim_info->resp_frame = PINFO_FD_NUM(pinfo);
                         }
                     } else {
-                        mbim_info = (struct mbim_info *)wmem_tree_lookup32_array(mbim_conv->trans, trans_id_key);
                         if (mbim_info && mbim_info->req_frame) {
                             proto_item *req_it;
 
