@@ -76,7 +76,7 @@ static const enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
-static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_SN_12;
+static gint global_rlc_lte_call_pdcp_for_drb = (gint)PDCP_drb_SN_signalled;
 static gint signalled_pdcp_sn_bits = 12;
 
 static gboolean global_rlc_lte_call_rrc_for_ccch = TRUE;
