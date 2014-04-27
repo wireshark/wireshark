@@ -403,7 +403,6 @@ again:
      offset += advance;
      goto again;
    case IP_PROTO_SHIM6:
-   case IP_PROTO_SHIM6_OLD:
      if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
        ld->other++;
        return;
@@ -1992,7 +1991,6 @@ again:
       goto again;
 
     case IP_PROTO_SHIM6:
-    case IP_PROTO_SHIM6_OLD:
       shim6 = TRUE;
       advance = dissect_shim6(tvb, offset, ipv6_tree, pinfo);
       nxt = tvb_get_guint8(tvb, offset);
