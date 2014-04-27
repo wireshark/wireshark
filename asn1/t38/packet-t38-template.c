@@ -277,7 +277,8 @@ void t38_add_address(packet_info *pinfo,
 		p_conversation_data->src_t38_info.packet_lost = 0;
 		p_conversation_data->src_t38_info.burst_lost = 0;
 		p_conversation_data->src_t38_info.time_first_t4_data = 0;
-
+		p_conversation_data->src_t38_info.additional_hdlc_data_field_counter = 0;
+		p_conversation_data->src_t38_info.seqnum_prev_data_field = -1;
 
 		p_conversation_data->dst_t38_info.reass_ID = 0;
 		p_conversation_data->dst_t38_info.reass_start_seqnum = -1;
@@ -286,6 +287,8 @@ void t38_add_address(packet_info *pinfo,
 		p_conversation_data->dst_t38_info.packet_lost = 0;
 		p_conversation_data->dst_t38_info.burst_lost = 0;
 		p_conversation_data->dst_t38_info.time_first_t4_data = 0;
+		p_conversation_data->dst_t38_info.additional_hdlc_data_field_counter = 0;
+		p_conversation_data->dst_t38_info.seqnum_prev_data_field = -1;
 }
 
 
@@ -356,7 +359,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	      /* duplicate/retransmission/overlap */
 	      fd_i->flags    |= FD_OVERLAP;
 	      fd_head->flags |= FD_OVERLAP;
-	      if( (last_fd->len!=fd_i->datalen)
+	      if( (last_fd->len!=fd_i->len)
 		  || tvb_memeql(last_fd->tvb_data, 0, tvb_get_ptr(fd_i->tvb_data, 0, last_fd->len), last_fd->len) ){
 			fd_i->flags    |= FD_OVERLAPCONFLICT;
 			fd_head->flags |= FD_OVERLAPCONFLICT;

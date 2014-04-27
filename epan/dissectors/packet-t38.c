@@ -322,7 +322,8 @@ void t38_add_address(packet_info *pinfo,
 		p_conversation_data->src_t38_info.packet_lost = 0;
 		p_conversation_data->src_t38_info.burst_lost = 0;
 		p_conversation_data->src_t38_info.time_first_t4_data = 0;
-
+		p_conversation_data->src_t38_info.additional_hdlc_data_field_counter = 0;
+		p_conversation_data->src_t38_info.seqnum_prev_data_field = -1;
 
 		p_conversation_data->dst_t38_info.reass_ID = 0;
 		p_conversation_data->dst_t38_info.reass_start_seqnum = -1;
@@ -331,6 +332,8 @@ void t38_add_address(packet_info *pinfo,
 		p_conversation_data->dst_t38_info.packet_lost = 0;
 		p_conversation_data->dst_t38_info.burst_lost = 0;
 		p_conversation_data->dst_t38_info.time_first_t4_data = 0;
+		p_conversation_data->dst_t38_info.additional_hdlc_data_field_counter = 0;
+		p_conversation_data->dst_t38_info.seqnum_prev_data_field = -1;
 }
 
 
@@ -401,7 +404,7 @@ force_reassemble_seq(reassembly_table *table, packet_info *pinfo, guint32 id)
 	      /* duplicate/retransmission/overlap */
 	      fd_i->flags    |= FD_OVERLAP;
 	      fd_head->flags |= FD_OVERLAP;
-	      if( (last_fd->len!=fd_i->datalen)
+	      if( (last_fd->len!=fd_i->len)
 		  || tvb_memeql(last_fd->tvb_data, 0, tvb_get_ptr(fd_i->tvb_data, 0, last_fd->len), last_fd->len) ){
 			fd_i->flags    |= FD_OVERLAPCONFLICT;
 			fd_head->flags |= FD_OVERLAPCONFLICT;
@@ -976,7 +979,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 391 "../../asn1/t38/packet-t38-template.c"
+#line 394 "../../asn1/t38/packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1332,7 +1335,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 670 "../../asn1/t38/packet-t38-template.c"
+#line 673 "../../asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1393,7 +1396,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 717 "../../asn1/t38/packet-t38-template.c"
+#line 720 "../../asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments
