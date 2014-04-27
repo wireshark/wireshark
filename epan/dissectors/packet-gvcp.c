@@ -489,6 +489,7 @@ static const value_string devicemodenames_class[] = {
 	{0, NULL},
 };
 
+#if 0
 /*Current Link Configuration*/
 static const value_string linkconfiguration_class[] = {
 	{ GEV_LINKCONFIG_SINGLELINK, "Single Link" },
@@ -497,6 +498,7 @@ static const value_string linkconfiguration_class[] = {
 	{ GEV_LINKCONFIG_DYNAMICLAG, "Dynamic LAG" },
 	{0, NULL},
 };
+#endif
 
 static const value_string devicemodenames_characterset[] = {
 	{ 0x01, "UTF-8 Character Set" },
