@@ -749,6 +749,9 @@ static circuit_t *iax2_new_circuit_for_call(packet_info *pinfo, proto_item * ite
 {
   circuit_t *res;
 
+  if(!iax_call){
+    return NULL;
+  }
   if ((reversed && iax_call->n_reverse_circuit_ids >= IAX_MAX_TRANSFERS) ||
       (! reversed && iax_call->n_forward_circuit_ids >= IAX_MAX_TRANSFERS)) {
     expert_add_info(pinfo, item, &ei_iax_too_many_transfers);
