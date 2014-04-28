@@ -943,7 +943,7 @@ parse_line(gchar *linebuff, gint line_length,
     *is_sprint = FALSE;
 
     /* Read context name until find '.' */
-    for (n=0; (linebuff[n] != '.') && (n < MAX_CONTEXT_NAME) && (n+1 < line_length); n++) {
+    for (n=0; (n < MAX_CONTEXT_NAME) && (n+1 < line_length) && (linebuff[n] != '.'); n++) {
         if (linebuff[n] == '/') {
             context_name[n] = '\0';
 
@@ -1181,8 +1181,8 @@ parse_line(gchar *linebuff, gint line_length,
 
         /* Read consecutive hex chars into atm header buffer */
         for (;
-             ((linebuff[n] >= '0') && (linebuff[n] <= '?') &&
-              (n < line_length) &&
+             ((n < line_length) &&
+              (linebuff[n] >= '0') && (linebuff[n] <= '?') &&
               (header_chars_seen < AAL_HEADER_CHARS));
              n++, header_chars_seen++) {
 
@@ -1251,7 +1251,7 @@ parse_line(gchar *linebuff, gint line_length,
         return FALSE;
     }
 
-    for (; !g_ascii_isdigit((linebuff[n]) && (n < line_length); n++);
+    for (; (n < line_length) && !g_ascii_isdigit(linebuff[n]); n++);
     if (n >= line_length) {
         return FALSE;
     }
