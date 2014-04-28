@@ -212,7 +212,7 @@ typedef struct _pana_transaction_t {
 } pana_transaction_t;
 
 typedef struct _pana_conv_info_t {
-        wmem_tree_t *pdus;
+        wmem_map_t *pdus;
 } pana_conv_info_t;
 
 static void
@@ -552,7 +552,7 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 * it to the list of information structures.
                 */
                pana_info = wmem_new(wmem_file_scope(), pana_conv_info_t);
-               pana_info->pdus=wmem_tree_new(wmem_file_scope());
+               pana_info->pdus=wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
                conversation_add_proto_data(conversation, proto_pana, pana_info);
        }
@@ -564,15 +564,15 @@ dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                       pana_trans->req_frame=pinfo->fd->num;
                       pana_trans->rep_frame=0;
                       pana_trans->req_time=pinfo->fd->abs_ts;
-                      wmem_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
+                      wmem_map_insert(pana_info->pdus, GUINT_TO_POINTER(seq_num), (void *)pana_trans);
                } else {
-                      pana_trans=(pana_transaction_t *)wmem_tree_lookup32(pana_info->pdus, seq_num);
+                      pana_trans=(pana_transaction_t *)wmem_map_lookup(pana_info->pdus, GUINT_TO_POINTER(seq_num));
                       if(pana_trans){
                               pana_trans->rep_frame=pinfo->fd->num;
                       }
                }
        } else {
-               pana_trans=(pana_transaction_t *)wmem_tree_lookup32(pana_info->pdus, seq_num);
+               pana_trans=(pana_transaction_t *)wmem_map_lookup(pana_info->pdus, GUINT_TO_POINTER(seq_num));
        }
 
        if(!pana_trans){

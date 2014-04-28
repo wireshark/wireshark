@@ -92,7 +92,7 @@ static gint ett_fcp_taskmgmt = -1;
 static gint ett_fcp_rsp_flags = -1;
 
 typedef struct _fcp_conv_data_t {
-    wmem_tree_t *luns;
+    wmem_map_t *luns;
 } fcp_conv_data_t;
 
 typedef struct fcp_request_data {
@@ -425,7 +425,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
     }
 
-    request_data = (fcp_request_data_t*)wmem_tree_lookup32(fcp_conv_data->luns, lun);
+    request_data = (fcp_request_data_t*)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER(lun));
     if (!request_data) {
         request_data = wmem_new(wmem_file_scope(), fcp_request_data_t);
         request_data->request_frame = pinfo->fd->num;
@@ -445,7 +445,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         request_data->itlq->alloc_len=0;
         request_data->itlq->extra_data=NULL;
 
-        wmem_tree_insert32(fcp_conv_data->luns, lun, request_data);
+        wmem_map_insert(fcp_conv_data->luns, GUINT_TO_POINTER(lun), request_data);
     }
 
     /* populate the exchange struct */
@@ -758,7 +758,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
     if (!fcp_conv_data) {
         fcp_conv_data = wmem_new(wmem_file_scope(), fcp_conv_data_t);
-        fcp_conv_data->luns = wmem_tree_new(wmem_file_scope());
+        fcp_conv_data->luns = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         conversation_add_proto_data(fc_conv, proto_fcp, fcp_conv_data);
     }
 
@@ -774,7 +774,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     if ((r_ctl != FCP_IU_CMD) && (r_ctl != FCP_IU_UNSOL_CTL)) {
-        request_data = (fcp_request_data_t *)wmem_tree_lookup32(fcp_conv_data->luns, proto_data->lun);
+        request_data = (fcp_request_data_t *)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER(proto_data->lun));
     }
 
     /* put a request_in in all frames except the command frame */

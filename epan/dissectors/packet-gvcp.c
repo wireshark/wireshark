@@ -56,7 +56,7 @@ wmem_array_t* gvcp_trans_array;
    structure to hold persistent info for each conversation
 */
 typedef struct _gvcp_conv_info_t {
-	wmem_tree_t *pdus;
+	wmem_map_t *pdus;
 } gvcp_conv_info_t;
 
 /*
@@ -2271,7 +2271,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	if (!gvcp_info)
 	{
 		gvcp_info = (gvcp_conv_info_t*)wmem_alloc(wmem_file_scope(), sizeof(gvcp_conv_info_t));
-		gvcp_info->pdus = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+		gvcp_info->pdus = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		conversation_add_proto_data(conversation, proto_gvcp, gvcp_info);
 	}
 
@@ -2292,7 +2292,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			{
 				/* this is a response, so update trans info with ack's frame number */
 				/* get list of transactions for given request id */
-				gvcp_trans_array = (wmem_array_t*)wmem_tree_lookup32(gvcp_info->pdus, request_id);
+				gvcp_trans_array = (wmem_array_t*)wmem_map_lookup(gvcp_info->pdus, GUINT_TO_POINTER(request_id));
 				if (gvcp_trans_array)
 				{
 					gint i;
@@ -2323,7 +2323,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	else
 	{
 		gvcp_trans = 0;
-		gvcp_trans_array = (wmem_array_t*)wmem_tree_lookup32(gvcp_info->pdus, request_id);
+		gvcp_trans_array = (wmem_array_t*)wmem_map_lookup(gvcp_info->pdus, GUINT_TO_POINTER(request_id));
 
 		if (gvcp_trans_array)
 		{
@@ -2414,7 +2414,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		{
 			if (key_code == 0x42)
 			{
-				gvcp_trans_array = (wmem_array_t*)wmem_tree_lookup32(gvcp_info->pdus, request_id);
+				gvcp_trans_array = (wmem_array_t*)wmem_map_lookup(gvcp_info->pdus, GUINT_TO_POINTER(request_id));
 
 				if(gvcp_trans_array)
 				{
@@ -2424,7 +2424,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 				{
 					gvcp_trans_array = wmem_array_new(wmem_file_scope(), sizeof(gvcp_transaction_t));
 					wmem_array_append_one(gvcp_trans_array, *gvcp_trans);
-					wmem_tree_insert32(gvcp_info->pdus, request_id, (void *)gvcp_trans_array);
+					wmem_map_insert(gvcp_info->pdus, GUINT_TO_POINTER(request_id), (void *)gvcp_trans_array);
 				}
 			}
 		}

@@ -58,7 +58,7 @@ data you may want to keep track of from a request to a response.
 We also need a structure that holds persistent information for each
 conversation. A conversation is identified by SRC/DST address, protocol and
 SRC/DST port, see README.developer.
-In this case we only want to have a binary tree to track the actual
+In this case we only want to have a hash table to track the actual
 transactions that occur for this unique conversation.
 Some protocols negotiate session parameters during a login phase and those
 parameters may affect how later commands on the same session is to be decoded,
@@ -66,7 +66,7 @@ this would be a good place to store that additional info you may want to keep
 around.
 
 	typedef struct _pana_conv_info_t {
-	        wmem_tree_t *pdus;
+	        wmem_map_t *pdus;
 	} pana_conv_info_t;
 
 Finally for the meat of it, add the conversation and tracking code to the
@@ -99,7 +99,7 @@ actual dissector.
 		 * it to the list of information structures.
 		 */
 		pana_info = wmem_new(wmem_file_scope(), pana_conv_info_t);
-		pana_info->pdus=wmem_tree_new(wmem_file_scope());
+		pana_info->pdus=wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(conversation, proto_pana, pana_info);
 	}
@@ -110,15 +110,15 @@ actual dissector.
 			pana_trans->req_frame = pinfo->fd->num;
 			pana_trans->rep_frame = 0;
 			pana_trans->req_time = pinfo->fd->abs_ts;
-			wmem_tree_insert32(pana_info->pdus, seq_num, (void *)pana_trans);
+			wmem_map_insert(pana_info->pdus, GUINT_TO_POINTER(seq_num), (void *)pana_trans);
 		} else {
-			pana_trans=(pana_transaction_t *)wmem_tree_lookup32(pana_info->pdus, seq_num);
+			pana_trans=(pana_transaction_t *)wmem_map_lookup(pana_info->pdus, GUINT_TO_POINTER(seq_num));
 			if (pana_trans) {
 				pana_trans->rep_frame = pinfo->fd->num;
 			}
 		}
 	} else {
-		pana_trans=(pana_transaction_t *)wmem_tree_lookup32(pana_info->pdus, seq_num);
+		pana_trans=(pana_transaction_t *)wmem_map_lookup(pana_info->pdus, GUINT_TO_POINTER(seq_num));
 	}
 	if (!pana_trans) {
 		/* create a "fake" pana_trans structure */

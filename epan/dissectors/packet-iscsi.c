@@ -219,8 +219,8 @@ static gint ett_iscsi_ISID = -1;
 /* this structure contains session wide state for a specific tcp conversation */
 typedef struct _iscsi_session_t {
     guint32 header_digest;
-    wmem_tree_t *itlq;  /* indexed by ITT */
-    wmem_tree_t *itl;   /* indexed by LUN */
+    wmem_map_t *itlq;  /* indexed by ITT */
+    wmem_map_t *itl;   /* indexed by LUN */
 } iscsi_session_t;
 
 
@@ -746,7 +746,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSCSI");
 
     /* XXX we need a way to handle replayed iscsi itt here */
-    cdata=(iscsi_conv_data_t *)wmem_tree_lookup32(iscsi_session->itlq, tvb_get_ntohl(tvb, offset+16));
+    cdata=(iscsi_conv_data_t *)wmem_map_lookup(iscsi_session->itlq, GUINT_TO_POINTER(tvb_get_ntohl(tvb, offset+16)));
     if(!cdata){
         cdata = wmem_new(wmem_file_scope(), iscsi_conv_data_t);
         cdata->itlq.lun=0xffff;
@@ -763,7 +763,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->data_in_frame=0;
         cdata->data_out_frame=0;
 
-        wmem_tree_insert32(iscsi_session->itlq, tvb_get_ntohl(tvb, offset+16), cdata);
+        wmem_map_insert(iscsi_session->itlq, GUINT_TO_POINTER(tvb_get_ntohl(tvb, offset+16)), cdata);
     }
 
     if (opcode == ISCSI_OPCODE_SCSI_RESPONSE ||
@@ -816,18 +816,18 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.lun=lun;
         cdata->itlq.first_exchange_frame=pinfo->fd->num;
 
-        itl=(itl_nexus_t *)wmem_tree_lookup32(iscsi_session->itl, lun);
+        itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER(lun));
         if(!itl){
             itl=wmem_new(wmem_file_scope(), itl_nexus_t);
             itl->cmdset=0xff;
             itl->conversation=conversation;
-            wmem_tree_insert32(iscsi_session->itl, lun, itl);
+            wmem_map_insert(iscsi_session->itl, GUINT_TO_POINTER(lun), itl);
         }
 
     }
 
     if(!itl){
-        itl=(itl_nexus_t *)wmem_tree_lookup32(iscsi_session->itl, cdata->itlq.lun);
+        itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER(cdata->itlq.lun));
     }
 
 
@@ -2349,8 +2349,8 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
         if(!iscsi_session){
             iscsi_session = wmem_new(wmem_file_scope(), iscsi_session_t);
             iscsi_session->header_digest = ISCSI_HEADER_DIGEST_AUTO;
-            iscsi_session->itlq = wmem_tree_new(wmem_file_scope());
-            iscsi_session->itl  = wmem_tree_new(wmem_file_scope());
+            iscsi_session->itlq = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+            iscsi_session->itl  = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
             conversation_add_proto_data(conversation, proto_iscsi, iscsi_session);
 
             /* DataOut PDUs are often mistaken by DCERPC heuristics to be

@@ -315,10 +315,10 @@ typedef struct _ndmp_task_data_t {
 
 typedef struct _ndmp_conv_data_t {
 	guint8 version;
-	wmem_tree_t *tasks;	/* indexed by Sequence# */
+	wmem_map_t *tasks;	/* indexed by Sequence# */
 	wmem_tree_t *itl;		/* indexed by packet# */
-	wmem_tree_t *fragsA; /* indexed by Sequence# */
-	wmem_tree_t *fragsB;
+	wmem_map_t *fragsA; /* indexed by Sequence# */
+	wmem_map_t *fragsB;
 	ndmp_task_data_t *task;
 	conversation_t *conversation;
 } ndmp_conv_data_t;
@@ -3094,7 +3094,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	proto_tree *ndmp_tree = NULL;
 	proto_item *hdr_item = NULL;
 	proto_tree *hdr_tree = NULL;
-	wmem_tree_t *frags;
+	wmem_map_t *frags;
 	conversation_t *conversation;
 	proto_item *vers_item;
 	gboolean save_fragmented, save_writable;
@@ -3118,11 +3118,11 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	if(!ndmp_conv_data){
 		ndmp_conv_data=wmem_new(wmem_file_scope(), ndmp_conv_data_t);
 		ndmp_conv_data->version = NDMP_PROTOCOL_UNKNOWN;
-		ndmp_conv_data->tasks   = wmem_tree_new(wmem_file_scope());
+		ndmp_conv_data->tasks   = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 		ndmp_conv_data->itl     = wmem_tree_new(wmem_file_scope());
 		ndmp_conv_data->conversation = conversation;
-		ndmp_conv_data->fragsA  = wmem_tree_new(wmem_file_scope());
-		ndmp_conv_data->fragsB  = wmem_tree_new(wmem_file_scope());
+		ndmp_conv_data->fragsA  = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		ndmp_conv_data->fragsB  = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
 
 		conversation_add_proto_data(conversation, proto_ndmp, ndmp_conv_data);
 
@@ -3178,7 +3178,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		 */
 		tcpinfo->seq = nxt;
 
-		nfi = (ndmp_frag_info *)wmem_tree_lookup32(frags, seq);
+		nfi = (ndmp_frag_info *)wmem_map_lookup(frags, GUINT_TO_POINTER(seq));
 
 		if (!nfi)
 		{
@@ -3197,7 +3197,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 					nfi=wmem_new(wmem_file_scope(), ndmp_frag_info);
 					nfi->first_seq = seq;
 					nfi->offset = 1;
-					wmem_tree_insert32(frags, nxt, (void *)nfi);
+					wmem_map_insert(frags, GUINT_TO_POINTER(nxt), (void *)nfi);
 				}
 			}
 			/*
@@ -3230,7 +3230,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 					nfi=wmem_new(wmem_file_scope(), ndmp_frag_info);
 					nfi->first_seq = seq;
 					nfi->offset = frag_num+1;
-					wmem_tree_insert32(frags, nxt, (void *)nfi);
+					wmem_map_insert(frags, GUINT_TO_POINTER(nxt), (void *)nfi);
 				}
 			}
 		}
@@ -3348,9 +3348,9 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			ndmp_conv_data->task->response_frame=0;
 			ndmp_conv_data->task->ndmp_time=pinfo->fd->abs_ts;
 			ndmp_conv_data->task->itlq=NULL;
-			wmem_tree_insert32(ndmp_conv_data->tasks, nh.seq, ndmp_conv_data->task);
+			wmem_map_insert(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.seq), ndmp_conv_data->task);
 		} else {
-			ndmp_conv_data->task=(ndmp_task_data_t *)wmem_tree_lookup32(ndmp_conv_data->tasks, nh.seq);
+			ndmp_conv_data->task=(ndmp_task_data_t *)wmem_map_lookup(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.seq));
 		}
 		if(ndmp_conv_data->task && ndmp_conv_data->task->response_frame){
 			proto_item *it;
@@ -3360,7 +3360,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 		}
 		break;
 	case NDMP_MESSAGE_REPLY:
-		ndmp_conv_data->task=(ndmp_task_data_t *)wmem_tree_lookup32(ndmp_conv_data->tasks, nh.rep_seq);
+		ndmp_conv_data->task=(ndmp_task_data_t *)wmem_map_lookup(ndmp_conv_data->tasks, GUINT_TO_POINTER(nh.rep_seq));
 
 		if(ndmp_conv_data->task && !pinfo->fd->flags.visited){
 			ndmp_conv_data->task->response_frame=pinfo->fd->num;

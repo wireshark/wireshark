@@ -797,7 +797,7 @@ static gint ett_docsis_request_transmission_policy = -1;
 
 /* For request/response matching */
 typedef struct _cops_conv_info_t {
-    wmem_tree_t *pdus_tree;
+    wmem_map_t *pdus_tree;
 } cops_conv_info_t;
 
 typedef struct _cops_call_t
@@ -1035,17 +1035,17 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     if (!cops_conv_info) {
         cops_conv_info = (cops_conv_info_t *)wmem_alloc(wmem_file_scope(), sizeof(cops_conv_info_t));
 
-        cops_conv_info->pdus_tree = wmem_tree_new(wmem_file_scope());
+        cops_conv_info->pdus_tree = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
         conversation_add_proto_data(conversation, proto_cops, cops_conv_info);
     }
 
     if ( is_request ||
         (op_code == COPS_MSG_DEC && is_solicited) ) { /* DEC as response for REQ is considered as request, because it expects RPT|DRQ */
 
-        pdus_array = (GPtrArray *)wmem_tree_lookup32(cops_conv_info->pdus_tree, handle_value);
+        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
         if (pdus_array == NULL) { /* This is the first request we've seen with this handle_value */
             pdus_array = g_ptr_array_new();
-            wmem_tree_insert32(cops_conv_info->pdus_tree, handle_value, pdus_array);
+            wmem_map_insert(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value), pdus_array);
         }
 
         if (!pinfo->fd->flags.visited) {
@@ -1071,7 +1071,7 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     if (is_response) {
-        pdus_array = (GPtrArray *)wmem_tree_lookup32(cops_conv_info->pdus_tree, handle_value);
+        pdus_array = (GPtrArray *)wmem_map_lookup(cops_conv_info->pdus_tree, GUINT_TO_POINTER(handle_value));
 
         if (pdus_array == NULL) /* There's no request with this handle value */
             return offset;
