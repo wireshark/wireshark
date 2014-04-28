@@ -125,6 +125,21 @@ static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_supported = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_enabled = -1;
+static int hf_ieee_8021az_feature_flag_willing = -1;
+static int hf_ieee_8021az_feature_flag_cbs = -1;
+static int hf_ieee_8021az_maxtcs = -1;
+static int hf_ieee_8021az_tsa_class0 = -1;
+static int hf_ieee_8021az_tsa_class1 = -1;
+static int hf_ieee_8021az_tsa_class2 = -1;
+static int hf_ieee_8021az_tsa_class3 = -1;
+static int hf_ieee_8021az_tsa_class4 = -1;
+static int hf_ieee_8021az_tsa_class5 = -1;
+static int hf_ieee_8021az_tsa_class6 = -1;
+static int hf_ieee_8021az_tsa_class7 = -1;
+static int hf_ieee_8021az_feature_flag_mbc = -1;
+static int hf_ieee_8021az_pfc_numtcs = -1;
+static int hf_ieee_8021az_app_prio = -1;
+static int hf_ieee_8021az_app_selector = -1;
 static int hf_ieee_802_3_subtype = -1;
 static int hf_ieee_802_3_mac_phy_auto_neg_status = -1;
 static int hf_ieee_802_3_mac_phy_auto_neg_status_supported = -1;
@@ -252,6 +267,11 @@ static gint ett_org_spc_ieee_802_1_1 = -1;
 static gint ett_org_spc_ieee_802_1_2 = -1;
 static gint ett_org_spc_ieee_802_1_3 = -1;
 static gint ett_org_spc_ieee_802_1_4 = -1;
+static gint ett_org_spc_ieee_802_1_9 = -1;
+static gint ett_org_spc_ieee_802_1_a = -1;
+static gint ett_org_spc_ieee_802_1_b = -1;
+static gint ett_org_spc_ieee_802_1_c = -1;
+static gint ett_org_spc_ieee_dcbx_app = -1;
 
 static gint ett_org_spc_ieee_802_3_1 = -1;
 static gint ett_org_spc_ieee_802_3_2 = -1;
@@ -372,6 +392,31 @@ static const value_string ieee_802_1_subtypes[] = {
 	{ 0x02, "Port and Protocol VLAN ID" },
 	{ 0x03, "VLAN Name" },
 	{ 0x04, "Protocol Identity" },
+	{ 0x09, "ETS Configuration" },
+	{ 0x0A, "ETS Recommendation" },
+	{ 0x0B, "Priority Flow Control Configuration" },
+	{ 0x0C, "Application Protocol" },
+	{ 0, NULL }
+};
+
+static const value_string dcbx_ieee_8021az_tsa[] = {
+	{ 0,	"Strict Priority" },
+	{ 1,	"Credit-Based Shaper" },
+	{ 2,	"Enhanced Transmission Selection" },
+	/* All other bits Reserved */
+	{ 255,	"Vendor Specific Algorithm" },
+	{ 0, NULL }
+};
+
+static const value_string dcbx_ieee_8021az_sf[] = {
+	{ 0,	"Reserved" },
+	{ 1,	"Default or Ethertype" },
+	{ 2,	"Port over TCP/SCTP" },
+	{ 3,	"Port over UDP/DCCP" },
+	{ 4,	"Port over TCP/SCTP/UDP/DCCP" },
+	{ 5,    "Reserved" },
+	{ 6,    "Reserved" },
+	{ 7,    "Reserved" },
 	{ 0, NULL }
 };
 
@@ -1586,10 +1631,11 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 {
 	guint8 subType;
 	guint8 tempByte;
-	guint16 tempShort;
+	guint16 tempShort, appCount;
 	guint32 tempOffset = offset;
 
 	proto_tree	*vlan_flags_tree = NULL;
+	proto_tree	*apptlv_tree = NULL;
 	proto_item	*tf = NULL;
 
 	/* Get subtype */
@@ -1673,6 +1719,243 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 					tvb_bytes_to_ep_str(tvb, tempOffset, tempByte));
 		}
 
+		break;
+	}
+	case 0x9:	/* ETS Configuration */
+	{
+		if (tree) {
+			proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_willing, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_cbs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021az_maxtcs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			/* Priority Assignment Table */
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_0, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_1, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_2, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_3, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+			tempOffset +=2;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_4, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_5, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_6, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_7, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+			tempOffset +=2;
+
+			/* TC Bandwidth Table */
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			/* TSA Assignment Table */
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+		}
+
+		break;
+	}
+	case 0xA:	/* ETS Recommendation */
+	{
+		if (tree) {
+			tempByte = tvb_get_guint8(tvb, tempOffset);
+
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Reserved 0x%X", tempByte);
+
+			tempOffset++;
+
+			/* Priority Assignment Table */
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_0, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_1, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_2, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_3, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+			tempOffset +=2;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_4, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_5, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_6, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pgid_prio_7, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+			tempOffset +=2;
+
+			/* TC Bandwidth Table */
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pg_per_7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			/* TSA Assignment Table */
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_ieee_8021az_tsa_class7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+		}
+		break;
+	}
+	case 0xB:	/* PFC Configuration */
+	{
+		if (tree) {
+			proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_willing, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_mbc, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021az_pfc_numtcs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_dcbx_feature_pfc_prio7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+		}
+		break;
+	}
+	case 0xC:	/* Application Priority */
+	{
+		if (tree) {
+			tempByte = tvb_get_guint8(tvb, tempOffset);
+
+			proto_tree_add_text(tree, tvb, tempOffset, 1, "Reserved 0x%X", tempByte);
+
+			tempOffset++;
+
+			appCount = tvb_reported_length_remaining(tvb, tempOffset)/3;
+
+			while(appCount--) {
+				tempShort = tvb_get_ntohs(tvb, tempOffset + 1);
+
+				tf = proto_tree_add_text(tree, tvb, tempOffset, 3, "%s Application",
+                                                val_to_str_const(tempShort, dcbx_app_types, "Unknown"));
+				apptlv_tree = proto_item_add_subtree(tf, ett_org_spc_ieee_dcbx_app);
+
+				proto_tree_add_item(apptlv_tree, hf_ieee_8021az_app_prio, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(apptlv_tree, hf_ieee_8021az_app_selector, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(apptlv_tree, hf_dcbx_feature_app_proto, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+				tempOffset += 2;
+			}
+		}
 		break;
 	}
 	}
@@ -2714,13 +2997,21 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
-		case 1:	tempTree = ett_org_spc_ieee_802_1_1;
+		case 0x1:	tempTree = ett_org_spc_ieee_802_1_1;
 			break;
-		case 2:	tempTree = ett_org_spc_ieee_802_1_2;
+		case 0x2:	tempTree = ett_org_spc_ieee_802_1_2;
 			break;
-		case 3:	tempTree = ett_org_spc_ieee_802_1_3;
+		case 0x3:	tempTree = ett_org_spc_ieee_802_1_3;
 			break;
-		case 4:	tempTree = ett_org_spc_ieee_802_1_4;
+		case 0x4:	tempTree = ett_org_spc_ieee_802_1_4;
+			break;
+		case 0x9:	tempTree = ett_org_spc_ieee_802_1_9;
+			break;
+		case 0xa:	tempTree = ett_org_spc_ieee_802_1_a;
+			break;
+		case 0xb:	tempTree = ett_org_spc_ieee_802_1_b;
+			break;
+		case 0xc:	tempTree = ett_org_spc_ieee_802_1_c;
 			break;
 		}
 		break;
@@ -3317,6 +3608,66 @@ proto_register_lldp(void)
 			{ "Port and Protocol VLAN", "lldp.ieee.802_1.port_and_vlan_id_flag.enabled", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
 		},
+		{ &hf_ieee_8021az_feature_flag_willing,
+			{ "Willing", "lldp.dcbx.ieee.willing", FT_BOOLEAN , 8,
+			TFS(&tfs_yes_no), 0x80, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_feature_flag_cbs,
+			{ "Credit-Based Shaper", "lldp.dcbx.ieee.ets.cbs", FT_BOOLEAN, 8,
+			TFS(&tfs_supported_not_supported), 0x40, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_maxtcs,
+			{ "Maximum Number of Traffic Classes", "lldp.dcbx.ieee.ets.maxtcs", FT_UINT8, BASE_DEC,
+			NULL, 0x7, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class0,
+			{ "TSA for Traffic Class 0", "lldp.dcbx.ieee.ets.tsa0", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class1,
+			{ "TSA for Traffic Class 1", "lldp.dcbx.ieee.ets.tsa1", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class2,
+			{ "TSA for Traffic Class 2", "lldp.dcbx.ieee.ets.tsa2", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class3,
+			{ "TSA for Traffic Class 3", "lldp.dcbx.ieee.ets.tsa3", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class4,
+			{ "TSA for Traffic Class 4", "lldp.dcbx.ieee.ets.tsa4", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class5,
+			{ "TSA for Traffic Class 5", "lldp.dcbx.ieee.ets.tsa5", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class6,
+			{ "TSA for Traffic Class 6", "lldp.dcbx.ieee.ets.tsa6", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_tsa_class7,
+			{ "TSA for Traffic Class 7", "lldp.dcbx.ieee.ets.tsa7", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_tsa), 0, "Reserved", HFILL }
+		},
+		{ &hf_ieee_8021az_feature_flag_mbc,
+			{ "MACsec Bypass Capability", "lldp.dcbx.ieee.pfc.mbc", FT_BOOLEAN, 8,
+			TFS(&tfs_capable_not_capable), 0x40, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_pfc_numtcs,
+			{ "Max PFC Enabled Traffic Classes", "lldp.dcbx.ieee.pfc.numtcs", FT_UINT8, BASE_DEC,
+			NULL, 0xF, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_app_prio,
+			{ "Application Priority", "lldp.dcbx.ieee.app.prio", FT_UINT8, BASE_DEC,
+			NULL, 0xE0, NULL, HFILL }
+		},
+		{ &hf_ieee_8021az_app_selector,
+			{ "Application Selector", "lldp.dcbx.iee.app.sf", FT_UINT8, BASE_DEC,
+			VALS(dcbx_ieee_8021az_sf), 0x7, NULL, HFILL }
+		},
 		{ &hf_ieee_802_3_subtype,
 			{ "IEEE 802.3 Subtype", "lldp.ieee.802_3.subtype", FT_UINT8, BASE_HEX,
 			VALS(ieee_802_3_subtypes), 0x0, NULL, HFILL }
@@ -3751,6 +4102,11 @@ proto_register_lldp(void)
 		&ett_org_spc_ieee_802_1_2,
 		&ett_org_spc_ieee_802_1_3,
 		&ett_org_spc_ieee_802_1_4,
+		&ett_org_spc_ieee_802_1_9,
+		&ett_org_spc_ieee_802_1_a,
+		&ett_org_spc_ieee_802_1_b,
+		&ett_org_spc_ieee_802_1_c,
+		&ett_org_spc_ieee_dcbx_app,
 		&ett_org_spc_ieee_802_3_1,
 		&ett_org_spc_ieee_802_3_2,
 		&ett_org_spc_ieee_802_3_3,
