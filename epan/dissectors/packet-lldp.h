@@ -40,6 +40,8 @@ static const value_string tlv_oui_subtype_vals[] = {
 	{ OUI_PROFINET,         "PROFINET" },
 	/* Currently, the manuf file calls this "Procurve", as it's assigned to HP! */
 	{ OUI_IEEE_802_1QBG,	"IEEE 802.1Qbg" },
+	/*  Data Center Bridging Exchange */
+	{ OUI_DCBX,		"Data Center Bridging Capabilities Exchange" },
 	{ 0, NULL }
 };
 

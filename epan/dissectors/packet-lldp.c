@@ -80,6 +80,47 @@ static int hf_mgn_addr_ipv6 = -1;
 static int hf_mgn_addr_hex = -1;
 static int hf_mgn_obj_id = -1;
 static int hf_org_spc_oui = -1;
+static int hf_dcbx_type = -1;
+static int hf_dcbx_tlv_type = -1;
+static int hf_dcbx_tlv_len = -1;
+static int hf_dcbx_tlv_oper_version = -1;
+static int hf_dcbx_tlv_max_version = -1;
+static int hf_dcbx_control_sequence = -1;
+static int hf_dcbx_control_ack = -1;
+static int hf_dcbx_feature_flag_enabled = -1;
+static int hf_dcbx_feature_flag_error = -1;
+static int hf_dcbx_feature_flag_willing = -1;
+static int hf_dcbx_feature_subtype = -1;
+static int hf_dcbx_feature_pgid_prio_0 = -1;
+static int hf_dcbx_feature_pgid_prio_1 = -1;
+static int hf_dcbx_feature_pgid_prio_2 = -1;
+static int hf_dcbx_feature_pgid_prio_3 = -1;
+static int hf_dcbx_feature_pgid_prio_4 = -1;
+static int hf_dcbx_feature_pgid_prio_5 = -1;
+static int hf_dcbx_feature_pgid_prio_6 = -1;
+static int hf_dcbx_feature_pgid_prio_7 = -1;
+static int hf_dcbx_feature_pg_per_0 = -1;
+static int hf_dcbx_feature_pg_per_1 = -1;
+static int hf_dcbx_feature_pg_per_2 = -1;
+static int hf_dcbx_feature_pg_per_3 = -1;
+static int hf_dcbx_feature_pg_per_4 = -1;
+static int hf_dcbx_feature_pg_per_5 = -1;
+static int hf_dcbx_feature_pg_per_6 = -1;
+static int hf_dcbx_feature_pg_per_7 = -1;
+static int hf_dcbx_feature_pg_numtcs = -1;
+static int hf_dcbx_feature_pfc_prio0 = -1;
+static int hf_dcbx_feature_pfc_prio1 = -1;
+static int hf_dcbx_feature_pfc_prio2 = -1;
+static int hf_dcbx_feature_pfc_prio3 = -1;
+static int hf_dcbx_feature_pfc_prio4 = -1;
+static int hf_dcbx_feature_pfc_prio5 = -1;
+static int hf_dcbx_feature_pfc_prio6 = -1;
+static int hf_dcbx_feature_pfc_prio7 = -1;
+static int hf_dcbx_feature_pfc_numtcs = -1;
+static int hf_dcbx_feature_app_proto = -1;
+static int hf_dcbx_feature_app_selector = -1;
+static int hf_dcbx_feature_app_oui = -1;
+static int hf_dcbx_feature_app_prio = -1;
 static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_supported = -1;
@@ -200,6 +241,13 @@ static gint ett_system_cap_enabled = -1;
 static gint ett_management_address = -1;
 static gint ett_unknown_tlv = -1;
 static gint ett_org_spc_def =-1;
+static gint ett_org_spc_dcbx_cin = -1;
+static gint ett_org_spc_dcbx_cee = -1;
+static gint ett_org_spc_dcbx_cee_1 = -1;
+static gint ett_org_spc_dcbx_cee_2 = -1;
+static gint ett_org_spc_dcbx_cee_3 = -1;
+static gint ett_org_spc_dcbx_cee_4 = -1;
+static gint ett_org_spc_dcbx_cee_app = -1;
 static gint ett_org_spc_ieee_802_1_1 = -1;
 static gint ett_org_spc_ieee_802_1_2 = -1;
 static gint ett_org_spc_ieee_802_1_3 = -1;
@@ -289,6 +337,33 @@ static const value_string interface_subtype_values[] = {
 	{ 2,	"ifIndex"},
 	{ 3,	"System port number"},
 	{ 0, NULL}
+};
+
+static const value_string dcbx_protocol_types[] = {
+	{ 0x01,	"1.0 CIN" },
+	{ 0x02,	"1.01 CEE" },
+	{ 0, NULL }
+};
+
+static const value_string dcbx_subtypes[] = {
+	{ 0x01,	"DCBx Control" },
+	{ 0x02,	"Priority Groups" },
+	{ 0x03,	"Priority-Based Flow Control" },
+	{ 0x04,	"Application Protocol" },
+	{ 0, NULL }
+};
+
+static const value_string dcbx_app_selector[] = {
+	{ 0,	"EtherType" },
+	{ 1,	"Socket Number" },
+	{ 0, NULL }
+};
+
+static const value_string dcbx_app_types[] = {
+	{ 0xcbc,	"iSCSI" },
+	{ 0x8906,	"FCoE" },
+	{ 0x8914,	"FiP" },
+	{ 0, NULL }
 };
 
 /* IEEE 802.1 Subtypes */
@@ -1298,6 +1373,211 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	}
 
 	return (tempLen + 2);
+}
+
+/* Dissect DCBX TLVs */
+static void
+dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint8 subType;
+	guint8 tempByte, tempCounter, appCount = 0;
+	guint16 tempLen, consumedLen = 0;
+	guint16 tempShort;
+	guint32 tempOffset = offset;
+
+	proto_tree	*subtlv_tree = NULL;
+	proto_tree	*apptlv_tree = NULL;
+	proto_item	*tf = NULL;
+
+	/* Get subtype, CEE or CIN */
+	tempByte = tvb_get_guint8(tvb, tempOffset);
+
+	if (tree)
+		proto_tree_add_item(tree, hf_dcbx_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+	tempOffset++;
+	consumedLen++;
+
+	/* One org specific OUI holds many DCBx TLVs */
+	while (tvb_reported_length_remaining(tvb, tempOffset) && tree) {
+
+		tempShort = tvb_get_ntohs(tvb, tempOffset);
+
+		/* Get TLV type & len. Actual TLV len = len + 2 */
+		subType = TLV_TYPE(tempShort);
+		tempLen = TLV_INFO_LEN(tempShort);
+
+		/* Write out common header fields first */
+		tf = proto_tree_add_text(tree, tvb, tempOffset, tempLen + 2, "%s TLV",
+					val_to_str_const(subType, dcbx_subtypes, "Unknown"));
+
+		switch (subType)
+		{
+		case 0x1: /* Control */
+			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_1);
+			break;
+		case 0x2: /* Priority Groups */
+			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_2);
+			break;
+		case 0x3: /* PFC */
+			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_3);
+			break;
+		case 0x4: /* Application */
+			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_4);
+			break;
+		}
+		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_type, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_len, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+		tempOffset +=2;
+
+		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_oper_version, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+		tempOffset++;
+
+		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_max_version, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+		tempOffset++;
+
+		if (subType == 0x1) {
+			/* Specific to Control TLV */
+			proto_tree_add_item(subtlv_tree, hf_dcbx_control_sequence, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
+
+			tempOffset +=4;
+
+			proto_tree_add_item(subtlv_tree, hf_dcbx_control_ack, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
+
+			tempOffset +=4;
+		} else {
+			/* Common to all feature TLVs */
+			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_error, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_willing, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			/* Unused field, no connection to SubType used to identify TLVs */
+			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_subtype, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			switch(subType)
+			{
+			case 0x2: /* Priority Groups */
+			{
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_0, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_1, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_2, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_3, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+				tempOffset +=2;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_4, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_5, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_6, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pgid_prio_7, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+				tempOffset +=2;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_per_7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pg_numtcs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				break;
+			}
+			case 0x3: /* PFC */
+			{
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_prio7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_pfc_numtcs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
+				break;
+			}
+			case 0x4: /* Application */
+			{
+				/* One App TLV can hold 4 byte header & multiple apps, each app takes 6 bytes */
+				appCount = (tempLen - 4)/6;
+
+				while(appCount--) {
+					tempShort = tvb_get_ntohs(tvb, tempOffset);
+
+					tf = proto_tree_add_text(subtlv_tree, tvb, tempOffset, 6, "%s Application",
+						val_to_str_const(tempShort, dcbx_app_types, "Unknown"));
+					apptlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_app);
+
+					proto_tree_add_item(apptlv_tree, hf_dcbx_feature_app_proto, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+					tempOffset += 2;
+
+					proto_tree_add_item(apptlv_tree, hf_dcbx_feature_app_oui, tvb, tempOffset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(apptlv_tree, hf_dcbx_feature_app_selector, tvb, tempOffset, 3, ENC_BIG_ENDIAN);
+
+					tempOffset += 3;
+
+					tempByte = tvb_get_guint8(tvb, tempOffset);
+
+					for (tempCounter = 0; tempCounter < 8; tempCounter++)
+						if(tempByte & (0x1 << tempCounter)) {
+							proto_tree_add_uint(apptlv_tree, hf_dcbx_feature_app_prio, tvb, tempOffset, 1, tempCounter);
+							break;
+						}
+
+					tempOffset++;
+				}
+				break;
+			}
+			}
+		}
+
+		/* Move to next TLV, each TLV is size (len + 2)*/
+		consumedLen += (tempLen + 2);
+		tempOffset = offset + consumedLen;
+	}
+
+	return;
 }
 
 /* Dissect IEEE 802.1 TLVs */
@@ -2420,6 +2700,16 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	tempTree = ett_org_spc_ProfinetSubTypes_1;
 	switch(oui)
 	{
+	case OUI_DCBX:
+		subTypeStr = val_to_str(subType, dcbx_protocol_types, "Unknown subtype (0x%x)");
+		switch(subType)
+		{
+		case 1: tempTree = ett_org_spc_dcbx_cin;
+			break;
+		case 2: tempTree = ett_org_spc_dcbx_cee;
+			break;
+		}
+		break;
 	case OUI_IEEE_802_1:
 		subTypeStr = val_to_str(subType, ieee_802_1_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
@@ -2527,6 +2817,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 	switch (oui)
 	{
+	case OUI_DCBX:
+		dissect_dcbx_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
+		break;
 	case OUI_IEEE_802_1:
 		dissect_ieee_802_1_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 		break;
@@ -2843,6 +3136,170 @@ proto_register_lldp(void)
 		{ &hf_org_spc_oui,
 			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
 			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_dcbx_type,
+			{ "DCBx Protocol", "lldp.dcbx.proto", FT_UINT8, BASE_HEX,
+			VALS(dcbx_protocol_types), 0x0, NULL, HFILL }
+		},
+		{ &hf_dcbx_tlv_type,
+			{ "DCBx TLV Type", "lldp.dcbx.type", FT_UINT16, BASE_DEC,
+			VALS(dcbx_subtypes), TLV_TYPE_MASK, NULL, HFILL }
+		},
+		{ &hf_dcbx_tlv_len,
+			{ "DCBx TLV Length", "lldp.dcbx.len", FT_UINT16, BASE_DEC,
+			NULL, TLV_INFO_LEN_MASK, NULL, HFILL }
+		},
+		{ &hf_dcbx_tlv_oper_version,
+			{ "Operating Version", "lldp.dcbx.version", FT_UINT8, BASE_HEX,
+			VALS(dcbx_protocol_types), 0x0, "Unknown", HFILL }
+		},
+		{ &hf_dcbx_tlv_max_version,
+			{ "Max Version", "lldp.dcbx.max_version", FT_UINT8, BASE_HEX,
+			VALS(dcbx_protocol_types), 0x0, "Unknown", HFILL }
+		},
+		{ &hf_dcbx_control_sequence,
+			{ "Sequence No", "lldp.dcbx.contol.seq", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_control_ack,
+			{ "Ack No", "lldp.dcbx.control.ack", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_flag_enabled,
+			{ "Feature", "lldp.dcbx.feature.enabled", FT_BOOLEAN , 8,
+			TFS(&tfs_enabled_disabled), 0x80, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_flag_error,
+			{ "Error", "lldp.dcbx.feature.error", FT_BOOLEAN , 8,
+			TFS(&tfs_set_notset), 0x40, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_flag_willing,
+			{ "Willing", "lldp.dcbx.feature.willing", FT_BOOLEAN , 8,
+			TFS(&tfs_yes_no), 0x20, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_subtype,
+			{ "Subtype", "lldp.dcbx.feature.subtype", FT_UINT8, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_0,
+			{ "PGID for Prio 0", "lldp.dcbx.feature.pg.pgid_prio0", FT_UINT16, BASE_DEC,
+			NULL, 0xF000, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_1,
+			{ "PGID for Prio 1", "lldp.dcbx.feature.pg.pgid_prio1", FT_UINT16, BASE_DEC,
+			NULL, 0xF00, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_2,
+			{ "PGID for Prio 2", "lldp.dcbx.feature.pg.pgid_prio2", FT_UINT16, BASE_DEC,
+			NULL, 0xF0, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_3,
+			{ "PGID for Prio 3", "lldp.dcbx.feature.pg.pgid_prio3", FT_UINT16, BASE_DEC,
+			NULL, 0xF, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_4,
+			{ "PGID for Prio 4", "lldp.dcbx.feature.pg.pgid_prio4", FT_UINT16, BASE_DEC,
+			NULL, 0xF000, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_5,
+			{ "PGID for Prio 5", "lldp.dcbx.feature.pg.pgid_prio5", FT_UINT16, BASE_DEC,
+			NULL, 0xF00, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_6,
+			{ "PGID for Prio 6", "lldp.dcbx.feature.pg.pgid_prio6", FT_UINT16, BASE_DEC,
+			NULL, 0xF0, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pgid_prio_7,
+			{ "PGID for Prio 7", "lldp.dcbx.feature.pg.pgid_prio7", FT_UINT16, BASE_DEC,
+			NULL, 0xF, 0, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_0,
+			{ "Bandwidth for PGID 0", "lldp.dcbx.feature.pg.per0", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_1,
+			{ "Bandwidth for PGID 1", "lldp.dcbx.feature.pg.per1", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_2,
+			{ "Bandwidth for PGID 2", "lldp.dcbx.feature.pg.per2", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_3,
+			{ "Bandwidth for PGID 3", "lldp.dcbx.feature.pg.per3", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_4,
+			{ "Bandwidth for PGID 4", "lldp.dcbx.feature.pg.per4", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_5,
+			{ "Bandwidth for PGID 5", "lldp.dcbx.feature.pg.per5", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_6,
+			{ "Bandwidth for PGID 6", "lldp.dcbx.feature.pg.per6", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_per_7,
+			{ "Bandwidth for PGID 7", "lldp.dcbx.feature.pg.per7", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pg_numtcs,
+			{ "Number of Traffic Classes Supported", "lldp.dcbx.feature.pg.numtcs", FT_UINT8, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio0,
+			{ "PFC for Priority 0", "lldp.dcbx.feature.pfc.prio0", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x1, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio1,
+			{ "PFC for Priority 1", "lldp.dcbx.feature.pfc.prio1", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x2, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio2,
+			{ "PFC for Priority 2", "lldp.dcbx.feature.pfc.prio2", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x4, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio3,
+			{ "PFC for Priority 3", "lldp.dcbx.feature.pfc.prio3", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x8, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio4,
+			{ "PFC for Priority 4", "lldp.dcbx.feature.pfc.prio4", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x10, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio5,
+			{ "PFC for Priority 5", "lldp.dcbx.feature.pfc.prio5", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio6,
+			{ "PFC for Priority 6", "lldp.dcbx.feature.pfc.prio6", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x40, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_prio7,
+			{ "PFC for Priority 7", "lldp.dcbx.feature.pfc.prio7", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x80, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_pfc_numtcs,
+			{ "Number of Traffic Classes Supported", "lldp.dcbx.feature.pfc.numtcs", FT_UINT8, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_app_proto,
+			{ "Application Protocol Id", "lldp.dcbx.feature.app.proto", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_app_selector,
+			{ "Selector Field", "lldp.dcbx.feature.app.sf", FT_UINT24, BASE_DEC,
+			VALS(dcbx_app_selector), 0x3 << 16, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_app_oui,
+			{ "Application OUI", "lldp.dcbx.feature.app.oui", FT_UINT24, BASE_HEX,
+			NULL, ~(0x3 << 16), NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_app_prio,
+			{ "Application Priority", "lldp.dcbx.feature.app.prio", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1_subtype,
 			{ "IEEE 802.1 Subtype", "lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
@@ -3283,6 +3740,13 @@ proto_register_lldp(void)
 		&ett_unknown_tlv,
 		&ett_org_spc_tlv,
 		&ett_org_spc_def,
+		&ett_org_spc_dcbx_cin,
+		&ett_org_spc_dcbx_cee,
+		&ett_org_spc_dcbx_cee_1,
+		&ett_org_spc_dcbx_cee_2,
+		&ett_org_spc_dcbx_cee_3,
+		&ett_org_spc_dcbx_cee_4,
+		&ett_org_spc_dcbx_cee_app,
 		&ett_org_spc_ieee_802_1_1,
 		&ett_org_spc_ieee_802_1_2,
 		&ett_org_spc_ieee_802_1_3,
