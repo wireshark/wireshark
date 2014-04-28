@@ -172,6 +172,7 @@ static int hf_mac_lte_control_long_ext_bsr_buffer_size_0 = -1;
 static int hf_mac_lte_control_long_ext_bsr_buffer_size_1 = -1;
 static int hf_mac_lte_control_long_ext_bsr_buffer_size_2 = -1;
 static int hf_mac_lte_control_long_ext_bsr_buffer_size_3 = -1;
+static int hf_mac_lte_bsr_size_median = -1;
 static int hf_mac_lte_control_crnti = -1;
 static int hf_mac_lte_control_timing_advance = -1;
 static int hf_mac_lte_control_timing_advance_group_id = -1;
@@ -622,6 +623,74 @@ static const value_string buffer_size_vals[] =
 };
 static value_string_ext buffer_size_vals_ext = VALUE_STRING_EXT_INIT(buffer_size_vals);
 
+static guint32 buffer_size_median[64] = {
+    0,  /* BS = 0 */
+    5,  /* 0 < BS <= 10 */
+    11, /* 10 < BS <= 12 */
+    13, /* 12 < BS <= 14 */
+    15, /* 14 < BS <= 17 */
+    18, /* 17 < BS <= 19 */
+    21, /* 19 < BS <= 22 */
+    24, /* 22 < BS <= 26 */
+    29, /* 26 < BS <= 31 */
+    34, /* 31 < BS <= 36 */
+    39, /* 36 < BS <= 42 */
+    46, /* 42 < BS <= 49 */
+    53, /* 49 < BS <= 57 */
+    62, /* 57 < BS <= 67 */
+    74, /* 67 < BS <= 78 */
+    85, /* 78 < BS <= 91 */
+    99, /* 91 < BS <= 107 */
+    116, /* 107 < BS <= 125 */
+    135, /* 125 < BS <= 146 */
+    159, /* 146 < BS <= 171 */
+    185, /* 171 < BS <= 200 */
+    217, /* 200 < BS <= 234 */
+    254, /* 234 < BS <= 274 */
+    297, /* 274 < BS <= 321 */
+    348, /* 321 < BS <= 376 */
+    408, /* 376 < BS <= 440 */
+    477, /* 440 < BS <= 515 */
+    559, /* 515 < BS <= 603 */
+    654, /* 603 < BS <= 706 */
+    766, /* 706 < BS <= 826 */
+    896, /* 826 < BS <= 967 */
+    1049, /* 967 < BS <= 1132 */
+    1229, /* 1132 < BS <= 1326 */
+    1439, /* 1326 < BS <= 1552 */
+    1684, /* 1552 < BS <= 1817 */
+    1972, /* 1817 < BS <= 2127 */
+    2308, /* 2127 < BS <= 2490 */
+    2702, /* 2490 < BS <= 2915 */
+    3164, /* 2915 < BS <= 3413 */
+    3704, /* 3413 < BS <= 3995 */
+    4336, /* 3995 < BS <= 4677 */
+    5076, /* 4677 < BS <= 5476 */
+    5943, /* 5476 < BS <= 6411 */
+    6958, /* 6411 < BS <= 7505 */
+    8146, /* 7505 < BS <= 8787 */
+    9531, /* 8787 < BS <= 10276 */
+    11165, /* 10287 < BS <= 12043 */
+    13071, /* 12043 < BS <= 14099 */
+    15303, /* 14099 < BS <= 16507 */
+    19716, /* 16507 < BS <= 19325 */
+    20974, /* 19325 < BS <= 22624 */
+    24555, /* 22624 < BS <= 26487 */
+    28748, /* 26487 < BS <= 31009 */
+    33656, /* 31009 < BS <= 36304 */
+    39403, /* 36304 < BS <= 42502 */
+    46130, /* 42502 < BS <= 49759 */
+    54007, /* 49759 < BS <= 58255 */
+    63228, /* 58255 < BS <= 68201 */
+    74023, /* 68201 < BS <= 79846 */
+    86662, /* 79846 < BS <= 93479 */
+    101459, /* 93479 < BS <= 109439 */
+    118782, /* 109439 < BS <= 128125 */
+    139062, /* 128125 < BS <= 150000 */
+    150001  /* BS > 150000 */
+};
+
+
 static const value_string ext_buffer_size_vals[] =
 {
     { 0,      "BS = 0"},
@@ -902,6 +971,8 @@ static gboolean global_mac_lte_decode_cr_body = FALSE;
 /* Whether to record config and try to show DRX state for each configured UE */
 static gboolean global_mac_lte_show_drx = FALSE;
 
+/* Whether to record config and try to show DRX state for each configured UE */
+static gboolean global_mac_lte_show_BSR_median = FALSE;
 
 
 /* When showing RLC info, count PDUs so can append info column properly */
@@ -1106,6 +1177,7 @@ typedef struct ULHARQResult {
 
 /* This table stores (FrameNum -> ULHARQResult).  It is assigned during the first
    pass and used thereafter */
+/* TODO: add ueid/rnti to key... */
 static GHashTable *mac_lte_ul_harq_result_hash = NULL;
 
 /**************************************************************************/
@@ -1487,11 +1559,19 @@ static void update_drx_info(packet_info *pinfo, mac_lte_info *p_mac_lte_info)
         }
 
         while ((ue_state->state_before.currentSFN != SFN) || (ue_state->state_before.currentSF != SF)) {
+            guint16 subframes = ue_state->state_before.currentSFN*10 + ue_state->state_before.currentSF;
 
             /* Check for timers that have expired and change state accordingly */
 
+            /* Short -> long transition */
+            if (ue_state->state_before.inShortCycle) {
+                if (mac_lte_drx_has_timer_expired(ue_state, drx_short_cycle_timer, 0, TRUE, &time_until_expires)) {
+                    ue_state->state_before.inShortCycle = FALSE;
+                }
+            }
+
             /* See if onDuration timer should be started */
-            guint16 subframes = ue_state->state_before.currentSFN*10 + ue_state->state_before.currentSF;
+
             if (!ue_state->state_before.inShortCycle) {
                 if ((subframes % ue_state->config.longCycle) == ue_state->config.cycleOffset) {
                     mac_lte_drx_start_timer(ue_state, drx_onduration_timer, 0);
@@ -2897,6 +2977,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 
                         /* Could be as many as max-tx (which we don't know) * 8ms ago.
                            32 is the most I've seen... */
+                        /* TODO: could configure this from RRC... */
                         if (total_gap <= 33) {
                             ULHARQResult *original_result;
 
@@ -3398,7 +3479,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     volatile guint16  n;
     proto_item       *truncated_ti;
     proto_item       *padding_length_ti;
-    proto_item       *hidden_root_ti;
 
     /* Keep track of LCIDs and lengths as we dissect the header */
     volatile guint16 number_of_headers = 0;
@@ -3457,7 +3537,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 if ((p_mac_lte_info->crcStatusValid) && (p_mac_lte_info->crcStatus != crc_success)) {
                     mac_lte_drx_dl_crc_error(p_mac_lte_info->ueid);
                 }
-                else if (p_mac_lte_info->reTxCount == 0) {
+                else if (p_mac_lte_info->dl_retx == dl_retx_no) {
                     mac_lte_drx_new_dlsch_data(p_mac_lte_info->ueid);
                 }
             }
@@ -3476,16 +3556,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info, 0, NULL);
     }
-
-    /* Add hidden item to filter on */
-    hidden_root_ti = proto_tree_add_string_format(tree,
-                                                 (direction == DIRECTION_UPLINK) ?
-                                                    hf_mac_lte_ulsch :
-                                                    hf_mac_lte_dlsch,
-                                                 tvb, offset, 0,
-                                                 "",
-                                                 "Hidden header");
-    PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
 
     /* Add PDU block header subtree */
     pdu_header_ti = proto_tree_add_string_format(tree,
@@ -4204,7 +4274,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size = tvb_get_guint8(tvb, offset) & 0x3f;
                         buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex,
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
+                        if (global_mac_lte_show_BSR_median) {
+                            /* Add value that can be graphed */
+                            proto_item *bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size]);
+                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                        }
                         offset++;
+
                         if (buffer_size >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG %u exceeds threshold: %u (%s)",
@@ -4223,7 +4299,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 case LONG_BSR_LCID:
                     {
                         proto_tree *bsr_tree;
-                        proto_item *bsr_ti;
+                        proto_item *bsr_ti, *bsr_median_ti;
                         proto_item *buffer_size_ti;
                         guint8     buffer_size[4];
                         int hfindex[4];
@@ -4254,6 +4330,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[0],
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         buffer_size[0] = (tvb_get_guint8(tvb, offset) & 0xfc) >> 2;
+
+                        if (global_mac_lte_show_BSR_median) {
+                            /* Add value that can be graphed */
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[0]]);
+                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                        }
+
                         if (buffer_size[0] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
                                                    "UE %u - BSR for LCG 0 exceeds threshold: %u (%s)",
@@ -4266,6 +4349,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[1],
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
                         buffer_size[1] = ((tvb_get_guint8(tvb, offset) & 0x03) << 4) | ((tvb_get_guint8(tvb, offset+1) & 0xf0) >> 4);
+
+                        if (global_mac_lte_show_BSR_median) {
+                            /* Add value that can be graphed */
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[1]]);
+                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                        }
+
                         offset++;
                         if (buffer_size[1] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
@@ -4280,6 +4370,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              tvb, offset, 2, ENC_BIG_ENDIAN);
 
                         buffer_size[2] = ((tvb_get_guint8(tvb, offset) & 0x0f) << 2) | ((tvb_get_guint8(tvb, offset+1) & 0xc0) >> 6);
+
+                        if (global_mac_lte_show_BSR_median) {
+                            /* Add value that can be graphed */
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[2]]);
+                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                        }
+
                         offset++;
                         if (buffer_size[2] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
@@ -4293,6 +4390,13 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         buffer_size_ti = proto_tree_add_item(bsr_tree, hfindex[3],
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         buffer_size[3] = tvb_get_guint8(tvb, offset) & 0x3f;
+
+                        if (global_mac_lte_show_BSR_median) {
+                            /* Add value that can be graphed */
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[3]]);
+                            PROTO_ITEM_SET_GENERATED(bsr_median_ti);
+                        }
+
                         offset++;
                         if (buffer_size[3] >= global_mac_lte_bsr_warn_threshold) {
                             expert_add_info_format(pinfo, buffer_size_ti, &ei_mac_lte_bsr_warn_threshold_exceeded,
@@ -4973,6 +5077,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     proto_item          *context_ti;
     proto_item          *retx_ti        = NULL;
     proto_item          *ti;
+    proto_item          *hidden_root_ti;
     gint                 offset         = 0;
     struct mac_lte_info *p_mac_lte_info;
     gint                 n;
@@ -5259,9 +5364,16 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         PROTO_ITEM_SET_GENERATED(retx_ti);
 
         if (p_mac_lte_info->reTxCount >= global_mac_lte_retx_counter_trigger) {
-            expert_add_info_format(pinfo, retx_ti, &ei_mac_lte_ul_mac_frame_retx,
-                                   "UE %u: UL MAC frame ReTX no. %u",
-                                   p_mac_lte_info->ueid, p_mac_lte_info->reTxCount);
+            if (p_mac_lte_info->direction == DIRECTION_UPLINK) {
+                expert_add_info_format(pinfo, retx_ti, &ei_mac_lte_ul_mac_frame_retx,
+                                       "UE %u: UL MAC frame ReTX no. %u",
+                                       p_mac_lte_info->ueid, p_mac_lte_info->reTxCount);
+            }
+            else {
+                expert_add_info_format(pinfo, retx_ti, &ei_mac_lte_ul_mac_frame_retx,
+                                       "UE %u: DL MAC frame ReTX no. %u",
+                                       p_mac_lte_info->ueid, p_mac_lte_info->reTxCount);
+            }
         }
 
         retx_reason_ti = proto_tree_add_uint(mac_lte_tree, hf_mac_lte_context_retx_reason,
@@ -5316,6 +5428,16 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
     tap_info->time = pinfo->fd->abs_ts;
 
+    /* Add hidden item to filter on */
+    hidden_root_ti = proto_tree_add_string_format(tree,
+                                                 (p_mac_lte_info->direction == DIRECTION_UPLINK) ?
+                                                    hf_mac_lte_ulsch :
+                                                    hf_mac_lte_dlsch,
+                                                 tvb, offset, 0,
+                                                 "",
+                                                 "Hidden header");
+    PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
+
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
     tap_info->single_number_of_bytes = tvb_length_remaining(tvb, offset);
 
@@ -5344,6 +5466,24 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, ENC_NA);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
+
+        /* For uplink grants, update SR status.  N.B. only newTx grant should stop SR */
+        if ((p_mac_lte_info->direction == DIRECTION_UPLINK) && (p_mac_lte_info->reTxCount == 0) &&
+            global_mac_lte_track_sr) {
+
+            TrackSRInfo(SR_Grant, pinfo, tree, tvb, p_mac_lte_info, 0, NULL);
+            if (global_mac_lte_show_drx) {
+                if (!pinfo->fd->flags.visited) {
+                    /* Update UE state to this subframe (but before this event is processed) */
+                    update_drx_info(pinfo, p_mac_lte_info);
+        
+                    /* Store 'before' snapshot of UE state for this frame */
+                    set_drx_info(pinfo, p_mac_lte_info, TRUE, pdu_instance);
+                }
+                /* Show current DRX state in tree as 'before' */
+                show_drx_info(pinfo, tree, tvb, p_mac_lte_info, TRUE, pdu_instance);
+            }
+        }
 
         /* Queue tap info.
            TODO: unfortunately DL retx detection won't get done if we return here... */
@@ -6935,6 +7075,10 @@ void proto_register_mac_lte(void)
         "Apply DRX config and show DRX state within each UE",
         &global_mac_lte_show_drx);
 
+    prefs_register_bool_preference(mac_lte_module, "show_bsr_median",
+        "Show BSR Median value",
+        "Add as a generated field the middle of the range indicated by the BSR index",
+        &global_mac_lte_show_BSR_median);
 
     register_init_routine(&mac_lte_init_protocol);
 }
