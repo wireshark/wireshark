@@ -2600,8 +2600,8 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			if (g_ascii_strncasecmp(value, "WebSocket", value_len) == 0){
 				eh_ptr->upgrade = UPGRADE_WEBSOCKET;
 			}
-			/* Check if upgrade is HTTP 2.0 (work for HTTP/2.0 and draft HTTP-draft-XX/2.0) */
-			if ( (g_str_has_prefix(value, "HTTP") && g_str_has_suffix(value, "/2.0")) == 1){
+			/* Check if upgrade is HTTP 2.0 (Start with h2...) */
+			if ( (g_str_has_prefix(value, "h2")) == 1){
 				eh_ptr->upgrade = UPGRADE_HTTP2;
 			}
 			break;
@@ -2767,12 +2767,10 @@ dissect_http(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	} else {
 		while (tvb_reported_length_remaining(tvb, offset) > 0) {
 			if (conv_data->upgrade == UPGRADE_WEBSOCKET && pinfo->fd->num >= conv_data->startframe) {
-				/*g_warning("Go Websocket");*/
 				call_dissector_only(websocket_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
 			if (conv_data->upgrade == UPGRADE_HTTP2 && pinfo->fd->num >= conv_data->startframe) {
-				/*g_warning("Go HTTP2");*/
 				call_dissector_only(http2_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree, NULL);
 				break;
 			}
