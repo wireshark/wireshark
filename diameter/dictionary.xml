@@ -5571,16 +5571,15 @@
     <avp name="Event-Threshold-Event-1I" code="1662" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Integer32"/>
     </avp>
-    <avp name="Restoration-Priority" code="1662" vendor-bit="must" vendor-id="TGPP">
+    <avp name="Restoration-Priority" code="1663" vendor-bit="must" vendor-id="TGPP">
       <type type-name="Unsigned32"/>
     </avp>
     <!--
-1663 Restoration-Priority Unsigned32
 1664 Reserved -
 1665 Reserved -
     -->
     <!--
-		Note: The AVP codes from 1663 to 1699 are reserved for TS 29.272.
+		Note: The AVP codes from 1665 to 1699 are reserved for TS 29.272.
 		-->
 
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
