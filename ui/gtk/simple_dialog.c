@@ -259,7 +259,7 @@ display_simple_dialog(gint type, gint btn_mask, char *message)
   if(!bt) {
     if(yes_bt) {
       window_set_cancel_button(win, yes_bt, simple_dialog_cancel_cb);
-    } else {
+    } else if (ok_bt) {
       window_set_cancel_button(win, ok_bt, simple_dialog_cancel_cb);
     }
   }
