@@ -492,15 +492,13 @@ dissect_lcaf_natt_rloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case AFNUM_INET:
             proto_tree_add_item(rloc_tree, hf_lisp_lcaf_natt_rloc_ipv4,
                     tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
-            offset += INET_ADDRLEN;
             break;
         case AFNUM_INET6:
             proto_tree_add_item(rloc_tree, hf_lisp_lcaf_natt_rloc_ipv6,
                     tvb, offset, INET6_ADDRLEN, ENC_NA);
-            offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
-            offset = dissect_lcaf(tvb, pinfo, rloc_tree, offset, NULL);
+            dissect_lcaf(tvb, pinfo, rloc_tree, offset, NULL);
             break;
         default:
             expert_add_info_format(pinfo, rloc_tree, &ei_lisp_unexpected_field,
@@ -554,15 +552,13 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case AFNUM_INET:
             proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_ipv4,
                     tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
-            offset += INET_ADDRLEN;
             break;
         case AFNUM_INET6:
             proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_ipv6,
                     tvb, offset, INET6_ADDRLEN, ENC_NA);
-            offset += INET6_ADDRLEN;
             break;
         case AFNUM_LCAF:
-            offset = dissect_lcaf(tvb, pinfo, hop_tree, offset, NULL);
+            dissect_lcaf(tvb, pinfo, hop_tree, offset, NULL);
             break;
         default:
             expert_add_info_format(pinfo, hop_tree, &ei_lisp_unexpected_field,
