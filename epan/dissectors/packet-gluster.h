@@ -68,7 +68,7 @@
 /* available in version 310 (3.1.0) */
 
 #define GD_MGMT_PROGRAM		1238433
-/* available in version 1 and 2 */
+/* available in version 1, 2 and 3 */
 
 #define GD_FRIEND_PROGRAM	1238437
 /* only available in version 2 (0.0.2) */
@@ -230,6 +230,17 @@ enum glusterd_mgmt_2_procnum {
 	GLUSTERD_MGMT_2_MAXVALUE
 };
 
+/* GLUSTERD1_MGMT_PROGRAM  for version 3 */
+enum glusterd_mgmt_3_procnum {
+	GLUSTERD_MGMT_3_NULL = 0,
+	GLUSTERD_MGMT_3_LOCK,
+	GLUSTERD_MGMT_3_PRE_VALIDATE,
+	GLUSTERD_MGMT_3_BRICK_OP,
+	GLUSTERD_MGMT_3_COMMIT,
+	GLUSTERD_MGMT_3_POST_VALIDATE,
+	GLUSTERD_MGMT_3_UNLOCK,
+	GLUSTERD_MGMT_3_MAXVALUE
+};
 
 /* GLUSTERFS_PROGRAM */
 enum gf_brick_procnum {
@@ -424,6 +435,10 @@ enum glusterd_ops {
 	GD_OP_LIST_VOLUME,
 	GD_OP_CLEARLOCKS_VOLUME,
 	GD_OP_DEFRAG_BRICK_VOLUME,
+	GD_OP_COPY_FILE,
+	GD_OP_SYS_EXEC,
+	GD_OP_GSYNC_CREATE,
+	GD_OP_SNAP,
 	GD_OP_MAX
 };
 

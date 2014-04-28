@@ -539,7 +539,10 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		/* read the value, possibly '\0' terminated */
 		if (tree) {
 			/* keys named "gfid-req" contain a GFID in hex */
-			if (value_len == 16 && !strncmp("gfid-req", key, 8)) {
+			if (value_len == 16 && (
+					!strncmp("gfid-req", key, 8) ||
+					!strncmp("transaction_id", key, 14) ||
+					!strncmp("originator_uuid", key, 15))) {
 				char *gfid_s;
 				e_guid_t gfid;
 
