@@ -3126,6 +3126,8 @@ prefs_reset(void)
 {
   prefs_initialized = FALSE;
   g_free(prefs.saved_at_version);
+  prefs.saved_at_version = NULL;
+
   /*
    * Unload all UAT preferences.
    */
