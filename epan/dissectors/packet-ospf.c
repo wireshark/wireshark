@@ -56,6 +56,9 @@
  *
  * Added support for Type Classification of Experimental and Reserved sub-TLVs (RFC3630)
  *   - (c) 2013 Kaushal Shah <kshah3@ncsu.edu>, North Carolina State University
+ *
+ * Added support for Authentication Trailer for OSPFv3 (RFC6506)
+ *   - (c) 2014 Alexis La Goutte (See AUTHORS)
  */
 
 #include "config.h"
@@ -93,6 +96,12 @@ static const value_string pt_vals[] = {
     {OSPF_LS_UPD,  "LS Update"      },
     {OSPF_LS_ACK,  "LS Acknowledge" },
     {0,             NULL            }
+};
+
+static const value_string ospf_at_authentication_type_vals[] = {
+    {0, "Reserved" },
+    {1, "HMAC Cryptographic Authentication" },
+    {0, NULL }
 };
 
 #define OSPF_AUTH_NONE          0
@@ -346,6 +355,7 @@ static const range_string mpls_link_stlv_bcmodel_rvals[] = {
 static int proto_ospf = -1;
 
 static gint ett_ospf = -1;
+static gint ett_ospf_at = -1;
 static gint ett_ospf_hdr = -1;
 static gint ett_ospf_hello = -1;
 static gint ett_ospf_desc = -1;
@@ -774,6 +784,15 @@ static int hf_ospf_hello_designated_router = -1;
 static int hf_ospf_hello_backup_designated_router = -1;
 static int hf_ospf_hello_active_neighbor = -1;
 
+/* Authentication Trailer RFC6506 */
+static int hf_ospf_at = -1;
+static int hf_ospf_at_auth_type = -1;
+static int hf_ospf_at_auth_data_len = -1;
+static int hf_ospf_at_reserved = -1;
+static int hf_ospf_at_sa_id = -1;
+static int hf_ospf_at_crypto_seq_nbr = -1;
+static int hf_ospf_at_auth_data = -1;
+
 static gint ospf_msg_type_to_filter (guint8 msg_type)
 {
     if (msg_type >= OSPF_HELLO &&
@@ -1022,6 +1041,7 @@ static void dissect_ospf_db_desc(tvbuff_t*, int, proto_tree*, guint8, guint16, g
 static void dissect_ospf_ls_req(tvbuff_t*, int, proto_tree*, guint8, guint16);
 static void dissect_ospf_ls_upd(tvbuff_t*, int, proto_tree*, guint8, guint16, guint8);
 static void dissect_ospf_ls_ack(tvbuff_t*, int, proto_tree*, guint8, guint16, guint8);
+static int dissect_ospf_authentication_trailer(tvbuff_t*, int, proto_tree*);
 static void dissect_ospf_lls_data_block(tvbuff_t*, int, proto_tree*, guint8);
 
 /* dissect_ospf_v[23]lsa returns the offset of the next LSA
@@ -1070,6 +1090,24 @@ ospf_has_lls_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version
     return 0;
 }
 
+static int
+ospf_has_at_block(tvbuff_t *tvb, int offset, guint8 packet_type, guint8 version)
+{
+    guint32 v3flags;
+
+    /* AT (Authentication Trailer) block can be found only in OSPFv3 HELLO packets */
+    switch (packet_type) {
+    case OSPF_HELLO:
+        switch (version) {
+        case OSPF_VERSION_3:
+            v3flags = tvb_get_ntohl(tvb, offset + 5);
+            v3flags = v3flags >> 8;
+            return v3flags & OSPF_V3_OPTIONS_AT;
+        }
+    }
+
+    return 0;
+}
 static void
 dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1310,6 +1348,11 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     version);
     }
 
+    /* take care of the AT (Authentication Trailer) data block */
+    if (ospf_has_at_block(tvb, ospf_header_length, packet_type, version)) {
+        dissect_ospf_authentication_trailer(tvb, ospflen + crypto_len, ospf_tree);
+    }
+
 }
 
 static int
@@ -1509,6 +1552,40 @@ dissect_ospf_lls_data_block(tvbuff_t *tvb, int offset, proto_tree *tree,
         else
             offset = dissect_ospfv3_lls_tlv (tvb, offset, ospf_lls_data_block_tree);
     }
+}
+
+static int
+dissect_ospf_authentication_trailer(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+    proto_tree *ospf_at_tree;
+    proto_item *ti;
+    guint16 auth_data_len;
+
+    ti = proto_tree_add_item(tree, hf_ospf_at, tvb, offset, -1, ENC_NA);
+    ospf_at_tree = proto_item_add_subtree(ti, ett_ospf_at);
+
+    proto_tree_add_item(ospf_at_tree, hf_ospf_at_auth_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ospf_at_tree, hf_ospf_at_auth_data_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    auth_data_len = tvb_get_ntohs(tvb, offset);
+    proto_item_set_len(ti, auth_data_len);
+    offset += 2;
+
+    proto_tree_add_item(ospf_at_tree, hf_ospf_at_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ospf_at_tree, hf_ospf_at_sa_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(ospf_at_tree, hf_ospf_at_crypto_seq_nbr, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    /* Add Check of Data ? */
+    proto_tree_add_item(ospf_at_tree, hf_ospf_at_auth_data, tvb, offset, auth_data_len - ( 2 + 2 + 2 + 2 + 8), ENC_NA);
+    offset = auth_data_len;
+
+    return offset;
 }
 
 static void
@@ -3362,6 +3439,30 @@ proto_register_ospf(void)
          { "Active Neighbor", "ospf.hello.active_neighbor", FT_IPv4,
            BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+
+        /* Authentication trailer */
+        {&hf_ospf_at,
+         { "OSPF Authentication Trailer", "ospf.at", FT_NONE,
+           BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_at_auth_type,
+         { "Authentication Type", "ospf.at.auth_type", FT_UINT16,
+           BASE_DEC, VALS(ospf_at_authentication_type_vals), 0x0, "Identifying the type of authentication", HFILL }},
+        {&hf_ospf_at_auth_data_len,
+         { "Authentication Data Length", "ospf.at.auth_data_len", FT_UINT16,
+           BASE_DEC, NULL, 0x0, "The length in octets of the Authentication Trailer (AT) including both the 16-octet fixed header and the variable length message digest", HFILL }},
+        {&hf_ospf_at_reserved,
+         { "Reserved", "ospf.at.reserved", FT_UINT16,
+           BASE_HEX, NULL, 0x0, "It SHOULD be set to 0", HFILL }},
+        {&hf_ospf_at_sa_id,
+         { "Security Association Identifier (SA ID)", "ospf.at.sa_id", FT_UINT16,
+           BASE_HEX, NULL, 0x0, "That maps to the authentication algorithm and the secret key used to create the message digest", HFILL }},
+        {&hf_ospf_at_crypto_seq_nbr,
+         { "Cryptographic Sequence Number", "ospf.at.cryto_seq_nbr", FT_UINT64,
+           BASE_DEC, NULL, 0x0, "Increasing sequence number that is used to guard against replay attacks", HFILL }},
+        {&hf_ospf_at_auth_data,
+         { "Authentication Data", "ospf.at.auth_data", FT_BYTES,
+           BASE_NONE, NULL, 0x0, "Variable data that is carrying the digest for the protocol packet and optional LLS data block", HFILL }},
+
         /* LS Types */
         {&hf_ospf_filter[OSPFF_LS_TYPE],
          { "LS Type", "ospf.lsa", FT_UINT8, BASE_DEC,
@@ -3799,6 +3900,7 @@ proto_register_ospf(void)
 
     static gint *ett[] = {
         &ett_ospf,
+        &ett_ospf_at,
         &ett_ospf_hdr,
         &ett_ospf_hello,
         &ett_ospf_desc,
