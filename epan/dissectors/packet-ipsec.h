@@ -23,7 +23,9 @@
 #ifndef __PACKET_IPSEC_H__
 #define __PACKET_IPSEC_H__
 
-int dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                      guint8 *nxt_p, proto_tree **next_tree_p);
+/* XXX - TEMPORARILY EMPTY BECAUSE EXISTING FUNCTION WAS REMOVED, BUT A NEW ONE FOR
+   COMPLETELY DIFFERENT FUNCTIONALITY SHOULD REPLACE IT SHORTLY SO FILE SHOULDN'T
+   BE REMOVED
+ */
 
 #endif

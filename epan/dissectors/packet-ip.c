@@ -51,7 +51,6 @@
 #include <epan/decode_as.h>
 
 #include "packet-ip.h"
-#include "packet-ipsec.h"
 
 #ifdef HAVE_GEOIP
 #include <GeoIP.h>

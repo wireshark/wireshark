@@ -76,7 +76,6 @@ ADD: Additional generic (non-checked) ICV length of 128, 192 and 256.
 
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include "packet-ipsec.h"
 #include <epan/addr_resolv.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
@@ -204,6 +203,11 @@ struct ipcomp {
   guint8 comp_nxt;	/* Next Header */
   guint8 comp_flags;	/* Must be zero */
   guint16 comp_cpi;	/* Compression parameter index */
+};
+
+struct ah_header_data {
+  proto_tree *next_tree;
+  guint8 nxt;               /* Next Header */
 };
 
 #ifdef HAVE_LIBGCRYPT
@@ -877,44 +881,14 @@ export_ipsec_pdu(dissector_handle_t dissector_handle, packet_info *pinfo, tvbuff
   }
 }
 
-static void
-dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-  proto_tree *next_tree;
-  guint8 nxt;
-  tvbuff_t *next_tvb;
-  int advance;
-  dissector_handle_t dissector_handle;
-  guint32 saved_match_uint;
-
-  advance = dissect_ah_header(tvb, pinfo, tree, &nxt, &next_tree);
-  next_tvb = tvb_new_subset_remaining(tvb, advance);
-
-  if (g_ah_payload_in_subtree) {
-    col_set_writable(pinfo->cinfo, FALSE);
-  }
-
-  /* do lookup with the subdissector table */
-  saved_match_uint  = pinfo->match_uint;
-  dissector_handle = dissector_get_uint_handle(ip_dissector_table, nxt);
-  if (dissector_handle) {
-    pinfo->match_uint = nxt;
-  } else {
-    dissector_handle = data_handle;
-  }
-  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
-  call_dissector(dissector_handle, next_tvb, pinfo, next_tree);
-  pinfo->match_uint = saved_match_uint;
-}
-
-int
-dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                  guint8 *nxt_p, proto_tree **next_tree_p)
+static int
+dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *ah_tree;
     proto_item *ti;
     struct newah ah;
     int advance;
+    struct ah_header_data* header_data;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AH");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -924,6 +898,8 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "AH (SPI=0x%08x)",
             (guint32)g_ntohl(ah.ah_spi));
+
+    header_data = (struct ah_header_data*)p_get_proto_data(pinfo->pool, pinfo, proto_ah, 0 );
 
     if (tree) {
         /* !!! specify length */
@@ -947,27 +923,62 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
             ENC_NA);
 
-        if (next_tree_p != NULL) {
+        if (header_data != NULL) {
             /* Decide where to place next protocol decode */
             if (g_ah_payload_in_subtree) {
-                *next_tree_p = ah_tree;
+                header_data->next_tree = ah_tree;
             }
             else {
-                *next_tree_p = tree;
+                header_data->next_tree = tree;
             }
         }
     } else {
-        if (next_tree_p != NULL)
-            *next_tree_p = NULL;
+        if (header_data != NULL)
+            header_data->next_tree = NULL;
     }
 
-    if (nxt_p != NULL)
-        *nxt_p = ah.ah_nxt;
+    if (header_data != NULL)
+        header_data->nxt = ah.ah_nxt;
 
     /* start of the new header (could be a extension header) */
     return advance;
 }
 
+static void
+dissect_ah(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  struct ah_header_data header_data = {NULL, 0};
+  tvbuff_t *next_tvb;
+  int advance;
+  dissector_handle_t dissector_handle;
+  guint32 saved_match_uint;
+
+  /* "pass" ah_header_data to header dissector.  This is done
+     indirectly to prevent conflicts with IPv6 dissector */
+  p_add_proto_data(pinfo->pool, pinfo, proto_ah, 0, &header_data);
+
+  advance = dissect_ah_header(tvb, pinfo, tree, NULL);
+
+  p_remove_proto_data(pinfo->pool, pinfo, proto_ah, 0);
+
+  next_tvb = tvb_new_subset_remaining(tvb, advance);
+
+  if (g_ah_payload_in_subtree) {
+    col_set_writable(pinfo->cinfo, FALSE);
+  }
+
+  /* do lookup with the subdissector table */
+  saved_match_uint  = pinfo->match_uint;
+  dissector_handle = dissector_get_uint_handle(ip_dissector_table, header_data.nxt);
+  if (dissector_handle) {
+    pinfo->match_uint = header_data.nxt;
+  } else {
+    dissector_handle = data_handle;
+  }
+  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
+  call_dissector(dissector_handle, next_tvb, pinfo, header_data.next_tree);
+  pinfo->match_uint = saved_match_uint;
+}
 
 /*
 Name : dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_auth_len, guint8 *authenticator_data_computed,
@@ -2243,7 +2254,7 @@ proto_register_ipsec(void)
 void
 proto_reg_handoff_ipsec(void)
 {
-  dissector_handle_t esp_handle, ah_handle, ipcomp_handle;
+  dissector_handle_t esp_handle, ah_handle, ipv6_ah_handle, ipcomp_handle;
 
   data_handle = find_dissector("data");
   ah_handle = find_dissector("ah");
@@ -2252,6 +2263,8 @@ proto_reg_handoff_ipsec(void)
   dissector_add_uint("ip.proto", IP_PROTO_ESP, esp_handle);
   ipcomp_handle = create_dissector_handle(dissect_ipcomp, proto_ipcomp);
   dissector_add_uint("ip.proto", IP_PROTO_IPCOMP, ipcomp_handle);
+  ipv6_ah_handle = new_create_dissector_handle(dissect_ah_header, proto_ah );
+  dissector_add_uint("ipv6.nxt", IP_PROTO_AH, ipv6_ah_handle);
 
   ip_dissector_table = find_dissector_table("ip.proto");
 
