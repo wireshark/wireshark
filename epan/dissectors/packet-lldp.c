@@ -2046,7 +2046,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint16 tempShort;
 	guint32 tempLong;
 	guint32 tempOffset = offset;
-	guint16 tlvLen = tvb_length(tvb)-offset;
+	guint16 tlvLen = tvb_reported_length(tvb)-offset;
 
 	proto_tree	*mac_phy_flags = NULL;
 	proto_tree	*autoneg_advertised_subtree = NULL;
@@ -2267,7 +2267,7 @@ static void
 dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint32 tempOffset = offset;
-	guint16 tlvLen = tvb_length(tvb)-offset;
+	guint16 tlvLen = tvb_reported_length(tvb)-offset;
 	guint8 subType;
 	guint16 tempShort;
 	guint16 tempVLAN;
@@ -2945,7 +2945,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	guint16 tempLen;
 	guint16 tempShort;
 	gint    tempTree;
-	guint32 oui, tLength = tvb_length(tvb);
+	guint32 oui, tLength = tvb_reported_length(tvb);
 	guint8 subType;
 	const char *ouiStr;
 	const char *subTypeStr;
@@ -3126,7 +3126,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		dissect_oui_default_tlv(tvb, pinfo, org_tlv_tree, (offset + 5));
 	}
 
-	return offset + tvb_length(tvb);
+	return offset + tvb_reported_length(tvb);
 }
 
 /* Dissect Unknown TLV */
