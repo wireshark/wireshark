@@ -1426,7 +1426,7 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 {
 	guint8 subType;
 	guint8 tempByte, tempCounter, appCount = 0;
-	guint16 tempLen, consumedLen = 0;
+	guint16 tempLen;
 	guint16 tempShort;
 	guint32 tempOffset = offset;
 
@@ -1438,7 +1438,6 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 		proto_tree_add_item(tree, hf_dcbx_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 	tempOffset++;
-	consumedLen++;
 
 	/* One org specific OUI holds many DCBx TLVs */
 	while (tvb_reported_length_remaining(tvb, tempOffset) && tree) {
@@ -1489,7 +1488,7 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 
 			proto_tree_add_item(subtlv_tree, hf_dcbx_control_ack, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
 
-			/*tempOffset +=4;*/
+			tempOffset +=4;
 		} else {
 			/* Common to all feature TLVs */
 			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
@@ -1614,9 +1613,6 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 			}
 		}
 
-		/* Move to next TLV, each TLV is size (len + 2)*/
-		consumedLen += (tempLen + 2);
-		tempOffset = offset + consumedLen;
 	}
 
 	return;
