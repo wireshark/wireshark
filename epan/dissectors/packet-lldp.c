@@ -1434,9 +1434,6 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 	proto_tree	*apptlv_tree = NULL;
 	proto_item	*tf = NULL;
 
-	/* Get subtype, CEE or CIN */
-	tempByte = tvb_get_guint8(tvb, tempOffset);
-
 	if (tree)
 		proto_tree_add_item(tree, hf_dcbx_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
@@ -1492,7 +1489,7 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 
 			proto_tree_add_item(subtlv_tree, hf_dcbx_control_ack, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
 
-			tempOffset +=4;
+			/*tempOffset +=4;*/
 		} else {
 			/* Common to all feature TLVs */
 			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
