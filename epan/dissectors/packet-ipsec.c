@@ -221,63 +221,185 @@ typedef struct {
    gchar *srcIP;
    gchar *dstIP;
    gchar *spi;
+   
    guint8 encryption_algo;
+   gchar *encryption_key_string;
    gchar *encryption_key;
+   gint encryption_key_length;
+   gboolean         cipher_hd_created;
+   gcry_cipher_hd_t cipher_hd;     /* Key is stored here and closed with the SA */
+
    guint8 authentication_algo;
+   gchar *authentication_key_string;
    gchar *authentication_key;
+   gint authentication_key_length;
 } uat_esp_sa_record_t;
 
 static uat_esp_sa_record_t *uat_esp_sa_records = NULL;
 
+/* 'Extra' SA records that may be set programmatically */
+/* TODO: if size/number of records increased may want to allocate 'records' array on heap? */
+#define MAX_EXTRA_SA_RECORDS 4
+typedef struct extra_esp_sa_records_t {
+    guint num_records;
+    uat_esp_sa_record_t records[MAX_EXTRA_SA_RECORDS];
+} extra_esp_sa_records_t;
+static extra_esp_sa_records_t extra_esp_sa_records;
+
 static uat_t * esp_uat = NULL;
 static guint num_sa_uat = 0;
 
-static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
-    uat_esp_sa_record_t* new_rec = (uat_esp_sa_record_t *)n;
-    const uat_esp_sa_record_t* old_rec = (const uat_esp_sa_record_t *)o;
+/*
+   Name : static gint compute_ascii_key(gchar **ascii_key, gchar *key)
+   Description : Allocate memory for the key and transform the key if it is hexadecimal
+   Return : Return the key length
+   Params:
+      - gchar **ascii_key : the resulting ascii key allocated here
+      - gchar *key : the key to compute
+*/
+static gint
+compute_ascii_key(gchar **ascii_key, const gchar *key)
+{
+  guint key_len = 0;
+  gint hex_digit;
+  guchar key_byte;
+  guint i, j;
 
-    new_rec->srcIP = (old_rec->srcIP) ? g_strdup(old_rec->srcIP) : NULL;
-    new_rec->dstIP = (old_rec->dstIP) ? g_strdup(old_rec->dstIP) : NULL;
-    new_rec->spi = (old_rec->spi) ? g_strdup(old_rec->spi) : NULL;
-    new_rec->encryption_key = (old_rec->encryption_key) ? g_strdup(old_rec->encryption_key) : NULL;
-    new_rec->authentication_key = (old_rec->authentication_key) ? g_strdup(old_rec->authentication_key) : NULL;
+  if(key != NULL)
+  {
+    if((strlen(key) > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+    {
+      /*
+       * Key begins with "0x" or "0X"; skip that and treat the rest
+       * as a sequence of hex digits.
+       */
+      i = 2;	/* first character after "0[Xx]" */
+      j = 0;
+      if(strlen(key) %2  == 1)
+      {
+        /*
+         * Key has an odd number of characters; we act as if the
+         * first character had a 0 in front of it, making the
+         * number of characters even.
+         */
+        key_len = ((guint) strlen(key) - 2) / 2 + 1;
+        *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
+        hex_digit = g_ascii_xdigit_value(key[i]);
+        i++;
+        if (hex_digit == -1)
+	{
+          g_free(*ascii_key);
+	  *ascii_key = NULL;
+	  return -1;	/* not a valid hex digit */
+	}
+        (*ascii_key)[j] = (guchar)hex_digit;
+        j++;
+      }
+      else
+      {
+        /*
+         * Key has an even number of characters, so we treat each
+         * pair of hex digits as a single byte value.
+         */
+        key_len = ((guint) strlen(key) - 2) / 2;
+        *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
+      }
 
-    return new_rec;
+      while(i < (strlen(key) -1))
+      {
+        hex_digit = g_ascii_xdigit_value(key[i]);
+        i++;
+        if (hex_digit == -1)
+        {
+	  g_free(*ascii_key);
+	  *ascii_key = NULL;
+	  return -1;	/* not a valid hex digit */
+	}
+        key_byte = ((guchar)hex_digit) << 4;
+        hex_digit = g_ascii_xdigit_value(key[i]);
+        i++;
+        if (hex_digit == -1)
+        {
+	  g_free(*ascii_key);
+	  *ascii_key = NULL;
+	  return -1;	/* not a valid hex digit */
+	}
+        key_byte |= (guchar)hex_digit;
+        (*ascii_key)[j] = key_byte;
+        j++;
+      }
+      (*ascii_key)[j] = '\0';
+    }
+
+    else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
+    {
+      return 0;
+    }
+    else
+    {
+      key_len = (guint) strlen(key);
+      *ascii_key = g_strdup(key);
+    }
+  }
+
+  return key_len;
 }
-
-#if 0
-static int get_full_ipv6_addr(char* ipv6_addr_expanded, char *ipv6_addr);
-static int get_full_ipv4_addr(char* ipv4_addr_expanded, char *ipv4_addr);
 
 
 static void uat_esp_sa_record_update_cb(void* r, const char** err _U_) {
     uat_esp_sa_record_t* rec = (uat_esp_sa_record_t *)r;
 
-    /* Generate the real filter strings that will be used for decryption*/
-    g_free(rec->srcFilter);
-    g_free(rec->dstFilter);
+    /* Compute keys & lengths once and for all */
+    if (rec->encryption_key_string) {
+        rec->encryption_key_length = compute_ascii_key(&rec->encryption_key, rec->encryption_key_string);
+    }
+    else {
+        rec->encryption_key_length = 0;
+        rec->encryption_key = NULL;
+    }
 
-    switch(rec->protocol)
-    {
-    case IPSEC_SA_IPV4:
-      rec->srcFilter = (gchar *)g_malloc((IPSEC_STRLEN_IPV6 + 1) * sizeof(gchar));
-      rec->dstFilter = (gchar *)g_malloc((IPSEC_STRLEN_IPV6 + 1) * sizeof(gchar));
-      break;
-    case IPSEC_SA_IPV6:
-      rec->srcFilter = (gchar *)g_malloc((IPSEC_STRLEN_IPV6 + 1) * sizeof(gchar));
-      rec->dstFilter = (gchar *)g_malloc((IPSEC_STRLEN_IPV6 + 1) * sizeof(gchar));
-      break;
+    if (rec->authentication_key_string) {
+        rec->authentication_key_length = compute_ascii_key(&rec->authentication_key, rec->authentication_key_string);
+        rec->cipher_hd_created = FALSE;
+    }
+    else {
+        rec->authentication_key_length = 0;
+        rec->authentication_key = NULL;
     }
 }
-#endif
+
+static void* uat_esp_sa_record_copy_cb(void* n, const void* o, size_t siz _U_) {
+    uat_esp_sa_record_t* new_rec = (uat_esp_sa_record_t *)n;
+    const uat_esp_sa_record_t* old_rec = (const uat_esp_sa_record_t *)o;
+
+    /* Copy UAT fields */
+    new_rec->srcIP = (old_rec->srcIP) ? g_strdup(old_rec->srcIP) : NULL;
+    new_rec->dstIP = (old_rec->dstIP) ? g_strdup(old_rec->dstIP) : NULL;
+    new_rec->spi = (old_rec->spi) ? g_strdup(old_rec->spi) : NULL;
+    new_rec->encryption_key_string = (old_rec->encryption_key_string) ? g_strdup(old_rec->encryption_key_string) : NULL;
+    new_rec->authentication_key_string = (old_rec->authentication_key_string) ? g_strdup(old_rec->authentication_key_string) : NULL;
+
+    /* Parse keys as in an update */
+    uat_esp_sa_record_update_cb(new_rec, NULL);
+
+    return new_rec;
+}
+
 static void uat_esp_sa_record_free_cb(void*r) {
     uat_esp_sa_record_t* rec = (uat_esp_sa_record_t*)r;
 
     g_free(rec->srcIP);
     g_free(rec->dstIP);
     g_free(rec->spi);
+    g_free(rec->encryption_key_string);
     g_free(rec->encryption_key);
+    g_free(rec->authentication_key_string);
     g_free(rec->authentication_key);
+
+    if (rec->cipher_hd_created) {
+        gcry_cipher_close(rec->cipher_hd);
+        rec->cipher_hd_created = FALSE;
+    }
 }
 
 UAT_VS_DEF(uat_esp_sa_records, protocol, uat_esp_sa_record_t, guint8, IPSEC_SA_IPV4, "IPv4")
@@ -285,9 +407,53 @@ UAT_CSTRING_CB_DEF(uat_esp_sa_records, srcIP, uat_esp_sa_record_t)
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, dstIP, uat_esp_sa_record_t)
 UAT_CSTRING_CB_DEF(uat_esp_sa_records, spi, uat_esp_sa_record_t)
 UAT_VS_DEF(uat_esp_sa_records, encryption_algo, uat_esp_sa_record_t, guint8, 0, "FIXX")
-UAT_CSTRING_CB_DEF(uat_esp_sa_records, encryption_key, uat_esp_sa_record_t)
+UAT_CSTRING_CB_DEF(uat_esp_sa_records, encryption_key_string, uat_esp_sa_record_t)
 UAT_VS_DEF(uat_esp_sa_records, authentication_algo, uat_esp_sa_record_t, guint8, 0, "FIXX")
-UAT_CSTRING_CB_DEF(uat_esp_sa_records, authentication_key, uat_esp_sa_record_t)
+UAT_CSTRING_CB_DEF(uat_esp_sa_records, authentication_key_string, uat_esp_sa_record_t)
+
+
+/* Configure a new SA (programmatically, most likely from a private dissector).
+   The arugments here are deliberately in the same string formats as the UAT fields
+   in order to keep code paths common.
+   Note that an attempt to match with these entries will be made *before* entries
+   added through the UAT entry interface/file. */
+void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const char *dstIP,
+                                      gchar *spi,
+                                      guint8 encryption_algo, const gchar *encryption_key,
+                                      guint8 authentication_algo, const gchar *authentication_key)
+{
+   uat_esp_sa_record_t* record = NULL;
+   if (extra_esp_sa_records.num_records < MAX_EXTRA_SA_RECORDS) {
+      record = &extra_esp_sa_records.records[extra_esp_sa_records.num_records++];
+   }
+   else {
+      /* No room left!!  TODO: warn? */
+      return;
+   }
+
+   /* Copy key fields */
+   record->protocol = protocol;
+   record->srcIP = g_strdup(srcIP);
+   record->dstIP = g_strdup(dstIP);
+   record->spi = g_strdup(spi);
+
+   /* Encryption */
+   record->encryption_algo = encryption_algo;
+   record->encryption_key_string = g_strdup(encryption_key);
+
+   /* Authentication */
+   record->authentication_algo = authentication_algo;
+   if (authentication_key) {
+      record->authentication_key_string = g_strdup(authentication_key);
+   }
+   else {
+      record->authentication_key_string = NULL;
+   }
+
+   /* Parse keys */
+   uat_esp_sa_record_update_cb(record, NULL);
+}
+                                 
 
 /* Default ESP payload decode to off */
 static gboolean g_esp_enable_encryption_decode = FALSE;
@@ -606,18 +772,21 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
   guint addr_tmp = 0;
   char filter_string_tmp[3];
   char addr_string_tmp[3];
-  guint addr_len = (guint)strlen(addr);
+  guint addr_len;
   guint filter_len = (guint)strlen(filter);
 
-   if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY))
+  if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY))
       return TRUE;
-   else if(addr_len != filter_len)
+
+  addr_len = (guint)strlen(addr);
+  if(addr_len != filter_len)
 	  return FALSE;
 
   /* No length specified */
-   if( ((typ == IPSEC_SA_IPV6) && (filter_len > IPSEC_IPV6_ADDR_LEN))
-      || ((typ == IPSEC_SA_IPV4) && (filter_len > IPSEC_IPV4_ADDR_LEN)))
+   if( ((typ == IPSEC_SA_IPV6) && (filter_len > IPSEC_IPV6_ADDR_LEN)) ||
+       ((typ == IPSEC_SA_IPV4) && (filter_len > IPSEC_IPV4_ADDR_LEN)))
    {
+      /* Filter is longer than address can be... */
       for(i = 0; i < addr_len; i++)
       {
          if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != addr[i]))
@@ -661,7 +830,7 @@ filter_address_match(gchar *addr, gchar *filter, gint typ)
 /*
    Name : static goolean filter_spi_match(gchar *spi, gchar *filter)
    Description : check the matching of a spi with a filter
-   Return : Return TRUE if the filter match the spi.
+   Return : Return TRUE if the filter matches the spi.
    Params:
       - gchar *spi : the spi to check
       - gchar *filter : the filter
@@ -672,115 +841,22 @@ filter_spi_match(gchar *spi, gchar *filter)
    guint i;
    guint filter_len = (guint)strlen(filter);
 
+   /* "*" matches against anything */
    if((filter_len == 1) && (filter[0] == IPSEC_SA_WILDCARDS_ANY))
       return TRUE;
+   /* Otherwise lengths need to match exactly... */
    else if(strlen(spi) != filter_len)
       return FALSE;
 
-   for(i = 0; filter[i]; i++)
+   /* ... which means '*' can only appear in the last position of the filter? */
+   /* Start at 2, don't compare "0x" each time */
+   for(i = 2; filter[i]; i++)
       if((filter[i] != IPSEC_SA_WILDCARDS_ANY) && (filter[i] != spi[i]))
          return FALSE;
 
    return TRUE;
 }
 
-
-/*
-   Name : static gint compute_ascii_key(gchar **ascii_key, gchar *key)
-   Description : Allocate memory for the key and transform the key if it is hexadecimal
-   Return : Return the key length
-   Params:
-      - gchar **ascii_key : the resulting ascii key allocated here
-      - gchar *key : the key to compute
-*/
-static gint
-compute_ascii_key(gchar **ascii_key, const gchar *key)
-{
-  guint key_len = 0;
-  gint hex_digit;
-  guchar key_byte;
-  guint i, j;
-
-  if(key != NULL)
-    {
-      if((strlen(key) > 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
-	{
-	  /*
-	   * Key begins with "0x" or "0X"; skip that and treat the rest
-	   * as a sequence of hex digits.
-	   */
-	  i = 2;	/* first character after "0[Xx]" */
-	  j = 0;
-	  if(strlen(key) %2  == 1)
-	    {
-	      /*
-	       * Key has an odd number of characters; we act as if the
-	       * first character had a 0 in front of it, making the
-	       * number of characters even.
-	       */
-	      key_len = ((guint) strlen(key) - 2) / 2 + 1;
-	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	      hex_digit = g_ascii_xdigit_value(key[i]);
-	      i++;
-	      if (hex_digit == -1)
-		{
-		  g_free(*ascii_key);
-		  *ascii_key = NULL;
-		  return -1;	/* not a valid hex digit */
-		}
-	      (*ascii_key)[j] = (guchar)hex_digit;
-	      j++;
-	    }
-	  else
-	    {
-	      /*
-	       * Key has an even number of characters, so we treat each
-	       * pair of hex digits as a single byte value.
-	       */
-	      key_len = ((guint) strlen(key) - 2) / 2;
-	      *ascii_key = (gchar *) g_malloc ((key_len + 1)* sizeof(gchar));
-	    }
-
-	  while(i < (strlen(key) -1))
-	    {
-	      hex_digit = g_ascii_xdigit_value(key[i]);
-	      i++;
-	      if (hex_digit == -1)
-	        {
-		  g_free(*ascii_key);
-		  *ascii_key = NULL;
-		  return -1;	/* not a valid hex digit */
-		}
-	      key_byte = ((guchar)hex_digit) << 4;
-	      hex_digit = g_ascii_xdigit_value(key[i]);
-	      i++;
-	      if (hex_digit == -1)
-	        {
-		  g_free(*ascii_key);
-		  *ascii_key = NULL;
-		  return -1;	/* not a valid hex digit */
-		}
-	      key_byte |= (guchar)hex_digit;
-	      (*ascii_key)[j] = key_byte;
-	      j++;
-	    }
-	  (*ascii_key)[j] = '\0';
-	}
-
-      else if((strlen(key) == 2) && (key[0] == '0') && ((key[1] == 'x') || (key[1] == 'X')))
-	{
-	  return 0;
-	}
-
-      else
-	{
-	  key_len = (guint) strlen(key);
-	  *ascii_key = g_strdup(key);
-	}
-    }
-
-  return key_len;
-}
 
 /*
    Name : static goolean get_esp_sa(g_esp_sa_database *sad, gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
@@ -814,47 +890,67 @@ get_esp_sa(gint protocol_typ, gchar *src,  gchar *dst,  gint spi,
 	   gchar **encryption_key,
 	   guint *encryption_key_len,
 	   gchar **authentication_key,
-	   guint *authentication_key_len
+	   guint *authentication_key_len,
+	   gcry_cipher_hd_t **cipher_hd,
+	   gboolean **cipher_hd_created
 	   )
-
 {
    gboolean found = FALSE;
-   guint i;
+   guint i, j;
    gchar spi_string[IPSEC_SPI_LEN_MAX];
-   gint key_len;
 
    g_snprintf(spi_string, IPSEC_SPI_LEN_MAX,"0x%08x", spi);
 
-   for (i = 0; (found == FALSE) && (i < num_sa_uat); i++)
+   /* Check each known SA in turn */
+   for (i = 0, j=0; (found == FALSE) && ((i < num_sa_uat) || (j < extra_esp_sa_records.num_records)); )
    {
-      if((protocol_typ == uat_esp_sa_records[i].protocol)
-           && filter_address_match(src, uat_esp_sa_records[i].srcIP, protocol_typ)
-           && filter_address_match(dst, uat_esp_sa_records[i].dstIP, protocol_typ)
-           && filter_spi_match(spi_string, uat_esp_sa_records[i].spi))
+      /* Get the next record to try */
+      uat_esp_sa_record_t *record;
+      if (j < extra_esp_sa_records.num_records) {
+          /* Extra ones checked first */
+          record = &extra_esp_sa_records.records[j++];
+      }
+      else {
+      	  /* Then UAT ones */
+          record = &uat_esp_sa_records[i++];
+      }
+
+      if((protocol_typ == record->protocol)
+           && filter_address_match(src, record->srcIP, protocol_typ)
+           && filter_address_match(dst, record->dstIP, protocol_typ)
+           && filter_spi_match(spi_string, record->spi))
       {
          found = TRUE;
 
-         *encryption_algo = uat_esp_sa_records[i].encryption_algo;
-         *authentication_algo = uat_esp_sa_records[i].authentication_algo;
-         key_len = compute_ascii_key(authentication_key, uat_esp_sa_records[i].authentication_key);
-         if (key_len == -1)
+         *encryption_algo = record->encryption_algo;
+         *authentication_algo = record->authentication_algo;
+         *authentication_key = record->authentication_key;
+         if (record->authentication_key_length == -1)
          {
             /* Bad key; XXX - report this */
             *authentication_key_len = 0;
             found = FALSE;
          }
-         else
-            *authentication_key_len = (guint)key_len;
+         else {
+            *authentication_key_len = record->authentication_key_length;
+         }
 
-         key_len = compute_ascii_key(encryption_key, uat_esp_sa_records[i].encryption_key);
-         if (key_len == -1)
+         *encryption_key = record->encryption_key;
+         if (record->encryption_key_length == -1)
          {
             /* Bad key; XXX - report this */
             *encryption_key_len = 0;
             found = FALSE;
          }
-         else
-            *encryption_key_len = key_len;
+         else {
+            *encryption_key_len = record->encryption_key_length;
+         }
+
+         /* Tell the caller whether cypher_hd has been created yet and a pointer.
+            Pass pointer to created flag so that caller can set if/when
+            it opens the cypher_hd. */
+         *cipher_hd = &record->cipher_hd;
+         *cipher_hd_created = &record->cipher_hd_created;
       }
    }
 
@@ -1081,7 +1177,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean get_address_ok = FALSE;
     gboolean null_encryption_decode_heuristic = FALSE;
     guint8 *decrypted_data = NULL;
-    guint8 *encrypted_data = NULL;
     guint8 *authenticator_data = NULL;
     guint8 *esp_data = NULL;
     tvbuff_t *tvb_decrypted;
@@ -1094,6 +1189,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar *esp_auth_key = NULL;
     guint esp_crypt_key_len = 0;
     guint esp_auth_key_len = 0;
+    gcry_cipher_hd_t *cipher_hd;
+    gboolean         *cipher_hd_created;
+
     gint esp_iv_len = 0;
     gint esp_auth_len = 0;
     gint decrypted_len = 0;
@@ -1110,7 +1208,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Variables for decryption and authentication checking used for libgrypt */
     int decrypted_len_alloc = 0;
-    gcry_cipher_hd_t cypher_hd;
     gcry_md_hd_t md_hd;
     int md_len = 0;
     gcry_error_t err = 0;
@@ -1173,6 +1270,8 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }else if (pinfo->src.type == AT_IPv6){
             protocol_typ = IPSEC_SA_IPV6;
         }
+
+        /* Create strings for src, dst addresses */
         ip_src = address_to_str(wmem_packet_scope(), &pinfo->src);
         ip_dst = address_to_str(wmem_packet_scope(), &pinfo->dst);
         get_address_ok = TRUE;
@@ -1197,9 +1296,9 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             if((sad_is_present = get_esp_sa(protocol_typ, ip_src, ip_dst, spi,
                 &esp_crypt_algo, &esp_auth_algo,
-                &esp_crypt_key, &esp_crypt_key_len, &esp_auth_key, &esp_auth_key_len)))
+                &esp_crypt_key, &esp_crypt_key_len, &esp_auth_key, &esp_auth_key_len,
+                &cipher_hd, &cipher_hd_created)))
             {
-
                 /* Get length of whole ESP packet. */
                 len = tvb_reported_length(tvb);
 
@@ -1218,12 +1317,12 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     esp_auth_len = 16;
                     break;
 
-				case IPSEC_AUTH_HMAC_SHA512_256:
+                case IPSEC_AUTH_HMAC_SHA512_256:
                 case IPSEC_AUTH_ANY_256BIT:
                     esp_auth_len = 32;
                     break;
 
-				case IPSEC_AUTH_HMAC_SHA384_192:
+                case IPSEC_AUTH_HMAC_SHA384_192:
                 case IPSEC_AUTH_ANY_192BIT:
                     esp_auth_len = 24;
                     break;
@@ -1722,202 +1821,194 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         break;
                     }
 
-                    if(decrypt_using_libgcrypt)
+                    if (decrypt_using_libgcrypt)
                     {
                         /* Allocate Buffers for Encrypted and Decrypted data  */
-                        encrypted_data = (guint8 *) g_malloc0 ((decrypted_len_alloc) * sizeof(guint8));
                         decrypted_data = (guint8 *) g_malloc ((decrypted_len_alloc + esp_iv_len)* sizeof(guint8));
-                        tvb_memcpy(tvb, encrypted_data , sizeof(struct newesp), decrypted_len);
+                        tvb_memcpy(tvb, decrypted_data, sizeof(struct newesp), decrypted_len);
 
-                        err = gcry_cipher_open (&cypher_hd, crypt_algo_libgcrypt, crypt_mode_libgcrypt, 0);
-                        if (err)
-                        {
-                            fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
-                                gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
-                            g_free(encrypted_data);
-                            g_free(decrypted_data);
-                            decrypt_ok = FALSE;
-                        }
-                        else
-                        {
-                            if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
-                            {
-                                /* Counter mode key includes a 4 byte, (32 bit), nonce following the key */
-                                err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len - 4);
-                            }
-                            else
-                            {
-                                err = gcry_cipher_setkey (cypher_hd, esp_crypt_key, esp_crypt_key_len);
-                            }
-
+                        /* (Lazily) create the cipher_hd */
+                        if (!(*cipher_hd_created)) {
+                            err = gcry_cipher_open(cipher_hd, crypt_algo_libgcrypt, crypt_mode_libgcrypt, 0);
                             if (err)
                             {
-                                fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%d) failed: %s\n",
-                                    gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
-                                gcry_cipher_close (cypher_hd);
-                                g_free(encrypted_data);
+                                fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
+                                gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror(err));
                                 g_free(decrypted_data);
                                 decrypt_ok = FALSE;
                             }
                             else
                             {
-                                if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
+                                /* OK, set the key */
+                                if (*cipher_hd_created == FALSE)
                                 {
-                                    memset(ctr_block, 0, 16);
-                                    memcpy(ctr_block, esp_crypt_key + esp_crypt_key_len - 4, 4);
-                                    memcpy(ctr_block + 4, encrypted_data, 8);
-                                    ctr_block[15] = 1;
-                                    if (esp_crypt_algo == IPSEC_ENCRYPT_AES_GCM)
-                                      ctr_block[15]++;
-                                    err = gcry_cipher_setctr (cypher_hd, ctr_block, 16);
-                                    if (!err)
+                                    if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
                                     {
-                                        memcpy(decrypted_data, encrypted_data, esp_iv_len);
-                                        err = gcry_cipher_decrypt (cypher_hd, decrypted_data + esp_iv_len, decrypted_len_alloc,
-                                            encrypted_data + esp_iv_len, decrypted_len_alloc - esp_iv_len);
+                                        /* Counter mode key includes a 4 byte, (32 bit), nonce following the key */
+                                        err = gcry_cipher_setkey(*cipher_hd, esp_crypt_key, esp_crypt_key_len - 4);
                                     }
-                                }
-                                else
-                                {
-                                    err = gcry_cipher_decrypt (cypher_hd, decrypted_data, decrypted_len_alloc + esp_iv_len,
-                                        encrypted_data, decrypted_len_alloc);
-                                }
-
-                                if (err)
-                                {
-                                    fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
-                                        gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
-                                    gcry_cipher_close (cypher_hd);
-                                    g_free(encrypted_data);
-                                    g_free(decrypted_data);
-                                    decrypt_ok = FALSE;
-                                }
-                                else
-                                {
-                                    gcry_cipher_close (cypher_hd);
-
-                                    /* Add the Authentication which was not encrypted */
-                                    if(decrypted_len >= esp_auth_len)
+                                    else
                                     {
-                                        for(i = 0; i <  esp_auth_len; i++)
-                                        {
-                                            decrypted_data[i + decrypted_len -esp_auth_len]
-                                            = encrypted_data[i + decrypted_len - esp_auth_len];
-                                        }
+                                        err = gcry_cipher_setkey(*cipher_hd, esp_crypt_key, esp_crypt_key_len);
                                     }
 
-                                    fprintf(stderr,"\n\n ");
-                                    g_free(encrypted_data);
-                                    decrypt_ok = TRUE;
+                                    if (err)
+                                    {
+                                        fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, gcry_cipher_setkey(key_len=%d) failed: %s\n",
+                                            gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
+                                        gcry_cipher_close(*cipher_hd);
+                                        g_free(decrypted_data);
+                                        decrypt_ok = FALSE;
+                                    }
                                 }
+
+                                /* Key is created and has its key set now */
+                                *cipher_hd_created = TRUE;
+                            }                            
+                        }
+
+                        /* Now try to decrypt */
+                        if (crypt_mode_libgcrypt == GCRY_CIPHER_MODE_CTR)
+                        {
+                            /* Set CTR first */
+                            memset(ctr_block, 0, 16);
+                            memcpy(ctr_block, esp_crypt_key + esp_crypt_key_len - 4, 4);
+                            memcpy(ctr_block + 4, decrypted_data, 8);
+                            ctr_block[15] = 1;
+                            if (esp_crypt_algo == IPSEC_ENCRYPT_AES_GCM) {
+                               ctr_block[15]++;
                             }
+                            err = gcry_cipher_setctr(*cipher_hd, ctr_block, 16);
+                            if (!err)
+                            {
+                                err = gcry_cipher_decrypt(*cipher_hd, decrypted_data + esp_iv_len, decrypted_len_alloc, NULL, 0);
+                            }
+                        }
+                        else
+                        {
+                            err = gcry_cipher_decrypt(*cipher_hd, decrypted_data, decrypted_len_alloc + esp_iv_len, NULL, 0);
+                        }
+
+                        if (err)
+                        {
+                            fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s, Mode %d, gcry_cipher_decrypt failed: %s\n",
+                                gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror (err));
+                            gcry_cipher_close(*cipher_hd);
+                            g_free(decrypted_data);
+                            decrypt_ok = FALSE;
+                        }
+                        else
+                        {
+                            /* Copy back the Authentication which was not encrypted */
+                            if(decrypted_len >= esp_auth_len)
+                            {
+                                tvb_memcpy(tvb, decrypted_data+decrypted_len-esp_auth_len, sizeof(struct newesp)+decrypted_len-esp_auth_len, esp_auth_len);
+                            }
+
+                            /* Decryption has finished */
+                            decrypt_ok = TRUE;
                         }
                     }
+                }
+            }
 
-                    if(decrypt_ok && (decrypted_len > esp_iv_len))
+            if(decrypt_ok && (decrypted_len > esp_iv_len))
+            {
+                tvb_decrypted = tvb_new_child_real_data(tvb, (guint8 *)g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
+                    decrypted_len - esp_iv_len),
+                    decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
+                g_free(decrypted_data);
+
+                add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
+
+                /* Handler to free the Decrypted Data Buffer. */
+                tvb_set_free_cb(tvb_decrypted,g_free);
+
+                if(tvb_bytes_exist(tvb, 8, esp_iv_len))
+                {
+                    if(esp_iv_len > 0)
+                        proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, ENC_NA);
+                }
+                else
+                    proto_tree_add_text(esp_tree, tvb, 8, -1, "IV (truncated)");
+
+                /* Make sure the packet is not truncated before the fields
+                * we need to read to determine the encapsulated protocol */
+                if(tvb_bytes_exist(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2, 2))
+                {
+                    esp_pad_len = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2);
+
+                    if(decrypted_len - esp_iv_len - esp_auth_len - esp_pad_len - 2 >= 0)
                     {
-                        tvb_decrypted = tvb_new_child_real_data(tvb, (guint8 *)g_memdup(decrypted_data+sizeof(guint8)*esp_iv_len,
-                            decrypted_len - esp_iv_len),
-                            decrypted_len - esp_iv_len, decrypted_len - esp_iv_len);
-                        g_free(decrypted_data);
+                        /* Get the encapsulated protocol */
+                        encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
 
-                        add_new_data_source(pinfo, tvb_decrypted, "Decrypted Data");
-
-                        /* Handler to free the Decrypted Data Buffer. */
-                        tvb_set_free_cb(tvb_decrypted,g_free);
-
-                        if(tvb_bytes_exist(tvb, 8, esp_iv_len))
-                        {
-                            if(esp_iv_len > 0)
-                                proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, ENC_NA);
+                        dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
+                        if (dissector_handle) {
+                          saved_match_uint  = pinfo->match_uint;
+                          pinfo->match_uint = encapsulated_protocol;
+                          next_tvb = tvb_new_subset(tvb_decrypted, 0,
+                                                    decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
+                                                    decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2);
+                          export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
+                          call_dissector(dissector_handle, next_tvb, pinfo, tree);
+                          pinfo->match_uint = saved_match_uint;
+                          decrypt_dissect_ok = TRUE;
                         }
-                        else
-                            proto_tree_add_text(esp_tree, tvb, 8, -1, "IV (truncated)");
+                    }
+                }
 
-                        /* Make sure the packet is not truncated before the fields
-                        * we need to read to determine the encapsulated protocol */
-                        if(tvb_bytes_exist(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2, 2))
-                        {
-                            esp_pad_len = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 2);
+                if(decrypt_dissect_ok)
+                {
+                    if(esp_tree)
+                    {
+                        if(esp_pad_len !=0)
+                            proto_tree_add_text(esp_tree,
+                            tvb_decrypted,
+                            decrypted_len - esp_iv_len - esp_auth_len - 2 - esp_pad_len,
+                            esp_pad_len,
+                            "Pad");
 
-                            if(decrypted_len - esp_iv_len - esp_auth_len - esp_pad_len - 2 >= 0)
-                            {
-                                /* Get the encapsulated protocol */
-                                encapsulated_protocol = tvb_get_guint8(tvb_decrypted, decrypted_len - esp_iv_len - esp_auth_len - 1);
+                        proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
+                            decrypted_len - esp_iv_len - esp_auth_len - 2, 1,
+                            esp_pad_len);
 
-                                dissector_handle = dissector_get_uint_handle(ip_dissector_table, encapsulated_protocol);
-                                if (dissector_handle) {
-                                  saved_match_uint  = pinfo->match_uint;
-                                  pinfo->match_uint = encapsulated_protocol;
-                                  next_tvb = tvb_new_subset(tvb_decrypted, 0,
-                                                            decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2,
-                                                            decrypted_len - esp_auth_len - esp_pad_len - esp_iv_len - 2);
-                                  export_ipsec_pdu(dissector_handle, pinfo, next_tvb);
-                                  call_dissector(dissector_handle, next_tvb, pinfo, tree);
-                                  pinfo->match_uint = saved_match_uint;
-                                  decrypt_dissect_ok = TRUE;
-                                }
-                            }
-                        }
+                        proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb_decrypted,
+                            decrypted_len - esp_iv_len - esp_auth_len - 1, 1,
+                            encapsulated_protocol,
+                            "Next header: %s (0x%02x)",
+                            ipprotostr(encapsulated_protocol), encapsulated_protocol);
 
-                        if(decrypt_dissect_ok)
-                        {
-                            if(esp_tree)
-                            {
-                                if(esp_pad_len !=0)
-                                    proto_tree_add_text(esp_tree,
-                                    tvb_decrypted,
-                                    decrypted_len - esp_iv_len - esp_auth_len - 2 - esp_pad_len,
-                                    esp_pad_len,
-                                    "Pad");
-
-                                proto_tree_add_uint(esp_tree, hf_esp_pad_len, tvb_decrypted,
-                                    decrypted_len - esp_iv_len - esp_auth_len - 2, 1,
-                                    esp_pad_len);
-
-                                proto_tree_add_uint_format(esp_tree, hf_esp_protocol, tvb_decrypted,
-                                    decrypted_len - esp_iv_len - esp_auth_len - 1, 1,
-                                    encapsulated_protocol,
-                                    "Next header: %s (0x%02x)",
-                                    ipprotostr(encapsulated_protocol), encapsulated_protocol);
-
-                                dissect_esp_authentication(esp_tree,
-                                    tvb_decrypted,
-                                    decrypted_len - esp_iv_len,
-                                    esp_auth_len,
-                                    authenticator_data_computed,
-                                    authentication_ok,
-                                    authentication_checking_ok );
-                            }
-                        }
-                        else
-                        {
-                            next_tvb = tvb_new_subset(tvb_decrypted, 0,
-                                decrypted_len - esp_iv_len - esp_auth_len,
-                                decrypted_len - esp_iv_len - esp_auth_len);
-                            export_ipsec_pdu(data_handle, pinfo, next_tvb);
-                            call_dissector(data_handle, next_tvb, pinfo, esp_tree);
-
-                            if(esp_tree)
-                                dissect_esp_authentication(esp_tree,
-                                tvb_decrypted,
-                                decrypted_len - esp_iv_len, esp_auth_len,
-                                authenticator_data_computed, authentication_ok,
-                                authentication_checking_ok );
-                        }
+                        dissect_esp_authentication(esp_tree,
+                            tvb_decrypted,
+                            decrypted_len - esp_iv_len,
+                            esp_auth_len,
+                            authenticator_data_computed,
+                            authentication_ok,
+                            authentication_checking_ok );
                     }
                 }
                 else
                 {
-                    /* The packet does not belong to a security Association */
-                    null_encryption_decode_heuristic = g_esp_enable_null_encryption_decode_heuristic;
-                }
+                    next_tvb = tvb_new_subset(tvb_decrypted, 0,
+                        decrypted_len - esp_iv_len - esp_auth_len,
+                        decrypted_len - esp_iv_len - esp_auth_len);
+                    export_ipsec_pdu(data_handle, pinfo, next_tvb);
+                    call_dissector(data_handle, next_tvb, pinfo, esp_tree);
 
-                if(esp_auth_key_len != 0)
-                    g_free(esp_auth_key);
-                if(esp_crypt_key_len != 0)
-                    g_free(esp_crypt_key);
+                    if(esp_tree)
+                        dissect_esp_authentication(esp_tree,
+                        tvb_decrypted,
+                        decrypted_len - esp_iv_len, esp_auth_len,
+                        authenticator_data_computed, authentication_ok,
+                        authentication_checking_ok );
+                }
             }
+        }
+        else
+        {
+            /* The packet does not belong to a security Association */
+            null_encryption_decode_heuristic = g_esp_enable_null_encryption_decode_heuristic;
         }
     }
 
@@ -1934,7 +2025,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             dissect_esp_authentication(esp_tree, tvb, len ,
             esp_auth_len, authenticator_data_computed,
             authentication_ok, authentication_checking_ok );
-
     }
 
     /* The packet does not belong to a security association and the field g_esp_enable_null_encryption_decode_heuristic is set */
@@ -2072,6 +2162,16 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static void ipsec_init_protocol(void)
+{
+   /* Free any SA records added by other dissectors */
+   guint n;
+   for (n=0; n < extra_esp_sa_records.num_records; n++) {
+      uat_esp_sa_record_free_cb(&(extra_esp_sa_records.records[n]));
+   }
+   extra_esp_sa_records.num_records = 0;
+}
+
 void
 proto_register_ipsec(void)
 {
@@ -2173,9 +2273,9 @@ proto_register_ipsec(void)
       UAT_FLD_CSTRING(uat_esp_sa_records, dstIP, "Dest IP", "Destination Address"),
       UAT_FLD_CSTRING(uat_esp_sa_records, spi, "SPI", "SPI"),
       UAT_FLD_VS(uat_esp_sa_records, encryption_algo, "Encryption", esp_encryption_type_vals, "Encryption algorithm"),
-      UAT_FLD_CSTRING(uat_esp_sa_records, encryption_key, "Encryption Key", "Encryption Key"),
+      UAT_FLD_CSTRING(uat_esp_sa_records, encryption_key_string, "Encryption Key", "Encryption Key"),
       UAT_FLD_VS(uat_esp_sa_records, authentication_algo, "Authentication", esp_authentication_type_vals, "Authentication algorithm"),
-      UAT_FLD_CSTRING(uat_esp_sa_records, authentication_key, "Authentication Key", "Authentication Key"),
+      UAT_FLD_CSTRING(uat_esp_sa_records, authentication_key_string, "Authentication Key", "Authentication Key"),
       UAT_END_FIELDS
     };
 #endif
@@ -2232,7 +2332,7 @@ proto_register_ipsec(void)
             UAT_AFFECTS_DISSECTION,         /* affects dissection of packets, but not set of named fields */
             NULL,                           /* help */
             uat_esp_sa_record_copy_cb,      /* copy callback */
-            NULL,                           /* update callback */
+            uat_esp_sa_record_update_cb,    /* update callback */
             uat_esp_sa_record_free_cb,      /* free callback */
             NULL,                           /* post update callback */
             esp_uat_flds);                  /* UAT field definitions */
@@ -2248,6 +2348,8 @@ proto_register_ipsec(void)
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);
+
+  register_init_routine(&ipsec_init_protocol);
 
 }
 
