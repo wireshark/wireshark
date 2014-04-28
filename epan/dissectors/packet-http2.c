@@ -350,7 +350,7 @@ dissect_http2_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree
                    guint offset, guint8 flags)
 {
     guint16 padding;
-    size_t datalen;
+    gint datalen;
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
     datalen = tvb_reported_length_remaining(tvb, offset) - padding;
@@ -369,7 +369,7 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
                       guint offset, guint8 flags)
 {
     guint16 padding;
-    size_t headlen = 0;
+    gint headlen;
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
     offset = dissect_frame_prio(tvb, http2_tree, offset, flags);
@@ -459,7 +459,7 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
                            guint offset, guint8 flags _U_)
 {
     guint16 padding;
-    size_t headerfrag = 0;
+    gint headerfrag;
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
