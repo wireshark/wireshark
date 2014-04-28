@@ -587,7 +587,11 @@ enum {
     OSPFF_LS_MPLS_TE_INSTANCE,
 
     OSPFF_LS_MIN,
+
     OSPFF_LS_ROUTER,
+    OSPFF_LS_ROUTER_LINKTYPE,
+    OSPFF_LS_ROUTER_LINKID,
+    OSPFF_LS_ROUTER_LINKDATA,
     OSPFF_LS_NETWORK,
     OSPFF_LS_SUMMARY,
     OSPFF_LS_ASBR,
@@ -2620,6 +2624,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         for (link_counter = 0; link_counter < nr_links; link_counter++) {
             proto_tree *ospf_lsa_router_link_tree;
             proto_item *ti_local;
+            proto_item *ti_item;
 
 
             /* check the Link Type and ID */
@@ -2669,15 +2674,19 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
             ospf_lsa_router_link_tree = proto_item_add_subtree(ti_local, ett_ospf_lsa_router_link);
 
-            proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset, 4, "%s: %s", link_id,
-                                tvb_ip_to_str(tvb, offset));
+
+            ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKID],
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti_item, " - %s", link_id);
 
             /* link_data should be specified in detail (e.g. network mask) (depends on link type)*/
-            proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 4, 4, "Link Data: %s",
-                                tvb_ip_to_str(tvb, offset + 4));
+            ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKDATA],
+                        tvb, offset +4, 4, ENC_BIG_ENDIAN);
 
-            proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 8, 1, "Link Type: %u - %s",
-                                link_type, link_type_str);
+            ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKTYPE],
+                        tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti_item, " - %s", link_type_str);
+
             proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 9, 1, "Number of %s metrics: %u",
                                 metric_type_str, nr_metric);
             proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 10, 2, "%s 0 metric: %u",
@@ -3318,6 +3327,16 @@ proto_register_ospf(void)
         {&hf_ospf_filter[OSPFF_LS_ROUTER],
          { "Router LSA", "ospf.lsa.router", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ROUTER_LINKTYPE],
+         { "Link Type", "ospf.lsa.router.linktype", FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ROUTER_LINKID],
+         { "Link ID", "ospf.lsa.router.linkid", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ROUTER_LINKDATA],
+         { "Link Data", "ospf.lsa.router.linkdata", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
         {&hf_ospf_filter[OSPFF_LS_NETWORK],
          { "Network LSA", "ospf.lsa.network", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
