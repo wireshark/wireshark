@@ -37,6 +37,8 @@ set(WIRESHARK_QT_HEADERS
 	color_utils.h
 	column_preferences_frame.h
 	compiled_filter_output.h
+	conversation_dialog.h
+	conversation_tree_widget.h
 	decode_as_dialog.h
 	display_filter_combo.h
 	display_filter_edit.h
@@ -45,6 +47,7 @@ set(WIRESHARK_QT_HEADERS
 	export_object_dialog.h
 	export_pdu_dialog.h
 	file_set_dialog.h
+	filter_action.h
 	filter_expressions_preferences_frame.h
 	follow_stream_dialog.h
 	follow_stream_text.h
@@ -94,12 +97,13 @@ set(WIRESHARK_QT_HEADERS
 	time_shift_dialog.h
 	uat_dialog.h
 	wireshark_application.h
+)
 
-	# No Q_OBJECT:
-	# packet_list_record.h
-	# qt_ui_utils.h
-	# related_packet_delegate.h
-	# sparkline_delegate.h
+file(GLOB EXTA_QT_HEADERS
+	packet_list_record.h
+	qt_ui_utils.h
+	related_packet_delegate.h
+	sparkline_delegate.h
 )
 
 set(WIRESHARK_QT_SRC
@@ -118,6 +122,7 @@ set(WIRESHARK_QT_SRC
 	capture_preferences_frame.cpp
 	column_preferences_frame.cpp
 	compiled_filter_output.cpp
+	conversation_tree_widget.cpp
 	decode_as_dialog.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
@@ -126,6 +131,7 @@ set(WIRESHARK_QT_SRC
 	export_object_dialog.cpp
 	export_pdu_dialog.cpp
 	file_set_dialog.cpp
+	filter_action.cpp
 	filter_expressions_preferences_frame.cpp
 	follow_stream_dialog.cpp
 	follow_stream_text.cpp
@@ -181,6 +187,7 @@ set(WIRESHARK_QT_SRC
 )
 
 set(WIRESHARK_QT_TAP_SRC
+	conversation_dialog.cpp
 	io_graph_dialog.cpp
 	stats_tree_dialog.cpp
 )
@@ -200,6 +207,7 @@ set(WIRESHARK_QT_UI
 	capture_interfaces_dialog.ui
 	column_preferences_frame.ui
 	compiled_filter_output.ui
+	conversation_dialog.ui
 	decode_as_dialog.ui
 	export_object_dialog.ui
 	export_pdu_dialog.ui

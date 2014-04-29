@@ -124,13 +124,13 @@ hostlist_get_filter_name(address *addr, int specific_addr_type_val, int port_typ
         switch(addr->type){
         case AT_ETHER:
             switch(specific_addr_type_val){
-            case SAT_ETHER:
+            case CONV_TYPE_ETHERNET:
                 return "eth.addr";
-            case SAT_WLAN:
+            case CONV_TYPE_WLAN:
                 return "wlan.addr";
-            case SAT_FDDI:
+            case CONV_TYPE_FDDI:
                 return "fddi.addr";
-            case SAT_TOKENRING:
+            case CONV_TYPE_TOKEN_RING:
                 return "tr.addr";
             default:
                 break;
@@ -146,7 +146,7 @@ hostlist_get_filter_name(address *addr, int specific_addr_type_val, int port_typ
             return "fc.id";
         case AT_URI:
             switch(specific_addr_type_val){
-            case SAT_JXTA:
+            case CONV_TYPE_JXTA:
                 return "jxta.message.address";
             default:
                 break;
@@ -1778,7 +1778,7 @@ host_match(gconstpointer v, gconstpointer w)
 }
 
 void
-add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type_val)
+add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, conversation_type_e conv_type, int port_type_val)
 {
     hostlist_talker_t *talker=NULL;
     int talker_idx=0;
@@ -1813,7 +1813,7 @@ add_hostlist_table_data(hostlist_table *hl, const address *addr, guint32 port, g
         hostlist_talker_t host;
 
         COPY_ADDRESS(&host.myaddress, addr);
-        host.sat=sat;
+        host.sat=conv_type;
         host.port_type=port_type_val;
         host.port=port;
         host.rx_frames=0;

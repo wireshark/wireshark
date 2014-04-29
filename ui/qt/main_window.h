@@ -53,6 +53,7 @@
 #include "display_filter_combo.h"
 #include "progress_bar.h"
 #include "file_set_dialog.h"
+#include "filter_action.h"
 #include "capture_file_dialog.h"
 #include "summary_dialog.h"
 #include "follow_stream_dialog.h"
@@ -82,6 +83,7 @@ protected:
     void closeEvent (QCloseEvent *event);
 
 private:
+    // XXX Move to FilterUtils
     enum MatchSelected {
         MatchSelectedReplace,
         MatchSelectedAnd,
@@ -212,6 +214,9 @@ private slots:
     void addDisplayFilterButton(QString df_text);
     void displayFilterButtonClicked();
 
+    // Handle FilterAction signals
+    void filterAction(QString& filter, FilterAction::Action action, FilterAction::ActionType type);
+
     /** Pass stat cmd arguments to a slot.
      * @param slot Partial slot name, e.g. "StatisticsIOGraph".
      * @param "-z" argument, e.g. "io,stat".
@@ -283,7 +288,7 @@ private slots:
     void on_actionCaptureOptions_triggered();
 #endif
 
-    void matchSelectedFilter(MainWindow::MatchSelected filter_type, bool apply = false, bool copy_only = false);
+    void matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type);
     void on_actionAnalyzeAAFSelected_triggered();
     void on_actionAnalyzeAAFNotSelected_triggered();
     void on_actionAnalyzeAAFAndSelected_triggered();
@@ -368,6 +373,8 @@ private slots:
     void on_actionStatisticsBACappObjectId_triggered();
     void on_actionStatisticsBACappService_triggered();
     void on_actionStatisticsCollectd_triggered();
+    void statCommandConversation(const char *arg = NULL, void *userdata = NULL);
+    void on_actionStatisticsConversations_triggered();
     void on_actionStatisticsHART_IP_triggered();
     void on_actionStatisticsHTTPPacketCounter_triggered();
     void on_actionStatisticsHTTPRequests_triggered();

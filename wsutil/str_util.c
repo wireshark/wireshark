@@ -145,7 +145,7 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 	} else if (size / power >= 10) {
 		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d %s", size / power, prefix[pfx_off+3]);
         } else {
-		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d ", size);
+		g_string_printf(human_str, "%" GROUP_FLAG G_GINT64_MODIFIER "d", size);
 		is_small = TRUE;
 	}
 
@@ -170,5 +170,5 @@ gchar *format_size(gint64 size, format_size_flags_e flags) {
 
 	ret_val = human_str->str;
 	g_string_free(human_str, FALSE);
-	return ret_val;
+	return g_strchomp(ret_val);
 }

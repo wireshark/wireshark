@@ -41,6 +41,7 @@ void register_tap_listener_ipv6_conversation(void);
 static int
 ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+    conversations_table *ct = (conversations_table *) pct;
     const struct ip6_hdr *ip6h = (const struct ip6_hdr *)vip;
     address src;
     address dst;
@@ -51,7 +52,7 @@ ipv6_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_,
     src.data = &ip6h->ip6_src;
     dst.data = &ip6h->ip6_dst;
 
-    add_conversation_table_data((conversations_table *)pct, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
+    add_conversation_table_data(&ct->hash, &src, &dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_IPV6, PT_NONE);
 
     return 1;
 }
@@ -69,7 +70,7 @@ ipv6_conversation_init(const char *opt_arg, void *userdata _U_)
         filter = NULL;
     }
 
-    init_conversation_table(TRUE, "IPv6", "ipv6", filter, ipv6_conversation_packet);
+    init_conversation_table(CONV_TYPE_IPV6, filter, ipv6_conversation_packet);
 }
 
 void
@@ -82,5 +83,5 @@ void
 register_tap_listener_ipv6_conversation(void)
 {
     register_stat_cmd_arg("conv,ipv6", ipv6_conversation_init, NULL);
-    register_conversation_table(TRUE, "IPv6", "ipv6", NULL /*filter*/, ipv6_conversation_packet);
+    register_conversation_table(CONV_TYPE_IPV6, NULL /*filter*/, ipv6_conversation_packet);
 }

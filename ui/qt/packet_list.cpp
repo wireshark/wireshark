@@ -386,6 +386,8 @@ PacketList::PacketList(QWidget *parent) :
 
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
+
+    connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(updateAll()));
 }
 
 void PacketList::setProtoTree (ProtoTree *proto_tree) {

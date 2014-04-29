@@ -60,6 +60,6 @@
 #define FILTER_EXTRA(cb_arg)            ((cb_arg) & 0xff)
 
 
-extern void apply_selected_filter (guint callback_action, char *filter);
+extern void apply_selected_filter (guint callback_action, const char *filter);
 
 #endif /* __FILTER_UTILS_H__ */

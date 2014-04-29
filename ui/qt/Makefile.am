@@ -135,6 +135,8 @@ column_preferences_frame.cpp column_preferences_frame.h: ui_column_preferences_f
 
 compiled_filter_output.cpp compiled_filter_output.h: ui_compiled_filter_output.h
 
+conversation_dialog.cpp conversation_dialog.h: ui_conversation_dialog.h
+
 decode_as_dialog.cpp decode_as_dialog.h: ui_decode_as_dialog.h
 
 export_object_dialog.cpp export_object_dialog.h: ui_export_object_dialog.h

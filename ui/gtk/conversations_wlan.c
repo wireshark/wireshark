@@ -41,9 +41,10 @@ void register_tap_listener_wlan_conversation(void);
 static int
 wlan_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const wlan_hdr *whdr=(const wlan_hdr *)vip;
 
-	add_conversation_table_data((conversations_table *)pct, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_WLAN, PT_NONE);
+	add_conversation_table_data(&ct->hash, &whdr->src, &whdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_WLAN, PT_NONE);
 
 	return 1;
 }
@@ -61,7 +62,7 @@ wlan_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "WLAN", "wlan", filter, wlan_conversation_packet);
+	init_conversation_table(CONV_TYPE_WLAN, filter, wlan_conversation_packet);
 
 }
 
@@ -75,5 +76,5 @@ void
 register_tap_listener_wlan_conversation(void)
 {
 	register_stat_cmd_arg("conv,wlan", wlan_conversation_init,NULL);
-	register_conversation_table(TRUE, "WLAN", "wlan", NULL /*filter*/, wlan_conversation_packet);
+	register_conversation_table(CONV_TYPE_WLAN, NULL /*filter*/, wlan_conversation_packet);
 }

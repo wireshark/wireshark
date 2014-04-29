@@ -51,9 +51,9 @@ rsvp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
 	 * hostlist_table
 	 */
 	add_hostlist_table_data(hosts, &rsvph->source, 0, TRUE, 1,
-				pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
+				pinfo->fd->pkt_len, CONV_TYPE_RSVP, PT_NONE);
 	add_hostlist_table_data(hosts, &rsvph->destination, 0, FALSE, 1,
-				pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
+				pinfo->fd->pkt_len, CONV_TYPE_RSVP, PT_NONE);
 	return 1;
 }
 

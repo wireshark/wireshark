@@ -41,9 +41,10 @@ void register_tap_listener_udpip_conversation(void);
 static int
 udpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const e_udphdr *udphdr=(const e_udphdr *)vip;
 
-	add_conversation_table_data((conversations_table *)pct, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_UDP);
+	add_conversation_table_data(&ct->hash, &udphdr->ip_src, &udphdr->ip_dst, udphdr->uh_sport, udphdr->uh_dport, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_UDP, PT_UDP);
 
 	return 1;
 }
@@ -61,7 +62,7 @@ udpip_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(FALSE, "UDP", "udp", filter, udpip_conversation_packet);
+	init_conversation_table(CONV_TYPE_UDP, filter, udpip_conversation_packet);
 
 }
 
@@ -75,5 +76,5 @@ void
 register_tap_listener_udpip_conversation(void)
 {
 	register_stat_cmd_arg("conv,udp", udpip_conversation_init, NULL);
-	register_conversation_table(FALSE, "UDP", "udp", NULL /*filter*/, udpip_conversation_packet);
+	register_conversation_table(CONV_TYPE_UDP, NULL /*filter*/, udpip_conversation_packet);
 }

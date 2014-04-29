@@ -41,40 +41,41 @@ void register_tap_listener_ncp_conversation(void);
 static int
 ncp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
-	const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
+    conversations_table *ct = (conversations_table *) pct;
+    const struct ncp_common_header *ncph=(const struct ncp_common_header *)vip;
     guint32 connection;
 
     connection = (ncph->conn_high * 256)+ncph->conn_low;
     if (connection < 65535) {
-        add_conversation_table_data((conversations_table *)pct, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NCP);
+        add_conversation_table_data(&ct->hash, &pinfo->src, &pinfo->dst, connection, connection, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_NCP, PT_NCP);
     }
 
-	return 1;
+    return 1;
 }
 
 static void
 ncp_conversation_init(const char *opt_arg, void* userdata _U_)
 {
-	const char *filter=NULL;
+    const char *filter=NULL;
 
-	if(!strncmp(opt_arg,"conv,ncp,",9)){
-		filter=opt_arg+9;
-	} else {
-		filter=NULL;
-	}
+    if(!strncmp(opt_arg,"conv,ncp,",9)){
+            filter=opt_arg+9;
+    } else {
+            filter=NULL;
+    }
 
-	init_conversation_table(FALSE, "NCP", "ncp_hdr", filter, ncp_conversation_packet);
+    init_conversation_table(CONV_TYPE_NCP, filter, ncp_conversation_packet);
 }
 
 void
 ncp_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
-	ncp_conversation_init("conv,ncp",NULL);
+    ncp_conversation_init("conv,ncp",NULL);
 }
 
 void
 register_tap_listener_ncp_conversation(void)
 {
-	register_stat_cmd_arg("conv,ncp", ncp_conversation_init,NULL);
-	register_conversation_table(FALSE, "NCP", "ncp_hdr", NULL /*filter*/, ncp_conversation_packet);
+    register_stat_cmd_arg("conv,ncp", ncp_conversation_init,NULL);
+    register_conversation_table(CONV_TYPE_NCP, NULL /*filter*/, ncp_conversation_packet);
 }

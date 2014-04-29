@@ -49,8 +49,8 @@ ip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)
 	XXX - this could probably be done more efficiently inside hostlist_table */
-	add_hostlist_table_data(hosts, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
-	add_hostlist_table_data(hosts, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, SAT_NONE, PT_NONE);
+	add_hostlist_table_data(hosts, &iph->ip_src, 0, TRUE, 1, pinfo->fd->pkt_len, CONV_TYPE_IPV4, PT_NONE);
+	add_hostlist_table_data(hosts, &iph->ip_dst, 0, FALSE, 1, pinfo->fd->pkt_len, CONV_TYPE_IPV4, PT_NONE);
 	return 1;
 }
 

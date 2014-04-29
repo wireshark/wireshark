@@ -46,7 +46,7 @@ class TCPStreamDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit TCPStreamDialog(QWidget *parent = 0, capture_file *cf = NULL, tcp_graph_type graph_type = GRAPH_TSEQ_STEVENS);
+    explicit TCPStreamDialog(QWidget *parent = 0, capture_file *cf = NULL, tcp_graph_type graph_type = GRAPH_TSEQ_TCPTRACE);
     ~TCPStreamDialog();
 
 signals:

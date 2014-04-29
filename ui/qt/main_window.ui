@@ -357,6 +357,7 @@
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
+    <addaction name="actionStatisticsConversations"/>
     <addaction name="actionStatisticsPacketLen"/>
     <addaction name="actionStatisticsIOGraph"/>
     <addaction name="separator"/>
@@ -1701,6 +1702,14 @@
   <action name="actionFileExportObjectsTFTP">
    <property name="text">
     <string>&amp;TFTP</string>
+   </property>
+  </action>
+  <action name="actionStatisticsConversations">
+   <property name="text">
+    <string>Conversations</string>
+   </property>
+   <property name="toolTip">
+    <string>Conversations at different protocol levels</string>
    </property>
   </action>
  </widget>

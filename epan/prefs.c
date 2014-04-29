@@ -63,7 +63,6 @@ static module_t *prefs_register_module_or_subtree(module_t *parent,
     const char *name, const char *title, const char *description, gboolean is_subtree,
     void (*apply_cb)(void), gboolean use_gui);
 static prefs_set_pref_e set_pref(gchar*, const gchar*, void *, gboolean);
-static char * join_string_list(GList *);
 static void free_col_info(GList *);
 static void pre_init_prefs(void);
 static gboolean prefs_is_column_visible(const gchar *cols_hidden, fmt_data *cfmt);
@@ -1768,10 +1767,7 @@ column_format_to_str_cb(pref_t* pref, gboolean default_val)
     }
 
     column_format_str = join_string_list(col_l);
-
-    /* This frees the list of strings, but not the strings to which it
-       refers; they are free'ed in join_string_list(). */
-    g_list_free(col_l);
+    prefs_clear_string_list(col_l);
     return column_format_str;
 }
 
@@ -1960,7 +1956,8 @@ capture_column_to_str_cb(pref_t* pref, gboolean default_val)
     GList       *pref_l = default_val ? pref->default_val.list : prefs.capture_columns;
     GList       *clp = g_list_first(pref_l);
     GList       *col_l = NULL;
-    gchar       *col, *capture_column_str;
+    gchar       *col;
+    char        *capture_column_str;
 
     while (clp) {
         col = (gchar *) clp->data;
@@ -1969,9 +1966,7 @@ capture_column_to_str_cb(pref_t* pref, gboolean default_val)
     }
 
     capture_column_str = join_string_list(col_l);
-    /* This frees the list of strings, but not the strings to which it
-       refers; they are free'ed in write_string_list(). */
-    g_list_free(col_l);
+    prefs_clear_string_list(col_l);
     return capture_column_str;
 }
 
@@ -2692,8 +2687,7 @@ prefs_get_string_list(const gchar *str)
   return(sl);
 }
 
-static char *
-join_string_list(GList *sl)
+char *join_string_list(GList *sl)
 {
     GString      *joined_str = g_string_new("");
     GList        *cur, *first;

@@ -94,6 +94,7 @@ private:
     QFont mono_regular_font_;
     QFont mono_bold_font_;
     QTimer recent_timer_;
+    QTimer addr_resolv_timer_;
     QTimer tap_update_timer_;
     QList<QString> pending_open_files_;
     QSocketNotifier *if_notifier_;
@@ -114,6 +115,7 @@ signals:
     void filterExpressionsChanged();
     void packetDissectionChanged();
     void preferencesChanged();
+    void addressResolutionChanged();
 
     // XXX It might make more sense to move these to main.cpp or main_window.cpp or their own class.
     void captureCapturePrepared(capture_session *cap_session);
@@ -141,6 +143,7 @@ private slots:
     void ifChangeEventsAvailable();
     void itemStatusFinished(const QString filename = "", qint64 size = 0, bool accessible = false);
     void refreshRecentFiles(void);
+    void refreshAddressResolution(void);
     void updateTaps();
 };
 

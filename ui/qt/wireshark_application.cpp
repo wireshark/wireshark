@@ -23,6 +23,7 @@
 
 #include "wsutil/filesystem.h"
 
+#include "epan/addr_resolv.h"
 #include "epan/disabled_protos.h"
 #include "epan/tap.h"
 #include "epan/timestamp.h"
@@ -187,6 +188,14 @@ void WiresharkApplication::refreshRecentFiles(void) {
         connect(rf_status, SIGNAL(finished()), rf_status, SLOT(deleteLater()));
 
         rf_thread->start();
+    }
+}
+
+void WiresharkApplication::refreshAddressResolution()
+{
+    // Anything new show up?
+    if (host_name_lookup_process()) {
+        emit addressResolutionChanged();
     }
 }
 
@@ -589,6 +598,10 @@ WiresharkApplication::WiresharkApplication(int &argc,  char **argv) :
     recent_timer_.setParent(this);
     connect(&recent_timer_, SIGNAL(timeout()), this, SLOT(refreshRecentFiles()));
     recent_timer_.start(2000);
+
+    addr_resolv_timer_.setParent(this);
+    connect(&addr_resolv_timer_, SIGNAL(timeout()), this, SLOT(refreshAddressResolution()));
+    recent_timer_.start(1000);
 
     tap_update_timer_.setParent(this);
     tap_update_timer_.setInterval(TAP_UPDATE_DEFAULT_INTERVAL);

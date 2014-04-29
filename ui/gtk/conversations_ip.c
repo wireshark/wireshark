@@ -41,9 +41,10 @@ void register_tap_listener_ip_conversation(void);
 static int
 ip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const ws_ip *iph=(const ws_ip *)vip;
 
-	add_conversation_table_data((conversations_table *)pct, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
+	add_conversation_table_data(&ct->hash, &iph->ip_src, &iph->ip_dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_IPV4, PT_NONE);
 
 	return 1;
 }
@@ -59,7 +60,7 @@ ip_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "IPv4", "ip", filter, ip_conversation_packet);
+    init_conversation_table(CONV_TYPE_IPV4, filter, ip_conversation_packet);
 
 }
 
@@ -73,5 +74,5 @@ void
 register_tap_listener_ip_conversation(void)
 {
 	register_stat_cmd_arg("conv,ip", ip_conversation_init,NULL);
-	register_conversation_table(TRUE, "IPv4", "ip", NULL /*filter*/, ip_conversation_packet);
+    register_conversation_table(CONV_TYPE_IPV4, NULL /*filter*/, ip_conversation_packet);
 }

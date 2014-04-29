@@ -181,4 +181,17 @@ WS_DLL_PUBLIC
 int
 read_prefs_file(const char *pf_path, FILE *pf, pref_set_pair_cb pref_set_pair_fct, void *private_data);
 
+/** Convert a string list preference to a preference string.
+ *
+ * Given a GList of gchar pointers, create a quoted, comma-separated
+ * string. Should be used with prefs_get_string_list() and
+ * prefs_clear_string_list().
+ *
+ * @param sl String list.
+ * @return Quoted, joined, and wrapped string. May be empty.
+ */
+WS_DLL_PUBLIC
+char *
+join_string_list(GList *sl);
+
 #endif /* prefs-int.h */

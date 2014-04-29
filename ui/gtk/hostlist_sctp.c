@@ -47,9 +47,9 @@ sctp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, con
         packets are counted properly (even if address is sending to itself)
         XXX - this could probably be done more efficiently inside hostlist_table */
         add_hostlist_table_data(hosts, &sctphdr->ip_src, sctphdr->sport, TRUE, 1,
-				pinfo->fd->pkt_len, SAT_NONE, PT_SCTP);
+				pinfo->fd->pkt_len, CONV_TYPE_SCTP, PT_SCTP);
         add_hostlist_table_data(hosts, &sctphdr->ip_dst, sctphdr->dport, FALSE, 1,
-				pinfo->fd->pkt_len, SAT_NONE, PT_SCTP);
+				pinfo->fd->pkt_len, CONV_TYPE_SCTP, PT_SCTP);
 
         return 1;
 }

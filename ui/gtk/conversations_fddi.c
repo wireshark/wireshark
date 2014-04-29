@@ -41,9 +41,10 @@ void register_tap_listener_fddi_conversation(void);
 static int
 fddi_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const fddi_hdr *ehdr=(const fddi_hdr *)vip;
 
-	add_conversation_table_data((conversations_table *)pct, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_FDDI, PT_NONE);
+    add_conversation_table_data(&ct->hash, &ehdr->src, &ehdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_FDDI, PT_NONE);
 
 	return 1;
 }
@@ -61,7 +62,7 @@ fddi_conversation_init(const char *opt_arg, void* userdata _U_ )
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "FDDI", "fddi", filter, fddi_conversation_packet);
+    init_conversation_table(CONV_TYPE_FDDI, filter, fddi_conversation_packet);
 
 }
 
@@ -75,5 +76,5 @@ void
 register_tap_listener_fddi_conversation(void)
 {
 	register_stat_cmd_arg("conv,fddi", fddi_conversation_init,NULL);
-	register_conversation_table(TRUE, "FDDI", "fddi", NULL /*filter*/, fddi_conversation_packet);
+    register_conversation_table(CONV_TYPE_FDDI, NULL /*filter*/, fddi_conversation_packet);
 }

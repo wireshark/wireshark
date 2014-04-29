@@ -211,6 +211,7 @@ FORMS += \
     capture_interfaces_dialog.ui \
     column_preferences_frame.ui \
     compiled_filter_output.ui \
+    conversation_dialog.ui \
     decode_as_dialog.ui \
     export_object_dialog.ui \
     export_pdu_dialog.ui \
@@ -259,11 +260,14 @@ HEADERS += $$HEADERS_WS_C \
     capture_preferences_frame.h \
     column_preferences_frame.h \
     compiled_filter_output.h \
+    conversation_dialog.h \
+    conversation_tree_widget.h \
     decode_as_dialog.h \
     elided_label.h \
     export_dissection_dialog.h \
     export_object_dialog.h \
     export_pdu_dialog.h \
+    filter_action.h \
     filter_expressions_preferences_frame.h \
     follow_stream_dialog.h \
     follow_stream_text.h \
@@ -585,6 +589,8 @@ SOURCES += \
     color_utils.cpp \
     column_preferences_frame.cpp \
     compiled_filter_output.cpp \
+    conversation_dialog.cpp \
+    conversation_tree_widget.cpp \
     decode_as_dialog.cpp \
     display_filter_combo.cpp \
     display_filter_edit.cpp \
@@ -593,6 +599,7 @@ SOURCES += \
     export_object_dialog.cpp \
     export_pdu_dialog.cpp \
     file_set_dialog.cpp \
+    filter_action.cpp \
     filter_expressions_preferences_frame.cpp \
     follow_stream_dialog.cpp \
     follow_stream_text.cpp \

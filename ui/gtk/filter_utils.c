@@ -33,7 +33,7 @@
 #include "ui/gtk/old-gtk-compat.h"
 
 void
-apply_selected_filter (guint callback_action, char *filter)
+apply_selected_filter (guint callback_action, const char *filter)
 {
  	int action, type;
 	char *str = NULL;

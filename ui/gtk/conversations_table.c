@@ -30,18 +30,16 @@
 
 #include <epan/packet_info.h>
 #include <epan/to_str.h>
-#include <epan/address.h>
 #include <epan/addr_resolv.h>
 #include <epan/tap.h>
 
-#include "../globals.h"
+#include "globals.h"
 
 #include <epan/stat_groups.h>
 
 #include "ui/simple_dialog.h"
 #include "ui/utf8_entities.h"
 
-#include "ui/gtk/sat.h"
 #include "ui/gtk/conversations_table.h"
 #include "ui/gtk/filter_utils.h"
 #include "ui/gtk/gtkglobals.h"
@@ -74,217 +72,9 @@
     else                                        \
         return 0;
 
-/* convert a port number into a string */
-static char *
-ct_port_to_str(int port_type_val, guint32 port)
-{
-    static int i=0;
-    static gchar *strp, str[4][12];
-    gchar *bp;
-
-    strp=str[i];
-
-    switch(port_type_val){
-    case PT_TCP:
-    case PT_UDP:
-    case PT_SCTP:
-    case PT_NCP:
-        i = (i+1)%4;
-        bp = &strp[11];
-
-        *bp = 0;
-        do {
-          *--bp = (port % 10) +'0';
-        } while ((port /= 10) != 0 && bp > strp);
-        return bp;
-    }
-    return NULL;
-}
-
-#define FN_SRC_ADDRESS          0
-#define FN_DST_ADDRESS          1
-#define FN_ANY_ADDRESS          2
-#define FN_SRC_PORT             3
-#define FN_DST_PORT             4
-#define FN_ANY_PORT             5
-/* given an address (to distinguish between ipv4 and ipv6 for tcp/udp),
-   a port_type and a name_type (FN_...)
-   return a string for the filter name.
-
-   Some addresses, like AT_ETHER may actually be any of multiple types
-   of protocols,   either ethernet, tokenring, fddi, wlan etc so we must be
-   more specific there;  that's why we need specific_addr_type.
-*/
-static const char *
-ct_get_filter_name(address *addr, int specific_addr_type_val, int port_type_val, int name_type_val)
-{
-    switch(name_type_val){
-    case FN_SRC_ADDRESS:
-        switch(addr->type){
-        case AT_ETHER:
-            switch(specific_addr_type_val){
-            case SAT_ETHER:
-                return "eth.src";
-            case SAT_WLAN:
-                return "wlan.sa";
-            case SAT_FDDI:
-                return "fddi.src";
-            case SAT_TOKENRING:
-                return "tr.src";
-            default:
-                break;
-            }
-            break;
-        case AT_IPv4:
-            return "ip.src";
-        case AT_IPv6:
-            return "ipv6.src";
-        case AT_IPX:
-            return "ipx.src";
-        case AT_FC:
-            return "fc.s_id";
-        case AT_URI:
-            switch(specific_addr_type_val){
-            case SAT_JXTA:
-                return "jxta.message.src";
-            default:
-                break;
-            }
-            break;
-        case AT_USB:
-            return "usb.sa";
-        default:
-            break;
-        }
-        break;
-    case FN_DST_ADDRESS:
-        switch(addr->type){
-        case AT_ETHER:
-            switch(specific_addr_type_val){
-            case SAT_ETHER:
-                return "eth.dst";
-            case SAT_WLAN:
-                return "wlan.da";
-            case SAT_FDDI:
-                return "fddi.dst";
-            case SAT_TOKENRING:
-                return "tr.dst";
-            default:
-                break;
-            }
-            break;
-        case AT_IPv4:
-            return "ip.dst";
-        case AT_IPv6:
-            return "ipv6.dst";
-        case AT_IPX:
-            return "ipx.dst";
-        case AT_FC:
-            return "fc.d_id";
-        case AT_URI:
-            switch(specific_addr_type_val){
-            case SAT_JXTA:
-                return "jxta.message.dst";
-            default:
-                break;
-            }
-            break;
-        case AT_USB:
-            return "usb.da";
-        default:
-            break;
-        }
-        break;
-    case FN_ANY_ADDRESS:
-        switch(addr->type){
-        case AT_ETHER:
-            switch(specific_addr_type_val){
-            case SAT_ETHER:
-                return "eth.addr";
-            case SAT_WLAN:
-                return "wlan.addr";
-            case SAT_FDDI:
-                return "fddi.addr";
-            case SAT_TOKENRING:
-                return "tr.addr";
-            default:
-                break;
-            }
-            break;
-        case AT_IPv4:
-            return "ip.addr";
-        case AT_IPv6:
-            return "ipv6.addr";
-        case AT_IPX:
-            return "ipx.addr";
-        case AT_FC:
-            return "fc.id";
-        case AT_URI:
-            switch(specific_addr_type_val){
-            case SAT_JXTA:
-                return "jxta.message.address";
-            default:
-                break;
-            }
-            break;
-        case AT_USB:
-            return "usb.addr";
-        default:
-            break;
-        }
-        break;
-    case FN_SRC_PORT:
-        switch(port_type_val){
-        case PT_TCP:
-            return "tcp.srcport";
-        case PT_UDP:
-            return "udp.srcport";
-        case PT_SCTP:
-            return "sctp.srcport";
-        case PT_NCP:
-            return "ncp.connection";
-        default:
-            break;
-        }
-        break;
-    case FN_DST_PORT:
-        switch(port_type_val){
-        case PT_TCP:
-            return "tcp.dstport";
-        case PT_UDP:
-            return "udp.dstport";
-        case PT_SCTP:
-            return "sctp.dstport";
-        case PT_NCP:
-            return "ncp.connection";
-        default:
-            break;
-        }
-        break;
-    case FN_ANY_PORT:
-        switch(port_type_val){
-        case PT_TCP:
-            return "tcp.port";
-        case PT_UDP:
-            return "udp.port";
-        case PT_SCTP:
-            return "sctp.port";
-        case PT_NCP:
-            return "ncp.connection";
-        default:
-            break;
-        }
-        break;
-    }
-
-    g_assert_not_reached();
-    return NULL;
-}
-
 static void
 reset_ct_table_data(conversations_table *ct)
 {
-    guint32 i;
     char *display_name;
     char title[256];
     GString *error_string;
@@ -335,20 +125,7 @@ reset_ct_table_data(conversations_table *ct)
     gtk_list_store_clear(store);
 
     /* delete all conversations */
-    for(i=0;i<ct->num_conversations;i++){
-        conv_t *conv = &g_array_index(ct->conversations, conv_t, i);
-        g_free((gpointer)conv->src_address.data);
-        g_free((gpointer)conv->dst_address.data);
-    }
-    if (ct->conversations)
-        g_array_free(ct->conversations, TRUE);
-
-    if (ct->hashtable != NULL)
-        g_hash_table_destroy(ct->hashtable);
-
-    ct->conversations=NULL;
-    ct->hashtable=NULL;
-    ct->num_conversations=0;
+    reset_conversation_table_data(&ct->hash);
 }
 
 static void
@@ -368,26 +145,6 @@ ct_win_destroy_cb(GtkWindow *win _U_, gpointer data)
     g_free(conversations);
 }
 
-enum
-{
-    SRC_ADR_COLUMN,
-    SRC_PORT_COLUMN,
-    DST_ADR_COLUMN,
-    DST_PORT_COLUMN,
-    PACKETS_COLUMN,
-    BYTES_COLUMN,
-    PKT_AB_COLUMN,
-    BYTES_AB_COLUMN,
-    PKT_BA_COLUMN,
-    BYTES_BA_COLUMN,
-    START_COLUMN,
-    DURATION_COLUMN,
-    BPS_AB_COLUMN,
-    BPS_BA_COLUMN,
-    INDEX_COLUMN,
-    N_COLUMNS
-};
-
 static gint
 ct_sort_func(GtkTreeModel *model,
              GtkTreeIter *a,
@@ -399,30 +156,30 @@ ct_sort_func(GtkTreeModel *model,
     gint data_column = GPOINTER_TO_INT(user_data);
 
     conversations_table *ct = (conversations_table *)g_object_get_data(G_OBJECT(model), CONV_PTR_KEY);
-    conv_t *conv1 = NULL;
-    conv_t *conv2 = NULL;
+    conv_item_t *conv1 = NULL;
+    conv_item_t *conv2 = NULL;
     double duration1, duration2;
 
-    gtk_tree_model_get(model, a, INDEX_COLUMN, &idx1, -1);
-    gtk_tree_model_get(model, b, INDEX_COLUMN, &idx2, -1);
+    gtk_tree_model_get(model, a, CONV_INDEX_COLUMN, &idx1, -1);
+    gtk_tree_model_get(model, b, CONV_INDEX_COLUMN, &idx2, -1);
 
-    if (!ct || idx1 >= ct->num_conversations || idx2 >= ct->num_conversations)
+    if (!ct || idx1 >= ct->hash.conv_array->len || idx2 >= ct->hash.conv_array->len)
         return 0;
 
-    conv1 = &g_array_index(ct->conversations, conv_t, idx1);
-    conv2 = &g_array_index(ct->conversations, conv_t, idx2);
+    conv1 = &g_array_index(ct->hash.conv_array, conv_item_t, idx1);
+    conv2 = &g_array_index(ct->hash.conv_array, conv_item_t, idx2);
 
 
     switch(data_column){
-    case SRC_ADR_COLUMN: /* Source address */
+    case CONV_COLUMN_SRC_ADDR: /* Source address */
         return(CMP_ADDRESS(&conv1->src_address, &conv2->src_address));
-    case DST_ADR_COLUMN: /* Destination address */
+    case CONV_COLUMN_DST_ADDR: /* Destination address */
         return(CMP_ADDRESS(&conv1->dst_address, &conv2->dst_address));
-    case SRC_PORT_COLUMN: /* Source port */
+    case CONV_COLUMN_SRC_PORT: /* Source port */
         CMP_NUM(conv1->src_port, conv2->src_port);
-    case DST_PORT_COLUMN: /* Destination port */
+    case CONV_COLUMN_DST_PORT: /* Destination port */
         CMP_NUM(conv1->dst_port, conv2->dst_port);
-    case START_COLUMN: /* Start time */
+    case CONV_COLUMN_START: /* Start time */
         return nstime_cmp(&conv1->start_time, &conv2->start_time);
     }
 
@@ -430,15 +187,15 @@ ct_sort_func(GtkTreeModel *model,
     duration2 = nstime_to_sec(&conv2->stop_time) - nstime_to_sec(&conv2->start_time);
 
     switch(data_column){
-    case DURATION_COLUMN: /* Duration */
+    case CONV_COLUMN_DURATION: /* Duration */
         CMP_NUM(duration1, duration2);
-    case BPS_AB_COLUMN: /* bps A->B */
+    case CONV_COLUMN_BPS_AB: /* bps A->B */
         if (duration1 > 0 && conv1->tx_frames > 1 && duration2 > 0 && conv2->tx_frames > 1) {
             CMP_NUM((gint64) conv1->tx_bytes / duration1, (gint64) conv2->tx_bytes / duration2);
         } else {
             CMP_NUM(conv1->tx_bytes, conv2->tx_bytes);
         }
-    case BPS_BA_COLUMN: /* bps A<-B */
+    case CONV_COLUMN_BPS_BA: /* bps A<-B */
         if (duration1 > 0 && conv1->rx_frames > 1 && duration2 > 0 && conv2->rx_frames > 1) {
             CMP_NUM((gint64) conv1->rx_bytes / duration1, (gint64) conv2->rx_bytes / duration2);
         } else {
@@ -451,173 +208,37 @@ ct_sort_func(GtkTreeModel *model,
     return 0;
 }
 
-/* Filter direction */
-#define DIR_A_TO_FROM_B         0
-#define DIR_A_TO_B              1
-#define DIR_A_FROM_B            2
-#define DIR_A_TO_FROM_ANY       3
-#define DIR_A_TO_ANY            4
-#define DIR_A_FROM_ANY          5
-#define DIR_ANY_TO_FROM_B       6
-#define DIR_ANY_FROM_B          7
-#define DIR_ANY_TO_B            8
-
 static void
 ct_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint callback_action)
 {
-    int direction;
+    conv_direction_e direction;
     guint32 idx = 0;
     conversations_table *ct = (conversations_table *)callback_data;
     GtkTreeIter iter;
     GtkTreeModel *model;
     GtkTreeSelection  *sel;
-    char *str = NULL;
-    char *sport, *dport;
-    conv_t *conv;
+    const char *str = NULL;
+    conv_item_t *conv;
 
-    direction=FILTER_EXTRA(callback_action);
+    direction = (conv_direction_e) FILTER_EXTRA(callback_action);
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
     if (!gtk_tree_selection_get_selected(sel, &model, &iter))
         return;
 
     gtk_tree_model_get (model, &iter,
-                            INDEX_COLUMN, &idx,
+                            CONV_INDEX_COLUMN, &idx,
                             -1);
 
-    if(idx>= ct->num_conversations){
+    if(idx >= ct->hash.conv_array->len){
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
         return;
     }
-    conv = &g_array_index(ct->conversations, conv_t, idx);
-    sport=ct_port_to_str(conv->port_type, conv->src_port);
-    dport=ct_port_to_str(conv->port_type, conv->dst_port);
+    conv = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
 
-    switch(direction){
-    case DIR_A_TO_FROM_B:
-        /* A <-> B */
-        str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                              ep_address_to_str(&conv->src_address),
-                              sport?" && ":"",
-                              sport?ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT):"",
-                              sport?"==":"",
-                              sport?sport:"",
-                              ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                              ep_address_to_str(&conv->dst_address),
-                              dport?" && ":"",
-                              dport?ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
-        break;
-    case DIR_A_TO_B:
-        /* A --> B */
-        str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_SRC_ADDRESS),
-                              ep_address_to_str(&conv->src_address),
-                              sport?" && ":"",
-                              sport?ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_SRC_PORT):"",
-                              sport?"==":"",
-                              sport?sport:"",
-                              ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_DST_ADDRESS),
-                              ep_address_to_str(&conv->dst_address),
-                              dport?" && ":"",
-                              dport?ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_DST_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
-        break;
-    case DIR_A_FROM_B:
-        /* A <-- B */
-        str = g_strdup_printf("%s==%s%s%s%s%s && %s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_DST_ADDRESS),
-                              ep_address_to_str(&conv->src_address),
-                              sport?" && ":"",
-                              sport?ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_DST_PORT):"",
-                              sport?"==":"",
-                              sport?sport:"",
-                              ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_SRC_ADDRESS),
-                              ep_address_to_str(&conv->dst_address),
-                              dport?" && ":"",
-                              dport?ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_SRC_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
-        break;
-    case DIR_A_TO_FROM_ANY:
-        /* A <-> ANY */
-        str = g_strdup_printf("%s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                              ep_address_to_str(&conv->src_address),
-                              sport?" && ":"",
-                              sport?ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT):"",
-                              sport?"==":"",
-                              sport?sport:""
-            );
-        break;
-    case DIR_A_TO_ANY:
-        /* A --> ANY */
-        str = g_strdup_printf("%s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_SRC_ADDRESS),
-                              ep_address_to_str(&conv->src_address),
-                              sport?" && ":"",
-                              sport?ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_SRC_PORT):"",
-                              sport?"==":"",
-                              sport?sport:""
-            );
-        break;
-    case DIR_A_FROM_ANY:
-        /* A <-- ANY */
-        str = g_strdup_printf("%s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_DST_ADDRESS),
-                              ep_address_to_str(&conv->src_address),
-                              sport?" && ":"",
-                              sport?ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_DST_PORT):"",
-                              sport?"==":"",
-                              sport?sport:""
-            );
-        break;
-    case DIR_ANY_TO_FROM_B:
-        /* ANY <-> B */
-        str = g_strdup_printf("%s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                              ep_address_to_str(&conv->dst_address),
-                              dport?" && ":"",
-                              dport?ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
-        break;
-    case DIR_ANY_FROM_B:
-        /* ANY <-- B */
-        str = g_strdup_printf("%s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_SRC_ADDRESS),
-                              ep_address_to_str(&conv->dst_address),
-                              dport?" && ":"",
-                              dport?ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_SRC_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
-        break;
-    case DIR_ANY_TO_B:
-        /* ANY --> B */
-        str = g_strdup_printf("%s==%s%s%s%s%s",
-                              ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_DST_ADDRESS),
-                              ep_address_to_str(&conv->dst_address),
-                              dport?" && ":"",
-                              dport?ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_DST_PORT):"",
-                              dport?"==":"",
-                              dport?dport:""
-            );
-        break;
-    default:
-        g_assert_not_reached();
-    }
+    str = get_conversation_filter(conv, direction);
 
-    apply_selected_filter (callback_action, str);
-
-    g_free (str);
+    apply_selected_filter(callback_action, str);
 }
 
 static gboolean
@@ -638,331 +259,331 @@ ct_show_popup_menu_cb(void *widg _U_, GdkEvent *event, conversations_table *ct)
 static void
 conv_apply_as_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_as_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_apply_as_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_apply_as_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_as_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_as_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_as_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 
 static void
 conv_apply_as_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_as_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* As Not Selected */
 static void
 conv_apply_as_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_apply_as_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_as_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_as_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_as_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_as_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* And Selected */
 static void
 conv_apply_and_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_apply_and_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_and_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_and_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_and_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_and_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Or Selected */
 static void
 conv_apply_or_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_apply_or_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_or_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_or_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_or_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_or_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* And Not Selected */
 static void
 conv_apply_and_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_apply_and_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_and_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_and_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_and_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_and_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Or Not Selected */
 static void
 conv_apply_or_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_apply_or_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_apply_or_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_apply_or_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_apply_or_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_apply_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 
@@ -970,495 +591,495 @@ conv_apply_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 static void
 conv_prepare_as_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_prepare_as_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_as_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_as_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_as_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_as_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Prepare As Not Selected */
 static void
 conv_prepare_as_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_prepare_as_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_as_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_as_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_as_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_as_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Prepare And Selected */
 static void
 conv_prepare_and_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_prepare_and_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_and_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_and_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_and_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_and_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Prepare Or Selected */
 static void
 conv_prepare_or_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_prepare_or_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_or_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_or_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_or_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_or_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Prepare And Not Selected */
 static void
 conv_prepare_and_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_prepare_and_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_and_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_and_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_and_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_and_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Prepare Or Not Selected */
 static void
 conv_prepare_or_not_selected_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_prepare_or_not_selected_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_prepare_or_not_selected_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_prepare_or_not_selected_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_prepare_or_not_selected_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_prepare_or_not_selected_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Find packet */
 static void
 conv_find_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_find_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_find_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_find_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_find_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_find_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_find_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_find_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_find_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Find next */
 static void
 conv_find_next_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_find_next_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_find_next_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_find_next_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_find_next_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_find_next_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_find_next_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_find_next_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_find_next_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Find Previous */
 static void
 conv_find_previous_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_find_previous_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_find_previous_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_find_previous_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_find_previous_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_find_previous_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_find_previous_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_find_previous_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_find_previous_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_AND_SELECTED, CONV_DIR_ANY_TO_B));
 }
 
 /* Colorize Conversation */
@@ -1466,55 +1087,55 @@ conv_find_previous_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 static void
 conv_color_AtofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_B));
 }
 
 static void
 conv_color_AtoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_A_TO_B));
 }
 
 static void
 conv_color_AfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_A_FROM_B));
 }
 
 static void
 conv_color_AtofromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_A_TO_FROM_ANY));
 }
 
 static void
 conv_color_AtoAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_TO_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_A_TO_ANY));
 }
 
 static void
 conv_color_AfromAny_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_A_FROM_ANY));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_A_FROM_ANY));
 }
 
 static void
 conv_color_AnytofromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_ANY_TO_FROM_B));
 }
 
 static void
 conv_color_AnyfromB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_FROM_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_ANY_FROM_B));
 }
 
 static void
 conv_color_AnytoB_cb(GtkAction *action _U_, gpointer user_data)
 {
-    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, DIR_ANY_TO_B));
+    ct_select_filter_cb( NULL, user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, CONV_DIR_ANY_TO_B));
 }
 static const char *ui_desc_conv_filter_popup =
 "<ui>\n"
@@ -1960,84 +1581,32 @@ ct_create_popup_menu(conversations_table *ct)
 
 }
 
-/* Draw/refresh the address fields of a single entry at the specified index */
-static void
-get_ct_table_address(conversations_table *ct, conv_t *conv, const char **entries)
-{
-    char *port;
-    guint32 pt;
-
-    if(!ct->resolve_names)
-        entries[0] = ep_address_to_str(&conv->src_address);
-    else {
-        entries[0] = (const char *)ep_address_to_display(&conv->src_address);
-    }
-
-    pt = conv->port_type;
-    if(!ct->resolve_names) pt = PT_NONE;
-    switch(pt) {
-    case(PT_TCP):
-        entries[1] = ep_tcp_port_to_display(conv->src_port);
-        break;
-    case(PT_UDP):
-        entries[1] = ep_udp_port_to_display(conv->src_port);
-        break;
-    case(PT_SCTP):
-        entries[1] = ep_sctp_port_to_display(conv->src_port);
-        break;
-    default:
-        port=ct_port_to_str(conv->port_type, conv->src_port);
-        entries[1] = port?port:"";
-    }
-
-    if(!ct->resolve_names)
-        entries[2]=ep_address_to_str(&conv->dst_address);
-    else {
-        entries[2]=(const char *)ep_address_to_display(&conv->dst_address);
-    }
-
-    switch(pt) {
-    case(PT_TCP):
-        entries[3]=ep_tcp_port_to_display(conv->dst_port);
-        break;
-    case(PT_UDP):
-        entries[3]=ep_udp_port_to_display(conv->dst_port);
-        break;
-    case(PT_SCTP):
-        entries[3]=ep_sctp_port_to_display(conv->dst_port);
-        break;
-    default:
-        port=ct_port_to_str(conv->port_type, conv->dst_port);
-        entries[3]=port?port:"";
-    }
-}
-
 /* Refresh the address fields of all entries in the list */
 static void
 draw_ct_table_addresses(conversations_table *ct)
 {
-    guint32 i;
-    const char *entries[4];
+    guint idx;
     GtkListStore *store;
-
-    if (!ct->num_conversations)
-        return;
+    GtkTreeIter iter;
+    gboolean iter_valid;
 
     store = GTK_LIST_STORE(gtk_tree_view_get_model(ct->table));
     g_object_ref(store);
     gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), NULL);
+    iter_valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
 
-    for(i=0;i<ct->num_conversations;i++){
-        conv_t *conv = &g_array_index(ct->conversations, conv_t, i);
-        if (!conv->iter_valid)
-            continue;
-        get_ct_table_address(ct, conv, entries);
-        gtk_list_store_set (store, &conv->iter,
-                  SRC_ADR_COLUMN,  entries[0],
-                  SRC_PORT_COLUMN, entries[1],
-                  DST_ADR_COLUMN,  entries[2],
-                  DST_PORT_COLUMN, entries[3],
+    while (iter_valid) {
+        conv_item_t *conv_item;
+
+        gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, CONV_INDEX_COLUMN, &idx, -1);
+        conv_item = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
+        gtk_list_store_set (store, &iter,
+                  CONV_COLUMN_SRC_ADDR, get_conversation_address(&conv_item->src_address, ct->resolve_names),
+                  CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
+                  CONV_COLUMN_DST_ADDR, get_conversation_address(&conv_item->dst_address, ct->resolve_names),
+                  CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
                     -1);
+        iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
     }
 
     gtk_tree_view_set_model(GTK_TREE_VIEW(ct->table), GTK_TREE_MODEL(store));
@@ -2047,22 +1616,24 @@ draw_ct_table_addresses(conversations_table *ct)
 static void
 draw_ct_table_data(conversations_table *ct)
 {
-    guint32 i;
+    guint idx, new_idx;
     char title[256];
     GtkListStore *store;
+    GtkTreeIter iter, reselect_iter;
+    gboolean iter_valid;
     gboolean first = TRUE;
 
     if (ct->page_lb) {
-        if(ct->num_conversations) {
-            g_snprintf(title, sizeof(title), "%s: %u", ct->name, ct->num_conversations);
+        if(ct->hash.conv_array && ct->hash.conv_array->len) {
+            g_snprintf(title, sizeof(title), "%s: %u", ct->name, ct->hash.conv_array->len);
         } else {
             g_snprintf(title, sizeof(title), "%s", ct->name);
         }
         gtk_label_set_text(GTK_LABEL(ct->page_lb), title);
-        gtk_widget_set_sensitive(ct->page_lb, ct->num_conversations);
+        gtk_widget_set_sensitive(ct->page_lb, ct->hash.conv_array && ct->hash.conv_array->len);
     } else {
-        if(ct->num_conversations) {
-            g_snprintf(title, sizeof(title), "%s Conversations: %u", ct->name, ct->num_conversations);
+        if(ct->hash.conv_array && ct->hash.conv_array->len) {
+            g_snprintf(title, sizeof(title), "%s Conversations: %u", ct->name, ct->hash.conv_array->len);
         } else {
             g_snprintf(title, sizeof(title), "%s Conversations", ct->name);
         }
@@ -2070,16 +1641,33 @@ draw_ct_table_data(conversations_table *ct)
     }
 
     store = GTK_LIST_STORE(gtk_tree_view_get_model(ct->table));
+    iter_valid = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(store), &iter);
+    new_idx = gtk_tree_model_iter_n_children(GTK_TREE_MODEL(store), NULL);
 
-    for(i=0;i<ct->num_conversations;i++){
+    /* Update list items (which may not be in "idx" order), then add new items */
+    while (iter_valid || (ct->hash.conv_array && new_idx < ct->hash.conv_array->len)) {
         char start_time[COL_STR_LEN], duration[COL_STR_LEN],
              txbps[COL_STR_LEN], rxbps[COL_STR_LEN];
         const char *tx_ptr, *rx_ptr;
         double duration_s;
-        conv_t *conversation = &g_array_index(ct->conversations, conv_t, i);
+        conv_item_t *conv_item;
 
-        if (!conversation->modified)
+        if (iter_valid) {
+            gtk_tree_model_get(GTK_TREE_MODEL(store), &iter, CONV_INDEX_COLUMN, &idx, -1);
+        } else {
+            idx = new_idx;
+            new_idx++;
+        }
+        conv_item = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
+
+        if (!conv_item->modified) {
+            iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
             continue;
+        }
+
+        if (iter_valid && (int)idx == ct->reselection_idx) {
+            reselect_iter = iter;
+        }
 
         if (first) {
             g_object_ref(store);
@@ -2087,66 +1675,64 @@ draw_ct_table_data(conversations_table *ct)
 
             first = FALSE;
         }
-        duration_s = nstime_to_sec(&conversation->stop_time) - nstime_to_sec(&conversation->start_time);
-        g_snprintf(start_time, COL_STR_LEN, "%.9f", nstime_to_sec(&conversation->start_time));
+        duration_s = nstime_to_sec(&conv_item->stop_time) - nstime_to_sec(&conv_item->start_time);
+        g_snprintf(start_time, COL_STR_LEN, "%.9f", nstime_to_sec(&conv_item->start_time));
         g_snprintf(duration, COL_STR_LEN, "%.4f", duration_s);
 
-        if (duration_s > 0 && conversation->tx_frames > 1) {
-            g_snprintf(txbps, COL_STR_LEN, "%.2f", (gint64) conversation->tx_bytes * 8 / duration_s);
+        if (duration_s > 0 && conv_item->tx_frames > 1) {
+            g_snprintf(txbps, COL_STR_LEN, "%.2f", (gint64) conv_item->tx_bytes * 8 / duration_s);
             tx_ptr = txbps;
         } else {
-            tx_ptr =  NO_BPS_STR;
+            tx_ptr = NO_BPS_STR;
         }
-        if (duration_s > 0 && conversation->rx_frames > 1) {
-            g_snprintf(rxbps, COL_STR_LEN, "%.2f", (gint64) conversation->rx_bytes * 8 / duration_s);
+        if (duration_s > 0 && conv_item->rx_frames > 1) {
+            g_snprintf(rxbps, COL_STR_LEN, "%.2f", (gint64) conv_item->rx_bytes * 8 / duration_s);
             rx_ptr = rxbps;
         } else {
             rx_ptr = NO_BPS_STR;
         }
-        conversation->modified = FALSE;
-        if (!conversation->iter_valid) {
-            const char *entries[4];
+        conv_item->modified = FALSE;
 
-            get_ct_table_address(ct, conversation, entries);
-            conversation->iter_valid = TRUE;
-
-            /* All entries, including fixed ones */
-            gtk_list_store_insert_with_values( store , &conversation->iter, G_MAXINT,
-                  SRC_ADR_COLUMN,  entries[0],
-                  SRC_PORT_COLUMN, entries[1],
-                  DST_ADR_COLUMN,  entries[2],
-                  DST_PORT_COLUMN, entries[3],
-                  PACKETS_COLUMN,  conversation->tx_frames+conversation->rx_frames,
-                  BYTES_COLUMN,    conversation->tx_bytes+conversation->rx_bytes,
-                  PKT_AB_COLUMN,   conversation->tx_frames,
-                  BYTES_AB_COLUMN, conversation->tx_bytes,
-                  PKT_BA_COLUMN,   conversation->rx_frames,
-                  BYTES_BA_COLUMN, conversation->rx_bytes,
-                  START_COLUMN,    start_time,
-                  DURATION_COLUMN, duration,
-                  BPS_AB_COLUMN,   tx_ptr,
-                  BPS_BA_COLUMN,   rx_ptr,
-                  INDEX_COLUMN,    i,
+        if (iter_valid) {
+            /* Existing row. Only changeable entries */
+            gtk_list_store_set(store, &iter,
+                    CONV_COLUMN_PACKETS,  conv_item->tx_frames+conv_item->rx_frames,
+                    CONV_COLUMN_BYTES,    conv_item->tx_bytes+conv_item->rx_bytes,
+                    CONV_COLUMN_PKT_AB,   conv_item->tx_frames,
+                    CONV_COLUMN_BYTES_AB, conv_item->tx_bytes,
+                    CONV_COLUMN_PKT_BA,   conv_item->rx_frames,
+                    CONV_COLUMN_BYTES_BA, conv_item->rx_bytes,
+                    CONV_COLUMN_START,    start_time,
+                    CONV_COLUMN_DURATION, duration,
+                    CONV_COLUMN_BPS_AB,   tx_ptr,
+                    CONV_COLUMN_BPS_BA,   rx_ptr,
+                    -1);
+        } else {
+            /* New row. All entries, including fixed ones */
+            gtk_list_store_insert_with_values(store, &iter, G_MAXINT,
+                    CONV_COLUMN_SRC_ADDR, get_conversation_address(&conv_item->src_address, ct->resolve_names),
+                    CONV_COLUMN_SRC_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
+                    CONV_COLUMN_DST_ADDR, get_conversation_address(&conv_item->dst_address, ct->resolve_names),
+                    CONV_COLUMN_DST_PORT, get_conversation_port(conv_item->src_port, conv_item->ptype, ct->resolve_names),
+                    CONV_COLUMN_PACKETS,  conv_item->tx_frames+conv_item->rx_frames,
+                    CONV_COLUMN_BYTES,    conv_item->tx_bytes+conv_item->rx_bytes,
+                    CONV_COLUMN_PKT_AB,   conv_item->tx_frames,
+                    CONV_COLUMN_BYTES_AB, conv_item->tx_bytes,
+                    CONV_COLUMN_PKT_BA,   conv_item->rx_frames,
+                    CONV_COLUMN_BYTES_BA, conv_item->rx_bytes,
+                    CONV_COLUMN_START,    start_time,
+                    CONV_COLUMN_DURATION, duration,
+                    CONV_COLUMN_BPS_AB,   tx_ptr,
+                    CONV_COLUMN_BPS_BA,   rx_ptr,
+                    CONV_INDEX_COLUMN,    idx,
                     -1);
         }
-        else {
-            /* Only changeable entries */
-            gtk_list_store_set (store, &conversation->iter,
-                  PACKETS_COLUMN,  conversation->tx_frames+conversation->rx_frames,
-                  BYTES_COLUMN,    conversation->tx_bytes+conversation->rx_bytes,
-                  PKT_AB_COLUMN,   conversation->tx_frames,
-                  BYTES_AB_COLUMN, conversation->tx_bytes,
-                  PKT_BA_COLUMN,   conversation->rx_frames,
-                  BYTES_BA_COLUMN, conversation->rx_bytes,
-                  START_COLUMN,    start_time,
-                  DURATION_COLUMN, duration,
-                  BPS_AB_COLUMN,   tx_ptr,
-                  BPS_BA_COLUMN,   rx_ptr,
-                    -1);
-        }
+
+        iter_valid = gtk_tree_model_iter_next(GTK_TREE_MODEL(store), &iter);
     }
+
     if (!first) {
-        if (!ct->fixed_col && ct->num_conversations >= 1000) {
+        if (!ct->fixed_col && ct->hash.conv_array && ct->hash.conv_array->len >= 1000) {
             /* finding the right size for a column isn't easy
              * let it run in autosize a little (1000 is arbitrary)
              * and then switch to fixed width.
@@ -2161,13 +1747,10 @@ draw_ct_table_data(conversations_table *ct)
     }
 
     /* Restore conversation selection */
-    if (ct->conversations && ct->reselection_idx != -1) {
-        /* Look up the same conversation */
-        conv_t *conversation = &g_array_index(ct->conversations, conv_t, ct->reselection_idx);
-        if (conversation) {
-            gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(ct->table)),
-                                           &conversation->iter);
-        }
+    if (ct->hash.conv_array && ct->reselection_idx != -1) {
+        /* XXX This generates Gtk-CRITICAL **: GtkTreePath *gtk_list_store_get_path ... */
+        gtk_tree_selection_select_iter(gtk_tree_view_get_selection(GTK_TREE_VIEW(ct->table)),
+                                       &reselect_iter);
     }
 }
 
@@ -2179,7 +1762,7 @@ draw_ct_table_data_cb(void *arg)
 
 typedef struct {
     int                 nb_cols;
-    gint                columns_order[N_COLUMNS];
+    gint                columns_order[CONV_NUM_COLUMNS];
     GString             *CSV_str;
     conversations_table *talkers;
 } csv_t;
@@ -2193,12 +1776,12 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
     gchar   *table_text;
     int      i;
     guint idx;
-    conv_t   *conv;
+    conv_item_t   *conv;
     double duration_s;
     guint64  value;
 
-    gtk_tree_model_get(model, iter, INDEX_COLUMN, &idx, -1);
-    conv=&g_array_index(csv->talkers->conversations, conv_t, idx);
+    gtk_tree_model_get(model, iter, CONV_INDEX_COLUMN, &idx, -1);
+    conv=&g_array_index(csv->talkers->hash.conv_array, conv_item_t, idx);
     duration_s = nstime_to_sec(&conv->stop_time) - nstime_to_sec(&conv->start_time);
 
     for (i=0; i< csv->nb_cols; i++) {
@@ -2206,39 +1789,39 @@ csv_handle(GtkTreeModel *model, GtkTreePath *path _U_, GtkTreeIter *iter,
             g_string_append(csv->CSV_str, ",");
 
         switch(csv->columns_order[i]) {
-        case SRC_ADR_COLUMN:
-        case SRC_PORT_COLUMN:
-        case DST_ADR_COLUMN:
-        case DST_PORT_COLUMN:
+        case CONV_COLUMN_SRC_ADDR:
+        case CONV_COLUMN_SRC_PORT:
+        case CONV_COLUMN_DST_ADDR:
+        case CONV_COLUMN_DST_PORT:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &table_text, -1);
             if (table_text) {
                 g_string_append_printf(csv->CSV_str, "\"%s\"", table_text);
                 g_free(table_text);
             }
             break;
-        case PACKETS_COLUMN:
-        case BYTES_COLUMN:
-        case PKT_AB_COLUMN:
-        case BYTES_AB_COLUMN:
-        case PKT_BA_COLUMN:
-        case BYTES_BA_COLUMN:
+        case CONV_COLUMN_PACKETS:
+        case CONV_COLUMN_BYTES:
+        case CONV_COLUMN_PKT_AB:
+        case CONV_COLUMN_BYTES_AB:
+        case CONV_COLUMN_PKT_BA:
+        case CONV_COLUMN_BYTES_BA:
             gtk_tree_model_get(model, iter, csv->columns_order[i], &value, -1);
             g_string_append_printf(csv->CSV_str, "\"%" G_GINT64_MODIFIER "u\"", value);
             break;
-        case START_COLUMN:
+        case CONV_COLUMN_START:
             g_string_append_printf(csv->CSV_str, "\"%.9f\"", nstime_to_sec(&conv->start_time));
             break;
-        case DURATION_COLUMN:
+        case CONV_COLUMN_DURATION:
             g_string_append_printf(csv->CSV_str, "\"%.4f\"", duration_s);
             break;
-        case BPS_AB_COLUMN:
+        case CONV_COLUMN_BPS_AB:
             if (duration_s > 0 && conv->tx_frames > 1) {
                 g_string_append_printf(csv->CSV_str, "\"%.2f\"", (gint64) conv->tx_bytes * 8 / duration_s);
             } else {
                 g_string_append(csv->CSV_str, "\"" NO_BPS_STR "\"");
             }
             break;
-        case BPS_BA_COLUMN:
+        case CONV_COLUMN_BPS_BA:
             if (duration_s > 0 && conv->rx_frames > 1) {
                 g_string_append_printf(csv->CSV_str, "\"%.2f\"", (gint64) conv->rx_bytes * 8 / duration_s);
             } else {
@@ -2296,26 +1879,25 @@ copy_as_csv_cb(GtkWindow *copy_bt, gpointer data _U_)
     g_string_free(csv.CSV_str, TRUE);                    /* Free the memory */
 }
 
-static gint default_col_size[N_COLUMNS];
+static gint default_col_size[CONV_NUM_COLUMNS];
 
 static void
 init_default_col_size(GtkWidget *view)
 {
-
-    default_col_size[SRC_ADR_COLUMN]  = get_default_col_size(view, "00000000.000000000000");
-    default_col_size[DST_ADR_COLUMN]  = default_col_size[SRC_ADR_COLUMN];
-    default_col_size[SRC_PORT_COLUMN] = get_default_col_size(view, "000000");
-    default_col_size[DST_PORT_COLUMN] = default_col_size[SRC_PORT_COLUMN];
-    default_col_size[PACKETS_COLUMN]  = get_default_col_size(view, "00 000 000");
-    default_col_size[BYTES_COLUMN]    = get_default_col_size(view, "0 000 000 000");
-    default_col_size[PKT_AB_COLUMN]   = default_col_size[PACKETS_COLUMN];
-    default_col_size[PKT_BA_COLUMN]   = default_col_size[PACKETS_COLUMN];
-    default_col_size[BYTES_AB_COLUMN] = default_col_size[BYTES_COLUMN];
-    default_col_size[BYTES_BA_COLUMN] = default_col_size[BYTES_COLUMN];
-    default_col_size[START_COLUMN]    = get_default_col_size(view, "000000.000000000");
-    default_col_size[DURATION_COLUMN] = get_default_col_size(view, "000000.0000");
-    default_col_size[BPS_AB_COLUMN]   = get_default_col_size(view, "000000000.00");
-    default_col_size[BPS_BA_COLUMN]   = default_col_size[BPS_AB_COLUMN];
+    default_col_size[CONV_COLUMN_SRC_ADDR]  = get_default_col_size(view, "00000000.000000000000");
+    default_col_size[CONV_COLUMN_DST_ADDR]  = default_col_size[CONV_COLUMN_SRC_ADDR];
+    default_col_size[CONV_COLUMN_SRC_PORT] = get_default_col_size(view, "000000");
+    default_col_size[CONV_COLUMN_DST_PORT] = default_col_size[CONV_COLUMN_SRC_PORT];
+    default_col_size[CONV_COLUMN_PACKETS]  = get_default_col_size(view, "00 000 000");
+    default_col_size[CONV_COLUMN_BYTES]    = get_default_col_size(view, "0 000 000 000");
+    default_col_size[CONV_COLUMN_PKT_AB]   = default_col_size[CONV_COLUMN_PACKETS];
+    default_col_size[CONV_COLUMN_PKT_BA]   = default_col_size[CONV_COLUMN_PACKETS];
+    default_col_size[CONV_COLUMN_BYTES_AB] = default_col_size[CONV_COLUMN_BYTES];
+    default_col_size[CONV_COLUMN_BYTES_BA] = default_col_size[CONV_COLUMN_BYTES];
+    default_col_size[CONV_COLUMN_START]    = get_default_col_size(view, "000000.000000000");
+    default_col_size[CONV_COLUMN_DURATION] = get_default_col_size(view, "000000.0000");
+    default_col_size[CONV_COLUMN_BPS_AB]   = get_default_col_size(view, "000000000.00");
+    default_col_size[CONV_COLUMN_BPS_BA]   = default_col_size[CONV_COLUMN_BPS_AB];
 }
 
 static gboolean
@@ -2338,24 +1920,14 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     conversations->resolve_names=TRUE;
     conversations->has_ports=!hide_ports;
     conversations->fixed_col = FALSE;
-    conversations->default_titles[0]="Address A",
-    conversations->default_titles[1]="Port A";
-    conversations->default_titles[2]="Address B";
-    conversations->default_titles[3]="Port B";
-    conversations->default_titles[4]="Packets";
-    conversations->default_titles[5]="Bytes";
-    conversations->default_titles[6]="Packets A" UTF8_RIGHTWARDS_ARROW "B";
-    conversations->default_titles[7]="Bytes A" UTF8_RIGHTWARDS_ARROW "B";
-    conversations->default_titles[8]="Packets A" UTF8_LEFTWARDS_ARROW "B";
-    conversations->default_titles[9]="Bytes A" UTF8_LEFTWARDS_ARROW "B";
-    conversations->default_titles[10]="Rel Start";
-    conversations->default_titles[11]="Duration";
-    conversations->default_titles[12]="bps A" UTF8_RIGHTWARDS_ARROW "B";
-    conversations->default_titles[13]="bps A" UTF8_LEFTWARDS_ARROW "B";
+
+    for (i = 0; i < CONV_NUM_COLUMNS; i++) {
+        conversations->default_titles[i] = column_titles[i];
+    }
 
     if (strcmp(table_name, "NCP")==0) {
-        conversations->default_titles[1]="Connection A";
-        conversations->default_titles[3]="Connection B";
+        conversations->default_titles[CONV_COLUMN_SRC_PORT] = conn_a_title;
+        conversations->default_titles[CONV_COLUMN_DST_PORT] = conn_b_title;
     }
 
     g_snprintf(title, sizeof(title), "%s Conversations", table_name);
@@ -2363,7 +1935,7 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
 
 
     /* Create the store */
-    store = gtk_list_store_new (N_COLUMNS,  /* Total number of columns */
+    store = gtk_list_store_new (CONV_NUM_COLUMNS + 1,  /* Total number of columns */
                                 G_TYPE_STRING,   /* Address A */
                                 G_TYPE_STRING,   /* Port A    */
                                 G_TYPE_STRING,   /* Address B */
@@ -2400,14 +1972,14 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     g_object_set_data(G_OBJECT(store), CONV_PTR_KEY, conversations);
     g_object_set_data(G_OBJECT(conversations->table), CONV_PTR_KEY, conversations);
 
-    for (i = 0; i < N_COLUMNS -1; i++) {
+    for (i = 0; i < CONV_NUM_COLUMNS; i++) {
         renderer = gtk_cell_renderer_text_new ();
         g_object_set(renderer, "ypad", 0, NULL);
         switch(i) {
-        case SRC_ADR_COLUMN:   /* addresses and ports */
-        case SRC_PORT_COLUMN:
-        case DST_ADR_COLUMN:
-        case DST_PORT_COLUMN:
+        case CONV_COLUMN_SRC_ADDR:   /* addresses and ports */
+        case CONV_COLUMN_SRC_PORT:
+        case CONV_COLUMN_DST_ADDR:
+        case CONV_COLUMN_DST_PORT:
             column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, "text",
                                                                i, NULL);
             if(hide_ports && (i == 1 || i == 3)){
@@ -2416,12 +1988,12 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
             }
             gtk_tree_sortable_set_sort_func(sortable, i, ct_sort_func, GINT_TO_POINTER(i), NULL);
             break;
-        case PACKETS_COLUMN:   /* counts */
-        case BYTES_COLUMN:
-        case PKT_AB_COLUMN:
-        case BYTES_AB_COLUMN:
-        case PKT_BA_COLUMN:
-        case BYTES_BA_COLUMN:
+        case CONV_COLUMN_PACKETS:   /* counts */
+        case CONV_COLUMN_BYTES:
+        case CONV_COLUMN_PKT_AB:
+        case CONV_COLUMN_BYTES_AB:
+        case CONV_COLUMN_PKT_BA:
+        case CONV_COLUMN_BYTES_BA:
             g_object_set(G_OBJECT(renderer), "xalign", 1.0, NULL);
             column = gtk_tree_view_column_new_with_attributes (conversations->default_titles[i], renderer, NULL);
             gtk_tree_view_column_set_cell_data_func(column, renderer, u64_data_func,  GINT_TO_POINTER(i), NULL);
@@ -2453,9 +2025,8 @@ init_ct_table_page(conversations_table *conversations, GtkWidget *vbox, gboolean
     gtk_tree_view_set_headers_clickable(conversations->table, TRUE);
     gtk_tree_view_set_reorderable (conversations->table, TRUE);
 
-    conversations->num_conversations=0;
-    conversations->conversations=NULL;
-    conversations->hashtable=NULL;
+    conversations->hash.conv_array=NULL;
+    conversations->hash.hashtable=NULL;
 
     sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(conversations->table));
     gtk_tree_selection_set_mode(sel, GTK_SELECTION_SINGLE);
@@ -2484,9 +2055,9 @@ graph_cb(GtkWidget *follow_stream_bt, gboolean reverse_direction)
     GtkTreeModel *model;
     GtkTreeSelection  *sel;
     guint32 idx = 0;
-    conv_t *conv;
+    conv_item_t *conv;
 
-    if (!ct)
+    if (!ct || !ct->hash.conv_array)
         return;
 
     /* Check for a current selection and that index has associated data */
@@ -2496,14 +2067,14 @@ graph_cb(GtkWidget *follow_stream_bt, gboolean reverse_direction)
         return;
     }
 
-    gtk_tree_model_get (model, &iter, INDEX_COLUMN, &idx, -1);
-    if (idx >= ct->num_conversations) {
+    gtk_tree_model_get (model, &iter, CONV_INDEX_COLUMN, &idx, -1);
+    if (idx >= ct->hash.conv_array->len) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
         return;
     }
 
     /* Look up the conversation for this index */
-    conv = &g_array_index(ct->conversations, conv_t, idx);
+    conv = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
 
     if (strcmp(ct->name, "TCP") == 0) {
         /* Invoke the graph */
@@ -2536,9 +2107,9 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
     GtkTreeSelection  *sel;
     guint32 idx = 0;
     gchar *filter = NULL;
-    conv_t *conv;
+    conv_item_t *conv;
 
-    if (!ct)
+    if (!ct || !ct->hash.conv_array)
         return;
 
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
@@ -2547,13 +2118,13 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
         return;
     }
 
-    gtk_tree_model_get (model, &iter, INDEX_COLUMN, &idx, -1);
-    if (idx >= ct->num_conversations) {
+    gtk_tree_model_get (model, &iter, CONV_INDEX_COLUMN, &idx, -1);
+    if (idx >= ct->hash.conv_array->len) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
         return;
     }
 
-    conv = &g_array_index(ct->conversations, conv_t, idx);
+    conv = &g_array_index(ct->hash.conv_array, conv_item_t, idx);
 
     /* Generate and apply a display filter to isolate the conversation. The
      * TCP filter is a special case because it uses the stream identifier/index
@@ -2561,22 +2132,17 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
      * in a unique conversation even in the face of port reuse. All others use
      * the address/port tuple.
      */
-    if ((strcmp(ct->name, "TCP") == 0) && (conv->conv_id != CONV_ID_UNSET))
-    {
+    switch (conv->ptype) {
+    case PT_TCP:
         filter = g_strdup_printf("tcp.stream eq %d", conv->conv_id);
+        break;
+    case PT_UDP:
+        filter = g_strdup_printf("udp.stream eq %d", conv->conv_id);
+        break;
+    default:
+        filter = g_strdup("INVALID");
     }
-    else
-    {
-        filter = g_strdup_printf("%s==%s && %s==%s && %s==%s && %s==%s",
-                                 ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                                 ep_address_to_str(&conv->src_address),
-                                 ct_get_filter_name(&conv->src_address, conv->sat, conv->port_type,  FN_ANY_PORT),
-                                 ct_port_to_str(conv->port_type, conv->src_port),
-                                 ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_ADDRESS),
-                                 ep_address_to_str(&conv->dst_address),
-                                 ct_get_filter_name(&conv->dst_address, conv->sat, conv->port_type,  FN_ANY_PORT),
-                                 ct_port_to_str(conv->port_type, conv->dst_port));
-    }
+
     apply_selected_filter(ACTYPE_SELECTED|ACTION_MATCH, filter);
     g_free(filter);
     filter = NULL;
@@ -2597,11 +2163,12 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
 
 
 void
-init_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
+init_conversation_table(conversation_type_e conv_type, const char *filter, tap_packet_cb packet_func)
 {
     conversations_table *conversations;
     char *display_name;
     char title[256];
+    const char *table_name = conversation_title(conv_type);
     GtkWidget *vbox;
     GtkWidget *bbox;
     GtkWidget *close_bt, *help_bt;
@@ -2631,7 +2198,10 @@ init_conversation_table(gboolean hide_ports, const char *table_name, const char 
     gtk_container_add(GTK_CONTAINER(conversations->win), vbox);
     gtk_container_set_border_width(GTK_CONTAINER(vbox), DLG_OUTER_MARGIN);
 
-    ret = init_ct_table_page(conversations, vbox, hide_ports, table_name, tap_name, filter, packet_func);
+    ret = init_ct_table_page(conversations, vbox,
+                             conversation_hide_ports(conv_type),
+                             table_name, conversation_tap_name(conv_type),
+                             filter, packet_func);
     if(ret == FALSE) {
         g_free(conversations);
         return;
@@ -2809,15 +2379,15 @@ typedef struct {
 static GSList *registered_ct_tables = NULL;
 
 void
-register_conversation_table(gboolean hide_ports, const char *table_name, const char *tap_name, const char *filter, tap_packet_cb packet_func)
+register_conversation_table(conversation_type_e conv_type, const char *filter, tap_packet_cb packet_func)
 {
     register_ct_t *table;
 
     table = g_new(register_ct_t,1);
 
-    table->hide_ports   = hide_ports;
-    table->table_name   = table_name;
-    table->tap_name     = tap_name;
+    table->hide_ports   = conversation_hide_ports(conv_type);
+    table->table_name   = conversation_title(conv_type);
+    table->tap_name     = conversation_tap_name(conv_type);
     table->filter       = filter;
     table->packet_func  = packet_func;
 
@@ -3009,202 +2579,6 @@ init_conversation_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
 
     cf_retap_packets(&cfile);
     gdk_window_raise(gtk_widget_get_window(win));
-}
-
-typedef struct _key {
-    address     addr1;
-    address     addr2;
-    guint32     port1;
-    guint32     port2;
-    conv_id_t   conv_id;
-} conv_key_t;
-
-
-/*
- * Compute the hash value for two given address/port pairs if the match
- * is to be exact.
- */
-static guint
-conversation_hash(gconstpointer v)
-{
-    const conv_key_t *key = (const conv_key_t *)v;
-    guint hash_val;
-
-    hash_val = 0;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr1);
-    hash_val += key->port1;
-    ADD_ADDRESS_TO_HASH(hash_val, &key->addr2);
-    hash_val += key->port2;
-    hash_val ^= key->conv_id;
-
-    return hash_val;
-}
-
-/*
- * Compare two conversation keys for an exact match.
- */
-static gint
-conversation_match(gconstpointer v, gconstpointer w)
-{
-    const conv_key_t *v1 = (const conv_key_t *)v;
-    const conv_key_t *v2 = (const conv_key_t *)w;
-
-    if (v1->conv_id == v2->conv_id)
-    {
-        if (v1->port1 == v2->port1 &&
-            v1->port2 == v2->port2 &&
-            ADDRESSES_EQUAL(&v1->addr1, &v2->addr1) &&
-            ADDRESSES_EQUAL(&v1->addr2, &v2->addr2)) {
-            return 1;
-        }
-
-        if (v1->port2 == v2->port1 &&
-            v1->port1 == v2->port2 &&
-            ADDRESSES_EQUAL(&v1->addr2, &v2->addr1) &&
-            ADDRESSES_EQUAL(&v1->addr1, &v2->addr2)) {
-            return 1;
-        }
-    }
-
-    /*
-     * The addresses, ports, or conversation IDs don't match.
-     */
-    return 0;
-}
-
-
-void
-add_conversation_table_data(conversations_table *ct, const address *src, const address *dst, guint32 src_port, guint32 dst_port, int num_frames, int num_bytes, nstime_t *ts, SAT_E sat, int port_type_val)
-{
-    add_conversation_table_data_with_conv_id(ct, src, dst, src_port, dst_port, CONV_ID_UNSET, num_frames, num_bytes, ts, sat, port_type_val);
-}
-
-void
-add_conversation_table_data_with_conv_id(
-    conversations_table *ct,
-    const address *src,
-    const address *dst,
-    guint32 src_port,
-    guint32 dst_port,
-    conv_id_t conv_id,
-    int num_frames,
-    int num_bytes,
-    nstime_t *ts,
-    SAT_E sat,
-    int port_type_val)
-{
-    const address *addr1, *addr2;
-    guint32 port1, port2;
-    conv_t *conversation = NULL;
-    unsigned int conversation_idx = 0;
-
-    if (src_port > dst_port) {
-        addr1 = src;
-        addr2 = dst;
-        port1 = src_port;
-        port2 = dst_port;
-    } else if (src_port < dst_port) {
-        addr2 = src;
-        addr1 = dst;
-        port2 = src_port;
-        port1 = dst_port;
-    } else if (CMP_ADDRESS(src, dst) < 0) {
-        addr1 = src;
-        addr2 = dst;
-        port1 = src_port;
-        port2 = dst_port;
-    } else {
-        addr2 = src;
-        addr1 = dst;
-        port2 = src_port;
-        port1 = dst_port;
-    }
-
-    /* if we dont have any entries at all yet */
-    if (ct->conversations == NULL) {
-        ct->conversations = g_array_sized_new(FALSE, FALSE, sizeof(conv_t), 10000);
-
-        ct->hashtable = g_hash_table_new_full(conversation_hash,
-                                              conversation_match, /* key_equal_func */
-                                              g_free,             /* key_destroy_func */
-                                              NULL);              /* value_destroy_func */
-
-    } else {
-        /* try to find it among the existing known conversations */
-        conv_key_t existing_key;
-
-        existing_key.addr1 = *addr1;
-        existing_key.addr2 = *addr2;
-        existing_key.port1 = port1;
-        existing_key.port2 = port2;
-        existing_key.conv_id = conv_id;
-        conversation_idx = GPOINTER_TO_UINT(g_hash_table_lookup(ct->hashtable, &existing_key));
-        if (conversation_idx) {
-            conversation_idx--;
-            conversation=&g_array_index(ct->conversations, conv_t, conversation_idx);
-        }
-    }
-
-    /* if we still dont know what conversation this is it has to be a new one
-       and we have to allocate it and append it to the end of the list */
-    if (conversation == NULL) {
-        conv_key_t *new_key;
-        conv_t conv;
-
-        COPY_ADDRESS(&conv.src_address, addr1);
-        COPY_ADDRESS(&conv.dst_address, addr2);
-        conv.sat = sat;
-        conv.port_type = port_type_val;
-        conv.src_port = port1;
-        conv.dst_port = port2;
-        conv.conv_id = conv_id;
-        conv.rx_frames = 0;
-        conv.tx_frames = 0;
-        conv.rx_bytes = 0;
-        conv.tx_bytes = 0;
-        conv.iter_valid = FALSE;
-        conv.modified = TRUE;
-
-        if (ts) {
-            memcpy(&conv.start_time, ts, sizeof(conv.start_time));
-            memcpy(&conv.stop_time, ts, sizeof(conv.stop_time));
-        } else {
-            nstime_set_unset(&conv.start_time);
-            nstime_set_unset(&conv.stop_time);
-        }
-        g_array_append_val(ct->conversations, conv);
-        conversation_idx = ct->num_conversations;
-        conversation=&g_array_index(ct->conversations, conv_t, conversation_idx);
-
-        /* ct->conversations address is not a constant but src/dst_address.data are */
-        new_key = g_new(conv_key_t, 1);
-        SET_ADDRESS(&new_key->addr1, conversation->src_address.type, conversation->src_address.len, conversation->src_address.data);
-        SET_ADDRESS(&new_key->addr2, conversation->dst_address.type, conversation->dst_address.len, conversation->dst_address.data);
-        new_key->port1 = port1;
-        new_key->port2 = port2;
-        new_key->conv_id = conv_id;
-        g_hash_table_insert(ct->hashtable, new_key, GUINT_TO_POINTER(conversation_idx +1));
-
-        ct->num_conversations++;
-    }
-
-    /* update the conversation struct */
-    conversation->modified = TRUE;
-    if ( (!CMP_ADDRESS(src, addr1)) && (!CMP_ADDRESS(dst, addr2)) && (src_port==port1) && (dst_port==port2) ) {
-        conversation->tx_frames += num_frames;
-        conversation->tx_bytes += num_bytes;
-    } else {
-        conversation->rx_frames += num_frames;
-        conversation->rx_bytes += num_bytes;
-    }
-
-    if (ts) {
-        if (nstime_cmp(ts, &conversation->stop_time) > 0) {
-            memcpy(&conversation->stop_time, ts, sizeof(conversation->stop_time));
-        } else if (nstime_cmp(ts, &conversation->start_time) < 0) {
-            memcpy(&conversation->start_time, ts, sizeof(conversation->start_time));
-        }
-    }
 }
 
 /*

@@ -21,8 +21,8 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __GTK_SAT_H__
-#define __GTK_SAT_H__
+#ifndef __SAT_H__
+#define __SAT_H__
 
 /** @file
  *  Sub-address type definitions.
@@ -38,4 +38,4 @@ typedef enum {
     SAT_JXTA        /**< URI : JXTA */
 } SAT_E;
 
-#endif /* __GTK_SAT_H__ */
+#endif /* __SAT_H__ */

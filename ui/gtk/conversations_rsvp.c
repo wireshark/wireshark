@@ -41,11 +41,12 @@ void register_tap_listener_rsvp_conversation(void);
 static int
 rsvp_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const rsvp_conversation_info *rsvph = (const rsvp_conversation_info *)vip;
 
-	add_conversation_table_data((conversations_table *)pct,
+	add_conversation_table_data(&ct->hash,
 				    &rsvph->source, &rsvph->destination, 0, 0, 1,
-				    pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
+				    pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_RSVP, PT_NONE);
 
 	return 1;
 }
@@ -61,7 +62,7 @@ rsvp_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "RSVP", "rsvp", filter,
+    init_conversation_table(CONV_TYPE_RSVP, filter,
 				rsvp_conversation_packet);
 
 }
@@ -76,6 +77,6 @@ void
 register_tap_listener_rsvp_conversation(void)
 {
 	register_stat_cmd_arg("conv,rsvp", rsvp_conversation_init,NULL);
-	register_conversation_table(TRUE, "RSVP", "rsvp", NULL /*filter*/,
+    register_conversation_table(CONV_TYPE_RSVP, NULL /*filter*/,
 				    rsvp_conversation_packet);
 }

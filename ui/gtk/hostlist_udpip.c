@@ -47,8 +47,8 @@ udpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, co
 	/* Take two "add" passes per packet, adding for each direction, ensures that all
 	packets are counted properly (even if address is sending to itself)
 	XXX - this could probably be done more efficiently inside hostlist_table */
-	add_hostlist_table_data(hosts, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
-	add_hostlist_table_data(hosts, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, SAT_NONE, PT_UDP);
+	add_hostlist_table_data(hosts, &udphdr->ip_src, udphdr->uh_sport, TRUE, 1, pinfo->fd->pkt_len, CONV_TYPE_UDP, PT_UDP);
+	add_hostlist_table_data(hosts, &udphdr->ip_dst, udphdr->uh_dport, FALSE, 1, pinfo->fd->pkt_len, CONV_TYPE_UDP, PT_UDP);
 
 	return 1;
 }

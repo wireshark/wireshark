@@ -42,17 +42,18 @@ void register_tap_listener_jxta_conversation(void);
 static int
 jxta_conversation_packet(void *pct, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const jxta_tap_header *jxtahdr = (const jxta_tap_header *) vip;
 
-	add_conversation_table_data((conversations_table *)pct,
+	add_conversation_table_data(&ct->hash,
 		&jxtahdr->src_address,
 		&jxtahdr->dest_address,
 		0,
 		0,
 		1,
 		jxtahdr->size,
-               NULL,
-		SAT_JXTA,
+        	NULL,
+        CONV_TYPE_JXTA,
 		PT_NONE);
 
 
@@ -70,7 +71,7 @@ jxta_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "JXTA", "jxta", filter, jxta_conversation_packet);
+    init_conversation_table(CONV_TYPE_JXTA, filter, jxta_conversation_packet);
 
 }
 
@@ -84,5 +85,5 @@ void
 register_tap_listener_jxta_conversation(void)
 {
 	register_stat_cmd_arg("conv,jxta", jxta_conversation_init,NULL);
-	register_conversation_table(TRUE, "JXTA", "jxta", NULL /*filter*/, jxta_conversation_packet);
+    register_conversation_table(CONV_TYPE_JXTA, NULL /*filter*/, jxta_conversation_packet);
 }

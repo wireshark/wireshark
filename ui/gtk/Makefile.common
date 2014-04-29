@@ -331,7 +331,6 @@ noinst_HEADERS = \
 	remote_icons.h	\
 	rtp_player.h	\
 	rtp_stream_dlg.h \
-	sat.h		\
 	sctp_stat_gtk.h	\
 	service_response_time_table.h	\
 	time_shift_dlg.h	\

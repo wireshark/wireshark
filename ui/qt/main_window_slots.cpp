@@ -70,6 +70,7 @@
 #endif
 
 #include "capture_file_dialog.h"
+#include "conversation_dialog.h"
 #include "decode_as_dialog.h"
 #include "export_object_dialog.h"
 #include "export_pdu_dialog.h"
@@ -296,6 +297,71 @@ void MainWindow::layoutPanes()
     }
     for (int i = 0; i < extra_split_.count(); i++) {
         extra_split_.widget(i)->show();
+    }
+}
+
+void MainWindow::filterAction(QString &action_filter, FilterAction::Action action, FilterAction::ActionType type)
+{
+    QString cur_filter, new_filter;
+
+    if (!df_combo_box_) return;
+    cur_filter = df_combo_box_->lineEdit()->text();
+
+    switch (type) {
+    case FilterAction::ActionTypePlain:
+        new_filter = action_filter;
+        break;
+    case FilterAction::ActionTypeAnd:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") && (" + action_filter + ")";
+        } else {
+            new_filter = action_filter;
+        }
+        break;
+    case FilterAction::ActionTypeOr:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") || (" + action_filter + ")";
+        } else {
+            new_filter = action_filter;
+        }
+        break;
+    case FilterAction::ActionTypeNot:
+        new_filter = "!(" + action_filter + ")";
+        break;
+    case FilterAction::ActionTypeAndNot:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") && !(" + action_filter + ")";
+        } else {
+            new_filter = "!(" + action_filter + ")";
+        }
+        break;
+    case FilterAction::ActionTypeOrNot:
+        if (cur_filter.length()) {
+            new_filter = "(" + cur_filter + ") || !(" + action_filter + ")";
+        } else {
+            new_filter = "!(" + action_filter + ")";
+        }
+        break;
+    default:
+        g_assert_not_reached();
+        break;
+    }
+
+    switch(action) {
+    case FilterAction::ActionApply:
+        df_combo_box_->lineEdit()->setText(new_filter);
+        df_combo_box_->applyDisplayFilter();
+        break;
+    case FilterAction::ActionPrepare:
+        df_combo_box_->lineEdit()->setText(new_filter);
+        df_combo_box_->lineEdit()->setFocus();
+        break;
+    case FilterAction::ActionCopy:
+        wsApp->clipboard()->setText(new_filter);
+        break;
+    default:
+        qDebug() << "FIX FilterAction::Action" << action << "not implemented";
+        break;
     }
 }
 
@@ -1482,7 +1548,7 @@ void MainWindow::on_actionEditCopyValue_triggered()
 
 void MainWindow::on_actionEditCopyAsFilter_triggered()
 {
-    matchSelectedFilter(MatchSelectedReplace, false, true);
+    matchFieldFilter(FilterAction::ActionCopy, FilterAction::ActionTypePlain);
 }
 
 void MainWindow::on_actionEditFindPacket_triggered()
@@ -1643,11 +1709,9 @@ void MainWindow::on_actionViewToolbarDisplayFilter_triggered()
 // Analyze Menu
 
 // XXX This should probably be somewhere else.
-void MainWindow::matchSelectedFilter(MainWindow::MatchSelected filter_type, bool apply, bool copy_only)
+void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::ActionType filter_type)
 {
     QString field_filter;
-    QString cur_filter;
-    QString new_filter;
 
     if (packet_list_->contextMenuActive()) {
         field_filter = packet_list_->getFilterFromRowAndColumn();
@@ -1666,121 +1730,70 @@ void MainWindow::matchSelectedFilter(MainWindow::MatchSelected filter_type, bool
         return;
     }
 
-    if (!df_combo_box_) return;
-
-    cur_filter = df_combo_box_->lineEdit()->text();
-
-    switch (filter_type) {
-    case MatchSelectedReplace:
-        new_filter = field_filter;
-        break;
-    case MatchSelectedAnd:
-        if (cur_filter.length()) {
-            new_filter = "(" + cur_filter + ") && (" + field_filter + ")";
-        } else {
-            new_filter = field_filter;
-        }
-        break;
-    case MatchSelectedOr:
-        if (cur_filter.length()) {
-            new_filter = "(" + cur_filter + ") || (" + field_filter + ")";
-        } else {
-            new_filter = field_filter;
-        }
-        break;
-    case MatchSelectedNot:
-        new_filter = "!(" + field_filter + ")";
-        break;
-    case MatchSelectedAndNot:
-        if (cur_filter.length()) {
-            new_filter = "(" + cur_filter + ") && !(" + field_filter + ")";
-        } else {
-            new_filter = "!(" + field_filter + ")";
-        }
-        break;
-    case MatchSelectedOrNot:
-        if (cur_filter.length()) {
-            new_filter = "(" + cur_filter + ") || !(" + field_filter + ")";
-        } else {
-            new_filter = "!(" + field_filter + ")";
-        }
-        break;
-    default:
-        g_assert_not_reached();
-        break;
-    }
-
-    if (copy_only) {
-        wsApp->clipboard()->setText(new_filter);
-    } else {
-        df_combo_box_->lineEdit()->setText(new_filter);
-        if (apply) {
-            df_combo_box_->applyDisplayFilter();
-        } else {
-            df_combo_box_->lineEdit()->setFocus();
-        }
-    }
-
+    filterAction(field_filter, action, filter_type);
 }
 
+// XXX We could probably create the analyze and prepare actions
+// dynamically using FilterActions and consolidate the methods
+// below into one callback.
 void MainWindow::on_actionAnalyzeAAFSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedReplace, true, false);
+    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypePlain);
 }
 
 void MainWindow::on_actionAnalyzeAAFNotSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedNot, true, false);
+    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeNot);
 }
 
 void MainWindow::on_actionAnalyzeAAFAndSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedAnd, true, false);
+    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeAnd);
 }
 
 void MainWindow::on_actionAnalyzeAAFOrSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedOr, true, false);
+    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeOr);
 }
 
 void MainWindow::on_actionAnalyzeAAFAndNotSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedAndNot, true, false);
+    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeAndNot);
 }
 
 void MainWindow::on_actionAnalyzeAAFOrNotSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedOrNot, true, false);
+    matchFieldFilter(FilterAction::ActionApply, FilterAction::ActionTypeOrNot);
 }
 
 void MainWindow::on_actionAnalyzePAFSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedReplace, false, false);
+    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypePlain);
 }
 
 void MainWindow::on_actionAnalyzePAFNotSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedNot, false, false);
+    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeNot);
 }
 
 void MainWindow::on_actionAnalyzePAFAndSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedAnd, false, false);
+    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeAnd);
 }
 
 void MainWindow::on_actionAnalyzePAFOrSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedOr, false, false);
+    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeOr);
 }
 
 void MainWindow::on_actionAnalyzePAFAndNotSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedAndNot, false, false);
+    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeAndNot);
 }
 
 void MainWindow::on_actionAnalyzePAFOrNotSelected_triggered()
 {
-    matchSelectedFilter(MatchSelectedOrNot, false, false);
+    matchFieldFilter(FilterAction::ActionPrepare, FilterAction::ActionTypeOrNot);
 }
 
 void MainWindow::on_actionAnalyzeDecodeAs_triggered()
@@ -2059,6 +2072,26 @@ void MainWindow::on_actionStatisticsBACappService_triggered()
 void MainWindow::on_actionStatisticsCollectd_triggered()
 {
     openStatisticsTreeDialog("collectd");
+}
+
+void MainWindow::statCommandConversation(const char *arg, void *userdata)
+{
+    Q_UNUSED(userdata);
+    ConversationDialog *conv_dialog = new ConversationDialog(this, cap_file_, arg);
+    connect(conv_dialog, SIGNAL(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)),
+            this, SLOT(filterAction(QString&,FilterAction::Action,FilterAction::ActionType)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
+            this, SLOT(openFollowStreamDialog(follow_type_t)));
+    connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
+            this, SLOT(openTcpStreamDialog(int)));
+    connect(this, SIGNAL(setCaptureFile(capture_file*)),
+            conv_dialog, SLOT(setCaptureFile(capture_file*)));
+    conv_dialog->show();
+}
+
+void MainWindow::on_actionStatisticsConversations_triggered()
+{
+    statCommandConversation(NULL, NULL);
 }
 
 void MainWindow::on_actionStatisticsHART_IP_triggered()

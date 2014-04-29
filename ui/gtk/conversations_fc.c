@@ -42,9 +42,10 @@ void register_tap_listener_fc_conversation(void);
 static int
 fc_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const fc_hdr *fchdr=(const fc_hdr *)vip;
 
-	add_conversation_table_data((conversations_table *)pct, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_NONE, PT_NONE);
+	add_conversation_table_data(&ct->hash, &fchdr->s_id, &fchdr->d_id, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_FIBRE_CHANNEL, PT_NONE);
 
 	return 1;
 }
@@ -62,7 +63,7 @@ fc_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "Fibre Channel", "fc", filter, fc_conversation_packet);
+    init_conversation_table(CONV_TYPE_FIBRE_CHANNEL, filter, fc_conversation_packet);
 
 }
 
@@ -76,5 +77,5 @@ void
 register_tap_listener_fc_conversation(void)
 {
 	register_stat_cmd_arg("conv,fc", fc_conversation_init, NULL);
-	register_conversation_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, fc_conversation_packet);
+    register_conversation_table(CONV_TYPE_FIBRE_CHANNEL, NULL /*filter*/, fc_conversation_packet);
 }

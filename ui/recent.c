@@ -74,7 +74,10 @@
 #define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE "gui.geometry_status_wlan_stats_pane"
 #define RECENT_LAST_USED_PROFILE            "gui.last_used_profile"
 #define RECENT_GUI_FILEOPEN_REMEMBERED_DIR  "gui.fileopen_remembered_dir"
+#define RECENT_GUI_CONVERSATION_TABS       "gui.conversation_tabs"
+
 #define RECENT_GUI_GEOMETRY                 "gui.geom."
+
 #define RECENT_KEY_PRIVS_WARN_IF_ELEVATED   "privs.warn_if_elevated"
 #define RECENT_KEY_PRIVS_WARN_IF_NO_NPF     "privs.warn_if_no_npf"
 
@@ -666,6 +669,7 @@ write_profile_recent(void)
 {
   char        *pf_dir_path;
   char        *rf_path;
+  char        *string_list;
   FILE        *rf;
 
   /* To do:
@@ -789,6 +793,12 @@ write_profile_recent(void)
   fprintf(rf, "\n# Packet list column pixel widths.\n");
   fprintf(rf, "# Each pair of strings consists of a column format and its pixel width.\n");
   packet_list_recent_write_all(rf);
+
+  fprintf(rf, "\n# Open conversation dialog tabs.\n");
+  fprintf(rf, "# List of conversation names, e.g. \"TCP\", \"IPv6\".\n");
+  string_list = join_string_list(recent.conversation_tabs);
+  fprintf(rf, RECENT_GUI_CONVERSATION_TABS ": %s\n", string_list);
+  g_free(string_list);
 
   if (get_last_open_dir() != NULL) {
     fprintf(rf, "\n# Last directory navigated to in File Open dialog.\n");
@@ -1024,8 +1034,9 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
       return PREFS_SET_SYNTAX_ERR;	/* number must be positive */
     recent.gui_geometry_main_lower_pane = (gint)num;
     recent.has_gui_geometry_main_lower_pane = TRUE;
-  }
-  else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
+  } else if (strcmp(key, RECENT_GUI_CONVERSATION_TABS) == 0) {
+    recent.conversation_tabs = prefs_get_string_list(value);
+  } else if (strcmp(key, RECENT_KEY_COL_WIDTH) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
       return PREFS_SET_SYNTAX_ERR;

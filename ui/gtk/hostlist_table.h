@@ -24,7 +24,7 @@
 #ifndef __HOSTLIST_TABLE_H__
 #define __HOSTLIST_TABLE_H__
 
-#include "sat.h"
+#include <ui/conversation_hash.h>
 
 /** @file
  *  Hostlist definitions.
@@ -33,7 +33,7 @@
 /** Hostlist information */
 typedef struct _hostlist_talker_t {
 	address myaddress;      /**< address */
-	SAT_E   sat;            /**< address type */
+	conversation_type_e   sat;            /**< address type */
 	guint32 port_type;      /**< port_type (e.g. PT_TCP) */
 	guint32 port;           /**< port */
 
@@ -116,6 +116,6 @@ extern void init_hostlist_notebook_cb(GtkWidget *w, gpointer d);
  * @param port_type the port type (e.g. PT_TCP)
  */
 void add_hostlist_table_data(hostlist_table *hl, const address *addr,
-                             guint32 port, gboolean sender, int num_frames, int num_bytes, SAT_E sat, int port_type);
+                             guint32 port, gboolean sender, int num_frames, int num_bytes, conversation_type_e sat, int port_type);
 
 #endif /* __HOSTLIST_TABLE_H__ */

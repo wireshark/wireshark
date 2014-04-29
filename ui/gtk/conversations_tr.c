@@ -41,9 +41,10 @@ void register_tap_listener_tr_conversation(void);
 static int
 tr_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
 {
+	conversations_table *ct = (conversations_table *) pct;
 	const tr_hdr *trhdr=(const tr_hdr *)vip;
 
-	add_conversation_table_data((conversations_table *)pct, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, SAT_TOKENRING, PT_NONE);
+	add_conversation_table_data(&ct->hash, &trhdr->src, &trhdr->dst, 0, 0, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, CONV_TYPE_TOKEN_RING, PT_NONE);
 
 	return 1;
 }
@@ -61,7 +62,7 @@ tr_conversation_init(const char *opt_arg, void* userdata _U_)
 		filter=NULL;
 	}
 
-	init_conversation_table(TRUE, "Token Ring", "tr", filter, tr_conversation_packet);
+    init_conversation_table(CONV_TYPE_TOKEN_RING, filter, tr_conversation_packet);
 
 }
 
@@ -75,5 +76,5 @@ void
 register_tap_listener_tr_conversation(void)
 {
 	register_stat_cmd_arg("conv,tr", tr_conversation_init, NULL);
-	register_conversation_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_conversation_packet);
+    register_conversation_table(CONV_TYPE_TOKEN_RING, NULL /*filter*/, tr_conversation_packet);
 }

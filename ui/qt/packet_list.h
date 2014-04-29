@@ -40,7 +40,6 @@ public:
     PacketListModel *packetListModel() const;
     void setProtoTree(ProtoTree *proto_tree);
     void setByteViewTab(ByteViewTab *byteViewTab);
-    void updateAll();
     void freeze();
     void thaw();
     void clear();
@@ -92,6 +91,7 @@ public slots:
     void ignoreAllDisplayedFrames(bool set);
     void setTimeReference();
     void unsetAllTimeReferences();
+    void updateAll();
 
 private slots:
     void addRelatedFrame(int related_frame);

@@ -34,6 +34,7 @@ NODIST_GENERATED_HEADER_FILES =	\
 	ui_capture_preferences_frame.h	\
 	ui_column_preferences_frame.h	\
 	ui_compiled_filter_output.h		\
+	ui_conversation_dialog.h	\
 	ui_decode_as_dialog.h	\
 	ui_export_object_dialog.h	\
 	ui_export_pdu_dialog.h	\
@@ -123,6 +124,8 @@ MOC_HDRS =	\
 	capture_preferences_frame.h	\
 	column_preferences_frame.h	\
 	compiled_filter_output.h	\
+	conversation_dialog.h	\
+	conversation_tree_widget.h	\
 	decode_as_dialog.h	\
 	display_filter_combo.h	\
 	display_filter_edit.h	\
@@ -131,6 +134,7 @@ MOC_HDRS =	\
 	export_object_dialog.h	\
 	export_pdu_dialog.h	\
 	file_set_dialog.h	\
+	filter_action.h	\
 	filter_expressions_preferences_frame.h	\
 	follow_stream_dialog.h	\
 	follow_stream_text.h	\
@@ -193,6 +197,7 @@ UI_FILES =	\
 	capture_preferences_frame.ui	\
 	column_preferences_frame.ui	\
 	compiled_filter_output.ui \
+	conversation_dialog.ui	\
 	decode_as_dialog.ui	\
 	export_object_dialog.ui	\
 	export_pdu_dialog.ui	\
@@ -302,6 +307,8 @@ WIRESHARK_QT_SRC =	\
 	capture_preferences_frame.cpp	\
 	column_preferences_frame.cpp	\
 	compiled_filter_output.cpp \
+	conversation_dialog.cpp	\
+	conversation_tree_widget.cpp	\
 	decode_as_dialog.cpp	\
 	display_filter_combo.cpp	\
 	display_filter_edit.cpp	\
@@ -310,6 +317,7 @@ WIRESHARK_QT_SRC =	\
 	export_object_dialog.cpp	\
 	export_pdu_dialog.cpp	\
 	file_set_dialog.cpp	\
+	filter_action.cpp	\
 	filter_expressions_preferences_frame.cpp	\
 	follow_stream_dialog.cpp	\
 	follow_stream_text.cpp	\
