@@ -580,6 +580,12 @@ enum {
     OSPFF_MSG_LS_ACK,
 
     OSPFF_LS_TYPE,
+    OSPFF_LS_AGE,
+    OSPFF_LS_DONOTAGE,
+    OSPFF_LS_ID,
+    OSPFF_LS_SEQNUM,
+    OSPFF_LS_CHKSUM,
+    OSPFF_LS_LENGTH,
     OSPFF_LS_OPAQUE_TYPE,
 
     OSPFF_LS_MPLS_TE_INSTANCE,
@@ -590,10 +596,23 @@ enum {
     OSPFF_LS_ROUTER_LINKTYPE,
     OSPFF_LS_ROUTER_LINKID,
     OSPFF_LS_ROUTER_LINKDATA,
+    OSPFF_LS_ROUTER_NUMMETRICS,
+    OSPFF_LS_ROUTER_METRIC0,
+
     OSPFF_LS_NETWORK,
+    OSPFF_LS_NETWORK_NETMASK,
+    OSPFF_LS_NETWORK_ATTACHRTR,
+
     OSPFF_LS_SUMMARY,
+
     OSPFF_LS_ASBR,
+    OSPFF_LS_ASBR_NETMASK,
+
     OSPFF_LS_ASEXT,
+    OSPFF_LS_ASEXT_NETMASK,
+    OSPFF_LS_ASEXT_FWDADDR,
+    OSPFF_LS_ASEXT_EXTRTRTAG,
+
     OSPFF_LS_GRPMEMBER,
     OSPFF_LS_ASEXT7,
     OSPFF_LS_EXTATTR,
@@ -2510,10 +2529,10 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     }
     ospf_lsa_tree = proto_item_add_subtree(ti, ett_ospf_lsa);
 
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "LS Age: %u seconds",
-                        tvb_get_ntohs(tvb, offset) & ~OSPF_DNA_LSA);
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset, 2, "Do Not Age: %s",
-                        (tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_AGE], tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_DONOTAGE], tvb,
+                        offset, 2, ENC_BIG_ENDIAN);
     options = tvb_get_guint8 (tvb, offset + 2);
     dissect_ospf_bitfield(ospf_lsa_tree, tvb, offset + 2, &bfinfo_v2_options);
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_TYPE], tvb,
@@ -2561,19 +2580,18 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         }
     } else {
         ls_id_type = 0;
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
-                            tvb_ip_to_str(tvb, offset + 4));
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ID], tvb,
+                            offset + 4, 4, ENC_BIG_ENDIAN);
     }
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_ADV_ROUTER],
                         tvb, offset + 8, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 12, 4, "LS Sequence Number: 0x%08x",
-                        tvb_get_ntohl(tvb, offset + 12));
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 16, 2, "LS Checksum: 0x%04x",
-                        tvb_get_ntohs(tvb, offset + 16));
-
-    proto_tree_add_text(ospf_lsa_tree, tvb, offset + 18, 2, "Length: %u",
-                        ls_length);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_SEQNUM], tvb,
+                        offset + 12, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_CHKSUM], tvb,
+                        offset + 16, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_LENGTH], tvb,
+                        offset + 18, 2, ENC_BIG_ENDIAN);
 
     /* skip past the LSA header to the body */
     offset += OSPF_LSA_HEADER_LENGTH;
@@ -2660,17 +2678,18 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
             proto_item_append_text(ti_item, " - %s", link_id);
 
             /* link_data should be specified in detail (e.g. network mask) (depends on link type)*/
-            ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKDATA],
+            proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKDATA],
                         tvb, offset +4, 4, ENC_BIG_ENDIAN);
 
             ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_LINKTYPE],
                         tvb, offset + 8, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(ti_item, " - %s", link_type_str);
 
-            proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 9, 1, "Number of %s metrics: %u",
-                                metric_type_str, nr_metric);
-            proto_tree_add_text(ospf_lsa_router_link_tree, tvb, offset + 10, 2, "%s 0 metric: %u",
-                                metric_type_str, tvb_get_ntohs(tvb, offset + 10));
+            ti_item = proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_NUMMETRICS],
+                                tvb, offset + 9, 1, ENC_BIG_ENDIAN);
+            proto_item_append_text(ti_item, " - %s", metric_type_str);
+            proto_tree_add_item(ospf_lsa_router_link_tree, hf_ospf_filter[OSPFF_LS_ROUTER_METRIC0],
+                                tvb, offset + 10, 2, ENC_BIG_ENDIAN);
 
             offset += 12;
 
@@ -2689,13 +2708,13 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
         break;
 
     case OSPF_LSTYPE_NETWORK:
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
-                            tvb_ip_to_str(tvb, offset));
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_NETWORK_NETMASK],
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         while (offset < end_offset) {
-            proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Attached Router: %s",
-                                tvb_ip_to_str(tvb, offset));
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_NETWORK_ATTACHRTR],
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
         break;
@@ -2703,8 +2722,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
     case OSPF_LSTYPE_SUMMERY:
         /* Type 3 and 4 LSAs have the same format */
     case OSPF_LSTYPE_ASBR:
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
-                            tvb_ip_to_str(tvb, offset));
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASBR_NETMASK],
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Metric: %u",
@@ -2723,8 +2742,8 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
 
     case OSPF_LSTYPE_ASEXT:
     case OSPF_LSTYPE_ASEXT7:
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Netmask: %s",
-                            tvb_ip_to_str(tvb, offset));
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_NETMASK],
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         options = tvb_get_guint8(tvb, offset);
@@ -2740,12 +2759,12 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
                             tvb_get_ntoh24(tvb, offset + 1));
         offset += 4;
 
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s",
-                            tvb_ip_to_str(tvb, offset));
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_FWDADDR],
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "External Route Tag: %u",
-                            tvb_get_ntohl(tvb, offset));
+        proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_EXTRTRTAG],
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* Metric specific information, if any */
@@ -2763,12 +2782,12 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
                                 tvb_get_ntoh24(tvb, offset + 1));
             offset += 4;
 
-            proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "Forwarding Address: %s",
-                                tvb_ip_to_str(tvb, offset));
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_FWDADDR],
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
-            proto_tree_add_text(ospf_lsa_tree, tvb, offset, 4, "External Route Tag: %u",
-                                tvb_get_ntohl(tvb, offset));
+            proto_tree_add_item(ospf_lsa_tree, hf_ospf_filter[OSPFF_LS_ASEXT_EXTRTRTAG],
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
         break;
@@ -3347,6 +3366,25 @@ proto_register_ospf(void)
         {&hf_ospf_filter[OSPFF_LS_TYPE],
          { "LS Type", "ospf.lsa", FT_UINT8, BASE_DEC,
            VALS(ls_type_vals), 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_AGE],
+         {"LS Age (seconds)", "ospf.lsa.age", FT_UINT16,
+            BASE_DEC, NULL, ~OSPF_DNA_LSA, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_DONOTAGE],
+         {"Do Not Age Flag", "ospf.lsa.donotage", FT_UINT16,
+            BASE_DEC, NULL, OSPF_DNA_LSA, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ID],
+         {"Link State ID", "ospf.lsa.id", FT_IPv4,
+            BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_SEQNUM],
+         {"Sequence Number", "ospf.lsa.seqnum", FT_UINT32,
+            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_CHKSUM],
+         {"Checksum", "ospf.lsa.chksum", FT_UINT16,
+            BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_LENGTH],
+         {"Length", "ospf.lsa.length", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
         {&hf_ospf_filter[OSPFF_LS_OPAQUE_TYPE],
          { "Link State ID Opaque Type", "ospf.lsid_opaque_type", FT_UINT8, BASE_DEC,
            VALS(ls_opaque_type_vals), 0x0, NULL, HFILL }},
@@ -3367,19 +3405,46 @@ proto_register_ospf(void)
         {&hf_ospf_filter[OSPFF_LS_ROUTER_LINKDATA],
          { "Link Data", "ospf.lsa.router.linkdata", FT_IPv4, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ROUTER_NUMMETRICS],
+         { "Number of Metrics", "ospf.lsa.router.nummetrics", FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ROUTER_METRIC0],
+         { "0 Metric", "ospf.lsa.router.metric0", FT_UINT16, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
 
         {&hf_ospf_filter[OSPFF_LS_NETWORK],
          { "Network LSA", "ospf.lsa.network", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_NETWORK_NETMASK],
+         { "Netmask", "ospf.lsa.network.netmask", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_NETWORK_ATTACHRTR],
+         { "Attached Router", "ospf.lsa.network.attchrtr", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
         {&hf_ospf_filter[OSPFF_LS_SUMMARY],
          { "Summary LSA (IP Network)", "ospf.lsa.summary", FT_BOOLEAN, BASE_NONE,
            NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_filter[OSPFF_LS_ASBR],
          { "Summary LSA (ASBR)", "ospf.lsa.asbr", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ASBR_NETMASK],
+         { "Netmask", "ospf.lsa.asbr.netmask", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+
         {&hf_ospf_filter[OSPFF_LS_ASEXT],
          { "AS-External LSA (ASBR)", "ospf.lsa.asext", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ASEXT_NETMASK],
+         { "Netmask", "ospf.lsa.asext.netmask", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ASEXT_FWDADDR],
+         { "Forwarding Address", "ospf.lsa.asext.fwdaddr", FT_IPv4, BASE_NONE, NULL, 0x0,
+           NULL, HFILL }},
+        {&hf_ospf_filter[OSPFF_LS_ASEXT_EXTRTRTAG],
+         { "External Route Tag", "ospf.lsa.asext.extrttag", FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }},
+
         {&hf_ospf_filter[OSPFF_LS_GRPMEMBER],
          { "Group Membership LSA", "ospf.lsa.member", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
            NULL, HFILL }},
