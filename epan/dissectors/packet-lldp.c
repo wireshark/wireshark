@@ -125,6 +125,22 @@ static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_supported = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_enabled = -1;
+static int hf_ieee_8021qau_cnpv_prio0 = -1;
+static int hf_ieee_8021qau_cnpv_prio1 = -1;
+static int hf_ieee_8021qau_cnpv_prio2 = -1;
+static int hf_ieee_8021qau_cnpv_prio3 = -1;
+static int hf_ieee_8021qau_cnpv_prio4 = -1;
+static int hf_ieee_8021qau_cnpv_prio5 = -1;
+static int hf_ieee_8021qau_cnpv_prio6 = -1;
+static int hf_ieee_8021qau_cnpv_prio7 = -1;
+static int hf_ieee_8021qau_ready_prio0 = -1;
+static int hf_ieee_8021qau_ready_prio1 = -1;
+static int hf_ieee_8021qau_ready_prio2 = -1;
+static int hf_ieee_8021qau_ready_prio3 = -1;
+static int hf_ieee_8021qau_ready_prio4 = -1;
+static int hf_ieee_8021qau_ready_prio5 = -1;
+static int hf_ieee_8021qau_ready_prio6 = -1;
+static int hf_ieee_8021qau_ready_prio7 = -1;
 static int hf_ieee_8021az_feature_flag_willing = -1;
 static int hf_ieee_8021az_feature_flag_cbs = -1;
 static int hf_ieee_8021az_maxtcs = -1;
@@ -267,6 +283,7 @@ static gint ett_org_spc_ieee_802_1_1 = -1;
 static gint ett_org_spc_ieee_802_1_2 = -1;
 static gint ett_org_spc_ieee_802_1_3 = -1;
 static gint ett_org_spc_ieee_802_1_4 = -1;
+static gint ett_org_spc_ieee_802_1_8 = -1;
 static gint ett_org_spc_ieee_802_1_9 = -1;
 static gint ett_org_spc_ieee_802_1_a = -1;
 static gint ett_org_spc_ieee_802_1_b = -1;
@@ -392,6 +409,7 @@ static const value_string ieee_802_1_subtypes[] = {
 	{ 0x02, "Port and Protocol VLAN ID" },
 	{ 0x03, "VLAN Name" },
 	{ 0x04, "Protocol Identity" },
+	{ 0x08,	"Congestion Notification" },
 	{ 0x09, "ETS Configuration" },
 	{ 0x0A, "ETS Recommendation" },
 	{ 0x0B, "Priority Flow Control Configuration" },
@@ -1714,6 +1732,35 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 		break;
 	}
+	case 0x8:	/* Congestion Notification */
+	{
+		if (tree) {
+			/* Per-Priority CNPV Indicators */
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_cnpv_prio7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+
+			/* Per-Priority Ready Indicators */
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio0, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio1, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio2, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio3, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio4, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio5, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio6, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ieee_8021qau_ready_prio7, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
+		}
+		break;
+	}
 	case 0x9:	/* ETS Configuration */
 	{
 		if (tree) {
@@ -2998,6 +3045,8 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			break;
 		case 0x4:	tempTree = ett_org_spc_ieee_802_1_4;
 			break;
+		case 0x8:	tempTree = ett_org_spc_ieee_802_1_8;
+			break;
 		case 0x9:	tempTree = ett_org_spc_ieee_802_1_9;
 			break;
 		case 0xa:	tempTree = ett_org_spc_ieee_802_1_a;
@@ -3601,6 +3650,70 @@ proto_register_lldp(void)
 			{ "Port and Protocol VLAN", "lldp.ieee.802_1.port_and_vlan_id_flag.enabled", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
 		},
+		{ &hf_ieee_8021qau_cnpv_prio0,
+			{ "Priority 0 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio0", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio1,
+			{ "Priority 1 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio1", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio2,
+			{ "Priority 2 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio2", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio3,
+			{ "Priority 3 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio3", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio4,
+			{ "Priority 4 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio4", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x10, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio5,
+			{ "Priority 5 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio5", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio6,
+			{ "Priority 6 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio6", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x40, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_cnpv_prio7,
+			{ "Priority 7 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio7", FT_BOOLEAN, 8,
+			TFS(&tfs_enabled_disabled), 0x80, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio0,
+			{ "Priority 0 Ready Indicator", "lldp.ieee.802_1qau.ready.prio0", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio1,
+			{ "Priority 1 Ready Indicator", "lldp.ieee.802_1qau.ready.prio1", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio2,
+			{ "Priority 2 Ready Indicator", "lldp.ieee.802_1qau.ready.prio2", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio3,
+			{ "Priority 3 Ready Indicator", "lldp.ieee.802_1qau.ready.prio3", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x08, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio4,
+			{ "Priority 4 Ready Indicator", "lldp.ieee.802_1qau.ready.prio4", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x10, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio5,
+			{ "Priority 5 Ready Indicator", "lldp.ieee.802_1qau.ready.prio5", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x20, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio6,
+			{ "Priority 6 Ready Indicator", "lldp.ieee.802_1qau.ready.prio6", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x40, NULL, HFILL }
+		},
+		{ &hf_ieee_8021qau_ready_prio7,
+			{ "Priority 7 Ready Indicator", "lldp.ieee.802_1qau.ready.prio7", FT_BOOLEAN, 8,
+			TFS(&tfs_set_notset), 0x80, NULL, HFILL }
+		},
 		{ &hf_ieee_8021az_feature_flag_willing,
 			{ "Willing", "lldp.dcbx.ieee.willing", FT_BOOLEAN , 8,
 			TFS(&tfs_yes_no), 0x80, NULL, HFILL }
@@ -4095,6 +4208,7 @@ proto_register_lldp(void)
 		&ett_org_spc_ieee_802_1_2,
 		&ett_org_spc_ieee_802_1_3,
 		&ett_org_spc_ieee_802_1_4,
+		&ett_org_spc_ieee_802_1_8,
 		&ett_org_spc_ieee_802_1_9,
 		&ett_org_spc_ieee_802_1_a,
 		&ett_org_spc_ieee_802_1_b,
