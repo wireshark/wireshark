@@ -564,7 +564,7 @@ static gboolean mbim_control_decode_unknown_itf = FALSE;
 
 static reassembly_table mbim_reassembly_table;
 
-static wmem_tree_t *mbim_uuid_ext_tree = NULL;
+static wmem_map_t *mbim_uuid_ext_hash = NULL;
 
 static const fragment_items mbim_frag_items = {
     &ett_mbim_fragment,
@@ -1656,7 +1656,6 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     e_guid_t uuid;
     guint i;
     guint32 uuid_ext[4];
-    wmem_tree_key_t uuid_key[2];
 
     tvb_get_ntohguid(tvb, *offset, &uuid);
 
@@ -1673,12 +1672,7 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         uuid_ext[2] = tvb_get_ntohl(tvb, *offset + 8);
         uuid_ext[3] = tvb_get_ntohl(tvb, *offset + 12);
 
-        uuid_key[0].length = 4;
-        uuid_key[0].key = uuid_ext;
-        uuid_key[1].length = 0;
-        uuid_key[1].key = NULL;
-
-        *uuid_ext_info = (struct mbim_uuid_ext *)wmem_tree_lookup32_array(mbim_uuid_ext_tree, uuid_key);
+        *uuid_ext_info = (struct mbim_uuid_ext *)wmem_map_lookup(mbim_uuid_ext_hash, uuid_ext);
         if (*uuid_ext_info) {
             proto_tree_add_guid_format_value(tree, hf, tvb, *offset, 16, &uuid, "%s (%s)",
                                              (*uuid_ext_info)->uuid_name, guid_to_ep_str(&uuid));
@@ -4902,19 +4896,35 @@ mbim_reassembly_init(void)
                           &addresses_reassembly_table_functions);
 }
 
+static guint
+mbim_uuid_hash(gconstpointer key)
+{
+    return wmem_strong_hash((const guint8 *)key, 4*sizeof(guint32));
+}
+
+static gboolean
+mbim_uuid_equal(gconstpointer v1, gconstpointer v2)
+{
+    const guint32 *uuid1 = (const guint32*)v1;
+    const guint32 *uuid2 = (const guint32*)v2;
+
+    return ((uuid1[0] == uuid2[0]) &&
+            (uuid1[1] == uuid2[1]) &&
+            (uuid1[2] == uuid2[2]) &&
+            (uuid1[3] == uuid2[3]));
+}
+
 void mbim_register_uuid_ext(struct mbim_uuid_ext *uuid_ext)
 {
-    wmem_tree_key_t uuid_key[2];
+    guint32 *uuid_key;
 
-    if (!mbim_uuid_ext_tree) {
-        mbim_uuid_ext_tree = wmem_tree_new(wmem_epan_scope());
+    if (!mbim_uuid_ext_hash) {
+        mbim_uuid_ext_hash = wmem_map_new(wmem_epan_scope(), mbim_uuid_hash, mbim_uuid_equal);
     }
 
-    uuid_key[0].length = 4;
-    uuid_key[0].key = uuid_ext->uuid;
-    uuid_key[1].length = 0;
-    uuid_key[1].key = NULL;
-    wmem_tree_insert32_array(mbim_uuid_ext_tree, uuid_key, uuid_ext);
+    uuid_key = (guint32 *)wmem_alloc(wmem_epan_scope(), 4*sizeof(guint32));
+    memcpy(uuid_key, uuid_ext->uuid, 4*sizeof(guint32));
+    wmem_map_insert(mbim_uuid_ext_hash, uuid_key, uuid_ext);
 }
 
 void
