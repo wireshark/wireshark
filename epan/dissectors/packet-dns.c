@@ -3536,7 +3536,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   int                dns_data_offset;
   proto_tree        *dns_tree = NULL, *field_tree;
   proto_item        *ti, *tf;
-  guint16            id, flags, opcode, rcode, quest, ans, auth, add;
+  guint16            flags, opcode, rcode, quest, ans, auth, add;
+  guint              id;
   int                cur_off;
   gboolean           isupdate;
   conversation_t    *conversation;
