@@ -1890,6 +1890,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* 'reset' dissection session */
     epan_free(cf->epan);
     cf->epan = ws_epan_new(cf);
+    cf->cinfo.epan = cf->epan;
 
     /* We need to redissect the packets so we have to discard our old
      * packet list store. */
