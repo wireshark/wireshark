@@ -816,18 +816,18 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
         cdata->itlq.lun=lun;
         cdata->itlq.first_exchange_frame=pinfo->fd->num;
 
-        itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER(lun));
+        itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER((gulong)lun));
         if(!itl){
             itl=wmem_new(wmem_file_scope(), itl_nexus_t);
             itl->cmdset=0xff;
             itl->conversation=conversation;
-            wmem_map_insert(iscsi_session->itl, GUINT_TO_POINTER(lun), itl);
+            wmem_map_insert(iscsi_session->itl, GUINT_TO_POINTER((gulong)lun), itl);
         }
 
     }
 
     if(!itl){
-        itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER(cdata->itlq.lun));
+        itl=(itl_nexus_t *)wmem_map_lookup(iscsi_session->itl, GUINT_TO_POINTER((gulong)cdata->itlq.lun));
     }
 
 
