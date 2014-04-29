@@ -425,7 +425,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         p_add_proto_data(wmem_file_scope(), pinfo, proto_fcp, 0, proto_data);
     }
 
-    request_data = (fcp_request_data_t*)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER(lun));
+    request_data = (fcp_request_data_t*)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER((guint)lun));
     if (!request_data) {
         request_data = wmem_new(wmem_file_scope(), fcp_request_data_t);
         request_data->request_frame = pinfo->fd->num;
@@ -445,7 +445,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         request_data->itlq->alloc_len=0;
         request_data->itlq->extra_data=NULL;
 
-        wmem_map_insert(fcp_conv_data->luns, GUINT_TO_POINTER(lun), request_data);
+        wmem_map_insert(fcp_conv_data->luns, GUINT_TO_POINTER((guint)lun), request_data);
     }
 
     /* populate the exchange struct */
@@ -774,7 +774,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     }
 
     if ((r_ctl != FCP_IU_CMD) && (r_ctl != FCP_IU_UNSOL_CTL)) {
-        request_data = (fcp_request_data_t *)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER(proto_data->lun));
+        request_data = (fcp_request_data_t *)wmem_map_lookup(fcp_conv_data->luns, GUINT_TO_POINTER((guint)(proto_data->lun)));
     }
 
     /* put a request_in in all frames except the command frame */
