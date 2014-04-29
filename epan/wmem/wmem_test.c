@@ -29,6 +29,7 @@
 #include "wmem.h"
 #include "wmem_allocator.h"
 #include "wmem_allocator_block.h"
+#include "wmem_allocator_block_fast.h"
 #include "wmem_allocator_simple.h"
 #include "wmem_allocator_strict.h"
 
@@ -57,6 +58,9 @@ wmem_allocator_force_new(const wmem_allocator_type_t type)
             break;
         case WMEM_ALLOCATOR_BLOCK:
             wmem_block_allocator_init(allocator);
+            break;
+        case WMEM_ALLOCATOR_BLOCK_FAST:
+            wmem_block_fast_allocator_init(allocator);
             break;
         case WMEM_ALLOCATOR_STRICT:
             wmem_strict_allocator_init(allocator);
@@ -228,6 +232,42 @@ wmem_test_allocator_det(wmem_allocator_t *allocator, wmem_verify_func verify,
 }
 
 static void
+wmem_test_allocator_jumbo(wmem_allocator_type_t type, wmem_verify_func verify)
+{
+    wmem_allocator_t *allocator;
+    char *ptr, *ptr1;
+
+    allocator = wmem_allocator_force_new(type);
+
+    ptr = (char*)wmem_alloc0(allocator, 4*1024*1024);
+    wmem_free(allocator, ptr);
+    wmem_gc(allocator);
+    ptr = (char*)wmem_alloc0(allocator, 4*1024*1024);
+
+    if (verify) (*verify)(allocator);
+    wmem_free_all(allocator);
+    wmem_gc(allocator);
+    if (verify) (*verify)(allocator);
+
+    ptr  = (char *)wmem_alloc0(allocator, 10*1024*1024);
+    ptr1 = (char *)wmem_alloc0(allocator, 13*1024*1024);
+    ptr1 = (char *)wmem_realloc(allocator, ptr1, 10*1024*1024);
+    memset(ptr1, 0, 10*1024*1024);
+    ptr = (char *)wmem_realloc(allocator, ptr, 13*1024*1024);
+    memset(ptr, 0, 13*1024*1024);
+    if (verify) (*verify)(allocator);
+    wmem_gc(allocator);
+    if (verify) (*verify)(allocator);
+    wmem_free(allocator, ptr1);
+    if (verify) (*verify)(allocator);
+    wmem_free_all(allocator);
+    wmem_gc(allocator);
+    if (verify) (*verify)(allocator);
+
+    wmem_destroy_allocator(allocator);
+}
+
+static void
 wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
 {
     int i;
@@ -255,32 +295,6 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
-    ptrs[0] = (char*)wmem_alloc0(allocator, 4*1024*1024);
-    wmem_free(allocator, ptrs[0]);
-    wmem_gc(allocator);
-    ptrs[0] = (char*)wmem_alloc0(allocator, 4*1024*1024);
-
-    if (verify) (*verify)(allocator);
-    wmem_free_all(allocator);
-    wmem_gc(allocator);
-    if (verify) (*verify)(allocator);
-
-    /* test jumbo allocations and frees */
-    ptrs[0] = (char *)wmem_alloc0(allocator, 10*1024*1024);
-    ptrs[1] = (char *)wmem_alloc0(allocator, 13*1024*1024);
-    ptrs[1] = (char *)wmem_realloc(allocator, ptrs[1], 10*1024*1024);
-    memset(ptrs[1], 0, 10*1024*1024);
-    ptrs[0] = (char *)wmem_realloc(allocator, ptrs[0], 13*1024*1024);
-    memset(ptrs[0], 0, 13*1024*1024);
-    if (verify) (*verify)(allocator);
-    wmem_gc(allocator);
-    if (verify) (*verify)(allocator);
-    wmem_free(allocator, ptrs[1]);
-    if (verify) (*verify)(allocator);
-    wmem_free_all(allocator);
-    wmem_gc(allocator);
-    if (verify) (*verify)(allocator);
-
     /* now do some random fuzz-like tests */
 
     /* reset our ptr array */
@@ -288,8 +302,8 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
         ptrs[i] = NULL;
     }
 
-    /* Run enough iterations to fill the array 64 times */
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS*64; i++) {
+    /* Run enough iterations to fill the array 32 times */
+    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS*32; i++) {
         gint ptrs_index;
         gint new_size;
 
@@ -359,7 +373,7 @@ wmem_time_allocator(wmem_allocator_type_t type)
 static void
 wmem_time_allocators(void)
 {
-    double simple_time, block_time;
+    double simple_time, block_time, fast_time;
 
     g_test_timer_start();
     wmem_time_allocator(WMEM_ALLOCATOR_SIMPLE);
@@ -369,26 +383,42 @@ wmem_time_allocators(void)
     wmem_time_allocator(WMEM_ALLOCATOR_BLOCK);
     block_time = g_test_timer_elapsed();
 
-    printf("(simple: %f; block: %f) ", simple_time, block_time);
+    g_test_timer_start();
+    wmem_time_allocator(WMEM_ALLOCATOR_BLOCK_FAST);
+    fast_time = g_test_timer_elapsed();
+
+    printf("(simple: %f; block: %f; fast: %f) ",
+            simple_time, block_time, fast_time);
+
     g_assert(simple_time > block_time);
+    g_assert(block_time > fast_time);
 }
 
 static void
 wmem_test_allocator_block(void)
 {
     wmem_test_allocator(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify);
+    wmem_test_allocator_jumbo(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify);
+}
+
+static void
+wmem_test_allocator_block_fast(void)
+{
+    wmem_test_allocator(WMEM_ALLOCATOR_BLOCK_FAST, NULL);
 }
 
 static void
 wmem_test_allocator_simple(void)
 {
     wmem_test_allocator(WMEM_ALLOCATOR_SIMPLE, NULL);
+    wmem_test_allocator_jumbo(WMEM_ALLOCATOR_SIMPLE, NULL);
 }
 
 static void
 wmem_test_allocator_strict(void)
 {
     wmem_test_allocator(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries);
+    wmem_test_allocator_jumbo(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries);
 }
 
 /* UTILITY TESTING FUNCTIONS (/wmem/utils/) */
@@ -1004,6 +1034,7 @@ main(int argc, char **argv)
     g_test_init(&argc, &argv, NULL);
 
     g_test_add_func("/wmem/allocator/block",     wmem_test_allocator_block);
+    g_test_add_func("/wmem/allocator/blk_fast",  wmem_test_allocator_block_fast);
     g_test_add_func("/wmem/allocator/simple",    wmem_test_allocator_simple);
     g_test_add_func("/wmem/allocator/strict",    wmem_test_allocator_strict);
     g_test_add_func("/wmem/allocator/callbacks", wmem_test_allocator_callbacks);

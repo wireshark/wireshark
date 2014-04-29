@@ -50,17 +50,22 @@ typedef struct _wmem_allocator_t wmem_allocator_t;
 /** An enumeration of the different types of available allocators. */
 typedef enum _wmem_allocator_type_t {
     WMEM_ALLOCATOR_SIMPLE, /**< A trivial allocator that mallocs requested
-               memory and tracks allocations via a hash table. As simple as
-               possible, intended more as a demo than for practical usage. Also
-               has the benefit of being friendly to tools like valgrind. */
+                memory and tracks allocations via a hash table. As simple as
+                possible, intended more as a demo than for practical usage. Also
+                has the benefit of being friendly to tools like valgrind. */
     WMEM_ALLOCATOR_BLOCK, /**< A block allocator that grabs large chunks of
                 memory at a time (8 MB currently) and serves allocations out of
                 those chunks. Designed for efficiency, especially in the
                 free_all operation. */
-    WMEM_ALLOCATOR_STRICT /**< An allocator that does its best to find invalid
+    WMEM_ALLOCATOR_STRICT, /**< An allocator that does its best to find invalid
                 memory usage via things like canaries and scrubbing freed
                 memory. Valgrind is the better choice on platforms that support
                 it. */
+    WMEM_ALLOCATOR_BLOCK_FAST /**< A block allocator like WMEM_ALLOCATOR_BLOCK
+                but even faster by tracking absolutely minimal metadata and
+                making 'free' a no-op. Useful only for very short-lived scopes
+                where there's no reason to free individual allocations because
+                the next free_all is always just around the corner. */
 } wmem_allocator_type_t;
 
 /** Allocate the requested amount of memory in the given pool.

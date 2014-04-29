@@ -261,7 +261,7 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 		pinfo_pool_cache = NULL;
 	}
 	else {
-		edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
+		edt->pi.pool = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK_FAST);
 	}
 
 	if (create_proto_tree) {

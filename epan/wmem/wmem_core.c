@@ -32,6 +32,7 @@
 #include "wmem_allocator.h"
 #include "wmem_allocator_simple.h"
 #include "wmem_allocator_block.h"
+#include "wmem_allocator_block_fast.h"
 #include "wmem_allocator_strict.h"
 
 /* Set according to the WIRESHARK_DEBUG_WMEM_OVERRIDE environment variable in
@@ -161,6 +162,9 @@ wmem_allocator_new(const wmem_allocator_type_t type)
         case WMEM_ALLOCATOR_BLOCK:
             wmem_block_allocator_init(allocator);
             break;
+        case WMEM_ALLOCATOR_BLOCK_FAST:
+            wmem_block_fast_allocator_init(allocator);
+            break;
         case WMEM_ALLOCATOR_STRICT:
             wmem_strict_allocator_init(allocator);
             break;
@@ -199,6 +203,9 @@ wmem_init(void)
         }
         else if (strncmp(override_env, "strict", strlen("strict")) == 0) {
             override_type = WMEM_ALLOCATOR_STRICT;
+        }
+        else if (strncmp(override_env, "block_fast", strlen("block_fast")) == 0) {
+            override_type = WMEM_ALLOCATOR_BLOCK_FAST;
         }
         else {
             g_warning("Unrecognized wmem override");

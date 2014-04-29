@@ -1464,6 +1464,7 @@ set(WMEM_FILES
 	wmem/wmem_array.c
 	wmem/wmem_core.c
 	wmem/wmem_allocator_block.c
+	wmem/wmem_allocator_block_fast.c
 	wmem/wmem_allocator_simple.c
 	wmem/wmem_allocator_strict.c
 	wmem/wmem_list.c
