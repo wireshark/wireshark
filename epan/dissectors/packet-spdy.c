@@ -439,6 +439,20 @@ static const char spdy_dictionary[] = {
   0x2c, 0x65, 0x6e, 0x71, 0x3d, 0x30, 0x2e         /* - e n q - 0 -   */
 };
 
+#ifdef HAVE_LIBZ
+/* callback function used at the end of file-scope to cleanup zlib's inflate
+ * streams to avoid memory leaks.
+ * XXX: can we be more aggressive and call this sooner for finished streams?
+ */
+static gboolean inflate_end_cb (wmem_allocator_t *allocator _U_,
+    wmem_cb_event_t event _U_, void *user_data) {
+
+  inflateEnd((z_streamp)user_data);
+
+  return FALSE;
+}
+#endif
+
 /*
  * Returns conversation data for a given packet. If conversation data can't be
  * found, creates and returns new conversation data.
@@ -465,7 +479,13 @@ static spdy_conv_t * get_or_create_spdy_conversation_data(packet_info *pinfo) {
       conv_data->rply_decompressor = (z_streamp)wmem_alloc0(wmem_file_scope(), sizeof(z_stream));
       retcode = inflateInit(conv_data->rqst_decompressor);
       if (retcode == Z_OK) {
-        inflateInit(conv_data->rply_decompressor);
+        wmem_register_callback(wmem_file_scope(), inflate_end_cb,
+            conv_data->rqst_decompressor);
+        retcode = inflateInit(conv_data->rply_decompressor);
+        if (retcode == Z_OK) {
+          wmem_register_callback(wmem_file_scope(), inflate_end_cb,
+              conv_data->rply_decompressor);
+        }
       }
 
       /* XXX - use wsutil/adler32.h? */
