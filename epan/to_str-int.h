@@ -35,6 +35,7 @@ char *bytes_to_hexstr_punct(char *out, const guint8 *ad, guint32 len, char punct
 char *oct_to_str_back(char *ptr, guint32 value);
 char *hex_to_str_back(char *ptr, int pad, guint32 value);
 char *uint_to_str_back(char *ptr, guint32 value);
+char *uint_to_str_back_len(char *ptr, unsigned int value, int len);
 char *int_to_str_back(char *ptr, gint32 value);
 
 #endif /* __TO_STR_INT_H__ */

@@ -725,6 +725,15 @@ void
 display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
 		const to_str_time_res_t units)
 {
+	/* this buffer is not NUL terminated */
+	gint8 num_buf[16]; /* max: '-2147483648', '.1000000000' */
+	gint8 *num_end = &num_buf[16];
+	gint8 *num_ptr;
+	int num_len;
+
+	if (buflen < 1)
+		return;
+
 	/* If the fractional part of the time stamp is negative,
 	   print its absolute value and, if the seconds part isn't
 	   (the seconds part should be zero in that case), stick
@@ -732,40 +741,61 @@ display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
 	if (frac < 0) {
 		frac = -frac;
 		if (sec >= 0) {
-			if (buflen < 1) {
-				return;
-			}
 			buf[0] = '-';
 			buf++;
 			buflen--;
 		}
 	}
-	switch (units) {
 
+	num_ptr = int_to_str_back(num_end, sec);
+
+	num_len = MIN((int) (num_end - num_ptr), buflen);
+	memcpy(buf, num_ptr, num_len);
+	buf += num_len;
+	buflen -= num_len;
+
+	switch (units) {
 		case TO_STR_TIME_RES_T_SECS:
-			g_snprintf(buf, buflen, "%d", sec);
+		default:
+			/* no fraction */
+			num_ptr = NULL;
 			break;
 
 		case TO_STR_TIME_RES_T_DSECS:
-			g_snprintf(buf, buflen, "%d.%01d", sec, frac);
+			num_ptr = uint_to_str_back_len(num_end, frac, 1);
 			break;
 
 		case TO_STR_TIME_RES_T_CSECS:
-			g_snprintf(buf, buflen, "%d.%02d", sec, frac);
+			num_ptr = uint_to_str_back_len(num_end, frac, 2);
 			break;
 
 		case TO_STR_TIME_RES_T_MSECS:
-			g_snprintf(buf, buflen, "%d.%03d", sec, frac);
+			num_ptr = uint_to_str_back_len(num_end, frac, 3);
 			break;
 
 		case TO_STR_TIME_RES_T_USECS:
-			g_snprintf(buf, buflen, "%d.%06d", sec, frac);
+			num_ptr = uint_to_str_back_len(num_end, frac, 6);
 			break;
 
 		case TO_STR_TIME_RES_T_NSECS:
-			g_snprintf(buf, buflen, "%d.%09d", sec, frac);
+			num_ptr = uint_to_str_back_len(num_end, frac, 9);
 			break;
 	}
+
+	if (num_ptr != NULL)
+	{
+		*(--num_ptr) = '.';
+
+		num_len = MIN((int) (num_end - num_ptr), buflen);
+		memcpy(buf, num_ptr, num_len);
+		buf += num_len;
+		buflen -= num_len;
+	}
+
+	/* need to NUL terminate, we know that buffer had at least 1 byte */
+	if (buflen == 0)
+		buf--;
+	*buf = '\0';
 }
 
 
@@ -1156,6 +1186,26 @@ uint_to_str_back(char *ptr, guint32 value)
 		*(--ptr) = (value) | '0';
 
 	return ptr;
+}
+
+char *
+uint_to_str_back_len(char *ptr, unsigned int value, int len)
+{
+	char *new_ptr;
+
+	new_ptr = uint_to_str_back(ptr, value);
+
+	/* substract from len number of generated characters */
+	len -= (ptr - new_ptr);
+
+	/* pad remaining with '0' */
+	while (len > 0)
+	{
+		*(--new_ptr) = '0';
+		len--;
+	}
+
+	return new_ptr;
 }
 
 char *
