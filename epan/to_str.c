@@ -1144,18 +1144,18 @@ oct_to_str_back(char *ptr, guint32 value)
 }
 
 char *
-hex_to_str_back(char *ptr, int pad, guint32 value)
+hex_to_str_back(char *ptr, int len, guint32 value)
 {
 	do {
 		*(--ptr) = low_nibble_of_octet_to_hex(value);
 		value >>= 4;
-		pad--;
+		len--;
 	} while (value);
 
 	/* pad */
-	while (pad > 0) {
+	while (len > 0) {
 		*(--ptr) = '0';
-		pad--;
+		len--;
 	}
 
 	*(--ptr) = 'x';
@@ -1189,7 +1189,7 @@ uint_to_str_back(char *ptr, guint32 value)
 }
 
 char *
-uint_to_str_back_len(char *ptr, unsigned int value, int len)
+uint_to_str_back_len(char *ptr, guint32 value, int len)
 {
 	char *new_ptr;
 
