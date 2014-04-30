@@ -1902,7 +1902,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             /* Copy back the Authentication which was not encrypted */
                             if(decrypted_len >= esp_auth_len)
                             {
-                                tvb_memcpy(tvb, decrypted_data+decrypted_len-esp_auth_len, sizeof(struct newesp)+decrypted_len-esp_auth_len, esp_auth_len);
+                                tvb_memcpy(tvb, decrypted_data+decrypted_len-esp_auth_len, (gint)(sizeof(struct newesp)+decrypted_len-esp_auth_len), esp_auth_len);
                             }
 
                             /* Decryption has finished */
