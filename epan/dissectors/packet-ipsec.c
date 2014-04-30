@@ -2162,6 +2162,7 @@ dissect_ipcomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+#ifdef HAVE_LIBGCRYPT
 static void ipsec_init_protocol(void)
 {
    /* Free any SA records added by other dissectors */
@@ -2171,6 +2172,7 @@ static void ipsec_init_protocol(void)
    }
    extra_esp_sa_records.num_records = 0;
 }
+#endif
 
 void
 proto_register_ipsec(void)
@@ -2343,14 +2345,11 @@ proto_register_ipsec(void)
                                 "Preconfigured ESP Security Associations",
                                 esp_uat);
 
-
+  register_init_routine(&ipsec_init_protocol);
 #endif
 
   register_dissector("esp", dissect_esp, proto_esp);
   register_dissector("ah", dissect_ah, proto_ah);
-
-  register_init_routine(&ipsec_init_protocol);
-
 }
 
 void
