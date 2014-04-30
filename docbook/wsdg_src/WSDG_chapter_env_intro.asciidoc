@@ -5,7 +5,7 @@
 ++++++++++++++++++++++++++++++++++++++
 <!-- $Id$ -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
 [[ChapterIntroduction]]
 
 == Introduction
@@ -118,7 +118,7 @@ available.
 
 [[ChIntroDevelopment]]
 
-===  Development and maintenance of Wireshark 
+===  Development and maintenance of Wireshark
 
 Wireshark was initially developed by Gerald Combs. Ongoing development
 and maintenance of Wireshark is handled by the Wireshark core developers,
@@ -260,7 +260,7 @@ files) these days.
 You should use the released sources if you want to build Wireshark from
 source on your platform for productive use. However, if you going to
 develop changes to the Wireshark sources, it might be better to use the
-latest SVN sources. For details about the different ways to get the
+latest GIT sources. For details about the different ways to get the
 Wireshark source code see <<ChSrcObtain>>.
 
 Before building Wireshark from a source distribution, make sure you have
@@ -435,10 +435,10 @@ If you want to be notified about all the changes to the bug
 database, join this list. Details about the bug database can be
 found in <<ChIntroBugDatabase>>.
 
-wireshark-commits:: This list is for Wireshark developers. Every time a change to the SVN
+wireshark-commits:: This list is for Wireshark developers. Every time a change to the GIT
 repository is checked in, a mail to this mailing list is generated.
-If you want to be notified about all the changes to the SVN
-repository, join this list. Details about the SVN repository can be
+If you want to be notified about all the changes to the GIT
+repository, join this list. Details about the GIT repository can be
 found in <<ChSrcGitRepository>>.
 
 You can subscribe to each of these lists from the Wireshark web site:
@@ -580,4 +580,4 @@ corresponding "Wireshark-win__bits__-_x_._y_._z_.exe" installer packages.
 ++++++++++++++++++++++++++++++++++++++
 <!-- End of WSDG Chapter Introduction -->
 ++++++++++++++++++++++++++++++++++++++
-    
+
