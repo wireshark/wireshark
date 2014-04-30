@@ -6910,12 +6910,8 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 	e_ctx_hnd	    *policy_hnd_hashtablekey;
 
 	sti = wmem_new(wmem_packet_scope(), smb2_transform_info_t);
-	si  = wmem_new(wmem_packet_scope(), smb2_info_t);
-	si->eo_file_info = NULL;
-	si->conv	 = NULL;
-	si->saved	 = NULL;
-	si->tree	 = NULL;
-	si->top_tree	 = parent_tree;
+	si  = wmem_new0(wmem_packet_scope(), smb2_info_t);
+	si->top_tree = parent_tree;
 
 	if (tvb_get_guint8(tvb, 0) == 0xfd) {
 		smb2_transform_header = TRUE;
