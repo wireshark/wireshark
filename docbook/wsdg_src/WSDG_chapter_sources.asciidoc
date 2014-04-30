@@ -750,7 +750,7 @@ Some tips that will make the merging of your changes into Git much more likely
 (and you want exactly that, don't you?):
 
 * 'Use the latest Git sources.' It's a good idea to work with the same
-  sources that are used by the other developers. This usuall makes it much
+  sources that are used by the other developers. This usually makes it much
   easier to apply your patch. For information about the different ways to get
   the sources, see <<ChSrcObtain>>.
 
