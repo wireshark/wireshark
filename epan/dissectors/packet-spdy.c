@@ -653,18 +653,15 @@ static spdy_stream_info_t* spdy_assemble_data_frames(spdy_conv_t *conv_data,
  */
 static void dissect_spdy_stream_id_field(tvbuff_t *tvb,
                                          int offset,
-                                         packet_info *pinfo,
+                                         packet_info *pinfo _U_,
                                          proto_tree *frame_tree,
                                          const int hfindex)
 {
   guint32 stream_id = tvb_get_ntohl(tvb, offset) & SPDY_STREAM_ID_MASK;
-  /* Add stream id to info column. */
-  if (hfindex == hf_spdy_streamid) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Stream=%u", stream_id);
-  }
 
   /* Add stream id to tree. */
   proto_tree_add_item(frame_tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN);
+
   if (hfindex == hf_spdy_streamid) {
     proto_item_append_text(frame_tree, ", Stream: %u", stream_id);
   }
@@ -722,7 +719,7 @@ static void dissect_spdy_flags(tvbuff_t *tvb,
 static int dissect_spdy_data_payload(tvbuff_t *tvb,
                                      int offset,
                                      packet_info *pinfo,
-                                     proto_tree *top_level_tree,
+                                     proto_tree *top_level_tree _U_,
                                      proto_tree *spdy_tree,
                                      proto_item *spdy_proto,
                                      spdy_conv_t *conv_data,
@@ -732,9 +729,6 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
   dissector_handle_t handle;
   guint num_data_frames;
   gboolean dissected;
-
-  col_add_fstr(pinfo->cinfo, COL_INFO, "DATA Stream=%d Length=%d",
-               stream_id, frame->length);
 
   /* Add frame description. */
   proto_item_append_text(spdy_proto, ", Stream: %d, Length: %d",
@@ -781,7 +775,6 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
 
     if (!(frame->flags & SPDY_FLAG_FIN)) {
       col_set_fence(pinfo->cinfo, COL_INFO);
-      col_add_fstr(pinfo->cinfo, COL_INFO, " (partial entity)");
       proto_item_append_text(spdy_proto, " (partial entity body)");
       /* would like the proto item to say */
       /* " (entity body fragment N of M)" */
@@ -831,16 +824,16 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
           (g_ascii_strcasecmp(si->content_encoding, "gzip") == 0 ||
            g_ascii_strcasecmp(si->content_encoding, "deflate") == 0)) {
         uncomp_tvb = tvb_child_uncompress(tvb, data_tvb, 0,
-                                               tvb_length(data_tvb));
+                                               tvb_reported_length(data_tvb));
       }
       /*
        * Add the encoded entity to the protocol tree
        */
-      e_ti = proto_tree_add_text(top_level_tree, data_tvb,
-                                 0, tvb_length(data_tvb),
+      e_ti = proto_tree_add_text(spdy_tree, data_tvb,
+                                 0, tvb_reported_length(data_tvb),
                                  "Content-encoded entity body (%s): %u bytes",
                                  si->content_encoding,
-                                 tvb_length(data_tvb));
+                                 tvb_reported_length(data_tvb));
       e_tree = proto_item_add_subtree(e_ti, ett_spdy_encoded_entity);
       if (si->num_data_frames > 1) {
         wmem_list_t *dflist = si->data_frames;
@@ -848,7 +841,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
         spdy_data_frame_t *df;
         guint32 framenum;
         ce_ti = proto_tree_add_text(e_tree, data_tvb, 0,
-                                    tvb_length(data_tvb),
+                                    tvb_reported_length(data_tvb),
                                     "Assembled from %d frames in packet(s)",
                                     si->num_data_frames);
         framenum = 0;
@@ -875,7 +868,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
          *
          tvb_free(next_tvb);
          */
-        proto_item_append_text(e_ti, " -> %u bytes", tvb_length(uncomp_tvb));
+        proto_item_append_text(e_ti, " -> %u bytes", tvb_reported_length(uncomp_tvb));
         data_tvb = uncomp_tvb;
         add_new_data_source(pinfo, data_tvb, "Uncompressed entity body");
       } else {
@@ -930,7 +923,7 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
       /*
        * We have a subdissector - call it.
        */
-      dissected = call_dissector(handle, data_tvb, pinfo, top_level_tree);
+      dissected = call_dissector(handle, data_tvb, pinfo, spdy_tree);
     } else {
       dissected = FALSE;
     }
@@ -940,10 +933,10 @@ static int dissect_spdy_data_payload(tvbuff_t *tvb,
        * Calling the default media handle if there is a content-type that
        * wasn't handled above.
        */
-      call_dissector(media_handle, next_tvb, pinfo, top_level_tree);
+      call_dissector(media_handle, next_tvb, pinfo, spdy_tree);
     } else {
       /* Call the default data dissector */
-      call_dissector(data_handle, next_tvb, pinfo, top_level_tree);
+      call_dissector(data_handle, next_tvb, pinfo, spdy_tree);
     }
 
 body_dissected:
@@ -1243,7 +1236,7 @@ static int dissect_spdy_header_payload(
     int header_value_length;
 
     /* Get header name details. */
-    if (tvb_length_remaining(header_tvb, hdr_offset) < 4) {
+    if (tvb_reported_length_remaining(header_tvb, hdr_offset) < 4) {
       expert_add_info_format(pinfo, frame_tree, &ei_spdy_mal_frame_data,
                              "Not enough frame data for header name size.");
       break;
@@ -1251,7 +1244,7 @@ static int dissect_spdy_header_payload(
     header_name_offset = hdr_offset;
     header_name_length = tvb_get_ntohl(header_tvb, hdr_offset);
     hdr_offset += 4;
-    if (tvb_length_remaining(header_tvb, hdr_offset) < header_name_length) {
+    if (tvb_reported_length_remaining(header_tvb, hdr_offset) < header_name_length) {
       expert_add_info_format(pinfo, frame_tree, &ei_spdy_mal_frame_data,
                              "Not enough frame data for header name.");
       break;
@@ -1262,7 +1255,7 @@ static int dissect_spdy_header_payload(
     hdr_offset += header_name_length;
 
     /* Get header value details. */
-    if (tvb_length_remaining(header_tvb, hdr_offset) < 4) {
+    if (tvb_reported_length_remaining(header_tvb, hdr_offset) < 4) {
       expert_add_info_format(pinfo, frame_tree, &ei_spdy_mal_frame_data,
                              "Not enough frame data for header value size.");
       break;
@@ -1270,7 +1263,7 @@ static int dissect_spdy_header_payload(
     header_value_offset = hdr_offset;
     header_value_length = tvb_get_ntohl(header_tvb, hdr_offset);
     hdr_offset += 4;
-    if (tvb_length_remaining(header_tvb, hdr_offset) < header_value_length) {
+    if (tvb_reported_length_remaining(header_tvb, hdr_offset) < header_value_length) {
       expert_add_info_format(pinfo, frame_tree, &ei_spdy_mal_frame_data,
                              "Not enough frame data for header value.");
       break;
@@ -1293,20 +1286,12 @@ static int dissect_spdy_header_payload(
       header_tree = proto_item_add_subtree(header, ett_spdy_header);
 
       /* Add header name. */
-      /*header_name_ti = */proto_tree_add_item(header_tree,
-                                           hf_spdy_header_name,
-                                           header_tvb,
-                                           header_name_offset,
-                                           4,
-                                           ENC_NA);
+      proto_tree_add_item(header_tree, hf_spdy_header_name, header_tvb,
+                          header_name_offset, 4, ENC_NA);
 
       /* Add header value. */
-      /*header_value_ti =*/ proto_tree_add_item(header_tree,
-                                            hf_spdy_header_value,
-                                            header_tvb,
-                                            header_value_offset,
-                                            4,
-                                            ENC_NA);
+      proto_tree_add_item(header_tree, hf_spdy_header_value, header_tvb,
+                          header_value_offset, 4, ENC_NA);
     }
 
     /*
@@ -1335,10 +1320,10 @@ static int dissect_spdy_header_payload(
   /* Set Info column. */
   if (hdr_version != NULL) {
     if (hdr_status == NULL) {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " Request=\"%s %s://%s%s %s\"",
+      proto_item_append_text(frame_tree, ", Request: %s %s://%s%s %s",
                       hdr_method, hdr_scheme, hdr_host, hdr_path, hdr_version);
     } else {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " Response=\"%s %s\"",
+      proto_item_append_text(frame_tree, ", Response: %s %s",
                       hdr_status, hdr_version);
     }
   }
@@ -1381,8 +1366,6 @@ static int dissect_spdy_rst_stream_payload(
   }
 
   str = val_to_str(rst_status, rst_stream_status_names, "Unknown (%d)");
-  /* Add status to info column. */
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%s)", str);
 
   proto_item_append_text(frame_tree, ", Status: %s", str);
 
@@ -1396,7 +1379,7 @@ static int dissect_spdy_settings_payload(
   proto_tree *frame_tree,
   const spdy_control_frame_info_t *frame) {
   guint32 num_entries;
-  proto_item *ti;
+  proto_item *ti, *ti_setting;
   proto_tree *setting_tree;
   proto_tree *flags_tree;
 
@@ -1423,8 +1406,8 @@ static int dissect_spdy_settings_payload(
     guint32 setting_value;
 
     /* Create key/value pair subtree. */
-    ti = proto_tree_add_item(frame_tree, hf_spdy_setting, tvb, offset, 8, ENC_NA);
-    setting_tree = proto_item_add_subtree(ti, ett_spdy_setting);
+    ti_setting = proto_tree_add_item(frame_tree, hf_spdy_setting, tvb, offset, 8, ENC_NA);
+    setting_tree = proto_item_add_subtree(ti_setting, ett_spdy_setting);
 
     /* Set flags. */
     if (setting_tree) {
@@ -1447,12 +1430,9 @@ static int dissect_spdy_settings_payload(
     setting_value = tvb_get_ntohl(tvb, offset);
 
     proto_tree_add_item(setting_tree, hf_spdy_setting_value, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_item_set_text(setting_tree, "Setting, %s: %u", setting_id_str, setting_value);
+    proto_item_append_text(ti_setting, ", %s: %u", setting_id_str, setting_value);
     proto_item_append_text(frame_tree, ", %s: %u", setting_id_str, setting_value);
     offset += 4;
-
-    /* Append to info column. */
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s=%u", setting_id_str, setting_value);
 
     /* Increment. */
     --num_entries;
@@ -1461,7 +1441,7 @@ static int dissect_spdy_settings_payload(
   return frame->length;
 }
 
-static int dissect_spdy_ping_payload(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static int dissect_spdy_ping_payload(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                      proto_tree *frame_tree, const spdy_control_frame_info_t *frame)
 {
   /* Get ping ID. */
@@ -1470,9 +1450,6 @@ static int dissect_spdy_ping_payload(tvbuff_t *tvb, int offset, packet_info *pin
   /* Add proto item for ping ID. */
   proto_tree_add_item(frame_tree, hf_spdy_ping_id, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_item_append_text(frame_tree, ", ID: %u", ping_id);
-
-  /* Add ping ID to info column. */
-  col_append_fstr(pinfo->cinfo, COL_INFO, " ID=%u", ping_id);
 
   return frame->length;
 }
@@ -1500,7 +1477,7 @@ static int dissect_spdy_goaway_payload(tvbuff_t *tvb,
   }
 
   /* Add status to info column. */
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Status=%s)",
+  proto_item_append_text(frame_tree, " Status=%s)",
                   val_to_str(goaway_status, rst_stream_status_names, "Unknown (%d)"));
 
   return frame->length;
@@ -1525,9 +1502,6 @@ static int dissect_spdy_window_update_payload(
   /* Add proto item for window update delta. */
   proto_tree_add_item(frame_tree, hf_spdy_window_update_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
   proto_item_append_text(frame_tree, ", Delta: %u", window_update_delta);
-
-  /* Add delta to info column. */
-  col_append_fstr(pinfo->cinfo, COL_INFO, " Delta=%u", window_update_delta);
 
   return frame->length;
 }
@@ -1587,9 +1561,9 @@ int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   /* Add frame info. */
   frame_type_name = val_to_str(frame.type, frame_type_names, "Unknown(%d)");
-  col_add_str(pinfo->cinfo, COL_INFO, frame_type_name);
+  col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", frame_type_name);
 
-  proto_item_append_text(spdy_tree, ", %s", frame_type_name);
+  proto_item_append_text(spdy_tree, ": %s", frame_type_name);
 
   /* Add flags. */
   frame.flags = tvb_get_guint8(tvb, offset);
@@ -1608,10 +1582,10 @@ int dissect_spdy_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   /*
    * Make sure there's as much data as the frame header says there is.
    */
-  if ((guint)tvb_length_remaining(tvb, offset) < frame.length) {
+  if ((guint)tvb_reported_length_remaining(tvb, offset) < frame.length) {
     expert_add_info_format(pinfo, tree, &ei_spdy_mal_frame_data,
                            "Not enough frame data: %d vs. %d",
-                           frame.length, tvb_length_remaining(tvb, offset));
+                           frame.length, tvb_reported_length_remaining(tvb, offset));
     return -1;
   }
 
@@ -1862,7 +1836,7 @@ void proto_register_spdy(void)
     },
     { &hf_spdy_setting,
       { "Setting",        "spdy.setting",
-          FT_BYTES, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL
       }
     },
