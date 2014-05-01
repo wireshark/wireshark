@@ -1196,7 +1196,7 @@ uint_to_str_back_len(char *ptr, guint32 value, int len)
 	new_ptr = uint_to_str_back(ptr, value);
 
 	/* substract from len number of generated characters */
-	len -= (ptr - new_ptr);
+	len -= (int)(ptr - new_ptr);
 
 	/* pad remaining with '0' */
 	while (len > 0)
