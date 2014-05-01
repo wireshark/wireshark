@@ -315,7 +315,7 @@ $(RESOURCES): image
 
 ## Note: The proper "SUBSYSTEM" link option to be used for linking each of the Wireshark executables
 ##       is specified in '$(guiflags)' or '$(conflags)' as used as part of the link options.
-##       (These variables are defined in win32.mak).
+##       (These variables (as well as '$(guilibsdll)' and '$(conlibsdll)') are defined in win32.mak).
 filetap\filetap-$(FTAP_VERSION).lib: image $(ZLIB_DLL) filetap
 wiretap\wiretap-$(WTAP_VERSION).lib: image $(ZLIB_DLL) wiretap
 
