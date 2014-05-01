@@ -3257,13 +3257,13 @@ main(int argc, char *argv[])
 
     AirPDcapDestroyContext(&airpdcap_ctx);
 
-#ifdef _WIN32
-    /* hide the (unresponsive) main window, while asking the user to close the console window */
-    gtk_widget_hide(top_level);
-
 #ifdef HAVE_GTKOSXAPPLICATION
     g_object_unref(theApp);
 #endif
+
+#ifdef _WIN32
+    /* hide the (unresponsive) main window, while asking the user to close the console window */
+    gtk_widget_hide(top_level);
 
     software_update_cleanup();
 
