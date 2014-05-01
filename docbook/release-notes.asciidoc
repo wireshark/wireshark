@@ -120,6 +120,7 @@ iSER
 OptoMMP
 corosync/totemnet
 corosync/totemsrp
+ceph
 --sort-and-group--
 
 === Updated Protocol Support
