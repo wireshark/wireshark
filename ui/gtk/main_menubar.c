@@ -4455,8 +4455,6 @@ void
 menu_recent_file_write_all(FILE *rf)
 {
     GtkWidget *submenu_recent_files;
-    GList     *children;
-    GList     *child;
     gchar     *cf_name;
     GList     *recent_files_list, *list;
 
@@ -4477,27 +4475,6 @@ menu_recent_file_write_all(FILE *rf)
         list = g_list_previous(list);
     }
     g_list_free(recent_files_list);
-    return;
-
-    /* we have to iterate backwards through the children's list,
-     * so we get the latest item last in the file.
-     * (don't use gtk_container_foreach() here, it will return the wrong iteration order) */
-    children = gtk_container_get_children(GTK_CONTAINER(submenu_recent_files));
-    child = g_list_last(children);
-    while (child != NULL) {
-        /* get capture filename from the menu item label */
-        cf_name = (gchar *)g_object_get_data(G_OBJECT(child->data), MENU_RECENT_FILES_KEY);
-        if (cf_name) {
-            if(u3_active())
-                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", u3_contract_device_path(cf_name));
-            else
-                fprintf (rf, RECENT_KEY_CAPTURE_FILE ": %s\n", cf_name);
-        }
-
-        child = g_list_previous(child);
-    }
-
-    g_list_free(children);
 }
 
 void
