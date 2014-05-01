@@ -3190,9 +3190,9 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, proto_tree *tree)
                   guint8 nqs_i;
                   guint8 rvpqs_i;
 
-                  dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_NA);
+                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_nqs, tvb, offset, 1, ENC_NA);
                   nqs = tvb_get_guint8(tvb, offset);
-                  dpoe_opcode_response = proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_NA);
+                  proto_tree_add_item(dpoe_opcode_response_tree, hf_oam_dpoe_repthr_rvpqs, tvb, offset+1, 1, ENC_NA);
                   rvpqs = tvb_get_guint8(tvb, offset+1);
 
                   for (nqs_i = 0; nqs_i < nqs; nqs_i++) {
