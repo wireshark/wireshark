@@ -121,6 +121,7 @@ static int hf_dcbx_feature_app_proto = -1;
 static int hf_dcbx_feature_app_selector = -1;
 static int hf_dcbx_feature_app_oui = -1;
 static int hf_dcbx_feature_app_prio = -1;
+static int hf_dcbx_feature_flag_llink_type = -1;
 static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_supported = -1;
@@ -278,6 +279,7 @@ static gint ett_org_spc_dcbx_cee_1 = -1;
 static gint ett_org_spc_dcbx_cee_2 = -1;
 static gint ett_org_spc_dcbx_cee_3 = -1;
 static gint ett_org_spc_dcbx_cee_4 = -1;
+static gint ett_org_spc_dcbx_cin_6 = -1;
 static gint ett_org_spc_dcbx_cee_app = -1;
 static gint ett_org_spc_ieee_802_1_1 = -1;
 static gint ett_org_spc_ieee_802_1_2 = -1;
@@ -387,6 +389,7 @@ static const value_string dcbx_subtypes[] = {
 	{ 0x02,	"Priority Groups" },
 	{ 0x03,	"Priority-Based Flow Control" },
 	{ 0x04,	"Application Protocol" },
+	{ 0x06,	"Logical Link Down" },
 	{ 0, NULL }
 };
 
@@ -400,6 +403,12 @@ static const value_string dcbx_app_types[] = {
 	{ 0xcbc,	"iSCSI" },
 	{ 0x8906,	"FCoE" },
 	{ 0x8914,	"FiP" },
+	{ 0, NULL }
+};
+
+static const value_string dcbx_llink_types[] = {
+	{ 0x0,	"FCoE Status" },
+	{ 0x1,	"LAN Status" },
 	{ 0, NULL }
 };
 
@@ -1484,6 +1493,9 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 		case 0x4: /* Application */
 			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cee_4);
 			break;
+		case 0x6: /* Logical Link Down */
+			subtlv_tree = proto_item_add_subtree(tf, ett_org_spc_dcbx_cin_6);
+			break;
 		}
 		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_type, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtlv_tree, hf_dcbx_tlv_len, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
@@ -1626,6 +1638,14 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 
 					tempOffset++;
 				}
+				break;
+			}
+			case 0x6: /* Logical Link Down */
+			{
+				proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_llink_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+				tempOffset++;
+
 				break;
 			}
 			}
@@ -3634,6 +3654,10 @@ proto_register_lldp(void)
 			{ "Application Priority", "lldp.dcbx.feature.app.prio", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_dcbx_feature_flag_llink_type,
+			{ "Logical Link Down Type", "lldp.dcbx.feature.llink.type", FT_UINT8, BASE_HEX,
+			VALS(dcbx_llink_types), 0x80, NULL, HFILL }
+		},
 		{ &hf_ieee_802_1_subtype,
 			{ "IEEE 802.1 Subtype", "lldp.ieee.802_1.subtype", FT_UINT8, BASE_HEX,
 			VALS(ieee_802_1_subtypes), 0x0, NULL, HFILL }
@@ -4203,6 +4227,7 @@ proto_register_lldp(void)
 		&ett_org_spc_dcbx_cee_2,
 		&ett_org_spc_dcbx_cee_3,
 		&ett_org_spc_dcbx_cee_4,
+		&ett_org_spc_dcbx_cin_6,
 		&ett_org_spc_dcbx_cee_app,
 		&ett_org_spc_ieee_802_1_1,
 		&ett_org_spc_ieee_802_1_2,
