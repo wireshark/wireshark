@@ -453,7 +453,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         next_tvb = tvb_new_subset_remaining(tvb, 24);
 
     /* If we have a full packet now dissect it */
-    if((new_tvb || !frag->fragmented) && !frag->outoforder)
+    if((new_tvb || (frag && !frag->fragmented)) && !frag->outoforder)
     {
         switch(type)
         {
@@ -493,7 +493,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         }
     }
     /* The packet is out of order, update the cinfo and ignore the packet */
-    if(frag->outoforder)
+    if(frag && frag->outoforder)
         col_append_str(pinfo->cinfo, COL_INFO, " (Out Of Order, ignored)");
 }
 
