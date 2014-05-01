@@ -103,6 +103,8 @@ struct ssh_peer_data {
 
 	gchar*	comp_proposals[2];
 	gchar*	comp;
+
+	gint	length_is_plaintext;
 };
 
 struct ssh_flow_data {
@@ -119,6 +121,7 @@ struct ssh_flow_data {
 
 static int proto_ssh = -1;
 static int hf_ssh_packet_length= -1;
+static int hf_ssh_packet_length_encrypted= -1;
 static int hf_ssh_padding_length= -1;
 static int hf_ssh_payload= -1;
 static int hf_ssh_protocol= -1;
@@ -727,13 +730,28 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		case SSH_MSG_NEWKEYS:
 			if (peer_data->frame_key_end == 0) {
 				peer_data->frame_key_end = pinfo->fd->num;
-				ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].mac_proposals[is_response],
-								global_data->peer_data[SERVER_PEER_DATA].mac_proposals[is_response],
-								&peer_data->mac);
-				ssh_set_mac_length(peer_data);
 				ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].enc_proposals[is_response],
 								global_data->peer_data[SERVER_PEER_DATA].enc_proposals[is_response],
 								&peer_data->enc);
+
+				/* some ciphers have their own MAC so the "negotiated" one is meaningless */
+				if(peer_data->enc && (0 == strcmp(peer_data->enc, "aes128-gcm@openssh.com") ||
+									  0 == strcmp(peer_data->enc, "aes256-gcm@openssh.com"))) {
+					peer_data->mac = wmem_strdup(wmem_file_scope(), (const gchar *)"<implicit>");
+					peer_data->mac_length = 16;
+					peer_data->length_is_plaintext = 1;
+				}
+				else if(peer_data->enc && 0 == strcmp(peer_data->enc, "chacha20-poly1305@openssh.com")) {
+					peer_data->mac = wmem_strdup(wmem_file_scope(), (const gchar *)"<implicit>");
+					peer_data->mac_length = 16;
+				}
+				else {
+					ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].mac_proposals[is_response],
+									global_data->peer_data[SERVER_PEER_DATA].mac_proposals[is_response],
+									&peer_data->mac);
+					ssh_set_mac_length(peer_data);
+				}
+
 				ssh_choose_algo(global_data->peer_data[CLIENT_PEER_DATA].comp_proposals[is_response],
 								global_data->peer_data[SERVER_PEER_DATA].comp_proposals[is_response],
 								&peer_data->comp);
@@ -826,6 +844,7 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 		int offset, proto_tree *tree)
 {
 	gint len;
+	guint plen;
 
 	len = tvb_reported_length_remaining(tvb, offset);
 	col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Encrypted packet (len=%d)", len);
@@ -833,15 +852,25 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 	if (tree) {
 		gint encrypted_len = len;
 
+		if (len > 4 && peer_data->length_is_plaintext) {
+			plen = tvb_get_ntohl(tvb, offset) ;
+			proto_tree_add_uint(tree, hf_ssh_packet_length, tvb, offset, 4, plen);
+			encrypted_len -= 4;
+		}
+		else if (len > 4) {
+			ssh_proto_tree_add_item(tree, hf_ssh_packet_length_encrypted, tvb, offset, 4, ENC_NA);
+			encrypted_len -= 4;
+		}
+
 		if (peer_data->mac_length>0)
 			encrypted_len -= peer_data->mac_length;
 
 		ssh_proto_tree_add_item(tree, hf_ssh_encrypted_packet,
-					tvb, offset, encrypted_len, ENC_NA);
+					tvb, offset+4, encrypted_len, ENC_NA);
 
 		if (peer_data->mac_length>0)
 			ssh_proto_tree_add_item(tree, hf_ssh_mac_string,
-				tvb, offset+encrypted_len,
+				tvb, offset+4+encrypted_len,
 				peer_data->mac_length, ENC_NA);
 	}
 	offset+=len;
@@ -923,23 +952,41 @@ ssh_set_mac_length(struct ssh_peer_data *peer_data)
 {
 	char *size_str;
 	guint size=0;
-
 	char *mac_name = peer_data->mac;
+	char *strip;
 
 	if (!mac_name) return;
+	mac_name = wmem_strdup(NULL, (const gchar *)mac_name);
+	if (!mac_name) return;
+
+	/* strip trailing "-etm@openssh.com" or "@openssh.com" */
+	strip = strstr(mac_name, "-etm@openssh.com");
+	if (strip) {
+		peer_data->length_is_plaintext = 1;
+		*strip = '\0';
+	}
+	else {
+		strip = strstr(mac_name, "@openssh.com");
+		if (strip) *strip = '\0';
+	}
 
 	if ((size_str=g_strrstr(mac_name, "-")) && ((size=atoi(size_str+1)))) {
-		peer_data->mac_length = size;
+		peer_data->mac_length = (size > 0) ? size / 8 : 0;
 	}
 	else if (strcmp(mac_name, "hmac-sha1") == 0) {
 		peer_data->mac_length = 20;
 	}
 	else if (strcmp(mac_name, "hmac-md5") == 0) {
-		peer_data->mac_length = 12;
+		peer_data->mac_length = 16;
+	}
+	else if (strcmp(mac_name, "hmac-ripemd160") == 0) {
+		peer_data->mac_length = 20;
 	}
 	else if (strcmp(mac_name, "none") == 0) {
 		peer_data->mac_length = 0;
 	}
+
+	wmem_free(NULL, mac_name);
 }
 
 static void ssh_set_kex_specific_dissector(struct ssh_flow_data *global_data)
@@ -1116,6 +1163,11 @@ proto_register_ssh(void)
 		  { "Packet Length",      "ssh.packet_length",
 		    FT_UINT32, BASE_DEC, NULL,  0x0,
 		    "SSH packet length", HFILL }},
+
+		{ &hf_ssh_packet_length_encrypted,
+		  { "Packet Length (encrypted)",      "ssh.packet_length_encrypted",
+		    FT_BYTES, BASE_NONE, NULL,  0x0,
+		    "SSH packet length (encrypted)", HFILL }},
 
 		{ &hf_ssh_padding_length,
 		  { "Padding Length",  "ssh.padding_length",
