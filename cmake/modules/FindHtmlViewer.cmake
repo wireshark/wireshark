@@ -40,6 +40,11 @@ endif()
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( HtmlViewer DEFAULT_MSG HTML_VIEWER_EXECUTABLE )
 
+if (NOT HTML_VIEWER_EXECUTABLE)
+    set(HTML_VIEWER_EXECUTABLE "")
+    set(HTMLVIEWER_FOUND ON)
+endif()
+
 # For compat with configure
 set( HTML_VIEWER ${HTML_VIEWER_EXECUTABLE} )
 
