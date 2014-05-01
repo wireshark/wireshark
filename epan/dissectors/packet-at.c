@@ -80,7 +80,7 @@ static void dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint len;
 
     len = tvb_reported_length(tvb);
-    col_append_str(pinfo->cinfo, COL_PROTOCOL, "/AT");
+    col_append_sep_str(pinfo->cinfo, COL_PROTOCOL, "/", "AT");
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "AT Command: %s",
         tvb_format_text_wsp(tvb, 0, len));
 
