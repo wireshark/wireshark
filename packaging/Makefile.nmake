@@ -1,7 +1,6 @@
 #
 
 include ../config.nmake
-include <win32.mak>
 
 wireshark.manifest:	nsis/wireshark.nsi ws-manifest.pl
 	$(PERL) ws-manifest.pl nsis/wireshark.nsi > $@	

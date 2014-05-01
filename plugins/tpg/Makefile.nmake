@@ -1,7 +1,6 @@
 #
 
 include ..\..\config.nmake
-include <win32.mak>
 
 ############### no need to modify below this line #########
 

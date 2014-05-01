@@ -3,7 +3,6 @@
 #
 
 include ..\config.nmake
-include <win32.mak>
 include ..\Makefile.nmake.inc
 
 ############### no need to modify below this line #########
