@@ -137,20 +137,19 @@ MSVC_VARIANT=MSVC2013
 # "Microsoft Visual C++ 2012 Express Edition"
 # Visual C++ 11.0, _MSC_VER 1700, msvcr110.dll
 ## Notes:
-##    1. Sep 20,2012: *Beta*: Build with VC11 (2012) succeeds; Seems OK: Minimally tested;
-##        win32.mak is apparently not part of the MS 2012EE install;
-##        To build Windows Wireshark, win32.mak must be obtained*
+##    1.  win32.mak is apparently not part of the MS 2012EE install;
+##        To build Windows Wireshark, win32.mak must be obtained [*]
 ##        and copied to a dir specified in the Windows Environment
 ##        variable 'include' (or to a dir added to the list in 'include').
-##        *One possibility: download the Windows 7 Platform SDK and copy
+##        Note that the 'include' environment variable is initialized
+##         when vcvarsall.bat is called to set up the build environment.
+##        [*]One possibility: download the Windows 7 Platform SDK and copy
 ##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
 ##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
 ##    2. Dec 28,2012: "VS2012 Update 1" is required to use VS 2012 to build an .exe which
 ##        will run on Windows XP (as well as on later versions of Windows).
 ##        ToDo: It appears that some special setup is required to to do this.
 ##          https://blogs.msdn.com/b/vcblog/archive/2012/10/08/10357555.aspx
-##    3. Feb 07,2013: [WMeier] I've noted no problems to date with Wireshark built with VS2012
-##        based upon a fair amount of use while doing Wireshark testing and debugging.
 ##
 #MSVC_VARIANT=MSVC2012EE
 
@@ -164,6 +163,16 @@ MSVC_VARIANT=MSVC2013
 
 # "Microsoft Visual Studio 2013 Express Edition"
 # Visual C++ 12.0, _MSC_VER 1800, msvcr120.dll
+##    Notes:
+##    1.  win32.mak is apparently not part of the MS 2013EE install;
+##        To build Windows Wireshark, win32.mak must be obtained [*]
+##        and copied to a dir specified in the Windows Environment
+##        variable 'include' (or to a dir added to the list in 'include').
+##        Note that the 'include' environment variable is initialized
+##         when vcvarsall.bat is called to set up the build environment.
+##        [*]One possibility: download the Windows 7 Platform SDK and copy
+##         win32.mak from ...\Microsoft SDKs\Windows\v7.[something]\include
+##         See: http://ask.wireshark.org/questions/14343/setting-development-project-under-visual-studio-2012
 #MSVC_VARIANT=MSVC2013EE
 
 # The default if we haven't set a system environment variable or
