@@ -425,7 +425,97 @@ static int hf_mbim_set_phonebook_write_name_length = -1;
 static int hf_mbim_set_phonebook_write_number = -1;
 static int hf_mbim_set_phonebook_write_name = -1;
 static int hf_mbim_set_stk_pac_pac_host_control = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_refresh = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_more_time = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_poll_interval = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_polling_off = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_set_up_evt_list = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_set_up_call = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_send_ss = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_send_ussd = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_send_short_msg = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_send_dtmf = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_launch_browser = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_geo_loc_req = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_play_tone = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_display_text = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_get_inkey = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_get_input = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_select_item = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_set_up_menu = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_prov_local_info = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_timer_management = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_set_up_idle_mode_text = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_perform_card_apdu = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_power_on_card = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_power_off_card = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_get_reader_status = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_run_at_cmd = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_lang_notif = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_open_channel = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_close_channel = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_receive_data = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_send_data = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_get_channel_status = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_service_search = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_get_service_info = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_declare_service = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_set_frames = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_get_frames_status = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_retrieve_multimedia_msg = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_submit_multimedia_msg = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_display_multimedia_msg = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_activate = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_contactless_state_changed = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_cmd_container = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_encapsulated_session_ctrl = -1;
+static int hf_mbim_set_stk_pac_pac_host_control_end_proact_session = -1;
 static int hf_mbim_stk_pac_info_pac_support = -1;
+static int hf_mbim_stk_pac_info_pac_support_refresh = -1;
+static int hf_mbim_stk_pac_info_pac_support_more_time = -1;
+static int hf_mbim_stk_pac_info_pac_support_poll_interval = -1;
+static int hf_mbim_stk_pac_info_pac_support_polling_off = -1;
+static int hf_mbim_stk_pac_info_pac_support_set_up_evt_list = -1;
+static int hf_mbim_stk_pac_info_pac_support_set_up_call = -1;
+static int hf_mbim_stk_pac_info_pac_support_send_ss = -1;
+static int hf_mbim_stk_pac_info_pac_support_send_ussd = -1;
+static int hf_mbim_stk_pac_info_pac_support_send_short_msg = -1;
+static int hf_mbim_stk_pac_info_pac_support_send_dtmf = -1;
+static int hf_mbim_stk_pac_info_pac_support_launch_browser = -1;
+static int hf_mbim_stk_pac_info_pac_support_geo_loc_req = -1;
+static int hf_mbim_stk_pac_info_pac_support_play_tone = -1;
+static int hf_mbim_stk_pac_info_pac_support_display_text = -1;
+static int hf_mbim_stk_pac_info_pac_support_get_inkey = -1;
+static int hf_mbim_stk_pac_info_pac_support_get_input = -1;
+static int hf_mbim_stk_pac_info_pac_support_select_item = -1;
+static int hf_mbim_stk_pac_info_pac_support_set_up_menu = -1;
+static int hf_mbim_stk_pac_info_pac_support_prov_local_info = -1;
+static int hf_mbim_stk_pac_info_pac_support_timer_management = -1;
+static int hf_mbim_stk_pac_info_pac_support_set_up_idle_mode_text = -1;
+static int hf_mbim_stk_pac_info_pac_support_perform_card_apdu = -1;
+static int hf_mbim_stk_pac_info_pac_support_power_on_card = -1;
+static int hf_mbim_stk_pac_info_pac_support_power_off_card = -1;
+static int hf_mbim_stk_pac_info_pac_support_get_reader_status = -1;
+static int hf_mbim_stk_pac_info_pac_support_run_at_cmd = -1;
+static int hf_mbim_stk_pac_info_pac_support_lang_notif = -1;
+static int hf_mbim_stk_pac_info_pac_support_open_channel = -1;
+static int hf_mbim_stk_pac_info_pac_support_close_channel = -1;
+static int hf_mbim_stk_pac_info_pac_support_receive_data = -1;
+static int hf_mbim_stk_pac_info_pac_support_send_data = -1;
+static int hf_mbim_stk_pac_info_pac_support_get_channel_status = -1;
+static int hf_mbim_stk_pac_info_pac_support_service_search = -1;
+static int hf_mbim_stk_pac_info_pac_support_get_service_info = -1;
+static int hf_mbim_stk_pac_info_pac_support_declare_service = -1;
+static int hf_mbim_stk_pac_info_pac_support_set_frames = -1;
+static int hf_mbim_stk_pac_info_pac_support_get_frames_status = -1;
+static int hf_mbim_stk_pac_info_pac_support_retrieve_multimedia_msg = -1;
+static int hf_mbim_stk_pac_info_pac_support_submit_multimedia_msg = -1;
+static int hf_mbim_stk_pac_info_pac_support_display_multimedia_msg = -1;
+static int hf_mbim_stk_pac_info_pac_support_activate = -1;
+static int hf_mbim_stk_pac_info_pac_support_contactless_state_changed = -1;
+static int hf_mbim_stk_pac_info_pac_support_cmd_container = -1;
+static int hf_mbim_stk_pac_info_pac_support_encapsulated_session_ctrl = -1;
+static int hf_mbim_stk_pac_info_pac_support_end_proact_session = -1;
 static int hf_mbim_stk_pac_pac_type = -1;
 static int hf_mbim_stk_pac_pac = -1;
 static int hf_mbim_set_stk_terminal_response_response_length = -1;
@@ -546,6 +636,7 @@ static gint ett_mbim_pair_list = -1;
 static gint ett_mbim_pin = -1;
 static gint ett_mbim_buffer = -1;
 static gint ett_mbim_sc_address = -1;
+static gint ett_mbim_pac = -1;
 static gint ett_mbim_fragment = -1;
 static gint ett_mbim_fragments = -1;
 
@@ -1337,7 +1428,11 @@ static const value_string mbim_phonebook_write_flag_vals[] = {
     { 0, NULL}
 };
 
-#if 0
+static const true_false_string mbim_pac_host_control_val = {
+  "Host wants to handle command",
+  "Host does not want to handle command"
+};
+
 static const value_string mbim_stk_pac_profile_vals[] = {
     { 0, "Not Handled By Function Cannot Be Handled By Host"},
     { 1, "Not Handled By Function May Be Handled By Host"},
@@ -1349,7 +1444,6 @@ static const value_string mbim_stk_pac_profile_vals[] = {
     { 7, "Handled By Host Function Able To Handle"},
     { 0, NULL}
 };
-#endif
 
 static const value_string mbim_stk_pac_type_vals[] = {
     { 0, "Proactive Command"},
@@ -3391,6 +3485,116 @@ mbim_dissect_set_phonebook_write(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
+mbim_dissect_set_stk_pac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    ti = proto_tree_add_item(tree, hf_mbim_set_stk_pac_pac_host_control, tvb, offset, 32, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_mbim_pac);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_refresh, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_more_time, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_poll_interval, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_polling_off, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_set_up_evt_list, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_set_up_call, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_send_ss, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_send_ussd, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_send_short_msg, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_send_dtmf, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_launch_browser, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_geo_loc_req, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_play_tone, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_display_text, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_get_inkey, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_get_input, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_select_item, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_set_up_menu, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_prov_local_info, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_timer_management, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_set_up_idle_mode_text, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_perform_card_apdu, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_power_on_card, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_power_off_card, tvb, offset+4, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_get_reader_status, tvb, offset+4, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_run_at_cmd, tvb, offset+4, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_lang_notif, tvb, offset+4, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_open_channel, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_close_channel, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_receive_data, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_send_data, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_get_channel_status, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_service_search, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_get_service_info, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_declare_service, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_set_frames, tvb, offset+6, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_get_frames_status, tvb, offset+6, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_retrieve_multimedia_msg, tvb, offset+7, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_submit_multimedia_msg, tvb, offset+7, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_display_multimedia_msg, tvb, offset+7, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_activate, tvb, offset+8, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_contactless_state_changed, tvb, offset+8, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_cmd_container, tvb, offset+9, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_encapsulated_session_ctrl, tvb, offset+9, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control_end_proact_session, tvb, offset+10, 1, ENC_NA);
+}
+
+static void
+mbim_dissect_stk_pac_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset)
+{
+    proto_item *ti;
+    proto_tree *subtree;
+
+    ti = proto_tree_add_item(tree, hf_mbim_stk_pac_info_pac_support, tvb, offset, 256, ENC_NA);
+    subtree = proto_item_add_subtree(ti, ett_mbim_pac);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_refresh, tvb, offset+1, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_more_time, tvb, offset+2, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_poll_interval, tvb, offset+3, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_polling_off, tvb, offset+4, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_set_up_evt_list, tvb, offset+5, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_set_up_call, tvb, offset+10, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_send_ss, tvb, offset+11, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_send_ussd, tvb, offset+12, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_send_short_msg, tvb, offset+13, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_send_dtmf, tvb, offset+14, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_launch_browser, tvb, offset+15, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_geo_loc_req, tvb, offset+16, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_play_tone, tvb, offset+20, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_display_text, tvb, offset+21, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_get_inkey, tvb, offset+22, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_get_input, tvb, offset+23, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_select_item, tvb, offset+24, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_set_up_menu, tvb, offset+25, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_prov_local_info, tvb, offset+26, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_timer_management, tvb, offset+27, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_set_up_idle_mode_text, tvb, offset+28, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_perform_card_apdu, tvb, offset+30, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_power_on_card, tvb, offset+31, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_power_off_card, tvb, offset+32, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_get_reader_status, tvb, offset+33, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_run_at_cmd, tvb, offset+34, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_lang_notif, tvb, offset+35, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_open_channel, tvb, offset+40, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_close_channel, tvb, offset+41, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_receive_data, tvb, offset+42, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_send_data, tvb, offset+43, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_get_channel_status, tvb, offset+44, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_service_search, tvb, offset+45, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_get_service_info, tvb, offset+46, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_declare_service, tvb, offset+47, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_set_frames, tvb, offset+50, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_get_frames_status, tvb, offset+51, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_retrieve_multimedia_msg, tvb, offset+60, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_submit_multimedia_msg, tvb, offset+61, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_display_multimedia_msg, tvb, offset+62, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_activate, tvb, offset+70, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_contactless_state_changed, tvb, offset+71, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_cmd_container, tvb, offset+72, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_encapsulated_session_ctrl, tvb, offset+73, 1, ENC_NA);
+    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support_end_proact_session, tvb, offset+81, 1, ENC_NA);
+}
+
+static void
 mbim_dissect_set_stk_terminal_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
     tvbuff_t *pac_tvb;
@@ -3572,7 +3776,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     proto_item *ti;
     proto_tree *mbim_tree, *header_tree, *subtree;
     gint offset = 0;
-    guint32 msg_type, msg_length, trans_id, open_count;
+    guint32 msg_type, trans_id, open_count;
     guint64 trans_id_key, *p_trans_id_key;
     conversation_t *conversation;
     struct mbim_conv_info *mbim_conv;
@@ -3616,8 +3820,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     col_add_fstr(pinfo->cinfo, COL_INFO, "%-19s", val_to_str_const(msg_type, mbim_msg_type_vals, "Unknown"));
     proto_tree_add_uint(header_tree, hf_mbim_header_message_type, tvb, offset, 4, msg_type);
     offset += 4;
-    msg_length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_uint(header_tree, hf_mbim_header_message_length, tvb, offset, 4, msg_length);
+    proto_tree_add_item(header_tree, hf_mbim_header_message_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     trans_id = tvb_get_letohl(tvb, offset);
     proto_tree_add_uint(header_tree, hf_mbim_header_transaction_id, tvb, offset, 4, trans_id);
@@ -3966,7 +4169,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_PHONEBOOK_WRITE:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    mbim_dissect_set_phonebook_write(frag_tvb, pinfo, tree, offset);
+                                    mbim_dissect_set_phonebook_write(frag_tvb, pinfo, subtree, offset);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 }
@@ -3980,7 +4183,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         switch (cid) {
                             case MBIM_CID_STK_PAC:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    proto_tree_add_item(subtree, hf_mbim_set_stk_pac_pac_host_control, frag_tvb, offset, 32, ENC_NA);
+                                    mbim_dissect_set_stk_pac(frag_tvb, pinfo, subtree, offset);
                                 } else {
                                     if (info_buff_len) {
                                         proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_info_buffer, frag_tvb, offset, info_buff_len);
@@ -3989,7 +4192,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                 break;
                             case MBIM_CID_STK_TERMINAL_RESPONSE:
                                 if (cmd_type == MBIM_COMMAND_SET) {
-                                    mbim_dissect_set_stk_terminal_response(frag_tvb, pinfo, tree, offset);
+                                    mbim_dissect_set_stk_terminal_response(frag_tvb, pinfo, subtree, offset);
                                 } else {
                                     proto_tree_add_expert(subtree, pinfo, &ei_mbim_unexpected_msg, frag_tvb, offset, -1);
                                 }
@@ -4451,7 +4654,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         switch (cid) {
                             case MBIM_CID_STK_PAC:
                                 if (msg_type == MBIM_COMMAND_DONE) {
-                                    proto_tree_add_item(subtree, hf_mbim_stk_pac_info_pac_support, frag_tvb, offset, 256, ENC_NA);
+                                    mbim_dissect_stk_pac_info(frag_tvb, pinfo, subtree, offset);
                                 } else {
                                     tvbuff_t *pac_tvb;
                                     gint pac_length;
@@ -6774,9 +6977,459 @@ proto_register_mbim(void)
                FT_BYTES, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
+        { &hf_mbim_set_stk_pac_pac_host_control_refresh,
+            { "Refresh", "mbim.control.set_stk_pac.pac_host_control.refresh",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x02,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_more_time,
+            { "More Time", "mbim.control.set_stk_pac.pac_host_control.more_time",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_poll_interval,
+            { "Poll Interval", "mbim.control.set_stk_pac.pac_host_control.poll_interval",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_polling_off,
+            { "Polling Off", "mbim.control.set_stk_pac.pac_host_control.polling_off",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_set_up_evt_list,
+            { "Set Up Event List", "mbim.control.set_stk_pac.pac_host_control.set_up_evt_list",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x20,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_set_up_call,
+            { "Set Up Call", "mbim.control.set_stk_pac.pac_host_control.set_up_call",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_send_ss,
+            { "Send SS", "mbim.control.set_stk_pac.pac_host_control.send_ss",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_send_ussd,
+            { "Send USSD", "mbim.control.set_stk_pac.pac_host_control.send_ussd",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_send_short_msg,
+            { "Send Short Message", "mbim.control.set_stk_pac.pac_host_control.send_short_msg",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x20,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_send_dtmf,
+            { "Send DTMF", "mbim.control.set_stk_pac.pac_host_control.send_dtmf",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_launch_browser,
+            { "Launch Browser", "mbim.control.set_stk_pac.pac_host_control.launch_browser",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_geo_loc_req,
+            { "Geographical Location Request", "mbim.control.set_stk_pac.pac_host_control.geo_loc_req",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_play_tone,
+            { "Play Tone", "mbim.control.set_stk_pac.pac_host_control.play_tone",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_display_text,
+            { "Display Text", "mbim.control.set_stk_pac.pac_host_control.display_text",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x20,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_get_inkey,
+            { "Get Inkey", "mbim.control.set_stk_pac.pac_host_control.get_inkey",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_get_input,
+            { "Get Input", "mbim.control.set_stk_pac.pac_host_control.get_input",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_select_item,
+            { "Select Item", "mbim.control.set_stk_pac.pac_host_control.select_item",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_set_up_menu,
+            { "Set Up Menu", "mbim.control.set_stk_pac.pac_host_control.set_up_menu",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x02,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_prov_local_info,
+            { "Provide Local Information", "mbim.control.set_stk_pac.pac_host_control.prov_local_info",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_timer_management,
+            { "Timer Management", "mbim.control.set_stk_pac.pac_host_control.timer_management",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_set_up_idle_mode_text,
+            { "Set Up Idle Mode Text", "mbim.control.set_stk_pac.pac_host_control.set_up_idle_mode_text",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_perform_card_apdu,
+            { "Perform Card APDU", "mbim.control.set_stk_pac.pac_host_control.perform_card_apdu",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_power_on_card,
+            { "Power On Card", "mbim.control.set_stk_pac.pac_host_control.power_on_card",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_power_off_card,
+            { "Power Off Card", "mbim.control.set_stk_pac.pac_host_control.power_off_card",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_get_reader_status,
+            { "Get Reader Status", "mbim.control.set_stk_pac.pac_host_control.get_reader_status",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x02,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_run_at_cmd,
+            { "Run AT Command", "mbim.control.set_stk_pac.pac_host_control.run_at_cmd",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_lang_notif,
+            { "Language Notification", "mbim.control.set_stk_pac.pac_host_control.lang_notif",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_open_channel,
+            { "Open Channel", "mbim.control.set_stk_pac.pac_host_control.open_channel",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_close_channel,
+            { "Close Channel", "mbim.control.set_stk_pac.pac_host_control.close_channel",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x02,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_receive_data,
+            { "Receive Data", "mbim.control.set_stk_pac.pac_host_control.receive_data",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_send_data,
+            { "Send Data", "mbim.control.set_stk_pac.pac_host_control.send_data",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_get_channel_status,
+            { "Get Channel Status", "mbim.control.set_stk_pac.pac_host_control.get_channel_status",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_service_search,
+            { "Service Search", "mbim.control.set_stk_pac.pac_host_control.service_search",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x20,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_get_service_info,
+            { "Get Service Information", "mbim.control.set_stk_pac.pac_host_control.get_service_info",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_declare_service,
+            { "Declare Service", "mbim.control.set_stk_pac.pac_host_control.declare_service",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_set_frames,
+            { "Set Frames", "mbim.control.set_stk_pac.pac_host_control.set_frames",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x04,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_get_frames_status,
+            { "Get Frames Status", "mbim.control.set_stk_pac.pac_host_control.get_frames_status",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x08,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_retrieve_multimedia_msg,
+            { "Retrieve Multimedia Message", "mbim.control.set_stk_pac.pac_host_control.retrieve_multimedia_msg",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x10,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_submit_multimedia_msg,
+            { "Submit Multimedia Message", "mbim.control.set_stk_pac.pac_host_control.submit_multimedia_msg",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x20,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_display_multimedia_msg,
+            { "Display Multimedia Message", "mbim.control.set_stk_pac.pac_host_control.display_multimedia_msg",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_activate,
+            { "Activate", "mbim.control.set_stk_pac.pac_host_control.activate",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x40,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_contactless_state_changed,
+            { "Contactless State Changed", "mbim.control.set_stk_pac.pac_host_control.contactless_state_changed",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_cmd_container,
+            { "Command Container", "mbim.control.set_stk_pac.pac_host_control.cmd_container",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x01,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_encapsulated_session_ctrl,
+            { "Encapsulated Session Control", "mbim.control.set_stk_pac.pac_host_control.encapsulated_session_ctrl",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x02,
+              NULL, HFILL }
+        },
+        { &hf_mbim_set_stk_pac_pac_host_control_end_proact_session,
+            { "End Proactive Session", "mbim.control.set_stk_pac.pac_host_control.end_proact_session",
+               FT_BOOLEAN, 8, TFS(&mbim_pac_host_control_val), 0x02,
+              NULL, HFILL }
+        },
         { &hf_mbim_stk_pac_info_pac_support,
             { "PAC Host Control", "mbim.control.stk_pac_info.pac_support",
                FT_BYTES, BASE_NONE, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_refresh,
+            { "Refresh", "mbim.control.stk_pac_info.pac_support.refresh",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_more_time,
+            { "More Time", "mbim.control.stk_pac_info.pac_support.more_time",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_poll_interval,
+            { "Poll Interval", "mbim.control.stk_pac_info.pac_support.poll_interval",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_polling_off,
+            { "Polling Off", "mbim.control.stk_pac_info.pac_support.polling_off",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_set_up_evt_list,
+            { "Set Up Event List", "mbim.control.stk_pac_info.pac_support.set_up_evt_list",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_set_up_call,
+            { "Set Up Call", "mbim.control.stk_pac_info.pac_support.set_up_call",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_send_ss,
+            { "Send SS", "mbim.control.stk_pac_info.pac_support.send_ss",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_send_ussd,
+            { "Send USSD", "mbim.control.stk_pac_info.pac_support.send_ussd",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_send_short_msg,
+            { "Send Short Message", "mbim.control.stk_pac_info.pac_support.send_short_msg",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_send_dtmf,
+            { "Send DTMF", "mbim.control.stk_pac_info.pac_support.send_dtmf",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_launch_browser,
+            { "Launch Browser", "mbim.control.stk_pac_info.pac_support.launch_browser",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_geo_loc_req,
+            { "Geographical Location Request", "mbim.control.stk_pac_info.pac_support.geo_loc_req",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_play_tone,
+            { "Play Tone", "mbim.control.stk_pac_info.pac_support.play_tone",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_display_text,
+            { "Display Text", "mbim.control.stk_pac_info.pac_support.display_text",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_get_inkey,
+            { "Get Inkey", "mbim.control.stk_pac_info.pac_support.get_inkey",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_get_input,
+            { "Get Input", "mbim.control.stk_pac_info.pac_support.get_input",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_select_item,
+            { "Select Item", "mbim.control.stk_pac_info.pac_support.select_item",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_set_up_menu,
+            { "Set Up Menu", "mbim.control.stk_pac_info.pac_support.set_up_menu",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_prov_local_info,
+            { "Provide Local Information", "mbim.control.stk_pac_info.pac_support.prov_local_info",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_timer_management,
+            { "Timer Management", "mbim.control.stk_pac_info.pac_support.timer_management",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_set_up_idle_mode_text,
+            { "Set Up Idle Mode Text", "mbim.control.stk_pac_info.pac_support.set_up_idle_mode_text",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_perform_card_apdu,
+            { "Perform Card APDU", "mbim.control.stk_pac_info.pac_support.perform_card_apdu",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_power_on_card,
+            { "Power On Card", "mbim.control.stk_pac_info.pac_support.power_on_card",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_power_off_card,
+            { "Power Off Card", "mbim.control.stk_pac_info.pac_support.power_off_card",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_get_reader_status,
+            { "Get Reader Status", "mbim.control.stk_pac_info.pac_support.get_reader_status",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_run_at_cmd,
+            { "Run AT Command", "mbim.control.stk_pac_info.pac_support.run_at_cmd",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_lang_notif,
+            { "Language Notification", "mbim.control.stk_pac_info.pac_support.lang_notif",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_open_channel,
+            { "Open Channel", "mbim.control.stk_pac_info.pac_support.open_channel",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_close_channel,
+            { "Close Channel", "mbim.control.stk_pac_info.pac_support.close_channel",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_receive_data,
+            { "Receive Data", "mbim.control.stk_pac_info.pac_support.receive_data",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_send_data,
+            { "Send Data", "mbim.control.stk_pac_info.pac_support.send_data",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_get_channel_status,
+            { "Get Channel Status", "mbim.control.stk_pac_info.pac_support.get_channel_status",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_service_search,
+            { "Service Search", "mbim.control.stk_pac_info.pac_support.service_search",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_get_service_info,
+            { "Get Service Information", "mbim.control.stk_pac_info.pac_support.get_service_info",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_declare_service,
+            { "Declare Service", "mbim.control.stk_pac_info.pac_support.declare_service",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_set_frames,
+            { "Set Frames", "mbim.control.stk_pac_info.pac_support.set_frames",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_get_frames_status,
+            { "Get Frames Status", "mbim.control.stk_pac_info.pac_support.get_frames_status",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_retrieve_multimedia_msg,
+            { "Retrieve Multimedia Message", "mbim.control.stk_pac_info.pac_support.retrieve_multimedia_msg",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_submit_multimedia_msg,
+            { "Submit Multimedia Message", "mbim.control.stk_pac_info.pac_support.submit_multimedia_msg",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_display_multimedia_msg,
+            { "Display Multimedia Message", "mbim.control.stk_pac_info.pac_support.display_multimedia_msg",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_activate,
+            { "Activate", "mbim.control.stk_pac_info.pac_support.activate",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_contactless_state_changed,
+            { "Contactless State Changed", "mbim.control.stk_pac_info.pac_support.contactless_state_changed",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_cmd_container,
+            { "Command Container", "mbim.control.stk_pac_info.pac_support.cmd_container",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_encapsulated_session_ctrl,
+            { "Encapsulated Session Control", "mbim.control.stk_pac_info.pac_support.encapsulated_session_ctrl",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
+              NULL, HFILL }
+        },
+        { &hf_mbim_stk_pac_info_pac_support_end_proact_session,
+            { "End Proactive Session", "mbim.control.stk_pac_info.pac_support.end_proact_session",
+               FT_UINT8, BASE_DEC, VALS(mbim_stk_pac_profile_vals), 0,
               NULL, HFILL }
         },
         { &hf_mbim_stk_pac_pac_type,
@@ -7281,6 +7934,7 @@ proto_register_mbim(void)
         &ett_mbim_pin,
         &ett_mbim_buffer,
         &ett_mbim_sc_address,
+        &ett_mbim_pac,
         &ett_mbim_fragment,
         &ett_mbim_fragments
     };
