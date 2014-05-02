@@ -412,5 +412,17 @@ void proto_reg_handoff_ecp(void)
 
 	ecp_handle = find_dissector("ecp");
 	dissector_add_uint("ieee802a.ecp_pid", 0x0000, ecp_handle);
-
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
