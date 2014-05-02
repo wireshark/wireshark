@@ -34,7 +34,7 @@
 #include <epan/oui.h>
 #include <epan/afn.h>
 #include <epan/addr_resolv.h>
-#include "packet-lldp.h"
+#include "oui.h"
 
 void proto_register_lldp(void);
 void proto_reg_handoff_lldp(void);
@@ -332,6 +332,24 @@ static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
+
+/* TLV Types */
+#define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
+#define CHASSIS_ID_TLV_TYPE		0x01	/* Mandatory */
+#define PORT_ID_TLV_TYPE		0x02	/* Mandatory */
+#define TIME_TO_LIVE_TLV_TYPE		0x03	/* Mandatory */
+#define PORT_DESCRIPTION_TLV_TYPE	0x04
+#define SYSTEM_NAME_TLV_TYPE		0x05
+#define SYSTEM_DESCRIPTION_TLV_TYPE	0x06
+#define SYSTEM_CAPABILITIES_TLV_TYPE	0x07
+#define MANAGEMENT_ADDR_TLV_TYPE	0x08
+#define ORGANIZATION_SPECIFIC_TLV_TYPE	0x7F
+
+/* Masks */
+#define TLV_TYPE_MASK		0xFE00
+#define TLV_TYPE(value)		(((value) & TLV_TYPE_MASK) >> 9)
+#define TLV_INFO_LEN_MASK	0x01FF
+#define TLV_INFO_LEN(value)	((value) & TLV_INFO_LEN_MASK)
 
 static const value_string tlv_types[] = {
 	{ END_OF_LLDPDU_TLV_TYPE,			"End of LLDPDU"},
@@ -765,6 +783,14 @@ static const value_string profinet_mrrt_port_status_vals[] = {
 	{ 2,	"MRRT_UP" },
 	/* all other bits reserved */
 	{ 0,	NULL }
+};
+
+/* IEEE 802.1Qbg Subtypes */
+static const value_string ieee_802_1qbg_subtypes[] = {
+	{ 0x00,	"EVB" },
+	{ 0x01,	"CDCP" },
+	{ 0x02,	"VDP" },
+	{ 0, NULL }
 };
 
 /* Calculate Latitude and Longitude string */
