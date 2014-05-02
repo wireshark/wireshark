@@ -106,6 +106,14 @@ wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 {
     gsize  new_alloc_len, new_len;
 
+    /* short-circuit for efficiency if we have room already; greatly speeds up
+     * repeated calls to wmem_strbuf_append_c and others which grow a little bit
+     * at a time.
+     */
+    if (WMEM_STRBUF_ROOM(strbuf) >= to_add) {
+        return;
+    }
+
     new_alloc_len = strbuf->alloc_len;
     new_len = strbuf->len + to_add;
 
