@@ -31,23 +31,33 @@
 #include <epan/addr_resolv.h>
 
 #include "packet-ieee802a.h"
-#include "packet-lldp.h"
+#include "oui.h"
 
 void proto_register_ecp_oui(void);
 void proto_reg_handoff_ecp(void);
 
-#define ECP_SUBTYPE	0
+#define ECP_SUBTYPE		0x00
 
-#define VDP_TLV_TYPE	0x02
+#define END_OF_VDPDU_TLV_TYPE	0x00	/* Mandatory */
+#define VDP_TLV_TYPE		0x02
+#define ORG_SPECIFIC_TLV_TYPE	0x7F
 
 /* IEEE 802.1Qbg VDP filter info formats */
-#define VDP_FIF_VID				0x01
-#define VDP_FIF_MACVID			0x02
-#define VDP_FIF_GROUPVID		0x03
+#define VDP_FIF_VID		0x01
+#define VDP_FIF_MACVID		0x02
+#define VDP_FIF_GROUPVID	0x03
 #define VDP_FIF_GROUPVMACVID	0x04
+
+/* Masks */
+#define TLV_TYPE_MASK		0xFE00
+#define TLV_TYPE(value)		(((value) & TLV_TYPE_MASK) >> 9)
+#define TLV_INFO_LEN_MASK	0x01FF
+#define TLV_INFO_LEN(value)	((value) & TLV_INFO_LEN_MASK)
 
 static gint proto_ecp = -1;
 static gint hf_ecp_pid = -1;
+static gint hf_ecp_tlv_type = -1;
+static gint hf_ecp_tlv_len = -1;
 static gint hf_ecp_subtype = -1;
 static gint hf_ecp_mode = -1;
 static gint hf_ecp_sequence = -1;
@@ -61,9 +71,10 @@ static gint hf_ecp_vdp_instanceid = -1;
 static gint hf_ecp_vdp_format = -1;
 static gint hf_ecp_vdp_mac = -1;
 static gint hf_ecp_vdp_vlan = -1;
-static gint ett_802_1qbg_capabilities_flags = -1;
 
 static gint ett_ecp = -1;
+static gint ett_end_of_vdpdu = -1;
+static gint ett_802_1qbg_capabilities_flags = -1;
 
 static const value_string ecp_pid_vals[] = {
 	{ 0x0000,	"ECP draft 0" },
@@ -113,31 +124,39 @@ static const value_string ecp_vdp_formats[] = {
 	{ 0, NULL }
 };
 
+/* IEEE 802.1Qbg Subtypes */
+static const value_string ieee_802_1qbg_subtypes[] = {
+	{ 0x00,	"EVB" },
+	{ 0x01,	"CDCP" },
+	{ 0x02,	"VDP" },
+	{ 0, NULL }
+};
+
 /* Dissect Unknown TLV */
 static gint32
 dissect_ecp_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
-        guint16 tempLen;
-        guint16 tempShort;
+	guint16 tempLen;
+	guint16 tempShort;
 
-        proto_tree      *ecp_unknown_tlv_tree = NULL;
-        proto_item      *ti = NULL;
+	proto_tree *ecp_unknown_tlv_tree = NULL;
+	proto_item *ti = NULL;
 
-        /* Get tlv type and length */
-        tempShort = tvb_get_ntohs(tvb, offset);
+	/* Get tlv type and length */
+	tempShort = tvb_get_ntohs(tvb, offset);
 
-        /* Get tlv length */
-        tempLen = TLV_INFO_LEN(tempShort);
+	/* Get tlv length */
+	tempLen = TLV_INFO_LEN(tempShort);
 
-        if (tree)
-        {
-            ti = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Unknown TLV");
-       		ecp_unknown_tlv_tree = proto_item_add_subtree(ti, ett_ecp);
-        }
+	if (tree)
+	{
+		ti = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "Unknown TLV");
+		ecp_unknown_tlv_tree = proto_item_add_subtree(ti, ett_ecp);
+	}
 
-        proto_tree_add_item(ecp_unknown_tlv_tree, hf_ecp_subtype, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ecp_unknown_tlv_tree, hf_ecp_subtype, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-        return -1;
+	return -1;
 }
 
 /* Dissect mac/vid pairs in VDP TLVs */
@@ -275,6 +294,35 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 	return tempOffset-offset;
 }
 
+/* Dissect End of VDP TLV (Mandatory) */
+gint32
+dissect_vdp_end_of_vdpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+{
+	guint16 tempLen;
+	guint16 tempShort;
+
+	proto_tree	*end_of_vdpdu_tree = NULL;
+	proto_item	*tf = NULL;
+
+	/* Get tlv type and length */
+	tempShort = tvb_get_ntohs(tvb, offset);
+
+	/* Get tlv length */
+	tempLen = TLV_INFO_LEN(tempShort);
+
+	if (tree)
+	{
+		/* Set port tree */
+		tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "End of VDPDU");
+		end_of_vdpdu_tree = proto_item_add_subtree(tf, ett_end_of_vdpdu);
+
+		proto_tree_add_item(end_of_vdpdu_tree, hf_ecp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(end_of_vdpdu_tree, hf_ecp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+	}
+
+	return -1;	/* Force the VDP dissector to terminate */
+}
+
 static void
 dissect_ecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -307,11 +355,11 @@ dissect_ecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tempType = TLV_TYPE(tempShort);
 
 		switch (tempType) {
-		case ORGANIZATION_SPECIFIC_TLV_TYPE:
+		case ORG_SPECIFIC_TLV_TYPE:
 			tempLen = dissect_vdp_tlv(tvb, pinfo, ecp_tree, offset);
 			break;
-		case END_OF_LLDPDU_TLV_TYPE:
-			tempLen = dissect_lldp_end_of_lldpdu(tvb, pinfo, ecp_tree, offset);
+		case END_OF_VDPDU_TLV_TYPE:
+			tempLen = dissect_vdp_end_of_vdpdu(tvb, pinfo, ecp_tree, offset);
 			break;
 		default:
 			tempLen = dissect_ecp_unknown_tlv(tvb, pinfo, ecp_tree, offset);
@@ -335,6 +383,15 @@ void proto_register_ecp_oui(void)
 	};
 
 	static hf_register_info hf[] = {
+		{ &hf_ecp_tlv_type,
+			{ "TLV Type", "ecp.tlv.type", FT_UINT16, BASE_DEC,
+			NULL, TLV_TYPE_MASK, NULL, HFILL }
+		},
+		{ &hf_ecp_tlv_len,
+			{ "TLV Length", "ecp.tlv.len", FT_UINT16, BASE_DEC,
+			NULL, TLV_INFO_LEN_MASK, NULL, HFILL }
+		},
+
 		{ &hf_ecp_subtype,
 			{ "subtype", "ecp.subtype", FT_UINT8, BASE_HEX,
 				VALS(ecp_subtypes), 0x0, NULL, HFILL },
@@ -393,6 +450,7 @@ void proto_register_ecp_oui(void)
 
 	static gint *ett[] = {
 		&ett_ecp,
+		&ett_end_of_vdpdu,
 		&ett_802_1qbg_capabilities_flags,
 	};
 
