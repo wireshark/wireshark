@@ -1837,7 +1837,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 fprintf(stderr, "<IPsec/ESP Dissector> Error in Algorithm %s Mode %d, grcy_open_cipher failed: %s\n",
                         gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, gpg_strerror(err));
                 g_free(decrypted_data);
-                decrypt_ok = FALSE;
               }
               else
               {
@@ -1860,7 +1859,6 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             gcry_cipher_algo_name(crypt_algo_libgcrypt), crypt_mode_libgcrypt, esp_crypt_key_len, gpg_strerror (err));
                     gcry_cipher_close(*cipher_hd);
                     g_free(decrypted_data);
-                    decrypt_ok = FALSE;
                   }
                 }
 
