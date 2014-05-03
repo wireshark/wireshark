@@ -42,7 +42,8 @@
    Note that the use of this algorithm is restricted, and that an administrative charge
    may be applicable if you use it (see e.g. http://www.gsma.com/technicalprojects/fraud-security/security-algorithms).
    A version of Wireshark with this enabled would not be distributable. */
-/* #define HAVE_SNOW3G */
+#define HAVE_SNOW3G
+#include <epan/snow3g_algorithm.h>
 
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
@@ -57,9 +58,10 @@ void proto_reg_handoff_pdcp_lte(void);
 
 
 /* TODO:
-   - More deciphering. Next steps are:
-       - Verify MAC authentication bytes for supported protocol(s)?
-          - code that doesn't quite work against gcrypt 1.6 is #if 0'd out...
+   - Decipher even if sequence analysis isn't 'OK'?
+      - know SN, but might be unsure about HFN.
+   - Speed up AES decryption by keeping the crypt handle around for the channel
+     (like ESP decryption in IPSEC dissector) 
    - Add Relay Node user plane data PDU dissection
 */
 
