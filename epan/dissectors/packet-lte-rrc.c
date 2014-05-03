@@ -5926,6 +5926,8 @@ dissect_lte_rrc_T_sizeOfRA_PreamblesGroupA(tvbuff_t *tvb _U_, int offset _U_, as
                                 val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));
 
   }
+  /* Tell MAC dissector so that it can say for RAPIDs whether A, B, non-RA */
+  set_mac_lte_rapid_ranges((value+1)*4, (ra_value+1)*4);
   /* Reset again */
   private_data_set_ra_preambles(actx, 0);
 

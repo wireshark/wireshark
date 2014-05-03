@@ -1345,6 +1345,8 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
                                 val_to_str_const(ra_value, lte_rrc_T_numberOfRA_Preambles_vals, "Unknown"));
 
   }
+  /* Tell MAC dissector so that it can say for RAPIDs whether A, B, non-RA */
+  set_mac_lte_rapid_ranges((value+1)*4, (ra_value+1)*4);
   /* Reset again */
   private_data_set_ra_preambles(actx, 0);
 

@@ -1858,6 +1858,33 @@ static void show_drx_info(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 /**************************************************************************/
 
 
+/* Info we might learn from SIB2 to label RAPIDs seen in PRACH and RARs */
+static gboolean s_rapid_ranges_configured = FALSE;
+static guint    s_rapid_ranges_groupA;
+static guint    s_rapid_ranges_RA;
+
+/* Return TRUE if we have been configured.  Set out parameter to point at
+   a literal string tha may be safely referenced afterwards */
+static gboolean get_mac_lte_rapid_description(guint8 rapid, gchar **description)
+{
+    if (!s_rapid_ranges_configured) {
+        return FALSE;
+    }
+    else {
+        if (rapid < s_rapid_ranges_groupA) {
+            *description = "[GroupA]";
+        }
+        else if (rapid < s_rapid_ranges_RA) {
+            *description = "[GroupB]";
+        }
+        else {
+            *description = "[Non-RA]";
+        }
+        return TRUE;
+    }
+}
+
+
 
 /* Forward declarations */
 int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
@@ -2356,6 +2383,8 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint16     timing_advance;
     guint32     ul_grant;
     guint16     temp_crnti;
+    gchar *rapid_description;
+    gboolean rapid_description_found;
 
     /* Create tree for this Body */
     rar_body_ti = proto_tree_add_item(tree,
@@ -2425,9 +2454,12 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     proto_tree_add_item(rar_body_tree, hf_mac_lte_rar_temporary_crnti, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
+    rapid_description_found = get_mac_lte_rapid_description(rapid, &rapid_description);
+
     write_pdu_label_and_info(pdu_ti, rar_body_ti, pinfo,
-                             "(RAPID=%u: TA=%u, UL-Grant=%u, Temp C-RNTI=%u) ",
-                             rapid, timing_advance, ul_grant, temp_crnti);
+                             "(RAPID=%u%s: TA=%u, UL-Grant=%u, Temp C-RNTI=%u) ",
+                             rapid, (rapid_description_found) ? rapid_description : "",
+                             timing_advance, ul_grant, temp_crnti);
 
     proto_item_set_len(rar_body_ti, offset-start_body_offset);
 
@@ -2528,10 +2560,17 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         else {
             /* RAPID case */
             /* TODO: complain if the same RAPID appears twice in same frame? */
+            gchar *rapid_description;
+            gboolean rapid_description_found;
+
             rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
             proto_tree_add_item(rar_header_tree, hf_mac_lte_rar_rapid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-            proto_item_append_text(rar_header_ti, "(RAPID=%u)", rapids[number_of_rars]);
+            rapid_description_found = get_mac_lte_rapid_description(rapids[number_of_rars], &rapid_description);
+
+            proto_item_append_text(rar_header_ti, "(RAPID=%u%s)",
+                                   rapids[number_of_rars],
+                                   (rapid_description_found) ? rapid_description : "");
 
             number_of_rars++;
         }
@@ -5138,6 +5177,8 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (p_mac_lte_info->length == 0) {
         proto_item *preamble_ti;
         proto_tree *preamble_tree;
+        gchar *rapid_description;
+        gboolean rapid_description_found;
 
         switch (p_mac_lte_info->oob_event) {
             case ltemac_send_preamble:
@@ -5154,17 +5195,21 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                          tvb, 0, 0, p_mac_lte_info->rach_attempt_number);
                 PROTO_ITEM_SET_GENERATED(ti);
 
+                rapid_description_found = get_mac_lte_rapid_description(p_mac_lte_info->rapid, &rapid_description);
+
                 /* Info column */
                 write_pdu_label_and_info(pdu_ti, preamble_ti, pinfo,
-                                         "RACH Preamble chosen for UE %u (RAPID=%u, attempt=%u)",
+                                         "RACH Preamble chosen for UE %u (RAPID=%u%s, attempt=%u)",
                                          p_mac_lte_info->ueid, p_mac_lte_info->rapid,
+                                         (rapid_description_found) ? rapid_description : "",
                                          p_mac_lte_info->rach_attempt_number);
 
                 /* Add expert info (a note, unless attempt > 1) */
                 expert_add_info_format(pinfo, ti,
                     (p_mac_lte_info->rach_attempt_number > 1) ? &ei_mac_lte_rach_preamble_sent_warn : &ei_mac_lte_rach_preamble_sent_note,
-                                       "RACH Preamble sent for UE %u (RAPID=%u, attempt=%u)",
+                                       "RACH Preamble sent for UE %u (RAPID=%u%s, attempt=%u)",
                                        p_mac_lte_info->ueid, p_mac_lte_info->rapid,
+                                       (rapid_description_found) ? rapid_description : "",
                                        p_mac_lte_info->rach_attempt_number);
                 break;
             case ltemac_send_sr:
@@ -5616,6 +5661,9 @@ static void mac_lte_init_protocol(void)
 
     mac_lte_drx_ue_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
     mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_instance_hash_func, mac_lte_framenum_instance_hash_equal);
+
+    /* Forget this setting */
+    s_rapid_ranges_configured = FALSE;
 }
 
 /* Callback used as part of configuring a channel mapping using UAT */
@@ -5771,6 +5819,15 @@ void set_mac_lte_drx_config_release(guint16 ueid, packet_info *pinfo)
     }
 }
 
+/* Configure RAPID group sizes from RRC (SIB2).  Note that we currently assume
+   that they won't change, i.e. if known we just return the last values we ever
+   saw. */
+void set_mac_lte_rapid_ranges(guint group_A, guint all_RA)
+{
+    s_rapid_ranges_groupA = group_A;
+    s_rapid_ranges_RA = all_RA;
+    s_rapid_ranges_configured = TRUE;
+}
 
 
 

@@ -330,6 +330,9 @@ typedef struct drx_config_t {
 void set_mac_lte_drx_config(guint16 ueid, drx_config_t *drx_config, packet_info *pinfo);
 void set_mac_lte_drx_config_release(guint16 ueid,  packet_info *pinfo);
 
+/* RRC can tell this dissector which RAPIDs are Group A, Group A&B */
+void set_mac_lte_rapid_ranges(guint groupA, guint all_RA);
+
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */
