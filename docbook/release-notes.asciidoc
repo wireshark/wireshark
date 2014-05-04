@@ -102,6 +102,7 @@ since version 1.10:
 
 29West
 802.1AE Secure tag
+A21
 ACR122
 ADB Client-Server
 AllJoyn

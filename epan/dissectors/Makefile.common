@@ -232,6 +232,7 @@ DISSECTOR_SRC = \
 	packet-3g-a11.c		\
 	packet-6lowpan.c	\
 	packet-9p.c		\
+	packet-a21.c		\
 	packet-aarp.c		\
 	packet-aastra-aasp.c	\
 	packet-acap.c		\
