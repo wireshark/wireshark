@@ -8502,6 +8502,7 @@ scte104          5167/tcp # SCTE104 Connection [Thomas_Russell] [Thomas_Russell]
 scte104          5167/udp # SCTE104 Connection [Thomas_Russell] [Thomas_Russell] 2005-05
 scte30           5168/tcp # SCTE30 Connection [Thomas_Russell] [Thomas_Russell] 2005-05
 scte30           5168/udp # SCTE30 Connection [Thomas_Russell] [Thomas_Russell] 2005-05
+pcoip-mgmt       5172/tcp # PC over IP Endpoint Management [Teradici_2] [Paul_Helter] 2014-04-28
 aol              5190/tcp # America-Online [Marty_Lyons] [Marty_Lyons]
 aol              5190/udp # America-Online [Marty_Lyons] [Marty_Lyons]
 aol-1            5191/tcp # AmericaOnline1 [Bruce_Mackey] [Bruce_Mackey]
@@ -9621,6 +9622,7 @@ faximum          7437/tcp # Faximum [George_Pajari] [George_Pajari]
 faximum          7437/udp # Faximum [George_Pajari] [George_Pajari]
 oracleas-https   7443/tcp # Oracle Application Server HTTPS [David_McMarlin] [David_McMarlin] 2006-08
 oracleas-https   7443/udp # Oracle Application Server HTTPS [David_McMarlin] [David_McMarlin] 2006-08
+sttunnel         7471/tcp # Stateless Transport Tunneling Protocol [Bruce_Davie_3] [Bruce_Davie_3] 2014-04-28
 rise             7473/tcp # Rise: The Vieneo Province [Jason_Reskin] [Jason_Reskin] 2007-03
 rise             7473/udp # Rise: The Vieneo Province [Jason_Reskin] [Jason_Reskin] 2007-03
 neo4j            7474/tcp # Neo4j Graph Database [Neo_Technology_Inc] [Julian_Simpson] 2013-02-08
@@ -10508,6 +10510,7 @@ axis-wimp-port  10260/udp # Axis WIMP Port [Stefan_Eriksson] [Stefan_Eriksson]
 blocks          10288/tcp # Blocks [Carl_Malamud] [Carl_Malamud]
 blocks          10288/udp # Blocks [Carl_Malamud] [Carl_Malamud]
 cosir           10321/tcp # Computer Op System Information Report [Kevin_C_Barber] [Kevin_C_Barber] 2009-01-13
+bngsync         10439/udp # BalanceNG session table synchronization protocol [Inlab_Software_GmbH] [Thomas_G._Obermair] 2014-05-02
 hip-nat-t       10500/udp # HIP NAT-Traversal [Ari_Keranen] [Ari_Keranen] [RFC5770]
 MOS-lower       10540/tcp # MOS Media Object Metadata Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
 MOS-lower       10540/udp # MOS Media Object Metadata Port [Eric_Thorniley] [Eric_Thorniley] 2007-09-17
@@ -11128,6 +11131,7 @@ ovobs           30999/tcp # OpenView Service Desk Client [Service_Desk_Product] 
 ovobs           30999/udp # OpenView Service Desk Client [Service_Desk_Product] [Service_Desk_Product] 2006-05
 autotrac-acp    31020/tcp # Autotrac ACP 245 [Roberto_Jorge_Dino] [Roberto_Jorge_Dino]
 yawn            31029/udp # YaWN - Yet Another Windows Notifier [David_Spivey] [David_Spivey] 2010-08-30
+pace-licensed   31400/tcp # PACE license server [PACE_Anti-Piracy] [Allen_Cronce] 2014-04-28
 xqosd           31416/tcp # XQoS network monitor [Joe_Elliott] [Joe_Elliott] 2002-06
 xqosd           31416/udp # XQoS network monitor [Joe_Elliott] [Joe_Elliott] 2002-06
 tetrinet        31457/tcp # TetriNET Protocol [Emmanuel_Bourg] [Emmanuel_Bourg] 2004-11
