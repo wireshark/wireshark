@@ -162,7 +162,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_ppcap, tvb, 0, -1, ENC_NA);
 	ppcap_tree = proto_item_add_subtree(ti, ett_ppcap);
 
-	while (tvb_length_remaining(tvb, offset) > 0)
+	while (tvb_reported_length_remaining(tvb, offset) > 0)
 	{
 		msg_type = tvb_get_ntohs(tvb, offset);
 		ti1 = proto_tree_add_text(ppcap_tree, tvb, offset, 2, "%s",
@@ -223,7 +223,7 @@ dissect_ppcap_payload_type(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset, 
 	msg_len = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item( ppcap_tree1, hf_ppcap_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset  = offset + 2;
-	string = tvb_get_string(wmem_packet_scope(), tvb, offset, msg_len);
+	string = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 	if (strcmp(string,"mtp3") == 0) {
 		*payload_type = PPCAP_MTP3;
 	}else if (strcmp(string,"tcap")  == 0) {
@@ -240,7 +240,7 @@ dissect_ppcap_payload_type(tvbuff_t *tvb, proto_tree * ppcap_tree1, int offset, 
 		*payload_type = PPCAP_SCCP;
 	}
 
-	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_BIG_ENDIAN|ENC_ASCII);
+	proto_tree_add_item(ppcap_tree1, hf_ppcap_payload_type, tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 
 	if (msg_len%4)
 		msg_len = msg_len+(4-(msg_len%4));
@@ -420,7 +420,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 	else if (key2 == 4)
 	{
 		char *string;
-		string = tvb_get_string(wmem_packet_scope(), tvb, offset, msg_len);
+		string = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, msg_len, ENC_UTF_8|ENC_NA);
 		proto_tree_add_string(ppcap_tree1, hf_ppcap_destination_nodeid, tvb, offset, msg_len, string);
 		TVB_SET_ADDRESS(&pinfo->net_dst, AT_STRINGZ, tvb, offset, msg_len);
 		COPY_ADDRESS_SHALLOW(&pinfo->dst, &pinfo->net_dst);

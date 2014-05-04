@@ -5994,7 +5994,7 @@ dissect_openflow_v5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     dissect_openflow_message_v5(tvb, pinfo, openflow_tree, 0);
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 

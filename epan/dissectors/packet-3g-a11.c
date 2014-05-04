@@ -2084,7 +2084,7 @@ dissect_a11( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             dissect_a11_extensions(tvb, pinfo, offset, a11_tree);
     }
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 } /* dissect_a11 */
 
 /* Register the protocol with Wireshark */

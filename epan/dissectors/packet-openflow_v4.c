@@ -4688,7 +4688,7 @@ dissect_openflow_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
         break;
     }
 
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 /*

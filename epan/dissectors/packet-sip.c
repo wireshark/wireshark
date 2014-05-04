@@ -2247,7 +2247,7 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     octet = tvb_get_guint8(tvb,0);
     if ((octet  & 0xf8) == 0xf8){
         call_dissector(sigcomp_handle, tvb, pinfo, tree);
-        return tvb_length(tvb);
+        return tvb_reported_length(tvb);
     }
 
     len = dissect_sip_common(tvb, 0, pinfo, tree, FALSE, FALSE);
@@ -2485,13 +2485,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
             proto_tree_add_text(reqresp_tree, tvb, offset, -1, "Continuation data");
         }
-        return tvb_length_remaining(tvb, offset);
+        return tvb_reported_length_remaining(tvb, offset);
     }
 
     offset = next_offset;
     if (sip_tree) {
         th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
-                                 tvb_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+                                 tvb_reported_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
         proto_item_set_text(th, "Message Header");
         hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
     }
@@ -3370,7 +3370,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
         offset = next_offset;
     }/* End while */
 
-    datalen = tvb_length_remaining(tvb, offset);
+    datalen = tvb_captured_length_remaining(tvb, offset);
     reported_datalen = tvb_reported_length_remaining(tvb, offset);
     if (content_length != -1) {
         if (datalen > content_length)

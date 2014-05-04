@@ -100,7 +100,7 @@ dissect_openflow_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_text(tree, tvb, offset, -1, "Unsuported version not dissected");
         break;
     }
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 #define OFP_HEADER_LEN  8
