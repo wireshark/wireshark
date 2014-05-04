@@ -1865,7 +1865,7 @@ static guint    s_rapid_ranges_RA;
 
 /* Return TRUE if we have been configured.  Set out parameter to point at
    a literal string tha may be safely referenced afterwards */
-static gboolean get_mac_lte_rapid_description(guint8 rapid, gchar **description)
+static gboolean get_mac_lte_rapid_description(guint8 rapid, const gchar **description)
 {
     if (!s_rapid_ranges_configured) {
         return FALSE;
@@ -2383,7 +2383,7 @@ static gint dissect_rar_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     guint16     timing_advance;
     guint32     ul_grant;
     guint16     temp_crnti;
-    gchar *rapid_description;
+    const gchar *rapid_description;
     gboolean rapid_description_found;
 
     /* Create tree for this Body */
@@ -2560,7 +2560,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
         else {
             /* RAPID case */
             /* TODO: complain if the same RAPID appears twice in same frame? */
-            gchar *rapid_description;
+            const gchar *rapid_description;
             gboolean rapid_description_found;
 
             rapids[number_of_rars] = tvb_get_guint8(tvb, offset) & 0x3f;
@@ -5177,7 +5177,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (p_mac_lte_info->length == 0) {
         proto_item *preamble_ti;
         proto_tree *preamble_tree;
-        gchar *rapid_description;
+        const gchar *rapid_description;
         gboolean rapid_description_found;
 
         switch (p_mac_lte_info->oob_event) {
@@ -6481,6 +6481,12 @@ void proto_register_mac_lte(void)
             { "Buffer Size 3",
               "mac-lte.control.bsr.buffer-size-3", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ext_buffer_size_vals_ext, 0x3f,
               "Buffer Size available in logical channel group 3", HFILL
+            }
+        },
+        { &hf_mac_lte_bsr_size_median,
+            { "Buffer Size Median",
+              "mac-lte.control.bsr.buffer-size-median", FT_UINT8, BASE_DEC, 0, 0x0,
+              NULL, HFILL
             }
         },
         { &hf_mac_lte_control_crnti,
