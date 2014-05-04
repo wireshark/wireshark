@@ -268,7 +268,8 @@ wmem_test_allocator_jumbo(wmem_allocator_type_t type, wmem_verify_func verify)
 }
 
 static void
-wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
+wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify,
+        int iterations)
 {
     int i;
     char *ptrs[MAX_SIMULTANEOUS_ALLOCS];
@@ -303,7 +304,7 @@ wmem_test_allocator(wmem_allocator_type_t type, wmem_verify_func verify)
     }
 
     /* Run enough iterations to fill the array 32 times */
-    for (i=0; i<MAX_SIMULTANEOUS_ALLOCS*32; i++) {
+    for (i=0; i<iterations; i++) {
         gint ptrs_index;
         gint new_size;
 
@@ -397,27 +398,31 @@ wmem_time_allocators(void)
 static void
 wmem_test_allocator_block(void)
 {
-    wmem_test_allocator(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify);
+    wmem_test_allocator(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify,
+            MAX_SIMULTANEOUS_ALLOCS*64);
     wmem_test_allocator_jumbo(WMEM_ALLOCATOR_BLOCK, &wmem_block_verify);
 }
 
 static void
 wmem_test_allocator_block_fast(void)
 {
-    wmem_test_allocator(WMEM_ALLOCATOR_BLOCK_FAST, NULL);
+    wmem_test_allocator(WMEM_ALLOCATOR_BLOCK_FAST, NULL,
+            MAX_SIMULTANEOUS_ALLOCS*16);
 }
 
 static void
 wmem_test_allocator_simple(void)
 {
-    wmem_test_allocator(WMEM_ALLOCATOR_SIMPLE, NULL);
+    wmem_test_allocator(WMEM_ALLOCATOR_SIMPLE, NULL,
+            MAX_SIMULTANEOUS_ALLOCS*64);
     wmem_test_allocator_jumbo(WMEM_ALLOCATOR_SIMPLE, NULL);
 }
 
 static void
 wmem_test_allocator_strict(void)
 {
-    wmem_test_allocator(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries);
+    wmem_test_allocator(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries,
+            MAX_SIMULTANEOUS_ALLOCS*64);
     wmem_test_allocator_jumbo(WMEM_ALLOCATOR_STRICT, &wmem_strict_check_canaries);
 }
 
