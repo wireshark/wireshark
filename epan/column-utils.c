@@ -334,9 +334,11 @@ col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
           len += sep_len;
         }
       }
-      va_start(ap, format);
-      g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-      va_end(ap);
+      if (len < max_len) {
+        va_start(ap, format);
+        g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
+        va_end(ap);
+      }
     }
   }
 }
