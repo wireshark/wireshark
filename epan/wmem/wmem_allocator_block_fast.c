@@ -55,7 +55,7 @@
 
 /* The header for an entire OS-level 'block' of memory */
 typedef struct _wmem_block_fast_hdr {
-    struct _wmem_block_fast_hdr *prev, *next;
+    struct _wmem_block_fast_hdr *next;
 
     gint32 pos;
 } wmem_block_fast_hdr_t;
@@ -76,10 +76,7 @@ static inline void
 wmem_block_fast_add_to_block_list(wmem_block_fast_allocator_t *allocator,
                              wmem_block_fast_hdr_t *block)
 {
-    block->prev = NULL;
     block->next = allocator->block_list;
-    if (block->next)
-        block->next->prev = block;
     allocator->block_list = block;
 }
 
