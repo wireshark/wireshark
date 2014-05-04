@@ -1258,6 +1258,7 @@ struct open_info {
     int type;
     wtap_open_routine_t open_routine;
     const char *extensions;
+    gchar **extensions_set; /* populated using extensions member during initialization */
     void* wslua_data; /* should be NULL for C-code file readers */
 };
 WS_DLL_PUBLIC struct open_info *open_routines;
@@ -1535,7 +1536,7 @@ WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
 
 WS_DLL_PUBLIC
-void wtap_register_open_info(const struct open_info *oi, const gboolean first_routine);
+void wtap_register_open_info(struct open_info *oi, const gboolean first_routine);
 WS_DLL_PUBLIC
 gboolean wtap_has_open_info(const gchar *name);
 WS_DLL_PUBLIC

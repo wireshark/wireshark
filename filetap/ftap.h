@@ -145,6 +145,7 @@ typedef int (*ftap_open_routine_t)(struct ftap*, int *, char **);
 struct ftap_heuristic_open_info {
 	ftap_open_routine_t open_routine;
 	const char *extensions;
+	gchar **extensions_set; /* populated using extensions member during initialization */
 };
 
 struct ftap_file_type_subtype_info {
@@ -286,7 +287,7 @@ void ftap_register_file_type_extension(const struct filetap_extension_info *ei);
 WS_DLL_PUBLIC
 void ftap_register_magic_number_open_routine(ftap_open_routine_t open_routine);
 WS_DLL_PUBLIC
-void ftap_register_heuristic_open_info(const struct ftap_heuristic_open_info *oi);
+void ftap_register_heuristic_open_info(struct ftap_heuristic_open_info *oi);
 WS_DLL_PUBLIC
 int ftap_register_file_type_subtypes(const struct ftap_file_type_subtype_info* fi);
 WS_DLL_PUBLIC

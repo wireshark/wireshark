@@ -2182,7 +2182,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     fh->file_type = wtap_register_file_type_subtypes(&(fh->finfo),fh->file_type);
 
     if (fh->is_reader) {
-        struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL };
+        struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL, NULL };
         oi.name = fh->finfo.short_name;
         oi.open_routine = wslua_filehandler_open;
         oi.extensions = fh->finfo.additional_file_extensions;

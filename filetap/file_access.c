@@ -278,11 +278,11 @@ void ftap_register_magic_number_open_routine(ftap_open_routine_t open_routine) {
  * appear before the *really* weak entries, such as the VWR entry.
  */
 static const struct ftap_heuristic_open_info heuristic_open_info_base[] = {
-	{ NULL, "(empty)", },
+	{ NULL, "(empty)", NULL},
 };
 #define	N_HEURISTIC_FILE_TYPES	(sizeof heuristic_open_info_base / sizeof heuristic_open_info_base[0])
 
-static const struct ftap_heuristic_open_info* heuristic_open_info = NULL;
+static struct ftap_heuristic_open_info* heuristic_open_info = NULL;
 
 static GArray* heuristic_open_info_arr = NULL;
 
@@ -290,22 +290,34 @@ static GArray* heuristic_open_info_arr = NULL;
  * Initialize the heuristics array if it has not been initialized yet.
  */
 static void init_heuristic_open_info(void) {
+	unsigned int i;
+	struct ftap_heuristic_open_info *i_open;
 
-	if (heuristic_open_info_arr) return;
+	if (heuristic_open_info_arr)
+		return;
 
 	heuristic_open_info_arr = g_array_new(FALSE,TRUE,sizeof(struct ftap_heuristic_open_info));
 
 	g_array_append_vals(heuristic_open_info_arr,heuristic_open_info_base,N_HEURISTIC_FILE_TYPES);
 
-	heuristic_open_info = (const struct ftap_heuristic_open_info*)(void *)heuristic_open_info_arr->data;
+	heuristic_open_info = (struct ftap_heuristic_open_info*)(void *)heuristic_open_info_arr->data;
+
+	/* Populate the extensions_set list now */
+	for (i = 0, i_open = heuristic_open_info; i < heuristic_open_info_arr->len; i++, i_open++) {
+		if (i_open->extensions != NULL)
+			i_open->extensions_set = g_strsplit(i_open->extensions, ";", 0);
+	}
 }
 
-void ftap_register_heuristic_open_info(const struct ftap_heuristic_open_info *hi) {
+void ftap_register_heuristic_open_info(struct ftap_heuristic_open_info *hi) {
 	init_heuristic_open_info();
 
 	g_array_append_val(heuristic_open_info_arr,*hi);
 
-	heuristic_open_info = (const struct ftap_heuristic_open_info*)(void *)heuristic_open_info_arr->data;
+	if (hi->extensions != NULL)
+		hi->extensions_set = g_strsplit(hi->extensions, ";", 0);
+
+	heuristic_open_info = (struct ftap_heuristic_open_info*)(void *)heuristic_open_info_arr->data;
 }
 
 /*
@@ -423,7 +435,7 @@ static char *get_file_extension(const char *pathname)
 
 static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
 {
-	gchar **extensions_set, **extensionp;
+	gchar **extensionp;
 
 	/*
 	 * Does this file type *have* any extensions?
@@ -432,21 +444,14 @@ static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
 		return FALSE;	/* no */
 
 	/*
-	 * Get a list of the extensions used by the specified file type.
-	 */
-	extensions_set = g_strsplit(heuristic_open_info[i].extensions, ";", 0);
-
-	/*
 	 * Check each of them against the specified extension.
 	 */
-	for (extensionp = extensions_set; *extensionp != NULL;
+	for (extensionp = heuristic_open_info[i].extensions_set; *extensionp != NULL;
 	    extensionp++) {
 		if (strcmp(extension, *extensionp) == 0) {
-			g_strfreev(extensions_set);
 			return TRUE;	/* it's one of them */
 		}
 	}
-	g_strfreev(extensions_set);
 	return FALSE;	/* it's not one of them */
 }
 
