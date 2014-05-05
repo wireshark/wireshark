@@ -96,41 +96,41 @@ static int hf_a21_additional_event_info = -1;
 static int hf_a21_allowed_foward_link_message = -1;
 
 
-static gint ett_a21         = -1;
-static gint ett_a21_ie      = -1;
+static gint ett_a21 = -1;
+static gint ett_a21_ie = -1;
 static gint ett_a21_corr_id = -1;
 static gint ett_a21_record_content = -1;
 
 static expert_field ei_a21_ie_data_not_dissected_yet = EI_INIT;
 
 static const value_string a21_message_type_vals[] = {
-  {0x01, "A21-1x Air Interface Signalling"}, /* 01H */
-  {0x02, "A21-Ack"},                         /* 02H */
-  {0x03, "A21-1x Parameters"},               /* 03H */
-  {0x04, "A21-Event Notification"},          /* 04H */
-  {0x05, "A21-1x Parameters Request"},       /* 05H */
-  {0x06, "A21-Service Request"},             /* 06H */
-  {0x07, "A21-Service Response"},            /* 07H */
-  {0x08, "A21-Radio Update Request"},        /* 08H */
-  {0x09, "A21-Radio Update Response"},       /* 09H */
-  {0,    NULL}
+	{0x01, "A21-1x Air Interface Signalling"},	/* 01H */
+	{0x02, "A21-Ack"},				/* 02H */
+	{0x03, "A21-1x Parameters"},			/* 03H */
+	{0x04, "A21-Event Notification"},		/* 04H */
+	{0x05, "A21-1x Parameters Request"},		/* 05H */
+	{0x06, "A21-Service Request"},			/* 06H */
+	{0x07, "A21-Service Response"},			/* 07H */
+	{0x08, "A21-Radio Update Request"},		/* 08H */
+	{0x09, "A21-Radio Update Response"},		/* 09H */
+	{0,    NULL}
 };
 
-#define A21_IEI_1X_LAC_ENCAPSULATED_PDU             0x01              /* 01H */
-#define A21_IEI_A21_1X_PARAMETERS                   0x02              /* 02H */
-#define A21_IEI_PILOT_LIST                          0x03              /* 03H */
-#define A21_IEI_CORRELATION_ID                      0x04              /* 04H */
-#define A21_IEI_MOBILE_IDENTITY                     0x05              /* 05H */
-#define A21_IEI_AUTHENTICATION_CHALLENGE_PARAMETER  0x06              /* 06H */
-#define A21_IEI_A21_1X_MESSAGE_TRANSMISSION_CONTROL 0x07              /* 07H */
-#define A21_IEI_A21_CAUSE                           0x08              /* 08H */
-#define A21_IEI_A21_EVENT                           0x09              /* 09H */
-#define A21_IEI_SERVICE_OPTION                      0x0A              /* 0AH */
-#define A21_IEI_A21_MOBILE_SUBSCRIPTION_INFORMATION 0x0B              /* 0BH */
-#define A21_IEI_GCSNA_STATUS                        0x0C              /* 0CH */
-#define A21_IEI_GCSNA_PDU                           0xC0              /* C0H */
-#define A21_IEI_REFERENCE_CELL_ID                   0x0D              /* 0DH */
-/*(Reserved range of IEIs for S102)                                       30H-3FH */
+#define A21_IEI_1X_LAC_ENCAPSULATED_PDU			0x01	/* 01H */
+#define A21_IEI_A21_1X_PARAMETERS			0x02	/* 02H */
+#define A21_IEI_PILOT_LIST				0x03	/* 03H */
+#define A21_IEI_CORRELATION_ID				0x04	/* 04H */
+#define A21_IEI_MOBILE_IDENTITY				0x05	/* 05H */
+#define A21_IEI_AUTHENTICATION_CHALLENGE_PARAMETER	0x06	/* 06H */
+#define A21_IEI_A21_1X_MESSAGE_TRANSMISSION_CONTROL	0x07	/* 07H */
+#define A21_IEI_A21_CAUSE				0x08	/* 08H */
+#define A21_IEI_A21_EVENT				0x09	/* 09H */
+#define A21_IEI_SERVICE_OPTION				0x0A	/* 0AH */
+#define A21_IEI_A21_MOBILE_SUBSCRIPTION_INFORMATION	0x0B	/* 0BH */
+#define A21_IEI_GCSNA_STATUS				0x0C	/* 0CH */
+#define A21_IEI_GCSNA_PDU				0xC0	/* C0H */
+#define A21_IEI_REFERENCE_CELL_ID			0x0D	/* 0DH */
+/*(Reserved range of IEIs for S102)				30H-3FH */
 
 
 
@@ -671,253 +671,253 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void proto_register_a21(void)
 {
 	static hf_register_info hf_a21[] = {
-		   { &hf_a21_message_type,
+		  { &hf_a21_message_type,
 			 {"Message Type", "a21.message_type",
 			  FT_UINT8, BASE_DEC, VALS(a21_message_type_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_corr_id,
+		  },
+		  { &hf_a21_corr_id,
 			 {"A21 Correlation ID", "a21.correlation_id",
 			  FT_UINT64, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_element_identifier,
+		  },
+		  { &hf_a21_element_identifier,
 			 {"A21 Element Identifier", "a21.element_identifier",
 			  FT_UINT8, BASE_DEC, VALS(a21_element_type_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_element_length,
+		  },
+		  { &hf_a21_element_length,
 			 {"Length", "a21.length",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_corr_id_corr_value,
+		  },
+		  { &hf_a21_corr_id_corr_value,
 			 {"Correlation Value", "a21.corr_id_corr_value",
 			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mn_id_msid_value,
+		  },
+		  { &hf_a21_mn_id_msid_value,
 			 {"MSID Value", "a21.mn_id_msid_value",
 			  FT_UINT8, BASE_DEC, NULL, 0xf8,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mn_id_identity_digit_1,
+		  },
+		  { &hf_a21_mn_id_identity_digit_1,
 			 {"Identity Digit 1", "a21.mn_id_identity_digit_1",
 			  FT_UINT8, BASE_DEC, NULL, 0x08,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mn_id_odd_even_indicator,
+		  },
+		  { &hf_a21_mn_id_odd_even_indicator,
 			 {"Odd/Even Indicator", "a21.mn_id_odd_even_indicator",
 			  FT_UINT8, BASE_DEC, NULL, 0x08,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mn_id_type_of_identity,
+		  },
+		  { &hf_a21_mn_id_type_of_identity,
 			 {"Type of Identity", "a21.mn_id_type_of_identity",
 			  FT_UINT8, BASE_DEC, NULL, 0x07,
 			  NULL, HFILL }
-		   },
-		   {&hf_a21_imsi,
+		  },
+		  {&hf_a21_imsi,
 			 {"IMSI(International Mobile Subscriber Identity number)", "a21.imsi",
 			  FT_STRING, BASE_NONE, NULL, 0,
 			  NULL, HFILL}
-		   },
-		   { &hf_a21_mn_id_esn,
+		  },
+		  { &hf_a21_mn_id_esn,
 			 {"ESN", "a21.mn_id_esn",
 			  FT_UINT8, BASE_DEC, NULL, 0x7f,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_reserved,
+		  },
+		  { &hf_a21_reserved,
 			 {"Reserved", "a21.reserved",
 			  FT_UINT8, BASE_DEC, NULL, 0xf0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_msg_tran_ctrl_paging_msg,
+		  },
+		  { &hf_a21_msg_tran_ctrl_paging_msg,
 			 {"Paging Message", "a21.msg_tran_ctrl_paging_msg",
 			  FT_UINT8, BASE_DEC, NULL, 0x08,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_msg_tran_ctrl_simul_xmit_with_next,
+		  },
+		  { &hf_a21_msg_tran_ctrl_simul_xmit_with_next,
 			 {"Simul Xmit with Next", "a21.msg_tran_ctrl_simul_xmit_with_next",
 			  FT_UINT8, BASE_DEC, NULL, 0x04,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_msg_tran_ctrl_ackrequired,
+		  },
+		  { &hf_a21_msg_tran_ctrl_ackrequired,
 			 {"AckRequired", "a21.msg_tran_ctrl_ackrequired",
 			  FT_UINT8, BASE_DEC, NULL, 0x02,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_msg_tran_ctrl_3GXLogicalChannel,
+		  },
+		  { &hf_a21_msg_tran_ctrl_3GXLogicalChannel,
 			 {"3GXLogicalChannel", "a21.msg_tran_ctrl_3GXLogicalChannel",
 			  FT_UINT8, BASE_DEC, NULL, 0x01,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_msg_tran_ctrl_protocol_revision,
+		  },
+		  { &hf_a21_msg_tran_ctrl_protocol_revision,
 			 {"ProtocolRevision", "a21.msg_tran_ctrl_protocol_revision",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_1x_lac_en_pdu,
+		  },
+		  { &hf_a21_1x_lac_en_pdu,
 			 {"1x LAC Encapsulated PDU", "a21.1x_lac_en_pdu",
 			  FT_UINT24, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_pilot_list_num_of_pilots,
+		  },
+		  { &hf_a21_pilot_list_num_of_pilots,
 			 {"Number of Pilots", "a21.pilot_list_num_of_pilots",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_pilot_list_value,
+		  },
+		  { &hf_a21_pilot_list_value,
 			 {"Pilot List Value", "a21.pilot_list_value",
 			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_cause_value,
+		  },
+		  { &hf_a21_cause_value,
 			 {"A21 Cause Value", "a21.cause_value",
 			  FT_UINT8, BASE_DEC, VALS(a21_cause_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mscid_market_id,
+		  },
+		  { &hf_a21_mscid_market_id,
 			 {"Market ID", "a21.mscid_market_id",
 			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mscid_switch_number,
+		  },
+		  { &hf_a21_mscid_switch_number,
 			 {"Switch Number", "a21.mscid_switch_number",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_event,
+		  },
+		  { &hf_a21_event,
 			 {"Event", "a21.event",
 			  FT_UINT8, BASE_DEC, VALS(a21_event_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_additional_event_info,
+		  },
+		  { &hf_a21_additional_event_info,
 			 {"Additional Event Info", "a21.additional_event_info",
 			  FT_UINT16, BASE_DEC, VALS(a21_additional_event_info_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_allowed_foward_link_message,
+		  },
+		  { &hf_a21_allowed_foward_link_message,
 			 {"Allowed Forward Link Messages", "a21.allowed_foward_link_message",
 			  FT_UINT16, BASE_DEC, VALS(a21_additional_event_info_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_pdu_length,
+		  },
+		  { &hf_a21_gcsna_pdu_length,
 			 {"Length", "a21.gcsna_pdu_length",
 			  FT_UINT16, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_content,
+		  },
+		  { &hf_a21_gcsna_content,
 			 {"GCSNA Content", "a21.gcsna_content",
 			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_reference_cell_id_cell,
+		  },
+		  { &hf_a21_reference_cell_id_cell,
 			 {"Cell", "a21.reference_cell_id_cell",
 			  FT_UINT16, BASE_DEC, NULL, 0xfff0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_reference_cell_id_sector,
+		  },
+		  { &hf_a21_reference_cell_id_sector,
 			 {"Sector", "a21.reference_cell_id_sector",
 			  FT_UINT8, BASE_DEC, NULL, 0x0f,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_record_id,
+		  },
+		  { &hf_a21_mob_sub_info_record_id,
 			 {"Record Identifier", "a21.mob_sub_info_record_id",
 			  FT_UINT8, BASE_DEC, VALS(a21_record_identifier_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_record_length,
+		  },
+		  { &hf_a21_mob_sub_info_record_length,
 			 {"Record Length", "a21.mob_sub_info_record_length",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_record_content,
+		  },
+		  { &hf_a21_mob_sub_info_record_content,
 			 {"Record Content", "a21.mob_sub_info_record_content",
 			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_re_con_all_band_inc,
+		  },
+		  { &hf_a21_mob_sub_info_re_con_all_band_inc,
 			 {"All Band Classes Included", "a21.mob_sub_info_re_con_all_band_inc",
 			  FT_UINT8, BASE_DEC, NULL, 0x80,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_re_con_curr_band_sub,
+		  },
+		  { &hf_a21_mob_sub_info_re_con_curr_band_sub,
 			 {"Current Band Subclass", "a21.mob_sub_info_re_con_curr_band_sub",
 			  FT_UINT8, BASE_DEC, NULL, 0x7f,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_re_band_class,
+		  },
+		  { &hf_a21_mob_sub_info_re_band_class,
 			 {"Band Class", "a21.mob_sub_info_re_band_class",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_re_con_all_sub_band_inc,
+		  },
+		  { &hf_a21_mob_sub_info_re_con_all_sub_band_inc,
 			 {"All Band Subclasses Included", "a21.mob_sub_info_re_con_all_sub_band_inc",
 			  FT_UINT8, BASE_DEC, NULL, 0x80,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_mob_sub_info_re_sub_cls_len,
+		  },
+		  { &hf_a21_mob_sub_info_re_sub_cls_len,
 			 {"Subclass Length", "a21.mob_sub_info_re_sub_cls_len",
 			  FT_UINT8, BASE_DEC, NULL, 0x0f,
 			  NULL, HFILL }
-		   },
+		  },
 /*
-		   { &hf_a21_mob_sub_info_re_con_band_class,
+		  { &hf_a21_mob_sub_info_re_con_band_class,
 			 {"Band Class", "a21.mob_sub_info_re_con_band_class",
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
+		  },
 */
-		   { &hf_a21_auth_chall_para_rand_num_type,
+		  { &hf_a21_auth_chall_para_rand_num_type,
 			 {"Random Number Type", "a21.auth_chall_para_rand_num_type",
 			  FT_UINT8, BASE_DEC, VALS(a21_random_number_type_vals), 0x0f,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_auth_chall_para_rand_value,
+		  },
+		  { &hf_a21_auth_chall_para_rand_value,
 			 {"RAND Value", "a21.auth_chall_para_rand_value",
 			  FT_UINT32, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_service_option,
+		  },
+		  { &hf_a21_service_option,
 			 {"Service Option", "a21.service_option",
 			  FT_UINT8, BASE_DEC, VALS(a21_service_option_vals), 0x7f,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_status_reserved,
+		  },
+		  { &hf_a21_gcsna_status_reserved,
 			 {"Reserved", "a21.gcsna_status_reserved",
 			  FT_UINT8, BASE_DEC, NULL, 0xf8,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_status_priority_incl,
+		  },
+		  { &hf_a21_gcsna_status_priority_incl,
 			 {"Priority Incl", "a21.gcsna_status_priority_incl",
 			  FT_UINT8, BASE_DEC, NULL, 0x04,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_status_gec,
+		  },
+		  { &hf_a21_gcsna_status_gec,
 			 {"GEC", "a21.gcsna_status_gec",
 			  FT_UINT8, BASE_DEC, NULL, 0x02,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_status_status_incl,
+		  },
+		  { &hf_a21_gcsna_status_status_incl,
 			 {"Status Incl", "a21.gcsna_status_status_incl",
 			  FT_UINT8, BASE_DEC, NULL, 0x01,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_status,
+		  },
+		  { &hf_a21_gcsna_status,
 			 {"Status", "a21.gcsna_status",
 			  FT_UINT8, BASE_DEC, VALS(a21_gcsna_status_vals), 0x0,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_gcsna_status_call_priority,
+		  },
+		  { &hf_a21_gcsna_status_call_priority,
 			 {"Call Priority", "a21.gcsna_status_call_priority",
 			  FT_UINT8, BASE_DEC, NULL, 0x0f,
 			  NULL, HFILL }
-		   },
-		   { &hf_a21_3G1X_parameters,
+		  },
+		  { &hf_a21_3G1X_parameters,
 			 {"3G1X Parameters", "a21.3G1X_parameters",
 			  FT_BYTES, BASE_NONE, NULL, 0x0,
 			  NULL, HFILL }
-		   },
+		  },
 
 	};
 	/* Setup protocol subtree array */
@@ -971,3 +971,16 @@ void proto_reg_handoff_a21(void)
 
 	gcsna_handle = find_dissector("gcsna");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
