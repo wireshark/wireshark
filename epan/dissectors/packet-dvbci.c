@@ -806,6 +806,10 @@ static const gchar *dvbci_sek = NULL;
 static const gchar *dvbci_siv = NULL;
 static gboolean dvbci_dissect_lsc_msg = FALSE;
 
+/* the output of pref_key_string_to_bin() applied to dvbci_sek and _siv */
+static unsigned char *dvbci_sek_bin = NULL;
+static unsigned char *dvbci_siv_bin = NULL;
+
 static dissector_handle_t data_handle;
 static dissector_handle_t mpeg_pmt_handle;
 static dissector_handle_t dvb_nit_handle;
@@ -2352,35 +2356,29 @@ static tvbuff_t *
 decrypt_sac_msg_body(
         guint8 enc_cip, tvbuff_t *encrypted_tvb, gint offset, gint len)
 {
-    gint             ret;
     gboolean         opened = FALSE;
     gcry_cipher_hd_t cipher;
     gcry_error_t     err;
     gint             clear_len;
     unsigned char    *clear_data = NULL;
     tvbuff_t         *clear_tvb = NULL;
-    unsigned char    *sek = NULL, *siv = NULL;
 
     if (enc_cip != CC_SAC_ENC_AES128_CBC)
         goto end;
     if (len%AES_BLOCK_LEN != 0)
         goto end;
 
-    ret = pref_key_string_to_bin(dvbci_sek, &sek);
-    if (ret==-1)
-        goto end;
-    ret = pref_key_string_to_bin(dvbci_siv, &siv);
-    if (ret==-1)
+    if (!dvbci_sek_bin || !dvbci_siv_bin)
         goto end;
 
     err = gcry_cipher_open(&cipher, GCRY_CIPHER_AES, GCRY_CIPHER_MODE_CBC, 0);
     if (gcry_err_code (err))
         goto end;
     opened = TRUE;
-    err = gcry_cipher_setkey (cipher, sek, AES_KEY_LEN);
+    err = gcry_cipher_setkey (cipher, dvbci_sek_bin, AES_KEY_LEN);
     if (gcry_err_code (err))
         goto end;
-    err = gcry_cipher_setiv (cipher, siv, AES_BLOCK_LEN);
+    err = gcry_cipher_setiv (cipher, dvbci_siv_bin, AES_BLOCK_LEN);
     if (gcry_err_code (err))
         goto end;
 
@@ -2399,10 +2397,6 @@ decrypt_sac_msg_body(
 end:
     if (opened)
         gcry_cipher_close (cipher);
-    if (sek)
-        g_free(sek);
-    if (siv)
-        g_free(siv);
     if (!clear_tvb && clear_data)
        g_free(clear_data);
     return clear_tvb;
@@ -2410,6 +2404,12 @@ end:
 
 #else
 /* HAVE_LIBGRYPT is not set */
+static gint
+pref_key_string_to_bin(const gchar *key_string _U_, unsigned char **key_bin _U_)
+{
+    return 0;
+}
+
 static tvbuff_t *
 decrypt_sac_msg_body(guint8 enc_cip _U_,
         tvbuff_t *encrypted_tvb _U_, gint offset _U_, gint len _U_)
@@ -6165,6 +6165,17 @@ proto_reg_handoff_dvbci(void)
     udp_dissector_table = find_dissector_table("udp.port");
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_DVB_CI);
+
+    if (dvbci_sek_bin) {
+        g_free(dvbci_sek_bin);
+        dvbci_sek_bin = NULL;
+    }
+    if (dvbci_siv_bin) {
+        g_free(dvbci_siv_bin);
+        dvbci_siv_bin = NULL;
+    }
+    pref_key_string_to_bin(dvbci_sek, &dvbci_sek_bin);
+    pref_key_string_to_bin(dvbci_siv, &dvbci_siv_bin);
 }
 
 /*
