@@ -266,7 +266,7 @@ dissect_a21_authentication_challenge_parameter(tvbuff_t *tvb, packet_info *pinfo
 	switch(type){
 	case 1:
 		proto_tree_add_item(tree, hf_a21_auth_chall_para_rand_value, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset +=4;
+		/*offset +=4;*/
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset,  -1, "Random Number Type Reserved");
@@ -463,11 +463,11 @@ dissect_a21_event(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
 	if(length>1){
 		if(event_id == 7){
 			proto_tree_add_item(tree, hf_a21_allowed_foward_link_message, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset +=2;
+			/*offset +=2;*/
 		}
 		else{
 			proto_tree_add_item(tree, hf_a21_additional_event_info, tvb, offset, 2, ENC_BIG_ENDIAN);
-			offset +=2;
+			/*offset +=2;*/
 		}
 	}
 
