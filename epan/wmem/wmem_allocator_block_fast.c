@@ -70,28 +70,19 @@ typedef struct {
     wmem_block_fast_hdr_t *block_list;
 } wmem_block_fast_allocator_t;
 
-/* Add a block to the allocator's embedded doubly-linked list of OS-level blocks
- * that it owns. */
-static inline void
-wmem_block_fast_add_to_block_list(wmem_block_fast_allocator_t *allocator,
-                             wmem_block_fast_hdr_t *block)
-{
-    block->next = allocator->block_list;
-    allocator->block_list = block;
-}
-
 /* Creates a new block, and initializes it. */
 static void
 wmem_block_fast_new_block(wmem_block_fast_allocator_t *allocator)
 {
     wmem_block_fast_hdr_t *block;
 
-    /* allocate the new block and add it to the block list */
+    /* allocate/initialize the new block and add it to the block list */
     block = (wmem_block_fast_hdr_t *)wmem_alloc(NULL, WMEM_BLOCK_SIZE);
-    wmem_block_fast_add_to_block_list(allocator, block);
 
-    /* initialize it */
-    block->pos = WMEM_BLOCK_HEADER_SIZE;
+    block->pos  = WMEM_BLOCK_HEADER_SIZE;
+    block->next = allocator->block_list;
+
+    allocator->block_list = block;
 }
 
 /* API */
@@ -155,52 +146,40 @@ static void
 wmem_block_fast_free_all(void *private_data)
 {
     wmem_block_fast_allocator_t *allocator = (wmem_block_fast_allocator_t*) private_data;
-    wmem_block_fast_hdr_t       *cur;
+    wmem_block_fast_hdr_t       *cur, *nxt;
 
-    /* iterate through the blocks, reinitializing each one */
+    /* iterate through the blocks, freeing all but the first and reinitializing
+     * that one */
     cur = allocator->block_list;
 
-    while (cur) {
+    if (cur) {
          cur->pos = WMEM_BLOCK_HEADER_SIZE;
-         cur = cur->next;
+         nxt = cur->next;
+         cur->next = NULL;
+         cur = nxt;
+    }
+
+    while (cur) {
+        nxt  = cur->next;
+        wmem_free(NULL, cur);
+        cur = nxt;
     }
 }
 
 static void
-wmem_block_fast_gc(void *private_data)
+wmem_block_fast_gc(void *private_data _U_)
 {
-    wmem_block_fast_allocator_t *allocator = (wmem_block_fast_allocator_t*) private_data;
-    wmem_block_fast_hdr_t   *cur, *next;
-
-    /* Walk through the blocks, adding used blocks to the new list and
-     * completely destroying unused blocks. */
-    cur = allocator->block_list;
-    allocator->block_list = NULL;
-
-    while (cur) {
-        next  = cur->next;
-
-        if (cur->pos == WMEM_BLOCK_HEADER_SIZE)
-        {
-            /* unused block -> really free */
-            wmem_free(NULL, cur);
-        }
-        else
-        {
-            /* part of this block is used, so add it to the new block list */
-            wmem_block_fast_add_to_block_list(allocator, cur);
-        }
-
-        cur = next;
-    }
+    /* No-op */
 }
 
 static void
 wmem_block_fast_allocator_cleanup(void *private_data)
 {
+    wmem_block_fast_allocator_t *allocator = (wmem_block_fast_allocator_t*) private_data;
+
     /* wmem guarantees that free_all() is called directly before this, so
-     * calling gc will return all our blocks to the OS automatically */
-    wmem_block_fast_gc(private_data);
+     * simply free the first block */
+    wmem_free(NULL, allocator->block_list);
 
     /* then just free the allocator structs */
     wmem_free(NULL, private_data);
