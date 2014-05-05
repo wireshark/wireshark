@@ -170,7 +170,7 @@ distclean-local: clean-local
 		$(NODIST_LIBWIRESHARK_GENERATED_HEADER_FILES) \
 		$(LIBWIRESHARK_GENERATED_C_FILES) \
 		$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
-		dtd_grammar.out	sminmpec.c
+		dtd_grammar.out
 
 distclean: distclean-local
 	cd crypt
@@ -337,8 +337,8 @@ asm_utils_win32_x86.obj: asm_utils_win32_x86.asm
 	$(NASM) -f $(WIRESHARK_TARGET_PLATFORM) -o $@ $?
 !ENDIF
 
-sminmpec.c: enterprise-numbers ..\tools\make-sminmpec.pl
-	$(PERL) ../tools/make-sminmpec.pl enterprise-numbers sminmpec.c
+update-sminmpec:
+	$(PERL) ../tools/make-sminmpec.pl
 
 RUNLEX=..\tools\runlex.sh
 
