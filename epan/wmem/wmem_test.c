@@ -245,7 +245,7 @@ wmem_test_allocator_jumbo(wmem_allocator_type_t type, wmem_verify_func verify)
     ptr = (char*)wmem_alloc0(allocator, 4*1024*1024);
 
     if (verify) (*verify)(allocator);
-    wmem_free_all(allocator);
+    wmem_free(allocator, ptr);
     wmem_gc(allocator);
     if (verify) (*verify)(allocator);
 
