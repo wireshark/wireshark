@@ -2223,23 +2223,36 @@ static int
 dissect_h248_T_terminationId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 332 "../../asn1/h248/h248.cnf"
 	tvbuff_t* new_tvb;
+	h248_term_info_t term_info;
+
+	term_info.wild_card = wild_card;
+	term_info.str = NULL;
+
 	offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, &new_tvb);
 
 	if (new_tvb) {
 		curr_info.term->len = tvb_length(new_tvb);
 		curr_info.term->type = 0; /* unknown */
 
+		if (h248_term_handle) {
+			call_dissector_with_data(h248_term_handle, new_tvb, actx->pinfo, tree, &term_info);
+			wild_card = 0xFF;
+		}
+
 		if (curr_info.term->len) {
 			curr_info.term->buffer = (guint8 *)tvb_memdup(wmem_packet_scope(),new_tvb,0,curr_info.term->len);
-			curr_info.term->str = bytes_to_ep_str(curr_info.term->buffer,curr_info.term->len);
+			if(term_info.str){
+				curr_info.term->str = wmem_strdup_printf(wmem_packet_scope(), "%s %s",
+											bytestring_to_str(wmem_packet_scope(),curr_info.term->buffer,curr_info.term->len, 0),
+											term_info.str);
+			}else{
+				curr_info.term->str = bytestring_to_str(wmem_packet_scope(),curr_info.term->buffer,curr_info.term->len, 0);
+			}
 		}
+
 
 		curr_info.term = gcp_cmd_add_term(curr_info.msg, curr_info.trx, curr_info.cmd, curr_info.term, wild_term, keep_persistent_data);
 
-		if (h248_term_handle) {
-			call_dissector_with_data(h248_term_handle, new_tvb, actx->pinfo, tree, &wild_card);
-			wild_card = 0xFF;
-		}
 	} else {
 		curr_info.term->len = 0;
 		curr_info.term->buffer = (guint8*)wmem_strdup(wmem_packet_scope(), "");
@@ -3233,7 +3246,7 @@ static const ber_sequence_t SigParameter_sequence[] = {
 
 static int
 dissect_h248_SigParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 420 "../../asn1/h248/h248.cnf"
+#line 433 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if (h248_version > 1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -3469,7 +3482,7 @@ static const ber_sequence_t EventParameter_sequence[] = {
 
 static int
 dissect_h248_EventParameter(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 411 "../../asn1/h248/h248.cnf"
+#line 424 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if (h248_version > 1) {
 		  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -4368,7 +4381,7 @@ dissect_h248_ServiceChangeProfile(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 static int
 dissect_h248_SCreasonValueOctetStr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 370 "../../asn1/h248/h248.cnf"
+#line 383 "../../asn1/h248/h248.cnf"
  tvbuff_t	*parameter_tvb;
    offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &parameter_tvb);
@@ -4390,7 +4403,7 @@ static const ber_sequence_t SCreasonValue_sequence_of[1] = {
 
 static int
 dissect_h248_SCreasonValue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 358 "../../asn1/h248/h248.cnf"
+#line 371 "../../asn1/h248/h248.cnf"
 /* H248 v1 support */
 	if ( h248_version > 1 ) {
 		/* Not V1, so call "standard" function */
@@ -5334,11 +5347,11 @@ dissect_h248_SigParameterV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_h248_ValueV1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 380 "../../asn1/h248/h248.cnf"
+#line 393 "../../asn1/h248/h248.cnf"
 	guint8 i;
 	guint32 len;
 
-#line 385 "../../asn1/h248/h248.cnf"
+#line 398 "../../asn1/h248/h248.cnf"
 /* check tvb to verify all values ascii or not.  If so, output string, else hex */
 	len=tvb_length_remaining(tvb, offset);
 	if ( curr_info.par && curr_info.par->dissector) {

@@ -112,6 +112,11 @@ struct _h248_curr_info_t {
 	const h248_pkg_param_t* par;
 };
 
+typedef struct h248_term_info {
+	guint8 wild_card;
+	gchar *str;
+} h248_term_info_t;
+
 WS_DLL_PUBLIC
 void h248_register_package(h248_package_t* pkg, pkg_reg_action reg_action);
 
