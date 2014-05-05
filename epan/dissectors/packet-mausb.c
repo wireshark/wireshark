@@ -366,10 +366,10 @@ static const value_string mausb_status_string[] = {
 
 #define DWORD_MASK 0xffffffff
 #define MAUSB_MGMT_NUM_EP_HANDLE_PAD_MASK \
-            DWORD_MASK & !(MAUSB_MGMT_NUM_EP_DES_MASK)
+            DWORD_MASK & (!(MAUSB_MGMT_NUM_EP_DES_MASK))
 #define MAUSB_MGMT_EP_DES_PAD_MASK \
-            DWORD_MASK & !(MAUSB_MGMT_NUM_EP_DES_MASK | \
-                           MAUSB_MGMT_SIZE_EP_DES_MASK)
+            DWORD_MASK & (!(MAUSB_MGMT_NUM_EP_DES_MASK | \
+                           MAUSB_MGMT_SIZE_EP_DES_MASK))
 
 
 /* EPHandleResp Bitfield Masks */
