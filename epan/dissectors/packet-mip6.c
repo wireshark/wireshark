@@ -840,7 +840,7 @@ static const value_string mip6_mng_id_type_vals[] = {
 #define MIP6_VSM_DATA_OFF     7
 
 
-#define MIP6_SSM_MINLEN       2
+#define MIP6_SSM_MINLEN       1
 #define MIP6_SSM_SSM_OFF      2
 
 #define MIP6_BADFF_MINLEN     4
