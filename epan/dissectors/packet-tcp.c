@@ -4067,6 +4067,40 @@ dissect_tcp_payload(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 seq,
     }
 }
 
+static const char *
+tcp_flags_to_str(const struct tcpheader *tcph)
+{
+    static const char flags[][4] = { "FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS" };
+    const int maxlength = 64; /* upper bounds, max 53B: 8 * 3 + 2 + strlen("Reserved") + 9 * 2 + 1 */
+
+    char *pbuf;
+    const char *buf;
+
+    int i;
+
+    buf = pbuf = (char *) wmem_alloc(wmem_packet_scope(), maxlength);
+    *pbuf = '\0';
+
+    for (i = 0; i < 9; i++) {
+        if (tcph->th_flags & (1 << i)) {
+            if (buf[0])
+                pbuf = g_stpcpy(pbuf, ", ");
+            pbuf = g_stpcpy(pbuf, flags[i]);
+        }
+    }
+
+    if (tcph->th_flags & TH_RES) {
+        if (buf[0])
+            pbuf = g_stpcpy(pbuf, ", ");
+        pbuf = g_stpcpy(pbuf, "Reserved");
+    }
+
+    if (buf[0] == '\0')
+        buf = "<None>";
+
+    return buf;
+}
+
 static void
 dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -4078,10 +4112,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_item *options_item;
     proto_tree *options_tree;
     int        offset = 0;
-    wmem_strbuf_t *flags_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-    static const gchar *flags[] = {"FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS"};
-    gint       i;
-    guint      bpos;
+    const char *flags_str;
     guint      optlen;
     guint32    nxtseq = 0;
     guint      reported_len;
@@ -4099,8 +4130,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct tcp_per_packet_data_t *tcppd=NULL;
     proto_item *item;
     proto_tree *checksum_tree;
-
-    wmem_strbuf_append(flags_strbuf, "<None>");
 
     tcph=wmem_new(wmem_packet_scope(), struct tcpheader);
     SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -4289,27 +4318,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else
         tcph->th_have_seglen = FALSE;
 
-    {
-        gboolean first_flag = TRUE;
-        for (i = 0; i < 9; i++) {
-            bpos = 1 << i;
-            if (tcph->th_flags & bpos) {
-                if (first_flag) {
-                    wmem_strbuf_truncate(flags_strbuf, 0);
-                }
-                wmem_strbuf_append_printf(flags_strbuf, "%s%s", first_flag ? "" : ", ", flags[i]);
-                first_flag = FALSE;
-            }
-        }
-        if (tcph->th_flags & 0x0E00) {
-            if (first_flag) {
-                wmem_strbuf_truncate(flags_strbuf, 0);
-            }
-            wmem_strbuf_append_printf(flags_strbuf, "%sReserved", first_flag ? "" : ", ");
-        }
-    }
+    flags_str = tcp_flags_to_str(tcph);
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", wmem_strbuf_get_str(flags_strbuf), tcph->th_seq);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags_str, tcph->th_seq);
     if (tcph->th_flags&TH_ACK) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " Ack=%u", tcph->th_ack);
     }
@@ -4378,7 +4389,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint_format_value(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "%u bytes", tcph->th_hlen);
         tf = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
-                                        tcph->th_flags, "0x%03x (%s)", tcph->th_flags, wmem_strbuf_get_str(flags_strbuf));
+                                        tcph->th_flags, "0x%03x (%s)", tcph->th_flags, flags_str);
         field_tree = proto_item_add_subtree(tf, ett_tcp_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_res, tvb, offset + 12, 1, tcph->th_flags);
         proto_tree_add_boolean(field_tree, hf_tcp_flags_ns, tvb, offset + 12, 1, tcph->th_flags);
