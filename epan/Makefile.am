@@ -126,8 +126,7 @@ DISTCLEANFILES = \
 MAINTAINERCLEANFILES = \
 	$(LIBWIRESHARK_NODISTCLEAN_GENERATED_SRC) \
 	$(LIBWIRESHARK_NODISTCLEAN_GENERATED_INCLUDES) \
-	Makefile.in		\
-	sminmpec.c
+	Makefile.in
 
 #
 # Add the object files for missing routines, if any.
@@ -186,8 +185,8 @@ dtd_grammar.c: $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dtd
 
 tvbtest.o exntest.o: exceptions.h
 
-sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
-	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
+update-sminmpec:
+	$(PERL) $(srcdir)/../tools/make-sminmpec.pl
 
 def_sym_filter_symbols =
 

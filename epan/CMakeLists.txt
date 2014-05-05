@@ -1307,13 +1307,10 @@ set(FTYPE_FILES
 	ftypes/ftype-tvbuff.c
 )
 
-ADD_CUSTOM_COMMAND(
-    OUTPUT
-      sminmpec.c
+ADD_CUSTOM_TARGET(
+    update-sminmpec ALL
     COMMAND ${PERL_EXECUTABLE}
       ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
-      ${CMAKE_CURRENT_SOURCE_DIR}/enterprise-numbers
-      sminmpec.c
     DEPENDS
       enterprise-numbers
       ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
