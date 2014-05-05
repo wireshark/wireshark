@@ -1177,6 +1177,8 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         case OFPXMT_OFB_ETH_SRC:
         case OFPXMT_OFB_ARP_SHA:
         case OFPXMT_OFB_ARP_THA:
+        case OFPXMT_OFB_IPV6_ND_SLL: /*The source link-layer address option in an IPv6 Neighbor Discovery message */
+        case OFPXMT_OFB_IPV6_ND_TLL: /*The target link-layer address option in an IPv6 Neighbor Discovery message */
             proto_tree_add_item(oxm_tree, hf_openflow_v5_oxm_value_etheraddr, tvb, offset, 6, ENC_NA);
             offset+=6;
             if (oxm_hm) {
@@ -1225,8 +1227,6 @@ dissect_openflow_oxm_v5(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
         case OFPXMT_OFB_IPV6_SRC:
         case OFPXMT_OFB_IPV6_DST:
-        case OFPXMT_OFB_IPV6_ND_SLL:
-        case OFPXMT_OFB_IPV6_ND_TLL:
             proto_tree_add_item(oxm_tree, hf_openflow_v5_oxm_value_ipv6addr, tvb, offset, 16, ENC_NA);
             offset+=16;
             if (oxm_hm) {
