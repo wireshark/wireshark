@@ -595,7 +595,16 @@ foreach(PACKAGE ${PACKAGELIST})
 			message(STATUS "${PACKAGE} executable: ${${PACKAGE_VAR}_EXECUTABLE}")
 		endif()
 	else()
-		message(SEND_ERROR "${PACKAGE_VAR} NOT FOUND")
+		#
+		# Not finding a package is only a fatal error if the
+		# package is required; if it's required, then its
+		# XXX_REQUIRED variable is set to TRUE, and the above
+		# code will pass REQUIRED to find_package, and the
+		# configure will fail if the package isn't found.
+		#
+		# Do *NOT* report this as an error!
+		#
+		message("${PACKAGE_VAR} NOT FOUND")
 	endif()
 endforeach()
 
