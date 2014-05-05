@@ -485,8 +485,8 @@ struct mausb_header {
             guint8   req_id;
             /* DWORD 4 */
             guint32  credit;
-        };
-    };
+        } s;
+    } u;
 };
 
 /* We need at least the first DWORD to determine the packet length (for TCP) */
@@ -962,8 +962,8 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (mausb_is_mgmt_pkt(&header)) {
 
         /* Dialog Token */
-        header.token = tvb_get_letohs(tvb, 9) & MAUSB_TOKEN_MASK;
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Token=%u", header.token);
+        header.u.token = tvb_get_letohs(tvb, 9) & MAUSB_TOKEN_MASK;
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Token=%u", header.u.token);
         proto_tree_add_item(mausb_tree, hf_mausb_token, tvb,
             offset, 2, ENC_LITTLE_ENDIAN); /* Really 10 bits */
         offset += 1; /* token */
@@ -987,7 +987,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* TODO: Isochronous Packet Fields */
 
         /* EPS */
-        header.eps_tflags = tvb_get_guint8(tvb, offset);
+        header.u.s.eps_tflags = tvb_get_guint8(tvb, offset);
         if (mausb_is_from_host(&header)) {
             proto_tree_add_item(mausb_tree, hf_mausb_eps_rsvd, tvb,
                 offset, 1, ENC_LITTLE_ENDIAN);
@@ -1016,7 +1016,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         /* Stream ID (non-iso) */
-        header.stream_id = tvb_get_letohs(tvb, offset);
+        header.u.s.stream_id = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(mausb_tree, hf_mausb_stream_id, tvb,
             offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
@@ -1025,21 +1025,21 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* I-Flags (iso) */
 
         /* Sequence Number */
-        header.seq_num = tvb_get_letoh24(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " SeqNum=%u", header.seq_num);
+        header.u.s.seq_num = tvb_get_letoh24(tvb, offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " SeqNum=%u", header.u.s.seq_num);
         proto_tree_add_item(mausb_tree, hf_mausb_seq_num, tvb,
             offset, 3, ENC_LITTLE_ENDIAN);
         offset += 3;
 
         /* Request ID */
-        header.req_id = tvb_get_guint8(tvb, offset);
-        col_append_fstr(pinfo->cinfo, COL_INFO, " ReqID=%u", header.req_id);
+        header.u.s.req_id = tvb_get_guint8(tvb, offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " ReqID=%u", header.u.s.req_id);
         proto_tree_add_item(mausb_tree, hf_mausb_req_id, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         /* Remaining Size/Credit (non-iso) */
-        header.credit = tvb_get_guint8(tvb, offset);
+        header.u.s.credit = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(mausb_tree, hf_mausb_rem_size_credit, tvb,
             offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
