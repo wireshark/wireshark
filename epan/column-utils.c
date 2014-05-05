@@ -312,20 +312,13 @@ col_custom_prime_edt(epan_dissect_t *edt, column_info *cinfo)
   }
 }
 
-/*  Appends a vararg list to a packet info string.
- *  This function's code is duplicated in col_append_sep_fstr() below because
- *  the for() loop below requires us to call va_start/va_end so intermediate
- *  functions are a problem.
- */
-void
-col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
+static void
+col_do_append_fstr(column_info *cinfo, const int el, const char *separator, const char *format, va_list ap)
 {
-  int  i;
-  int  len, max_len;
-  va_list ap;
+  size_t len, max_len, sep_len;
+  int    i;
 
-  if (!CHECK_COL(cinfo, el))
-    return;
+  sep_len = (separator) ? strlen(separator) : 0;
 
   if (el == COL_INFO)
     max_len = COL_MAX_INFO_LEN;
@@ -339,26 +332,47 @@ col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
        */
       COL_CHECK_APPEND(cinfo, i, max_len);
 
-      len = (int) strlen(cinfo->col_buf[i]);
+      len = strlen(cinfo->col_buf[i]);
 
-      va_start(ap, format);
-      g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-      va_end(ap);
+      /*
+       * If we have a separator, append it if the column isn't empty.
+       */
+      if (sep_len != 0 && len != 0) {
+        g_strlcat(cinfo->col_buf[i], separator, max_len);
+        len += sep_len;
+      }
+
+      if (len < max_len) {
+        va_list ap2;
+
+        G_VA_COPY(ap2, ap);
+        g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap2);
+      }
     }
   }
+}
 
+/*  Appends a vararg list to a packet info string. */
+void
+col_append_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
+{
+  va_list ap;
+
+  if (!CHECK_COL(cinfo, el))
+    return;
+
+  va_start(ap, format);
+  col_do_append_fstr(cinfo, el, NULL, format, ap);
+  va_end(ap);
 }
 
 /*  Appends a vararg list to a packet info string.
  *  Prefixes it with the given separator if the column is not empty.
- *  Code is duplicated from col_append_fstr above().
  */
 void
 col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
                     const gchar *format, ...)
 {
-  int  i;
-  int  len, max_len, sep_len;
   va_list ap;
 
   if (!CHECK_COL(cinfo, el))
@@ -367,38 +381,9 @@ col_append_sep_fstr(column_info *cinfo, const gint el, const gchar *separator,
   if (separator == NULL)
     separator = ", ";    /* default */
 
-  sep_len = (int) strlen(separator);
-
-  if (el == COL_INFO)
-    max_len = COL_MAX_INFO_LEN;
-  else
-    max_len = COL_MAX_LEN;
-
-  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
-    if (cinfo->fmt_matx[i][el]) {
-      /*
-       * First arrange that we can append, if necessary.
-       */
-      COL_CHECK_APPEND(cinfo, i, max_len);
-
-      len = (int) strlen(cinfo->col_buf[i]);
-
-      /*
-       * If we have a separator, append it if the column isn't empty.
-       */
-      if (sep_len != 0) {
-        if (len != 0) {
-          g_strlcat(cinfo->col_buf[i], separator, max_len);
-          len += sep_len;
-        }
-      }
-      if (len < max_len) {
-        va_start(ap, format);
-        g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap);
-        va_end(ap);
-      }
-    }
-  }
+  va_start(ap, format);
+  col_do_append_fstr(cinfo, el, separator, format, ap);
+  va_end(ap);
 }
 
 /* Prepends a vararg list to a packet info string. */
