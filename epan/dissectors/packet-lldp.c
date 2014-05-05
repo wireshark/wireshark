@@ -55,6 +55,8 @@ static int hf_lldp_tlv_system_cap_router = -1;
 static int hf_lldp_tlv_system_cap_telephone = -1;
 static int hf_lldp_tlv_system_cap_docsis_cable_device = -1;
 static int hf_lldp_tlv_system_cap_station_only = -1;
+static int hf_lldp_tlv_system_name = -1;
+static int hf_lldp_tlv_system_desc = -1;
 static int hf_lldp_tlv_enable_system_cap = -1;
 static int hf_lldp_tlv_enable_system_cap_other = -1;
 static int hf_lldp_tlv_enable_system_cap_repeater = -1;
@@ -70,6 +72,8 @@ static int hf_chassis_id_mac = -1;
 static int hf_chassis_id_ip4 = -1;
 static int hf_chassis_id_ip6 = -1;
 static int hf_port_id_subtype = -1;
+static int hf_port_id = -1;
+static int hf_port_desc = -1;
 static int hf_port_id_mac = -1;
 static int hf_lldp_network_address_family = -1;
 static int hf_port_id_ip4 = -1;
@@ -267,6 +271,7 @@ static gint ett_time_to_live = -1;
 static gint ett_end_of_lldpdu = -1;
 static gint ett_port_description = -1;
 static gint ett_system_name = -1;
+static gint ett_system_desc = -1;
 static gint ett_system_cap = -1;
 static gint ett_system_cap_summary = -1;
 static gint ett_system_cap_enabled = -1;
@@ -998,8 +1003,6 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 		return -1;
 	}
 
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Chassis Id = %s ", strPtr);
-
 	if (tree)
 	{
 		/* Set chassis tree */
@@ -1123,8 +1126,6 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	}
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "Port Id = %s ", strPtr);
-
 	if (tree)
 	{
 		/* Set port tree */
@@ -1160,13 +1161,12 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 				proto_tree_add_ipv6(port_tree, hf_port_id_ip6, tvb, (offset+4), 16, ip6_addr.bytes);
 				break;
 			default:
-				proto_tree_add_text(port_tree, tvb, (offset+4), (tempLen-2), "Port Id: %s", strPtr);
+				proto_tree_add_item(port_tree, hf_port_id, tvb, (offset+4), (tempLen-2), ENC_ASCII|ENC_NA);
 				break;
 			}
 			break;
 		default:
-			proto_tree_add_text(port_tree, tvb, (offset+3), (tempLen-1), "Port Id: %s", strPtr);
-			proto_item_append_text(tf, ", Id: %s", strPtr);
+			proto_tree_add_item(port_tree, hf_port_id, tvb, (offset+3), (tempLen-1), ENC_ASCII|ENC_NA);
 			break;
 		}
 
@@ -1272,8 +1272,7 @@ dissect_lldp_port_desc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		proto_tree_add_item(port_desc_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		/* Display port description information */
-		proto_tree_add_text(port_desc_tree, tvb, (offset+2), tempLen, "Port Description: %s",
-		    strPtr);
+		proto_tree_add_item(port_desc_tree, hf_port_desc, tvb, (offset+2), tempLen, ENC_ASCII|ENC_NA);
 	}
 
 	return (tempLen + 2);
@@ -1288,7 +1287,7 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	guint8 tempType;
 	const char *strPtr;
 
-	proto_tree	*system_name_tree = NULL;
+	proto_tree	*system_subtree = NULL;
 	proto_item	*tf = NULL;
 
 	/* Get tlv type and length */
@@ -1305,18 +1304,26 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		/* Set system name tree */
 		if (tempType == SYSTEM_NAME_TLV_TYPE) {
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Name = %s", strPtr);
+			system_subtree = proto_item_add_subtree(tf, ett_system_name);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "System Name = %s ", strPtr);
-		} else
+		} else {
 			tf = proto_tree_add_text(tree, tvb, offset, (tempLen + 2), "System Description = %s", strPtr);
-		system_name_tree = proto_item_add_subtree(tf, ett_system_name);
+			system_subtree = proto_item_add_subtree(tf, ett_system_desc);
+			col_append_fstr(pinfo->cinfo, COL_INFO, "System Description = %s ", strPtr);
+		}
 
-		proto_tree_add_item(system_name_tree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(system_name_tree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(system_subtree, hf_lldp_tlv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(system_subtree, hf_lldp_tlv_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+		offset +=2;
 
 		/* Display system name information */
-		proto_tree_add_text(system_name_tree, tvb, (offset+2), tempLen, "%s = %s",
-					((tempType == SYSTEM_NAME_TLV_TYPE) ? "System Name" : "System Description"),
-					strPtr);
+		if (tempType == SYSTEM_NAME_TLV_TYPE)
+			proto_tree_add_item(system_subtree, hf_lldp_tlv_system_name, tvb, offset, tempLen, ENC_ASCII|ENC_NA);
+		else
+			proto_tree_add_item(system_subtree, hf_lldp_tlv_system_desc, tvb, offset, tempLen, ENC_ASCII|ENC_NA);
+
+		offset += tempLen;
 	}
 
 	return (tempLen + 2);
@@ -3416,6 +3423,14 @@ proto_register_lldp(void)
 			{ "Station only", "lldp.tlv.system_cap.station_only", FT_BOOLEAN, 16,
 			TFS(&tfs_capable_not_capable), SYSTEM_CAPABILITY_STATION, NULL, HFILL }
 		},
+		{ &hf_lldp_tlv_system_name,
+			{ "System Name", "lldp.tlv.system.name", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_lldp_tlv_system_desc,
+			{ "System Description", "lldp.tlv.system.desc", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_lldp_tlv_enable_system_cap,
 			{ "Enabled Capabilities", "lldp.tlv.enable_system_cap", FT_UINT16, BASE_HEX,
 			NULL, 0, NULL, HFILL }
@@ -3475,6 +3490,14 @@ proto_register_lldp(void)
 		{ &hf_port_id_subtype,
 			{ "Port Id Subtype", "lldp.port.subtype", FT_UINT8, BASE_DEC,
 			VALS(port_id_subtypes), 0, NULL, HFILL }
+		},
+		{ &hf_port_id,
+			{ "Port Id", "lldp.port.id", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_port_desc,
+			{ "Port Description", "lldp.port.desc", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_port_id_mac,
 			{ "Port Id", "lldp.port.id.mac", FT_ETHER, BASE_NONE,
@@ -4240,6 +4263,7 @@ proto_register_lldp(void)
 		&ett_end_of_lldpdu,
 		&ett_port_description,
 		&ett_system_name,
+		&ett_system_desc,
 		&ett_system_cap,
 		&ett_system_cap_summary,
 		&ett_system_cap_enabled,
