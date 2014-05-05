@@ -915,6 +915,15 @@ static const value_string mip6_mng_id_type_vals[] = {
 
 #define MIP6_LMAA_MIN_LEN     6
 
+#define MIP6_RECAP_LEN        2
+#define MIP6_REDIR_MIN_LEN    6
+#define MIP6_REDIR_FLAG_K     0x80
+#define MIP6_REDIR_FLAG_N     0x40
+#define MIP6_REDIR_FLAG_RSV   0x3F
+
+#define MIP6_LOAD_INF_LEN     18
+#define MIP6_ALT_IP4_LEN      4
+
 #define MIP6_MNG_LEN          6
 
 static dissector_table_t ip_dissector_table;
@@ -1105,6 +1114,19 @@ static int hf_pmip6_bri_ig_flag = -1;
 static int hf_pmip6_bri_ag_flag = -1;
 static int hf_pmip6_bri_res = -1;
 
+static int hf_mip6_opt_recap_reserved = -1;
+static int hf_mip6_opt_redir_k = -1;
+static int hf_mip6_opt_redir_n = -1;
+static int hf_mip6_opt_redir_reserved = -1;
+static int hf_mip6_opt_redir_addr_r2LMA_ipv6 = -1;
+static int hf_mip6_opt_redir_addr_r2LMA_ipv4 = -1;
+static int hf_mip6_opt_load_inf_priority = -1;
+static int hf_mip6_opt_load_inf_sessions_in_use = -1;
+static int hf_mip6_opt_load_inf_maximum_sessions = -1;
+static int hf_mip6_opt_load_inf_used_capacity = -1;
+static int hf_mip6_opt_load_inf_maximum_capacity = -1;
+static int hf_mip6_opt_alt_ip4 = -1;
+
 /* Mobile Node Group Identifier Optionm */
 static int hf_mip6_opt_mng_sub_type = -1;
 static int hf_mip6_opt_mng_reserved = -1;
@@ -1157,6 +1179,10 @@ static gint ett_mip6_opt_ipv4dra = -1;
 static gint ett_mip6_opt_ipv4dsm = -1;
 static gint ett_mip6_opt_cr = -1;
 static gint ett_mip6_opt_lmaa = -1;
+static gint ett_mip6_opt_recap = -1;
+static gint ett_mip6_opt_redir = -1;
+static gint ett_mip6_opt_load_inf = -1;
+static gint ett_mip6_opt_alt_ip4 = -1;
 static gint ett_mip6_opt_mng = -1;
 
 static expert_field ei_mip6_ie_not_dissected = EI_INIT;
@@ -2914,6 +2940,80 @@ dissect_pmip6_opt_lmaa(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
 
 }
 
+static void
+dissect_pmip6_opt_recap(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_recap_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /*offset +=2;*/
+
+}
+
+static void
+dissect_pmip6_opt_redir(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+    guint16 flag;
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_redir_k, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_redir_n, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opt_tree, hf_mip6_opt_redir_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    flag = tvb_get_ntohs(tvb ,offset);
+    offset +=2;
+
+    if (flag & MIP6_REDIR_FLAG_K) {
+        proto_tree_add_item(opt_tree, hf_mip6_opt_redir_addr_r2LMA_ipv6, tvb, offset, 16, ENC_NA);
+        offset +=16;
+    }
+
+
+    if (flag & MIP6_REDIR_FLAG_N) {
+        proto_tree_add_item(opt_tree, hf_mip6_opt_redir_addr_r2LMA_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+        /*offset +=4;*/
+    }
+
+}
+
+static void
+dissect_pmip6_opt_load_inf(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_load_inf_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset +=2;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_load_inf_sessions_in_use, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset +=4;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_load_inf_maximum_sessions, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset +=4;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_load_inf_used_capacity, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset +=4;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_load_inf_maximum_capacity, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /*offset +=4;*/
+}
+
+
+static void
+dissect_pmip6_opt_alt_ip4(const mip6_opt *optp _U_, tvbuff_t *tvb, int offset,
+              guint optlen _U_, packet_info *pinfo _U_, proto_tree *opt_tree, proto_item *hdr_item _U_ )
+{
+
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_item(opt_tree, hf_mip6_opt_alt_ip4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    /*offset +=4;*/
+
+}
 /* RFC 6602
     The type value for this option is 50.
 
@@ -3308,10 +3408,42 @@ static const mip6_opt mip6_opts[] = {
 /* 43 Transient Binding [RFC-ietf-mipshop-transient-bce-pmipv6-07] */
 /* 44 Flow Summary Mobility Option [RFC-ietf-mext-flow-binding-11] */
 /* 45 Flow Identification Mobility Option [RFC-ietf-mext-flow-binding-11]] */
-/* 46 Redirect-Capability Mobility Option [RFC6463] */
-/* 47 Redirect Mobility Option [RFC6463] */
-/* 48 Load Information Mobility Option [RFC6463] */
-/* 49 Alternate IPv4 Care-of Address [RFC6463] */
+
+{
+    MIP6_RECAP,               /* 46 Redirect-Capability Mobility Option [RFC6463] */
+    "Redirect-Capability",
+    &ett_mip6_opt_recap,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_RECAP_LEN,
+    dissect_pmip6_opt_recap
+},
+{
+    MIP6_REDIR,               /* 47 Redirect Mobility Option [RFC6463] */
+    "Redirect",
+    &ett_mip6_opt_redir,
+    OPT_LEN_VARIABLE_LENGTH,
+    MIP6_REDIR_MIN_LEN,
+    dissect_pmip6_opt_redir
+},
+{
+    MIP6_LOAD_INF,               /* 48 Load Information Mobility Option [RFC6463] */
+    "Load Information",
+    &ett_mip6_opt_load_inf,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_LOAD_INF_LEN,
+    dissect_pmip6_opt_load_inf
+},
+
+{
+    MIP6_ALT_IP4_CO,               /* 49 Alternate IPv4 Care-of Address [RFC6463] */
+    "Alternate IPv4",
+    &ett_mip6_opt_alt_ip4,
+    OPT_LEN_FIXED_LENGTH,
+    MIP6_ALT_IP4_LEN,
+    dissect_pmip6_opt_alt_ip4
+},
+
+
 {
     MIP6_MNG,               /* 50 Mobile Node Group Identifier [RFC6602] */
     "Mobile Node Group Identifier",
@@ -4412,6 +4544,70 @@ proto_register_mip6(void)
         "Must be zero", HFILL }
     },
 
+    { &hf_mip6_opt_recap_reserved,
+      { "Reserved", "mip6.recap.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
+        "Must be zero", HFILL }
+    },
+
+    { &hf_mip6_opt_redir_k,
+      { "K", "mip6.redir.k",
+        FT_BOOLEAN, 16, NULL, MIP6_REDIR_FLAG_K,
+        "bit is set (1) if the Optional IPv6 r2LMA Address is included in the mobility option", HFILL }
+    },
+    { &hf_mip6_opt_redir_n,
+      { "N", "mip6.redir.n",
+        FT_BOOLEAN, 16, NULL, MIP6_REDIR_FLAG_K,
+        "bit is set (1) if the Optional IPv4 r2LMA Address is included in the mobility option", HFILL }
+    },
+    { &hf_mip6_opt_redir_reserved,
+      { "Reserved", "mip6.redir.reserved",
+        FT_UINT16, BASE_HEX, NULL, MIP6_REDIR_FLAG_RSV,
+        "Must be zero", HFILL }
+    },
+    { &hf_mip6_opt_redir_addr_r2LMA_ipv6,
+      { "IPv6 r2LMA Address", "mip6.redir.addr_r2lma_ipv6",
+        FT_IPv6, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_redir_addr_r2LMA_ipv4,
+      { "IPv4 r2LMA Address", "mip6.redir.addr_r2lma_ipv4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_load_inf_priority,
+      { "Priority", "mip6.load_inf.priority",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_load_inf_sessions_in_use,
+      { "Sessions in Use", "mip6.load_inf.sessions_in_use",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_load_inf_maximum_sessions,
+      { "Maximum Sessions", "mip6.load_inf.maximum_sessions",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_load_inf_used_capacity,
+      { "Used Capacity", "mip6.load_inf.used_capacity",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_mip6_opt_load_inf_maximum_capacity,
+      { "Maximum Capacity", "mip6.load_inf.maximum_capacity",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }
+    },
+
+    { &hf_mip6_opt_alt_ip4,
+      { "Alternate IPv4 Care-of Address", "mip6.alt_ip4",
+        FT_IPv4, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+
     { &hf_mip6_opt_mng_sub_type,
       { "Sub Type", "mip6.mng.sub_type",
         FT_UINT8, BASE_DEC, VALS(mip6_mng_id_type_vals), 0x0,
@@ -4477,6 +4673,10 @@ proto_register_mip6(void)
         &ett_mip6_opt_ipv4dsm,
         &ett_mip6_opt_cr,
         &ett_mip6_opt_lmaa,
+        &ett_mip6_opt_recap,
+        &ett_mip6_opt_redir,
+        &ett_mip6_opt_load_inf,
+        &ett_mip6_opt_alt_ip4,
         &ett_mip6_opt_mng,
     };
 
