@@ -2067,7 +2067,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
             case MAC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */
                 /* TODO: this is not correct if there is padding which isn't in frame */
-                p_mac_lte_info->length= tvb_length_remaining(tvb, offset);
+                p_mac_lte_info->length= tvb_reported_length_remaining(tvb, offset);
                 continue;
 
             default:
@@ -2107,7 +2107,7 @@ static gboolean dissect_mac_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
        - fixed header bytes
        - tag for data
        - at least one byte of MAC PDU payload */
-    if (tvb_length_remaining(tvb, offset) < (gint)(strlen(MAC_LTE_START_STRING)+3+2)) {
+    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(MAC_LTE_START_STRING)+3+2)) {
         return FALSE;
     }
 
@@ -2608,7 +2608,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     tap_info->number_of_rars += number_of_rars;
 
     /* Padding may follow */
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(tree, hf_mac_lte_padding_data,
                             tvb, offset, -1, ENC_NA);
     }
@@ -2631,7 +2631,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "BCH PDU (%u bytes, on %s transport)  ",
-                             tvb_length_remaining(tvb, offset),
+                             tvb_reported_length_remaining(tvb, offset),
                              val_to_str_const(p_mac_lte_info->rntiType,
                                               bch_transport_channel_vals,
                                               "Unknown"));
@@ -2682,7 +2682,7 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                              "PCH PDU (%u bytes)  ",
-                             tvb_length_remaining(tvb, offset));
+                             tvb_reported_length_remaining(tvb, offset));
 
     /****************************************/
     /* Whole frame is PCH data              */
@@ -3000,7 +3000,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                 lastData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
                 if (lastData->inUse) {
                     /* Compare time, sf, data to see if this looks like a retx */
-                    if ((tvb_length_remaining(tvb, offset) == lastData->length) &&
+                    if ((tvb_reported_length_remaining(tvb, offset) == lastData->length) &&
                         (p_mac_lte_info->detailed_phy_info.ul_info.ndi == lastData->ndi) &&
                         tvb_memeql(tvb, offset, lastData->data, MIN(lastData->length, MAX_EXPECTED_PDU_LENGTH)) == 0) {
 
@@ -3050,7 +3050,7 @@ static void TrackReportedULHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
         /* Store this frame's details in table */
         thisData = &(ueData->harqid[p_mac_lte_info->detailed_phy_info.ul_info.harq_id]);
         thisData->inUse = TRUE;
-        thisData->length = tvb_length_remaining(tvb, offset);
+        thisData->length = tvb_reported_length_remaining(tvb, offset);
         tvb_memcpy(tvb, thisData->data, offset, MIN(thisData->length, MAX_EXPECTED_PDU_LENGTH));
         thisData->ndi = p_mac_lte_info->detailed_phy_info.ul_info.ndi;
         thisData->framenum = pinfo->fd->num;
@@ -3860,7 +3860,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     /* For DL, see if this is a retx.  Use whole PDU present (i.e. ignore padding if not logged) */
     if (direction == DIRECTION_DOWNLINK) {
         /* Result will be added to context tree */
-        TrackReportedDLHARQResend(pinfo, tvb, tvb_length_remaining(tvb, 0), context_tree, p_mac_lte_info);
+        TrackReportedDLHARQResend(pinfo, tvb, tvb_reported_length_remaining(tvb, 0), context_tree, p_mac_lte_info);
 
         tap_info->isPHYRetx = (p_mac_lte_info->dl_retx == dl_retx_yes);
     }
@@ -4098,7 +4098,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         if (pdu_lengths[n] == -1) {
                             /* Control Element size is the remaining PDU */
-                            pdu_lengths[n] = (gint16)tvb_length_remaining(tvb, curr_offset);
+                            pdu_lengths[n] = (gint16)tvb_reported_length_remaining(tvb, curr_offset);
                         }
 
                         /* Create EPHR root */
@@ -4465,7 +4465,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     }
 
     /* There might not be any data, if only headers (plus control data) were logged */
-    is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
+    is_truncated = ((tvb_reported_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_sch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
@@ -4496,7 +4496,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
         /* Work out length */
         data_length = (pdu_lengths[n] == -1) ?
-                            tvb_length_remaining(tvb, offset) :
+                            tvb_reported_length_remaining(tvb, offset) :
                             pdu_lengths[n];
 
         /* Dissect SDU as raw bytes */
@@ -4642,7 +4642,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* Now padding, if present, extends to the end of the PDU */
     if (lcids[number_of_headers-1] == PADDING_LCID) {
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                 tvb, offset, -1, ENC_NA);
         }
@@ -4958,7 +4958,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
                     if (pdu_lengths[n] == -1) {
                         /* Control Element size is the remaining PDU */
-                        pdu_lengths[n] = (gint16)tvb_length_remaining(tvb, curr_offset);
+                        pdu_lengths[n] = (gint16)tvb_reported_length_remaining(tvb, curr_offset);
                     }
                     if (pdu_lengths[n] & 0x01) {
                         expert_add_info_format(pinfo, sched_info_ti, &ei_mac_lte_context_length,
@@ -5001,7 +5001,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
 
     /* There might not be any data, if only headers (plus control data) were logged */
-    is_truncated = ((tvb_length_remaining(tvb, offset) == 0) && expecting_body_data);
+    is_truncated = ((tvb_reported_length_remaining(tvb, offset) == 0) && expecting_body_data);
     truncated_ti = proto_tree_add_uint(tree, hf_mac_lte_mch_header_only, tvb, 0, 0,
                                        is_truncated);
     if (is_truncated) {
@@ -5030,7 +5030,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
         /* Work out length */
         data_length = (pdu_lengths[n] == -1) ?
-                            tvb_length_remaining(tvb, offset) :
+                            tvb_reported_length_remaining(tvb, offset) :
                             pdu_lengths[n];
 
         if ((lcids[n] == 0) && global_mac_lte_attempt_mcch_decode) {
@@ -5067,7 +5067,7 @@ static void dissect_mch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
     /* Now padding, if present, extends to the end of the PDU */
     if (lcids[number_of_headers-1] == PADDING_LCID) {
-        if (tvb_length_remaining(tvb, offset) > 0) {
+        if (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(tree, hf_mac_lte_padding_data,
                                 tvb, offset, -1, ENC_NA);
         }
@@ -5484,7 +5484,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     PROTO_ITEM_SET_HIDDEN(hidden_root_ti);
 
     /* Also set total number of bytes (won't be used for UL/DL-SCH) */
-    tap_info->single_number_of_bytes = tvb_length_remaining(tvb, offset);
+    tap_info->single_number_of_bytes = tvb_reported_length_remaining(tvb, offset);
 
     /* If we know its predefined data, don't try to decode any further */
     if (p_mac_lte_info->isPredefinedData) {
@@ -5492,7 +5492,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                  "Predefined data (%u bytes%s)",
                                  p_mac_lte_info->length,
-                                 (p_mac_lte_info->length > tvb_length_remaining(tvb, offset) ?
+                                 (p_mac_lte_info->length > tvb_reported_length_remaining(tvb, offset) ?
                                      " - truncated" :
                                      ""));
 
@@ -5510,7 +5510,7 @@ int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
          (p_mac_lte_info->crcStatus != crc_success))) {
 
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, ENC_NA);
-        write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
+        write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_reported_length_remaining(tvb, offset));
 
         /* For uplink grants, update SR status.  N.B. only newTx grant should stop SR */
         if ((p_mac_lte_info->direction == DIRECTION_UPLINK) && (p_mac_lte_info->reTxCount == 0) &&

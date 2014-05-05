@@ -1271,7 +1271,7 @@ static gboolean dissect_pdcp_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
        - fixed header bytes
        - tag for data
        - at least one byte of PDCP PDU payload */
-    if (tvb_length_remaining(tvb, offset) < (gint)(strlen(PDCP_LTE_START_STRING)+3+2)) {
+    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(PDCP_LTE_START_STRING)+3+2)) {
         return FALSE;
     }
 
@@ -1531,7 +1531,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         }
 
         /* Extract the encrypted data into a buffer */
-        payload_length = tvb_length_remaining(tvb, *offset);
+        payload_length = tvb_captured_length_remaining(tvb, *offset);
         decrypted_data = (guint8 *)g_malloc0(payload_length);
         tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
 
@@ -1554,7 +1554,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     /* SNOW-3G */
     if (pdu_security_settings->ciphering == eea1) {
         /* Extract the encrypted data into a buffer */
-        payload_length = tvb_length_remaining(tvb, *offset);
+        payload_length = tvb_captured_length_remaining(tvb, *offset);
         decrypted_data = (guint8 *)g_malloc0(payload_length+4);
         tvb_memcpy(tvb, decrypted_data, *offset, payload_length);
 
@@ -1607,7 +1607,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
         case eia1:
             {
                 guint8  *mac;
-                gint message_length = tvb_length_remaining(tvb, offset) - 4;
+                gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 guint8 *message_data = (guint8 *)g_malloc0(message_length+5);
                 message_data[0] = header;
                 tvb_memcpy(tvb, message_data+1, offset, message_length);
@@ -1651,7 +1651,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 }
 
                 /* Extract the encrypted data into a buffer */
-                message_length = tvb_length_remaining(tvb, offset) - 4;
+                message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 message_data = (guint8 *)g_malloc0(message_length+9);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
                 message_data[1] = (pdu_security_settings->count & 0x00ff0000) >> 16;
@@ -1845,7 +1845,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
             offset++;
 
-            if (tvb_length_remaining(tvb, offset) == 0) {
+            if (tvb_reported_length_remaining(tvb, offset) == 0) {
                 /* Only PDCP header was captured, stop dissection here */
                 return;
             }
@@ -1961,13 +1961,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             }
 
                             /* Bitmap tree */
-                            if (tvb_length_remaining(tvb, offset) > 0) {
+                            if (tvb_reported_length_remaining(tvb, offset) > 0) {
                                 bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
                                                                 offset, -1, ENC_NA);
                                 bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_report_bitmap);
 
                                  buff = (gchar *)wmem_alloc(wmem_packet_scope(), BUFF_SIZE);
-                                 len = tvb_length_remaining(tvb, offset);
+                                 len = tvb_reported_length_remaining(tvb, offset);
                                  bit_offset = offset<<3;
                                 /* For each byte... */
                                 for (i=0; i<len; i++) {
@@ -2073,8 +2073,8 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if (rrc_handle != 0) {
                 /* Call RRC dissector if have one */
                 tvbuff_t *rrc_payload_tvb = tvb_new_subset(payload_tvb, offset,
-                                                           tvb_length_remaining(payload_tvb, offset) - 4,
-                                                           tvb_length_remaining(payload_tvb, offset) - 4);
+                                                           tvb_captured_length_remaining(payload_tvb, offset) - 4,
+                                                           tvb_reported_length_remaining(payload_tvb, offset) - 4);
                 gboolean was_writable = col_get_writable(pinfo->cinfo);
 
                 /* We always want to see this in the info column */
@@ -2088,7 +2088,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             else {
                  /* Just show data */
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, payload_tvb, offset,
-                                        tvb_length_remaining(tvb, offset) - 4, ENC_NA);
+                                        tvb_reported_length_remaining(tvb, offset) - 4, ENC_NA);
             }
 
             if (!pinfo->fd->flags.visited &&
@@ -2103,10 +2103,10 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         else {
             /* Just show as unparsed data */
             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, payload_tvb, offset,
-                                tvb_length_remaining(tvb, offset) - 4, ENC_NA);
+                                tvb_reported_length_remaining(tvb, offset) - 4, ENC_NA);
         }
 
-        data_length = tvb_length_remaining(payload_tvb, offset) - 4;
+        data_length = tvb_reported_length_remaining(payload_tvb, offset) - 4;
         offset += data_length;
 
         /* Last 4 bytes are MAC */
@@ -2134,7 +2134,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         /* If not compressed with ROHC, show as user-plane data */
         if (!p_pdcp_info->rohc.rohc_compression) {
-            gint payload_length = tvb_length_remaining(payload_tvb, offset);
+            gint payload_length = tvb_reported_length_remaining(payload_tvb, offset);
             if (payload_length > 0) {
                 if (p_pdcp_info->plane == USER_PLANE) {
 

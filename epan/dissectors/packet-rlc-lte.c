@@ -1510,7 +1510,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 if (!last_includes_end &&
                     ((number_of_segments > 1) || first_includes_start)) {
 
-                    guint16 lastSegmentLength = tvb_length(tvb)-lastSegmentOffset;
+                    guint16 lastSegmentLength = tvb_reported_length(tvb)-lastSegmentOffset;
 
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
@@ -1616,7 +1616,7 @@ static sequence_analysis_state checkChannelSequenceInfo(packet_info *pinfo, tvbu
                 if (!last_includes_end &&
                     ((number_of_segments > 1) || first_includes_start)) {
 
-                    guint16 lastSegmentLength = tvb_length(tvb)-lastSegmentOffset;
+                    guint16 lastSegmentLength = tvb_reported_length(tvb)-lastSegmentOffset;
                     if (global_rlc_lte_reassembly) {
                         reassembly_reset(p_channel_status);
                         reassembly_add_segment(p_channel_status, sequenceNumber,
@@ -1957,7 +1957,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, ENC_NA);
     if (!global_rlc_lte_call_rrc_for_ccch) {
         write_pdu_label_and_info(top_ti, NULL, pinfo,
-                                 "                     [%u-bytes]", tvb_length_remaining(tvb, offset));
+                                 "                     [%u-bytes]", tvb_reported_length_remaining(tvb, offset));
     }
 
     if (global_rlc_lte_call_rrc_for_ccch) {
@@ -2125,7 +2125,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     if (global_rlc_lte_headers_expected) {
         /* There might not be any data, if only headers (plus control data) were logged */
-        is_truncated = (tvb_length_remaining(tvb, offset) == 0);
+        is_truncated = (tvb_reported_length_remaining(tvb, offset) == 0);
         truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
                                            is_truncated);
         if (is_truncated) {
@@ -2215,7 +2215,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                      ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end,
                      (s_number_of_extensions == 0) ? reassembly_info : NULL,
                      seq_anal_state);
-    show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
+    show_PDU_in_info(pinfo, top_ti, (guint16)tvb_reported_length_remaining(tvb, offset),
                      (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                      last_includes_end);
 }
@@ -2368,11 +2368,11 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     /* Check that we've reached the end of the PDU. If not, show malformed */
     offset = (bit_offset+7) / 8;
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         expert_add_info_format(pinfo, status_ti, &ei_rlc_lte_bytes_after_status_pdu_complete,
                                "%cL %u bytes remaining after Status PDU complete",
                                (p_rlc_lte_info->direction == DIRECTION_UPLINK) ? 'U' : 'D',
-                               tvb_length_remaining(tvb, offset));
+                               tvb_reported_length_remaining(tvb, offset));
     }
 
     /* Set selected length of control tree */
@@ -2518,7 +2518,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* There might not be any data, if only headers (plus control data) were logged */
     if (global_rlc_lte_headers_expected) {
-        is_truncated = (tvb_length_remaining(tvb, offset) == 0);
+        is_truncated = (tvb_reported_length_remaining(tvb, offset) == 0);
         truncated_ti = proto_tree_add_uint(tree, hf_rlc_lte_header_only, tvb, 0, 0,
                                            is_truncated);
         if (is_truncated) {
@@ -2559,7 +2559,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             firstSegmentLength = s_lengths[0];
         }
         else {
-            firstSegmentLength = tvb_length_remaining(tvb, offset);
+            firstSegmentLength = tvb_reported_length_remaining(tvb, offset);
         }
 
         seq_anal_state = checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, FALSE,
@@ -2601,12 +2601,12 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Final data element */
-    if (tvb_length_remaining(tvb, offset) > 0) {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         show_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
                          ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end,
                          (s_number_of_extensions == 0) ? reassembly_info : NULL,
                          seq_anal_state);
-        show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
+        show_PDU_in_info(pinfo, top_ti, (guint16)tvb_reported_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
     }
@@ -2651,7 +2651,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
        - fixed header bytes
        - tag for data
        - at least one byte of RLC PDU payload */
-    if (tvb_length_remaining(tvb, offset) < (gint)(strlen(RLC_LTE_START_STRING)+1+2)) {
+    if (tvb_captured_length_remaining(tvb, offset) < (gint)(strlen(RLC_LTE_START_STRING)+1+2)) {
         return FALSE;
     }
 
@@ -2710,7 +2710,7 @@ static gboolean dissect_rlc_lte_heur(tvbuff_t *tvb, packet_info *pinfo,
 
             case RLC_LTE_PAYLOAD_TAG:
                 /* Have reached data, so set payload length and get out of loop */
-                p_rlc_lte_info->pduLength= tvb_length_remaining(tvb, offset);
+                p_rlc_lte_info->pduLength= tvb_reported_length_remaining(tvb, offset);
                 continue;
 
             default:
@@ -2897,7 +2897,7 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             /* Predefined data (i.e. not containing a valid RLC header */
             proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_predefined_pdu, tvb, offset, -1, ENC_NA);
             write_pdu_label_and_info(top_ti, NULL, pinfo, "   [%u-bytes]",
-                                     tvb_length_remaining(tvb, offset));
+                                     tvb_reported_length_remaining(tvb, offset));
             break;
 
         default:
