@@ -600,14 +600,17 @@ static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
 static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb,
             packet_info *pinfo, gint16 start, gboolean req)
 {
-    usb_trans_info_t usb_trans_info = {0};
-    usb_conv_info_t usb_conv_info = {0};
+    usb_trans_info_t usb_trans_info;
+    usb_conv_info_t usb_conv_info;
     proto_item *size_field;
     guint16 offset = start;
     guint16 loop_offset;
     guint8 num_ep;
     guint8 size_ep_des;
     int i;
+
+    memset(&usb_trans_info, 0, sizeof(usb_trans_info_t));
+    memset(&usb_conv_info,  0, sizeof(usb_conv_info_t));
 
     num_ep = tvb_get_guint8(tvb, offset) & MAUSB_MGMT_NUM_EP_DES_MASK;
 
@@ -861,10 +864,11 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *flags_tree;
     proto_tree *tflags_tree;
     /* Other misc. local variables. */
-    struct mausb_header header = {0};
+    struct mausb_header header;
     gint offset = 0;
     gint payload_len;
 
+    memset(&header, 0, sizeof(struct mausb_header));
 
     /* Set the Protocol column to the constant string of mausb */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAUSB");
