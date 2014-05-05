@@ -128,8 +128,7 @@ DISTCLEANFILES = \
 MAINTAINERCLEANFILES = \
 	$(LIBWIRESHARK_GENERATED_C_FILES) \
 	$(LIBWIRESHARK_GENERATED_HEADER_FILES) \
-	Makefile.in		\
-	sminmpec.c
+	Makefile.in
 
 #
 # Add the object files for missing routines, if any.
@@ -194,8 +193,8 @@ dtd_grammar.c : $(LEMON)/lemon$(EXEEXT) $(srcdir)/$(LEMON)/lempar.c $(srcdir)/dt
 
 tvbtest.o exntest.o oids_test.o: exceptions.h
 
-sminmpec.c: enterprise-numbers ../tools/make-sminmpec.pl
-	$(PERL) $(srcdir)/../tools/make-sminmpec.pl $(srcdir)/enterprise-numbers sminmpec.c
+update-sminmpec:
+	$(PERL) $(srcdir)/../tools/make-sminmpec.pl
 
 ps.c: print.ps $(top_srcdir)/tools/rdps.py
 	$(PYTHON) $(top_srcdir)/tools/rdps.py $(srcdir)/print.ps ps.c

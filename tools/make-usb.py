@@ -112,6 +112,11 @@ header="""/* usb.c
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * XXX We should probably parse a USB ID file at program start instead
+ * of generating this file.
+ */
+
 #include "config.h"
 #include <epan/packet.h>
 """
