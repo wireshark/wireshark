@@ -1091,12 +1091,12 @@ proto_register_mausb(void)
     static hf_register_info hf[] = {
         { &hf_mausb_version,
             { "Version", "mausb.version", FT_UINT8, BASE_DEC,
-              VALS(&mausb_version_string), MAUSB_VERSION_MASK, NULL, HFILL
+              VALS(mausb_version_string), MAUSB_VERSION_MASK, NULL, HFILL
             }
         },
         { &hf_mausb_flags,
             { "Flags", "mausb.flags", FT_UINT8, BASE_HEX,
-              VALS(&mausb_flag_string), MAUSB_FLAG_MASK, NULL, HFILL
+              VALS(mausb_flag_string), MAUSB_FLAG_MASK, NULL, HFILL
             }
         },
 
@@ -1130,7 +1130,7 @@ proto_register_mausb(void)
 
         { &hf_mausb_type,
             { "Type", "mausb.type", FT_UINT8, BASE_HEX,
-              VALS(&mausb_type_string), 0, NULL, HFILL
+              VALS(mausb_type_string), 0, NULL, HFILL
             }
         },
         { &hf_mausb_length,
@@ -1184,7 +1184,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_status,
             { "Status", "mausb.status", FT_UINT8, BASE_DEC,
-              VALS(&mausb_status_string), 0, NULL, HFILL
+              VALS(mausb_status_string), 0, NULL, HFILL
             }
         },
 
@@ -1214,7 +1214,7 @@ proto_register_mausb(void)
         /* Data Packets Only */
         { &hf_mausb_eps,
             { "EP Status", "mausb.eps", FT_UINT8, BASE_HEX,
-              VALS(&mausb_eps_string), MAUSB_EPS_MASK, NULL, HFILL
+              VALS(mausb_eps_string), MAUSB_EPS_MASK, NULL, HFILL
             }
         },
         { &hf_mausb_eps_rsvd,
@@ -1224,7 +1224,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_tflags,
             { "Transfer Flags", "mausb.tflag", FT_UINT8, BASE_HEX,
-              VALS(&mausb_tflag_string), MAUSB_TFLAG_MASK, NULL, HFILL
+              VALS(mausb_tflag_string), MAUSB_TFLAG_MASK, NULL, HFILL
             }
         },
 
@@ -1249,7 +1249,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_tflag_type,
             { "Transfer Type", "mausb.tflag.type", FT_UINT8, BASE_HEX,
-              VALS(&mausb_transfer_type_string),
+              VALS(mausb_transfer_type_string),
               MAUSB_TFLAG_TRANSFER_TYPE << MAUSB_TFLAG_OFFSET,
               NULL, HFILL
             }
