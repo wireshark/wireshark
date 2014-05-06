@@ -37,13 +37,39 @@
 
 #include "config.h"
 
+#include <stdio.h>
+
 #include <glib.h>
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
+#include <epan/conversation.h>
+#include <epan/follow.h>
+
+#include <wsutil/nghttp2/nghttp2/nghttp2.h>
 
 #include "packet-tcp.h"
+
+/* struct to hold data per HTTP/2 session */
+typedef struct {
+    /* We need 2 inflater object for both client and server.  Since
+       inflater object is symmetrical, we just want to know which
+       inflater is used for each TCP flow.  The hd_inflater_first_flow
+       is used to select which one to use.  Basically, we first record
+       fwd of tcp_analysis in hd_inflater_first_flow and if processing
+       packet_info has fwd of tcp_analysis equal to
+       hd_inflater_first_flow, we use hd_inflater[0], otherwise 2nd
+       one.
+     */
+    nghttp2_hd_inflater *hd_inflater[2];
+    tcp_flow_t *hd_inflater_first_flow;
+} http2_session_t;
+
+typedef struct {
+    /* Hash table, associates TCP stream index to http2_session_t object */
+    wmem_map_t *sessions;
+} http2_data_t;
 
 void proto_register_http2(void);
 void proto_reg_handoff_http2(void);
@@ -88,8 +114,14 @@ static int hf_http2_excl_dependency = -1;
 static int hf_http2_data_data = -1;
 static int hf_http2_data_padding = -1;
 /* Headers */
-static int hf_http2_headers    = -1;
+static int hf_http2_headers = -1;
 static int hf_http2_headers_padding = -1;
+static int hf_http2_header = -1;
+static int hf_http2_header_length = -1;
+static int hf_http2_header_name_length = -1;
+static int hf_http2_header_name = -1;
+static int hf_http2_header_value_length = -1;
+static int hf_http2_header_value = -1;
 /* RST Stream */
 static int hf_http2_rst_stream_error = -1;
 /* Settings */
@@ -134,6 +166,7 @@ static int hf_http2_altsvc_origin = -1;
 
 static gint ett_http2 = -1;
 static gint ett_http2_header = -1;
+static gint ett_http2_headers = -1;
 static gint ett_http2_flags = -1;
 static gint ett_http2_settings = -1;
 
@@ -246,6 +279,190 @@ static const value_string http2_settings_vals[] = {
     { HTTP2_SETTINGS_COMPRESS_DATA,          "Compress data" },
     { 0, NULL }
 };
+
+static http2_session_t*
+create_http2_session(packet_info *pinfo)
+{
+    conversation_t *conversation;
+    http2_data_t *http2;
+    http2_session_t *h2session;
+    struct tcp_analysis *tcpd;
+
+    conversation = find_or_create_conversation(pinfo);
+
+    http2 = (http2_data_t*)conversation_get_proto_data(conversation,
+                                                       proto_http2);
+
+    if(http2 == NULL) {
+        http2 = wmem_new(wmem_file_scope(), http2_data_t);
+
+        http2->sessions = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+
+        conversation_add_proto_data(conversation, proto_http2, http2);
+    }
+
+    tcpd = get_tcp_conversation_data(NULL, pinfo);
+
+    h2session = wmem_new(wmem_file_scope(), http2_session_t);
+    nghttp2_hd_inflate_new(&h2session->hd_inflater[0]);
+    nghttp2_hd_inflate_new(&h2session->hd_inflater[1]);
+    h2session->hd_inflater_first_flow = tcpd->fwd;
+
+    wmem_map_insert(http2->sessions, GUINT_TO_POINTER(tcpd->stream), h2session);
+
+    return h2session;
+}
+
+static http2_session_t*
+get_http2_session(packet_info *pinfo)
+{
+    conversation_t *conversation;
+    http2_data_t *http2;
+    http2_session_t *h2session;
+    struct tcp_analysis *tcpd;
+
+    conversation = find_or_create_conversation(pinfo);
+
+    http2 = (http2_data_t*)conversation_get_proto_data(conversation,
+                                                       proto_http2);
+
+    if(!http2) {
+        return NULL;
+    }
+
+    tcpd = get_tcp_conversation_data(NULL, pinfo);
+
+    h2session = (http2_session_t*)wmem_map_lookup(http2->sessions, GUINT_TO_POINTER(tcpd->stream));
+
+    return h2session;
+}
+
+static nghttp2_hd_inflater*
+select_http2_hd_inflater(packet_info *pinfo, http2_session_t *h2session)
+{
+    struct tcp_analysis *tcpd;
+
+    tcpd = get_tcp_conversation_data(NULL, pinfo);
+
+    if(tcpd->fwd == h2session->hd_inflater_first_flow) {
+        return h2session->hd_inflater[0];
+    } else {
+        return h2session->hd_inflater[1];
+    }
+}
+
+static void
+inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
+                           proto_tree *tree, size_t headlen,
+                           http2_session_t *h2session, guint8 flags)
+{
+    guint8 *headbuf;
+    proto_tree *header_tree;
+    proto_item *header, *ti;
+    int header_name_length;
+    int header_value_length;
+    const gchar *header_name;
+    const gchar *header_value;
+    int hoffset = 0;
+    nghttp2_hd_inflater *hd_inflater;
+    tvbuff_t *header_tvb = tvb_new_composite();
+    int rv;
+    int header_len = 0;
+    int final;
+    if(!h2session) {
+        /* We may not be able to track all HTTP/2 session if we miss
+           first magic (connection preface) */
+        return;
+    }
+
+    headbuf = (guint8*)wmem_alloc(wmem_packet_scope(), headlen);
+    tvb_memcpy(tvb, headbuf, offset, headlen);
+
+    hd_inflater = select_http2_hd_inflater(pinfo, h2session);
+
+    final = flags & HTTP2_FLAGS_END_HEADERS;
+
+    for(;;) {
+        nghttp2_nv nv;
+        int inflate_flags = 0;
+
+        rv = nghttp2_hd_inflate_hd(hd_inflater, &nv,
+                                   &inflate_flags, headbuf, headlen, final);
+
+        if(rv < 0) {
+            break;
+        }
+
+        headbuf += rv;
+        headlen -= rv;
+
+        if(inflate_flags & NGHTTP2_HD_INFLATE_EMIT) {
+            tvbuff_t *next_tvb;
+            char *str = (char *)g_malloc(4 + nv.namelen + 4  + nv.valuelen);
+            /* Prepare tvb buffer... with the following format
+               name length (uint32)
+               name (string)
+               value length (uint32)
+               value (string)
+
+            */
+            memcpy(&str[0], (char *)&nv.namelen, 4);
+            memcpy(&str[4], nv.name, nv.namelen);
+            memcpy(&str[4+nv.namelen], (char *)&nv.valuelen, 4);
+            memcpy(&str[4+nv.namelen+4], nv.value, nv.valuelen);
+
+            header_len += + 4 + nv.namelen + 4 + nv.valuelen;
+
+                /* Now setup the tvb buffer to have the new data */
+                next_tvb = tvb_new_child_real_data(tvb, str, 4+nv.namelen+4+nv.valuelen, 4+nv.namelen+4+nv.valuelen);
+                tvb_set_free_cb(next_tvb, g_free);
+                tvb_composite_append(header_tvb, next_tvb);
+        }
+        if(inflate_flags & NGHTTP2_HD_INFLATE_FINAL) {
+            nghttp2_hd_inflate_end_headers(hd_inflater);
+            break;
+        }
+        if((inflate_flags & NGHTTP2_HD_INFLATE_EMIT) == 0 &&
+           headlen == 0) {
+            break;
+        }
+    }
+    tvb_composite_finalize(header_tvb);
+    add_new_data_source(pinfo, header_tvb, "Decompressed Header");
+
+    ti = proto_tree_add_uint(tree, hf_http2_header_length, header_tvb, hoffset, 1, header_len);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    while (tvb_reported_length_remaining(header_tvb, hoffset) > 0) {
+        /* Populate tree with header name/value details. */
+        /* Add 'Header' subtree with description. */
+        header = proto_tree_add_item(tree, hf_http2_header, header_tvb, hoffset, -1, ENC_NA);
+        header_tree = proto_item_add_subtree(header, ett_http2_headers);
+
+        /* header value length */
+        proto_tree_add_item(header_tree, hf_http2_header_name_length, header_tvb, hoffset, 4, ENC_LITTLE_ENDIAN);
+        header_name_length = tvb_get_letohl(header_tvb, hoffset);
+        hoffset += 4;
+
+        /* Add header name. */
+        proto_tree_add_item(header_tree, hf_http2_header_name, header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA);
+        header_name = (gchar *)tvb_get_string_enc(wmem_packet_scope(), header_tvb, hoffset, header_name_length, ENC_ASCII|ENC_NA);
+        hoffset += header_name_length;
+
+        /* header value length */
+        proto_tree_add_item(header_tree, hf_http2_header_value_length, header_tvb, hoffset, 4, ENC_LITTLE_ENDIAN);
+        header_value_length = tvb_get_letohl(header_tvb, hoffset);
+        hoffset += 4;
+
+        /* Add header value. */
+        proto_tree_add_item(header_tree, hf_http2_header_value, header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA);
+        header_value = (gchar *)tvb_get_string_enc(wmem_packet_scope(),header_tvb, hoffset, header_value_length, ENC_ASCII|ENC_NA);
+        hoffset += header_value_length;
+
+        proto_item_append_text(header, ": %s: %s", header_name, header_value);
+        proto_item_set_len(header, 4 + header_name_length + 4 + header_value_length);
+    }
+}
 
 static guint8
 dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 type)
@@ -388,13 +605,18 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
 {
     guint16 padding;
     gint headlen;
+    http2_session_t *h2session;
+
+    h2session = get_http2_session(pinfo);
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
     offset = dissect_frame_prio(tvb, http2_tree, offset, flags);
 
-    /* TODO : Support header decompression */
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, headlen, ENC_ASCII|ENC_NA);
+
+    /* decompress the header block */
+    inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
 
     offset += headlen;
 
@@ -433,6 +655,10 @@ dissect_http2_settings(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_
     guint32 settingsid;
     proto_item *ti_settings;
     proto_tree *settings_tree;
+
+    /* FIXME: If we send SETTINGS_HEADER_TABLE_SIZE, after receiving
+       ACK from peer, we have to apply its value to HPACK decoder
+       using nghttp2_hd_inflate_change_table_size() */
 
     while(tvb_reported_length_remaining(tvb, offset) > 0){
 
@@ -479,6 +705,9 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 {
     guint16 padding;
     gint headlen;
+    http2_session_t *h2session;
+
+    h2session = get_http2_session(pinfo);
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
@@ -487,10 +716,11 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
                         offset, 4, ENC_NA);
     offset += 4;
 
-    /* TODO : Support header decompression */
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, headlen,
                         ENC_ASCII|ENC_NA);
+
+    inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
 
     offset += headlen;
 
@@ -555,12 +785,16 @@ dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
 {
     guint16 padding;
     gint headlen;
+    http2_session_t *h2session;
+
+    h2session = get_http2_session(pinfo);
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
-    /* TODO : Support "Reassemble Header" and header decompression */
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_continuation_header, tvb, offset, headlen, ENC_ASCII|ENC_NA);
+
+    inflate_http2_header_block(tvb, pinfo, offset, http2_tree, headlen, h2session, flags);
 
     offset +=  headlen;
 
@@ -660,6 +894,8 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
         proto_tree_add_item(http2_tree, hf_http2_magic, tvb, offset, MAGIC_FRAME_LENGTH, ENC_ASCII|ENC_NA);
 
+        create_http2_session(pinfo);
+
         return MAGIC_FRAME_LENGTH;
     }
 
@@ -736,7 +972,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             proto_tree_add_item(http2_tree, hf_http2_unknown, tvb, offset, -1, ENC_NA);
         break;
     }
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static guint get_http2_message_len( packet_info *pinfo _U_, tvbuff_t *tvb, int offset )
@@ -757,7 +993,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree *http2_tree;
 
     /* Check that there's enough data */
-    if (tvb_length(tvb) < FRAME_HEADER_LENGTH)
+    if (tvb_captured_length(tvb) < FRAME_HEADER_LENGTH)
         return 0;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "HTTP2");
@@ -771,7 +1007,7 @@ dissect_http2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tcp_dissect_pdus(tvb, pinfo, http2_tree, TRUE, FRAME_HEADER_LENGTH,
                      get_http2_message_len, dissect_http2_pdu, data);
 
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 static gboolean
@@ -972,7 +1208,36 @@ proto_register_http2(void)
                FT_BYTES, BASE_NONE, NULL, 0x0,
               "Padding octets", HFILL }
         },
-
+        { &hf_http2_header,
+            { "Header", "http2.header",
+               FT_NONE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_http2_header_length,
+            { "Header Length", "http2.header.length",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL }
+        },
+        { &hf_http2_header_name_length,
+            { "Name Length", "http2.header.name.length",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_header_name,
+            { "Name", "http2.header.name",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_header_value_length,
+            { "Value Length", "http2.header.value.length",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_http2_header_value,
+            { "Value", "http2.header.value",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
         /* RST Stream */
         { &hf_http2_rst_stream_error,
             { "Error", "http2.rst_stream.error",
@@ -1152,6 +1417,7 @@ proto_register_http2(void)
     static gint *ett[] = {
         &ett_http2,
         &ett_http2_header,
+        &ett_http2_headers,
         &ett_http2_flags,
         &ett_http2_settings
     };
