@@ -103,6 +103,7 @@ static int hf_mausb_payload = -1;
 /* expert info fields */
 static expert_field ei_ep_handle_len = EI_INIT;
 static expert_field ei_len = EI_INIT;
+static expert_field ei_len_dword = EI_INIT;
 static expert_field ei_mgmt_type_undef = EI_INIT;
 static expert_field ei_mgmt_type_spec_len_long = EI_INIT;
 static expert_field ei_mgmt_type_spec_len_short = EI_INIT;
@@ -925,6 +926,9 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tvb_reported_length(tvb) != header.length) {
         expert_add_info(pinfo, len_field, &ei_len);
     }
+    if (0 != header.length % 4) {
+        expert_add_info(pinfo, len_field, &ei_len_dword);
+    }
 
 
     /* Is the next field a device handle or an endpoint handle */
@@ -1390,6 +1394,10 @@ proto_register_mausb(void)
         { &ei_len,
             { "mausb.length", PI_MALFORMED, PI_ERROR,
               "Packet length field does not match size of packet", EXPFILL }
+        },
+        { &ei_len_dword,
+            { "mausb.length", PI_PROTOCOL, PI_WARN,
+              "Packet contains partial DWORD", EXPFILL }
         },
         { &ei_mgmt_type_undef,
             { "mausb.type", PI_PROTOCOL, PI_WARN,
