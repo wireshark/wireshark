@@ -352,9 +352,14 @@ wmem_time_allocator(wmem_allocator_type_t type)
 
     allocator = wmem_allocator_force_new(type);
 
-    for (j=0; j<128; j++) {
+    for (j=0; j<1024; j++) {
         for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
             wmem_alloc(allocator, 8);
+        }
+        wmem_free_all(allocator);
+
+        for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
+            wmem_alloc(allocator, 32);
         }
         wmem_free_all(allocator);
 
@@ -366,6 +371,7 @@ wmem_time_allocator(wmem_allocator_type_t type)
         for (i=0; i<MAX_SIMULTANEOUS_ALLOCS; i++) {
             wmem_alloc(allocator, 1024);
         }
+        wmem_free_all(allocator);
     }
 
     wmem_destroy_allocator(allocator);
