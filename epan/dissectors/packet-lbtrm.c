@@ -831,8 +831,8 @@ static int hf_lbtrm_sm_reserved = -1;
 static int hf_lbtrm_nak = -1;
 static int hf_lbtrm_nak_num_naks = -1;
 static int hf_lbtrm_nak_format = -1;
-static int hf_lbtrm_nak_naks = -1;
-static int hf_lbtrm_nak_nak = -1;
+static int hf_lbtrm_nak_list = -1;
+static int hf_lbtrm_nak_list_nak = -1;
 static int hf_lbtrm_ncf = -1;
 static int hf_lbtrm_ncf_trail_sqn = -1;
 static int hf_lbtrm_ncf_num_ncfs = -1;
@@ -840,8 +840,8 @@ static int hf_lbtrm_ncf_reserved = -1;
 static int hf_lbtrm_ncf_reason_format = -1;
 static int hf_lbtrm_ncf_reason_format_reason = -1;
 static int hf_lbtrm_ncf_reason_format_format = -1;
-static int hf_lbtrm_ncf_ncfs = -1;
-static int hf_lbtrm_ncf_ncf = -1;
+static int hf_lbtrm_ncf_list = -1;
+static int hf_lbtrm_ncf_list_ncf = -1;
 static int hf_lbtrm_analysis = -1;
 static int hf_lbtrm_analysis_prev_frame = -1;
 static int hf_lbtrm_analysis_prev_data_frame = -1;
@@ -901,7 +901,7 @@ static int dissect_lbtrm_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
     int idx = 0;
     int len = 0;
 
-    ncf_item = proto_tree_add_item(tree, hf_lbtrm_ncf_ncfs, tvb, offset + len, (int)(sizeof(lbm_uint32_t) * ncf_count), ENC_NA);
+    ncf_item = proto_tree_add_item(tree, hf_lbtrm_ncf_list, tvb, offset + len, (int)(sizeof(lbm_uint32_t) * ncf_count), ENC_NA);
     ncf_tree = proto_item_add_subtree(ncf_item, ett_lbtrm_ncf_list);
 
     for (idx = 0; idx < ncf_count; idx++)
@@ -909,7 +909,7 @@ static int dissect_lbtrm_ncf_list(tvbuff_t * tvb, int offset, packet_info * pinf
         proto_item * sep_ncf_item = NULL;
 
         ncf = tvb_get_ntohl(tvb, offset + len);
-        sep_ncf_item = proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_ncf, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
+        sep_ncf_item = proto_tree_add_item(ncf_tree, hf_lbtrm_ncf_list_ncf, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
         if (lbtrm_expert_separate_ncfs)
         {
             expert_add_info_format(pinfo, sep_ncf_item, &ei_lbtrm_analysis_ncf_ncf, "NCF 0x%08x %s", ncf, val_to_str(reason, lbtrm_ncf_reason, "Unknown (0x%02x)"));
@@ -968,7 +968,7 @@ static int dissect_lbtrm_nak_list(tvbuff_t * tvb, int offset, packet_info * pinf
     int idx = 0;
     int len = 0;
 
-    nak_item = proto_tree_add_item(tree, hf_lbtrm_nak_naks, tvb, offset + len, (int)(sizeof(lbm_uint32_t) * nak_count), ENC_NA);
+    nak_item = proto_tree_add_item(tree, hf_lbtrm_nak_list, tvb, offset + len, (int)(sizeof(lbm_uint32_t) * nak_count), ENC_NA);
     nak_tree = proto_item_add_subtree(nak_item, ett_lbtrm_nak_list);
 
     for (idx = 0; idx < nak_count; idx++)
@@ -976,7 +976,7 @@ static int dissect_lbtrm_nak_list(tvbuff_t * tvb, int offset, packet_info * pinf
         proto_item * sep_nak_item = NULL;
 
         nak = tvb_get_ntohl(tvb, offset + len);
-        sep_nak_item = proto_tree_add_item(nak_tree, hf_lbtrm_nak_nak, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
+        sep_nak_item = proto_tree_add_item(nak_tree, hf_lbtrm_nak_list_nak, tvb, offset + len, sizeof(lbm_uint32_t), ENC_BIG_ENDIAN);
         if (lbtrm_expert_separate_naks)
         {
             expert_add_info_format(pinfo, sep_nak_item, &ei_lbtrm_analysis_nak_nak, "NAK 0x%08x", nak);
@@ -1614,9 +1614,9 @@ void proto_register_lbtrm(void)
         { &hf_lbtrm_data,
             { "Data Header", "lbtrm.data", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_data_sqn,
-            { "Sequence Number", "lbtrm.data.sqn", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Sequence Number", "lbtrm.data.sqn", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_data_trail_sqn,
-            { "Trailing Edge Sequence Number", "lbtrm.data.trail_sqn", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Trailing Edge Sequence Number", "lbtrm.data.trail_sqn", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_data_flags_fec_type,
             { "FEC Flags", "lbtrm.data.flags_fec_type", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_data_flags_fec_type_ucast_naks,
@@ -1630,11 +1630,11 @@ void proto_register_lbtrm(void)
         { &hf_lbtrm_sm,
             { "Session Message Header", "lbtrm.sm", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_sm_sm_sqn,
-            { "Sequence Number", "lbtrm.sm.sm_sqn", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Sequence Number", "lbtrm.sm.sm_sqn", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_sm_lead_sqn,
-            { "Lead Sequence Number", "lbtrm.sm.lead_sqn", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Lead Sequence Number", "lbtrm.sm.lead_sqn", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_sm_trail_sqn,
-            { "Trail Sequence Number", "lbtrm.sm.trail_sqn", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Trail Sequence Number", "lbtrm.sm.trail_sqn", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_sm_flags_fec_type,
             { "FEC Flags", "lbtrm.sm.flags_fec_type", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_sm_flags_fec_type_ucast_naks,
@@ -1649,14 +1649,14 @@ void proto_register_lbtrm(void)
             { "Number of NAKs", "lbtrm.nak.num_naks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_nak_format,
             { "Format", "lbtrm.nak.format", FT_UINT8, BASE_HEX, VALS(lbtrm_nak_format), LBTRM_NAK_HDR_FORMAT_MASK, NULL, HFILL } },
-        { &hf_lbtrm_nak_naks,
-            { "NAK List", "lbtrm.nak.naks", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_lbtrm_nak_nak,
-            { "NAK", "lbtrm.nak.nak", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbtrm_nak_list,
+            { "NAK List", "lbtrm.nak.list", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbtrm_nak_list_nak,
+            { "NAK", "lbtrm.nak.list.nak", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_ncf,
             { "NAK Confirmation Header", "lbtrm.ncf", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_ncf_trail_sqn,
-            { "Trailing Sequence Number", "lbtrm.ncf.trail_sqn", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Trailing Sequence Number", "lbtrm.ncf.trail_sqn", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_ncf_num_ncfs,
             { "Number of Individual NCFs", "lbtrm.ncf.num_ncfs", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_ncf_reserved,
@@ -1667,10 +1667,10 @@ void proto_register_lbtrm(void)
             { "Reason", "lbtrm.ncf.reason", FT_UINT8, BASE_HEX, VALS(lbtrm_ncf_reason), LBTRM_NCF_HDR_REASON_MASK, NULL, HFILL } },
         { &hf_lbtrm_ncf_reason_format_format,
             { "Format", "lbtrm.ncf.format", FT_UINT8, BASE_HEX, VALS(lbtrm_ncf_format), LBTRM_NCF_HDR_FORMAT_MASK, NULL, HFILL } },
-        { &hf_lbtrm_ncf_ncfs,
-            { "NCF List", "lbtrm.ncf.ncfs", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_lbtrm_ncf_ncf,
-            { "NCF", "lbtrm.ncf.ncf", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbtrm_ncf_list,
+            { "NCF List", "lbtrm.ncf.list", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_lbtrm_ncf_list_ncf,
+            { "NCF", "lbtrm.ncf.list.ncf", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_analysis,
             { "Transport Analysis", "lbtrm.transport", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_lbtrm_analysis_prev_frame,
