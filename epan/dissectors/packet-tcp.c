@@ -4092,7 +4092,7 @@ tcp_flags_to_str(const struct tcpheader *tcph)
     if (tcph->th_flags & TH_RES) {
         if (buf[0])
             pbuf = g_stpcpy(pbuf, ", ");
-        pbuf = g_stpcpy(pbuf, "Reserved");
+        g_stpcpy(pbuf, "Reserved");
     }
 
     if (buf[0] == '\0')
