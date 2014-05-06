@@ -130,6 +130,13 @@ static int hf_ieee_802_1_subtype = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_supported = -1;
 static int hf_ieee_802_1_port_and_vlan_id_flag_enabled = -1;
+static int hf_ieee_802_1_port_vlan_id = -1;
+static int hf_ieee_802_1_port_proto_vlan_id = -1;
+static int hf_ieee_802_1_vlan_id = -1;
+static int hf_ieee_802_1_vlan_name_length = -1;
+static int hf_ieee_802_1_vlan_name = -1;
+static int hf_ieee_802_1_proto_id_length = -1;
+static int hf_ieee_802_1_proto_id = -1;
 static int hf_ieee_8021qau_cnpv_prio0 = -1;
 static int hf_ieee_8021qau_cnpv_prio1 = -1;
 static int hf_ieee_8021qau_cnpv_prio2 = -1;
@@ -1040,7 +1047,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		case 2:	/* Interface alias */
 		case 6: /* Interface name */
 		case 7:	/* Locally assigned */
-			proto_tree_add_text(chassis_tree, tvb, (offset+3), (tempLen-1), "Chassis Id: %s", strPtr);
+			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+3), (tempLen-1), ENC_NA);
 			proto_item_append_text(tf, ", Id: %s", strPtr);
 			break;
 		case 1:	/* Chassis component */
@@ -1663,10 +1670,10 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	{
 	case 0x01:	/* Port VLAN ID */
 	{
-		/* Get port vland id */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
+			proto_tree_add_item(tree, hf_ieee_802_1_port_vlan_id, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+		tempOffset +=2;
 
 		break;
 	}
@@ -1684,34 +1691,33 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 		tempOffset++;
 
-		/* Get port and protocol vlan id */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Port and Protocol VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
+			proto_tree_add_item(tree, hf_ieee_802_1_port_proto_vlan_id, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
+		tempOffset +=2;
 
 		break;
 	}
 	case 0x03:	/* VLAN Name */
 	{
-		/* Get vlan id */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "VLAN Identifier: %u (0x%04X)", tempShort, tempShort);
+			proto_tree_add_item(tree, hf_ieee_802_1_vlan_id, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
 		tempOffset += 2;
 
 		/* Get vlan name length */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "VLAN Name Length: %u", tempByte);
+			proto_tree_add_item(tree, hf_ieee_802_1_vlan_name_length, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		if (tempByte > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "VLAN Name: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tempByte));
+				proto_tree_add_item(tree, hf_ieee_802_1_vlan_name, tvb, tempOffset, tempByte, ENC_ASCII|ENC_NA);
+
+			tempOffset += tempByte;
 		}
 
 		break;
@@ -1721,15 +1727,16 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		/* Get protocal id length */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Protocol Identity Length: %u", tempByte);
+			proto_tree_add_item(tree, hf_ieee_802_1_proto_id_length, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		if (tempByte > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tempByte, "Protocol Identity: %s",
-					tvb_bytes_to_ep_str(tvb, tempOffset, tempByte));
+				proto_tree_add_item(tree, hf_ieee_802_1_proto_id, tvb, tempOffset, tempByte, ENC_ASCII|ENC_NA);
+
+			tempOffset += tempByte;
 		}
 
 		break;
@@ -3671,6 +3678,34 @@ proto_register_lldp(void)
 		{ &hf_ieee_802_1_port_and_vlan_id_flag_enabled,
 			{ "Port and Protocol VLAN", "lldp.ieee.802_1.port_and_vlan_id_flag.enabled", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_port_vlan_id,
+			{ "Port VLAN Identifier", "lldp.ieee.802_1.port_vlan.id", FT_UINT16, BASE_DEC_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_port_proto_vlan_id,
+			{ "Port and Protocol VLAN Identifier", "lldp.ieee.802_1.port_proto_vlan.id", FT_UINT16, BASE_DEC_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_vlan_id,
+			{ "VLAN Identifier", "lldp.ieee.802_1.vlan.id", FT_UINT16, BASE_DEC_HEX,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_vlan_name_length,
+			{ "VLAN Name Length", "lldp.ieee.802_1.vlan.name_len", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_vlan_name,
+			{ "VLAN Name", "lldp.ieee.802_1.vlan.name", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_proto_id_length,
+			{ "Protocol Identity Length", "lldp.ieee.802_1.proto.id_length", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1_proto_id,
+			{ "Protocol Identity", "lldp.ieee.802_1.proto.id", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_ieee_8021qau_cnpv_prio0,
 			{ "Priority 0 CNPV Capability", "lldp.ieee.802_1qau.cnpv.prio0", FT_BOOLEAN, 8,
