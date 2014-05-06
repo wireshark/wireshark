@@ -2783,9 +2783,9 @@ printf("CHOICE dissect_ber_choice(%s) entered len:%d\n", name, tvb_length_remain
             if (branch_taken) {
                 *branch_taken = -1;
             }
+            continue;
         }
 
-choice_try_again:
 #ifdef DEBUG_BER_CHOICE
 printf("CHOICE testing potential subdissector class[%p]:%d:(expected)%d  tag:%d:(expected)%d flags:%d\n", ch, ber_class, ch->ber_class, tag, ch->tag, ch->flags);
 #endif
@@ -2887,7 +2887,7 @@ name = "unnamed";
 printf("CHOICE dissect_ber_choice(%s) trying again\n", name);
 }
 #endif
-                goto choice_try_again;
+                continue;
             }
             if (!(ch->flags & BER_FLAGS_NOOWNTAG)) {
                 if (ind) {
