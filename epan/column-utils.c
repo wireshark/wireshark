@@ -346,7 +346,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
         va_list ap2;
 
         G_VA_COPY(ap2, ap);
-        g_vsnprintf(&cinfo->col_buf[i][len], max_len - len, format, ap2);
+        g_vsnprintf(&cinfo->col_buf[i][len], (guint32)(max_len - len), format, ap2);
       }
     }
   }
