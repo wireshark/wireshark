@@ -1841,6 +1841,14 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
                         $errorCount++;
                 }
+		if ($convert =~ m/^VALS\(&.*\)/) {
+                        print STDERR "Error: $hf is passing the address of a pointer to VALS in $filename\n";
+                        $errorCount++;
+		}
+		if ($convert =~ m/^RVALS\(&.*\)/) {
+                        print STDERR "Error: $hf is passing the address of a pointer to RVALS in $filename\n";
+                        $errorCount++;
+		}
 ## Benign...
 ##              if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
 ##                      print STDERR "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
