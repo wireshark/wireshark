@@ -45,7 +45,7 @@ wspython_dist_dir = wspython
 py_dissectors_dir = -DPYTHONDIR=
 endif
 
-SUBDIRS = crypt ftypes dfilter dissectors wmem $(wslua_dir) $(wspython_dir)
+SUBDIRS = crypt ftypes dfilter dissectors nghttp2 wmem $(wslua_dir) $(wspython_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir) $(wspython_dist_dir)
 
@@ -138,7 +138,7 @@ libwireshark_la_LIBADD = \
 	libwireshark_asmopt.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la dissectors/libfiledissectors.la \
-	wmem/libwmem.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
+	nghttp2/libnghttp2.la wmem/libwmem.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
 	@KRB5_LIBS@ @SSL_LIBS@ @LIBSMI_LDFLAGS@ @GEOIP_LIBS@ \
 	${top_builddir}/wiretap/libwiretap.la @GLIB_LIBS@ \
@@ -148,7 +148,7 @@ libwireshark_la_DEPENDENCIES = \
 	libwireshark_generated.la \
 	libwireshark_asmopt.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
-	dissectors/libdirtydissectors.la wmem/libwmem.la $(wslua_lib) $(wspython_lib) \
+	dissectors/libdirtydissectors.la nghttp2/libnghttp2.la wmem/libwmem.la $(wslua_lib) $(wspython_lib) \
 	${top_builddir}/wsutil/libwsutil.la \
 	${top_builddir}/wiretap/libwiretap.la
 

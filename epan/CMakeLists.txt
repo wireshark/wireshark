@@ -47,6 +47,7 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/ftypes
 	${CMAKE_CURRENT_SOURCE_DIR}/wslua
 	${CMAKE_CURRENT_SOURCE_DIR}/wspython
+	${CMAKE_CURRENT_SOURCE_DIR}/nghttp2
 )
 
 set(CRYPT_FILES
@@ -1482,6 +1483,15 @@ set(WMEM_FILES
 )
 source_group(wmem FILES ${WMEM_FILES})
 
+set(NGHTTP2_FILES
+	nghttp2/nghttp2_buf.c
+	nghttp2/nghttp2_hd.c
+	nghttp2/nghttp2_hd_huffman.c
+	nghttp2/nghttp2_hd_huffman_data.c
+	nghttp2/nghttp2_helper.c
+)
+source_group(nghttp2 FILES ${NGHTTP2_FILES})
+
 ADD_CUSTOM_TARGET(
     update-sminmpec
     COMMAND ${PERL_EXECUTABLE}
@@ -1638,6 +1648,7 @@ set(CLEAN_FILES
 	${DISSECTOR_SUPPORT_SRC}
 	${LIBWIRESHARK_ASM_FILES}
 	${WMEM_FILES}
+	${NGHTTP2_FILES}
 	${WSLUA_FILES}
 	${WSPYTHON_FILES}
 )
@@ -1659,6 +1670,7 @@ add_library(epan ${LINK_MODE_LIB}
 	${DFILTER_FILES}
 	${FTYPE_FILES}
 	${WMEM_FILES}
+	${NGHTTP2_FILES}
 	${WSLUA_FILES}
 	${WSPYTHON_FILES}
 	${DISSECTOR_FILES}
@@ -1681,13 +1693,15 @@ file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
 file(GLOB FTYPES_HEADERS ftypes/*.h)
 file(GLOB WMEM_HEADERS wmem/*.h)
+file(GLOB NGHTTP2_HEADERS nghttp2/*.h)
 file(MAKE_DIRECTORY ${ABICHECK_TMPDIR}
 	${ABICHECK_TMPDIR}/epan
 	${ABICHECK_TMPDIR}/crypt
 	${ABICHECK_TMPDIR}/dfilter
 	${ABICHECK_TMPDIR}/dissectors
 	${ABICHECK_TMPDIR}/ftypes
-	${ABICHECK_TMPDIR}/wmem)
+	${ABICHECK_TMPDIR}/wmem
+	${ABICHECK_TMPDIR}/nghttp2)
 
 file(COPY ../color.h ../register.h DESTINATION ${ABICHECK_TMPDIR})
 file(COPY ${HEADERS} DESTINATION ${ABICHECK_TMPDIR}/epan)
@@ -1696,6 +1710,7 @@ file(COPY ${DFILTER_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/dfilter)
 file(COPY ${D_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/dissectors)
 file(COPY ${FTYPES_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/ftypes)
 file(COPY ${WMEM_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/wmem)
+file(COPY ${NGHTTP2_HEADERS} DESTINATION ${ABICHECK_TMPDIR}/nghttp2)
 
 add_custom_command(OUTPUT libwireshark.abi.tar.gz
 	COMMAND cp ../config.h ${ABICHECK_TMPDIR}
@@ -1710,9 +1725,10 @@ add_custom_command(OUTPUT libwireshark.abi.tar.gz
 		${ABICHECK_TMPDIR}/epan/* ${ABICHECK_TMPDIR}/crypt/*
 		${ABICHECK_TMPDIR}/dfilter/* ${ABICHECK_TMPDIR}/dissectors/*
 		${ABICHECK_TMPDIR}/ftypes/* ${ABICHECK_TMPDIR}/wmem/*
+		${ABICHECK_TMPDIR}/nghttp2/*
 	DEPENDS ${HEADERS}
 		${CRYPT_HEADERS} ${DFILTER_HEADERS} ${D_HEADERS}
-		${FTYPES_HEADERS} ${WMEM_HEADERS} epan)
+		${FTYPES_HEADERS} ${WMEM_HEADERS} ${NGHTTP2_HEADERS} epan)
 
 # By default the name for a library with target name epan will be libepan,
 # but Ethereal is now named Wireshark

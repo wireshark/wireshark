@@ -2894,6 +2894,7 @@ AC_OUTPUT(
   epan/dissectors/dcerpc/Makefile
   epan/dissectors/pidl/Makefile
   epan/ftypes/Makefile
+  epan/nghttp2/Makefile
   epan/wmem/Makefile
   epan/wslua/Makefile
   epan/wspython/Makefile

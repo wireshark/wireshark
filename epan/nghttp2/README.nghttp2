@@ -1,0 +1,30 @@
+Code from nghttp2 library ( https://github.com/tatsuhiro-t/nghttp2)
+Thanks for Tatsuhiro Tsujikawa for permission to use nghttp2 lib.
+
+Update library from source
+
+download (clone) last release of nghttp2
+and in folder epan/nghttp2 copy following file
+
+cp ../../../nghttp2/lib/nghttp2_buf.[ch] .
+cp ../../../nghttp2/lib/nghttp2_hd*.[ch] .
+cp ../../../nghttp2/lib/nghttp2_helper.[ch] .
+cp ../../../nghttp2/lib/nghttp2_int.h .
+cp ../../../nghttp2/lib/nghttp2_net.h .
+cp ../../../nghttp2/lib/includes/nghttp2/nghttp2.h .
+cp ../../../nghttp2/lib/includes/nghttp2/nghttp2ver.h .
+
+Change path to nghttp2.h
+find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2.h>/<nghttp2.h>/g'  {} \;
+
+Change path to nghttp2ver.h
+find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2ver.h>/<nghttp2ver.h>/g'  {} \;
+
+Fix c++-compat error
+
+in nghttp2/nghttp2_helper.h remove check for CONFIG.H
+
+in nghttp2/nghttp2.h
+
+Add on the top
+#include "config.h"
