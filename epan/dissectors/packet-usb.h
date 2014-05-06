@@ -204,7 +204,7 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
 int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
-                                usb_trans_info_t *usb_trans_info _U_,
+                                usb_trans_info_t *usb_trans_info,
                                 usb_conv_info_t  *usb_conv_info _U_);
 
 int
