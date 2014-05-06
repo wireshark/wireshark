@@ -92,8 +92,7 @@ static guint kafka_port = 0;
 #define KAFKA_FETCH         1
 #define KAFKA_OFFSET        2
 #define KAFKA_METADATA      3
-#define KAFKA_LEADER_ISR    4
-#define KAFKA_STOP_REPLICA  5
+/* 4-7 are "non-user facing control APIs" and are not documented */
 #define KAFKA_OFFSET_COMMIT 8
 #define KAFKA_OFFSET_FETCH  9
 static const value_string kafka_apis[] = {
@@ -101,8 +100,6 @@ static const value_string kafka_apis[] = {
     { KAFKA_FETCH,         "Fetch"          },
     { KAFKA_OFFSET,        "Offset"         },
     { KAFKA_METADATA,      "Metadata"       },
-    { KAFKA_LEADER_ISR,    "Leader and ISR" },
-    { KAFKA_STOP_REPLICA,  "Stop Replica"   },
     { KAFKA_OFFSET_COMMIT, "Offset Commit"  },
     { KAFKA_OFFSET_FETCH,  "Offset Fetch"   },
     { 0, NULL }
@@ -119,10 +116,12 @@ static const value_string kafka_errors[] = {
     { 6, "Not Leader For Partition" },
     { 7, "Request Timed Out" },
     { 8, "Broker Not Available" },
-    { 9, "Replica Not Available" },
     { 10, "Message Size Too Large" },
     { 11, "Stale Controller Epoch Code" },
     { 12, "Offset Metadata Too Large" },
+    { 14, "Offsets Load In Progress" },
+    { 15, "Consumer Coordinator Not Available" },
+    { 16, "Not Coordinator For Consumer" },
     { 0, NULL }
 };
 
@@ -326,7 +325,7 @@ dissect_kafka_message_set(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     return offset;
 }
 
-/* OFFSET FETCH REQUEST */
+/* OFFSET FETCH REQUEST/RESPONSE */
 
 static int
 dissect_kafka_offset_fetch_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -364,8 +363,6 @@ dissect_kafka_offset_fetch_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     return offset;
 }
-
-/* OFFSET FETCH RESPONSE */
 
 static int
 dissect_kafka_offset_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int start_offset)
@@ -417,7 +414,7 @@ dissect_kafka_offset_fetch_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_offset_fetch_response_topic);
 }
 
-/* METADATA REQUEST */
+/* METADATA REQUEST/RESPONSE */
 
 static int
 dissect_kafka_metadata_request_topic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
@@ -430,8 +427,6 @@ dissect_kafka_metadata_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_metadata_request_topic);
 }
-
-/* METADATA RESPONSE */
 
 static int
 dissect_kafka_metadata_broker(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int start_offset)
@@ -550,7 +545,7 @@ dissect_kafka_metadata_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     return offset;
 }
 
-/* FETCH REQUEST */
+/* FETCH REQUEST/RESPONSE */
 
 static int
 dissect_kafka_fetch_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -608,8 +603,6 @@ dissect_kafka_fetch_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-/* FETCH RESPONSE */
-
 static int
 dissect_kafka_fetch_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int start_offset)
 {
@@ -663,7 +656,7 @@ dissect_kafka_fetch_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return dissect_kafka_array(tree, tvb, pinfo, offset, &dissect_kafka_fetch_response_topic);
 }
 
-/* PRODUCE REQUEST */
+/* PRODUCE REQUEST/RESPONSE */
 
 static int
 dissect_kafka_produce_request_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
@@ -716,8 +709,6 @@ dissect_kafka_produce_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
     return offset;
 }
-
-/* PRODUCE RESPONSE */
 
 static int
 dissect_kafka_produce_response_partition(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
