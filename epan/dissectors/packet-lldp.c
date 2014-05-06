@@ -1775,7 +1775,10 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree) {
 			proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_willing, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_ieee_8021az_feature_flag_cbs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_ieee_8021az_maxtcs, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempByte = (tvb_get_guint8(tvb, tempOffset) & 0x7);
+			/* 0 implies 8 trafffic classes supported */
+			proto_tree_add_uint_format_value(tree, hf_ieee_8021az_maxtcs, tvb, tempOffset, 1, tempByte, "%u (0x%X)", tempByte ? tempByte : 8, tempByte);
 
 			tempOffset++;
 
