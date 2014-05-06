@@ -858,7 +858,7 @@ get_latitude_or_longitude(int option, guint64 value)
 
 /* Dissect Chassis Id TLV (Mandatory) */
 static gint32
-dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 tempType;
 	guint16 tempShort;
@@ -1055,12 +1055,11 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
 /* Dissect Port Id TLV (Mandatory) */
 static gint32
-dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
+dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 tempType;
 	guint16 tempShort;
 	guint32 tempLen = 0;
-	const char *strPtr;
 	guint32 ip_addr = 0;
 	struct e_in6_addr ip6_addr;
 	guint8 addr_family = 0;
@@ -1077,54 +1076,6 @@ dissect_lldp_port_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint3
 	/* Get tlv length and subtype */
 	tempLen = TLV_INFO_LEN(tempShort);
 	tempType = tvb_get_guint8(tvb, (offset+2));
-
-	/* Get port id */
-	switch (tempType)
-	{
-	case 3:	/* MAC address */
-	{
-		if (tempLen != 7)
-			return -1;	/* Invalid port id */
-
-		strPtr = tvb_ether_to_str(tvb, offset+3);
-
-		break;
-	}
-	case 4:	/* Network address */
-	{
-		/* Get network address family */
-		addr_family = tvb_get_guint8(tvb,offset+3);
-		/* Check for IPv4 or IPv6 */
-		switch(addr_family){
-		case AFNUM_INET:
-			if (tempLen == 6){
-				ip_addr = tvb_get_ipv4(tvb, (offset+4));
-				strPtr = ip_to_str((guint8 *)&ip_addr);
-			}else{
-				return -1;
-			}
-			break;
-		case AFNUM_INET6:
-			if (tempLen == 18){
-				tvb_get_ipv6(tvb, (offset+4), &ip6_addr);
-				strPtr = ip6_to_str(&ip6_addr);
-			}else{
-				return -1;	/* Invalid chassis id */
-			}
-			break;
-		default:
-			strPtr = tvb_bytes_to_ep_str(tvb, (offset+4), (tempLen-2));
-			break;
-		}
-		break;
-	}
-	default:
-	{
-		strPtr = tvb_format_stringzpad(tvb, (offset+3), (tempLen-1));
-
-		break;
-	}
-	}
 
 	if (tree)
 	{
