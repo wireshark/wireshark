@@ -1273,8 +1273,6 @@ dissect_lldp_system_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 			proto_tree_add_item(system_subtree, hf_lldp_tlv_system_name, tvb, offset, tempLen, ENC_ASCII|ENC_NA);
 		else
 			proto_tree_add_item(system_subtree, hf_lldp_tlv_system_desc, tvb, offset, tempLen, ENC_ASCII|ENC_NA);
-
-		offset += tempLen;
 	}
 
 	return (tempLen + 2);
