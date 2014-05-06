@@ -53,7 +53,7 @@ typedef enum
 #define PDCP_SN_LENGTH_15_BITS 15
 
 enum security_integrity_algorithm_e { eia0, eia1, eia2, eia3 };
-enum security_ciphering_algorithm_e { eea0, eea1, eea2 };
+enum security_ciphering_algorithm_e { eea0, eea1, eea2, eea3 };
 
 typedef struct pdcp_security_info_t
 {

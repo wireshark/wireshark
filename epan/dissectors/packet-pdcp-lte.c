@@ -412,6 +412,7 @@ static const value_string integrity_algorithm_vals[] = {
     { 0,   "EIA0" },
     { 1,   "EIA1" },
     { 2,   "EIA2" },
+    { 3,   "EIA3" },
     { 0,   NULL }
 };
 
@@ -419,6 +420,7 @@ static const value_string ciphering_algorithm_vals[] = {
     { 0,   "EEA0" },
     { 1,   "EEA1" },
     { 2,   "EEA2" },
+    { 3,   "EEA3" },
     { 0,   NULL }
 };
 
