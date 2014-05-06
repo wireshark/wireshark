@@ -110,6 +110,7 @@ const value_string result_code_vals[] = {
 	{14,	"Input bytes requested beyond end of message" },
 	{15,	"Maximum number of UDVM cycles reached" },
 	{16,	"UDVM stack underflow" },
+	{17,	"state_length is 0, but state_begin is non-zero" },
 	{ 255,	"This branch isn't coded yet" },
 	{ 0,    NULL }
 };
