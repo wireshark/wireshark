@@ -1430,8 +1430,8 @@ static int
 add_session_tracker_entry_to_tree(tvbuff_t *tvb, packet_info *pinfo, proto_item *tree, int offset) {
 	guint8 data_type; /* session tracker type */
 	guint64 length; /* complete length of session tracking entry */
-	guint64 lenstr, lenfle;
-	int orig_offset = offset;
+	guint64 lenstr;
+	int orig_offset = offset, lenfle;
 	proto_item *item, *ti;
 	proto_tree *session_track_tree;
 
