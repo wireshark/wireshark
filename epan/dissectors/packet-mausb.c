@@ -1218,8 +1218,8 @@ proto_register_mausb(void)
             }
         },
         { &hf_mausb_eps_rsvd,
-            { "EP Status", "mausb.eps", FT_UINT8, BASE_HEX,
-              "Reserved" , MAUSB_EPS_MASK, NULL, HFILL
+            { "EP Status", "mausb.eps.reserved", FT_UINT8, BASE_HEX,
+              NULL, MAUSB_EPS_MASK, NULL, HFILL
             }
         },
         { &hf_mausb_tflags,
