@@ -690,7 +690,6 @@ static guint32 buffer_size_median[64] = {
     150001  /* BS > 150000 */
 };
 
-
 static const value_string ext_buffer_size_vals[] =
 {
     { 0,      "BS = 0"},
@@ -760,6 +759,73 @@ static const value_string ext_buffer_size_vals[] =
     { 0, NULL }
 };
 static value_string_ext ext_buffer_size_vals_ext = VALUE_STRING_EXT_INIT(ext_buffer_size_vals);
+
+static guint32 ext_buffer_size_median[64] = {
+    0,  /* BS = 0 */
+    5,  /* 0 < BS <= 10 */
+    12, /* 10 < BS <= 13 */
+    15, /* 13 < BS <= 16 */
+    18, /* 16 < BS <= 19 */
+    21, /* 19 < BS <= 23 */
+    26, /* 23 < BS <= 29 */
+    32, /* 29 < BS <= 35 */
+    39, /* 35 < BS <= 43 */
+    48, /* 43 < BS <= 53 */
+    59, /* 53 < BS <= 65 */
+    73, /* 65 < BS <= 80 */
+    89, /* 80 < BS <= 98 */
+    109, /* 98 < BS <= 120 */
+    134, /* 120 < BS <= 147 */
+    164, /* 147 < BS <= 181 */
+    202, /* 181 < BS <= 223 */
+    249, /* 223 < BS <= 274 */
+    306, /* 274 < BS <= 337 */
+    376, /* 337 < BS <= 414 */
+    462, /* 414 < BS <= 509 */
+    567, /* 509 < BS <= 625 */
+    697, /* 625 < BS <= 769 */
+    857, /* 769 < BS <= 945 */
+    1054, /* 945 < BS <= 1162 */
+    1296, /* 1162 < BS <= 1429 */
+    1593, /* 1429 < BS <= 1757 */
+    1959, /* 1757 < BS <= 2161 */
+    2409, /* 2161 < BS <= 2657 */
+    2962, /* 2657 < BS <= 3267 */
+    5142, /* 3267 < BS <= 4017 */
+    4479, /* 4017 < BS <= 4940 */
+    5507, /* 4940 < BS <= 6074 */
+    6772, /* 6074 < BS <= 7469 */
+    8327, /* 7469 < BS <= 9185 */
+    10240, /* 9185 < BS <= 11294 */
+    12591, /* 11294 < BS <= 13888 */
+    15483, /* 13888 < BS <= 17077 */
+    19038, /* 17077 < BS <= 20999 */
+    23411, /* 20999 < BS <= 25822 */
+    28787, /* 25822 < BS <= 31752 */
+    35399, /* 31752 < BS <= 39045 */
+    43529, /* 39045 < BS <= 48012 */
+    53526, /* 48012 < BS <= 59039 */
+    65819, /* 59039 < BS <= 72598 */
+    80935, /* 72598 < BS <= 89272 */
+    99523, /* 89272 < BS <= 109774 */
+    122380, /* 109774 < BS <= 134986 */
+    150488, /* 134986 < BS <= 165989 */
+    185050, /* 165989 < BS <= 204111 */
+    227551, /* 204111 < BS <= 250990 */
+    279812, /* 250990 < BS <= 308634 */
+    344077, /* 308634 < BS <= 379519 */
+    423101, /* 379519 < BS <= 466683 */
+    520275, /* 466683 < BS <= 573866 */
+    705748, /* 573866 < BS <= 705666 */
+    786702, /* 705666 < BS <= 867737 */
+    967384, /* 867737 < BS <= 1067031 */
+    1189564, /* 1067031 < BS <= 1312097 */
+    1462772, /* 1312097 < BS <= 1613447 */
+    1798728, /* 1613447 < BS <= 1984009 */
+    2211844, /* 1984009 < BS <= 2439678 */
+    2719839, /* 2439678 < BS <= 3000000 */
+    3000001  /* BS > 3000000 */
+};
 
 static const value_string power_headroom_vals[] =
 {
@@ -1884,7 +1950,22 @@ static gboolean get_mac_lte_rapid_description(guint8 rapid, const gchar **descri
     }
 }
 
+/**************************************************************************/
+/* Tracking of extended BSR sizes configuration                           */
 
+static GHashTable *mac_lte_ue_ext_bsr_sizes_hash = NULL;
+
+static void
+get_mac_lte_ue_ext_bsr_sizes(mac_lte_info *p_mac_lte_info)
+{
+    gpointer p_orig_key, p_ext_bsr_sizes;
+
+    if (g_hash_table_lookup_extended(mac_lte_ue_ext_bsr_sizes_hash,
+                                     GUINT_TO_POINTER((guint)p_mac_lte_info->ueid),
+                                     &p_orig_key, &p_ext_bsr_sizes)) {
+        p_mac_lte_info->isExtendedBSRSizes = (gboolean)GPOINTER_TO_UINT(p_ext_bsr_sizes);
+    }
+}
 
 /* Forward declarations */
 int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
@@ -4289,13 +4370,19 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         guint8 buffer_size;
                         int hfindex;
                         value_string_ext *p_vs_ext;
+                        guint32 *p_buffer_size_median;
 
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            get_mac_lte_ue_ext_bsr_sizes(p_mac_lte_info);
+                        }
                         if (p_mac_lte_info->isExtendedBSRSizes) {
                             hfindex = hf_mac_lte_control_short_ext_bsr_buffer_size;
                             p_vs_ext = &ext_buffer_size_vals_ext;
+                            p_buffer_size_median = ext_buffer_size_median;
                         } else {
                             hfindex = hf_mac_lte_control_short_bsr_buffer_size;
                             p_vs_ext = &buffer_size_vals_ext;
+                            p_buffer_size_median = buffer_size_median;
                         }
 
                         bsr_ti = proto_tree_add_string_format(tree,
@@ -4315,7 +4402,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
-                            proto_item *bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size]);
+                            proto_item *bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size]);
                             PROTO_ITEM_SET_GENERATED(bsr_median_ti);
                         }
                         offset++;
@@ -4332,7 +4419,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         proto_item_append_text(bsr_ti, " (lcgid=%u  %s)",
                                                lcgid,
-                                               val_to_str_ext_const(buffer_size, &buffer_size_vals_ext, "Unknown"));
+                                               val_to_str_ext_const(buffer_size, p_vs_ext, "Unknown"));
                     }
                     break;
                 case LONG_BSR_LCID:
@@ -4343,19 +4430,25 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         guint8     buffer_size[4];
                         int hfindex[4];
                         value_string_ext *p_vs_ext;
+                        guint32 *p_buffer_size_median;
 
+                        if (!PINFO_FD_VISITED(pinfo)) {
+                            get_mac_lte_ue_ext_bsr_sizes(p_mac_lte_info);
+                        }
                         if (p_mac_lte_info->isExtendedBSRSizes) {
                             hfindex[0] = hf_mac_lte_control_long_ext_bsr_buffer_size_0;
                             hfindex[1] = hf_mac_lte_control_long_ext_bsr_buffer_size_1;
                             hfindex[2] = hf_mac_lte_control_long_ext_bsr_buffer_size_2;
                             hfindex[3] = hf_mac_lte_control_long_ext_bsr_buffer_size_3;
                             p_vs_ext = &ext_buffer_size_vals_ext;
+                            p_buffer_size_median = ext_buffer_size_median;
                         } else {
                             hfindex[0] = hf_mac_lte_control_long_bsr_buffer_size_0;
                             hfindex[1] = hf_mac_lte_control_long_bsr_buffer_size_1;
                             hfindex[2] = hf_mac_lte_control_long_bsr_buffer_size_2;
                             hfindex[3] = hf_mac_lte_control_long_bsr_buffer_size_3;
                             p_vs_ext = &buffer_size_vals_ext;
+                            p_buffer_size_median = buffer_size_median;
                         }
 
                         bsr_ti = proto_tree_add_string_format(tree,
@@ -4372,7 +4465,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
-                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[0]]);
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[0]]);
                             PROTO_ITEM_SET_GENERATED(bsr_median_ti);
                         }
 
@@ -4391,7 +4484,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
-                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[1]]);
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[1]]);
                             PROTO_ITEM_SET_GENERATED(bsr_median_ti);
                         }
 
@@ -4412,7 +4505,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
-                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[2]]);
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[2]]);
                             PROTO_ITEM_SET_GENERATED(bsr_median_ti);
                         }
 
@@ -4432,7 +4525,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                         if (global_mac_lte_show_BSR_median) {
                             /* Add value that can be graphed */
-                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, buffer_size_median[buffer_size[3]]);
+                            bsr_median_ti = proto_tree_add_uint(bsr_tree, hf_mac_lte_bsr_size_median, tvb, offset, 1, p_buffer_size_median[buffer_size[3]]);
                             PROTO_ITEM_SET_GENERATED(bsr_median_ti);
                         }
 
@@ -5634,7 +5727,9 @@ static void mac_lte_init_protocol(void)
     if (mac_lte_drx_frame_result) {
         g_hash_table_destroy(mac_lte_drx_frame_result);
     }
-
+    if (mac_lte_ue_ext_bsr_sizes_hash) {
+        g_hash_table_destroy(mac_lte_ue_ext_bsr_sizes_hash);
+    }
 
     /* Reset structs */
     memset(&UL_tti_info, 0, sizeof(UL_tti_info));
@@ -5661,6 +5756,8 @@ static void mac_lte_init_protocol(void)
 
     mac_lte_drx_ue_state = g_hash_table_new(mac_lte_rnti_hash_func, mac_lte_rnti_hash_equal);
     mac_lte_drx_frame_result = g_hash_table_new(mac_lte_framenum_instance_hash_func, mac_lte_framenum_instance_hash_equal);
+
+    mac_lte_ue_ext_bsr_sizes_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
 
     /* Forget this setting */
     s_rapid_ranges_configured = FALSE;
@@ -5829,7 +5926,12 @@ void set_mac_lte_rapid_ranges(guint group_A, guint all_RA)
     s_rapid_ranges_configured = TRUE;
 }
 
-
+/* Configure the DRX state for this UE (from RRC) */
+void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes)
+{
+    g_hash_table_insert(mac_lte_ue_ext_bsr_sizes_hash, GUINT_TO_POINTER((guint)ueid),
+                        GUINT_TO_POINTER((guint)use_ext_bsr_sizes));
+}
 
 /* Function to be called from outside this module (e.g. in a plugin) to get per-packet data */
 mac_lte_info *get_mac_lte_proto_data(packet_info *pinfo)

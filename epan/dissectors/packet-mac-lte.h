@@ -333,6 +333,8 @@ void set_mac_lte_drx_config_release(guint16 ueid,  packet_info *pinfo);
 /* RRC can tell this dissector which RAPIDs are Group A, Group A&B */
 void set_mac_lte_rapid_ranges(guint groupA, guint all_RA);
 
+/* RRC can indicate whether extended BSR sizes are used */
+void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes);
 
 /* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
    isn't available) to get/set per-packet data */

@@ -787,6 +787,17 @@ CQI-ReportConfigSCell-r10/nomPDSCH-RS-EPRE-Offset-r10 STRINGS=VALS(lte_rrc_nomPD
 #.FN_FTR MAC-MainConfig/eag_1/sr-ProhibitTimer-r9
   proto_item_append_text(actx->created_item, " SR period%s", (timer > 1) ? "s" : "");
 
+#.FN_BODY MAC-MainConfig/eag_2/mac-MainConfig-v1020/extendedBSR-Sizes-r10
+  mac_lte_info* p_mac_lte_info;
+
+%(DEFAULT_BODY)s
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* Tell MAC to use extended BSR sizes configuration */
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE);
+  }
+
 #.FN_BODY PDSCH-ConfigCommon/referenceSignalPower
 %(DEFAULT_BODY)s
   proto_item_append_text(actx->created_item, "dBm");
@@ -1538,6 +1549,8 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
     /* We do release the configuration here instead of RRC Connection Release message */
     /* as the UE could have locally dropped the previous RRC Connection */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+    /* Also tell MAC to release extended BSR sizes configuration */
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE);
     /* TODO: also release PDCP security config here */
   }
 %(DEFAULT_BODY)s

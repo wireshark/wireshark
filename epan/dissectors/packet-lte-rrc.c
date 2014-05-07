@@ -13776,8 +13776,18 @@ static const value_string lte_rrc_T_extendedBSR_Sizes_r10_vals[] = {
 
 static int
 dissect_lte_rrc_T_extendedBSR_Sizes_r10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  mac_lte_info* p_mac_lte_info;
+
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
+
+  /* Look for UE identifier */
+  p_mac_lte_info = (mac_lte_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_lte, 0);
+  if (p_mac_lte_info != NULL) {
+    /* Tell MAC to use extended BSR sizes configuration */
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, TRUE);
+  }
+
 
   return offset;
 }
@@ -18878,6 +18888,8 @@ dissect_lte_rrc_RRCConnectionSetup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
     /* We do release the configuration here instead of RRC Connection Release message */
     /* as the UE could have locally dropped the previous RRC Connection */
     set_mac_lte_drx_config_release(p_mac_lte_info->ueid, actx->pinfo);
+    /* Also tell MAC to release extended BSR sizes configuration */
+    set_mac_lte_extended_bsr_sizes(p_mac_lte_info->ueid, FALSE);
     /* TODO: also release PDCP security config here */
   }
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
