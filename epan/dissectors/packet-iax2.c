@@ -102,6 +102,10 @@ static int hf_iax2_video_csub = -1;
 static int hf_iax2_video_codec = -1;
 static int hf_iax2_marker = -1;
 static int hf_iax2_modem_csub = -1;
+static int hf_iax2_text_csub = -1;
+static int hf_iax2_text_text = -1;
+static int hf_iax2_html_csub = -1;
+static int hf_iax2_html_url = -1;
 static int hf_iax2_trunk_metacmd = -1;
 static int hf_iax2_trunk_cmddata = -1;
 static int hf_iax2_trunk_cmddata_ts = -1;
@@ -358,6 +362,27 @@ static const value_string iax_modem_subclasses[] = {
   {2, "V.150"},
   {0, NULL}
 };
+
+/* Subclasses for Text packets */
+static const value_string iax_text_subclasses[] = {
+  {0, "Text"},
+  {0, NULL}
+};
+
+/* Subclasses for HTML packets */
+static const value_string iax_html_subclasses[] = {
+  {0x01, "Sending a URL"},
+  {0x02, "Data frame"},
+  {0x04, "Beginning frame"},
+  {0x08, "End frame"},
+  {0x10, "Load is complete"},
+  {0x11, "Peer does not support HTML"},
+  {0x12, "Link URL"},
+  {0x13, "Unlink URL"},
+  {0x14, "Reject Link URL"},
+  {0, NULL}
+};
+
 
 /* Information elements */
 static const value_string iax_ies_type[] = {
@@ -1783,7 +1808,36 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
                       val_to_str(csub, iax_modem_subclasses, "unknown (0x%02x)"));
     break;
 
+  case AST_FRAME_TEXT:
+    proto_tree_add_item(packet_type_tree, hf_iax2_text_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
+    offset += 10;
+
+    {
+      int textlen = tvb_captured_length_remaining(tvb, offset);
+      if (textlen > 0)
+      {
+        proto_tree_add_item(packet_type_tree, hf_iax2_text_text, tvb, offset, textlen, ENC_UTF_8|ENC_NA);
+        offset += textlen;
+      }
+    }
+    break;
+
   case AST_FRAME_HTML:
+    proto_tree_add_item(packet_type_tree, hf_iax2_html_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
+    offset += 10;
+
+    if (csub == 0x01)
+    {
+      int urllen = tvb_captured_length_remaining(tvb, offset);
+      if (urllen > 0)
+      {
+        proto_item *pi = proto_tree_add_item(packet_type_tree, hf_iax2_html_url, tvb, offset, urllen, ENC_UTF_8|ENC_NA);
+        PROTO_ITEM_SET_URL(pi);
+        offset += urllen;
+      }
+    }
+    break;
+
   case AST_FRAME_CNG:
   default:
     proto_tree_add_uint(packet_type_tree, hf_iax2_csub, tvb, offset+9,
@@ -2540,6 +2594,30 @@ proto_register_iax2(void)
      {"Modem subclass", "iax2.modem.subclass",
       FT_UINT8, BASE_DEC, VALS(iax_modem_subclasses), 0x0,
       "Modem subclass gives the type of modem",
+      HFILL}},
+
+    {&hf_iax2_text_csub,
+     {"Text subclass", "iax2.text.subclass",
+      FT_UINT8, BASE_DEC, VALS(iax_text_subclasses), 0x0,
+      NULL,
+      HFILL}},
+
+    {&hf_iax2_text_text,
+     {"Text", "iax2.text.text",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL,
+      HFILL}},
+
+    {&hf_iax2_html_csub,
+     {"HTML subclass", "iax2.html.subclass",
+      FT_UINT8, BASE_DEC, VALS(iax_html_subclasses), 0x0,
+      NULL,
+      HFILL}},
+
+    {&hf_iax2_html_url,
+     {"HTML URL", "iax2.html.url",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL,
       HFILL}},
 
     {&hf_iax2_trunk_ts,
