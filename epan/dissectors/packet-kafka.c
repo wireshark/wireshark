@@ -88,20 +88,22 @@ static gint ett_kafka_response_partition = -1;
 
 static guint kafka_port = 0;
 
-#define KAFKA_PRODUCE       0
-#define KAFKA_FETCH         1
-#define KAFKA_OFFSET        2
-#define KAFKA_METADATA      3
+#define KAFKA_PRODUCE            0
+#define KAFKA_FETCH              1
+#define KAFKA_OFFSET             2
+#define KAFKA_METADATA           3
 /* 4-7 are "non-user facing control APIs" and are not documented */
-#define KAFKA_OFFSET_COMMIT 8
-#define KAFKA_OFFSET_FETCH  9
+#define KAFKA_OFFSET_COMMIT      8
+#define KAFKA_OFFSET_FETCH       9
+#define KAFKA_CONSUMER_METADATA 10
 static const value_string kafka_apis[] = {
-    { KAFKA_PRODUCE,       "Produce"        },
-    { KAFKA_FETCH,         "Fetch"          },
-    { KAFKA_OFFSET,        "Offset"         },
-    { KAFKA_METADATA,      "Metadata"       },
-    { KAFKA_OFFSET_COMMIT, "Offset Commit"  },
-    { KAFKA_OFFSET_FETCH,  "Offset Fetch"   },
+    { KAFKA_PRODUCE,           "Produce"             },
+    { KAFKA_FETCH,             "Fetch"               },
+    { KAFKA_OFFSET,            "Offset"              },
+    { KAFKA_METADATA,          "Metadata"            },
+    { KAFKA_OFFSET_COMMIT,     "Offset Commit"       },
+    { KAFKA_OFFSET_FETCH,      "Offset Fetch"        },
+    { KAFKA_CONSUMER_METADATA, "Consumer Metadata"   },
     { 0, NULL }
 };
 
