@@ -143,51 +143,6 @@
 #define HASHIPXNETSIZE    256
 #define SUBNETLENGTHSIZE   32  /*1-32 inc.*/
 
-/* g_int64_hash() and g_int64_equal() first appear in GLib 2.22, make a local copy here */
-#if !GLIB_CHECK_VERSION(2,22,0)
-/**
- * g_int64_equal:
- * @v1: a pointer to a #gint64 key
- * @v2: a pointer to a #gint64 key to compare with @v1
- *
- * Compares the two #gint64 values being pointed to and returns
- * %TRUE if they are equal.
- * It can be passed to g_hash_table_new() as the @key_equal_func
- * parameter, when using non-%NULL pointers to 64-bit integers as keys in a
- * #GHashTable.
- *
- * Returns: %TRUE if the two keys match.
- *
- * Since: 2.22
- */
-static gboolean
-g_int64_equal (gconstpointer v1,
-               gconstpointer v2)
-{
-    return *((const gint64*) v1) == *((const gint64*) v2);
-}
-
-/**
- * g_int64_hash:
- * @v: a pointer to a #gint64 key
- *
- * Converts a pointer to a #gint64 to a hash value.
- *
- * It can be passed to g_hash_table_new() as the @hash_func parameter,
- * when using non-%NULL pointers to 64-bit integer values as keys in a
- * #GHashTable.
- *
- * Returns: a hash value corresponding to the key.
- *
- * Since: 2.22
- */
-static guint
-g_int64_hash (gconstpointer v)
-{
-    return (guint) *(const gint64*) v;
-}
-
-#endif /* GLIB_CHECK_VERSION(2,22,0) */
 /* hash table used for IPv4 lookup */
 
 #define HASH_IPV4_ADDRESS(addr) (g_htonl(addr) & (HASHHOSTSIZE - 1))
@@ -1311,9 +1266,8 @@ get_ethbyaddr(const guint8 *addr)
 static void
 add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
 {
-    guint8       oct;
-    gint64      eth_as_int64, *wka_key;
-    int         eth_as_int, *manuf_key;
+    guint8 *wka_key;
+    int    *manuf_key;
 
     /*
      * XXX - can we use Standard Annotation Language annotations to
@@ -1328,30 +1282,12 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
         return;
     }
 
-    eth_as_int64 = addr[0];
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[1];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[2];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[3];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[4];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[5];
-    eth_as_int64 = eth_as_int64 | oct;
-
     if (mask == 0) {
         /* This is a manufacturer ID; add it to the manufacturer ID hash table */
 
         /* manuf needs only the 3 most significant octets of the ethernet address */
         manuf_key = (int *)g_new(int, 1);
-        eth_as_int =  (int)(eth_as_int64>>24)&0xffffff;
-        *manuf_key = eth_as_int;
+        *manuf_key = (int)((addr[2] << 16) + (addr[1] << 8) + addr[0]);
 
         g_hash_table_insert(manuf_hashtable, manuf_key, g_strdup(name));
         return;
@@ -1360,8 +1296,8 @@ add_manuf_name(const guint8 *addr, unsigned int mask, gchar *name)
     /* This is a range of well-known addresses; add it to the appropriate
        well-known-address table, creating that table if necessary. */
 
-    wka_key = (gint64 *)g_new(gint64, 1);
-    *wka_key = eth_as_int64;
+    wka_key = (guint8 *)g_malloc(6);
+    memcpy(wka_key, addr, 6);
 
     g_hash_table_insert(wka_hashtable, wka_key, g_strdup(name));
 
@@ -1413,8 +1349,6 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
     guint8     masked_addr[6];
     guint      num;
     gint       i;
-    gint64     eth_as_int64;
-    guint8     oct;
     gchar     *name;
 
     if(wka_hashtable == NULL){
@@ -1430,28 +1364,23 @@ wka_name_lookup(const guint8 *addr, const unsigned int mask)
     for (; i < 6; i++)
         masked_addr[i] = 0;
 
-    eth_as_int64 = masked_addr[0];
-    eth_as_int64 = eth_as_int64<<8;
-    oct = masked_addr[1];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = masked_addr[2];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = masked_addr[3];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = masked_addr[4];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = masked_addr[5];
-    eth_as_int64 = eth_as_int64 | oct;
-
-    name = (gchar *)g_hash_table_lookup(wka_hashtable, &eth_as_int64);
+    name = (gchar *)g_hash_table_lookup(wka_hashtable, masked_addr);
 
     return name;
 
 } /* wka_name_lookup */
+
+static guint
+eth_addr_hash(gconstpointer key)
+{
+    return wmem_strong_hash((const guint8 *)key, 6);
+}
+
+static gboolean
+eth_addr_cmp(gconstpointer a, gconstpointer b)
+{
+    return (memcmp(a, b, 6) == 0);
+}
 
 static void
 initialize_ethers(void)
@@ -1461,9 +1390,9 @@ initialize_ethers(void)
     guint    mask;
 
     /* hash table initialization */
-    wka_hashtable   = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
+    wka_hashtable   = g_hash_table_new_full(eth_addr_hash, eth_addr_cmp, g_free, g_free);
     manuf_hashtable = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
-    eth_hashtable   = g_hash_table_new_full(g_int64_hash, g_int64_equal, g_free, g_free);
+    eth_hashtable   = g_hash_table_new_full(eth_addr_hash, eth_addr_cmp, NULL, g_free);
 
     /* Compute the pathname of the ethers file. */
     if (g_ethers_path == NULL) {
@@ -1631,43 +1560,11 @@ eth_addr_resolve(hashether_t *tp) {
     g_assert_not_reached();
 } /* eth_addr_resolve */
 
-static gint64
-eth_to_int64(const guint8 *addr)
-{
-    guint8 oct;
-    gint64 eth_as_int64;
-
-    eth_as_int64 = addr[0];
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[1];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[2];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[3];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[4];
-    eth_as_int64 = eth_as_int64 | oct;
-    eth_as_int64 = eth_as_int64<<8;
-    oct = addr[5];
-    eth_as_int64 = eth_as_int64 | oct;
-
-    return eth_as_int64;
-}
-
 static hashether_t *
 eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
 {
     hashether_t *tp;
-    gint64       eth_as_int64, *key;
     char *endp;
-
-    eth_as_int64 = eth_to_int64(addr);
-
-    key = (gint64 *)g_new(gint64, 1);
-    *key = eth_as_int64;
 
     tp = g_new(hashether_t, 1);
     memcpy(tp->addr, addr, sizeof(tp->addr));
@@ -1680,7 +1577,7 @@ eth_hash_new_entry(const guint8 *addr, const gboolean resolve)
     if (resolve)
         eth_addr_resolve(tp);
 
-    g_hash_table_insert(eth_hashtable, key, tp);
+    g_hash_table_insert(eth_hashtable, tp->addr, tp);
 
     return tp;
 } /* eth_hash_new_entry */
@@ -1689,11 +1586,8 @@ static hashether_t *
 add_eth_name(const guint8 *addr, const gchar *name)
 {
     hashether_t *tp;
-    gint64       eth_as_int64;
 
-    eth_as_int64 = eth_to_int64(addr);
-
-    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, &eth_as_int64);
+    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, addr);
 
     if( tp == NULL ){
         tp = eth_hash_new_entry(addr, FALSE);
@@ -1710,11 +1604,8 @@ static hashether_t *
 eth_name_lookup(const guint8 *addr, const gboolean resolve)
 {
     hashether_t  *tp;
-    gint64       eth_as_int64;
 
-    eth_as_int64 = eth_to_int64(addr);
-
-    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, &eth_as_int64);
+    tp = (hashether_t *)g_hash_table_lookup(eth_hashtable, addr);
     if( tp == NULL ) {
         tp = eth_hash_new_entry(addr, resolve);
     } else {
