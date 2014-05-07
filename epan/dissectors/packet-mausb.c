@@ -369,8 +369,8 @@ static const value_string mausb_status_string[] = {
 #define MAUSB_MGMT_NUM_EP_HANDLE_PAD_MASK \
             (DWORD_MASK & !(MAUSB_MGMT_NUM_EP_DES_MASK))
 #define MAUSB_MGMT_EP_DES_PAD_MASK \
-            (DWORD_MASK & !(MAUSB_MGMT_NUM_EP_DES_MASK | \
-                           MAUSB_MGMT_SIZE_EP_DES_MASK))
+            ((DWORD_MASK & !(MAUSB_MGMT_NUM_EP_DES_MASK | \
+                           MAUSB_MGMT_SIZE_EP_DES_MASK)) >> 8)
 
 
 /* EPHandleResp Bitfield Masks */
@@ -555,6 +555,9 @@ static gint ett_mgmt = -1;
 #define MAUSB_SIZE_MAUSB_EP_DES 16
 
 
+/* Size of EPHandleResp Descriptor */
+#define MAUSB_SIZE_EP_HANDLE 2
+
 
 /* Dissects a MAUSB endpoint handle */
 static gint dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, gint offset)
@@ -564,19 +567,19 @@ static gint dissect_ep_handle(proto_tree *tree, tvbuff_t *tvb, gint offset)
     proto_tree *ep_handle_tree;
 
     ti = proto_tree_add_item(tree, hf_mausb_ep_handle, tvb,
-        offset, 2, ENC_LITTLE_ENDIAN);
+        offset, MAUSB_SIZE_EP_HANDLE, ENC_LITTLE_ENDIAN);
 
     ep_handle_tree = proto_item_add_subtree(ti, ett_mausb_ep_handle);
     proto_tree_add_item(ep_handle_tree, hf_mausb_ep_handle_d, tvb,
-        offset, 2, ENC_LITTLE_ENDIAN);
+        offset, MAUSB_SIZE_EP_HANDLE, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ep_handle_tree, hf_mausb_ep_handle_ep_num, tvb,
-        offset, 2, ENC_LITTLE_ENDIAN);
+        offset, MAUSB_SIZE_EP_HANDLE, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ep_handle_tree, hf_mausb_ep_handle_dev_addr, tvb,
-        offset, 2, ENC_LITTLE_ENDIAN);
+        offset, MAUSB_SIZE_EP_HANDLE, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ep_handle_tree, hf_mausb_ep_handle_bus_num, tvb,
-        offset, 2, ENC_LITTLE_ENDIAN);
+        offset, MAUSB_SIZE_EP_HANDLE, ENC_LITTLE_ENDIAN);
 
-    return 2;
+    return MAUSB_SIZE_EP_HANDLE;
 
 }
 
@@ -599,11 +602,11 @@ static guint8 mausb_get_size_ep_des(tvbuff_t *tvb, gint offset)
 
 /* dissects portions of a MA USB packet specific to Endpoint Handle Request packets */
 static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb,
-            packet_info *pinfo, gint16 start, gboolean req)
+            packet_info *pinfo, gint16 start, gboolean req, gboolean del)
 {
     usb_trans_info_t usb_trans_info;
     usb_conv_info_t usb_conv_info;
-    proto_item *size_field;
+    proto_item *size_field = NULL;
     guint16 offset = start;
     guint16 loop_offset;
     guint8 num_ep;
@@ -615,9 +618,15 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
 
     num_ep = tvb_get_guint8(tvb, offset) & MAUSB_MGMT_NUM_EP_DES_MASK;
 
-    if (req) {
+    if (!del) {
         proto_tree_add_item(tree, hf_mausb_mgmt_ep_des_num, tvb,
             offset, 1, ENC_LITTLE_ENDIAN); /* really 5 bits */
+    } else {
+        proto_tree_add_item(tree, hf_mausb_mgmt_ep_handle_num, tvb,
+            offset, 1, ENC_LITTLE_ENDIAN); /* really 5 bits */
+    }
+
+     if (req && !del) {
 
         size_ep_des = mausb_get_size_ep_des(tvb, offset);
         size_field = proto_tree_add_item(tree, hf_mausb_mgmt_ep_des_size, tvb,
@@ -629,21 +638,31 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
             offset, 3, ENC_NA);
         offset += 3;
 
-    } else {
-        proto_tree_add_item(tree, hf_mausb_mgmt_ep_handle_num, tvb,
-            offset, 1, ENC_LITTLE_ENDIAN); /* really 5 bits */
-
+    } else if (!req && !del) {
+        size_ep_des = MAUSB_SIZE_MAUSB_EP_DES;
         proto_tree_add_item(tree, hf_mausb_mgmt_ep_handle_pad, tvb,
             offset, 4, ENC_NA); /* really 5 bits */
         /* Padding to DWORD */
         offset += 4;
-        size_ep_des = MAUSB_SIZE_MAUSB_EP_DES;
+
+    } else { /* If it is an EPHandleDelete Req or Resp */
+        size_ep_des = MAUSB_SIZE_EP_HANDLE;
+        /* Padding to DWORD */
+        proto_tree_add_item(tree, hf_mausb_mgmt_ep_handle_pad, tvb,
+            offset, 4, ENC_NA);
+        offset += 4; /* Padding to DWORD */
+
     }
 
+    /* For every entry */
     for (i = 0; i < num_ep; ++i) {
         loop_offset = offset;
 
-        if (req) {
+        /* If it is an EPHandleDelete Req or Resp */
+        if (del) {
+            loop_offset += dissect_ep_handle(tree, tvb, loop_offset);
+
+        } else if (req && !del) {
 
             /* Standard USB Endpoint Descriptor */
             dissect_usb_endpoint_descriptor(pinfo, tree, tvb, loop_offset,
@@ -729,7 +748,7 @@ static guint16 dissect_mausb_mgmt_pkt_ep_handle( proto_tree *tree, tvbuff_t *tvb
 
         offset += size_ep_des;
 
-        if (req && loop_offset != offset){
+        if (req && !del && loop_offset != offset){
             expert_add_info(pinfo, size_field, &ei_ep_handle_len);
         }
 
@@ -765,12 +784,12 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     /* subtypes with variable length additional data */
     case EPHandleReq:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
-                                                  offset, TRUE);
+                                                  offset, TRUE, FALSE);
     break;
 
     case EPHandleResp:
         offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
-                                                  offset, FALSE);
+                                                  offset, FALSE, FALSE);
     break;
 
     /* TODO: Dissect type-specific managment packet fields */
@@ -783,7 +802,13 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case EPClearTransferReq:
     case EPClearTransferResp:
     case EPHandleDeleteReq:
+        offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
+                                                  offset, TRUE, TRUE);
+    break;
     case EPHandleDeleteResp:
+        offset = dissect_mausb_mgmt_pkt_ep_handle(mgmt_tree, tvb, pinfo,
+                                                  offset, FALSE, TRUE);
+    break;
     case ModifyEP0Resp:
     case EPCloseStreamResp:
     case USBDevResetReq:
@@ -1304,11 +1329,10 @@ proto_register_mausb(void)
               NULL, MAUSB_MGMT_NUM_EP_HANDLE_PAD_MASK, NULL, HFILL
             }
         },
-
         { &hf_mausb_mgmt_ep_des_num,
             { "Number of Endpoint Descriptors", "mausb.ep_des_num",
               FT_UINT8, BASE_DEC,
-              NULL, MAUSB_MGMT_EP_DES_PAD_MASK, NULL, HFILL
+              NULL, MAUSB_MGMT_NUM_EP_DES_MASK, NULL, HFILL
             }
         },
         { &hf_mausb_mgmt_ep_des_size,
@@ -1320,7 +1344,7 @@ proto_register_mausb(void)
         { &hf_mausb_mgmt_ep_des_pad,
             { "Padding to a DWORD", "mausb.ep_des_pad",
               FT_NONE, 0, NULL,
-              !(MAUSB_MGMT_NUM_EP_DES_MASK | MAUSB_MGMT_SIZE_EP_DES_MASK),
+              MAUSB_MGMT_EP_DES_PAD_MASK,
               NULL, HFILL
             }
         },
