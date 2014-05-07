@@ -671,7 +671,7 @@ void proto_register_mqpcf(void)
         { &hf_mq_pcf_prmid       , { "ParmID...", "mqpcf.parm.id"        , FT_UINT32 , BASE_DEC, VALS(mq_PrmId_vals), 0x0, "MQPCF parameter id", HFILL }},
         { &hf_mq_pcf_prmidnovals , { "ParmID...", "mqpcf.parm.idNoVals"  , FT_UINT32 , BASE_HEX_DEC, NULL, 0x0, "MQPCF parameter id No Vals", HFILL }},
         { &hf_mq_pcf_filterop    , { "FilterOP.", "mqpcf.filter.op"      , FT_UINT32 , BASE_DEC, VALS(mq_FilterOP_vals), 0x0, "MQPCF Filter operator", HFILL }},
-        { &hf_mq_pcf_prmccsid    , { "ParmCCSID", "mqpcf.parm.ccsid"     , FT_UINT32 , BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(mq_ccsid_rvals), 0x0, "MQPCF parameter ccsid", HFILL }},
+        { &hf_mq_pcf_prmccsid    , { "ParmCCSID", "mqpcf.parm.ccsid"     , FT_UINT32 , BASE_DEC | BASE_RANGE_STRING, RVALS(mq_ccsid_rvals), 0x0, "MQPCF parameter ccsid", HFILL }},
         { &hf_mq_pcf_prmstrlen   , { "ParmStrLn", "mqpcf.parm.strlen"    , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter strlen", HFILL }},
         { &hf_mq_pcf_prmcount    , { "ParmCount", "mqpcf.parm.count"     , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter count", HFILL }},
         { &hf_mq_pcf_prmunused   , { "ParmUnuse", "mqpcf.parm.unused"    , FT_UINT32 , BASE_DEC, NULL, 0x0, "MQPCF parameter unused", HFILL }},
