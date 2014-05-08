@@ -1960,6 +1960,8 @@ get_mac_lte_ue_ext_bsr_sizes(mac_lte_info *p_mac_lte_info)
 {
     gpointer p_orig_key, p_ext_bsr_sizes;
 
+    /* Use the _extended function to check the key presence and avoid overriding a
+       value already set by the framing protocol while no RRC value is configured */
     if (g_hash_table_lookup_extended(mac_lte_ue_ext_bsr_sizes_hash,
                                      GUINT_TO_POINTER((guint)p_mac_lte_info->ueid),
                                      &p_orig_key, &p_ext_bsr_sizes)) {
