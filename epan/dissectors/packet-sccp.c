@@ -715,6 +715,7 @@ static expert_field ei_sccp_no_ssn_present = EI_INIT;
 static expert_field ei_sccp_ssn_zero = EI_INIT;
 static expert_field ei_sccp_class_unexpected = EI_INIT;
 static expert_field ei_sccp_handling_invalid = EI_INIT;
+static expert_field ei_sccp_gt_digits_missing = EI_INIT;
 
 
 static gboolean sccp_reassemble = TRUE;
@@ -1758,6 +1759,11 @@ dissect_sccp_global_title(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                         tvb, offset, GT_NAI_LENGTH, nai);
 
     offset += GT_NAI_LENGTH;
+  }
+
+  if(length == 0){
+      expert_add_info(pinfo, gt_item, &ei_sccp_gt_digits_missing);
+      return;
   }
 
   /* Decode address signal(s) */
@@ -4052,6 +4058,7 @@ proto_register_sccp(void)
      { &ei_sccp_ssn_zero, { "sccp.ssn.is_zero", PI_PROTOCOL, PI_WARN, "Message is routed on SSN, but SSN is zero (unspecified)", EXPFILL }},
      { &ei_sccp_class_unexpected, { "sccp.class_unexpected", PI_MALFORMED, PI_ERROR, "Unexpected message class for this message type", EXPFILL }},
      { &ei_sccp_handling_invalid, { "sccp.handling_invalid", PI_MALFORMED, PI_ERROR, "Invalid message handling", EXPFILL }},
+     { &ei_sccp_gt_digits_missing, { "sccp.gt_digits_missing", PI_MALFORMED, PI_ERROR, "Address digits missing", EXPFILL }},
   };
 
   module_t *sccp_module;
