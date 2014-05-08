@@ -34,6 +34,7 @@ The following bugs have been fixed:
 //* Wireshark will strip the paint off your car, then apply a hideous
 //flame job to the hood and fenders using gray, red, and black primer.
 //(ws-buglink:0000[])
+* TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
 
 === New and Updated Features
 
