@@ -5926,7 +5926,7 @@ void set_mac_lte_rapid_ranges(guint group_A, guint all_RA)
     s_rapid_ranges_configured = TRUE;
 }
 
-/* Configure the DRX state for this UE (from RRC) */
+/* Configure the BSR sizes for this UE (from RRC) */
 void set_mac_lte_extended_bsr_sizes(guint16 ueid, gboolean use_ext_bsr_sizes)
 {
     g_hash_table_insert(mac_lte_ue_ext_bsr_sizes_hash, GUINT_TO_POINTER((guint)ueid),
