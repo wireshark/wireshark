@@ -4048,9 +4048,11 @@ capture_loop_write_packet_cb(u_char *pcap_opts_p, const struct pcap_pkthdr *phdr
             global_ld.err = err;
             pcap_opts->dropped++;
         } else {
+#if defined(DEBUG_DUMPCAP) || defined(DEBUG_CHILD_DUMPCAP)
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_INFO,
                   "Wrote a packet of length %d captured on interface %u.",
                    phdr->caplen, pcap_opts->interface_id);
+#endif
             global_ld.packet_count++;
             pcap_opts->received++;
             /* if the user told us to stop after x packets, do we already have enough? */
