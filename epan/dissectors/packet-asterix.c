@@ -7170,17 +7170,14 @@ static guint8 asterix_bit (guint8 b, guint8 bitNo)
 
 /* Function makes gint64 two's complement.
  * Only the bit_len bit are set in gint64. All more significant
- * bits need to be set to to have proper two's complement.
+ * bits need to be set to have proper two's complement.
  * If the number is negative, all other bits must be set to 1.
  * If the number is positive, all other bits must remain 0. */
 static void twos_complement (gint64 *v, guint8 bit_len)
 {
-    guint64 i, to_stuff;
-    i = (G_GUINT64_CONSTANT(1) << (bit_len - 1));
-    to_stuff = *v & i;
-    i = 0;
-    if (to_stuff) i = G_GINT64_CONSTANT(0xffffffffffffffff) << bit_len;
-    *v = *v | i;
+    if (*v & (G_GUINT64_CONSTANT(1) << (bit_len - 1))) {
+        *v |= (G_GUINT64_CONSTANT(0xffffffffffffffff) << bit_len);
+    }
 }
 
 static guint8 asterix_fspec_len (tvbuff_t *tvb, guint offset)
