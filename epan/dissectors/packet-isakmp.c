@@ -2734,6 +2734,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   proto_tree *	isakmp_tree = NULL, *vers_tree;
   int			isakmp_version;
   void*			decr_data = NULL;
+  guint8    flags;            
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
   decrypt_data_t       *decr = NULL;
@@ -2860,6 +2861,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
       fti   = proto_tree_add_item(isakmp_tree, hf_isakmp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
+      flags = tvb_get_guint8(tvb, offset);
 
       if (isakmp_version == 1) {
         proto_tree_add_item(ftree, hf_isakmp_flag_e, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -2870,11 +2872,13 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
       } else if (isakmp_version == 2) {
         proto_tree_add_item(ftree, hf_isakmp_flag_i, tvb, offset, 1, ENC_BIG_ENDIAN);
-
         proto_tree_add_item(ftree, hf_isakmp_flag_v, tvb, offset, 1, ENC_BIG_ENDIAN);
-
         proto_tree_add_item(ftree, hf_isakmp_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
 
+        proto_item_append_text(fti, " (%s, %s, %s)",
+                               (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
+                               (flags & V_FLAG) ? flag_v.true_string : flag_v.false_string,
+                               (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
       }
       offset += 1;
     }
@@ -2882,6 +2886,15 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     hdr.message_id = tvb_get_ntohl(tvb, offset);
     proto_tree_add_item(isakmp_tree, hf_isakmp_messageid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
+
+    /* Add some summary to the Info column */
+    if (isakmp_version == 2) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, " MID=%02u %s %s",
+                      hdr.message_id,
+                      (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
+                      (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
+    }
+    
 
     if (hdr.length < ISAKMP_HDR_SIZE) {
       proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
