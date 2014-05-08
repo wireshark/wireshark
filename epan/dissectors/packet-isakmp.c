@@ -2734,7 +2734,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
   proto_tree *	isakmp_tree = NULL, *vers_tree;
   int			isakmp_version;
   void*			decr_data = NULL;
-  guint8    flags;            
+  guint8    flags;
 #ifdef HAVE_LIBGCRYPT
   guint8                i_cookie[COOKIE_SIZE], *ic_key;
   decrypt_data_t       *decr = NULL;
@@ -2894,7 +2894,6 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                       (flags & I_FLAG) ? flag_i.true_string : flag_i.false_string,
                       (flags & R_FLAG) ? flag_r.true_string : flag_r.false_string);
     }
-    
 
     if (hdr.length < ISAKMP_HDR_SIZE) {
       proto_tree_add_uint_format_value(isakmp_tree, hf_isakmp_length, tvb, offset, 4,
