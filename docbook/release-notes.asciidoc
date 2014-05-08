@@ -32,6 +32,7 @@ The following bugs have been fixed:
 
 // Should be sorted numerically.
 //* Wireshark will practice the jazz flute for hours on end when you're trying to sleep. (ws-buglink:0000[])
+* TCAP: set a fence on info column after calling sub dissector (ws-buglink:10091[])
 
 === New and Updated Features
 
