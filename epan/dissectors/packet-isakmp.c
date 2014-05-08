@@ -559,7 +559,7 @@ static const value_string exchange_v1_type[] = {
 
 static const value_string exchange_v2_type[] = {
   { 34,	"IKE_SA_INIT" },
-  { 35,	"IKE_AUTH " },
+  { 35,	"IKE_AUTH" },
   { 36,	"CREATE_CHILD_SA" },
   { 37,	"INFORMATIONAL" },
   { 38,	"IKE_SESSION_RESUME" }, /* RFC5723 */
