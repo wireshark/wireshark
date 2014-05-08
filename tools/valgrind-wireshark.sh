@@ -34,7 +34,7 @@ VALID=0
 PCAP=""
 TOOL="memcheck"
 
-while getopts ":2b:C:lmnpP:rtTYwcevW" OPTCHAR ; do
+while getopts ":2b:C:lmnpP:rtTYwcevWd" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -49,7 +49,7 @@ while getopts ":2b:C:lmnpP:rtTYwcevW" OPTCHAR ; do
         r) REACHABLE="--show-reachable=yes" ;;
         t) TRACK_ORIGINS="--track-origins=yes" ;;
         T) COMMAND_ARGS="-Vx $COMMAND_ARGS" ;; # "build the Tree"
-        Y) COMMAND_ARGS="-Yframe $COMMAND_ARGS" ;; # Run with a read filter (but no tree)
+        Y) COMMAND_ARGS="-Y frame $COMMAND_ARGS" ;; # Run with a read filter (but no tree)
         w) COMMAND=wireshark
            COMMAND_ARGS="-nr" ;;
         c) COMMAND=capinfos
@@ -61,6 +61,9 @@ while getopts ":2b:C:lmnpP:rtTYwcevW" OPTCHAR ; do
         v) VERBOSE="--num-callers=256" ;;
         W) COMMAND=wireshark
            COMMAND_ARGS=""
+           VALID=1 ;;
+        d) COMMAND=dumpcap
+           COMMAND_ARGS="-i eth1 -a duration:10"
            VALID=1 ;;
         *) printf "Unknown option -$OPTARG!\n"
            exit ;;
