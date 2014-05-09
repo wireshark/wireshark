@@ -28,7 +28,6 @@
 #include <sys/stat.h>
 #endif
 
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -49,10 +48,10 @@ static gboolean is_valid_id(guint16 version_id)
   return TRUE;
 }
 
-static gboolean stanag4607_read_file(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
                                Buffer *buf, int *err, gchar **err_info)
 {
-  stanag4607_t *stanag4607 = (stanag4607_t *)wfth->priv;
+  stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
   guint32 millisecs, secs, nsecs;
   gint64 offset = 0;
   guint8 stanag_pkt_hdr[37];
@@ -139,44 +138,42 @@ static gboolean stanag4607_read_file(wftap *wfth, FILE_T fh, struct wtap_pkthdr 
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 
 fail:
-  *err = file_error(wfth->fh, err_info);
+  *err = file_error(wth->fh, err_info);
   return FALSE;
 }
 
-static gboolean stanag4607_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
   gint64 offset;
-  wtap* wth = (wtap*)wfth->tap_specific_data;
 
   *err = 0;
 
-  offset = file_tell(wfth->fh);
+  offset = file_tell(wth->fh);
 
   *data_offset = offset;
 
-  return stanag4607_read_file(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer, err, err_info);
+  return stanag4607_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
-static gboolean stanag4607_seek_read(wftap *wfth, gint64 seek_off,
-                               void* header,
+static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
+                               struct wtap_pkthdr *phdr,
                                Buffer *buf, int *err, gchar **err_info)
 {
-  struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
-  if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
+  if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  return stanag4607_read_file(wfth, wfth->random_fh, phdr, buf, err, err_info);
+  return stanag4607_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
-int stanag4607_open(wftap *wfth, int *err, gchar **err_info)
+int stanag4607_open(wtap *wth, int *err, gchar **err_info)
 {
   int bytes_read;
   guint16 version_id;
   stanag4607_t *stanag4607;
 
-  bytes_read = file_read(&version_id, sizeof version_id, wfth->fh);
+  bytes_read = file_read(&version_id, sizeof version_id, wth->fh);
   if (bytes_read != sizeof version_id) {
-    *err = file_error(wfth->fh, err_info);
+    *err = file_error(wth->fh, err_info);
     return (*err != 0) ? -1 : 0;
   }
 
@@ -185,20 +182,20 @@ int stanag4607_open(wftap *wfth, int *err, gchar **err_info)
      return 0;
 
   /* seek back to the start of the file  */
-  if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
+  if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_STANAG_4607;
-  wfth->file_encap = WTAP_ENCAP_STANAG_4607;
-  wfth->snapshot_length = 0; /* not known */
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_STANAG_4607;
+  wth->file_encap = WTAP_ENCAP_STANAG_4607;
+  wth->snapshot_length = 0; /* not known */
 
   stanag4607 = (stanag4607_t *)g_malloc(sizeof(stanag4607_t));
-  wfth->priv = (void *)stanag4607;
+  wth->priv = (void *)stanag4607;
   stanag4607->base_secs = 0; /* unknown as of yet */
 
-  wfth->subtype_read = stanag4607_read;
-  wfth->subtype_seek_read = stanag4607_seek_read;
-  wfth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+  wth->subtype_read = stanag4607_read;
+  wth->subtype_seek_read = stanag4607_seek_read;
+  wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 
   return 1;
 }

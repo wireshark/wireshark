@@ -31,14 +31,14 @@
 #include "frame_tvbuff.h"
 #include "globals.h"
 
-#include "wftap-int.h" /* for ->random_fh */
+#include "wtap-int.h" /* for ->random_fh */
 
 struct tvb_frame {
 	struct tvbuff tvb;
 
 	Buffer *buf;         /* Packet data */
 
-	wftap *wth;          /**< Wiretap session */
+	wtap *wth;           /**< Wiretap session */
 	gint64 file_off;     /**< File offset */
 
 	guint offset;
@@ -51,13 +51,13 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	gchar *err_info;
 
 	/* sanity check, capture file was closed? */
-	if (cfile.wfth != frame_tvb->wth)
+	if (cfile.wth != frame_tvb->wth)
 		return FALSE;
 
 	/* XXX, what if phdr->caplen isn't equal to
 	 * frame_tvb->tvb.length + frame_tvb->offset?
 	 */
-	if (!wftap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
+	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
 		switch (err) {
 			case WTAP_ERR_UNSUPPORTED_ENCAP:
 			case WTAP_ERR_BAD_FILE:
@@ -212,12 +212,12 @@ frame_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.wfth && cfile.wfth->random_fh
+	if (cfile.wth && cfile.wth->random_fh
 #ifdef WANT_PACKET_EDITOR
 		&& fd->file_off != -1 /* generic clone for modified packets */
 #endif
 	) {
-		frame_tvb->wth = cfile.wfth;
+		frame_tvb->wth = cfile.wth;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
 	} else
@@ -317,12 +317,12 @@ file_tvbuff_new(const frame_data *fd, const guint8 *buf)
 	frame_tvb = (struct tvb_frame *) tvb;
 
 	/* XXX, wtap_can_seek() */
-	if (cfile.wfth && cfile.wfth->random_fh
+	if (cfile.wth && cfile.wth->random_fh
 #ifdef WANT_PACKET_EDITOR
 		&& fd->file_off != -1 /* generic clone for modified packets */
 #endif
 	) {
-		frame_tvb->wth = cfile.wfth;
+		frame_tvb->wth = cfile.wth;
 		frame_tvb->file_off = fd->file_off;
 		frame_tvb->offset = 0;
 	} else

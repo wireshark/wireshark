@@ -25,6 +25,6 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int toshiba_open(wftap *wfth, int *err, gchar **err_info);
+int toshiba_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

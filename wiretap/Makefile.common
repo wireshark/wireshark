@@ -51,12 +51,12 @@ NONGENERATED_C_FILES = \
 	ipfix.c			\
 	iptrace.c		\
 	iseries.c		\
+	mime_file.c		\
 	k12.c			\
 	lanalyzer.c		\
 	logcat.c		\
 	libpcap.c		\
 	merge.c			\
-	mime_file.c		\
 	mpeg.c			\
 	mp2t.c			\
 	netmon.c		\
@@ -69,8 +69,8 @@ NONGENERATED_C_FILES = \
 	packetlogger.c		\
 	pcap-common.c		\
 	pcapng.c		\
-	peekclassic.c	\
-	peektagged.c	\
+	peekclassic.c           \
+	peektagged.c		\
 	pppdump.c		\
 	radcom.c		\
 	snoop.c			\
@@ -79,7 +79,7 @@ NONGENERATED_C_FILES = \
 	toshiba.c		\
 	visual.c		\
 	vms.c			\
-	vwr.c			\
+	vwr.c           \
 	wtap.c
 
 # Header files that are not generated from other files
@@ -128,7 +128,7 @@ NONGENERATED_HEADER_FILES = \
 	pcap-common.h		\
 	pcap-encap.h		\
 	pcapng.h		\
-	peekclassic.h	\
+	peekclassic.h           \
 	peektagged.h		\
 	pppdump.h		\
 	radcom.h		\
@@ -138,8 +138,7 @@ NONGENERATED_HEADER_FILES = \
 	toshiba.h		\
 	visual.h		\
 	vms.h			\
-	vwr.h			\
-	wftap-int.h		\
+	vwr.h           \
 	wtap.h			\
 	wtap-int.h
 

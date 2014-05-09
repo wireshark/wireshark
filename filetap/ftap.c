@@ -378,7 +378,7 @@ ftap_read(ftap *fth, int *err, gchar **err_info, gint64 *data_offset)
 	 * *is* FTAP_ENCAP_PER_RECORD, the caller needs to set it
 	 * anyway.
 	 */
-	wth->phdr.pkt_encap = wfth->file_encap;
+	wth->phdr.pkt_encap = wth->file_encap;
 #endif
 
 	if (!fth->subtype_read(fth, err, err_info, data_offset)) {
@@ -459,6 +459,12 @@ struct wtap_pkthdr *
 wtap_phdr(wtap *wth)
 {
 	return &wth->phdr;
+}
+
+guint8 *
+wtap_buf_ptr(wtap *wth)
+{
+	return buffer_start_ptr(wth->frame_buffer);
 }
 #endif
 

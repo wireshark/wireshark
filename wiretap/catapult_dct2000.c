@@ -24,7 +24,6 @@
 #include <stdlib.h>
 #include <ctype.h>
 
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -104,15 +103,15 @@ static const gchar catapult_dct2000_magic[] = "Session Transcript";
 
 /************************************************************/
 /* Functions called from wiretap core                       */
-static gboolean catapult_dct2000_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                                       gint64 *data_offset);
-static gboolean catapult_dct2000_seek_read(wftap *wfth, gint64 seek_off,
-                                           void* header,
+static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
+                                           struct wtap_pkthdr *phdr,
                                            Buffer *buf, int *err,
                                            gchar **err_info);
-static void catapult_dct2000_close(wftap *wfth);
+static void catapult_dct2000_close(wtap *wth);
 
-static gboolean catapult_dct2000_dump(wftap_dumper *wdh, void* header,
+static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                       const guint8 *pd, int *err);
 
 
@@ -132,7 +131,7 @@ static gboolean parse_line(char *linebuff, gint line_length,
                            gchar *context_name, guint8 *context_portp,
                            gchar *protocol_name, gchar *variant_name,
                            gchar *outhdr_name);
-static void process_parsed_line(wftap *wfth,
+static void process_parsed_line(wtap *wth,
                                 dct2000_file_externals_t *file_externals,
                                 struct wtap_pkthdr *phdr,
                                 Buffer *buf, gint64 file_offset,
@@ -168,7 +167,7 @@ static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer use
 /* Open file (for reading)                 */
 /********************************************/
 int
-catapult_dct2000_open(wftap *wfth, int *err, gchar **err_info)
+catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
 {
     gint64  offset = 0;
     time_t  timestamp;
@@ -185,7 +184,7 @@ catapult_dct2000_open(wftap *wfth, int *err, gchar **err_info)
     /********************************************************************/
     /* First line needs to contain at least as many characters as magic */
 
-    if (!read_new_line(wfth->fh, &offset, &firstline_length, linebuff,
+    if (!read_new_line(wth->fh, &offset, &firstline_length, linebuff,
                        sizeof linebuff, err, err_info)) {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
@@ -224,7 +223,7 @@ catapult_dct2000_open(wftap *wfth, int *err, gchar **err_info)
     /* Second line contains file timestamp                     */
     /* Store this offset in in file_externals                  */
 
-    if (!read_new_line(wfth->fh, &offset, &(file_externals->secondline_length),
+    if (!read_new_line(wth->fh, &offset, &(file_externals->secondline_length),
                        linebuff, sizeof linebuff, err, err_info)) {
         g_free(file_externals);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
@@ -251,18 +250,18 @@ catapult_dct2000_open(wftap *wfth, int *err, gchar **err_info)
     /* File is for us. Fill in details so packets can be read   */
 
     /* Set our file type */
-    wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000;
 
     /* Use our own encapsulation to send all packets to our stub dissector */
-    wfth->file_encap = WTAP_ENCAP_CATAPULT_DCT2000;
+    wth->file_encap = WTAP_ENCAP_CATAPULT_DCT2000;
 
     /* Callbacks for reading operations */
-    wfth->subtype_read = catapult_dct2000_read;
-    wfth->subtype_seek_read = catapult_dct2000_seek_read;
-    wfth->subtype_close = catapult_dct2000_close;
+    wth->subtype_read = catapult_dct2000_read;
+    wth->subtype_seek_read = catapult_dct2000_seek_read;
+    wth->subtype_close = catapult_dct2000_close;
 
     /* Choose microseconds (have 4 decimal places...) */
-    wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 
     /***************************************************************/
@@ -271,7 +270,7 @@ catapult_dct2000_open(wftap *wfth, int *err, gchar **err_info)
         g_hash_table_new(packet_offset_hash_func, packet_offset_equal);
 
     /* Set this wtap to point to the file_externals */
-    wfth->priv = (void*)file_externals;
+    wth->priv = (void*)file_externals;
 
     *err = errno;
     return 1;
@@ -335,18 +334,17 @@ static void write_timestamp_string(char *timestamp_string, int secs, int tenthou
 /* - return TRUE and details if found             */
 /**************************************************/
 static gboolean
-catapult_dct2000_read(wftap *wfth, int *err, gchar **err_info,
+catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset)
 {
-    gint64 offset = file_tell(wfth->fh);
+    gint64 offset = file_tell(wth->fh);
     long dollar_offset, before_time_offset, after_time_offset;
     packet_direction_t direction;
     int encap;
-    wtap* wth = (wtap*)wfth->tap_specific_data;
 
     /* Get wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)wfth->priv;
+        (dct2000_file_externals_t*)wth->priv;
 
     /* Search for a line containing a usable packet */
     while (1) {
@@ -363,13 +361,13 @@ catapult_dct2000_read(wftap *wfth, int *err, gchar **err_info,
         gchar outhdr_name[MAX_OUTHDR_NAME+1];
 
         /* Are looking for first packet after 2nd line */
-        if (file_tell(wfth->fh) == 0) {
+        if (file_tell(wth->fh) == 0) {
             this_offset += (file_externals->firstline_length+1+
                             file_externals->secondline_length+1);
         }
 
         /* Read a new line from file into linebuff */
-        if (!read_new_line(wfth->fh, &offset, &line_length, linebuff,
+        if (!read_new_line(wth->fh, &offset, &line_length, linebuff,
                            sizeof linebuff, err, err_info)) {
             if (*err != 0)
                 return FALSE;  /* error */
@@ -396,9 +394,9 @@ catapult_dct2000_read(wftap *wfth, int *err, gchar **err_info,
             */
             *data_offset = this_offset;
 
-            process_parsed_line(wfth, file_externals,
+            process_parsed_line(wth, file_externals,
                                 &wth->phdr,
-                                wfth->frame_buffer, this_offset,
+                                wth->frame_buffer, this_offset,
                                 linebuff, dollar_offset,
                                 seconds, useconds, timestamp_string,
                                 direction, encap,
@@ -449,8 +447,8 @@ catapult_dct2000_read(wftap *wfth, int *err, gchar **err_info,
 /* Read & seek function.                          */
 /**************************************************/
 static gboolean
-catapult_dct2000_seek_read(wftap *wfth, gint64 seek_off,
-                           void* header, Buffer *buf,
+catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
+                           struct wtap_pkthdr *phdr, Buffer *buf,
                            int *err, gchar **err_info)
 {
     gint64 offset = 0;
@@ -468,22 +466,21 @@ catapult_dct2000_seek_read(wftap *wfth, gint64 seek_off,
     packet_direction_t direction;
     int encap;
     int seconds, useconds, data_chars;
-    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
     /* Get wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)wfth->priv;
+        (dct2000_file_externals_t*)wth->priv;
 
     /* Reset errno */
     *err = errno = 0;
 
     /* Seek to beginning of packet */
-    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1) {
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
         return FALSE;
     }
 
     /* Re-read whole line (this really should succeed) */
-    if (!read_new_line(wfth->random_fh, &offset, &length, linebuff,
+    if (!read_new_line(wth->random_fh, &offset, &length, linebuff,
                       sizeof linebuff, err, err_info)) {
         return FALSE;
     }
@@ -500,7 +497,7 @@ catapult_dct2000_seek_read(wftap *wfth, gint64 seek_off,
 
         write_timestamp_string(timestamp_string, seconds, useconds/100);
 
-        process_parsed_line(wfth, file_externals,
+        process_parsed_line(wth, file_externals,
                             phdr, buf, seek_off,
                             linebuff, dollar_offset,
                             seconds, useconds, timestamp_string,
@@ -527,11 +524,11 @@ catapult_dct2000_seek_read(wftap *wfth, gint64 seek_off,
 /* Free dct2000-specific capture info from file that was open for reading  */
 /***************************************************************************/
 static void
-catapult_dct2000_close(wftap *wfth)
+catapult_dct2000_close(wtap *wth)
 {
     /* Get externals for this file */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)wfth->priv;
+        (dct2000_file_externals_t*)wth->priv;
 
     /* Free up its line prefix values */
     g_hash_table_foreach_remove(file_externals->packet_prefix_table,
@@ -557,7 +554,7 @@ typedef struct {
 /* Set other dump callbacks.                         */
 /*****************************************************/
 gboolean
-catapult_dct2000_dump_open(wftap_dumper *wdh, int *err _U_)
+catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_)
 {
     /* Fill in other dump callbacks */
     wdh->subtype_write = catapult_dct2000_dump;
@@ -589,7 +586,7 @@ catapult_dct2000_dump_can_write_encap(int encap)
 /*****************************************/
 
 static gboolean
-catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                       const guint8 *pd, int *err)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
@@ -606,28 +603,28 @@ catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
     /* Get the file_externals structure for this file */
     /* Find wtap external structure for this wtap */
     dct2000_file_externals_t *file_externals =
-        (dct2000_file_externals_t*)pseudo_header->dct2000.wfth->priv;
+        (dct2000_file_externals_t*)pseudo_header->dct2000.wth->priv;
 
     dct2000 = (dct2000_dump_t *)wdh->priv;
     if (dct2000 == NULL) {
 
         /* Write out saved first line */
-        if (!wftap_dump_file_write(wdh, file_externals->firstline,
+        if (!wtap_dump_file_write(wdh, file_externals->firstline,
                                   file_externals->firstline_length, err)) {
             return FALSE;
         }
-        if (!wftap_dump_file_write(wdh, "\n", 1, err)) {
+        if (!wtap_dump_file_write(wdh, "\n", 1, err)) {
             return FALSE;
         }
 
         /* Also write out saved second line with timestamp corresponding to the
            opening time of the log.
         */
-        if (!wftap_dump_file_write(wdh, file_externals->secondline,
+        if (!wtap_dump_file_write(wdh, file_externals->secondline,
                                   file_externals->secondline_length, err)) {
             return FALSE;
         }
-        if (!wftap_dump_file_write(wdh, "\n", 1, err)) {
+        if (!wtap_dump_file_write(wdh, "\n", 1, err)) {
             return FALSE;
         }
 
@@ -653,7 +650,7 @@ catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                                       (const void*)&(pseudo_header->dct2000.seek_off));
 
     /* Write out text before timestamp */
-    if (!wftap_dump_file_write(wdh, prefix->before_time,
+    if (!wtap_dump_file_write(wdh, prefix->before_time,
                               strlen(prefix->before_time), err)) {
         return FALSE;
     }
@@ -683,18 +680,18 @@ catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
     }
 
     /* Write out the calculated timestamp */
-    if (!wftap_dump_file_write(wdh, time_string, strlen(time_string), err)) {
+    if (!wtap_dump_file_write(wdh, time_string, strlen(time_string), err)) {
         return FALSE;
     }
 
     /* Write out text between timestamp and start of hex data */
     if (prefix->after_time == NULL) {
-        if (!wftap_dump_file_write(wdh, " l ", strlen(" l "), err)) {
+        if (!wtap_dump_file_write(wdh, " l ", strlen(" l "), err)) {
             return FALSE;
         }
     }
     else {
-        if (!wftap_dump_file_write(wdh, prefix->after_time,
+        if (!wtap_dump_file_write(wdh, prefix->after_time,
                                   strlen(prefix->after_time), err)) {
             return FALSE;
         }
@@ -736,7 +733,7 @@ catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     /**************************************/
     /* Remainder is encapsulated protocol */
-    if (!wftap_dump_file_write(wdh, is_sprint ? " " : "$", 1, err)) {
+    if (!wtap_dump_file_write(wdh, is_sprint ? " " : "$", 1, err)) {
         return FALSE;
     }
 
@@ -748,7 +745,7 @@ catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
             c[1] = char_from_hex((guint8)(pd[n] & 0x0f));
 
             /* Write both hex chars of byte together */
-            if (!wftap_dump_file_write(wdh, c, 2, err)) {
+            if (!wtap_dump_file_write(wdh, c, 2, err)) {
                 return FALSE;
             }
         }
@@ -759,14 +756,14 @@ catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
             c[0] = pd[n];
 
             /* Write both hex chars of byte together */
-            if (!wftap_dump_file_write(wdh, c, 1, err)) {
+            if (!wtap_dump_file_write(wdh, c, 1, err)) {
                 return FALSE;
             }
         }
     }
 
     /* End the line */
-    if (!wftap_dump_file_write(wdh, "\n", 1, err)) {
+    if (!wtap_dump_file_write(wdh, "\n", 1, err)) {
         return FALSE;
     }
 
@@ -1263,7 +1260,7 @@ parse_line(gchar *linebuff, gint line_length,
 /* Process results of parse_line() */
 /***********************************/
 static void
-process_parsed_line(wftap *wfth, dct2000_file_externals_t *file_externals,
+process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
                     struct wtap_pkthdr *phdr,
                     Buffer *buf, gint64 file_offset,
                     char *linebuff, long dollar_offset,
@@ -1364,7 +1361,7 @@ process_parsed_line(wftap *wfth, dct2000_file_externals_t *file_externals,
     /*****************************************/
     /* Set packet pseudo-header if necessary */
     phdr->pseudo_header.dct2000.seek_off = file_offset;
-    phdr->pseudo_header.dct2000.wfth = wfth;
+    phdr->pseudo_header.dct2000.wth = wth;
 
     switch (encap) {
         case WTAP_ENCAP_ATM_PDUS_UNTRUNCATED:

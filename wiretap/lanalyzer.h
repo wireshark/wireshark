@@ -24,8 +24,8 @@
 #include <glib.h>
 #include <wtap.h>
 
-int         lanalyzer_open(wftap *wfth, int *err, gchar **err_info);
-gboolean    lanalyzer_dump_open(wftap_dumper *wdh, int *err);
+int         lanalyzer_open(wtap *wth, int *err, gchar **err_info);
+gboolean    lanalyzer_dump_open(wtap_dumper *wdh, int *err);
 int         lanalyzer_dump_can_write_encap(int encap);
 
 #endif

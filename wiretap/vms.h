@@ -26,6 +26,6 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int vms_open(wftap *wfth, int *err, gchar **err_info);
+int vms_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

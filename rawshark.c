@@ -867,7 +867,7 @@ main(int argc, char *argv[])
         /* Set timestamp precision; there should arguably be a command-line
            option to let the user set this. */
 #if 0
-        switch(wftap_file_tsprecision(cfile.wth)) {
+        switch(wtap_file_tsprecision(cfile.wth)) {
             case(WTAP_FILE_TSPREC_SEC):
                 timestamp_set_precision(TS_PREC_AUTO_SEC);
                 break;
@@ -1665,7 +1665,7 @@ raw_cf_open(capture_file *cf, const char *fname)
     epan_free(cf->epan);
     cf->epan = raw_epan_new(cf);
 
-    cf->wfth = NULL;
+    cf->wth = NULL;
     cf->f_datalen = 0; /* not used, but set it anyway */
 
     /* Set the file name because we need it to set the follow stream filter.

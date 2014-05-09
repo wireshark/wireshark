@@ -25,16 +25,16 @@
 
 #include "wtap.h"
 
-int      logcat_open(wftap *wfth, int *err, gchar **err_info);
+int      logcat_open(wtap *wth, int *err, gchar **err_info);
 
-gboolean logcat_binary_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_brief_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_process_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_tag_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_time_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_thread_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_threadtime_dump_open(wftap_dumper *wdh, int *err);
-gboolean logcat_text_long_dump_open(wftap_dumper *wdh, int *err);
+gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_brief_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_process_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_tag_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_time_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_thread_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err);
 
 int      logcat_dump_can_write_encap(int encap);
 

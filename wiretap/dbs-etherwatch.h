@@ -25,6 +25,6 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int dbs_etherwatch_open(wftap *wfth, int *err, gchar **err_info);
+int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

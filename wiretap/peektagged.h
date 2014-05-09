@@ -23,6 +23,6 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-int peektagged_open(wftap *wfth, int *err, gchar **err_info);
+int peektagged_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

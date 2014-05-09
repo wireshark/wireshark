@@ -34,7 +34,6 @@
 #include <string.h>
 
 #include "wtap.h"
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "file_wrappers.h"
@@ -45,10 +44,10 @@ typedef struct packetlogger_header {
 	guint64 ts;
 } packetlogger_header_t;
 
-static gboolean packetlogger_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean packetlogger_read(wtap *wth, int *err, gchar **err_info,
 				  gint64 *data_offset);
-static gboolean packetlogger_seek_read(wftap *wfth, gint64 seek_off,
-				       void* header,
+static gboolean packetlogger_seek_read(wtap *wth, gint64 seek_off,
+				       struct wtap_pkthdr *phdr,
 				       Buffer *buf, int *err, gchar **err_info);
 static gboolean packetlogger_read_header(packetlogger_header_t *pl_hdr,
 					 FILE_T fh, int *err, gchar **err_info);
@@ -56,19 +55,19 @@ static gboolean packetlogger_read_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
 
-int packetlogger_open(wftap *wfth, int *err, gchar **err_info)
+int packetlogger_open(wtap *wth, int *err, gchar **err_info)
 {
 	packetlogger_header_t pl_hdr;
 	guint8 type;
 
-	if(!packetlogger_read_header(&pl_hdr, wfth->fh, err, err_info)) {
+	if(!packetlogger_read_header(&pl_hdr, wth->fh, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
 
-	if (file_read(&type, 1, wfth->fh) <= 0) {
-		*err = file_error(wfth->fh, err_info);
+	if (file_read(&type, 1, wth->fh) <= 0) {
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -80,39 +79,37 @@ int packetlogger_open(wftap *wfth, int *err, gchar **err_info)
 		return 0;
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
-	if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
+	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
 	/* Set up the pointers to the handlers for this file type */
-	wfth->subtype_read = packetlogger_read;
-	wfth->subtype_seek_read = packetlogger_seek_read;
+	wth->subtype_read = packetlogger_read;
+	wth->subtype_seek_read = packetlogger_seek_read;
 
-	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER;
-	wfth->file_encap = WTAP_ENCAP_PACKETLOGGER;
-	wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER;
+	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1; /* Our kind of file */
 }
 
 static gboolean
-packetlogger_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
+packetlogger_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	wtap* wth = (wtap*)wfth->tap_specific_data;
-	*data_offset = file_tell(wfth->fh);
+	*data_offset = file_tell(wth->fh);
 
-	return packetlogger_read_packet(wfth->fh, &wth->phdr,
-	    wfth->frame_buffer, err, err_info);
+	return packetlogger_read_packet(wth->fh, &wth->phdr,
+	    wth->frame_buffer, err, err_info);
 }
 
 static gboolean
-packetlogger_seek_read(wftap *wfth, gint64 seek_off, void* header,
+packetlogger_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		       Buffer *buf, int *err, gchar **err_info)
 {
-	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
-	if(file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if(!packetlogger_read_packet(wfth->random_fh, phdr, buf, err, err_info)) {
+	if(!packetlogger_read_packet(wth->random_fh, phdr, buf, err, err_info)) {
 		if(*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 

@@ -89,7 +89,7 @@ typedef struct FrameRecord_t {
 
 
 static void
-frame_write(FrameRecord_t *frame, wftap *wth, wftap_dumper *pdh, Buffer *buf,
+frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
             const char *infile)
 {
     int    err;
@@ -103,7 +103,7 @@ frame_write(FrameRecord_t *frame, wftap *wth, wftap_dumper *pdh, Buffer *buf,
 
 
     /* Re-read the first frame from the stored location */
-    if (!wftap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info)) {
+    if (!wtap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info)) {
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
             fprintf(stderr,
@@ -174,8 +174,8 @@ frames_compare(gconstpointer a, gconstpointer b)
 /********************************************************************/
 int main(int argc, char *argv[])
 {
-    wftap *wth = NULL;
-    wftap_dumper *pdh = NULL;
+    wtap *wth = NULL;
+    wtap_dumper *pdh = NULL;
     Buffer buf;
     int err;
     gchar *err_info;
@@ -241,13 +241,13 @@ int main(int argc, char *argv[])
         }
         exit(1);
     }
-    DEBUG_PRINT("file_type_subtype is %u\n", wftap_file_type_subtype(wth));
+    DEBUG_PRINT("file_type_subtype is %u\n", wtap_file_type_subtype(wth));
 
     shb_hdr = wtap_file_get_shb_info(wth);
     idb_inf = wtap_file_get_idb_info(wth);
 
     /* Open outfile (same filetype/encap as input file) */
-    pdh = wtap_dump_open_ng(outfile, wftap_file_type_subtype(wth), wftap_file_encap(wth),
+    pdh = wtap_dump_open_ng(outfile, wtap_file_type_subtype(wth), wtap_file_encap(wth),
                             65535, FALSE, shb_hdr, idb_inf, &err);
     g_free(idb_inf);
     if (pdh == NULL) {
@@ -322,7 +322,7 @@ int main(int argc, char *argv[])
     g_ptr_array_free(frames, TRUE);
 
     /* Close outfile */
-    if (!wftap_dump_close(pdh, &err)) {
+    if (!wtap_dump_close(pdh, &err)) {
         fprintf(stderr, "reordercap: Error closing %s: %s\n", outfile,
                 wtap_strerror(err));
         g_free(shb_hdr);
@@ -331,7 +331,7 @@ int main(int argc, char *argv[])
     g_free(shb_hdr);
 
     /* Finally, close infile */
-    wftap_fdclose(wth);
+    wtap_fdclose(wth);
 
     return 0;
 }

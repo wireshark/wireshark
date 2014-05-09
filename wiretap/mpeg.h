@@ -26,6 +26,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int mpeg_open(wftap *wfth, int *err, gchar **err_info);
+int mpeg_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

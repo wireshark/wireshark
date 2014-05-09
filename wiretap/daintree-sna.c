@@ -1,4 +1,4 @@
-/* daintree-sna.c
+/* daintree_sna.c
  * Routines for opening .dcf capture files created by Daintree's
  * Sensor Network Analyzer for 802.15.4 radios
  * Copyright 2009, Exegin Technologies Limited <fff@exegin.com>
@@ -54,7 +54,6 @@
 #include <ctype.h>
 
 #include "wtap.h"
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "file_wrappers.h"
@@ -78,11 +77,11 @@ static const char daintree_magic_text[] =
 
 #define COMMENT_LINE daintree_magic_text[0]
 
-static gboolean daintree_sna_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 
-static gboolean daintree_sna_seek_read(wftap *wfth, gint64 seek_off,
-	void* header, Buffer *buf, int *err, gchar **err_info);
+static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 static gboolean daintree_sna_scan_header(struct wtap_pkthdr *phdr,
 	char *readLine, char *readData, int *err, gchar **err_info);
@@ -91,14 +90,14 @@ static gboolean daintree_sna_process_hex_data(struct wtap_pkthdr *phdr,
 	Buffer *buf, char *readData, int *err, gchar **err_info);
 
 /* Open a file and determine if it's a Daintree file */
-int daintree_sna_open(wftap *wfth, int *err, gchar **err_info)
+int daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	guint i;
 
 	/* get first line of file header */
-	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wfth->fh)==NULL) {
-		*err = file_error(wfth->fh, err_info);
+	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -112,8 +111,8 @@ int daintree_sna_open(wftap *wfth, int *err, gchar **err_info)
 	}
 
 	/* read second header line */
-	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wfth->fh)==NULL) {
-		*err = file_error(wfth->fh, err_info);
+	if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh)==NULL) {
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -121,14 +120,14 @@ int daintree_sna_open(wftap *wfth, int *err, gchar **err_info)
 	if (readLine[0] != COMMENT_LINE) return 0; /* daintree files have a two line header */
 
 	/* set up the pointers to the handlers for this file type */
-	wfth->subtype_read = daintree_sna_read;
-	wfth->subtype_seek_read = daintree_sna_seek_read;
+	wth->subtype_read = daintree_sna_read;
+	wth->subtype_seek_read = daintree_sna_seek_read;
 
 	/* set up for file type */
-	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DAINTREE_SNA;
-	wfth->file_encap = WTAP_ENCAP_IEEE802_15_4_NOFCS;
-	wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
-	wfth->snapshot_length = 0; /* not available in header */
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DAINTREE_SNA;
+	wth->file_encap = WTAP_ENCAP_IEEE802_15_4_NOFCS;
+	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wth->snapshot_length = 0; /* not available in header */
 
 	return 1; /* it's a Daintree file */
 }
@@ -136,19 +135,18 @@ int daintree_sna_open(wftap *wfth, int *err, gchar **err_info)
 /* Read the capture file sequentially
  * Wireshark scans the file with sequential reads during preview and initial display. */
 static gboolean
-daintree_sna_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
+daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	char readData[READDATA_BUF_SIZE];
-	wtap* wth = (wtap*)wfth->tap_specific_data;
 
-	*data_offset = file_tell(wfth->fh);
+	*data_offset = file_tell(wth->fh);
 
 	/* we've only seen file header lines starting with '#', but
 	 * if others appear in the file, they are tossed */
 	do {
-		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wfth->fh) == NULL) {
-			*err = file_error(wfth->fh, err_info);
+		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->fh) == NULL) {
+			*err = file_error(wth->fh, err_info);
 			return FALSE; /* all done */
 		}
 	} while (readLine[0] == COMMENT_LINE);
@@ -159,28 +157,27 @@ daintree_sna_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 
 	/* process packet data */
-	return daintree_sna_process_hex_data(&wth->phdr, wfth->frame_buffer,
+	return daintree_sna_process_hex_data(&wth->phdr, wth->frame_buffer,
 	    readData, err, err_info);
 }
 
 /* Read the capture file randomly
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
-daintree_sna_seek_read(wftap *wfth, gint64 seek_off, void* header,
+daintree_sna_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info)
 {
 	char readLine[DAINTREE_MAX_LINE_SIZE];
 	char readData[READDATA_BUF_SIZE];
-	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
-	if(file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* It appears only file header lines start with '#', but
 	 * if we find any others, we toss them */
 	do {
-		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wfth->random_fh) == NULL) {
-			*err = file_error(wfth->random_fh, err_info);
+		if (file_gets(readLine, DAINTREE_MAX_LINE_SIZE, wth->random_fh) == NULL) {
+			*err = file_error(wth->random_fh, err_info);
 			return FALSE; /* all done */
 		}
 	} while (readLine[0] == COMMENT_LINE);

@@ -63,11 +63,6 @@ typedef struct {
 } modified_frame_data;
 #endif
 
-typedef union _phdr_t {
-  struct wtap_pkthdr wtap_hdr;
-  /*** Placeholder for ftap_pkthdr */
-} phdr_t;
-
 typedef struct _capture_file {
   epan_t      *epan;
   file_state   state;           /* Current state of capture file */
@@ -92,7 +87,7 @@ typedef struct _capture_file {
   nstime_t     elapsed_time;    /* Elapsed time */
   gboolean     has_snap;        /* TRUE if maximum capture packet length is known */
   int          snap;            /* Maximum captured packet length */
-  wftap       *wfth;            /* Tap session */
+  wtap        *wth;             /* Wiretap session */
   dfilter_t   *rfcode;          /* Compiled read filter program */
   dfilter_t   *dfcode;          /* Compiled display filter program */
   gchar       *dfilter;         /* Display filter string */
@@ -109,7 +104,8 @@ typedef struct _capture_file {
   search_charset_t scs_type;    /* Character set for text search */
   search_direction dir;         /* Direction in which to do searches */
   gboolean     search_in_progress; /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
-  phdr_t       hdr;             /* Packet/File header */
+  /* packet data */
+  struct wtap_pkthdr phdr;                /* Packet header */
   Buffer       buf;             /* Packet data */
   /* frames */
   frame_data_sequence *frames;  /* Sequence of frames, if we're keeping that information */

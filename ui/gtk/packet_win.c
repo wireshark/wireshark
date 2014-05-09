@@ -972,7 +972,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean reference, gboolean editable _
 	/* XXX, protect cfile.epan from closing (ref counting?) */
 	DataPtr->epan  = cfile.epan;
 	DataPtr->frame = fd;
-	DataPtr->phdr  = cfile.hdr.wtap_hdr;
+	DataPtr->phdr  = cfile.phdr;
 	DataPtr->pd = (guint8 *)g_malloc(DataPtr->frame->cap_len);
 	memcpy(DataPtr->pd, buffer_start_ptr(&cfile.buf), DataPtr->frame->cap_len);
 

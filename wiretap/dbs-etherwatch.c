@@ -19,7 +19,6 @@
  */
 
 #include "config.h"
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "dbs-etherwatch.h"
@@ -85,10 +84,10 @@ static const char dbs_etherwatch_rec_magic[]  =
  */
 #define DBS_ETHERWATCH_MAX_PACKET_LEN	16384
 
-static gboolean dbs_etherwatch_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean dbs_etherwatch_seek_read(wftap *wth, gint64 seek_off,
-	void* header, Buffer *buf, int *err, gchar **err_info);
+static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_dbs_etherwatch_packet(struct wtap_pkthdr *phdr, FILE_T fh,
 	Buffer* buf, int *err, gchar **err_info);
 static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
@@ -98,22 +97,22 @@ static guint parse_hex_dump(char* dump, guint8 *buf, char seperator, char end);
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
    and "*err_info" to null or an additional error string. */
-static gint64 dbs_etherwatch_seek_next_packet(wftap *wfth, int *err,
+static gint64 dbs_etherwatch_seek_next_packet(wtap *wth, int *err,
     gchar **err_info)
 {
   int byte;
   unsigned int level = 0;
   gint64 cur_off;
 
-  while ((byte = file_getc(wfth->fh)) != EOF) {
+  while ((byte = file_getc(wth->fh)) != EOF) {
     if (byte == dbs_etherwatch_rec_magic[level]) {
       level++;
       if (level >= DBS_ETHERWATCH_REC_MAGIC_SIZE) {
         /* note: we're leaving file pointer right after the magic characters */
-        cur_off = file_tell(wfth->fh);
+        cur_off = file_tell(wth->fh);
         if (cur_off == -1) {
           /* Error. */
-          *err = file_error(wfth->fh, err_info);
+          *err = file_error(wth->fh, err_info);
           return -1;
         }
         return cur_off + 1;
@@ -123,7 +122,7 @@ static gint64 dbs_etherwatch_seek_next_packet(wftap *wfth, int *err,
     }
   }
   /* EOF or error. */
-  *err = file_error(wfth->fh, err_info);
+  *err = file_error(wth->fh, err_info);
   return -1;
 }
 
@@ -137,7 +136,7 @@ static gint64 dbs_etherwatch_seek_next_packet(wftap *wfth, int *err,
  * if we get an I/O error, "*err" will be set to a non-zero value and
  * "*err_info" will be set to null or an error string.
  */
-static gboolean dbs_etherwatch_check_file_type(wftap *wfth, int *err,
+static gboolean dbs_etherwatch_check_file_type(wtap *wth, int *err,
     gchar **err_info)
 {
 	char	buf[DBS_ETHERWATCH_LINE_LENGTH];
@@ -148,9 +147,9 @@ static gboolean dbs_etherwatch_check_file_type(wftap *wfth, int *err,
 	buf[DBS_ETHERWATCH_LINE_LENGTH-1] = 0;
 
 	for (line = 0; line < DBS_ETHERWATCH_HEADER_LINES_TO_CHECK; line++) {
-		if (file_gets(buf, DBS_ETHERWATCH_LINE_LENGTH, wfth->fh) == NULL) {
+		if (file_gets(buf, DBS_ETHERWATCH_LINE_LENGTH, wth->fh) == NULL) {
 			/* EOF or error. */
-			*err = file_error(wfth->fh, err_info);
+			*err = file_error(wth->fh, err_info);
 			return FALSE;
 		}
 
@@ -177,53 +176,51 @@ static gboolean dbs_etherwatch_check_file_type(wftap *wfth, int *err,
 }
 
 
-int dbs_etherwatch_open(wftap *wfth, int *err, gchar **err_info)
+int dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 {
 	/* Look for DBS ETHERWATCH header */
-	if (!dbs_etherwatch_check_file_type(wfth, err, err_info)) {
+	if (!dbs_etherwatch_check_file_type(wth, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
 
-	wfth->file_encap = WTAP_ENCAP_ETHERNET;
-	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DBS_ETHERWATCH;
-	wfth->snapshot_length = 0;	/* not known */
-	wfth->subtype_read = dbs_etherwatch_read;
-	wfth->subtype_seek_read = dbs_etherwatch_seek_read;
-	wfth->tsprecision = WTAP_FILE_TSPREC_CSEC;
+	wth->file_encap = WTAP_ENCAP_ETHERNET;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DBS_ETHERWATCH;
+	wth->snapshot_length = 0;	/* not known */
+	wth->subtype_read = dbs_etherwatch_read;
+	wth->subtype_seek_read = dbs_etherwatch_seek_read;
+	wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
 
 	return 1;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean dbs_etherwatch_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
-	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	/* Find the next packet */
-	offset = dbs_etherwatch_seek_next_packet(wfth, err, err_info);
+	offset = dbs_etherwatch_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
 		return FALSE;
 	*data_offset = offset;
 
 	/* Parse the packet */
-	return parse_dbs_etherwatch_packet(&wth->phdr, wfth->fh,
-	     wfth->frame_buffer, err, err_info);
+	return parse_dbs_etherwatch_packet(&wth->phdr, wth->fh,
+	     wth->frame_buffer, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
-dbs_etherwatch_seek_read(wftap *wfth, gint64 seek_off,
-	void* header, Buffer *buf, int *err, gchar **err_info)
+dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	struct wtap_pkthdr *phdr = (struct wtap_pkthdr*)header;
-	if (file_seek(wfth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
+	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
 		return FALSE;
 
-	return parse_dbs_etherwatch_packet(phdr, wfth->random_fh, buf, err,
+	return parse_dbs_etherwatch_packet(phdr, wth->random_fh, buf, err,
 	    err_info);
 }
 

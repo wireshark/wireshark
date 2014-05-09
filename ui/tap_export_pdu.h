@@ -29,7 +29,7 @@ extern "C" {
 
 typedef struct _exp_pdu_t {
     int          pkt_encap;
-    wftap_dumper* wdh;
+    wtap_dumper* wdh;
 } exp_pdu_t;
 
 void exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data);

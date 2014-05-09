@@ -72,7 +72,6 @@
 #include <string.h>
 #include <errno.h>
 #include <time.h>
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "wtap.h"
 #include "file_wrappers.h"
@@ -246,10 +245,9 @@ k12text_reset(FILE_T fh)
 }
 
 static gboolean
-k12text_read(wftap *wfth, int *err, char ** err_info, gint64 *data_offset)
+k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 {
-	k12text_t *k12text = (k12text_t *)wfth->priv;
-	wtap* wth = (wtap*)wfth->tap_specific_data;
+	k12text_t *k12text = (k12text_t *)wth->priv;
 
 	/*
 	 * We seek to the file position after the end of the previous frame
@@ -260,10 +258,10 @@ k12text_read(wftap *wfth, int *err, char ** err_info, gint64 *data_offset)
 	 * init vars set by lexer.
 	 */
 
-	if ( file_seek(wfth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
+	if ( file_seek(wth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	k12text_reset(wfth->fh);		/* init lexer buffer and vars set by lexer */
+	k12text_reset(wth->fh);		/* init lexer buffer and vars set by lexer */
 
 	BEGIN(NEXT_FRAME);
 	yylex();
@@ -284,20 +282,19 @@ k12text_read(wftap *wfth, int *err, char ** err_info, gint64 *data_offset)
 
 	k12text_set_headers(&wth->phdr);
 
-	buffer_assure_space(wfth->frame_buffer, wth->phdr.caplen);
-	memcpy(buffer_start_ptr(wfth->frame_buffer), bb, wth->phdr.caplen);
+	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
+	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
 
 	return TRUE;
 }
 
 static gboolean
-k12text_seek_read(wftap *wfth, gint64 seek_off, void* header, Buffer *buf, int *err, char **err_info)
+k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, char **err_info)
 {
-	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
-	if ( file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1) {
+	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
-	k12text_reset(wfth->random_fh);		/* init lexer buffer and vars set by lexer */
+	k12text_reset(wth->random_fh);		/* init lexer buffer and vars set by lexer */
 
 	BEGIN(NEXT_FRAME);
 	yylex();
@@ -322,30 +319,30 @@ k12text_seek_read(wftap *wfth, gint64 seek_off, void* header, Buffer *buf, int *
 }
 
 int
-k12text_open(wftap *wfth, int *err, gchar **err_info _U_)
+k12text_open(wtap *wth, int *err, gchar **err_info _U_)
 {
 	k12text_t *k12text;
 
-	k12text_reset(wfth->fh);       /* init lexer buffer and vars set by lexer */
+	k12text_reset(wth->fh);       /* init lexer buffer and vars set by lexer */
 
 	BEGIN(MAGIC);
 	yylex();
 
 	if (! is_k12text) return 0;
 
-	if ( file_seek(wfth->fh, 0, SEEK_SET, err) == -1) {
+	if ( file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
 		return -1;
 	}
 
 	k12text = (k12text_t *)g_malloc(sizeof(k12text_t));
-	wfth->priv = (void *)k12text;
+	wth->priv = (void *)k12text;
 	k12text->next_frame_offset = 0;
-	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12TEXT;
-	wfth->file_encap = WTAP_ENCAP_PER_PACKET;
-	wfth->snapshot_length = 0;
-	wfth->subtype_read = k12text_read;
-	wfth->subtype_seek_read = k12text_seek_read;
-	wfth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12TEXT;
+	wth->file_encap = WTAP_ENCAP_PER_PACKET;
+	wth->snapshot_length = 0;
+	wth->subtype_read = k12text_read;
+	wth->subtype_seek_read = k12text_seek_read;
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
 }
@@ -362,7 +359,7 @@ static const struct { int e; const char* s; } encaps[] = {
 };
 
 static gboolean
-k12text_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	     const guint8 *pd, int *err) {
 #define K12BUF_SIZE 196808
 	char *buf;
@@ -425,7 +422,7 @@ k12text_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	wl = g_snprintf(p, left, "\r\n\r\n");
 	left -= wl;
 
-	ret = wftap_dump_file_write(wdh, buf, K12BUF_SIZE - left, err);
+	ret = wtap_dump_file_write(wdh, buf, K12BUF_SIZE - left, err);
 
 	g_free(buf);
 	return ret;
@@ -433,17 +430,17 @@ k12text_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 
 gboolean
-k12text_dump_open(wftap_dumper *wdh, int *err _U_)
+k12text_dump_open(wtap_dumper *wdh, int *err _U_)
 {
-	wdh->subtype_write = k12text_dump;
+    wdh->subtype_write = k12text_dump;
 
-	return TRUE;
+    return TRUE;
 }
 
 int
 k12text_dump_can_write_encap(int encap)
 {
-	switch (encap) {
+    switch (encap) {
 	case WTAP_ENCAP_PER_PACKET:
 	case WTAP_ENCAP_ETHERNET:
 	case WTAP_ENCAP_MTP3:
@@ -453,7 +450,7 @@ k12text_dump_can_write_encap(int encap)
 	case WTAP_ENCAP_ATM_PDUS:
 	default:
 		return WTAP_ERR_UNSUPPORTED_ENCAP;
-	}
+    }
 }
 
 /*

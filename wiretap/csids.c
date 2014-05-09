@@ -19,7 +19,6 @@
  */
 
 #include "config.h"
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "csids.h"
@@ -45,10 +44,10 @@ typedef struct {
 	gboolean byteswapped;
 } csids_t;
 
-static gboolean csids_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean csids_seek_read(wftap *wfth, gint64 seek_off,
-	void* header, Buffer *buf, int *err, gchar **err_info);
+static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean csids_read_packet(FILE_T fh, csids_t *csids,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
@@ -59,7 +58,7 @@ struct csids_header {
 };
 
 /* XXX - return -1 on I/O error and actually do something with 'err'. */
-int csids_open(wftap *wfth, int *err, gchar **err_info)
+int csids_open(wtap *wth, int *err, gchar **err_info)
 {
   /* There is no file header. There is only a header for each packet
    * so we read a packet header and compare the caplen with iplen. They
@@ -76,30 +75,30 @@ int csids_open(wftap *wfth, int *err, gchar **err_info)
   csids_t *csids;
 
   /* check the file to make sure it is a csids file. */
-  bytesRead = file_read( &hdr, sizeof( struct csids_header), wfth->fh );
+  bytesRead = file_read( &hdr, sizeof( struct csids_header), wth->fh );
   if( bytesRead != sizeof( struct csids_header) ) {
-    *err = file_error( wfth->fh, err_info );
+    *err = file_error( wth->fh, err_info );
     if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
       return -1;
     }
     return 0;
   }
   if( hdr.zeropad != 0 || hdr.caplen == 0 ) {
-    return 0;
+	return 0;
   }
   hdr.seconds = pntoh32( &hdr.seconds );
   hdr.caplen = pntoh16( &hdr.caplen );
-  bytesRead = file_read( &tmp, 2, wfth->fh );
+  bytesRead = file_read( &tmp, 2, wth->fh );
   if( bytesRead != 2 ) {
-    *err = file_error( wfth->fh, err_info );
+    *err = file_error( wth->fh, err_info );
     if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
       return -1;
     }
     return 0;
   }
-  bytesRead = file_read( &iplen, 2, wfth->fh );
+  bytesRead = file_read( &iplen, 2, wth->fh );
   if( bytesRead != 2 ) {
-    *err = file_error( wfth->fh, err_info );
+    *err = file_error( wth->fh, err_info );
     if( *err != 0 && *err != WTAP_ERR_SHORT_READ ) {
       return -1;
     }
@@ -128,51 +127,49 @@ int csids_open(wftap *wfth, int *err, gchar **err_info)
   }
 
   /* no file header. So reset the fh to 0 so we can read the first packet */
-  if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
+  if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
   csids = (csids_t *)g_malloc(sizeof(csids_t));
-  wfth->priv = (void *)csids;
+  wth->priv = (void *)csids;
   csids->byteswapped = byteswap;
-  wfth->file_encap = WTAP_ENCAP_RAW_IP;
-  wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CSIDS;
-  wfth->snapshot_length = 0; /* not known */
-  wfth->subtype_read = csids_read;
-  wfth->subtype_seek_read = csids_seek_read;
-  wfth->tsprecision = WTAP_FILE_TSPREC_SEC;
+  wth->file_encap = WTAP_ENCAP_RAW_IP;
+  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CSIDS;
+  wth->snapshot_length = 0; /* not known */
+  wth->subtype_read = csids_read;
+  wth->subtype_seek_read = csids_seek_read;
+  wth->tsprecision = WTAP_FILE_TSPREC_SEC;
 
   return 1;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean csids_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-  csids_t *csids = (csids_t *)wfth->priv;
-  wtap* wth = (wtap*)wfth->tap_specific_data;
+  csids_t *csids = (csids_t *)wth->priv;
 
-  *data_offset = file_tell(wfth->fh);
+  *data_offset = file_tell(wth->fh);
 
-  return csids_read_packet( wfth->fh, csids, &wth->phdr, wfth->frame_buffer,
+  return csids_read_packet( wth->fh, csids, &wth->phdr, wth->frame_buffer,
                             err, err_info );
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
-csids_seek_read(wftap *wfth,
+csids_seek_read(wtap *wth,
 		 gint64 seek_off,
-		 void* header,
+		 struct wtap_pkthdr *phdr,
 		 Buffer *buf,
 		 int *err,
 		 gchar **err_info)
 {
-  csids_t *csids = (csids_t *)wfth->priv;
-  struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+  csids_t *csids = (csids_t *)wth->priv;
 
-  if( file_seek( wfth->random_fh, seek_off, SEEK_SET, err ) == -1 )
+  if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
     return FALSE;
 
-  if( !csids_read_packet( wfth->random_fh, csids, phdr, buf, err, err_info ) ) {
+  if( !csids_read_packet( wth->random_fh, csids, phdr, buf, err, err_info ) ) {
     if( *err == 0 )
       *err = WTAP_ERR_SHORT_READ;
     return FALSE;

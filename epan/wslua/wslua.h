@@ -239,19 +239,19 @@ struct _wslua_tap {
 
 /* a "File" object can be different things under the hood. It can either
    be a FILE_T from wtap struct, which it is during read operations, or it
-   can be a wftap_dumper struct during write operations. A wtap_dumper struct
+   can be a wtap_dumper struct during write operations. A wtap_dumper struct
    has a FILE_T member, but we can't only store its pointer here because
    dump operations need the whole thing to write out with. Ugh. */
 struct _wslua_file {
     FILE_T   file;
-    wftap_dumper *wdh;   /* will be NULL during read usage */
+    wtap_dumper *wdh;   /* will be NULL during read usage */
     gboolean expired;
 };
 
 /* a "CaptureInfo" object can also be different things under the hood. */
 struct _wslua_captureinfo {
-    wftap *wfth;         /* will be NULL during write usage */
-    wftap_dumper *wdh;   /* will be NULL during read usage */
+    wtap *wth;          /* will be NULL during write usage */
+    wtap_dumper *wdh;   /* will be NULL during read usage */
     gboolean expired;
 };
 
@@ -334,7 +334,7 @@ typedef struct _wslua_captureinfo* CaptureInfoConst;
 typedef struct _wslua_phdr* FrameInfo;
 typedef struct _wslua_const_phdr* FrameInfoConst;
 typedef struct _wslua_filehandler* FileHandler;
-typedef wftap_dumper* Dumper;
+typedef wtap_dumper* Dumper;
 typedef struct lua_pseudo_header* PseudoHeader;
 typedef tvbparse_t* Parser;
 typedef tvbparse_wanted_t* Rule;

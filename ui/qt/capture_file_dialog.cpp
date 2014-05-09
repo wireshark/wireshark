@@ -786,10 +786,10 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     // Format
-    preview_format_.setText(QString::fromUtf8(wtap_file_type_subtype_string(wftap_file_type_subtype(wth))));
+    preview_format_.setText(QString::fromUtf8(wtap_file_type_subtype_string(wtap_file_type_subtype(wth))));
 
     // Size
-    preview_size_.setText(QString(tr("%1 bytes")).arg(wftap_file_size(wth, &err)));
+    preview_size_.setText(QString(tr("%1 bytes")).arg(wtap_file_size(wth, &err)));
 
     time(&time_preview);
     while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {

@@ -49,6 +49,6 @@
 
 #define NETSCREEN_MAX_PACKET_LEN	65536
 
-int netscreen_open(wftap *wfth, int *err, gchar **err_info);
+int netscreen_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

@@ -26,7 +26,6 @@
  *   at the start of every packet.
  */
 #include "config.h"
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "vms.h"
@@ -140,10 +139,10 @@ to handle them.
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
 
-static gboolean vms_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean vms_seek_read(wftap *wfth, gint64 seek_off,
-    void* header, Buffer *buf, int *err, gchar **err_info);
+static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
 static gboolean parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr,
@@ -153,21 +152,21 @@ static gboolean parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
    and sets "*err_info" to null or an additional error string. */
-static long vms_seek_next_packet(wftap *wfth, int *err, gchar **err_info)
+static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
 {
     long cur_off;
     char buf[VMS_LINE_LENGTH];
 
     while (1) {
-        cur_off = file_tell(wfth->fh);
+        cur_off = file_tell(wth->fh);
         if (cur_off == -1) {
             /* Error */
-            *err = file_error(wfth->fh, err_info);
+            *err = file_error(wth->fh, err_info);
             return -1;
         }
-        if (file_gets(buf, sizeof(buf), wfth->fh) == NULL) {
+        if (file_gets(buf, sizeof(buf), wth->fh) == NULL) {
             /* EOF or error. */
-            *err = file_error(wfth->fh, err_info);
+            *err = file_error(wth->fh, err_info);
             break;
         }
         if (strstr(buf, VMS_REC_MAGIC_STR1) ||
@@ -191,7 +190,7 @@ static long vms_seek_next_packet(wftap *wfth, int *err, gchar **err_info)
  * Leaves file handle at beginning of line that contains the VMS Magic
  * identifier.
  */
-static gboolean vms_check_file_type(wftap *wfth, int *err, gchar **err_info)
+static gboolean vms_check_file_type(wtap *wth, int *err, gchar **err_info)
 {
     char buf[VMS_LINE_LENGTH];
     guint reclen, line;
@@ -200,15 +199,15 @@ static gboolean vms_check_file_type(wftap *wfth, int *err, gchar **err_info)
     buf[VMS_LINE_LENGTH-1] = '\0';
 
     for (line = 0; line < VMS_HEADER_LINES_TO_CHECK; line++) {
-        mpos = file_tell(wfth->fh);
+        mpos = file_tell(wth->fh);
         if (mpos == -1) {
             /* Error. */
-            *err = file_error(wfth->fh, err_info);
+            *err = file_error(wth->fh, err_info);
             return FALSE;
         }
-        if (file_gets(buf, VMS_LINE_LENGTH, wfth->fh) == NULL) {
+        if (file_gets(buf, VMS_LINE_LENGTH, wth->fh) == NULL) {
             /* EOF or error. */
-            *err = file_error(wfth->fh, err_info);
+            *err = file_error(wth->fh, err_info);
             return FALSE;
         }
 
@@ -224,7 +223,7 @@ static gboolean vms_check_file_type(wftap *wfth, int *err, gchar **err_info)
             strstr(buf, VMS_HDR_MAGIC_STR3)) {
             /* Go back to the beginning of this line, so we will
              * re-read it. */
-            if (file_seek(wfth->fh, mpos, SEEK_SET, err) == -1) {
+            if (file_seek(wth->fh, mpos, SEEK_SET, err) == -1) {
                 /* Error. */
                 return FALSE;
             }
@@ -236,58 +235,56 @@ static gboolean vms_check_file_type(wftap *wfth, int *err, gchar **err_info)
 }
 
 
-int vms_open(wftap *wfth, int *err, gchar **err_info)
+int vms_open(wtap *wth, int *err, gchar **err_info)
 {
     /* Look for VMS header */
-    if (!vms_check_file_type(wfth, err, err_info)) {
+    if (!vms_check_file_type(wth, err, err_info)) {
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
 
-    wfth->file_encap = WTAP_ENCAP_RAW_IP;
-    wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VMS;
-    wfth->snapshot_length = 0; /* not known */
-    wfth->subtype_read = vms_read;
-    wfth->subtype_seek_read = vms_seek_read;
-    wfth->tsprecision = WTAP_FILE_TSPREC_CSEC;
+    wth->file_encap = WTAP_ENCAP_RAW_IP;
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VMS;
+    wth->snapshot_length = 0; /* not known */
+    wth->subtype_read = vms_read;
+    wth->subtype_seek_read = vms_seek_read;
+    wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
 
     return 1;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean vms_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     gint64   offset = 0;
-    wtap* wth = (wtap*)wfth->tap_specific_data;
 
     /* Find the next packet */
 #ifdef TCPIPTRACE_FRAGMENTS_HAVE_HEADER_LINE
     offset = vms_seek_next_packet(wth, err, err_info);
 #else
-    offset = file_tell(wfth->fh);
+    offset = file_tell(wth->fh);
 #endif
     if (offset < 1) {
-        *err = file_error(wfth->fh, err_info);
+        *err = file_error(wth->fh, err_info);
         return FALSE;
     }
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_vms_packet(wfth->fh, &wth->phdr, wfth->frame_buffer, err, err_info);
+    return parse_vms_packet(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
-vms_seek_read(wftap *wfth, gint64 seek_off, void* header,
+vms_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
-    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
-    if (file_seek(wfth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
+    if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
         return FALSE;
 
-    if (!parse_vms_packet(wfth->random_fh, phdr, buf, err, err_info)) {
+    if (!parse_vms_packet(wth->random_fh, phdr, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -305,16 +302,16 @@ isdumpline( gchar *line )
     int i, j;
 
     while (*line && !isalnum((guchar)*line))
-        line++;
+	line++;
 
     for (j=0; j<4; j++) {
-        for (i=0; i<8; i++, line++)
-            if (! isxdigit((guchar)*line))
-                return FALSE;
+	for (i=0; i<8; i++, line++)
+	    if (! isxdigit((guchar)*line))
+		return FALSE;
 
-        for (i=0; i<3; i++, line++)
-            if (*line != ' ')
-                return FALSE;
+	for (i=0; i<3; i++, line++)
+	    if (*line != ' ')
+		return FALSE;
     }
 
     return isspace((guchar)*line);

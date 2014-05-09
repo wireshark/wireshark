@@ -24,6 +24,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int iseries_open(wftap *wfth, int *err, gchar **err_info);
+int iseries_open(wtap *wth, int *err, gchar **err_info);
 
 #endif

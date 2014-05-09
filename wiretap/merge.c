@@ -1,5 +1,4 @@
-/* merge.c
- * Combine multiple dump files, either by appending or by merging by timestamp
+/* Combine multiple dump files, either by appending or by merging by timestamp
  *
  * Written by Scott Renfro <scott@renfro.org> based on
  * editcap by Richard Sharpe and Guy Harris
@@ -61,21 +60,21 @@ merge_open_in_files(int in_file_count, char *const *in_file_names,
 
   for (i = 0; i < in_file_count; i++) {
     files[i].filename    = in_file_names[i];
-    files[i].wfth        = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
+    files[i].wth         = wtap_open_offline(in_file_names[i], WTAP_TYPE_AUTO, err, err_info, FALSE);
     files[i].data_offset = 0;
     files[i].state       = PACKET_NOT_PRESENT;
     files[i].packet_num  = 0;
-    if (!files[i].wfth) {
+    if (!files[i].wth) {
       /* Close the files we've already opened. */
       for (j = 0; j < i; j++)
-        wtap_close(files[j].wfth);
+        wtap_close(files[j].wth);
       *err_fileno = i;
       return FALSE;
     }
-    size = wftap_file_size(files[i].wfth, err);
+    size = wtap_file_size(files[i].wth, err);
     if (size == -1) {
       for (j = 0; j <= i; j++)
-        wtap_close(files[j].wfth);
+        wtap_close(files[j].wth);
       *err_fileno = i;
       return FALSE;
     }
@@ -92,7 +91,7 @@ merge_close_in_files(int count, merge_in_file_t in_files[])
 {
   int i;
   for (i = 0; i < count; i++) {
-    wtap_close(in_files[i].wfth);
+    wtap_close(in_files[i].wth);
   }
 }
 
@@ -110,10 +109,10 @@ merge_select_frame_type(int count, merge_in_file_t files[])
   int i;
   int selected_frame_type;
 
-  selected_frame_type = wftap_file_encap(files[0].wfth);
+  selected_frame_type = wtap_file_encap(files[0].wth);
 
   for (i = 1; i < count; i++) {
-    int this_frame_type = wftap_file_encap(files[i].wfth);
+    int this_frame_type = wtap_file_encap(files[i].wth);
     if (selected_frame_type != this_frame_type) {
       selected_frame_type = WTAP_ENCAP_PER_PACKET;
       break;
@@ -134,7 +133,7 @@ merge_max_snapshot_length(int count, merge_in_file_t in_files[])
   int snapshot_length;
 
   for (i = 0; i < count; i++) {
-    snapshot_length = wftap_snapshot_length(in_files[i].wfth);
+    snapshot_length = wtap_snapshot_length(in_files[i].wth);
     if (snapshot_length == 0) {
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
@@ -197,7 +196,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
        * No packet available, and we haven't seen an error or EOF yet,
        * so try to read the next packet.
        */
-      if (!wtap_read(in_files[i].wfth, err, err_info, &in_files[i].data_offset)) {
+      if (!wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset)) {
         if (*err != 0) {
           in_files[i].state = GOT_ERROR;
           return &in_files[i];
@@ -208,7 +207,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
     }
 
     if (in_files[i].state == PACKET_PRESENT) {
-      phdr = wtap_phdr(in_files[i].wfth);
+      phdr = wtap_phdr(in_files[i].wth);
       if (is_earlier(&phdr->ts, &tv)) {
         tv = phdr->ts;
         ei = i;
@@ -261,7 +260,7 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
   for (i = 0; i < in_file_count; i++) {
     if (in_files[i].state == AT_EOF)
       continue; /* This file is already at EOF */
-    if (wtap_read(in_files[i].wfth, err, err_info, &in_files[i].data_offset))
+    if (wtap_read(in_files[i].wth, err, err_info, &in_files[i].data_offset))
       break; /* We have a packet */
     if (*err != 0) {
       /* Read error - quit immediately. */

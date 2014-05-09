@@ -37,17 +37,45 @@
 
 #include "wtap.h"
 
+WS_DLL_PUBLIC
+int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
+
+typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
+typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
+                                           struct wtap_pkthdr *, Buffer *buf,
+                                           int *, char **);
 /**
  * Struct holding data of the currently read file.
  */
 struct wtap {
+    FILE_T                      fh;
+    FILE_T                      random_fh;              /**< Secondary FILE_T for random access */
+    int                         file_type_subtype;
+    guint                       snapshot_length;
+    struct Buffer               *frame_buffer;
     struct wtap_pkthdr          phdr;
     struct wtapng_section_s     shb_hdr;
     guint                       number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
 
+    void                        *priv;          /* this one holds per-file state and is free'd automatically by wtap_close() */
+    void                        *wslua_data;    /* this one holds wslua state info and is not free'd */
+
+    subtype_read_func           subtype_read;
+    subtype_seek_read_func      subtype_seek_read;
+    void                        (*subtype_sequential_close)(struct wtap*);
+    void                        (*subtype_close)(struct wtap*);
+    int                         file_encap;    /* per-file, for those
+                                                * file formats that have
+                                                * per-file encapsulation
+                                                * types
+                                                */
+    int                         tsprecision;   /* timestamp precision of the lower 32bits
+                                                * e.g. WTAP_FILE_TSPREC_USEC
+                                                */
     wtap_new_ipv4_callback_t    add_new_ipv4;
     wtap_new_ipv6_callback_t    add_new_ipv6;
+    GPtrArray                   *fast_seek;
 };
 
 struct wtap_dumper;
@@ -57,13 +85,39 @@ struct wtap_dumper;
  */
 typedef void *WFILE_T;
 
+typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
+                                       const struct wtap_pkthdr*,
+                                       const guint8*, int*);
+typedef gboolean (*subtype_close_func)(struct wtap_dumper*, int*);
 
 struct wtap_dumper {
+    WFILE_T                 fh;
+    int                     file_type_subtype;
+    int                     snaplen;
+    int                     encap;
+    gboolean                compressed;
+    gint64                  bytes_dumped;
+
+    void                    *priv;       /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
+    void                    *wslua_data; /* this one holds wslua state info and is not free'd */
+
+    subtype_write_func      subtype_write;
+    subtype_close_func      subtype_close;
+
+    int                     tsprecision;    /**< timestamp precision of the lower 32bits
+                                             * e.g. WTAP_FILE_TSPREC_USEC
+                                             */
     addrinfo_lists_t        *addrinfo_lists;        /**< Struct containing lists of resolved addresses */
     struct wtapng_section_s *shb_hdr;
     guint                   number_of_interfaces;   /**< The number of interfaces a capture was made on, number of IDB:s in a pcapng file or equivalent(?)*/
     GArray                  *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
 };
+
+WS_DLL_PUBLIC gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf,
+    size_t bufsize, int *err);
+WS_DLL_PUBLIC gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err);
+WS_DLL_PUBLIC gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err);
+
 
 extern gint wtap_num_file_types;
 

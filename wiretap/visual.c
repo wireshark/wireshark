@@ -23,7 +23,6 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -159,20 +158,20 @@ struct visual_write_info
 
 
 /* Local functions to handle file reads and writes */
-static gboolean visual_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean visual_seek_read(wftap *wfth, gint64 seek_off,
-    void* header, Buffer *buf, int *err, gchar **err_info);
-static gboolean visual_read_packet(wftap *wfth, FILE_T fh,
+static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean visual_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean visual_read_packet(wtap *wth, FILE_T fh,
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err);
-static gboolean visual_dump_close(wftap_dumper *wdh, int *err);
-static void visual_dump_free(wftap_dumper *wdh);
+static gboolean visual_dump_close(wtap_dumper *wdh, int *err);
+static void visual_dump_free(wtap_dumper *wdh);
 
 
 /* Open a file for reading */
-int visual_open(wftap *wfth, int *err, gchar **err_info)
+int visual_open(wtap *wth, int *err, gchar **err_info)
 {
     int bytes_read;
     char magic[sizeof visual_magic];
@@ -182,10 +181,10 @@ int visual_open(wftap *wfth, int *err, gchar **err_info)
 
     /* Check the magic string at the start of the file */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(magic, sizeof magic, wfth->fh);
+    bytes_read = file_read(magic, sizeof magic, wth->fh);
     if (bytes_read != sizeof magic)
     {
-        *err = file_error(wfth->fh, err_info);
+        *err = file_error(wth->fh, err_info);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
@@ -197,10 +196,10 @@ int visual_open(wftap *wfth, int *err, gchar **err_info)
 
     /* Read the rest of the file header. */
     errno = WTAP_ERR_CANT_READ;
-    bytes_read = file_read(&vfile_hdr, sizeof vfile_hdr, wfth->fh);
+    bytes_read = file_read(&vfile_hdr, sizeof vfile_hdr, wth->fh);
     if (bytes_read != sizeof vfile_hdr)
     {
-        *err = file_error(wfth->fh, err_info);
+        *err = file_error(wth->fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return -1;
@@ -258,18 +257,18 @@ int visual_open(wftap *wfth, int *err, gchar **err_info)
     }
 
     /* Fill in the wiretap struct with data from the file header */
-    wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VISUAL_NETWORKS;
-    wfth->file_encap = encap;
-    wfth->snapshot_length = pletoh16(&vfile_hdr.max_length);
+    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VISUAL_NETWORKS;
+    wth->file_encap = encap;
+    wth->snapshot_length = pletoh16(&vfile_hdr.max_length);
 
     /* Set up the pointers to the handlers for this file type */
-    wfth->subtype_read = visual_read;
-    wfth->subtype_seek_read = visual_seek_read;
-    wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wth->subtype_read = visual_read;
+    wth->subtype_seek_read = visual_seek_read;
+    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     /* Add Visual-specific information to the wiretap struct for later use. */
     visual = (struct visual_read_info *)g_malloc(sizeof(struct visual_read_info));
-    wfth->priv = (void *)visual;
+    wth->priv = (void *)visual;
     visual->num_pkts = pletoh32(&vfile_hdr.num_pkts);
     visual->start_time = ((double) pletoh32(&vfile_hdr.start_time)) * 1000000;
     visual->current_pkt = 1;
@@ -282,11 +281,10 @@ int visual_open(wftap *wfth, int *err, gchar **err_info)
    in a loop to sequentially read the entire file one time.  After
    the file has been read once, any Future access to the packets is
    done through seek_read. */
-static gboolean visual_read(wftap *wfth, int *err, gchar **err_info,
+static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    struct visual_read_info *visual = (struct visual_read_info *)wfth->priv;
-    wtap* wth = (wtap*)wfth->tap_specific_data;
+    struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
 
     /* Check for the end of the packet data.  Note that a check for file EOF
        will not work because there are index values stored after the last
@@ -298,23 +296,22 @@ static gboolean visual_read(wftap *wfth, int *err, gchar **err_info,
     }
     visual->current_pkt++;
 
-    *data_offset = file_tell(wfth->fh);
+    *data_offset = file_tell(wth->fh);
 
-    return visual_read_packet(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer,
+    return visual_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
             err, err_info);
 }
 
 /* Read packet header and data for random access. */
-static gboolean visual_seek_read(wftap *wfth, gint64 seek_off,
-    void* header, Buffer *buf, int *err, gchar **err_info)
+static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
     /* Seek to the packet header */
-    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
+    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     /* Read the packet. */
-    if (!visual_read_packet(wfth, wfth->random_fh, phdr, buf, err, err_info)) {
+    if (!visual_read_packet(wth, wth->random_fh, phdr, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -323,10 +320,10 @@ static gboolean visual_seek_read(wftap *wfth, gint64 seek_off,
 }
 
 static gboolean
-visual_read_packet(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
+visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
         Buffer *buf, int *err, gchar **err_info)
 {
-    struct visual_read_info *visual = (struct visual_read_info *)wfth->priv;
+    struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
     struct visual_pkt_hdr vpkt_hdr;
     int bytes_read;
     guint32 packet_size;
@@ -386,7 +383,7 @@ visual_read_packet(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
        all encapsulations is direction.  This either goes in the p2p or the
        X.25 pseudo header.  It would probably be better to move this up
        into the phdr. */
-    switch (wfth->file_encap)
+    switch (wth->file_encap)
     {
     case WTAP_ENCAP_ETHERNET:
         /* Ethernet has a 4-byte FCS. */
@@ -557,7 +554,7 @@ visual_read_packet(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
     if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
         return FALSE;
 
-    if (wfth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
+    if (wth->file_encap == WTAP_ENCAP_CHDLC_WITH_PHDR)
     {
         /* Fill in the encapsulation.  Visual files have a media type in the
            file header and an encapsulation type in each packet header.  Files
@@ -638,7 +635,7 @@ int visual_dump_can_write_encap(int encap)
 /* Open a file for writing.
    Returns TRUE on success, FALSE on failure; sets "*err" to an
    error code on failure */
-gboolean visual_dump_open(wftap_dumper *wdh, int *err)
+gboolean visual_dump_open(wtap_dumper *wdh, int *err)
 {
     struct visual_write_info *visual;
 
@@ -658,7 +655,7 @@ gboolean visual_dump_open(wftap_dumper *wdh, int *err)
     /* All of the fields in the file header aren't known yet so
        just skip over it for now.  It will be created after all
        of the packets have been written. */
-    if (wftap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
+    if (wtap_dump_file_seek(wdh, CAPTUREFILE_HEADER_SIZE, SEEK_SET, err) == -1)
 	return FALSE;
 
     return TRUE;
@@ -667,7 +664,7 @@ gboolean visual_dump_open(wftap_dumper *wdh, int *err)
 
 /* Write a packet to a Visual dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean visual_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
@@ -759,11 +756,11 @@ static gboolean visual_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
     vpkt_hdr.status = GUINT32_TO_LE(packet_status);
 
     /* Write the packet header. */
-    if (!wftap_dump_file_write(wdh, &vpkt_hdr, hdr_size, err))
+    if (!wtap_dump_file_write(wdh, &vpkt_hdr, hdr_size, err))
         return FALSE;
 
     /* Write the packet data */
-    if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
+    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
         return FALSE;
 
     /* Store the frame offset in the index table. */
@@ -786,7 +783,7 @@ static gboolean visual_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean visual_dump_close(wftap_dumper *wdh, int *err)
+static gboolean visual_dump_close(wtap_dumper *wdh, int *err)
 {
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     size_t n_to_write;
@@ -804,7 +801,7 @@ static gboolean visual_dump_close(wftap_dumper *wdh, int *err)
     {
         /* Write the index table to the file. */
         n_to_write = visual->index_table_index * sizeof *visual->index_table;
-        if (!wftap_dump_file_write(wdh, visual->index_table, n_to_write, err))
+        if (!wtap_dump_file_write(wdh, visual->index_table, n_to_write, err))
         {
             visual_dump_free(wdh);
             return FALSE;
@@ -812,11 +809,11 @@ static gboolean visual_dump_close(wftap_dumper *wdh, int *err)
     }
 
     /* Write the magic number at the start of the file. */
-    if (wftap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
-        return FALSE;
+    if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
+	return FALSE;
     magicp = visual_magic;
     magic_size = sizeof visual_magic;
-    if (!wftap_dump_file_write(wdh, magicp, magic_size, err))
+    if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
     {
         visual_dump_free(wdh);
         return FALSE;
@@ -858,7 +855,7 @@ static gboolean visual_dump_close(wftap_dumper *wdh, int *err)
     }
 
     /* Write the file header following the magic bytes. */
-    if (!wftap_dump_file_write(wdh, &vfile_hdr, sizeof vfile_hdr, err))
+    if (!wtap_dump_file_write(wdh, &vfile_hdr, sizeof vfile_hdr, err))
     {
         visual_dump_free(wdh);
         return FALSE;
@@ -871,7 +868,7 @@ static gboolean visual_dump_close(wftap_dumper *wdh, int *err)
 
 
 /* Free the memory allocated by a visual file writer. */
-static void visual_dump_free(wftap_dumper *wdh)
+static void visual_dump_free(wtap_dumper *wdh)
 {
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
 

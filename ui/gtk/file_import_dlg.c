@@ -535,7 +535,7 @@ file_import_open(text_import_info_t *info)
         read_failure_alert_box(info->import_text_filename, errno);
     }
 
-    if (!wftap_dump_close(info->wdh, &err)) {
+    if (!wtap_dump_close(info->wdh, &err)) {
         write_failure_alert_box(capfile_name, err);
     }
 

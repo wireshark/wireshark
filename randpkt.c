@@ -494,7 +494,7 @@ int
 main(int argc, char **argv)
 {
 
-	wftap_dumper		*dump;
+	wtap_dumper		*dump;
 	struct wtap_pkthdr	pkthdr;
 	union wtap_pseudo_header *ps_header = &pkthdr.pseudo_header;
 	int 			i, j, len_this_pkt, len_random, err;
@@ -620,7 +620,7 @@ main(int argc, char **argv)
 		wtap_dump(dump, &pkthdr, &buffer[0], &err);
 	}
 
-	wftap_dump_close(dump, &err);
+	wtap_dump_close(dump, &err);
 
 	return 0;
 

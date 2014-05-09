@@ -42,7 +42,7 @@ extern "C" {
  * "wtap_dump_fd_open()" to indicate that there is no single encapsulation
  * type for all packets in the file; this may cause those routines to
  * fail if the capture file format being written can't support that.
- * It's also returned by "wftap_file_encap()" for capture files that
+ * It's also returned by "wtap_file_encap()" for capture files that
  * don't have a single encapsulation type for all packets in the file.
  *
  * WTAP_ENCAP_UNKNOWN is returned by "wtap_pcap_encap_to_wtap_encap()"
@@ -697,7 +697,7 @@ struct catapult_dct2000_phdr
         struct p2p_phdr  p2p;
     } inner_pseudo_header;
     gint64       seek_off;
-    struct wftap *wfth;
+    struct wtap *wth;
 };
 
 #define LIBPCAP_BT_PHDR_SENT    0
@@ -1156,11 +1156,6 @@ struct wtap_dumper;
 typedef struct wtap wtap;
 typedef struct wtap_dumper wtap_dumper;
 
-/* Abstraction of "file" taps (either of capture files (wtap) or generic (ftap) ) */
-struct wftap;
-typedef struct wftap wftap;
-typedef struct wftap_dumper wftap_dumper;
-
 typedef struct wtap_reader *FILE_T;
 
 /* Similar to the wtap_open_routine_info for open routines, the following
@@ -1172,7 +1167,7 @@ typedef struct wtap_reader *FILE_T;
  * by the void* data here.  This 'data' pointer will be copied into the
  * wtap_dumper struct's 'void* data' member when calling the dump_open function,
  * which is how wslua finally retrieves it.  Unlike wtap_dumper's 'priv' member, its
- * 'data' member is not free'd in wftap_dump_close().
+ * 'data' member is not free'd in wtap_dump_close().
  */
 typedef struct wtap_wslua_file_info {
     int (*wslua_can_write_encap)(int, void*);   /* a can_write_encap func for wslua uses */
@@ -1237,7 +1232,7 @@ struct file_extension_info {
  * to recognize them or to avoid recognizing other file types as that
  * type, and have no extensions specified for them.
  */
-typedef int (*wtap_open_routine_t)(struct wftap*, int *, char **);
+typedef int (*wtap_open_routine_t)(struct wtap*, int *, char **);
 
 /*
  * Some file formats don't have defined magic numbers at fixed offsets,
@@ -1310,7 +1305,7 @@ struct file_type_subtype_info {
 
     /* the function to open the capture file for writing */
     /* should be NULL is this file type don't have write support */
-    int (*dump_open)(wftap_dumper *, int *);
+    int (*dump_open)(wtap_dumper *, int *);
 
     /* if can_write_encap returned WTAP_ERR_CHECK_WSLUA, then this is used instead */
     /* this should be NULL for everyone except Lua-based file writers */
@@ -1332,7 +1327,7 @@ struct file_type_subtype_info {
  * FALSE if not
  */
 WS_DLL_PUBLIC
-struct wftap* wtap_open_offline(const char *filename, unsigned int type, int *err,
+struct wtap* wtap_open_offline(const char *filename, unsigned int type, int *err,
     gchar **err_info, gboolean do_random);
 
 /**
@@ -1341,7 +1336,7 @@ struct wftap* wtap_open_offline(const char *filename, unsigned int type, int *er
  * we're tailing a file.
  */
 WS_DLL_PUBLIC
-void wftap_cleareof(wftap *wfth);
+void wtap_cleareof(wtap *wth);
 
 /**
  * Set callback functions to add new hostnames. Currently pcapng-only.
@@ -1349,69 +1344,67 @@ void wftap_cleareof(wftap *wfth);
  */
 typedef void (*wtap_new_ipv4_callback_t) (const guint addr, const gchar *name);
 WS_DLL_PUBLIC
-void wtap_set_cb_new_ipv4(wftap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
+void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4);
 
 typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name);
 WS_DLL_PUBLIC
-void wtap_set_cb_new_ipv6(wftap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
+void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 
 /** Returns TRUE if read was successful. FALSE if failure. data_offset is
  * set to the offset in the file where the data for the read packet is
  * located. */
 WS_DLL_PUBLIC
-gboolean wtap_read(wftap *wfth, int *err, gchar **err_info,
+gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 
 WS_DLL_PUBLIC
-gboolean wftap_seek_read (wftap *wfth, gint64 seek_off,
-    void* tap_pkthdr, Buffer *buf, int *err, gchar **err_info);
+gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 /*** get various information snippets about the current packet ***/
 WS_DLL_PUBLIC
-struct wtap_pkthdr *wtap_phdr(wftap *wfth);
+struct wtap_pkthdr *wtap_phdr(wtap *wth);
 WS_DLL_PUBLIC
-guint8 *wftap_buf_ptr(wftap *wfth);
+guint8 *wtap_buf_ptr(wtap *wth);
 
 /*** get various information snippets about the current file ***/
 
 /** Return an approximation of the amount of data we've read sequentially
  * from the file so far. */
 WS_DLL_PUBLIC
-gint64 wftap_read_so_far(wftap *wfth);
+gint64 wtap_read_so_far(wtap *wth);
 WS_DLL_PUBLIC
-gint64 wftap_file_size(wftap *wfth, int *err);
+gint64 wtap_file_size(wtap *wth, int *err);
 WS_DLL_PUBLIC
-gboolean wftap_iscompressed(wftap *wfth);
+gboolean wtap_iscompressed(wtap *wth);
 WS_DLL_PUBLIC
-guint wftap_snapshot_length(wftap *wfth); /* per file */
+guint wtap_snapshot_length(wtap *wth); /* per file */
 WS_DLL_PUBLIC
-int wftap_file_type_subtype(wftap *wfth);
+int wtap_file_type_subtype(wtap *wth);
 WS_DLL_PUBLIC
-int wftap_file_encap(wftap *wfth);
+int wtap_file_encap(wtap *wth);
 WS_DLL_PUBLIC
-int wftap_file_tsprecision(wftap *wfth);
+int wtap_file_tsprecision(wtap *wth);
 WS_DLL_PUBLIC
-wtapng_section_t* wtap_file_get_shb_info(wftap *wth);
+wtapng_section_t* wtap_file_get_shb_info(wtap *wth);
 WS_DLL_PUBLIC
-wtapng_iface_descriptions_t *wtap_file_get_idb_info(wftap *wth);
+wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 WS_DLL_PUBLIC
-void wtap_write_shb_comment(wftap *wfth, gchar *comment);
+void wtap_write_shb_comment(wtap *wth, gchar *comment);
 
 /*** close the file descriptors for the current file ***/
 WS_DLL_PUBLIC
-void wftap_fdclose(wftap *wth);
+void wtap_fdclose(wtap *wth);
 
 /*** reopen the random file descriptor for the current file ***/
 WS_DLL_PUBLIC
-gboolean wftap_fdreopen(wftap *wfth, const char *filename, int *err);
+gboolean wtap_fdreopen(wtap *wth, const char *filename, int *err);
 
 /*** close the current file ***/
 WS_DLL_PUBLIC
-void wftap_sequential_close(wftap *wfth);
+void wtap_sequential_close(wtap *wth);
 WS_DLL_PUBLIC
-void wftap_close(wftap *wfth);
-WS_DLL_PUBLIC
-void wtap_close(wftap *wfth);
+void wtap_close(wtap *wth);
 
 /*** dump packets into a capture file ***/
 WS_DLL_PUBLIC
@@ -1446,35 +1439,35 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_supports_comment_types(int filetype, guint32 comment_types);
 
 WS_DLL_PUBLIC
-wftap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
+wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
     int snaplen, gboolean compressed, int *err);
 
 WS_DLL_PUBLIC
-wftap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
+wtap_dumper* wtap_dump_open_ng(const char *filename, int filetype, int encap,
     int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
 
 WS_DLL_PUBLIC
-wftap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
+wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
     gboolean compressed, int *err);
 
 WS_DLL_PUBLIC
-wftap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
+wtap_dumper* wtap_dump_fdopen_ng(int fd, int filetype, int encap, int snaplen,
                 gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err);
 
 
 WS_DLL_PUBLIC
-gboolean wtap_dump(wftap_dumper *, const struct wtap_pkthdr *, const guint8 *, int *err);
+gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *, const guint8 *, int *err);
 WS_DLL_PUBLIC
-void wftap_dump_flush(wftap_dumper *);
+void wtap_dump_flush(wtap_dumper *);
 WS_DLL_PUBLIC
-gint64 wftap_get_bytes_dumped(wftap_dumper *);
+gint64 wtap_get_bytes_dumped(wtap_dumper *);
 WS_DLL_PUBLIC
-void wftap_set_bytes_dumped(wftap_dumper *wdh, gint64 bytes_dumped);
+void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);
 struct addrinfo;
 WS_DLL_PUBLIC
-gboolean wtap_dump_set_addrinfo_list(wftap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
+gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
-gboolean wftap_dump_close(wftap_dumper *, int *);
+gboolean wtap_dump_close(wtap_dumper *, int *);
 
 /**
  * Return TRUE if we can write a file out with the given GArray of file

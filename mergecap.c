@@ -225,7 +225,7 @@ main(int argc, char *argv[])
   merge_in_file_t    *in_files           = NULL, *in_file;
   int                 i;
   struct wtap_pkthdr *phdr, snap_phdr;
-  wftap_dumper       *pdh;
+  wtap_dumper        *pdh;
   int                 open_err, read_err = 0, write_err, close_err;
   gchar              *err_info;
   int                 err_fileno;
@@ -333,7 +333,7 @@ main(int argc, char *argv[])
   if (verbose) {
     for (i = 0; i < in_file_count; i++)
       fprintf(stderr, "mergecap: %s is type %s.\n", argv[optind + i],
-              wtap_file_type_subtype_string(wftap_file_type_subtype(in_files[i].wfth)));
+              wtap_file_type_subtype_string(wtap_file_type_subtype(in_files[i].wth)));
   }
 
   if (snaplen == 0) {
@@ -357,9 +357,9 @@ main(int argc, char *argv[])
          */
         int first_frame_type, this_frame_type;
 
-        first_frame_type = wftap_file_encap(in_files[0].wfth);
+        first_frame_type = wtap_file_encap(in_files[0].wth);
         for (i = 1; i < in_file_count; i++) {
-          this_frame_type = wftap_file_encap(in_files[i].wfth);
+          this_frame_type = wtap_file_encap(in_files[i].wth);
           if (first_frame_type != this_frame_type) {
             fprintf(stderr, "mergecap: multiple frame encapsulation types detected\n");
             fprintf(stderr, "          defaulting to WTAP_ENCAP_PER_PACKET\n");
@@ -452,14 +452,14 @@ main(int argc, char *argv[])
 
     /* We simply write it, perhaps after truncating it; we could do other
      * things, like modify it. */
-    phdr = wtap_phdr(in_file->wfth);
+    phdr = wtap_phdr(in_file->wth);
     if (snaplen != 0 && phdr->caplen > snaplen) {
       snap_phdr = *phdr;
       snap_phdr.caplen = snaplen;
       phdr = &snap_phdr;
     }
 
-    if (!wtap_dump(pdh, phdr, wftap_buf_ptr(in_file->wfth), &write_err)) {
+    if (!wtap_dump(pdh, phdr, wtap_buf_ptr(in_file->wth), &write_err)) {
       got_write_error = TRUE;
       break;
     }
@@ -467,7 +467,7 @@ main(int argc, char *argv[])
 
   merge_close_in_files(in_file_count, in_files);
   if (!got_write_error) {
-    if (!wftap_dump_close(pdh, &write_err))
+    if (!wtap_dump_close(pdh, &write_err))
       got_write_error = TRUE;
   } else {
     /*
@@ -476,7 +476,7 @@ main(int argc, char *argv[])
      *
      * Don't overwrite the earlier write error.
      */
-    (void)wftap_dump_close(pdh, &close_err);
+    (void)wtap_dump_close(pdh, &close_err);
   }
 
   if (got_read_error) {

@@ -33,7 +33,6 @@
 #include "mpeg.h"
 #include "wsutil/mpeg-audio.h"
 
-#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "file_wrappers.h"
@@ -93,10 +92,10 @@ mpeg_read_header(FILE_T fh, int *err, gchar **err_info, guint32 *n)
 #define SCRHZ 27000000
 
 static gboolean
-mpeg_read_packet(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     gboolean is_random, int *err, gchar **err_info)
 {
-	mpeg_t *mpeg = (mpeg_t *)wfth->priv;
+	mpeg_t *mpeg = (mpeg_t *)wth->priv;
 	guint32 n;
 	int bytes_read;
 	unsigned int packet_size;
@@ -222,25 +221,23 @@ mpeg_read_packet(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 }
 
 static gboolean
-mpeg_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
+mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	wtap* wth = (wtap*)wfth->tap_specific_data;
-	*data_offset = file_tell(wfth->fh);
+	*data_offset = file_tell(wth->fh);
 
-	return mpeg_read_packet(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer,
+	return mpeg_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
 	    FALSE, err, err_info);
 }
 
 static gboolean
-mpeg_seek_read(wftap *wfth, gint64 seek_off,
-		void* header, Buffer *buf,
+mpeg_seek_read(wtap *wth, gint64 seek_off,
+		struct wtap_pkthdr *phdr, Buffer *buf,
 		int *err, gchar **err_info)
 {
-	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
-	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!mpeg_read_packet(wfth, wfth->random_fh, phdr, buf, TRUE, err,
+	if (!mpeg_read_packet(wth, wth->random_fh, phdr, buf, TRUE, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -261,7 +258,7 @@ struct _mpeg_magic {
 };
 
 int
-mpeg_open(wftap *wfth, int *err, gchar **err_info)
+mpeg_open(wtap *wth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic_buf[16];
@@ -269,9 +266,9 @@ mpeg_open(wftap *wfth, int *err, gchar **err_info)
 	mpeg_t *mpeg;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic_buf, sizeof magic_buf, wfth->fh);
+	bytes_read = file_read(magic_buf, sizeof magic_buf, wth->fh);
 	if (bytes_read != (int) sizeof magic_buf) {
-		*err = file_error(wfth->fh, err_info);
+		*err = file_error(wth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -286,18 +283,18 @@ mpeg_open(wftap *wfth, int *err, gchar **err_info)
 
 good_magic:
 	/* This appears to be a file with MPEG data. */
-	if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
+	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
-	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG;
-	wfth->file_encap = WTAP_ENCAP_MPEG;
-	wfth->tsprecision = WTAP_FILE_TSPREC_NSEC;
-	wfth->subtype_read = mpeg_read;
-	wfth->subtype_seek_read = mpeg_seek_read;
-	wfth->snapshot_length = 0;
+	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPEG;
+	wth->file_encap = WTAP_ENCAP_MPEG;
+	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wth->subtype_read = mpeg_read;
+	wth->subtype_seek_read = mpeg_seek_read;
+	wth->snapshot_length = 0;
 
 	mpeg = (mpeg_t *)g_malloc(sizeof(mpeg_t));
-	wfth->priv = (void *)mpeg;
+	wth->priv = (void *)mpeg;
 	mpeg->now.secs = 0;
 	mpeg->now.nsecs = 0;
 	mpeg->t0 = mpeg->now.secs;

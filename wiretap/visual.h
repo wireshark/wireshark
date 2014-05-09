@@ -30,8 +30,8 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int visual_open(wftap *wfth, int *err, gchar **err_info);
-gboolean visual_dump_open(wftap_dumper *wdh, int *err);
+int visual_open(wtap *wth, int *err, gchar **err_info);
+gboolean visual_dump_open(wtap_dumper *wdh, int *err);
 int visual_dump_can_write_encap(int encap);
 
 #endif

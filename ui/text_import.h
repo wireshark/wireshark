@@ -71,7 +71,7 @@ typedef struct
 
     /* Import info */
     guint encapsulation;
-    wftap_dumper* wdh;
+    wtap_dumper* wdh;
 
     /* Dummy header info (if encapsulation == 1) */
     enum dummy_header_type dummy_header_type;

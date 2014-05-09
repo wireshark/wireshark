@@ -35,7 +35,6 @@
 #include <zlib.h>
 #endif
 
-#include "wftap-int.h"
 #include "wtap-int.h"
 
 #include "file_wrappers.h"
@@ -116,11 +115,11 @@ register_all_wiretap_modules(void)
  * (gint64, in case that's 64 bits.)
  */
 gint64
-wftap_file_size(wftap *wfth, int *err)
+wtap_file_size(wtap *wth, int *err)
 {
 	ws_statb64 statb;
 
-	if (file_fstat((wfth->fh == NULL) ? wfth->random_fh : wfth->fh,
+	if (file_fstat((wth->fh == NULL) ? wth->random_fh : wth->fh,
 	    &statb, err) == -1)
 		return -1;
 	return statb.st_size;
@@ -130,54 +129,49 @@ wftap_file_size(wftap *wfth, int *err)
  * Do an fstat on the file.
  */
 int
-wftap_fstat(wftap *wfth, ws_statb64 *statb, int *err)
+wtap_fstat(wtap *wth, ws_statb64 *statb, int *err)
 {
-	if (file_fstat((wfth->fh == NULL) ? wfth->random_fh : wfth->fh,
+	if (file_fstat((wth->fh == NULL) ? wth->random_fh : wth->fh,
 	    statb, err) == -1)
 		return -1;
 	return 0;
 }
 
 int
-wftap_file_type_subtype(wftap *wfth)
+wtap_file_type_subtype(wtap *wth)
 {
-	return wfth->file_type_subtype;
+	return wth->file_type_subtype;
 }
 
 gboolean
-wftap_iscompressed(wftap *wfth)
+wtap_iscompressed(wtap *wth)
 {
-	return file_iscompressed((wfth->fh == NULL) ? wfth->random_fh : wfth->fh);
+	return file_iscompressed((wth->fh == NULL) ? wth->random_fh : wth->fh);
 }
 
 guint
-wftap_snapshot_length(wftap *wfth)
+wtap_snapshot_length(wtap *wth)
 {
-	return wfth->snapshot_length;
+	return wth->snapshot_length;
 }
 
 int
-wftap_file_encap(wftap *wfth)
+wtap_file_encap(wtap *wth)
 {
-	return wfth->file_encap;
+	return wth->file_encap;
 }
 
 int
-wftap_file_tsprecision(wftap *wfth)
+wtap_file_tsprecision(wtap *wth)
 {
-	return wfth->tsprecision;
+	return wth->tsprecision;
 }
 
 wtapng_section_t *
-wtap_file_get_shb_info(wftap *wfth)
+wtap_file_get_shb_info(wtap *wth)
 {
-	wtapng_section_t	*shb_hdr;
-	wtap				*wth;
+	wtapng_section_t		*shb_hdr;
 
-	if(wfth == NULL)
-		return NULL;
-
-	wth = (wtap*)wfth->tap_specific_data;
 	if(wth == NULL)
 		return NULL;
 	shb_hdr = g_new(wtapng_section_t,1);
@@ -193,20 +187,17 @@ wtap_file_get_shb_info(wftap *wfth)
 }
 
 void
-wtap_write_shb_comment(wftap *wfth, gchar *comment)
+wtap_write_shb_comment(wtap *wth, gchar *comment)
 {
-	wtap* wth = (wtap*)wfth->tap_specific_data;
-
 	g_free(wth->shb_hdr.opt_comment);
 	wth->shb_hdr.opt_comment = comment;
 
 }
 
 wtapng_iface_descriptions_t *
-wtap_file_get_idb_info(wftap *wfth)
+wtap_file_get_idb_info(wtap *wth)
 {
 	wtapng_iface_descriptions_t *idb_info;
-	wtap				*wth = (wtap*)wfth->tap_specific_data;
 
 	idb_info = g_new(wtapng_iface_descriptions_t,1);
 
@@ -875,20 +866,20 @@ wtap_strerror(int err)
    Instead, if the subtype has a "sequential close" function, we call it,
    to free up stuff used only by the sequential side. */
 void
-wftap_sequential_close(wftap *wfth)
+wtap_sequential_close(wtap *wth)
 {
-	if (wfth->subtype_sequential_close != NULL)
-		(*wfth->subtype_sequential_close)(wfth);
+	if (wth->subtype_sequential_close != NULL)
+		(*wth->subtype_sequential_close)(wth);
 
-	if (wfth->fh != NULL) {
-		file_close(wfth->fh);
-		wfth->fh = NULL;
+	if (wth->fh != NULL) {
+		file_close(wth->fh);
+		wth->fh = NULL;
 	}
 
-	if (wfth->frame_buffer) {
-		buffer_free(wfth->frame_buffer);
-		g_free(wfth->frame_buffer);
-		wfth->frame_buffer = NULL;
+	if (wth->frame_buffer) {
+		buffer_free(wth->frame_buffer);
+		g_free(wth->frame_buffer);
+		wth->frame_buffer = NULL;
 	}
 }
 
@@ -905,47 +896,36 @@ g_fast_seek_item_free(gpointer data, gpointer user_data _U_)
  * top of a file we have open.
  */
 void
-wftap_fdclose(wftap *wfth)
+wtap_fdclose(wtap *wth)
 {
-	if (wfth->fh != NULL)
-		file_fdclose(wfth->fh);
-	if (wfth->random_fh != NULL)
-		file_fdclose(wfth->random_fh);
+	if (wth->fh != NULL)
+		file_fdclose(wth->fh);
+	if (wth->random_fh != NULL)
+		file_fdclose(wth->random_fh);
 }
 
 void
-wftap_close(wftap *wfth)
-{
-	wftap_sequential_close(wfth);
-
-	if (wfth->subtype_close != NULL)
-		(*wfth->subtype_close)(wfth);
-
-	if (wfth->random_fh != NULL)
-		file_close(wfth->random_fh);
-
-	if (wfth->priv != NULL)
-		g_free(wfth->priv);
-
-	if (wfth->fast_seek != NULL) {
-		g_ptr_array_foreach(wfth->fast_seek, g_fast_seek_item_free, NULL);
-		g_ptr_array_free(wfth->fast_seek, TRUE);
-	}
-
-	if (wfth->tap_specific_data != NULL)
-		g_free(wfth->tap_specific_data);
-
-	g_free(wfth);
-}
-
-void
-wtap_close(wftap *wfth)
+wtap_close(wtap *wth)
 {
 	gint i, j;
 	wtapng_if_descr_t *wtapng_if_descr;
 	wtapng_if_stats_t *if_stats;
-	wtap* wth = (wtap*)wfth->tap_specific_data;
 
+	wtap_sequential_close(wth);
+
+	if (wth->subtype_close != NULL)
+		(*wth->subtype_close)(wth);
+
+	if (wth->random_fh != NULL)
+		file_close(wth->random_fh);
+
+	if (wth->priv != NULL)
+		g_free(wth->priv);
+
+	if (wth->fast_seek != NULL) {
+		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);
+		g_ptr_array_free(wth->fast_seek, TRUE);
+	}
 	for(i = 0; i < (gint)wth->number_of_interfaces; i++) {
 		wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, i);
 		if(wtapng_if_descr->opt_comment != NULL){
@@ -979,39 +959,28 @@ wtap_close(wftap *wfth)
 	if(wth->number_of_interfaces != 0){
 		 g_array_free(wth->interface_data, TRUE);
 	}
-
-	wftap_close(wfth);
+	g_free(wth);
 }
 
 void
-wftap_cleareof(wftap *wfth) {
+wtap_cleareof(wtap *wth) {
 	/* Reset EOF */
-	file_clearerr(wfth->fh);
+	file_clearerr(wth->fh);
 }
 
-void wtap_set_cb_new_ipv4(wftap *wfth, wtap_new_ipv4_callback_t add_new_ipv4) {
-	if (wfth)
-	{
-		wtap* wth = (wtap*)wfth->tap_specific_data;
-		if (wth)
-			wth->add_new_ipv4 = add_new_ipv4;
-	}
+void wtap_set_cb_new_ipv4(wtap *wth, wtap_new_ipv4_callback_t add_new_ipv4) {
+	if (wth)
+		wth->add_new_ipv4 = add_new_ipv4;
 }
 
-void wtap_set_cb_new_ipv6(wftap *wfth, wtap_new_ipv6_callback_t add_new_ipv6) {
-	if (wfth)
-	{
-		wtap* wth = (wtap*)wfth->tap_specific_data;
-		if (wth)
-			wth->add_new_ipv6 = add_new_ipv6;
-	}
+void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
+	if (wth)
+		wth->add_new_ipv6 = add_new_ipv6;
 }
 
 gboolean
-wtap_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
+wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	wtap* wth = (wtap*)wfth->tap_specific_data;
-
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
 	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
@@ -1020,9 +989,9 @@ wtap_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 	 * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
 	 * anyway.
 	 */
-	wth->phdr.pkt_encap = wfth->file_encap;
+	wth->phdr.pkt_encap = wth->file_encap;
 
-	if (!wfth->subtype_read(wfth, err, err_info, data_offset)) {
+	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
 		/*
 		 * If we didn't get an error indication, we read
 		 * the last packet.  See if there's any deferred
@@ -1033,7 +1002,7 @@ wtap_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 		 * last packet of the file.
 		 */
 		if (*err == 0)
-			*err = file_error(wfth->fh, err_info);
+			*err = file_error(wth->fh, err_info);
 		return FALSE;	/* failure */
 	}
 
@@ -1088,31 +1057,28 @@ wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
  * from the file so far.  (gint64, in case that's 64 bits.)
  */
 gint64
-wftap_read_so_far(wftap *wfth)
+wtap_read_so_far(wtap *wth)
 {
-	return file_tell_raw(wfth->fh);
+	return file_tell_raw(wth->fh);
 }
 
 struct wtap_pkthdr *
-wtap_phdr(wftap *wfth)
+wtap_phdr(wtap *wth)
 {
-	wtap* wth = (wtap*)wfth->tap_specific_data;
 	return &wth->phdr;
 }
 
 guint8 *
-wftap_buf_ptr(wftap *wfth)
+wtap_buf_ptr(wtap *wth)
 {
-	return buffer_start_ptr(wfth->frame_buffer);
+	return buffer_start_ptr(wth->frame_buffer);
 }
 
 gboolean
-wftap_seek_read(wftap *wfth, gint64 seek_off,
-	void* tap_pkthdr, Buffer *buf, int *err, gchar **err_info)
+wtap_seek_read(wtap *wth, gint64 seek_off,
+	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	wtap* wth = (wtap*)wfth->tap_specific_data;
-
-	if (!wfth->subtype_seek_read(wfth, seek_off, tap_pkthdr, buf, err, err_info))
+	if (!wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info))
 		return FALSE;
 
 	/*

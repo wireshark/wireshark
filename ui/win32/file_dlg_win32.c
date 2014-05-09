@@ -1114,7 +1114,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     HWND        cur_ctrl;
     int         i;
     gboolean    enable = FALSE;
-    wftap       *wth;
+    wtap       *wth;
     const struct wtap_pkthdr *phdr;
     int         err = 0;
     gchar      *err_info;
@@ -1177,10 +1177,10 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     /* Format */
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_subtype_string(wftap_file_type_subtype(wth))));
+    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_subtype_string(wtap_file_type_subtype(wth))));
 
     /* Size */
-    filesize = wftap_file_size(wth, &err);
+    filesize = wtap_file_size(wth, &err);
     utf_8to16_snprintf(string_buff, PREVIEW_STR_MAX, "%" G_GINT64_FORMAT " bytes", filesize);
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_SIZE);
     SetWindowText(cur_ctrl, string_buff);

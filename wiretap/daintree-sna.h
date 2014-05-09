@@ -27,7 +27,7 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int daintree_sna_open(wftap *wfth, int *err, gchar **err_info _U_);
+int daintree_sna_open(wtap *wth, int *err, gchar **err_info _U_);
 
 #endif /* __DAINTREE_SNA_H__ */
 

@@ -29,7 +29,6 @@
 
 #include "wslua.h"
 #include <errno.h>
-#include <wiretap/wftap-int.h>
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
 #include <epan/addr_resolv.h>
@@ -98,7 +97,7 @@ WSLUA_CLASS_DEFINE(File,FAIL_ON_NULL_OR_EXPIRED("File"),NOP);
 
 /* a "File" object can be different things under the hood. It can either
    be a FILE_T from wtap struct, which it is during read operations, or it
-   can be a wftap_dumper struct during write operations. A wtap_dumper struct
+   can be a wtap_dumper struct during write operations. A wtap_dumper struct
    has a FILE_T member, but we can't only store its pointer here because
    dump operations need the whole thing to write out with. Ugh. */
 static File* push_File(lua_State* L, FILE_T ft) {
@@ -109,7 +108,7 @@ static File* push_File(lua_State* L, FILE_T ft) {
     return pushFile(L,f);
 }
 
-static File* push_Wdh(lua_State* L, wftap_dumper *wdh) {
+static File* push_Wdh(lua_State* L, wtap_dumper *wdh) {
     File f = (File) g_malloc(sizeof(struct _wslua_file));
     f->file = (FILE_T)wdh->fh;
     f->wdh = wdh;
@@ -358,7 +357,7 @@ WSLUA_METHOD File_seek(lua_State* L) {
         lua_pushnumber(L, (lua_Number)(file_tell(f->file)));
     }
     else {
-        offset = wftap_dump_file_seek(f->wdh, offset, mode[op], &err);
+        offset = wtap_dump_file_seek(f->wdh, offset, mode[op], &err);
 
         if (offset < 0) {
             lua_pushnil(L);  /* error */
@@ -366,7 +365,7 @@ WSLUA_METHOD File_seek(lua_State* L) {
             return 2;
         }
 
-        offset = wftap_dump_file_tell(f->wdh, &err);
+        offset = wtap_dump_file_tell(f->wdh, &err);
 
         if (offset < 0) {
             lua_pushnil(L);  /* error */
@@ -435,7 +434,7 @@ WSLUA_METHOD File_write(lua_State* L) {
     for (; nargs--; arg++) {
         size_t len;
         const char *s = luaL_checklstring(L, arg, &len);
-        status = wftap_dump_file_write(f->wdh, s, len, &err);
+        status = wtap_dump_file_write(f->wdh, s, len, &err);
         if (!status) break;
         f->wdh->bytes_dumped += len;
     }
@@ -516,7 +515,7 @@ int File_register(lua_State* L) {
 /************
  * The following is for handling private data for the duration of the file
  * read_open/read/close cycle, or write_open/write/write_close cycle.
- * In other words it handles the "priv" member of wtap and wftap_dumper,
+ * In other words it handles the "priv" member of wtap and wtap_dumper,
  * but for the Lua script's use. A Lua script can set a Lua table
  * to CaptureInfo/CaptureInfoConst and have it saved and retrievable this way.
  * We need to offer that, because there needs to be a way for Lua scripts
@@ -532,20 +531,20 @@ typedef struct _file_priv_t {
 } file_priv_t;
 
 /* create and set the wtap->priv private data for the file instance */
-static void create_wth_priv(lua_State* L, wftap *wfth) {
+static void create_wth_priv(lua_State* L, wtap *wth) {
     file_priv_t *priv = (file_priv_t*)g_malloc(sizeof(file_priv_t));
 
-    if (wfth->priv != NULL) {
+    if (wth->priv != NULL) {
         luaL_error(L, "Cannot create wtap private data because there already is private data");
         return;
     }
     priv->table_ref = LUA_NOREF;
-    wfth->priv = (void*) priv;
+    wth->priv = (void*) priv;
 }
 
 /* gets the private data table from wtap */
-static int get_wth_priv_table_ref(lua_State* L, wftap *wfth) {
-    file_priv_t *priv = (file_priv_t*) wfth->priv;
+static int get_wth_priv_table_ref(lua_State* L, wtap *wth) {
+    file_priv_t *priv = (file_priv_t*) wth->priv;
 
     if (!priv) {
         /* shouldn't be possible */
@@ -560,8 +559,8 @@ static int get_wth_priv_table_ref(lua_State* L, wftap *wfth) {
 }
 
 /* sets the private data to wtap - the table is presumed on top of stack */
-static int set_wth_priv_table_ref(lua_State* L, wftap *wfth) {
-    file_priv_t *priv = (file_priv_t*) wfth->priv;
+static int set_wth_priv_table_ref(lua_State* L, wtap *wth) {
+    file_priv_t *priv = (file_priv_t*) wth->priv;
 
     if (!priv) {
         /* shouldn't be possible */
@@ -592,8 +591,8 @@ static int set_wth_priv_table_ref(lua_State* L, wftap *wfth) {
 }
 
 /* remove, deref, and free the wtap->priv data */
-static void remove_wth_priv(lua_State* L, wftap *wfth) {
-    file_priv_t *priv = (file_priv_t*) wfth->priv;
+static void remove_wth_priv(lua_State* L, wtap *wth) {
+    file_priv_t *priv = (file_priv_t*) wth->priv;
 
     if (!priv) {
         /* shouldn't be possible */
@@ -603,29 +602,29 @@ static void remove_wth_priv(lua_State* L, wftap *wfth) {
 
     luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
 
-    g_free(wfth->priv);
-    wfth->priv = NULL;
+    g_free(wth->priv);
+    wth->priv = NULL;
 }
 
-/* create and set the wftap_dumper->priv private data for the file instance */
-static void create_wdh_priv(lua_State* L, wftap_dumper *wdh) {
+/* create and set the wtap_dumper->priv private data for the file instance */
+static void create_wdh_priv(lua_State* L, wtap_dumper *wdh) {
     file_priv_t *priv = (file_priv_t*)g_malloc(sizeof(file_priv_t));
 
     if (wdh->priv != NULL) {
-        luaL_error(L, "Cannot create wftap_dumper private data because there already is private data");
+        luaL_error(L, "Cannot create wtap_dumper private data because there already is private data");
         return;
     }
     priv->table_ref = LUA_NOREF;
     wdh->priv = (void*) priv;
 }
 
-/* get the private data from wftap_dumper */
-static int get_wdh_priv_table_ref(lua_State* L, wftap_dumper *wdh) {
+/* get the private data from wtap_dumper */
+static int get_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh) {
     file_priv_t *priv = (file_priv_t*) wdh->priv;
 
     if (!priv) {
         /* shouldn't be possible */
-        luaL_error(L, "Cannot get wftap_dumper private data: it is null");
+        luaL_error(L, "Cannot get wtap_dumper private data: it is null");
         return LUA_NOREF;
     }
 
@@ -636,7 +635,7 @@ static int get_wdh_priv_table_ref(lua_State* L, wftap_dumper *wdh) {
 }
 
 /* sets the private data to wtap - the table is presumed on top of stack */
-static int set_wdh_priv_table_ref(lua_State* L, wftap_dumper *wdh) {
+static int set_wdh_priv_table_ref(lua_State* L, wtap_dumper *wdh) {
     file_priv_t *priv = (file_priv_t*) wdh->priv;
 
     if (!priv) {
@@ -667,22 +666,22 @@ static int set_wdh_priv_table_ref(lua_State* L, wftap_dumper *wdh) {
     return 0;
 }
 
-/* remove and deref the wftap_dumper->priv data */
-static void remove_wdh_priv(lua_State* L, wftap_dumper *wdh) {
+/* remove and deref the wtap_dumper->priv data */
+static void remove_wdh_priv(lua_State* L, wtap_dumper *wdh) {
     file_priv_t *priv = (file_priv_t*) wdh->priv;
 
     if (!priv) {
         /* shouldn't be possible */
-        luaL_error(L, "Cannot remove wftap_dumper private data: it is null");
+        luaL_error(L, "Cannot remove wtap_dumper private data: it is null");
         return;
     }
 
     luaL_unref(L, LUA_REGISTRYINDEX, priv->table_ref);
-    /* we do NOT free wftap_dumper's priv member - wftap_dump_close() free's it */
+    /* we do NOT free wtap_dumper's priv member - wtap_dump_close() free's it */
 }
 
 
-WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wfth),NOP);
+WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wth),NOP);
 /*
     A `CaptureInfo` object, passed into Lua as an argument by `FileHandler` callback
     function `read_open()`, `read()`, `seek_read()`, `seq_read_close()`, and `read_close()`.
@@ -697,17 +696,17 @@ WSLUA_CLASS_DEFINE(CaptureInfo,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfo",wfth
     @since 1.11.3
  */
 
-static CaptureInfo* push_CaptureInfo(lua_State* L, wftap *wfth, const gboolean first_time) {
+static CaptureInfo* push_CaptureInfo(lua_State* L, wtap *wth, const gboolean first_time) {
     CaptureInfo f = (CaptureInfo) g_malloc0(sizeof(struct _wslua_captureinfo));
-    f->wfth = wfth;
+    f->wth = wth;
     f->wdh = NULL;
     f->expired = FALSE;
 
     if (first_time) {
         /* XXX: need to do this? */
-        wfth->file_encap = WTAP_ENCAP_UNKNOWN;
-        wfth->tsprecision = WTAP_FILE_TSPREC_SEC;
-        wfth->snapshot_length = 0;
+        wth->file_encap = WTAP_ENCAP_UNKNOWN;
+        wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+        wth->snapshot_length = 0;
     }
 
     return pushCaptureInfo(L,f);
@@ -717,13 +716,12 @@ WSLUA_METAMETHOD CaptureInfo__tostring(lua_State* L) {
     /* Generates a string of debug info for the CaptureInfo */
     CaptureInfo fi = toCaptureInfo(L,1);
 
-    if (!fi || !fi->wfth) {
+    if (!fi || !fi->wth) {
         lua_pushstring(L,"CaptureInfo pointer is NULL!");
     } else {
-        wftap *wfth = fi->wfth;
-        wtap* wth   = (wtap*)wfth->tap_specific_data;
+        wtap *wth = fi->wth;
         lua_pushfstring(L, "CaptureInfo: file_type_subtype=%d, snapshot_length=%d, pkt_encap=%d, tsprecision='%s'",
-            wfth->file_type_subtype, wfth->snapshot_length, wth->phdr.pkt_encap, wfth->tsprecision);
+            wth->file_type_subtype, wth->snapshot_length, wth->phdr.pkt_encap, wth->tsprecision);
     }
 
     WSLUA_RETURN(1); /* String of debug information. */
@@ -742,24 +740,23 @@ static int CaptureInfo__gc(lua_State* L _U_) {
     See `wtap_encaps` in `init.lua` for available types.  Set to `wtap_encaps.PER_PACKET` if packets can
     have different types, then later set `FrameInfo.encap` for each packet during `read()`/`seek_read()`.
  */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,encap,wfth->file_encap);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,encap,wfth->file_encap,int);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,encap,wth->file_encap);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,encap,wth->file_encap,int);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_time_precision RW The precision of the packet timestamps in the file.
 
     See `wtap_file_tsprec` in `init.lua` for available precisions.
  */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,time_precision,wfth->tsprecision);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wfth->tsprecision,int);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,time_precision,wth->tsprecision);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,time_precision,wth->tsprecision,int);
 
 /* WSLUA_ATTRIBUTE CaptureInfo_snapshot_length RW The maximum packet length that could be recorded.
 
     Setting it to `0` means unknown.  Wireshark cannot handle anything bigger than 65535 bytes.
  */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,snapshot_length,wfth->snapshot_length);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wfth->snapshot_length,guint);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfo,snapshot_length,wth->snapshot_length);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(CaptureInfo,snapshot_length,wth->snapshot_length,guint);
 
-#if FILESHARK /* XXX - FIX ME PLEASE!!!!!! */
 /* WSLUA_ATTRIBUTE CaptureInfo_comment RW A string comment for the whole capture file,
     or nil if there is no `comment`. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,comment,wth->shb_hdr.opt_comment);
@@ -779,7 +776,6 @@ WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,os,wth->shb_hdr.shb_os,TRUE);
     the application used to create the capture, or nil if there is no `user_app` string. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_appl);
 WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_appl,TRUE);
-#endif
 
 /* WSLUA_ATTRIBUTE CaptureInfo_hosts WO Sets resolved ip-to-hostname information.
 
@@ -795,8 +791,7 @@ WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(CaptureInfo,user_app,wth->shb_hdr.shb_user_a
     */
 static int CaptureInfo_set_hosts(lua_State* L) {
     CaptureInfo fi = checkCaptureInfo(L,1);
-    wftap *wfth = fi->wfth;
-    wtap *wth = (wtap*)wfth->tap_specific_data;
+    wtap *wth = fi->wth;
     const char *addr = NULL;
     const char *name = NULL;
     size_t addr_len = 0;
@@ -919,24 +914,22 @@ static int CaptureInfo_set_hosts(lua_State* L) {
 */
 static int CaptureInfo_get_private_table(lua_State* L) {
     CaptureInfo fi = checkCaptureInfo(L,1);
-    return get_wth_priv_table_ref(L, fi->wfth);
+    return get_wth_priv_table_ref(L, fi->wth);
 }
 
 static int CaptureInfo_set_private_table(lua_State* L) {
     CaptureInfo fi = checkCaptureInfo(L,1);
-    return set_wth_priv_table_ref(L, fi->wfth);
+    return set_wth_priv_table_ref(L, fi->wth);
 }
 
 WSLUA_ATTRIBUTES CaptureInfo_attributes[] = {
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,encap),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,time_precision),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,snapshot_length),
-#if FILESHARK /* XXX - FIX ME PLEASE!!!!!! */
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,comment),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,hardware),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,os),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,user_app),
-#endif
     WSLUA_ATTRIBUTE_WOREG(CaptureInfo,hosts),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfo,private_table),
     { NULL, NULL, NULL }
@@ -970,9 +963,9 @@ WSLUA_CLASS_DEFINE(CaptureInfoConst,FAIL_ON_NULL_MEMBER_OR_EXPIRED("CaptureInfoC
     @since 1.11.3
  */
 
-static CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wftap_dumper *wdh) {
+static CaptureInfoConst* push_CaptureInfoConst(lua_State* L, wtap_dumper *wdh) {
     CaptureInfoConst f = (CaptureInfoConst) g_malloc0(sizeof(struct _wslua_captureinfo));
-    f->wfth = NULL;
+    f->wth = NULL;
     f->wdh = wdh;
     f->expired = FALSE;
     return pushCaptureInfoConst(L,f);
@@ -985,7 +978,7 @@ WSLUA_METAMETHOD CaptureInfoConst__tostring(lua_State* L) {
     if (!fi || !fi->wdh) {
         lua_pushstring(L,"CaptureInfoConst pointer is NULL!");
     } else {
-        wftap_dumper *wdh = fi->wdh;
+        wtap_dumper *wdh = fi->wdh;
         lua_pushfstring(L, "CaptureInfoConst: file_type_subtype=%d, snaplen=%d, encap=%d, compressed=%d, tsprecision='%s'",
             wdh->file_type_subtype, wdh->snaplen, wdh->encap, wdh->compressed, wdh->tsprecision);
     }
@@ -1007,7 +1000,6 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,snapshot_length,wdh->snaple
     have different types, in which case each Frame identifies its type, in `FrameInfo.packet_encap`. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(CaptureInfoConst,encap,wdh->encap);
 
-#if FILESHARK /* XXX - FIX ME PLEASE!!!!!! */
 /* WSLUA_ATTRIBUTE CaptureInfoConst_comment RW A comment for the whole capture file, if the
     `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,comment,wth->shb_hdr.opt_comment);
@@ -1023,7 +1015,6 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,os,wth->shb_hdr.shb_os);
 /* WSLUA_ATTRIBUTE CaptureInfoConst_user_app RO A string containing the name of
     the application used to create the capture, or nil if there is no user_app string. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,user_app,wth->shb_hdr.shb_user_appl);
-#endif
 
 /* WSLUA_ATTRIBUTE CaptureInfoConst_hosts RO A ip-to-hostname Lua table of two key-ed names: `ipv4_addresses` and `ipv6_addresses`.
     The value of each of these names are themselves array tables, of key-ed tables, such that the inner table has a key
@@ -1037,8 +1028,7 @@ WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(CaptureInfoConst,user_app,wth->shb_hdr.shb_u
     be nil. */
 static int CaptureInfoConst_get_hosts(lua_State* L) {
     CaptureInfoConst fi = checkCaptureInfoConst(L,1);
-    wftap_dumper *wfdh = fi->wdh;
-    wtap_dumper *wdh = (wtap_dumper*)wfdh->tap_specific_data;
+    wtap_dumper *wdh = fi->wdh;
 
     /* create the main table to return */
     lua_newtable(L);
@@ -1136,12 +1126,10 @@ WSLUA_ATTRIBUTES CaptureInfoConst_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,encap),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,type),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,snapshot_length),
-#if FILESHARK /* XXX - FIX ME PLEASE!!!!!! */
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,comment),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,hardware),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,os),
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,user_app),
-#endif
     WSLUA_ATTRIBUTE_ROREG(CaptureInfoConst,hosts),
     WSLUA_ATTRIBUTE_RWREG(CaptureInfoConst,private_table),
     { NULL, NULL, NULL }
@@ -1430,7 +1418,7 @@ WSLUA_METHOD FrameInfoConst_write_data(lua_State* L) {
     if (len > fi->phdr->caplen)
         len = fi->phdr->caplen;
 
-    if (!wftap_dump_file_write(fh->wdh, fi->pd, (size_t)(len), &err)) {
+    if (!wtap_dump_file_write(fh->wdh, fi->pd, (size_t)(len), &err)) {
         lua_pushboolean(L, FALSE);
         lua_pushfstring(L, "FrameInfoConst write_data() error: %s", g_strerror(err));
         lua_pushnumber(L, err);
@@ -1630,16 +1618,16 @@ static gboolean in_routine = FALSE;
 
 /* some declarations */
 static gboolean
-wslua_filehandler_read(wftap *wfth, int *err, gchar **err_info,
+wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset);
 static gboolean
-wslua_filehandler_seek_read(wftap *wfth, gint64 seek_off,
-    void* header, Buffer *buf,
+wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info);
 static void
-wslua_filehandler_close(wftap *wfth);
+wslua_filehandler_close(wtap *wth);
 static void
-wslua_filehandler_sequential_close(wftap *wfth);
+wslua_filehandler_sequential_close(wtap *wth);
 
 
 /* This is our one-and-only open routine for file handling.  When called by
@@ -1654,9 +1642,9 @@ wslua_filehandler_sequential_close(wftap *wfth);
  * field in the "struct wtap" to the type of the file.
  */
 static int
-wslua_filehandler_open(wftap *wfth, int *err _U_, gchar **err_info)
+wslua_filehandler_open(wtap *wth, int *err _U_, gchar **err_info)
 {
-    FileHandler fh = (FileHandler)(wfth->wslua_data);
+    FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = 0;
     lua_State* L = NULL;
     File *fp = NULL;
@@ -1664,10 +1652,10 @@ wslua_filehandler_open(wftap *wfth, int *err _U_, gchar **err_info)
 
     INIT_FILEHANDLER_ROUTINE(read_open,0);
 
-    create_wth_priv(L, wfth);
+    create_wth_priv(L, wth);
 
-    fp = push_File(L, wfth->fh);
-    fc = push_CaptureInfo(L, wfth, TRUE);
+    fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, TRUE);
 
     errno = WTAP_ERR_CANT_READ;
     switch ( lua_pcall(L,2,1,1) ) {
@@ -1686,32 +1674,32 @@ wslua_filehandler_open(wftap *wfth, int *err _U_, gchar **err_info)
         /* this is our file type - set the routines and settings into wtap */
 
         if (fh->read_ref != LUA_NOREF) {
-            wfth->subtype_read = wslua_filehandler_read;
+            wth->subtype_read = wslua_filehandler_read;
         }
         else return 0;
 
         if (fh->seek_read_ref != LUA_NOREF) {
-            wfth->subtype_seek_read = wslua_filehandler_seek_read;
+            wth->subtype_seek_read = wslua_filehandler_seek_read;
         }
         else return 0;
 
         /* it's ok to not have a close routine */
         if (fh->read_close_ref != LUA_NOREF)
-            wfth->subtype_close = wslua_filehandler_close;
+            wth->subtype_close = wslua_filehandler_close;
         else
-            wfth->subtype_close = NULL;
+            wth->subtype_close = NULL;
 
         /* it's ok to not have a sequential close routine */
         if (fh->seq_read_close_ref != LUA_NOREF)
-            wfth->subtype_sequential_close = wslua_filehandler_sequential_close;
+            wth->subtype_sequential_close = wslua_filehandler_sequential_close;
         else
-            wfth->subtype_sequential_close = NULL;
+            wth->subtype_sequential_close = NULL;
 
-        wfth->file_type_subtype = fh->file_type;
+        wth->file_type_subtype = fh->file_type;
     }
     else {
         /* not our file type */
-        remove_wth_priv(L, wfth);
+        remove_wth_priv(L, wth);
     }
 
     lua_settop(L,0);
@@ -1725,16 +1713,15 @@ wslua_filehandler_open(wftap *wfth, int *err _U_, gchar **err_info)
  * This will be the seek_off parameter when this frame is re-read.
 */
 static gboolean
-wslua_filehandler_read(wftap *wfth, int *err, gchar **err_info,
+wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset)
 {
-    FileHandler fh = (FileHandler)(wfth->wslua_data);
+    FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = -1;
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
-    wtap *wth = (wtap*)wfth->tap_specific_data;
 
     INIT_FILEHANDLER_ROUTINE(read,FALSE);
 
@@ -1743,9 +1730,9 @@ wslua_filehandler_read(wftap *wfth, int *err, gchar **err_info,
 
     wth->phdr.opt_comment = NULL;
 
-    fp = push_File(L, wfth->fh);
-    fc = push_CaptureInfo(L, wfth, FALSE);
-    fi = push_FrameInfo(L, &wth->phdr, wfth->frame_buffer);
+    fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
+    fi = push_FrameInfo(L, &wth->phdr, wth->frame_buffer);
 
     errno = WTAP_ERR_CANT_READ;
     switch ( lua_pcall(L,3,1,1) ) {
@@ -1774,17 +1761,16 @@ wslua_filehandler_read(wftap *wfth, int *err, gchar **err_info,
  * success, FALSE on error.
  */
 static gboolean
-wslua_filehandler_seek_read(wftap *wfth, gint64 seek_off,
-    void* header, Buffer *buf,
+wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
+    struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
-    FileHandler fh = (FileHandler)(wfth->wslua_data);
+    FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = -1;
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
-    struct wtap_pkthdr *phdr = (struct wtap_pkthdr*)header;
 
     INIT_FILEHANDLER_ROUTINE(seek_read,FALSE);
 
@@ -1792,8 +1778,8 @@ wslua_filehandler_seek_read(wftap *wfth, gint64 seek_off,
     *err = errno = 0;
     phdr->opt_comment = NULL;
 
-    fp = push_File(L, wfth->random_fh);
-    fc = push_CaptureInfo(L, wfth, FALSE);
+    fp = push_File(L, wth->random_fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
     fi = push_FrameInfo(L, phdr, buf);
     lua_pushnumber(L, (lua_Number)seek_off);
 
@@ -1826,17 +1812,17 @@ wslua_filehandler_seek_read(wftap *wfth, gint64 seek_off,
 /* Classic wtap close function, called by wtap core.
  */
 static void
-wslua_filehandler_close(wftap *wfth)
+wslua_filehandler_close(wtap *wth)
 {
-    FileHandler fh = (FileHandler)(wfth->wslua_data);
+    FileHandler fh = (FileHandler)(wth->wslua_data);
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
 
     INIT_FILEHANDLER_ROUTINE(read_close,);
 
-    fp = push_File(L, wfth->fh);
-    fc = push_CaptureInfo(L, wfth, FALSE);
+    fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
 
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
@@ -1846,7 +1832,7 @@ wslua_filehandler_close(wftap *wfth)
 
     END_FILEHANDLER_ROUTINE();
 
-    remove_wth_priv(L, wfth);
+    remove_wth_priv(L, wth);
 
     (*fp)->expired = TRUE;
     (*fc)->expired = TRUE;
@@ -1858,17 +1844,17 @@ wslua_filehandler_close(wftap *wfth)
 /* Classic wtap sequential close function, called by wtap core.
  */
 static void
-wslua_filehandler_sequential_close(wftap *wfth)
+wslua_filehandler_sequential_close(wtap *wth)
 {
-    FileHandler fh = (FileHandler)(wfth->wslua_data);
+    FileHandler fh = (FileHandler)(wth->wslua_data);
     lua_State* L = NULL;
     File *fp = NULL;
     CaptureInfo *fc = NULL;
 
     INIT_FILEHANDLER_ROUTINE(seq_read_close,);
 
-    fp = push_File(L, wfth->fh);
-    fc = push_CaptureInfo(L, wfth, FALSE);
+    fp = push_File(L, wth->fh);
+    fc = push_CaptureInfo(L, wth, FALSE);
 
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
@@ -1932,17 +1918,17 @@ wslua_filehandler_can_write_encap(int encap, void* data)
 
 /* some declarations */
 static gboolean
-wslua_filehandler_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                       const guint8 *pd, int *err);
 static gboolean
-wslua_filehandler_dump_close(wftap_dumper *wdh, int *err);
+wslua_filehandler_dump_close(wtap_dumper *wdh, int *err);
 
 
 /* The classic wtap dump_open function.
  * This returns 1 (TRUE) on success.
  */
 static int
-wslua_filehandler_dump_open(wftap_dumper *wdh, int *err)
+wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = 0;
@@ -2001,7 +1987,7 @@ wslua_filehandler_dump_open(wftap_dumper *wdh, int *err)
  * else FALSE.
 */
 static gboolean
-wslua_filehandler_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+wslua_filehandler_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                       const guint8 *pd, int *err)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
@@ -2041,7 +2027,7 @@ wslua_filehandler_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
  * else FALSE.
 */
 static gboolean
-wslua_filehandler_dump_close(wftap_dumper *wdh, int *err)
+wslua_filehandler_dump_close(wtap_dumper *wdh, int *err)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = -1;

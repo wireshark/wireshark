@@ -142,7 +142,7 @@ void ImportTextDialog::convertTextFile() {
         read_failure_alert_box(import_info_.import_text_filename, errno);
     }
 
-    if (!wftap_dump_close(import_info_.wdh, &err))
+    if (!wtap_dump_close(import_info_.wdh, &err))
     {
         write_failure_alert_box(capfile_name_.toUtf8().constData(), err);
     }

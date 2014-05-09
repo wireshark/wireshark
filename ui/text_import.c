@@ -191,7 +191,7 @@ static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 static struct tm timecode_default;
 
-static wftap_dumper* wdh;
+static wtap_dumper* wdh;
 
 /* HDR_ETH Offset base to parse */
 static guint32 offset_base = 16;
