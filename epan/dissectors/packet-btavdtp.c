@@ -453,9 +453,9 @@ typedef struct _sep_entry_t {
     guint8 seid;
     guint8 type;
     guint8 media_type;
+    guint8 int_seid;
     gint   codec;
     gint   content_protection_type;
-    guint8 int_seid;
     enum sep_state state;
 } sep_entry_t;
 
@@ -608,9 +608,10 @@ dissect_sep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
             sep_data = wmem_new(wmem_file_scope(), sep_entry_t);
             sep_data->seid = seid;
             sep_data->type = type;
+            sep_data->media_type = media_type;
+            sep_data->int_seid = 0;
             sep_data->codec = -1;
             sep_data->content_protection_type = 0;
-            sep_data->media_type = media_type;
             if (in_use) {
                 sep_data->state = SEP_STATE_IN_USE;
             } else {
