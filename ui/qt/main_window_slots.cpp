@@ -1424,9 +1424,7 @@ void MainWindow::actionEditCopyTriggered(MainWindow::CopySelected selection_type
         break;
     case CopySelectedValue:
         if (cap_file_->edt != 0) {
-            gchar* field_str = get_node_field_value(cap_file_->finfo_selected, cap_file_->edt);
-            clip.append(field_str);
-            g_free(field_str);
+            clip.append(get_node_field_value(cap_file_->finfo_selected, cap_file_->edt));
         }
         break;
     }

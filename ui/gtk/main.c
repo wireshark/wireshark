@@ -668,9 +668,8 @@ copy_selected_plist_cb(GtkWidget *w _U_, gpointer data _U_, COPY_SELECTED_E acti
         break;
     case COPY_SELECTED_VALUE:
         if (cfile.edt !=0 ) {
-            gchar* field_str = get_node_field_value(cfile.finfo_selected, cfile.edt);
-            g_string_append(gtk_text_str, field_str);
-            g_free(field_str);
+            g_string_append(gtk_text_str,
+                    get_node_field_value(cfile.finfo_selected, cfile.edt));
         }
         break;
     default:
