@@ -34,7 +34,7 @@ VALID=0
 PCAP=""
 TOOL="memcheck"
 
-while getopts ":2b:C:lmnpP:rtTYwcevWd" OPTCHAR ; do
+while getopts ":2b:C:lmnpP:rtTYwcevWdQ" OPTCHAR ; do
     case $OPTCHAR in
         2) COMMAND_ARGS="-2 $COMMAND_ARGS" ;;
         b) BIN_DIR=$OPTARG ;;
@@ -62,8 +62,11 @@ while getopts ":2b:C:lmnpP:rtTYwcevWd" OPTCHAR ; do
         W) COMMAND=wireshark
            COMMAND_ARGS=""
            VALID=1 ;;
+        Q) COMMAND=wireshark-qt
+           COMMAND_ARGS=""
+           VALID=1 ;;
         d) COMMAND=dumpcap
-           COMMAND_ARGS="-i eth1 -a duration:10"
+           COMMAND_ARGS="-i eth1 -c 3000"
            VALID=1 ;;
         *) printf "Unknown option -$OPTARG!\n"
            exit ;;
