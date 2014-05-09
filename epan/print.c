@@ -1740,7 +1740,7 @@ void write_fields_finale(output_fields_t* fields _U_ , FILE *fh _U_)
     /* Nothing to do */
 }
 
-/* Returns an ep_alloced string or a static constant*/
+/* Returns an g_malloced string */
 gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
 {
     if (fi->hfinfo->id == hf_text_only) {
@@ -1776,7 +1776,7 @@ gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
         case FT_NONE:
             /* Return "1" so that the presence of a field of type
              * FT_NONE can be checked when using -T fields */
-            return "1";
+            return g_strdup("1");
         default:
             dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
             if (dfilter_string != NULL) {
@@ -1809,7 +1809,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
         return NULL;
 
     if (fi->length > tvb_length_remaining(fi->ds_tvb, fi->start)) {
-        return "field length invalid!";
+        return g_strdup("field length invalid!");
     }
 
     /* Find the data for this field. */
@@ -1823,7 +1823,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
         const int  chars_per_byte = 2;
 
         len    = chars_per_byte * fi->length;
-        buffer = g_malloc(sizeof(gchar)*(len + 1));
+        buffer = (gchar *)g_malloc(sizeof(gchar)*(len + 1));
         buffer[len] = '\0'; /* Ensure NULL termination in bad cases */
         p = buffer;
         /* Print a simple hex dump */
