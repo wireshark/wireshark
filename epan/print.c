@@ -91,7 +91,7 @@ GHashTable *output_only_tables = NULL;
 
 static gboolean write_headers = FALSE;
 
-static const gchar *get_field_hex_value(GSList *src_list, field_info *fi);
+static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
@@ -425,10 +425,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             fputs("\" show=\"\" value=\"",  pdata->fh);
             break;
         default:
-            /* XXX - this is a hack until we can just call
-             * fvalue_to_string_repr() for *all* FT_* types. */
-            dfilter_string = proto_construct_match_selected_string(fi,
-                                                                   pdata->edt);
+            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
             if (dfilter_string != NULL) {
                 chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
@@ -445,6 +442,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                 fputs("\" show=\"", pdata->fh);
                 print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
             }
+            g_free(dfilter_string);
 
             /*
              * XXX - should we omit "value" for any fields?
@@ -473,7 +471,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                             break;
                         case FT_INT64:
                         case FT_UINT64:
-                            g_fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X",
+                            fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X",
                                     fvalue_get_integer64(&fi->value));
                             break;
                         default:
@@ -1634,6 +1632,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     write_field_data_t *call_data;
     field_info *fi;
     gpointer    field_index;
+    gchar      *field_str;
 
     call_data = (write_field_data_t *)data;
     fi = PNODE_FINFO(node);
@@ -1643,9 +1642,9 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
 
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if (NULL != field_index) {
-        format_field_values(call_data->fields, field_index,
-                            get_node_field_value(fi, call_data->edt) /* static or ep_alloc'd string */
-            );
+        field_str = get_node_field_value(fi, call_data->edt); /* g_ alloced string */
+        format_field_values(call_data->fields, field_index, field_str);
+        g_free(field_str);
     }
 
     /* Recurse here. */
@@ -1742,13 +1741,13 @@ void write_fields_finale(output_fields_t* fields _U_ , FILE *fh _U_)
 }
 
 /* Returns an ep_alloced string or a static constant*/
-const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
+gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
 {
     if (fi->hfinfo->id == hf_text_only) {
         /* Text label.
          * Get the text */
         if (fi->rep) {
-            return fi->rep->representation;
+            return g_strdup(fi->rep->representation);
         }
         else {
             return get_field_hex_value(edt->pi.data_src, fi);
@@ -1769,20 +1768,17 @@ const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
         case FT_PROTOCOL:
             /* Print out the full details for the protocol. */
             if (fi->rep) {
-                return fi->rep->representation;
+                return g_strdup(fi->rep->representation);
             } else {
                 /* Just print out the protocol abbreviation */
-                return fi->hfinfo->abbrev;
+                return g_strdup(fi->hfinfo->abbrev);
             }
         case FT_NONE:
             /* Return "1" so that the presence of a field of type
              * FT_NONE can be checked when using -T fields */
             return "1";
         default:
-            /* XXX - this is a hack until we can just call
-             * fvalue_to_string_repr() for *all* FT_* types. */
-            dfilter_string = proto_construct_match_selected_string(fi,
-                                                                   edt);
+            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
             if (dfilter_string != NULL) {
                 chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
 
@@ -1804,7 +1800,7 @@ const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
     }
 }
 
-static const gchar*
+static gchar*
 get_field_hex_value(GSList *src_list, field_info *fi)
 {
     const guint8 *pd;
@@ -1827,7 +1823,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
         const int  chars_per_byte = 2;
 
         len    = chars_per_byte * fi->length;
-        buffer = ep_alloc_array(gchar, len + 1);
+        buffer = g_malloc(sizeof(gchar)*(len + 1));
         buffer[len] = '\0'; /* Ensure NULL termination in bad cases */
         p = buffer;
         /* Print a simple hex dump */
