@@ -589,10 +589,9 @@ catapult_dct2000_dump_can_write_encap(int encap)
 /*****************************************/
 
 static gboolean
-catapult_dct2000_dump(wftap_dumper *wdh, void* header,
+catapult_dct2000_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
                       const guint8 *pd, int *err)
 {
-	const struct wtap_pkthdr *phdr = (const struct wtap_pkthdr *)header;
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     guint32 n;
     line_prefix_info_t *prefix = NULL;
