@@ -28,6 +28,6 @@
 #include <glib.h>
 #include <wiretap/wtap.h>
 
-int camins_open(wtap *wth, int *err, gchar **err_info);
+int camins_open(wftap *wfth, int *err, gchar **err_info);
 
 #endif /* _CAMINS_H */

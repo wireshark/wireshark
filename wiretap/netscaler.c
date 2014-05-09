@@ -21,6 +21,7 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -612,33 +613,30 @@ typedef struct {
     guint64 file_size;
 } nstrace_t;
 
-static guint32 nspm_signature_version(wtap*, gchar*, gint32);
-static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
+static guint32 nspm_signature_version(wftap*, gchar*, gint32);
+static gboolean nstrace_read_v10(wftap *wfth, int *err, gchar **err_info,
                                  gint64 *data_offset);
-static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v20(wftap *wfth, int *err, gchar **err_info,
                                  gint64 *data_offset);
-static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v30(wftap *wfth, int *err, gchar **err_info,
                                  gint64 *data_offset);
-static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
-                                      Buffer *buf,
+static gboolean nstrace_seek_read_v10(wftap *wth, gint64 seek_off,
+                                      void* header, Buffer *buf,
                                       int *err, gchar **err_info);
-static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
-                                      Buffer *buf,
+static gboolean nstrace_seek_read_v20(wftap *wth, gint64 seek_off,
+                                      void* header, Buffer *buf,
                                       int *err, gchar **err_info);
-static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
-                                      Buffer *buf,
+static gboolean nstrace_seek_read_v30(wftap *wth, gint64 seek_off,
+                                      void* header, Buffer *buf,
                                       int *err, gchar **err_info);
-static void nstrace_close(wtap *wth);
+static void nstrace_close(wftap *wth);
 
-static gboolean nstrace_set_start_time_v10(wtap *wth);
-static gboolean nstrace_set_start_time_v20(wtap *wth);
-static gboolean nstrace_set_start_time(wtap *wth);
+static gboolean nstrace_set_start_time_v10(wftap *wth);
+static gboolean nstrace_set_start_time_v20(wftap *wth);
+static gboolean nstrace_set_start_time(wftap *wth);
 static guint64 ns_hrtime2nsec(guint32 tm);
 
-static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean nstrace_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
                              const guint8 *pd, int *err);
 
 
@@ -666,34 +664,35 @@ static guint64 ns_hrtime2nsec(guint32 tm)
 /*
 ** Netscaler trace format open routines
 */
-int nstrace_open(wtap *wth, int *err, gchar **err_info)
+int nstrace_open(wftap *wfth, int *err, gchar **err_info)
 {
     gchar *nstrace_buf;
     gint64 file_size;
     gint32 page_size;
     nstrace_t *nstrace;
     int bytes_read;
+    wtap* wth = (wtap*)wfth->tap_specific_data;
 
     errno = WTAP_ERR_CANT_READ;
 
-    if ((file_size = wtap_file_size(wth, err)) == -1)
+    if ((file_size = wftap_file_size(wfth, err)) == -1)
         return 0;
 
     nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
     page_size = GET_READ_PAGE_SIZE(file_size);
 
-    switch ((wth->file_type_subtype = nspm_signature_version(wth, nstrace_buf, page_size)))
+    switch ((wfth->file_type_subtype = nspm_signature_version(wfth, nstrace_buf, page_size)))
     {
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
-        wth->file_encap = WTAP_ENCAP_NSTRACE_1_0;
+        wfth->file_encap = WTAP_ENCAP_NSTRACE_1_0;
         break;
 
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0:
-        wth->file_encap = WTAP_ENCAP_NSTRACE_2_0;
+        wfth->file_encap = WTAP_ENCAP_NSTRACE_2_0;
         break;
 
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0:
-        wth->file_encap = WTAP_ENCAP_NSTRACE_3_0;
+        wfth->file_encap = WTAP_ENCAP_NSTRACE_3_0;
         g_free(nstrace_buf);
         nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
         page_size = GET_READ_PAGE_SIZEV3(file_size);
@@ -701,49 +700,49 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 
     default:
         *err = WTAP_ERR_UNSUPPORTED;
-        *err_info = g_strdup_printf("nstrace: file type %d unsupported", wth->file_type_subtype);
+        *err_info = g_strdup_printf("nstrace: file type %d unsupported", wfth->file_type_subtype);
         g_free(nstrace_buf);
         return 0;
     }
 
-    if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
+    if ((file_seek(wfth->fh, 0, SEEK_SET, err)) == -1)
     {
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(wfth->fh, err_info);
         g_free(nstrace_buf);
         return 0;
     }
 
-    bytes_read = file_read(nstrace_buf, page_size, wth->fh);
+    bytes_read = file_read(nstrace_buf, page_size, wfth->fh);
     if (bytes_read != page_size)
     {
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(wfth->fh, err_info);
         g_free(nstrace_buf);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
 
-    switch (wth->file_type_subtype)
+    switch (wfth->file_type_subtype)
     {
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
-        wth->subtype_read = nstrace_read_v10;
-        wth->subtype_seek_read = nstrace_seek_read_v10;
+        wfth->subtype_read = nstrace_read_v10;
+        wfth->subtype_seek_read = nstrace_seek_read_v10;
         break;
 
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0:
-        wth->subtype_read = nstrace_read_v20;
-        wth->subtype_seek_read = nstrace_seek_read_v20;
+        wfth->subtype_read = nstrace_read_v20;
+        wfth->subtype_seek_read = nstrace_seek_read_v20;
         break;
 
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0:
-        wth->subtype_read = nstrace_read_v30;
-        wth->subtype_seek_read = nstrace_seek_read_v30;
+        wfth->subtype_read = nstrace_read_v30;
+        wfth->subtype_seek_read = nstrace_seek_read_v30;
         break;
     }
-    wth->subtype_close = nstrace_close;
+    wfth->subtype_close = nstrace_close;
 
     nstrace = (nstrace_t *)g_malloc(sizeof(nstrace_t));
-    wth->priv = (void *)nstrace;
+    wfth->priv = (void *)nstrace;
     nstrace->pnstrace_buf = nstrace_buf;
     nstrace->xxx_offset = 0;
     nstrace->nstrace_buflen = page_size;
@@ -756,22 +755,22 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
 
 
     /* Set the start time by looking for the abstime record */
-    if ((nstrace_set_start_time(wth)) == FALSE)
+    if ((nstrace_set_start_time(wfth)) == FALSE)
     {
         /* Reset the read pointer to start of the file. */
-        if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
+        if ((file_seek(wfth->fh, 0, SEEK_SET, err)) == -1)
         {
-            *err = file_error(wth->fh, err_info);
+            *err = file_error(wfth->fh, err_info);
             g_free(nstrace->pnstrace_buf);
             g_free(nstrace);
             return 0;
         }
 
         /* Read the first page of data */
-        bytes_read = file_read(nstrace_buf, page_size, wth->fh);
+        bytes_read = file_read(nstrace_buf, page_size, wfth->fh);
         if (bytes_read != page_size)
         {
-            *err = file_error(wth->fh, err_info);
+            *err = file_error(wfth->fh, err_info);
             g_free(nstrace->pnstrace_buf);
             g_free(nstrace);
             return 0;
@@ -781,7 +780,7 @@ int nstrace_open(wtap *wth, int *err, gchar **err_info)
         nstrace->nstrace_buf_offset = 0;
     }
 
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wfth->tsprecision = WTAP_FILE_TSPREC_NSEC;
     wth->phdr.ts.secs = nstrace->nspm_curtime;
     wth->phdr.ts.nsecs = 0;
 
@@ -806,12 +805,12 @@ nspm_signature_func(30)
 ** has to be a file seek to return to the start of the first page.
 */
 static guint32
-nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
+nspm_signature_version(wftap *wfth, gchar *nstrace_buf, gint32 len)
 {
     gchar *dp = nstrace_buf;
     int bytes_read;
 
-    bytes_read = file_read(dp, len, wth->fh);
+    bytes_read = file_read(dp, len, wfth->fh);
     if (bytes_read == len) {
 
         for ( ; len > (gint32)(MIN(sizeof(NSPR_SIGSTR_V10), sizeof(NSPR_SIGSTR_V20))); dp++, len--)
@@ -852,9 +851,9 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 
 
 #define nstrace_set_start_time_ver(ver) \
-    gboolean nstrace_set_start_time_v##ver(wtap *wth) \
+    gboolean nstrace_set_start_time_v##ver(wftap *wfth) \
     {\
-        nstrace_t *nstrace = (nstrace_t *)wth->priv;\
+        nstrace_t *nstrace = (nstrace_t *)wfth->priv;\
         gchar* nstrace_buf = nstrace->pnstrace_buf;\
         gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;\
         gint32 nstrace_buflen = nstrace->nstrace_buflen;\
@@ -881,7 +880,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
             nstrace_buf_offset = 0;\
             nstrace->xxx_offset += nstrace_buflen;\
             nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));\
-        }while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && bytes_read == nstrace_buflen); \
+        }while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wfth->fh)) && bytes_read == nstrace_buflen); \
         return FALSE;\
     }
 
@@ -897,14 +896,14 @@ nstrace_set_start_time_ver(20)
 ** the next record after the ABSTIME record. Inorder to report correct time values, all trace
 ** records before the ABSTIME record are ignored.
 */
-static gboolean nstrace_set_start_time(wtap *wth)
+static gboolean nstrace_set_start_time(wftap *wfth)
 {
-    if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
-        return nstrace_set_start_time_v10(wth);
-    else if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
-        return nstrace_set_start_time_v20(wth);
-    else if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0)
-        return nstrace_set_start_time_v20(wth);
+    if (wfth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+        return nstrace_set_start_time_v10(wfth);
+    else if (wfth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+        return nstrace_set_start_time_v20(wfth);
+    else if (wfth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0)
+        return nstrace_set_start_time_v20(wfth);
     return FALSE;
 }
 
@@ -925,9 +924,9 @@ static gboolean nstrace_set_start_time(wtap *wth)
 /*
 ** Netscaler trace format read routines.
 */
-static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v10(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-    nstrace_t *nstrace = (nstrace_t *)wth->priv;
+    nstrace_t *nstrace = (nstrace_t *)wfth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
     gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
@@ -935,6 +934,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
     nspr_pktracefull_v10_t *fp;
     nspr_pktracepart_v10_t *pp;
     int bytes_read;
+    wtap* wth = (wtap*)wfth->tap_specific_data;
 
     *err = 0;
     *err_info = NULL;
@@ -959,8 +959,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
             (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
             TRACE_FULL_V##type##_REC_LEN_OFF(phdr,v##type##_full,fp,pktracefull_v##type);\
-            buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-            memcpy(buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
+            buffer_assure_space(wfth->frame_buffer, (phdr)->caplen);\
+            memcpy(buffer_start_ptr(wfth->frame_buffer), fp, (phdr)->caplen);\
             *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
             nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->len;\
             nstrace->nstrace_buflen = nstrace_buflen;\
@@ -982,8 +982,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             (phdr)->ts.secs = nstrace->nspm_curtime + (guint32) (nsg_creltime / 1000000000);\
             (phdr)->ts.nsecs = (guint32) (nsg_creltime % 1000000000);\
             TRACE_PART_V##type##_REC_LEN_OFF(phdr,v##type##_part,pp,pktracepart_v##type);\
-            buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-            memcpy(buffer_start_ptr(wth->frame_buffer), pp, (phdr)->caplen);\
+            buffer_assure_space(wfth->frame_buffer, (phdr)->caplen);\
+            memcpy(buffer_start_ptr(wfth->frame_buffer), pp, (phdr)->caplen);\
             *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
             nstrace->nstrace_buf_offset = nstrace_buf_offset + (phdr)->caplen;\
             nstrace->nsg_creltime = nsg_creltime;\
@@ -1028,7 +1028,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
-    }while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
+    }while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wfth->fh)) && (bytes_read == nstrace_buflen));
 
     return FALSE;
 }
@@ -1106,8 +1106,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         SIZEDEF##ver((phdr),fp,ver);\
         TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
         (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
-        buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
-        memcpy(buffer_start_ptr(wth->frame_buffer), fp, (phdr)->caplen);\
+        buffer_assure_space(wfth->frame_buffer, (phdr)->caplen);\
+        memcpy(buffer_start_ptr(wfth->frame_buffer), fp, (phdr)->caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1115,14 +1115,15 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         return TRUE;\
     }while(0)
 
-static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v20(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-    nstrace_t *nstrace = (nstrace_t *)wth->priv;
+    nstrace_t *nstrace = (nstrace_t *)wfth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
     gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
     gint32 nstrace_buflen = nstrace->nstrace_buflen;
     int bytes_read;
+    wtap* wth = (wtap*)wfth->tap_specific_data;
 
     *err = 0;
     *err_info = NULL;
@@ -1217,7 +1218,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = GET_READ_PAGE_SIZE((nstrace->file_size - nstrace->xxx_offset));
-    }while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
+    }while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wfth->fh)) && (bytes_read == nstrace_buflen));
 
     return FALSE;
 }
@@ -1231,7 +1232,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
     SIZEDEF##ver((phdr),fp,ver);\
     TRACE_V##ver##_REC_LEN_OFF((phdr),enumprefix,type,structname);\
     (phdr)->pseudo_header.nstr.rec_type = NSPR_HEADER_VERSION##TYPE;\
-    buffer_assure_space(wth->frame_buffer, (phdr)->caplen);\
+    buffer_assure_space(wfth->frame_buffer, (phdr)->caplen);\
     *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
     while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
         nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
@@ -1246,7 +1247,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         }\
         nstrace_buflen = NSPR_PAGESIZE_TRACE;\
         nstrace->xxx_offset += nstrace_buflen;\
-        bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE_TRACE, wth->fh);\
+        bytes_read = file_read(nstrace_buf, NSPR_PAGESIZE_TRACE, wfth->fh);\
         if (bytes_read != NSPR_PAGESIZE_TRACE) {\
             return FALSE;\
         } else {\
@@ -1259,16 +1260,16 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
     while (nstrace_tmpbuff_off < nst_dataSize) {\
         nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
     }\
-    memcpy(buffer_start_ptr(wth->frame_buffer), nstrace_tmpbuff, (phdr)->caplen);\
+    memcpy(buffer_start_ptr(wfth->frame_buffer), nstrace_tmpbuff, (phdr)->caplen);\
     nstrace->nstrace_buf_offset = nstrace_buf_offset;\
     nstrace->nstrace_buflen = nstrace_buflen = ((gint32)NSPR_PAGESIZE_TRACE);\
     nstrace->nsg_creltime = nsg_creltime;\
     return TRUE;\
 } while(0)
 
-static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v30(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-    nstrace_t *nstrace = (nstrace_t *)wth->priv;
+    nstrace_t *nstrace = (nstrace_t *)wfth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
     gint32 nstrace_buf_offset = nstrace->nstrace_buf_offset;
@@ -1277,6 +1278,8 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
     guint32 nstrace_tmpbuff_off=0,nst_dataSize=0,rec_size=0,nsg_nextPageOffset=0;
     nspr_hd_v20_t *hdp;
     int bytes_read;
+    wtap* wth = (wtap*)wfth->tap_specific_data;
+
     *err = 0;
     *err_info = NULL;
 
@@ -1322,15 +1325,15 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         nstrace_buf_offset = 0;
         nstrace->xxx_offset += nstrace_buflen;
         nstrace_buflen = NSPR_PAGESIZE_TRACE;
-    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wth->fh)) && (bytes_read == nstrace_buflen));
+    } while((nstrace_buflen > 0) && (bytes_read = file_read(nstrace_buf, nstrace_buflen, wfth->fh)) && (bytes_read == nstrace_buflen));
 
     return FALSE;
 }
 
 #undef PACKET_DESCRIBE
 
-static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+static gboolean nstrace_seek_read_v10(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v10_t hdr;
     int bytes_read;
@@ -1339,18 +1342,19 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     unsigned int bytes_to_read;
     nspr_pktracefull_v10_t *fp;
     nspr_pktracepart_v10_t *pp;
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
     *err = 0;
 
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     /*
     ** Read the record header.
     */
-    bytes_read = file_read((void *)&hdr, sizeof hdr, wth->random_fh);
+    bytes_read = file_read((void *)&hdr, sizeof hdr, wfth->random_fh);
     if (bytes_read != sizeof hdr) {
-        *err = file_error(wth->random_fh, err_info);
+        *err = file_error(wfth->random_fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -1368,10 +1372,10 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     pd = buffer_start_ptr(buf);
     memcpy(pd, (void *)&hdr, sizeof hdr);
     if (record_length > sizeof hdr) {
-    	bytes_to_read = (unsigned int)(record_length - sizeof hdr);
-        bytes_read = file_read(pd + sizeof hdr, bytes_to_read, wth->random_fh);
+        bytes_to_read = (unsigned int)(record_length - sizeof hdr);
+        bytes_read = file_read(pd + sizeof hdr, bytes_to_read, wfth->random_fh);
         if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
-            *err = file_error(wth->random_fh, err_info);
+            *err = file_error(wfth->random_fh, err_info);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
@@ -1420,8 +1424,8 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
         return TRUE;\
     }while(0)
 
-static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+static gboolean nstrace_seek_read_v20(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
     int bytes_read;
@@ -1429,18 +1433,19 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     guint hdrlen;
     guint8 *pd;
     unsigned int bytes_to_read;
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
     *err = 0;
 
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     /*
     ** Read the first 2 bytes of the record header.
     */
-    bytes_read = file_read((void *)&hdr, 2, wth->random_fh);
+    bytes_read = file_read((void *)&hdr, 2, wfth->random_fh);
     if (bytes_read != 2) {
-        *err = file_error(wth->random_fh, err_info);
+        *err = file_error(wfth->random_fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -1451,9 +1456,9 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     ** Is there a third byte?  If so, read it.
     */
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
-        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wth->random_fh);
+        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wfth->random_fh);
         if (bytes_read != 1) {
-            *err = file_error(wth->random_fh, err_info);
+            *err = file_error(wfth->random_fh, err_info);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
@@ -1474,9 +1479,9 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
     	bytes_to_read = (unsigned int)(record_length - hdrlen);
-        bytes_read = file_read(pd + hdrlen, bytes_to_read, wth->random_fh);
+        bytes_read = file_read(pd + hdrlen, bytes_to_read, wfth->random_fh);
         if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
-            *err = file_error(wth->random_fh, err_info);
+            *err = file_error(wfth->random_fh, err_info);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
@@ -1536,8 +1541,8 @@ static gboolean nstrace_seek_read_v20(wtap *wth, gint64 seek_off,
 }
 
 
-static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+static gboolean nstrace_seek_read_v30(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
     nspr_hd_v20_t hdr;
     int bytes_read;
@@ -1545,17 +1550,18 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     guint hdrlen;
     guint8 *pd;
     unsigned int bytes_to_read;
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
     *err = 0;
 
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
     /*
     ** Read the first 2 bytes of the record header.
     */
-    bytes_read = file_read((void *)&hdr, 2, wth->random_fh);
+    bytes_read = file_read((void *)&hdr, 2, wfth->random_fh);
     if (bytes_read != 2) {
-        *err = file_error(wth->random_fh, err_info);
+        *err = file_error(wfth->random_fh, err_info);
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
         return FALSE;
@@ -1566,9 +1572,9 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     ** Is there a third byte?  If so, read it.
     */
     if (hdr.phd_RecordSizeLow & NSPR_V20RECORDSIZE_2BYTES) {
-        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wth->random_fh);
+        bytes_read = file_read((void *)&hdr.phd_RecordSizeHigh, 1, wfth->random_fh);
         if (bytes_read != 1) {
-            *err = file_error(wth->random_fh, err_info);
+            *err = file_error(wfth->random_fh, err_info);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
@@ -1589,9 +1595,9 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
     memcpy(pd, (void *)&hdr, hdrlen);
     if (record_length > hdrlen) {
         bytes_to_read = (unsigned int)(record_length - hdrlen);
-        bytes_read = file_read(pd + hdrlen, bytes_to_read, wth->random_fh);
+        bytes_read = file_read(pd + hdrlen, bytes_to_read, wfth->random_fh);
         if (bytes_read < 0 || (unsigned int)bytes_read != bytes_to_read) {
-            *err = file_error(wth->random_fh, err_info);
+            *err = file_error(wfth->random_fh, err_info);
             if (*err == 0)
                 *err = WTAP_ERR_SHORT_READ;
             return FALSE;
@@ -1619,9 +1625,9 @@ static gboolean nstrace_seek_read_v30(wtap *wth, gint64 seek_off,
 /*
 ** Netscaler trace format close routines.
 */
-static void nstrace_close(wtap *wth)
+static void nstrace_close(wftap *wfth)
 {
-    nstrace_t *nstrace = (nstrace_t *)wth->priv;
+    nstrace_t *nstrace = (nstrace_t *)wfth->priv;
 
     g_free(nstrace->pnstrace_buf);
 }
@@ -1666,7 +1672,7 @@ int nstrace_30_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
 ** failure */
-gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean nstrace_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     nstrace_dump_t *nstrace;
 
@@ -1682,7 +1688,7 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_)
 }
 
 
-static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
+static gboolean nstrace_add_signature(wftap_dumper *wdh, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
@@ -1700,7 +1706,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         g_strlcpy(sig10.sig_Signature, NSPR_SIGSTR_V10, NSPR_SIGSIZE_V10);
 
         /* Write the record into the file */
-        if (!wtap_dump_file_write(wdh, &sig10, nspr_signature_v10_s,
+        if (!wftap_dump_file_write(wdh, &sig10, nspr_signature_v10_s,
             err))
             return FALSE;
 
@@ -1716,7 +1722,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         memcpy(sig20.sig_Signature, NSPR_SIGSTR_V20, sizeof(NSPR_SIGSTR_V20));
 
         /* Write the record into the file */
-        if (!wtap_dump_file_write(wdh, &sig20, sig20.sig_RecordSize,
+        if (!wftap_dump_file_write(wdh, &sig20, sig20.sig_RecordSize,
             err))
             return FALSE;
 
@@ -1732,7 +1738,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         memcpy(sig30.sig_Signature, NSPR_SIGSTR_V30, sizeof(NSPR_SIGSTR_V30));
 
         /* Write the record into the file */
-        if (!wtap_dump_file_write(wdh, &sig30, sig30.sig_RecordSize,
+        if (!wftap_dump_file_write(wdh, &sig30, sig30.sig_RecordSize,
             err))
             return FALSE;
 
@@ -1749,7 +1755,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 
 
 static gboolean
-nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+nstrace_add_abstime(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
      const guint8 *pd, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
@@ -1776,7 +1782,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         memcpy(abs10.abs_Time, &abstime, sizeof abs10.abs_Time);
 
         /* Write the record into the file */
-        if (!wtap_dump_file_write(wdh, &abs10, nspr_abstime_v10_s, err))
+        if (!wftap_dump_file_write(wdh, &abs10, nspr_abstime_v10_s, err))
             return FALSE;
 
         /* Move forward the page offset */
@@ -1799,7 +1805,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         memcpy(abs20.abs_RelTime, &abstime, sizeof abs20.abs_RelTime);
 
         /* Write the record into the file */
-        if (!wtap_dump_file_write(wdh, &abs20, nspr_abstime_v20_s, err))
+        if (!wftap_dump_file_write(wdh, &abs20, nspr_abstime_v20_s, err))
             return FALSE;
 
         /* Move forward the page offset */
@@ -1817,7 +1823,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+static gboolean nstrace_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
@@ -1856,7 +1862,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
-                if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
+                if (wftap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
                     return FALSE;
 
                 nstrace->page_offset = 0;
@@ -1867,7 +1873,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             }
 
             /* Write the actual record as is */
-            if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
                 return FALSE;
 
             nstrace->page_offset += (guint16) phdr->caplen;
@@ -1895,7 +1901,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
-                if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
+                if (wftap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
                     return FALSE;
 
                 nstrace->page_offset = 0;
@@ -1906,7 +1912,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             }
 
             /* Write the actual record as is */
-            if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
                 return FALSE;
 
             nstrace->page_offset += (guint16) phdr->caplen;
@@ -1928,7 +1934,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             if (nstrace->page_offset + phdr->caplen >= nstrace->page_len)
             {
                 /* Start on the next page */
-                if (wtap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
+                if (wftap_dump_file_seek(wdh, (nstrace->page_len - nstrace->page_offset), SEEK_CUR, err) == -1)
                     return FALSE;
 
                 nstrace->page_offset = 0;
@@ -1939,7 +1945,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             }
 
             /* Write the actual record as is */
-            if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+            if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
                 return FALSE;
 
             nstrace->page_offset += (guint16) phdr->caplen;

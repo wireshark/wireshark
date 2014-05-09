@@ -34,6 +34,7 @@
 #include <errno.h>
 #include <string.h>
 #include <stdlib.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -123,12 +124,12 @@ typedef struct {
 	gboolean	has_fcs;
 } peektagged_t;
 
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
+static gboolean peektagged_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+static gboolean peektagged_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info);
 
-static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
+static int wtap_file_read_pattern (wftap *wfth, const char *pattern, int *err,
 				gchar **err_info)
 {
     int c;
@@ -137,29 +138,29 @@ static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
     cp = pattern;
     while (*cp)
     {
-	c = file_getc(wth->fh);
-	if (c == EOF)
-	{
-	    *err = file_error(wth->fh, err_info);
-	    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-		return -1;	/* error */
-	    return 0;	/* EOF */
-	}
-	if (c == *cp)
-	    cp++;
-	else
-	{
-	    if (c == pattern[0])
-		cp = &pattern[1];
-	    else
-		cp = pattern;
-	}
+        c = file_getc(wfth->fh);
+        if (c == EOF)
+        {
+            *err = file_error(wfth->fh, err_info);
+            if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+                return -1;	/* error */
+            return 0;	/* EOF */
+        }
+        if (c == *cp)
+            cp++;
+        else
+        {
+            if (c == pattern[0])
+                cp = &pattern[1];
+            else
+                cp = pattern;
+        }
     }
     return (*cp == '\0' ? 1 : 0);
 }
 
 
-static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
+static int wtap_file_read_till_separator (wftap *wfth, char *buffer, int buflen,
 					const char *separators, int *err,
 					gchar **err_info)
 {
@@ -169,27 +170,27 @@ static int wtap_file_read_till_separator (wtap *wth, char *buffer, int buflen,
 
     for (cp = buffer, i = 0; i < buflen; i++, cp++)
     {
-	c = file_getc(wth->fh);
-	if (c == EOF)
-	{
-	    *err = file_error(wth->fh, err_info);
-	    if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
-		return -1;	/* error */
-	    return 0;	/* EOF */
-	}
-	if (strchr (separators, c) != NULL)
-	{
-	    *cp = '\0';
-	    break;
-	}
-	else
-	    *cp = c;
+        c = file_getc(wfth->fh);
+        if (c == EOF)
+        {
+            *err = file_error(wfth->fh, err_info);
+            if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
+                return -1;	/* error */
+            return 0;	/* EOF */
+        }
+        if (strchr (separators, c) != NULL)
+        {
+            *cp = '\0';
+            break;
+        }
+        else
+            *cp = c;
     }
     return i;
 }
 
 
-static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
+static int wtap_file_read_number (wftap *wfth, guint32 *num, int *err,
 				gchar **err_info)
 {
     int ret;
@@ -197,22 +198,21 @@ static int wtap_file_read_number (wtap *wth, guint32 *num, int *err,
     unsigned long value;
     char *p;
 
-    ret = wtap_file_read_till_separator (wth, str_num, sizeof (str_num)-1, "<",
-					 err, err_info);
+    ret = wtap_file_read_till_separator (wfth, str_num, sizeof (str_num)-1, "<", err, err_info);
     if (ret != 1) {
-	/* 0 means EOF, which means "not a valid Peek tagged file";
-	   -1 means error, and "err" has been set. */
-	return ret;
+        /* 0 means EOF, which means "not a valid Peek tagged file";
+           -1 means error, and "err" has been set. */
+        return ret;
     }
     value = strtoul (str_num, &p, 10);
     if (p == str_num || value > G_MAXUINT32)
-	return 0;
+        return 0;
     *num = (guint32)value;
     return 1;
 }
 
 
-int peektagged_open(wtap *wth, int *err, gchar **err_info)
+int peektagged_open(wftap *wfth, int *err, gchar **err_info)
 {
     peektagged_section_header_t ap_hdr;
     int bytes_read;
@@ -222,24 +222,24 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
     guint32 mediaSubType = 0;
     int file_encap;
     static const int peektagged_encap[] = {
-	WTAP_ENCAP_ETHERNET,
-	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-	WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
-	WTAP_ENCAP_IEEE_802_11_WITH_RADIO
+        WTAP_ENCAP_ETHERNET,
+        WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+        WTAP_ENCAP_IEEE_802_11_WITH_RADIO,
+        WTAP_ENCAP_IEEE_802_11_WITH_RADIO
     };
     #define NUM_PEEKTAGGED_ENCAPS (sizeof peektagged_encap / sizeof peektagged_encap[0])
     peektagged_t *peektagged;
 
-    bytes_read = file_read(&ap_hdr, (int)sizeof(ap_hdr), wth->fh);
+    bytes_read = file_read(&ap_hdr, (int)sizeof(ap_hdr), wfth->fh);
     if (bytes_read != (int)sizeof(ap_hdr)) {
-    	*err = file_error(wth->fh, err_info);
+        *err = file_error(wfth->fh, err_info);
         if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
             return -1;
         return 0;
     }
 
     if (memcmp (ap_hdr.section_id, "\177ver", sizeof(ap_hdr.section_id)) != 0)
-	return 0;	/* doesn't begin with a "\177ver" section */
+        return 0;	/* doesn't begin with a "\177ver" section */
 
     /*
      * XXX - we should get the length of the "\177ver" section, check
@@ -249,13 +249,13 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
      * we have the file version (and possibly check to make sure all
      * tags are properly opened and closed).
      */
-    ret = wtap_file_read_pattern (wth, "<FileVersion>", err, err_info);
+    ret = wtap_file_read_pattern (wfth, "<FileVersion>", err, err_info);
     if (ret != 1) {
 	/* 0 means EOF, which means "not a valid Peek tagged file";
 	   -1 means error, and "err" has been set. */
 	return ret;
     }
-    ret = wtap_file_read_number (wth, &fileVersion, err, err_info);
+    ret = wtap_file_read_number (wfth, &fileVersion, err, err_info);
     if (ret != 1) {
 	/* 0 means EOF, which means "not a valid Peek tagged file";
 	   -1 means error, and "err" has been set. */
@@ -281,88 +281,88 @@ int peektagged_open(wtap *wth, int *err, gchar **err_info)
      * we have the file version (and possibly check to make sure all
      * tags are properly opened and closed).
      */
-    ret = wtap_file_read_pattern (wth, "<MediaType>", err, err_info);
+    ret = wtap_file_read_pattern (wfth, "<MediaType>", err, err_info);
     if (ret == -1)
-	return -1;
+        return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("peektagged: <MediaType> tag not found");
-	return -1;
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("peektagged: <MediaType> tag not found");
+            return -1;
     }
     /* XXX - this appears to be 0 in both the EtherPeek and AiroPeek
        files we've seen; should we require it to be 0? */
-    ret = wtap_file_read_number (wth, &mediaType, err, err_info);
+    ret = wtap_file_read_number (wfth, &mediaType, err, err_info);
     if (ret == -1)
-	return -1;
+        return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("peektagged: <MediaType> value not found");
-	return -1;
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("peektagged: <MediaType> value not found");
+        return -1;
     }
 
-    ret = wtap_file_read_pattern (wth, "<MediaSubType>", err, err_info);
+    ret = wtap_file_read_pattern (wfth, "<MediaSubType>", err, err_info);
     if (ret == -1)
-	return -1;
+        return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("peektagged: <MediaSubType> tag not found");
-	return -1;
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("peektagged: <MediaSubType> tag not found");
+        return -1;
     }
-    ret = wtap_file_read_number (wth, &mediaSubType, err, err_info);
+    ret = wtap_file_read_number (wfth, &mediaSubType, err, err_info);
     if (ret == -1)
-	return -1;
+        return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_BAD_FILE;
-	*err_info = g_strdup("peektagged: <MediaSubType> value not found");
-	return -1;
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("peektagged: <MediaSubType> value not found");
+        return -1;
     }
     if (mediaSubType >= NUM_PEEKTAGGED_ENCAPS
         || peektagged_encap[mediaSubType] == WTAP_ENCAP_UNKNOWN) {
-	*err = WTAP_ERR_UNSUPPORTED_ENCAP;
-	*err_info = g_strdup_printf("peektagged: network type %u unknown or unsupported",
-	    mediaSubType);
-	return -1;
+        *err = WTAP_ERR_UNSUPPORTED_ENCAP;
+        *err_info = g_strdup_printf("peektagged: network type %u unknown or unsupported",
+            mediaSubType);
+        return -1;
     }
 
-    ret = wtap_file_read_pattern (wth, "pkts", err, err_info);
+    ret = wtap_file_read_pattern (wfth, "pkts", err, err_info);
     if (ret == -1)
-	return -1;
+        return -1;
     if (ret == 0) {
-	*err = WTAP_ERR_SHORT_READ;
-	return -1;
+        *err = WTAP_ERR_SHORT_READ;
+        return -1;
     }
 
     /* skip 8 zero bytes */
-    if (file_seek (wth->fh, 8L, SEEK_CUR, err) == -1)
-	return 0;
+    if (file_seek (wfth->fh, 8L, SEEK_CUR, err) == -1)
+        return 0;
 
     /*
      * This is an Peek tagged file.
      */
     file_encap = peektagged_encap[mediaSubType];
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKTAGGED;
-    wth->file_encap = file_encap;
-    wth->subtype_read = peektagged_read;
-    wth->subtype_seek_read = peektagged_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+    wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKTAGGED;
+    wfth->file_encap = file_encap;
+    wfth->subtype_read = peektagged_read;
+    wfth->subtype_seek_read = peektagged_seek_read;
+    wfth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
     peektagged = (peektagged_t *)g_malloc(sizeof(peektagged_t));
-    wth->priv = (void *)peektagged;
+    wfth->priv = (void *)peektagged;
     switch (mediaSubType) {
 
     case PEEKTAGGED_NST_ETHERNET:
     case PEEKTAGGED_NST_802_11:
     case PEEKTAGGED_NST_802_11_2:
-	peektagged->has_fcs = FALSE;
-	break;
+        peektagged->has_fcs = FALSE;
+        break;
 
     case PEEKTAGGED_NST_802_11_WITH_FCS:
-	peektagged->has_fcs = TRUE;
-	break;
+        peektagged->has_fcs = TRUE;
+        break;
     }
 
-    wth->snapshot_length   = 0; /* not available in header */
+    wfth->snapshot_length   = 0; /* not available in header */
 
     return 1;
 }
@@ -394,10 +394,10 @@ typedef struct {
  * are present.
  */
 static int
-peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+peektagged_read_packet(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
                        Buffer *buf, int *err, gchar **err_info)
 {
-    peektagged_t *peektagged = (peektagged_t *)wth->priv;
+    peektagged_t *peektagged = (peektagged_t *)wfth->priv;
     hdr_info_t hdr_info;
     int header_len = 0;
     int bytes_read;
@@ -589,7 +589,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     phdr->ts.secs  = (time_t) t;
     phdr->ts.nsecs = (guint32) ((t - phdr->ts.secs)*1000000000);
 
-    switch (wth->file_encap) {
+    switch (wfth->file_encap) {
 
     case WTAP_ENCAP_IEEE_802_11_WITH_RADIO:
 	phdr->pseudo_header.ieee_802_11 = hdr_info.ieee_802_11;
@@ -633,40 +633,43 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     return skip_len;
 }
 
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
+static gboolean peektagged_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     int skip_len;
+    wtap* wth = (wtap*)wfth->tap_specific_data;
 
-    *data_offset = file_tell(wth->fh);
+    *data_offset = file_tell(wfth->fh);
 
     /* Read the packet. */
-    skip_len = peektagged_read_packet(wth, wth->fh, &wth->phdr,
-                                      wth->frame_buffer, err, err_info);
+    skip_len = peektagged_read_packet(wfth, wfth->fh, &wth->phdr,
+                                      wfth->frame_buffer, err, err_info);
     if (skip_len == -1)
-	return FALSE;
+        return FALSE;
 
     if (skip_len != 0) {
-	/* Skip extra junk at the end of the packet data. */
-        if (!file_skip(wth->fh, skip_len, err))
-	    return FALSE;
+        /* Skip extra junk at the end of the packet data. */
+        if (!file_skip(wfth->fh, skip_len, err))
+            return FALSE;
     }
 
     return TRUE;
 }
 
 static gboolean
-peektagged_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+peektagged_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-	return FALSE;
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
+        return FALSE;
 
     /* Read the packet. */
-    if (peektagged_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
+    if (peektagged_read_packet(wfth, wfth->random_fh, phdr, buf, err, err_info) == -1) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-	return FALSE;
+        return FALSE;
     }
     return TRUE;
 }

@@ -24,6 +24,6 @@
 
 #include "ws_symbol_export.h"
 
-int vwr_open(wtap *wth, int *err, gchar **err_info);
+int vwr_open(wftap *wfth, int *err, gchar **err_info);
 
 #endif

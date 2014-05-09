@@ -36,7 +36,7 @@ cap_file_get_interface_name(void *data, guint32 interface_id)
   wtapng_iface_descriptions_t *idb_info;
   const wtapng_if_descr_t *wtapng_if_descr = NULL;
 
-  idb_info = wtap_file_get_idb_info(cf->wth);
+  idb_info = wtap_file_get_idb_info(cf->wfth);
 
   if (interface_id < idb_info->number_of_interfaces)
     wtapng_if_descr = &g_array_index(idb_info->interface_data, wtapng_if_descr_t, interface_id);

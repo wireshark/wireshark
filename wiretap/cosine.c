@@ -22,6 +22,7 @@
  */
 
 #include "config.h"
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "cosine.h"
@@ -163,13 +164,13 @@
 #define COSINE_MAX_PACKET_LEN	65536
 
 static gboolean empty_line(const gchar *line);
-static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
+static gint64 cosine_seek_next_packet(wftap *wfth, int *err, gchar **err_info,
 	char *hdr);
-static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info);
-static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
+static gboolean cosine_check_file_type(wftap *wfth, int *err, gchar **err_info);
+static gboolean cosine_read(wftap *wfth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean cosine_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+static gboolean cosine_seek_read(wftap *wfth, gint64 seek_off,
+	void* header, Buffer *buf, int *err, gchar **err_info);
 static int parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	int *err, gchar **err_info);
 static gboolean parse_cosine_hex_dump(FILE_T fh, struct wtap_pkthdr *phdr,
@@ -199,21 +200,21 @@ static gboolean empty_line(const gchar *line)
    byte offset. Copy the header line to hdr. Returns -1 on failure,
    and sets "*err" to the error and sets "*err_info" to null or an
    additional error string. */
-static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
+static gint64 cosine_seek_next_packet(wftap *wfth, int *err, gchar **err_info,
 	char *hdr)
 {
 	gint64 cur_off;
 	char buf[COSINE_LINE_LENGTH];
 
 	while (1) {
-		cur_off = file_tell(wth->fh);
+		cur_off = file_tell(wfth->fh);
 		if (cur_off == -1) {
 			/* Error */
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			return -1;
 		}
-		if (file_gets(buf, sizeof(buf), wth->fh) == NULL) {
-			*err = file_error(wth->fh, err_info);
+		if (file_gets(buf, sizeof(buf), wfth->fh) == NULL) {
+			*err = file_error(wfth->fh, err_info);
 			return -1;
 		}
 		if (strstr(buf, COSINE_REC_MAGIC_STR1) ||
@@ -232,7 +233,7 @@ static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
  * if we get an I/O error, "*err" will be set to a non-zero value and
  * "*err_info" will be set to null or an additional error string.
  */
-static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info)
+static gboolean cosine_check_file_type(wftap *wfth, int *err, gchar **err_info)
 {
 	char	buf[COSINE_LINE_LENGTH];
 	gsize	reclen;
@@ -241,9 +242,9 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info)
 	buf[COSINE_LINE_LENGTH-1] = '\0';
 
 	for (line = 0; line < COSINE_HEADER_LINES_TO_CHECK; line++) {
-		if (file_gets(buf, COSINE_LINE_LENGTH, wth->fh) == NULL) {
+		if (file_gets(buf, COSINE_LINE_LENGTH, wfth->fh) == NULL) {
 			/* EOF or error. */
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			return FALSE;
 		}
 
@@ -263,38 +264,39 @@ static gboolean cosine_check_file_type(wtap *wth, int *err, gchar **err_info)
 }
 
 
-int cosine_open(wtap *wth, int *err, gchar **err_info)
+int cosine_open(wftap *wfth, int *err, gchar **err_info)
 {
 	/* Look for CoSine header */
-	if (!cosine_check_file_type(wth, err, err_info)) {
+	if (!cosine_check_file_type(wfth, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
 
-	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
+	if (file_seek(wfth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
 		return -1;
 
-	wth->file_encap = WTAP_ENCAP_COSINE;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COSINE;
-	wth->snapshot_length = 0; /* not known */
-	wth->subtype_read = cosine_read;
-	wth->subtype_seek_read = cosine_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_CSEC;
+	wfth->file_encap = WTAP_ENCAP_COSINE;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COSINE;
+	wfth->snapshot_length = 0; /* not known */
+	wfth->subtype_read = cosine_read;
+	wfth->subtype_seek_read = cosine_seek_read;
+	wfth->tsprecision = WTAP_FILE_TSPREC_CSEC;
 
 	return 1;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
+static gboolean cosine_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
 	int	pkt_len;
 	char	line[COSINE_LINE_LENGTH];
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	/* Find the next packet */
-	offset = cosine_seek_next_packet(wth, err, err_info, line);
+	offset = cosine_seek_next_packet(wfth, err, err_info, line);
 	if (offset < 0)
 		return FALSE;
 	*data_offset = offset;
@@ -305,23 +307,24 @@ static gboolean cosine_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Convert the ASCII hex dump to binary data */
-	return parse_cosine_hex_dump(wth->fh, &wth->phdr, pkt_len,
-	    wth->frame_buffer, err, err_info);
+	return parse_cosine_hex_dump(wfth->fh, &wth->phdr, pkt_len,
+	    wfth->frame_buffer, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
 static gboolean
-cosine_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+cosine_seek_read(wftap *wfth, gint64 seek_off, void* header,
 	Buffer *buf, int *err, gchar **err_info)
 {
 	int	pkt_len;
 	char	line[COSINE_LINE_LENGTH];
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr*)header;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (file_gets(line, COSINE_LINE_LENGTH, wth->random_fh) == NULL) {
-		*err = file_error(wth->random_fh, err_info);
+	if (file_gets(line, COSINE_LINE_LENGTH, wfth->random_fh) == NULL) {
+		*err = file_error(wfth->random_fh, err_info);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -334,7 +337,7 @@ cosine_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		return FALSE;
 
 	/* Convert the ASCII hex dump to binary data */
-	return parse_cosine_hex_dump(wth->random_fh, phdr, pkt_len, buf, err,
+	return parse_cosine_hex_dump(wfth->random_fh, phdr, pkt_len, buf, err,
 	    err_info);
 }
 

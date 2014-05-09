@@ -22,6 +22,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -95,7 +96,7 @@ static gchar *logcat_log(const struct dumper_t *dumper, guint32 seconds,
 
 }
 
-static gint detect_version(wtap *wth, int *err, gchar **err_info)
+static gint detect_version(wftap *wfth, int *err, gchar **err_info)
 {
     gint     bytes_read;
     guint16  payload_length;
@@ -106,20 +107,20 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     guint32  tag_length;
     guint16  tmp;
 
-    file_offset = file_tell(wth->fh);
+    file_offset = file_tell(wfth->fh);
 
-    bytes_read = file_read(&tmp, 2, wth->fh);
+    bytes_read = file_read(&tmp, 2, wfth->fh);
     if (bytes_read != 2) {
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(wfth->fh, err_info);
         if (*err == 0 && bytes_read != 0)
             *err = WTAP_ERR_SHORT_READ;
         return -1;
     }
     payload_length = pletoh16(&tmp);
 
-    bytes_read = file_read(&tmp, 2, wth->fh);
+    bytes_read = file_read(&tmp, 2, wfth->fh);
     if (bytes_read != 2) {
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(wfth->fh, err_info);
         if (*err == 0 && bytes_read != 0)
             *err = WTAP_ERR_SHORT_READ;
         return -1;
@@ -127,10 +128,10 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     try_header_size = pletoh16(&tmp);
 
     buffer = (guint8 *) g_malloc(5 * 4 + payload_length);
-    bytes_read = file_read(buffer, 5 * 4 + payload_length, wth->fh);
+    bytes_read = file_read(buffer, 5 * 4 + payload_length, wfth->fh);
     if (bytes_read != 5 * 4 + payload_length) {
         if (bytes_read != 4 * 4 + payload_length) {
-            *err = file_error(wth->fh, err_info);
+            *err = file_error(wfth->fh, err_info);
             if (*err == 0 && bytes_read != 0)
                 *err = WTAP_ERR_SHORT_READ;
             g_free(buffer);
@@ -150,7 +151,7 @@ static gint detect_version(wtap *wth, int *err, gchar **err_info)
     tag_length = (guint32)strlen(buffer + 4 * 4 + 1) + 1;
     log_length = (guint32)strlen(buffer + 4 * 4 + 1 + tag_length) + 1;
     if (payload_length == 1 + tag_length + log_length) {
-        if (file_seek(wth->fh, file_offset + 4 * 4 + 1 + tag_length + log_length, SEEK_SET, err) == -1) {
+        if (file_seek(wfth->fh, file_offset + 4 * 4 + 1 + tag_length + log_length, SEEK_SET, err) == -1) {
             g_free(buffer);
             return -1;
         }
@@ -214,23 +215,24 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     return TRUE;
 }
 
-static gboolean logcat_read(wtap *wth, int *err, gchar **err_info,
+static gboolean logcat_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    *data_offset = file_tell(wth->fh);
+    wtap* wth = (wtap*)wfth->tap_specific_data;
+    *data_offset = file_tell(wfth->fh);
 
-    return logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
-        &wth->phdr, wth->frame_buffer, err, err_info);
+    return logcat_read_packet((struct logcat_phdr *) wfth->priv, wfth->fh,
+        &wth->phdr, wfth->frame_buffer, err, err_info);
 }
 
-static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf,
-    int *err, gchar **err_info)
+static gboolean logcat_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
-    if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->random_fh,
+    if (!logcat_read_packet((struct logcat_phdr *) wfth->priv, wfth->random_fh,
          phdr, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
@@ -239,7 +241,7 @@ static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
     return TRUE;
 }
 
-int logcat_open(wtap *wth, int *err, gchar **err_info _U_)
+int logcat_open(wftap *wfth, int *err, gchar **err_info _U_)
 {
     int                 local_err;
     gchar              *local_err_info;
@@ -248,37 +250,37 @@ int logcat_open(wtap *wth, int *err, gchar **err_info _U_)
     struct logcat_phdr *logcat;
 
     /* check first 3 packets (or 2 or 1 if EOF) versions to check file format is correct */
-    version = detect_version(wth, &local_err, &local_err_info);
+    version = detect_version(wfth, &local_err, &local_err_info);
     if (version <= 0)
         return 0;
 
-    tmp_version = detect_version(wth, &local_err, &local_err_info);
-    if (tmp_version < 0 && !file_eof(wth->fh)) {
+    tmp_version = detect_version(wfth, &local_err, &local_err_info);
+    if (tmp_version < 0 && !file_eof(wfth->fh)) {
         return 0;
     } else if (tmp_version > 0) {
         if (tmp_version != version)
             return 0;
 
-        tmp_version = detect_version(wth, &local_err, &local_err_info);
-        if (tmp_version != version && !file_eof(wth->fh))
+        tmp_version = detect_version(wfth, &local_err, &local_err_info);
+        if (tmp_version != version && !file_eof(wfth->fh))
             return 0;
     }
 
-    if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+    if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
         return -1;
 
     logcat = (struct logcat_phdr *) g_malloc(sizeof(struct logcat_phdr));
     logcat->version = version;
 
-    wth->priv = logcat;
+    wfth->priv = logcat;
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT;
-    wth->file_encap = WTAP_ENCAP_LOGCAT;
-    wth->snapshot_length = 0;
+    wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT;
+    wfth->file_encap = WTAP_ENCAP_LOGCAT;
+    wfth->snapshot_length = 0;
 
-    wth->subtype_read = logcat_read;
-    wth->subtype_seek_read = logcat_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wfth->subtype_read = logcat_read;
+    wfth->subtype_seek_read = logcat_seek_read;
+    wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
     return 1;
 }
@@ -294,11 +296,11 @@ int logcat_dump_can_write_encap(int encap)
     return 0;
 }
 
-static gboolean logcat_binary_dump(wtap_dumper *wdh,
+static gboolean logcat_binary_dump(wftap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+    if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
         return FALSE;
 
     wdh->bytes_dumped += phdr->caplen;
@@ -306,7 +308,7 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     return TRUE;
 }
 
-gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err)
+gboolean logcat_binary_dump_open(wftap_dumper *wdh, int *err)
 {
     wdh->subtype_write = logcat_binary_dump;
     wdh->subtype_close = NULL;
@@ -324,7 +326,7 @@ gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err)
     return TRUE;
 }
 
-static gboolean logcat_dump_text(wtap_dumper *wdh,
+static gboolean logcat_dump_text(wftap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
@@ -380,7 +382,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
         g_free(log_part);
         length = (guint32)strlen(buf);
 
-        if (!wtap_dump_file_write(wdh, buf, length, err)) {
+        if (!wftap_dump_file_write(wdh, buf, length, err)) {
             g_free(buf);
             return FALSE;
         }
@@ -404,7 +406,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
         g_free(log_part);
         length = (guint32)strlen(buf);
 
-        if (!wtap_dump_file_write(wdh, buf, length, err)) {
+        if (!wftap_dump_file_write(wdh, buf, length, err)) {
             g_free(buf);
             return FALSE;
         }
@@ -416,7 +418,7 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     return TRUE;
 }
 
-gboolean logcat_text_brief_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_brief_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 
@@ -430,7 +432,7 @@ gboolean logcat_text_brief_dump_open(wtap_dumper *wdh, int *err _U_)
     return TRUE;
 }
 
-gboolean logcat_text_process_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_process_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 
@@ -444,7 +446,7 @@ gboolean logcat_text_process_dump_open(wtap_dumper *wdh, int *err _U_)
     return TRUE;
 }
 
-gboolean logcat_text_tag_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_tag_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 
@@ -458,7 +460,7 @@ gboolean logcat_text_tag_dump_open(wtap_dumper *wdh, int *err _U_)
     return TRUE;
 }
 
-gboolean logcat_text_time_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_time_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 
@@ -472,7 +474,7 @@ gboolean logcat_text_time_dump_open(wtap_dumper *wdh, int *err _U_)
     return TRUE;
 }
 
-gboolean logcat_text_thread_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_thread_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 
@@ -486,7 +488,7 @@ gboolean logcat_text_thread_dump_open(wtap_dumper *wdh, int *err _U_)
     return TRUE;
 }
 
-gboolean logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_threadtime_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 
@@ -500,7 +502,7 @@ gboolean logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err _U_)
     return TRUE;
 }
 
-gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_text_long_dump_open(wftap_dumper *wdh, int *err _U_)
 {
     struct dumper_t *dumper;
 

@@ -19,6 +19,7 @@
  */
 
 #include "config.h"
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "ascendtext.h"
@@ -74,26 +75,27 @@ static const ascend_magic_string ascend_magic[] = {
   { ASCEND_PFX_ETHER,	"ETHER" },
 };
 
-static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
+static gboolean ascend_read(wftap *wfth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf,
+static gboolean ascend_seek_read(wftap *wfth, gint64 seek_off,
+	void* header, Buffer *buf,
 	int *err, gchar **err_info);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
-static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
+static gint64 ascend_seek(wftap *wfth, int *err, gchar **err_info)
 {
   int byte;
   gint64 date_off = -1, cur_off, packet_off;
   size_t string_level[ASCEND_MAGIC_STRINGS];
   guint string_i = 0, type = 0;
   guint excessive_read_count = 262144;
+  wtap* wth = (wtap*)wfth->tap_specific_data;
 
   memset(&string_level, 0, sizeof(string_level));
 
-  while (((byte = file_getc(wth->fh)) != EOF)) {
+  while (((byte = file_getc(wfth->fh)) != EOF)) {
     excessive_read_count--;
 
     if (!excessive_read_count) {
@@ -108,16 +110,16 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
       if (byte == *(strptr + string_level[string_i])) {
         string_level[string_i]++;
         if (string_level[string_i] >= len) {
-          cur_off = file_tell(wth->fh);
+          cur_off = file_tell(wfth->fh);
           if (cur_off == -1) {
             /* Error. */
-            *err = file_error(wth->fh, err_info);
+            *err = file_error(wfth->fh, err_info);
             return -1;
           }
 
           /* Date: header is a special case. Remember the offset,
              but keep looking for other headers. */
-	  if (strcmp(strptr, ASCEND_DATE) == 0) {
+      if (strcmp(strptr, ASCEND_DATE) == 0) {
             date_off = cur_off - len;
           } else {
             if (date_off == -1) {
@@ -140,7 +142,7 @@ static gint64 ascend_seek(wtap *wth, int *err, gchar **err_info)
     }
   }
 
-  *err = file_error(wth->fh, err_info);
+  *err = file_error(wfth->fh, err_info);
   return -1;
 
 found:
@@ -148,7 +150,7 @@ found:
    * Move to where the read for this packet should start, and return
    * that seek offset.
    */
-  if (file_seek(wth->fh, packet_off, SEEK_SET, err) == -1)
+  if (file_seek(wfth->fh, packet_off, SEEK_SET, err) == -1)
     return -1;
 
   wth->phdr.pseudo_header.ascend.type = type;
@@ -156,18 +158,19 @@ found:
   return packet_off;
 }
 
-int ascend_open(wtap *wth, int *err, gchar **err_info)
+int ascend_open(wftap *wfth, int *err, gchar **err_info)
 {
   gint64 offset;
   ws_statb64 statbuf;
   ascend_t *ascend;
+  wtap* wth = (wtap*)wfth->tap_specific_data;
 
   /* We haven't yet allocated a data structure for our private stuff;
      set the pointer to null, so that "ascend_seek()" knows not to
      fill it in. */
-  wth->priv = NULL;
+  wfth->priv = NULL;
 
-  offset = ascend_seek(wth, err, err_info);
+  offset = ascend_seek(wfth, err, err_info);
   if (offset == -1) {
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
       return -1;
@@ -176,31 +179,31 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 
   /* Do a trial parse of the first packet just found to see if we might really have an Ascend file */
   init_parse_ascend();
-  if (!check_ascend(wth->fh, &wth->phdr)) {
+  if (!check_ascend(wfth->fh, &wth->phdr)) {
     return 0;
   }
 
-  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
+  wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
 
   switch(wth->phdr.pseudo_header.ascend.type) {
     case ASCEND_PFX_ISDN_X:
     case ASCEND_PFX_ISDN_R:
-      wth->file_encap = WTAP_ENCAP_ISDN;
+      wfth->file_encap = WTAP_ENCAP_ISDN;
       break;
 
     case ASCEND_PFX_ETHER:
-      wth->file_encap = WTAP_ENCAP_ETHERNET;
+      wfth->file_encap = WTAP_ENCAP_ETHERNET;
       break;
 
     default:
-      wth->file_encap = WTAP_ENCAP_ASCEND;
+      wfth->file_encap = WTAP_ENCAP_ASCEND;
   }
 
-  wth->snapshot_length = ASCEND_MAX_PKT_LEN;
-  wth->subtype_read = ascend_read;
-  wth->subtype_seek_read = ascend_seek_read;
+  wfth->snapshot_length = ASCEND_MAX_PKT_LEN;
+  wfth->subtype_read = ascend_read;
+  wfth->subtype_seek_read = ascend_seek_read;
   ascend = (ascend_t *)g_malloc(sizeof(ascend_t));
-  wth->priv = (void *)ascend;
+  wfth->priv = (void *)ascend;
 
   /* The first packet we want to read is the one that "ascend_seek()"
      just found; start searching for it at the offset at which it
@@ -212,12 +215,12 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
      packet's timestamp from the capture file's ctime, which gives us an
      offset that we can apply to each packet.
    */
-  if (wtap_fstat(wth, &statbuf, err) == -1) {
+  if (wftap_fstat(wfth, &statbuf, err) == -1) {
     return -1;
   }
   ascend->inittime = statbuf.st_ctime;
   ascend->adjusted = FALSE;
-  wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+  wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
   init_parse_ascend();
 
@@ -225,25 +228,26 @@ int ascend_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet; called from wtap_read(). */
-static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
+static gboolean ascend_read(wftap *wfth, int *err, gchar **err_info,
 	gint64 *data_offset)
 {
-  ascend_t *ascend = (ascend_t *)wth->priv;
+  ascend_t *ascend = (ascend_t *)wfth->priv;
   gint64 offset;
+  wtap* wth = (wtap*)wfth->tap_specific_data;
 
   /* parse_ascend() will advance the point at which to look for the next
      packet's header, to just after the last packet's header (ie. at the
      start of the last packet's data). We have to get past the last
      packet's header because we might mistake part of it for a new header. */
-  if (file_seek(wth->fh, ascend->next_packet_seek_start,
+  if (file_seek(wfth->fh, ascend->next_packet_seek_start,
                 SEEK_SET, err) == -1)
     return FALSE;
 
-  offset = ascend_seek(wth, err, err_info);
+  offset = ascend_seek(wfth, err, err_info);
   if (offset == -1)
     return FALSE;
-  if (parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
-                   wth->snapshot_length) != PARSED_RECORD) {
+  if (parse_ascend(ascend, wfth->fh, &wth->phdr, wfth->frame_buffer,
+                   wfth->snapshot_length) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;
@@ -253,16 +257,17 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   return TRUE;
 }
 
-static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf,
+static gboolean ascend_seek_read(wftap *wfth, gint64 seek_off,
+	void* header, Buffer *buf,
 	int *err, gchar **err_info)
 {
-  ascend_t *ascend = (ascend_t *)wth->priv;
+  ascend_t *ascend = (ascend_t *)wfth->priv;
+  struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
-  if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+  if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
-  if (parse_ascend(ascend, wth->random_fh, phdr, buf,
-                   wth->snapshot_length) != PARSED_RECORD) {
+  if (parse_ascend(ascend, wfth->random_fh, phdr, buf,
+                   wfth->snapshot_length) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
     return FALSE;

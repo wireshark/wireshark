@@ -27,6 +27,6 @@
 
 #define TNEF_SIGNATURE 0x223E9F78
 
-int tnef_open(wtap *wth, int *err, gchar **err_info);
+int tnef_open(wftap *wfth, int *err, gchar **err_info);
 
 #endif

@@ -154,7 +154,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     cf_retap_packets(&cfile);
 
 
-    if (!wtap_dump_close(exp_pdu_tap_data->wdh, &err)) {
+    if (!wftap_dump_close(exp_pdu_tap_data->wdh, &err)) {
         write_failure_alert_box(capfile_name, err);
     }
 

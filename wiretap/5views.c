@@ -23,6 +23,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -99,27 +100,27 @@ typedef struct
 #define CST_5VW_CAPTURES_RECORD		(CST_5VW_SECTION_CAPTURES << 28)	/* 0x80000000 */
 #define CST_5VW_SYSTEM_RECORD		0x00000000U
 
-static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
+static gboolean _5views_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
+static gboolean _5views_seek_read(wftap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
+static int _5views_read_header(wftap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
-static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr, const guint8 *pd, int *err);
-static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
+static gboolean _5views_dump(wftap_dumper *wdh, void* header, const guint8 *pd, int *err);
+static gboolean _5views_dump_close(wftap_dumper *wdh, int *err);
 
 
-int _5views_open(wtap *wth, int *err, gchar **err_info)
+int _5views_open(wftap *wfth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	t_5VW_Capture_Header Capture_Header;
 	int encap = WTAP_ENCAP_UNKNOWN;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&Capture_Header.Info_Header, sizeof(t_5VW_Info_Header), wth->fh);
+	bytes_read = file_read(&Capture_Header.Info_Header, sizeof(t_5VW_Info_Header), wfth->fh);
 	if (bytes_read != sizeof(t_5VW_Info_Header)) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -171,30 +172,31 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* read the remaining header information */
-	bytes_read = file_read(&Capture_Header.HeaderDateCreation, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wth->fh);
+	bytes_read = file_read(&Capture_Header.HeaderDateCreation, sizeof (t_5VW_Capture_Header) - sizeof(t_5VW_Info_Header), wfth->fh);
 	if (bytes_read != sizeof (t_5VW_Capture_Header)- sizeof(t_5VW_Info_Header) ) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
 
 	/* This is a 5views capture file */
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_5VIEWS;
-	wth->subtype_read = _5views_read;
-	wth->subtype_seek_read = _5views_seek_read;
-	wth->file_encap = encap;
-	wth->snapshot_length = 0;	/* not available in header */
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_5VIEWS;
+	wfth->subtype_read = _5views_read;
+	wfth->subtype_seek_read = _5views_seek_read;
+	wfth->file_encap = encap;
+	wfth->snapshot_length = 0;	/* not available in header */
+	wfth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	return 1;
 }
 
 /* Read the next packet */
 static gboolean
-_5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+_5views_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	/*
 	 * Keep reading until we see a record with a subtype of
@@ -202,10 +204,10 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 */
 	do
 	{
-		*data_offset = file_tell(wth->fh);
+		*data_offset = file_tell(wfth->fh);
 
 		/* Read record header. */
-		if (!_5views_read_header(wth, wth->fh, &TimeStamped_Header,
+		if (!_5views_read_header(wfth, wfth->fh, &TimeStamped_Header,
 		    &wth->phdr, err, err_info))
 			return FALSE;
 
@@ -219,7 +221,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		/*
 		 * Not a packet - skip to the next record.
 		 */
-		if (file_seek(wth->fh, TimeStamped_Header.RecSize, SEEK_CUR, err) == -1)
+		if (file_seek(wfth->fh, TimeStamped_Header.RecSize, SEEK_CUR, err) == -1)
 			return FALSE;
 	} while (1);
 
@@ -234,23 +236,23 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		return FALSE;
 	}
 
-	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	return wtap_read_packet_bytes(wfth->fh, wfth->frame_buffer,
 	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean
-_5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+_5views_seek_read(wftap *wfth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/*
 	 * Read the header.
 	 */
-	if (!_5views_read_header(wth, wth->random_fh, &TimeStamped_Header,
+	if (!_5views_read_header(wfth, wfth->random_fh, &TimeStamped_Header,
 	    phdr, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -260,14 +262,14 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	/*
 	 * Read the packet data.
 	 */
-	return wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
+	return wtap_read_packet_bytes(wfth->random_fh, buf, phdr->caplen,
 	    err, err_info);
 }
 
 /* Read the header of the next packet.  Return TRUE on success, FALSE
    on error. */
 static gboolean
-_5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
+_5views_read_header(wftap *wfth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
 	int	bytes_read, bytes_to_read;
@@ -303,7 +305,7 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	phdr->caplen = hdr->RecSize;
 	phdr->len = hdr->RecSize;
 
-	switch (wth->file_encap) {
+	switch (wfth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
@@ -340,7 +342,7 @@ int _5views_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
+gboolean _5views_dump_open(wftap_dumper *wdh, int *err)
 {
 	_5views_dump_t *_5views;
 
@@ -348,7 +350,7 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 	   haven't yet written any packets.  As we'll have to rewrite
 	   the header when we've written out all the packets, we just
 	   skip over the header for now. */
-	if (wtap_dump_file_seek(wdh, sizeof(t_5VW_Capture_Header), SEEK_SET, err) == -1)
+	if (wftap_dump_file_seek(wdh, sizeof(t_5VW_Capture_Header), SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* This is a 5Views file */
@@ -363,12 +365,12 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean _5views_dump(wtap_dumper *wdh,
-	const struct wtap_pkthdr *phdr,
+static gboolean _5views_dump(wftap_dumper *wdh,	void* header,
 	const guint8 *pd, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_TimeStamped_Header HeaderFrame;
+	const struct wtap_pkthdr *phdr = (const struct wtap_pkthdr*)header;
 
 	/* Don't write out something bigger than we can read. */
 	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {
@@ -392,12 +394,12 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	HeaderFrame.RecInfo = GUINT32_TO_LE(0);
 
 	/* write the record header */
-	if (!wtap_dump_file_write(wdh, &HeaderFrame,
+	if (!wftap_dump_file_write(wdh, &HeaderFrame,
 	    sizeof(t_5VW_TimeStamped_Header), err))
 		return FALSE;
 
 	/* write the data */
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+	if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
 
 	_5views->nframes ++;
@@ -405,12 +407,12 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	return TRUE;
 }
 
-static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
+static gboolean _5views_dump_close(wftap_dumper *wdh, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_Capture_Header file_hdr;
 
-	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
+	if (wftap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* fill in the Info_Header */
@@ -447,7 +449,7 @@ static gboolean _5views_dump_close(wtap_dumper *wdh, int *err)
 	file_hdr.TramesStockeesInFile = GUINT32_TO_LE(_5views->nframes);
 
 	/* Write the file header. */
-	if (!wtap_dump_file_write(wdh, &file_hdr, sizeof(t_5VW_Capture_Header),
+	if (!wftap_dump_file_write(wdh, &file_hdr, sizeof(t_5VW_Capture_Header),
 	    err))
 		return FALSE;
 

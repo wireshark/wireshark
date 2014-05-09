@@ -21,6 +21,7 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -112,14 +113,14 @@ typedef struct {
 	time_t	start;
 } aethra_t;
 
-static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
-static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
-    struct wtap_pkthdr *phdr, int *err, gchar **err_info);
+static gboolean aethra_read(wftap *wfth, int *err, gchar **err_info,
+     gint64 *data_offset);
+static gboolean aethra_seek_read(wftap *wth, gint64 seek_off,
+     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+static gboolean aethra_read_rec_header(wftap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
+     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
 
-int aethra_open(wtap *wth, int *err, gchar **err_info)
+int aethra_open(wftap *wfth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	struct aethra_hdr hdr;
@@ -128,9 +129,9 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a "aethra" file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(hdr.magic, sizeof hdr.magic, wth->fh);
+	bytes_read = file_read(hdr.magic, sizeof hdr.magic, wfth->fh);
 	if (bytes_read != sizeof hdr.magic) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -142,18 +143,18 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
 	bytes_read = file_read((char *)&hdr + sizeof hdr.magic,
-	    sizeof hdr - sizeof hdr.magic, wth->fh);
+	    sizeof hdr - sizeof hdr.magic, wfth->fh);
 	if (bytes_read != sizeof hdr - sizeof hdr.magic) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
 	}
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_AETHRA;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_AETHRA;
 	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
-	wth->priv = (void *)aethra;
-	wth->subtype_read = aethra_read;
-	wth->subtype_seek_read = aethra_seek_read;
+	wfth->priv = (void *)aethra;
+	wfth->subtype_read = aethra_read;
+	wfth->subtype_seek_read = aethra_seek_read;
 
 	/*
 	 * Convert the time stamp to a "time_t".
@@ -171,9 +172,9 @@ int aethra_open(wtap *wth, int *err, gchar **err_info)
 	 * We've only seen ISDN files, so, for now, we treat all
 	 * files as ISDN.
 	 */
-	wth->file_encap = WTAP_ENCAP_ISDN;
-	wth->snapshot_length = 0;	/* not available in header */
-	wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+	wfth->file_encap = WTAP_ENCAP_ISDN;
+	wfth->snapshot_length = 0;	/* not available in header */
+	wfth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 	return 1;
 }
 
@@ -182,20 +183,21 @@ static guint packet = 0;
 #endif
 
 /* Read the next packet */
-static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
+static gboolean aethra_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	struct aethrarec_hdr hdr;
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	/*
 	 * Keep reading until we see an AETHRA_ISDN_LINK with a subtype
 	 * of AETHRA_ISDN_LINK_LAPD record or get an end-of-file.
 	 */
 	for (;;) {
-		*data_offset = file_tell(wth->fh);
+		*data_offset = file_tell(wfth->fh);
 
 		/* Read record header. */
-		if (!aethra_read_rec_header(wth, wth->fh, &hdr, &wth->phdr, err, err_info))
+		if (!aethra_read_rec_header(wfth, wfth->fh, &hdr, &wth->phdr, err, err_info))
 			return FALSE;
 
 		/*
@@ -203,7 +205,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		 * growing the buffer to handle it.
 		 */
 		if (wth->phdr.caplen != 0) {
-			if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+			if (!wtap_read_packet_bytes(wfth->fh, wfth->frame_buffer,
 			    wth->phdr.caplen, err, err_info))
 				return FALSE;	/* Read error */
 		}
@@ -274,15 +276,15 @@ found:
 }
 
 static gboolean
-aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+aethra_seek_read(wftap *wfth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	struct aethrarec_hdr hdr;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!aethra_read_rec_header(wth, wth->random_fh, &hdr, phdr, err,
+	if (!aethra_read_rec_header(wfth, wfth->random_fh, &hdr, phdr, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -292,17 +294,17 @@ aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err, err_info))
+	if (!wtap_read_packet_bytes(wfth->random_fh, buf, phdr->caplen, err, err_info))
 		return FALSE;	/* failed */
 
 	return TRUE;
 }
 
 static gboolean
-aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
+aethra_read_rec_header(wftap *wfth, FILE_T fh, struct aethrarec_hdr *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
-	aethra_t *aethra = (aethra_t *)wth->priv;
+	aethra_t *aethra = (aethra_t *)wfth->priv;
 	int	bytes_read;
 	guint32 rec_size;
 	guint32	packet_size;

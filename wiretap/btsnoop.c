@@ -21,6 +21,7 @@
 #include "config.h"
 #include <errno.h>
 #include <string.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -73,14 +74,14 @@ struct btsnooprec_hdr {
 
 static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
-static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
-static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
+static gboolean btsnoop_read(wftap *wfth, int *err, gchar **err_info,
+     gint64 *data_offset);
+static gboolean btsnoop_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info);
+static gboolean btsnoop_read_record(wftap *wfth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
-int btsnoop_open(wtap *wth, int *err, gchar **err_info)
+int btsnoop_open(wftap *wfth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	char magic[sizeof btsnoop_magic];
@@ -90,9 +91,9 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read in the string that should be at the start of a "btsnoop" file */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(magic, sizeof magic, wth->fh);
+	bytes_read = file_read(magic, sizeof magic, wfth->fh);
 	if (bytes_read != sizeof magic) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -104,9 +105,9 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Read the rest of the header. */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof hdr, wth->fh);
+	bytes_read = file_read(&hdr, sizeof hdr, wfth->fh);
 	if (bytes_read != sizeof hdr) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
 		return -1;
@@ -151,34 +152,36 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 		return -1;
 	}
 
-	wth->subtype_read = btsnoop_read;
-	wth->subtype_seek_read = btsnoop_seek_read;
-	wth->file_encap = file_encap;
-	wth->snapshot_length = 0;	/* not available in header */
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
+	wfth->subtype_read = btsnoop_read;
+	wfth->subtype_seek_read = btsnoop_seek_read;
+	wfth->file_encap = file_encap;
+	wfth->snapshot_length = 0;	/* not available in header */
+	wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
 	return 1;
 }
 
-static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
+static gboolean btsnoop_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	*data_offset = file_tell(wth->fh);
+	wtap* wth = (wtap*)wfth->tap_specific_data;
+	*data_offset = file_tell(wfth->fh);
 
-	return btsnoop_read_record(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	return btsnoop_read_record(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer,
 	    err, err_info);
 }
 
-static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+static gboolean btsnoop_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	return btsnoop_read_record(wth, wth->random_fh, phdr, buf, err, err_info);
+	return btsnoop_read_record(wfth, wfth->random_fh, phdr, buf, err, err_info);
 }
 
-static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
+static gboolean btsnoop_read_record(wftap *wfth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	int	bytes_read;
@@ -221,10 +224,12 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 	phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
 	phdr->caplen = packet_size;
 	phdr->len = orig_size;
-	if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR)
+	switch(wfth->file_encap)
 	{
+	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		phdr->pseudo_header.p2p.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
-	} else if(wth->file_encap == WTAP_ENCAP_BLUETOOTH_HCI) {
+		break;
+	case WTAP_ENCAP_BLUETOOTH_HCI:
 		phdr->pseudo_header.bthci.sent = (flags & KHciLoggerControllerToHost) ? FALSE : TRUE;
 		if(flags & KHciLoggerCommandOrEvent)
 		{
@@ -241,11 +246,12 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 		{
 			phdr->pseudo_header.bthci.channel = BTHCI_CHANNEL_ACL;
 		}
-	} else  if (wth->file_encap == WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR) {
+		break;
+	case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
 		phdr->pseudo_header.btmon.opcode = flags & 0xFFFF;
 		phdr->pseudo_header.btmon.adapter_id = flags >> 16;
+		break;
 	}
-
 
 	/* Read packet data. */
 	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
@@ -297,7 +303,7 @@ static guint8 btsnoop_lookup_flags(guint8 hci_type, gboolean sent, guint8 *flags
     return FALSE;
 }
 
-static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
+static gboolean btsnoop_dump_partial_rec_hdr(wftap_dumper *wdh _U_,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header,
     const guint8 *pd, int *err,
@@ -324,10 +330,10 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
 }
 
 /* FIXME: How do we support multiple backends?*/
-static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
-    const struct wtap_pkthdr *phdr,
+static gboolean btsnoop_dump_h1(wftap_dumper *wdh, void* header,
     const guint8 *pd, int *err)
 {
+    const struct wtap_pkthdr *phdr = (const struct wtap_pkthdr *)header;
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
@@ -346,7 +352,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen-1);
     rec_hdr.orig_len = GUINT32_TO_BE(phdr->len-1);
 
-    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
+    if (!wftap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof rec_hdr;
@@ -354,7 +360,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     /* Skip HCI packet type */
     ++pd;
 
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen-1, err))
+    if (!wftap_dump_file_write(wdh, pd, phdr->caplen-1, err))
         return FALSE;
 
     wdh->bytes_dumped += phdr->caplen-1;
@@ -362,7 +368,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     return TRUE;
 }
 
-static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
+static gboolean btsnoop_dump_h4(wftap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
@@ -381,12 +387,12 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     rec_hdr.incl_len = GUINT32_TO_BE(phdr->caplen);
     rec_hdr.orig_len = GUINT32_TO_BE(phdr->len);
 
-    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
+    if (!wftap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof rec_hdr;
 
-    if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+    if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
         return FALSE;
 
     wdh->bytes_dumped += phdr->caplen;
@@ -395,7 +401,7 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
 }
 
 /* FIXME: How do we support multiple backends?*/
-gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
+gboolean btsnoop_dump_open_h1(wftap_dumper *wdh, int *err)
 {
     struct btsnoop_hdr file_hdr;
 
@@ -417,7 +423,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
         return FALSE;
     }
 
-    if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
+    if (!wftap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof btsnoop_magic;
@@ -427,7 +433,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
     /* HCI type encoded in first byte */
     file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH1);
 
-    if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
+    if (!wftap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof file_hdr;
@@ -437,7 +443,7 @@ gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
+gboolean btsnoop_dump_open_h4(wftap_dumper *wdh, int *err)
 {
     struct btsnoop_hdr file_hdr;
 
@@ -459,7 +465,7 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
         return FALSE;
     }
 
-    if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
+    if (!wftap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof btsnoop_magic;
@@ -469,7 +475,7 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err)
     /* HCI type encoded in first byte */
     file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH4);
 
-    if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
+    if (!wftap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
 
     wdh->bytes_dumped += sizeof file_hdr;

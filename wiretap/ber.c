@@ -25,6 +25,7 @@
 #include <sys/stat.h>
 #endif
 
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -38,13 +39,13 @@
 #define BER_UNI_TAG_SEQ	16	/* SEQUENCE, SEQUENCE OF */
 #define BER_UNI_TAG_SET	17	/* SET, SET OF */
 
-static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean ber_read_file(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
                               Buffer *buf, int *err, gchar **err_info)
 {
   gint64 file_size;
   int packet_size;
 
-  if ((file_size = wtap_file_size(wth, err)) == -1)
+  if ((file_size = wftap_file_size(wfth, err)) == -1)
     return FALSE;
 
   if (file_size > WTAP_MAX_PACKET_SIZE) {
@@ -54,7 +55,7 @@ static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
      */
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("ber: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
-				file_size, WTAP_MAX_PACKET_SIZE);
+                                file_size, WTAP_MAX_PACKET_SIZE);
     return FALSE;
   }
   packet_size = (int)file_size;
@@ -70,13 +71,14 @@ static gboolean ber_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean ber_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
   gint64 offset;
+  wtap* wth = (wtap*)wfth->tap_specific_data;
 
   *err = 0;
 
-  offset = file_tell(wth->fh);
+  offset = file_tell(wfth->fh);
 
   /* there is only ever one packet */
   if (offset != 0)
@@ -84,25 +86,27 @@ static gboolean ber_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
   *data_offset = offset;
 
-  return ber_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
+  return ber_read_file(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer, err, err_info);
 }
 
-static gboolean ber_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr _U_,
-			      Buffer *buf, int *err, gchar **err_info)
+static gboolean ber_seek_read(wftap *wfth, gint64 seek_off, void* header,
+                              Buffer *buf, int *err, gchar **err_info)
 {
+  struct wtap_pkthdr *phdr = (struct wtap_pkthdr*)header;
+
   /* there is only one packet */
   if(seek_off > 0) {
     *err = 0;
     return FALSE;
   }
 
-  if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+  if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
     return FALSE;
 
-  return ber_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
+  return ber_read_file(wfth, wfth->random_fh, phdr, buf, err, err_info);
 }
 
-int ber_open(wtap *wth, int *err, gchar **err_info)
+int ber_open(wftap *wfth, int *err, gchar **err_info)
 {
 #define BER_BYTES_TO_CHECK 8
   guint8 bytes[BER_BYTES_TO_CHECK];
@@ -116,9 +120,9 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   gint64 file_size;
   int offset = 0, i;
 
-  bytes_read = file_read(&bytes, BER_BYTES_TO_CHECK, wth->fh);
+  bytes_read = file_read(&bytes, BER_BYTES_TO_CHECK, wfth->fh);
   if (bytes_read != BER_BYTES_TO_CHECK) {
-    *err = file_error(wth->fh, err_info);
+    *err = file_error(wfth->fh, err_info);
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
       return -1;
     return 0;
@@ -161,7 +165,7 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
     }
 
     len += (2 + nlb); /* add back Tag and Length bytes */
-    file_size = wtap_file_size(wth, err);
+    file_size = wftap_file_size(wfth, err);
 
     if(len != file_size) {
       return 0; /* not ASN.1 */
@@ -171,16 +175,16 @@ int ber_open(wtap *wth, int *err, gchar **err_info)
   }
 
   /* seek back to the start of the file  */
-  if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+  if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
     return -1;
 
-  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BER;
-  wth->file_encap = WTAP_ENCAP_BER;
-  wth->snapshot_length = 0;
+  wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BER;
+  wfth->file_encap = WTAP_ENCAP_BER;
+  wfth->snapshot_length = 0;
 
-  wth->subtype_read = ber_read;
-  wth->subtype_seek_read = ber_seek_read;
-  wth->tsprecision = WTAP_FILE_TSPREC_SEC;
+  wfth->subtype_read = ber_read;
+  wfth->subtype_seek_read = ber_seek_read;
+  wfth->tsprecision = WTAP_FILE_TSPREC_SEC;
 
   return 1;
 }

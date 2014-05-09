@@ -105,11 +105,11 @@ static gboolean        color_selected;
 
 
 /* set a new filename for the preview widget */
-static wtap *
+static wftap *
 preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 {
   GtkWidget *label;
-  wtap      *wth;
+  wftap     *wth;
   int        err = 0;
   gchar     *err_info;
   gchar      string_buff[PREVIEW_STR_MAX];
@@ -150,7 +150,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
   }
 
   /* Find the size of the file. */
-  filesize = wtap_file_size(wth, &err);
+  filesize = wftap_file_size(wth, &err);
   if (filesize == -1) {
     gtk_label_set_text(GTK_LABEL(label), "error getting file size");
     wtap_close(wth);
@@ -161,7 +161,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
   /* type */
-  g_strlcpy(string_buff, wtap_file_type_subtype_string(wtap_file_type_subtype(wth)), PREVIEW_STR_MAX);
+  g_strlcpy(string_buff, wtap_file_type_subtype_string(wftap_file_type_subtype(wth)), PREVIEW_STR_MAX);
   label = (GtkWidget *)g_object_get_data(G_OBJECT(prev), PREVIEW_FORMAT_KEY);
   gtk_label_set_text(GTK_LABEL(label), string_buff);
 
@@ -171,7 +171,7 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 
 /* do a preview run on the currently selected capture file */
 static void
-preview_do(GtkWidget *prev, wtap *wth)
+preview_do(GtkWidget *prev, wftap *wth)
 {
   GtkWidget    *label;
   unsigned int  elapsed_time;
@@ -299,7 +299,7 @@ file_open_entry_changed(GtkWidget *w _U_, gpointer file_sel)
   GtkWidget *prev = (GtkWidget *)g_object_get_data(G_OBJECT(file_sel), PREVIEW_TABLE_KEY);
   gchar     *cf_name;
   gboolean   have_preview;
-  wtap      *wth;
+  wftap      *wth;
 
   /* get the filename */
   cf_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_sel));

@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <string.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -33,11 +34,11 @@ typedef struct {
 	gboolean byte_swapped;
 } i4btrace_t;
 
-static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
+static gboolean i4btrace_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean i4btrace_seek_read(wftap *wth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info);
+static int i4b_read_rec(wftap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info);
 
 /*
@@ -48,7 +49,7 @@ static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	    (unsigned)hdr.unit > 4 || (unsigned)hdr.type > 4 || \
 	    (unsigned)hdr.dir > 2 || (unsigned)hdr.trunc > 2048))
 
-int i4btrace_open(wtap *wth, int *err, gchar **err_info)
+int i4btrace_open(wftap *wfth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	i4b_trace_hdr_t hdr;
@@ -57,9 +58,9 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 
 	/* I4B trace files have no magic in the header... Sigh */
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&hdr, sizeof(hdr), wth->fh);
+	bytes_read = file_read(&hdr, sizeof(hdr), wfth->fh);
 	if (bytes_read != sizeof(hdr)) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -89,44 +90,46 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 		byte_swapped = TRUE;
 	}
 
-	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+	if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
 	/* Get capture start time */
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_I4BTRACE;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_I4BTRACE;
 	i4btrace = (i4btrace_t *)g_malloc(sizeof(i4btrace_t));
-	wth->priv = (void *)i4btrace;
-	wth->subtype_read = i4btrace_read;
-	wth->subtype_seek_read = i4btrace_seek_read;
-	wth->snapshot_length = 0;	/* not known */
+	wfth->priv = (void *)i4btrace;
+	wfth->subtype_read = i4btrace_read;
+	wfth->subtype_seek_read = i4btrace_seek_read;
+	wfth->snapshot_length = 0;	/* not known */
 
 	i4btrace->byte_swapped = byte_swapped;
 
-	wth->file_encap = WTAP_ENCAP_ISDN;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wfth->file_encap = WTAP_ENCAP_ISDN;
+	wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1;
 }
 
 /* Read the next packet */
-static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
+static gboolean i4btrace_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	*data_offset = file_tell(wth->fh);
+	wtap* wth = (wtap*)wfth->tap_specific_data;
+	*data_offset = file_tell(wfth->fh);
 
-	return i4b_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	return i4b_read_rec(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer,
 	    err, err_info);
 }
 
 static gboolean
-i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+i4btrace_seek_read(wftap *wfth, gint64 seek_off, void* header,
     Buffer *buf, int *err, gchar **err_info)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	if (!i4b_read_rec(wth, wth->random_fh, phdr, buf, err, err_info)) {
+	if (!i4b_read_rec(wfth, wfth->random_fh, phdr, buf, err, err_info)) {
 		/* Read error or EOF */
 		if (*err == 0) {
 			/* EOF means "short read" in random-access mode */
@@ -138,10 +141,10 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 }
 
 static int
-i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
+i4b_read_rec(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
-	i4btrace_t *i4btrace = (i4btrace_t *)wth->priv;
+	i4btrace_t *i4btrace = (i4btrace_t *)wfth->priv;
 	i4b_trace_hdr_t hdr;
 	int	bytes_read;
 	guint32 length;

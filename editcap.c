@@ -310,9 +310,9 @@ selected(int recno)
 
 /* is the packet in the selected timeframe */
 static gboolean
-check_timestamp(wtap *wth)
+check_timestamp(wftap *wfth)
 {
-    struct wtap_pkthdr *pkthdr = wtap_phdr(wth);
+    struct wtap_pkthdr *pkthdr = wtap_phdr(wfth);
 
     return (pkthdr->ts.secs >= starttime) && (pkthdr->ts.secs < stoptime);
 }
@@ -838,7 +838,7 @@ failure_message(const char *msg_format _U_, va_list ap _U_)
 int
 main(int argc, char *argv[])
 {
-    wtap         *wth;
+    wftap        *wth;
     int           i, j, err;
     gchar        *err_info;
     int           opt;
@@ -847,7 +847,7 @@ main(int argc, char *argv[])
     guint32       snaplen            = 0; /* No limit               */
     chop_t        chop               = {0, 0, 0, 0, 0, 0}; /* No chop */
     gboolean      adjlen             = FALSE;
-    wtap_dumper  *pdh                = NULL;
+    wftap_dumper *pdh                = NULL;
     unsigned int  count              = 1;
     unsigned int  duplicate_count    = 0;
     gint64        data_offset;
@@ -1016,7 +1016,7 @@ main(int argc, char *argv[])
             break;
 
         case 'E':
-            err_prob = strtod(optarg, &p);
+            err_prob = g_strtod(optarg, &p);
             if (p == optarg || err_prob < 0.0 || err_prob > 1.0) {
                 fprintf(stderr, "editcap: probability \"%s\" must be between 0.0 and 1.0\n",
                         optarg);
@@ -1165,7 +1165,7 @@ main(int argc, char *argv[])
 
     if (verbose) {
         fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
-                wtap_file_type_subtype_string(wtap_file_type_subtype(wth)));
+                wtap_file_type_subtype_string(wftap_file_type_subtype(wth)));
     }
 
     shb_hdr = wtap_file_get_shb_info(wth);
@@ -1178,7 +1178,7 @@ main(int argc, char *argv[])
 
     if ((argc - optind) >= 2) {
         if (out_frame_type == -2)
-            out_frame_type = wtap_file_encap(wth);
+            out_frame_type = wftap_file_encap(wth);
 
         for (i = optind + 2; i < argc; i++)
             if (add_selection(argv[i]) == FALSE)
@@ -1196,7 +1196,7 @@ main(int argc, char *argv[])
             read_count++;
 
             phdr = wtap_phdr(wth);
-            buf = wtap_buf_ptr(wth);
+            buf = wftap_buf_ptr(wth);
 
             if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
                 block_start.secs = phdr->ts.secs;
@@ -1217,7 +1217,7 @@ main(int argc, char *argv[])
                 }
 
                 pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                                        snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+                                        snaplen ? MIN(snaplen, wftap_snapshot_length(wth)) : wftap_snapshot_length(wth),
                                         FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
                 if (pdh == NULL) {
@@ -1234,7 +1234,7 @@ main(int argc, char *argv[])
                        || (phdr->ts.secs - block_start.secs == secs_per_block
                            && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
-                    if (!wtap_dump_close(pdh, &err)) {
+                    if (!wftap_dump_close(pdh, &err)) {
                         fprintf(stderr, "editcap: Error writing to %s: %s\n",
                                 filename, wtap_strerror(err));
                         exit(2);
@@ -1248,7 +1248,7 @@ main(int argc, char *argv[])
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
                     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                                            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+                                            snaplen ? MIN(snaplen, wftap_snapshot_length(wth)) : wftap_snapshot_length(wth),
                                             FALSE /* compressed */, shb_hdr, idb_inf, &err);
 
                     if (pdh == NULL) {
@@ -1262,7 +1262,7 @@ main(int argc, char *argv[])
             if (split_packet_count > 0) {
                 /* time for the next file? */
                 if (written_count > 0 && written_count % split_packet_count == 0) {
-                    if (!wtap_dump_close(pdh, &err)) {
+                    if (!wftap_dump_close(pdh, &err)) {
                         fprintf(stderr, "editcap: Error writing to %s: %s\n",
                                 filename, wtap_strerror(err));
                         exit(2);
@@ -1276,7 +1276,7 @@ main(int argc, char *argv[])
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
                     pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                                            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+                                            snaplen ? MIN(snaplen, wftap_snapshot_length(wth)) : wftap_snapshot_length(wth),
                                             FALSE /* compressed */, shb_hdr, idb_inf, &err);
                     if (pdh == NULL) {
                         fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1470,7 +1470,7 @@ main(int argc, char *argv[])
                     int real_data_start = 0;
 
                     /* Protect non-protocol data */
-                    if (wtap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
+                    if (wftap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
                         real_data_start = find_dct2000_real_data(buf);
 
                     for (i = real_data_start; i < (int) phdr->caplen; i++) {
@@ -1581,7 +1581,7 @@ main(int argc, char *argv[])
             filename = g_strdup(argv[optind+1]);
 
             pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                                    snaplen ? MIN(snaplen, wtap_snapshot_length(wth)): wtap_snapshot_length(wth),
+                                    snaplen ? MIN(snaplen, wftap_snapshot_length(wth)): wftap_snapshot_length(wth),
                                     FALSE /* compressed */, shb_hdr, idb_inf, &err);
             if (pdh == NULL) {
                 fprintf(stderr, "editcap: Can't open or create %s: %s\n",
@@ -1593,7 +1593,7 @@ main(int argc, char *argv[])
         g_free(idb_inf);
         idb_inf = NULL;
 
-        if (!wtap_dump_close(pdh, &err)) {
+        if (!wftap_dump_close(pdh, &err)) {
             fprintf(stderr, "editcap: Error writing to %s: %s\n", filename,
                     wtap_strerror(err));
             exit(2);

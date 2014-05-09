@@ -42,6 +42,7 @@
 #include <string.h>
 #include <time.h>
 
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -95,13 +96,13 @@ static const mime_files_t magic_files[] = {
 #define MAX_FILE_SIZE	(16*1024*1024)
 
 static gboolean
-mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+mime_read_file(wftap *wfth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	gint64 file_size;
 	int packet_size;
 
-	if ((file_size = wtap_file_size(wth, err)) == -1)
+	if ((file_size = wftap_file_size(wfth, err)) == -1)
 		return FALSE;
 
 	if (file_size > MAX_FILE_SIZE) {
@@ -128,13 +129,14 @@ mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+mime_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	gint64 offset;
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	*err = 0;
 
-	offset = file_tell(wth->fh);
+	offset = file_tell(wfth->fh);
 
 	/* there is only ever one packet */
 	if (offset != 0)
@@ -142,26 +144,28 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	*data_offset = offset;
 
-	return mime_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
+	return mime_read_file(wfth, wfth->fh, &wth->phdr, wfth->frame_buffer, err, err_info);
 }
 
 static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+mime_seek_read(wftap *wfth, gint64 seek_off, void* header, Buffer *buf, int *err, gchar **err_info)
 {
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+
 	/* there is only one packet */
 	if (seek_off > 0) {
 		*err = 0;
 		return FALSE;
 	}
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	return mime_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
+	return mime_read_file(wfth, wfth->random_fh, phdr, buf, err, err_info);
 }
 
 int
-mime_file_open(wtap *wth, int *err, gchar **err_info)
+mime_file_open(wftap *wfth, int *err, gchar **err_info)
 {
 	char magic_buf[128]; /* increase buffer size when needed */
 	int bytes_read;
@@ -175,10 +179,10 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 		read_bytes = MAX(read_bytes, magic_files[i].magic_len);
 
 	read_bytes = (guint)MIN(read_bytes, sizeof(magic_buf));
-	bytes_read = file_read(magic_buf, read_bytes, wth->fh);
+	bytes_read = file_read(magic_buf, read_bytes, wfth->fh);
 
 	if (bytes_read < 0) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		return -1;
 	}
 	if (bytes_read == 0)
@@ -198,15 +202,15 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	if (!found_file)
 		return 0;
 
-	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+	if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MIME;
-	wth->file_encap = WTAP_ENCAP_MIME;
-	wth->tsprecision = WTAP_FILE_TSPREC_SEC;
-	wth->subtype_read = mime_read;
-	wth->subtype_seek_read = mime_seek_read;
-	wth->snapshot_length = 0;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MIME;
+	wfth->file_encap = WTAP_ENCAP_MIME;
+	wfth->tsprecision = WTAP_FILE_TSPREC_SEC;
+	wfth->subtype_read = mime_read;
+	wfth->subtype_seek_read = mime_seek_read;
+	wfth->snapshot_length = 0;
 
 	return 1;
 }

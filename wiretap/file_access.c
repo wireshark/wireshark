@@ -36,6 +36,7 @@
 
 #include <wsutil/file_util.h>
 
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -673,12 +674,13 @@ static gboolean heuristic_uses_extension(unsigned int i, const char *extension)
    so that it can do sequential I/O to a capture file that's being
    written to as new packets arrive independently of random I/O done
    to display protocol trees for packets when they're selected. */
-wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_info,
+wftap* wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_info,
 			gboolean do_random)
 {
 	int	fd;
 	ws_statb64 statb;
 	wtap	*wth;
+	wftap	*wfth;
 	unsigned int	i;
 	gboolean use_stdin = FALSE;
 	gchar *extension;
@@ -742,76 +744,79 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	}
 
 	errno = ENOMEM;
-	wth = (wtap *)g_malloc0(sizeof(wtap));
+	wfth = (wftap *)g_malloc0(sizeof(wtap));
 
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
 	if (use_stdin) {
 		/*
 		 * We dup FD 0, so that we don't have to worry about
-		 * a file_close of wth->fh closing the standard
+		 * a file_close of wfth->fh closing the standard
 		 * input of the process.
 		 */
 		fd = ws_dup(0);
 		if (fd < 0) {
 			*err = errno;
-			g_free(wth);
+			g_free(wfth);
 			return NULL;
 		}
 #ifdef _WIN32
 		if (_setmode(fd, O_BINARY) == -1) {
 			/* "Shouldn't happen" */
 			*err = errno;
-			g_free(wth);
+			g_free(wfth);
 			return NULL;
 		}
 #endif
-		if (!(wth->fh = file_fdopen(fd))) {
+		if (!(wfth->fh = file_fdopen(fd))) {
 			*err = errno;
 			ws_close(fd);
-			g_free(wth);
+			g_free(wfth);
 			return NULL;
 		}
 	} else {
-		if (!(wth->fh = file_open(filename))) {
+		if (!(wfth->fh = file_open(filename))) {
 			*err = errno;
-			g_free(wth);
+			g_free(wfth);
 			return NULL;
 		}
 	}
 
 	if (do_random) {
-		if (!(wth->random_fh = file_open(filename))) {
+		if (!(wfth->random_fh = file_open(filename))) {
 			*err = errno;
-			file_close(wth->fh);
-			g_free(wth);
+			file_close(wfth->fh);
+			g_free(wfth);
 			return NULL;
 		}
 	} else
-		wth->random_fh = NULL;
+		wfth->random_fh = NULL;
+
+	wth = (wtap *)g_malloc0(sizeof(wtap));
+	wfth->tap_specific_data = wth;
 
 	/* initialization */
-	wth->file_encap = WTAP_ENCAP_UNKNOWN;
-	wth->subtype_sequential_close = NULL;
-	wth->subtype_close = NULL;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-	wth->priv = NULL;
-	wth->wslua_data = NULL;
+	wfth->file_encap = WTAP_ENCAP_UNKNOWN;
+	wfth->subtype_sequential_close = NULL;
+	wfth->subtype_close = NULL;
+	wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wfth->priv = NULL;
+	wfth->wslua_data = NULL;
 
-	if (wth->random_fh) {
-		wth->fast_seek = g_ptr_array_new();
+	if (wfth->random_fh) {
+		wfth->fast_seek = g_ptr_array_new();
 
-		file_set_random_access(wth->fh, FALSE, wth->fast_seek);
-		file_set_random_access(wth->random_fh, TRUE, wth->fast_seek);
+		file_set_random_access(wfth->fh, FALSE, wfth->fast_seek);
+		file_set_random_access(wfth->random_fh, TRUE, wfth->fast_seek);
 	}
 
 	/* 'type' is 1 greater than the array index */
 	if (type != WTAP_TYPE_AUTO && type <= open_info_arr->len) {
 		int result;
 
-		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+		if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1) {
 			/* I/O error - give up */
-			wtap_close(wth);
+			wtap_close(wfth);
 			return NULL;
 		}
 
@@ -819,14 +824,14 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 		 * to the file reader, kinda like the priv member but not free'd later.
 		 * It's ok for this to copy a NULL.
 		 */
-		wth->wslua_data = open_routines[type - 1].wslua_data;
+		wfth->wslua_data = open_routines[type - 1].wslua_data;
 
-		result = (*open_routines[type - 1].open_routine)(wth, err, err_info);
+		result = (*open_routines[type - 1].open_routine)(wfth, err, err_info);
 
 		switch (result) {
 			case -1:
 				/* I/O error - give up */
-				wtap_close(wth);
+				wtap_close(wfth);
 				return NULL;
 
 			case 0:
@@ -848,9 +853,9 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 		   to start reading at the beginning.
 
 		   Initialize the data offset while we're at it. */
-		if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+		if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1) {
 			/* I/O error - give up */
-			wtap_close(wth);
+			wtap_close(wfth);
 			return NULL;
 		}
 
@@ -858,13 +863,13 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 		 * to the file reader, kinda like the priv member but not free'd later.
 		 * It's ok for this to copy a NULL.
 		 */
-		wth->wslua_data = open_routines[i].wslua_data;
+		wfth->wslua_data = open_routines[i].wslua_data;
 
-		switch ((*open_routines[i].open_routine)(wth, err, err_info)) {
+		switch ((*open_routines[i].open_routine)(wfth, err, err_info)) {
 
 		case -1:
 			/* I/O error - give up */
-			wtap_close(wth);
+			wtap_close(wfth);
 			return NULL;
 
 		case 0:
@@ -886,25 +891,25 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 			/* Does this type use that extension? */
 			if (heuristic_uses_extension(i, extension)) {
 				/* Yes. */
-				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+				if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1) {
 					/* I/O error - give up */
 					g_free(extension);
-					wtap_close(wth);
+					wtap_close(wfth);
 					return NULL;
 				}
 
 				/* Set wth with wslua data if any - this is how we pass the data
 				 * to the file reader, kind of like priv but not free'd later.
 				 */
-				wth->wslua_data = open_routines[i].wslua_data;
+				wfth->wslua_data = open_routines[i].wslua_data;
 
-				switch ((*open_routines[i].open_routine)(wth,
+				switch ((*open_routines[i].open_routine)(wfth,
 				    err, err_info)) {
 
 				case -1:
 					/* I/O error - give up */
 					g_free(extension);
-					wtap_close(wth);
+					wtap_close(wfth);
 					return NULL;
 
 				case 0:
@@ -924,25 +929,25 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 			/* Does this type use that extension? */
 			if (!heuristic_uses_extension(i, extension)) {
 				/* No. */
-				if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+				if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1) {
 					/* I/O error - give up */
 					g_free(extension);
-					wtap_close(wth);
+					wtap_close(wfth);
 					return NULL;
 				}
 
 				/* Set wth with wslua data if any - this is how we pass the data
 				 * to the file reader, kind of like priv but not free'd later.
 				 */
-				wth->wslua_data = open_routines[i].wslua_data;
+				wfth->wslua_data = open_routines[i].wslua_data;
 
-				switch ((*open_routines[i].open_routine)(wth,
+				switch ((*open_routines[i].open_routine)(wfth,
 				    err, err_info)) {
 
 				case -1:
 					/* I/O error - give up */
 					g_free(extension);
-					wtap_close(wth);
+					wtap_close(wfth);
 					return NULL;
 
 				case 0:
@@ -961,22 +966,22 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 		/* No - try all the heuristics types in order. */
 		for (i = heuristic_open_routine_idx; i < open_info_arr->len; i++) {
 
-			if (file_seek(wth->fh, 0, SEEK_SET, err) == -1) {
+			if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1) {
 				/* I/O error - give up */
-				wtap_close(wth);
+				wtap_close(wfth);
 				return NULL;
 			}
 
 			/* Set wth with wslua data if any - this is how we pass the data
 			 * to the file reader, kind of like priv but not free'd later.
 			 */
-			wth->wslua_data = open_routines[i].wslua_data;
+			wfth->wslua_data = open_routines[i].wslua_data;
 
-			switch ((*open_routines[i].open_routine)(wth, err, err_info)) {
+			switch ((*open_routines[i].open_routine)(wfth, err, err_info)) {
 
 			case -1:
 				/* I/O error - give up */
-				wtap_close(wth);
+				wtap_close(wfth);
 				return NULL;
 
 			case 0:
@@ -993,22 +998,22 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 fail:
 
 	/* Well, it's not one of the types of file we know about. */
-	wtap_close(wth);
+	wtap_close(wfth);
 	*err = WTAP_ERR_FILE_UNKNOWN_FORMAT;
 	return NULL;
 
 success:
-	wth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
-	buffer_init(wth->frame_buffer, 1500);
+	wfth->frame_buffer = (struct Buffer *)g_malloc(sizeof(struct Buffer));
+	buffer_init(wfth->frame_buffer, 1500);
 
-	if(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP){
+	if(wfth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP){
 
 		wtapng_if_descr_t descr;
 
-		descr.wtap_encap = wth->file_encap;
+		descr.wtap_encap = wfth->file_encap;
 		descr.time_units_per_second = 1000000; /* default microsecond resolution */
-		descr.link_type = wtap_wtap_encap_to_pcap_encap(wth->file_encap);
-		descr.snap_len = wth->snapshot_length;
+		descr.link_type = wtap_wtap_encap_to_pcap_encap(wfth->file_encap);
+		descr.snap_len = wfth->snapshot_length;
 		descr.opt_comment = NULL;
 		descr.if_name = NULL;
 		descr.if_description = NULL;
@@ -1026,7 +1031,7 @@ success:
 		g_array_append_val(wth->interface_data, descr);
 
 	}
-	return wth;
+	return wfth;
 }
 
 /*
@@ -1042,7 +1047,7 @@ success:
  * reopens the random stream.
  */
 gboolean
-wtap_fdreopen(wtap *wth, const char *filename, int *err)
+wftap_fdreopen(wftap *wfth, const char *filename, int *err)
 {
 	ws_statb64 statb;
 
@@ -1084,7 +1089,7 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
-	if (!file_fdreopen(wth->random_fh, filename)) {
+	if (!file_fdreopen(wfth->random_fh, filename)) {
 		*err = errno;
 		return FALSE;
 	}
@@ -1956,30 +1961,39 @@ gboolean wtap_dump_supports_comment_types(int file_type_subtype, guint32 comment
 }
 
 static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean comressed, int *err);
-static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
+static wftap_dumper* wtap_dump_alloc_wfdh(int file_type_subtype, int encap, int snaplen,
 					gboolean compressed, int *err);
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err);
+static gboolean wtap_dump_open_finish(wftap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err);
 
-static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
-static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
-static int wtap_dump_file_close(wtap_dumper *wdh);
+static WFILE_T wftap_dump_file_open(wftap_dumper *wdh, const char *filename);
+static WFILE_T wftap_dump_file_fdopen(wftap_dumper *wdh, int fd);
+static int wtap_dump_file_close(wftap_dumper *wdh);
 
-wtap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
+wftap_dumper* wtap_dump_open(const char *filename, int file_type_subtype, int encap,
 				int snaplen, gboolean compressed, int *err)
 {
 	return wtap_dump_open_ng(filename, file_type_subtype, encap,snaplen, compressed, NULL, NULL, err);
 }
 
-static wtap_dumper *
+static wftap_dumper *
 wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean compressed,
     wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
-	wtap_dumper *wdh;
+	wftap_dumper *wfdh;
+	wtap_dumper* wdh;
 
 	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(file_type_subtype, encap, snaplen, compressed, err);
-	if (wdh == NULL)
+	wfdh = wtap_dump_alloc_wfdh(file_type_subtype, encap, snaplen, compressed, err);
+	if (wfdh == NULL)
 		return NULL;	/* couldn't allocate it */
+
+	wdh = (wtap_dumper *)g_malloc0(sizeof (wtap_dumper));
+	if (wdh == NULL) {
+		*err = errno;
+		g_free(wfdh);
+		return NULL;
+	}
+	wfdh->tap_specific_data = wdh;
 
 	/* Set Section Header Block data */
 	wdh->shb_hdr = shb_hdr;
@@ -2010,13 +2024,14 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		wdh->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
-	return wdh;
+	return wfdh;
 }
 
-wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
+wftap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int encap,
 				int snaplen, gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
-	wtap_dumper *wdh;
+	wftap_dumper *wfdh;
+	wtap_dumper* wdh;
 	WFILE_T fh;
 
 	/* Check whether we can open a capture file with that file type
@@ -2025,16 +2040,19 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int 
 		return NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
+	wfdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
 	    shb_hdr, idb_inf, err);
-	if (wdh == NULL)
+	if (wfdh == NULL)
 		return NULL;
+
+	wdh = wfdh->tap_specific_data;
 
 	/* "-" means stdout */
 	if (strcmp(filename, "-") == 0) {
 		if (compressed) {
 			*err = EINVAL;	/* XXX - return a Wiretap error code for this */
 			g_free(wdh);
+			g_free(wfdh);
 			return NULL;	/* compress won't work on stdout */
 		}
 #ifdef _WIN32
@@ -2042,46 +2060,49 @@ wtap_dumper* wtap_dump_open_ng(const char *filename, int file_type_subtype, int 
 			/* "Should not happen" */
 			*err = errno;
 			g_free(wdh);
+			g_free(wfdh);
 			return NULL;	/* couldn't put standard output in binary mode */
 		}
 #endif
-		wdh->fh = stdout;
+		wfdh->fh = stdout;
 	} else {
 		/* In case "fopen()" fails but doesn't set "errno", set "errno"
 		   to a generic "the open failed" error. */
 		errno = WTAP_ERR_CANT_OPEN;
-		fh = wtap_dump_file_open(wdh, filename);
+		fh = wftap_dump_file_open(wfdh, filename);
 		if (fh == NULL) {
 			*err = errno;
 			g_free(wdh);
+			g_free(wfdh);
 			return NULL;	/* can't create file */
 		}
-		wdh->fh = fh;
+		wfdh->fh = fh;
 	}
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
+	if (!wtap_dump_open_finish(wfdh, file_type_subtype, compressed, err)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
-		if (wdh->fh != stdout) {
-			wtap_dump_file_close(wdh);
+		if (wfdh->fh != stdout) {
+			wtap_dump_file_close(wfdh);
 			ws_unlink(filename);
 		}
 		g_free(wdh);
+		g_free(wfdh);
 		return NULL;
 	}
-	return wdh;
+	return wfdh;
 }
 
-wtap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
+wftap_dumper* wtap_dump_fdopen(int fd, int file_type_subtype, int encap, int snaplen,
 				gboolean compressed, int *err)
 {
 	return wtap_dump_fdopen_ng(fd, file_type_subtype, encap, snaplen, compressed, NULL, NULL, err);
 }
 
-wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
+wftap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int snaplen,
 				gboolean compressed, wtapng_section_t *shb_hdr, wtapng_iface_descriptions_t *idb_inf, int *err)
 {
-	wtap_dumper *wdh;
+	wftap_dumper *wfdh;
 	WFILE_T fh;
 
 	/* Check whether we can open a capture file with that file type
@@ -2090,9 +2111,9 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int s
 		return NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
-	wdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
+	wfdh = wtap_dump_init_dumper(file_type_subtype, encap, snaplen, compressed,
 	    shb_hdr, idb_inf, err);
-	if (wdh == NULL)
+	if (wfdh == NULL)
 		return NULL;
 
 #ifdef _WIN32
@@ -2100,7 +2121,7 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int s
 		if (_setmode(fileno(stdout), O_BINARY) == -1) {
 			/* "Should not happen" */
 			*err = errno;
-			g_free(wdh);
+			g_free(wfdh);
 			return NULL;	/* couldn't put standard output in binary mode */
 		}
 	}
@@ -2109,20 +2130,20 @@ wtap_dumper* wtap_dump_fdopen_ng(int fd, int file_type_subtype, int encap, int s
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
 	errno = WTAP_ERR_CANT_OPEN;
-	fh = wtap_dump_file_fdopen(wdh, fd);
+	fh = wftap_dump_file_fdopen(wfdh, fd);
 	if (fh == NULL) {
 		*err = errno;
-		g_free(wdh);
+		g_free(wfdh);
 		return NULL;	/* can't create standard I/O stream */
 	}
-	wdh->fh = fh;
+	wfdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, compressed, err)) {
-		wtap_dump_file_close(wdh);
-		g_free(wdh);
+	if (!wtap_dump_open_finish(wfdh, file_type_subtype, compressed, err)) {
+		wtap_dump_file_close(wfdh);
+		g_free(wfdh);
 		return NULL;
 	}
-	return wdh;
+	return wfdh;
 }
 
 static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err)
@@ -2158,12 +2179,12 @@ static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean 
 	return TRUE;
 }
 
-static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
+static wftap_dumper* wtap_dump_alloc_wfdh(int file_type_subtype, int encap, int snaplen,
 					gboolean compressed, int *err)
 {
-	wtap_dumper *wdh;
+	wftap_dumper *wdh;
 
-	wdh = (wtap_dumper *)g_malloc0(sizeof (wtap_dumper));
+	wdh = (wftap_dumper *)g_malloc0(sizeof (wftap_dumper));
 	if (wdh == NULL) {
 		*err = errno;
 		return NULL;
@@ -2177,7 +2198,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int sn
 	return wdh;
 }
 
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err)
+static gboolean wtap_dump_open_finish(wftap_dumper *wdh, int file_type_subtype, gboolean compressed, int *err)
 {
 	int fd;
 	gboolean cant_seek;
@@ -2217,13 +2238,13 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, g
 	return TRUE;	/* success! */
 }
 
-gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
+gboolean wtap_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
 		   const guint8 *pd, int *err)
 {
-	return (wdh->subtype_write)(wdh, phdr, pd, err);
+	return (wdh->subtype_write)(wdh, (void*)phdr, pd, err);
 }
 
-void wtap_dump_flush(wtap_dumper *wdh)
+void wftap_dump_flush(wftap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
@@ -2235,7 +2256,7 @@ void wtap_dump_flush(wtap_dumper *wdh)
 	}
 }
 
-gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
+gboolean wftap_dump_close(wftap_dumper *wdh, int *err)
 {
 	gboolean ret = TRUE;
 
@@ -2259,36 +2280,44 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err)
 		}
 	} else {
 		/* as we don't close stdout, at least try to flush it */
-		wtap_dump_flush(wdh);
+		wftap_dump_flush(wdh);
 	}
 	if (wdh->priv != NULL)
 		g_free(wdh->priv);
+
+	if (wdh->tap_specific_data != NULL)
+		g_free(wdh->tap_specific_data);
+
 	g_free(wdh);
 	return ret;
 }
 
-gint64 wtap_get_bytes_dumped(wtap_dumper *wdh)
+gint64 wftap_get_bytes_dumped(wftap_dumper *wdh)
 {
 	return wdh->bytes_dumped;
 }
 
-void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped)
+void wftap_set_bytes_dumped(wftap_dumper *wdh, gint64 bytes_dumped)
 {
 	wdh->bytes_dumped = bytes_dumped;
 }
 
-gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
+gboolean wtap_dump_set_addrinfo_list(wftap_dumper *wfdh, addrinfo_lists_t *addrinfo_lists)
 {
-	if (!wdh || wdh->file_type_subtype < 0 || wdh->file_type_subtype >= wtap_num_file_types_subtypes
-		|| dump_open_table[wdh->file_type_subtype].has_name_resolution == FALSE)
+	wtap_dumper *wdh;
+
+	if (!wfdh || wfdh->file_type_subtype < 0 || wfdh->file_type_subtype >= wtap_num_file_types_subtypes
+		|| dump_open_table[wfdh->file_type_subtype].has_name_resolution == FALSE)
 			return FALSE;
+
+	wdh = (wtap_dumper*)wfdh->tap_specific_data;
 	wdh->addrinfo_lists = addrinfo_lists;
 	return TRUE;
 }
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
+static WFILE_T wftap_dump_file_open(wftap_dumper *wdh, const char *filename)
 {
 	if(wdh->compressed) {
 		return gzwfile_open(filename);
@@ -2297,7 +2326,7 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename)
 	}
 }
 #else
-static WFILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
+static WFILE_T wftap_dump_file_open(wftap_dumper *wdh _U_, const char *filename)
 {
 	return ws_fopen(filename, "wb");
 }
@@ -2305,7 +2334,7 @@ static WFILE_T wtap_dump_file_open(wtap_dumper *wdh _U_, const char *filename)
 
 /* internally open a file for writing (compressed or not) */
 #ifdef HAVE_LIBZ
-static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
+static WFILE_T wftap_dump_file_fdopen(wftap_dumper *wdh, int fd)
 {
 	if(wdh->compressed) {
 		return gzwfile_fdopen(fd);
@@ -2314,14 +2343,14 @@ static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd)
 	}
 }
 #else
-static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh _U_, int fd)
+static WFILE_T wftap_dump_file_fdopen(wftap_dumper *wdh, int fd)
 {
 	return fdopen(fd, "wb");
 }
 #endif
 
 /* internally writing raw bytes (compressed or not) */
-gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
+gboolean wftap_dump_file_write(wftap_dumper *wdh, const void *buf, size_t bufsize,
 		     int *err)
 {
 	size_t nwritten;
@@ -2356,7 +2385,7 @@ gboolean wtap_dump_file_write(wtap_dumper *wdh, const void *buf, size_t bufsize,
 }
 
 /* internally close a file for writing (compressed or not) */
-static int wtap_dump_file_close(wtap_dumper *wdh)
+static int wtap_dump_file_close(wftap_dumper *wdh)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
@@ -2368,7 +2397,7 @@ static int wtap_dump_file_close(wtap_dumper *wdh)
 	}
 }
 
-gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err)
+gint64 wftap_dump_file_seek(wftap_dumper *wdh, gint64 offset, int whence, int *err)
 {
 #ifdef HAVE_LIBZ
 	if(wdh->compressed) {
@@ -2386,7 +2415,7 @@ gint64 wtap_dump_file_seek(wtap_dumper *wdh, gint64 offset, int whence, int *err
 		}
 	}
 }
-gint64 wtap_dump_file_tell(wtap_dumper *wdh, int *err)
+gint64 wftap_dump_file_tell(wftap_dumper *wdh, int *err)
 {
 	gint64 rval;
 #ifdef HAVE_LIBZ

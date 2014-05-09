@@ -63,6 +63,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -86,13 +87,12 @@
 #define RECORDS_FOR_IPFIX_CHECK 20
 
 static gboolean
-ipfix_read(wtap *wth, int *err, gchar **err_info,
+ipfix_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean
-ipfix_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static void
-ipfix_close(wtap *wth);
+ipfix_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info);
+static void ipfix_close(wftap *wth);
 
 #define IPFIX_VERSION 10
 
@@ -184,7 +184,7 @@ ipfix_read_message(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, g
  * like malformed format, -1 on bad error like file system
  */
 int
-ipfix_open(wtap *wth, int *err, gchar **err_info)
+ipfix_open(wftap *wfth, int *err, gchar **err_info)
 {
     gint i, n, records_for_ipfix_check = RECORDS_FOR_IPFIX_CHECK;
     gchar *s;
@@ -208,7 +208,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
      */
     for (i = 0; i < records_for_ipfix_check; i++) {
         /* read first message header to check version */
-        if (!ipfix_read_message_header(&msg_hdr, wth->fh, err, err_info)) {
+        if (!ipfix_read_message_header(&msg_hdr, wfth->fh, err, err_info)) {
             ipfix_debug3("ipfix_open: couldn't read message header #%d with err code #%d (%s)",
                          i, *err, *err_info);
             if (*err == WTAP_ERR_BAD_FILE) {
@@ -232,7 +232,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
              */
             break;
         }
-        if (file_seek(wth->fh, IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
+        if (file_seek(wfth->fh, IPFIX_MSG_HDR_SIZE, SEEK_CUR, err) == -1) {
             ipfix_debug1("ipfix_open: failed seek to next message in file, %d bytes away",
                          msg_hdr.message_length);
             return 0;
@@ -241,7 +241,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
         /* check each Set in IPFIX Message for sanity */
         while (checked_len < msg_hdr.message_length) {
-            wtap_file_read_expected_bytes(&set_hdr, IPFIX_SET_HDR_SIZE, wth->fh, err, err_info);
+            wtap_file_read_expected_bytes(&set_hdr, IPFIX_SET_HDR_SIZE, wfth->fh, err, err_info);
             set_hdr.set_length = g_ntohs(set_hdr.set_length);
             if ((set_hdr.set_length < IPFIX_SET_HDR_SIZE) ||
                 ((set_hdr.set_length + checked_len) > msg_hdr.message_length))  {
@@ -250,7 +250,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
                 return 0;
             }
 
-            if (file_seek(wth->fh, set_hdr.set_length - IPFIX_SET_HDR_SIZE,
+            if (file_seek(wfth->fh, set_hdr.set_length - IPFIX_SET_HDR_SIZE,
                  SEEK_CUR, err) == -1)
             {
                 ipfix_debug1("ipfix_open: failed seek to next set in file, %d bytes away",
@@ -262,16 +262,16 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* all's good, this is a IPFIX file */
-    wth->file_encap = WTAP_ENCAP_RAW_IPFIX;
-    wth->snapshot_length = 0;
-    wth->tsprecision = WTAP_FILE_TSPREC_SEC;
-    wth->subtype_read = ipfix_read;
-    wth->subtype_seek_read = ipfix_seek_read;
-    wth->subtype_close = ipfix_close;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPFIX;
+    wfth->file_encap = WTAP_ENCAP_RAW_IPFIX;
+    wfth->snapshot_length = 0;
+    wfth->tsprecision = WTAP_FILE_TSPREC_SEC;
+    wfth->subtype_read = ipfix_read;
+    wfth->subtype_seek_read = ipfix_seek_read;
+    wfth->subtype_close = ipfix_close;
+    wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPFIX;
 
     /* go back to beginning of file */
-    if (file_seek (wth->fh, 0, SEEK_SET, err) != 0)
+    if (file_seek (wfth->fh, 0, SEEK_SET, err) != 0)
     {
         return -1;
     }
@@ -281,12 +281,13 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
 /* classic wtap: read packet */
 static gboolean
-ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+ipfix_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-    *data_offset = file_tell(wth->fh);
+    wtap* wth = (wtap*)wfth->tap_specific_data;
+    *data_offset = file_tell(wfth->fh);
     ipfix_debug1("ipfix_read: data_offset is initially %" G_GINT64_MODIFIER "d", *data_offset);
 
-    if (!ipfix_read_message(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info)) {
+    if (!ipfix_read_message(wfth->fh, &wth->phdr, wfth->frame_buffer, err, err_info)) {
         ipfix_debug2("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return FALSE;
@@ -298,11 +299,13 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 /* classic wtap: seek to file position and read packet */
 static gboolean
-ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+ipfix_seek_read(wftap *wfth, gint64 seek_off, void* header,
     Buffer *buf, int *err, gchar **err_info)
 {
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+
     /* seek to the right file position */
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1) {
         ipfix_debug2("ipfix_seek_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
         return FALSE;   /* Seek error */
@@ -310,7 +313,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 
     ipfix_debug1("ipfix_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
 
-    if (!ipfix_read_message(wth->random_fh, phdr, buf, err, err_info)) {
+    if (!ipfix_read_message(wfth->random_fh, phdr, buf, err, err_info)) {
         ipfix_debug0("ipfix_seek_read: couldn't read message header");
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
@@ -322,7 +325,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 
 /* classic wtap: close capture file */
 static void
-ipfix_close(wtap *wth _U_)
+ipfix_close(wftap *wth _U_)
 {
     ipfix_debug0("ipfix_close: closing file");
 }

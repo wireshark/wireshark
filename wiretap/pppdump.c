@@ -18,6 +18,7 @@
  */
 
 #include "config.h"
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "pppdump.h"
@@ -95,10 +96,10 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
+static gboolean pppdump_read(wftap *wfth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
+static gboolean pppdump_seek_read(wftap *wfth, gint64 seek_off,
+	void* header, Buffer *buf, int *err, gchar **err_info);
 
 /*
  * Information saved about a packet, during the initial sequential pass
@@ -214,7 +215,7 @@ collate(pppdump_t*, FILE_T fh, int *err, gchar **err_info, guint8 *pd,
 		gint64 num_bytes_to_skip);
 
 static void
-pppdump_close(wtap *wth);
+pppdump_close(wftap *wfth);
 
 static void
 init_state(pppdump_t *state)
@@ -243,7 +244,7 @@ init_state(pppdump_t *state)
 
 
 int
-pppdump_open(wtap *wth, int *err, gchar **err_info)
+pppdump_open(wftap *wfth, int *err, gchar **err_info)
 {
 	guint8		buffer[6];	/* Looking for: 0x07 t3 t2 t1 t0 ID */
 	int		bytes_read;
@@ -257,9 +258,9 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	* representing the timestamp.
 	*/
 
-	bytes_read = file_read(buffer, sizeof(buffer), wth->fh);
+	bytes_read = file_read(buffer, sizeof(buffer), wfth->fh);
 	if (bytes_read != (int) sizeof(buffer)) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -280,32 +281,32 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 
   my_file_type:
 
-	if (file_seek(wth->fh, 5, SEEK_SET, err) == -1)
+	if (file_seek(wfth->fh, 5, SEEK_SET, err) == -1)
 		return -1;
 
 	state = (pppdump_t *)g_malloc(sizeof(pppdump_t));
-	wth->priv = (void *)state;
+	wfth->priv = (void *)state;
 	state->timestamp = pntoh32(&buffer[1]);
 	state->tenths = 0;
 
 	init_state(state);
 
 	state->offset = 5;
-	wth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PPPDUMP;
+	wfth->file_encap = WTAP_ENCAP_PPP_WITH_PHDR;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PPPDUMP;
 
-	wth->snapshot_length = PPPD_BUF_SIZE; /* just guessing */
-	wth->subtype_read = pppdump_read;
-	wth->subtype_seek_read = pppdump_seek_read;
-	wth->subtype_close = pppdump_close;
-	wth->tsprecision = WTAP_FILE_TSPREC_DSEC;
+	wfth->snapshot_length = PPPD_BUF_SIZE; /* just guessing */
+	wfth->subtype_read = pppdump_read;
+	wfth->subtype_seek_read = pppdump_seek_read;
+	wfth->subtype_close = pppdump_close;
+	wfth->tsprecision = WTAP_FILE_TSPREC_DSEC;
 
 	state->seek_state = g_new(pppdump_t,1);
 
 	/* If we have a random stream open, we're going to be reading
 	   the file randomly; set up a GPtrArray of pointers to
 	   information about how to retrieve the data for each packet. */
-	if (wth->random_fh != NULL)
+	if (wfth->random_fh != NULL)
 		state->pids = g_ptr_array_new();
 	else
 		state->pids = NULL;
@@ -328,19 +329,20 @@ pppdump_set_phdr(struct wtap_pkthdr *phdr, int num_bytes,
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean
-pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+pppdump_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	int		num_bytes;
 	direction_enum	direction;
 	guint8		*buf;
 	pppdump_t	*state;
 	pkt_id		*pid;
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
-	state = (pppdump_t *)wth->priv;
+	state = (pppdump_t *)wfth->priv;
 
 	/* If we have a random stream open, allocate a structure to hold
 	   the information needed to read this packet's data again. */
-	if (wth->random_fh != NULL) {
+	if (wfth->random_fh != NULL) {
 		pid = g_new(pkt_id, 1);
 		if (!pid) {
 			*err = errno;	/* assume a malloc failed and set "errno" */
@@ -350,12 +352,12 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	} else
 		pid = NULL;	/* sequential only */
 
-	buffer_assure_space(wth->frame_buffer, PPPD_BUF_SIZE);
-	buf = buffer_start_ptr(wth->frame_buffer);
+	buffer_assure_space(wfth->frame_buffer, PPPD_BUF_SIZE);
+	buf = buffer_start_ptr(wfth->frame_buffer);
 
-	if (!collate(state, wth->fh, err, err_info, buf, &num_bytes, &direction,
+	if (!collate(state, wfth->fh, err, err_info, buf, &num_bytes, &direction,
 	    pid, 0)) {
-	    	if (pid != NULL)
+		if (pid != NULL)
 			g_free(pid);
 		return FALSE;
 	}
@@ -716,9 +718,9 @@ done:
 
 /* Used to read packets in random-access fashion */
 static gboolean
-pppdump_seek_read(wtap *wth,
+pppdump_seek_read(wftap *wfth,
 		 gint64 seek_off,
-		 struct wtap_pkthdr *phdr,
+		 void* header,
 		 Buffer *buf,
 		 int *err,
 		 gchar **err_info)
@@ -729,8 +731,9 @@ pppdump_seek_read(wtap *wth,
 	pppdump_t	*state;
 	pkt_id		*pid;
 	gint64		num_bytes_to_skip;
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
-	state = (pppdump_t *)wth->priv;
+	state = (pppdump_t *)wfth->priv;
 
 	pid = (pkt_id *)g_ptr_array_index(state->pids, seek_off);
 	if (!pid) {
@@ -739,7 +742,7 @@ pppdump_seek_read(wtap *wth,
 		return FALSE;
 	}
 
-	if (file_seek(wth->random_fh, pid->offset, SEEK_SET, err) == -1)
+	if (file_seek(wfth->random_fh, pid->offset, SEEK_SET, err) == -1)
 		return FALSE;
 
 	init_state(state->seek_state);
@@ -761,7 +764,7 @@ pppdump_seek_read(wtap *wth,
 	 */
 	num_bytes_to_skip = pid->num_bytes_to_skip;
 	do {
-		if (!collate(state->seek_state, wth->random_fh, err, err_info,
+		if (!collate(state->seek_state, wfth->random_fh, err, err_info,
 		    pd, &num_bytes, &direction, NULL, num_bytes_to_skip))
 			return FALSE;
 		num_bytes_to_skip = 0;
@@ -773,11 +776,11 @@ pppdump_seek_read(wtap *wth,
 }
 
 static void
-pppdump_close(wtap *wth)
+pppdump_close(wftap *wfth)
 {
 	pppdump_t	*state;
 
-	state = (pppdump_t *)wth->priv;
+	state = (pppdump_t *)wfth->priv;
 
 	if (state->seek_state) { /* should always be TRUE */
 		g_free(state->seek_state);

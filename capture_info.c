@@ -68,7 +68,7 @@ packet_counts *counts, gint wtap_linktype, const guchar *pd, guint32 caplen, uni
 
 typedef struct _info_data {
     packet_counts     counts;     /* several packet type counters */
-    struct wtap*      wtap;       /* current wtap file */
+    struct wftap*     wftap;      /* current wftap file */
     capture_info      ui;         /* user interface data */
 } info_data_t;
 
@@ -94,7 +94,7 @@ void capture_info_open(capture_session *cap_session)
     info_data.counts.i2c_event  = 0;
     info_data.counts.i2c_data   = 0;
 
-    info_data.wtap = NULL;
+    info_data.wftap = NULL;
     info_data.ui.counts = &info_data.counts;
 
     capture_info_ui_create(&info_data.ui, cap_session);
@@ -216,12 +216,12 @@ gboolean capture_info_new_file(const char *new_filename)
     gchar *err_msg;
 
 
-    if(info_data.wtap != NULL) {
-        wtap_close(info_data.wtap);
+    if(info_data.wftap != NULL) {
+        wftap_close(info_data.wftap);
     }
 
-    info_data.wtap = wtap_open_offline(new_filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-    if (!info_data.wtap) {
+    info_data.wftap = wtap_open_offline(new_filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+    if (!info_data.wftap) {
         err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
                                   new_filename);
         g_warning("capture_info_new_file: %d (%s)", err, err_msg);
@@ -249,12 +249,12 @@ void capture_info_new_packets(int to_read)
     /*g_warning("new packets: %u", to_read);*/
 
     while (to_read > 0) {
-        wtap_cleareof(info_data.wtap);
-        if (wtap_read(info_data.wtap, &err, &err_info, &data_offset)) {
-            phdr = wtap_phdr(info_data.wtap);
+        wftap_cleareof(info_data.wftap);
+        if (wtap_read(info_data.wftap, &err, &err_info, &data_offset)) {
+            phdr = wtap_phdr(info_data.wftap);
             pseudo_header = &phdr->pseudo_header;
             wtap_linktype = phdr->pkt_encap;
-            buf = wtap_buf_ptr(info_data.wtap);
+            buf = wftap_buf_ptr(info_data.wftap);
 
             capture_info_packet(&info_data.counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
 
@@ -271,8 +271,8 @@ void capture_info_new_packets(int to_read)
 void capture_info_close(void)
 {
     capture_info_ui_destroy(&info_data.ui);
-    if(info_data.wtap)
-        wtap_close(info_data.wtap);
+    if(info_data.wftap)
+        wtap_close(info_data.wftap);
 }
 
 

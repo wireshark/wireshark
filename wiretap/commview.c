@@ -37,6 +37,7 @@
 #include <string.h>
 
 #include "wtap.h"
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "file_wrappers.h"
@@ -78,21 +79,20 @@ typedef struct commview_header {
 #define MEDIUM_WIFI		1
 #define MEDIUM_TOKEN_RING	2
 
-static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
-			      gint64 *data_offset);
-static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
-				   struct wtap_pkthdr *phdr,
-				   Buffer *buf, int *err, gchar **err_info);
+static gboolean commview_read(wftap *wfth, int *err, gchar **err_info,
+                              gint64 *data_offset);
+static gboolean commview_seek_read(wftap *wfth, gint64 seek_off,
+                              void* header, Buffer *buf, int *err, gchar **err_info);
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
-				     int *err, gchar **err_info);
-static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
-			      const guint8 *pd, int *err);
+                                     int *err, gchar **err_info);
+static gboolean commview_dump(wftap_dumper *wdh, const struct wtap_pkthdr *phdr,
+                              const guint8 *pd, int *err);
 
-int commview_open(wtap *wth, int *err, gchar **err_info)
+int commview_open(wftap *wfth, int *err, gchar **err_info)
 {
 	commview_header_t cv_hdr;
 
-	if(!commview_read_header(&cv_hdr, wth->fh, err, err_info)) {
+	if(!commview_read_header(&cv_hdr, wfth->fh, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -114,16 +114,16 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 		return 0; /* Not our kind of file */
 
 	/* No file header. Reset the fh to 0 so we can read the first packet */
-	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
+	if (file_seek(wfth->fh, 0, SEEK_SET, err) == -1)
 		return -1;
 
 	/* Set up the pointers to the handlers for this file type */
-	wth->subtype_read = commview_read;
-	wth->subtype_seek_read = commview_seek_read;
+	wfth->subtype_read = commview_read;
+	wfth->subtype_seek_read = commview_seek_read;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COMMVIEW;
-	wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	wth->tsprecision = WTAP_FILE_TSPREC_USEC;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COMMVIEW;
+	wfth->file_encap = WTAP_ENCAP_PER_PACKET;
+	wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
 
 	return 1; /* Our kind of file */
 }
@@ -185,22 +185,24 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 }
 
 static gboolean
-commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+commview_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-	*data_offset = file_tell(wth->fh);
+	wtap* wth = (wtap*)wfth->tap_specific_data;
+	*data_offset = file_tell(wfth->fh);
 
-	return commview_read_packet(wth->fh, &wth->phdr, wth->frame_buffer, err,
+	return commview_read_packet(wfth->fh, &wth->phdr, wfth->frame_buffer, err,
 	    err_info);
 }
 
 static gboolean
-commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
+commview_seek_read(wftap *wfth, gint64 seek_off, void* header,
 		   Buffer *buf, int *err, gchar **err_info)
 {
-	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+	if(file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
-	return commview_read_packet(wth->random_fh, phdr, buf, err, err_info);
+	return commview_read_packet(wfth->random_fh, phdr, buf, err, err_info);
 }
 
 static gboolean
@@ -255,7 +257,7 @@ int commview_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure;
    sets "*err" to an error code on failure */
-gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean commview_dump_open(wftap_dumper *wdh, int *err _U_)
 {
 	wdh->subtype_write = commview_dump;
 	wdh->subtype_close = NULL;
@@ -268,7 +270,7 @@ gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
 
 /* Write a record for a packet to a dump file.
  * Returns TRUE on success, FALSE on failure. */
-static gboolean commview_dump(wtap_dumper *wdh,
+static gboolean commview_dump(wftap_dumper *wdh,
 			      const struct wtap_pkthdr *phdr,
 			      const guint8 *pd, int *err)
 {
@@ -326,45 +328,45 @@ static gboolean commview_dump(wtap_dumper *wdh,
 		return FALSE;
 	}
 
-	if (!wtap_dump_file_write(wdh, &cv_hdr.data_len, 2, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.data_len, 2, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.source_data_len, 2, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.source_data_len, 2, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.version, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.version, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.year, 2, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.year, 2, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.month, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.month, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.day, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.day, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.hours, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.hours, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.minutes, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.minutes, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.seconds, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.seconds, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.usecs, 4, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.usecs, 4, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.flags, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.flags, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_percent, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.signal_level_percent, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.rate, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.rate, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.band, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.band, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.channel, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.channel, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.direction, 1, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 2, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.signal_level_dbm, 2, err))
 		return FALSE;
-	if (!wtap_dump_file_write(wdh, &cv_hdr.noise_level, 2, err))
+	if (!wftap_dump_file_write(wdh, &cv_hdr.noise_level, 2, err))
 		return FALSE;
 	wdh->bytes_dumped += COMMVIEW_HEADER_SIZE;
 
-	if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+	if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
 		return FALSE;
 	wdh->bytes_dumped += phdr->caplen;
 

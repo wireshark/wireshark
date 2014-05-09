@@ -51,8 +51,8 @@ set(CLEAN_FILES
 	libpcap.c
 	logcat.c
 	merge.c
-	mpeg.c
 	mime_file.c
+	mpeg.c
 	mp2t.c
 	netmon.c
 	netscaler.c

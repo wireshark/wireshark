@@ -3715,7 +3715,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		return;	/* error reading the frame */
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
-	epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf),
+	epan_dissect_run(&edt, &cf->hdr.wtap_hdr, frame_tvbuff_new_buffer(fdata, &cf->buf),
 	    fdata, NULL);
 
 	/* if it is not an iax2 frame, show an error dialog */

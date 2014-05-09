@@ -23,6 +23,7 @@
  */
 
 #include "config.h"
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "buffer.h"
 #include "netscreen.h"
@@ -63,14 +64,14 @@
  */
 
 static gboolean info_line(const gchar *line);
-static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
+static gint64 netscreen_seek_next_packet(wftap *wfth, int *err, gchar **err_info,
 	char *hdr);
-static gboolean netscreen_check_file_type(wtap *wth, int *err,
+static gboolean netscreen_check_file_type(wftap *wfth, int *err,
 	gchar **err_info);
-static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
+static gboolean netscreen_read(wftap *wfth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf,
+static gboolean netscreen_seek_read(wftap *wfth, gint64 seek_off,
+	void* header, Buffer *buf,
 	int *err, gchar **err_info);
 static int parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 	char *cap_int, gboolean *cap_dir, char *cap_dst,
@@ -102,22 +103,22 @@ static gboolean info_line(const gchar *line)
    byte offset. Copy the header line to hdr. Returns -1 on failure,
    and sets "*err" to the error and sets "*err_info" to null or an
    additional error string. */
-static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
+static gint64 netscreen_seek_next_packet(wftap *wfth, int *err, gchar **err_info,
     char *hdr)
 {
 	gint64 cur_off;
 	char buf[NETSCREEN_LINE_LENGTH];
 
 	while (1) {
-		cur_off = file_tell(wth->fh);
+		cur_off = file_tell(wfth->fh);
 		if (cur_off == -1) {
 			/* Error */
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			return -1;
 		}
-		if (file_gets(buf, sizeof(buf), wth->fh) == NULL) {
+		if (file_gets(buf, sizeof(buf), wfth->fh) == NULL) {
 			/* EOF or error. */
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			break;
 		}
 		if (strstr(buf, NETSCREEN_REC_MAGIC_STR1) ||
@@ -136,7 +137,7 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
  * if we get an I/O error, "*err" will be set to a non-zero value and
  * "*err_info" is set to null or an additional error string.
  */
-static gboolean netscreen_check_file_type(wtap *wth, int *err, gchar **err_info)
+static gboolean netscreen_check_file_type(wftap *wfth, int *err, gchar **err_info)
 {
 	char	buf[NETSCREEN_LINE_LENGTH];
 	guint	reclen, line;
@@ -144,9 +145,9 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err, gchar **err_info)
 	buf[NETSCREEN_LINE_LENGTH-1] = '\0';
 
 	for (line = 0; line < NETSCREEN_HEADER_LINES_TO_CHECK; line++) {
-		if (file_gets(buf, NETSCREEN_LINE_LENGTH, wth->fh) == NULL) {
+		if (file_gets(buf, NETSCREEN_LINE_LENGTH, wfth->fh) == NULL) {
 			/* EOF or error. */
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			return FALSE;
 		}
 
@@ -166,31 +167,31 @@ static gboolean netscreen_check_file_type(wtap *wth, int *err, gchar **err_info)
 }
 
 
-int netscreen_open(wtap *wth, int *err, gchar **err_info)
+int netscreen_open(wftap *wfth, int *err, gchar **err_info)
 {
 
 	/* Look for a NetScreen snoop header line */
-	if (!netscreen_check_file_type(wth, err, err_info)) {
+	if (!netscreen_check_file_type(wfth, err, err_info)) {
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
 	}
 
-	if (file_seek(wth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
+	if (file_seek(wfth->fh, 0L, SEEK_SET, err) == -1)	/* rewind */
 		return -1;
 
-	wth->file_encap = WTAP_ENCAP_UNKNOWN;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETSCREEN;
-	wth->snapshot_length = 0; /* not known */
-	wth->subtype_read = netscreen_read;
-	wth->subtype_seek_read = netscreen_seek_read;
-	wth->tsprecision = WTAP_FILE_TSPREC_DSEC;
+	wfth->file_encap = WTAP_ENCAP_UNKNOWN;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETSCREEN;
+	wfth->snapshot_length = 0; /* not known */
+	wfth->subtype_read = netscreen_read;
+	wfth->subtype_seek_read = netscreen_seek_read;
+	wfth->tsprecision = WTAP_FILE_TSPREC_DSEC;
 
 	return 1;
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
+static gboolean netscreen_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64		offset;
@@ -199,9 +200,10 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
 	gboolean	cap_dir;
 	char		cap_dst[13];
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	/* Find the next packet */
-	offset = netscreen_seek_next_packet(wth, err, err_info, line);
+	offset = netscreen_seek_next_packet(wfth, err, err_info, line);
 	if (offset < 0)
 		return FALSE;
 
@@ -213,8 +215,8 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 
 	/* Convert the ASCII hex dump to binary data, and fill in some
 	   struct wtap_pkthdr fields */
-	if (!parse_netscreen_hex_dump(wth->fh, pkt_len, cap_int,
-	    cap_dst, &wth->phdr, wth->frame_buffer, err, err_info))
+	if (!parse_netscreen_hex_dump(wfth->fh, pkt_len, cap_int,
+	    cap_dst, &wth->phdr, wfth->frame_buffer, err, err_info))
 		return FALSE;
 
 	/*
@@ -225,11 +227,11 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	 * set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
 	 * have a single encapsulation for all packets in the file.
 	 */
-	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-		wth->file_encap = wth->phdr.pkt_encap;
+	if (wfth->file_encap == WTAP_ENCAP_UNKNOWN)
+		wfth->file_encap = wth->phdr.pkt_encap;
 	else {
-		if (wth->file_encap != wth->phdr.pkt_encap)
-			wth->file_encap = WTAP_ENCAP_PER_PACKET;
+		if (wfth->file_encap != wth->phdr.pkt_encap)
+			wfth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
 	*data_offset = offset;
@@ -238,8 +240,8 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-netscreen_seek_read(wtap *wth, gint64 seek_off,
-	struct wtap_pkthdr *phdr, Buffer *buf,
+netscreen_seek_read(wftap *wfth, gint64 seek_off,
+	void* header, Buffer *buf,
 	int *err, gchar **err_info)
 {
 	int		pkt_len;
@@ -247,13 +249,14 @@ netscreen_seek_read(wtap *wth, gint64 seek_off,
 	char		cap_int[NETSCREEN_MAX_INT_NAME_LENGTH];
 	gboolean	cap_dir;
 	char		cap_dst[13];
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
 
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		return FALSE;
 	}
 
-	if (file_gets(line, NETSCREEN_LINE_LENGTH, wth->random_fh) == NULL) {
-		*err = file_error(wth->random_fh, err_info);
+	if (file_gets(line, NETSCREEN_LINE_LENGTH, wfth->random_fh) == NULL) {
+		*err = file_error(wfth->random_fh, err_info);
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
@@ -265,7 +268,7 @@ netscreen_seek_read(wtap *wth, gint64 seek_off,
 	if (pkt_len == -1)
 		return FALSE;
 
-	if (!parse_netscreen_hex_dump(wth->random_fh, pkt_len, cap_int,
+	if (!parse_netscreen_hex_dump(wfth->random_fh, pkt_len, cap_int,
 	    cap_dst, phdr, buf, err, err_info))
 		return FALSE;
 	return TRUE;

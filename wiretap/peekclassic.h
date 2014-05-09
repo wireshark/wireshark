@@ -26,6 +26,6 @@
 #include <wtap.h>
 #include "ws_symbol_export.h"
 
-int peekclassic_open(wtap *wth, int *err, gchar **err_info);
+int peekclassic_open(wftap *wfth, int *err, gchar **err_info);
 
 #endif

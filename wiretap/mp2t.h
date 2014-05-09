@@ -26,6 +26,6 @@
 #include <glib.h>
 #include <wtap.h>
 
-int mp2t_open(wtap *wth, int *err, gchar **err_info);
+int mp2t_open(wftap *wfth, int *err, gchar **err_info);
 
 #endif

@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "atm.h"
@@ -2066,7 +2067,7 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 }
 
 gboolean
-pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
+pcap_write_phdr(wftap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header,
     int *err)
 {
 	guint8 atm_hdr[SUNATM_LEN];
@@ -2118,7 +2119,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		}
 		atm_hdr[SUNATM_VPI] = (guint8)pseudo_header->atm.vpi;
 		phtons(&atm_hdr[SUNATM_VCI], pseudo_header->atm.vci);
-		if (!wtap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
+		if (!wftap_dump_file_write(wdh, atm_hdr, sizeof(atm_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(atm_hdr);
 		break;
@@ -2131,7 +2132,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		phtons(&irda_hdr[IRDA_SLL_PKTTYPE_OFFSET],
 		    pseudo_header->irda.pkttype);
 		phtons(&irda_hdr[IRDA_SLL_PROTOCOL_OFFSET], 0x0017);
-		if (!wtap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
+		if (!wftap_dump_file_write(wdh, irda_hdr, sizeof(irda_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(irda_hdr);
 		break;
@@ -2145,7 +2146,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		mtp2_hdr[MTP2_ANNEX_A_USED_OFFSET] = pseudo_header->mtp2.annex_a_used;
 		phtons(&mtp2_hdr[MTP2_LINK_NUMBER_OFFSET],
 		    pseudo_header->mtp2.link_number);
-		if (!wtap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
+		if (!wftap_dump_file_write(wdh, mtp2_hdr, sizeof(mtp2_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(mtp2_hdr);
 		break;
@@ -2160,7 +2161,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		phtons(&lapd_hdr[LAPD_SLL_PROTOCOL_OFFSET], ETH_P_LAPD);
 		lapd_hdr[LAPD_SLL_ADDR_OFFSET + 0] =
 		    pseudo_header->lapd.we_network?0x01:0x00;
-		if (!wtap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
+		if (!wftap_dump_file_write(wdh, lapd_hdr, sizeof(lapd_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(lapd_hdr);
 		break;
@@ -2175,7 +2176,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		sita_hdr[SITA_ERRORS1_OFFSET] = pseudo_header->sita.sita_errors1;
 		sita_hdr[SITA_ERRORS2_OFFSET] = pseudo_header->sita.sita_errors2;
 		sita_hdr[SITA_PROTO_OFFSET]   = pseudo_header->sita.sita_proto;
-		if (!wtap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
+		if (!wftap_dump_file_write(wdh, sita_hdr, sizeof(sita_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(sita_hdr);
 		break;
@@ -2213,7 +2214,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		default:
 			break;
 		}
-		if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
+		if (!wftap_dump_file_write(wdh, erf_hdr, size, err))
 			return FALSE;
 		wdh->bytes_dumped += size;
 
@@ -2228,7 +2229,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 			do {
 				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
 				type = erf_exhdr[0];
-				if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
+				if (!wftap_dump_file_write(wdh, erf_exhdr, 8, err))
 					return FALSE;
 				wdh->bytes_dumped += 8;
 				i++;
@@ -2244,14 +2245,14 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		i2c_hdr.bus = pseudo_header->i2c.bus |
 			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
 		phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
-		if (!wtap_dump_file_write(wdh, &i2c_hdr, sizeof(i2c_hdr), err))
+		if (!wftap_dump_file_write(wdh, &i2c_hdr, sizeof(i2c_hdr), err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof(i2c_hdr);
 		break;
 
 	case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
 		bt_hdr.direction = GUINT32_TO_BE(pseudo_header->p2p.sent ? LIBPCAP_BT_PHDR_SENT : LIBPCAP_BT_PHDR_RECV);
-		if (!wtap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
+		if (!wftap_dump_file_write(wdh, &bt_hdr, sizeof bt_hdr, err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof bt_hdr;
 		break;
@@ -2260,14 +2261,14 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		bt_monitor_hdr.adapter_id = GUINT16_TO_BE(pseudo_header->btmon.adapter_id);
 		bt_monitor_hdr.opcode = GUINT16_TO_BE(pseudo_header->btmon.opcode);
 
-		if (!wtap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
+		if (!wftap_dump_file_write(wdh, &bt_monitor_hdr, sizeof bt_monitor_hdr, err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof bt_monitor_hdr;
 		break;
 
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 		ppp_hdr.direction = (pseudo_header->p2p.sent ? LIBPCAP_PPP_PHDR_SENT : LIBPCAP_PPP_PHDR_RECV);
-		if (!wtap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
+		if (!wftap_dump_file_write(wdh, &ppp_hdr, sizeof ppp_hdr, err))
 			return FALSE;
 		wdh->bytes_dumped += sizeof ppp_hdr;
 		break;

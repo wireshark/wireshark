@@ -62,6 +62,7 @@
 #include <string.h>
 #include <glib.h>
 #include <wtap.h>
+#include <wftap-int.h>
 #include <wtap-int.h>
 #include <file_wrappers.h>
 #include <buffer.h>
@@ -297,28 +298,29 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 
 
 static gboolean
-camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+camins_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-    *data_offset = file_tell(wth->fh);
+    wtap* wth = (wtap*)wfth->tap_specific_data;
+    *data_offset = file_tell(wfth->fh);
 
-    return camins_read_packet(wth->fh, &wth->phdr, wth->frame_buffer, err,
-        err_info);
+    return camins_read_packet(wfth->fh, &wth->phdr, wfth->frame_buffer, err,
+         err_info);
 }
 
 
 static gboolean
-camins_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *pkthdr, Buffer *buf, int *err, gchar **err_info)
+camins_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
-    if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
+    struct wtap_pkthdr *pkthdr = (struct wtap_pkthdr *)header;
+    if (-1 == file_seek(wfth->random_fh, seek_off, SEEK_SET, err))
         return FALSE;
 
-    return camins_read_packet(wth->random_fh, pkthdr, buf, err, err_info);
+    return camins_read_packet(wfth->random_fh, pkthdr, buf, err, err_info);
 }
 
 
-
-int camins_open(wtap *wth, int *err, gchar **err_info _U_)
+int camins_open(wftap *wfth, int *err, gchar **err_info _U_)
 {
     guint8  found_start_blocks = 0;
     guint8  count = 0;
@@ -328,7 +330,7 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
     /* all CAM Inspector files I've looked at have at least two blocks of
        0x00 0xE1 within the first 20 bytes */
     do {
-        bytes_read = file_read(block, sizeof(block), wth->fh);
+        bytes_read = file_read(block, sizeof(block), wfth->fh);
         if (bytes_read != sizeof(block))
             break;
 
@@ -342,18 +344,18 @@ int camins_open(wtap *wth, int *err, gchar **err_info _U_)
         return 0;   /* no CAM Inspector file */
 
     /* rewind the fh so we re-read from the beginning */
-    if (-1 == file_seek(wth->fh, 0, SEEK_SET, err))
+    if (-1 == file_seek(wfth->fh, 0, SEEK_SET, err))
         return -1;
 
-   wth->file_encap = WTAP_ENCAP_DVBCI;
-   wth->snapshot_length = 0;
-   wth->tsprecision = WTAP_FILE_TSPREC_MSEC;
+   wfth->file_encap = WTAP_ENCAP_DVBCI;
+   wfth->snapshot_length = 0;
+   wfth->tsprecision = WTAP_FILE_TSPREC_MSEC;
 
-   wth->priv = NULL;
+   wfth->priv = NULL;
 
-   wth->subtype_read = camins_read;
-   wth->subtype_seek_read = camins_seek_read;
-   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CAMINS;
+   wfth->subtype_read = camins_read;
+   wfth->subtype_seek_read = camins_seek_read;
+   wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CAMINS;
 
    *err = 0;
    return 1;

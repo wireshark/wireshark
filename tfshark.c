@@ -89,6 +89,7 @@
 #include <epan/timestamp.h>
 #include <epan/ex-opt.h>
 #include <filetap/ftap.h>
+#include <wiretap/wftap-int.h>
 #include <wiretap/wtap-int.h>
 #include <wiretap/file_wrappers.h>
 
@@ -165,28 +166,6 @@ static void read_failure_message(const char *filename, int err);
 static void write_failure_message(const char *filename, int err);
 
 capture_file cfile;
-
-#if 0
-struct string_elem {
-  const char *sstr;   /* The short string */
-  const char *lstr;   /* The long string */
-};
-
-static gint
-string_compare(gconstpointer a, gconstpointer b)
-{
-  return strcmp(((const struct string_elem *)a)->sstr,
-                ((const struct string_elem *)b)->sstr);
-}
-
-static void
-string_elem_print(gpointer data, gpointer not_used _U_)
-{
-  fprintf(stderr, "    %s - %s\n",
-          ((struct string_elem *)data)->sstr,
-          ((struct string_elem *)data)->lstr);
-}
-#endif
 
 static void
 print_usage(gboolean print_ver)
@@ -1145,7 +1124,7 @@ main(int argc, char *argv[])
       rfilter = optarg;
       break;
     case 'S':        /* Set the line Separator to be printed between packets */
-      separator = strdup(optarg);
+      separator = g_strdup(optarg);
       break;
     case 't':        /* Time stamp type */
       if (strcmp(optarg, "r") == 0)
@@ -1504,7 +1483,7 @@ tfshark_get_frame_ts(void *data, guint32 frame_num)
 static const char *
 no_interface_name(void *data _U_, guint32 interface_id _U_)
 {
-    return "";
+    return NULL;
 }
 
 static epan_t *
@@ -1688,13 +1667,13 @@ gboolean
 local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar **err_info, gint64 *data_offset _U_, guint8** data_buffer)
 {
     int bytes_read;
-    gint64 packet_size = wtap_file_size(cf->wth, err);
+    gint64 packet_size = wftap_file_size(cf->wfth, err);
 
     *data_buffer = (guint8*)g_malloc((gsize)packet_size);
-    bytes_read = file_read(*data_buffer, (unsigned int)packet_size, cf->wth->fh);
+    bytes_read = file_read(*data_buffer, (unsigned int)packet_size, cf->wfth->fh);
 
     if (bytes_read < 0) {
-        *err = file_error(cf->wth->fh, err_info);
+        *err = file_error(cf->wfth->fh, err_info);
         if (*err == 0)
             *err = FTAP_ERR_SHORT_READ;
         return FALSE;
@@ -1717,9 +1696,9 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar
      * *is* WTAP_ENCAP_PER_PACKET, the caller needs to set it
      * anyway.
      */
-    wth->phdr.pkt_encap = wth->file_encap;
+    wth->phdr.pkt_encap = wfth->file_encap;
 
-    if (!wth->subtype_read(wth, err, err_info, data_offset)) {
+    if (!wfth->subtype_read(wth, err, err_info, data_offset)) {
         /*
          * If we didn't get an error indication, we read
          * the last packet.  See if there's any deferred
@@ -1730,7 +1709,7 @@ local_wtap_read(capture_file *cf, struct wtap_pkthdr* file_phdr, int *err, gchar
          * last packet of the file.
          */
         if (*err == 0)
-            *err = file_error(wth->fh, err_info);
+            *err = file_error(wfth->fh, err_info);
         return FALSE;    /* failure */
     }
 
@@ -1805,8 +1784,8 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
     while (local_wtap_read(cf, &file_phdr, &err, &err_info, &data_offset, &raw_data)) {
-      if (process_packet_first_pass(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wth)*/,
-                         wtap_buf_ptr(cf->wth))) {
+      if (process_packet_first_pass(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wfth)*/,
+                         wftap_buf_ptr(cf->wfth))) {
 
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
@@ -1827,7 +1806,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
 #if 0
     /* Close the sequential I/O side, to free up memory it requires. */
-    wtap_sequential_close(cf->wth);
+    wtap_sequential_close(cf->wfth);
 #endif
 
     /* Allow the protocol dissectors to free up memory that they
@@ -1857,12 +1836,12 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
 #if 0
-      if (wtap_seek_read(cf->wth, fdata->file_off,
+      if (wtap_seek_read(cf->wfth, fdata->file_off,
           &buf, fdata->cap_len, &err, &err_info)) {
-        process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
+        process_packet_second_pass(cf, edt, fdata, &cf->hdr.wtap_hdr, &buf, tap_flags);
       }
 #else
-        process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
+        process_packet_second_pass(cf, edt, fdata, &cf->hdr.wtap_hdr, &buf, tap_flags);
 #endif
     }
 
@@ -1896,7 +1875,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
       framenum++;
 
-      process_packet(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wth)*/,
+      process_packet(cf, edt, data_offset, &file_phdr/*wtap_phdr(cf->wfth)*/,
                              raw_data, tap_flags);
 
         /* Stop reading if we have the maximum number of packets;
@@ -1991,8 +1970,8 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   }
 
 out:
-  wtap_close(cf->wth);
-  cf->wth = NULL;
+  wtap_close(cf->wfth);
+  cf->wfth = NULL;
 
   return err;
 }
@@ -2509,7 +2488,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 #if USE_FTAP
   ftap  *fth;
 #else
-  wtap  *wth;
+  wftap  *wth;
 #endif
   gchar *err_info;
   char   err_msg[2048+1];
@@ -2531,9 +2510,9 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   cf->epan = tfshark_epan_new(cf);
 
 #if USE_FTAP
-  cf->wth = (struct wtap*)fth; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
+  cf->wfth = (struct wtap*)fth; /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
 #else
-  cf->wth = wth;
+  cf->wfth = wth;
 #endif
   cf->f_datalen = 0; /* not used, but set it anyway */
 
@@ -2548,12 +2527,12 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t      = ftap_file_type_subtype((struct ftap*)cf->wth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
+  cf->cd_t      = ftap_file_type_subtype((struct ftap*)cf->wfth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
   cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->snap      = ftap_snapshot_length((struct ftap*)cf->wth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
+  cf->snap      = ftap_snapshot_length((struct ftap*)cf->wfth); /**** XXX - DOESN'T WORK RIGHT NOW!!!! */
   if (cf->snap == 0) {
     /* Snapshot length not known. */
     cf->has_snap = FALSE;

@@ -24,6 +24,7 @@
 #include <errno.h>
 #include <string.h>
 
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -496,8 +497,8 @@ static guint8       get_ofdm_rate(const guint8 *);
 static guint8       get_cck_rate(const guint8 *plcp);
 static void         setup_defaults(vwr_t *, guint16);
 
-static gboolean     vwr_read(wtap *, int *, gchar **, gint64 *);
-static gboolean     vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr,
+static gboolean     vwr_read(wftap *, int *, gchar **, gint64 *);
+static gboolean     vwr_seek_read(wftap *, gint64, void*,
                                   Buffer *, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
@@ -506,7 +507,7 @@ static gboolean     vwr_process_rec_data(FILE_T fh, int rec_size,
                                          vwr_t *vwr, int IS_TX, int *err,
                                          gchar **err_info);
 
-static int          vwr_get_fpga_version(wtap *, int *, gchar **);
+static int          vwr_get_fpga_version(wftap *, int *, gchar **);
 
 static gboolean     vwr_read_s1_W_rec(vwr_t *, struct wtap_pkthdr *, Buffer *,
                                       const guint8 *, int, int *, gchar **);
@@ -525,14 +526,14 @@ static float        getRate( guint8 plcpType, guint8 mcsIndex, guint16 rflags, g
 /* This does very little, except setting the wiretap header for a VWR file type */
 /*  and setting the timestamp precision to microseconds.                        */
 
-int vwr_open(wtap *wth, int *err, gchar **err_info)
+int vwr_open(wftap *wfth, int *err, gchar **err_info)
 {
     int    fpgaVer;
     vwr_t *vwr;
 
     *err = 0;
 
-    fpgaVer = vwr_get_fpga_version(wth, err, err_info);
+    fpgaVer = vwr_get_fpga_version(wfth, err, err_info);
     if (fpgaVer == -1) {
         return -1; /* I/O error */
     }
@@ -542,22 +543,22 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
 
     /* This is a vwr file */
     vwr = (vwr_t *)g_malloc0(sizeof(vwr_t));
-    wth->priv = (void *)vwr;
+    wfth->priv = (void *)vwr;
 
     vwr->FPGA_VERSION = fpgaVer;
     /* set the local module options first */
     setup_defaults(vwr, fpgaVer);
 
-    wth->snapshot_length = 0;
-    wth->subtype_read = vwr_read;
-    wth->subtype_seek_read = vwr_seek_read;
-    wth->tsprecision = WTAP_FILE_TSPREC_USEC;
-    wth->file_encap = WTAP_ENCAP_IXVERIWAVE;
+    wfth->snapshot_length = 0;
+    wfth->subtype_read = vwr_read;
+    wfth->subtype_seek_read = vwr_seek_read;
+    wfth->tsprecision = WTAP_FILE_TSPREC_USEC;
+    wfth->file_encap = WTAP_ENCAP_IXVERIWAVE;
 
     if (fpgaVer == S2_W_FPGA || fpgaVer == S1_W_FPGA || fpgaVer == S3_W_FPGA)
-        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_80211;
+        wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_80211;
     else if (fpgaVer == vVW510012_E_FPGA || fpgaVer == vVW510024_E_FPGA)
-        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_ETH;
+        wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VWR_ETH;
 
     return 1;
 }
@@ -571,35 +572,36 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
 /*  frame, and a 64-byte statistics block trailer.                                         */
 /* The PLCP frame consists of a 4-byte or 6-byte PLCP header, followed by the MAC frame    */
 
-static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean vwr_read(wftap *wfth, int *err, gchar **err_info, gint64 *data_offset)
 {
-    vwr_t *vwr      = (vwr_t *)wth->priv;
+    vwr_t *vwr      = (vwr_t *)wfth->priv;
+    wtap* wth       = (wtap*)wfth->tap_specific_data;
     int    rec_size = 0, IS_TX;
 
     /* read the next frame record header in the capture file; if no more frames, return */
-    if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info))
+    if (!vwr_read_rec_header(vwr, wfth->fh, &rec_size, &IS_TX, err, err_info))
         return FALSE;                                   /* Read error or EOF */
 
     /*
      * We're past the header; return the offset of the header, not of
      * the data past the header.
      */
-    *data_offset = (file_tell(wth->fh) - VW_RECORD_HEADER_LENGTH);
+    *data_offset = (file_tell(wfth->fh) - VW_RECORD_HEADER_LENGTH);
 
     /* got a frame record; read and process it */
-    if (!vwr_process_rec_data(wth->fh, rec_size, &wth->phdr,
-                              wth->frame_buffer, vwr, IS_TX, err, err_info))
+    if (!vwr_process_rec_data(wfth->fh, rec_size, &wth->phdr,
+                              wfth->frame_buffer, vwr, IS_TX, err, err_info))
        return FALSE;
 
     /* If the per-file encapsulation isn't known, set it to this packet's encapsulation. */
     /* If it *is* known, and it isn't this packet's encapsulation, set it to             */
     /*  WTAP_ENCAP_PER_PACKET, as this file doesn't have a single encapsulation for all  */
     /*  packets in the file.                                                             */
-    if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-        wth->file_encap = wth->phdr.pkt_encap;
+    if (wfth->file_encap == WTAP_ENCAP_UNKNOWN)
+        wfth->file_encap = wth->phdr.pkt_encap;
     else {
-        if (wth->file_encap != wth->phdr.pkt_encap)
-            wth->file_encap = WTAP_ENCAP_PER_PACKET;
+        if (wfth->file_encap != wth->phdr.pkt_encap)
+            wfth->file_encap = WTAP_ENCAP_PER_PACKET;
     }
 
     return TRUE;
@@ -607,21 +609,22 @@ static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
 /* read a random record in the middle of a file; the start of the record is @ seek_off */
 
-static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+static gboolean vwr_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
-    vwr_t *vwr = (vwr_t *)wth->priv;
+    struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+    vwr_t *vwr = (vwr_t *)wfth->priv;
     int    rec_size, IS_TX;
 
     /* first seek to the indicated record header */
-    if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+    if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
         return FALSE;
 
     /* read in the record header */
-    if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, err, err_info))
+    if (!vwr_read_rec_header(vwr, wfth->random_fh, &rec_size, &IS_TX, err, err_info))
         return FALSE;                                  /* Read error or EOF */
 
-    return vwr_process_rec_data(wth->random_fh, rec_size, phdr, buf,
+    return vwr_process_rec_data(wfth->random_fh, rec_size, phdr, buf,
                                 vwr, IS_TX, err, err_info);
 }
 
@@ -675,7 +678,7 @@ static gboolean vwr_read_rec_header(vwr_t *vwr, FILE_T fh, int *rec_size, int *I
 /* Return FPGA version if it's a known version, UNKNOWN_FPGA if it's not,     */
 /*  and -1 on an I/O error.                                                   */
 
-static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
+static int vwr_get_fpga_version(wftap *wfth, int *err, gchar **err_info)
 {
     guint8   rec[B_SIZE];         /* local buffer (holds input record) */
     guint8   header[VW_RECORD_HEADER_LENGTH];
@@ -691,9 +694,9 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     guint16  fpga_version;
     int      valid_but_empty_file = -1;
 
-    filePos = file_tell(wth->fh);
+    filePos = file_tell(wfth->fh);
     if (filePos == -1) {
-        *err = file_error(wth->fh, err_info);
+        *err = file_error(wfth->fh, err_info);
         return -1;
     }
 
@@ -705,7 +708,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     /* Each 16-byte message is decoded; if we run across a non-frame message followed by a */
     /*  variable-length item, we read the variable length item out and discard it.         */
     /* If we find a frame, we return (with the header in the passed buffer).               */
-    while ((file_read(header, VW_RECORD_HEADER_LENGTH, wth->fh)) == VW_RECORD_HEADER_LENGTH) {
+    while ((file_read(header, VW_RECORD_HEADER_LENGTH, wfth->fh)) == VW_RECORD_HEADER_LENGTH) {
         /* Got a header; invoke decode-message function to parse and process it.     */
         /* If the function returns a length, then a frame or variable-length message */
         /*  follows the 16-byte message.                                             */
@@ -717,7 +720,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 return UNKNOWN_FPGA;
             }
             else if (v_type != VT_FRAME) {
-                if (file_seek(wth->fh, f_len, SEEK_CUR, err) < 0)
+                if (file_seek(wfth->fh, f_len, SEEK_CUR, err) < 0)
                     return -1;
                 else if (v_type == VT_CPMSG)
                     valid_but_empty_file = 1;
@@ -726,8 +729,8 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 rec_size = f_len;
                 /* Got a frame record; read over entire record (frame + trailer) into a local buffer */
                 /* If we don't get it all, assume this isn't a vwr file */
-                if (file_read(rec, rec_size, wth->fh) != rec_size) {
-                    *err = file_error(wth->fh, err_info);
+                if (file_read(rec, rec_size, wfth->fh) != rec_size) {
+                    *err = file_error(wfth->fh, err_info);
                     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
                         return -1;
                     return UNKNOWN_FPGA; /* short read - not a vwr file */
@@ -806,7 +809,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
                 if (fpga_version != 1000)
                 {
                     /* reset the file position offset */
-                    if (file_seek (wth->fh, filePos, SEEK_SET, err) == -1) {
+                    if (file_seek (wfth->fh, filePos, SEEK_SET, err) == -1) {
                         return (-1);
                     }
                     /* We found an FPGA that works */
@@ -820,7 +823,7 @@ static int vwr_get_fpga_version(wtap *wth, int *err, gchar **err_info)
     if (valid_but_empty_file > 0)
         return(S3_W_FPGA);
 
-    *err = file_error(wth->fh, err_info);
+    *err = file_error(wfth->fh, err_info);
     if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
         return -1;
     return UNKNOWN_FPGA; /* short read - not a vwr file */

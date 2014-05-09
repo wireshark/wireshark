@@ -2043,7 +2043,7 @@ main(int argc, char *argv[])
 
     /* Set timestamp precision; there should arguably be a command-line
        option to let the user set this. */
-    switch(wtap_file_tsprecision(cfile.wth)) {
+    switch(wftap_file_tsprecision(cfile.wfth)) {
     case(WTAP_FILE_TSPREC_SEC):
       timestamp_set_precision(TS_PREC_AUTO_SEC);
       break;
@@ -2611,9 +2611,9 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
     /* we start a new capture file, close the old one (if we had one before) */
     if ( ((capture_file *) cap_session->cf)->state != FILE_CLOSED) {
-      if ( ((capture_file *) cap_session->cf)->wth != NULL) {
-        wtap_close(((capture_file *) cap_session->cf)->wth);
-	((capture_file *) cap_session->cf)->wth = NULL;
+      if ( ((capture_file *) cap_session->cf)->wfth != NULL) {
+        wtap_close(((capture_file *) cap_session->cf)->wfth);
+        ((capture_file *) cap_session->cf)->wfth = NULL;
       }
       ((capture_file *) cap_session->cf)->state = FILE_CLOSED;
     }
@@ -2694,17 +2694,17 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
        ("packet_details" is true). */
     edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
 
-    while (to_read-- && cf->wth) {
-      wtap_cleareof(cf->wth);
-      ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
+    while (to_read-- && cf->wfth) {
+      wftap_cleareof(cf->wfth);
+      ret = wtap_read(cf->wfth, &err, &err_info, &data_offset);
       if (ret == FALSE) {
         /* read from file failed, tell the capture child to stop */
         sync_pipe_stop(cap_session);
-        wtap_close(cf->wth);
-        cf->wth = NULL;
+        wtap_close(cf->wfth);
+        cf->wfth = NULL;
       } else {
-        ret = process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
-                             wtap_buf_ptr(cf->wth),
+        ret = process_packet(cf, edt, data_offset, wtap_phdr(cf->wfth),
+                             wftap_buf_ptr(cf->wfth),
                              tap_flags);
       }
       if (ret != FALSE) {
@@ -2809,8 +2809,8 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
   report_counts();
 
-  if (cf != NULL && cf->wth != NULL) {
-    wtap_close(cf->wth);
+  if (cf != NULL && cf->wfth != NULL) {
+    wtap_close(cf->wfth);
     if (cf->is_tempfile) {
       ws_unlink(cf->filename);
     }
@@ -3060,7 +3060,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 {
   gint         linktype;
   int          snapshot_length;
-  wtap_dumper *pdh;
+  wftap_dumper *pdh;
   guint32      framenum;
   int          err;
   gchar       *err_info = NULL;
@@ -3077,23 +3077,23 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
-  shb_hdr = wtap_file_get_shb_info(cf->wth);
-  idb_inf = wtap_file_get_idb_info(cf->wth);
+  shb_hdr = wtap_file_get_shb_info(cf->wfth);
+  idb_inf = wtap_file_get_idb_info(cf->wfth);
 #ifdef PCAP_NG_DEFAULT
   if (idb_inf->number_of_interfaces > 1) {
     linktype = WTAP_ENCAP_PER_PACKET;
   } else {
-    linktype = wtap_file_encap(cf->wth);
+    linktype = wftap_file_encap(cf->wfth);
   }
 #else
-  linktype = wtap_file_encap(cf->wth);
+  linktype = wftap_file_encap(cf->wfth);
 #endif
   if (save_file != NULL) {
     /* Get a string that describes what we're writing to */
     save_file_string = output_file_description(save_file);
 
     /* Set up to write to the capture file. */
-    snapshot_length = wtap_snapshot_length(cf->wth);
+    snapshot_length = wftap_snapshot_length(cf->wfth);
     if (snapshot_length == 0) {
       /* Snapshot length of input file not known. */
       snapshot_length = WTAP_MAX_PACKET_SIZE;
@@ -3191,9 +3191,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
 
-    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
-      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
-                         wtap_buf_ptr(cf->wth))) {
+    while (wtap_read(cf->wfth, &err, &err_info, &data_offset)) {
+      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wfth),
+                         wftap_buf_ptr(cf->wfth))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -3212,7 +3212,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
 
     /* Close the sequential I/O side, to free up memory it requires. */
-    wtap_sequential_close(cf->wth);
+    wftap_sequential_close(cf->wfth);
 
     /* Allow the protocol dissectors to free up memory that they
      * don't need after the sequential run-through of the packets. */
@@ -3240,7 +3240,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
-      if (wtap_seek_read(cf->wth, fdata->file_off, &phdr, &buf, &err,
+      if (wftap_seek_read(cf->wfth, fdata->file_off, &phdr, &buf, &err,
                          &err_info)) {
         if (process_packet_second_pass(cf, edt, fdata, &phdr, &buf,
                                        tap_flags)) {
@@ -3286,7 +3286,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
                 show_capture_file_io_error(save_file, err, FALSE);
                 break;
               }
-              wtap_dump_close(pdh, &err);
+              wftap_dump_close(pdh, &err);
               g_free(shb_hdr);
               exit(2);
             }
@@ -3321,17 +3321,17 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
     }
 
-    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+    while (wtap_read(cf->wfth, &err, &err_info, &data_offset)) {
       framenum++;
 
-      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
-                         wtap_buf_ptr(cf->wth),
+      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wfth),
+                         wftap_buf_ptr(cf->wfth),
                          tap_flags)) {
         /* Either there's no read filtering or this packet passed the
            filter, so, if we're writing to a capture file, write
            this packet out. */
         if (pdh != NULL) {
-          if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err)) {
+          if (!wtap_dump(pdh, wtap_phdr(cf->wfth), wftap_buf_ptr(cf->wfth), &err)) {
             /* Error writing to a capture file */
             switch (err) {
 
@@ -3363,7 +3363,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
               show_capture_file_io_error(save_file, err, FALSE);
               break;
             }
-            wtap_dump_close(pdh, &err);
+            wftap_dump_close(pdh, &err);
             g_free(shb_hdr);
             exit(2);
           }
@@ -3453,13 +3453,13 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
     }
     if (save_file != NULL) {
       /* Now close the capture file. */
-      if (!wtap_dump_close(pdh, &err))
+      if (!wftap_dump_close(pdh, &err))
         show_capture_file_io_error(save_file, err, TRUE);
     }
   } else {
     if (save_file != NULL) {
       /* Now close the capture file. */
-      if (!wtap_dump_close(pdh, &err))
+      if (!wftap_dump_close(pdh, &err))
         show_capture_file_io_error(save_file, err, TRUE);
     } else {
       if (print_packet_info) {
@@ -3472,8 +3472,8 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   }
 
 out:
-  wtap_close(cf->wth);
-  cf->wth = NULL;
+  wtap_close(cf->wfth);
+  cf->wfth = NULL;
 
   g_free(save_file_string);
   g_free(shb_hdr);
@@ -3995,7 +3995,7 @@ write_finale(void)
 cf_status_t
 cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_tempfile, int *err)
 {
-  wtap  *wth;
+  wftap  *wth;
   gchar *err_info;
   char   err_msg[2048+1];
 
@@ -4009,7 +4009,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   epan_free(cf->epan);
   cf->epan = tshark_epan_new(cf);
 
-  cf->wth = wth;
+  cf->wfth = wth;
   cf->f_datalen = 0; /* not used, but set it anyway */
 
   /* Set the file name because we need it to set the follow stream filter.
@@ -4023,12 +4023,12 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   /* No user changes yet. */
   cf->unsaved_changes = FALSE;
 
-  cf->cd_t      = wtap_file_type_subtype(cf->wth);
+  cf->cd_t      = wftap_file_type_subtype(cf->wfth);
   cf->open_type = type;
   cf->count     = 0;
   cf->drops_known = FALSE;
   cf->drops     = 0;
-  cf->snap      = wtap_snapshot_length(cf->wth);
+  cf->snap      = wftap_snapshot_length(cf->wfth);
   if (cf->snap == 0) {
     /* Snapshot length not known. */
     cf->has_snap = FALSE;
@@ -4042,8 +4042,8 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   cf->state = FILE_READ_IN_PROGRESS;
 
-  wtap_set_cb_new_ipv4(cf->wth, add_ipv4_name);
-  wtap_set_cb_new_ipv6(cf->wth, (wtap_new_ipv6_callback_t) add_ipv6_name);
+  wtap_set_cb_new_ipv4(cf->wfth, add_ipv4_name);
+  wtap_set_cb_new_ipv6(cf->wfth, (wtap_new_ipv6_callback_t) add_ipv6_name);
 
   return CF_OK;
 

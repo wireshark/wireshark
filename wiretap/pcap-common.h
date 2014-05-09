@@ -39,7 +39,7 @@ extern void pcap_read_post_process(int file_type, int wtap_encap,
 extern int pcap_get_phdr_size(int encap,
     const union wtap_pseudo_header *pseudo_header);
 
-extern gboolean pcap_write_phdr(wtap_dumper *wdh, int wtap_encap,
+extern gboolean pcap_write_phdr(wftap_dumper *wdh, int wtap_encap,
     const union wtap_pseudo_header *pseudo_header, int *err);
 
 #endif

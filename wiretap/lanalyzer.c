@@ -21,6 +21,7 @@
 #include "config.h"
 #include <stdlib.h>
 #include <errno.h>
+#include "wftap-int.h"
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
@@ -270,13 +271,13 @@ typedef struct {
 	time_t	start;
 } lanalyzer_t;
 
-static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+static gboolean lanalyzer_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
+static gboolean lanalyzer_seek_read(wftap *wth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info);
+static gboolean lanalyzer_dump_close(wftap_dumper *wdh, int *err);
 
-int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
+int lanalyzer_open(wftap *wfth, int *err, gchar **err_info)
 {
 	int bytes_read;
 	LA_RecordHeader rec_header;
@@ -289,11 +290,12 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	guint16 cr_year;
 	struct tm tm;
 	lanalyzer_t *lanalyzer;
+	wtap* wth = (wtap*)wfth->tap_specific_data;
 
 	errno = WTAP_ERR_CANT_READ;
-	bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
+	bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wfth->fh);
 	if (bytes_read != LA_RecordHeaderSize) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -313,9 +315,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 		 */
 		return 0;
 	}
-	bytes_read = file_read(&header_fixed, sizeof header_fixed, wth->fh);
+	bytes_read = file_read(&header_fixed, sizeof header_fixed, wfth->fh);
 	if (bytes_read != sizeof header_fixed) {
-		*err = file_error(wth->fh, err_info);
+		*err = file_error(wfth->fh, err_info);
 		if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 			return -1;
 		return 0;
@@ -325,9 +327,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	if (record_length != 0) {
 		/* Read the rest of the record as a comment. */
 		comment = (char *)g_malloc(record_length + 1);
-		bytes_read = file_read(comment, record_length, wth->fh);
+		bytes_read = file_read(comment, record_length, wfth->fh);
 		if (bytes_read != record_length) {
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			if (*err != 0 && *err != WTAP_ERR_SHORT_READ)
 				return -1;
 			return 0;
@@ -337,22 +339,22 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* If we made it this far, then the file is a LANAlyzer file.
-	 * Let's get some info from it. Note that we get wth->snapshot_length
+	 * Let's get some info from it. Note that we get wfth->snapshot_length
 	 * from a record later in the file. */
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
+	wfth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
 	lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
-	wth->priv = (void *)lanalyzer;
-	wth->subtype_read = lanalyzer_read;
-	wth->subtype_seek_read = lanalyzer_seek_read;
-	wth->snapshot_length = 0;
-	wth->tsprecision = WTAP_FILE_TSPREC_NSEC;
+	wfth->priv = (void *)lanalyzer;
+	wfth->subtype_read = lanalyzer_read;
+	wfth->subtype_seek_read = lanalyzer_seek_read;
+	wfth->snapshot_length = 0;
+	wfth->tsprecision = WTAP_FILE_TSPREC_NSEC;
 
 	/* Read records until we find the start of packets */
 	while (1) {
 		errno = WTAP_ERR_CANT_READ;
-		bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wth->fh);
+		bytes_read = file_read(&rec_header, LA_RecordHeaderSize, wfth->fh);
 		if (bytes_read != LA_RecordHeaderSize) {
-			*err = file_error(wth->fh, err_info);
+			*err = file_error(wfth->fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
 			return -1;
@@ -367,9 +369,9 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			case RT_Summary:
 				errno = WTAP_ERR_CANT_READ;
 				bytes_read = file_read(summary, sizeof summary,
-				    wth->fh);
+				    wfth->fh);
 				if (bytes_read != sizeof summary) {
-					*err = file_error(wth->fh, err_info);
+					*err = file_error(wfth->fh, err_info);
 					if (*err == 0)
 						*err = WTAP_ERR_SHORT_READ;
 					return -1;
@@ -401,15 +403,15 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 				/*g_message("Day %d Month %d Year %d", tm.tm_mday,
 						tm.tm_mon, tm.tm_year);*/
 				mxslc = pletoh16(&summary[30]);
-				wth->snapshot_length = mxslc;
+				wfth->snapshot_length = mxslc;
 
 				board_type = pletoh16(&summary[188]);
 				switch (board_type) {
 					case BOARD_325:
-						wth->file_encap = WTAP_ENCAP_ETHERNET;
+						wfth->file_encap = WTAP_ENCAP_ETHERNET;
 						break;
 					case BOARD_325TR:
-						wth->file_encap = WTAP_ENCAP_TOKEN_RING;
+						wfth->file_encap = WTAP_ENCAP_TOKEN_RING;
 						break;
 					default:
 						*err = WTAP_ERR_UNSUPPORTED_ENCAP;
@@ -423,13 +425,13 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 			case RT_PacketData:
 				/* Go back header number of bytes so that lanalyzer_read
 				 * can read this header */
-				if (file_seek(wth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
+				if (file_seek(wfth->fh, -LA_RecordHeaderSize, SEEK_CUR, err) == -1) {
 					return -1;
 				}
 				return 1;
 
 			default:
-				if (file_seek(wth->fh, record_length, SEEK_CUR, err) == -1) {
+				if (file_seek(wfth->fh, record_length, SEEK_CUR, err) == -1) {
 					return -1;
 				}
 				break;
@@ -439,7 +441,7 @@ int lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 
 #define DESCRIPTOR_LEN	32
 
-static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
+static gboolean lanalyzer_read_trace_record(wftap *wfth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	int		bytes_read;
@@ -531,7 +533,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 	t = (((guint64)time_low) << 0) + (((guint64)time_med) << 16) +
 	    (((guint64)time_high) << 32);
 	tsecs = (time_t) (t/2000000);
-	lanalyzer = (lanalyzer_t *)wth->priv;
+	lanalyzer = (lanalyzer_t *)wfth->priv;
 	phdr->ts.secs = tsecs + lanalyzer->start;
 	phdr->ts.nsecs = ((guint32) (t - tsecs*2000000)) * 500;
 
@@ -547,7 +549,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 	phdr->len = true_size;
 	phdr->caplen = packet_size;
 
-	switch (wth->file_encap) {
+	switch (wfth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
 		/* We assume there's no FCS in this frame. */
@@ -560,24 +562,26 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 }
 
 /* Read the next packet */
-static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+static gboolean lanalyzer_read(wftap *wfth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	*data_offset = file_tell(wth->fh);
+	wtap* wth = (wtap*)wfth->tap_specific_data;
+	*data_offset = file_tell(wfth->fh);
 
 	/* Read the record  */
-	return lanalyzer_read_trace_record(wth, wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info);
+	return lanalyzer_read_trace_record(wfth, wfth->fh, &wth->phdr,
+	    wfth->frame_buffer, err, err_info);
 }
 
-static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
+static gboolean lanalyzer_seek_read(wftap *wfth, gint64 seek_off,
+    void* header, Buffer *buf, int *err, gchar **err_info)
 {
-	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
+	struct wtap_pkthdr *phdr = (struct wtap_pkthdr *)header;
+	if (file_seek(wfth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
 
 	/* Read the record  */
-	if (!lanalyzer_read_trace_record(wth, wth->random_fh, phdr, buf,
+	if (!lanalyzer_read_trace_record(wfth, wfth->random_fh, phdr, buf,
 	    err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
@@ -590,14 +594,14 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
  * Returns TRUE on success, FALSE on error
  * Write "cnt" bytes of zero with error control
  *---------------------------------------------------*/
-static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
+static gboolean s0write(wftap_dumper *wdh, size_t cnt, int *err)
 {
 	size_t snack;
 
 	while (cnt) {
 		snack = cnt > 64 ? 64 : cnt;
 
-		if (!wtap_dump_file_write(wdh, z64, snack, err))
+		if (!wftap_dump_file_write(wdh, z64, snack, err))
 			return FALSE;
 		cnt -= snack;
 	}
@@ -608,25 +612,25 @@ static gboolean s0write(wtap_dumper *wdh, size_t cnt, int *err)
  * Returns TRUE on success, FALSE on error
  * Write an 8-bit value with error control
  *---------------------------------------------------*/
-static gboolean s8write(wtap_dumper *wdh, const guint8 s8, int *err)
+static gboolean s8write(wftap_dumper *wdh, const guint8 s8, int *err)
 {
-	return wtap_dump_file_write(wdh, &s8, 1, err);
+	return wftap_dump_file_write(wdh, &s8, 1, err);
 }
 /*---------------------------------------------------
  * Returns TRUE on success, FALSE on error
  * Write a 16-bit value with error control
  *---------------------------------------------------*/
-static gboolean s16write(wtap_dumper *wdh, const guint16 s16, int *err)
+static gboolean s16write(wftap_dumper *wdh, const guint16 s16, int *err)
 {
-	return wtap_dump_file_write(wdh, &s16, 2, err);
+	return wftap_dump_file_write(wdh, &s16, 2, err);
 }
 /*---------------------------------------------------
  * Returns TRUE on success, FALSE on error
  * Write a 32-bit value with error control
  *---------------------------------------------------*/
-static gboolean s32write(wtap_dumper *wdh, const guint32 s32, int *err)
+static gboolean s32write(wftap_dumper *wdh, const guint32 s32, int *err)
 {
-	return wtap_dump_file_write(wdh, &s32, 4, err);
+	return wftap_dump_file_write(wdh, &s32, 4, err);
 }
 /*---------------------------------------------------
  *
@@ -649,7 +653,7 @@ static void my_timersub(const struct timeval *a,
  * Write a record for a packet to a dump file.
  * Returns TRUE on success, FALSE on failure.
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump(wtap_dumper *wdh,
+static gboolean lanalyzer_dump(wftap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const guint8 *pd, int *err)
 {
@@ -726,7 +730,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       if (!s0write(wdh, 12, err))
             return FALSE;
 
-      if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
+      if (!wftap_dump_file_write(wdh, pd, phdr->caplen, err))
             return FALSE;
 
       wdh->bytes_dumped += thisSize;
@@ -757,16 +761,16 @@ int lanalyzer_dump_can_write_encap(int encap)
  * Returns TRUE on success, FALSE on failure; sets "*err" to an
  * error code on failure
  *---------------------------------------------------*/
-gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
+gboolean lanalyzer_dump_open(wftap_dumper *wdh, int *err)
 {
       int   jump;
       void  *tmp;
 
       tmp = g_malloc(sizeof(LA_TmpInfo));
       if (!tmp) {
-	      *err = errno;
-	      return FALSE;
-            }
+          *err = errno;
+          return FALSE;
+       }
 
       ((LA_TmpInfo*)tmp)->init = FALSE;
       wdh->priv          = tmp;
@@ -788,8 +792,8 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
            + sizeof (LA_CyclicInformationFake)
            + LA_IndexRecordSize;
 
-      if (wtap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1)
-	      return FALSE;
+      if (wftap_dump_file_seek(wdh, jump, SEEK_SET, err) == -1)
+          return FALSE;
 
       wdh->bytes_dumped = jump;
       return TRUE;
@@ -798,7 +802,7 @@ gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
 /*---------------------------------------------------
  *
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
+static gboolean lanalyzer_dump_header(wftap_dumper *wdh, int *err)
 {
       LA_TmpInfo *itmp   = (LA_TmpInfo*)(wdh->priv);
       guint16 board_type = itmp->encap == WTAP_ENCAP_TOKEN_RING
@@ -818,27 +822,27 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
       if (fT == NULL)
             return FALSE;
 
-      if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
-	    return FALSE;
+      if (wftap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
+        return FALSE;
 
-      if (!wtap_dump_file_write(wdh, &LA_HeaderRegularFake,
+      if (!wftap_dump_file_write(wdh, &LA_HeaderRegularFake,
                                 sizeof LA_HeaderRegularFake, err))
-		return FALSE;
-      if (!wtap_dump_file_write(wdh, &LA_RxChannelNameFake,
+        return FALSE;
+      if (!wftap_dump_file_write(wdh, &LA_RxChannelNameFake,
                                 sizeof LA_RxChannelNameFake, err))
-		return FALSE;
-      if (!wtap_dump_file_write(wdh, &LA_TxChannelNameFake,
+        return FALSE;
+      if (!wftap_dump_file_write(wdh, &LA_TxChannelNameFake,
                                 sizeof LA_TxChannelNameFake, err))
-		return FALSE;
-      if (!wtap_dump_file_write(wdh, &LA_RxTemplateNameFake,
+        return FALSE;
+      if (!wftap_dump_file_write(wdh, &LA_RxTemplateNameFake,
                                 sizeof LA_RxTemplateNameFake, err))
-		return FALSE;
-      if (!wtap_dump_file_write(wdh, &LA_TxTemplateNameFake,
+        return FALSE;
+      if (!wftap_dump_file_write(wdh, &LA_TxTemplateNameFake,
                                 sizeof LA_TxTemplateNameFake, err))
-		return FALSE;
-      if (!wtap_dump_file_write(wdh, &LA_DisplayOptionsFake,
+        return FALSE;
+      if (!wftap_dump_file_write(wdh, &LA_DisplayOptionsFake,
                                 sizeof LA_DisplayOptionsFake, err))
-		return FALSE;
+        return FALSE;
       /*-----------------------------------------------------------------*/
       if (!s16write(wdh, GUINT16_TO_LE(RT_Summary), err))         /* rid */
             return FALSE;
@@ -911,7 +915,7 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
       if (!s32write(wdh, GUINT32_TO_LE(itmp->pkts), err))            /* ssr.totpkts */
             return FALSE;
       /*-----------------------------------------------------------------*/
-      if (!wtap_dump_file_write(wdh, &LA_CyclicInformationFake,
+      if (!wftap_dump_file_write(wdh, &LA_CyclicInformationFake,
                                 sizeof LA_CyclicInformationFake, err))
             return FALSE;
       /*-----------------------------------------------------------------*/
@@ -931,7 +935,7 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
  * Finish writing to a dump file.
  * Returns TRUE on success, FALSE on failure.
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err)
+static gboolean lanalyzer_dump_close(wftap_dumper *wdh, int *err)
 {
       lanalyzer_dump_header(wdh,err);
       return *err ? FALSE : TRUE;

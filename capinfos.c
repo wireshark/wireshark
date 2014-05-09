@@ -408,7 +408,7 @@ time_string(time_t timer, capture_info *cf_info, gboolean want_lf)
       g_snprintf(time_string_buf, 20, "%lu%s", (unsigned long)timer, lf);
       return time_string_buf;
     } else {
-      time_string_ctime = ctime(&timer);
+      time_string_ctime = asctime(localtime(&timer));
       if (time_string_ctime == NULL) {
         g_snprintf(time_string_buf, 20, "Not representable%s", lf);
         return time_string_buf;
@@ -800,7 +800,7 @@ print_stats_table(const gchar *filename, capture_info *cf_info)
 }
 
 static int
-process_cap_file(wtap *wth, const char *filename)
+process_cap_file(wftap *wth, const char *filename)
 {
   int                   status = 0;
   int                   err;
@@ -868,7 +868,7 @@ process_cap_file(wtap *wth, const char *filename)
     }
 
     /* Per-packet encapsulation */
-    if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
+    if (wftap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
       if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
         cf_info.encap_counts[phdr->pkt_encap] += 1;
       } else {
@@ -905,7 +905,7 @@ process_cap_file(wtap *wth, const char *filename)
   }
 
   /* File size */
-  size = wtap_file_size(wth, &err);
+  size = wftap_file_size(wth, &err);
   if (size == -1) {
     fprintf(stderr,
         "capinfos: Can't get size of \"%s\": %s.\n",
@@ -917,14 +917,14 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.filesize = size;
 
   /* File Type */
-  cf_info.file_type = wtap_file_type_subtype(wth);
-  cf_info.iscompressed = wtap_iscompressed(wth);
+  cf_info.file_type = wftap_file_type_subtype(wth);
+  cf_info.iscompressed = wftap_iscompressed(wth);
 
   /* File Encapsulation */
-  cf_info.file_encap = wtap_file_encap(wth);
+  cf_info.file_encap = wftap_file_encap(wth);
 
   /* Packet size limit (snaplen) */
-  cf_info.snaplen = wtap_snapshot_length(wth);
+  cf_info.snaplen = wftap_snapshot_length(wth);
   if (cf_info.snaplen > 0)
     cf_info.snap_set = TRUE;
   else
@@ -1098,7 +1098,7 @@ hash_to_str(const unsigned char *hash, size_t length, char *str) {
 int
 main(int argc, char *argv[])
 {
-  wtap  *wth;
+  wftap *wth;
   int    err;
   gchar *err_info;
   int    opt;
