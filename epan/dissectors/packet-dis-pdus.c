@@ -27,6 +27,7 @@
 #include "packet-dis-pdus.h"
 #include "packet-dis-fields.h"
 #include "packet-dis-enums.h"
+#include "packet-link16.h"
 
 #define DIS_PDU_MAX_VARIABLE_PARAMETERS              16
 #define DIS_PDU_MAX_VARIABLE_RECORDS                 16
@@ -129,7 +130,7 @@ DIS_ParserNode DIS_PARSER_SIGNAL_PDU[] =
     { DIS_FIELDTYPE_ENTITY_ID,               "Entity ID",0,0,0,0 },
     { DIS_FIELDTYPE_RADIO_ID,                "Radio ID",0,0,0,&radioID },
     { DIS_FIELDTYPE_ENCODING_SCHEME,         "Encoding Scheme",0,0,0,&encodingScheme },
-    { DIS_FIELDTYPE_TDL_TYPE,                "TDL Type",0,0,0,0 },
+    { DIS_FIELDTYPE_TDL_TYPE,                "TDL Type",0,0,0,&tdlType },
     { DIS_FIELDTYPE_SAMPLE_RATE,             "Sample Rate",0,0,0,0 },
     { DIS_FIELDTYPE_DATA_LENGTH,             "Data Length",0,0,0,0 },
     { DIS_FIELDTYPE_NUMBER_OF_SAMPLES,       "Number of Samples",0,0,0,&numSamples },
@@ -730,9 +731,87 @@ void initializeParser(DIS_ParserNode parserNodes[])
     }
 }
 
+static const int * jtids_message_header_fields[] = {
+    &hf_dis_signal_link16_time_slot_type,
+    &hf_dis_signal_link16_rti,
+    &hf_dis_signal_link16_stn,
+    NULL
+};
+
+/* Parse Link 16 Message Data record (SISO-STD-002, Tables 5.2.5 through 5.2.12)
+ */
+static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo)
+{
+    guint32 cache, value, i;
+    Link16State state;
+    tvbuff_t *newtvb;
+
+    switch (messageType) {
+    case DIS_MESSAGE_TYPE_JTIDS_HEADER_MESSAGES:
+        proto_tree_add_bitmask_text(tree, tvb, offset, 4, "JTIDS Header", NULL, ett_dis_signal_link16_jtids_header, jtids_message_header_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+
+        cache = tvb_get_ntohl(tvb, offset);
+        value = (cache >> 4) & 0x7FFF;
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", STN=0%o, Link 16 Words:", value);
+
+        value = (cache >> 19);
+        offset += 4;
+        cache = tvb_get_ntohl(tvb, offset);
+        value |= (cache & 0x7) << 13;
+        proto_tree_add_uint(tree, hf_dis_signal_link16_sdusn, tvb, offset - 4, 8, value);
+        offset += 4;
+
+        memset(&state, 0, sizeof(state));
+
+        for (i = 0; i < (encodingScheme & 0x3FFF); i++) {
+            gint8 *word = (gint8 *)g_malloc(10);
+            if (!(i & 1)) {
+                word[0] = (cache >> 16) & 0xFF;
+                word[1] = (cache >> 24) & 0xFF;
+                cache = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                word[2] = cache & 0xFF;
+                word[3] = (cache >> 8) & 0xFF;
+                word[4] = (cache >> 16) & 0xFF;
+                word[5] = (cache >> 24) & 0xFF;
+                cache = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                word[6] = cache & 0xFF;
+                word[7] = (cache >> 8) & 0xFF;
+                word[8] = (cache >> 16) & 0xFF;
+                word[9] = (cache >> 24) & 0xFF;
+            } else {
+                cache = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                word[0] = cache & 0xFF;
+                word[1] = (cache >> 8) & 0xFF;
+                word[2] = (cache >> 16) & 0xFF;
+                word[3] = (cache >> 24) & 0xFF;
+                cache = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                word[4] = cache & 0xFF;
+                word[5] = (cache >> 8) & 0xFF;
+                word[6] = (cache >> 16) & 0xFF;
+                word[7] = (cache >> 24) & 0xFF;
+                cache = tvb_get_ntohl(tvb, offset);
+                offset += 4;
+                word[8] = cache & 0xFF;
+                word[9] = (cache >> 8) & 0xFF;
+            }
+
+            newtvb = tvb_new_child_real_data(tvb, word, 10, 10);
+            tvb_set_free_cb(newtvb, g_free);
+            add_new_data_source(pinfo, newtvb, "Link 16 Word");
+            call_dissector_with_data(find_dissector("link16"), newtvb, pinfo, tree, &state);
+        }
+        break;
+    }
+    return offset;
+}
+
 /* Parse packet data based on a specified array of DIS_ParserNodes.
  */
-gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[])
+gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[], packet_info *pinfo)
 {
     guint        fieldIndex     = 0;
     guint        fieldRepeatLen = 0;
@@ -837,13 +916,17 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             pi = proto_tree_add_item(tree, hf_dis_ens, tvb, offset, 2, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(pi, ett_dis_ens);
             proto_tree_add_item(sub_tree, hf_dis_ens_class, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_dis_ens_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sub_tree,
+                (uintVal >> 14) == DIS_ENCODING_CLASS_ENCODED_AUDIO ? hf_dis_ens_type_audio : hf_dis_ens_type,
+                tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_set_end(pi, tvb, offset);
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_TDL_TYPE:
+            uintVal = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dis_tdl_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
         case DIS_FIELDTYPE_SAMPLE_RATE:
@@ -860,11 +943,29 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
             offset += 2;
             break;
-
         case DIS_FIELDTYPE_RADIO_DATA:
-            newtvb = tvb_new_subset_remaining(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_signal_data, newtvb, 0, -1, ENC_NA );
+            if (tdlType == DIS_TDL_TYPE_LINK16_STD) {
+                pi = proto_tree_add_text(tree, tvb, offset, 16, "Link 16 Network Header");
+                sub_tree = proto_item_add_subtree(pi, ett_dis_signal_link16_network_header);
+                offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER, pinfo);
+                proto_item_set_end(pi, tvb, offset);
+
+                pi = proto_tree_add_text(tree, tvb, offset, -1, "Link 16 Message Data: %s",
+                    val_to_str(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
+                sub_tree = proto_item_add_subtree(pi, ett_dis_signal_link16_message_data);
+                offset = parse_Link16_Message_Data(sub_tree, tvb, offset, pinfo);
+                proto_item_set_end(pi, tvb, offset);
+            } else {
+                proto_tree_add_item(tree, hf_dis_signal_data, tvb, offset, -1, ENC_NA );
+            }
             /* ****ck******* need to look for padding bytes */
+            break;
+        case DIS_FIELDTYPE_LINK16_PTT:
+            if (tvb_get_ntohl(tvb, offset) == 0xFFFFFFFF)
+                proto_tree_add_text(tree, tvb, offset, 8, "%s: NO STATEMENT", parserNodes[fieldIndex].fieldLabel);
+            else
+                proto_tree_add_item(tree, hf_dis_signal_link16_ptt, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+            offset += 8;
             break;
         case DIS_FIELDTYPE_RADIO_CATEGORY:
             proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1001,7 +1102,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                     pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                                              parserNodes[fieldIndex].fieldLabel);
                     sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
-                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
+                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS, pinfo);
                     proto_item_set_end(pi, tvb, offset);
                     break;
                 }
@@ -1009,7 +1110,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                     pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
                                              parserNodes[fieldIndex].fieldLabel);
                     sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
-                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
+                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS, pinfo);
                     proto_item_set_end(pi, tvb, offset);
                     break;
                 }
@@ -1026,7 +1127,18 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
             newtvb = tvb_new_subset_remaining(tvb, offset);
             proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, ENC_NA );
             break;
-
+        case DIS_FIELDTYPE_LINK16_NPG:
+            proto_tree_add_item(tree, hf_dis_signal_link16_npg, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            break;
+        case DIS_FIELDTYPE_LINK16_TSEC_CVLL:
+            proto_tree_add_item(tree, hf_dis_signal_link16_tsec_cvll, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
+        case DIS_FIELDTYPE_LINK16_MSEC_CVLL:
+            proto_tree_add_item(tree, hf_dis_signal_link16_msec_cvll, tvb, offset, 1, ENC_NA);
+            offset++;
+            break;
 
         /* padding */
         case DIS_FIELDTYPE_PAD8:
@@ -1064,6 +1176,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
         case DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE:
         case DIS_FIELDTYPE_EMISSION_FUNCTION:
         case DIS_FIELDTYPE_BEAM_FUNCTION:
+        case DIS_FIELDTYPE_LINK16_MESSAGE_TYPE:
             offset = parseField_Enum(tvb, tree, offset,
                 parserNodes[fieldIndex], 1);
             break;
@@ -1208,7 +1321,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                 proto_item *newSubtree = proto_item_add_subtree(newField,
                     parserNodes[fieldIndex].ettVar);
                 offset = parseFields(tvb, newSubtree, offset,
-                    parserNodes[fieldIndex].children);
+                    parserNodes[fieldIndex].children, pinfo);
             }
             proto_item_set_end(newField, tvb, offset);
             break;
@@ -1246,7 +1359,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                                                    parserNodes[fieldIndex].fieldLabel);
                     newSubtree = proto_item_add_subtree(newField, ettFixedData);
                     offset = parseFields (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children);
+                         parserNodes[fieldIndex].children, pinfo);
                     proto_item_set_end(newField, tvb, offset);
                 }
             }
@@ -1272,7 +1385,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                     /* XXX is this really necessary? */
                     tvb_ensure_length_remaining(tvb, offset+4);
                     offset = parseFields (tvb, newSubtree, offset,
-                        parserNodes[fieldIndex].children);
+                        parserNodes[fieldIndex].children, pinfo);
                 }
                 proto_item_set_end(newField, tvb, offset);
             }
@@ -1294,7 +1407,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                         (newField, ettVariableData);
                     offset = parseFields
                         (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children);
+                         parserNodes[fieldIndex].children, pinfo);
                     proto_item_set_end(newField, tvb, offset);
                 }
 
@@ -1319,7 +1432,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                 {
                     offset = parseFields
                         (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children);
+                         parserNodes[fieldIndex].children, pinfo);
                 }
                 proto_item_set_end(newField, tvb, offset);
             }
@@ -1342,9 +1455,9 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                         ettVariableParameters[i]);
                     offset = parseFields
                         (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children);
+                         parserNodes[fieldIndex].children, pinfo);
                     offset = parseField_VariableParameter
-                        (tvb, newSubtree, offset);
+                        (tvb, newSubtree, offset, pinfo);
                     proto_item_set_end(newField, tvb, offset);
                 }
             }
@@ -1367,9 +1480,9 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                                                         ettVariableRecords[i]);
                     offset = parseFields
                         (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children);
+                         parserNodes[fieldIndex].children, pinfo);
                     offset = parseField_VariableRecord
-                        (tvb, newSubtree, offset);
+                        (tvb, newSubtree, offset, pinfo);
                     proto_item_set_end(newField, tvb, offset);
                 }
             }
@@ -1388,7 +1501,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
@@ -1408,7 +1521,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
@@ -1439,7 +1552,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
@@ -1472,7 +1585,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
@@ -1505,7 +1618,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
@@ -1545,7 +1658,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }
@@ -1570,7 +1683,7 @@ gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode pa
                             proto_item_add_subtree(newField,
                             parserNodes[fieldIndex].ettVar);
                         offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children);
+                            parserNodes[fieldIndex].children, pinfo);
                     }
                     proto_item_set_end(newField, tvb, offset);
                 }

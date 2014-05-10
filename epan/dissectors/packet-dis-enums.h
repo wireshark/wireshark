@@ -46,6 +46,8 @@ extern const value_string DIS_PDU_TSAllocationFidelity_Strings[];
 extern const value_string DIS_PDU_TerminalPrimaryMode_Strings[];
 extern const value_string DIS_PDU_TerminalSecondaryMode_Strings[];
 extern const value_string DIS_PDU_ModParamSyncState_Strings[];
+extern const range_string DIS_PDU_Link16_CVLL_Strings[];
+extern const value_string DIS_PDU_Link16_MessageType_Strings[];
 
 
 typedef enum
@@ -433,6 +435,20 @@ typedef enum
 } DIS_PDU_MAJOR_MODULATION_TYPE;
 
 extern const value_string DIS_PDU_MajorModulation_Strings[];
+
+typedef enum
+{
+    DIS_MESSAGE_TYPE_JTIDS_HEADER_MESSAGES = 0,
+    DIS_MESSAGE_TYPE_RTT_A_B,
+    DIS_MESSAGE_TYPE_RTT_REPLY,
+    DIS_MESSAGE_TYPE_JTIDS_VOICE_CVSD,
+    DIS_MESSAGE_TYPE_JTIDS_VOICE_LPC10,
+    DIS_MESSAGE_TYPE_JTIDS_VOICE_LPC12,
+    DIS_MESSAGE_TYPE_JTIDS_LET,
+    DIS_MESSAGE_TYPE_VMF
+} DIS_PDU_MessageType;
+
+extern const value_string DIS_PDU_JTIDS_MessageType_Strings[];
 
 typedef enum
 {

@@ -109,6 +109,6 @@ void initializeParser(DIS_ParserNode parserNodes[]);
 
 void initializeParsers(void);
 
-gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[]);
+gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[], packet_info *pinfo);
 
 #endif /* packet-dis-pduparsers.h */

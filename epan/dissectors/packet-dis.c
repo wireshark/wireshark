@@ -44,6 +44,7 @@
 #include "packet-dis-enums.h"
 #include "packet-dis-pdus.h"
 #include "packet-dis-fields.h"
+#include "packet-link16.h"
 
 #define DEFAULT_DIS_UDP_PORT 3000
 
@@ -78,6 +79,7 @@ int hf_dis_radio_id = -1;
 int hf_dis_ens = -1;
 int hf_dis_ens_class = -1;
 int hf_dis_ens_type = -1;
+int hf_dis_ens_type_audio = -1;
 int hf_dis_tdl_type = -1;
 int hf_dis_sample_rate = -1;
 int hf_dis_data_length = -1;
@@ -120,6 +122,15 @@ int hf_dis_antenna_pattern_parameter_dump = -1;
 int hf_dis_num_shafts = -1;
 int hf_dis_num_apas = -1;
 int hf_dis_num_ua_emitter_systems = -1;
+int hf_dis_signal_link16_npg = -1;
+int hf_dis_signal_link16_tsec_cvll = -1;
+int hf_dis_signal_link16_msec_cvll = -1;
+int hf_dis_signal_link16_message_type = -1;
+int hf_dis_signal_link16_ptt = -1;
+int hf_dis_signal_link16_time_slot_type = - 1;
+int hf_dis_signal_link16_rti = -1;
+int hf_dis_signal_link16_stn = -1;
+int hf_dis_signal_link16_sdusn = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_dis = -1;
@@ -128,6 +139,9 @@ static gint ett_dis_po_header = -1;
 static gint ett_dis_payload = -1;
 int ett_dis_ens = -1;
 int ett_dis_crypto_key = -1;
+int ett_dis_signal_link16_network_header = -1;
+int ett_dis_signal_link16_message_data = -1;
+int ett_dis_signal_link16_jtids_header = -1;
 
 static const true_false_string dis_modulation_spread_spectrum = {
     "Spread Spectrum modulation in use",
@@ -204,7 +218,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      */
     dis_header_node = proto_tree_add_text(dis_tree, tvb, offset, -1, "Header");
     dis_header_tree = proto_item_add_subtree(dis_header_node, ett_dis_header);
-    offset = parseFields(tvb, dis_header_tree, offset, DIS_FIELDS_PDU_HEADER);
+    offset = parseFields(tvb, dis_header_tree, offset, DIS_FIELDS_PDU_HEADER, pinfo);
 
     proto_item_set_end(dis_header_node, tvb, offset);
 
@@ -228,7 +242,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                 (dis_po_header_node, ett_dis_po_header);
             offset = parseFields
                 (tvb, dis_po_header_tree, offset,
-                 DIS_FIELDS_PERSISTENT_OBJECT_HEADER);
+                 DIS_FIELDS_PERSISTENT_OBJECT_HEADER, pinfo);
             proto_item_set_end(dis_po_header_node, tvb, offset);
 
             /* Locate the appropriate PO PDU parser, if type is known.
@@ -398,13 +412,15 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         break;
     }
 
+    col_clear(pinfo->cinfo, COL_INFO);
+
     /* If a parser was located, invoke it on the data packet.
      */
     if (pduParser != 0)
     {
         dis_payload_tree = proto_item_add_subtree(dis_payload_node,
             ett_dis_payload);
-        offset = parseFields(tvb, dis_payload_tree, offset, pduParser);
+        offset = parseFields(tvb, dis_payload_tree, offset, pduParser, pinfo);
 
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
@@ -432,13 +448,17 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                      );
         break;
     case DIS_PDUTYPE_SIGNAL:
-        col_add_fstr( pinfo->cinfo, COL_INFO,
-                      "PDUType: %s, RadioID=%u, Encoding Type=%s, Number of Samples=%u",
-                      pduString,
-                      radioID,
-                      val_to_str_const(DIS_ENCODING_TYPE(encodingScheme), DIS_PDU_Encoding_Type_Strings, "Unknown Encoding Type"),
-                      numSamples
-                      );
+        if (numSamples)
+            col_prepend_fstr(pinfo->cinfo, COL_INFO, ", Number of Samples=%u",
+                numSamples);
+
+        if ((encodingScheme & 0xC000) >> 14 == DIS_ENCODING_CLASS_ENCODED_AUDIO)
+            col_prepend_fstr(pinfo->cinfo, COL_INFO,", Encoding Type=%s",
+                val_to_str_const(DIS_ENCODING_TYPE(encodingScheme),
+                DIS_PDU_Encoding_Type_Strings, "Unknown"));
+
+        col_prepend_fstr( pinfo->cinfo, COL_INFO,
+                      "PDUType: %s, RadioID=%u", pduString, radioID);
         break;
     case DIS_PDUTYPE_TRANSMITTER:
         col_add_fstr( pinfo->cinfo, COL_INFO,
@@ -591,6 +611,11 @@ void proto_register_dis(void)
             },
             { &hf_dis_ens_type,
               { "Encoding Type", "dis.radio.encoding_type",
+                FT_UINT16, BASE_DEC, NULL, 0x3fff,
+                NULL, HFILL }
+            },
+            { &hf_dis_ens_type_audio,
+              { "Encoding Type",  "dis.radio.encoding_type.audio",
                 FT_UINT16, BASE_DEC, VALS(DIS_PDU_Encoding_Type_Strings), 0x3fff,
                 NULL, HFILL }
             },
@@ -789,6 +814,47 @@ void proto_register_dis(void)
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
             },
+            { &hf_dis_signal_link16_npg,
+              { "NPG Number", "dis.signal.link16.npg",
+                 FT_UINT16, BASE_DEC, VALS(Link16_NPG_Strings), 0x0,
+                 NULL, HFILL }
+            },
+            { &hf_dis_signal_link16_tsec_cvll,
+              { "TSEC CVLL", "dis.signal.link16.tsec_cvll",
+                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(DIS_PDU_Link16_CVLL_Strings), 0x0,
+                 NULL, HFILL }
+            },
+            { &hf_dis_signal_link16_msec_cvll,
+              { "MSEC CVLL", "dis.signal.link16.msec_cvll",
+                 FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(DIS_PDU_Link16_CVLL_Strings), 0x0,
+                 NULL, HFILL }
+            },
+            { &hf_dis_signal_link16_message_type,
+              { "Message Type", "dis.signal.link16.message_type",
+                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_Link16_MessageType_Strings), 0x0,
+                 NULL, HFILL }
+            },
+            { &hf_dis_signal_link16_ptt,
+              { "Perceived Transmit Time", "dis.signal.link16.ptt",
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_signal_link16_time_slot_type,
+              { "Time Slot Type", "dis.signal.link16.time_slot_type", FT_UINT32, BASE_DEC, NULL, 0x7,
+                 NULL, HFILL},
+            },
+            { &hf_dis_signal_link16_rti,
+              { "Relay Transmission Indicator", "dis.signal.link16.relay", FT_BOOLEAN, 32, NULL, 0x8,
+                 NULL, HFILL},
+            },
+            { &hf_dis_signal_link16_stn,
+              { "Source Track Number", "dis.signal.link16.stn", FT_UINT32, BASE_OCT, NULL, 0x7FFF0,
+                 NULL, HFILL },
+            },
+            { &hf_dis_signal_link16_sdusn,
+              { "Secure Data Unit Serial Number", "dis.signal.link16.sdusn", FT_UINT16, BASE_DEC, NULL, 0x0,
+                 NULL, HFILL },
+            },
             { &hf_dis_num_shafts,
               { "Number of Shafts",  "dis.ua.number_of_shafts",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -814,7 +880,10 @@ void proto_register_dis(void)
         &ett_dis_po_header,
         &ett_dis_ens,
         &ett_dis_crypto_key,
-        &ett_dis_payload
+        &ett_dis_payload,
+        &ett_dis_signal_link16_network_header,
+        &ett_dis_signal_link16_message_data,
+        &ett_dis_signal_link16_jtids_header,
     };
 
     module_t *dis_module;

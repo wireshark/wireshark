@@ -451,6 +451,25 @@ const value_string DIS_PDU_MajorModulation_Strings[] =
     {0,                                      NULL }
 };
 
+const range_string DIS_PDU_Link16_CVLL_Strings[] = {
+    { 0,   127, "Crypto Variable" },
+    { 255, 255, "NO STATEMENT" },
+    { 0,   0,   NULL }
+};
+
+const value_string DIS_PDU_Link16_MessageType_Strings[] =
+{
+    { DIS_MESSAGE_TYPE_JTIDS_HEADER_MESSAGES, "JTIDS Header/Messages" },
+    { DIS_MESSAGE_TYPE_RTT_A_B,               "RTT A/B" },
+    { DIS_MESSAGE_TYPE_RTT_REPLY,             "RTT Reply" },
+    { DIS_MESSAGE_TYPE_JTIDS_VOICE_CVSD,      "JTIDS Voice CVSD" },
+    { DIS_MESSAGE_TYPE_JTIDS_VOICE_LPC10,     "JTIDS Voice LPC10" },
+    { DIS_MESSAGE_TYPE_JTIDS_VOICE_LPC12,     "JTIDS Voice LPC12" },
+    { DIS_MESSAGE_TYPE_JTIDS_LET,             "JTIDS LET" },
+    { DIS_MESSAGE_TYPE_VMF,                   "VMF" },
+    { 0,                                      NULL }
+};
+
 const value_string DIS_PDU_EmissionFunction_Strings[] =
 {
     {DIS_EMISSION_FUNCTION_OTHER,                    "Other" },
@@ -661,6 +680,7 @@ const value_string DIS_PDU_TerminalSecondaryMode_Strings[] =
     {0,    NULL }
 };
 
+/* http://discussions.sisostds.org/threadview.aspx?fid=18&threadid=53172 */
 const value_string DIS_PDU_ModParamSyncState_Strings[] =
 {
     {2,    "Coarse Synchronization" },

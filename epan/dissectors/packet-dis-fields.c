@@ -41,7 +41,9 @@ guint32 category;
 guint32 radioID;
 guint32 disRadioTransmitState;
 guint32 encodingScheme;
+guint32 tdlType;
 guint32 numSamples;
+guint32 messageType;
 guint32 numFixed;
 guint32 numVariable;
 guint32 numBeams;
@@ -205,6 +207,20 @@ DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[] =
     { DIS_FIELDTYPE_JTIDS_SYNC_STATE,             "Synchronization State",0,0,0,0 },
     { DIS_FIELDTYPE_NETWORK_SYNC_ID,              "Network Sync ID",0,0,0,0 },
     { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
+};
+
+DIS_ParserNode DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER[] =
+{
+    { DIS_FIELDTYPE_LINK16_NPG,          "Network Participant Group",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT8,               "Network Number",0,0,0,0 },
+    { DIS_FIELDTYPE_LINK16_TSEC_CVLL,    "TSEC CVLL",0,0,0,0 },
+    { DIS_FIELDTYPE_LINK16_MSEC_CVLL,    "MSEC CVLL",0,0,0,0 },
+    { DIS_FIELDTYPE_LINK16_MESSAGE_TYPE, "Message Type",0,0,0,&messageType },
+    { DIS_FIELDTYPE_UINT16,              "Padding",0,0,0,0 },
+    { DIS_FIELDTYPE_UINT32,              "Time Slot ID",0,0,0,0 },
+    { DIS_FIELDTYPE_LINK16_PTT,          "Perceived Transmit Time",0,0,0,0 },
+    { DIS_FIELDTYPE_LINK16_MESSAGE_DATA, "Message Data",0,0,0,0 },
+    { DIS_FIELDTYPE_END,                 NULL,0,0,0,0 }
 };
 
 /* Array records
@@ -511,6 +527,7 @@ void initializeFieldParsers(void)
     initializeParser(DIS_FIELDS_VR_UA_BEAM);
     initializeParser(DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
     initializeParser(DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
+    initializeParser(DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER);
 
 }
 
@@ -866,6 +883,10 @@ gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNod
             break;
         }
         break;
+    case DIS_FIELDTYPE_LINK16_MESSAGE_TYPE:
+        enumStrings = DIS_PDU_Link16_MessageType_Strings;
+        dis_hf_id = hf_dis_signal_link16_message_type;
+        break;
     default:
         enumStrings = 0;
         break;
@@ -1017,7 +1038,7 @@ gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_Pars
 
 /* Parse a variable parameter field.
  */
-gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset)
+gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo)
 {
     DIS_ParserNode *paramParser = 0;
 
@@ -1043,7 +1064,7 @@ gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset)
     /* Parse the variable parameter fields */
     if (paramParser)
     {
-        offset = parseFields(tvb, tree, offset, paramParser);
+        offset = parseFields(tvb, tree, offset, paramParser, pinfo);
     }
 
     return offset;
@@ -1051,7 +1072,7 @@ gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 /* Parse a variable record field.
  */
-gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset)
+gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo)
 {
     DIS_ParserNode *paramParser = 0;
 
@@ -1084,7 +1105,7 @@ gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset)
     /* Parse the variable record fields */
     if (paramParser)
     {
-        offset = parseFields(tvb, tree, offset, paramParser);
+        offset = parseFields(tvb, tree, offset, paramParser, pinfo);
     }
 
     /* Should alignment padding be added */
@@ -1103,7 +1124,7 @@ gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset)
 /* Parse a variable electromagnetic emission system beam.
  */
 gint parseField_ElectromagneticEmissionSystemBeam(
-    tvbuff_t *tvb, proto_tree *tree, gint offset)
+    tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo)
 {
     DIS_ParserNode *paramParser = 0;
 
@@ -1114,7 +1135,7 @@ gint parseField_ElectromagneticEmissionSystemBeam(
     /* Parse the variable parameter fields */
     if (paramParser)
     {
-        offset = parseFields(tvb, tree, offset, paramParser);
+        offset = parseFields(tvb, tree, offset, paramParser, pinfo);
     }
 
     return offset;

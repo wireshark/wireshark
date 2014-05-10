@@ -52,6 +52,7 @@ extern int hf_dis_radio_id;
 extern int hf_dis_ens;
 extern int hf_dis_ens_class;
 extern int hf_dis_ens_type;
+extern int hf_dis_ens_type_audio;
 extern int hf_dis_tdl_type;
 extern int hf_dis_sample_rate;
 extern int hf_dis_data_length;
@@ -94,9 +95,21 @@ extern int hf_dis_antenna_pattern_parameter_dump;
 extern int hf_dis_num_shafts;
 extern int hf_dis_num_apas;
 extern int hf_dis_num_ua_emitter_systems;
+extern int hf_dis_signal_link16_npg;
+extern int hf_dis_signal_link16_tsec_cvll;
+extern int hf_dis_signal_link16_msec_cvll;
+extern int hf_dis_signal_link16_message_type;
+extern int hf_dis_signal_link16_ptt;
+extern int hf_dis_signal_link16_time_slot_type;
+extern int hf_dis_signal_link16_rti;
+extern int hf_dis_signal_link16_stn;
+extern int hf_dis_signal_link16_sdusn;
 
 extern int ett_dis_ens;
 extern int ett_dis_crypto_key;
+extern int ett_dis_signal_link16_network_header;
+extern int ett_dis_signal_link16_message_data;
+extern int ett_dis_signal_link16_jtids_header;
 
 
 
@@ -212,6 +225,10 @@ typedef enum
     DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE,
     DIS_FIELDTYPE_JTIDS_SYNC_STATE,
     DIS_FIELDTYPE_NETWORK_SYNC_ID,
+    DIS_FIELDTYPE_LINK16_NPG,
+    DIS_FIELDTYPE_LINK16_TSEC_CVLL,
+    DIS_FIELDTYPE_LINK16_MSEC_CVLL,
+    DIS_FIELDTYPE_LINK16_MESSAGE_TYPE,
     DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS,
     DIS_FIELDTYPE_NUM_OF_SHAFTS,
     DIS_FIELDTYPE_NUM_OF_APAS,
@@ -242,6 +259,8 @@ typedef enum
     DIS_FIELDTYPE_ANTENNA_PATTERN_PARAMETERS,
     DIS_FIELDTYPE_MOD_PARAMS_CCTT_SINCGARS,
     DIS_FIELDTYPE_MOD_PARAMS_JTIDS_MIDS,
+    DIS_FIELDTYPE_LINK16_MESSAGE_DATA,
+    DIS_FIELDTYPE_LINK16_PTT,
     DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM,
     DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM,
     DIS_FIELDTYPE_EMITTER_SYSTEM,
@@ -314,6 +333,7 @@ extern DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_32[];
 extern DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_64[];
 extern DIS_ParserNode DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS[];
 extern DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[];
+extern DIS_ParserNode DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER[];
 extern DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[];
 extern DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[];
 extern DIS_ParserNode DIS_FIELDS_TRACK_JAM[];
@@ -358,11 +378,11 @@ extern gint parseField_Double(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_
 
 extern gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode);
 
-extern gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset);
+extern gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo);
 
-extern gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset);
+extern gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo);
 
-extern gint parseField_ElectromagneticEmissionSystemBeam(tvbuff_t *tvb, proto_tree *tree, gint offset);
+extern gint parseField_ElectromagneticEmissionSystemBeam(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo);
 
 extern guint32 disProtocolVersion;
 extern guint32 pduType;
@@ -373,7 +393,9 @@ extern guint32 entityDomain;
 extern guint32 radioID;
 extern guint32 disRadioTransmitState;
 extern guint32 encodingScheme;
+extern guint32 tdlType;
 extern guint32 numSamples;
+extern guint32 messageType;
 extern guint32 numFixed;
 extern guint32 numVariable;
 extern guint32 numBeams;
