@@ -1026,7 +1026,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         struct e_in6_addr ipaddr;
         memcpy(&ipaddr, stats.ip_address[0], 16);
         hostname0 = get_hostname6(&ipaddr);
-        memcpy(&ipaddr, (follow_type_ == FOLLOW_TCP) ? stats.ip_address[1] : stats.ip_address[0], 16);
+        memcpy(&ipaddr, stats.ip_address[1], 16);
         hostname1 = get_hostname6(&ipaddr);
     } else {
         guint32 ipaddr;
@@ -1113,9 +1113,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
 
             client_to_server_string =
                     QString("%1:%2 %3 %4:%5 (%6)")
-                    .arg(hostname0).arg(port0)
-                    .arg(UTF8_RIGHTWARDS_ARROW)
                     .arg(hostname1).arg(port1)
+                    .arg(UTF8_RIGHTWARDS_ARROW)
+                    .arg(hostname0).arg(port0)
                     .arg(gchar_free_to_qstring(format_size(
                                                    follow_info_.bytes_written[1],
                                                format_size_unit_bytes|format_size_prefix_si)));
@@ -1131,9 +1131,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
 
             client_to_server_string =
                     QString("%1:%2 %3 %4:%5 (%6)")
-                    .arg(hostname1).arg(port1)
-                    .arg(UTF8_RIGHTWARDS_ARROW)
                     .arg(hostname0).arg(port0)
+                    .arg(UTF8_RIGHTWARDS_ARROW)
+                    .arg(hostname1).arg(port1)
                     .arg(gchar_free_to_qstring(format_size(
                                                    follow_info_.bytes_written[1],
                                                format_size_unit_bytes|format_size_prefix_si)));
