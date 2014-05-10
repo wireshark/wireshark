@@ -179,7 +179,7 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
 		struct e_in6_addr ipaddr;
 		memcpy(&ipaddr, stats.ip_address[0], 16);
 		hostname0 = get_hostname6(&ipaddr);
-		memcpy(&ipaddr, stats.ip_address[0], 16);
+		memcpy(&ipaddr, stats.ip_address[1], 16);
 		hostname1 = get_hostname6(&ipaddr);
 	} else {
 		guint32 ipaddr;
