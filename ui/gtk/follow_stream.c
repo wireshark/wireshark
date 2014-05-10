@@ -720,9 +720,9 @@ follow_stream(const gchar *title, follow_info_t *follow_info,
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb), both_directions_string);
     follow_info->show_stream = BOTH_HOSTS;
 
-    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb), server_to_client_string);
-
     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb), client_to_server_string);
+
+    gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb), server_to_client_string);
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(stream_cmb), 0); /* Do this before signal_connect  */
                                                             /*  so callback not triggered     */

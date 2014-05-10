@@ -252,15 +252,15 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 
     /* ...and then the server-to-client and client-to-server directions. */
     if (follow_info->client_port == stats.port[0]) {
-        server_hostname = hostname1;
-        server_port = port1;
-        client_hostname = hostname0;
-        client_port = port0;
-    } else {
         server_hostname = hostname0;
         server_port = port0;
         client_hostname = hostname1;
         client_port = port1;
+    } else {
+        server_hostname = hostname1;
+        server_port = port1;
+        client_hostname = hostname0;
+        client_port = port0;
     }
 
     single_direction_format = "%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)";
