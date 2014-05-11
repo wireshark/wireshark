@@ -219,10 +219,6 @@ follow_tcp_index(guint32 indx)
     return FALSE;
   }
 
-  if (indx > get_tcp_stream_count()) {
-    return FALSE;
-  }
-
   find_tcp_addr = TRUE;
   tcp_stream_to_follow = indx;
   memset(ip_address, 0, sizeof ip_address);

@@ -911,7 +911,7 @@ followTcp(
   {
     followFree(fp);
     g_string_free(errp, TRUE);
-    followExit("Error registering tcp tap listner.");
+    followExit("Error registering tcp tap listener.");
   }
 }
 
@@ -981,7 +981,7 @@ followSsl(
   {
     followFree(fp);
     g_string_free(errp, TRUE);
-    followExit("Error registering ssl tap listner.");
+    followExit("Error registering ssl tap listener.");
   }
 }
 
