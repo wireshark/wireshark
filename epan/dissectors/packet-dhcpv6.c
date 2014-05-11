@@ -1,4 +1,4 @@
-/* packet-dhpcv6.c
+/* packet-dhcpv6.c
  * Routines for DHCPv6 packet disassembly
  * Copyright 2004, Nicolas DICHTEL - 6WIND - <nicolas.dichtel@6wind.com>
  * Jun-ichiro itojun Hagino <itojun@iijlab.net>
@@ -114,7 +114,6 @@ static int hf_vendoropts_enterprise_option_code = -1;
 static int hf_vendoropts_enterprise_option_length = -1;
 static int hf_vendoropts_enterprise_option_data = -1;
 static int hf_interface_id = -1;
-static int hf_interface_id_link_address = -1;
 static int hf_reconf_msg = -1;
 static int hf_sip_server_domain_search_fqdn = -1;
 static int hf_sip_server_a = -1;
@@ -1583,24 +1582,12 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_INTERFACE_ID:
     {
-        gint namelen;
-
         if (optlen == 0) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "INTERFACE_ID: malformed option");
             break;
         }
 
-        namelen = tvb_strnlen(tvb, off, optlen)+1;
-        if (namelen == 0) {
-            proto_tree_add_item(subtree, hf_interface_id, tvb, off, optlen, ENC_ASCII|ENC_NA);
-        } else {
-            proto_tree_add_item(subtree, hf_interface_id, tvb, off, namelen-1, ENC_ASCII|ENC_NA);
-
-            temp_optlen = optlen - namelen;
-            off += namelen;
-            if (temp_optlen >= 6)
-                proto_tree_add_string(subtree, hf_interface_id_link_address, tvb, off, temp_optlen, tvb_arphrdaddr_to_str(tvb, off, 6, ARPHRD_ETHER));
-        }
+        proto_tree_add_item(subtree, hf_interface_id, tvb, off, optlen, ENC_NA);
     }
     break;
     case OPTION_RECONF_MSG:
@@ -2143,9 +2130,7 @@ proto_register_dhcpv6(void)
         { &hf_vendoropts_enterprise_option_data,
           { "Option data", "dhcpv6.vendoropts.enterprise.option_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_interface_id,
-          { "Interface-ID", "dhcpv6.interface_id", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
-        { &hf_interface_id_link_address,
-          { "Link Address", "dhcpv6.interface_id_link_address", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+          { "Interface-ID", "dhcpv6.interface_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
         { &hf_reconf_msg,
           { "Reconfigure message type", "dhcpv6.reconf_msg", FT_UINT8, BASE_DEC | BASE_EXT_STRING, &msgtype_vals_ext, 0, NULL, HFILL }},
         { &hf_sip_server_domain_search_fqdn,
