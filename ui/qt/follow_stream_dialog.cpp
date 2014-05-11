@@ -1057,7 +1057,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     if (follow_type_ == FOLLOW_TCP)
     {
         /* Host 0 --> Host 1 */
-        if(sc.src_port == stats.port[0]) {
+        if ((sc.src_port == stats.port[0]) &&
+            ((stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[0], 16) == 0)) ||
+             (!stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[0], 4) == 0)))) {
             server_to_client_string =
                     QString("%1:%2 %3 %4:%5 (%6)")
                     .arg(hostname0).arg(port0)
@@ -1078,7 +1080,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
         }
 
         /* Host 1 --> Host 0 */
-        if(sc.src_port == stats.port[1]) {
+        if ((sc.src_port == stats.port[1]) &&
+            ((stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[1], 16) == 0)) ||
+             (!stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[1], 4) == 0)))) {
             client_to_server_string =
                     QString("%1:%2 %3 %4:%5 (%6)")
                     .arg(hostname0).arg(port0)
@@ -1101,7 +1105,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_tcp_index)
     }
     else
     {
-        if(follow_info_.client_port == stats.port[0]) {
+        if ((follow_info_.client_port == stats.port[0]) &&
+            ((stats.is_ipv6 && (memcmp(follow_info_.client_ip.data, stats.ip_address[0], 16) == 0)) ||
+             (!stats.is_ipv6 && (memcmp(follow_info_.client_ip.data, stats.ip_address[0], 4) == 0)))) {
             server_to_client_string =
                     QString("%1:%2 %3 %4:%5 (%6)")
                     .arg(hostname0).arg(port0)

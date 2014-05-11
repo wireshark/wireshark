@@ -52,10 +52,10 @@ udp_queue_packet_data(void *tapdata, packet_info *pinfo,
 
     follow_record = g_new(follow_record_t,1);
 
-    follow_record->data = g_byte_array_sized_new(tvb_length(next_tvb));
+    follow_record->data = g_byte_array_sized_new(tvb_captured_length(next_tvb));
     follow_record->data = g_byte_array_append(follow_record->data,
                                               tvb_get_ptr(next_tvb, 0, -1),
-                                              tvb_length(next_tvb));
+                                              tvb_captured_length(next_tvb));
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
@@ -193,7 +193,9 @@ follow_udp_stream_cb(GtkWidget *w _U_, gpointer data _U_)
     /* Both Stream Directions */
     both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
 
-    if(follow_info->client_port == stats.port[0]) {
+    if ((follow_info->client_port == stats.port[0]) &&
+        ((stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 16) == 0)) ||
+         (!stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 4) == 0)))) {
         server_to_client_string =
             g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
                             hostname0, port0,

@@ -251,7 +251,9 @@ follow_ssl_stream_cb(GtkWidget * w _U_, gpointer data _U_)
     both_directions_string = g_strdup_printf("Entire conversation (%u bytes)", follow_info->bytes_written[0] + follow_info->bytes_written[1]);
 
     /* ...and then the server-to-client and client-to-server directions. */
-    if (follow_info->client_port == stats.port[0]) {
+    if ((follow_info->client_port == stats.port[0]) &&
+        ((stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 16) == 0)) ||
+         (!stats.is_ipv6 && (memcmp(follow_info->client_ip.data, stats.ip_address[0], 4) == 0)))) {
         server_hostname = hostname0;
         server_port = port0;
         client_hostname = hostname1;
