@@ -86,11 +86,6 @@ gchar *ep_strconcat(const gchar *string, ...) G_GNUC_MALLOC G_GNUC_NULL_TERMINAT
 /** allocates with a packet lifetime scope an array of type made of num elements */
 #define ep_alloc_array(type,num) (type*)ep_alloc(sizeof(type)*(num))
 
-/** allocates with a packet lifetime scope an array of type made of num elements,
- * initialised to zero.
- */
-#define ep_alloc_array0(type,num) (type*)ep_alloc0(sizeof(type)*(num))
-
 /**
  * Splits a string into a maximum of max_tokens pieces, using the given
  * delimiter. If max_tokens is reached, the remainder of string is appended
@@ -129,23 +124,14 @@ void* se_alloc0(size_t size) G_GNUC_MALLOC;
 WS_DLL_PUBLIC
 gchar* se_strdup(const gchar* src) G_GNUC_MALLOC;
 
-/** Duplicate at most n characters of a string with a capture lifetime scope */
-WS_DLL_PUBLIC
-gchar* se_strndup(const gchar* src, size_t len) G_GNUC_MALLOC;
-
 /** Duplicate a buffer with a capture lifetime scope */
 WS_DLL_PUBLIC
 void* se_memdup(const void* src, size_t len) G_GNUC_MALLOC;
 
 /* Create a formatted string with a capture lifetime scope */
 WS_DLL_PUBLIC
-gchar* se_strdup_vprintf(const gchar* fmt, va_list ap) G_GNUC_MALLOC;
-WS_DLL_PUBLIC
 gchar* se_strdup_printf(const gchar* fmt, ...)
      G_GNUC_MALLOC G_GNUC_PRINTF(1, 2);
-
-/** allocates with a capture lifetime scope an array of type made of num elements */
-#define se_alloc_array(type,num) (type*)se_alloc(sizeof(type)*(num))
 
 /** release all memory allocated */
 void se_free_all(void);
@@ -153,7 +139,6 @@ void se_free_all(void);
 /**************************************************************
  * slab allocator
  **************************************************************/
-struct _emem_chunk_t;
 
 /* G_MEM_ALIGN is not always enough: http://mail.gnome.org/archives/gtk-devel-list/2004-December/msg00091.html
  * So, we check (in configure) if we need 8-byte alignment.  (Windows
@@ -197,17 +182,6 @@ WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_new(const gchar *init) G_GNUC_MALLOC;
 
 /**
- * Allocate an ephemeral string buffer suitable for the protocol tree.
- * The string will never grow beyond the maximum tree item length.
- *
- * @param init The initial string for the buffer, or NULL to allocate an initial zero-length string.
- *
- * @return A newly-allocated string buffer.
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_new_label(const gchar *init) G_GNUC_MALLOC;
-
-/**
  * Allocate an ephemeral string buffer with enough initial space for alloc_len bytes
  * and a maximum of max_alloc_len bytes.
  *
@@ -220,16 +194,6 @@ emem_strbuf_t *ep_strbuf_new_label(const gchar *init) G_GNUC_MALLOC;
  */
 WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_sized_new(gsize alloc_len, gsize max_alloc_len) G_GNUC_MALLOC;
-
-/**
- * Append vprintf-style formatted text to a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to append to.
- * @param format A printf-style string format.
- * @param ap The list of arguments to append.
- */
-WS_DLL_PUBLIC
-void ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap);
 
 /**
  * Apply printf-style formatted text to a string buffer.
@@ -273,28 +237,6 @@ emem_strbuf_t *ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str);
 WS_DLL_PUBLIC
 emem_strbuf_t *ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c);
 
-/**
- * Append a Unicode characeter converted to UTF-8 to a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to append to.
- * @param c The Unicode character to append.
- *
- * @return strbuf
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c);
-
-/**
- * Chop off the end of a string buffer.
- *
- * @param strbuf The ep_strbuf-allocated string buffer to append to.
- * @param len The new string length.
- *
- * @return strbuf
- */
-WS_DLL_PUBLIC
-emem_strbuf_t *ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len);
-
 /* #define DEBUG_INTENSE_CANARY_CHECKS */
 
 /** Helper to troubleshoot ep memory corruption.
@@ -321,14 +263,6 @@ void ep_check_canary_integrity(const char* fmt, ...)
  * @return TRUE if the pointer belongs to the ephemeral pool.
  */
 gboolean ep_verify_pointer(const void *ptr);
-/**
- * Verify that the given pointer is of seasonal type.
- *
- * @param ptr The pointer to verify
- *
- * @return TRUE if the pointer belongs to the seasonal pool.
- */
-gboolean se_verify_pointer(const void *ptr);
 
 #ifdef __cplusplus
 }

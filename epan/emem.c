@@ -625,15 +625,6 @@ ep_verify_pointer(const void *ptr)
 		return FALSE;
 }
 
-gboolean
-se_verify_pointer(const void *ptr)
-{
-	if (se_packet_mem.debug_verify_pointers)
-		return emem_verify_pointer(&se_packet_mem, ptr);
-	else
-		return FALSE;
-}
-
 static void
 emem_scrub_memory(char *buf, size_t size, gboolean alloc)
 {
@@ -1001,12 +992,6 @@ ep_strndup(const gchar *src, size_t len)
 	return emem_strndup(src, len, ep_alloc);
 }
 
-gchar *
-se_strndup(const gchar *src, size_t len)
-{
-	return emem_strndup(src, len, se_alloc);
-}
-
 
 
 void *
@@ -1045,7 +1030,7 @@ ep_strdup_vprintf(const gchar *fmt, va_list ap)
 	return emem_strdup_vprintf(fmt, ap, ep_alloc);
 }
 
-gchar *
+static gchar *
 se_strdup_vprintf(const gchar* fmt, va_list ap)
 {
 	return emem_strdup_vprintf(fmt, ap, se_alloc);
@@ -1349,35 +1334,6 @@ ep_strbuf_new(const gchar *init)
 }
 
 emem_strbuf_t *
-ep_strbuf_new_label(const gchar *init)
-{
-	emem_strbuf_t *strbuf;
-	gsize full_len;
-
-	/* Be optimistic: Allocate default size strbuf string and only      */
-        /*  request an increase if needed.                                  */
-        /* XXX: Is it reasonable to assume that much of the usage of        */
-        /*  ep_strbuf_new_label will have  init==NULL or                    */
-        /*   strlen(init) < DEFAULT_STRBUF_LEN) ???                         */
-	strbuf = ep_strbuf_sized_new(DEFAULT_STRBUF_LEN, ITEM_LABEL_LENGTH);
-
-	if (!init)
-		return strbuf;
-
-	/* full_len does not count the trailing '\0'.                       */
-	full_len = g_strlcpy(strbuf->str, init, strbuf->alloc_len);
-	if (full_len < strbuf->alloc_len) {
-		strbuf->len += full_len;
-	} else {
-		strbuf = ep_strbuf_sized_new(full_len+1, ITEM_LABEL_LENGTH);
-		full_len = g_strlcpy(strbuf->str, init, strbuf->alloc_len);
-		strbuf->len = MIN(full_len, strbuf->alloc_len-1);
-	}
-
-	return strbuf;
-}
-
-emem_strbuf_t *
 ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str)
 {
 	gsize add_len, full_len;
@@ -1403,7 +1359,7 @@ ep_strbuf_append(emem_strbuf_t *strbuf, const gchar *str)
 	return strbuf;
 }
 
-void
+static void
 ep_strbuf_append_vprintf(emem_strbuf_t *strbuf, const gchar *format, va_list ap)
 {
 	va_list ap2;
@@ -1469,44 +1425,6 @@ ep_strbuf_append_c(emem_strbuf_t *strbuf, const gchar c)
 		strbuf->len++;
 		strbuf->str[strbuf->len] = '\0';
 	}
-
-	return strbuf;
-}
-
-emem_strbuf_t *
-ep_strbuf_append_unichar(emem_strbuf_t *strbuf, const gunichar c)
-{
-	gchar buf[6];
-	gint charlen;
-
-	if (!strbuf) {
-		return strbuf;
-	}
-
-	charlen = g_unichar_to_utf8(c, buf);
-
-	/* +charlen for the new character & +1 for the trailing '\0'. */
-	if (strbuf->alloc_len < strbuf->len + charlen + 1) {
-		ep_strbuf_grow(strbuf, strbuf->len + charlen + 1);
-	}
-	if (strbuf->alloc_len >= strbuf->len + charlen + 1) {
-		memcpy(&strbuf->str[strbuf->len], buf, charlen);
-		strbuf->len += charlen;
-		strbuf->str[strbuf->len] = '\0';
-	}
-
-	return strbuf;
-}
-
-emem_strbuf_t *
-ep_strbuf_truncate(emem_strbuf_t *strbuf, gsize len)
-{
-	if (!strbuf || len >= strbuf->len) {
-		return strbuf;
-	}
-
-	strbuf->str[len] = '\0';
-	strbuf->len = len;
 
 	return strbuf;
 }
