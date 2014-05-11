@@ -268,7 +268,9 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	port1 = get_tcp_port(stats.port[1]);
 
 	/* Host 0 --> Host 1 */
-	if(sc.src_port == stats.port[0]) {
+	if ((sc.src_port == stats.port[0]) &&
+	    ((stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[0], 16) == 0)) ||
+	     (!stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[0], 4) == 0)))) {
 		server_to_client_string =
 			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 					hostname0, port0,
@@ -283,7 +285,9 @@ follow_tcp_stream_cb(GtkWidget * w _U_, gpointer data _U_)
 	}
 
 	/* Host 1 --> Host 0 */
-	if(sc.src_port == stats.port[1]) {
+	if ((sc.src_port == stats.port[1]) &&
+	    ((stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[1], 16) == 0)) ||
+	     (!stats.is_ipv6 && (memcmp(sc.src_addr, stats.ip_address[1], 4) == 0)))) {
 		client_to_server_string =
 			g_strdup_printf("%s:%s " UTF8_RIGHTWARDS_ARROW " %s:%s (%u bytes)",
 					hostname0, port0,
