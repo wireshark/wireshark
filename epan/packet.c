@@ -111,6 +111,7 @@ static GHashTable *heur_dissector_lists = NULL;
 static void
 destroy_heuristic_dissector_entry(gpointer data, gpointer user_data _U_)
 {
+	g_free(((heur_dtbl_entry_t*)data)->list_name);
 	g_slice_free(heur_dtbl_entry_t, data);
 }
 
