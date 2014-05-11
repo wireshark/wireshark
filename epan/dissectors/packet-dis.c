@@ -475,7 +475,7 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_exercise_id,
-              { "Excercise ID",       "dis.exer_id",
+              { "Exercise ID",       "dis.exer_id",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
