@@ -1382,7 +1382,7 @@ set(WMEM_FILES
 )
 
 ADD_CUSTOM_TARGET(
-    update-sminmpec ALL
+    update-sminmpec
     COMMAND ${PERL_EXECUTABLE}
       ${CMAKE_SOURCE_DIR}/tools/make-sminmpec.pl
     DEPENDS
