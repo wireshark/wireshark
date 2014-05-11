@@ -11286,8 +11286,8 @@ ip-provision    43190/udp # IP-PROVISION [Roman_Kriis] [Roman_Kriis]
 noit-transport  43191/tcp # Reconnoiter Agent Data Transport [Theo_Schlossnagle] [Theo_Schlossnagle] 2009-05-19
 shaperai        43210/tcp # Shaper Automation Server Management [Shaper_Automation] [Yohann_Sulaiman] 2012-06-22
 shaperai-disc   43210/udp # Shaper Automation Server Management Discovery [Shaper_Automation] [Yohann_Sulaiman] 2012-06-22
-eq3-update      43439/tcp # EQ3 firmware update [eQ-3_AG] [Falk_Werner] 2012-02-10
-eq3-config      43439/udp # EQ3 discovery and configuration [eQ-3_AG] [Falk_Werner] 2012-02-10
+eq3-update      43439/tcp # EQ3 firmware update [eQ-3_Entwicklung_GmbH] [Tido_de_Vries] 2012-02-10 2014-05-09
+eq3-config      43439/udp # EQ3 discovery and configuration [eQ-3_Entwicklung_GmbH] [Tido_de_Vries] 2012-02-10 2014-05-09
 ew-mgmt         43440/tcp # Cisco EnergyWise Management
 ew-disc-cmd     43440/udp # Cisco EnergyWise Discovery and Command Flooding [John_Parello] [John_Parello] 2009-05-19
 ciscocsdb       43441/tcp # Cisco NetMgmt DB Ports [Cisco_Systems] [Cisco_Systems] 2005-11
