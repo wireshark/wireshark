@@ -854,14 +854,10 @@ host_lookup(const guint addr, gboolean *found)
 
     *found = TRUE;
 
-    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, &addr);
+    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if(tp == NULL){
-        int *key;
-
-        key = (int *)g_new(int, 1);
-        *key = addr;
         tp = new_ipv4(addr);
-        g_hash_table_insert(ipv4_hash_table, key, tp);
+        g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     }else{
         if ((tp->flags & DUMMY_AND_RESOLVE_FLGS) ==  DUMMY_ADDRESS_ENTRY){
             goto try_resolv;
@@ -2575,17 +2571,13 @@ add_ipv4_name(const guint addr, const gchar *name)
         return;
 
 
-    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, &addr);
+    tp = (hashipv4_t *)g_hash_table_lookup(ipv4_hash_table, GUINT_TO_POINTER(addr));
     if(tp){
         g_strlcpy(tp->name, name, MAXNAMELEN);
     }else{
-        int *key;
-
-        key = (int *)g_new(int, 1);
-        *key = addr;
         tp = new_ipv4(addr);
         g_strlcpy(tp->name, name, MAXNAMELEN);
-        g_hash_table_insert(ipv4_hash_table, key, tp);
+        g_hash_table_insert(ipv4_hash_table, GUINT_TO_POINTER(addr), tp);
     }
 
     g_strlcpy(tp->name, name, MAXNAMELEN);
@@ -2672,7 +2664,7 @@ host_name_lookup_init(void)
     ipxnet_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
 
     g_assert(ipv4_hash_table == NULL);
-    ipv4_hash_table = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, g_free);
+    ipv4_hash_table = g_hash_table_new_full(g_direct_hash, g_direct_equal, NULL, g_free);
 
     g_assert(ipv6_hash_table == NULL);
     ipv6_hash_table = g_hash_table_new_full(ipv6_oat_hash, ipv6_equal, g_free, g_free);
