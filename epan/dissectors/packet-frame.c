@@ -525,7 +525,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	ENDTRY;
 
         if(proto_field_is_referenced(tree, hf_frame_protocols)) {
-		wmem_strbuf_t *val = wmem_strbuf_new(wmem_packet_scope(), "");
+		wmem_strbuf_t *val = wmem_strbuf_sized_new(wmem_packet_scope(), 128, 0);
 		wmem_list_frame_t *frame;
 		/* skip the first entry, it's always the "frame" protocol */
 		frame = wmem_list_frame_next(wmem_list_head(pinfo->layers));
