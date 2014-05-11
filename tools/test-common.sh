@@ -152,7 +152,7 @@ function ws_exit_error() {
 
     echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
 
-    if [ -d .git ] ; then
+    if [ -d ${GIT_DIR:-.git} ] ; then
         echo -e "\nGit commit" >> $TMP_DIR/${ERR_FILE}.header
         git log -1 >> $TMP_DIR/${ERR_FILE}.header
     fi
