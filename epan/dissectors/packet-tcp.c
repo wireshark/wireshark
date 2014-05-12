@@ -852,7 +852,7 @@ static void
 tcp_analyze_get_acked_struct(guint32 frame, guint32 seq, guint32 ack, gboolean createflag, struct tcp_analysis *tcpd)
 {
 
-	wmem_tree_key_t key[4];
+    wmem_tree_key_t key[4];
 
     key[0].length = 1;
     key[0].key = &frame;
@@ -1732,7 +1732,7 @@ again:
                 /* TCP analysis already flags this (in COL_INFO) as a retransmission--if it's enabled */
             }
 
-            nbytes = MAX(0, tvb_reported_length_remaining(tvb, offset));
+            nbytes = tvb_reported_length_remaining(tvb, offset);
             proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                 nbytes, NULL, "%sTCP segment data (%u byte%s)", str, nbytes,
                 plurality(nbytes, "", "s"));
@@ -1756,7 +1756,7 @@ again:
          */
         if (msp->flags&MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
             /* The dissector asked for the entire segment */
-            len = MAX(0, tvb_length_remaining(tvb, offset));
+            len = tvb_captured_length_remaining(tvb, offset);
         } else {
             len = MIN(nxtseq, msp->nxtpdu) - seq;
         }
@@ -1903,7 +1903,7 @@ again:
                      * will complete reassembly even if it
                      * is only one single byte in length.
                      */
-                    msp->nxtpdu = seq + MAX(0, tvb_reported_length_remaining(tvb, offset)) + 1;
+                    msp->nxtpdu = seq + tvb_reported_length_remaining(tvb, offset) + 1;
                     msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
                 } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
                     tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
@@ -1918,7 +1918,7 @@ again:
                 another_pdu_follows = 0;
                 offset += last_fragment_len;
                 seq += last_fragment_len;
-                if (tvb_length_remaining(tvb, offset) > 0)
+                if (tvb_captured_length_remaining(tvb, offset) > 0)
                     goto again;
             } else {
                 /*
@@ -1927,7 +1927,7 @@ again:
                  */
                 nbytes = another_pdu_follows > 0
                     ? another_pdu_follows
-                    : MAX(0, tvb_reported_length_remaining(tvb, offset));
+                    : tvb_reported_length_remaining(tvb, offset);
                 proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, offset,
                     nbytes, NULL, "TCP segment data (%u byte%s)", nbytes,
                     plurality(nbytes, "", "s"));
@@ -2076,7 +2076,7 @@ again:
          * XXX - remember what protocol the last subdissector
          * was, and report it as a continuation of that, instead?
          */
-        nbytes = MAX(0, tvb_reported_length_remaining(tvb, deseg_offset));
+        nbytes = tvb_reported_length_remaining(tvb, deseg_offset);
         proto_tree_add_bytes_format(tcp_tree, hf_tcp_segment_data, tvb, deseg_offset,
             -1, NULL, "TCP segment data (%u byte%s)", nbytes,
             plurality(nbytes, "", "s"));
@@ -2138,7 +2138,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     volatile int offset = 0;
     int offset_before;
-    guint length_remaining;
+    guint captured_length_remaining;
     guint plen;
     guint length;
     tvbuff_t *next_tvb;
@@ -2148,16 +2148,17 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {
         /*
-         * We use "tvb_ensure_length_remaining()" to make sure there actually
-         * *is* data remaining.  The protocol we're handling could conceivably
-         * consists of a sequence of fixed-length PDUs, and therefore the
-         * "get_pdu_len" routine might not actually fetch anything from
-         * the tvbuff, and thus might not cause an exception to be thrown if
-         * we've run past the end of the tvbuff.
+         * We use "tvb_ensure_captured_length_remaining()" to make
+         * sure there actually *is* data remaining.  The protocol
+         * we're handling could conceivably consists of a sequence of
+         * fixed-length PDUs, and therefore the "get_pdu_len" routine
+         * might not actually fetch anything from the tvbuff, and thus
+         * might not cause an exception to be thrown if we've run past
+         * the end of the tvbuff.
          *
-         * This means we're guaranteed that "length_remaining" is positive.
+         * This means we're guaranteed that "captured_length_remaining" is positive.
          */
-        length_remaining = tvb_ensure_length_remaining(tvb, offset);
+        captured_length_remaining = tvb_ensure_captured_length_remaining(tvb, offset);
 
         /*
          * Can we do reassembly?
@@ -2167,7 +2168,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * Yes - is the fixed-length part of the PDU split across segment
              * boundaries?
              */
-            if (length_remaining < fixed_len) {
+            if (captured_length_remaining < fixed_len) {
                 /*
                  * Yes.  Tell the TCP dissector where the data for this message
                  * starts in the data it handed us and that we need "some more
@@ -2211,7 +2212,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          */
         if(!pinfo->fd->flags.visited && tcp_analyze_seq) {
             guint remaining_bytes;
-            remaining_bytes = MAX(0, tvb_reported_length_remaining(tvb, offset));
+            remaining_bytes = tvb_reported_length_remaining(tvb, offset);
             if(plen>remaining_bytes) {
                 pinfo->want_pdu_tracking=2;
                 pinfo->bytes_until_next_pdu=plen-remaining_bytes;
@@ -2225,14 +2226,14 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /*
              * Yes - is the PDU split across segment boundaries?
              */
-            if (length_remaining < plen) {
+            if (captured_length_remaining < plen) {
                 /*
                  * Yes.  Tell the TCP dissector where the data for this message
                  * starts in the data it handed us, and how many more bytes we
                  * need, and return.
                  */
                 pinfo->desegment_offset = offset;
-                pinfo->desegment_len = plen - length_remaining;
+                pinfo->desegment_len = plen - captured_length_remaining;
                 return;
             }
         }
@@ -2247,7 +2248,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Wireshark.
          */
 #if 0
-        if (length_remaining >= plen || there are more packets)
+        if (captured_length_remaining >= plen || there are more packets)
         {
 #endif
                 /*
@@ -2261,7 +2262,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } else {
                 item = proto_tree_add_text((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num),
                                         tvb, offset, -1,
-                    "PDU Size: %u cut short at %u",plen,length_remaining);
+                    "PDU Size: %u cut short at %u",plen,captured_length_remaining);
                 PROTO_ITEM_SET_GENERATED(item);
         }
 #endif
@@ -2270,7 +2271,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * Construct a tvbuff containing the amount of the payload we have
          * available.  Make its reported length the amount of data in the PDU.
          */
-        length = length_remaining;
+        length = captured_length_remaining;
         if (length > plen)
             length = plen;
         next_tvb = tvb_new_subset(tvb, offset, length, plen);
@@ -2305,7 +2306,7 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              * show_exception(), so that the "Malformed packet" indication
              * shows the protocol for which dissection failed.
              */
-	    pinfo->current_proto = saved_proto;
+            pinfo->current_proto = saved_proto;
         }
         ENDTRY;
 
@@ -4120,7 +4121,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32    phdr[2];
     guint16    computed_cksum;
     guint16    real_window;
-    guint      length_remaining;
+    guint      captured_length_remaining;
     gboolean   desegment_ok;
     struct tcpinfo tcpinfo;
     struct tcpheader *tcph;
@@ -4645,14 +4646,14 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     options_item = NULL;
     options_tree = NULL;
     if (optlen != 0) {
-        guint bc = (guint)MAX(0, tvb_length_remaining(tvb, offset + 20));
+        guint bc = (guint)tvb_captured_length_remaining(tvb, offset + 20);
 
         if (tcp_tree != NULL) {
             options_item = proto_tree_add_item(tcp_tree, hf_tcp_options, tvb, offset + 20,
                                                bc < optlen ? bc : optlen, ENC_NA);
             proto_item_set_text(options_item, "Options: (%u bytes)", optlen);
             options_tree = proto_item_add_subtree(options_item, ett_tcp_options);
-	}
+        }
     }
 
     tcph->num_sack_ranges = 0;
@@ -4707,7 +4708,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Check the packet length to see if there's more data
        (it could be an ACK-only packet) */
-    length_remaining = MAX(0, tvb_length_remaining(tvb, offset));
+    captured_length_remaining = tvb_captured_length_remaining(tvb, offset);
 
     if (tcph->th_have_seglen) {
         if( data_out_file ) {
@@ -4715,8 +4716,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             tcph->th_seq,                         /* sequence number */
                             tcph->th_ack,                         /* acknowledgment number */
                             tcph->th_seglen,                      /* data length */
-                            (const gchar*)tvb_get_ptr(tvb, offset, length_remaining), /* data */
-                            length_remaining,                     /* captured data length */
+                            (const gchar*)tvb_get_ptr(tvb, offset, captured_length_remaining), /* data */
+                            captured_length_remaining,            /* captured data length */
                             ( tcph->th_flags & TH_SYN ),          /* is syn set? */
                             &pinfo->net_src,
                             &pinfo->net_dst,
@@ -4824,7 +4825,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * dissector update state based on it.
      * Also, we probably don't want to run TCP taps on those packets.
      */
-    if (length_remaining != 0) {
+    if (captured_length_remaining != 0) {
         if (tcph->th_flags & TH_RST) {
             /*
              * RFC1122 says:
@@ -4841,9 +4842,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              *
              * so for segments with RST we just display the data as text.
              */
-            proto_tree_add_text(tcp_tree, tvb, offset, length_remaining,
+            proto_tree_add_text(tcp_tree, tvb, offset, captured_length_remaining,
                                 "Reset cause: %s",
-                                tvb_format_text(tvb, offset, length_remaining));
+                                tvb_format_text(tvb, offset, captured_length_remaining));
         } else {
             dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
                                 tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
