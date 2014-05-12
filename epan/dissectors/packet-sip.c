@@ -2343,15 +2343,17 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     guint   request_for_response = 0;
     guint32 response_time = 0;
     int     strlen_to_copy;
-
+    int     reported_length;
     /*
      * If this should be a request of response, do this quick check to see if
      * it begins with a string...
      * Otherwise, SIP heuristics are expensive...
      *
      */
+    reported_length = tvb_reported_length_remaining(tvb, offset);
+
     if (!dissect_other_as_continuation &&
-        ((tvb_reported_length_remaining(tvb, offset) < 1) || !isprint(tvb_get_guint8(tvb, offset))))
+        ((reported_length < 1) || !g_ascii_isprint(tvb_get_guint8(tvb, offset))))
     {
         return -2;
     }
@@ -2365,7 +2367,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
      * "sip_parse_line()" won't throw an exception.
      */
     orig_offset = offset;
-    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, offset, reported_length, &next_offset, FALSE);
     if(linelen==0){
         return -2;
     }
@@ -2485,7 +2487,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
             proto_tree_add_text(reqresp_tree, tvb, offset, -1, "Continuation data");
         }
-        return tvb_reported_length_remaining(tvb, offset);
+        return reported_length;
     }
 
     offset = next_offset;
