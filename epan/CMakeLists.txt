@@ -568,9 +568,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-diameter.c
 	dissectors/packet-diameter_3gpp.c
 	dissectors/packet-diffserv-mpls-common.c
-	dissectors/packet-dis-enums.c
-	dissectors/packet-dis-fields.c
-	dissectors/packet-dis-pdus.c
 	dissectors/packet-dis.c
 	dissectors/packet-distcc.c
 	dissectors/packet-dlm3.c

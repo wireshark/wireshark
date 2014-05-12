@@ -488,9 +488,6 @@ DISSECTOR_SRC = \
 	packet-diameter.c	\
 	packet-diameter_3gpp.c	\
 	packet-diffserv-mpls-common.c	\
-	packet-dis-enums.c	\
-	packet-dis-fields.c	\
-	packet-dis-pdus.c	\
 	packet-dis.c		\
 	packet-distcc.c		\
 	packet-dlm3.c		\
@@ -1402,9 +1399,6 @@ DISSECTOR_INCLUDES =	\
 	packet-diameter.h	\
 	packet-diffserv-mpls-common.h	\
 	packet-disp.h	\
-	packet-dis-enums.h	\
-	packet-dis-fields.h	\
-	packet-dis-pdus.h	\
 	packet-dns.h	\
 	packet-dop.h	\
 	packet-dsp.h	\
