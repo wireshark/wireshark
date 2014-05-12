@@ -237,12 +237,12 @@ typedef struct {
 
 static uat_esp_sa_record_t *uat_esp_sa_records = NULL;
 
-/* 'Extra' SA records that may be set programmatically */
-/* TODO: if size/number of records increased may want to allocate 'records' array on heap? */
-#define MAX_EXTRA_SA_RECORDS 4
+/* Extra SA records that may be set programmatically */
+/* 'records' array is now allocated on the heap */
+#define MAX_EXTRA_SA_RECORDS 16
 typedef struct extra_esp_sa_records_t {
   guint num_records;
-  uat_esp_sa_record_t records[MAX_EXTRA_SA_RECORDS];
+  uat_esp_sa_record_t *records;
 } extra_esp_sa_records_t;
 static extra_esp_sa_records_t extra_esp_sa_records;
 
@@ -352,6 +352,7 @@ static void uat_esp_sa_record_update_cb(void* r, const char** err _U_) {
   /* Compute keys & lengths once and for all */
   if (rec->encryption_key_string) {
     rec->encryption_key_length = compute_ascii_key(&rec->encryption_key, rec->encryption_key_string);
+    rec->cipher_hd_created = FALSE;
   }
   else {
     rec->encryption_key_length = 0;
@@ -360,7 +361,6 @@ static void uat_esp_sa_record_update_cb(void* r, const char** err _U_) {
 
   if (rec->authentication_key_string) {
     rec->authentication_key_length = compute_ascii_key(&rec->authentication_key, rec->authentication_key_string);
-    rec->cipher_hd_created = FALSE;
   }
   else {
     rec->authentication_key_length = 0;
@@ -423,11 +423,16 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
                                       guint8 authentication_algo, const gchar *authentication_key)
 {
    uat_esp_sa_record_t* record = NULL;
+   if (extra_esp_sa_records.num_records == 0) {
+      extra_esp_sa_records.records = g_malloc(sizeof(uat_esp_sa_record_t)*MAX_EXTRA_SA_RECORDS);
+   }
    if (extra_esp_sa_records.num_records < MAX_EXTRA_SA_RECORDS) {
       record = &extra_esp_sa_records.records[extra_esp_sa_records.num_records++];
    }
    else {
-      /* No room left!!  TODO: warn? */
+      /* No room left!! */
+      fprintf(stderr, "<IPsec/ESP Dissector> Failed to add UE as already have max (%u) configured\n",
+              MAX_EXTRA_SA_RECORDS);
       return;
    }
 
@@ -867,7 +872,9 @@ filter_spi_match(gchar *spi, gchar *filter)
            gchar **encryption_key,
            guint *encryption_key_len,
            gchar **authentication_key,
-           guint *authentication_key_len
+           guint *authentication_key_len,
+           gcry_cipher_hd_t **cipher_hd,
+           gboolean **cipher_hd_created
 
    Description : Give Encryption Algo, Key and Authentification Algo for a Packet if a corresponding SA is available in a Security Association database
    Return: If the SA is not present, FALSE is then returned.
@@ -883,6 +890,10 @@ filter_spi_match(gchar *spi, gchar *filter)
       - guint *encryption_key_len : the Encryption Key length to apply to the packet
       - gchar **authentication_key : the Authentication Key to apply to the packet
       - guint *authentication_key_len : the Authentication Key len to apply to the packet
+      - gcry_cipher_hd_t **cipher_hd : pointer handle to be used for ciphering
+      - gboolean **cipher_hd_created: points to boolean indicating that cipher handle has
+                                      been created.  If FALSE, should assign handle to
+                                      *cipher_hd and set this to TRUE.
 
 */
 static gboolean
@@ -2169,6 +2180,12 @@ static void ipsec_init_protocol(void)
   guint n;
   for (n=0; n < extra_esp_sa_records.num_records; n++) {
     uat_esp_sa_record_free_cb(&(extra_esp_sa_records.records[n]));
+  }
+
+  /* Free overall block of records */
+  if (extra_esp_sa_records.num_records > 0) {
+    g_free(extra_esp_sa_records.records);
+    extra_esp_sa_records.records = NULL;
   }
   extra_esp_sa_records.num_records = 0;
 }
