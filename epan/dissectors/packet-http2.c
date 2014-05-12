@@ -69,10 +69,17 @@ static int hf_http2_flags_priority = -1;
 static int hf_http2_flags_compressed = -1;
 static int hf_http2_flags_settings_ack = -1;
 static int hf_http2_flags_ping_ack = -1;
+static int hf_http2_flags_unused = -1;
+static int hf_http2_flags_unused1 = -1;
+static int hf_http2_flags_unused3 = -1;
+static int hf_http2_flags_unused_data = -1;
+static int hf_http2_flags_unused6 = -1;
 
 /* generic */
 static int hf_http2_pad_high = -1;
 static int hf_http2_pad_low = -1;
+static int hf_http2_pad_length = -1;
+
 static int hf_http2_weight = -1;
 static int hf_http2_stream_dependency = -1;
 static int hf_http2_excl_dependency = -1;
@@ -111,6 +118,7 @@ static int hf_http2_window_update_r = -1;
 static int hf_http2_window_update_window_size_increment = -1;
 /* Continuation */
 static int hf_http2_continuation_header = -1;
+static int hf_http2_continuation_padding = -1;
 /* Altsvc */
 static int hf_http2_altsvc_maxage = -1;
 static int hf_http2_altsvc_port = -1;
@@ -256,6 +264,7 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
             proto_tree_add_item(flags_tree, hf_http2_flags_pad_low, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_pad_high, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_compressed, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused_data, tvb, offset, 1, ENC_NA);
             break;
         case HTTP2_HEADERS:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_stream, tvb, offset, 1, ENC_NA);
@@ -264,38 +273,32 @@ dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
             proto_tree_add_item(flags_tree, hf_http2_flags_pad_low, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_pad_high, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_priority, tvb, offset, 1, ENC_NA);
-            break;
-        case HTTP2_PRIORITY:
-            /* The PRIORITY frame does not define any flags */
-            break;
-        case HTTP2_RST_STREAM:
-            /* The RST_STREAM frame does not define any flags */
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused6, tvb, offset, 1, ENC_NA);
             break;
         case HTTP2_SETTINGS:
             proto_tree_add_item(flags_tree, hf_http2_flags_settings_ack, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused1, tvb, offset, 1, ENC_NA);
             break;
         case HTTP2_PUSH_PROMISE:
         case HTTP2_CONTINUATION:
             proto_tree_add_item(flags_tree, hf_http2_flags_end_headers, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_pad_low, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(flags_tree, hf_http2_flags_pad_high, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused3, tvb, offset, 1, ENC_NA);
             break;
         case HTTP2_PING:
             proto_tree_add_item(flags_tree, hf_http2_flags_ping_ack, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused1, tvb, offset, 1, ENC_NA);
             break;
+        case HTTP2_PRIORITY:
+        case HTTP2_RST_STREAM:
         case HTTP2_GOAWAY:
-            /* The GOAWAY frame does not define any flags. */
-            break;
         case HTTP2_WINDOW_UPDATE:
-            /* The WINDOW_UPDATE frame does not define any flags */
-            break;
         case HTTP2_ALTSVC:
-            /* The ALTSVC frame does not define any flags */
-            break;
         case HTTP2_BLOCKED:
-            /* The BLOCKED frame does not define any flags */
-            break;
         default:
+            /* Does not define any flags */
+            proto_tree_add_item(flags_tree, hf_http2_flags_unused, tvb, offset, 1, ENC_NA);
             break;
     }
 
@@ -308,12 +311,16 @@ static guint
 dissect_frame_padding(tvbuff_t *tvb, guint16 *padding, proto_tree *http2_tree,
                       guint offset, guint8 flags)
 {
+    proto_item *ti;
+    guint pad_len = 0;
+
     *padding = 0;
     if(flags & HTTP2_FLAGS_PAD_HIGH)
     {
         *padding = tvb_get_guint8(tvb, offset) << 8; /* read a single octet */
         proto_tree_add_item(http2_tree, hf_http2_pad_high, tvb, offset, 1, ENC_NA);
         offset++;
+        pad_len ++;
     }
 
     if(flags & HTTP2_FLAGS_PAD_LOW)
@@ -321,7 +328,10 @@ dissect_frame_padding(tvbuff_t *tvb, guint16 *padding, proto_tree *http2_tree,
         *padding |= tvb_get_guint8(tvb, offset); /* read a single octet */
         proto_tree_add_item(http2_tree, hf_http2_pad_low, tvb, offset, 1, ENC_NA);
         offset++;
+        pad_len ++;
     }
+    ti = proto_tree_add_uint(http2_tree, hf_http2_pad_length, tvb, offset-pad_len, pad_len, *padding);
+    PROTO_ITEM_SET_GENERATED(ti);
 
     return offset;
 }
@@ -377,6 +387,7 @@ dissect_http2_headers(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_t
     /* TODO : Support header decompression */
     headlen = tvb_reported_length_remaining(tvb, offset) - padding;
     proto_tree_add_item(http2_tree, hf_http2_headers, tvb, offset, headlen, ENC_ASCII|ENC_NA);
+
     offset += headlen;
 
     proto_tree_add_item(http2_tree, hf_http2_headers_padding, tvb, offset, padding, ENC_NA);
@@ -459,7 +470,7 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
                            guint offset, guint8 flags _U_)
 {
     guint16 padding;
-    gint headerfrag;
+    gint headlen;
 
     offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
@@ -469,11 +480,11 @@ dissect_http2_push_promise(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ht
     offset += 4;
 
     /* TODO : Support header decompression */
-    headerfrag = tvb_reported_length_remaining(tvb, offset) - padding;
-    proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, headerfrag,
+    headlen = tvb_reported_length_remaining(tvb, offset) - padding;
+    proto_tree_add_item(http2_tree, hf_http2_push_promise_header, tvb, offset, headlen,
                         ENC_ASCII|ENC_NA);
 
-    offset += headerfrag;
+    offset += headlen;
 
     proto_tree_add_item(http2_tree, hf_http2_push_promise_padding, tvb,
                         offset, padding, ENC_NA);
@@ -532,12 +543,22 @@ dissect_http2_window_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *h
 }
 
 static int
-dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags _U_)
+dissect_http2_continuation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 flags)
 {
+    guint16 padding;
+    gint headlen;
+
+    offset = dissect_frame_padding(tvb, &padding, http2_tree, offset, flags);
 
     /* TODO : Support "Reassemble Header" and header decompression */
-    proto_tree_add_item(http2_tree, hf_http2_continuation_header, tvb, offset, -1, ENC_ASCII|ENC_NA);
-    offset +=  tvb_reported_length_remaining(tvb, offset);
+    headlen = tvb_reported_length_remaining(tvb, offset) - padding;
+    proto_tree_add_item(http2_tree, hf_http2_continuation_header, tvb, offset, headlen, ENC_ASCII|ENC_NA);
+
+    offset +=  headlen;
+
+    proto_tree_add_item(http2_tree, hf_http2_continuation_padding, tvb, offset, padding, ENC_NA);
+
+    offset += padding;
 
     return offset;
 }
@@ -630,6 +651,7 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_item_append_text(ti, ": Magic");
 
         proto_tree_add_item(http2_tree, hf_http2_magic, tvb, offset, MAGIC_FRAME_LENGTH, ENC_ASCII|ENC_NA);
+
         return MAGIC_FRAME_LENGTH;
     }
 
@@ -858,6 +880,31 @@ proto_register_http2(void)
                FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_ACK,
               "Set indicates that this PING frame is a PING response", HFILL }
         },
+        { &hf_http2_flags_unused,
+            { "Unused", "http2.flags.unused",
+               FT_UINT8, BASE_HEX, NULL, 0xFF,
+              "Must be zero", HFILL }
+        },
+        { &hf_http2_flags_unused1,
+            { "Unused", "http2.flags.unused1",
+               FT_UINT8, BASE_HEX, NULL, 0xFE,
+              "Must be zero", HFILL }
+        },
+        { &hf_http2_flags_unused3,
+            { "Unused", "http2.flags.unused3",
+               FT_UINT8, BASE_HEX, NULL, 0xF8,
+              "Must be zero", HFILL }
+        },
+        { &hf_http2_flags_unused_data,
+            { "Unused", "http2.flags.unused_data",
+               FT_UINT8, BASE_HEX, NULL, 0xC4,
+              "Must be zero", HFILL }
+        },
+        { &hf_http2_flags_unused6,
+            { "Unused", "http2.flags.unused6",
+               FT_UINT8, BASE_HEX, NULL, 0xC0,
+              "Must be zero", HFILL }
+        },
         { &hf_http2_flags_settings_ack,
             { "ACK", "http2.flags.ack.settings",
                FT_BOOLEAN, 8, NULL, HTTP2_FLAGS_ACK,
@@ -872,6 +919,11 @@ proto_register_http2(void)
             { "Pad Low", "http2.pad_low",
               FT_UINT8, BASE_HEX, NULL, 0x0,
               "Padding size low bits", HFILL }
+        },
+        { &hf_http2_pad_length,
+            { "Pad Length", "http2.pad_length",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
         },
         { &hf_http2_excl_dependency,
             { "Exclusive", "http2.exclusive",
@@ -1031,6 +1083,11 @@ proto_register_http2(void)
             { "Continuation Header", "http2.continuation.header",
                FT_STRING, BASE_NONE, NULL, 0x0,
               "Contains a header block fragment", HFILL }
+        },
+        { &hf_http2_continuation_padding,
+            { "Padding", "http2.continuation.padding",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+              "Padding octets", HFILL }
         },
 
         /* Altsvc */
