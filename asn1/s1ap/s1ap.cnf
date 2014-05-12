@@ -1122,29 +1122,29 @@ UERadioCapabilityMatchResponse			N s1ap.proc.sout id-UERadioCapabilityMatch
 /* Whenever a Cause appears, look up the reason and show it in the Info column */
    
 #.FN_BODY CauseRadioNetwork VAL_PTR=&value
-     guint32 value;
+  guint32 value;
 %(DEFAULT_BODY)s
-     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%%s]", val_to_str_const(value, s1ap_CauseMisc_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%%s]", val_to_str_const(value, s1ap_CauseRadioNetwork_vals, "Unknown"));
 
 #.FN_BODY CauseTransport VAL_PTR=&value
-     guint32 value;
+  guint32 value;
 %(DEFAULT_BODY)s
-     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Transport-cause=%%s]", val_to_str_const(value, s1ap_CauseTransport_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Transport-cause=%%s]", val_to_str_const(value, s1ap_CauseTransport_vals, "Unknown"));
 
 #.FN_BODY CauseNas VAL_PTR=&value
-     guint32 value;
+  guint32 value;
 %(DEFAULT_BODY)s
-     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "  [NAS-cause=%%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "  [NAS-cause=%%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
 
 #.FN_BODY CauseProtocol VAL_PTR=&value
-     guint32 value;
+  guint32 value;
 %(DEFAULT_BODY)s
-     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));     
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Protocol-cause=%%s]", val_to_str_const(value, s1ap_CauseProtocol_vals, "Unknown"));     
 
 #.FN_BODY CauseMisc VAL_PTR=&value
-     guint32 value;
+  guint32 value;
 %(DEFAULT_BODY)s
-     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Misc-cause=%%s]", val_to_str_const(value, s1ap_CauseMisc_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [Misc-cause=%%s]", val_to_str_const(value, s1ap_CauseMisc_vals, "Unknown"));
      
 
 #.TYPE_ATTR
