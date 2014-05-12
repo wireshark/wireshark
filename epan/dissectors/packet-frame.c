@@ -228,9 +228,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(pinfo->fd->opt_comment){
-		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, -1, ENC_NA);
+		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
-		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, -1,
+		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
 							                   pinfo->fd->opt_comment, "%s",
 							                   pinfo->fd->opt_comment);
 		expert_add_info_format(pinfo, comment_item, PI_COMMENTS_GROUP, PI_COMMENT,
@@ -259,7 +259,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		cap_plurality = plurality(cap_len, "", "s");
 		frame_plurality = plurality(frame_len, "", "s");
 
-		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, -1,
+		ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_length(tvb),
 		    "Frame %u: %u byte%s on wire",
 		    pinfo->fd->num, frame_len, frame_plurality);
 		if (generate_bits_field)
@@ -458,7 +458,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	if (pinfo->fd->flags.ignored) {
 		/* Ignored package, stop handling here */
 		col_set_str(pinfo->cinfo, COL_INFO, "<Ignored>");
-		proto_tree_add_text (tree, tvb, 0, -1, "This frame is marked as ignored");
+		proto_tree_add_text (tree, tvb, 0, 0, "This frame is marked as ignored");
 		return;
 	}
 
