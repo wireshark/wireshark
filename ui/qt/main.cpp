@@ -29,6 +29,8 @@
 
 #include <glib.h>
 
+#include <signal.h>
+
 #ifndef HAVE_GETOPT
 #  include "wsutil/wsgetopt.h"
 #else
@@ -783,6 +785,11 @@ int main(int argc, char *argv[])
     } else {
       wsApp->setLastOpenDir(get_persdatafile_dir());
     }
+
+#ifdef Q_OS_UNIX
+    // Replicates behavior in gtk_init();
+    signal(SIGPIPE, SIG_IGN);
+#endif
 
 #ifdef HAVE_LIBPCAP
     capture_callback_add(main_capture_callback, NULL);
