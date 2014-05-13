@@ -458,8 +458,10 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_sport=tvb_get_ntohs(tvb, offset);
   udph->uh_dport=tvb_get_ntohs(tvb, offset+2);
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "Source port: %s  Destination port: %s",
-    ep_udp_port_to_display(udph->uh_sport), ep_udp_port_to_display(udph->uh_dport));
+  col_add_lstr(pinfo->cinfo, COL_INFO,
+    "Source port: ", ep_udp_port_to_display(udph->uh_sport), "  "
+    "Destination port: ", ep_udp_port_to_display(udph->uh_dport),
+    COL_ADD_LSTR_TERMINATOR);
 
   if (tree) {
     if (udp_summary_in_tree) {

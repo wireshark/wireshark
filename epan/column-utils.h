@@ -228,6 +228,10 @@ WS_DLL_PUBLIC void	col_set_str(column_info *cinfo, const gint col, const gchar *
  */
 WS_DLL_PUBLIC void	col_add_str(column_info *cinfo, const gint col, const gchar *str);
 
+/* terminator argument for col_add_lstr() function */
+#define COL_ADD_LSTR_TERMINATOR (const char *) -1
+WS_DLL_PUBLIC void	col_add_lstr(column_info *cinfo, const gint el, const gchar *str, ...);
+
 /** Add (replace) the text of a column element, the text will be formatted and copied.
  *
  * Same function as col_add_str() but using a printf-like format string.

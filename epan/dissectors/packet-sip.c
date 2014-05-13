@@ -2435,17 +2435,20 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     case REQUEST_LINE:
         is_known_request = sip_is_known_request(tvb, offset, token_1_len, &current_method_idx);
         descr = is_known_request ? "Request" : "Unknown request";
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-                     descr,
-                     tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1));
+        col_add_lstr(pinfo->cinfo, COL_INFO,
+                     descr, ": ",
+                     tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1),
+                     COL_ADD_LSTR_TERMINATOR);
         DPRINT(("got %s: %s", descr,
                 tvb_format_text(tvb, offset, linelen - SIP2_HDR_LEN - 1)));
         break;
 
     case STATUS_LINE:
         descr = "Status";
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Status: %s",
-                     tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1));
+        col_add_lstr(pinfo->cinfo, COL_INFO,
+                     "Status: ",
+                     tvb_format_text(tvb, offset + SIP2_HDR_LEN + 1, linelen - SIP2_HDR_LEN - 1),
+                     COL_ADD_LSTR_TERMINATOR);
         stat_info->reason_phrase = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + SIP2_HDR_LEN + 5,
                                                       linelen - (SIP2_HDR_LEN + 5),ENC_UTF_8|ENC_NA);
         DPRINT(("got Response: %s",

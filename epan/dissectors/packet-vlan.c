@@ -34,6 +34,7 @@
 #include "packet-vlan.h"
 #include <epan/etypes.h>
 #include <epan/prefs.h>
+#include <epan/to_str.h>
 
 void proto_register_vlan(void);
 void proto_reg_handoff_vlan(void);
@@ -118,6 +119,23 @@ capture_vlan(const guchar *pd, int offset, int len, packet_counts *ld ) {
 }
 
 static void
+columns_set_vlan(column_info *cinfo, guint16 tci)
+{
+  static const char fast_str[][2] = { "0", "1", "2", "3", "4", "5", "6", "7" };
+
+  char id_str[16];
+
+  guint32_to_str_buf(tci & 0xFFF, id_str, sizeof(id_str));
+
+  col_add_lstr(cinfo, COL_INFO,
+               "PRI: ", fast_str[(tci >> 13) & 7], "  "
+               "CFI: ", fast_str[(tci >> 12) & 1], "  "
+                "ID: ", id_str,
+               COL_ADD_LSTR_TERMINATOR);
+  col_add_str(cinfo, COL_8021Q_VLAN_ID, id_str);
+}
+
+static void
 dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item *ti;
@@ -131,9 +149,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tci = tvb_get_ntohs( tvb, 0 );
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %u  CFI: %u  ID: %u",
-               (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
-  col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", (tci & 0xFFF));
+  columns_set_vlan(pinfo->cinfo, tci);
 
   vlan_tree = NULL;
 

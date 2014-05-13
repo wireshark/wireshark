@@ -557,9 +557,55 @@ col_set_str(column_info *cinfo, const gint el, const gchar* str)
   }
 }
 
+void
+col_add_lstr(column_info *cinfo, const gint el, const gchar *str, ...)
+{
+  va_list ap;
+  int     i;
+  int     pos;
+  int     max_len;
+
+  if (!CHECK_COL(cinfo, el))
+    return;
+
+  if (el == COL_INFO)
+    max_len = COL_MAX_INFO_LEN;
+  else
+    max_len = COL_MAX_LEN;
+
+  for (i = cinfo->col_first[el]; i <= cinfo->col_last[el]; i++) {
+    if (cinfo->fmt_matx[i][el]) {
+      pos = cinfo->col_fence[i];
+      if (pos != 0) {
+        /*
+         * We will append the string after the fence.
+         * First arrange that we can append, if necessary.
+         */
+        COL_CHECK_APPEND(cinfo, i, max_len);
+      } else {
+        /*
+         * There's no fence, so we can just write to the string.
+         */
+        cinfo->col_data[i] = cinfo->col_buf[i];
+      }
+
+      va_start(ap, str);
+      do {
+         if G_UNLIKELY(str == NULL)
+             str = "(null)";
+
+         pos += g_strlcpy(&cinfo->col_buf[i][pos], str, max_len - pos);
+
+      } while (pos < max_len && (str = va_arg(ap, const char *)) != COL_ADD_LSTR_TERMINATOR);
+      va_end(ap);
+    }
+  }
+}
+
 /* Adds a vararg list to a packet info string. */
 void
-col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...) {
+col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
+{
   va_list ap;
   int     i;
   int     fence;

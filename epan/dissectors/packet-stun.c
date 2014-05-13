@@ -541,8 +541,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     msg_class_str  = val_to_str_const(msg_type_class, classes, "Unknown");
     msg_method_str = val_to_str_const(msg_type_method, methods, "Unknown");
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                 msg_method_str, msg_class_str);
+    col_add_lstr(pinfo->cinfo, COL_INFO,
+                 msg_method_str,
+                 " ",
+                 msg_class_str,
+                 COL_ADD_LSTR_TERMINATOR);
 
     ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, ENC_NA);
 
