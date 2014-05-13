@@ -609,7 +609,7 @@ static inline void sanitize_buffer(char *buffer, size_t nchars) {
     for (size_t i = 0; i < nchars; i++) {
         if (buffer[i] == '\n' || buffer[i] == '\r' || buffer[i] == '\t')
             continue;
-        if (! isprint((guchar)buffer[i])) {
+        if (! g_ascii_isprint((guchar)buffer[i])) {
             buffer[i] = '.';
         }
     }
@@ -690,7 +690,7 @@ FollowStreamDialog::follow_show(char *buffer, size_t nchars, gboolean is_from_se
             /* Now dump bytes as text */
             for (i = 0; i < 16 && current_pos + i < nchars; i++) {
                 *cur++ =
-                        (isprint((guchar)buffer[current_pos + i]) ?
+                        (g_ascii_isprint((guchar)buffer[current_pos + i]) ?
                             buffer[current_pos + i] : '.' );
                 if (i == 7) {
                     *cur++ = ' ';

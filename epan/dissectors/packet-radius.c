@@ -578,7 +578,7 @@ radius_decrypt_avp(gchar *dest,int dest_len,tvbuff_t *tvb,int offset,int length)
 	for ( i = 0; i < padded_length; i += AUTHENTICATOR_LENGTH ) {
 		for ( j = 0; j < AUTHENTICATOR_LENGTH; j++ ) {
 			c = pd[i + j] ^ digest[j];
-			if ( isprint(c) ) {
+			if ( g_ascii_isprint(c) ) {
 				returned_length = g_snprintf(&dest[totlen], dest_len - totlen,
 					"%c", c);
 				totlen += MIN(returned_length, dest_len - totlen - 1);

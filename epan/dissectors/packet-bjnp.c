@@ -99,7 +99,7 @@ static int dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   gchar      *info;
 
   /* If it does not start with a printable character it's not BJNP */
-  if(!isprint(tvb_get_guint8(tvb, 0)))
+  if(!g_ascii_isprint(tvb_get_guint8(tvb, 0)))
     return 0;
 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);

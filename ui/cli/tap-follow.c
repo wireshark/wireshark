@@ -665,7 +665,7 @@ followDraw(
               data[ii] = bin[ii];
             break;
             default:
-              data[ii] = isprint(bin[ii]) ? bin[ii] : '.';
+              data[ii] = g_ascii_isprint(bin[ii]) ? bin[ii] : '.';
               break;
             }
           }

@@ -911,7 +911,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Check the first few chars to see whether it looks like a text file or not */
     check_chars = MIN(10, data_length);
     for (i=0; i < check_chars; i++) {
-        if (!isprint(tvb_get_guint8(tvb, i))) {
+        if (!g_ascii_isprint(tvb_get_guint8(tvb, i))) {
             is_text = FALSE;
             break;
         }

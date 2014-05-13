@@ -49,7 +49,7 @@ static gboolean allowed_chars(tvbuff_t *tvb)
     len = tvb_length(tvb);
     for (offset = 0; offset < len; offset++) {
         val = tvb_get_guint8(tvb, offset);
-        if (!(isprint(val) || (val == 0x0a) || (val == 0x0d)))
+        if (!(g_ascii_isprint(val) || (val == 0x0a) || (val == 0x0d)))
             return (FALSE);
     }
     return (TRUE);

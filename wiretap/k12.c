@@ -128,7 +128,7 @@ void k12_ascii_dump(guint level, guint8 *buf, guint32 len, guint32 buf_offset) {
     if (debug_level < level) return;
 
     for (i = buf_offset; i < len; i++) {
-        if (isprint(buf[i]) || buf[i] == '\n' || buf[i] == '\t')
+        if (g_ascii_isprint(buf[i]) || buf[i] == '\n' || buf[i] == '\t')
             putc(buf[i], dbg_out);
         else if (buf[i] == '\0')
             fprintf(dbg_out, "(NUL)\n");
