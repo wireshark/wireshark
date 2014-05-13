@@ -350,7 +350,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					break;
 				case 3:
 					lcd_char = tvb_get_guint8(tvb, offset + i1 + 1);
-					if (!isprint(lcd_char))
+					if (!g_ascii_isprint(lcd_char))
 						lcd_char = '.';
 					if (ti && in_str) {
 						lcd_strlen += 2;
@@ -417,7 +417,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 						(lcd_str[lcd_strlen-1] != ' ') ||
 						(tvb_get_guint8(tvb, offset + i1 + 1) != ' ')) {
 							lcd_char = tvb_get_guint8(tvb, offset + i1 + 1);
-							lcd_str[lcd_strlen++] = isprint(lcd_char) ? lcd_char : '.';
+							lcd_str[lcd_strlen++] = g_ascii_isprint(lcd_char) ? lcd_char : '.';
 					}
 				}
 			}

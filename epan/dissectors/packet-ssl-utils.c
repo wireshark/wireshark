@@ -4044,7 +4044,7 @@ ssl_print_data(const gchar* name, const guchar* data, size_t len)
         fputc('|', ssl_debug_file);
         for (j=i, k=0; k<16 && j<len; ++j, ++k) {
             guchar c = data[j];
-            if (!isprint(c) || (c=='\t')) c = '.';
+            if (!g_ascii_isprint(c) || (c=='\t')) c = '.';
             fputc(c, ssl_debug_file);
         }
         for (; k<16; ++k)

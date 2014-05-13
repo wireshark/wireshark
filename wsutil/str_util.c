@@ -61,7 +61,7 @@ isprint_string(const gchar *str)
 
 	/* Loop until we reach the end of the string (a null) */
 	for(pos = 0; str[pos] != '\0'; pos++){
-		if(!isprint(str[pos])){
+		if(!g_ascii_isprint(str[pos])){
 			/* The string contains a non-printable character */
 			return FALSE;
 		}
