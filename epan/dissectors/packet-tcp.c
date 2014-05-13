@@ -118,6 +118,7 @@ static int hf_tcp_window_size_scalefactor = -1;
 static int hf_tcp_checksum = -1;
 static int hf_tcp_checksum_bad = -1;
 static int hf_tcp_checksum_good = -1;
+static int hf_tcp_checksum_calculated = -1;
 static int hf_tcp_len = -1;
 static int hf_tcp_urgent_pointer = -1;
 static int hf_tcp_analysis = -1;
@@ -4120,6 +4121,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     vec_t      cksum_vec[4];
     guint32    phdr[2];
     guint16    computed_cksum;
+    guint16    expected_cksum;
     guint16    real_window;
     guint      captured_length_remaining;
     gboolean   desegment_ok;
@@ -4521,6 +4523,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                   "0x%04x [should be 0x0000 (see RFC 1624)]", th_sum);
 
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
+                item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
+                                              offset + 16, 2, 0x0000);
+                PROTO_ITEM_SET_GENERATED(item);
                 item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
                                               offset + 16, 2, FALSE);
                 PROTO_ITEM_SET_GENERATED(item);
@@ -4538,6 +4543,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                   offset + 16, 2, th_sum, "0x%04x [correct]", th_sum);
 
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
+                item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
+                                              offset + 16, 2, th_sum);
+                PROTO_ITEM_SET_GENERATED(item);
                 item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
                                               offset + 16, 2, TRUE);
                 PROTO_ITEM_SET_GENERATED(item);
@@ -4548,12 +4556,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Checksum is valid, so we're willing to desegment it. */
                 desegment_ok = TRUE;
             } else {
+                expected_cksum = in_cksum_shouldbe(th_sum, computed_cksum);
+
                 item = proto_tree_add_uint_format_value(tcp_tree, hf_tcp_checksum, tvb,
                                                   offset + 16, 2, th_sum,
                                                   "0x%04x [incorrect, should be 0x%04x (maybe caused by \"TCP checksum offload\"?)]", th_sum,
-                                                  in_cksum_shouldbe(th_sum, computed_cksum));
+                                                  expected_cksum);
 
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
+                item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
+                                              offset + 16, 2, expected_cksum);
+                PROTO_ITEM_SET_GENERATED(item);
                 item = proto_tree_add_boolean(checksum_tree, hf_tcp_checksum_good, tvb,
                                               offset + 16, 2, FALSE);
                 PROTO_ITEM_SET_GENERATED(item);
@@ -4965,6 +4978,10 @@ proto_register_tcp(void)
         { &hf_tcp_checksum_bad,
         { "Bad Checksum",       "tcp.checksum_bad", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             "True: checksum doesn't match packet content; False: matches content or not checked", HFILL }},
+
+        { &hf_tcp_checksum_calculated,
+        { "Calculated Checksum", "tcp.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
+            "The expected TCP checksum field as calculated from the TCP segment", HFILL }},
 
         { &hf_tcp_analysis,
         { "SEQ/ACK analysis",   "tcp.analysis", FT_NONE, BASE_NONE, NULL, 0x0,
