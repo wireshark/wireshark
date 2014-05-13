@@ -822,7 +822,7 @@ static dissector_table_t ext_hdr_subdissector_table;
 
 /* Forward declaration we need below */
 void proto_reg_handoff_sip(void);
-static gboolean dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo,
+static gboolean dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo,
     proto_tree *tree, gboolean is_heur, gboolean use_reassembly);
 static line_type_t sip_parse_line(tvbuff_t *tvb, int offset, gint linelen,
     guint *token_1_len);
@@ -2243,6 +2243,7 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     guint8 octet;
     int len;
+    int remaining_length;
 
     octet = tvb_get_guint8(tvb,0);
     if ((octet  & 0xf8) == 0xf8){
@@ -2250,7 +2251,8 @@ dissect_sip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         return tvb_reported_length(tvb);
     }
 
-    len = dissect_sip_common(tvb, 0, pinfo, tree, FALSE, FALSE);
+    remaining_length = tvb_reported_length(tvb);
+    len = dissect_sip_common(tvb, 0, remaining_length, pinfo, tree, FALSE, FALSE);
     if (len < 0)
         return 0;   /* not SIP */
     else
@@ -2263,6 +2265,7 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 octet;
     int offset = 0;
     int len;
+    int remaining_length;
 
     octet = tvb_get_guint8(tvb,0);
     if ((octet  & 0xf8) == 0xf8){
@@ -2270,11 +2273,13 @@ dissect_sip_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
     }
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        len = dissect_sip_common(tvb, offset, pinfo, tree, TRUE, TRUE);
+    remaining_length = tvb_reported_length(tvb);
+    while (remaining_length > 0) {
+        len = dissect_sip_common(tvb, offset, remaining_length, pinfo, tree, TRUE, TRUE);
         if (len <= 0)
             break;
         offset += len;
+        remaining_length = remaining_length - len;
     }
 }
 
@@ -2284,9 +2289,11 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     int offset = 0;
     int len;
     gboolean first = TRUE;
+    int remaining_length;
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
-        len = dissect_sip_common(tvb, offset, pinfo, tree, !first, TRUE);
+    remaining_length = tvb_reported_length(tvb);
+    while (remaining_length > 0) {
+        len = dissect_sip_common(tvb, offset, remaining_length, pinfo, tree, !first, TRUE);
         if (len == -2) {
             if (first) {
                 /*
@@ -2301,6 +2308,7 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         if (len == -1)
             break;  /* need more data */
         offset += len;
+        remaining_length = remaining_length - len;
         first = FALSE;
     }
     return TRUE;
@@ -2309,11 +2317,13 @@ dissect_sip_tcp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 static gboolean
 dissect_sip_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    return dissect_sip_common(tvb, 0, pinfo, tree, FALSE, FALSE) > 0;
+    int remaining_length = tvb_reported_length(tvb);
+
+    return dissect_sip_common(tvb, 0, remaining_length, pinfo, tree, FALSE, FALSE) > 0;
 }
 
 static int
-dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
+dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info *pinfo, proto_tree *tree,
     gboolean dissect_other_as_continuation, gboolean use_reassembly)
 {
     int orig_offset;
@@ -2343,17 +2353,15 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
     guint   request_for_response = 0;
     guint32 response_time = 0;
     int     strlen_to_copy;
-    int     reported_length;
     /*
      * If this should be a request of response, do this quick check to see if
      * it begins with a string...
      * Otherwise, SIP heuristics are expensive...
      *
      */
-    reported_length = tvb_reported_length_remaining(tvb, offset);
 
     if (!dissect_other_as_continuation &&
-        ((reported_length < 1) || !g_ascii_isprint(tvb_get_guint8(tvb, offset))))
+        ((remaining_length < 1) || !g_ascii_isprint(tvb_get_guint8(tvb, offset))))
     {
         return -2;
     }
@@ -2367,7 +2375,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
      * "sip_parse_line()" won't throw an exception.
      */
     orig_offset = offset;
-    linelen = tvb_find_line_end(tvb, offset, reported_length, &next_offset, FALSE);
+    linelen = tvb_find_line_end(tvb, offset, remaining_length, &next_offset, FALSE);
     if(linelen==0){
         return -2;
     }
@@ -2487,13 +2495,14 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
             /* XXX: Is adding to 'reqresp_tree as intended ? Changed from original 'sip_tree' */
             proto_tree_add_text(reqresp_tree, tvb, offset, -1, "Continuation data");
         }
-        return reported_length;
+        return remaining_length;
     }
 
+    remaining_length = remaining_length - (next_offset - offset);
     offset = next_offset;
     if (sip_tree) {
         th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
-                                 tvb_reported_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+                                 remaining_length, ENC_UTF_8|ENC_NA);
         proto_item_set_text(th, "Message Header");
         hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
     }
@@ -2505,7 +2514,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
      */
     next_offset = offset;
     content_length = -1;
-    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    while (remaining_length > 0) {
         gint line_end_offset;
         gint colon_offset;
         gint semi_colon_offset;
@@ -3369,6 +3378,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
             proto_tree_add_expert(hdr_tree, pinfo, &ei_sip_header_not_terminated,
                                     tvb, line_end_offset, -1);
         }
+        remaining_length = remaining_length - (next_offset - offset);
         offset = next_offset;
     }/* End while */
 
