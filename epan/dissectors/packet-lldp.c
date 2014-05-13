@@ -79,9 +79,14 @@ static int hf_lldp_network_address_family = -1;
 static int hf_port_id_ip4 = -1;
 static int hf_port_id_ip6 = -1;
 static int hf_time_to_live = -1;
+static int hf_mgn_address_len = -1;
+static int hf_mgn_address_subtype = -1;
 static int hf_mgn_addr_ipv4 = -1;
 static int hf_mgn_addr_ipv6 = -1;
 static int hf_mgn_addr_hex = -1;
+static int hf_mgn_interface_subtype = -1;
+static int hf_mgn_interface_number = -1;
+static int hf_mgn_oid_len = -1;
 static int hf_mgn_obj_id = -1;
 static int hf_org_spc_oui = -1;
 static int hf_dcbx_type = -1;
@@ -1353,7 +1358,6 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	guint8  tempByte;
 	guint8  stringLen = 0;
 	guint32 tempOffset = offset;
-	guint32 tempLong;
 
 	proto_tree	*system_mgm_addr = NULL;
 	proto_item	*tf = NULL;
@@ -1377,15 +1381,13 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 		/* Get management address string length */
 		stringLen = tvb_get_guint8(tvb, tempOffset);
-		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Address String Length: %u", stringLen);
+		proto_tree_add_item(system_mgm_addr, hf_mgn_address_len, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		/* Get management address subtype */
 		tempByte = tvb_get_guint8(tvb, tempOffset);
-		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Address Subtype: %s (%u)",
-							val_to_str_const(tempByte, afn_vals, "Undefined"),
-							tempByte);
+		proto_tree_add_item(system_mgm_addr, hf_mgn_address_subtype, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
@@ -1407,29 +1409,27 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 		tempOffset += (stringLen-1);
 
 		/* Get interface numbering subtype */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
-		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "Interface Subtype: %s (%u)",
-							val_to_str_const(tempByte, interface_subtype_values, "Undefined"),
-							tempByte);
+		proto_tree_add_item(system_mgm_addr, hf_mgn_interface_subtype, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		/* Get interface number */
-		tempLong = tvb_get_ntohl(tvb, tempOffset);
-		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 4, "Interface Number: %u", tempLong);
+		proto_tree_add_item(system_mgm_addr, hf_mgn_interface_number, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
 
 		tempOffset += 4;
 
 		/* Get OID string length */
 		stringLen = tvb_get_guint8(tvb, tempOffset);
-		proto_tree_add_text(system_mgm_addr, tvb, tempOffset, 1, "OID String Length: %u", stringLen);
+		proto_tree_add_item(system_mgm_addr, hf_mgn_oid_len, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+		tempOffset++;
 
 		if (stringLen > 0)
 		{
-			tempOffset++;
-
 			/* Get OID identifier */
 			proto_tree_add_item(system_mgm_addr, hf_mgn_obj_id, tvb, tempOffset, stringLen, ENC_NA);
+
+			tempOffset += stringLen;
 		}
 	}
 
@@ -3478,6 +3478,14 @@ proto_register_lldp(void)
 			{ "Seconds", "lldp.time_to_live", FT_UINT16, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
+		{ &hf_mgn_address_len,
+			{ "Address String Length", "lldp.mgn.address.len", FT_UINT8, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_mgn_address_subtype,
+			{ "Address Subtype", "lldp.mgn.address.subtype", FT_UINT8, BASE_DEC,
+			VALS(afn_vals), 0, "Undefined", HFILL }
+		},
 		{ &hf_mgn_addr_ipv4,
 			{ "Management Address", "lldp.mgn.addr.ip4", FT_IPv4, BASE_NONE,
 			NULL, 0, NULL, HFILL }
@@ -3488,6 +3496,18 @@ proto_register_lldp(void)
 		},
 		{ &hf_mgn_addr_hex,
 			{ "Management Address", "lldp.mgn.addr.hex", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_mgn_interface_subtype,
+			{ "Interface Subtype", "lldp.mgn.interface.subtype", FT_UINT8, BASE_DEC,
+			VALS(interface_subtype_values), 0, "Undefined", HFILL }
+		},
+		{ &hf_mgn_interface_number,
+			{ "Interface Number", "lldp.mgn.interface.number", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_mgn_oid_len,
+			{ "OID String Length", "lldp.mgn.obj.len", FT_UINT8, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_mgn_obj_id,
