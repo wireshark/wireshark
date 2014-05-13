@@ -1429,7 +1429,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 			/* Get OID identifier */
 			proto_tree_add_item(system_mgm_addr, hf_mgn_obj_id, tvb, tempOffset, stringLen, ENC_NA);
 
-			tempOffset += stringLen;
+			/*tempOffset += stringLen;*/
 		}
 	}
 
@@ -1646,7 +1646,7 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 }
 
 /* Dissect IEEE 802.1 TLVs */
-static void
+static int
 dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
@@ -1995,7 +1995,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 				tempShort = tvb_get_ntohs(tvb, tempOffset + 1);
 
 				tf = proto_tree_add_text(tree, tvb, tempOffset, 3, "%s Application",
-                                                val_to_str_const(tempShort, dcbx_app_types, "Unknown"));
+							 val_to_str_const(tempShort, dcbx_app_types, "Unknown"));
 				apptlv_tree = proto_item_add_subtree(tf, ett_org_spc_ieee_dcbx_app);
 
 				proto_tree_add_item(apptlv_tree, hf_ieee_8021az_app_prio, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
@@ -2012,7 +2012,7 @@ dissect_ieee_802_1_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	}
 
-	return;
+	return tempOffset;
 }
 
 /* Dissect IEEE 802.1Qbg TLVs */
