@@ -81,6 +81,7 @@ static int hf_http2_pad_low = -1;
 static int hf_http2_pad_length = -1;
 
 static int hf_http2_weight = -1;
+static int hf_http2_weight_real = -1;
 static int hf_http2_stream_dependency = -1;
 static int hf_http2_excl_dependency = -1;
 /* Data */
@@ -341,12 +342,19 @@ dissect_frame_padding(tvbuff_t *tvb, guint16 *padding, proto_tree *http2_tree,
 static guint
 dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, guint offset, guint8 flags)
 {
+    proto_tree *ti;
+    guint8 weight;
+
     if(flags & HTTP2_FLAGS_PRIORITY)
     {
-        proto_tree_add_item(http2_tree, hf_http2_excl_dependency, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(http2_tree, hf_http2_excl_dependency, tvb, offset, 4, ENC_NA);
         proto_tree_add_item(http2_tree, hf_http2_stream_dependency, tvb, offset, 4, ENC_NA);
         offset += 4;
         proto_tree_add_item(http2_tree, hf_http2_weight, tvb, offset, 1, ENC_NA);
+        weight = tvb_get_guint8(tvb, offset);
+        /* 6.2: Weight:  An 8-bit weight for the stream; Add one to the value to obtain a weight between 1 and 256 */
+        ti = proto_tree_add_uint(http2_tree, hf_http2_weight_real, tvb, offset, 1, weight+1);
+        PROTO_ITEM_SET_GENERATED(ti);
         offset++;
     }
 
@@ -818,6 +826,11 @@ proto_register_http2(void)
                FT_UINT8, BASE_DEC, NULL, 0x0,
               "An 8-bit weight for the identified priority", HFILL }
         },
+        { &hf_http2_weight_real,
+            { "Weight real", "http2.headers.weight_real",
+               FT_UINT8, BASE_DEC, NULL, 0x0,
+              "Real Weight value (Add one to value)", HFILL }
+        },
         { &hf_http2_streamid,
             { "Stream Identifier", "http2.streamid",
                FT_UINT32, BASE_DEC, NULL, MASK_HTTP2_STREAMID,
@@ -927,12 +940,12 @@ proto_register_http2(void)
         },
         { &hf_http2_excl_dependency,
             { "Exclusive", "http2.exclusive",
-              FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+              FT_BOOLEAN, 32, NULL, 0x80000000,
               "A single bit flag indicates that the stream dependency is exclusive", HFILL }
         },
         { &hf_http2_stream_dependency,
             { "Stream Dependency", "http2.stream_dependency",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT32, BASE_DEC, NULL, 0x7FFFFFFF,
               "An identifier for the stream that this stream depends on", HFILL }
         },
 
