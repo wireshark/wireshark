@@ -58,7 +58,8 @@ ascii_strdown_inplace(gchar *str)
 	gchar *s;
 
 	for (s = str; *s; s++)
-		*s = g_ascii_tolower (*s);
+        /* What 'g_ascii_tolower (gchar c)' does, this should be slightly more efficient */
+		*s = g_ascii_isupper (*s) ? *s - 'A' + 'a' : *s;
 
         return (str);
 }
@@ -70,7 +71,8 @@ ascii_strup_inplace(gchar *str)
 	gchar *s;
 
 	for (s = str; *s; s++)
-		*s = g_ascii_toupper (*s);
+        /* What 'g_ascii_toupper (gchar c)' does, this should be slightly more efficient */
+        *s = g_ascii_islower (*s) ? *s - 'a' + 'A' : *s;
 
         return (str);
 }
