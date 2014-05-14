@@ -106,6 +106,9 @@ wmem_array.h
 wmem_list.h
  - A doubly-linked list implementation.
 
+wmem_map.h
+ - A hash map (AKA hash table) implementation.
+
 wmem_queue.h
  - A queue implementation (first-in, first-out).
 
@@ -259,7 +262,7 @@ that is a copy of the allocator's private_data pointer.
 
 Note that realloc() and free() are not expected to be called directly by user
 code in most cases - they are primarily optimisations for use by data
-structures that wmem might want to implement (it's hard, for example, to
+structures that wmem might want to implement (it's inefficient, for example, to
 implement a dynamically sized array without some form of realloc).
 
 Also note that allocators do not have to handle NULL pointers or 0-length
@@ -288,8 +291,8 @@ structures, etc.
 
 The cleanup() function should do any final cleanup and free any and all memory.
 It is basically the equivalent of a destructor function. For simplicity, wmem
-is guaranteed to call free_all() immediately before this function. There is no
-such guarantee that gc() has (ever) been called.
+is guaranteed to call free_all() immediately before calling this function. There
+is no such guarantee that gc() has (ever) been called.
 
 4.2 Pool-Agnostic API
 
@@ -324,6 +327,10 @@ type is requested normally by the code. It currently has three valid values:
    currently used by any scripts, but is useful for stress-testing the block
    allocator.
 
+ - The value "block_fast" forces the use of WMEM_ALLOCATOR_BLOCK_FAST. This is
+   not currently used by any scripts, but is useful for stress-testing the fast
+   block allocator.
+
 Note that regardless of the value of this variable, it will always be safe to
 call allocator-specific helpers functions. They are required to be safe no-ops
 if the allocator argument is of the wrong type.
@@ -337,18 +344,10 @@ The suite is run automatically by the build-bots via the shell script
 test/test.sh which calls out to test/suite-unittests.sh.
 
 New features added to wmem (allocators, data structures, utility
-functions, etc.) must also have tests added to this suite.
+functions, etc.) MUST also have tests added to this suite.
 
 The test suite could potentially use a clean-up by someone more
 intimately familiar with Glib's testing framework, but it does the job.
-
-5. TODO List
-
-The following is a list of things that emem didn't provide but that it might
-be nice if wmem did:
-
- - radix tree
- - hash table
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
