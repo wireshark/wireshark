@@ -110,7 +110,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				return FALSE;
 			}
 
-			length_remaining = tvb_length_remaining(tvb,
+			length_remaining = tvb_captured_length_remaining(tvb,
 			    next_offset);
 
 			/*
@@ -118,7 +118,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * header (i.e. a line end).
 			 */
 			linelen = tvb_find_line_end(tvb, next_offset,
-			    -1, &next_offset, TRUE);
+			    length_remaining, &next_offset, TRUE);
 			if (linelen == -1 &&
 			    length_remaining >= reported_length_remaining) {
 				/*
@@ -256,11 +256,11 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					return FALSE;
 				}
 
-				length_remaining = tvb_length_remaining(tvb,
+				length_remaining = tvb_captured_length_remaining(tvb,
 				    next_offset);
 
 				linelen = tvb_find_line_end(tvb, next_offset,
-						-1, &chunk_offset, TRUE);
+						length_remaining, &chunk_offset, TRUE);
 
 				if (linelen == -1 &&
 				    length_remaining >=
@@ -300,7 +300,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					 * trailing CRLF.
 					 */
 					linelen = tvb_find_line_end(tvb,
-					    chunk_offset, -1, &chunk_offset, TRUE);
+					    chunk_offset, length_remaining, &chunk_offset, TRUE);
 
 					if (linelen == -1 &&
 					    length_remaining >=
@@ -354,7 +354,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			}
 			/* next_offset has been set to the end of the headers */
 			if (!tvb_bytes_exist(tvb, next_offset, content_length)) {
-				length_remaining = tvb_length_remaining(tvb,
+				length_remaining = tvb_captured_length_remaining(tvb,
 				    next_offset);
 				reported_length_remaining =
 				    tvb_reported_length_remaining(tvb, next_offset);
@@ -382,7 +382,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 			 * we wont do any reassembly.
 			 * Set up tcp reassembly until the end of this session.
 			 */
-			length_remaining = tvb_length_remaining(tvb, next_offset);
+			length_remaining = tvb_captured_length_remaining(tvb, next_offset);
 			reported_length_remaining = tvb_reported_length_remaining(tvb, next_offset);
 			if (length_remaining < reported_length_remaining) {
 				/*
