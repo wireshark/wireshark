@@ -3647,7 +3647,7 @@ pcapng_dump_open(wtap_dumper *wdh, int *err)
         wdh->subtype_close = pcapng_dump_close;
         pcapng = (pcapng_dump_t *)g_malloc0(sizeof(pcapng_dump_t));
         wdh->priv = (void *)pcapng;
-        pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+        pcapng->interface_data = g_array_new(FALSE, FALSE, sizeof(interface_data_t));
 
         if ((wdh->number_of_interfaces == 0) || (wdh->interface_data == NULL)) {
                 pcapng_debug0("There are no interfaces. Can't handle that...");
