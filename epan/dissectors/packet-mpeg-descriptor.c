@@ -740,18 +740,17 @@ static void
 proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-    guint32 frequency, symbol_rate;
+    float frequency;
+    guint32 symbol_rate;
     guint16 orbital_position;
     guint8  modulation_system;
 
-    frequency = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency, tvb, offset, 4,
-        "Frequency", "%2u%01u,%01u%02u%02u GHz",
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 24),
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 16) / 10,
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 16) % 10,
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 8),
-        MPEG_SECT_BCD44_TO_DEC(frequency));
+    frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0f +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0f +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0f +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 100000.f;
+    proto_tree_add_float_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency,
+            tvb, offset, 4, frequency, "Frequency: %f GHz", frequency);
     offset += 4;
 
     orbital_position = tvb_get_ntohs(tvb, offset);
@@ -3283,7 +3282,7 @@ proto_register_mpeg_descriptor(void)
         /* 0x43 Satellite Delivery System Descriptor */
         { &hf_mpeg_descr_satellite_delivery_frequency, {
             "Frequency", "mpeg_descr.sat_delivery.freq",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_satellite_delivery_orbital_position, {
