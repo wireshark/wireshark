@@ -2758,6 +2758,9 @@ dissect_amqp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint (*length_getter)(packet_info *, tvbuff_t *, int);
     new_dissector_t dissector;
 
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
+    col_clear(pinfo->cinfo, COL_INFO);
+
     /*  Minimal frame size is 8 bytes - smaller frames are malformed  */
     if (tvb_reported_length (tvb) < 8) {
         expert_add_info_format(pinfo, NULL, &ei_amqp_bad_length, "Require frame at least 8 bytes long");
@@ -7196,9 +7199,6 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     conn = conversation_get_proto_data(conv, proto_amqp);
 #endif
 
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
-    col_clear(pinfo->cinfo, COL_INFO);
-
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
     if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
         guint8         proto_major;
@@ -7339,9 +7339,6 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint          length;
     guint8         frame_type;
     guint16        class_id, method_id;
-
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "AMQP");
-    col_clear(pinfo->cinfo, COL_INFO);
 
     /*  Heuristic - protocol initialisation frame starts with 'AMQP'  */
     if (tvb_memeql(tvb, 0, "AMQP", 4) == 0) {
