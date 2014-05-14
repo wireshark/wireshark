@@ -330,6 +330,8 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   gint len, reported_len;
   udp_p_info_t *udp_p_info = NULL;
   gboolean prev_heur_found = FALSE;
+  /* Save curr_layer_num as it might be changed by subdissector */
+  guint8 curr_layer_num = pinfo->curr_layer_num;
 
   if (pinfo->fd->flags.visited) {
     udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
@@ -341,7 +343,7 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     prev_heur_found = TRUE;
   }
 
-  len = tvb_length_remaining(tvb, offset);
+  len = tvb_captured_length_remaining(tvb, offset);
   reported_len = tvb_reported_length_remaining(tvb, offset);
   if (uh_ulen != -1) {
     /* This is the length from the UDP header; the payload should be cut
@@ -372,8 +374,6 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (try_heuristic_first && prev_heur_found) {
     /* Do lookup with the heuristic subdissector table */
-    /* Save curr_layer_num as it might be changed by subdissector */
-    guint8 curr_layer_num = pinfo->curr_layer_num;
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
@@ -416,8 +416,6 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
   if (!try_heuristic_first && prev_heur_found) {
     /* Do lookup with the heuristic subdissector table */
-    /* Save curr_layer_num as it might be changed by subdissector */
-    guint8 curr_layer_num = pinfo->curr_layer_num;
     if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
@@ -746,7 +744,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
    * We definitely don't want to do it for an error packet if there's
    * nothing left in the packet.
    */
-  if (!pinfo->flags.in_error_pkt || (tvb_length_remaining(tvb, offset) > 0))
+  if (!pinfo->flags.in_error_pkt || (tvb_captured_length_remaining(tvb, offset) > 0))
     decode_udp_ports(tvb, offset, pinfo, tree, udph->uh_sport, udph->uh_dport,
                      udph->uh_ulen);
 }
