@@ -65,7 +65,7 @@ typedef enum
     DIS_VERSION_2_0_4TH_DRAFT     = 4,
     DIS_VERSION_IEEE_1278_1_1995  = 5,
     DIS_VERSION_IEEE_1278_1A_1998 = 6,
-    DIS_VERSION_IEEE_1278_1_200X  = 7
+    DIS_VERSION_IEEE_1278_1_2012  = 7
 } DIS_PDU_ProtocolVersion;
 
 static const value_string DIS_PDU_ProtocolVersion_Strings[] =
@@ -77,7 +77,7 @@ static const value_string DIS_PDU_ProtocolVersion_Strings[] =
     { DIS_VERSION_2_0_4TH_DRAFT,     "DIS PDU version 2.0 - fourth draft (revised) March 16, 1994" },
     { DIS_VERSION_IEEE_1278_1_1995,  "IEEE 1278.1-1995" },
     { DIS_VERSION_IEEE_1278_1A_1998, "IEEE 1278.1A-1998" },
-    { DIS_VERSION_IEEE_1278_1_200X,  "IEEE 1278.1-200X" },
+    { DIS_VERSION_IEEE_1278_1_2012,  "IEEE 1278.1-2012" },
     { 0,                             NULL }
 };
 
@@ -156,19 +156,19 @@ typedef enum
     DIS_PDUTYPE_TRANSMITTER                        = 25,
     DIS_PDUTYPE_SIGNAL                             = 26,
     DIS_PDUTYPE_RECEIVER                           = 27,
-    DIS_PDUTYPE_IFF_ATC_NAVAIDS                    = 28,
+    DIS_PDUTYPE_IFF                                = 28,
     DIS_PDUTYPE_UNDERWATER_ACOUSTIC                = 29,
     DIS_PDUTYPE_SUPPLEMENTAL_EMISSION_ENTITY_STATE = 30,
     DIS_PDUTYPE_INTERCOM_SIGNAL                    = 31,
     DIS_PDUTYPE_INTERCOM_CONTROL                   = 32,
     DIS_PDUTYPE_AGGREGATE_STATE                    = 33,
     DIS_PDUTYPE_IS_GROUP_OF                        = 34,
-    DIS_PDUTYPE_TRANSFER_CONTROL                   = 35,
+    DIS_PDUTYPE_TRANSFER_OWNERSHIP                 = 35,
     DIS_PDUTYPE_IS_PART_OF                         = 36,
     DIS_PDUTYPE_MINEFIELD_STATE                    = 37,
     DIS_PDUTYPE_MINEFIELD_QUERY                    = 38,
     DIS_PDUTYPE_MINEFIELD_DATA                     = 39,
-    DIS_PDUTYPE_MINEFIELD_RESPONSE_NAK             = 40,
+    DIS_PDUTYPE_MINEFIELD_RESPONSE_NACK            = 40,
     DIS_PDUTYPE_ENVIRONMENTAL_PROCESS              = 41,
     DIS_PDUTYPE_GRIDDED_DATA                       = 42,
     DIS_PDUTYPE_POINT_OBJECT_STATE                 = 43,
@@ -200,7 +200,7 @@ typedef enum
     DIS_PDUTYPE_ENTITY_DAMAGE_STATUS               = 69,
     DIS_PDUTYPE_INFORMATION_OPERATIONS_ACTION      = 70,
     DIS_PDUTYPE_INFORMATION_OPERATIONS_REPORT      = 71,
-    DIS_PDUTYPE_ATTRIBUTE                          = 71,
+    DIS_PDUTYPE_ATTRIBUTE                          = 72,
     DIS_PDUTYPE_ANNOUNCE_OBJECT                    = 129,
     DIS_PDUTYPE_DELETE_OBJECT                      = 130,
     DIS_PDUTYPE_DESCRIBE_APPLICATION               = 131,
@@ -242,19 +242,19 @@ static const value_string DIS_PDU_Type_Strings[] =
     { DIS_PDUTYPE_TRANSMITTER,                        "Transmitter" },
     { DIS_PDUTYPE_SIGNAL,                             "Signal" },
     { DIS_PDUTYPE_RECEIVER,                           "Receiver" },
-    { DIS_PDUTYPE_IFF_ATC_NAVAIDS,                    "IFF / ATC / NAVAIDS" },
+    { DIS_PDUTYPE_IFF,                                "IFF" },
     { DIS_PDUTYPE_UNDERWATER_ACOUSTIC,                "Underwater Acoustic" },
     { DIS_PDUTYPE_SUPPLEMENTAL_EMISSION_ENTITY_STATE, "Supplemental Emission Entity State" },
     { DIS_PDUTYPE_INTERCOM_SIGNAL,                    "Intercom Signal" },
     { DIS_PDUTYPE_INTERCOM_CONTROL,                   "Intercom Control" },
     { DIS_PDUTYPE_AGGREGATE_STATE,                    "Aggregate State" },
     { DIS_PDUTYPE_IS_GROUP_OF,                        "IsGroupOf" },
-    { DIS_PDUTYPE_TRANSFER_CONTROL,                   "Transfer Control" },
+    { DIS_PDUTYPE_TRANSFER_OWNERSHIP,                 "Transfer Ownership" },
     { DIS_PDUTYPE_IS_PART_OF,                         "IsPartOf" },
     { DIS_PDUTYPE_MINEFIELD_STATE,                    "Minefield State" },
     { DIS_PDUTYPE_MINEFIELD_QUERY,                    "Minefield Query" },
     { DIS_PDUTYPE_MINEFIELD_DATA,                     "Minefield Data" },
-    { DIS_PDUTYPE_MINEFIELD_RESPONSE_NAK,             "Minefield Response NAK" },
+    { DIS_PDUTYPE_MINEFIELD_RESPONSE_NACK,            "Minefield Response NACK" },
     { DIS_PDUTYPE_ENVIRONMENTAL_PROCESS,              "Environmental Process" },
     { DIS_PDUTYPE_GRIDDED_DATA,                       "Gridded Data" },
     { DIS_PDUTYPE_POINT_OBJECT_STATE,                 "Point Object State" },
@@ -6229,7 +6229,7 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
             pduParser = DIS_PARSER_FIRE_PDU;
             break;
         case DIS_PDUTYPE_DETONATION:
-            if ( disProtocolVersion < DIS_VERSION_IEEE_1278_1_200X )
+            if ( disProtocolVersion < DIS_VERSION_IEEE_1278_1_2012 )
             {
                 pduParser = DIS_PARSER_DETONATION_PDU;
             }
