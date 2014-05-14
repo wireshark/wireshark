@@ -68,7 +68,7 @@ void CaptureFilterSyntaxWorker::start() {
         filter_text_ = QString();
         data_mtx_.unlock();
 
-        if (global_capture_opts.all_ifaces->len < 1) {
+        if (global_capture_opts.num_selected < 1) {
             emit syntaxResult(filter, false, QString("No interfaces selected"));
             DEBUG_SYNTAX_CHECK("unknown", "no interfaces");
             continue;
