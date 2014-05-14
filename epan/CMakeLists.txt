@@ -907,6 +907,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-lmi.c
 	dissectors/packet-lmp.c
 	dissectors/packet-logcat.c
+	dissectors/packet-logcat-text.c
 	dissectors/packet-lon.c
 	dissectors/packet-loop.c
 	dissectors/packet-lpd.c

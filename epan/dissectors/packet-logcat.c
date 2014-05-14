@@ -57,7 +57,7 @@ static gint exported_pdu_tap = -1;
 
 static expert_field ei_invalid_payload_length = EI_INIT;
 
-static const value_string priority_vals[] = {
+const value_string priority_vals[] = {
     { 0x00,  "Unknown" },
     { 0x01,  "Default" },
     { 0x02,  "Verbose" },

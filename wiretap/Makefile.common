@@ -53,6 +53,7 @@ NONGENERATED_C_FILES = \
 	mime_file.c		\
 	k12.c			\
 	lanalyzer.c		\
+	logcat_text.c		\
 	logcat.c		\
 	libpcap.c		\
 	merge.c			\
@@ -112,6 +113,7 @@ NONGENERATED_HEADER_FILES = \
 	lanalyzer.h		\
 	libpcap.h		\
 	logcat.h		\
+	logcat_text.h		\
 	merge.h			\
 	mpeg.h			\
 	mp2t.h			\

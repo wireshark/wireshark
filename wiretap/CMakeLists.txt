@@ -49,6 +49,7 @@ set(CLEAN_FILES
 	lanalyzer.c
 	libpcap.c
 	logcat.c
+	logcat_text.c
 	merge.c
 	mpeg.c
 	mime_file.c
