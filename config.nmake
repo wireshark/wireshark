@@ -13,7 +13,8 @@ PROGRAM_NAME=Wireshark
 
 ##### Target platform #####
 
-# Pick up the value from the environment, VS2012 onwards sets this via vcvarsall.bat
+# Pick up the value from the environment, VS2012 onwards sets PLATFORM via
+#  vcvarsall.bat (it appears for X64 only).
 # For VS2010 and earlier you'll have to set the value yourself
 !IF "$(PLATFORM)" == "X64"
 WIRESHARK_TARGET_PLATFORM=win64
