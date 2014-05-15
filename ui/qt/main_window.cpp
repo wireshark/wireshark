@@ -409,6 +409,7 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         return;
     }
 
+    capture_interfaces_dialog_.close();
     // Make sure we kill any open dumpcap processes.
     delete main_welcome_;
 
