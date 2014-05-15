@@ -2345,11 +2345,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	if (!gvcp_trans)
 	{
-		gvcp_trans = (gvcp_transaction_t*)wmem_alloc(wmem_packet_scope(), sizeof(gvcp_transaction_t));
-		gvcp_trans->req_frame = 0;
-		gvcp_trans->rep_frame = 0;
-		gvcp_trans->addr_list = 0;
-		gvcp_trans->addr_count = 0;
+		gvcp_trans = wmem_new0(wmem_packet_scope(), gvcp_transaction_t);
 	}
 
 	/* Add telegram subtree */
@@ -2418,12 +2414,12 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 				if(gvcp_trans_array)
 				{
-					wmem_array_append_one(gvcp_trans_array, gvcp_trans);
+					wmem_array_append(gvcp_trans_array, gvcp_trans, 1);
 				}
 				else
 				{
 					gvcp_trans_array = wmem_array_new(wmem_file_scope(), sizeof(gvcp_transaction_t));
-					wmem_array_append_one(gvcp_trans_array, *gvcp_trans);
+					wmem_array_append(gvcp_trans_array, gvcp_trans, 1);
 					wmem_map_insert(gvcp_info->pdus, GUINT_TO_POINTER(request_id), (void *)gvcp_trans_array);
 				}
 			}
