@@ -408,7 +408,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
      */
 
     /* First, make sure we have enough data to do the check. */
-    captured_length = tvb_length(tvb);
+    captured_length = tvb_captured_length(tvb);
     if (captured_length < MIN_HDR_LEN)
         return 0;
 
@@ -1077,7 +1077,7 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 {
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MIN_HDR_LEN,
         get_stun_message_len, dissect_stun, data);
-    return tvb_length(tvb);
+    return tvb_reported_length(tvb);
 }
 
 static gboolean
