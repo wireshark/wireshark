@@ -798,6 +798,11 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
 
+	/* Initialize the array containing a list of interfaces. pcapng_open and
+	 * erf_open needs this (and libpcap_open for ERF encapsulation types).
+	 * Always initing it here saves checking for a NULL ptr later. */
+	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
+
 	if (wth->random_fh) {
 		wth->fast_seek = g_ptr_array_new();
 
@@ -1021,8 +1026,6 @@ success:
 		descr.if_fcslen = -1;
 		descr.num_stat_entries = 0;          /* Number of ISB:s */
 		descr.interface_statistics = NULL;
-		wth->number_of_interfaces= 1;
-		wth->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 		g_array_append_val(wth->interface_data, descr);
 
 	}
@@ -1984,8 +1987,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 	/* Set Section Header Block data */
 	wdh->shb_hdr = shb_hdr;
 	/* Set Interface Description Block data */
-	if ((idb_inf != NULL) && (idb_inf->number_of_interfaces > 0)) {
-		wdh->number_of_interfaces = idb_inf->number_of_interfaces;
+	if ((idb_inf != NULL) && (idb_inf->interface_data->len > 0)) {
 		wdh->interface_data = idb_inf->interface_data;
 	} else {
 		wtapng_if_descr_t descr;
@@ -2006,8 +2008,6 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		descr.if_fcslen = -1;
 		descr.num_stat_entries = 0;          /* Number of ISB:s */
 		descr.interface_statistics = NULL;
-		wdh->number_of_interfaces= 1;
-		wdh->interface_data= g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	return wdh;

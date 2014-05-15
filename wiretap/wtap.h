@@ -990,7 +990,6 @@ typedef struct wtapng_section_s {
  *  one per interface.
  */
 typedef struct wtapng_iface_descriptions_s {
-    guint number_of_interfaces;
     GArray *interface_data;
 } wtapng_iface_descriptions_t;
 

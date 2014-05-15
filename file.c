@@ -1382,9 +1382,9 @@ cf_merge_files(char **out_filenamep, int in_file_count,
 
     /* create fake IDB info */
     idb_inf = g_new(wtapng_iface_descriptions_t,1);
-    idb_inf->number_of_interfaces = in_file_count; /* TODO make this the number of DIFFERENT encapsulation types
-                                                    * check that snaplength is the same too?
-                                                    */
+    /* TODO make this the number of DIFFERENT encapsulation types
+     * check that snaplength is the same too?
+     */
     idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 
     for (i = 0; i < in_file_count; i++) {

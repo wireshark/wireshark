@@ -120,7 +120,6 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 
     /* Create fake IDB info */
     idb_inf = g_new(wtapng_iface_descriptions_t,1);
-    idb_inf->number_of_interfaces = 1;
     idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 
     /* create the fake interface data */

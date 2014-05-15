@@ -3080,7 +3080,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   shb_hdr = wtap_file_get_shb_info(cf->wth);
   idb_inf = wtap_file_get_idb_info(cf->wth);
 #ifdef PCAP_NG_DEFAULT
-  if (idb_inf->number_of_interfaces > 1) {
+  if (idb_inf->interface_data->len > 1) {
     linktype = WTAP_ENCAP_PER_PACKET;
   } else {
     linktype = wtap_file_encap(cf->wth);

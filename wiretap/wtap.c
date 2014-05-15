@@ -201,7 +201,6 @@ wtap_file_get_idb_info(wtap *wth)
 
 	idb_info = g_new(wtapng_iface_descriptions_t,1);
 
-	idb_info->number_of_interfaces	= wth->number_of_interfaces;
 	idb_info->interface_data	= wth->interface_data;
 
 	return idb_info;
@@ -907,7 +906,7 @@ wtap_fdclose(wtap *wth)
 void
 wtap_close(wtap *wth)
 {
-	gint i, j;
+	guint i, j;
 	wtapng_if_descr_t *wtapng_if_descr;
 	wtapng_if_stats_t *if_stats;
 
@@ -926,7 +925,7 @@ wtap_close(wtap *wth)
 		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);
 		g_ptr_array_free(wth->fast_seek, TRUE);
 	}
-	for(i = 0; i < (gint)wth->number_of_interfaces; i++) {
+	for(i = 0; i < wth->interface_data->len; i++) {
 		wtapng_if_descr = &g_array_index(wth->interface_data, wtapng_if_descr_t, i);
 		if(wtapng_if_descr->opt_comment != NULL){
 			g_free(wtapng_if_descr->opt_comment);
@@ -946,19 +945,17 @@ wtap_close(wtap *wth)
 		if(wtapng_if_descr->if_os != NULL){
 			g_free(wtapng_if_descr->if_os);
 		}
-		for(j = 0; j < (gint)wtapng_if_descr->num_stat_entries; j++) {
+		for(j = 0; j < wtapng_if_descr->num_stat_entries; j++) {
 			if_stats = &g_array_index(wtapng_if_descr->interface_statistics, wtapng_if_stats_t, j);
 			if(if_stats->opt_comment != NULL){
 				g_free(if_stats->opt_comment);
 			}
 		}
 		if(wtapng_if_descr->num_stat_entries != 0){
-			 g_array_free(wtapng_if_descr->interface_statistics, TRUE);
+			g_array_free(wtapng_if_descr->interface_statistics, TRUE);
 		}
 	}
-	if(wth->number_of_interfaces != 0){
-		 g_array_free(wth->interface_data, TRUE);
-	}
+	g_array_free(wth->interface_data, TRUE);
 	g_free(wth);
 }
 

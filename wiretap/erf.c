@@ -726,10 +726,6 @@ int erf_populate_interfaces(wtap *wth)
   if (!wth)
     return -1;
 
-  if (!wth->interface_data) {
-    wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
-  }
-
   memset(&int_data, 0, sizeof(int_data)); /* Zero all fields */
 
   int_data.wtap_encap = WTAP_ENCAP_ERF;
@@ -762,7 +758,6 @@ int erf_populate_interfaces(wtap *wth)
     int_data.if_description = g_strdup_printf("ERF Interface Id %d (Port %c)", i, 'A'+i);
 
     g_array_append_val(wth->interface_data, int_data);
-    wth->number_of_interfaces++;
   }
 
   return 0;

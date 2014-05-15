@@ -172,7 +172,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
 
   st->ifaces  = g_array_new(FALSE, FALSE, sizeof(iface_options));
   idb_info = wtap_file_get_idb_info(cf->wth);
-  for (i = 0; i < idb_info->number_of_interfaces; i++) {
+  for (i = 0; i < idb_info->interface_data->len; i++) {
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtapng_if_descr_t, i);
     iface.cfilter = g_strdup(wtapng_if_descr.if_filter_str);
     iface.name = g_strdup(wtapng_if_descr.if_name);
