@@ -24,12 +24,6 @@
  */
 
 /* TODO / NOTES:
- * Field handling isn't ideal; this dissector should probably register
- * each individual field via the proto_register_field_array mechanism.
- * This would lead to better PDML output (instead of requiring the end user
- * to manually parse out the key/value pairs) and better searchability in
- * interactive mode.
- *
  * Lots more PDUs to implement.  Only the basic engagement events are currently
  * handled (Fire, Detonation, Entity State).  Most of the basic field types are
  * complete, however, so declaring new PDUs should be fairly simple.
@@ -47,14 +41,6 @@
 
 /* Encoding type the last 14 bits */
 #define DIS_ENCODING_TYPE(word) ((word) & 0x3FFF)
-
-#define DIS_PDU_MAX_VARIABLE_PARAMETERS              16
-#define DIS_PDU_MAX_VARIABLE_RECORDS                 16
-#define DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS 16
-#define DIS_PDU_MAX_SHAFTS                           16
-#define DIS_PDU_MAX_APAS                             16
-#define DIS_PDU_MAX_UA_EMITTER_SYSTEMS               16
-#define DIS_PDU_MAX_UA_BEAMS                         32
 
 typedef enum
 {
@@ -299,6 +285,8 @@ static const value_string DIS_PDU_Type_Strings[] =
     { 0,                                              NULL }
 };
 
+static value_string_ext DIS_PDU_Type_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_Type_Strings);
+
 typedef enum
 {
     DIS_ENTITYKIND_OTHER            = 0,
@@ -439,6 +427,8 @@ static const value_string DIS_PDU_Category_LandPlatform_Strings[] =
     { DIS_CATEGORY_LANDPLATFORM_OBSERVATION_POST,                           "Field observation post" },
     { 0,                                                                    NULL }
 };
+
+static value_string_ext DIS_PDU_Category_LandPlatform_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_Category_LandPlatform_Strings);
 
 typedef enum
 {
@@ -712,6 +702,8 @@ static const value_string DIS_PDU_TDL_Type_Strings[] =
     {DIS_TDL_TYPE_AFIWC_IADS,                "AFIWC IADS Communications Links" },
     { 0,                                     NULL }
 };
+
+static value_string_ext DIS_PDU_TDL_Type_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_TDL_Type_Strings);
 
 static const value_string DIS_PDU_RadioCategory_Strings[] =
 {
@@ -1017,6 +1009,8 @@ static const value_string DIS_PDU_EmissionFunction_Strings[] =
     {DIS_EMISSION_FUNCTION_WEAPON_LETHAL,             "Weapon, lethal" },
     {0,                                      NULL }
 };
+
+static value_string_ext DIS_PDU_EmissionFunction_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_EmissionFunction_Strings);
 
 
 typedef enum
@@ -1348,6 +1342,8 @@ static const value_string DIS_PDU_ActionId_Strings[] =
     { 0,                                                          NULL }
 };
 
+static value_string_ext DIS_PDU_ActionId_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_ActionId_Strings);
+
 typedef enum
 {
     DIS_APPLICATION_GENERAL_STATUS_UNKNOWN                   = 1,
@@ -1505,6 +1501,8 @@ static const value_string DIS_PDU_DetonationResult_Strings[] =
     { DIS_DETONATION_RESULT_MISS_DUE_TO_FOF_AND_ENDGAME_FAILURE,     "Miss due to fly-out and end-game failure" },
     { 0,                                                             NULL }
 };
+
+static value_string_ext DIS_PDU_DetonationResult_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_DetonationResult_Strings);
 
 typedef enum
 {
@@ -1787,6 +1785,8 @@ static const value_string DIS_PDU_PO_ObjectClass_Strings[] =
     { DIS_PO_OBJECT_CLASS_MESSAGE,                  "Message" },
     { 0,                                            NULL }
 };
+
+static value_string_ext DIS_PDU_PO_ObjectClass_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_PO_ObjectClass_Strings);
 
 static const value_string DIS_PDU_EmitterName_Strings[] =
 {
@@ -2980,6 +2980,8 @@ static const value_string DIS_PDU_EmitterName_Strings[] =
     { 0, NULL }
 };
 
+static value_string_ext DIS_PDU_EmitterName_Strings_Ext = VALUE_STRING_EXT_INIT(DIS_PDU_EmitterName_Strings);
+
 /******************************************************************************
 *
 * FIELDS
@@ -2990,11 +2992,21 @@ static int hf_dis_proto_ver = -1;
 static int hf_dis_exercise_id = -1;
 static int hf_dis_pdu_type = -1;
 static int hf_dis_proto_fam = -1;
+static int hf_dis_header_rel_ts = -1;
 static int hf_dis_pdu_length = -1;
+static int hf_dis_padding = -1;
+static int hf_dis_po_ver = -1;
+static int hf_dis_po_pdu_type = -1;
+static int hf_dis_po_database_id = -1;
+static int hf_dis_po_length = -1;
+static int hf_dis_po_pdu_count = -1;
 static int hf_dis_entity_id_site = -1;
 static int hf_dis_entity_id_application = -1;
 static int hf_dis_entity_id_entity = -1;
+static int hf_dis_emitter_id = -1;
+static int hf_dis_beam_id = -1;
 static int hf_dis_num_art_params = -1;
+static int hf_dis_clocktime = -1;
 static int hf_dis_entityKind = -1;
 static int hf_dis_entityDomain = -1;
 static int hf_dis_category_land = -1;
@@ -3002,10 +3014,49 @@ static int hf_dis_category_air = -1;
 static int hf_dis_category_surface = -1;
 static int hf_dis_category_subsurface = -1;
 static int hf_dis_category_space = -1;
-static int hf_dis_category_radio = -1;
+static int hf_dis_category = -1;
+static int hf_dis_country = -1;
+static int hf_dis_subcategory = -1;
+static int hf_dis_specific = -1;
+static int hf_dis_extra = -1;
+static int hf_dis_site = -1;
+static int hf_dis_request_id = -1;
+static int hf_dis_reason = -1;
+static int hf_dis_frozen_behavior = -1;
+static int hf_dis_acknowledge_flag = -1;
+static int hf_dis_response_flag = -1;
+static int hf_dis_application = -1;
+static int hf_dis_action_id = -1;
+static int hf_dis_request_status = -1;
+static int hf_dis_num_fixed_data = -1;
+static int hf_dis_num_variable_data = -1;
+static int hf_dis_datum_id = -1;
+static int hf_dis_fixed_datum_value = -1;
+static int hf_dis_datum_length = -1;
+static int hf_dis_variable_datum_value = -1;
+static int hf_dis_time_interval8 = -1;
+static int hf_dis_time_interval32 = -1;
+static int hf_dis_num_fixed_datum_id = -1;
+static int hf_dis_num_variable_datum_id = -1;
+static int hf_dis_reliability = -1;
+static int hf_dis_control_id = -1;
+static int hf_dis_orig_app_type = -1;
+static int hf_dis_recv_app_type = -1;
+static int hf_dis_num_parts = -1;
+static int hf_dis_current_part = -1;
+static int hf_dis_num_variable_records = -1;
+static int hf_dis_variable_record_type = -1;
+static int hf_dis_variable_record_len = -1;
+static int hf_dis_event_number = -1;
 static int hf_dis_num_electromagnetic_emission_systems = -1;
 static int hf_dis_emitter_name = -1;
 static int hf_dis_emission_function = -1;
+static int hf_dis_em_data_length = -1;
+static int hf_dis_em_num_beams = -1;
+static int hf_dis_emitter_id_number = -1;
+static int hf_dis_em_location_x = -1;
+static int hf_dis_em_location_y = -1;
+static int hf_dis_em_location_z = -1;
 static int hf_dis_beam_function = -1;
 static int hf_dis_radio_id = -1;
 static int hf_dis_ens = -1;
@@ -3022,14 +3073,29 @@ static int hf_dis_nomenclature_version = -1;
 static int hf_dis_nomenclature = -1;
 static int hf_dis_radio_transmit_state = -1;
 static int hf_dis_radio_input_source = -1;
+static int hf_dis_antenna_location_x = -1;
+static int hf_dis_antenna_location_y = -1;
+static int hf_dis_antenna_location_z = -1;
+static int hf_dis_rel_antenna_location_x = -1;
+static int hf_dis_rel_antenna_location_y = -1;
+static int hf_dis_rel_antenna_location_z = -1;
 static int hf_dis_antenna_pattern_type = -1;
 static int hf_dis_antenna_pattern_length = -1;
 static int hf_dis_transmit_frequency = -1;
+static int hf_dis_transmit_freq_bandwidth = -1;
+static int hf_dis_transmit_power = -1;
 static int hf_dis_spread_spectrum_usage = -1;
 static int hf_dis_frequency_hopping = -1;
 static int hf_dis_pseudo_noise_modulation = -1;
 static int hf_dis_time_hopping = -1;
 static int hf_dis_modulation_major = -1;
+static int hf_dis_modulation_amplitude = -1;
+static int hf_dis_modulation_amplitude_angle = -1;
+static int hf_dis_modulation_angle = -1;
+static int hf_dis_modulation_combination = -1;
+static int hf_dis_modulation_pulse = -1;
+static int hf_dis_modulation_unmodulated = -1;
+static int hf_dis_modulation_detail = -1;
 static int hf_dis_modulation_system = -1;
 static int hf_dis_crypto_system = -1;
 static int hf_dis_crypto_key = -1;
@@ -3050,10 +3116,130 @@ static int hf_dis_mod_param_transmitter_prim_mode = -1;
 static int hf_dis_mod_param_transmitter_second_mode = -1;
 static int hf_dis_mod_param_sync_state = -1;
 static int hf_dis_mod_param_network_sync_id = -1;
-static int hf_dis_antenna_pattern_parameter_dump = -1;
+static int hf_dis_force_id = -1;
+static int hf_dis_entity_linear_velocity_x = -1;
+static int hf_dis_entity_linear_velocity_y = -1;
+static int hf_dis_entity_linear_velocity_z = -1;
+static int hf_dis_entity_location_x = -1;
+static int hf_dis_entity_location_y = -1;
+static int hf_dis_entity_location_z = -1;
+static int hf_dis_entity_orientation_psi = -1;
+static int hf_dis_entity_orientation_theta = -1;
+static int hf_dis_entity_orientation_phi = -1;
+static int hf_appearance_landform_paint_scheme = -1;
+static int hf_appearance_landform_mobility = -1;
+static int hf_appearance_landform_fire_power = -1;
+static int hf_appearance_landform_damage = -1;
+static int hf_appearance_lifeform_paint_scheme = -1;
+static int hf_appearance_lifeform_health = -1;
+static int hf_entity_appearance = -1;
+static int hf_dis_dead_reckoning_parameters = -1;
+static int hf_dis_entity_marking = -1;
+static int hf_dis_capabilities = -1;
+static int hf_dis_variable_parameter_type = -1;
 static int hf_dis_num_shafts = -1;
 static int hf_dis_num_apas = -1;
+static int hf_dis_state_update_indicator = -1;
+static int hf_dis_passive_parameter_index = -1;
+static int hf_dis_propulsion_plant_config = -1;
+static int hf_dis_shaft_rpm_current = -1;
+static int hf_dis_shaft_rpm_ordered = -1;
+static int hf_dis_shaft_rpm_change_rate = -1;
 static int hf_dis_num_ua_emitter_systems = -1;
+static int hf_dis_apas_parameter_index = -1;
+static int hf_dis_apas_value = -1;
+static int hf_dis_ua_emission_name = -1;
+static int hf_dis_ua_emission_function = -1;
+static int hf_dis_ua_emission_id_number = -1;
+static int hf_dis_ua_emitter_data_length = -1;
+static int hf_dis_ua_num_beams = -1;
+static int hf_dis_ua_location_x = -1;
+static int hf_dis_ua_location_y = -1;
+static int hf_dis_ua_location_z = -1;
+static int hf_dis_ua_beam_data_length = -1;
+static int hf_dis_ua_beam_id_number = -1;
+static int hf_dis_ua_beam_active_emission_parameter_index = -1;
+static int hf_dis_ua_beam_scan_pattern = -1;
+static int hf_dis_ua_beam_center_azimuth = -1;
+static int hf_dis_ua_beam_azimuthal_beamwidth = -1;
+static int hf_dis_ua_beam_center_de = -1;
+static int hf_dis_ua_beam_de_beamwidth = -1;
+static int hf_dis_em_beam_data_length = -1;
+static int hf_dis_em_beam_id_number = -1;
+static int hf_dis_em_beam_parameter_index = -1;
+static int hf_dis_em_fund_frequency = -1;
+static int hf_dis_em_fund_frequency_range = -1;
+static int hf_dis_em_fund_effective_radiated_power = -1;
+static int hf_dis_em_fund_pulse_repition_freq = -1;
+static int hf_dis_em_fund_pulse_width = -1;
+static int hf_dis_em_fund_beam_azimuth_center = -1;
+static int hf_dis_em_fund_beam_azimuth_sweep = -1;
+static int hf_dis_em_fund_beam_elevation_center = -1;
+static int hf_dis_em_fund_beam_elevation_sweep = -1;
+static int hf_dis_em_fund_beem_sweep_sync = -1;
+static int hf_dis_track_jam_num_targ = -1;
+static int hf_dis_track_jam_high_density = -1;
+static int hf_dis_jamming_mode_seq = -1;
+static int hf_dis_warhead = -1;
+static int hf_dis_fuse = -1;
+static int hf_dis_quality = -1;
+static int hf_dis_rate = -1;
+static int hf_dis_fire_mission_index = -1;
+static int hf_dis_fire_location_x = -1;
+static int hf_dis_fire_location_y = -1;
+static int hf_dis_fire_location_z = -1;
+static int hf_dis_linear_velocity_x = -1;
+static int hf_dis_linear_velocity_y = -1;
+static int hf_dis_linear_velocity_z = -1;
+static int hf_dis_range = -1;
+static int hf_dis_detonation_location_x = -1;
+static int hf_dis_detonation_location_y = -1;
+static int hf_dis_detonation_location_z = -1;
+static int hf_dis_detonation_result = -1;
+static int hf_dis_simulator_type = -1;
+static int hf_dis_database_seq_num = -1;
+static int hf_dis_simulator_load = -1;
+static int hf_dis_simulation_load = -1;
+static int hf_dis_time = -1;
+static int hf_dis_packets_sent = -1;
+static int hf_dis_unit_database_version = -1;
+static int hf_dis_relative_battle_scheme = -1;
+static int hf_dis_terrain_name = -1;
+static int hf_dis_terrain_version = -1;
+static int hf_dis_host_name = -1;
+static int hf_dis_sequence_number = -1;
+static int hf_dis_persist_obj_class = -1;
+static int hf_dis_missing_from_world_state = -1;
+static int hf_dis_obj_count = -1;
+static int hf_dis_clock_rate = -1;
+static int hf_dis_sec_since_1970 = -1;
+static int hf_dis_str_data = -1;
+static int hf_dis_vp_change_indicator = -1;
+static int hf_dis_vp_association_status = -1;
+static int hf_dis_vp_association_type = -1;
+static int hf_dis_vp_own_station_location = -1;
+static int hf_dis_vp_phys_conn_type = -1;
+static int hf_dis_vp_group_member_type = -1;
+static int hf_dis_vp_group_number = -1;
+static int hf_dis_vp_offset_type = -1;
+static int hf_dis_vp_offset_x = -1;
+static int hf_dis_vp_offset_y = -1;
+static int hf_dis_vp_offset_z = -1;
+static int hf_dis_vp_attached_indicator = -1;
+static int hf_dis_vp_part_attached_to_id = -1;
+static int hf_dis_vp_artic_param_type = -1;
+static int hf_dis_vp_change = -1;
+static int hf_dis_vp_parameter_value = -1;
+static int hf_dis_vr_exercise_id = -1;
+static int hf_dis_vr_exercise_file_path = -1;
+static int hf_dis_vr_exercise_file_name = -1;
+static int hf_dis_vr_application_role = -1;
+static int hf_dis_vr_num_records = -1;
+static int hf_dis_vr_status_type = -1;
+static int hf_dis_vr_general_status = -1;
+static int hf_dis_vr_specific_status = -1;
+static int hf_dis_vr_status_value_int = -1;
+static int hf_dis_vr_status_value_float = -1;
 static int hf_dis_signal_link16_npg = -1;
 static int hf_dis_signal_link16_tsec_cvll = -1;
 static int hf_dis_signal_link16_msec_cvll = -1;
@@ -3063,1936 +3249,436 @@ static int hf_dis_signal_link16_time_slot_type = - 1;
 static int hf_dis_signal_link16_rti = -1;
 static int hf_dis_signal_link16_stn = -1;
 static int hf_dis_signal_link16_sdusn = -1;
-
-static gint ettVariableParameters[DIS_PDU_MAX_VARIABLE_PARAMETERS];
-static gint ettVariableRecords[DIS_PDU_MAX_VARIABLE_RECORDS];
-
-static gint ettFixedData = -1;
-static gint ettVariableData = -1;
+static int hf_dis_signal_link16_network_number = -1;
+static int hf_dis_signal_link16_time_slot_id = -1;
 
 static gint ett_dis = -1;
 static gint ett_dis_header = -1;
 static gint ett_dis_po_header = -1;
 static gint ett_dis_payload = -1;
+static gint ett_entity = -1;
+static gint ett_trackjam = -1;
 static gint ett_dis_ens = -1;
+static gint ett_radio_entity_type = -1;
+static gint ett_entity_type = -1;
 static gint ett_dis_crypto_key = -1;
+static gint ett_antenna_location = -1;
+static gint ett_rel_antenna_location = -1;
+static gint ett_modulation_type = -1;
+static gint ett_modulation_parameters = -1;
+static gint ett_entity_linear_velocity = -1;
+static gint ett_entity_location = -1;
+static gint ett_entity_orientation = -1;
+static gint ett_entity_appearance = -1;
+static gint ett_variable_parameter = -1;
+static gint ett_event_id = -1;
+static gint ett_shafts = -1;
+static gint ett_apas = -1;
+static gint ett_underwater_acoustic_emission = -1;
+static gint ett_acoustic_emitter_system = -1;
+static gint ett_ua_location = -1;
+static gint ett_ua_beams = -1;
+static gint ett_ua_beam_data = -1;
+static gint ett_emission_system = -1;
+static gint ett_emitter_system = -1;
+static gint ett_em_beam = -1;
+static gint ett_emitter_location = -1;
+static gint ett_em_fundamental_parameter_data = -1;
+static gint ett_burst_descriptor = -1;
+static gint ett_fire_location = -1;
+static gint ett_linear_velocity = -1;
+static gint ett_detonation_location = -1;
+static gint ett_clock_time = -1;
+static gint ett_fixed_datum = -1;
+static gint ett_record = -1;
+static gint ett_simulation_address = -1;
+static gint ett_offset_vector = -1;
 static gint ett_dis_signal_link16_network_header = -1;
 static gint ett_dis_signal_link16_message_data = -1;
 static gint ett_dis_signal_link16_jtids_header = -1;
 
+typedef int DIS_Parser_func(tvbuff_t *, packet_info *, proto_tree *, int);
 
-/* enumeration of all field types used for DIS parsing. */
-typedef enum
-{
-    /* end marker to indicate the end of a parser sequence */
-    DIS_FIELDTYPE_END = 0,
 
-    /* basic numeric types */
-    DIS_FIELDTYPE_INT8,
-    DIS_FIELDTYPE_INT16,
-    DIS_FIELDTYPE_INT32,
-    DIS_FIELDTYPE_INT64,
-    DIS_FIELDTYPE_UINT8,
-    DIS_FIELDTYPE_UINT16,
-    DIS_FIELDTYPE_UINT32,
-    DIS_FIELDTYPE_UINT64,
-    DIS_FIELDTYPE_FLOAT32,
-    DIS_FIELDTYPE_FLOAT64,
+/* Forward declarations */
+static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name);
+static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name);
+static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, guint8 paramType);
+static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, guint32 variableRecordType, guint16 record_length);
 
-    /* padding */
-    DIS_FIELDTYPE_PAD8,
-    DIS_FIELDTYPE_PAD16,
-    DIS_FIELDTYPE_PAD24,
-    DIS_FIELDTYPE_PAD32,
 
-    /* enumerations */
-    DIS_FIELDTYPE_ACKNOWLEDGE_FLAG,
-    DIS_FIELDTYPE_ACTION_ID,
-    DIS_FIELDTYPE_APPLICATION_GENERAL_STATUS,
-    DIS_FIELDTYPE_APPLICATION_STATUS_TYPE,
-    DIS_FIELDTYPE_APPLICATION_TYPE,
-    DIS_FIELDTYPE_CATEGORY,
-    DIS_FIELDTYPE_CONTROL_ID,
-    DIS_FIELDTYPE_DETONATION_RESULT,
-    DIS_FIELDTYPE_DOMAIN,
-    DIS_FIELDTYPE_ENTITY_KIND,
-    DIS_FIELDTYPE_FROZEN_BEHAVIOR,
-    DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR,
-    DIS_FIELDTYPE_PDU_TYPE,
-    DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE,
-    DIS_FIELDTYPE_PERSISTENT_OBJECT_CLASS,
-    DIS_FIELDTYPE_PROTOCOL_FAMILY,
-    DIS_FIELDTYPE_PROTOCOL_VERSION,
-    DIS_FIELDTYPE_REASON,
-    DIS_FIELDTYPE_REQUEST_STATUS,
-    DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE,
-    DIS_FIELDTYPE_RESPONSE_FLAG,
-    DIS_FIELDTYPE_TDL_TYPE,
-    DIS_FIELDTYPE_RADIO_CATEGORY,
-    DIS_FIELDTYPE_NOMENCLATURE_VERSION,
-    DIS_FIELDTYPE_NOMENCLATURE,
-    DIS_FIELDTYPE_RADIO_TRANSMIT_STATE,
-    DIS_FIELDTYPE_RADIO_INPUT_SOURCE,
-    DIS_FIELDTYPE_ANTENNA_PATTERN_TYPE,
-    DIS_FIELDTYPE_SPREAD_SPECTRUM,
-    DIS_FIELDTYPE_MODULATION_MAJOR,
-    DIS_FIELDTYPE_MODULATION_DETAIL,
-    DIS_FIELDTYPE_MODULATION_SYSTEM,
-    DIS_FIELDTYPE_CRYPTO_SYSTEM,
-    DIS_FIELDTYPE_EMITTER_NAME,
-    DIS_FIELDTYPE_EMISSION_FUNCTION,
-    DIS_FIELDTYPE_BEAM_FUNCTION,
-
-    /* other atomic types */
-    DIS_FIELDTYPE_PDU_LENGTH,
-    DIS_FIELDTYPE_EXERCISE_ID,
-    DIS_FIELDTYPE_SITE,
-    DIS_FIELDTYPE_APPLICATION,
-    DIS_FIELDTYPE_ENTITY,
-    DIS_FIELDTYPE_APPEARANCE,
-    DIS_FIELDTYPE_ARTIC_PARAM_TYPE,
-    DIS_FIELDTYPE_CAPABILITIES,
-    DIS_FIELDTYPE_COUNTRY,
-    DIS_FIELDTYPE_DATUM_ID,
-    DIS_FIELDTYPE_DATUM_LENGTH,
-    DIS_FIELDTYPE_DEAD_RECKONING_PARAMS,
-    DIS_FIELDTYPE_DEAD_RECKONING_ALGORITHM,
-    DIS_FIELDTYPE_DEAD_RECKONING_OTHER_PARAMS,
-    DIS_FIELDTYPE_ENTITY_MARKING,
-    DIS_FIELDTYPE_EXTRA,
-    DIS_FIELDTYPE_FIXED_DATUM_VALUE,
-    DIS_FIELDTYPE_FIXED_LEN_STR,
-    DIS_FIELDTYPE_FORCE_ID,
-    DIS_FIELDTYPE_FUSE,
-    DIS_FIELDTYPE_NUM_FIXED_DATA,
-    DIS_FIELDTYPE_NUM_VARIABLE_DATA,
-    DIS_FIELDTYPE_REQUEST_ID,
-    DIS_FIELDTYPE_SPECIFIC,
-    DIS_FIELDTYPE_SUBCATEGORY,
-    DIS_FIELDTYPE_TIME_INTERVAL,
-    DIS_FIELDTYPE_TIMESTAMP,
-    DIS_FIELDTYPE_WARHEAD,
-    DIS_FIELDTYPE_RADIO_ID,
-    DIS_FIELDTYPE_SAMPLE_RATE,
-    DIS_FIELDTYPE_DATA_LENGTH,
-    DIS_FIELDTYPE_NUMBER_OF_SAMPLES,
-    DIS_FIELDTYPE_NUM_ARTICULATION_PARAMS,
-    DIS_FIELDTYPE_ANTENNA_PATTERN_LENGTH,
-    DIS_FIELDTYPE_TRANSMIT_FREQUENCY,
-    DIS_FIELDTYPE_MODULATION_PARAMETER_LENGTH,
-    DIS_FIELDTYPE_FH_NETWORK_ID,
-    DIS_FIELDTYPE_FH_SET_ID,
-    DIS_FIELDTYPE_LO_SET_ID,
-    DIS_FIELDTYPE_FH_MSG_START,
-    DIS_FIELDTYPE_RESERVED,
-    DIS_FIELDTYPE_FH_SYNC_TIME_OFFSET,
-    DIS_FIELDTYPE_FH_SECURITY_KEY,
-    DIS_FIELDTYPE_FH_CLEAR_CHANNEL,
-    DIS_FIELDTYPE_TS_ALLOCATION_MODE,
-    DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE,
-    DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE,
-    DIS_FIELDTYPE_JTIDS_SYNC_STATE,
-    DIS_FIELDTYPE_NETWORK_SYNC_ID,
-    DIS_FIELDTYPE_LINK16_NPG,
-    DIS_FIELDTYPE_LINK16_TSEC_CVLL,
-    DIS_FIELDTYPE_LINK16_MSEC_CVLL,
-    DIS_FIELDTYPE_LINK16_MESSAGE_TYPE,
-    DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS,
-    DIS_FIELDTYPE_NUM_OF_SHAFTS,
-    DIS_FIELDTYPE_NUM_OF_APAS,
-    DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEMS,
-    DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEM_BEAMS,
-
-        /* composite types */
-    DIS_FIELDTYPE_BURST_DESCRIPTOR,
-    DIS_FIELDTYPE_CLOCK_TIME,
-    DIS_FIELDTYPE_ENTITY_ID,
-    DIS_FIELDTYPE_ENTITY_TYPE,
-    DIS_FIELDTYPE_RADIO_ENTITY_TYPE,
-    DIS_FIELDTYPE_EVENT_ID,
-    DIS_FIELDTYPE_LINEAR_VELOCITY,
-    DIS_FIELDTYPE_LOCATION_ENTITY,
-    DIS_FIELDTYPE_LOCATION_WORLD,
-    DIS_FIELDTYPE_ORIENTATION,
-    DIS_FIELDTYPE_SIMULATION_ADDRESS,
-    DIS_FIELDTYPE_VARIABLE_DATUM_VALUE,
-    DIS_FIELDTYPE_VECTOR_32,
-    DIS_FIELDTYPE_VECTOR_64,
-    DIS_FIELDTYPE_ENCODING_SCHEME,
-    DIS_FIELDTYPE_ANTENNA_LOCATION,
-    DIS_FIELDTYPE_REL_ANTENNA_LOCATON,
-    DIS_FIELDTYPE_MODULATION_TYPE,
-    DIS_FIELDTYPE_CRYPTO_KEY_ID,
-    DIS_FIELDTYPE_MODULATION_PARAMETERS,
-    DIS_FIELDTYPE_ANTENNA_PATTERN_PARAMETERS,
-    DIS_FIELDTYPE_MOD_PARAMS_CCTT_SINCGARS,
-    DIS_FIELDTYPE_MOD_PARAMS_JTIDS_MIDS,
-    DIS_FIELDTYPE_LINK16_MESSAGE_DATA,
-    DIS_FIELDTYPE_LINK16_PTT,
-    DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM,
-    DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM,
-    DIS_FIELDTYPE_EMITTER_SYSTEM,
-    DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA,
-    DIS_FIELDTYPE_TRACK_JAM,
-    DIS_FIELDTYPE_SHAFTS,
-    DIS_FIELDTYPE_APA,
-    DIS_FIELDTYPE_UA_EMITTER_SYSTEMS,
-    DIS_FIELDTYPE_UA_BEAMS,
-    DIS_FIELDTYPE_UA_EMITTER_SYSTEM,
-    DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA,
-
-    /* arrays */
-    DIS_FIELDTYPE_FIXED_DATUMS,
-    DIS_FIELDTYPE_FIXED_DATUM_IDS,
-    DIS_FIELDTYPE_VARIABLE_DATUMS,
-    DIS_FIELDTYPE_VARIABLE_DATUM_IDS,
-    DIS_FIELDTYPE_VARIABLE_PARAMETERS,
-    DIS_FIELDTYPE_VARIABLE_RECORDS,
-    DIS_FIELDTYPE_RADIO_DATA
-
-} DIS_FieldType;
-
-/* Struct which contains the data needed to parse a single DIS field.
- */
-typedef struct DIS_ParserNode_T
-{
-    DIS_FieldType fieldType;
-    const char *fieldLabel;
-    int fieldRepeatLen;
-    int ettVar;
-    struct DIS_ParserNode_T *children;
-    guint32 *outputVar;
-} DIS_ParserNode;
-
-/* Struct which associates a name with a particular bit combination.
- */
-typedef struct
-{
-    guint32 value;
-    const char *label;
-} DIS_BitMaskMapping;
-
-/* Struct which specifies all possible bit mappings associated with
- * a particular bit mask.
- */
-typedef struct
-{
-    guint32 maskBits;
-    guint32 shiftBits;
-    const char *label;
-    DIS_BitMaskMapping bitMappings[33];
-} DIS_BitMask;
-
-/* all of these variables are assigned by reference */
-/* *(parserNode.outputVar) = value                  */
-static guint32 disProtocolVersion;
-static guint32 pduType;
-static guint32 protocolFamily;
-static guint32 persistentObjectPduType;
+/* globals to pass data between functions */
 static guint32 entityKind;
 static guint32 entityDomain;
-static guint32 category;
-static guint32 radioID;
-static guint32 disRadioTransmitState;
-static guint32 encodingScheme;
-static guint32 tdlType;
-static guint32 numSamples;
-static guint32 messageType;
-static guint32 numFixed;
-static guint32 numVariable;
-static guint32 numBeams;
-static guint32 numTrackJamTargets;
-static guint32 numShafts;
-static guint32 numApas;
-static guint32 numUAEmitter;
-static guint32 numUABeams;
-static guint32 variableDatumLength;
-static guint32 variableParameterType;
-static guint32 variableRecordLength;
-static guint32 variableRecordType;
-static guint32 majorModulation;
-static guint32 systemModulation;
-static guint32 modulationParamLength;
-static guint32 disAntennaPattern;
-
-/* Headers
- */
-static DIS_ParserNode DIS_FIELDS_PDU_HEADER[] =
-{
-    { DIS_FIELDTYPE_PROTOCOL_VERSION, "Protocol Version",0,0,0,&disProtocolVersion },
-    { DIS_FIELDTYPE_EXERCISE_ID,      "Exercise ID",0,0,0,0 },
-    { DIS_FIELDTYPE_PDU_TYPE,         "PDU Type",0,0,0,&pduType },
-    { DIS_FIELDTYPE_PROTOCOL_FAMILY,  "Protocol Family",0,0,0,&protocolFamily },
-    { DIS_FIELDTYPE_TIMESTAMP,        "Timestamp",0,0,0,0 },
-    { DIS_FIELDTYPE_PDU_LENGTH,       "Length",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD16,            "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_END,              NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_PERSISTENT_OBJECT_HEADER[] =
-{
-    { DIS_FIELDTYPE_UINT8,                  "Protocol Version",0,0,0,0 },
-    { DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE, "PO PDU Type",0,0,0,&persistentObjectPduType },
-    { DIS_FIELDTYPE_UINT8,                  "Exercise ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                  "PO Database ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                 "Length",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                 "PDU Count",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
-};
 
 /* Composite types
  */
-
-static DIS_ParserNode DIS_FIELDS_BURST_DESCRIPTOR[] =
-{
-    { DIS_FIELDTYPE_ENTITY_TYPE, "Munition",0,0,0,0 },
-    { DIS_FIELDTYPE_WARHEAD,     "Warhead",0,0,0,0 },
-    { DIS_FIELDTYPE_FUSE,        "Fuse",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,      "Quantity",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,      "Rate",0,0,0,0 },
-    { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_CLOCK_TIME[] =
-{
-    { DIS_FIELDTYPE_UINT32,                 "Hour",0,0,0,0 },
-    { DIS_FIELDTYPE_TIMESTAMP,              "Time Past The Hour",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_ENTITY_ID[] =
-{
-    { DIS_FIELDTYPE_SITE,        "Site",0,0,0,0 },
-    { DIS_FIELDTYPE_APPLICATION, "Application",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY,      "Entity",0,0,0,0 },
-    { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_ENTITY_TYPE[] =
-{
-    { DIS_FIELDTYPE_ENTITY_KIND, "Entity Kind",0,0,0,&entityKind },
-    { DIS_FIELDTYPE_DOMAIN,      "Domain",0,0,0,&entityDomain },
-    { DIS_FIELDTYPE_COUNTRY,     "Country",0,0,0,0 },
-    { DIS_FIELDTYPE_CATEGORY,    "Category",0,0,0,&category },
-    { DIS_FIELDTYPE_SUBCATEGORY, "Subcategory",0,0,0,0 },
-    { DIS_FIELDTYPE_SPECIFIC,    "Specific",0,0,0,0 },
-    { DIS_FIELDTYPE_EXTRA,       "Extra",0,0,0,0 },
-    { DIS_FIELDTYPE_END,         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_RADIO_ENTITY_TYPE[] =
-{
-    { DIS_FIELDTYPE_ENTITY_KIND,          "Entity Kind",0,0,0,&entityKind },
-    { DIS_FIELDTYPE_DOMAIN,               "Domain",0,0,0,&entityDomain },
-    { DIS_FIELDTYPE_COUNTRY,              "Country",0,0,0,0 },
-    { DIS_FIELDTYPE_RADIO_CATEGORY,       "Radio Category",0,0,0,&category },
-    { DIS_FIELDTYPE_NOMENCLATURE_VERSION, "Nomenclature Version",0,0,0,0 },
-    { DIS_FIELDTYPE_NOMENCLATURE,         "Nomenclature",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                  NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_MODULATION_TYPE[] =
-{
-    { DIS_FIELDTYPE_SPREAD_SPECTRUM,        "Spread Spectrum",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_MAJOR,       "Major",0,0,0,&majorModulation },
-    { DIS_FIELDTYPE_MODULATION_DETAIL,      "Detail",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_SYSTEM,      "System",0,0,0,&systemModulation },
-    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_EVENT_ID[] =
-{
-    { DIS_FIELDTYPE_UINT16, "Site",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Application",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Event Number",0,0,0,0 },
-    { DIS_FIELDTYPE_END,    NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_ORIENTATION[] =
-{
-    { DIS_FIELDTYPE_FLOAT32, "Psi",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Theta",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Phi",0,0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_SIMULATION_ADDRESS[] =
-{
-    { DIS_FIELDTYPE_UINT16, "Site",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16, "Application",0,0,0,0 },
-    { DIS_FIELDTYPE_END,    NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_32[] =
-{
-    { DIS_FIELDTYPE_FLOAT32, "X",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Y",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32, "Z",0,0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VECTOR_FLOAT_64[] =
-{
-    { DIS_FIELDTYPE_FLOAT64, "X",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT64, "Y",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT64, "Z",0,0,0,0 },
-    { DIS_FIELDTYPE_END,     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS[] =
-{
-    { DIS_FIELDTYPE_FH_NETWORK_ID,        "Frequency Hopping Network ID",0,0,0,0 },
-    { DIS_FIELDTYPE_FH_SET_ID,            "Frequency Set ID",0,0,0,0 },
-    { DIS_FIELDTYPE_LO_SET_ID,            "Lockout Set ID",0,0,0,0 },
-    { DIS_FIELDTYPE_FH_MSG_START,         "Frequency Hopping Message Start",0,0,0,0 },
-    { DIS_FIELDTYPE_RESERVED,             "Reserved",0,0,0,0 },
-    { DIS_FIELDTYPE_FH_SYNC_TIME_OFFSET,  "FH Synchronization Time Offset",0,0,0,0 },
-    { DIS_FIELDTYPE_FH_SECURITY_KEY,      "Transmission Security Key",0,0,0,0 },
-    { DIS_FIELDTYPE_FH_CLEAR_CHANNEL,     "Clear Channel",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                 "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                  NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS[] =
-{
-    { DIS_FIELDTYPE_TS_ALLOCATION_MODE,           "Time Slot Allocaton Mode",0,0,0,0 },
-    { DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE,     "Transmitter Primary Mode",0,0,0,0 },
-    { DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE,   "Transmitter Secondary Mode",0,0,0,0 },
-    { DIS_FIELDTYPE_JTIDS_SYNC_STATE,             "Synchronization State",0,0,0,0 },
-    { DIS_FIELDTYPE_NETWORK_SYNC_ID,              "Network Sync ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER[] =
-{
-    { DIS_FIELDTYPE_LINK16_NPG,          "Network Participant Group",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,               "Network Number",0,0,0,0 },
-    { DIS_FIELDTYPE_LINK16_TSEC_CVLL,    "TSEC CVLL",0,0,0,0 },
-    { DIS_FIELDTYPE_LINK16_MSEC_CVLL,    "MSEC CVLL",0,0,0,0 },
-    { DIS_FIELDTYPE_LINK16_MESSAGE_TYPE, "Message Type",0,0,0,&messageType },
-    { DIS_FIELDTYPE_UINT16,              "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,              "Time Slot ID",0,0,0,0 },
-    { DIS_FIELDTYPE_LINK16_PTT,          "Perceived Transmit Time",0,0,0,0 },
-    { DIS_FIELDTYPE_LINK16_MESSAGE_DATA, "Message Data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                 NULL,0,0,0,0 }
-};
-
-/* Array records
- */
-static DIS_ParserNode DIS_FIELDS_FIXED_DATUM[] =
-{
-    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0,0 },
-    { DIS_FIELDTYPE_FIXED_DATUM_VALUE,       "Datum value",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VARIABLE_DATUM[] =
-{
-    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0,0 },
-    { DIS_FIELDTYPE_DATUM_LENGTH,            "Datum length",0,0,0,&variableDatumLength },
-    { DIS_FIELDTYPE_VARIABLE_DATUM_VALUE,    "Datum value",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_DATUM_IDS[] =
-{
-    { DIS_FIELDTYPE_DATUM_ID,                "Datum ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_EMITTER_SYSTEM[] =
-{
-    { DIS_FIELDTYPE_EMITTER_NAME,            "Emitter Name",0,0,0,0 },
-    { DIS_FIELDTYPE_EMISSION_FUNCTION,       "Function",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "Emitter ID Number",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_UA_SHAFT[] =
-{
-    { DIS_FIELDTYPE_INT16,                   "Current Shaft RPM",0,0,0,0 },
-    { DIS_FIELDTYPE_INT16,                   "Ordered Shaft RPM",0,0,0,0 },
-    { DIS_FIELDTYPE_INT32,                   "Shaft RPM Rate of Change",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_APA[] =
-{
-    { DIS_FIELDTYPE_INT16,                   "Parameter Index",0,0,0,0 }, /*FIXME enum*/
-    { DIS_FIELDTYPE_INT16,                   "Value", 0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_UA_EMITTER_SYSTEM[] =
-{
-    { DIS_FIELDTYPE_UINT16,                  "Acoustic Emitter Name",0,0,0,0 }, /*FIXME enum*/
-    { DIS_FIELDTYPE_UINT8,                  "Function",0,0,0,0 }, /*FIXME enum*/
-    { DIS_FIELDTYPE_UINT8,                  "Acoustic ID Number",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA[] =
-{
-    { DIS_FIELDTYPE_FLOAT32,            "Frequency",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Frequency Range",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Effective Radiated Power",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Pulse Repetition Frequency",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Pulse Width",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Beam Azimuth Center",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Beam Azimuth Sweep",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Beam Elevation Center",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Beam Elevation Sweep",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,            "Beam Sweep Sync",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_TRACK_JAM[] =
-{
-    { DIS_FIELDTYPE_SITE,               "Site",0,0,0,0 },
-    { DIS_FIELDTYPE_APPLICATION,        "Application",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY,             "Entity",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,              "Emitter ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,              "Beam ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                NULL,0,0,0,0 }
-};
-
-/* Variable Parameters
- */
-static DIS_ParserNode DIS_FIELDS_VP_TYPE[] =
-{
-    { DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR,   "Variable Parameter Type",0,0,0,&variableParameterType },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
-};
-
-/* Array record contents - variable parameter records
- */
-static DIS_ParserNode DIS_FIELDS_VP_GENERIC[] =
-{
-    { DIS_FIELDTYPE_FIXED_LEN_STR,               "Data",15,0,0,0 },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VP_ARTICULATED_PART[] =
-{
-    { DIS_FIELDTYPE_UINT8,                       "Change",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                      "Part Attached To ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ARTIC_PARAM_TYPE,            "Parameter Type",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT64,                      "Parameter Value",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VP_ATTACHED_PART[] =
-{
-    { DIS_FIELDTYPE_UINT8,                       "Attached Indicator",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                      "Part Attached To ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ARTIC_PARAM_TYPE,            "Parameter Type",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_TYPE,                 "Part Type",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VP_ENTITY_OFFSET[] =
-{
-    { DIS_FIELDTYPE_UINT8,                       "Offset Type",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                        "Padding",2,0,0,0 },
-    { DIS_FIELDTYPE_VECTOR_32,                   "Offset",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VP_ENTITY_ASSOCIATION[] =
-{
-    { DIS_FIELDTYPE_UINT8,                       "Change Indicator",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                       "Association Status",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                       "Association Type",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                   "Object Identifier",2,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                      "Own Station Location",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                       "Physical Connection Type",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                       "Group Member Type",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                      "Group Number",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                         NULL,0,0,0,0 }
-};
-/* Variable Records
- */
-static DIS_ParserNode DIS_FIELDS_VR_TYPE[] =
-{
-    { DIS_FIELDTYPE_UINT32,   "Record Type",0,0,0,&variableRecordType },
-    { DIS_FIELDTYPE_UINT16,   "Record Length",0,0,0,&variableRecordLength },
-    { DIS_FIELDTYPE_END,      NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS[] =
-{
-    { DIS_FIELDTYPE_PAD8,                       "Padding",2,0,0,0 },
-    { DIS_FIELDTYPE_APPLICATION_STATUS_TYPE,    "Status Type",0,0,0,0 },
-    { DIS_FIELDTYPE_APPLICATION_GENERAL_STATUS, "General Status",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                      "Specific Status",0,0,0,0 },
-    { DIS_FIELDTYPE_INT32,                      "Status Value Int",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT64,                    "Status Value Float",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                        NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_APPLICATION_INITIALIZATION[] =
-{
-    { DIS_FIELDTYPE_UINT8,                   "Exercise ID",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                    "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Exercise File Path",256,0,0,0 },
-    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Exercise File Name",128,0,0,0 },
-    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Application Role",64,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_DATA_QUERY[] =
-{
-    { DIS_FIELDTYPE_UINT16,                  "Num Records",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_FIXED_DATUM_IDS,         "Record",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM[] =
-{
-    { DIS_FIELDTYPE_UINT8,                  "Beam Data Length",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                  "Beam ID Number",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                 "Beam Parameter Index",0,0,0,0 },
-    { DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA,
-                                       "Fundamental Parameter Data",0,0,0,0 },
-    { DIS_FIELDTYPE_BEAM_FUNCTION,          "Beam Function",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,   "Number of Targets in Track/Jam Field",0,0,0,&numTrackJamTargets },
-    { DIS_FIELDTYPE_UINT8,                  "High Density Track/Jam",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                   "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,                 "Jamming Mode Sequence",0,0,0,0 },
-    { DIS_FIELDTYPE_TRACK_JAM,              "Track/Jam Entity",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM[] =
-{
-    { DIS_FIELDTYPE_UINT8,                  "System Data Length",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                  "Number of Beams (M)",0,0,0,&numBeams },
-    { DIS_FIELDTYPE_PAD16,                  "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_EMITTER_SYSTEM,         "Emitter System",0,0,0,0 },
-    { DIS_FIELDTYPE_VECTOR_32,              "Location",0,0,0,0 },
-    { DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM, "Beam",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA[] =
-{
-    { DIS_FIELDTYPE_UINT16,                 "Active Emission Parameter Index",0,0,0,0 }, /*FIXME enum!!!*/
-    { DIS_FIELDTYPE_UINT16,                 "Scan Pattern",0,0,0,0 }, /*FIXME enum!!!*/
-    { DIS_FIELDTYPE_FLOAT32,                "Beam Center Azimuth (Horizontal Bearing)",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                "Azimuthal Beamwidth (Horizontal Beamwidth)",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                "Beam Center D/E",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                "D/E Beamwidth (Vertical Beamwidth)",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_UA_BEAM[] =
-{
-    { DIS_FIELDTYPE_UINT8,                  "Beam Data Length",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                  "Beam ID Number",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD16,                  "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA,
-                                            "Fundamental Data Parameters",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_FIELDS_VR_UA_EMITTER_SYSTEM[] =
-{
-    { DIS_FIELDTYPE_UINT8,                  "Emitter System Data Length",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEM_BEAMS, "Number of Beams (m)",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD16,                  "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_UA_EMITTER_SYSTEM,      "Acoustic Emitter System",0,0,0,0 },
-    { DIS_FIELDTYPE_VECTOR_32,              "Location (with respect to entity)",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                    NULL,0,0,0,0 }
-};
-
-/* Bit fields
- */
-static DIS_ParserNode DIS_FIELDS_NONE[] =
-{
-    { DIS_FIELDTYPE_END, NULL, 0,0,0,0 }
-};
-
-static DIS_BitMask DIS_APPEARANCE_LANDPLATFORM[] =
-{
-    { 0x00000001, 0, "Paint Scheme", {
-        { 0, "Uniform color" },
-        { 1, "Camouflage" },
-        { 0,0 }
-    } },
-    { 0x00000002, 1, "Mobility", {
-        { 0, "No mobility kill" },
-        { 1, "Mobility kill" },
-        { 0,0 }
-    } },
-    { 0x00000004, 2, "Fire Power", {
-        { 0, "No fire-power kill" },
-        { 1, "Fire-power kill" },
-        { 0,0 }
-    } },
-    { 0x00000018, 3, "Damage", {
-        { 0, "No damage" },
-        { 1, "Slight damage" },
-        { 2, "Moderate damage" },
-        { 3, "Destroyed" },
-        { 0,0 }
-    } },
-    { 0, 0, 0, {
-        { 0, 0 }
-    } }
-};
-
-static DIS_BitMask DIS_APPEARANCE_LIFEFORM[] =
-{
-    { 0x00000001, 0, "Paint Scheme", {
-        { 0, "Uniform color" },
-        { 1, "Camouflage" },
-        { 0,0 }
-    } },
-    { 0x00000018, 3, "Health", {
-        { 0, "No injury" },
-        { 1, "Slight injury" },
-        { 2, "Moderate injury" },
-        { 3, "Fatal injury" },
-        { 0,0 }
-    } },
-    { 0, 0, 0, {
-        { 0, 0 }
-    } }
-};
-
-/******************************************************************************
-*
-* PDUS
-*
-*******************************************************************************/
-
-/* DIS Entity Information / Interaction PDUs
- */
-static DIS_ParserNode DIS_PARSER_ENTITY_STATE_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_FORCE_ID,                "Force ID",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_ARTICULATION_PARAMS, "Number of Articulation Parameters",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_ENTITY_TYPE,             "Entity Type",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_TYPE,             "Alternative Entity Type",0,0,0,0 },
-    { DIS_FIELDTYPE_LINEAR_VELOCITY,         "Entity Linear Velocity",0,0,0,0 },
-    { DIS_FIELDTYPE_LOCATION_WORLD,          "Entity Location",0,0,0,0 },
-    { DIS_FIELDTYPE_ORIENTATION,             "Entity Orientation",0,0,0,0 },
-    { DIS_FIELDTYPE_APPEARANCE,              "Entity Appearance",0,0,0,0 },
-    { DIS_FIELDTYPE_DEAD_RECKONING_PARAMS,   "Dead Reckoning Parameters",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_MARKING,          "Entity Marking",0,0,0,0 },
-    { DIS_FIELDTYPE_CAPABILITIES,            "Capabilities",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_PARAMETERS,     "Variable Parameter",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-/* DIS Distributed Emission Regeneration PDUs
- */
-static DIS_ParserNode DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Emitting Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_EVENT_ID,                "Event ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "State Update Indicator",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS, "Number of Systems (N)",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_PAD16,                   "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM, "Emission System",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-
-/* DIS Underwater Acoustic PDUs
- */
-static DIS_ParserNode DIS_PARSER_UNDERWATER_ACOUSTIC_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Emitting Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_EVENT_ID,                "Event ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "State Update Indicator",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                    "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                  "Passive Parameter Index", 0,0,0,0 }, /* !! enum !! */
-    { DIS_FIELDTYPE_UINT8,                   "Propulsion Plant Configuration",0,0,0,0 }, /* !! enum !! */
-    { DIS_FIELDTYPE_NUM_OF_SHAFTS,           "Number of Shafts",0,0,0,&numShafts },
-    { DIS_FIELDTYPE_NUM_OF_APAS,             "Number of Additional Passive Activities (APA)",0,0,0,&numApas },
-    { DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEMS, "Number of UA Emitter Systems",0,0,0,&numUAEmitter },
-    { DIS_FIELDTYPE_SHAFTS,                  "Shafts",0,0,0,0 },
-    { DIS_FIELDTYPE_APA,                     "APAs",0,0,0,0 },
-    { DIS_FIELDTYPE_UA_EMITTER_SYSTEMS,      "Underwater Acoustic Emission System",0,0,0,0 },
-    { DIS_FIELDTYPE_UA_BEAMS,                "Beams",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-
-/* DIS Radio Communications protocol (RCP) family PDUs
- */
-static DIS_ParserNode DIS_PARSER_TRANSMITTER_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_RADIO_ID,                     "Radio ID",0,0,0,&radioID },
-    { DIS_FIELDTYPE_RADIO_ENTITY_TYPE,            "Radio Entity Type",0,0,0,0 },
-    { DIS_FIELDTYPE_RADIO_TRANSMIT_STATE,         "Radio Transmit State",0,0,0,&disRadioTransmitState },
-    { DIS_FIELDTYPE_RADIO_INPUT_SOURCE,           "Radio Input Source",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD16,                        "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_ANTENNA_LOCATION,             "Antenna Location",0,0,0,0 },
-    { DIS_FIELDTYPE_REL_ANTENNA_LOCATON,          "Relative Antenna Location",0,0,0,0 },
-    { DIS_FIELDTYPE_ANTENNA_PATTERN_TYPE,         "Antenna Pattern Type",0,0,0,&disAntennaPattern },
-    { DIS_FIELDTYPE_ANTENNA_PATTERN_LENGTH,       "Antenna Pattern Length",0,0,0,0 },
-    { DIS_FIELDTYPE_TRANSMIT_FREQUENCY,           "Transmit Frequency",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                      "Transmit Frequency Bandwidth",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                      "Transmit Power",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_TYPE,              "Modulation Type",0,0,0,0 },
-    { DIS_FIELDTYPE_CRYPTO_SYSTEM,                "Crypto System",0,0,0,0 },
-    { DIS_FIELDTYPE_CRYPTO_KEY_ID,                "Crypto Key ID",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_PARAMETER_LENGTH,  "Modulation Parameter Length",0,0,0,&modulationParamLength },
-    { DIS_FIELDTYPE_PAD24,                        "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_MODULATION_PARAMETERS,        "Modulation Parameters",0,0,0,0 },
-    /* need to finish decoding this PDU */
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_SIGNAL_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_RADIO_ID,                "Radio ID",0,0,0,&radioID },
-    { DIS_FIELDTYPE_ENCODING_SCHEME,         "Encoding Scheme",0,0,0,&encodingScheme },
-    { DIS_FIELDTYPE_TDL_TYPE,                "TDL Type",0,0,0,&tdlType },
-    { DIS_FIELDTYPE_SAMPLE_RATE,             "Sample Rate",0,0,0,0 },
-    { DIS_FIELDTYPE_DATA_LENGTH,             "Data Length",0,0,0,0 },
-    { DIS_FIELDTYPE_NUMBER_OF_SAMPLES,       "Number of Samples",0,0,0,&numSamples },
-    { DIS_FIELDTYPE_RADIO_DATA,              "Radio Data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-/* DIS Warfare PDUs
- */
-static DIS_ParserNode DIS_PARSER_FIRE_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,        "Firing Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,        "Target Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,        "Munition ID",0,0,0,0 },
-    { DIS_FIELDTYPE_EVENT_ID,         "Event ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,           "Fire Mission Index",0,0,0,0 },
-    { DIS_FIELDTYPE_LOCATION_WORLD,   "Location in World Coordinates",0,0,0,0 },
-    { DIS_FIELDTYPE_BURST_DESCRIPTOR, "Burst Descriptor",0,0,0,0 },
-    { DIS_FIELDTYPE_LINEAR_VELOCITY,  "Velocity",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,          "Range",0,0,0,0 },
-    { DIS_FIELDTYPE_END,              NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DETONATION_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Firing Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Target Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Munition ID",0,0,0,0 },
-    { DIS_FIELDTYPE_EVENT_ID,                "Event ID",0,0,0,0 },
-    { DIS_FIELDTYPE_LINEAR_VELOCITY,         "Velocity",0,0,0,0 },
-    { DIS_FIELDTYPE_LOCATION_WORLD,          "Location in World Coordinates",0,0,0,0 },
-    { DIS_FIELDTYPE_BURST_DESCRIPTOR,        "Burst Descriptor",0,0,0,0 },
-    { DIS_FIELDTYPE_LOCATION_ENTITY,         "Location in Entity Coordinates",0,0,0,0 },
-    { DIS_FIELDTYPE_DETONATION_RESULT,       "Detonation Result",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_ARTICULATION_PARAMS, "Number of Articulation Parameters",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_PAD16,                   "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_PARAMETERS,     "Variable Parameter",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-/* DIS Simulation Management PDUs
- */
-static DIS_ParserNode DIS_PARSER_START_RESUME_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_CLOCK_TIME,              "Real World Time",0,0,0,0 },
-    { DIS_FIELDTYPE_CLOCK_TIME,              "Simulation Time",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_STOP_FREEZE_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_CLOCK_TIME,              "Real World Time",0,0,0,0 },
-    { DIS_FIELDTYPE_REASON,                  "Reason",0,0,0,0 },
-    { DIS_FIELDTYPE_FROZEN_BEHAVIOR,         "Frozen Behavior",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD16,                   "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_ACKNOWLEDGE_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ACKNOWLEDGE_FLAG,        "Acknowledge Flag",0,0,0,0 },
-    { DIS_FIELDTYPE_RESPONSE_FLAG,           "Response Flag",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_ACTION_REQUEST_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ACTION_ID,               "Action ID",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of Fixed Data Fields",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of Variable Data Fields",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUMS,            "Fixed data",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUMS,         "Variable data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_ACTION_RESPONSE_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_STATUS,          "Request Status",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of Fixed Data Fields",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of Variable Data Fields",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUMS,            "Fixed data",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUMS,         "Variable data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DATA_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD32,                   "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of Fixed Data Fields",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of Variable Data Fields",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUMS,            "Fixed data",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUMS,         "Variable data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DATA_QUERY_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_TIME_INTERVAL,           "Time interval",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of Fixed Datum Ids",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of Variable Datum Ids",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUM_IDS,         "Fixed datum ids",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUM_IDS,      "Variable datum ids",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_COMMENT_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,          "Number of Fixed Data Fields",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,       "Number of Variable Data Fields",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUMS,            "Fixed data",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUMS,         "Variable data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_SIMAN_ENTITY_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,               "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,              "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-/* DIS Simulation Management with Reliability PDUs
- */
-static DIS_ParserNode DIS_PARSER_START_RESUME_R_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_CLOCK_TIME,                   "Real World Time",0,0,0,0 },
-    { DIS_FIELDTYPE_CLOCK_TIME,                   "Simulation Time",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",3,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_STOP_FREEZE_R_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_CLOCK_TIME,                   "Real World Time",0,0,0,0 },
-    { DIS_FIELDTYPE_REASON,                       "Reason",0,0,0,0 },
-    { DIS_FIELDTYPE_FROZEN_BEHAVIOR,              "Frozen Behavior",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_ACTION_REQUEST_R_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",3,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ACTION_ID,                    "Action ID",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,               "Number of Fixed Data Fields",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,            "Number of Variable Data Fields",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUMS,                 "Fixed data",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUMS,              "Variable data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DATA_R_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",3,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,               "Number of Fixed Data Fields",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,            "Number of Variable Data Fields",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUMS,                 "Fixed data",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUMS,              "Variable data",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DATA_QUERY_R_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",3,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_TIME_INTERVAL,                "Time interval",0,0,0,0 },
-    { DIS_FIELDTYPE_NUM_FIXED_DATA,               "Number of Fixed Datum Ids",0,0,0,&numFixed },
-    { DIS_FIELDTYPE_NUM_VARIABLE_DATA,            "Number of Variable Datum Ids",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_FIXED_DATUM_IDS,              "Fixed datum ids",0,0,0,0 },
-    { DIS_FIELDTYPE_VARIABLE_DATUM_IDS,           "Variable datum ids",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_SIMAN_ENTITY_R_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",3,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-/* DIS Experimental V-DIS PDUs
- */
-static DIS_ParserNode DIS_PARSER_APPLICATION_CONTROL_PDU[] =
-{
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Originating Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,                    "Receiving Entity ID",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE, "Reliability",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                        "Time Interval",0,0,0,0 },
-    { DIS_FIELDTYPE_CONTROL_ID,                   "Control ID",0,0,0,0 },
-    { DIS_FIELDTYPE_PAD8,                         "Padding",0,0,0,0 },
-    { DIS_FIELDTYPE_APPLICATION_TYPE,             "Originating App Type",0,0,0,0 },
-    { DIS_FIELDTYPE_APPLICATION_TYPE,             "Receiving App Type",0,0,0,0 },
-    { DIS_FIELDTYPE_REQUEST_ID,                   "Request ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                        "Number of Parts",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                        "Current Part",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                       "Number of Variable Records",0,0,0,&numVariable },
-    { DIS_FIELDTYPE_VARIABLE_RECORDS,             "Record",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                          NULL,0,0,0,0 }
-};
-
-/* Persistent Object (PO) Family PDU parsers
- */
-static DIS_ParserNode DIS_PARSER_SIMULATOR_PRESENT_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                  "Simulator Type",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,                  "Database Sequence Number",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,                  "Simulator Load",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                 "Simulation Load",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,                  "Time",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,                  "Packets Sent",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                  "Unit Database Version",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                  "Relative Battle Scheme",0,0,0,0 },
-    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Terrain Name",32,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                  "Terrain Version",0,0,0,0 },
-    { DIS_FIELDTYPE_FIXED_LEN_STR,           "Host Name",32,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DESCRIBE_OBJECT_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_UINT32,                  "Database Sequence Number",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "Object ID",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "World State ID",0,0,0,0 },
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Owner",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT16,                  "Sequence Number",0,0,0,0 },
-    { DIS_FIELDTYPE_PERSISTENT_OBJECT_CLASS, "Object Class",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "Missing From World State",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_OBJECTS_PRESENT_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Owner",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "World State ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "Object Count",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_OBJECT_REQUEST_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Requesting Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Object Owner",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "World State ID",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "Object Count",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_DELETE_OBJECTS_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Requesting Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT8,                   "Object Count",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_SET_WORLD_STATE_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Requesting Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_FLOAT32,                 "Clock Rate",0,0,0,0 },
-    { DIS_FIELDTYPE_UINT32,                  "Seconds Since 1970",0,0,0,0 },
-    { DIS_FIELDTYPE_ENTITY_ID,               "World State ID",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-static DIS_ParserNode DIS_PARSER_NOMINATION_PO_PDU[] =
-{
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Nominated Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Nominating Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_SIMULATION_ADDRESS,      "Missing Simulator",0,0,0,0 },
-    { DIS_FIELDTYPE_END,                     NULL,0,0,0,0 }
-};
-
-
-static void initializeParser(DIS_ParserNode parserNodes[]);
-
-/* Create a specific subtree for a PDU or a composite PDU field.
- */
-static DIS_ParserNode *createSubtree(DIS_ParserNode parserNodes[], gint *ettVar)
+static int dissect_DIS_FIELDS_BURST_DESCRIPTOR(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
-    guint fieldIndex = 0;
-    guint fieldCount;
-    gint *ett[1];
-    DIS_ParserNode *newSubtree;
+    proto_item  *ti;
+    proto_tree  *sub_tree;
 
-    while (parserNodes[fieldIndex].fieldType != DIS_FIELDTYPE_END)
-    {
-        ++fieldIndex;
-    }
+    ti = proto_tree_add_text(tree, tvb, offset, 16, "Burst Descriptor");
+    sub_tree = proto_item_add_subtree(ti, ett_burst_descriptor);
 
-    fieldCount = fieldIndex + 1;
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, sub_tree, offset, "Munition");
 
-    newSubtree = (DIS_ParserNode*)g_malloc(sizeof(DIS_ParserNode) * fieldCount);
+    proto_tree_add_item(sub_tree, hf_dis_warhead, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-    memcpy(newSubtree, parserNodes, sizeof(DIS_ParserNode) * fieldCount);
+    proto_tree_add_item(sub_tree, hf_dis_fuse, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-    initializeParser(newSubtree);
+    proto_tree_add_item(sub_tree, hf_dis_quality, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-    *ettVar = -1;
-    ett[0] = ettVar;
-    proto_register_subtree_array(ett, array_length(ett));
+    proto_tree_add_item(sub_tree, hf_dis_rate, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
-    return newSubtree;
-}
-
-/* Initialize an array of parser nodes.
- */
-static void initializeParser(DIS_ParserNode parserNodes[])
-{
-    guint parserIndex = 0;
-
-    /* Create the parser subtrees for each of the composite field types.
-     */
-    while (parserNodes[parserIndex].fieldType != DIS_FIELDTYPE_END)
-    {
-        switch (parserNodes[parserIndex].fieldType)
-        {
-        /* Bit fields */
-        case DIS_FIELDTYPE_APPEARANCE:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_NONE,
-                &parserNodes[parserIndex].ettVar);
-            break;
-
-        /* Composite types */
-        case DIS_FIELDTYPE_MOD_PARAMS_CCTT_SINCGARS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_MOD_PARAMS_JTIDS_MIDS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS,
-                &parserNodes[parserIndex].ettVar);
-            break;
-
-        case DIS_FIELDTYPE_BURST_DESCRIPTOR:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_BURST_DESCRIPTOR,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_CLOCK_TIME:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_CLOCK_TIME,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_ENTITY_ID:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_ENTITY_ID,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_ENTITY_TYPE:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_ENTITY_TYPE,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_RADIO_ENTITY_TYPE:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_RADIO_ENTITY_TYPE,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_EVENT_ID:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_EVENT_ID,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_ORIENTATION:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_ORIENTATION,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_SIMULATION_ADDRESS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_SIMULATION_ADDRESS,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_LINEAR_VELOCITY:
-        case DIS_FIELDTYPE_LOCATION_ENTITY:
-        case DIS_FIELDTYPE_REL_ANTENNA_LOCATON:
-        case DIS_FIELDTYPE_VECTOR_32:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VECTOR_FLOAT_32,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_LOCATION_WORLD:
-        case DIS_FIELDTYPE_ANTENNA_LOCATION:
-        case DIS_FIELDTYPE_VECTOR_64:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VECTOR_FLOAT_64,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_MODULATION_TYPE:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_MODULATION_TYPE,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_EMITTER_SYSTEM:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_EMITTER_SYSTEM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_FUNDAMENTAL_PARAMETER_DATA,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_TRACK_JAM:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_TRACK_JAM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_SHAFTS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_UA_SHAFT,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_APA:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_APA,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_UA_EMITTER_SYSTEMS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_UA_EMITTER_SYSTEM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_UA_EMITTER_SYSTEM:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_UA_EMITTER_SYSTEM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_UA_BEAMS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_UA_BEAM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        /* Array records */
-        case DIS_FIELDTYPE_FIXED_DATUMS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_FIXED_DATUM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_VARIABLE_DATUMS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VARIABLE_DATUM,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_FIXED_DATUM_IDS:
-        case DIS_FIELDTYPE_VARIABLE_DATUM_IDS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_DATUM_IDS,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_VARIABLE_PARAMETERS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VP_TYPE,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        case DIS_FIELDTYPE_VARIABLE_RECORDS:
-            parserNodes[parserIndex].children = createSubtree(
-                DIS_FIELDS_VR_TYPE,
-                &parserNodes[parserIndex].ettVar);
-            break;
-        default:
-            break;
-        }
-        ++parserIndex;
-    }
-}
-
-/* Initialize the field parsers that are not explicitly included in any
- * specific PDU.  These fields are only accessed and used if a variant
- * field indicates they are to be used.
- */
-static void initializeFieldParsers(void)
-{
-    initializeParser(DIS_FIELDS_VP_GENERIC);
-    initializeParser(DIS_FIELDS_VP_ARTICULATED_PART);
-    initializeParser(DIS_FIELDS_VP_ATTACHED_PART);
-    initializeParser(DIS_FIELDS_VP_ENTITY_OFFSET);
-    initializeParser(DIS_FIELDS_VP_ENTITY_ASSOCIATION);
-    initializeParser(DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS);
-    initializeParser(DIS_FIELDS_VR_APPLICATION_INITIALIZATION);
-    initializeParser(DIS_FIELDS_VR_DATA_QUERY);
-    initializeParser(DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM);
-    initializeParser(DIS_FIELDS_VR_ELECTROMAGNETIC_EMISSION_SYSTEM);
-    initializeParser(DIS_FIELDS_VR_UA_SHAFT);
-    initializeParser(DIS_FIELDS_VR_UA_EMITTER_SYSTEM);
-    initializeParser(DIS_FIELDS_VR_UA_BEAM);
-    initializeParser(DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS);
-    initializeParser(DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS);
-    initializeParser(DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER);
-
-}
-
-/* Initialize the parsers for each PDU type and the standard DIS header.
- */
-static void initializeParsers(void)
-{
-    gint *ett[DIS_PDU_MAX_VARIABLE_PARAMETERS+DIS_PDU_MAX_VARIABLE_RECORDS+2];
-    int   i, ett_index;
-
-    initializeParser(DIS_FIELDS_PDU_HEADER);
-
-    /* DIS Entity Information / Interaction PDUs */
-    initializeParser(DIS_PARSER_ENTITY_STATE_PDU);
-
-    /* DIS Distributed Emission Regeneration PDUs */
-    initializeParser(DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU);
-    initializeParser(DIS_PARSER_UNDERWATER_ACOUSTIC_PDU);
-
-    /* DIS Radio Communications protocol (RCP) family PDUs */
-    initializeParser(DIS_PARSER_TRANSMITTER_PDU);
-    initializeParser(DIS_PARSER_SIGNAL_PDU);
-
-    /* DIS Warfare PDUs */
-    initializeParser(DIS_PARSER_FIRE_PDU);
-    initializeParser(DIS_PARSER_DETONATION_PDU);
-
-    /* DIS Simulation Management PDUs */
-    initializeParser(DIS_PARSER_START_RESUME_PDU);
-    initializeParser(DIS_PARSER_STOP_FREEZE_PDU);
-    initializeParser(DIS_PARSER_ACKNOWLEDGE_PDU);
-    initializeParser(DIS_PARSER_ACTION_REQUEST_PDU);
-    initializeParser(DIS_PARSER_ACTION_RESPONSE_PDU);
-    initializeParser(DIS_PARSER_DATA_PDU);
-    initializeParser(DIS_PARSER_DATA_QUERY_PDU);
-    initializeParser(DIS_PARSER_COMMENT_PDU);
-    initializeParser(DIS_PARSER_SIMAN_ENTITY_PDU);
-
-    /* DIS Simulation Management with Reliability PDUs */
-    initializeParser(DIS_PARSER_START_RESUME_R_PDU);
-    initializeParser(DIS_PARSER_STOP_FREEZE_R_PDU);
-    initializeParser(DIS_PARSER_ACTION_REQUEST_R_PDU);
-    initializeParser(DIS_PARSER_DATA_R_PDU);
-    initializeParser(DIS_PARSER_DATA_QUERY_R_PDU);
-    initializeParser(DIS_PARSER_SIMAN_ENTITY_R_PDU);
-
-    /* DIS Experimental V-DIS PDUs */
-    initializeParser(DIS_PARSER_APPLICATION_CONTROL_PDU);
-
-    /* Initialize the Persistent Object PDUs */
-    initializeParser(DIS_FIELDS_PERSISTENT_OBJECT_HEADER);
-    initializeParser(DIS_PARSER_DESCRIBE_OBJECT_PO_PDU);
-    initializeParser(DIS_PARSER_SIMULATOR_PRESENT_PO_PDU);
-    initializeParser(DIS_PARSER_OBJECTS_PRESENT_PO_PDU);
-    initializeParser(DIS_PARSER_OBJECT_REQUEST_PO_PDU);
-    initializeParser(DIS_PARSER_DELETE_OBJECTS_PO_PDU);
-    initializeParser(DIS_PARSER_SET_WORLD_STATE_PO_PDU);
-    initializeParser(DIS_PARSER_NOMINATION_PO_PDU);
-
-    /* Initialize the ett array */
-    ett_index = 0;
-    for (i=0; i<DIS_PDU_MAX_VARIABLE_PARAMETERS; i++, ett_index++)
-    {
-        ettVariableParameters[i] = -1;
-        ett[ett_index] = &ettVariableParameters[i];
-    }
-    for (i=0; i<DIS_PDU_MAX_VARIABLE_RECORDS; i++, ett_index++)
-    {
-        ettVariableRecords[i] = -1;
-        ett[ett_index] = &ettVariableRecords[i];
-    }
-    ett[ett_index++] = &ettFixedData;
-    ett[ett_index++] = &ettVariableData;
-    proto_register_subtree_array(ett, array_length(ett));
-}
-
-/* Adjust an offset variable for proper alignment for a specified field length.
- */
-static gint alignOffset(gint offset, guint fieldLength)
-{
-    gint remainder = offset % fieldLength;
-    if (remainder != 0)
-    {
-        offset += fieldLength - remainder;
-    }
     return offset;
 }
 
-/* Parse a field consisting of a specified number of bytes.  This field parser
- * doesn't perform any alignment.
- */
-static gint parseField_Bytes(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
+static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int offset, const char* clock_name)
 {
-    proto_tree_add_text(tree, tvb, offset, numBytes, "%s (%d bytes)",
-        parserNode.fieldLabel, numBytes);
-    offset += numBytes;
-    return offset;
-}
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    /* some consts */
+    static guint MSEC_PER_HOUR = 60 * 60 * 1000;
+    static guint FSV = 0x7fffffff;
+    guint32 hour, uintVal;
+    guint64 ms;
+    guint isAbsolute = 0;
+    nstime_t tv;
 
-/* Parse a bitmask field.
- */
-static gint parseField_Bitmask(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
-{
-    DIS_BitMask *bitMask = 0;
-    guint64 uintVal = 0;
+    ti = proto_tree_add_text(tree, tvb, offset, 8, "%s", clock_name);
+    sub_tree = proto_item_add_subtree(ti, ett_clock_time);
 
-    offset = alignOffset(offset, numBytes);
+    hour = tvb_get_ntohl(tvb, offset);
+    uintVal = tvb_get_ntohl(tvb, offset+4);
 
-    switch(numBytes)
+    /* determine absolute vis sim time */
+    isAbsolute = uintVal & 1;
+
+    /* convert TS to MS */
+    ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
+
+    tv.secs = (time_t)ms/1000;
+    tv.nsecs = (ms%1000)*1000000;
+
+    /* add hour */
+    tv.secs += (hour*3600);
+
+    ti = proto_tree_add_time(sub_tree, hf_dis_clocktime, tvb, offset, 8, &tv);
+    if (isAbsolute)
     {
-    case 1:
-        uintVal = tvb_get_guint8(tvb, offset);
-        break;
-    case 2:
-        uintVal = tvb_get_ntohs(tvb, offset);
-        break;
-    case 4:
-        uintVal = tvb_get_ntohl(tvb, offset);
-        break;
-    case 8:
-        uintVal = tvb_get_ntoh64(tvb, offset);
-        break;
-    default:
-        /* assert */
-        break;
-    }
-
-    switch(parserNode.fieldType)
-    {
-    case DIS_FIELDTYPE_APPEARANCE:
-        if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
-            (entityDomain == DIS_DOMAIN_LAND))
-        {
-            bitMask = DIS_APPEARANCE_LANDPLATFORM;
-        }
-        else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
-        {
-            bitMask = DIS_APPEARANCE_LIFEFORM;
-        }
-        break;
-    default:
-        break;
-    }
-
-    if (bitMask != 0)
-    {
-        int maskIndex = 0;
-        while (bitMask[maskIndex].maskBits != 0)
-        {
-            int mapIndex = 0;
-            DIS_BitMaskMapping *bitMaskMap = bitMask[maskIndex].bitMappings;
-
-            while (bitMaskMap[mapIndex].label != 0)
-            {
-                if (((bitMask[maskIndex].maskBits & uintVal) >> bitMask[maskIndex].shiftBits) ==
-                    bitMaskMap[mapIndex].value)
-                {
-                    proto_tree_add_text(tree, tvb, offset, numBytes,
-                        "%s = %s", bitMask[maskIndex].label,
-                        bitMaskMap[mapIndex].label);
-                    break;
-                }
-                ++mapIndex;
-            }
-            ++maskIndex;
-        }
+        proto_item_append_text(ti, " (absolute)");
     }
     else
     {
-        proto_tree_add_text(tree, tvb, offset, numBytes,
-            "Unknown Appearance Type (%" G_GINT64_MODIFIER "u)", uintVal);
+        proto_item_append_text(ti, " (relative)");
     }
 
-    offset += numBytes;
-
-    return offset;
+   return (offset+8);
 }
 
-/* Parse an unsigned integer field of a specified number of bytes.
- */
-static gint parseField_UInt(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
+static int dissect_DIS_FIELDS_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
-    guint64 uintVal = 0;
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    int hf_cat = hf_dis_category;
 
-    offset = alignOffset(offset, numBytes);
+    ti = proto_tree_add_text(tree, tvb, offset, 8, "%s", entity_name);
+    sub_tree = proto_item_add_subtree(ti, ett_entity_type);
 
-    switch(numBytes)
+    proto_tree_add_item(sub_tree, hf_dis_entityKind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    entityKind = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_entityDomain, tvb, offset, 1, ENC_BIG_ENDIAN);
+    entityDomain = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_country, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    if (entityKind == DIS_ENTITYKIND_PLATFORM)
     {
-    case 1:
-        uintVal = tvb_get_guint8(tvb, offset);
-        break;
-    case 2:
-        uintVal = tvb_get_ntohs(tvb, offset);
-        break;
-    case 4:
-        uintVal = tvb_get_ntohl(tvb, offset);
-        break;
-    case 8:
-        uintVal = tvb_get_ntoh64(tvb, offset);
-        break;
-    default:
-        /* assert */
-        break;
-    }
-
-    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" G_GINT64_MODIFIER "u",
-        parserNode.fieldLabel, uintVal);
-
-    if (parserNode.outputVar != 0)
-    {
-        *(parserNode.outputVar) = (guint32)uintVal;
-    }
-
-    offset += numBytes;
-
-    return offset;
-}
-
-/* Parse a signed integer field of a specified number of bytes.
- */
-static gint parseField_Int(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
-{
-    gint64 intVal = 0;
-
-    offset = alignOffset(offset, numBytes);
-
-    switch(numBytes)
-    {
-    case 1:
-        intVal = (gint8)tvb_get_guint8(tvb, offset);
-        break;
-    case 2:
-        intVal = (gint16)tvb_get_ntohs(tvb, offset);
-        break;
-    case 4:
-        intVal = (gint32)tvb_get_ntohl(tvb, offset);
-        break;
-    case 8:
-        intVal = (gint64)tvb_get_ntoh64(tvb, offset);
-        break;
-    default:
-        /* assert */
-        break;
-    }
-
-    proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %" G_GINT64_MODIFIER "d",
-        parserNode.fieldLabel, intVal);
-
-    offset += numBytes;
-
-    return offset;
-}
-
-/* Parse a field that explicitly specified a number of pad bytes (vs implicit
- * padding, which occurs whenever padding is inserted to properly align the
- * field.
- */
-static gint parseField_Pad(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode _U_, guint numBytes)
-{
-    proto_tree_add_text(tree, tvb, offset, numBytes,
-        "Explicit Padding (%d bytes)", numBytes);
-
-    offset += numBytes;
-
-    return offset;
-}
-
-/* Parse an enumerated type field.
- */
-static gint parseField_Enum(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode, guint numBytes)
-{
-    const value_string *enumStrings = 0;
-    guint32 enumVal = 0;
-    const gchar *enumStr = 0;
-#if 0
-    proto_item *pi;
-#endif
-    int dis_hf_id = -1;
-
-    offset = alignOffset(offset, numBytes);
-
-    switch(parserNode.fieldType)
-    {
-    case DIS_FIELDTYPE_ACKNOWLEDGE_FLAG:
-        enumStrings = DIS_PDU_AcknowledgeFlag_Strings;
-        break;
-    case DIS_FIELDTYPE_ACTION_ID:
-        enumStrings = DIS_PDU_ActionId_Strings;
-        break;
-    case DIS_FIELDTYPE_APPLICATION_GENERAL_STATUS:
-        enumStrings = DIS_PDU_ApplicationGeneralStatus_Strings;
-        break;
-    case DIS_FIELDTYPE_APPLICATION_STATUS_TYPE:
-        enumStrings = DIS_PDU_ApplicationStatusType_Strings;
-        break;
-    case DIS_FIELDTYPE_APPLICATION_TYPE:
-        enumStrings = DIS_PDU_ApplicationType_Strings;
-        break;
-    case DIS_FIELDTYPE_CONTROL_ID:
-        enumStrings = DIS_PDU_ControlId_Strings;
-        break;
-    case DIS_FIELDTYPE_PROTOCOL_VERSION:
-        enumStrings = DIS_PDU_ProtocolVersion_Strings;
-        dis_hf_id = hf_dis_proto_ver;
-        break;
-    case DIS_FIELDTYPE_PROTOCOL_FAMILY:
-        enumStrings = DIS_PDU_ProtocolFamily_Strings;
-        dis_hf_id = hf_dis_proto_fam;
-        break;
-    case DIS_FIELDTYPE_PDU_TYPE:
-        enumStrings = DIS_PDU_Type_Strings;
-        dis_hf_id = hf_dis_pdu_type;
-        break;
-    case DIS_FIELDTYPE_ENTITY_KIND:
-        enumStrings = DIS_PDU_EntityKind_Strings;
-        dis_hf_id = hf_dis_entityKind;
-        break;
-    case DIS_FIELDTYPE_DOMAIN:
-        enumStrings = DIS_PDU_Domain_Strings;
-        dis_hf_id = hf_dis_entityDomain;
-        break;
-    case DIS_FIELDTYPE_DETONATION_RESULT:
-        enumStrings = DIS_PDU_DetonationResult_Strings;
-        break;
-    case DIS_FIELDTYPE_FROZEN_BEHAVIOR:
-        enumStrings = DIS_PDU_FrozenBehavior_Strings;
-        break;
-    case DIS_FIELDTYPE_RADIO_CATEGORY:
-        enumStrings = DIS_PDU_RadioCategory_Strings;
-        dis_hf_id = hf_dis_category_radio;
-        break;
-    case DIS_FIELDTYPE_NOMENCLATURE_VERSION:
-        enumStrings = DIS_PDU_NomenclatureVersion_Strings;
-        break;
-    case DIS_FIELDTYPE_NOMENCLATURE:
-        enumStrings = DIS_PDU_Nomenclature_Strings;
-        break;
-    case DIS_FIELDTYPE_CATEGORY:
-        if (entityKind == DIS_ENTITYKIND_PLATFORM)
+        switch(entityDomain)
         {
-            switch(entityDomain)
-            {
-            case DIS_DOMAIN_LAND:
-                enumStrings = DIS_PDU_Category_LandPlatform_Strings;
-                dis_hf_id = hf_dis_category_land;
-                break;
-            case DIS_DOMAIN_AIR:
-                enumStrings = DIS_PDU_Category_AirPlatform_Strings;
-                dis_hf_id = hf_dis_category_air;
-                break;
-            case DIS_DOMAIN_SURFACE:
-                enumStrings = DIS_PDU_Category_SurfacePlatform_Strings;
-                dis_hf_id = hf_dis_category_surface;
-                break;
-            case DIS_DOMAIN_SUBSURFACE:
-                enumStrings = DIS_PDU_Category_SubsurfacePlatform_Strings;
-                dis_hf_id = hf_dis_category_subsurface;
-                break;
-            case DIS_DOMAIN_SPACE:
-                enumStrings = DIS_PDU_Category_SpacePlatform_Strings;
-                dis_hf_id = hf_dis_category_space;
-                break;
-            default:
-                enumStrings = 0;
-                break;
-            }
-        }
-        break;
-    case DIS_FIELDTYPE_EMITTER_NAME:
-        enumStrings = DIS_PDU_EmitterName_Strings;
-        dis_hf_id = hf_dis_emitter_name;
-        break;
-    case DIS_FIELDTYPE_EMISSION_FUNCTION:
-        enumStrings = DIS_PDU_EmissionFunction_Strings;
-        dis_hf_id = hf_dis_emission_function;
-        break;
-    case DIS_FIELDTYPE_BEAM_FUNCTION:
-        enumStrings = DIS_PDU_BeamFunction_Strings;
-        dis_hf_id = hf_dis_beam_function;
-        break;
-    case DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR:
-        enumStrings = DIS_PDU_ParameterTypeDesignator_Strings;
-        break;
-    case DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE:
-        enumStrings = DIS_PDU_PersistentObjectType_Strings;
-        break;
-    case DIS_FIELDTYPE_PERSISTENT_OBJECT_CLASS:
-        enumStrings = DIS_PDU_PO_ObjectClass_Strings;
-        break;
-    case DIS_FIELDTYPE_REASON:
-        enumStrings = DIS_PDU_Reason_Strings;
-        break;
-    case DIS_FIELDTYPE_REQUEST_STATUS:
-        enumStrings = DIS_PDU_RequestStatus_Strings;
-        break;
-    case DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE:
-        enumStrings = DIS_PDU_RequiredReliabilityService_Strings;
-        break;
-    case DIS_FIELDTYPE_RESPONSE_FLAG:
-        enumStrings = DIS_PDU_DisResponseFlag_Strings;
-        break;
-    case DIS_FIELDTYPE_MODULATION_DETAIL:
-        switch (majorModulation) {
-        case DIS_MAJOR_MOD_AMPLITUDE:
-            enumStrings = DIS_PDU_DetailModulationAmplitude_Strings;
+        case DIS_DOMAIN_LAND:
+            hf_cat = hf_dis_category_land;
             break;
-        case DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE:
-            enumStrings = DIS_PDU_DetailModulationAmpAndAngle_Strings;
+        case DIS_DOMAIN_AIR:
+            hf_cat = hf_dis_category_air;
             break;
-        case DIS_MAJOR_MOD_ANGLE:
-            enumStrings = DIS_PDU_DetailModulationAngle_Strings;
+        case DIS_DOMAIN_SURFACE:
+            hf_cat = hf_dis_category_surface;
             break;
-        case DIS_MAJOR_MOD_COMBINATION:
-            enumStrings = DIS_PDU_DetailModulationCombination_Strings;
+        case DIS_DOMAIN_SUBSURFACE:
+            hf_cat = hf_dis_category_subsurface;
             break;
-        case DIS_MAJOR_MOD_PULSE:
-            enumStrings = DIS_PDU_DetailModulationPulse_Strings;
-            break;
-        case DIS_MAJOR_MOD_UNMODULATED:
-            enumStrings = DIS_PDU_DetailModulationUnmodulated_Strings;
-            break;
-        case DIS_MAJOR_MOD_CPSM: /* CPSM only has "other" defined */
-        case DIS_MAJOR_MOD_OTHER:
-        default:
-            enumStrings = DIS_PDU_DetailModulationCPSM_Strings;
+        case DIS_DOMAIN_SPACE:
+            hf_cat = hf_dis_category_space;
             break;
         }
-        break;
-    case DIS_FIELDTYPE_LINK16_MESSAGE_TYPE:
-        enumStrings = DIS_PDU_Link16_MessageType_Strings;
-        dis_hf_id = hf_dis_signal_link16_message_type;
-        break;
-    default:
-        enumStrings = 0;
-        break;
     }
 
-    switch(numBytes)
-    {
-    case 1:
-        enumVal = tvb_get_guint8(tvb, offset);
-        break;
-    case 2:
-        enumVal = tvb_get_ntohs(tvb, offset);
-        break;
-    case 4:
-        enumVal = tvb_get_ntohl(tvb, offset);
-        break;
-    default:
-        /* assert */
-        break;
-    }
+    proto_tree_add_item(sub_tree, hf_cat, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    enumStr = val_to_str(enumVal, enumStrings, "Unknown Enumeration (%d)");
+    proto_tree_add_item(sub_tree, hf_dis_subcategory, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    if (dis_hf_id != -1) {
-#if 0
-       pi = proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, ENC_BIG_ENDIAN);
-       proto_item_set_text(pi, "%s = %s", parserNode.fieldLabel, enumStr);
-#else
-       proto_tree_add_item(tree, dis_hf_id, tvb, offset, numBytes, ENC_BIG_ENDIAN);
-#endif
-    }
-    else {
-       proto_tree_add_text(tree, tvb, offset, numBytes, "%s = %s",
-           parserNode.fieldLabel, enumStr);
-    }
+    proto_tree_add_item(sub_tree, hf_dis_specific, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
-    if (parserNode.outputVar != 0)
-    {
-        *(parserNode.outputVar) = enumVal;
-    }
-
-    offset += numBytes;
+    proto_tree_add_item(sub_tree, hf_dis_extra, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
     return offset;
 }
 
-/* Parse a 4-byte floating-point value.
- */
-static gint parseField_Float(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode)
+static int dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, const char* entity_name)
 {
-    gfloat floatVal;
+    proto_item  *ti;
+    proto_tree  *sub_tree;
 
-    offset = alignOffset(offset, 4);
-    floatVal = tvb_get_ntohieee_float(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4, "%s = %f",
-        parserNode.fieldLabel, floatVal);
+    ti = proto_tree_add_text(tree, tvb, offset, 8, "%s", entity_name);
+    sub_tree = proto_item_add_subtree(ti, ett_radio_entity_type);
 
+    proto_tree_add_item(sub_tree, hf_dis_entityKind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    entityKind = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_entityDomain, tvb, offset, 1, ENC_BIG_ENDIAN);
+    entityDomain = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_country, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_nomenclature_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_nomenclature, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, int offset, guint16* systemModulation)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    guint32 majorModulation;
+    int hf_mod_detail = hf_dis_modulation_detail;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 8, "Modulation Type");
+    sub_tree = proto_item_add_subtree(ti, ett_modulation_type);
+
+    proto_tree_add_item(sub_tree, hf_dis_spread_spectrum_usage, tvb, offset,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_frequency_hopping, tvb, offset,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_pseudo_noise_modulation, tvb, offset,  2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_time_hopping, tvb, offset,  2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    majorModulation = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_modulation_major, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    switch (majorModulation) {
+    case DIS_MAJOR_MOD_AMPLITUDE:
+        hf_mod_detail = hf_dis_modulation_amplitude;
+        break;
+    case DIS_MAJOR_MOD_AMPLITUDE_AND_ANGLE:
+        hf_mod_detail = hf_dis_modulation_amplitude_angle;
+        break;
+    case DIS_MAJOR_MOD_ANGLE:
+        hf_mod_detail = hf_dis_modulation_angle;
+        break;
+    case DIS_MAJOR_MOD_COMBINATION:
+        hf_mod_detail = hf_dis_modulation_combination;
+        break;
+    case DIS_MAJOR_MOD_PULSE:
+        hf_mod_detail = hf_dis_modulation_pulse;
+        break;
+    case DIS_MAJOR_MOD_UNMODULATED:
+        hf_mod_detail = hf_dis_modulation_unmodulated;
+        break;
+    case DIS_MAJOR_MOD_CPSM: /* CPSM only has "other" defined */
+    case DIS_MAJOR_MOD_OTHER:
+    default:
+        hf_mod_detail = hf_dis_modulation_detail;
+        break;
+    }
+
+    proto_tree_add_item(tree, hf_mod_detail, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    *systemModulation = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_modulation_system, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_EVENT_ID(tvbuff_t *tvb, proto_tree *tree, int offset, const char* event_name)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 6, "%s", event_name);
+    sub_tree = proto_item_add_subtree(ti, ett_event_id);
+
+    proto_tree_add_item(sub_tree, hf_dis_site, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_application, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_event_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvbuff_t *tvb, proto_tree *tree, int offset, const char* sim_name)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 4, "%s", sim_name);
+    sub_tree = proto_item_add_subtree(ti, ett_simulation_address);
+
+    proto_tree_add_item(sub_tree, hf_dis_site, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_application, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 16, "Modulation Parameters");
+    sub_tree = proto_item_add_subtree(ti, ett_modulation_parameters);
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_net_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_lo_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_msg_start, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_sync_time_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_security_key, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_fh_clear_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 16, "Modulation Parameters");
+    sub_tree = proto_item_add_subtree(ti, ett_modulation_parameters);
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_ts_allocation_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_transmitter_prim_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_transmitter_second_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_sync_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_mod_param_network_sync_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
 }
-#if 0
-/* Parse a 4-byte floating-point value, given text label.
- */
-static gint parseField_Float_Text(tvbuff_t *tvb, proto_tree *tree, gint offset, gchar *charStr)
+
+static gint parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvbuff_t *tvb, proto_tree *tree,
+                                                          gint offset, guint8* messageType)
 {
-    gfloat floatVal;
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    nstime_t tv;
 
-    offset = alignOffset(offset, 4);
-    floatVal = tvb_get_ntohieee_float(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 4, "%s = %f",
-        charStr, floatVal);
+    ti = proto_tree_add_text(tree, tvb, offset, 16, "Link 16 Network Header");
+    sub_tree = proto_item_add_subtree(ti, ett_dis_signal_link16_network_header);
 
+    proto_tree_add_item(sub_tree, hf_dis_signal_link16_npg, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_signal_link16_network_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_signal_link16_tsec_cvll, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_signal_link16_msec_cvll, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_signal_link16_message_type, tvb, offset, 1, ENC_NA);
+    if (messageType)
+        *messageType = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_signal_link16_time_slot_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    return offset;
-}
-#endif
-/* Parse an 8-byte floating-point value.
- */
-static gint parseField_Double(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode)
-{
-    gdouble doubleVal;
-
-    offset = alignOffset(offset, 8);
-    doubleVal = tvb_get_ntohieee_double(tvb, offset);
-    proto_tree_add_text(tree, tvb, offset, 8, "%s = %f",
-        parserNode.fieldLabel, doubleVal);
-
+    tv.secs = tvb_get_ntohl(tvb, offset);
+    if (tv.secs == 0xFFFFFFFF)
+    {
+        tv.nsecs = 0;
+        proto_tree_add_time_format_value(sub_tree, hf_dis_signal_link16_ptt, tvb, offset, 8, &tv, "NO STATEMENT");
+    }
+    else
+    {
+        proto_tree_add_item(sub_tree, hf_dis_signal_link16_ptt, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+    }
     offset += 8;
 
     return offset;
 }
 
-/* Parse the Timestamp */
-static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNode)
-{
-   /* some consts */
-   static double MSEC_PER_SECOND = 1000.0;
-   static double MSEC_PER_MINUTE = 60.0 * 1000.0 ;
-   static double MSEC_PER_HOUR = 60.0 * 60.0 * 1000.0;
-   static double FSV = 0x7fffffff;
-   /* variables */
-   guint isAbsolute = 0;
-   guint32 uintVal;
-   guint minutes;
-   guint seconds;
-   guint milliseconds;
-   double ms;
-
-   offset = alignOffset(offset, 4);
-
-   /* convert to host value */
-   uintVal = tvb_get_ntohl(tvb, offset);
-   /* determine absolute vis sim time */
-   if( uintVal & 1 )
-      isAbsolute = 1;
-
-   /* convert TS to MS */
-   ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
-   ms += 0.5;
-
-   /* calc minutes and reduce ms */
-   minutes = (guint) (ms / MSEC_PER_MINUTE);
-   ms -= (minutes * MSEC_PER_MINUTE);
-
-   /* calc seconds and reduce ms */
-   seconds = (guint) (ms / MSEC_PER_SECOND);
-   ms -= (seconds * MSEC_PER_SECOND);
-
-   /* truncate milliseconds */
-   milliseconds = (guint) ms;
-
-   /* push out the values */
-   if( isAbsolute )
-   {
-      proto_tree_add_text(tree, tvb, offset, 4, "%s = %02d:%02d %03d absolute (UTM)",
-            parserNode.fieldLabel, minutes, seconds, milliseconds);
-   }
-   else
-   {
-      proto_tree_add_text(tree, tvb, offset, 4, "%s = %02d:%02d %03d relative",
-            parserNode.fieldLabel, minutes, seconds, milliseconds);
-   }
-
-   offset += 4;
-   return offset;
-}
-
-static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo);
-static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo);
-
 /* Parse Link 16 Message Data record (SISO-STD-002, Tables 5.2.5 through 5.2.12)
  */
-static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo)
+static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_info *pinfo,
+                                      guint32 encodingScheme, guint8 messageType)
 {
     guint32 cache, value, i;
     Link16State state;
@@ -5068,927 +3754,1571 @@ static gint parse_Link16_Message_Data(proto_tree *tree, tvbuff_t *tvb, gint offs
     return offset;
 }
 
-/* Parse packet data based on a specified array of DIS_ParserNodes.
+/* Array records
  */
-static gint parseFields(tvbuff_t *tvb, proto_tree *tree, gint offset, DIS_ParserNode parserNodes[], packet_info *pinfo)
+static gint parseField_DIS_FIELDS_FIXED_DATUM(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
 {
-    guint        fieldIndex     = 0;
-    guint        fieldRepeatLen = 0;
-    guint64      uintVal        = 0;
-    proto_item  *pi             = NULL;
-    proto_tree  *sub_tree       = NULL;
-    tvbuff_t    *newtvb         = NULL;
-    gint         length         = 0;
-    guint16 spread_spectrum     = 0;
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    guint32 i;
 
-
-    /* Get the length while ensuring there's at least one byte for us to
-     * decode (if not, throw an exception so as to prevent very long loops).
-     */
-    length = tvb_ensure_length_remaining(tvb, offset+1);
-
-    while ((parserNodes[fieldIndex].fieldType != DIS_FIELDTYPE_END)
-            && (length > 0 ) )
+    for (i = 0; i < num_items; i++)
     {
-        proto_item *newField = 0;
+        ti = proto_tree_add_text(tree, tvb, offset, 8, "%s", field_name);
+        sub_tree = proto_item_add_subtree(ti, ett_fixed_datum);
 
-        fieldRepeatLen = (guint) ((parserNodes[fieldIndex].fieldRepeatLen > 1) ?
-            parserNodes[fieldIndex].fieldRepeatLen : 1);
+        proto_tree_add_item(sub_tree, hf_dis_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
 
-        switch(parserNodes[fieldIndex].fieldType)
+        proto_tree_add_item(sub_tree, hf_dis_fixed_datum_value, tvb, offset, 4, ENC_NA);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+static gint parseField_DIS_FIELDS_VARIABLE_DATUM(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    guint32 i, data_length, lengthInBytes;
+
+    for (i = 0; i < num_items; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, -1, "%s", field_name);
+        sub_tree = proto_item_add_subtree(ti, ett_fixed_datum);
+
+        proto_tree_add_item(sub_tree, hf_dis_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        data_length = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(sub_tree, hf_dis_datum_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        lengthInBytes = data_length / 8;
+        if (data_length % 8 > 0)
+            lengthInBytes += (8 - (data_length % 8));
+
+        proto_tree_add_item(sub_tree, hf_dis_variable_datum_value, tvb, offset, lengthInBytes, ENC_NA);
+        offset += lengthInBytes;
+
+        proto_item_set_end(ti, tvb, offset);
+    }
+
+    return offset;
+}
+
+static gint parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+    guint32 i;
+
+    ti = proto_tree_add_text(tree, tvb, offset, num_items*4, "%s", field_name);
+    sub_tree = proto_item_add_subtree(ti, ett_fixed_datum);
+
+    for (i = 0; i < num_items; i++)
+    {
+        proto_tree_add_item(sub_tree, hf_dis_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+static gint parseField_DIS_FIELDS_VARIABLE_DATUM_IDS(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* field_name, guint32 num_items)
+{
+    return parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvb, tree, offset, field_name, num_items);
+}
+
+static gint parseField_TRACK_JAM(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 8, "%s", entity_name);
+    sub_tree = proto_item_add_subtree(ti, ett_trackjam);
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_id_application, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_id_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_emitter_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(sub_tree, hf_dis_beam_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    return offset;
+}
+
+/* Array record contents - variable parameter records
+ */
+static gint dissect_DIS_FIELDS_VP_ARTICULATED_PART(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_dis_vp_change, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vp_part_attached_to_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_vp_artic_param_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_vp_parameter_value, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+static gint dissect_DIS_FIELDS_VP_ATTACHED_PART(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_dis_vp_attached_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vp_part_attached_to_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_vp_artic_param_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Part Type");
+
+    return offset;
+}
+
+static gint dissect_DIS_FIELDS_VP_ENTITY_OFFSET(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    proto_tree_add_item(tree, hf_dis_vp_offset_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Offset");
+    sub_tree = proto_item_add_subtree(ti, ett_offset_vector);
+
+    proto_tree_add_item(sub_tree, hf_dis_vp_offset_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(sub_tree, hf_dis_vp_offset_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(sub_tree, hf_dis_vp_offset_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static gint dissect_DIS_FIELDS_VP_ENTITY_ASSOCIATION(tvbuff_t *tvb, proto_tree *tree, gint offset)
+{
+    proto_tree_add_item(tree, hf_dis_vp_change_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vp_association_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vp_association_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    offset = parseField_Entity(tvb, tree, offset, "Object Identifier");
+
+    proto_tree_add_item(tree, hf_dis_vp_own_station_location, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_vp_phys_conn_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vp_group_member_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vp_group_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+/* Variable Records
+ */
+static int dissect_DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vr_status_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_vr_general_status, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vr_specific_status, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vr_status_value_int, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_vr_status_value_float, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_VR_APPLICATION_INITIALIZATION(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+    proto_tree_add_item(tree, hf_dis_vr_exercise_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_vr_exercise_file_path, tvb, offset, 256, ENC_ASCII|ENC_NA);
+    offset += 256;
+
+    proto_tree_add_item(tree, hf_dis_vr_exercise_file_name, tvb, offset, 128, ENC_ASCII|ENC_NA);
+    offset += 128;
+
+    proto_tree_add_item(tree, hf_dis_vr_application_role, tvb, offset, 64, ENC_ASCII|ENC_NA);
+    offset += 64;
+
+    return offset;
+}
+
+static int dissect_DIS_FIELDS_VR_DATA_QUERY(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+    guint32 numFixed;
+
+    numFixed = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_vr_num_records, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvb, tree, offset, "Record", numFixed);
+
+    return offset;
+}
+
+/******************************************************************************
+*
+* PDUS
+*
+*******************************************************************************/
+
+/* DIS Entity Information / Interaction PDUs
+ */
+static const true_false_string tfs_camouflage_uniform_color = { "Camouflage", "Uniform color" };
+static const true_false_string tfs_mobility_kill = { "Mobility kill", "No mobility kill" };
+static const true_false_string tfs_fire_power_kill = { "Fire-power kill", "No fire-power kill" };
+
+static const value_string appearance_damage_vals[] =
+{
+    { 0, "No damage" },
+    { 1, "Slight damage" },
+    { 2, "Moderate damage" },
+    { 3, "Destroyed" },
+    { 0, NULL }
+};
+
+static const value_string appearance_health_vals[] =
+{
+    { 0, "No injury" },
+    { 1, "Slight injury" },
+    { 2, "Moderate injury" },
+    { 3, "Fatal injury" },
+    { 0, NULL }
+};
+
+static int dissect_DIS_PARSER_ENTITY_STATE_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_item *ti;
+    proto_tree *sub_tree;
+    guint8 variableParameterType, numVariable;
+    guint32 i;
+
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_force_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    numVariable = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_art_params, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Entity Type");
+
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", %s, %s",
+                    val_to_str_const(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
+                    val_to_str_const(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
+                    );
+
+    offset = dissect_DIS_FIELDS_ENTITY_TYPE(tvb, tree, offset, "Alternative Entity Type");
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Entity Linear Velocity");
+    sub_tree = proto_item_add_subtree(ti, ett_entity_linear_velocity);
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_linear_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 24, "Entity Location");
+    sub_tree = proto_item_add_subtree(ti, ett_entity_location);
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Entity Orientation");
+    sub_tree = proto_item_add_subtree(ti, ett_entity_orientation);
+    proto_tree_add_item(sub_tree, hf_dis_entity_orientation_psi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_orientation_theta, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_orientation_phi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 4, "Entity Appearance");
+    sub_tree = proto_item_add_subtree(ti, ett_entity_appearance);
+
+    if ((entityKind == DIS_ENTITYKIND_PLATFORM) &&
+        (entityDomain == DIS_DOMAIN_LAND))
+    {
+        proto_tree_add_item(sub_tree, hf_appearance_landform_paint_scheme, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_appearance_landform_mobility, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_appearance_landform_fire_power, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_appearance_landform_damage, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    else if (entityKind == DIS_ENTITYKIND_LIFE_FORM)
+    {
+        proto_tree_add_item(sub_tree, hf_appearance_lifeform_paint_scheme, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_appearance_lifeform_health, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    else
+    {
+        proto_tree_add_item(sub_tree, hf_entity_appearance, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+    offset += 4;
+
+    /* This is really a struct... needs a field parser.
+     * For now, just skip the 40 bytes.
+     */
+    proto_tree_add_item(tree, hf_dis_dead_reckoning_parameters, tvb, offset, 40, ENC_NA);
+    offset += 40;
+
+    /* This is really a struct... needs a field parser.
+     * For now, just skip the 12 bytes.
+     */
+    proto_tree_add_item(tree, hf_dis_entity_marking, tvb, offset, 12, ENC_NA);
+    offset += 12;
+
+    proto_tree_add_item(tree, hf_dis_capabilities, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    for (i = 0; i < numVariable; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, 1, "Variable Parameter");
+        sub_tree = proto_item_add_subtree(ti, ett_variable_parameter);
+
+        proto_tree_add_item(sub_tree, hf_dis_variable_parameter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        variableParameterType = tvb_get_guint8(tvb, offset);
+        offset++;
+
+        offset = parseField_VariableParameter(tvb, sub_tree, offset, variableParameterType);
+        proto_item_set_end(ti, tvb, offset);
+    }
+
+    return offset;
+}
+
+/* DIS Distributed Emission Regeneration PDUs
+ */
+static int dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item *ti, *emission_ti, *beam_ti;
+    proto_tree *sub_tree, *sub_tree2, *fundamental_tree;
+    guint8 i, j, k, numVariable, numBeams, numTrackJamTargets;
+
+    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
+    offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
+
+    proto_tree_add_item(tree, hf_dis_state_update_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    numVariable = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_electromagnetic_emission_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    for (i = 0; i < numVariable; i++)
+    {
+        emission_ti = proto_tree_add_text(tree, tvb, offset, -1, "Emission System");
+        sub_tree = proto_item_add_subtree(emission_ti, ett_emission_system);
+
+        proto_tree_add_item(sub_tree, hf_dis_em_data_length, tvb, offset, 1, ENC_NA);
+        offset++;
+
+        numBeams = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(sub_tree, hf_dis_em_num_beams, tvb, offset, 1, ENC_NA);
+        offset++;
+
+        proto_tree_add_item(sub_tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        ti = proto_tree_add_text(sub_tree, tvb, offset, 4, "Emitter System");
+        sub_tree2 = proto_item_add_subtree(ti, ett_emitter_system);
+
+        proto_tree_add_item(sub_tree2, hf_dis_emitter_name, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        proto_tree_add_item(sub_tree2, hf_dis_emission_function, tvb, offset, 1, ENC_NA);
+        offset++;
+        proto_tree_add_item(sub_tree2, hf_dis_emitter_id_number, tvb, offset, 1, ENC_NA);
+        offset++;
+
+        ti = proto_tree_add_text(sub_tree, tvb, offset, 12, "Location");
+        sub_tree2 = proto_item_add_subtree(ti, ett_emitter_location);
+
+        proto_tree_add_item(sub_tree2, hf_dis_em_location_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(sub_tree2, hf_dis_em_location_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(sub_tree2, hf_dis_em_location_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        for (j = 0; j < numBeams; j++)
         {
-        /* basic numeric types */
-        case DIS_FIELDTYPE_INT8:
-            offset = parseField_Int(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
-        case DIS_FIELDTYPE_INT16:
-            offset = parseField_Int(tvb, tree, offset,
-                parserNodes[fieldIndex], 2);
-            break;
-        case DIS_FIELDTYPE_INT32:
-            offset = parseField_Int(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_INT64:
-            offset = parseField_Int(tvb, tree, offset,
-                parserNodes[fieldIndex], 8);
-            break;
-        case DIS_FIELDTYPE_UINT8:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
-        case DIS_FIELDTYPE_UINT16:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 2);
-            break;
-        case DIS_FIELDTYPE_UINT32:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_UINT64:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 8);
-            break;
-        case DIS_FIELDTYPE_FLOAT32:
-            offset = parseField_Float(tvb, tree, offset,
-                parserNodes[fieldIndex]);
-            break;
-        case DIS_FIELDTYPE_FLOAT64:
-            offset = parseField_Double(tvb, tree, offset,
-                parserNodes[fieldIndex]);
-            break;
-        case DIS_FIELDTYPE_EXERCISE_ID:
-            proto_tree_add_item(tree, hf_dis_exercise_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_NUM_ARTICULATION_PARAMS:
-            uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_num_art_params, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            break;
-        case DIS_FIELDTYPE_PDU_LENGTH:
-            proto_tree_add_item(tree, hf_dis_pdu_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_SITE:
-            proto_tree_add_item(tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_APPLICATION:
-            proto_tree_add_item(tree, hf_dis_entity_id_application, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_ENTITY:
-            proto_tree_add_item(tree, hf_dis_entity_id_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_RADIO_ID:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_ENCODING_SCHEME:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            pi = proto_tree_add_item(tree, hf_dis_ens, tvb, offset, 2, ENC_BIG_ENDIAN);
-            sub_tree = proto_item_add_subtree(pi, ett_dis_ens);
-            proto_tree_add_item(sub_tree, hf_dis_ens_class, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree,
-                (uintVal >> 14) == DIS_ENCODING_CLASS_ENCODED_AUDIO ? hf_dis_ens_type_audio : hf_dis_ens_type,
-                tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_item_set_end(pi, tvb, offset);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_TDL_TYPE:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_tdl_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_SAMPLE_RATE:
-            proto_tree_add_item(tree, hf_dis_sample_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            break;
-        case DIS_FIELDTYPE_DATA_LENGTH:
-            proto_tree_add_item(tree, hf_dis_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_NUMBER_OF_SAMPLES:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_num_of_samples, tvb, offset, 2, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_RADIO_DATA:
-            if (tdlType == DIS_TDL_TYPE_LINK16_STD) {
-                pi = proto_tree_add_text(tree, tvb, offset, 16, "Link 16 Network Header");
-                sub_tree = proto_item_add_subtree(pi, ett_dis_signal_link16_network_header);
-                offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER, pinfo);
-                proto_item_set_end(pi, tvb, offset);
+            beam_ti = proto_tree_add_text(sub_tree, tvb, offset, -1, "Beam");
+            sub_tree2 = proto_item_add_subtree(beam_ti, ett_em_beam);
 
-                pi = proto_tree_add_text(tree, tvb, offset, -1, "Link 16 Message Data: %s",
-                    val_to_str(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
-                sub_tree = proto_item_add_subtree(pi, ett_dis_signal_link16_message_data);
-                offset = parse_Link16_Message_Data(sub_tree, tvb, offset, pinfo);
-                proto_item_set_end(pi, tvb, offset);
-            } else {
-                proto_tree_add_item(tree, hf_dis_signal_data, tvb, offset, -1, ENC_NA );
-            }
-            /* ****ck******* need to look for padding bytes */
-            break;
-        case DIS_FIELDTYPE_LINK16_PTT:
-            if (tvb_get_ntohl(tvb, offset) == 0xFFFFFFFF)
-                proto_tree_add_text(tree, tvb, offset, 8, "%s: NO STATEMENT", parserNodes[fieldIndex].fieldLabel);
-            else
-                proto_tree_add_item(tree, hf_dis_signal_link16_ptt, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            offset += 8;
-            break;
-        case DIS_FIELDTYPE_RADIO_CATEGORY:
-            proto_tree_add_item(tree, hf_dis_radio_category, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_NOMENCLATURE_VERSION:
-            proto_tree_add_item(tree, hf_dis_nomenclature_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_NOMENCLATURE:
-            proto_tree_add_item(tree, hf_dis_nomenclature, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_RADIO_TRANSMIT_STATE:
-            uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_radio_transmit_state, tvb, offset, 1, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_RADIO_INPUT_SOURCE:
-            proto_tree_add_item(tree, hf_dis_radio_input_source, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case  DIS_FIELDTYPE_ANTENNA_PATTERN_TYPE:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_antenna_pattern_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_ANTENNA_PATTERN_LENGTH:
-            proto_tree_add_item(tree, hf_dis_antenna_pattern_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-         case DIS_FIELDTYPE_TRANSMIT_FREQUENCY:
-            proto_tree_add_item(tree, hf_dis_transmit_frequency, tvb, offset, 8, ENC_BIG_ENDIAN);
-            offset += 8;
-            break;
-        case  DIS_FIELDTYPE_SPREAD_SPECTRUM:
-            spread_spectrum = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_boolean(tree, hf_dis_spread_spectrum_usage, tvb, offset,  2, spread_spectrum);
-            proto_tree_add_boolean(tree, hf_dis_frequency_hopping, tvb, offset,  2, spread_spectrum);
-            proto_tree_add_boolean(tree, hf_dis_pseudo_noise_modulation, tvb, offset,  2, spread_spectrum);
-            proto_tree_add_boolean(tree, hf_dis_time_hopping, tvb, offset,  2, spread_spectrum);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_MODULATION_MAJOR:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_modulation_major, tvb, offset, 2, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_MODULATION_SYSTEM:
-            uintVal = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_modulation_system, tvb, offset, 2, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_CRYPTO_SYSTEM:
-            proto_tree_add_item(tree, hf_dis_crypto_system, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_CRYPTO_KEY_ID:
-            pi = proto_tree_add_item(tree, hf_dis_crypto_key, tvb, offset, 2, ENC_BIG_ENDIAN);
-            sub_tree = proto_item_add_subtree(pi, ett_dis_crypto_key);
-            proto_tree_add_item(sub_tree, hf_dis_encryption_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_tree_add_item(sub_tree, hf_dis_key_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
-            proto_item_set_end(pi, tvb, offset);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_MODULATION_PARAMETER_LENGTH:
-            uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_modulation_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_FH_NETWORK_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_net_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_FH_SET_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_LO_SET_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_lo_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_FH_MSG_START:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_msg_start, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_RESERVED:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_FH_SYNC_TIME_OFFSET:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_sync_time_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            break;
-        case DIS_FIELDTYPE_FH_SECURITY_KEY:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_security_key, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_FH_CLEAR_CHANNEL:
-            proto_tree_add_item(tree, hf_dis_mod_param_fh_clear_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_TS_ALLOCATION_MODE:
-            proto_tree_add_item(tree, hf_dis_mod_param_ts_allocation_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_TRANSMITTER_PRIMARY_MODE:
-            proto_tree_add_item(tree, hf_dis_mod_param_transmitter_prim_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_TRANSMITTER_SECONDARY_MODE:
-            proto_tree_add_item(tree, hf_dis_mod_param_transmitter_second_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_JTIDS_SYNC_STATE:
-            proto_tree_add_item(tree, hf_dis_mod_param_sync_state, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case DIS_FIELDTYPE_NETWORK_SYNC_ID:
-            proto_tree_add_item(tree, hf_dis_mod_param_network_sync_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            break;
-        case DIS_FIELDTYPE_MODULATION_PARAMETERS:
-            /* need to check to see if mod parms length > 0 */
-            /* could get here when there are antenna pattern parameter but no mod params */
-            if (modulationParamLength > 0 ) { /* we do have a mod param */
-                if (systemModulation == DIS_SYSTEM_MOD_CCTT_SINCGARS)
-                {
-                    pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                             parserNodes[fieldIndex].fieldLabel);
-                    sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
-                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS, pinfo);
-                    proto_item_set_end(pi, tvb, offset);
-                    break;
-                }
-                else if (systemModulation == DIS_SYSTEM_MOD_JTIDS_MIDS) {
-                    pi = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                             parserNodes[fieldIndex].fieldLabel);
-                    sub_tree = proto_item_add_subtree(pi, parserNodes[fieldIndex].ettVar);
-                    offset = parseFields(tvb, sub_tree, offset, DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS, pinfo);
-                    proto_item_set_end(pi, tvb, offset);
-                    break;
-                }
-                else {  /* just dump what is available */
-                    newtvb = tvb_new_subset(tvb, offset,modulationParamLength, modulationParamLength);
-                    proto_tree_add_item(tree, hf_dis_mod_param_dump, newtvb, 0, -1, ENC_NA );
-                    offset += modulationParamLength;
-                    break;
-                }
-            } /* else, leave offset alone, and then check antenna pattern param field */
-            break;
-        case DIS_FIELDTYPE_ANTENNA_PATTERN_PARAMETERS:
-            /* just dump the bytes for now.  Need to do finish */
-            newtvb = tvb_new_subset_remaining(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_antenna_pattern_parameter_dump, newtvb, 0, -1, ENC_NA );
-            break;
-        case DIS_FIELDTYPE_LINK16_NPG:
-            proto_tree_add_item(tree, hf_dis_signal_link16_npg, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case DIS_FIELDTYPE_LINK16_TSEC_CVLL:
-            proto_tree_add_item(tree, hf_dis_signal_link16_tsec_cvll, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(sub_tree2, hf_dis_em_beam_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            break;
-        case DIS_FIELDTYPE_LINK16_MSEC_CVLL:
-            proto_tree_add_item(tree, hf_dis_signal_link16_msec_cvll, tvb, offset, 1, ENC_NA);
+
+            proto_tree_add_item(sub_tree2, hf_dis_em_beam_id_number, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            break;
 
-        /* padding */
-        case DIS_FIELDTYPE_PAD8:
-            offset = parseField_Pad(tvb, tree, offset,
-                parserNodes[fieldIndex], 1 * fieldRepeatLen);
-            break;
-        case DIS_FIELDTYPE_PAD16:
-            offset = parseField_Pad(tvb, tree, offset,
-                parserNodes[fieldIndex], 2 * fieldRepeatLen);
-            break;
-        case DIS_FIELDTYPE_PAD24:
-            offset = parseField_Pad(tvb, tree, offset,
-                parserNodes[fieldIndex], 3 * fieldRepeatLen);
-            break;
-        case DIS_FIELDTYPE_PAD32:
-            offset = parseField_Pad(tvb, tree, offset,
-                parserNodes[fieldIndex], 4 * fieldRepeatLen);
-            break;
+            proto_tree_add_item(sub_tree2, hf_dis_em_beam_parameter_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
 
-        /* enumerations (1-byte) */
-        case DIS_FIELDTYPE_APPLICATION_GENERAL_STATUS:
-        case DIS_FIELDTYPE_CATEGORY:
-        case DIS_FIELDTYPE_CONTROL_ID:
-        case DIS_FIELDTYPE_DETONATION_RESULT:
-        case DIS_FIELDTYPE_DOMAIN:
-        case DIS_FIELDTYPE_ENTITY_KIND:
-        case DIS_FIELDTYPE_FROZEN_BEHAVIOR:
-        case DIS_FIELDTYPE_PARAMETER_TYPE_DESIGNATOR:
-        case DIS_FIELDTYPE_PDU_TYPE:
-        case DIS_FIELDTYPE_PROTOCOL_FAMILY:
-        case DIS_FIELDTYPE_PROTOCOL_VERSION:
-        case DIS_FIELDTYPE_REASON:
-        case DIS_FIELDTYPE_REQUIRED_RELIABILITY_SERVICE:
-        case DIS_FIELDTYPE_PERSISTENT_OBJECT_CLASS:
-        case DIS_FIELDTYPE_PERSISTENT_OBJECT_TYPE:
-        case DIS_FIELDTYPE_EMISSION_FUNCTION:
-        case DIS_FIELDTYPE_BEAM_FUNCTION:
-        case DIS_FIELDTYPE_LINK16_MESSAGE_TYPE:
-            offset = parseField_Enum(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
+            ti = proto_tree_add_text(sub_tree2, tvb, offset, 40, "Fundamental Parameter Data");
+            fundamental_tree = proto_item_add_subtree(ti, ett_em_fundamental_parameter_data);
 
-        /* enumerations (2-bytes) */
-        case DIS_FIELDTYPE_ACKNOWLEDGE_FLAG:
-        case DIS_FIELDTYPE_APPLICATION_STATUS_TYPE:
-        case DIS_FIELDTYPE_APPLICATION_TYPE:
-        case DIS_FIELDTYPE_RESPONSE_FLAG:
-        case DIS_FIELDTYPE_MODULATION_DETAIL:
-        case DIS_FIELDTYPE_EMITTER_NAME:
-            offset = parseField_Enum(tvb, tree, offset,
-                parserNodes[fieldIndex], 2);
-            break;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_frequency, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_frequency_range, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_effective_radiated_power, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_pulse_repition_freq, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_pulse_width, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_beam_azimuth_center, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_beam_azimuth_sweep, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_beam_elevation_center, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_beam_elevation_sweep, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(fundamental_tree, hf_dis_em_fund_beem_sweep_sync, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
 
-        /* enumerations (4-bytes) */
-        case DIS_FIELDTYPE_ACTION_ID:
-        case DIS_FIELDTYPE_REQUEST_STATUS:
-            offset = parseField_Enum(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
+            proto_tree_add_item(sub_tree2, hf_dis_beam_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
 
-        /* other atomic types */
-        case DIS_FIELDTYPE_APPEARANCE:
+            numTrackJamTargets = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(sub_tree2, hf_dis_track_jam_num_targ, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            proto_tree_add_item(sub_tree2, hf_dis_track_jam_high_density, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+
+            proto_tree_add_item(sub_tree2, hf_dis_padding, tvb, offset, 1, ENC_NA);
+            offset++;
+
+            proto_tree_add_item(sub_tree2, hf_dis_jamming_mode_seq, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+
+            for (k = 0; k < numTrackJamTargets; k++)
             {
-                proto_item *newSubtree;
-                newField = proto_tree_add_text(tree, tvb, offset, 4, "%s",
-                    parserNodes[fieldIndex].fieldLabel);
-                newSubtree = proto_item_add_subtree(newField,
-                    parserNodes[fieldIndex].ettVar);
-                offset = parseField_Bitmask(tvb, newSubtree, offset,
-                    parserNodes[fieldIndex], 4);
+                offset = parseField_TRACK_JAM(tvb, sub_tree2, offset, "Track/Jam Entity");
             }
-            break;
-        case DIS_FIELDTYPE_ARTIC_PARAM_TYPE:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_CAPABILITIES:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_COUNTRY:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 2);
-            break;
-        case DIS_FIELDTYPE_DATUM_ID:
-        case DIS_FIELDTYPE_DATUM_LENGTH:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_DEAD_RECKONING_PARAMS:
-            /* This is really a struct... needs a field parser.
-             * For now, just skip the 12 bytes.
-             */
-            offset = parseField_Bytes(tvb, tree, offset,
-                parserNodes[fieldIndex], 40);
-            break;
-        case DIS_FIELDTYPE_ENTITY_MARKING:
-            /* This is really a struct... needs a field parser.
-             * For now, just skip the 12 bytes.
-             */
-            offset = parseField_Bytes(tvb, tree, offset,
-                parserNodes[fieldIndex], 12);
-            break;
-        case DIS_FIELDTYPE_EXTRA:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
-        case DIS_FIELDTYPE_FIXED_DATUM_VALUE:
-            offset = parseField_Bytes(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_FIXED_LEN_STR:
-            offset = parseField_Bytes(tvb, tree, offset,
-                parserNodes[fieldIndex],
-                parserNodes[fieldIndex].fieldRepeatLen);
-            break;
-        case DIS_FIELDTYPE_FORCE_ID:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
-        case DIS_FIELDTYPE_FUSE:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 2);
-            break;
-        case DIS_FIELDTYPE_NUM_FIXED_DATA:
-        case DIS_FIELDTYPE_NUM_VARIABLE_DATA:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_REQUEST_ID:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_SPECIFIC:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
-        case DIS_FIELDTYPE_SUBCATEGORY:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 1);
-            break;
-        case DIS_FIELDTYPE_TIME_INTERVAL:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 4);
-            break;
-        case DIS_FIELDTYPE_TIMESTAMP:
-            offset = parseField_Timestamp(tvb, tree, offset,
-                parserNodes[fieldIndex]);
-            break;
-        case DIS_FIELDTYPE_WARHEAD:
-            offset = parseField_UInt(tvb, tree, offset,
-                parserNodes[fieldIndex], 2);
-            break;
 
-        /* composite types */
-        case DIS_FIELDTYPE_BURST_DESCRIPTOR:
-        case DIS_FIELDTYPE_CLOCK_TIME:
-        case DIS_FIELDTYPE_ENTITY_ID:
-        case DIS_FIELDTYPE_ENTITY_TYPE:
-        case DIS_FIELDTYPE_RADIO_ENTITY_TYPE:
-        case DIS_FIELDTYPE_ANTENNA_LOCATION:
-        case DIS_FIELDTYPE_REL_ANTENNA_LOCATON:
-        case DIS_FIELDTYPE_EVENT_ID:
-        case DIS_FIELDTYPE_LINEAR_VELOCITY:
-        case DIS_FIELDTYPE_LOCATION_ENTITY:
-        case DIS_FIELDTYPE_LOCATION_WORLD:
-        case DIS_FIELDTYPE_ORIENTATION:
-        case DIS_FIELDTYPE_SIMULATION_ADDRESS:
-        case DIS_FIELDTYPE_VECTOR_32:
-        case DIS_FIELDTYPE_VECTOR_64:
-        case DIS_FIELDTYPE_MODULATION_TYPE:
-        case DIS_FIELDTYPE_EMITTER_SYSTEM:
-        case DIS_FIELDTYPE_FUNDAMENTAL_PARAMETER_DATA:
-        case DIS_FIELDTYPE_UA_EMITTER_SYSTEM:
-        case DIS_FIELDTYPE_UA_BEAM_FUNDAMENTAL_PARAMETER_DATA:
-            newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                parserNodes[fieldIndex].fieldLabel);
-            if (parserNodes[fieldIndex].children != 0)
-            {
-                proto_item *newSubtree = proto_item_add_subtree(newField,
-                    parserNodes[fieldIndex].ettVar);
-                offset = parseFields(tvb, newSubtree, offset,
-                    parserNodes[fieldIndex].children, pinfo);
-            }
-            proto_item_set_end(newField, tvb, offset);
-            break;
-        case DIS_FIELDTYPE_VARIABLE_DATUM_VALUE:
-            {
-                guint lengthInBytes;
-                lengthInBytes = variableDatumLength / 8;
-                if (variableDatumLength % 8 > 0)
-                {
-                    lengthInBytes += (8 - (variableDatumLength % 8));
-                }
-                offset = parseField_Bytes(tvb, tree, offset,
-                    parserNodes[fieldIndex], lengthInBytes);
-            }
-            break;
-
-        /* arrays */
-        case DIS_FIELDTYPE_FIXED_DATUMS:
-            {
-                guint i;
-                if (numFixed > INT_MAX)
-                {
-                    numFixed = INT_MAX;
-                }
-
-                for (i = 0; i < numFixed; ++i)
-                {
-                    proto_item *newSubtree;
-
-                    /* is remaining length large enough for another fixed datum (ID & value) */
-                    /* XXX is this really necessary? */
-                    tvb_ensure_length_remaining(tvb, offset+8);
-
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                                   parserNodes[fieldIndex].fieldLabel);
-                    newSubtree = proto_item_add_subtree(newField, ettFixedData);
-                    offset = parseFields (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children, pinfo);
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_FIXED_DATUM_IDS:
-            if (numFixed > 0)
-            {
-                guint       i;
-                proto_item *newSubtree;
-
-                newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                    parserNodes[fieldIndex].fieldLabel);
-                newSubtree = proto_item_add_subtree(newField, ettFixedData);
-
-                if (numFixed > INT_MAX)
-                {
-                    numFixed = INT_MAX;
-                }
-
-                for (i = 0; i < numFixed; ++i)
-                {
-                    /* is remaining length large enough for another fixed datum ID (32 bit int) */
-                    /* XXX is this really necessary? */
-                    tvb_ensure_length_remaining(tvb, offset+4);
-                    offset = parseFields (tvb, newSubtree, offset,
-                        parserNodes[fieldIndex].children, pinfo);
-                }
-                proto_item_set_end(newField, tvb, offset);
-            }
-            break;
-        case DIS_FIELDTYPE_VARIABLE_DATUMS:
-            {
-                guint i;
-                if (numVariable > INT_MAX)
-                {
-                    numVariable = INT_MAX;
-                }
-
-                for (i = 0; i < numVariable; ++i)
-                {
-                    proto_item *newSubtree;
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                        parserNodes[fieldIndex].fieldLabel);
-                    newSubtree = proto_item_add_subtree
-                        (newField, ettVariableData);
-                    offset = parseFields
-                        (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children, pinfo);
-                    proto_item_set_end(newField, tvb, offset);
-                }
-
-            }
-            break;
-        case DIS_FIELDTYPE_VARIABLE_DATUM_IDS:
-            if (numVariable > 0)
-            {
-                guint       i;
-                proto_item *newSubtree;
-
-                newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                    parserNodes[fieldIndex].fieldLabel);
-                newSubtree = proto_item_add_subtree(newField, ettVariableData);
-
-                if (numVariable > INT_MAX)
-                {
-                    numVariable = INT_MAX;
-                }
-
-                for (i = 0; i < numVariable; ++i)
-                {
-                    offset = parseFields
-                        (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children, pinfo);
-                }
-                proto_item_set_end(newField, tvb, offset);
-            }
-            break;
-        case DIS_FIELDTYPE_VARIABLE_PARAMETERS:
-            {
-                guint i;
-
-                if (numVariable > DIS_PDU_MAX_VARIABLE_PARAMETERS)
-                {
-                    numVariable = DIS_PDU_MAX_VARIABLE_PARAMETERS;
-                }
-
-                for (i = 0; i < numVariable; ++i)
-                {
-                    proto_item *newSubtree;
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                        parserNodes[fieldIndex].fieldLabel);
-                    newSubtree = proto_item_add_subtree(newField,
-                        ettVariableParameters[i]);
-                    offset = parseFields
-                        (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children, pinfo);
-                    offset = parseField_VariableParameter
-                        (tvb, newSubtree, offset, pinfo);
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_VARIABLE_RECORDS:
-            {
-                guint i;
-
-                if (numVariable > DIS_PDU_MAX_VARIABLE_RECORDS)
-                {
-                    numVariable = DIS_PDU_MAX_VARIABLE_RECORDS;
-                }
-
-                for (i = 0; i < numVariable; ++i)
-                {
-                    proto_item *newSubtree;
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                                                   parserNodes[fieldIndex].fieldLabel);
-                    newSubtree = proto_item_add_subtree(newField,
-                                                        ettVariableRecords[i]);
-                    offset = parseFields
-                        (tvb, newSubtree, offset,
-                         parserNodes[fieldIndex].children, pinfo);
-                    offset = parseField_VariableRecord
-                        (tvb, newSubtree, offset, pinfo);
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM_BEAM:
-            {
-                guint i;
-
-                for (i = 0; i < numBeams; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                        parserNodes[fieldIndex].fieldLabel);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_TRACK_JAM:
-            {
-                guint i;
-
-                for (i = 0; i < numTrackJamTargets; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                        parserNodes[fieldIndex].fieldLabel);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_NUM_ELECTROMAGNETIC_EMISSION_SYSTEMS:
-            uintVal = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dis_num_electromagnetic_emission_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            break;
-        case DIS_FIELDTYPE_ELECTROMAGNETIC_EMISSION_SYSTEM:
-            {
-                guint i;
-
-                if (numVariable > DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS)
-                {
-                    numVariable = DIS_PDU_MAX_ELECTROMAGNETIC_EMISSION_SYSTEMS;
-                }
-
-                for (i = 0; i < numVariable; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s",
-                        parserNodes[fieldIndex].fieldLabel);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_NUM_OF_SHAFTS:
-            {
-                uintVal = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_dis_num_shafts, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            }
-            break;
-        case DIS_FIELDTYPE_SHAFTS:
-            {
-                guint i;
-
-                if (numShafts > DIS_PDU_MAX_SHAFTS)
-                {
-                    numShafts = DIS_PDU_MAX_SHAFTS;
-                }
-
-                for (i = 0; i < numShafts; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
-                                                   parserNodes[fieldIndex].fieldLabel, i+1, numShafts);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_NUM_OF_APAS:
-            {
-                uintVal = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_dis_num_apas, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            }
-            break;
-        case DIS_FIELDTYPE_APA:
-            {
-                guint i;
-
-                if (numApas > DIS_PDU_MAX_APAS)
-                {
-                    numApas = DIS_PDU_MAX_APAS;
-                }
-
-                for (i = 0; i < numApas; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
-                                                   parserNodes[fieldIndex].fieldLabel, i+1, numApas);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEMS:
-            {
-                uintVal = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_dis_num_ua_emitter_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
-                offset += 1;
-                *(parserNodes[fieldIndex].outputVar) = (guint32)uintVal;
-            }
-            break;
-        case DIS_FIELDTYPE_NUM_OF_UA_EMITTER_SYSTEM_BEAMS:
-            {
-                uintVal = tvb_get_guint8(tvb, offset);
-                offset  = parseField_UInt(tvb, tree, offset, parserNodes[fieldIndex], 1);
-                numUABeams += (guint32)uintVal;
-            }
-            break;
-        case DIS_FIELDTYPE_UA_EMITTER_SYSTEMS:
-            {
-                guint i;
-
-                if (numUAEmitter > DIS_PDU_MAX_UA_EMITTER_SYSTEMS)
-                {
-                    numUAEmitter = DIS_PDU_MAX_UA_EMITTER_SYSTEMS;
-                }
-
-                for (i = 0; i < numUAEmitter; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
-                                                   parserNodes[fieldIndex].fieldLabel, i+1, numUAEmitter);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-            }
-            break;
-        case DIS_FIELDTYPE_UA_BEAMS:
-            {
-                guint i;
-
-                if (numUABeams > DIS_PDU_MAX_UA_BEAMS)
-                {
-                    numUABeams = DIS_PDU_MAX_UA_BEAMS;
-                }
-
-                for (i = 0; i < numUABeams; ++i)
-                {
-                    newField = proto_tree_add_text(tree, tvb, offset, -1, "%s [%d of %d]",
-                                                   parserNodes[fieldIndex].fieldLabel, i+1, numUABeams);
-                    if (parserNodes[fieldIndex].children != 0)
-                    {
-                        proto_item *newSubtree =
-                            proto_item_add_subtree(newField,
-                            parserNodes[fieldIndex].ettVar);
-                        offset = parseFields(tvb, newSubtree, offset,
-                            parserNodes[fieldIndex].children, pinfo);
-                    }
-                    proto_item_set_end(newField, tvb, offset);
-                }
-                numUABeams = 0; /* reset beam count for this pdu */
-            }
-            break;
-        default:
-            break;
+            proto_item_set_end(beam_ti, tvb, offset);
         }
 
-        ++fieldIndex;
-        length = tvb_length_remaining(tvb, offset);
+        proto_item_set_end(emission_ti, tvb, offset);
     }
+
+    return offset;
+}
+
+/* DIS Underwater Acoustic PDUs
+ */
+static int dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_item *ti;
+    proto_tree *sub_tree, *sub_tree2;
+    guint8 i, numShafts, numApas, numUAEmitter, numUABeams = 0;
+
+    offset = parseField_Entity(tvb, tree, offset, "Emitting Entity ID");
+    offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
+
+    proto_tree_add_item(tree, hf_dis_state_update_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_passive_parameter_index, tvb, offset, 2, ENC_BIG_ENDIAN); /* !! enum !! */
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_propulsion_plant_config, tvb, offset, 1, ENC_BIG_ENDIAN); /* !! enum !! */
+    offset++;
+
+    numShafts = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_shafts, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    numApas = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_apas, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    numUAEmitter = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_ua_emitter_systems, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", Shafts=%d, APA=%d, Acoustic Emitter=%d",
+                      numShafts, numApas, numUAEmitter);
+
+    for (i = 0; i < numShafts; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, 6, "Shafts [%d of %d]", i+1, numShafts);
+        sub_tree = proto_item_add_subtree(ti, ett_shafts);
+
+        proto_tree_add_item(sub_tree, hf_dis_shaft_rpm_current, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_dis_shaft_rpm_ordered, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_dis_shaft_rpm_change_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    for (i = 0; i < numApas; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, 4, "APAs [%d of %d]", i+1, numApas);
+        sub_tree = proto_item_add_subtree(ti, ett_apas);
+
+        proto_tree_add_item(sub_tree, hf_dis_apas_parameter_index, tvb, offset, 2, ENC_BIG_ENDIAN); /*FIXME enum*/
+        offset += 2;
+
+        proto_tree_add_item(sub_tree, hf_dis_apas_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+
+    for (i = 0; i < numUAEmitter; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, 20, "Underwater Acoustic Emission System [%d of %d]", i+1, numUAEmitter);
+        sub_tree = proto_item_add_subtree(ti, ett_underwater_acoustic_emission);
+
+        proto_tree_add_item(sub_tree, hf_dis_ua_emitter_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        numUABeams += tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(sub_tree, hf_dis_ua_num_beams, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(sub_tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        ti = proto_tree_add_text(sub_tree, tvb, offset, 4, "Acoustic Emitter System");
+        sub_tree2 = proto_item_add_subtree(ti, ett_acoustic_emitter_system);
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_emission_name, tvb, offset, 2, ENC_BIG_ENDIAN); /*FIXME enum*/
+        offset += 2;
+        proto_tree_add_item(sub_tree2, hf_dis_ua_emission_function, tvb, offset, 1, ENC_BIG_ENDIAN); /*FIXME enum*/
+        offset++;
+        proto_tree_add_item(sub_tree2, hf_dis_ua_emission_id_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        ti = proto_tree_add_text(sub_tree, tvb, offset, 12, "Location (with respect to entity)");
+        sub_tree2 = proto_item_add_subtree(ti, ett_ua_location);
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_location_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_location_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_location_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    for (i = 0; i < numUABeams; ++i)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, 24, "Beams [%d of %d]", i+1, numUABeams);
+        sub_tree = proto_item_add_subtree(ti, ett_ua_beams);
+
+        proto_tree_add_item(sub_tree, hf_dis_ua_beam_data_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(sub_tree, hf_dis_ua_beam_id_number, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        proto_tree_add_item(sub_tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+        offset += 2;
+
+        ti = proto_tree_add_text(sub_tree, tvb, offset, 20, "Fundamental Data Parameters");
+        sub_tree2 = proto_item_add_subtree(ti, ett_ua_beam_data);
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_beam_active_emission_parameter_index, tvb, offset, 2, ENC_BIG_ENDIAN); /*FIXME enum!!!*/
+        offset += 2;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_beam_scan_pattern, tvb, offset, 2, ENC_BIG_ENDIAN); /*FIXME enum!!!*/
+        offset += 2;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_beam_center_azimuth, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_beam_azimuthal_beamwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_beam_center_de, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        proto_tree_add_item(sub_tree2, hf_dis_ua_beam_de_beamwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+    }
+
+    return offset;
+}
+
+/* DIS Radio Communications protocol (RCP) family PDUs
+ */
+static int dissect_DIS_PARSER_TRANSMITTER_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+    guint32 radioID, disRadioTransmitState, modulationParamLength;
+    guint16 systemModulation;
+
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    radioID = tvb_get_ntohs(tvb, offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", RadioID=%u", radioID);
+    offset += 2;
+
+    offset = dissect_DIS_FIELDS_RADIO_ENTITY_TYPE(tvb, tree, offset, "Radio Entity Type");
+
+    disRadioTransmitState = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_radio_transmit_state, tvb, offset, 1, ENC_BIG_ENDIAN);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", Transmit State=%s", val_to_str_const(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State"));
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_radio_input_source, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 24, "Antenna Location");
+    sub_tree = proto_item_add_subtree(ti, ett_antenna_location);
+
+    proto_tree_add_item(sub_tree, hf_dis_antenna_location_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_antenna_location_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_antenna_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Relative Antenna Location");
+    sub_tree = proto_item_add_subtree(ti, ett_rel_antenna_location);
+
+    proto_tree_add_item(sub_tree, hf_dis_rel_antenna_location_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_rel_antenna_location_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_rel_antenna_location_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_antenna_pattern_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_antenna_pattern_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_transmit_frequency, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    proto_tree_add_item(tree, hf_dis_transmit_freq_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_transmit_power, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = dissect_DIS_FIELDS_MODULATION_TYPE(tvb, tree, offset, &systemModulation);
+
+    proto_tree_add_item(tree, hf_dis_crypto_system, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    ti = proto_tree_add_item(tree, hf_dis_crypto_key, tvb, offset, 2, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(ti, ett_dis_crypto_key);
+    proto_tree_add_item(sub_tree, hf_dis_encryption_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree, hf_dis_key_identifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    modulationParamLength = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_modulation_parameter_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    /* need to check to see if mod parms length > 0 */
+    /* could get here when there are antenna pattern parameter but no mod params */
+    if (modulationParamLength > 0 ) { /* we do have a mod param */
+        switch(systemModulation)
+        {
+        case DIS_SYSTEM_MOD_CCTT_SINCGARS:
+            offset = dissect_DIS_FIELDS_MOD_PARAMS_CCTT_SINCGARS(tvb, sub_tree, offset);
+            break;
+        case DIS_SYSTEM_MOD_JTIDS_MIDS:
+            offset = dissect_DIS_FIELDS_MOD_PARAMS_JTIDS_MIDS(tvb, sub_tree, offset);
+            break;
+        default: /* just dump what is available */
+            proto_tree_add_item(tree, hf_dis_mod_param_dump, tvb, offset, modulationParamLength, ENC_NA );
+            offset += modulationParamLength;
+            break;
+        }
+    } /* else, leave offset alone, and then check antenna pattern param field */
+
+    /* need to finish decoding this PDU */
+    return offset;
+}
+
+static int dissect_DIS_PARSER_SIGNAL_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+    guint32 radioID, encodingScheme, numSamples;
+    guint16 tdlType;
+    guint8 messageType;
+
+    offset = parseField_Entity(tvb, tree, offset, "Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_radio_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+    radioID = tvb_get_ntohs(tvb, offset);
+    col_append_fstr( pinfo->cinfo, COL_INFO, ", RadioID=%u", radioID);
+    offset += 2;
+
+    encodingScheme = tvb_get_ntohs(tvb, offset);
+    if ((encodingScheme & 0xC000) >> 14 == DIS_ENCODING_CLASS_ENCODED_AUDIO)
+        col_append_fstr(pinfo->cinfo, COL_INFO,", Encoding Type=%s",
+            val_to_str_const(DIS_ENCODING_TYPE(encodingScheme),
+            DIS_PDU_Encoding_Type_Strings, "Unknown"));
+
+    ti = proto_tree_add_item(tree, hf_dis_ens, tvb, offset, 2, ENC_BIG_ENDIAN);
+    sub_tree = proto_item_add_subtree(ti, ett_dis_ens);
+
+    proto_tree_add_item(sub_tree, hf_dis_ens_class, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(sub_tree,
+        ((encodingScheme >> 14) & 3) == DIS_ENCODING_CLASS_ENCODED_AUDIO ? hf_dis_ens_type_audio : hf_dis_ens_type,
+        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    tdlType = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_tdl_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_sample_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    numSamples = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_of_samples, tvb, offset, 2, ENC_BIG_ENDIAN);
+    if (numSamples)
+        col_append_fstr(pinfo->cinfo, COL_INFO, ", Number of Samples=%u", numSamples);
+    offset += 2;
+
+    if (tdlType == DIS_TDL_TYPE_LINK16_STD) {
+        offset = parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvb, tree, offset, &messageType);
+
+        ti = proto_tree_add_text(tree, tvb, offset, -1, "Link 16 Message Data: %s",
+            val_to_str(messageType, DIS_PDU_Link16_MessageType_Strings, ""));
+        sub_tree = proto_item_add_subtree(ti, ett_dis_signal_link16_message_data);
+        offset = parse_Link16_Message_Data(sub_tree, tvb, offset, pinfo, encodingScheme, messageType);
+        proto_item_set_end(ti, tvb, offset);
+    } else {
+        proto_tree_add_item(tree, hf_dis_signal_data, tvb, offset, -1, ENC_NA );
+        offset += tvb_reported_length_remaining(tvb, offset);
+    }
+    /* ****ck******* need to look for padding bytes */
+
+    return offset;
+}
+
+/* DIS Warfare PDUs
+ */
+static int dissect_DIS_PARSER_FIRE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+
+    offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Target Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Munition ID");
+    offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
+
+    proto_tree_add_item(tree, hf_dis_fire_mission_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 24, "Location in World Coordinates");
+    sub_tree = proto_item_add_subtree(ti, ett_fire_location);
+
+    proto_tree_add_item(sub_tree, hf_dis_fire_location_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_fire_location_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_fire_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    offset = dissect_DIS_FIELDS_BURST_DESCRIPTOR(tvb, tree, offset);
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Velocity");
+    sub_tree = proto_item_add_subtree(ti, ett_linear_velocity);
+
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_range, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DETONATION_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item *ti;
+    proto_tree *sub_tree;
+    guint8 variableParameterType, numVariable;
+    guint32 i;
+
+    offset = parseField_Entity(tvb, tree, offset, "Firing Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Target Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Munition ID");
+    offset = dissect_DIS_FIELDS_EVENT_ID(tvb, tree, offset, "Event ID");
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Velocity");
+    sub_tree = proto_item_add_subtree(ti, ett_linear_velocity);
+
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_linear_velocity_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 24, "Location in World Coordinates");
+    sub_tree = proto_item_add_subtree(ti, ett_detonation_location);
+
+    proto_tree_add_item(sub_tree, hf_dis_detonation_location_x, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_detonation_location_y, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+    proto_tree_add_item(sub_tree, hf_dis_detonation_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
+    offset += 8;
+
+    offset = dissect_DIS_FIELDS_BURST_DESCRIPTOR(tvb, tree, offset);
+
+    ti = proto_tree_add_text(tree, tvb, offset, 12, "Location in Entity Coordinates");
+    sub_tree = proto_item_add_subtree(ti, ett_linear_velocity);
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_x, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_y, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(sub_tree, hf_dis_entity_location_z, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_detonation_result, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    numVariable = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_art_params, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    for (i = 0; i < numVariable; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, 1, "Variable Parameter");
+        sub_tree = proto_item_add_subtree(ti, ett_variable_parameter);
+
+        proto_tree_add_item(sub_tree, hf_dis_variable_parameter_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        variableParameterType = tvb_get_guint8(tvb, offset);
+        offset++;
+
+        offset = parseField_VariableParameter(tvb, sub_tree, offset, variableParameterType);
+        proto_item_set_end(ti, tvb, offset);
+    }
+
+    return offset;
+}
+
+/* DIS Simulation Management PDUs
+ */
+static int dissect_DIS_PARSER_START_RESUME_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
+    offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Simulation Time");
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_STOP_FREEZE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
+
+    proto_tree_add_item(tree, hf_dis_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_frozen_behavior, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_ACKNOWLEDGE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_acknowledge_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_response_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_ACTION_REQUEST_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_action_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_ACTION_RESPONSE_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_request_status, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DATA_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DATA_QUERY_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_time_interval32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvb, tree, offset, "Fixed datum ids", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM_IDS(tvb, tree, offset, "Variable datum ids", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_COMMENT_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_SIMAN_ENTITY_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+/* DIS Simulation Management with Reliability PDUs
+ */
+static int dissect_DIS_PARSER_START_RESUME_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
+    offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Simulation Time");
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_STOP_FREEZE_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+    offset = dissect_DIS_FIELDS_CLOCK_TIME(tvb, tree, offset, "Real World Time");
+
+    proto_tree_add_item(tree, hf_dis_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_frozen_behavior, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_ACTION_REQUEST_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_action_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DATA_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM(tvb, tree, offset, "Fixed data", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM(tvb, tree, offset, "Variable data", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DATA_QUERY_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    guint32 numFixed, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_time_interval32, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numFixed = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_fixed_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    numVariable = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_datum_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_DIS_FIELDS_FIXED_DATUM_IDS(tvb, tree, offset, "Fixed datum ids", numFixed);
+    offset = parseField_DIS_FIELDS_VARIABLE_DATUM_IDS(tvb, tree, offset, "Variable datum ids", numVariable);
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+/* DIS Experimental V-DIS PDUs
+ */
+static int dissect_DIS_PARSER_APPLICATION_CONTROL_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_item* ti;
+    proto_tree* sub_tree;
+    guint32 i, variableRecordType;
+    guint16 variableRecordLength, numVariable;
+
+    offset = parseField_Entity(tvb, tree, offset, "Originating Entity ID");
+    offset = parseField_Entity(tvb, tree, offset, "Receiving Entity ID");
+
+    proto_tree_add_item(tree, hf_dis_reliability, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_time_interval8, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_control_id, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_orig_app_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_recv_app_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_request_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_num_parts, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_current_part, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    numVariable = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_dis_num_variable_records, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    for (i = 0; i < numVariable; i++)
+    {
+        ti = proto_tree_add_text(tree, tvb, offset, -1, "Record");
+        sub_tree = proto_item_add_subtree(ti, ett_record);
+
+        variableRecordType = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(tree, hf_dis_variable_record_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        variableRecordLength = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_item(sub_tree, hf_dis_variable_record_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        offset = parseField_VariableRecord(tvb, sub_tree, offset, variableRecordType, variableRecordLength);
+        proto_item_set_end(ti, tvb, offset);
+    }
+
+    return offset;
+}
+
+/* Persistent Object (PO) Family PDU parsers
+ */
+static int dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Nominated Simulator");
+
+    proto_tree_add_item(tree, hf_dis_simulator_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_database_seq_num, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_simulator_load, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_simulation_load, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_packets_sent, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_unit_database_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_relative_battle_scheme, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_terrain_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
+    offset += 32;
+
+    proto_tree_add_item(tree, hf_dis_terrain_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_host_name, tvb, offset, 32, ENC_ASCII|ENC_NA);
+    offset += 32;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    proto_tree_add_item(tree, hf_dis_database_seq_num, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_Entity(tvb, tree, offset, "Object ID");
+    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Owner");
+
+    proto_tree_add_item(tree, hf_dis_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_persist_obj_class, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_missing_from_world_state, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Owner");
+    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+
+    proto_tree_add_item(tree, hf_dis_obj_count, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Requesting Simulator");
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Object Owner");
+    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+
+    proto_tree_add_item(tree, hf_dis_obj_count, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_DELETE_OBJECTS_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Requesting Simulator");
+
+    proto_tree_add_item(tree, hf_dis_obj_count, tvb, offset, 1, ENC_NA);
+    offset++;
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Requesting Simulator");
+
+    proto_tree_add_item(tree, hf_dis_clock_rate, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_dis_sec_since_1970, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    offset = parseField_Entity(tvb, tree, offset, "World State ID");
+
+    return offset;
+}
+
+static int dissect_DIS_PARSER_NOMINATION_PO_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Nominated Simulator");
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Nominating Simulator");
+    offset = dissect_DIS_FIELDS_SIMULATION_ADDRESS(tvb, tree, offset, "Missing Simulator");
+
+    return offset;
+}
+
+
+/* Adjust an offset variable for proper alignment for a specified field length.
+ */
+static gint alignOffset(gint offset, guint fieldLength)
+{
+    gint remainder = offset % fieldLength;
+    if (remainder != 0)
+    {
+        offset += fieldLength - remainder;
+    }
+    return offset;
+}
+
+/* Parse the Timestamp */
+static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, int hf_relative)
+{
+   /* some consts */
+   static guint MSEC_PER_HOUR = 60 * 60 * 1000;
+   static guint FSV = 0x7fffffff;
+   /* variables */
+   guint isAbsolute = 0;
+   guint32 uintVal;
+   guint64 ms;
+   nstime_t tv;
+   proto_item* ti;
+
+   offset = alignOffset(offset, 4);
+
+   /* convert to host value */
+   uintVal = tvb_get_ntohl(tvb, offset);
+   /* determine absolute vis sim time */
+   isAbsolute = uintVal & 1;
+
+   /* convert TS to MS */
+   ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
+
+   tv.secs = (time_t)ms/1000;
+   tv.nsecs = (ms%1000)*1000000;
+
+   ti = proto_tree_add_time(tree, hf_relative, tvb, offset, 4, &tv);
+
+   if (isAbsolute)
+   {
+      proto_item_append_text(ti, " (absolute)");
+   }
+   else
+   {
+      proto_item_append_text(ti, " (relative)");
+   }
+
+   return (offset+4);
+}
+
+/* Parse an Entity */
+static gint parseField_Entity(tvbuff_t *tvb, proto_tree *tree, gint offset, const char* entity_name)
+{
+    proto_item  *ti;
+    proto_tree  *sub_tree;
+
+    ti = proto_tree_add_text(tree, tvb, offset, 6, "%s", entity_name);
+    sub_tree = proto_item_add_subtree(ti, ett_entity);
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_id_site, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_id_application, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(sub_tree, hf_dis_entity_id_entity, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
 
     return offset;
 }
 
 /* Parse a variable parameter field.
  */
-static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo)
+static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint offset, guint8 paramType)
 {
-    DIS_ParserNode *paramParser = 0;
-
     /* Determine the parser to use based on the type */
-    switch (variableParameterType) {
+    switch (paramType) {
     case DIS_PARAM_TYPE_DESIG_ARTICULATED_PART:
-        paramParser = DIS_FIELDS_VP_ARTICULATED_PART;
+        offset = dissect_DIS_FIELDS_VP_ARTICULATED_PART(tvb, tree, offset);
         break;
     case DIS_PARAM_TYPE_DESIG_ATTACHED_PART:
-        paramParser = DIS_FIELDS_VP_ATTACHED_PART;
+        offset = dissect_DIS_FIELDS_VP_ATTACHED_PART(tvb, tree, offset);
         break;
     case DIS_PARAM_TYPE_DESIG_ENTITY_OFFSET:
-        paramParser = DIS_FIELDS_VP_ENTITY_OFFSET;
+        offset = dissect_DIS_FIELDS_VP_ENTITY_OFFSET(tvb, tree, offset);
         break;
     case DIS_PARAM_TYPE_DESIG_ENTITY_ASSOCIATION:
-        paramParser = DIS_FIELDS_VP_ENTITY_ASSOCIATION;
+        offset = dissect_DIS_FIELDS_VP_ENTITY_ASSOCIATION(tvb, tree, offset);
         break;
     default:
-        paramParser = DIS_FIELDS_VP_GENERIC;
+        proto_tree_add_item(tree, hf_dis_str_data, tvb, offset, 15, ENC_ASCII|ENC_NA);
+        offset += 15;
         break;
-    }
-
-    /* Parse the variable parameter fields */
-    if (paramParser)
-    {
-        offset = parseFields(tvb, tree, offset, paramParser, pinfo);
     }
 
     return offset;
@@ -5996,46 +5326,38 @@ static gint parseField_VariableParameter(tvbuff_t *tvb, proto_tree *tree, gint o
 
 /* Parse a variable record field.
  */
-static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo)
+static gint parseField_VariableRecord(tvbuff_t *tvb, proto_tree *tree, gint offset, guint32 variableRecordType, guint16 record_length)
 {
-    DIS_ParserNode *paramParser = 0;
-
     /* Determine the parser to use based on the type */
     switch (variableRecordType) {
     case 47200:
-        paramParser = DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS;
+        offset = dissect_DIS_FIELDS_VR_APPLICATION_HEALTH_STATUS(tvb, tree, offset);
         break;
     case 47300:
-        paramParser = DIS_FIELDS_VR_APPLICATION_INITIALIZATION;
+        offset = dissect_DIS_FIELDS_VR_APPLICATION_INITIALIZATION(tvb, tree, offset);
         break;
     case 47600:
-        paramParser = DIS_FIELDS_VR_DATA_QUERY;
+        offset = dissect_DIS_FIELDS_VR_DATA_QUERY(tvb, tree, offset);
         break;
     default:
         {
 
-            guint32 dataLength = variableRecordLength - 6;
+        int dataLength = record_length - 6;
 
-            if (dataLength > 0)
-            {
-                proto_tree_add_text(tree, tvb, offset, dataLength,
-                    "Record Data (%d bytes)", dataLength);
-                offset += dataLength;
-            }
+        if (dataLength > 0)
+        {
+            proto_tree_add_text(tree, tvb, offset, dataLength,
+                "Record Data (%d bytes)", dataLength);
+            offset += dataLength;
+        }
         }
         break;
     }
 
-    /* Parse the variable record fields */
-    if (paramParser)
-    {
-        offset = parseFields(tvb, tree, offset, paramParser, pinfo);
-    }
-
     /* Should alignment padding be added */
-    if (variableRecordLength % 8)
+    if (record_length % 8)
     {
-        guint32 alignmentPadding = (8 - (variableRecordLength % 8));
+        guint32 alignmentPadding = (8 - (record_length % 8));
 
         proto_tree_add_text(tree, tvb, offset, alignmentPadding,
             "Alignment Padding (%d bytes)", alignmentPadding);
@@ -6074,22 +5396,82 @@ static const true_false_string dis_time_hopping_value = {
 
 static guint dis_udp_port = DEFAULT_DIS_UDP_PORT;
 
-static const char* dis_proto_name = "Distributed Interactive Simulation";
-static const char* dis_proto_name_short = "DIS";
+typedef struct dis_header
+{
+    guint8 version;
+    guint8 pduType;
+    guint8 family;
+}
+dis_header_t;
+
+static int parseDISHeader(tvbuff_t *tvb, proto_tree *tree, int offset, dis_header_t* header)
+{
+    proto_tree_add_item(tree, hf_dis_proto_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header->version = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_exercise_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header->pduType = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_proto_fam, tvb, offset, 1, ENC_BIG_ENDIAN);
+    header->family = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    offset = parseField_Timestamp(tvb, tree, offset, hf_dis_header_rel_ts);
+
+    proto_tree_add_item(tree, hf_dis_pdu_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
+
+    return offset;
+}
+
+static int parsePOHeader(tvbuff_t *tvb, proto_tree *tree, int offset, guint8* pduType)
+{
+    proto_tree_add_item(tree, hf_dis_po_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_po_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    *pduType = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_exercise_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_po_database_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(tree, hf_dis_po_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_dis_po_pdu_count, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+
 
 /* Main dissector routine to be invoked for a DIS PDU.
  */
 static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_item *dis_tree = 0;
-    proto_item *dis_node = 0;
-    proto_item *dis_header_tree = 0;
-    proto_item *dis_header_node = 0;
-    proto_item *dis_payload_tree = 0;
-    proto_item *dis_payload_node = 0;
+    proto_item *dis_tree, *dis_header_tree;
+    proto_item *dis_node, *dis_header_node;
+    proto_item *dis_payload_tree = NULL;
+    proto_item *dis_payload_node = NULL;
     gint offset = 0;
     const gchar *pduString = 0;
-    DIS_ParserNode *pduParser = 0;
+    DIS_Parser_func* pduFunc = NULL;
+    dis_header_t header;
+    guint8 persistentObjectPduType;
+
 
     /* DIS packets must be at least 12 bytes long.  DIS uses port 3000, by
      * default, but the Cisco Redundant Link Management protocol can also use
@@ -6101,81 +5483,67 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         return 0;
     }
 
-    /* Reset the global PDU type variable -- this will be parsed as part of
-     * the DIS header.
-     */
-    pduType = DIS_PDUTYPE_OTHER;
-    protocolFamily = DIS_PROTOCOLFAMILY_OTHER;
-    persistentObjectPduType = DIS_PERSISTENT_OBJECT_TYPE_OTHER;
-
     /* set the protocol column */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, dis_proto_name_short);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIS");
+    col_clear(pinfo->cinfo, COL_INFO);
 
     /* Add the top-level DIS node under which the rest of the fields will be
      * displayed.
      */
-    dis_node = proto_tree_add_protocol_format(tree, proto_dis, tvb, offset,
-        -1, "Distributed Interactive Simulation");
+    dis_node = proto_tree_add_item(tree, proto_dis, tvb, offset, -1, ENC_NA);
     dis_tree = proto_item_add_subtree(dis_node, ett_dis);
 
     /* Add a node to contain the DIS header fields.
      */
-    dis_header_node = proto_tree_add_text(dis_tree, tvb, offset, -1, "Header");
+    dis_header_node = proto_tree_add_text(dis_tree, tvb, offset, 12, "Header");
     dis_header_tree = proto_item_add_subtree(dis_header_node, ett_dis_header);
-    offset = parseFields(tvb, dis_header_tree, offset, DIS_FIELDS_PDU_HEADER, pinfo);
-
-    proto_item_set_end(dis_header_node, tvb, offset);
+    offset = parseDISHeader(tvb, dis_header_tree, offset, &header);
 
     /* Locate the string name for the PDU type enumeration,
      * or default to "Unknown".
     */
-    pduString = val_to_str_const(pduType, DIS_PDU_Type_Strings, "Unknown");
+    pduString = val_to_str_ext_const(header.pduType, &DIS_PDU_Type_Strings_Ext, "Unknown");
 
     /* Locate the appropriate PDU parser, if type is known.
      */
-    switch (protocolFamily)
+    switch (header.family)
     {
     case DIS_PROTOCOLFAMILY_PERSISTENT_OBJECT:
         {
-            proto_item *dis_po_header_tree = 0;
-            proto_item *dis_po_header_node = 0;
+            proto_item *dis_po_header_tree;
+            proto_item *dis_po_header_node;
 
-            dis_po_header_node = proto_tree_add_text
-                (dis_header_tree, tvb, offset, -1, "PO Header");
-            dis_po_header_tree = proto_item_add_subtree
-                (dis_po_header_node, ett_dis_po_header);
-            offset = parseFields
-                (tvb, dis_po_header_tree, offset,
-                 DIS_FIELDS_PERSISTENT_OBJECT_HEADER, pinfo);
-            proto_item_set_end(dis_po_header_node, tvb, offset);
+            dis_po_header_node = proto_tree_add_text(dis_header_tree, tvb, offset, 8, "PO Header");
+            dis_po_header_tree = proto_item_add_subtree(dis_po_header_node, ett_dis_po_header);
+            offset = parsePOHeader(tvb, dis_po_header_tree, offset, &persistentObjectPduType);
 
             /* Locate the appropriate PO PDU parser, if type is known.
              */
             switch (persistentObjectPduType)
             {
             case DIS_PERSISTENT_OBJECT_TYPE_SIMULATOR_PRESENT:
-                pduParser = DIS_PARSER_SIMULATOR_PRESENT_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_SIMULATOR_PRESENT_PO_PDU;
                 break;
             case DIS_PERSISTENT_OBJECT_TYPE_DESCRIBE_OBJECT:
-                pduParser = DIS_PARSER_DESCRIBE_OBJECT_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_DESCRIBE_OBJECT_PO_PDU;
                 break;
             case DIS_PERSISTENT_OBJECT_TYPE_OBJECTS_PRESENT:
-                pduParser = DIS_PARSER_OBJECTS_PRESENT_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_OBJECTS_PRESENT_PO_PDU;
                 break;
             case DIS_PERSISTENT_OBJECT_TYPE_OBJECT_REQUEST:
-                pduParser = DIS_PARSER_OBJECT_REQUEST_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_OBJECT_REQUEST_PO_PDU;
                 break;
             case DIS_PERSISTENT_OBJECT_TYPE_DELETE_OBJECTS:
-                pduParser = DIS_PARSER_DELETE_OBJECTS_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_DELETE_OBJECTS_PO_PDU;
                 break;
             case DIS_PERSISTENT_OBJECT_TYPE_SET_WORLD_STATE:
-                pduParser = DIS_PARSER_SET_WORLD_STATE_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_SET_WORLD_STATE_PO_PDU;
                 break;
             case DIS_PERSISTENT_OBJECT_TYPE_NOMINATION:
-                pduParser = DIS_PARSER_NOMINATION_PO_PDU;
+                pduFunc = &dissect_DIS_PARSER_NOMINATION_PO_PDU;
                 break;
             default:
-                pduParser = 0;
+                pduFunc = NULL;
                 break;
             }
 
@@ -6200,187 +5568,135 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         dis_payload_node = proto_tree_add_text(dis_tree, tvb, offset, -1,
             "%s PDU", pduString);
 
-        switch (pduType)
+        switch (header.pduType)
         {
         /* DIS Entity Information / Interaction PDUs */
         case DIS_PDUTYPE_ENTITY_STATE:
-            pduParser = DIS_PARSER_ENTITY_STATE_PDU;
+            pduFunc = &dissect_DIS_PARSER_ENTITY_STATE_PDU;
             break;
 
         /* DIS Distributed Emission Regeneration PDUs */
         case DIS_PDUTYPE_ELECTROMAGNETIC_EMISSION:
-            pduParser = DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU;
+            pduFunc = &dissect_DIS_PARSER_ELECTROMAGNETIC_EMISSION_PDU;
             break;
 
         case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
-            pduParser = DIS_PARSER_UNDERWATER_ACOUSTIC_PDU;
+            pduFunc = &dissect_DIS_PARSER_UNDERWATER_ACOUSTIC_PDU;
             break;
 
         /* DIS Radio Communications protocol (RCP) family PDUs */
         case DIS_PDUTYPE_TRANSMITTER:
-            pduParser = DIS_PARSER_TRANSMITTER_PDU;
+            pduFunc = &dissect_DIS_PARSER_TRANSMITTER_PDU;
             break;
         case DIS_PDUTYPE_SIGNAL:
-            pduParser = DIS_PARSER_SIGNAL_PDU;
+            pduFunc = &dissect_DIS_PARSER_SIGNAL_PDU;
             break;
 
         /* DIS Warfare PDUs */
         case DIS_PDUTYPE_FIRE:
-            pduParser = DIS_PARSER_FIRE_PDU;
+            pduFunc = &dissect_DIS_PARSER_FIRE_PDU;
             break;
         case DIS_PDUTYPE_DETONATION:
-            if ( disProtocolVersion < DIS_VERSION_IEEE_1278_1_2012 )
+            if ( header.version < DIS_VERSION_IEEE_1278_1_2012 )
             {
-                pduParser = DIS_PARSER_DETONATION_PDU;
+                pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
             }
             else
             {
                 /* TODO: Version 7 changed the Detonation PDU format
                  *       Need a different parser
                  */
-                pduParser = DIS_PARSER_DETONATION_PDU;
+                pduFunc = &dissect_DIS_PARSER_DETONATION_PDU;
             }
             break;
 
         /* DIS Simulation Management PDUs */
         case DIS_PDUTYPE_START_RESUME:
-            pduParser = DIS_PARSER_START_RESUME_PDU;
+            pduFunc = &dissect_DIS_PARSER_START_RESUME_PDU;
             break;
         case DIS_PDUTYPE_STOP_FREEZE:
-            pduParser = DIS_PARSER_STOP_FREEZE_PDU;
+            pduFunc = &dissect_DIS_PARSER_STOP_FREEZE_PDU;
             break;
         case DIS_PDUTYPE_ACKNOWLEDGE:
-            pduParser = DIS_PARSER_ACKNOWLEDGE_PDU;
+            pduFunc = &dissect_DIS_PARSER_ACKNOWLEDGE_PDU;
             break;
         case DIS_PDUTYPE_ACTION_REQUEST:
-            pduParser = DIS_PARSER_ACTION_REQUEST_PDU;
+            pduFunc = &dissect_DIS_PARSER_ACTION_REQUEST_PDU;
             break;
         case DIS_PDUTYPE_ACTION_RESPONSE:
-            pduParser = DIS_PARSER_ACTION_RESPONSE_PDU;
+            pduFunc = &dissect_DIS_PARSER_ACTION_RESPONSE_PDU;
             break;
         case DIS_PDUTYPE_DATA:
         case DIS_PDUTYPE_SET_DATA:
-            pduParser = DIS_PARSER_DATA_PDU;
+            pduFunc = &dissect_DIS_PARSER_DATA_PDU;
             break;
         case DIS_PDUTYPE_DATA_QUERY:
-            pduParser = DIS_PARSER_DATA_QUERY_PDU;
+            pduFunc = &dissect_DIS_PARSER_DATA_QUERY_PDU;
             break;
         case DIS_PDUTYPE_COMMENT:
-            pduParser = DIS_PARSER_COMMENT_PDU;
+            pduFunc = &dissect_DIS_PARSER_COMMENT_PDU;
             break;
         case DIS_PDUTYPE_CREATE_ENTITY:
         case DIS_PDUTYPE_REMOVE_ENTITY:
-            pduParser = DIS_PARSER_SIMAN_ENTITY_PDU;
+            pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_PDU;
             break;
 
         /* DIS Simulation Management with Reliability PDUs */
         case DIS_PDUTYPE_START_RESUME_R:
-            pduParser = DIS_PARSER_START_RESUME_R_PDU;
+            pduFunc = &dissect_DIS_PARSER_START_RESUME_R_PDU;
             break;
         case DIS_PDUTYPE_STOP_FREEZE_R:
-            pduParser = DIS_PARSER_STOP_FREEZE_R_PDU;
+            pduFunc = &dissect_DIS_PARSER_STOP_FREEZE_R_PDU;
             break;
         case DIS_PDUTYPE_ACKNOWLEDGE_R:
-            pduParser = DIS_PARSER_ACKNOWLEDGE_PDU;
+            pduFunc = &dissect_DIS_PARSER_ACKNOWLEDGE_PDU;
             break;
         case DIS_PDUTYPE_ACTION_REQUEST_R:
-            pduParser = DIS_PARSER_ACTION_REQUEST_R_PDU;
+            pduFunc = &dissect_DIS_PARSER_ACTION_REQUEST_R_PDU;
             break;
         case DIS_PDUTYPE_ACTION_RESPONSE_R:
-            pduParser = DIS_PARSER_ACTION_RESPONSE_PDU;
+            pduFunc = &dissect_DIS_PARSER_ACTION_RESPONSE_PDU;
             break;
         case DIS_PDUTYPE_DATA_R:
         case DIS_PDUTYPE_SET_DATA_R:
-            pduParser = DIS_PARSER_DATA_R_PDU;
+            pduFunc = &dissect_DIS_PARSER_DATA_R_PDU;
             break;
         case DIS_PDUTYPE_DATA_QUERY_R:
-            pduParser = DIS_PARSER_DATA_QUERY_R_PDU;
+            pduFunc = &dissect_DIS_PARSER_DATA_QUERY_R_PDU;
             break;
         case DIS_PDUTYPE_COMMENT_R:
-            pduParser = DIS_PARSER_COMMENT_PDU;
+            pduFunc = &dissect_DIS_PARSER_COMMENT_PDU;
             break;
         case DIS_PDUTYPE_CREATE_ENTITY_R:
         case DIS_PDUTYPE_REMOVE_ENTITY_R:
-            pduParser = DIS_PARSER_SIMAN_ENTITY_R_PDU;
+            pduFunc = &dissect_DIS_PARSER_SIMAN_ENTITY_R_PDU;
             break;
 
         /* DIS Experimental V-DIS PDUs */
         case DIS_PDUTYPE_APPLICATION_CONTROL:
-            pduParser = DIS_PARSER_APPLICATION_CONTROL_PDU;
+            pduFunc = &dissect_DIS_PARSER_APPLICATION_CONTROL_PDU;
             break;
 
         default:
-            pduParser = 0;
+            pduFunc = NULL;
             break;
         }
         break;
     }
 
-    col_clear(pinfo->cinfo, COL_INFO);
+    /* set the basic info column (pdu type) */
+    col_add_fstr( pinfo->cinfo, COL_INFO, "PDUType: %s", pduString);
 
     /* If a parser was located, invoke it on the data packet.
      */
-    if (pduParser != 0)
+    if (pduFunc != NULL)
     {
-        dis_payload_tree = proto_item_add_subtree(dis_payload_node,
-            ett_dis_payload);
-        offset = parseFields(tvb, dis_payload_tree, offset, pduParser, pinfo);
-
+        dis_payload_tree = proto_item_add_subtree(dis_payload_node, ett_dis_payload);
+        offset = (*pduFunc)(tvb, pinfo, dis_payload_tree, offset);
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
 
-    /* Add detail to the INFO column */
-    switch (pduType)
-    {
-    /* DIS Entity Information / Interaction PDUs */
-    case DIS_PDUTYPE_ENTITY_STATE:
-        col_add_fstr( pinfo->cinfo, COL_INFO,
-                      "PDUType: %s, %s, %s",
-                      pduString,
-                      val_to_str_const(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
-                      val_to_str_const(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
-                     );
-        break;
-
-    case DIS_PDUTYPE_UNDERWATER_ACOUSTIC:
-        col_add_fstr( pinfo->cinfo, COL_INFO,
-                      "PDUType: %s, Shafts=%d, APA=%d, Acoustic Emitter=%d",
-                      pduString,
-                      numShafts,
-                      numApas,
-                      numUAEmitter
-                     );
-        break;
-    case DIS_PDUTYPE_SIGNAL:
-        if (numSamples)
-            col_prepend_fstr(pinfo->cinfo, COL_INFO, ", Number of Samples=%u",
-                numSamples);
-
-        if ((encodingScheme & 0xC000) >> 14 == DIS_ENCODING_CLASS_ENCODED_AUDIO)
-            col_prepend_fstr(pinfo->cinfo, COL_INFO,", Encoding Type=%s",
-                val_to_str_const(DIS_ENCODING_TYPE(encodingScheme),
-                DIS_PDU_Encoding_Type_Strings, "Unknown"));
-
-        col_prepend_fstr( pinfo->cinfo, COL_INFO,
-                      "PDUType: %s, RadioID=%u", pduString, radioID);
-        break;
-    case DIS_PDUTYPE_TRANSMITTER:
-        col_add_fstr( pinfo->cinfo, COL_INFO,
-                      "PDUType: %s, RadioID=%u, Transmit State=%s",
-                      pduString,
-                      radioID,
-                      val_to_str_const(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State")
-                      );
-        break;
-    default:
-        /* set the basic info column (pdu type) */
-        col_add_fstr( pinfo->cinfo, COL_INFO,
-                     "PDUType: %s",
-                      pduString);
-        break;
-    }
-
-    return tvb_length(tvb);
+    return tvb_captured_length(tvb);
 }
 
 /* Registration routine for the DIS protocol.
@@ -6405,7 +5721,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_pdu_type,
               { "PDU type",           "dis.pdu_type",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Type_Strings), 0x0,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_Type_Strings_Ext, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_proto_fam,
@@ -6413,8 +5729,43 @@ void proto_register_dis(void)
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_ProtocolFamily_Strings), 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_header_rel_ts,
+              { "Timestamp",       "dis.timestamp",
+                FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_pdu_length,
               { "PDU Length",         "dis.pdu_length",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_padding,
+              { "Padding",       "dis.padding",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_po_ver,
+              { "Protocol Version",      "dis.po.version",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_po_pdu_type,
+              { "PO PDU Type",      "dis.po.pdu_type",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_PersistentObjectType_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_po_database_id,
+              { "PO Database ID",       "dis.po.database_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_po_length,
+              { "Length",       "dis.po.length",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_po_pdu_count,
+              { "PDU Count",       "dis.po.pdu_count",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
@@ -6431,6 +5782,21 @@ void proto_register_dis(void)
             { &hf_dis_entity_id_entity,
               { "Entity ID Entity",       "dis.entity_id_entity",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_emitter_id,
+              { "Emitter ID",       "dis.emitter_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_beam_id,
+              { "Beam ID",       "dis.beam_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_clocktime,
+              { "Timestamp",       "dis.clocktime",
+                FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_num_art_params,
@@ -6450,7 +5816,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_category_land,
               { "Category / Land",       "dis.category.land",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_LandPlatform_Strings), 0x0,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_Category_LandPlatform_Strings_Ext, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_category_air,
@@ -6473,20 +5839,215 @@ void proto_register_dis(void)
                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_Category_SpacePlatform_Strings), 0x0,
                 NULL, HFILL }
             },
-            { &hf_dis_category_radio,
-              { "Category / Radio",       "dis.category.radio",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_RadioCategory_Strings), 0x0,
+            { &hf_dis_category,
+              { "Category",       "dis.category",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_subcategory,
+              { "Subcategory",       "dis.subcategory",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_specific,
+              { "Specific",       "dis.specific",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_extra,
+              { "Extra",       "dis.extra",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_reason,
+              { "Reason", "dis.reason",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_Reason_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_frozen_behavior,
+              { "Frozen Behavior", "dis.frozen_behavior",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_FrozenBehavior_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_acknowledge_flag,
+              { "Acknowledge Flag", "dis.acknowledge_flag",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_AcknowledgeFlag_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_response_flag,
+              { "Response Flag", "dis.response_flag",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DisResponseFlag_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_site,
+              { "Site",       "dis.site",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_request_id,
+              { "Request ID",       "dis.request_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_application,
+              { "Application",       "dis.application",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_fixed_data,
+              { "Number of Fixed Data Fields",       "dis.num_fixed_data",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_variable_data,
+              { "Number of Variable Data Fields",    "dis.num_variable_data",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_action_id,
+              { "Action ID", "dis.action_id",
+                FT_UINT32, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_ActionId_Strings_Ext, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_request_status,
+              { "Request Status", "dis.request_status",
+                FT_UINT32, BASE_DEC, VALS(DIS_PDU_RequestStatus_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_datum_id,
+              { "Datum ID",       "dis.datum_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_fixed_datum_value,
+              { "Datum value",       "dis.fixed_datum_value",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_datum_length,
+              { "Datum length",       "dis.datum_length",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_variable_datum_value,
+              { "Datum value",       "dis.variable_datum_value",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_fixed_datum_id,
+              { "Number of Fixed Datum Ids",       "dis.num_fixed_datum_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_variable_datum_id,
+              { "Number of Variable Datum Ids",    "dis.num_variable_datum_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_reliability,
+              { "Reliability", "dis.reliability",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_RequiredReliabilityService_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_control_id,
+              { "Control ID", "dis.control_id",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_ControlId_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_orig_app_type,
+              { "Originating App Type", "dis.orig_app_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_ApplicationType_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_recv_app_type,
+              { "Receiving App Type", "dis.recv_app_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_ApplicationType_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_parts,
+              { "Number of Parts",       "dis.num_parts",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_current_part,
+              { "Current Part",       "dis.num_parts",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_num_variable_records,
+              { "Number of Variable Records",       "dis.num_variable_records",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_variable_record_type,
+              { "Record Type",       "dis.variable_record_type",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_variable_record_len,
+              { "Record Length",       "dis.variable_record_len",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_time_interval8,
+              { "Time interval",    "dis.time_interval",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_time_interval32,
+              { "Time interval",    "dis.time_interval",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_event_number,
+              { "Event Number",       "dis.event_number",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_country,
+              { "Country",       "dis.country",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_emitter_name,
               { "Emitter Name", "dis.electromagnetic.emitter.name",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_EmitterName_Strings), 0x0,
+                FT_UINT16, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_EmitterName_Strings_Ext, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_emission_function,
               { "Emission Function", "dis.electromagnetic.emission.function",
-                FT_UINT8, BASE_DEC, VALS(DIS_PDU_EmissionFunction_Strings), 0x0,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_EmissionFunction_Strings_Ext, 0x0,
                 NULL, HFILL }
+            },
+            { &hf_dis_em_data_length,
+              { "System Data Length", "dis.electromagnetic.emission.data_length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_em_num_beams,
+              { "System Data Length", "dis.electromagnetic.emission.num_beams",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_emitter_id_number,
+              { "Emitter ID Number", "dis.electromagnetic.emission.emitter_id_number",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_em_location_x,
+              {"X", "dis.electromagnetic.emission.location.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_location_y,
+              {"Y", "dis.electromagnetic.emission.location.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_location_z,
+              {"Z", "dis.electromagnetic.emission.location.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
             },
             { &hf_dis_beam_function,
               { "Beam Function", "dis.electromagnetic.emission.beam.function",
@@ -6525,7 +6086,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_tdl_type,
               { "TDL Type", "dis.radio.tdl_type",
-                FT_UINT16, BASE_DEC, VALS(DIS_PDU_TDL_Type_Strings), 0x0,
+                FT_UINT16, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_TDL_Type_Strings_Ext, 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_sample_rate,
@@ -6583,10 +6144,50 @@ void proto_register_dis(void)
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_antenna_location_x,
+              {"X", "dis.antenna_location.x",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_antenna_location_y,
+              {"Y", "dis.antenna_location.y",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_antenna_location_z,
+              {"Z", "dis.antenna_location.z",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_rel_antenna_location_x,
+              {"X", "dis.rel_antenna_location.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_rel_antenna_location_y,
+              {"Y", "dis.rel_antenna_location.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_rel_antenna_location_z,
+              {"Z", "dis.rel_antenna_location.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
             { &hf_dis_transmit_frequency,
               { "Transmit Frequency (Hz)", "dis.radio.frequency",
                 FT_UINT64, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
+            },
+            { &hf_dis_transmit_freq_bandwidth,
+              {"Transmit Frequency Bandwidth", "dis.transmit_freq_bandwidth",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_transmit_power,
+              {"Transmit Power", "dis.transmit_power",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
             },
             { &hf_dis_spread_spectrum_usage,
               { "Spread Spectrum", "dis.radio.mod_type.spread_spectrum_usage",
@@ -6611,6 +6212,41 @@ void proto_register_dis(void)
             { &hf_dis_modulation_major,
               { "Major Modulation", "dis.radio.mod_type.major",
                 FT_UINT16, BASE_DEC, VALS(DIS_PDU_MajorModulation_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_amplitude,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationAmplitude_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_amplitude_angle,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationAmpAndAngle_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_angle,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationAngle_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_combination,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationCombination_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_pulse,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationPulse_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_unmodulated,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationUnmodulated_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_modulation_detail,
+              { "Detail", "dis.modulation_detail",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_DetailModulationCPSM_Strings), 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_modulation_system,
@@ -6713,10 +6349,110 @@ void proto_register_dis(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
-            { &hf_dis_antenna_pattern_parameter_dump,
-              {"Antenna Pattern Parameter", "dis.radio.antenna_parameter",
+            { &hf_dis_force_id,
+              { "Force ID", "dis.force_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_entity_linear_velocity_x,
+              {"X", "dis.entity_linear_velocity.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_linear_velocity_y,
+              {"Y", "dis.entity_linear_velocity.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_linear_velocity_z,
+              {"Z", "dis.entity_linear_velocity.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_location_x,
+              {"X", "dis.entity_location.x",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_location_y,
+              {"Y", "dis.entity_location.y",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_location_z,
+              {"Z", "dis.entity_location.z",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_orientation_psi,
+              {"Psi", "dis.entity_orientation.psi",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_orientation_theta,
+              {"Theta", "dis.entity_orientation.theta",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_entity_orientation_phi,
+              {"Phi", "dis.entity_orientation.phi",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_appearance_landform_paint_scheme,
+              {"Paint Scheme", "dis.appearance.landform.paint_scheme",
+               FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+               NULL, HFILL}
+            },
+            { &hf_appearance_landform_mobility,
+              {"Mobility", "dis.appearance.landform.mobility",
+               FT_BOOLEAN, 32, TFS(&tfs_mobility_kill), 0x00000002,
+               NULL, HFILL}
+            },
+            { &hf_appearance_landform_fire_power,
+              {"Fire Power", "dis.appearance.landform.fire_power",
+               FT_BOOLEAN, 32, TFS(&tfs_fire_power_kill), 0x00000004,
+               NULL, HFILL}
+            },
+            { &hf_appearance_landform_damage,
+              {"Fire Power", "dis.appearance.landform.damage",
+               FT_UINT32, BASE_DEC, VALS(appearance_damage_vals), 0x00000018,
+               NULL, HFILL}
+            },
+            { &hf_appearance_lifeform_paint_scheme,
+              {"Paint Scheme", "dis.appearance.lifeform.paint_scheme",
+               FT_BOOLEAN, 32, TFS(&tfs_camouflage_uniform_color), 0x00000001,
+               NULL, HFILL}
+            },
+            { &hf_appearance_lifeform_health,
+              {"Health", "dis.appearance.lifeform.health",
+               FT_UINT32, BASE_DEC, VALS(appearance_health_vals), 0x00000018,
+               NULL, HFILL}
+            },
+            { &hf_entity_appearance,
+              {"Appearance", "dis.appearance",
+               FT_UINT32, BASE_HEX, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_dead_reckoning_parameters,
+              {"Dead Reckoning Parameters", "dis.dead_reckoning_parameters",
                FT_BYTES, BASE_NONE, NULL, 0x0,
                NULL, HFILL}
+            },
+            { &hf_dis_entity_marking,
+              {"Entity Marking", "dis.entity_marking",
+               FT_BYTES, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_capabilities,
+              {"Capabilities", "dis.capabilities",
+               FT_UINT32, BASE_DEC, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_variable_parameter_type,
+              { "Variable Parameter Type", "dis.variable_parameter_type",
+                 FT_UINT8, BASE_DEC, VALS(DIS_PDU_ParameterTypeDesignator_Strings), 0x0,
+                 NULL, HFILL }
             },
             { &hf_dis_signal_link16_npg,
               { "NPG Number", "dis.signal.link16.npg",
@@ -6759,6 +6495,16 @@ void proto_register_dis(void)
               { "Secure Data Unit Serial Number", "dis.signal.link16.sdusn", FT_UINT16, BASE_DEC, NULL, 0x0,
                  NULL, HFILL },
             },
+            { &hf_dis_signal_link16_network_number,
+              { "Network Number",  "dis.signal.link16.network_number",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_signal_link16_time_slot_id,
+              { "Time Slot ID",  "dis.signal.link16.time_slot_id",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_num_shafts,
               { "Number of Shafts",  "dis.ua.number_of_shafts",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -6769,10 +6515,510 @@ void proto_register_dis(void)
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
+            { &hf_dis_state_update_indicator,
+              { "State Update Indicator",  "dis.ua.state_update_indicator",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_passive_parameter_index,
+              { "Passive Parameter Index",  "dis.ua.passive_parameter_index",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_propulsion_plant_config,
+              { "Propulsion Plant Configuration",  "dis.ua.propulsion_plant_config",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_shaft_rpm_current,
+              { "Current Shaft RPM",  "dis.ua.shaft.rpm.current",
+                FT_INT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_shaft_rpm_ordered,
+              { "Ordered Shaft RPM",  "dis.ua.shaft.rpm.ordered",
+                FT_INT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_shaft_rpm_change_rate,
+              { "Shaft RPM Rate of Change",  "dis.ua.shaft.rpm.change_rate",
+                FT_INT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
             { &hf_dis_num_ua_emitter_systems,
               { "Number of UA Emitter Systems",  "dis.ua.number_of_ua_emitter_systems",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
+            },
+            { &hf_dis_apas_parameter_index,
+              { "Parameter Index",  "dis.ua.apas.parameter_index",
+                FT_INT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_apas_value,
+              { "Value",  "dis.apas.value",
+                FT_INT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_emission_name,
+              { "Acoustic Emitter Name",  "dis.ua.emitter.name",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_emission_function,
+              { "Function",  "dis.ua.emitter.function",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_emission_id_number,
+              { "Acoustic ID Number",  "dis.ua.emitter.id_number",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_emitter_data_length,
+              { "Emitter System Data Length",  "dis.ua.emitter.data_length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_num_beams,
+              { "Number of Beams (m)",  "dis.ua.num_beams",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_location_x,
+              {"X", "dis.ua.location.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_ua_location_y,
+              {"Y", "dis.ua.location.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_ua_location_z,
+              {"Z", "dis.ua.location.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_ua_beam_data_length,
+              { "Beam Data Length",  "dis.ua.beam.data_length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_beam_id_number,
+              { "Beam ID Number",  "dis.ua.beam.id_number",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_beam_active_emission_parameter_index,
+              { "Active Emission Parameter Index",  "dis.ua.beam.active_emission_parameter_index",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_beam_scan_pattern,
+              { "Scan Pattern",  "dis.ua.beam.scan_pattern",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_ua_beam_center_azimuth,
+              {"Beam Center Azimuth (Horizontal Bearing)", "dis.ua.beam.center_azimuth",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_ua_beam_azimuthal_beamwidth,
+              {"Azimuthal Beamwidth (Horizontal Beamwidth)", "dis.ua.beam.azimuthal_beamwidth",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_ua_beam_center_de,
+              {"Beam Center D/E", "dis.ua.beam.center_de",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_ua_beam_de_beamwidth,
+              {"D/E Beamwidth (Vertical Beamwidth)", "dis.ua.beam.de_beamwidth",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_beam_data_length,
+              { "Beam Data Length",  "dis.em.beam.data_length",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_em_beam_id_number,
+              { "Beam ID Number",  "dis.em.beam.id_number",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_em_beam_parameter_index,
+              { "Beam Parameter Index",  "dis.em.beam.parameter_index",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_em_fund_frequency,
+              {"Frequency", "dis.em.fund.frequency",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_frequency_range,
+              {"Frequency Range", "dis.em.fund.frequency_range",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_effective_radiated_power,
+              {"Effective Radiated Power", "dis.em.fund.effective_radiated_power",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_pulse_repition_freq,
+              {"Pulse Repetition Frequency", "dis.em.fund.pulse_repition_freq",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_pulse_width,
+              {"Pulse Width", "dis.em.fund.pulse_width",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_beam_azimuth_center,
+              {"Beam Azimuth Center", "dis.em.fund.beam.azimuth_center",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_beam_azimuth_sweep,
+              {"Beam Azimuth Sweep", "dis.em.fund.beam.azimuth_sweep",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_beam_elevation_center,
+              {"Beam Elevation Center", "dis.em.fund.beam.elevation_center",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_beam_elevation_sweep,
+              {"Beam Elevation Sweep", "dis.em.fund.beam.elevation_sweep",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_em_fund_beem_sweep_sync,
+              {"Beam Sweep Sync", "dis.em.fund.beem.sweep_sync",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_track_jam_num_targ,
+              { "Number of Targets in Track/Jam Field",  "dis.track_jam.num_targ",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_track_jam_high_density,
+              { "High Density Track/Jam",  "dis.track_jam.high_density",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_jamming_mode_seq,
+              { "Jamming Mode Sequence",  "dis.jamming_mode_seq",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_warhead,
+              { "Warhead",  "dis.warhead",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_fuse,
+              { "Fuse",  "dis.fuse",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_quality,
+              { "Quantity",  "dis.quality",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_rate,
+              { "Rate",  "dis.rate",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_fire_mission_index,
+              { "Fire Mission Index",  "dis.fire.mission_index",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_fire_location_x,
+              {"X", "dis.fire.location.x",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_fire_location_y,
+              {"Y", "dis.fire.location.y",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_fire_location_z,
+              {"Z", "dis.fire.location.z",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_linear_velocity_x,
+              {"X", "dis.linear_velocity.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_linear_velocity_y,
+              {"Y", "dis.linear_velocity.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_linear_velocity_z,
+              {"Z", "dis.linear_velocity.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_range,
+              {"Range", "dis.range",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_detonation_location_x,
+              {"X", "dis.detonation.location.x",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_detonation_location_y,
+              {"Y", "dis.detonation.location.y",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_detonation_location_z,
+              {"Z", "dis.detonation.location.z",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_detonation_result,
+              { "Detonation Result", "dis.detonation.result",
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_DetonationResult_Strings_Ext, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_simulator_type,
+              { "Simulator Type",  "dis.simulator_type",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_database_seq_num,
+              { "Database Sequence Number",  "dis.database_seq_num",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_simulator_load,
+              { "Simulator Load",  "dis.simulator_load",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_simulation_load,
+              {"Simulation Load", "dis.simulation_load",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_time,
+              { "Time",  "dis.time",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_packets_sent,
+              { "Packets Sent",  "dis.packets_sent",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_unit_database_version,
+              { "Unit Database Version",  "dis.unit_database_version",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_relative_battle_scheme,
+              { "Relative Battle Scheme",  "dis.relative_battle_scheme",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_terrain_version,
+              { "Terrain Version",  "dis.terrain_version",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_terrain_name,
+              {"Terrain Name", "dis.terrain_name",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_host_name,
+              {"Host Name", "dis.host_name",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_sequence_number,
+              { "Sequence Number",  "dis.sequence_number",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_persist_obj_class,
+              { "Object Class", "dis.persist_obj_class",
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &DIS_PDU_PO_ObjectClass_Strings_Ext, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_missing_from_world_state,
+              { "Missing From World State",  "dis.missing_from_world_state",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_obj_count,
+              { "Object Count",  "dis.obj_count",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_clock_rate,
+              {"Clock Rate", "dis.clock_rate",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_sec_since_1970,
+              { "Seconds Since 1970",  "dis.sec_since_1970",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_str_data,
+              { "Data",  "dis.str_data",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_change_indicator,
+              { "Change Indicator",  "dis.vp.change_indicator",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_association_status,
+              { "Association Status",  "dis.vp.association_status",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_association_type,
+              { "Association Type",  "dis.vp.association_type",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_phys_conn_type,
+              { "Physical Connection Type",  "dis.vp.phys_conn_type",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_group_member_type,
+              { "Group Member Type",  "dis.vp.group_member_type",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_own_station_location,
+              { "Group Member Type",  "dis.vp.own_station_location",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_group_number,
+              { "Group Member Type",  "dis.vp.group_number",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_offset_type,
+              { "Offset Type",  "dis.vp.offset_type",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_offset_x,
+              {"X", "dis.vp.offset.x",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_vp_offset_y,
+              {"Y", "dis.vp.offset.y",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_vp_offset_z,
+              {"Z", "dis.vp.offset.z",
+               FT_FLOAT, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_vp_attached_indicator,
+              { "Attached Indicator",  "dis.vp.attached_indicator",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_part_attached_to_id,
+              { "Part Attached To ID",  "dis.vp.part_attached_to_id",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_artic_param_type,
+              { "Parameter Type",  "dis.vp.artic_param_type",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_change,
+              { "Change",  "dis.vp.change",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vp_parameter_value,
+              { "Parameter Value",  "dis.vp.parameter_value",
+                FT_UINT64, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_num_records,
+              { "Num Records",  "dis.vr.num_records",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_exercise_id,
+              { "Exercise ID",  "dis.vr.exercise_id",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_exercise_file_path,
+              {"Exercise File Path", "dis.vr.exercise_file_path",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_vr_exercise_file_name,
+              {"Exercise File Name", "dis.vr.exercise_file_name",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_vr_application_role,
+              {"Application Role", "dis.vr.application_role",
+               FT_STRING, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
+            },
+            { &hf_dis_vr_status_type,
+              { "Status Type",  "dis.vr.status_type",
+                FT_UINT16, BASE_DEC, VALS(DIS_PDU_ApplicationStatusType_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_general_status,
+              { "General Status",  "dis.vr.general_status",
+                FT_UINT8, BASE_DEC, VALS(DIS_PDU_ApplicationGeneralStatus_Strings), 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_specific_status,
+              { "Specific Status",  "dis.vr.specific_status",
+                FT_UINT8, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_status_value_int,
+              { "Status Value Int",  "dis.vr.status_value_int",
+                FT_INT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+            },
+            { &hf_dis_vr_status_value_float,
+              {"Status Value Float", "dis.vr.status_value_float",
+               FT_DOUBLE, BASE_NONE, NULL, 0x0,
+               NULL, HFILL}
             },
         };
 
@@ -6785,6 +7031,41 @@ void proto_register_dis(void)
         &ett_dis_ens,
         &ett_dis_crypto_key,
         &ett_dis_payload,
+        &ett_entity,
+        &ett_trackjam,
+        &ett_radio_entity_type,
+        &ett_entity_type,
+        &ett_antenna_location,
+        &ett_rel_antenna_location,
+        &ett_modulation_type,
+        &ett_modulation_parameters,
+        &ett_entity_linear_velocity,
+        &ett_entity_location,
+        &ett_entity_orientation,
+        &ett_entity_appearance,
+        &ett_variable_parameter,
+        &ett_event_id,
+        &ett_shafts,
+        &ett_apas,
+        &ett_underwater_acoustic_emission,
+        &ett_acoustic_emitter_system,
+        &ett_ua_location,
+        &ett_ua_beams,
+        &ett_ua_beam_data,
+        &ett_emission_system,
+        &ett_emitter_system,
+        &ett_em_beam,
+        &ett_emitter_location,
+        &ett_em_fundamental_parameter_data,
+        &ett_burst_descriptor,
+        &ett_fire_location,
+        &ett_linear_velocity,
+        &ett_detonation_location,
+        &ett_clock_time,
+        &ett_fixed_datum,
+        &ett_record,
+        &ett_simulation_address,
+        &ett_offset_vector,
         &ett_dis_signal_link16_network_header,
         &ett_dis_signal_link16_message_data,
         &ett_dis_signal_link16_jtids_header,
@@ -6792,7 +7073,7 @@ void proto_register_dis(void)
 
     module_t *dis_module;
 
-    proto_dis = proto_register_protocol(dis_proto_name, dis_proto_name_short, "dis");
+    proto_dis = proto_register_protocol("Distributed Interactive Simulation", "DIS", "dis");
     proto_register_field_array(proto_dis, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
@@ -6806,10 +7087,6 @@ void proto_register_dis(void)
         "Set the UDP port for DIS messages",
         10, &dis_udp_port);
 
-    /* Perform the one-time initialization of the DIS parsers.
-     */
-    initializeParsers();
-    initializeFieldParsers();
 }
 
 /* Register handoff routine for DIS dissector.  This will be invoked initially
