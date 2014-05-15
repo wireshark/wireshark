@@ -73,44 +73,44 @@ static int hf_stun_time = -1;
 static int hf_stun_duplicate = -1;
 static int hf_stun_attr = -1;
 
-static int stun_att_type = -1; /* STUN attribute fields */
-static int stun_att_length = -1;
-static int stun_att_family = -1;
-static int stun_att_type_comprehension = -1;
-static int stun_att_type_assignment = -1;
-static int stun_att_ipv4 = -1;
-static int stun_att_ipv6 = -1;
-static int stun_att_port = -1;
-static int stun_att_username = -1;
-static int stun_att_password = -1;
-static int stun_att_padding = -1;
-static int stun_att_hmac = -1;
-static int stun_att_crc32 = -1;
-static int stun_att_error_class = -1;
-static int stun_att_error_number = -1;
-static int stun_att_error_reason = -1;
-static int stun_att_realm = -1;
-static int stun_att_nonce = -1;
-static int stun_att_unknown = -1;
-static int stun_att_xor_ipv4 = -1;
-static int stun_att_xor_ipv6 = -1;
-static int stun_att_xor_port = -1;
-static int stun_att_icmp_type = -1;
-static int stun_att_icmp_code = -1;
-static int stun_att_software = -1;
-static int stun_att_priority = -1;
-static int stun_att_tie_breaker = -1;
-static int stun_att_change_ip = -1;
-static int stun_att_change_port = -1;
-static int stun_att_cache_timeout = -1;
-static int stun_att_token = -1;
-static int stun_att_reserve_next = -1;
-static int stun_att_reserved = -1;
-static int stun_att_value = -1;
-static int stun_att_transp = -1;
-static int stun_att_bandwidth = -1;
-static int stun_att_lifetime = -1;
-static int stun_att_channelnum = -1;
+static int hf_stun_att_type = -1; /* STUN attribute fields */
+static int hf_stun_att_length = -1;
+static int hf_stun_att_family = -1;
+static int hf_stun_att_type_comprehension = -1;
+static int hf_stun_att_type_assignment = -1;
+static int hf_stun_att_ipv4 = -1;
+static int hf_stun_att_ipv6 = -1;
+static int hf_stun_att_port = -1;
+static int hf_stun_att_username = -1;
+static int hf_stun_att_password = -1;
+static int hf_stun_att_padding = -1;
+static int hf_stun_att_hmac = -1;
+static int hf_stun_att_crc32 = -1;
+static int hf_stun_att_error_class = -1;
+static int hf_stun_att_error_number = -1;
+static int hf_stun_att_error_reason = -1;
+static int hf_stun_att_realm = -1;
+static int hf_stun_att_nonce = -1;
+static int hf_stun_att_unknown = -1;
+static int hf_stun_att_xor_ipv4 = -1;
+static int hf_stun_att_xor_ipv6 = -1;
+static int hf_stun_att_xor_port = -1;
+static int hf_stun_att_icmp_type = -1;
+static int hf_stun_att_icmp_code = -1;
+static int hf_stun_att_software = -1;
+static int hf_stun_att_priority = -1;
+static int hf_stun_att_tie_breaker = -1;
+static int hf_stun_att_change_ip = -1;
+static int hf_stun_att_change_port = -1;
+static int hf_stun_att_cache_timeout = -1;
+static int hf_stun_att_token = -1;
+static int hf_stun_att_reserve_next = -1;
+static int hf_stun_att_reserved = -1;
+static int hf_stun_att_value = -1;
+static int hf_stun_att_transp = -1;
+static int hf_stun_att_bandwidth = -1;
+static int hf_stun_att_lifetime = -1;
+static int hf_stun_att_channelnum = -1;
 
 
 /* Structure containing transaction specific information */
@@ -633,16 +633,16 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                                 tvb, offset, ATTR_HDR_LEN+att_length,
                                                 att_type, "%s", val_to_str_ext_const(att_type, &attributes_ext, "Unknown"));
                 att_tree = proto_item_add_subtree(ti, ett_stun_att);
-                ti = proto_tree_add_uint(att_tree, stun_att_type, tvb,
+                ti = proto_tree_add_uint(att_tree, hf_stun_att_type, tvb,
                                          offset, 2, att_type);
                 att_type_tree = proto_item_add_subtree(ti, ett_stun_att_type);
-                proto_tree_add_uint(att_type_tree, stun_att_type_comprehension, tvb, offset, 2, att_type);
+                proto_tree_add_uint(att_type_tree, hf_stun_att_type_comprehension, tvb, offset, 2, att_type);
                 ti = proto_tree_add_text(att_type_tree, tvb, offset, 2,
                                          "%s (%d)",
                                          val_to_str((att_type & 0x8000) >> 15, comprehensions, "Unknown: %d"),
                                          (att_type & 0x8000) >> 15);
                 PROTO_ITEM_SET_GENERATED(ti);
-                proto_tree_add_uint(att_type_tree, stun_att_type_assignment, tvb, offset, 2, att_type);
+                proto_tree_add_uint(att_type_tree, hf_stun_att_type_assignment, tvb, offset, 2, att_type);
                 ti = proto_tree_add_text(att_type_tree, tvb, offset, 2,
                                          "%s (%d)",
                                          val_to_str((att_type & 0x4000) >> 14, assignments, "Unknown: %d"),
@@ -651,7 +651,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
                 if ((offset+ATTR_HDR_LEN+att_length) > (STUN_HDR_LEN+msg_length)) {
                     proto_tree_add_uint_format_value(att_tree,
-                                                     stun_att_length, tvb, offset+2, 2,
+                                                     hf_stun_att_length, tvb, offset+2, 2,
                                                      att_length,
                                                      "%u (bogus, goes past the end of the message)",
                                                      att_length);
@@ -660,7 +660,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             }
             offset += 2;
 
-            proto_tree_add_uint(att_tree, stun_att_length, tvb,
+            proto_tree_add_uint(att_tree, hf_stun_att_length, tvb,
                                 offset, 2, att_length);
             offset += 2;
 
@@ -673,19 +673,19 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case REFLECTED_FROM:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
                 if (att_length < 2)
                     break;
-                proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 switch (tvb_get_guint8(tvb, offset+1))
                 {
                 case 1:
                     if (att_length < 8)
                         break;
-                    proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(att_tree, " (Deprecated): %s:%d", tvb_ip_to_str(tvb, offset+4),tvb_get_ntohs(tvb,offset+2));
 
                     break;
@@ -693,17 +693,17 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
-                    proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
                     break;
                 }
                 break;
 
                 /* Deprecated STUN RFC3489 attributes */
             case PASSWORD:
-                proto_tree_add_item(att_tree, stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_password, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 proto_item_append_text(att_tree, " (Deprecated): %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding,
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding,
                                         tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
@@ -713,18 +713,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case OTHER_ADDRESS:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
                 if (att_length < 2)
                     break;
-                proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
                 switch (tvb_get_guint8(tvb, offset+1)) {
                 case 1:
                     if (att_length < 8)
                         break;
-                    proto_tree_add_item(att_tree, stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
                     proto_item_append_text(att_tree, ": %s:%d", tvb_ip_to_str(tvb,offset+4),tvb_get_ntohs(tvb,offset+2));
                     col_append_fstr(
                         pinfo->cinfo, COL_INFO,
@@ -738,7 +738,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
-                    proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
                     break;
                 }
                 break;
@@ -746,38 +746,38 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case CHANGE_REQUEST:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                proto_tree_add_item(att_tree, stun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
 
             case USERNAME:
-                proto_tree_add_item(att_tree, stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
                     " user: %s",
                     tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding,
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding,
                                         tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case MESSAGE_INTEGRITY:
                 if (att_length < 20)
                     break;
-                proto_tree_add_item(att_tree, stun_att_hmac, tvb, offset, att_length, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_hmac, tvb, offset, att_length, ENC_NA);
                 break;
 
             case ERROR_CODE:
                 if (att_length < 2)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 2, ENC_NA);
                 if (att_length < 3)
                     break;
-                proto_tree_add_item(att_tree, stun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
                 {
                     int human_error_num = tvb_get_guint8(tvb, offset+2) * 100 + tvb_get_guint8(tvb, offset+3);
                     proto_item_append_text(
@@ -795,7 +795,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
                 if (att_length < 5)
                     break;
-                proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, att_length-4, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_error_reason, tvb, offset+4, att_length-4, ENC_UTF_8|ENC_NA);
 
                 proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset+4, att_length-4, ENC_UTF_8|ENC_NA));
                 col_append_fstr(
@@ -806,18 +806,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
 
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case UNKNOWN_ATTRIBUTES:
                 for (i = 0; i < att_length; i += 2)
-                    proto_tree_add_item(att_tree, stun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, hf_stun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case REALM:
-                proto_tree_add_item(att_tree, stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_realm, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
@@ -825,18 +825,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     tvb_get_string_enc(wmem_packet_scope(), tvb,offset, att_length, ENC_UTF_8|ENC_NA)
                     );
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case NONCE:
-                proto_tree_add_item(att_tree, stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_nonce, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 proto_item_append_text(att_tree, ": %s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, att_length, ENC_UTF_8|ENC_NA));
                 col_append_str(
                     pinfo->cinfo, COL_INFO,
                     " with nonce"
                     );
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case XOR_MAPPED_ADDRESS:
@@ -846,18 +846,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case XOR_REFLECTED_FROM:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
                 if (att_length < 2)
                     break;
-                proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_xor_port, tvb, offset+2, 2, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_xor_port, tvb, offset+2, 2, ENC_NA);
 
                 /* Show the port 'in the clear'
                    XOR (host order) transid with (host order) xor-port.
                    Add host-order port into tree. */
-                ti = proto_tree_add_uint(att_tree, stun_att_port, tvb, offset+2, 2,
+                ti = proto_tree_add_uint(att_tree, hf_stun_att_port, tvb, offset+2, 2,
                                          tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16));
                 PROTO_ITEM_SET_GENERATED(ti);
 
@@ -865,12 +865,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     break;
                 switch (tvb_get_guint8(tvb, offset+1)) {
                 case 1:
-                    proto_tree_add_item(att_tree, stun_att_xor_ipv4, tvb, offset+4, 4, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_stun_att_xor_ipv4, tvb, offset+4, 4, ENC_NA);
 
                     /* Show the address 'in the clear'.
                        XOR (host order) transid with (host order) xor-address.
                        Add in network order tree. */
-                    ti = proto_tree_add_ipv4(att_tree, stun_att_ipv4, tvb, offset+4, 4,
+                    ti = proto_tree_add_ipv4(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4,
                                              tvb_get_ipv4(tvb, offset+4) ^ g_htonl(magic_cookie_first_word));
                     PROTO_ITEM_SET_GENERATED(ti);
 
@@ -895,7 +895,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
-                    proto_tree_add_item(att_tree, stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
                     {
                         guint32 IPv6[4];
                         tvb_get_ipv6(tvb, offset+4, (struct e_in6_addr *)IPv6);
@@ -903,7 +903,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         IPv6[1] = IPv6[1] ^ g_htonl(transaction_id[0]);
                         IPv6[2] = IPv6[2] ^ g_htonl(transaction_id[1]);
                         IPv6[3] = IPv6[3] ^ g_htonl(transaction_id[2]);
-                        ti = proto_tree_add_ipv6(att_tree, stun_att_ipv6, tvb, offset+4, 16,
+                        ti = proto_tree_add_ipv6(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16,
                                                  (const guint8 *)IPv6);
                         PROTO_ITEM_SET_GENERATED(ti);
                     }
@@ -915,73 +915,73 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case REQUESTED_ADDRESS_TYPE:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_family, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_family, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+1, 3, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+1, 3, ENC_NA);
                 break;
             case EVEN_PORT:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_reserve_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_reserve_next, tvb, offset, 1, ENC_BIG_ENDIAN);
                 break;
 
             case RESERVATION_TOKEN:
                 if (att_length < 8)
                     break;
-                proto_tree_add_item(att_tree, stun_att_token, tvb, offset, 8, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_token, tvb, offset, 8, ENC_NA);
                 break;
 
             case PRIORITY:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
 
             case PADDING:
-                proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset, att_length, att_length);
+                proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset, att_length, att_length);
                 break;
 
             case ICMP:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_icmp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-                proto_tree_add_item(att_tree, stun_att_icmp_code, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_icmp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_icmp_code, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 break;
 
             case SOFTWARE:
-                proto_tree_add_item(att_tree, stun_att_software, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_software, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
 
             case CACHE_TIMEOUT:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_cache_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_cache_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
 
             case FINGERPRINT:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_crc32, tvb, offset, att_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_crc32, tvb, offset, att_length, ENC_BIG_ENDIAN);
                 break;
 
             case ICE_CONTROLLED:
             case ICE_CONTROLLING:
                 if (att_length < 8)
                     break;
-                proto_tree_add_item(att_tree, stun_att_tie_breaker, tvb, offset, 8, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_tie_breaker, tvb, offset, 8, ENC_NA);
                 break;
 
             case DATA:
                 if (att_length > 0) {
                     tvbuff_t *next_tvb;
-                    proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
                     if (att_length % 4 != 0) {
                         guint pad;
                         pad = 4-(att_length % 4);
-                        proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, pad, pad);
+                        proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, pad, pad);
                     }
 
                     next_tvb = tvb_new_subset(tvb, offset, att_length, att_length);
@@ -996,7 +996,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case REQUESTED_TRANSPORT:
                 if (att_length < 1)
                     break;
-                proto_tree_add_item(att_tree, stun_att_transp, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_transp, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (att_length < 4)
                     break;
 
@@ -1009,13 +1009,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         val_to_str(protoCode, transportnames, "Unknown (0x%8x)")
                         );
                 }
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+1, 3, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+1, 3, ENC_NA);
                 break;
 
             case CHANNEL_NUMBER:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_channelnum, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_channelnum, tvb, offset, 2, ENC_BIG_ENDIAN);
                 {
                     guint16 chan = tvb_get_ntohs(tvb, offset);
                     proto_item_append_text(att_tree, ": 0x%x", chan);
@@ -1025,13 +1025,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         chan
                         );
                 }
-                proto_tree_add_item(att_tree, stun_att_reserved, tvb, offset+2, 2, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+2, 2, ENC_NA);
                 break;
 
             case BANDWIDTH:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(att_tree, " %d", tvb_get_ntohl(tvb, offset));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
@@ -1042,7 +1042,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case LIFETIME:
                 if (att_length < 4)
                     break;
-                proto_tree_add_item(att_tree, stun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(att_tree, " %d", tvb_get_ntohl(tvb, offset));
                 col_append_fstr(
                     pinfo->cinfo, COL_INFO,
@@ -1053,9 +1053,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             default:
                 if (att_length > 0)
-                    proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, ENC_NA);
+                    proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
                 if (att_length % 4 != 0)
-                    proto_tree_add_uint(att_tree, stun_att_padding, tvb,
+                    proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb,
                                         offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
                 break;
             }
@@ -1157,155 +1157,155 @@ proto_register_stun(void)
             BASE_NONE, NULL, 0x0, "This is a duplicate of STUN message in this frame", HFILL }
         },
         /* ////////////////////////////////////// */
-        { &stun_att_type,
+        { &hf_stun_att_type,
           { "Attribute Type", "stun.att.type", FT_UINT16,
             BASE_HEX | BASE_EXT_STRING, &attributes_ext, 0x0, NULL, HFILL }
         },
-        { &stun_att_type_comprehension,
+        { &hf_stun_att_type_comprehension,
           { "Attribute Type Comprehension", "stun.att.type.comprehension", FT_UINT16,
             BASE_HEX, NULL, 0x8000, NULL, HFILL }
         },
-        { &stun_att_type_assignment,
+        { &hf_stun_att_type_assignment,
           { "Attribute Type Assignment", "stun.att.type.assignment", FT_UINT16,
             BASE_HEX, NULL, 0x4000, NULL, HFILL }
         },
-        { &stun_att_length,
+        { &hf_stun_att_length,
           { "Attribute Length", "stun.att.length", FT_UINT16,
             BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_family,
+        { &hf_stun_att_family,
           { "Protocol Family", "stun.att.family", FT_UINT8,
             BASE_HEX, VALS(attributes_family), 0x0, NULL, HFILL }
         },
-        { &stun_att_ipv4,
+        { &hf_stun_att_ipv4,
           { "IP", "stun.att.ipv4", FT_IPv4,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_ipv6,
+        { &hf_stun_att_ipv6,
           { "IP", "stun.att.ipv6", FT_IPv6,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_port,
+        { &hf_stun_att_port,
           { "Port", "stun.att.port", FT_UINT16,
             BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_username,
+        { &hf_stun_att_username,
           { "Username", "stun.att.username", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-                { &stun_att_password,
+        { &hf_stun_att_password,
           { "Password", "stun.att.password", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_padding,
+        { &hf_stun_att_padding,
           { "Padding", "stun.att.padding", FT_UINT16,
             BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_hmac,
+        { &hf_stun_att_hmac,
           { "HMAC-SHA1", "stun.att.hmac", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_crc32,
+        { &hf_stun_att_crc32,
           { "CRC-32", "stun.att.crc32", FT_UINT32,
             BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_error_class,
+        { &hf_stun_att_error_class,
           { "Error Class","stun.att.error.class", FT_UINT8,
             BASE_DEC, NULL, 0x07, NULL, HFILL}
         },
-        { &stun_att_error_number,
+        { &hf_stun_att_error_number,
           { "Error Code","stun.att.error", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
-        { &stun_att_error_reason,
+        { &hf_stun_att_error_reason,
           { "Error Reason Phrase","stun.att.error.reason", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &stun_att_realm,
+        { &hf_stun_att_realm,
           { "Realm", "stun.att.realm", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_nonce,
+        { &hf_stun_att_nonce,
           { "Nonce", "stun.att.nonce", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_unknown,
+        { &hf_stun_att_unknown,
           { "Unknown Attribute","stun.att.unknown", FT_UINT16,
             BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
-        { &stun_att_xor_ipv4,
+        { &hf_stun_att_xor_ipv4,
           { "IP (XOR-d)", "stun.att.ipv4-xord", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_xor_ipv6,
+        { &hf_stun_att_xor_ipv6,
           { "IP (XOR-d)", "stun.att.ipv6-xord", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_xor_port,
+        { &hf_stun_att_xor_port,
           { "Port (XOR-d)", "stun.att.port-xord", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_icmp_type,
+        { &hf_stun_att_icmp_type,
           { "ICMP type", "stun.att.icmp.type", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
          },
-        { &stun_att_icmp_code,
+        { &hf_stun_att_icmp_code,
           { "ICMP code", "stun.att.icmp.code", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
          },
-        { &stun_att_software,
+        { &hf_stun_att_software,
           { "Software","stun.att.software", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
-        { &stun_att_priority,
+        { &hf_stun_att_priority,
           { "Priority", "stun.att.priority", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
          },
-        { &stun_att_tie_breaker,
+        { &hf_stun_att_tie_breaker,
           { "Tie breaker", "stun.att.tie-breaker", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_lifetime,
+        { &hf_stun_att_lifetime,
           { "Lifetime", "stun.att.lifetime", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
          },
-        { &stun_att_change_ip,
+        { &hf_stun_att_change_ip,
           { "Change IP","stun.att.change-ip", FT_BOOLEAN,
             16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL}
         },
-        { &stun_att_change_port,
+        { &hf_stun_att_change_port,
           { "Change Port","stun.att.change-port", FT_BOOLEAN,
             16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL}
         },
-        { &stun_att_reserve_next,
+        { &hf_stun_att_reserve_next,
           { "Reserve next","stun.att.even-port.reserve-next", FT_UINT8,
             BASE_DEC, VALS(attributes_reserve_next), 0x80, NULL, HFILL}
         },
-        { &stun_att_cache_timeout,
+        { &hf_stun_att_cache_timeout,
           { "Cache timeout", "stun.att.cache-timeout", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
          },
-        { &stun_att_token,
+        { &hf_stun_att_token,
           { "Token", "stun.att.token", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_value,
+        { &hf_stun_att_value,
           { "Value", "stun.value", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_reserved,
+        { &hf_stun_att_reserved,
           { "Reserved", "stun.att.reserved", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_transp,
+        { &hf_stun_att_transp,
           { "Transport", "stun.att.transp", FT_UINT8,
             BASE_HEX, VALS(transportnames), 0x0, NULL, HFILL }
         },
-        { &stun_att_channelnum,
+        { &hf_stun_att_channelnum,
           { "Channel-Number", "stun.att.channelnum", FT_UINT16,
             BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
-        { &stun_att_bandwidth,
+        { &hf_stun_att_bandwidth,
           { "Bandwidth", "stun.port.bandwidth", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
