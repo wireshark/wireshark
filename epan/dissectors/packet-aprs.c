@@ -854,13 +854,9 @@ dissect_aprs_storm(	tvbuff_t   *tvb,
 		{
 		proto_tree *tc;
 		int	    data_len;
-		char   *info_buffer;
-		static const char *storm_format = " (%*.*s)";
 
-		data_len = tvb_length_remaining( tvb, offset );
-		info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
-		g_snprintf( info_buffer, STRLEN, storm_format, data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
-		tc = proto_tree_add_string( parent_tree, hf_aprs_storm_idx, tvb, offset, data_len, info_buffer );
+		data_len = tvb_reported_length_remaining( tvb, offset );
+		tc = proto_tree_add_item( parent_tree, hf_aprs_storm_idx, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 		storm_tree = proto_item_add_subtree( tc, ett_aprs_storm_idx );
 		}
 	proto_tree_add_item( storm_tree, *storm_items->hf_aprs_storm_dir,  tvb, offset, 3, ENC_BIG_ENDIAN );
@@ -899,18 +895,13 @@ dissect_aprs_weather(	tvbuff_t   *tvb,
 	proto_tree  *weather_tree;
 	int	     new_offset;
 	int	     data_len;
-	char	    *info_buffer;
-	static const char *weather_format = " (%*.*s)";
 	guint8	     ch;
 
 
 	data_len    = tvb_length_remaining( tvb, offset );
 	new_offset  = offset + data_len;
 
-	info_buffer = (char *)wmem_alloc( wmem_packet_scope(), STRLEN );
-	g_snprintf( info_buffer, STRLEN, weather_format, data_len, data_len, tvb_get_ptr( tvb, offset, data_len ) );
-
-	tc = proto_tree_add_string( parent_tree, hf_aprs_weather_idx, tvb, offset, data_len, info_buffer );
+	tc = proto_tree_add_item( parent_tree, hf_aprs_weather_idx, tvb, offset, data_len, ENC_ASCII|ENC_NA );
 	weather_tree = proto_item_add_subtree( tc, ett_aprs_weather_idx );
 
 	ch = tvb_get_guint8( tvb, offset );
@@ -1307,7 +1298,6 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 
 	int	       offset;
 	guint8	       dti;
-	const guint8  *bufp;
 	wmem_strbuf_t *sb;
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, "APRS" );
@@ -1333,50 +1323,51 @@ dissect_aprs( tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *
 			else
 				{
 				/* Position "without APRS messaging" */
-				wmem_strbuf_append(sb, "Position");
-				bufp = tvb_get_ptr(tvb, offset + 1, 8 + 9 + 1 + 1);
-				wmem_strbuf_append_printf(sb, " (%8.8s %9.9s %1.1s%1.1s)",
-						bufp,			/* Lat */
-						bufp + 8 + 1,		/* Long */
-						bufp + 8,		/* Symbol table id */
-						bufp + 8 + 1 + 9	/* Symbol Code */
-				);
+				wmem_strbuf_append(sb, "Position (");
+				wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1, 8));	/* Lat */
+				wmem_strbuf_append(sb, " ");
+				wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 8 + 1, 9));	/* Long */
+				wmem_strbuf_append(sb, " ");
+				wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 8, 1));	/* Symbol table id */
+				wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 8 + 1 + 9, 1));	/* Symbol Code */
 				}
 			break;
 
 		case '=':
 			/* Position "with APRS messaging" + Ext APRS message */
-			bufp = tvb_get_ptr(tvb, offset + 1, 8 + 9 + 1 + 1);
-			wmem_strbuf_append_printf(sb, " (%8.8s %9.9s %1.1s%1.1s)",
-				bufp,			/* Lat */
-				bufp + 8 + 1,		/* Long */
-				bufp + 8 ,		/* Symbol table id */
-				bufp + 8 + 1 + 9	/* Symbol Code */
-			);
+			wmem_strbuf_append(sb, " (");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1, 8));	/* Lat */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 8 + 1, 9));	/* Long */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 8, 1));	/* Symbol table id */
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 8 + 1 + 9, 1));	/* Symbol Code */
 			break;
 
 		case '/':
 			/* Position + timestamp "without APRS messaging" */
-			bufp = tvb_get_ptr(tvb, offset + 1, 7 + 8 + 9 + 1 + 1);
-			wmem_strbuf_append_printf(sb, " (%7.7s %8.8s %9.9s %1.1s%1.1s)",
-				bufp,			/* Timestamp */
-				bufp + 7 + 1,	/*??*/	/* Lat */
-				bufp + 7 + 8 + 1,	/* Long */
-				bufp + 7 ,		/* Symbol table id */
-				bufp + 7 + 1 + 9	/* Symbol Code */
-			);
+			wmem_strbuf_append(sb, " (");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1, 7));	/* Timestamp */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7 + 1, 8));    /*??*/	/* Lat */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7 + 8 + 1, 9));	/* Long */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7, 1));	/* Symbol table id */
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7 + 1 + 9, 1));	/* Symbol Code */
 			break;
 
 		case '@':
 			/* Position + timestamp "with APRS messaging" + Ext APRS message */
-			bufp = tvb_get_ptr(tvb, offset + 1, 7 + 8 + 9 + 1 + 1);
-			wmem_strbuf_append_printf(sb, " (%7.7s %8.8s %9.9s %1.1s%1.1s)",
-				bufp,			/* Timestamp */
-				bufp + 7 + 1,	/*??*/	/* Lat */
-				bufp + 7 + 8 + 1,	/* Long */
-				bufp + 7 ,		/* Symbol table id */
-				bufp + 7 + 1 + 9	/* Symbol Code */
-			);
+			wmem_strbuf_append(sb, " (");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1, 7));	/* Timestamp */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7 + 1, 8));    /*??*/	/* Lat */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7 + 8 + 1, 9));	/* Long */
+			wmem_strbuf_append(sb, " ");
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7, 1));	/* Symbol table id */
+			wmem_strbuf_append(sb, tvb_format_text(tvb, offset + 1 + 7 + 1 + 9, 1));	/* Symbol Code */
 			break;
 		}
 
