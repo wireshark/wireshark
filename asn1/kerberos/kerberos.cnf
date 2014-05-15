@@ -173,7 +173,7 @@ guint32 msgtype;
 	gboolean pc;
 	gint32 tag;
 	guint32 len;
-	char *address_str;
+	const char *address_str;
 	proto_item *it=NULL;
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
 
@@ -181,12 +181,10 @@ guint32 msgtype;
 	offset=dissect_ber_identifier(actx->pinfo, tree, tvb, offset, &appclass, &pc, &tag);
 	offset=dissect_ber_length(actx->pinfo, tree, tvb, offset, &len, NULL);
 
-	address_str=(char*)wmem_alloc(wmem_packet_scope(), ADDRESS_STR_BUFSIZ);
-	address_str[0]=0;
 	switch(private_data->addr_type){
 	case KERBEROS_ADDR_TYPE_IPV4:
 		it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-		g_snprintf(address_str,ADDRESS_STR_BUFSIZ,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
+		address_str = tvb_ip_to_str(tvb, offset);
 		break;
 	case KERBEROS_ADDR_TYPE_NETBIOS:
 		{
@@ -195,21 +193,21 @@ guint32 msgtype;
 		int netbios_name_len = (NETBIOS_NAME_LEN - 1)*4 + 1;
 
 		netbios_name_type = process_netbios_name(tvb_get_ptr(tvb, offset, 16), netbios_name, netbios_name_len);
-		g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s<%02x>", netbios_name, netbios_name_type);
+		address_str = wmem_strdup_printf(wmem_packet_scope(), "%s<%02x>", netbios_name, netbios_name_type);
 		it=proto_tree_add_string_format(tree, hf_krb_address_netbios, tvb, offset, 16, netbios_name, "NetBIOS Name: %s (%s)", address_str, netbios_name_type_descr(netbios_name_type));
 		}
 		break;
 	case KERBEROS_ADDR_TYPE_IPV6:
 		it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
-		g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s", ip6_to_str((const struct e_in6_addr *)tvb_get_ptr(tvb, offset, INET6_ADDRLEN)));
+		address_str = tvb_ip6_to_str(tvb, offset);
 		break;
 	default:
 		proto_tree_add_text(tree, tvb, offset, len, "KRB Address: I dont know how to parse this type of address yet");
-
+		address_str = NULL;
 	}
 
 	/* push it up two levels in the decode pane */
-	if(it){
+	if(it && address_str){
 		proto_item_append_text(proto_item_get_parent(it), " %s",address_str);
 		proto_item_append_text(proto_item_get_parent_nth(it, 2), " %s",address_str);
 	}
