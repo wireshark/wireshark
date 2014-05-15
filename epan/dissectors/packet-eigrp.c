@@ -1173,7 +1173,7 @@ dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 
     /* add it to the top level line */
     proto_item_append_text(ti,"  =   %s",
-                           ipxnet_to_string(tvb_get_ptr(tvb, offset, 4)));
+                           tvb_ipxnet_to_string(tvb, offset));
 
     if (unreachable) {
         expert_add_info(pinfo, ti_dst, &ei_eigrp_unreachable);

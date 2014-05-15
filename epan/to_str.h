@@ -70,6 +70,7 @@ WS_DLL_PUBLIC const gchar*	tvb_ip6_to_str(tvbuff_t *tvb, const gint offset);
 void	ip6_to_str_buf(const struct e_in6_addr *, gchar *);
 extern gchar*	ipx_addr_to_str(const guint32, const guint8 *);
 extern gchar*	ipxnet_to_string(const guint8 *ad);
+extern gchar*	tvb_ipxnet_to_string(tvbuff_t *tvb, int offset);
 extern gchar*	ipxnet_to_str_punct(const guint32 ad, const char punct);
 extern gchar*	tvb_vines_addr_to_str(tvbuff_t *tvb, const gint offset);
 WS_DLL_PUBLIC gchar*	eui64_to_str(const guint64 ad);

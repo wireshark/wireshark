@@ -294,6 +294,13 @@ ipxnet_to_string(const guint8 *ad)
     return ipxnet_to_str_punct(addr, ' ');
 }
 
+
+gchar*
+tvb_ipxnet_to_string(tvbuff_t *tvb, const gint offset)
+{
+    return ipxnet_to_str_punct(tvb_get_ntohl(tvb, offset), ' ');
+}
+
 gchar *
 ipxnet_to_str_punct(const guint32 ad, const char punct)
 {

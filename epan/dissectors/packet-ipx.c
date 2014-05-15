@@ -1273,7 +1273,7 @@ dissect_ipxsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    val_to_str_ext_const(server_type, &novell_server_vals_ext, "Unknown"),
 				    server_type);
 				proto_tree_add_text(s_tree, tvb, cursor+50, 4, "Network: %s",
-						ipxnet_to_string(tvb_get_ptr(tvb, cursor+50, 4)));
+						tvb_ipxnet_to_string(tvb, cursor+50));
 				proto_tree_add_text(s_tree, tvb, cursor+54, 6, "Node: %s",
 						tvb_ether_to_str(tvb, cursor+54));
 				server_port = tvb_get_ntohs(tvb, cursor+60);
