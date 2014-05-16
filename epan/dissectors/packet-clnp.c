@@ -32,7 +32,6 @@
 #include <epan/reassemble.h>
 #include <epan/expert.h>
 #include <epan/nlpid.h>
-#include <epan/ipproto.h>
 
 #include "packet-osi.h"
 #include "packet-osi-options.h"
