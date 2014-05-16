@@ -1929,6 +1929,7 @@ static const value_string auth_alg[] = {
   {0x00, "Open System"},
   {0x01, "Shared key"},
   {0x02, "Fast BSS Transition"},
+  {0x03, "Simultaneous Authentication of Equals (SAE)"},
   {0x80, "Network EAP"},  /* Cisco proprietary? */
   {0, NULL}
 };
