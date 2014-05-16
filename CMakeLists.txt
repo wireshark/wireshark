@@ -37,6 +37,9 @@ if( ${CMAKE_MAJOR_VERSION} GREATER 2 OR ${CMAKE_MINOR_VERSION} GREATER 8 OR
 	# Don't: Automatically link Qt executable to qtmain target on Windows
 	cmake_policy(SET CMP0020 OLD)
 endif()
+if (POLICY CMP0020)
+	cmake_policy(SET CMP0020 OLD)
+endif()
 
 # This cannot be implemented via option(...)
 if( NOT CMAKE_BUILD_TYPE )
@@ -424,12 +427,15 @@ endif()
 # - set HAVE_XXX
 
 #The minimum package list
-set(PACKAGELIST Gettext GLIB2 GMODULE2 GTHREAD2 M LEX YACC Perl SED SH PythonInterp)
+if (NOT WIN32)
+	set(PACKAGELIST Gettext M)
+	set(M_REQUIRED TRUE)
+endif()
+set(PACKAGELIST GLIB2 GMODULE2 GTHREAD2 LEX YACC Perl SED SH PythonInterp)
 set(GLIB2_REQUIRED TRUE)
 set(GLIB2_FIND_REQUIRED TRUE)
 set(GLIB2_MIN_VERSION 2.14.0)
 set(GTHREAD2_REQUIRED TRUE)
-set(M_REQUIRED TRUE)
 set(PythonInterp_FIND_VERSION 2)
 set(Python_ADDITIONAL_VERSIONS 3)
 
@@ -458,20 +464,20 @@ endif()
 # Build the Qt GUI?
 if(BUILD_qtshark)
 	if(ENABLE_QT5)
-		set(PACKAGELIST ${PACKAGELIST} Qt5Widgets Qt5PrintSupport Qt5LinguistTools)
-		if (APPLE)
-			set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
-		endif()
-		set(QT_VERSION 5)
 		# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 		# somewhere. The if WIN32 in this place is annoying as well.
 		if( WIN32 )
 			set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
 			set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
 			# Used for the creation of setpath.bat
-			set( QT5_DLL_PATH "${CMAKE_PREFIX_PATH}/bin/dummy" )
+			set( QT5_DLL_PATH "${QT5_BASE_PATH}\\bin" )
 			set( WS_ALL_LIBS ${WS_ALL_LIBS} ${QT5_DLL_PATH} )
 		endif()
+		set(PACKAGELIST ${PACKAGELIST} Qt5Widgets Qt5PrintSupport Qt5LinguistTools)
+		if (APPLE)
+			set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
+		endif()
+		set(QT_VERSION 5)
 	else()
 		set(PACKAGELIST ${PACKAGELIST} Qt4)
 		# set(Qt4_OPTIONS 4.7.1 REQUIRED QtCore QtGui)
@@ -544,7 +550,9 @@ if(ENABLE_PYTHON)
 	set(PACKAGELIST ${PACKAGELIST} PythonLibs)
 endif()
 
-set(PACKAGELIST ${PACKAGELIST} YAPP)
+if (NOT WIN32)
+	set(PACKAGELIST ${PACKAGELIST} YAPP)
+endif()
 
 set(PACKAGELIST ${PACKAGELIST} POD)
 

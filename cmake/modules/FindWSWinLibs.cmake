@@ -26,14 +26,23 @@ function( FindWSWinLibs _WS_LIB_SEARCH_PATH _LIB_HINT_VAR )
   endif()
 endfunction()
 
+# Massage the list of paths to external libraries to output a batch file to update the PATH
+# So that running an executable can load the DLL's
+
 function( WSExtendPath _LIB_PATH_LIST _PATH_FILE )
   if ( WIN32 )
     #message( STATUS "All libs: ${_LIB_PATH_LIST}." )
+    # Convert each path that ends in "lib" to "bin" as linking requires the lib, running requires the dll.
     foreach( THIS_LIB_PATH ${_LIB_PATH_LIST} )
-      get_filename_component( LIB_PATH ${THIS_LIB_PATH} PATH )
-      # lib is required for linking, the dlls are in bin
-      string( REGEX REPLACE "/lib$" "/bin" LIB_PATH "${LIB_PATH}" )
-      #message( STATUS "Raw path ${THIS_LIB_PATH} processed to ${LIB_PATH}." )
+      if ( THIS_LIB_PATH MATCHES "[.]lib$" )
+        # lib is required for linking, the dlls are in bin so fix the path
+        # by chopping the library off the end and tacking "/bin" on
+        get_filename_component( LIB_PATH ${THIS_LIB_PATH} PATH )
+        string( REGEX REPLACE "/lib$" "/bin" LIB_PATH "${LIB_PATH}" )
+      else()
+        set ( LIB_PATH "${THIS_LIB_PATH}" )
+      endif()
+      #message( STATUS "Raw path ${THIS_LIB_PATH} processed to ${LIB_PATH}" )
       set( WS_LOCAL_LIB_PATHS "${WS_LOCAL_LIB_PATHS}" ${LIB_PATH} )
     endforeach()
     list( REMOVE_DUPLICATES WS_LOCAL_LIB_PATHS )
