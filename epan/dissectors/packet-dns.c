@@ -939,38 +939,38 @@ static const value_string edns0_opt_code_vals[] = {
    http://www.iana.org/assignments/dane-parameters (last updated 2012-08-14)
  */
 /* TLSA Certificate Usages */
-#define TLSA_CU_CA 0
-#define TLSA_CU_SC 1
-#define TLSA_CU_TA 2
-#define TLSA_CU_DI 3
+#define TLSA_CU_PKIX_TA 0
+#define TLSA_CU_PKIX_EE 1
+#define TLSA_CU_DANE_TA 2
+#define TLSA_CU_DANE_EE 3
 
 static const value_string tlsa_certificate_usage_vals[] = {
-  {TLSA_CU_CA, "CA constraint"},
-  {TLSA_CU_SC, "Service certificate constraint"},
-  {TLSA_CU_TA, "Trust anchor assertion"},
-  {TLSA_CU_DI, "Domain-issued certificate"},
+  {TLSA_CU_PKIX_TA, "CA constraint (PKIX-TA)"},
+  {TLSA_CU_PKIX_EE, "Service certificate constraint (PKIX-EE)"},
+  {TLSA_CU_DANE_TA, "Trust anchor assertion (DANE-TA)"},
+  {TLSA_CU_DANE_EE, "Domain-issued certificate (DANE-EE)"},
   {0,            NULL}
 };
 
 /* TLSA Selectors */
-#define TLSA_S_FC 0
+#define TLSA_S_CERT 0
 #define TLSA_S_SPKI 1
 
 static const value_string tlsa_selector_vals[] = {
-  {TLSA_S_FC, "Full certificate"},
-  {TLSA_S_SPKI, "SubjectPublicKeyInfo"},
+  {TLSA_S_CERT, "Full certificate (Cert)"},
+  {TLSA_S_SPKI, "SubjectPublicKeyInfo (SPKI)"},
   {0,            NULL}
 };
 
 /* TLSA Matching Types */
-#define TLSA_MT_NHU 0
-#define TLSA_MT_S256 1
-#define TLSA_MT_S512 2
+#define TLSA_MT_FULL 0
+#define TLSA_MT_SHA_256 1
+#define TLSA_MT_SHA_512 2
 
 static const value_string tlsa_matching_type_vals[] = {
-  {TLSA_MT_NHU, "No Hash Used"},
-  {TLSA_MT_S256, "SHA-256"},
-  {TLSA_MT_S512, "SHA-512"},
+  {TLSA_MT_FULL, "No Hash Used (Full)"},
+  {TLSA_MT_SHA_256, "256 bit hash by SHA2 (SHA2-256)"},
+  {TLSA_MT_SHA_512, "512 bit hash by SHA2 (SHA2-512)"},
   {0,            NULL}
 };
 
