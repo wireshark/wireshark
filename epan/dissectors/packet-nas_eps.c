@@ -958,10 +958,15 @@ de_emm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
+    guint8 cause;
 
     curr_offset = offset;
 
+    cause = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_nas_eps_emm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                    val_to_str_ext_const(cause, &nas_eps_emm_cause_values_ext, "Unknown"));
+
     curr_offset++;
 
     return curr_offset-offset;
@@ -2543,10 +2548,15 @@ de_esm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
+    guint8 cause;
 
     curr_offset = offset;
 
+    cause = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_nas_eps_esm_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)",
+                    val_to_str_ext_const(cause, &nas_eps_esm_cause_vals_ext, "Unknown"));
+
     curr_offset++;
 
     return(curr_offset - offset);
