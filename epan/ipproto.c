@@ -73,7 +73,7 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_MERIT,   "Merit Internodal" },       /* 32 MERIT-INP MERIT Internodal Protocol [Hans_Werner_Braun] */
     { IP_PROTO_DCCP,    "Datagram Congestion Control Protocol" }, /* 33 DCCP Datagram Congestion Control Protocol [RFC4340] */
     { IP_PROTO_3PC,     "3rd Party Connect" },      /* 34 3PC Third Party Connect Protocol [Stuart_A_Friedberg] */
-    { IP_PROTO_IDPR,    "Interdomain routing" },    /* 35 IDPR Inter-Domain Policy Routing Protocol [Martha_Steenstrup] */
+    { IP_PROTO_IDPR,    "Inter-Domain Policy Routing Protocol" }, /* 35 IDPR Inter-Domain Policy Routing Protocol [Martha_Steenstrup] */
     { IP_PROTO_XTP,     "XTP" },                    /* 36 XTP XTP [Greg_Chesson] */
     { IP_PROTO_DDP,     "Datagram delivery"},       /* 37 DDP Datagram Delivery Protocol [Wesley_Craig] */
     { IP_PROTO_CMTP,    "Control Message" },        /* 38 IDPR-CMTP IDPR Control Message Transport Proto [Martha_Steenstrup] */
@@ -83,13 +83,13 @@ static const value_string ipproto_val[] = {
     { IP_PROTO_SDRP,    "Source demand routing" },  /* 42 SDRP Source Demand Routing Protocol [Deborah_Estrin] */
     { IP_PROTO_ROUTING, "IPv6 routing" },           /* 43 IPv6-Route Routing Header for IPv6 [Steve_Deering] */
     { IP_PROTO_FRAGMENT,"IPv6 fragment" },          /* 44 IPv6-Frag Fragment Header for IPv6 [Steve_Deering] */
-    { IP_PROTO_IDRP,    "IDRP" },                   /* 45 IDRP Inter-Domain Routing Protocol [Sue_Hares] */
-    { IP_PROTO_RSVP,    "RSVP" },                   /* 46 RSVP Reservation Protocol [Bob_Braden] */
-    { IP_PROTO_GRE,     "GRE" },                    /* 47 GRE General Routing Encapsulation [Tony_Li] */
+    { IP_PROTO_IDRP,    "Inter-Domain Routing Protocol" }, /* 45 IDRP Inter-Domain Routing Protocol [Sue_Hares] */
+    { IP_PROTO_RSVP,    "Reservation Protocol" },   /* 46 RSVP Reservation Protocol [Bob_Braden] */
+    { IP_PROTO_GRE,     "Generic Routing Encapsulation" }, /* 47 GRE General Routing Encapsulation [Tony_Li] */
     { IP_PROTO_DSR,     "Dynamic source routing" }, /* 48 DSR Dynamic Source Routing Protocol [RFC4728] */
     { IP_PROTO_BNA,     "BNA" },                    /* 49 BNA BNA [Gary Salamon] */
-    { IP_PROTO_ESP,     "ESP" },                    /* 50 ESP Encap Security Payload [RFC4303] */
-    { IP_PROTO_AH,      "AH" },                     /* 51 AH Authentication Header [RFC4302] */
+    { IP_PROTO_ESP,     "Encap Security Payload" }, /* 50 ESP Encap Security Payload [RFC4303] */
+    { IP_PROTO_AH,      "Authentication Header" },  /* 51 AH Authentication Header [RFC4302] */
     { IP_PROTO_INSLP,   "INSLP" },                  /* 52 I-NLSP Integrated Net Layer Security TUBA [K_Robert_Glenn] */
     { IP_PROTO_SWIPE,   "SWIPE" },                  /* 53 SWIPE IP with Encryption [John_Ioannidis] */
     { IP_PROTO_NARP,    "NBMA ARP"},                /* 54 NARP NBMA Address Resolution Protocol [RFC1735] */
