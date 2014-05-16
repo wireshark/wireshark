@@ -78,19 +78,36 @@ wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
     return dst;
 }
 
+/*
+ * Using g_printf_string_upper_bound() to find the needed length almost doubles
+ * the execution time of this function. Instead we us a pre allocated buffer
+ * which may waste a bit of memory but are faster. As this is mostly called with
+ * packet scoped memory(?) that shouldn't matter that much.
+ * in my test file all strings was less than 72 characters long and quite a few
+ * over 68 characters long. Chose 80 as the default.
+ */
+#define WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER 80
 gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 {
     va_list ap2;
-    gsize len;
     gchar* dst;
+    int needed_len;
 
     G_VA_COPY(ap2, ap);
 
-    len = g_printf_string_upper_bound(fmt, ap);
+    /*len = g_printf_string_upper_bound(fmt, ap);*/
 
-    dst = (gchar *)wmem_alloc(allocator, len+1);
-    g_vsnprintf(dst, (gulong) len, fmt, ap2);
+    dst = (gchar *)wmem_alloc(allocator, WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER);
+
+    /* Returns: the number of characters which would be produced if the buffer was large enough. */
+    needed_len = g_vsnprintf(dst, (gulong) WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER-1, fmt, ap2);
+    if(needed_len > WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER){
+        wmem_free(allocator, dst);
+        dst = (gchar *)wmem_alloc(allocator, needed_len+1);
+        g_vsnprintf(dst, (gulong) needed_len, fmt, ap2);
+    }
+
     va_end(ap2);
 
     return dst;
