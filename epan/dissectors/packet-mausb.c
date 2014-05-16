@@ -876,7 +876,9 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     return offset;
 }
 
-
+/* Used to detect multiple MA Packets in a single TCP packet */
+/* Not used for MA Packets in SNAP Packets */
+static gint mausb_num_pdus = 0;
 
 /* Code to actually dissect the packets */
 static int
@@ -899,6 +901,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Set the Protocol column to the constant string of mausb */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAUSB");
 
+    mausb_num_pdus++;
 
     col_clear(pinfo->cinfo, COL_INFO);
 
@@ -1100,8 +1103,15 @@ static int
 dissect_mausb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
+    mausb_num_pdus = 0;
+
     tcp_dissect_pdus(tvb, pinfo, tree, TRUE, MAUSB_MIN_LENGTH,
             mausb_get_pkt_len, dissect_mausb_pkt, data);
+
+    if (1 < mausb_num_pdus) {
+        col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%i packets] ", mausb_num_pdus);
+    }
+
     return tvb_reported_length(tvb);
 }
 
