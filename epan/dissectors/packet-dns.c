@@ -1963,10 +1963,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       cpu_offset = cur_offset;
       cpu_len = tvb_get_guint8(tvb, cpu_offset);
-      cpu = tvb_get_string(wmem_packet_scope(), tvb, cpu_offset + 1, cpu_len);
+      cpu = tvb_get_string_enc(wmem_packet_scope(), tvb, cpu_offset + 1, cpu_len, ENC_ASCII|ENC_NA);
       os_offset = cpu_offset + 1 + cpu_len;
       os_len = tvb_get_guint8(tvb, os_offset);
-      os = tvb_get_string(wmem_packet_scope(), tvb, os_offset + 1, os_len);
+      os = tvb_get_string_enc(wmem_packet_scope(), tvb, os_offset + 1, os_len, ENC_ASCII|ENC_NA);
       if (cinfo != NULL) {
         col_append_fstr(cinfo, COL_INFO, " %.*s %.*s", cpu_len, cpu,
                         os_len, os);
@@ -2440,7 +2440,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       flags_len = tvb_get_guint8(tvb, offset);
       offset += 1;
       proto_tree_add_item(rr_tree, hf_dns_naptr_flags, tvb, offset, flags_len, ENC_ASCII|ENC_NA);
-      flags = tvb_get_string(wmem_packet_scope(), tvb, offset, flags_len);
+      flags = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, flags_len, ENC_ASCII|ENC_NA);
       offset += flags_len;
 
       /* Service */
@@ -3370,10 +3370,10 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset++;
 
       tag_len = tvb_get_guint8(tvb, cur_offset);
-      tag = tvb_get_string(wmem_packet_scope(), tvb, cur_offset + 1, tag_len);
+      tag = tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1, tag_len, ENC_ASCII|ENC_NA);
 
       value_len = data_len - (tag_len + 2);
-      value = tvb_get_string(wmem_packet_scope(), tvb, cur_offset + 1 + tag_len, value_len);
+      value = tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1 + tag_len, value_len, ENC_ASCII|ENC_NA);
 
       value = format_text(value, value_len);
 
@@ -3843,7 +3843,7 @@ dissect_dns_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DNS");
 
   dissect_dns_common(tvb, pinfo, tree, TRUE, FALSE, FALSE);
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 static int
@@ -3851,7 +3851,7 @@ dissect_dns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree, dns_desegment, 2, get_dns_pdu_len,
                    dissect_dns_tcp_pdu, data);
-  return tvb_length(tvb);
+  return tvb_reported_length(tvb);
 }
 
 void
