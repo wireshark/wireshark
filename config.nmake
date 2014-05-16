@@ -289,15 +289,17 @@ GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 # These macros are used by the nsis installer script and by the install target.
 #EXPAT_DLL=libexpat-1.dll
-FFI_DLL=libffi-5.dll
+FFI_DLL=libffi-6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 FREETYPE_DLL=libfreetype-6.dll
 INTL_DLL=libintl-8.dll
+HARFBUZZ_DLL=libharfbuzz-0.dll
 JASPER_DLL=libjasper-1.dll
 JPEG_DLL=libjpeg-8.dll
 LZMA_DLL=liblzma-5.dll
 PIXMAN_DLL=libpixman-1-0.dll
 PNG_DLL=libpng15-15.dll
+SJLJ_DLL=libgcc_s_sjlj-1.dll
 TIFF_DLL=libtiff-5.dll
 XML_DLL=libxml2-2.dll
 
@@ -306,7 +308,7 @@ XML_DLL=libxml2-2.dll
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
 #GTK_PKG=2.24.10-2.7
-GTK_PKG=2.24.14-1.1
+GTK_PKG=2.24.23-1.1
 PKG_SUFIX=ws
 !ELSE
 GDK_DLL=libgdk-3-0.dll
@@ -546,15 +548,17 @@ GTK_DIR=$(WIRESHARK_LIB_DIR)\$(GTK_NAME)
 
 # These macros are used by the nsis installer script and by the install target.
 #EXPAT_DLL=libexpat-1.dll
-FFI_DLL=libffi-5.dll
+FFI_DLL=libffi-6.dll
 FONTCONFIG_DLL=libfontconfig-1.dll
 FREETYPE_DLL=libfreetype-6.dll
 INTL_DLL=libintl-8.dll
+HARFBUZZ_DLL=libharfbuzz-0.dll
 JASPER_DLL=libjasper-1.dll
 JPEG_DLL=libjpeg-8.dll
 LZMA_DLL=liblzma-5.dll
 PIXMAN_DLL=libpixman-1-0.dll
 PNG_DLL=libpng15-15.dll
+SEH_DLL=libgcc_s_seh-1.dll
 TIFF_DLL=libtiff-5.dll
 XML_DLL=libxml2-2.dll
 
@@ -563,7 +567,7 @@ XML_DLL=libxml2-2.dll
 GDK_DLL=libgdk-win32-2.0-0.dll
 GTK_DLL=libgtk-win32-2.0-0.dll
 #GTK_PKG=2.24.10-2.7
-GTK_PKG=2.24.14-1.1
+GTK_PKG=2.24.23-1.1
 PKG_SUFIX=ws
 !ELSE
 GDK_DLL=libgdk-3-0.dll
@@ -1384,27 +1388,35 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 
 GTK_LIB_DIR=2.10.0
 
-!IFDEF PNG_DLL
-NEED_PNG_DLL=USE
+!IFDEF HARFBUZZ_DLL
+NEED_HARFBUZZ_DLL=USE
 !ENDIF
 !IFDEF JPEG_DLL
 NEED_JPEG_DLL=USE
+!ENDIF
+!IFDEF PNG_DLL
+NEED_PNG_DLL=USE
+!ENDIF
+!IFDEF SEH_DLL
+NEED_SEH_DLL=USE
+!ENDIF
+!IFDEF SJLJ_DLL
+NEED_SJLJ_DLL=USE
 !ENDIF
 !IFDEF TIFF_DLL
 NEED_TIFF_DLL=USE
 !ENDIF
 NEED_CAIRO_DLL=USE
 # Pango >=1.24.5 Needs these:
-NEED_FREETYPE_DLL=USE
-NEED_FONTCONFIG_DLL=USE
 #NEED_EXPAT_DLL=USE
-NEED_XML_DLL=USE
-NEED_PIXMAN_DLL=USE
 NEED_FFI_DLL=USE
+NEED_FONTCONFIG_DLL=USE
+NEED_FREETYPE_DLL=USE
 NEED_JASPER_DLL=USE
 NEED_JPEG_DLL=USE
-NEED_TIFF_DLL=USE
 NEED_LZMA_DLL=USE
+NEED_PIXMAN_DLL=USE
+NEED_XML_DLL=USE
 
 !ELSEIF "$(GTK_INST_VERSION)" == "3.4" || "$(GTK_INST_VERSION)" == "3.6"
 
@@ -1454,6 +1466,9 @@ NEED_FONTCONFIG_DLL=USE
 !IFDEF FREETYPE_DLL
 NEED_FREETYPE_DLL=USE
 !ENDIF
+!IFDEF HARFBUZZ_DLL
+NEED_HARFBUZZ_DLL=USE
+!ENDIF
 !IFDEF JASPER_DLL
 NEED_JASPER_DLL=USE
 !ENDIF
@@ -1468,6 +1483,12 @@ NEED_PIXMAN_DLL=USE
 !ENDIF
 !IFDEF PNG_DLL
 NEED_PNG_DLL=USE
+!ENDIF
+!IFDEF SEH_DLL
+NEED_SEH_DLL=USE
+!ENDIF
+!IFDEF SJLJ_DLL
+NEED_SJLJ_DLL=USE
 !ENDIF
 !IFDEF TIFF_DLL
 NEED_TIFF_DLL=USE

@@ -1300,6 +1300,9 @@ install-all: install-generated-files
 	xcopy $(GTK_DIR)\bin\libpangoft2-1.0-0.dll $(INSTALL_DIR) /d
 	xcopy $(GTK_DIR)\bin\$(FREETYPE_DLL) $(INSTALL_DIR) /d
 !ENDIF
+!IFDEF NEED_HARFBUZZ_DLL
+	xcopy $(GTK_DIR)\bin\$(HARFBUZZ_DLL) $(INSTALL_DIR) /d
+!ENDIF
 !IFDEF NEED_JASPER_DLL
 	xcopy $(GTK_DIR)\bin\$(JASPER_DLL) $(INSTALL_DIR) /d
 !ENDIF
@@ -1314,6 +1317,12 @@ install-all: install-generated-files
 !ENDIF
 !IFDEF NEED_PNG_DLL
 	xcopy $(GTK_DIR)\bin\$(PNG_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_SEH_DLL
+	xcopy $(GTK_DIR)\bin\$(SEH_DLL) $(INSTALL_DIR) /d
+!ENDIF
+!IFDEF NEED_SJLJ_DLL
+	xcopy $(GTK_DIR)\bin\$(SJLJ_DLL) $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF NEED_TIFF_DLL
 	xcopy $(GTK_DIR)\bin\$(TIFF_DLL) $(INSTALL_DIR) /d

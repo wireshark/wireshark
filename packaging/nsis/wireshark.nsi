@@ -803,6 +803,9 @@ File "${STAGING_DIR}\${FONTCONFIG_DLL}"
 File "${STAGING_DIR}\libpangoft2-1.0-0.dll"
 File "${STAGING_DIR}\${FREETYPE_DLL}"
 !endif
+!ifdef NEED_HARFBUZZ_DLL
+File "${STAGING_DIR}\${HARFBUZZ_DLL}"
+!endif
 !ifdef NEED_JASPER_DLL
 File "${STAGING_DIR}\${JASPER_DLL}"
 !endif
@@ -817,6 +820,12 @@ File "${STAGING_DIR}\${PIXMAN_DLL}"
 !endif
 !ifdef NEED_PNG_DLL
 File "${STAGING_DIR}\${PNG_DLL}"
+!endif
+!ifdef NEED_SEH_DLL
+File "${STAGING_DIR}\${SEH_DLL}"
+!endif
+!ifdef NEED_SJLJ_DLL
+File "${STAGING_DIR}\${SJLJ_DLL}"
 !endif
 !ifdef NEED_TIFF_DLL
 File "${STAGING_DIR}\${TIFF_DLL}"
