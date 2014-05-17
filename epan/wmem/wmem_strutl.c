@@ -91,21 +91,21 @@ gchar *
 wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 {
     va_list ap2;
-    gchar* dst;
+    gchar *dst;
     int needed_len;
 
     G_VA_COPY(ap2, ap);
 
-    /*len = g_printf_string_upper_bound(fmt, ap);*/
+    /* needed_len = g_printf_string_upper_bound(fmt, ap2); */
 
     dst = (gchar *)wmem_alloc(allocator, WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER);
 
-    /* Returns: the number of characters which would be produced if the buffer was large enough. */
-    needed_len = g_vsnprintf(dst, (gulong) WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER-1, fmt, ap2);
-    if(needed_len > WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER){
+    /* Returns: the number of characters which would be produced if the buffer was large enough (without NUL) */
+    needed_len = g_vsnprintf(dst, (gulong) WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER, fmt, ap2) + 1;
+    if (needed_len > WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER) {
         wmem_free(allocator, dst);
-        dst = (gchar *)wmem_alloc(allocator, needed_len+1);
-        g_vsnprintf(dst, (gulong) needed_len, fmt, ap2);
+        dst = (gchar *)wmem_alloc(allocator, needed_len);
+        g_vsnprintf(dst, (gulong) needed_len, fmt, ap);
     }
 
     va_end(ap2);
