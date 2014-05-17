@@ -117,6 +117,7 @@ static int hf_ip_frag_offset = -1;
 static int hf_ip_ttl = -1;
 static int hf_ip_proto = -1;
 static int hf_ip_checksum = -1;
+static int hf_ip_checksum_calculated = -1;
 static int hf_ip_checksum_good = -1;
 static int hf_ip_checksum_bad = -1;
 
@@ -1938,6 +1939,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   guint16    flags;
   guint8     nxt;
   guint16    ipsum;
+  guint16    expected_cksum;
   fragment_head *ipfd_head = NULL;
   tvbuff_t   *next_tvb;
   gboolean   update_col_info = TRUE;
@@ -2140,6 +2142,9 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                                           "0x%04x [correct]",
                                           iph->ip_sum);
         checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+        item = proto_tree_add_uint(checksum_tree, hf_ip_checksum_calculated, tvb,
+                                      offset + 10, 2, iph->ip_sum);
+        PROTO_ITEM_SET_GENERATED(item);
         item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
                                       offset + 10, 2, TRUE);
         PROTO_ITEM_SET_GENERATED(item);
@@ -2147,15 +2152,19 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                                       offset + 10, 2, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
       } else {
+        expected_cksum = in_cksum_shouldbe(iph->ip_sum, ipsum);
+
         item = proto_tree_add_uint_format_value(ip_tree, hf_ip_checksum, tvb,
                                           offset + 10, 2, iph->ip_sum,
                                           "0x%04x"
                                           "[incorrect, should be 0x%04x "
                                           "(may be caused by \"IP checksum "
                                           "offload\"?)]", iph->ip_sum,
-                                          in_cksum_shouldbe(iph->ip_sum,
-                                          ipsum));
+                                          expected_cksum);
         checksum_tree = proto_item_add_subtree(item, ett_ip_checksum);
+        item = proto_tree_add_uint(checksum_tree, hf_ip_checksum_calculated, tvb,
+                                      offset + 10, 2, expected_cksum);
+        PROTO_ITEM_SET_GENERATED(item);
         item = proto_tree_add_boolean(checksum_tree, hf_ip_checksum_good, tvb,
                                       offset + 10, 2, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
@@ -2691,6 +2700,10 @@ proto_register_ip(void)
     { &hf_ip_checksum,
       { "Header checksum", "ip.checksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
+
+    { &hf_ip_checksum_calculated,
+    { "Calculated Checksum", "ip.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
+        "The expected IP checksum field as calculated from the IP datagram", HFILL }},
 
     { &hf_ip_checksum_good,
       { "Good", "ip.checksum_good", FT_BOOLEAN, BASE_NONE,  NULL, 0x0,
