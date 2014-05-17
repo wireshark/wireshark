@@ -409,7 +409,9 @@ void MainWindow::closeEvent(QCloseEvent *event) {
         return;
     }
 
+#ifdef HAVE_LIBPCAP
     capture_interfaces_dialog_.close();
+#endif
     // Make sure we kill any open dumpcap processes.
     delete main_welcome_;
 
