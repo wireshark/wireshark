@@ -2008,6 +2008,7 @@ wtap_dump_init_dumper(int file_type_subtype, int encap, int snaplen, gboolean co
 		descr.if_fcslen = -1;
 		descr.num_stat_entries = 0;          /* Number of ISB:s */
 		descr.interface_statistics = NULL;
+		wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtapng_if_descr_t));
 		g_array_append_val(wdh->interface_data, descr);
 	}
 	return wdh;
