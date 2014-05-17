@@ -3363,7 +3363,7 @@ static int dissect_DIS_FIELDS_CLOCK_TIME(tvbuff_t *tvb, proto_tree *tree, int of
     ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
 
     tv.secs = (time_t)ms/1000;
-    tv.nsecs = (ms%1000)*1000000;
+    tv.nsecs = (int)(ms%1000)*1000000;
 
     /* add hour */
     tv.secs += (hour*3600);
@@ -3661,7 +3661,7 @@ static gint parse_DIS_FIELDS_SIGNAL_LINK16_NETWORK_HEADER(tvbuff_t *tvb, proto_t
     offset += 4;
 
     tv.secs = tvb_get_ntohl(tvb, offset);
-    if (tv.secs == 0xFFFFFFFF)
+    if (tv.secs == (time_t)0xFFFFFFFF)
     {
         tv.nsecs = 0;
         proto_tree_add_time_format_value(sub_tree, hf_dis_signal_link16_ptt, tvb, offset, 8, &tv, "NO STATEMENT");
@@ -5260,7 +5260,7 @@ static gint parseField_Timestamp(tvbuff_t *tvb, proto_tree *tree, gint offset, i
    ms = (uintVal >> 1) * MSEC_PER_HOUR / FSV;
 
    tv.secs = (time_t)ms/1000;
-   tv.nsecs = (ms%1000)*1000000;
+   tv.nsecs = (int)(ms%1000)*1000000;
 
    ti = proto_tree_add_time(tree, hf_relative, tvb, offset, 4, &tv);
 
