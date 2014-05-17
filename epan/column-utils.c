@@ -562,8 +562,8 @@ col_add_lstr(column_info *cinfo, const gint el, const gchar *str, ...)
 {
   va_list ap;
   int     i;
-  int     pos;
-  int     max_len;
+  gsize   pos;
+  gsize   max_len;
 
   if (!CHECK_COL(cinfo, el))
     return;
