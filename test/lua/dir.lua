@@ -131,18 +131,17 @@ test("Dir.open", typeof(t.result) == 'Dir')
 
 io.stdout:write("calling Dir object...")
 local dir = t.result
-local file = dir()
+local files = {}
+files[dir()] = true
 io.stdout:write("passed\n")
+files[dir()] = true
+files[dir()] = true
 
-test("Dir.call", file == "file1.txt")
-file = dir()
-test("Dir.call", file == "file2.txt")
-file = dir()
-test("Dir.call", file == "file3.txt")
-file = dir()
-test("Dir.call", file == nil)
-file = dir()
-test("Dir.call", file == nil)
+test("Dir.call", files["file1.txt"])
+test("Dir.call", files["file2.txt"])
+test("Dir.call", files["file3.txt"])
+test("Dir.call", dir() == nil)
+test("Dir.call", dir() == nil)
 
 testing("Dir.close")
 
@@ -154,14 +153,17 @@ testing("Negative testing 1")
 test("Dir.open", pcall(callDirFunc, "open", "temp", t))
 dir = t.result
 -- call dir() now
-file = dir()
-test("Dir.call", file == "file1.txt")
+files = {}
+files[dir()] = true
 
 Dir.remove_all("temp")
 
 -- call it again
-file = dir()
-test("Dir.call", file == "file2.txt")
+files[dir()] = true
+files[dir()] = true
+test("Dir.call", files["file1.txt"])
+test("Dir.call", files["file2.txt"])
+test("Dir.call", files["file3.txt"])
 test("Dir.close", pcall(callDirFunc, "close", dir, t))
 
 testing("Negative testing 2")
