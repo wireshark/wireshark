@@ -33,6 +33,7 @@
 #include "wmem_allocator_simple.h"
 #include "wmem_allocator_strict.h"
 
+#define STRING_80               "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
 #define MAX_ALLOC_SIZE          (1024*64)
 #define MAX_SIMULTANEOUS_ALLOCS  1024
 #define CONTAINER_ITERS          10000
@@ -485,6 +486,8 @@ wmem_test_strutls(void)
 
     new_str = wmem_strdup_printf(allocator, "abc %s %% %d", "boo", 23);
     g_assert_cmpstr(new_str, ==, "abc boo % 23");
+    new_str = wmem_strdup_printf(allocator, "%s", STRING_80);
+    g_assert_cmpstr(new_str, ==, STRING_80);
     wmem_strict_check_canaries(allocator);
 
     new_str = wmem_strconcat(allocator, "ABC", NULL);

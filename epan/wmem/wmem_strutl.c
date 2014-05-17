@@ -39,7 +39,7 @@ wmem_strdup(wmem_allocator_t *allocator, const gchar *src)
 
     /* If the string is NULL, just return the string "<NULL>" so that the
      * callers don't have to bother checking it. */
-    if(!src) {
+    if (!src) {
         src = "<NULL>";
     }
 
@@ -100,15 +100,18 @@ wmem_strdup_vprintf(wmem_allocator_t *allocator, const gchar *fmt, va_list ap)
 
     dst = (gchar *)wmem_alloc(allocator, WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER);
 
-    /* Returns: the number of characters which would be produced if the buffer was large enough (without NUL) */
+    /* Returns: the number of characters which would be produced if the buffer was large enough
+     * (not including the null, for which we add +1 ourselves). */
     needed_len = g_vsnprintf(dst, (gulong) WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER, fmt, ap2) + 1;
+    va_end(ap2);
+
     if (needed_len > WMEM_STRDUP_VPRINTF_DEFAULT_BUFFER) {
         wmem_free(allocator, dst);
         dst = (gchar *)wmem_alloc(allocator, needed_len);
-        g_vsnprintf(dst, (gulong) needed_len, fmt, ap);
+        G_VA_COPY(ap2, ap);
+        g_vsnprintf(dst, (gulong) needed_len, fmt, ap2);
+        va_end(ap2);
     }
-
-    va_end(ap2);
 
     return dst;
 }
