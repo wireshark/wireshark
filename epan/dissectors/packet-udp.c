@@ -85,6 +85,10 @@ static header_field_info hfi_udp_checksum UDP_HFI_INIT =
 { "Checksum", "udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
   "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL };
 
+static header_field_info hfi_udp_checksum_calculated UDP_HFI_INIT =
+{ "Calculated Checksum", "udp.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
+  "The expected UDP checksum field as calculated from the UDP packet", HFILL };
+
 static header_field_info hfi_udp_checksum_good UDP_HFI_INIT =
 { "Good Checksum", "udp.checksum_good", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
   "True: checksum matches packet content; False: doesn't match content or not checked", HFILL };
@@ -440,6 +444,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   vec_t       cksum_vec[4];
   guint32     phdr[2];
   guint16     computed_cksum;
+  guint16     expected_cksum;
   int         offset = 0;
   e_udphdr   *udph;
   proto_tree *checksum_tree;
@@ -641,6 +646,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
           offset + 6, 2, udph->uh_sum, "0x%04x [correct]", udph->uh_sum);
 
         checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+        item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
+                                   tvb, offset + 6, 2, udph->uh_sum);
+        PROTO_ITEM_SET_GENERATED(item);
         item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
                                       offset + 6, 2, TRUE);
         PROTO_ITEM_SET_GENERATED(item);
@@ -648,12 +656,16 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
                                       offset + 6, 2, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
       } else {
+        expected_cksum = in_cksum_shouldbe(udph->uh_sum, computed_cksum);
         item = proto_tree_add_uint_format_value(udp_tree, hfi_udp_checksum.id, tvb,
                                           offset + 6, 2, udph->uh_sum,
           "0x%04x [incorrect, should be 0x%04x (maybe caused by \"UDP checksum offload\"?)]", udph->uh_sum,
-          in_cksum_shouldbe(udph->uh_sum, computed_cksum));
+          expected_cksum);
 
         checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+        item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
+                                   tvb, offset + 6, 2, expected_cksum);
+        PROTO_ITEM_SET_GENERATED(item);
         item = proto_tree_add_boolean(checksum_tree, &hfi_udp_checksum_good, tvb,
                                       offset + 6, 2, FALSE);
         PROTO_ITEM_SET_GENERATED(item);
@@ -788,6 +800,7 @@ proto_register_udp(void)
     &hfi_udp_stream,
     &hfi_udp_length,
     &hfi_udp_checksum,
+    &hfi_udp_checksum_calculated,
     &hfi_udp_checksum_good,
     &hfi_udp_checksum_bad,
     &hfi_udp_proc_src_uid,
