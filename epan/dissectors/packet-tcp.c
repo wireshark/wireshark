@@ -4133,6 +4133,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct tcp_per_packet_data_t *tcppd=NULL;
     proto_item *item;
     proto_tree *checksum_tree;
+	gchar *src_port_str, *dst_port_str;
 
     tcph=wmem_new(wmem_packet_scope(), struct tcpheader);
     SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -4145,18 +4146,21 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
+
+	src_port_str = ep_tcp_port_to_display(tcph->th_sport);
+	dst_port_str = ep_tcp_port_to_display(tcph->th_dport);
     col_add_lstr(pinfo->cinfo, COL_INFO,
-        ep_tcp_port_to_display(tcph->th_sport),
+        src_port_str,
         "\xe2\x86\x92", /* UTF8_RIGHTWARDS_ARROW */
-        ep_tcp_port_to_display(tcph->th_dport),
+        dst_port_str,
         COL_ADD_LSTR_TERMINATOR);
 
     if (tree) {
         if (tcp_summary_in_tree) {
             ti = proto_tree_add_protocol_format(tree, proto_tcp, tvb, 0, -1,
                                                 "Transmission Control Protocol, Src Port: %s (%u), Dst Port: %s (%u)",
-                                                ep_tcp_port_to_display(tcph->th_sport), tcph->th_sport,
-                                                ep_tcp_port_to_display(tcph->th_dport), tcph->th_dport);
+                                                src_port_str, tcph->th_sport,
+                                                dst_port_str, tcph->th_dport);
         }
         else {
             ti = proto_tree_add_item(tree, proto_tcp, tvb, 0, -1, ENC_NA);
@@ -4165,9 +4169,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         p_add_proto_data(pinfo->pool, pinfo, proto_tcp, pinfo->curr_layer_num, tcp_tree);
 
         proto_tree_add_uint_format_value(tcp_tree, hf_tcp_srcport, tvb, offset, 2, tcph->th_sport,
-                                   "%s (%u)", ep_tcp_port_to_display(tcph->th_sport), tcph->th_sport);
+                                   "%s (%u)", src_port_str, tcph->th_sport);
         proto_tree_add_uint_format_value(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, tcph->th_dport,
-                                   "%s (%u)", ep_tcp_port_to_display(tcph->th_dport), tcph->th_dport);
+                                   "%s (%u)", dst_port_str, tcph->th_dport);
         hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset, 2, tcph->th_sport);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         hidden_item = proto_tree_add_uint(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, tcph->th_dport);
@@ -4452,13 +4456,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if(tcph->th_flags & TH_SYN) {
         if(tcph->th_flags & TH_ACK) {
-           expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_sack, "Connection establish acknowledge (SYN+ACK): server port %s", ep_tcp_port_to_display(tcph->th_sport));
+           expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_sack, "Connection establish acknowledge (SYN+ACK): server port %s", src_port_str);
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_sport;
         }
         else {
            expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_syn, "Connection establish request (SYN): server port %s",
-                                   ep_tcp_port_to_display(tcph->th_dport));
+                                   dst_port_str);
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_dport;
         }
