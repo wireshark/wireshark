@@ -99,7 +99,9 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_STAT_LR 0x0080
 #define MYSQL_STAT_DR 0x0100
 #define MYSQL_STAT_BS 0x0200
-#define MYSQL_STAT_SESSION_STATE_CHANGED  (1UL << 14)
+#define MYSQL_STAT_SESSION_STATE_CHANGED 0x0400
+#define MYSQL_STAT_QUERY_WAS_SLOW 0x0800
+#define MYSQL_STAT_PS_OUT_PARAMS 0x1000
 
 /* bitfield for MYSQL_REFRESH */
 #define MYSQL_RFSH_GRANT   1   /* Refresh grant tables */
@@ -432,6 +434,8 @@ static int hf_mysql_stat_lr = -1;
 static int hf_mysql_stat_dr = -1;
 static int hf_mysql_stat_bs = -1;
 static int hf_mysql_stat_session_state_changed = -1;
+static int hf_mysql_stat_query_was_slow = -1;
+static int hf_mysql_stat_ps_out_params = -1;
 static int hf_mysql_refresh = -1;
 static int hf_mysql_rfsh_grants = -1;
 static int hf_mysql_rfsh_log = -1;
@@ -1580,6 +1584,9 @@ mysql_dissect_server_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint16
 		proto_tree_add_item(stat_tree, hf_mysql_stat_dr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(stat_tree, hf_mysql_stat_bs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(stat_tree, hf_mysql_stat_session_state_changed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_query_was_slow, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(stat_tree, hf_mysql_stat_ps_out_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
 	}
 	offset += 2;
 
@@ -2386,7 +2393,7 @@ void proto_register_mysql(void)
 		NULL, HFILL }},
 
 		{ &hf_mysql_stat_lr,
-		{ "Last row sebd", "mysql.stat.lr",
+		{ "Last row sent", "mysql.stat.lr",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_LR,
 		NULL, HFILL }},
 
@@ -2403,6 +2410,16 @@ void proto_register_mysql(void)
 		{ &hf_mysql_stat_session_state_changed,
 		{ "Session state changed", "mysql.stat.session_state_changed",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_SESSION_STATE_CHANGED,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_query_was_slow,
+		{ "Query was slow", "mysql.stat.query_was_slow",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_QUERY_WAS_SLOW,
+		NULL, HFILL }},
+
+		{ &hf_mysql_stat_ps_out_params,
+		{ "PS Out Params", "mysql.stat.ps_out_params",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_STAT_PS_OUT_PARAMS,
 		NULL, HFILL }},
 
 		{ &hf_mysql_refresh,
