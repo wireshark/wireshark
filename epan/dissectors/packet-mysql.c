@@ -69,6 +69,7 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_CAPS_RS 0x4000
 #define MYSQL_CAPS_SC 0x8000
 
+
 /* field flags */
 #define MYSQL_FLD_NOT_NULL_FLAG       0x0001
 #define MYSQL_FLD_PRI_KEY_FLAG        0x0002
@@ -86,7 +87,12 @@ void proto_reg_handoff_mysql(void);
 /* extended capabilities: 4.1+ client only */
 #define MYSQL_CAPS_MS 0x0001
 #define MYSQL_CAPS_MR 0x0002
-#define MYSQL_CAPS_SESSION_TRACK 0x0080
+#define MYSQL_CAPS_PM 0x0004
+#define MYSQL_CAPS_PA 0x0008
+#define MYSQL_CAPS_CA 0x0010
+#define MYSQL_CAPS_PL 0x0020
+#define MYSQL_CAPS_ST 0x0080
+#define MYSQL_CAPS_UNUSED 0xFF40
 
 /* status bitfield */
 #define MYSQL_STAT_IT 0x0001
@@ -420,7 +426,12 @@ static int hf_mysql_cap_secure_connect = -1;
 static int hf_mysql_extcaps_client = -1;
 static int hf_mysql_cap_multi_statements = -1;
 static int hf_mysql_cap_multi_results = -1;
+static int hf_mysql_cap_ps_multi_results = -1;
+static int hf_mysql_cap_plugin_auth = -1;
+static int hf_mysql_cap_connect_attrs = -1;
+static int hf_mysql_cap_plugin_auth_lenenc_client_data = -1;
 static int hf_mysql_cap_session_track = -1;
+static int hf_mysql_cap_unused = -1;
 static int hf_mysql_server_language = -1;
 static int hf_mysql_server_status = -1;
 static int hf_mysql_stat_it = -1;
@@ -1520,7 +1531,7 @@ mysql_dissect_ok_packet(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		}
 	}
 
-	if (conn_data->clnt_caps_ext & MYSQL_CAPS_SESSION_TRACK) {
+	if (conn_data->clnt_caps_ext & MYSQL_CAPS_ST) {
 		guint64 session_track_length;
 		proto_item *tf;
 		proto_item *session_track_tree = NULL;
@@ -1671,7 +1682,14 @@ mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *tree, guint
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_multi_statements, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_multi_results, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_ps_multi_results, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_plugin_auth, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_connect_attrs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_plugin_auth_lenenc_client_data, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
 		proto_tree_add_item(extcap_tree, hf_mysql_cap_session_track, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+		proto_tree_add_item(extcap_tree, hf_mysql_cap_unused, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	}
 
 	offset += 2;
@@ -2288,18 +2306,43 @@ void proto_register_mysql(void)
 		"MySQL Extended Capabilities", HFILL }},
 
 		{ &hf_mysql_cap_multi_statements,
-		{ "Supports multiple statements","mysql.caps.ms",
+		{ "Multiple statements","mysql.caps.ms",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MS,
 		NULL, HFILL }},
 
 		{ &hf_mysql_cap_multi_results,
-		{ "Supports multiple results","mysql.caps.mr",
+		{ "Multiple results","mysql.caps.mr",
 		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_MR,
 		NULL, HFILL }},
 
+		{ &hf_mysql_cap_ps_multi_results,
+		{ "PS Multiple results","mysql.caps.pm",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_PM,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_plugin_auth,
+		{ "Plugin Auth","mysql.caps.pa",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_PA,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_connect_attrs,
+		{ "Connect attrs","mysql.caps.ca",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_CA,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_plugin_auth_lenenc_client_data,
+		{ "Plugin Auth LENENC Client Data","mysql.caps.pm",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_PL,
+		NULL, HFILL }},
+
 		{ &hf_mysql_cap_session_track,
-		{ "Supports session variable tracking","mysql.caps.session_track",
-		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_SESSION_TRACK,
+		{ "Session variable tracking","mysql.caps.session_track",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MYSQL_CAPS_ST,
+		NULL, HFILL }},
+
+		{ &hf_mysql_cap_unused,
+		{ "Unused","mysql.caps.unused",
+		FT_UINT16, BASE_HEX, NULL, MYSQL_CAPS_UNUSED,
 		NULL, HFILL }},
 
 		{ &hf_mysql_login_request,
