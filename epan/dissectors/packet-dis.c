@@ -3474,7 +3474,7 @@ static int dissect_DIS_FIELDS_MODULATION_TYPE(tvbuff_t *tvb, proto_tree *tree, i
     proto_item  *ti;
     proto_tree  *sub_tree;
     guint32 majorModulation;
-    int hf_mod_detail = hf_dis_modulation_detail;
+    int hf_mod_detail;
 
     ti = proto_tree_add_text(tree, tvb, offset, 8, "Modulation Type");
     sub_tree = proto_item_add_subtree(ti, ett_modulation_type);
