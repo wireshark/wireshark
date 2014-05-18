@@ -955,7 +955,7 @@ static const value_string tag_num_vals[] = {
   { TAG_NEXT_DMG_ATI,                         "Next DMG ATI" },
   { TAG_DMG_CAPABILITIES,                     "DMG Capabilities" },
   { TAG_CISCO_CCX3,                           "Cisco Unknown 95" },
-  { TAG_CISCO_VENDOR_SPECIFIC,                "Cisco Vendor Specific" },
+  { TAG_CISCO_VENDOR_SPECIFIC,                "Vendor Specific" },
   { TAG_DMG_OPERATION,                        "DMG Operating" },
   { TAG_DMG_BSS_PRAMTER_CHANGE,               "DMG BSS Parameter Change" },
   { TAG_DMG_BEAM_REFINEMENT,                  "DMG Beam Refinement" },
@@ -4357,6 +4357,7 @@ static int hf_ieee80211_wfa_ie_wme_tspec_surplus = -1;
 static int hf_ieee80211_wfa_ie_wme_tspec_medium = -1;
 
 static int hf_ieee80211_aironet_ie_type = -1;
+static int hf_ieee80211_aironet_ie_dtpc = -1;
 static int hf_ieee80211_aironet_ie_version = -1;
 static int hf_ieee80211_aironet_ie_data = -1;
 static int hf_ieee80211_aironet_ie_qos_reserved = -1;
@@ -10029,7 +10030,7 @@ dissect_vendor_ie_atheros(proto_item *item _U_, proto_tree *ietree,
 }
 
 typedef enum {
-  AIRONET_IE_UNKNOWN0 = 0,
+  AIRONET_IE_DTPC = 0,
   AIRONET_IE_UNKNOWN1 = 1,
   AIRONET_IE_VERSION = 3,
   AIRONET_IE_QOS,
@@ -10039,7 +10040,7 @@ typedef enum {
 } aironet_ie_type_t;
 
 static const value_string aironet_ie_type_vals[] = {
-  { AIRONET_IE_UNKNOWN0,  "Unknown (0)"},
+  { AIRONET_IE_DTPC,      "DTPC"},
   { AIRONET_IE_UNKNOWN1,  "Unknown (1)"},
   { AIRONET_IE_VERSION,   "CCX version"},
   { AIRONET_IE_QOS,       "Qos"},
@@ -10047,6 +10048,12 @@ static const value_string aironet_ie_type_vals[] = {
   { AIRONET_IE_QBSS_V2,   "QBSS V2 - CCA"},
   { AIRONET_IE_CLIENT_MFP, "Client MFP"},
   { 0,                    NULL }
+};
+
+static const value_string aironet_mfp_vals[] = {
+  { 0,      "Disabled"},
+  { 1,      "Enabled"},
+  { 0,      NULL }
 };
 
 static void
@@ -10062,10 +10069,15 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
   offset += 1;
 
   switch (type) {
+  case AIRONET_IE_DTPC:
+    proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_dtpc, tvb, offset, 2, ENC_NA);
+    proto_item_append_text(aironet_item, ": Aironet DTPC Powerlevel 0x%02X", tvb_get_guint8(tvb, offset));
+    dont_change = TRUE;
+    offset += 2;
+    break;
   case AIRONET_IE_VERSION:
     proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_item_append_text(aironet_item, ": Aironet CCX version = %d",
-    tvb_get_guint8(tvb, offset));
+    proto_item_append_text(aironet_item, ": Aironet CCX version = %d", tvb_get_guint8(tvb, offset));
     dont_change = TRUE;
     break;
   case AIRONET_IE_QOS:
@@ -10101,6 +10113,9 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     break;
   case AIRONET_IE_CLIENT_MFP:
     proto_tree_add_item (ietree, hf_ieee80211_aironet_ie_clientmfp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_item_append_text(aironet_item, ": Aironet Client MFP %s",
+      val_to_str_const(1 & tvb_get_guint8(tvb, offset), aironet_mfp_vals, "Unknown"));
+    dont_change = TRUE;
     break;
   default:
     proto_tree_add_item(ietree, hf_ieee80211_aironet_ie_data, tvb, offset,
@@ -10108,8 +10123,8 @@ dissect_vendor_ie_aironet(proto_item *aironet_item, proto_tree *ietree,
     break;
   }
   if (!dont_change) {
-    proto_item_append_text(aironet_item, ": Aironet %s",
-      val_to_str_const(type, aironet_ie_type_vals, "Unknown"));
+    proto_item_append_text(aironet_item, ": Aironet %s (%d)",
+      val_to_str_const(type, aironet_ie_type_vals, "Unknown"), type);
   }
 }
 
@@ -24559,8 +24574,13 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, VALS(aironet_ie_type_vals), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_aironet_ie_dtpc,
+     {"Aironet IE CCX DTCP", "wlan_mgt.aironet.dtpc",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_aironet_ie_version,
-     {"Aironet IE CCX version?", "wlan_mgt.aironet.version",
+     {"Aironet IE CCX version", "wlan_mgt.aironet.version",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
