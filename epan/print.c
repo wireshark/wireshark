@@ -91,7 +91,7 @@ GHashTable *output_only_tables = NULL;
 
 static gboolean write_headers = FALSE;
 
-static const gchar *get_field_hex_value(GSList *src_list, field_info *fi);
+static gchar *get_field_hex_value(GSList *src_list, field_info *fi);
 static void proto_tree_print_node(proto_node *node, gpointer data);
 static void proto_tree_write_node_pdml(proto_node *node, gpointer data);
 static const guint8 *get_field_data(GSList *src_list, field_info *fi);
@@ -294,7 +294,6 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
     const gchar     *label_ptr;
     gchar            label_str[ITEM_LABEL_LENGTH];
     char            *dfilter_string;
-    size_t           chop_len;
     int              i;
     gboolean         wrap_in_fake_protocol;
 
@@ -425,26 +424,13 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
             fputs("\" show=\"\" value=\"",  pdata->fh);
             break;
         default:
-            /* XXX - this is a hack until we can just call
-             * fvalue_to_string_repr() for *all* FT_* types. */
-            dfilter_string = proto_construct_match_selected_string(fi,
-                                                                   pdata->edt);
+            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
             if (dfilter_string != NULL) {
-                chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
-
-                /* XXX - Remove double-quotes. Again, once we
-                 * can call fvalue_to_string_repr(), we can
-                 * ask it not to produce the version for
-                 * display-filters, and thus, no
-                 * double-quotes. */
-                if (dfilter_string[strlen(dfilter_string)-1] == '"') {
-                    dfilter_string[strlen(dfilter_string)-1] = '\0';
-                    chop_len++;
-                }
 
                 fputs("\" show=\"", pdata->fh);
-                print_escaped_xml(pdata->fh, &dfilter_string[chop_len]);
+                print_escaped_xml(pdata->fh, dfilter_string);
             }
+            g_free(dfilter_string);
 
             /*
              * XXX - should we omit "value" for any fields?
@@ -473,7 +459,7 @@ proto_tree_write_node_pdml(proto_node *node, gpointer data)
                             break;
                         case FT_INT64:
                         case FT_UINT64:
-                            g_fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X",
+                            fprintf(pdata->fh, "%" G_GINT64_MODIFIER "X",
                                     fvalue_get_integer64(&fi->value));
                             break;
                         default:
@@ -1618,7 +1604,7 @@ static void format_field_values(output_fields_t* fields, gpointer field_index, c
         /* print the value of all accurrences of the field */
         /* If not the first, add the 'aggregator' */
         if (g_ptr_array_len(fv_p) > 0) {
-            g_ptr_array_add(fv_p, (gpointer)ep_strdup_printf("%c", fields->aggregator));
+            g_ptr_array_add(fv_p, (gpointer)g_strdup_printf("%c", fields->aggregator));
         }
         break;
     default:
@@ -1644,7 +1630,7 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data)
     field_index = g_hash_table_lookup(call_data->fields->field_indicies, fi->hfinfo->abbrev);
     if (NULL != field_index) {
         format_field_values(call_data->fields, field_index,
-                            get_node_field_value(fi, call_data->edt) /* static or ep_alloc'd string */
+                            get_node_field_value(fi, call_data->edt) /* g_ alloc'd string */
             );
     }
 
@@ -1706,7 +1692,7 @@ void proto_tree_write_fields(output_fields_t *fields, epan_dissect_t *edt, colum
             field_index = g_hash_table_lookup(fields->field_indicies, col_name);
 
             if (NULL != field_index) {
-                format_field_values(fields, field_index, cinfo->col_data[col]);
+                format_field_values(fields, field_index, g_strdup(cinfo->col_data[col]));
             }
         }
     }
@@ -1717,6 +1703,7 @@ void proto_tree_write_fields(output_fields_t *fields, epan_dissect_t *edt, colum
         }
         if (NULL != fields->field_values[i]) {
             GPtrArray *fv_p;
+            gchar * str;
             gsize j;
             fv_p = fields->field_values[i];
             if (fields->quote != '\0') {
@@ -1725,7 +1712,9 @@ void proto_tree_write_fields(output_fields_t *fields, epan_dissect_t *edt, colum
 
             /* Output the array of (partial) field values */
             for (j = 0; j < g_ptr_array_len(fv_p); j++ ) {
-                fputs((gchar *)g_ptr_array_index(fv_p, j), fh);
+                str = (gchar *)g_ptr_array_index(fv_p, j);
+                fputs(str, fh);
+                g_free(str);
             }
             if (fields->quote != '\0') {
                 fputc(fields->quote, fh);
@@ -1741,14 +1730,14 @@ void write_fields_finale(output_fields_t* fields _U_ , FILE *fh _U_)
     /* Nothing to do */
 }
 
-/* Returns an ep_alloced string or a static constant*/
-const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
+/* Returns an g_malloced string */
+gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
 {
     if (fi->hfinfo->id == hf_text_only) {
         /* Text label.
          * Get the text */
         if (fi->rep) {
-            return fi->rep->representation;
+            return g_strdup(fi->rep->representation);
         }
         else {
             return get_field_hex_value(edt->pi.data_src, fi);
@@ -1762,41 +1751,25 @@ const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
     else {
         /* Normal protocols and fields */
         gchar      *dfilter_string;
-        size_t      chop_len;
 
         switch (fi->hfinfo->type)
         {
         case FT_PROTOCOL:
             /* Print out the full details for the protocol. */
             if (fi->rep) {
-                return fi->rep->representation;
+                return g_strdup(fi->rep->representation);
             } else {
                 /* Just print out the protocol abbreviation */
-                return fi->hfinfo->abbrev;
+                return g_strdup(fi->hfinfo->abbrev);
             }
         case FT_NONE:
             /* Return "1" so that the presence of a field of type
              * FT_NONE can be checked when using -T fields */
             return g_strdup("1");
         default:
-            /* XXX - this is a hack until we can just call
-             * fvalue_to_string_repr() for *all* FT_* types. */
-            dfilter_string = proto_construct_match_selected_string(fi,
-                                                                   edt);
+            dfilter_string = fvalue_to_string_repr(&fi->value, FTREPR_DISPLAY, NULL);
             if (dfilter_string != NULL) {
-                chop_len = strlen(fi->hfinfo->abbrev) + 4; /* for " == " */
-
-                /* XXX - Remove double-quotes. Again, once we
-                 * can call fvalue_to_string_repr(), we can
-                 * ask it not to produce the version for
-                 * display-filters, and thus, no
-                 * double-quotes. */
-                if (dfilter_string[strlen(dfilter_string)-1] == '"') {
-                    dfilter_string[strlen(dfilter_string)-1] = '\0';
-                    chop_len++;
-                }
-
-                return &(dfilter_string[chop_len]);
+                return dfilter_string;
             } else {
                 return get_field_hex_value(edt->pi.data_src, fi);
             }
@@ -1804,7 +1777,7 @@ const gchar* get_node_field_value(field_info* fi, epan_dissect_t* edt)
     }
 }
 
-static const gchar*
+static gchar*
 get_field_hex_value(GSList *src_list, field_info *fi)
 {
     const guint8 *pd;
@@ -1827,7 +1800,7 @@ get_field_hex_value(GSList *src_list, field_info *fi)
         const int  chars_per_byte = 2;
 
         len    = chars_per_byte * fi->length;
-        buffer = ep_alloc_array(gchar, len + 1);
+        buffer = (gchar *)g_malloc(sizeof(gchar)*(len + 1));
         buffer[len] = '\0'; /* Ensure NULL termination in bad cases */
         p = buffer;
         /* Print a simple hex dump */
