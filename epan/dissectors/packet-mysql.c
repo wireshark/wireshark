@@ -737,7 +737,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	/* version string */
 	lenstr = tvb_strsize(tvb,offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s", tvb_get_string(wmem_packet_scope(), tvb, offset, lenstr));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
 
 	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 	conn_data->major_version = 0;
@@ -824,7 +824,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	/* User name */
 	lenstr = my_tvb_strsize(tvb, offset);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s", tvb_get_string(wmem_packet_scope(), tvb, offset, lenstr));
+	col_append_fstr(pinfo->cinfo, COL_INFO, " user=%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
 	proto_tree_add_item(login_tree, hf_mysql_user, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 	offset += lenstr;
 
@@ -851,7 +851,7 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			return offset;
 		}
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, " db=%s", tvb_get_string(wmem_packet_scope(), tvb, offset, lenstr));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " db=%s", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
 
 		proto_tree_add_item(login_tree, hf_mysql_schema, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		offset += lenstr;
@@ -1097,7 +1097,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		lenstr = my_tvb_strsize(tvb, offset);
 		proto_tree_add_item(req_tree, hf_mysql_query, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 		if (mysql_showquery) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ", tvb_get_string(wmem_packet_scope(), tvb, offset, lenstr));
+			col_append_fstr(pinfo->cinfo, COL_INFO, " { %s } ", tvb_get_string_enc(wmem_packet_scope(), tvb, offset, lenstr, ENC_ASCII|ENC_NA));
 		}
 		offset += lenstr;
 		conn_data->state = RESPONSE_TABULAR;
@@ -2083,7 +2083,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		expert_add_info(pinfo, ti, &ei_mysql_dissector_incomplete);
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 /* dissector entrypoint, handles TCP-desegmentation */
@@ -2092,7 +2092,7 @@ dissect_mysql(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
 	tcp_dissect_pdus(tvb, pinfo, tree, mysql_desegment, 3,
 			 get_mysql_pdu_len, dissect_mysql_pdu, data);
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 /* protocol registration */
@@ -2347,17 +2347,17 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_login_request,
 		{ "Login Request", "mysql.login_request",
-		FT_NONE, BASE_NONE, NULL,  0x0,
+		FT_NONE, BASE_NONE, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_max_packet,
 		{ "MAX Packet", "mysql.max_packet",
-		FT_UINT24, BASE_DEC, NULL,  0x0,
+		FT_UINT24, BASE_DEC, NULL, 0x0,
 		"MySQL Max packet", HFILL }},
 
 		{ &hf_mysql_charset,
 		{ "Charset", "mysql.charset",
-		FT_UINT8, BASE_DEC, VALS(mysql_collation_vals),  0x0,
+		FT_UINT8, BASE_DEC, VALS(mysql_collation_vals), 0x0,
 		"MySQL Charset", HFILL }},
 
 		{ &hf_mysql_table_name,
@@ -2387,17 +2387,17 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_thread_id,
 		{ "Thread ID", "mysql.thread_id",
-		FT_UINT32, BASE_DEC, NULL,  0x0,
+		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"MySQL Thread ID", HFILL }},
 
 		{ &hf_mysql_server_language,
 		{ "Server Language", "mysql.server_language",
-		FT_UINT8, BASE_DEC, VALS(mysql_collation_vals),  0x0,
+		FT_UINT8, BASE_DEC, VALS(mysql_collation_vals), 0x0,
 		"MySQL Charset", HFILL }},
 
 		{ &hf_mysql_server_status,
 		{ "Server Status", "mysql.server_status",
-		FT_UINT16, BASE_HEX, NULL,  0x0,
+		FT_UINT16, BASE_HEX, NULL, 0x0,
 		"MySQL Status", HFILL }},
 
 		{ &hf_mysql_stat_it,
@@ -2467,7 +2467,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_refresh,
 		{ "Refresh Option", "mysql.refresh",
-		FT_UINT8, BASE_HEX, NULL,  0x0,
+		FT_UINT8, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_rfsh_grants,
@@ -2622,17 +2622,17 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_eof,
 		{ "EOF marker", "mysql.eof",
-		FT_UINT8, BASE_DEC, NULL,  0x0,
+		FT_UINT8, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_num_fields,
 		{ "Number of fields", "mysql.num_fields",
-		FT_UINT64, BASE_DEC, NULL,  0x0,
+		FT_UINT64, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_extra,
 		{ "Extra data", "mysql.extra",
-		FT_UINT64, BASE_DEC, NULL,  0x0,
+		FT_UINT64, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_fld_catalog,
