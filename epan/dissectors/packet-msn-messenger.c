@@ -110,9 +110,7 @@ dissect_msnms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/*
 			 * Put this line.
 			 */
-			proto_tree_add_text(msnms_tree, tvb, offset,
-			    next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset, next_offset - offset));
+			proto_tree_add_format_text(msnms_tree, tvb, offset, next_offset - offset);
 			offset = next_offset;
 		}
 	}

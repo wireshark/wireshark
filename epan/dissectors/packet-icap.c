@@ -210,13 +210,7 @@ dissect_icap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (!is_icap)
 			break;
 is_icap_header:
-		if (tree) {
-			proto_tree_add_text(icap_tree, tvb, offset,
-				next_offset - offset, "%s",
-				tvb_format_text(tvb, offset,
-						next_offset - offset)
-				);
-		}
+		proto_tree_add_format_text(icap_tree, tvb, offset, next_offset - offset);
 		offset = next_offset;
 	}
 

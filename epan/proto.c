@@ -1163,6 +1163,23 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	return pi;
 }
 
+proto_item *
+proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length)
+{
+	proto_item	  *pi;
+	header_field_info *hfinfo;
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hf_text_only, hfinfo);
+
+	pi = proto_tree_add_text_node(tree, tvb, start, length);
+
+	TRY_TO_FAKE_THIS_REPR(pi);
+
+	proto_item_set_text(pi, "%s", tvb_format_text(tvb, start, length));
+
+	return pi;
+}
+
 void proto_report_dissector_bug(const char *message)
 {
 	if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)

@@ -393,9 +393,7 @@ static void after_xmlpi(void *tvbparse_data, const void *wanted_data _U_, tvbpar
     GPtrArray   *stack         = (GPtrArray *)tvbparse_data;
     xml_frame_t *current_frame = (xml_frame_t *)g_ptr_array_index(stack, stack->len - 1);
 
-    proto_tree_add_text(current_frame->tree,
-                           tok->tvb, tok->offset, tok->len, "%s",
-                           tvb_format_text(tok->tvb, tok->offset, tok->len));
+    proto_tree_add_format_text(current_frame->tree, tok->tvb, tok->offset, tok->len);
 
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);
@@ -507,8 +505,7 @@ static void after_untag(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 
     proto_item_set_len(current_frame->item, (tok->offset - current_frame->start_offset) + tok->len);
 
-    proto_tree_add_text(current_frame->tree, tok->tvb, tok->offset, tok->len, "%s",
-                        tvb_format_text(tok->tvb, tok->offset, tok->len));
+    proto_tree_add_format_text(current_frame->tree, tok->tvb, tok->offset, tok->len);
 
     if (stack->len > 1) {
         g_ptr_array_remove_index_fast(stack, stack->len - 1);

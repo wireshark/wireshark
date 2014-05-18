@@ -982,9 +982,7 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
              * whatever follows it isn't part of this
              * request or reply.
              */
-            proto_tree_add_text(rtsp_tree, tvb, offset,
-                                next_offset - offset, "%s",
-                                tvb_format_text(tvb, offset, next_offset - offset));
+            proto_tree_add_format_text(rtsp_tree, tvb, offset, next_offset - offset);
             offset = next_offset;
             break;
         }
@@ -1121,18 +1119,14 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
             else
             {
                 /* Default case for headers. Show line as text */
-                proto_tree_add_text(rtsp_tree, tvb, offset,
-                                    next_offset - offset, "%s",
-                                    tvb_format_text(tvb, offset, next_offset - offset));
+                proto_tree_add_format_text(rtsp_tree, tvb, offset, next_offset - offset);
             }
         }
         else if (rtsp_type == RTSP_NOT_FIRST_LINE)
         {
             /* Catch-all for all other lines... Show line as text.
                TODO: should these be shown as errors? */
-            proto_tree_add_text(rtsp_tree, tvb, offset,
-                                next_offset - offset, "%s",
-                                tvb_format_text(tvb, offset, next_offset - offset));
+            proto_tree_add_format_text(rtsp_tree, tvb, offset, next_offset - offset);
         }
 
         offset = next_offset;

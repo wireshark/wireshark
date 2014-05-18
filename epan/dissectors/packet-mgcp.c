@@ -566,8 +566,7 @@ static void mgcp_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
 	{
 		tvb_find_line_end(tvb,tvb_linebegin,-1,&tvb_lineend,FALSE);
 		linelen = tvb_lineend - tvb_linebegin;
-		proto_tree_add_text(tree, tvb, tvb_linebegin, linelen, "%s",
-		                    tvb_format_text(tvb, tvb_linebegin, linelen));
+		proto_tree_add_format_text(tree, tvb, tvb_linebegin, linelen);
 		tvb_linebegin = tvb_lineend;
 	} while (tvb_lineend < tvb_len);
 }

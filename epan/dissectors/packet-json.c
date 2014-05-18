@@ -439,7 +439,7 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 			break;
 
 		default:
-			proto_tree_add_text(tree, tok->tvb, tok->offset, tok->len, "%s", tvb_format_text(tok->tvb, tok->offset, tok->len));
+			proto_tree_add_format_text(tree, tok->tvb, tok->offset, tok->len);
 			break;
 	}
 }

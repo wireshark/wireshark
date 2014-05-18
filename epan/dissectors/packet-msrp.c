@@ -306,10 +306,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
            the buffer if no line ending is found */
         tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         linelen = next_offset - offset;
-        if(tree) {
-            proto_tree_add_text(tree, tvb, offset, linelen,
-                                "%s", tvb_format_text(tvb, offset, linelen));
-        }
+        proto_tree_add_format_text(tree, tvb, offset, linelen);
         offset = next_offset;
     }
 }
@@ -708,8 +705,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 while (tvb_offset_exists(next_tvb, offset)) {
                     tvb_find_line_end(next_tvb, offset, -1, &next_offset, FALSE);
                     linelen = next_offset - offset;
-                    proto_tree_add_text(msrp_data_tree, next_tvb, offset, linelen,
-                                    "%s", tvb_format_text(next_tvb, offset, linelen));
+                    proto_tree_add_format_text(msrp_data_tree, next_tvb, offset, linelen);
                     offset = next_offset;
                 }/* end while */
             }

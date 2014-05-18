@@ -84,8 +84,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-		ti = proto_tree_add_text(gift_tree, tvb, offset, next_offset - offset, "%s",
-					 tvb_format_text(tvb, offset, next_offset - offset));
+		ti = proto_tree_add_format_text(gift_tree, tvb, offset, next_offset - offset);
 		cmd_tree = proto_item_add_subtree(ti, ett_gift_cmd);
 
 		tokenlen = get_token_len(line, line + linelen, &next_token);

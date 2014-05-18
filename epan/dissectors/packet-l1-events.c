@@ -109,12 +109,10 @@ dissect_l1_events(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 				break;
 
 			/* We use next_offset - offset instead of len in the
-			 * call to tvb_format_text() so it will include the
+			 * call to proto_tree_add_format_text() so it will include the
 			 * line terminator(s) (\r and/or \n) in the display.
 			 */
-			proto_tree_add_text(subtree, tvb, offset, next_offset - offset,
-					    "%s", tvb_format_text(tvb, offset,
-								  next_offset - offset));
+			proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
 			offset = next_offset;
 		}
 	}

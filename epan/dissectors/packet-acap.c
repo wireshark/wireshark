@@ -114,9 +114,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/*
 		 * Put the line into the protocol tree.
 		 */
-		ti = proto_tree_add_text(acap_tree, tvb, offset,
-		    next_offset - offset, "%s",
-		    tvb_format_text(tvb, offset, next_offset - offset));
+		ti = proto_tree_add_format_text(acap_tree, tvb, offset, next_offset - offset);
 		reqresp_tree = proto_item_add_subtree(ti, ett_acap_reqresp);
 
 		/*

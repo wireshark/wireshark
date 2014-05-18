@@ -1237,9 +1237,7 @@ dissect_sip_history_info(tvbuff_t *tvb, proto_tree* tree, packet_info *pinfo _U_
             comma_offset = line_end_offset;
         }
         first_time = FALSE;
-        proto_tree_add_text(tree, tvb, current_offset, comma_offset-current_offset,
-                            "%s", tvb_format_text(tvb, current_offset,
-                                            comma_offset-current_offset));
+        proto_tree_add_format_text(tree, tvb, current_offset, comma_offset-current_offset);
 
         current_offset = comma_offset+1;
     }
@@ -1292,9 +1290,7 @@ dissect_sip_p_charging_func_addresses(tvbuff_t *tvb, proto_tree* tree, packet_in
             semi_offset = line_end_offset;
         }
         first_time = FALSE;
-        proto_tree_add_text(tree, tvb, current_offset, semi_offset-current_offset,
-                            "%s", tvb_format_text(tvb, current_offset,
-                                            semi_offset-current_offset));
+        proto_tree_add_format_text(tree, tvb, current_offset, semi_offset-current_offset);
 
         current_offset = semi_offset+1;
 
@@ -1766,9 +1762,7 @@ found:
     /* If not matched, just add as text... */
     if (i == array_length(auth_parameters_hf_array))
     {
-        proto_tree_add_text(tree, tvb, start_offset, current_offset-start_offset,
-                            "%s", tvb_format_text(tvb, start_offset,
-                                            current_offset-start_offset));
+        proto_tree_add_format_text(tree, tvb, start_offset, current_offset-start_offset);
     }
 
     return current_offset;
@@ -1921,7 +1915,7 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
         }
 
         else{
-            proto_tree_add_text(tree, tvb, current_offset, length,"%s",tvb_format_text(tvb, current_offset, length));
+            proto_tree_add_format_text(tree, tvb, current_offset, length);
         }
         current_offset = semi_colon_offset+1;
     }
@@ -2214,9 +2208,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
             /* If not matched, just add as text... */
             if (i == array_length(via_parameters_hf_array))
             {
-                proto_tree_add_text(tree, tvb, semicolon_offset+1, current_offset-semicolon_offset-1,
-                                    "%s", tvb_format_text(tvb, semicolon_offset+1,
-                                    current_offset-semicolon_offset-1));
+                proto_tree_add_format_text(tree, tvb, semicolon_offset+1, current_offset-semicolon_offset-1);
             }
 
             /* skip Spaces and Tabs */
@@ -3610,11 +3602,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 while (tvb_offset_exists(next_tvb, tmp_offset)) {
                     tvb_find_line_end(next_tvb, tmp_offset, -1, &next_offset, FALSE);
                     linelen = next_offset - tmp_offset;
-                    if(message_body_tree) {
-                        proto_tree_add_text(message_body_tree, next_tvb,
-                                    tmp_offset, linelen, "%s",
-                                    tvb_format_text(next_tvb, tmp_offset, linelen));
-                    }
+                    proto_tree_add_format_text(message_body_tree, next_tvb,
+                                tmp_offset, linelen);
                     tmp_offset = next_offset;
                 }/* end while */
             }

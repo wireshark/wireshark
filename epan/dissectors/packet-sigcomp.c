@@ -2237,10 +2237,7 @@ tvb_raw_text_add(tvbuff_t *tvb, proto_tree *tree)
     while (tvb_offset_exists(tvb, offset)) {
         tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         linelen = next_offset - offset;
-        if(raw_tree) {
-            proto_tree_add_text(raw_tree, tvb, offset, linelen,
-                "%s", tvb_format_text(tvb, offset, linelen));
-        }
+        proto_tree_add_format_text(raw_tree, tvb, offset, linelen);
         offset = next_offset;
     }
 }

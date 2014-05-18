@@ -589,8 +589,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Put the line into the protocol tree. */
-    ti = proto_tree_add_text(ftp_tree, tvb, 0, next_offset, "%s",
-            tvb_format_text(tvb, 0, next_offset));
+    ti = proto_tree_add_format_text(ftp_tree, tvb, 0, next_offset);
     reqresp_tree = proto_item_add_subtree(ti, ett_ftp_reqresp);
 
     if (is_request) {
@@ -884,9 +883,8 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /*
          * Put this line.
          */
-        proto_tree_add_text(ftp_tree, tvb, offset,
-                next_offset - offset, "%s",
-                tvb_format_text(tvb, offset, next_offset - offset));
+        proto_tree_add_format_text(ftp_tree, tvb, offset,
+                next_offset - offset);
         offset = next_offset;
     }
 }

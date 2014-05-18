@@ -880,6 +880,10 @@ proto_tree_add_text_valist(proto_tree *tree, tvbuff_t *tvb, gint start,
 	gint length, const char *format, va_list ap);
 
 
+/** Add a text-only node to a proto_tree with tvb_format_text() string. */
+proto_item *
+proto_tree_add_format_text(proto_tree *tree, tvbuff_t *tvb, gint start, gint length);
+
 /** Add a FT_NONE field to a proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index

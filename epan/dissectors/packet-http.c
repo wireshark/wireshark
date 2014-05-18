@@ -988,9 +988,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * whatever follows it isn't part of this
 			 * request or reply.
 			 */
-			proto_tree_add_text(http_tree, tvb, offset,
-			    next_offset - offset, "%s",
-			    tvb_format_text(tvb, offset, next_offset - offset));
+			proto_tree_add_format_text(http_tree, tvb, offset, next_offset - offset);
 			offset = next_offset;
 			break;
 		}
