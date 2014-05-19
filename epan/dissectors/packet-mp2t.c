@@ -527,6 +527,12 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
     save_fragmented = pinfo->fragmented;
     pinfo->fragmented = TRUE;
 
+    /* It's possible that a fragment in the same packet set an address already
+     * This will change the hash value, we need to make sure it's NULL */
+
+    SET_ADDRESS_HF(&pinfo->src, AT_NONE, 0, NULL, 0);
+    SET_ADDRESS_HF(&pinfo->dst, AT_NONE, 0, NULL, 0);
+
     /* check length; send frame for reassembly */
     frag_msg = fragment_add_check(&mp2t_reassembly_table,
             tvb, offset, pinfo, frag_id, NULL,
