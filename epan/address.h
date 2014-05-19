@@ -124,7 +124,7 @@ set_address_hf(address *addr, address_type addr_type, int addr_len, const void *
     addr->len  = addr_len;
 }
 #define	SET_ADDRESS_HF(addr, addr_type, addr_len, addr_data, addr_hf) \
-    set_address_hf((addr), (addr_type), (addr_len), (addr_hf))
+    set_address_hf((addr), (addr_type), (addr_len), (addr_data), (addr_hf))
 
 /** Initialize an address from TVB data including an associated field.
  *
