@@ -3,7 +3,7 @@
  * Routines for RFC 2250 MPEG2 (ISO/IEC 13818-1) Transport Stream dissection
  *
  * Copyright 2006, Erwin Rol <erwin@erwinrol.com>
- * Copyright 2012, Guy Martin <gmsoft@tuxicoman.be>
+ * Copyright 2012-2014, Guy Martin <gmsoft@tuxicoman.be>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -744,6 +744,7 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
                 remaining_len -= frag_tot_len;
                 offset += frag_tot_len;
                 frag_tot_len = 0;
+                frag_id++;
             } else {
                 break;
             }
