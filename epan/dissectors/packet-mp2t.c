@@ -1162,9 +1162,9 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
         }
     }
 
-    if (pid_analysis->pload_type == pid_pload_docsis && afc) {
+    if (pid_analysis->pload_type == pid_pload_docsis && (afc != 1)) {
         /* DOCSIS packets should not have an adaptation field */
-        proto_item_append_text(afci, " (Invalid for DOCSIS packets, should be 0)");
+        proto_item_append_text(afci, " (Invalid for DOCSIS packets, should be 1)");
     }
 
     if (pid_analysis->pload_type == pid_pload_null) {
