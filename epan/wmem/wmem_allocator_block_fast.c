@@ -66,12 +66,19 @@ typedef struct {
 } wmem_block_fast_chunk_t;
 #define WMEM_CHUNK_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_fast_chunk_t))
 
+#define JUMBO_MAGIC 0xFFFFFFFF
+typedef struct _wmem_block_fast_jumbo {
+    struct _wmem_block_fast_jumbo *prev, *next;
+} wmem_block_fast_jumbo_t;
+#define WMEM_JUMBO_HEADER_SIZE WMEM_ALIGN_SIZE(sizeof(wmem_block_fast_jumbo_t))
+
 typedef struct {
-    wmem_block_fast_hdr_t *block_list;
+    wmem_block_fast_hdr_t   *block_list;
+    wmem_block_fast_jumbo_t *jumbo_list;
 } wmem_block_fast_allocator_t;
 
 /* Creates a new block, and initializes it. */
-static void
+static inline void
 wmem_block_fast_new_block(wmem_block_fast_allocator_t *allocator)
 {
     wmem_block_fast_hdr_t *block;
@@ -94,7 +101,22 @@ wmem_block_fast_alloc(void *private_data, const size_t size)
     wmem_block_fast_chunk_t     *chunk;
     gint32 real_size;
 
-    g_assert(size <= WMEM_BLOCK_MAX_ALLOC_SIZE);
+    if (size > WMEM_BLOCK_MAX_ALLOC_SIZE) {
+        wmem_block_fast_jumbo_t *block;
+
+        /* allocate/initialize a new block of the necessary size */
+        block = (wmem_block_fast_jumbo_t *)wmem_alloc(NULL,
+                size + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE);
+
+        block->next = allocator->jumbo_list;
+        block->prev = NULL;
+        allocator->jumbo_list = block;
+
+        chunk = ((wmem_block_fast_chunk_t*)((guint8*)(block) + WMEM_JUMBO_HEADER_SIZE));
+        chunk->len = JUMBO_MAGIC;
+
+        return WMEM_CHUNK_TO_DATA(chunk);
+    }
 
     real_size = (gint32)(WMEM_ALIGN_SIZE(size) + WMEM_CHUNK_HEADER_SIZE);
 
@@ -127,8 +149,26 @@ wmem_block_fast_realloc(void *private_data, void *ptr, const size_t size)
 
     chunk = WMEM_DATA_TO_CHUNK(ptr);
 
-    /* grow */
-    if (chunk->len < size) {
+    if (chunk->len == JUMBO_MAGIC) {
+        wmem_block_fast_jumbo_t *block;
+
+        block = ((wmem_block_fast_jumbo_t*)((guint8*)(chunk) - WMEM_JUMBO_HEADER_SIZE));
+        block =  (wmem_block_fast_jumbo_t*)wmem_realloc(NULL, block,
+                size + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE);
+        if (block->prev) {
+            block->prev->next = block;
+        }
+        else {
+            wmem_block_fast_allocator_t *allocator = (wmem_block_fast_allocator_t*) private_data;
+            allocator->jumbo_list = block;
+        }
+        if (block->next) {
+            block->next->prev = block;
+        }
+        return ((void*)((guint8*)(block) + WMEM_JUMBO_HEADER_SIZE + WMEM_CHUNK_HEADER_SIZE));
+    }
+    else if (chunk->len < size) {
+        /* grow */
         void *newptr;
 
         /* need to alloc and copy; free is no-op, so don't call it */
@@ -147,6 +187,7 @@ wmem_block_fast_free_all(void *private_data)
 {
     wmem_block_fast_allocator_t *allocator = (wmem_block_fast_allocator_t*) private_data;
     wmem_block_fast_hdr_t       *cur, *nxt;
+    wmem_block_fast_jumbo_t     *cur_jum, *nxt_jum;
 
     /* iterate through the blocks, freeing all but the first and reinitializing
      * that one */
@@ -164,6 +205,15 @@ wmem_block_fast_free_all(void *private_data)
         wmem_free(NULL, cur);
         cur = nxt;
     }
+
+    /* now do the jumbo blocks, freeing all of them */
+    cur_jum = allocator->jumbo_list;
+    while (cur_jum) {
+        nxt_jum  = cur_jum->next;
+        wmem_free(NULL, cur_jum);
+        cur_jum = nxt_jum;
+    }
+    allocator->jumbo_list = NULL;
 }
 
 static void
@@ -203,6 +253,7 @@ wmem_block_fast_allocator_init(wmem_allocator_t *allocator)
     allocator->private_data = (void*) block_allocator;
 
     block_allocator->block_list = NULL;
+    block_allocator->jumbo_list = NULL;
 }
 
 /*

@@ -415,6 +415,7 @@ wmem_test_allocator_block_fast(void)
 {
     wmem_test_allocator(WMEM_ALLOCATOR_BLOCK_FAST, NULL,
             MAX_SIMULTANEOUS_ALLOCS*4);
+    wmem_test_allocator_jumbo(WMEM_ALLOCATOR_BLOCK, NULL);
 }
 
 static void
