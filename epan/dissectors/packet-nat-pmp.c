@@ -64,6 +64,7 @@ void proto_reg_handoff_nat_pmp(void);
 #define OPT_PREFER_FAILURE      2
 #define OPT_FILTER              3
 #define OPT_DESCRIPTION         128
+#define OPT_PREFIX64            129
 
 static int proto_nat_pmp = -1;
 static int proto_pcp = -1;
@@ -125,6 +126,12 @@ static int hf_option_filter_prefix_length = -1;
 static int hf_option_filter_remote_peer_port = -1;
 static int hf_option_filter_remote_peer_ip = -1;
 static int hf_option_description = -1;
+static int hf_option_p64_length = -1;
+static int hf_option_p64_prefix64 = -1;
+static int hf_option_p64_suffix = -1;
+static int hf_option_p64_ipv4_prefix_count = -1;
+static int hf_option_p64_ipv4_prefix_length = -1;
+static int hf_option_p64_ipv4_address = -1;
 
 static gint ett_pcp = -1;
 static gint ett_opcode = -1;
@@ -201,6 +208,7 @@ static const value_string pcp_option_vals[] = {
   { OPT_PREFER_FAILURE, "Prefer Failure" },
   { OPT_FILTER,         "Filter" },
   { OPT_DESCRIPTION,    "Description" },
+  { OPT_PREFIX64,       "Prefix64" },
   { 0, NULL }
 };
 
@@ -490,6 +498,39 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
           proto_tree_add_item (option_sub_tree, hf_option_description, tvb, offset, option_length, ENC_UTF_8|ENC_NA);
           break;
 
+        case OPT_PREFIX64:
+          {
+            guint16 p64_length;
+            int poffset = offset;
+            proto_tree_add_item(option_sub_tree, hf_option_p64_length, tvb, poffset, 2, ENC_BIG_ENDIAN);
+            p64_length = tvb_get_ntohs(tvb, poffset);
+            poffset += 2;
+            /*TODO: Fix display of Prefix64 and Suffix*/
+            proto_tree_add_item(option_sub_tree, hf_option_p64_prefix64, tvb, poffset, p64_length, ENC_NA);
+            poffset += p64_length;
+
+            proto_tree_add_item(option_sub_tree, hf_option_p64_suffix, tvb, poffset, 12-p64_length, ENC_NA);
+            poffset += (12-p64_length);
+
+            if(poffset < (offset+option_length))
+            {
+              guint16 ipv4_prefix_count;
+
+              proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_prefix_count, tvb, poffset, 2, ENC_BIG_ENDIAN);
+              ipv4_prefix_count = tvb_get_ntohs(tvb, poffset);
+              poffset += 2;
+
+              while(ipv4_prefix_count)
+              {
+                proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_prefix_length, tvb, poffset, 2, ENC_BIG_ENDIAN);
+                poffset += 2;
+                proto_tree_add_item(option_sub_tree, hf_option_p64_ipv4_address, tvb, poffset, 4, ENC_BIG_ENDIAN);
+                poffset += 4;
+                ipv4_prefix_count--;
+              }
+            }
+          }
+          break;
 
         default:
           /* Unknown option */
@@ -691,6 +732,24 @@ void proto_register_nat_pmp (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_description,
       { "Description", "portcontrol.option.description", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_p64_length,
+      { "Length", "portcontrol.option.p64.length", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_p64_prefix64,
+      { "Prefix64", "portcontrol.option.p64.prefix64", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_p64_suffix,
+      { "Suffix", "portcontrol.option.p64.suffix", FT_BYTES, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_p64_ipv4_prefix_count,
+      { "IPv4 Prefix Count", "portcontrol.option.p64.ipv4_prefix_count", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_p64_ipv4_prefix_length,
+      { "IPv4 Prefix Length", "portcontrol.option.p64.ipv4_prefix_count", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_p64_ipv4_address,
+      { "IPv4 Address", "portcontrol.option.p64.ipv4_address", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     };
 
