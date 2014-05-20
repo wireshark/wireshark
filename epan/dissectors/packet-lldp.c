@@ -1511,8 +1511,8 @@ dissect_dcbx_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint3
 		} else {
 			/* Common to all feature TLVs */
 			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_enabled, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_error, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_willing, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtlv_tree, hf_dcbx_feature_flag_error, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 			tempOffset++;
 
@@ -3550,13 +3550,13 @@ proto_register_lldp(void)
 			{ "Feature", "lldp.dcbx.feature.enabled", FT_BOOLEAN , 8,
 			TFS(&tfs_enabled_disabled), 0x80, NULL, HFILL }
 		},
-		{ &hf_dcbx_feature_flag_error,
-			{ "Error", "lldp.dcbx.feature.error", FT_BOOLEAN , 8,
-			TFS(&tfs_set_notset), 0x40, NULL, HFILL }
-		},
 		{ &hf_dcbx_feature_flag_willing,
 			{ "Willing", "lldp.dcbx.feature.willing", FT_BOOLEAN , 8,
-			TFS(&tfs_yes_no), 0x20, NULL, HFILL }
+			TFS(&tfs_yes_no), 0x40, NULL, HFILL }
+		},
+		{ &hf_dcbx_feature_flag_error,
+			{ "Error", "lldp.dcbx.feature.error", FT_BOOLEAN , 8,
+			TFS(&tfs_set_notset), 0x20, NULL, HFILL }
 		},
 		{ &hf_dcbx_feature_subtype,
 			{ "Subtype", "lldp.dcbx.feature.subtype", FT_UINT8, BASE_HEX,
