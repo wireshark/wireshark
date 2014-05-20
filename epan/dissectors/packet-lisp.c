@@ -299,6 +299,19 @@ static int hf_lisp_lcaf_elp_hop_afi = -1;
 static int hf_lisp_lcaf_elp_hop_ipv4 = -1;
 static int hf_lisp_lcaf_elp_hop_ipv6 = -1;
 
+/* LCAF Source/Destination 2-Tuple Lookups fields */
+static int hf_lisp_lcaf_srcdst_res = -1;
+static int hf_lisp_lcaf_srcdst_src_masklen = -1;
+static int hf_lisp_lcaf_srcdst_dst_masklen = -1;
+static int hf_lisp_lcaf_srcdst_src = -1;
+static int hf_lisp_lcaf_srcdst_src_afi = -1;
+static int hf_lisp_lcaf_srcdst_src_ipv4 = -1;
+static int hf_lisp_lcaf_srcdst_src_ipv6 = -1;
+static int hf_lisp_lcaf_srcdst_dst = -1;
+static int hf_lisp_lcaf_srcdst_dst_afi = -1;
+static int hf_lisp_lcaf_srcdst_dst_ipv4 = -1;
+static int hf_lisp_lcaf_srcdst_dst_ipv6 = -1;
+
 /* LCAF Key/Value Pair fields */
 static int hf_lisp_lcaf_kv_key = -1;
 static int hf_lisp_lcaf_kv_key_afi = -1;
@@ -328,6 +341,8 @@ static gint ett_lisp_lcaf_geo_lon = -1;
 static gint ett_lisp_lcaf_natt_rloc = -1;
 static gint ett_lisp_lcaf_elp_hop = -1;
 static gint ett_lisp_lcaf_elp_hop_flags = -1;
+static gint ett_lisp_lcaf_srcdst_src = -1;
+static gint ett_lisp_lcaf_srcdst_dst = -1;
 static gint ett_lisp_lcaf_kv_key = -1;
 static gint ett_lisp_lcaf_kv_value = -1;
 static gint ett_lisp_loc = -1;
@@ -992,6 +1007,120 @@ dissect_lcaf_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
  /*
+  *  Dissector code for Source/Destination 2-Tuple Lookups
+  *
+  *   0                   1                   2                   3
+  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |           AFI = 16387         |     Rsvd1     |     Flags     |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |   Type = 12   |     Rsvd2     |             4 + n             |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |            Reserved           |   Source-ML   |    Dest-ML    |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |              AFI = x          |         Source-Prefix ...     |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |              AFI = x          |     Destination-Prefix ...    |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *
+  */
+
+static int
+dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, proto_item *tir)
+{
+    guint8       src_masklen, dst_masklen;
+    guint16      afi, addr_len = 0;
+    const gchar *src_str, *dst_str;
+    proto_item  *ti_src, *ti_dst;
+    proto_tree  *src_tree, *dst_tree;
+
+    /* Reserved (2 bytes) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_res, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Source Prefix Mask Length (1 byte) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_src_masklen, tvb, offset, 1, ENC_NA);
+    src_masklen = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    /* Destination Prefix Mask Length (1 byte) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_dst_masklen, tvb, offset, 1, ENC_NA);
+    dst_masklen = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    ti_src   = proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_src, tvb, offset, 2, ENC_NA);
+    src_tree = proto_item_add_subtree(ti_src, ett_lisp_lcaf_srcdst_src);
+
+    /* Source Prefix AFI (2 bytes) */
+    proto_tree_add_item(src_tree, hf_lisp_lcaf_srcdst_src_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Source Prefix */
+    src_str = get_addr_str(tvb, offset, afi, &addr_len);
+
+    switch (afi) {
+        case AFNUM_INET:
+            proto_tree_add_item(src_tree, hf_lisp_lcaf_srcdst_src_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(src_tree, hf_lisp_lcaf_srcdst_src_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, src_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, src_tree, &ei_lisp_unexpected_field,
+                    "Unexpected Source Prefix AFI (%d), cannot decode", afi);
+    }
+
+    proto_item_append_text(ti_src, ": %s", src_str);
+    proto_item_set_len(ti_src, 2 + addr_len);
+
+    ti_dst = proto_tree_add_item(tree, hf_lisp_lcaf_srcdst_dst, tvb, offset, 2, ENC_NA);
+    dst_tree = proto_item_add_subtree(ti_dst, ett_lisp_lcaf_srcdst_dst);
+
+    /* Destination Prefix AFI (2 bytes) */
+    proto_tree_add_item(dst_tree, hf_lisp_lcaf_srcdst_dst_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Destination Prefix */
+    dst_str = get_addr_str(tvb, offset, afi, &addr_len);
+
+    switch (afi) {
+        case AFNUM_INET:
+            proto_tree_add_item(dst_tree, hf_lisp_lcaf_srcdst_dst_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(dst_tree, hf_lisp_lcaf_srcdst_dst_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, dst_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, dst_tree, &ei_lisp_unexpected_field,
+                    "Unexpected Destination Prefix AFI (%d), cannot decode", afi);
+    }
+
+    proto_item_append_text(ti_dst, ": %s", dst_str);
+    proto_item_set_len(ti_dst, 2 + addr_len);
+
+    proto_item_append_text(tir, " (%s/%d, %s/%d)", src_str, src_masklen, dst_str, dst_masklen);
+    return offset;
+}
+
+
+ /*
   *  Dissector code for Key/Value Address Pairs
   *
   *   0                   1                   2                   3
@@ -1174,6 +1303,9 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
             break;
         case LCAF_ELP:
             offset = dissect_lcaf_elp(tvb, pinfo, lcaf_tree, offset, len, ti);
+            break;
+        case LCAF_SRC_DST_KEY:
+            offset = dissect_lcaf_src_dst_key(tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_KV_ADDR_PAIR:
             offset = dissect_lcaf_kv_addr_pair(tvb, pinfo, lcaf_tree, offset);
@@ -2715,6 +2847,39 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_elp_hop_ipv6,
             { "Reencap Hop", "lisp.lcaf.elp_hop.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_res,
+            { "Reserved bits", "lisp.lcaf.srcdst.res",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_src_masklen,
+            { "Source Prefix Mask Length", "lisp.lcaf.srcdst.src.masklen",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_dst_masklen,
+            { "Destination Prefix Mask Length", "lisp.lcaf.srcdst.dst.masklen",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_src,
+            { "Source Prefix", "lisp.lcaf.srcdst.src",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_src_afi,
+            { "Source Prefix AFI", "lisp.lcaf.srcdst.src.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_src_ipv4,
+            { "Source Prefix", "lisp.lcaf.srcdst.src.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_src_ipv6,
+            { "Source Prefix", "lisp.lcaf.srcdst.src.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_dst,
+            { "Destination Prefix", "lisp.lcaf.srcdst.dst",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_dst_afi,
+            { "Destination Prefix AFI", "lisp.lcaf.srcdst.dst.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_dst_ipv4,
+            { "Destination Prefix", "lisp.lcaf.srcdst.dst.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_srcdst_dst_ipv6,
+            { "Destination Prefix", "lisp.lcaf.srcdst.dst.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_kv_key,
             { "Key", "lisp.lcaf.kv_key",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2774,6 +2939,8 @@ proto_register_lisp(void)
         &ett_lisp_lcaf_natt_rloc,
         &ett_lisp_lcaf_elp_hop,
         &ett_lisp_lcaf_elp_hop_flags,
+        &ett_lisp_lcaf_srcdst_src,
+        &ett_lisp_lcaf_srcdst_dst,
         &ett_lisp_lcaf_kv_key,
         &ett_lisp_lcaf_kv_value,
         &ett_lisp_loc,
