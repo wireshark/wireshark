@@ -224,66 +224,66 @@ dissect_nat_pmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
   col_clear (pinfo->cinfo, COL_INFO);
 
   start_offset = offset;
-  ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, ENC_NA);
-  nat_pmp_tree = proto_item_add_subtree (ti, ett_nat_pmp);
+  ti = proto_tree_add_item(tree, proto_nat_pmp, tvb, offset, -1, ENC_NA);
+  nat_pmp_tree = proto_item_add_subtree(ti, ett_nat_pmp);
 
-  proto_tree_add_item (nat_pmp_tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(nat_pmp_tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   opcode = tvb_get_guint8 (tvb, offset);
-  proto_item_append_text (ti, ", %s", val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
-  op_ti = proto_tree_add_item (nat_pmp_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text (ti, ", %s", val_to_str(opcode, opcode_vals, "Unknown opcode: %d"));
+  op_ti = proto_tree_add_item(nat_pmp_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
+  col_add_str (pinfo->cinfo, COL_INFO, val_to_str(opcode, opcode_vals, "Unknown opcode: %d"));
 
-  switch (opcode) {
+  switch(opcode) {
 
   case EXTERNAL_ADDRESS_REQUEST:
     /* No more data */
     break;
 
   case EXTERNAL_ADDRESS_RESPONSE:
-    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_result_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_sssoe, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item (nat_pmp_tree, hf_external_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_external_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 
   case MAP_UDP_REQUEST:
   case MAP_TCP_REQUEST:
-    proto_tree_add_item (nat_pmp_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_external_port_requested, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_external_port_requested, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_rpmlis, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_rpmlis, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 
   case MAP_UDP_RESPONSE:
   case MAP_TCP_RESPONSE:
-    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_result_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_sssoe, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_external_port_mapped, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_external_port_mapped, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_pmlis, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(nat_pmp_tree, hf_pmlis, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 
@@ -307,40 +307,40 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   gboolean is_response;
   const gchar* op_str;
 
-  if (version == 1)
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "PCP v1");
+  if(version == 1)
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCP v1");
   else
-    col_set_str (pinfo->cinfo, COL_PROTOCOL, "PCP v2");
-  col_clear (pinfo->cinfo, COL_INFO);
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PCP v2");
+  col_clear(pinfo->cinfo, COL_INFO);
 
   start_offset = offset;
-  ti = proto_tree_add_item (tree, proto_pcp, tvb, offset, -1, ENC_NA);
-  pcp_tree = proto_item_add_subtree (ti, ett_pcp);
+  ti = proto_tree_add_item(tree, proto_pcp, tvb, offset, -1, ENC_NA);
+  pcp_tree = proto_item_add_subtree(ti, ett_pcp);
 
-  proto_tree_add_item (pcp_tree, hf_pcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(pcp_tree, hf_pcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  ropcode = tvb_get_guint8 (tvb, offset);
+  ropcode = tvb_get_guint8(tvb, offset);
   is_response = ropcode & 0x80;
-  op_str = val_to_str (ropcode, pcp_ropcode_vals, "Unknown opcode: %d");
-  proto_item_append_text (ti, ", %s", op_str);
-  proto_tree_add_item (pcp_tree, hf_pcp_r, tvb, offset, 1, ENC_BIG_ENDIAN);
-  opcode_ti = proto_tree_add_item (pcp_tree, hf_pcp_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
+  op_str = val_to_str(ropcode, pcp_ropcode_vals, "Unknown opcode: %d");
+  proto_item_append_text(ti, ", %s", op_str);
+  proto_tree_add_item(pcp_tree, hf_pcp_r, tvb, offset, 1, ENC_BIG_ENDIAN);
+  opcode_ti = proto_tree_add_item(pcp_tree, hf_pcp_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
-  col_add_str (pinfo->cinfo, COL_INFO, op_str);
+  col_add_str(pinfo->cinfo, COL_INFO, op_str);
 
-  if (!is_response)
+  if(!is_response)
   {
     ti = proto_tree_add_boolean(pcp_tree, hf_request, tvb, offset-1, 1, is_response == FALSE);
     PROTO_ITEM_SET_HIDDEN(ti);
 
-    proto_tree_add_item (pcp_tree, hf_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_tree, hf_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
-    proto_tree_add_item (pcp_tree, hf_req_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_tree, hf_req_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item (pcp_tree, hf_client_ip, tvb, offset, 16, ENC_NA);
+    proto_tree_add_item(pcp_tree, hf_client_ip, tvb, offset, 16, ENC_NA);
     offset+=16;
   }
   else
@@ -348,27 +348,27 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     ti = proto_tree_add_boolean(pcp_tree, hf_response, tvb, offset-1, 1, is_response == TRUE);
     PROTO_ITEM_SET_HIDDEN(ti);
 
-    proto_tree_add_item (pcp_tree, hf_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_tree, hf_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item (pcp_tree, hf_pcp_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_tree, hf_pcp_result_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item (pcp_tree, hf_rsp_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_tree, hf_rsp_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item (pcp_tree, hf_epoch_time, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pcp_tree, hf_epoch_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item (pcp_tree, hf_reserved12, tvb, offset, 12, ENC_NA);
+    proto_tree_add_item(pcp_tree, hf_reserved12, tvb, offset, 12, ENC_NA);
     offset+=12;
   }
 
   start_opcode_offset = offset;
-  if (try_val_to_str(ropcode, pcp_ropcode_vals) != NULL)
+  if(try_val_to_str(ropcode, pcp_ropcode_vals) != NULL)
   {
     opcode_ti = proto_tree_add_text(pcp_tree, tvb, offset, 0, "%s", op_str);
-    opcode_tree = proto_item_add_subtree (opcode_ti, ett_opcode);
+    opcode_tree = proto_item_add_subtree(opcode_ti, ett_opcode);
   }
 
   switch(ropcode) {
@@ -379,67 +379,67 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
     break;
   case MAP_REQUEST:
   case MAP_RESPONSE:
-    if (version > 1)
+    if(version > 1)
     {
-      proto_tree_add_item (opcode_tree, hf_map_nonce, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(opcode_tree, hf_map_nonce, tvb, offset, 12, ENC_NA);
       offset+=12;
     }
 
-    proto_tree_add_item (opcode_tree, hf_map_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opcode_tree, hf_map_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item (opcode_tree, hf_map_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opcode_tree, hf_map_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset+=3;
-    proto_tree_add_item (opcode_tree, hf_map_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opcode_tree, hf_map_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    if (ropcode == MAP_REQUEST)
+    if(ropcode == MAP_REQUEST)
     {
-      proto_tree_add_item (opcode_tree, hf_map_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(opcode_tree, hf_map_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
-      proto_tree_add_item (opcode_tree, hf_map_req_sug_ext_ip, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(opcode_tree, hf_map_req_sug_ext_ip, tvb, offset, 16, ENC_NA);
       offset+=16;
     }
     else
     {
-      proto_tree_add_item (opcode_tree, hf_map_rsp_assigned_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(opcode_tree, hf_map_rsp_assigned_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
-      proto_tree_add_item (opcode_tree, hf_map_rsp_assigned_ext_ip, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(opcode_tree, hf_map_rsp_assigned_ext_ip, tvb, offset, 16, ENC_NA);
       offset+=16;
     }
     break;
   case PEER_REQUEST:
   case PEER_RESPONSE:
-    if (version > 1)
+    if(version > 1)
     {
-      proto_tree_add_item (opcode_tree, hf_peer_nonce, tvb, offset, 12, ENC_NA);
+      proto_tree_add_item(opcode_tree, hf_peer_nonce, tvb, offset, 12, ENC_NA);
       offset+=12;
     }
 
-    proto_tree_add_item (opcode_tree, hf_peer_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opcode_tree, hf_peer_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item (opcode_tree, hf_peer_reserved, tvb, offset, 3, ENC_NA);
+    proto_tree_add_item(opcode_tree, hf_peer_reserved, tvb, offset, 3, ENC_NA);
     offset+=3;
-    proto_tree_add_item (opcode_tree, hf_peer_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opcode_tree, hf_peer_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    if (ropcode == PEER_REQUEST)
+    if(ropcode == PEER_REQUEST)
     {
-      proto_tree_add_item (opcode_tree, hf_peer_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(opcode_tree, hf_peer_req_sug_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
-      proto_tree_add_item (opcode_tree, hf_peer_req_sug_ext_ip, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(opcode_tree, hf_peer_req_sug_ext_ip, tvb, offset, 16, ENC_NA);
       offset+=16;
     }
     else
     {
-      proto_tree_add_item (opcode_tree, hf_peer_rsp_assigned_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(opcode_tree, hf_peer_rsp_assigned_external_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset+=2;
-      proto_tree_add_item (opcode_tree, hf_peer_rsp_assigned_ext_ip, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(opcode_tree, hf_peer_rsp_assigned_ext_ip, tvb, offset, 16, ENC_NA);
       offset+=16;
     }
 
-    proto_tree_add_item (opcode_tree, hf_peer_remote_peer_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(opcode_tree, hf_peer_remote_peer_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    proto_tree_add_item (opcode_tree, hf_peer_reserved, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(opcode_tree, hf_peer_reserved, tvb, offset, 2, ENC_NA);
     offset+=2;
-    proto_tree_add_item (opcode_tree, hf_peer_remote_peer_ip, tvb, offset, 16, ENC_NA);
+    proto_tree_add_item(opcode_tree, hf_peer_remote_peer_ip, tvb, offset, 16, ENC_NA);
     offset+=16;
     break;
   default:
@@ -449,38 +449,38 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   }
 
   /* Now see if there are any options for the supported opcodes */
-  if ((tvb_reported_length_remaining(tvb, offset) > 0) &&
+  if((tvb_reported_length_remaining(tvb, offset) > 0) &&
       (try_val_to_str(ropcode, pcp_ropcode_vals) != NULL))
   {
     start_option_offset = offset;
     option_ti = proto_tree_add_item(opcode_tree, hf_options, tvb, offset, 0, ENC_NA);
-    option_tree = proto_item_add_subtree (option_ti, ett_option);
+    option_tree = proto_item_add_subtree(option_ti, ett_option);
 
-    while (tvb_reported_length_remaining(tvb, offset) > 0)
+    while(tvb_reported_length_remaining(tvb, offset) > 0)
     {
-      suboption_ti = proto_tree_add_item (option_tree, hf_option, tvb, offset, 1, ENC_NA);
-      option_sub_tree = proto_item_add_subtree (suboption_ti, ett_suboption);
+      suboption_ti = proto_tree_add_item(option_tree, hf_option, tvb, offset, 1, ENC_NA);
+      option_sub_tree = proto_item_add_subtree(suboption_ti, ett_suboption);
 
-      proto_tree_add_item (option_sub_tree, hf_option_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(option_sub_tree, hf_option_code, tvb, offset, 1, ENC_BIG_ENDIAN);
       option = tvb_get_guint8(tvb, offset);
-      proto_item_append_text (suboption_ti, ": %s", val_to_str (option, pcp_option_vals, "Unknown option: %d"));
+      proto_item_append_text(suboption_ti, ": %s", val_to_str(option, pcp_option_vals, "Unknown option: %d"));
       offset++;
 
-      proto_tree_add_item (option_sub_tree, hf_option_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(option_sub_tree, hf_option_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
-      proto_tree_add_item (option_sub_tree, hf_option_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(option_sub_tree, hf_option_length, tvb, offset, 2, ENC_BIG_ENDIAN);
       option_length = tvb_get_ntohs(tvb, offset);
       offset+=2;
 
       proto_item_set_len(suboption_ti, option_length+4);
 
-      if (option_length > 0)
+      if(option_length > 0)
       {
         switch(option) {
 
         case OPT_THIRD_PARTY:
-          proto_tree_add_item (option_sub_tree, hf_option_third_party_internal_ip, tvb, offset, 16, ENC_NA);
+          proto_tree_add_item(option_sub_tree, hf_option_third_party_internal_ip, tvb, offset, 16, ENC_NA);
           break;
 
         case OPT_PREFER_FAILURE:
@@ -488,14 +488,14 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
           break;
 
         case OPT_FILTER:
-          proto_tree_add_item (option_sub_tree, hf_option_filter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
-          proto_tree_add_item (option_sub_tree, hf_option_filter_prefix_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-          proto_tree_add_item (option_sub_tree, hf_option_filter_remote_peer_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-          proto_tree_add_item (option_sub_tree, hf_option_filter_remote_peer_ip, tvb, offset+4, 16, ENC_NA);
+          proto_tree_add_item(option_sub_tree, hf_option_filter_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(option_sub_tree, hf_option_filter_prefix_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+          proto_tree_add_item(option_sub_tree, hf_option_filter_remote_peer_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+          proto_tree_add_item(option_sub_tree, hf_option_filter_remote_peer_ip, tvb, offset+4, 16, ENC_NA);
           break;
 
         case OPT_DESCRIPTION:
-          proto_tree_add_item (option_sub_tree, hf_option_description, tvb, offset, option_length, ENC_UTF_8|ENC_NA);
+          proto_tree_add_item(option_sub_tree, hf_option_description, tvb, offset, option_length, ENC_UTF_8|ENC_NA);
           break;
 
         case OPT_PREFIX64:
@@ -553,7 +553,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 static int
 dissect_portcontrol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    guint8 version = tvb_get_guint8 (tvb, 0);
+    guint8 version = tvb_get_guint8(tvb, 0);
 
     switch(version)
     {
@@ -568,7 +568,7 @@ dissect_portcontrol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     return 0;
 }
 
-void proto_register_nat_pmp (void)
+void proto_register_nat_pmp(void)
 {
   static hf_register_info hf[] = {
     { &hf_version,
@@ -776,31 +776,31 @@ void proto_register_nat_pmp (void)
   expert_module_t* expert_nat_pmp;
   expert_module_t* expert_pcp;
 
-  proto_nat_pmp = proto_register_protocol ("NAT Port Mapping Protocol", "NAT-PMP", "nat-pmp");
+  proto_nat_pmp = proto_register_protocol("NAT Port Mapping Protocol", "NAT-PMP", "nat-pmp");
 
-  proto_register_field_array (proto_nat_pmp, hf, array_length (hf));
-  proto_register_subtree_array (ett, array_length (ett));
+  proto_register_field_array(proto_nat_pmp, hf, array_length(hf));
+  proto_register_subtree_array(ett, array_length(ett));
   expert_nat_pmp = expert_register_protocol(proto_nat_pmp);
   expert_register_field_array(expert_nat_pmp, natpmp_ei, array_length(natpmp_ei));
 
-  proto_pcp = proto_register_protocol ("Port Control Protocol", "Port Control", "portcontrol");
+  proto_pcp = proto_register_protocol("Port Control Protocol", "Port Control", "portcontrol");
 
-  proto_register_field_array (proto_pcp, pcp_hf, array_length (pcp_hf));
-  proto_register_subtree_array (pcp_ett, array_length (pcp_ett));
+  proto_register_field_array(proto_pcp, pcp_hf, array_length(pcp_hf));
+  proto_register_subtree_array(pcp_ett, array_length(pcp_ett));
   expert_pcp = expert_register_protocol(proto_pcp);
   expert_register_field_array(expert_pcp, pcp_ei, array_length(pcp_ei));
 
 }
 
-void proto_reg_handoff_nat_pmp (void)
+void proto_reg_handoff_nat_pmp(void)
 {
   dissector_handle_t nat_pmp_handle;
   dissector_handle_t pcp_handle;
 
 
   pcp_handle = new_create_dissector_handle(dissect_portcontrol, proto_pcp);
-  dissector_add_uint ("udp.port", PCP_STATUS_PORT, pcp_handle);
-  dissector_add_uint ("udp.port", PCP_PORT, pcp_handle);
+  dissector_add_uint("udp.port", PCP_STATUS_PORT, pcp_handle);
+  dissector_add_uint("udp.port", PCP_PORT, pcp_handle);
 
   nat_pmp_handle = new_create_dissector_handle(dissect_nat_pmp, proto_nat_pmp);
   /* Port Control Protocol (packet-portcontrol.c) shares the same UDP ports as
