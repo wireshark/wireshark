@@ -402,11 +402,11 @@ foreach(THIS_FLAG ${WIRESHARK_LD_FLAGS})
 endforeach()
 
 if(ENABLE_STATIC)
-  set(LINK_MODE_LIB STATIC)
-  set(LINK_MODE_MODULE STATIC)
+	set(LINK_MODE_LIB STATIC)
+	set(LINK_MODE_MODULE STATIC)
 else()
-  set(LINK_MODE_LIB SHARED)
-  set(LINK_MODE_MODULE MODULE)
+	set(LINK_MODE_LIB SHARED)
+	set(LINK_MODE_MODULE MODULE)
 endif()
 
 if(APPLE AND EXISTS /usr/local/opt/gettext)
@@ -644,7 +644,7 @@ if(HAVE_LIBNL AND HAVE_AIRPCAP)
 	message(ERROR "Airpcap and Libnl support are mutually exclusive")
 endif()
 if(HAVE_LIBSBC)
-    set(HAVE_SBC 1)
+	set(HAVE_SBC 1)
 endif()
 # No matter which version of GTK is present
 if(GTK2_FOUND OR GTK3_FOUND)
@@ -1487,7 +1487,7 @@ install(
 	FILES
 		"${CMAKE_BINARY_DIR}/wireshark.pc"
 	DESTINATION
-	         ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig
+		${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 
 install(
@@ -1507,8 +1507,8 @@ install(
 
 include( UseCheckAPI )
 CHECKAPI(
-                  ${TSHARK_TAP_SRC}
-                  ${wireshark_FILES}
+	${TSHARK_TAP_SRC}
+	${wireshark_FILES}
 )
 
 if(DOC_DIR)
