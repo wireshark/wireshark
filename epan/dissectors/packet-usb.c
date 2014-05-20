@@ -2383,6 +2383,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
     guint32                  k_frame_number;
     guint32                  k_device_address;
     guint32                  k_bus_id;
+    heur_dtbl_entry_t       *hdtbl_entry;
 
     /* try dissect by "usb.device" */
     if (tvb_length(next_tvb) > 0 &&
@@ -2487,7 +2488,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                     usb_dissector_table = NULL;
                 }
 
-                if (try_heuristics && dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent, usb_conv_info)) {
+                if (try_heuristics && dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, parent, &hdtbl_entry, usb_conv_info)) {
                     offset += tvb_length(next_tvb);
                 } else if (usb_dissector_table &&
                         dissector_try_uint_new(usb_dissector_table, usb_conv_info->interfaceClass, next_tvb, pinfo, parent, TRUE, usb_conv_info)) {

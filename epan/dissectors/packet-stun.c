@@ -350,6 +350,7 @@ static int
 dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type _U_, guint msg_length _U_)
 {
     tvbuff_t *next_tvb;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
     col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
@@ -369,7 +370,7 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     next_tvb = tvb_new_subset_remaining(tvb, CHANNEL_DATA_HDR_LEN);
 
-    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
         call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
     }
 
@@ -402,6 +403,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     stun_transaction_t *stun_trans;
     wmem_tree_key_t transaction_id_key[2];
     guint32         transaction_id[3];
+    heur_dtbl_entry_t *hdtbl_entry;
 
     /*
      * Check if the frame is really meant for us.
@@ -989,7 +991,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
                     next_tvb = tvb_new_subset(tvb, offset, att_length, att_length);
 
-                    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, NULL)) {
+                    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, &hdtbl_entry, NULL)) {
                         call_dissector_only(data_handle, next_tvb, pinfo, att_tree, NULL);
                     }
 

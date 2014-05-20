@@ -214,6 +214,9 @@ The libwireshark API has undergone some major changes:
   tvb_captured_length for clarity, and tvb_get_string and tvb_get_stringz
   have been deprecated in favour of tvb_get_string_enc and
   tvb_get_stringz_enc.
+* dissector_try_heuristic() signature has been changed to return heur_dtbl_entry_t
+  to make it possible to save it and use it in subsequent calls to avoid the overhead
+  of going trough the heuristics list.
 
 == Getting Wireshark
 

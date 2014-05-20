@@ -66,6 +66,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 data_len;
 	proto_item *ti;
 	proto_tree *turnchannel_tree;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	len = tvb_length(tvb);
 	/* First, make sure we have enough data to do the check. */
@@ -112,7 +113,7 @@ dissect_turnchannel_message(tvbuff_t *tvb, packet_info *pinfo,
 
 
 	  if (!dissector_try_heuristic(heur_subdissector_list,
-				       next_tvb, pinfo, tree, NULL)) {
+				       next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 	    call_dissector(data_handle,next_tvb, pinfo, tree);
 	  }
 	}

@@ -495,6 +495,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gchar        szFieldSummary[100];
     tvbuff_t    *next_tvb;
     gboolean     bCyclic;
+    heur_dtbl_entry_t *hdtbl_entry;
 
 
     /* If the link-layer dissector for the protocol above us knows whether
@@ -806,7 +807,7 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     next_tvb = tvb_new_subset(tvb, 2, data_len, data_len);
 
     /* ask heuristics, if some sub-dissector is interested in this packet payload */
-    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
         /*col_set_str(pinfo->cinfo, COL_INFO, "Unknown");*/
 
         /* Oh, well, we don't know this; dissect it as data. */

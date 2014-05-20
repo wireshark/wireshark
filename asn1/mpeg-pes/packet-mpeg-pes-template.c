@@ -314,7 +314,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 
 		if (flags2 & PRIVATE_DATA_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_private_data, tvb,
-					offset, 16, ENC_BIG_ENDIAN);
+					offset, 16, ENC_NA);
 			offset += 16;
 		}
 		if (flags2 & PACK_LENGTH_FLAG) {
@@ -544,7 +544,9 @@ static heur_dissector_list_t heur_subdissector_list;
 static void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
+    heur_dtbl_entry_t *hdtbl_entry;
+
+    if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree)

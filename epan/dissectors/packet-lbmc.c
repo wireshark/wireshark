@@ -10883,6 +10883,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         puim_stream_info = NULL;
         tcp_sid_info.set = FALSE;
         has_source_index = FALSE;
+
         while ((tvb_reported_length_remaining(lbmc_tvb, pkt_offset) >= L_LBMC_BASIC_HDR_T) && (next_hdr != LBMC_NHDR_DATA) && (next_hdr != LBMC_NHDR_NONE))
         {
             tvbuff_t * hdr_tvb = NULL;
@@ -11353,6 +11354,8 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
             gboolean msg_reassembled = FALSE;
             lbmc_message_entry_t * msg = NULL;
             gboolean dissector_found = FALSE;
+            heur_dtbl_entry_t *hdtbl_entry;
+
 
             if (frag_info.fragment_found == 0)
             {
@@ -11559,7 +11562,7 @@ int lbmc_dissect_lbmc_packet(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
                 }
                 if (lbmc_use_heuristic_subdissectors)
                 {
-                    dissector_found = dissector_try_heuristic(lbmc_heuristic_subdissector_list, data_tvb, pinfo, subtree, NULL);
+                    dissector_found = dissector_try_heuristic(lbmc_heuristic_subdissector_list, data_tvb, pinfo, subtree, &hdtbl_entry, NULL);
                 }
                 if (!dissector_found)
                 {

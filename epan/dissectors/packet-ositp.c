@@ -937,19 +937,20 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
                            gboolean uses_inactive_subset,
                            gboolean *subdissector_found)
 {
-  proto_tree     *cotp_tree       = NULL;
-  proto_item     *ti;
-  gboolean        is_extended;
-  gboolean        is_class_234;
-  guint32         dst_ref;
-  guint32        *prev_dst_ref;
-  guint           tpdu_nr;
-  gboolean        fragment        = FALSE;
-  guint32         fragment_length = 0;
-  tvbuff_t       *next_tvb;
-  fragment_head  *fd_head;
-  conversation_t *conv;
-  guint           tpdu_len;
+  proto_tree        *cotp_tree       = NULL;
+  proto_item        *ti;
+  gboolean           is_extended;
+  gboolean           is_class_234;
+  guint32            dst_ref;
+  guint32           *prev_dst_ref;
+  guint              tpdu_nr;
+  gboolean           fragment        = FALSE;
+  guint32            fragment_length = 0;
+  tvbuff_t          *next_tvb;
+  fragment_head     *fd_head;
+  conversation_t    *conv;
+  guint              tpdu_len;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   /* DT TPDUs have user data, so they run to the end of the containing PDU */
   tpdu_len = tvb_reported_length_remaining(tvb, offset);
@@ -1229,7 +1230,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
 
   if (uses_inactive_subset) {
     if (dissector_try_heuristic(cotp_is_heur_subdissector_list, next_tvb,
-                                pinfo, tree, NULL)) {
+                                pinfo, tree, &hdtbl_entry, NULL)) {
       *subdissector_found = TRUE;
     } else {
       /* Fill in other Dissectors using inactive subset here */
@@ -1244,7 +1245,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
      */
     if ((!cotp_reassemble) || ((cotp_reassemble) && (!fragment))) {
       if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
-                                  tree, NULL)) {
+                                  tree, &hdtbl_entry, NULL)) {
         *subdissector_found = TRUE;
       } else {
         call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -1560,6 +1561,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   guint8  class_option;
   tvbuff_t *next_tvb;
   guint   tpdu_len;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   src_ref = tvb_get_ntohs(tvb, offset + P_SRC_REF);
 
@@ -1655,7 +1657,7 @@ static int ositp_decode_CC(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!uses_inactive_subset){
     if (dissector_try_heuristic(cotp_heur_subdissector_list, next_tvb, pinfo,
-                                tree, NULL)) {
+                                tree, &hdtbl_entry, NULL)) {
       *subdissector_found = TRUE;
     } else {
       call_dissector(data_handle,next_tvb, pinfo, tree);
@@ -2109,6 +2111,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   proto_tree *cltp_tree = NULL;
   tvbuff_t   *next_tvb;
   guint      tpdu_len;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   /* UD TPDUs have user data, so they run to the end of the containing PDU */
   tpdu_len = tvb_reported_length_remaining(tvb, offset);
@@ -2135,7 +2138,7 @@ static int ositp_decode_UD(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   next_tvb = tvb_new_subset_remaining(tvb, offset);
 
   if (dissector_try_heuristic(cltp_heur_subdissector_list, next_tvb,
-                              pinfo, tree, NULL)) {
+                              pinfo, tree, &hdtbl_entry, NULL)) {
     *subdissector_found = TRUE;
   } else {
     call_dissector(data_handle,next_tvb, pinfo, tree);

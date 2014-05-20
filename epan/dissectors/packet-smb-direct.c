@@ -126,6 +126,7 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 	tvbuff_t *payload_tvb = NULL;
 	gboolean more_frags = FALSE;
 	gboolean fd_head_not_cached = FALSE;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	if (!smb_direct_reassemble) {
 		payload_tvb = tvb;
@@ -191,7 +192,7 @@ dissect_smb_direct_payload(tvbuff_t *tvb, packet_info *pinfo,
 dissect_payload:
 	pinfo->fragmented = FALSE;
 	if (!dissector_try_heuristic(smb_direct_heur_subdissector_list,
-				     payload_tvb, pinfo, tree, NULL)) {
+				     payload_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 		call_dissector(data_handle, payload_tvb, pinfo, tree);
 	}
 done:

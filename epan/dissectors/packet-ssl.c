@@ -1353,6 +1353,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
                     proto_tree *tree, SslAssociation *association)
 {
     tvbuff_t *next_tvb;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -1360,7 +1361,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
         ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);
 
         if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
-                                    pinfo, proto_tree_get_root(tree), NULL)) {
+                                    pinfo, proto_tree_get_root(tree), &hdtbl_entry, NULL)) {
         } else {
             if (have_tap_listener(exported_pdu_tap)) {
                 exp_pdu_data_t *exp_pdu_data;

@@ -4916,6 +4916,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const char *contentTypeStr;
     tvbuff_t   *tmp_tvb;
     gboolean    found_match;
+    heur_dtbl_entry_t *hdtbl_entry;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
     proto_item *proto_ti = NULL; /* for the proto entry */
@@ -5155,7 +5156,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
-                                tmp_tvb, pinfo, tree, NULL)) {
+                                tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
                         guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
@@ -5248,7 +5249,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
-                                tmp_tvb, pinfo, tree, NULL)) {
+                                tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
                         guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
@@ -5332,7 +5333,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 }
                 if (! found_match) {
                     if (! dissector_try_heuristic(heur_subdissector_list,
-                                tmp_tvb, pinfo, tree, NULL)) {
+                                tmp_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
                         guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                         pinfo->match_string = contentTypeStr;
@@ -5862,6 +5863,8 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
     proto_item *ti         = NULL;
     proto_tree *mpart_tree = NULL;
 
+    heur_dtbl_entry_t       *hdtbl_entry;
+
     DebugLog(("add_multipart_data(): offset = %u, byte = 0x%02x: ",
                 offset, tvb_get_guint8(tvb,offset)));
     nEntries = tvb_get_guintvar (tvb, offset, &count);
@@ -5930,7 +5933,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
         }
         if (! found_match) {
             if (! dissector_try_heuristic(heur_subdissector_list,
-                        tmp_tvb, pinfo, mpart_tree, NULL)) {
+                        tmp_tvb, pinfo, mpart_tree, &hdtbl_entry, NULL)) {
                 guint8* save_private_data = (guint8 *)pinfo->private_data;
 
                 pinfo->match_string = contentTypeStr;

@@ -1064,12 +1064,14 @@ static heur_dissector_list_t netbios_heur_subdissector_list;
 void
 dissect_netbios_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	heur_dtbl_entry_t *hdtbl_entry;
+
 	/*
 	 * Try the heuristic dissectors for NetBIOS; if none of them
 	 * accept the packet, dissect it as data.
 	 */
 	if (!dissector_try_heuristic(netbios_heur_subdissector_list,
-				    tvb, pinfo, tree, NULL))
+				    tvb, pinfo, tree, &hdtbl_entry, NULL))
 		call_dissector(data_handle,tvb, pinfo, tree);
 }
 

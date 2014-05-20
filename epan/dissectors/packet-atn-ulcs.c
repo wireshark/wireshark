@@ -381,6 +381,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
 		proto_item *ti = NULL;
 		proto_tree *atn_ulcs_tree = NULL;
 		atn_conversation_t *atn_cv = NULL;
+		heur_dtbl_entry_t *hdtbl_entry;
 
 		/* extract bitstring into new tvb buffer */
 		offset = dissect_per_bit_string(
@@ -445,6 +446,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
 																tvb_new_subset_remaining(tvb_usr,0),
 																actx->pinfo,
 																root_tree,
+																&hdtbl_entry,
 																NULL);
 														break;
 										}
@@ -455,6 +457,7 @@ dissect_atn_ulcs_T_pdv_list_presentation_data_values_arbitrary(tvbuff_t *tvb _U_
 												tvb_new_subset_remaining(tvb_usr,0),
 												actx->pinfo,
 												root_tree,
+												&hdtbl_entry,
 												NULL);
 								}
 								break;
@@ -592,6 +595,7 @@ dissect_atn_ulcs_T_externalt_encoding_arbitrary(tvbuff_t *tvb _U_, int offset _U
 	tvbuff_t *tvb_usr = NULL;
 	packet_info * pinfo = actx->pinfo;
 	atn_conversation_t *atn_cv = NULL;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	/* decode bit-string user data within ACSE  */
 	offset = dissect_per_bit_string(
@@ -659,6 +663,7 @@ dissect_atn_ulcs_T_externalt_encoding_arbitrary(tvbuff_t *tvb _U_, int offset _U
 									tvb_new_subset_remaining(tvb_usr,0),
 									actx->pinfo,
 									root_tree,
+									&hdtbl_entry,
 									NULL);
 								break;
 					}
@@ -669,11 +674,12 @@ dissect_atn_ulcs_T_externalt_encoding_arbitrary(tvbuff_t *tvb _U_, int offset _U
 							tvb_new_subset_remaining(tvb_usr,0),
 							actx->pinfo,
 							root_tree,
+							&hdtbl_entry,
 							NULL);
 		}
 	}
 
-	offset += tvb_length_remaining(tvb, offset);
+	offset += tvb_reported_length_remaining(tvb, offset);
 
 
   return offset;
@@ -2142,7 +2148,7 @@ static gboolean dissect_atn_ulcs_heur(
 {
 		/* do we have enough data*/
 		/* at least session + presentation data or pdv-list */
-		if (tvb_length(tvb) < 2){
+		if (tvb_captured_length(tvb) < 2){
 				return FALSE; }
 
 		/* check for session/presentation/ACSE PDU's  */

@@ -2345,6 +2345,8 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     guint   request_for_response = 0;
     guint32 response_time = 0;
     int     strlen_to_copy;
+    heur_dtbl_entry_t *hdtbl_entry;
+
     /*
      * If this should be a request of response, do this quick check to see if
      * it begins with a string...
@@ -2530,10 +2532,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         gboolean is_no_header_termination = FALSE;
         proto_tree *tc_uri_item_tree = NULL;
         uri_offset_info uri_offsets;
-
-
-
-
 
         linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
         if (linelen == 0) {
@@ -3597,7 +3595,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     found_match?"TRUE":"FALSE"));
             DINDENT();
             if (!(dissector_try_heuristic(heur_subdissector_list,
-                              next_tvb, pinfo, message_body_tree, NULL))) {
+                              next_tvb, pinfo, message_body_tree, &hdtbl_entry, NULL))) {
                 int tmp_offset = 0;
                 while (tvb_offset_exists(next_tvb, tmp_offset)) {
                     tvb_find_line_end(next_tvb, tmp_offset, -1, &next_offset, FALSE);

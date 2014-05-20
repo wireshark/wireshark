@@ -2285,6 +2285,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
     guint16             etype, reserved;
     const char         *saved_proto;
     volatile gboolean   dissector_found = FALSE;
+    heur_dtbl_entry_t  *hdtbl_entry;
 
     if (!tvb_bytes_exist(tvb, *offset, length)) /* previously consumed bytes + offset was all the data - none or corrupt payload */
     {
@@ -2464,7 +2465,7 @@ static void parse_PAYLOAD(proto_tree *parentTree,
 
         /* Try any heuristic dissectors that requested a chance to try and dissect IB payloads */
         if (!dissector_found) {
-            dissector_found = dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, parentTree, info);
+            dissector_found = dissector_try_heuristic(heur_dissectors_payload, next_tvb, pinfo, parentTree, &hdtbl_entry, info);
         }
 
         if (!dissector_found) {
@@ -2858,6 +2859,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
     proto_item *CM_header_item;
     proto_tree *CM_header_tree;
     tvbuff_t   *next_tvb;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     local_gid  = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
     remote_gid = (guint8 *)wmem_alloc(wmem_packet_scope(), GID_SIZE);
@@ -2981,7 +2983,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
             /* give a chance for subdissectors to analyze the private data */
             next_tvb = tvb_new_subset(tvb, local_offset, 92, -1);
-            if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, NULL) )
+            if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL) )
                 /* if none reported success, add this as raw "data" */
                 proto_tree_add_item(CM_header_tree, hf_cm_req_private_data, tvb, local_offset, 92, ENC_NA);
 
@@ -3070,7 +3072,7 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
 
             /* give a chance for subdissectors to get the private data */
             next_tvb = tvb_new_subset(tvb, local_offset, 196, -1);
-            if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, NULL) )
+            if (! dissector_try_heuristic(heur_dissectors_cm_private, next_tvb, pinfo, parentTree, &hdtbl_entry, NULL) )
                 /* if none reported success, add this as raw "data" */
                 proto_tree_add_item(CM_header_tree, hf_cm_rep_privatedata, tvb, local_offset, 196, ENC_NA);
 

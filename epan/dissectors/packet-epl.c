@@ -1234,6 +1234,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	proto_item *ti;
 	proto_tree *epl_tree = NULL, *epl_src_item, *epl_dest_item;
 	gint offset = 0;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	if (tvb_reported_length(tvb) < 3)
 	{
@@ -1260,7 +1261,7 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	* give that protocol a chance to make a heuristic dissection, before we continue
 	* to dissect it as a normal EPL packet.
 	*/
-	if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree, &epl_mtyp))
+	if (dissector_try_heuristic(heur_epl_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, &epl_mtyp))
 		return TRUE;
 
 	/* tap */
@@ -1435,14 +1436,15 @@ static gint
 dissect_epl_payload ( proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, gint len, guint8 msgType )
 {
 	gint off = 0;
-	tvbuff_t * payload_tvb = NULL;;
+	tvbuff_t * payload_tvb = NULL;
+	heur_dtbl_entry_t *hdtbl_entry = NULL;
 
 	off = offset;
 
 	if (len > 0)
 	{
 		payload_tvb = tvb_new_subset(tvb, off, len, tvb_reported_length_remaining(tvb, offset) );
-		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, &msgType))
+		if ( ! dissector_try_heuristic(heur_epl_data_subdissector_list, payload_tvb, pinfo, epl_tree, &hdtbl_entry, &msgType))
 			call_dissector(data_dissector, payload_tvb, pinfo, epl_tree);
 
 		off += len;

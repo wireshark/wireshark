@@ -1187,6 +1187,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   const char *tel_ch   = "?";
   const char *tel_type = "?";
   guint       tel_no   = 0;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   /* setup columns */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "SERCOS III V1.1");
@@ -1197,7 +1198,7 @@ dissect_siii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    * give that protocol a chance to make a heuristic dissection, before we continue
    * to dissect it as a normal SercosIII packet.
    */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL))
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
     return;
 
   /* check what we got on our hand */

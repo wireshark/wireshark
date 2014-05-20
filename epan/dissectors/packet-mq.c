@@ -2494,6 +2494,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gboolean   bEBCDIC                 = FALSE;
     gint       iDistributionListSize = 0;
     mq_parm_t *p_mq_parm;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     p_mq_parm = wmem_new0(wmem_packet_scope(), mq_parm_t);
 
@@ -3672,7 +3673,7 @@ static void dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     sizeof(p_mq_parm->mq_format));
 
                                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                                if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, mqroot_tree, p_mq_parm))
+                                if (!dissector_try_heuristic(mq_heur_subdissector_list, next_tvb, pinfo, mqroot_tree, &hdtbl_entry, p_mq_parm))
                                     call_dissector(data_handle, next_tvb, pinfo, mqroot_tree);
                             }
                             else

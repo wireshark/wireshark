@@ -9415,13 +9415,14 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8  *drep      = &drep_data;
     guint8   u8CBAVersion;
     guint16  u16FrameID;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     /*
      * In case the packet is a protocol encoded in the basic PNIO transport stream,
      * give that protocol a chance to make a heuristic dissection, before we continue
      * to dissect it as a normal PNIO packet.
      */
-    if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, NULL))
+    if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
         return TRUE;
 
     /* the sub tvb will NOT contain the frame_id here! */

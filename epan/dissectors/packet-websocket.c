@@ -162,6 +162,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   dissector_handle_t  handle;
   proto_tree         *pl_tree, *mask_tree = NULL;
   tvbuff_t           *payload_tvb         = NULL;
+  heur_dtbl_entry_t  *hdtbl_entry;
 
   /* Payload */
   ti = proto_tree_add_item(ws_tree, hf_ws_payload, tvb, offset, payload_length, ENC_NA);
@@ -180,7 +181,7 @@ dissect_websocket_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
   if (handle != NULL) {
     call_dissector_only(handle, payload_tvb, pinfo, tree, NULL);
   } else {
-    dissector_try_heuristic(heur_subdissector_list, payload_tvb, pinfo, tree, NULL);
+    dissector_try_heuristic(heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, NULL);
   }
 
   /* Extension Data */

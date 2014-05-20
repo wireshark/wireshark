@@ -6147,6 +6147,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    cip_simple_request_info_t path_info;
    dissector_handle_t dissector;
    gint service_index;
+   heur_dtbl_entry_t *hdtbl_entry;
 
    p_save_proto_data = p_get_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
    p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
@@ -6239,7 +6240,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       if (service_index >= 0)
       {
           /* See if object dissector wants to override generic service handling */
-          if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, NULL))
+          if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
           {
             dissect_cip_generic_service_rsp(tvb, pinfo, cip_tree);
           }
@@ -6315,7 +6316,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
       if (service_index >= 0)
       {
           /* See if object dissector wants to override generic service handling */
-          if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, NULL))
+          if(!dissector_try_heuristic(heur_subdissector_service, tvb, pinfo, item_tree, &hdtbl_entry, NULL))
           {
              dissect_cip_generic_service_req(tvb, pinfo, cip_tree, &path_info);
           }

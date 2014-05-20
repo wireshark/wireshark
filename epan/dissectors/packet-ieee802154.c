@@ -628,6 +628,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
 
+    heur_dtbl_entry_t *hdtbl_entry;
+
     packet->short_table = ieee802154_map.short_table;
 
     /* Allocate frame data with hints for upper layers */
@@ -1071,7 +1073,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             /* Beacon and Data packets contain a payload. */
             if ((fcs_ok || !ieee802154_fcs_ok) && (tvb_reported_length(payload_tvb)>0)) {
                 /* Attempt heuristic subdissection. */
-                if (!dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, packet)) {
+                if (!dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, packet)) {
                     /* Could not subdissect, call the data dissector instead. */
                     call_dissector(data_handle, payload_tvb, pinfo, tree);
                 }

@@ -2308,6 +2308,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   guint8 other_ssn = INVALID_SSN;
   const mtp3_addr_pc_t *dpc = NULL;
   const mtp3_addr_pc_t *opc = NULL;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   if ((trace_sccp) && (assoc && assoc != &no_assoc)) {
     pinfo->sccp_info = assoc->curr_msg;
@@ -2380,7 +2381,7 @@ dissect_sccp_data_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* try heuristic subdissector list to see if there are any takers */
-  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
+  if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL)) {
     return;
   }
 

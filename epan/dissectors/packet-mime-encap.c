@@ -39,13 +39,14 @@ static void
 dissect_mime_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item* item;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	/* XXX, COL_INFO */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MIME_FILE");
 	item = proto_tree_add_item(tree, proto_mime_encap, tvb, 0, -1, ENC_NA);
 
-	if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
+	if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 		proto_item_append_text(item, " (Unhandled)");
 		call_dissector(data_handle, tvb, pinfo, tree);
 	}

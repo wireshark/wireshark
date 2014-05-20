@@ -235,6 +235,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tvbuff_t       *next_tvb;
     gboolean        update_col_info = TRUE;
     gboolean        save_fragmented;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "CLNP");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -563,7 +564,7 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     }
                 }
                 if (dissector_try_heuristic(clnp_heur_subdissector_list, next_tvb,
-                            pinfo, tree, NULL)) {
+                            pinfo, tree, &hdtbl_entry, NULL)) {
                     pinfo->fragmented = save_fragmented;
                     return;       /* yes, it appears to be one of the protocols in the heuristic list */
                 }

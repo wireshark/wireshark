@@ -1297,6 +1297,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gint payload_len;
     guint32 frag_key;
     fragment_head *fd_head;
+    heur_dtbl_entry_t *hdtbl_entry;
 
 
     guint8 spi;
@@ -2071,7 +2072,7 @@ dissect_x25_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Try the heuristic dissectors. */
     if (dissector_try_heuristic(x25_heur_subdissector_list, next_tvb, pinfo,
-				tree, NULL)) {
+				tree, &hdtbl_entry, NULL)) {
 	return;
     }
 

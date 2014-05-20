@@ -264,8 +264,10 @@ static void
 dissect_rdmap_payload(tvbuff_t *tvb, packet_info *pinfo,
 		      proto_tree *tree, struct rdmapinfo *info)
 {
+	heur_dtbl_entry_t *hdtbl_entry;
+
 	if (!dissector_try_heuristic(rdmap_heur_subdissector_list,
-				    tvb, pinfo, tree, info)) {
+					tvb, pinfo, tree, &hdtbl_entry, info)) {
 		call_dissector(data_handle, tvb, pinfo, tree);
 	}
 }

@@ -366,11 +366,12 @@ WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
  * @param tvb the tvbuff with the (remaining) packet data
  * @param pinfo the packet info of this packet (additional info)
  * @param tree the protocol tree to be build or NULL
+ * @param returns the last tried dissectors hdtbl_entry.
  * @param data parameter to pass to subdissector
  * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
  */
 WS_DLL_PUBLIC gboolean dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
-    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
+    tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, heur_dtbl_entry_t **hdtbl_entry, void *data);
 
 /** Add a sub-dissector to a heuristic dissector list.
  *  Call this in the proto_handoff function of the sub-dissector.
@@ -401,37 +402,37 @@ WS_DLL_PUBLIC void heur_dissector_delete(const char *name, heur_dissector_t diss
  */
 extern void heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const int proto, const gboolean enabled);
 
-/* Register a dissector. */
+/** Register a dissector. */
 WS_DLL_PUBLIC dissector_handle_t register_dissector(const char *name, dissector_t dissector,
     const int proto);
 WS_DLL_PUBLIC dissector_handle_t new_register_dissector(const char *name, new_dissector_t dissector,
     const int proto);
 
-/* Get the long name of the protocol for a dissector handle. */
+/** Get the long name of the protocol for a dissector handle. */
 extern const char *dissector_handle_get_long_name(const dissector_handle_t handle);
 
-/* Get the short name of the protocol for a dissector handle. */
+/** Get the short name of the protocol for a dissector handle. */
 WS_DLL_PUBLIC const char *dissector_handle_get_short_name(const dissector_handle_t handle);
 
-/* Get the index of the protocol for a dissector handle. */
+/** Get the index of the protocol for a dissector handle. */
 WS_DLL_PUBLIC int dissector_handle_get_protocol_index(const dissector_handle_t handle);
 
-/* Get a GList of all registered dissector names. */
+/** Get a GList of all registered dissector names. */
 WS_DLL_PUBLIC GList* get_dissector_names(void);
 
-/* Find a dissector by name. */
+/** Find a dissector by name. */
 WS_DLL_PUBLIC dissector_handle_t find_dissector(const char *name);
 
-/* Get a dissector name from handle. */
+/** Get a dissector name from handle. */
 WS_DLL_PUBLIC const char *dissector_handle_get_dissector_name(const dissector_handle_t handle);
 
-/* Create an anonymous handle for a dissector. */
+/** Create an anonymous handle for a dissector. */
 WS_DLL_PUBLIC dissector_handle_t create_dissector_handle(dissector_t dissector,
     const int proto);
 WS_DLL_PUBLIC dissector_handle_t new_create_dissector_handle(new_dissector_t dissector,
     const int proto);
 
-/* Call a dissector through a handle and if no dissector was found
+/** Call a dissector through a handle and if no dissector was found
  * pass it over to the "data" dissector instead.
  *
  *   @param handle The dissector to call.
@@ -449,7 +450,7 @@ WS_DLL_PUBLIC int call_dissector_with_data(dissector_handle_t handle, tvbuff_t *
 WS_DLL_PUBLIC int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree);
 
-/* Call a dissector through a handle but if no dissector was found
+/** Call a dissector through a handle but if no dissector was found
  * just return 0 and do not call the "data" dissector instead.
  *
  *   @param handle The dissector to call.
@@ -463,6 +464,17 @@ WS_DLL_PUBLIC int call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
  *   it and return the length of the tvbuff pointed to by the argument.
  */
 WS_DLL_PUBLIC int call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
+    packet_info *pinfo, proto_tree *tree, void *data);
+
+/**
+ *   @param heur_dtbl_entry The heur_dtbl_entry of the dissector to call.
+ *   @param  tvb The buffer to dissect.
+ *   @param  pinfo Packet Info.
+ *   @param  tree The protocol tree.
+ *   @param  data parameter to pass to dissector
+ */
+
+WS_DLL_PUBLIC void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tvb,
     packet_info *pinfo, proto_tree *tree, void *data);
 
 /* Do all one-time initialization. */

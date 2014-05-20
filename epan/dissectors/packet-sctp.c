@@ -2361,11 +2361,12 @@ static gboolean
 dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, guint32 ppi)
 {
   guint32 low_port, high_port;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   if (enable_ulp_dissection) {
     if (try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
-      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, GUINT_TO_POINTER(ppi)))
+      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, GUINT_TO_POINTER(ppi)))
          return TRUE;
     }
 
@@ -2404,7 +2405,7 @@ dissect_payload(tvbuff_t *payload_tvb, packet_info *pinfo, proto_tree *tree, gui
 
     if (!try_heuristic_first) {
       /* do lookup with the heuristic subdissector table */
-      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, GUINT_TO_POINTER(ppi)))
+      if (dissector_try_heuristic(sctp_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, GUINT_TO_POINTER(ppi)))
          return TRUE;
     }
   }

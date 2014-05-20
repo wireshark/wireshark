@@ -791,6 +791,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *vipc_tree = NULL, *control_tree;
 	proto_item *ti;
 	tvbuff_t *next_tvb;
+    heur_dtbl_entry_t *hdtbl_entry;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VIPC");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -890,7 +891,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (viph.vipc_pkttype != PKTTYPE_DATA ||
 	    !dissector_try_heuristic(vines_ipc_heur_subdissector_list,
-	      next_tvb, pinfo, tree, NULL))
+	      next_tvb, pinfo, tree, &hdtbl_entry, NULL))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 
@@ -1003,6 +1004,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree  *vspp_tree, *control_tree;
 	proto_item  *ti;
 	tvbuff_t    *next_tvb;
+    heur_dtbl_entry_t *hdtbl_entry;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "VSPP");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -1061,7 +1063,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
 	if (viph.vspp_pkttype != PKTTYPE_DATA ||
 	    !dissector_try_heuristic(vines_spp_heur_subdissector_list,
-	      next_tvb, pinfo, tree, NULL))
+	      next_tvb, pinfo, tree, &hdtbl_entry, NULL))
 		call_dissector(data_handle, next_tvb, pinfo, tree);
 }
 

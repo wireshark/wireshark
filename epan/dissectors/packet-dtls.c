@@ -815,6 +815,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree     *dtls_record_tree;
   SslAssociation *association;
   SslDataInfo    *appl_data;
+  heur_dtbl_entry_t *hdtbl_entry;
 
   /*
    * Get the record layer fields of interest
@@ -1054,7 +1055,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
         }
         else {
           /* try heuristic subdissectors */
-          dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree, NULL);
+          dissected = dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, top_tree, &hdtbl_entry, NULL);
         }
         if (dissected)
           break;

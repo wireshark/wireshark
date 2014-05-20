@@ -46,8 +46,9 @@ dissect_media(tvbuff_t *tvb, packet_info *pinfo , proto_tree *tree, void* data)
     int bytes;
     proto_item *ti;
     proto_tree *media_tree = 0;
+    heur_dtbl_entry_t *hdtbl_entry;
 
-    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, data)) {
+    if (dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, data)) {
         return tvb_length(tvb);
     }
 

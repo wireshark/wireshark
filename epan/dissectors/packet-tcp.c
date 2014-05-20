@@ -3847,6 +3847,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     int low_port, high_port;
     int save_desegment_offset;
     guint32 save_desegment_len;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     /* Don't call subdissectors for keepalives.  Even though they do contain
      * payload "data", it's just garbage.  Display any data the keepalive
@@ -3882,7 +3883,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* do lookup with the heuristic subdissector table */
         save_desegment_offset = pinfo->desegment_offset;
         save_desegment_len = pinfo->desegment_len;
-        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, tcpinfo)) {
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
             return TRUE;
         }
@@ -3943,7 +3944,7 @@ decode_tcp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
         /* do lookup with the heuristic subdissector table */
         save_desegment_offset = pinfo->desegment_offset;
         save_desegment_len = pinfo->desegment_len;
-        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, tcpinfo)) {
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, tcpinfo)) {
             pinfo->want_pdu_tracking -= !!(pinfo->want_pdu_tracking);
             return TRUE;
         }

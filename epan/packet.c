@@ -1932,15 +1932,16 @@ heur_dissector_set_enabled(const char *name, heur_dissector_t dissector, const i
 
 gboolean
 dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
-			packet_info *pinfo, proto_tree *tree, void *data)
+			packet_info *pinfo, proto_tree *tree, heur_dtbl_entry_t **heur_dtbl_entry, void *data)
 {
 	gboolean           status;
 	const char        *saved_curr_proto;
 	const char        *saved_heur_list_name;
 	GSList            *entry;
-	heur_dtbl_entry_t *hdtbl_entry;
 	guint16            saved_can_desegment;
 	guint              saved_layers_len = 0;
+	heur_dtbl_entry_t *hdtbl_entry;
+	int                proto_id;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then everytime a subdissector is called it is decremented by one.
@@ -1960,6 +1961,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	saved_heur_list_name = pinfo->heur_list_name;
 
 	saved_layers_len = wmem_list_count(pinfo->layers);
+	*heur_dtbl_entry = NULL;
 
 	for (entry = sub_dissectors; entry != NULL; entry = g_slist_next(entry)) {
 		/* XXX - why set this now and above? */
@@ -1967,13 +1969,14 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 		hdtbl_entry = (heur_dtbl_entry_t *)entry->data;
 
 		if (hdtbl_entry->protocol != NULL &&
-		    (!proto_is_protocol_enabled(hdtbl_entry->protocol)||(hdtbl_entry->enabled==FALSE))) {
+			(!proto_is_protocol_enabled(hdtbl_entry->protocol)||(hdtbl_entry->enabled==FALSE))) {
 			/*
 			 * No - don't try this dissector.
 			 */
 			continue;
 		}
 
+		proto_id = proto_get_id(hdtbl_entry->protocol);
 		if (hdtbl_entry->protocol != NULL) {
 			/* do NOT change this behavior - wslua uses the protocol short name set here in order
 			   to determine which Lua-based heurisitc dissector to call */
@@ -1984,21 +1987,19 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			 * Add the protocol name to the layers; we'll remove it
 			 * if the dissector fails.
 			 */
-			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_get_id(hdtbl_entry->protocol)));
+			wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_id));
 		}
 
 		pinfo->heur_list_name = hdtbl_entry->list_name;
 
-		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s",
-				 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
-		if ((*hdtbl_entry->dissector)(tvb, pinfo, tree, data)) {
-			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has accepted and dissected packet",
-					 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
+		EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s", proto_get_protocol_filter_name(proto_id)));
+		if ((hdtbl_entry->dissector)(tvb, pinfo, tree, data)) {
+			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has accepted and dissected packet", proto_get_protocol_filter_name(proto_id)));
+			*heur_dtbl_entry = hdtbl_entry;
 			status = TRUE;
 			break;
 		} else {
-			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has returned false",
-					 proto_get_protocol_filter_name(proto_get_id(hdtbl_entry->protocol))));
+			EP_CHECK_CANARY(("after heuristic dissector for protocol: %s has returned false", proto_get_protocol_filter_name(proto_id)));
 
 			/*
 			 * That dissector didn't accept the packet, so
@@ -2281,6 +2282,58 @@ call_dissector(dissector_handle_t handle, tvbuff_t *tvb,
 	return call_dissector_with_data(handle, tvb, pinfo, tree, NULL);
 }
 
+
+/*
+ * Call a heuristic dissector through a heur_dtbl_entry
+ */
+void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tvb,
+	packet_info *pinfo, proto_tree *tree, void *data)
+{
+	const char        *saved_curr_proto;
+	const char        *saved_heur_list_name;
+	guint16            saved_can_desegment;
+
+	int                proto_id;
+
+	g_assert(heur_dtbl_entry);
+
+	/* can_desegment is set to 2 by anyone which offers this api/service.
+	   then everytime a subdissector is called it is decremented by one.
+	   thus only the subdissector immediately ontop of whoever offers this
+	   service can use it.
+	   We save the current value of "can_desegment" for the
+	   benefit of TCP proxying dissectors such as SOCKS, so they
+	   can restore it and allow the dissectors they call to use
+	   the desegmentation service.
+	*/
+	saved_can_desegment        = pinfo->can_desegment;
+	pinfo->saved_can_desegment = saved_can_desegment;
+	pinfo->can_desegment       = saved_can_desegment-(saved_can_desegment>0);
+
+	saved_curr_proto = pinfo->current_proto;
+	saved_heur_list_name = pinfo->heur_list_name;
+
+	proto_id = proto_get_id(heur_dtbl_entry->protocol);
+
+	if (heur_dtbl_entry->protocol != NULL) {
+		/* do NOT change this behavior - wslua uses the protocol short name set here in order
+			to determine which Lua-based heurisitc dissector to call */
+		pinfo->current_proto = proto_get_protocol_short_name(heur_dtbl_entry->protocol);
+		wmem_list_append(pinfo->layers, GINT_TO_POINTER(proto_id));
+	}
+
+	EP_CHECK_CANARY(("before calling heuristic dissector for protocol: %s", proto_get_protocol_filter_name(proto_id)));
+
+	/* call the dissector, as we have saved the result heuristic failure is an error */
+	if(!(*heur_dtbl_entry->dissector)(tvb, pinfo, tree, data))
+		g_assert_not_reached();
+
+	/* Restore info from caller */
+	pinfo->can_desegment = saved_can_desegment;
+	pinfo->current_proto = saved_curr_proto;
+	pinfo->heur_list_name = saved_heur_list_name;
+
+}
 /*
  * Dumps the "layer type"/"decode as" associations to stdout, similar
  * to the proto_registrar_dump_*() routines.

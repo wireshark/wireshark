@@ -178,9 +178,8 @@ static gboolean try_heuristic_first = FALSE;
 /* Per-packet-info for UDP */
 typedef struct
 {
-  gboolean found_heuristic;
-
-} udp_p_info_t;
+    heur_dtbl_entry_t *heur_dtbl_entry;
+}   udp_p_info_t;
 
 /* XXX - redefined here to not create UI dependencies */
 #define UTF8_LEFTWARDS_ARROW            "\xe2\x86\x90"      /* 8592 / 0x2190 */
@@ -333,19 +332,9 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   int low_port, high_port;
   gint len, reported_len;
   udp_p_info_t *udp_p_info = NULL;
-  gboolean prev_heur_found = FALSE;
   /* Save curr_layer_num as it might be changed by subdissector */
   guint8 curr_layer_num = pinfo->curr_layer_num;
-
-  if (pinfo->fd->flags.visited) {
-    udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
-    if (udp_p_info) {
-      prev_heur_found = udp_p_info->found_heuristic;
-    }
-  }else{
-    /* Force heuristic check on first pass */
-    prev_heur_found = TRUE;
-  }
+  heur_dtbl_entry_t *hdtbl_entry;
 
   len = tvb_captured_length_remaining(tvb, offset);
   reported_len = tvb_reported_length_remaining(tvb, offset);
@@ -368,7 +357,15 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
   if (have_tap_listener(udp_follow_tap))
     tap_queue_packet(udp_follow_tap, pinfo, next_tvb);
 
-/* determine if this packet is part of a conversation and call dissector */
+  if (pinfo->fd->flags.visited) {
+    udp_p_info = (udp_p_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, pinfo->curr_layer_num);
+    if (udp_p_info) {
+      call_heur_dissector_direct(udp_p_info->heur_dtbl_entry, next_tvb, pinfo, tree, NULL);
+      return;
+    }
+  }
+
+  /* determine if this packet is part of a conversation and call dissector */
 /* for the conversation if available */
 
   if (try_conversation_dissector(&pinfo->dst, &pinfo->src, PT_UDP,
@@ -376,12 +373,12 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     return;
   }
 
-  if (try_heuristic_first && prev_heur_found) {
+  if (try_heuristic_first) {
     /* Do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
-        udp_p_info->found_heuristic = TRUE;
+        udp_p_info->heur_dtbl_entry = hdtbl_entry;
         p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
       return;
@@ -418,12 +415,12 @@ decode_udp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
       dissector_try_uint(udp_dissector_table, high_port, next_tvb, pinfo, tree))
     return;
 
-  if (!try_heuristic_first && prev_heur_found) {
+  if (!try_heuristic_first) {
     /* Do lookup with the heuristic subdissector table */
-    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, NULL)) {
+    if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
       if (!udp_p_info) {
         udp_p_info = wmem_new0(wmem_file_scope(), udp_p_info_t);
-        udp_p_info->found_heuristic = TRUE;
+        udp_p_info->heur_dtbl_entry = hdtbl_entry;
         p_add_proto_data(wmem_file_scope(), pinfo, hfi_udp->id, curr_layer_num, udp_p_info);
       }
       return;

@@ -182,12 +182,13 @@ static int
 dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 98 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
+	heur_dtbl_entry_t *hdtbl_entry;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
 
     if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
-	     actx->pinfo, top_tree, NULL);
+	     actx->pinfo, top_tree, &hdtbl_entry, NULL);
 
 
   return offset;
@@ -257,14 +258,16 @@ dissect_t125_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 107 "../../asn1/t125/t125.cnf"
+#line 108 "../../asn1/t125/t125.cnf"
     tvbuff_t	*next_tvb = NULL;
+	heur_dtbl_entry_t *hdtbl_entry;
+
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        &next_tvb);
 
     if(next_tvb)
     	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
-	     actx->pinfo, top_tree, NULL);
+	     actx->pinfo, top_tree, &hdtbl_entry, NULL);
 
 
   return offset;

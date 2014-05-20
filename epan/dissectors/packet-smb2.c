@@ -4062,10 +4062,12 @@ static int
 dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, guint32 datalen, proto_tree *top_tree)
 {
 	tvbuff_t *dcerpc_tvb;
+	heur_dtbl_entry_t *hdtbl_entry;
+
 	dcerpc_tvb = tvb_new_subset(tvb, offset, MIN((int)datalen, tvb_length_remaining(tvb, offset)), datalen);
 
 	/* dissect the full PDU */
-	dissector_try_heuristic(smb2_heur_subdissector_list, dcerpc_tvb, pinfo, top_tree, NULL);
+	dissector_try_heuristic(smb2_heur_subdissector_list, dcerpc_tvb, pinfo, top_tree, &hdtbl_entry, NULL);
 
 
 	offset += datalen;

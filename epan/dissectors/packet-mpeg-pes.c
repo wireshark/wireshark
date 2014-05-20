@@ -985,7 +985,9 @@ static heur_dissector_list_t heur_subdissector_list;
 static void
 dissect_mpeg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, NULL)) {
+    heur_dtbl_entry_t *hdtbl_entry;
+
+    if (!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MPEG");
 	col_clear(pinfo->cinfo, COL_INFO);
 	if (tree)
@@ -1202,7 +1204,7 @@ proto_register_mpeg_pes(void)
         "BIT_STRING_SIZE_16", HFILL }},
 
 /*--- End of included file: packet-mpeg-pes-hfarr.c ---*/
-#line 560 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 562 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 		{ &hf_mpeg_pes_pack_header,
 			{ "Pack header", "mpeg-pes.pack",
 				FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1320,7 +1322,7 @@ proto_register_mpeg_pes(void)
     &ett_mpeg_pes_Picture,
 
 /*--- End of included file: packet-mpeg-pes-ettarr.c ---*/
-#line 667 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
+#line 669 "../../asn1/mpeg-pes/packet-mpeg-pes-template.c"
 		&ett_mpeg_pes_pack_header,
 		&ett_mpeg_pes_header_data,
 		&ett_mpeg_pes_trick_mode

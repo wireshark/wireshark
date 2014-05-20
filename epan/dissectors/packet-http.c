@@ -713,6 +713,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	/*guint		i;*/
 	/*http_info_value_t *si;*/
 	http_eo_t       *eo_info;
+	heur_dtbl_entry_t *hdtbl_entry;
 
 	/*
 	 * If this should be a request or response, do this quick check to see if
@@ -1456,7 +1457,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * dissect the payload - try the heuristic subdissectors.
 			 */
 			dissected = dissector_try_heuristic(heur_subdissector_list,
-							    next_tvb, pinfo, tree, NULL);
+							    next_tvb, pinfo, tree, &hdtbl_entry, NULL);
 		}
 
 		if (dissected) {

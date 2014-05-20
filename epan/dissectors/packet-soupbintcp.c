@@ -188,6 +188,7 @@ dissect_soupbintcp_common(
     guint8            pkt_type;
     gint              offset          = 0;
     guint             this_seq        = 0, next_seq;
+    heur_dtbl_entry_t *hdtbl_entry;
 
     /* Get the 16-bit big-endian SOUP packet length */
     expected_len = tvb_get_ntohs(tvb, 0);
@@ -428,6 +429,7 @@ dissect_soupbintcp_common(
                                     sub_tvb,
                                     pinfo,
                                     tree,
+                                    &hdtbl_entry,
                                     NULL)) {
             return;
         }

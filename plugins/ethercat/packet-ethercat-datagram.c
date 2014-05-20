@@ -452,6 +452,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
    const guint datagram_length = tvb_length_remaining(tvb, offset);
    guint datagram_padding_bytes = 0;
    EcParserHDR ecHdr;
+   heur_dtbl_entry_t *hdtbl_entry;
 
    col_set_str(pinfo->cinfo, COL_PROTOCOL, "ECAT");
 
@@ -732,7 +733,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             init_dc_measure(pDC, tvb, suboffset);
 
             /* Allow sub dissectors to have a chance with this data */
-            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, NULL))
+            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, &hdtbl_entry, NULL))
             {
                /* No sub dissector did recognize this data, dissect it as data only */
                aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, ENC_NA);
@@ -815,7 +816,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             if ( dataLength > 0 )
             {
                /* Allow sub dissectors to have a chance with this data */
-               if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, NULL))
+               if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, &hdtbl_entry, NULL))
                {
                   /* No sub dissector did recognize this data, dissect it as data only */
                   proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, ENC_NA);
@@ -833,7 +834,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
          if( tree )
          {
             /* Allow sub dissectors to have a chance with this data */
-            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, NULL))
+            if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree, &hdtbl_entry, NULL))
             {
                /* No sub dissector did recognize this data, dissect it as data only */
                proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, ENC_NA);
