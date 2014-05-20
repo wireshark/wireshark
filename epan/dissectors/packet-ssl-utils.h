@@ -164,6 +164,7 @@
 #define SSL_HND_HELLO_EXT_HEARTBEAT          0x000f
 #define SSL_HND_HELLO_EXT_ALPN               0x0010
 #define SSL_HND_HELLO_EXT_STATUS_REQUEST_V2  0x0011
+#define SSL_HND_HELLO_EXT_PADDING            0x0014
 #define SSL_HND_HELLO_EXT_SESSION_TICKET     0x0023
 #define SSL_HND_HELLO_EXT_RENEG_INFO         0xff01
 #define SSL_HND_HELLO_EXT_NPN                0x3374
@@ -614,6 +615,9 @@ typedef struct ssl_common_dissect {
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
         gint hs_ext_server_name_type;
+        gint hs_ext_padding;
+        gint hs_ext_padding_len;
+        gint hs_ext_padding_data;
         gint hs_ext_type;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_alg_len;
@@ -629,6 +633,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_npn;
         gint hs_ext_reneg_info;
         gint hs_ext_server_name;
+        gint hs_ext_padding;
         gint hs_sig_hash_alg;
         gint hs_sig_hash_algs;
         gint urlhash;
@@ -654,10 +659,10 @@ ssl_common_dissect_t name = {   \
     /* hf */ {                  \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1,                                             \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ett */ {                                                         \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                         \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
     },                                                                  \
     /* ei */ {                                                          \
         EI_INIT,                                                        \
@@ -764,6 +769,21 @@ ssl_common_dissect_t name = {   \
       { "Server Name", prefix ".handshake.extensions_server_name",      \
         FT_STRING, BASE_NONE, NULL, 0x0,                                \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_padding,                                        \
+      { "Padding", prefix ".handshake.extensions_padding",              \
+        FT_NONE, BASE_NONE, NULL, 0x0,                                  \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_padding_len,                                    \
+      { "Padding length", prefix ".handshake.extensions_padding_len",   \
+        FT_UINT16, BASE_DEC, NULL, 0x0,                                 \
+        "Length of Padding", HFILL }                                    \
+    },                                                                  \
+    { & name .hf.hs_ext_padding_data,                                   \
+      { "Padding Data", prefix ".handshake.extensions_padding_data",    \
+        FT_BYTES, BASE_NONE, NULL, 0x0,                                 \
+        "Must be zero", HFILL }                                         \
     },                                                                  \
     { & name .hf.hs_ext_cert_url_type,                                  \
       { "Certificate Chain Type", prefix ".handshake.cert_url_type",    \

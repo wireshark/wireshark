@@ -1101,6 +1101,7 @@ const value_string tls_hello_extension_types[] = {
     { 18, "signed_certificate_timestamp" }, /* RFC 6962 */
     { 19, "client_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
     { 20, "server_certificate_type" }, /* http://tools.ietf.org/html/draft-ietf-tls-oob-pubkey-11 */
+    { SSL_HND_HELLO_EXT_PADDING, "Padding" }, /* http://tools.ietf.org/html/draft-agl-tls-padding */
     { SSL_HND_HELLO_EXT_SESSION_TICKET, "SessionTicket TLS" },  /* RFC 4507 */
     { SSL_HND_HELLO_EXT_NPN, "next_protocol_negotiation"}, /* http://technotes.googlecode.com/git/nextprotoneg.html */
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
@@ -4974,6 +4975,32 @@ ssl_dissect_hnd_hello_ext_server_name(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
+ssl_dissect_hnd_hello_ext_padding(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                     proto_tree *tree, guint32 offset, guint32 ext_len)
+{
+    guint8      padding_length;
+    proto_tree *padding_tree;
+    proto_item *ti;
+
+    if (ext_len == 0) {
+        return offset;
+    }
+
+    ti = proto_tree_add_item(tree, hf->hf.hs_ext_padding_data, tvb, offset, ext_len, ENC_NA);
+    padding_tree = proto_item_add_subtree(ti, hf->ett.hs_ext_padding);
+
+
+    proto_tree_add_item(padding_tree, hf->hf.hs_ext_padding_len, tvb, offset, 2, ENC_NA);
+    padding_length = tvb_get_guint8(tvb, offset);
+    offset += 2;
+
+    proto_tree_add_item(padding_tree, hf->hf.hs_ext_padding_data, tvb, offset, padding_length, ENC_NA);
+    offset += padding_length;
+
+    return offset;
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_session_ticket(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                       proto_tree *tree, guint32 offset, guint32 ext_len, gboolean is_client, SslDecryptSession *ssl)
 {
@@ -5271,6 +5298,9 @@ ssl_dissect_hnd_hello_ext(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             proto_tree_add_item(ext_tree, hf->hf.hs_ext_heartbeat_mode,
                                 tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += ext_len;
+            break;
+        case SSL_HND_HELLO_EXT_PADDING:
+            offset = ssl_dissect_hnd_hello_ext_padding(hf, tvb, ext_tree, offset, ext_len);
             break;
         case SSL_HND_HELLO_EXT_SESSION_TICKET:
             offset = ssl_dissect_hnd_hello_ext_session_ticket(hf, tvb, ext_tree, offset, ext_len, is_client, ssl);
