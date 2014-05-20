@@ -105,15 +105,16 @@ static int hf_map_rsp_assigned_external_port = -1;
 static int hf_map_rsp_assigned_ext_ip = -1;
 static int hf_peer_nonce = -1;
 static int hf_peer_protocol = -1;
-static int hf_peer_reserved1 = -1;
+static int hf_peer_reserved = -1;
 static int hf_peer_internal_port = -1;
 static int hf_peer_req_sug_external_port = -1;
 static int hf_peer_req_sug_ext_ip = -1;
 static int hf_peer_remote_peer_port = -1;
-static int hf_peer_reserved2 = -1;
 static int hf_peer_remote_peer_ip = -1;
 static int hf_peer_rsp_assigned_external_port = -1;
 static int hf_peer_rsp_assigned_ext_ip = -1;
+static int hf_options = -1;
+static int hf_option = -1;
 static int hf_option_code = -1;
 static int hf_option_reserved = -1;
 static int hf_option_length = -1;
@@ -404,7 +405,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
     proto_tree_add_item (opcode_tree, hf_peer_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item (opcode_tree, hf_peer_reserved1, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item (opcode_tree, hf_peer_reserved, tvb, offset, 3, ENC_NA);
     offset+=3;
     proto_tree_add_item (opcode_tree, hf_peer_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
@@ -425,7 +426,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 
     proto_tree_add_item (opcode_tree, hf_peer_remote_peer_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
-    proto_tree_add_item (opcode_tree, hf_peer_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (opcode_tree, hf_peer_reserved, tvb, offset, 2, ENC_NA);
     offset+=2;
     proto_tree_add_item (opcode_tree, hf_peer_remote_peer_ip, tvb, offset, 16, ENC_NA);
     offset+=16;
@@ -441,20 +442,26 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
       (try_val_to_str(ropcode, pcp_ropcode_vals) != NULL))
   {
     start_option_offset = offset;
-    option_ti = proto_tree_add_text(opcode_tree, tvb, offset, 0, "Options");
+    option_ti = proto_tree_add_item(opcode_tree, hf_options, tvb, offset, 0, ENC_NA);
     option_tree = proto_item_add_subtree (option_ti, ett_option);
 
     while (tvb_reported_length_remaining(tvb, offset) > 0)
     {
-      option = tvb_get_guint8(tvb, offset);
-      suboption_ti = proto_tree_add_item (option_tree, hf_option_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+      suboption_ti = proto_tree_add_item (option_tree, hf_option, tvb, offset, 1, ENC_NA);
       option_sub_tree = proto_item_add_subtree (suboption_ti, ett_suboption);
+
+      proto_tree_add_item (option_sub_tree, hf_option_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+      option = tvb_get_guint8(tvb, offset);
+      proto_item_append_text (suboption_ti, ": %s", val_to_str (option, pcp_option_vals, "Unknown option: %d"));
       offset++;
+
       proto_tree_add_item (option_sub_tree, hf_option_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      option_length = tvb_get_ntohs(tvb, offset);
+
       proto_tree_add_item (option_sub_tree, hf_option_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+      option_length = tvb_get_ntohs(tvb, offset);
       offset+=2;
+
       proto_item_set_len(suboption_ti, option_length+4);
 
       if (option_length > 0)
@@ -620,8 +627,8 @@ void proto_register_nat_pmp (void)
     { &hf_peer_protocol,
       { "Protocol", "portcontrol.peer.protocol", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
-    { &hf_peer_reserved1,
-      { "Reserved", "portcontrol.peer.reserved", FT_UINT24, BASE_DEC,
+    { &hf_peer_reserved,
+      { "Reserved", "portcontrol.peer.reserved", FT_BYTES, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_peer_internal_port,
       { "Internal Port", "portcontrol.peer.internal_port", FT_UINT16, BASE_DEC,
@@ -635,9 +642,6 @@ void proto_register_nat_pmp (void)
     { &hf_peer_remote_peer_port,
       { "Remote Peer Port", "portcontrol.peer.remote_peer_port", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
-    { &hf_peer_reserved2,
-      { "Reserved", "portcontrol.peer.reserved", FT_UINT16, BASE_DEC,
-        NULL, 0x0, NULL, HFILL } },
     { &hf_peer_remote_peer_ip,
       { "Remote Peer IP Address", "portcontrol.peer.remote_peer_ip", FT_IPv6, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
@@ -646,6 +650,12 @@ void proto_register_nat_pmp (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_peer_rsp_assigned_ext_ip,
       { "Assigned External IP Address", "portcontrol.peer.rsp_assigned_ext_ip", FT_IPv6, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_options,
+      { "Options", "portcontrol.options", FT_NONE, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option,
+      { "Option", "portcontrol.option", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_code,
       { "Option", "portcontrol.option", FT_UINT8, BASE_DEC,
