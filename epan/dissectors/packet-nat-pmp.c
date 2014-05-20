@@ -63,6 +63,7 @@ void proto_reg_handoff_nat_pmp(void);
 #define OPT_THIRD_PARTY         1
 #define OPT_PREFER_FAILURE      2
 #define OPT_FILTER              3
+#define OPT_DESCRIPTION         128
 
 static int proto_nat_pmp = -1;
 static int proto_pcp = -1;
@@ -123,6 +124,7 @@ static int hf_option_filter_reserved = -1;
 static int hf_option_filter_prefix_length = -1;
 static int hf_option_filter_remote_peer_port = -1;
 static int hf_option_filter_remote_peer_ip = -1;
+static int hf_option_description = -1;
 
 static gint ett_pcp = -1;
 static gint ett_opcode = -1;
@@ -198,6 +200,7 @@ static const value_string pcp_option_vals[] = {
   { OPT_THIRD_PARTY,    "Third Party" },
   { OPT_PREFER_FAILURE, "Prefer Failure" },
   { OPT_FILTER,         "Filter" },
+  { OPT_DESCRIPTION,    "Description" },
   { 0, NULL }
 };
 
@@ -483,6 +486,11 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
           proto_tree_add_item (option_sub_tree, hf_option_filter_remote_peer_ip, tvb, offset+4, 16, ENC_NA);
           break;
 
+        case OPT_DESCRIPTION:
+          proto_tree_add_item (option_sub_tree, hf_option_description, tvb, offset, option_length, ENC_UTF_8|ENC_NA);
+          break;
+
+
         default:
           /* Unknown option */
           expert_add_info_format(pinfo, option_ti, &ei_pcp_option_unknown, "Unknown option: %d", option);
@@ -680,6 +688,9 @@ void proto_register_nat_pmp (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_filter_remote_peer_ip,
       { "Remote Peer IP Address", "portcontrol.option.filter.remote_peer_ip", FT_IPv6, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_option_description,
+      { "Description", "portcontrol.option.description", FT_STRING, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     };
 
