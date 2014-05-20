@@ -541,11 +541,6 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_item(tree, hf_lisp_lcaf_elp_hop, tvb, offset, 2, ENC_NA);
     hop_tree = proto_item_add_subtree(ti, ett_lisp_lcaf_elp_hop);
 
-    /* AFI (2 bytes) */
-    proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
-    hop_afi = tvb_get_ntohs(tvb, offset);
-    offset += 2;
-
     /* Flags (2 bytes) */
     ti_flags = proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
     flags_tree = proto_item_add_subtree(ti_flags, ett_lisp_lcaf_elp_hop_flags);
@@ -555,6 +550,11 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(flags_tree, hf_lisp_lcaf_elp_hop_flags_strict, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     hop_flags = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* AFI (2 bytes) */
+    proto_tree_add_item(hop_tree, hf_lisp_lcaf_elp_hop_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    hop_afi = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
     /* Reencap hop */
@@ -956,18 +956,19 @@ dissect_lcaf_natt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *   0                   1                   2                   3
  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |           AFI = 16387         |    Rsvd1      |    Flags      |
+ *  |           AFI = 16387         |     Rsvd1     |     Flags     |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *  |   Type = 10   |     Rsvd2     |               n               |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |              AFI = x          |           Rsvd3         |L|P|S|
+ *  |           Rsvd3         |L|P|S|           AFI = x             |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *  |                         Reencap Hop 1  ...                    |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *  |              AFI = x          |           Rsvd3         |L|P|S|
+ *  |           Rsvd3         |L|P|S|           AFI = x             |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *  |                         Reencap Hop k  ...                    |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
  *
  */
 
