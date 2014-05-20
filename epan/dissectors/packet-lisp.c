@@ -41,13 +41,13 @@ void proto_reg_handoff_lisp(void);
 
 /*
  * See RFC 6830 "Locator/ID Separation Protocol (LISP)",
- * draft-ietf-lisp-lcaf-04 "LISP Canonical Address Format (LCAF)",
+ * draft-ietf-lisp-lcaf-05 "LISP Canonical Address Format (LCAF)",
  * draft-ietf-lisp-sec-04 "LISP-Security (LISP-SEC)", and
  * draft-ermagan-lisp-nat-traversal-03 "NAT traversal for LISP" for packet
  * format and protocol information.
  */
 
-#define LCAF_DRAFT_VERSION  "04"
+#define LCAF_DRAFT_VERSION  "05"
 #define LISP_CONTROL_PORT   4342
 
 /* LISP Control Message types */
@@ -299,6 +299,16 @@ static int hf_lisp_lcaf_elp_hop_afi = -1;
 static int hf_lisp_lcaf_elp_hop_ipv4 = -1;
 static int hf_lisp_lcaf_elp_hop_ipv6 = -1;
 
+/* LCAF Key/Value Pair fields */
+static int hf_lisp_lcaf_kv_key = -1;
+static int hf_lisp_lcaf_kv_key_afi = -1;
+static int hf_lisp_lcaf_kv_key_ipv4 = -1;
+static int hf_lisp_lcaf_kv_key_ipv6 = -1;
+static int hf_lisp_lcaf_kv_value = -1;
+static int hf_lisp_lcaf_kv_value_afi = -1;
+static int hf_lisp_lcaf_kv_value_ipv4 = -1;
+static int hf_lisp_lcaf_kv_value_ipv6 = -1;
+
 /* Encapsulated Control Message fields */
 static int hf_lisp_ecm_flags_sec = -1;
 static int hf_lisp_ecm_flags_ddt = -1;
@@ -318,6 +328,8 @@ static gint ett_lisp_lcaf_geo_lon = -1;
 static gint ett_lisp_lcaf_natt_rloc = -1;
 static gint ett_lisp_lcaf_elp_hop = -1;
 static gint ett_lisp_lcaf_elp_hop_flags = -1;
+static gint ett_lisp_lcaf_kv_key = -1;
+static gint ett_lisp_lcaf_kv_value = -1;
 static gint ett_lisp_loc = -1;
 static gint ett_lisp_loc_flags = -1;
 static gint ett_lisp_info_prefix = -1;
@@ -978,6 +990,102 @@ dissect_lcaf_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
+ /*
+  *  Dissector code for Key/Value Address Pairs
+  *
+  *   0                   1                   2                   3
+  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |           AFI = 16387         |     Rsvd1     |     Flags     |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |   Type = 15   |     Rsvd2     |               n               |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |              AFI = x          |       Address as Key ...      |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |              AFI = x          |       Address as Value ...    |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *
+  */
+
+static int
+dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset)
+{
+    guint16      afi, addr_len = 0;
+    const gchar *key_str, *value_str;
+    proto_item  *ti_key, *ti_value;
+    proto_tree  *key_tree, *value_tree;
+
+    ti_key   = proto_tree_add_item(tree, hf_lisp_lcaf_kv_key, tvb, offset, 2, ENC_NA);
+    key_tree = proto_item_add_subtree(ti_key, ett_lisp_lcaf_kv_key);
+
+    /* Key AFI (2 bytes) */
+    proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Key */
+    key_str = get_addr_str(tvb, offset, afi, &addr_len);
+
+    switch (afi) {
+        case AFNUM_INET:
+            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_key_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, key_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, key_tree, &ei_lisp_unexpected_field,
+                    "Unexpected Key AFI (%d), cannot decode", afi);
+    }
+
+    proto_item_append_text(ti_key, " %s", key_str);
+    proto_item_set_len(ti_key, 2 + addr_len);
+
+    ti_value = proto_tree_add_item(tree, hf_lisp_lcaf_kv_value, tvb, offset, 2, ENC_NA);
+    value_tree = proto_item_add_subtree(ti_value, ett_lisp_lcaf_kv_value);
+
+    /* Value AFI (2 bytes) */
+    proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* Value */
+    value_str = get_addr_str(tvb, offset, afi, &addr_len);
+
+    switch (afi) {
+        case AFNUM_INET:
+            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_value_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_value_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, value_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, value_tree, &ei_lisp_unexpected_field,
+                    "Unexpected Value AFI (%d), cannot decode", afi);
+    }
+
+    proto_item_append_text(ti_value, " %s", value_str);
+    proto_item_set_len(ti_value, 2 + addr_len);
+
+    return offset;
+}
+
+
 /*
  * Dissector code for LISP Canonical Address Format (LCAF)
  *
@@ -1065,6 +1173,9 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
             break;
         case LCAF_ELP:
             offset = dissect_lcaf_elp(tvb, pinfo, lcaf_tree, offset, len, ti);
+            break;
+        case LCAF_KV_ADDR_PAIR:
+            offset = dissect_lcaf_kv_addr_pair(tvb, pinfo, lcaf_tree, offset);
             break;
         default:
             if (lcaf_type < 16)
@@ -2603,6 +2714,30 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_elp_hop_ipv6,
             { "Reencap Hop", "lisp.lcaf.elp_hop.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_key,
+            { "Key", "lisp.lcaf.kv_key",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_key_afi,
+            { "Key AFI", "lisp.lcaf.kv_key.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_key_ipv4,
+            { "Key", "lisp.lcaf.kv_key.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_key_ipv6,
+            { "Key", "lisp.lcaf.kv_key.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_value,
+            { "Value", "lisp.lcaf.kv_value",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_value_afi,
+            { "Value AFI", "lisp.lcaf.kv_value.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_value_ipv4,
+            { "Value", "lisp.lcaf.kv_value.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_kv_value_ipv6,
+            { "Value", "lisp.lcaf.kv_value.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_natt_rloc,
             { "RLOC", "lisp.lcaf.natt.rloc",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2638,6 +2773,8 @@ proto_register_lisp(void)
         &ett_lisp_lcaf_natt_rloc,
         &ett_lisp_lcaf_elp_hop,
         &ett_lisp_lcaf_elp_hop_flags,
+        &ett_lisp_lcaf_kv_key,
+        &ett_lisp_lcaf_kv_value,
         &ett_lisp_loc,
         &ett_lisp_loc_flags,
         &ett_lisp_info_prefix,
