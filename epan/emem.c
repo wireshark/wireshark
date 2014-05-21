@@ -781,7 +781,9 @@ emem_alloc_chunk(size_t size, emem_pool_t *mem)
 #endif
 
 	/* make sure we dont try to allocate too much (arbitrary limit) */
-	DISSECTOR_ASSERT(size<(EMEM_PACKET_CHUNK_SIZE>>2));
+	if (size >= (EMEM_PACKET_CHUNK_SIZE>>2)) {
+		return emem_alloc_glib(size, mem);
+	}
 
 	if (!mem->free_list)
 		mem->free_list = emem_create_chunk_gp(EMEM_PACKET_CHUNK_SIZE);
