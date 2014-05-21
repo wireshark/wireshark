@@ -1176,7 +1176,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Key AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_key, " %s", key_str);
+    proto_item_append_text(ti_key, ": %s", key_str);
     proto_item_set_len(ti_key, 2 + addr_len);
 
     ti_value = proto_tree_add_item(tree, hf_lisp_lcaf_kv_value, tvb, offset, 2, ENC_NA);
@@ -1192,12 +1192,12 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     switch (afi) {
         case AFNUM_INET:
-            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_value_ipv4,
+            proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_ipv4,
                     tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
             offset += INET_ADDRLEN;
             break;
         case AFNUM_INET6:
-            proto_tree_add_item(key_tree, hf_lisp_lcaf_kv_value_ipv6,
+            proto_tree_add_item(value_tree, hf_lisp_lcaf_kv_value_ipv6,
                     tvb, offset, INET6_ADDRLEN, ENC_NA);
             offset += INET6_ADDRLEN;
             break;
@@ -1209,7 +1209,7 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     "Unexpected Value AFI (%d), cannot decode", afi);
     }
 
-    proto_item_append_text(ti_value, " %s", value_str);
+    proto_item_append_text(ti_value, ": %s", value_str);
     proto_item_set_len(ti_value, 2 + addr_len);
 
     return offset;
