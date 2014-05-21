@@ -807,7 +807,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 			 * https://github.com/sipwise/rtpengine/blob/master/daemon/call_interfaces.c#L66
 			 * for further details */
 			tmp = tvb_find_guint8(tvb, offset, -1, ' ');
-			if(tmp == -1){
+			if(tmp == (guint)(-1)){
 				/* No extension - operate normally */
 				tmp = tvb_find_line_end(tvb, offset, -1, &new_offset, FALSE);
 			}
