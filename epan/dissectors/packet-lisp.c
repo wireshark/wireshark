@@ -312,6 +312,14 @@ static int hf_lisp_lcaf_srcdst_dst_afi = -1;
 static int hf_lisp_lcaf_srcdst_dst_ipv4 = -1;
 static int hf_lisp_lcaf_srcdst_dst_ipv6 = -1;
 
+/* LCAF RLE fields */
+static int hf_lisp_lcaf_rle_entry = -1;
+static int hf_lisp_lcaf_rle_entry_res = -1;
+static int hf_lisp_lcaf_rle_entry_level = -1;
+static int hf_lisp_lcaf_rle_entry_afi = -1;
+static int hf_lisp_lcaf_rle_entry_ipv4 = -1;
+static int hf_lisp_lcaf_rle_entry_ipv6 = -1;
+
 /* LCAF Key/Value Pair fields */
 static int hf_lisp_lcaf_kv_key = -1;
 static int hf_lisp_lcaf_kv_key_afi = -1;
@@ -343,6 +351,7 @@ static gint ett_lisp_lcaf_elp_hop = -1;
 static gint ett_lisp_lcaf_elp_hop_flags = -1;
 static gint ett_lisp_lcaf_srcdst_src = -1;
 static gint ett_lisp_lcaf_srcdst_dst = -1;
+static gint ett_lisp_lcaf_rle_entry = -1;
 static gint ett_lisp_lcaf_kv_key = -1;
 static gint ett_lisp_lcaf_kv_value = -1;
 static gint ett_lisp_loc = -1;
@@ -611,6 +620,69 @@ dissect_lcaf_elp_hop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item_append_text(tip, ", %s", hop_str);
 
     return addr_len + 4;
+}
+
+
+static int
+dissect_lcaf_rle_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, int idx, proto_item *tip)
+{
+    guint8       level;
+    guint16      addr_len = 0;
+    guint16      entry_afi;
+    const gchar *entry_str;
+    proto_item  *ti;
+    proto_tree  *entry_tree;
+
+    ti = proto_tree_add_item(tree, hf_lisp_lcaf_rle_entry, tvb, offset, 2, ENC_NA);
+    entry_tree = proto_item_add_subtree(ti, ett_lisp_lcaf_rle_entry);
+
+    /* Reserved (3 bytes) */
+    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_res, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    /* Level Value (1 byte) */
+    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_level, tvb, offset, 1, ENC_NA);
+    level = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    /* AFI (2 bytes) */
+    proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    entry_afi = tvb_get_ntohs(tvb, offset);
+    offset += 2;
+
+    /* RTR/ETR entry */
+    entry_str = get_addr_str(tvb, offset, entry_afi, &addr_len);
+
+    switch (entry_afi) {
+        case AFNUM_INET:
+            proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(entry_tree, hf_lisp_lcaf_rle_entry_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            break;
+        case AFNUM_LCAF:
+            dissect_lcaf(tvb, pinfo, entry_tree, offset, NULL);
+            break;
+        default:
+            expert_add_info_format(pinfo, entry_tree, &ei_lisp_unexpected_field,
+                    "Unexpected RTR/ETR AFI (%d), cannot decode", entry_afi);
+    }
+
+    if (idx) {
+        proto_item_append_text(ti, " %d.", idx);
+    } else {
+        proto_item_append_text(ti, ":");
+    }
+
+    proto_item_append_text(ti, " %s, level %d", entry_str, level);
+    proto_item_set_len(ti, 6 + addr_len);
+
+    proto_item_append_text(tip, ", %s (%d)", entry_str, level);
+
+    return addr_len + 6;
 }
 
 
@@ -1120,6 +1192,46 @@ dissect_lcaf_src_dst_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
+/*
+ * Dissector code for Replication List Entries for Multicast Forwarding
+ *
+ *   0                   1                   2                   3
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |           AFI = 16387         |     Rsvd1     |     Flags     |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |   Type = 13   |    Rsvd2      |             4 + n             |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |              Rsvd3            |     Rsvd4     |  Level Value  |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |              AFI = x          |           RTR/ETR #1 ...      |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |              Rsvd3            |     Rsvd4     |  Level Value  |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |              AFI = x          |           RTR/ETR  #n ...     |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ */
+
+static int
+dissect_lcaf_rle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, guint16 length, proto_item *tir)
+{
+    gint len;
+    gint remaining = length;
+    gint i = 1;
+
+    while (remaining > 0) {
+        len = dissect_lcaf_rle_entry(tvb, pinfo, tree, offset, i, tir);
+        offset += len;
+        remaining -= len;
+        i++;
+    }
+
+    return offset;
+}
+
+
  /*
   *  Dissector code for Key/Value Address Pairs
   *
@@ -1306,6 +1418,9 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
             break;
         case LCAF_SRC_DST_KEY:
             offset = dissect_lcaf_src_dst_key(tvb, pinfo, lcaf_tree, offset, ti);
+            break;
+        case LCAF_RLE:
+            offset = dissect_lcaf_rle(tvb, pinfo, lcaf_tree, offset, len, ti);
             break;
         case LCAF_KV_ADDR_PAIR:
             offset = dissect_lcaf_kv_addr_pair(tvb, pinfo, lcaf_tree, offset);
@@ -2880,6 +2995,24 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_srcdst_dst_ipv6,
             { "Destination Prefix", "lisp.lcaf.srcdst.dst.ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_rle_entry,
+            { "RTR/ETR", "lisp.lcaf.rle_entry",
+            FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_rle_entry_res,
+            { "Reserved bits", "lisp.lcaf.rle_entry.res",
+            FT_UINT24, BASE_HEX, NULL, 0x0, "Must be zero", HFILL }},
+        { &hf_lisp_lcaf_rle_entry_level,
+            { "Level Value", "lisp.lcaf.rle_entry.level",
+            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_rle_entry_afi,
+            { "RTR/ETR AFI", "lisp.lcaf.rle_entry.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_rle_entry_ipv4,
+            { "RTR/ETR", "lisp.lcaf.rle_entry.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_rle_entry_ipv6,
+            { "RTR/ETR", "lisp.lcaf.rle_entry.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_kv_key,
             { "Key", "lisp.lcaf.kv_key",
             FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -2941,6 +3074,7 @@ proto_register_lisp(void)
         &ett_lisp_lcaf_elp_hop_flags,
         &ett_lisp_lcaf_srcdst_src,
         &ett_lisp_lcaf_srcdst_dst,
+        &ett_lisp_lcaf_rle_entry,
         &ett_lisp_lcaf_kv_key,
         &ett_lisp_lcaf_kv_value,
         &ett_lisp_loc,
