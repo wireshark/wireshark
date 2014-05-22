@@ -922,6 +922,24 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 	fi
 ],)
 
+# Try to add ASAN address analyze.
+# Only needed for analyse
+#
+AC_ARG_ENABLE(asan,
+  AC_HELP_STRING( [--enable-asan],
+                  [Enable AddressSanitizer (ASAN) for debugging (May be slow down)@<:@default=no@:>@]),
+[
+        #
+        # With Clang >= 3.5 Leak detection is enable by default
+        # and no yet all leak is fixed...
+        # use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
+        #
+        AC_WIRESHARK_COMPILER_FLAGS_CHECK(-fsanitize=address)
+
+],)
+
+
+
 #
 # The following are for C and C++
 #

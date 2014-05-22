@@ -354,6 +354,17 @@ else()
 		)
 	endif()
 
+	set(WIRESHARK_ASAN_FLAGS
+		# With Clang >= 3.5 Leak detection is enable by default
+		# and no yet all leak is fixed...
+		# use ASAN_OPTIONS=detect_leaks=0 to disable detect_leaks
+		-fsanitize=address
+	)
+
+	if(ENABLE_ASAN)
+		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_ASAN_FLAGS})
+	endif()
+
 	if(ENABLE_EXTRA_COMPILER_WARNINGS)   # This overrides -Werror
 		set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_EXTRA_COMPILER_COMMON_FLAGS})
 		set(WIRESHARK_C_ONLY_FLAGS ${WIRESHARK_C_ONLY_FLAGS} ${WIRESHARK_EXTRA_COMPILER_C_ONLY_FLAGS})
