@@ -4718,7 +4718,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* Now dissect the options. */
-    if (options_tree != NULL) {
+    if (optlen) {
         dissect_ip_tcp_options(tvb, offset + 20, optlen, tcpopts, N_TCP_OPTS,
                                TCPOPT_EOL, &TCP_OPT_TYPES,
                                &ei_tcp_opt_len_invalid, pinfo, options_tree,
