@@ -2107,7 +2107,7 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 
 /* Dissect IEEE 802.3 TLVs */
-static void
+static int
 dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
@@ -2320,7 +2320,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	}
 
-	return;
+	return tempOffset;
 }
 
 /* Dissect Media TLVs */
