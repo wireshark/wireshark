@@ -2519,9 +2519,9 @@ ssl_generate_pre_master_secret(SslDecryptSession *ssl_session,
          * in case of rsa1024 that would be 128 + 2 = 130; for psk not necessary
          */
         if (ssl_session->cipher_suite.kex == KEX_RSA &&
-           (ssl_session->version == SSL_VER_TLS || ssl_session->version == SSL_VER_TLSv1DOT1 ||
-            ssl_session->version == SSL_VER_TLSv1DOT2 || ssl_session->version == SSL_VER_DTLS ||
-            ssl_session->version == SSL_VER_DTLS1DOT2))
+           (ssl_session->session.version == SSL_VER_TLS || ssl_session->session.version == SSL_VER_TLSv1DOT1 ||
+            ssl_session->session.version == SSL_VER_TLSv1DOT2 || ssl_session->session.version == SSL_VER_DTLS ||
+            ssl_session->session.version == SSL_VER_DTLS1DOT2))
         {
             encrlen  = tvb_get_ntohs(tvb, offset);
             skip = 2;
@@ -2769,13 +2769,13 @@ ssl_generate_keyring_material(SslDecryptSession*ssl_session)
 
     /* create both client and server ciphers*/
     ssl_debug_printf("ssl_generate_keyring_material ssl_create_decoder(client)\n");
-    ssl_session->client_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->compression, c_mk, c_wk, c_iv);
+    ssl_session->client_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->session.compression, c_mk, c_wk, c_iv);
     if (!ssl_session->client_new) {
         ssl_debug_printf("ssl_generate_keyring_material can't init client decoder\n");
         goto fail;
     }
     ssl_debug_printf("ssl_generate_keyring_material ssl_create_decoder(server)\n");
-    ssl_session->server_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->compression, s_mk, s_wk, s_iv);
+    ssl_session->server_new = ssl_create_decoder(&ssl_session->cipher_suite, ssl_session->session.compression, s_mk, s_wk, s_iv);
     if (!ssl_session->server_new) {
         ssl_debug_printf("ssl_generate_keyring_material can't init client decoder\n");
         goto fail;

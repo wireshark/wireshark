@@ -726,11 +726,11 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else {
         ssl_session = (SslDecryptSession *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecryptSession));
         ssl_session_init(ssl_session);
-        ssl_session->version = SSL_VER_UNKNOWN;
+        ssl_session->session.version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl_session);
     }
-    conv_version =& ssl_session->version;
-    conv_cipher  =  ssl_session->cipher;
+    conv_version =& ssl_session->session.version;
+    conv_cipher  =  ssl_session->session.cipher;
 
     /* try decryption only the first time we see this packet
      * (to keep cipher synchronized) */
@@ -1614,7 +1614,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl->state |= SSL_VERSION;
                 ssl_debug_printf("dissect_ssl3_record found version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
-            /*ssl_set_conv_version(pinfo, ssl->version);*/
+            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
         else if (version == TLSV1_VERSION)
         {
@@ -1625,7 +1625,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl->state |= SSL_VERSION;
                 ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.0) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
-            /*ssl_set_conv_version(pinfo, ssl->version);*/
+            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
         else if (version == TLSV1DOT1_VERSION)
         {
@@ -1636,7 +1636,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl->state |= SSL_VERSION;
                 ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.1) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
-            /*ssl_set_conv_version(pinfo, ssl->version);*/
+            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
         else if (version == TLSV1DOT2_VERSION)
         {
@@ -1647,7 +1647,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
                 ssl->state |= SSL_VERSION;
                 ssl_debug_printf("dissect_ssl3_record found version 0x%04X(TLS 1.2) -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             }
-            /*ssl_set_conv_version(pinfo, ssl->version);*/
+            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
     }
 
@@ -2488,15 +2488,15 @@ dissect_ssl3_hnd_srv_hello(tvbuff_t *tvb,
         /* PAOLO: handle session cipher suite  */
         if (ssl) {
             /* store selected cipher suite for decryption */
-            ssl->cipher = tvb_get_ntohs(tvb, offset);
-            if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
-                ssl_debug_printf("dissect_ssl3_hnd_srv_hello can't find cipher suite 0x%X\n", ssl->cipher);
+            ssl->session.cipher = tvb_get_ntohs(tvb, offset);
+            if (ssl_find_cipher(ssl->session.cipher,&ssl->cipher_suite) < 0) {
+                ssl_debug_printf("dissect_ssl3_hnd_srv_hello can't find cipher suite 0x%X\n", ssl->session.cipher);
                 goto no_cipher;
             }
 
             ssl->state |= SSL_CIPHER;
             ssl_debug_printf("dissect_ssl3_hnd_srv_hello found CIPHER 0x%04X -> state 0x%02X\n",
-                ssl->cipher, ssl->state);
+                ssl->session.cipher, ssl->state);
 
             /* if we have restored a session now we can have enough material
              * to build session key, check it out*/
@@ -2515,7 +2515,7 @@ no_cipher:
 
         if (ssl) {
             /* store selected compression method for decryption */
-            ssl->compression = tvb_get_guint8(tvb, offset);
+            ssl->session.compression = tvb_get_guint8(tvb, offset);
         }
         /* and the server-selected compression method */
         proto_tree_add_item(tree, hf_ssl_handshake_comp_method,
@@ -3541,12 +3541,12 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                 record_length_length),
                                                record_length)) {
             *conv_version = SSL_VER_PCT;
-            /*ssl_set_conv_version(pinfo, ssl->version);*/
+            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
         else if (msg_type >= 2 && msg_type <= 8)
         {
             *conv_version = SSL_VER_SSLv2;
-            /*ssl_set_conv_version(pinfo, ssl->version);*/
+            /*ssl_set_conv_version(pinfo, ssl->session.version);*/
         }
     }
 
@@ -4430,7 +4430,7 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     } else {
         ssl = (SslDecryptSession *)wmem_alloc0(wmem_file_scope(), sizeof(SslDecryptSession));
         ssl_session_init(ssl);
-        ssl->version = SSL_VER_UNKNOWN;
+        ssl->session.version = SSL_VER_UNKNOWN;
         conversation_add_proto_data(conversation, proto_ssl, ssl);
     }
 
@@ -4439,31 +4439,31 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
     ssl_set_server(ssl, addr_srv, ptype, port_srv);
 
     /* version */
-    if ((ssl->version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
+    if ((ssl->session.version==SSL_VER_UNKNOWN) && (version!=SSL_VER_UNKNOWN)) {
         switch (version) {
         case SSL_VER_SSLv3:
-            ssl->version = SSL_VER_SSLv3;
+            ssl->session.version = SSL_VER_SSLv3;
             ssl->version_netorder = SSLV3_VERSION;
             ssl->state |= SSL_VERSION;
             ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             break;
 
         case SSL_VER_TLS:
-            ssl->version = SSL_VER_TLS;
+            ssl->session.version = SSL_VER_TLS;
             ssl->version_netorder = TLSV1_VERSION;
             ssl->state |= SSL_VERSION;
             ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             break;
 
         case SSL_VER_TLSv1DOT1:
-            ssl->version = SSL_VER_TLSv1DOT1;
+            ssl->session.version = SSL_VER_TLSv1DOT1;
             ssl->version_netorder = TLSV1DOT1_VERSION;
             ssl->state |= SSL_VERSION;
             ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
             break;
 
         case SSL_VER_TLSv1DOT2:
-            ssl->version = SSL_VER_TLSv1DOT2;
+            ssl->session.version = SSL_VER_TLSv1DOT2;
             ssl->version_netorder = TLSV1DOT2_VERSION;
             ssl->state |= SSL_VERSION;
             ssl_debug_printf("ssl_set_master_secret set version 0x%04X -> state 0x%02X\n", ssl->version_netorder, ssl->state);
@@ -4473,12 +4473,12 @@ void ssl_set_master_secret(guint32 frame_num, address *addr_srv, address *addr_c
 
     /* cipher */
     if (cipher > 0) {
-        ssl->cipher = cipher;
-        if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
-            ssl_debug_printf("ssl_set_master_secret can't find cipher suite 0x%X\n", ssl->cipher);
+        ssl->session.cipher = cipher;
+        if (ssl_find_cipher(ssl->session.cipher,&ssl->cipher_suite) < 0) {
+            ssl_debug_printf("ssl_set_master_secret can't find cipher suite 0x%X\n", ssl->session.cipher);
         } else {
             ssl->state |= SSL_CIPHER;
-            ssl_debug_printf("ssl_set_master_secret set CIPHER 0x%04X -> state 0x%02X\n", ssl->cipher, ssl->state);
+            ssl_debug_printf("ssl_set_master_secret set CIPHER 0x%04X -> state 0x%02X\n", ssl->session.cipher, ssl->state);
         }
     }
 
