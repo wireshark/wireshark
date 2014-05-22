@@ -27,7 +27,8 @@ OBJECTS = file_util.obj		\
 	inet_pton.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
 	strptime.obj		\
-	wsgetopt.obj
+	wsgetopt.obj            \
+	ws_mempbrk_sse42.obj
 
 # For use when making libwsutil.dll
 libwsutil.lib: libwsutil.dll

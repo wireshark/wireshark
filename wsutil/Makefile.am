@@ -52,6 +52,10 @@ if NEED_STRPTIME_LO
 wsutil_optional_objects += @STRPTIME_LO@
 endif
 
+## if SSE42_SUPPORTED
+wsutil_optional_objects += libwsutil_sse42.la
+## endif
+
 include ../Makefile.am.inc
 
 include Makefile.common
@@ -61,6 +65,8 @@ AM_CFLAGS =-DWS_BUILD_DLL
 if HAVE_WARNINGS_AS_ERRORS
 AM_CFLAGS += -Werror
 endif
+
+noinst_LTLIBRARIES = libwsutil_sse42.la
 
 lib_LTLIBRARIES = libwsutil.la
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
@@ -73,6 +79,11 @@ AM_CPPFLAGS = -I$(srcdir)/.. \
 libwsutil_la_SOURCES =		\
 	$(LIBWSUTIL_SRC)	\
 	$(LIBWSUTIL_INCLUDES)
+
+libwsutil_sse42_la_SOURCES = \
+	ws_mempbrk_sse42.c
+	
+libwsutil_sse42_la_CFLAGS = $(AM_CFLAGS) -msse4.2
 
 EXTRA_libwsutil_la_SOURCES=	\
 	inet_aton.c		\

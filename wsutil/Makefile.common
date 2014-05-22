@@ -60,6 +60,7 @@ LIBWSUTIL_SRC = 	\
 	tempfile.c	\
 	time_util.c	\
 	type_util.c	\
+	ws_mempbrk.c	\
 	u3.c		\
 	unicode-utils.c
 

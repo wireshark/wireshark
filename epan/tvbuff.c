@@ -739,26 +739,17 @@ fast_ensure_contiguous(tvbuff_t *tvb, const gint offset, const guint length)
 	return NULL;
 }
 
+extern const guint8 *ws_mempbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles);
+
 static inline const guint8*
 guint8_pbrk(const guint8* haystack, size_t haystacklen, const guint8 *needles, guchar *found_needle)
 {
-	gchar         tmp[256] = { 0 };
-	const guint8 *haystack_end;
+	const guint8 *result = ws_mempbrk(haystack, haystacklen, needles);
 
-	while (*needles)
-		tmp[*needles++] = 1;
+	if (result && found_needle)
+		*found_needle = *result;
 
-	haystack_end = haystack + haystacklen;
-	while (haystack < haystack_end) {
-		if (tmp[*haystack]) {
-			if (found_needle)
-				*found_needle = *haystack;
-			return haystack;
-		}
-		haystack++;
-	}
-
-	return NULL;
+	return result;
 }
 
 
@@ -2963,6 +2954,12 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 gint
 tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, const gboolean desegment)
 {
+#ifdef WIN32
+	static const char __declspec(align(16)) crlf[] = "\r\n" ;
+#else
+	static const char crlf[] __attribute__((aligned(16))) = "\r\n" ;
+#endif
+
 	gint   eob_offset;
 	gint   eol_offset;
 	int    linelen;
@@ -2981,7 +2978,7 @@ tvb_find_line_end(tvbuff_t *tvb, const gint offset, int len, gint *next_offset, 
 	/*
 	 * Look either for a CR or an LF.
 	 */
-	eol_offset = tvb_pbrk_guint8(tvb, offset, len, "\r\n", &found_needle);
+	eol_offset = tvb_pbrk_guint8(tvb, offset, len, crlf, &found_needle);
 	if (eol_offset == -1) {
 		/*
 		 * No CR or LF - line is presumably continued in next packet.
