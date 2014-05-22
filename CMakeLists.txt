@@ -826,9 +826,7 @@ configure_file(
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
-#FEATURE_SUMMARY(WHAT ALL) Requires removal of our local copy of FeatureSummary
-PRINT_ENABLED_FEATURES()
-PRINT_DISABLED_FEATURES()
+FEATURE_SUMMARY(WHAT ALL)
 
 link_directories(
 	${CMAKE_BINARY_DIR}/ui
