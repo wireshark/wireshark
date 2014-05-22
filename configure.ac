@@ -815,11 +815,12 @@ AC_ARG_ENABLE(extra-compiler-warnings,
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wcast-align)
 		#
-		# Some code blocks this for now.
+		# Works only with Clang
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wunreachable-code)
 		#
-		# Some code blocks this for now.
+		# Works only with Clang but generates a lot of warnings
+		# (about glib library not using Doxygen)
 		#
 		AC_WIRESHARK_COMPILER_FLAGS_CHECK(-Wdocumentation)
 	fi

@@ -258,11 +258,12 @@ else()
 		#
 		-Wcast-align
 		#
-		# Some code blocks this for now.
+		# Works only with Clang
 		#
 		-Wunreachable-code
 		#
-		# Some code blocks this for now.
+		# Works only with Clang but generates a lot of warnings
+		# (about glib library not using Doxygen)
 		#
 		-Wdocumentation
 		-fwrapv
