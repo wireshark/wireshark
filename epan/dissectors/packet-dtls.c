@@ -500,7 +500,7 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ssl_session = wmem_new0(wmem_file_scope(), SslDecryptSession);
     ssl_session_init(ssl_session);
-    ssl_session->version = SSL_VER_UNKNOWN;
+    ssl_session->session.version = SSL_VER_UNKNOWN;
     conversation_add_proto_data(conversation, proto_dtls, ssl_session);
 
     /* we need to know witch side of conversation is speaking */
@@ -527,8 +527,8 @@ dissect_dtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ssl_session->private_key = private_key->sexp_pkey;
     }
   }
-  conv_version= & ssl_session->version;
-  conv_cipher  =  ssl_session->cipher;
+  conv_version= & ssl_session->session.version;
+  conv_cipher  =  ssl_session->session.cipher;
 
   /* try decryption only the first time we see this packet
    * (to keep cipher synchronized) */
@@ -725,7 +725,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
     decoder = ssl->client;
   }
 
-  if (!decoder && !dtls_is_null_cipher(ssl->cipher)) {
+  if (!decoder && !dtls_is_null_cipher(ssl->session.cipher)) {
     ssl_debug_printf("decrypt_dtls_record: no decoder available\n");
     return ret;
   }
@@ -753,7 +753,7 @@ decrypt_dtls_record(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
                            &dtls_compressed_data, &dtls_decrypted_data, &dtls_decrypted_data_avail) == 0)
       ret = 1;
   }
-  else if (dtls_is_null_cipher(ssl->cipher)) {
+  else if (dtls_is_null_cipher(ssl->session.cipher)) {
     /* Non-encrypting cipher NULL-XXX */
     memcpy(dtls_decrypted_data.data, tvb_get_ptr(tvb, offset, record_length), record_length);
     dtls_decrypted_data_avail = dtls_decrypted_data.data_len = record_length;
@@ -1904,15 +1904,15 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
       /* PAOLO: handle session cipher suite  */
       if (ssl) {
         /* store selected cipher suite for decryption */
-        ssl->cipher = tvb_get_ntohs(tvb, offset);
-        if (ssl_find_cipher(ssl->cipher,&ssl->cipher_suite) < 0) {
-          ssl_debug_printf("dissect_dtls_hnd_srv_hello can't find cipher suite %X\n", ssl->cipher);
+        ssl->session.cipher = tvb_get_ntohs(tvb, offset);
+        if (ssl_find_cipher(ssl->session.cipher,&ssl->cipher_suite) < 0) {
+          ssl_debug_printf("dissect_dtls_hnd_srv_hello can't find cipher suite %X\n", ssl->session.cipher);
           goto no_cipher;
         }
 
         ssl->state |= SSL_CIPHER;
         ssl_debug_printf("dissect_dtls_hnd_srv_hello found cipher %X, state %X\n",
-                         ssl->cipher, ssl->state);
+                         ssl->session.cipher, ssl->state);
 
         /* if we have restored a session now we can have enough material
          * to build session key, check it out*/
@@ -1934,7 +1934,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
     no_cipher:
       if (ssl) {
         /* store selected compression method for decompression */
-        ssl->compression = tvb_get_guint8(tvb, offset+2);
+        ssl->session.compression = tvb_get_guint8(tvb, offset+2);
       }
 
       /* now the server-selected cipher suite */

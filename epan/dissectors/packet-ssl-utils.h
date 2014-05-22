@@ -335,6 +335,12 @@ typedef struct {
     SslRecordInfo* handshake_data;
 } SslPacketInfo;
 
+typedef struct _SslSession {
+    gint cipher;
+    gint compression;
+    guint32 version;
+} SslSession;
+
 typedef struct _SslDecryptSession {
     guchar _master_secret[48];
     guchar _session_id[256];
@@ -352,8 +358,6 @@ typedef struct _SslDecryptSession {
     guchar _client_data_for_iv[24];
     StringInfo client_data_for_iv;
 
-    gint cipher;
-    gint compression;
     gint state;
     SslCipherSuite cipher_suite;
     SslDecoder *server;
@@ -362,9 +366,9 @@ typedef struct _SslDecryptSession {
     SslDecoder *client_new;
     SSL_PRIVATE_KEY* private_key;
     StringInfo psk;
-    guint32 version;
     guint16 version_netorder;
     StringInfo app_data_segment;
+    SslSession session;
 
     address srv_addr;
     port_type srv_ptype;
