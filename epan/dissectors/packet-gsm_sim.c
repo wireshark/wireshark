@@ -1022,7 +1022,7 @@ static const value_string sw_vals[] = {
 	{ 0x9810, "In contradiction with invalidation status" },
 	{ 0x9840, "Unsuccessful CHV verification, no attempt left / CHV blocked" },
 	{ 0x9850, "Increase cannot be performed, max value reached" },
-	{ 0x6b00, "Incorrect paramaeter P1 or P2" },
+	{ 0x6b00, "Incorrect parameter P1 or P2" },
 	/* Section 10.2.1.3 of TS 102 221 */
 	{ 0x6200, "Warning: No information given, state of volatile memory unchanged" },
 	{ 0x6281, "Warning: Part of returned data may be corrupted" },
@@ -1103,7 +1103,7 @@ dissect_bertlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	unsigned int pos = 0;
 
-	while (pos < tvb_length(tvb)) {
+	while (pos < tvb_reported_length(tvb)) {
 		guint8 tag;
 		guint32 len;
 		tvbuff_t *subtvb;
@@ -1354,7 +1354,7 @@ dissect_rsp_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 {
 	guint16 sw;
 	proto_item *ti;
-	guint tvb_len = tvb_length(tvb);
+	guint tvb_len = tvb_reported_length(tvb);
 
 	if (tree && !sim_tree) {
 		ti = proto_tree_add_item(tree, proto_gsm_sim, tvb, 0, -1, ENC_NA);
@@ -1396,7 +1396,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 	proto_item *ti;
 	proto_tree *sim_tree = NULL;
 	gint rc = -1;
-	guint tvb_len = tvb_length(tvb);
+	guint tvb_len = tvb_reported_length(tvb);
 
 	cla = tvb_get_guint8(tvb, offset);
 	ins = tvb_get_guint8(tvb, offset+1);
@@ -1424,7 +1424,7 @@ dissect_cmd_apdu_tvb(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree 
 		proto_tree_add_item(sim_tree, hf_apdu_p1, tvb, offset+0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sim_tree, hf_apdu_p2, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(sim_tree, hf_apdu_p3, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-		if (p3 && (p3 <= tvb_length_remaining(tvb, offset+3))) {
+		if (p3 && (p3 <= tvb_reported_length_remaining(tvb, offset+3))) {
 			proto_tree_add_item(sim_tree, hf_apdu_data, tvb, offset+3, p3, ENC_NA);
 		}
 	}
