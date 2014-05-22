@@ -5008,8 +5008,8 @@ static int dissect_DIS_PARSER_IFF_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     proto_tree_add_bits_item(field_tree, hf_dis_iff_mode_malfunction, tvb, offset*8, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
-    ti = proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
-    field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);
+    /*ti = */proto_tree_add_item(sub_tree, hf_dis_iff_parameter_6, tvb, offset, 2, ENC_BIG_ENDIAN);
+    /*field_tree = proto_item_add_subtree(ti, ett_iff_parameter_6);*/
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %d-%d-%d", site, application, entity);
