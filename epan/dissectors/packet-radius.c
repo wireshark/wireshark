@@ -898,7 +898,7 @@ void radius_tlv(radius_attr_info_t* a, proto_tree* tree, packet_info *pinfo _U_,
 		}
 
 		tlv_item = proto_tree_add_text(tree, tvb, offset, tlv_length,
-					       "TLV: l=%u  t=%s(%u)", tlv_length,
+					       "TLV: l=%u t=%s(%u)", tlv_length,
 					       dictionary_entry->name, tlv_type);
 
 		tlv_length -= 2;
@@ -1046,7 +1046,7 @@ void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_
 		}
 
 		avp_item = proto_tree_add_text(tree, tvb, offset, avp_length,
-					       "AVP: l=%u  t=%s(%u)", avp_length,
+					       "AVP: l=%u t=%s(%u)", avp_length,
 					       dictionary_entry->name, avp_type);
 
 		avp_length -= 2;
