@@ -210,14 +210,24 @@ static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_100base_t4 = -1;
 static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_tfd = -1;
 static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_10base_t = -1;
 static int hf_ieee_802_3_pmd_auto_neg_advertised_caps_inv_other = -1;
+static int hf_ieee_802_3_pmd_mau_type = -1;
 static int hf_ieee_802_3_mdi_power_support = -1;
 static int hf_ieee_802_3_mdi_power_support_port_class = -1;
 static int hf_ieee_802_3_mdi_power_support_pse_power_support = -1;
 static int hf_ieee_802_3_mdi_power_support_pse_power_enabled = -1;
 static int hf_ieee_802_3_mdi_power_support_pse_pairs = -1;
+static int hf_ieee_802_3_mdi_power_pse_pair = -1;
+static int hf_ieee_802_3_mdi_power_class = -1;
+static int hf_ieee_802_3_mdi_power_type = -1;
+static int hf_ieee_802_3_mdi_power_source = -1;
+static int hf_ieee_802_3_mdi_power_priority = -1;
+static int hf_ieee_802_3_mdi_requested_power = -1;
+static int hf_ieee_802_3_mdi_allocated_power = -1;
 static int hf_ieee_802_3_aggregation_status = -1;
 static int hf_ieee_802_3_aggregation_status_cap = -1;
 static int hf_ieee_802_3_aggregation_status_enabled = -1;
+static int hf_ieee_802_3_aggregated_port_id = -1;
+static int hf_ieee_802_3_max_frame_size = -1;
 static int hf_ieee_802_1qbg_subtype = -1;
 static int hf_ieee_802_1qbg_evb_support_caps = -1;
 static int hf_ieee_802_1qbg_evb_support_caps_std = -1;
@@ -550,10 +560,10 @@ static const value_string cisco_subtypes[] = {
 
 /* 802.3 Power Type */
 static const value_string power_type_802_3[] = {
-	{ 0,	"Type 2" },
-	{ 1,	"Type 2" },
-	{ 2,	"Type 1" },
-	{ 3,	"Type 1" },
+	{ 0,	"Type 2 PSE Device" },
+	{ 1,	"Type 2 PD Device" },
+	{ 2,	"Type 1 PSE Device" },
+	{ 3,	"Type 1 PD Device" },
 	{ 0, NULL }
 };
 
@@ -2103,7 +2113,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	guint8 subType;
 	guint8 tempByte;
 	guint16 tempShort;
-	guint32 tempLong;
 	guint32 tempOffset = offset;
 	guint16 tlvLen = tvb_reported_length(tvb)-offset;
 
@@ -2183,12 +2192,10 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempOffset += 2;
 
 		/* Get operational MAU type */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Operational MAU Type: %s (0x%04X)",
-							val_to_str_const(tempShort,operational_mau_type_values,"Unknown"),
-							tempShort);
+			proto_tree_add_item(tree, hf_ieee_802_3_pmd_mau_type, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
+		tempOffset += 2;
 
 		break;
 	}
@@ -2211,16 +2218,14 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempOffset++;
 
 		/* Get PSE power pair */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "PSE Power Pair: %u", tempByte);
+			proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_pse_pair, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		/* Get power class */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Class: %u", tempByte);
+			proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_class, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
@@ -2233,9 +2238,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		/* Determine power type */
 		subType = ((tempByte & 0xC0) >> 6);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Type %s %s",
-				val_to_str_const(subType, power_type_802_3, "Unknown"),
-				val_to_str_const(subType, media_power_type, "Unknown"));
+			proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		/* Determine power source */
 		switch (subType)
@@ -2263,28 +2266,27 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		}
 		}
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Source %s", strPtr);
+			proto_tree_add_string(tree, hf_ieee_802_3_mdi_power_source, tvb, tempOffset, 1, strPtr);
 
 		/* Determine power priority */
-		subType = (tempByte & 0x0F);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Priority %s",
-				val_to_str_const(subType, media_power_priority, "Reserved"));
+			proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_priority, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		/* Power Value: 1 to 510 expected  */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "PD Requested Power Value: %u.%u Watt", tempShort/10, tempShort%10);
+			proto_tree_add_string_format_value(tree, hf_ieee_802_3_mdi_requested_power, tvb, tempOffset, 2, "", "%u.%u. Watt", tempShort/10, tempShort%10);
 
 		tempOffset+=2;
 
 		/* Power Value: 1 to 510 expected */
 		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "PSE Allocated Power Value: %u.%u Watt", tempShort/10, tempShort%10);
+			proto_tree_add_string_format_value(tree, hf_ieee_802_3_mdi_allocated_power, tvb, tempOffset, 2, "", "%u.%u. Watt", tempShort/10, tempShort%10);
 
+		tempOffset+=2;
 		break;
 	}
 	case 0x03:	/* Link Aggregation */
@@ -2301,19 +2303,19 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		tempOffset++;
 
 		/* Get aggregated port id */
-		tempLong = tvb_get_ntohl(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 4, "Aggregated Port Id: %u", tempLong);
+			proto_tree_add_item(tree, hf_ieee_802_3_aggregated_port_id, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
 
+		tempOffset+=4;
 		break;
 	}
 	case 0x04:	/* Maximum Frame Size */
 	{
 		/* Get maximum frame size */
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Maximum Frame Size: %u", tempShort);
+			proto_tree_add_item(tree, hf_ieee_802_3_max_frame_size, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
+		tempOffset+=2;
 		break;
 	}
 	}
@@ -4002,6 +4004,10 @@ proto_register_lldp(void)
 			{ "Other or unknown", "lldp.ieee.802_3.pmd_auto_neg_advertised_caps_inv.other", FT_BOOLEAN, 16,
 			TFS(&tfs_capable_not_capable), INV_AUTONEG_OTHER, NULL, HFILL }
 		},
+		{ &hf_ieee_802_3_pmd_mau_type,
+			{ "Operational MAU Type", "lldp.ieee.802_3.pmd_mau_type", FT_UINT16, BASE_HEX,
+			VALS(operational_mau_type_values), 0x0, "Unknown", HFILL }
+		},
 		{ &hf_ieee_802_3_mdi_power_support,
 			{ "MDI Power Support", "lldp.ieee.802_3.mdi_power_support", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
@@ -4022,6 +4028,34 @@ proto_register_lldp(void)
 			{ "PSE Pairs Control Ability", "lldp.ieee.802_3.mdi_power_support.pse_pairs", FT_BOOLEAN, 8,
 			TFS(&tfs_yes_no), 0x08, NULL, HFILL }
 		},
+		{ &hf_ieee_802_3_mdi_power_pse_pair,
+			{ "PSE Power Pair", "lldp.ieee.802_3.mdi_pse_pair", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_class,
+			{ "Power Class", "lldp.ieee.802_3.mdi_power_class", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_type,
+			{ "Power Type", "lldp.ieee.802_3.mdi_power_type", FT_UINT8, BASE_DEC,
+			VALS(power_type_802_3), 0xC0, "Unknown", HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_source,
+			{ "Power Source", "lldp.ieee.802_3.mdi_power_source", FT_UINT8, BASE_DEC,
+			NULL, 0x30, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_power_priority,
+			{ "Power Priority", "lldp.ieee.802_3.mdi_power_priority", FT_UINT8, BASE_DEC,
+			VALS(media_power_priority), 0x0F, "Reserved", HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_requested_power,
+			{ "PD Requested Power Value", "lldp.ieee.802_3.mdi_pde_requested", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_mdi_allocated_power,
+			{ "PSE Allocated Power Value", "lldp.ieee.802_3.mdi_pse_allocated", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_ieee_802_3_aggregation_status,
 			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status", FT_UINT8, BASE_HEX,
 			NULL, 0x0, NULL, HFILL }
@@ -4033,6 +4067,14 @@ proto_register_lldp(void)
 		{ &hf_ieee_802_3_aggregation_status_enabled,
 			{ "Aggregation Status", "lldp.ieee.802_3.aggregation_status.enabled", FT_BOOLEAN, 8,
 			TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_aggregated_port_id,
+			{ "Aggregated Port Id", "lldp.ieee.802_3.aggregated_port_id", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_3_max_frame_size,
+			{ "Maximum Frame Size", "lldp.ieee.802_3.max_frame_size", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
 		},
 		{ &hf_ieee_802_1qbg_subtype,
 			{ "IEEE 802.1Qbg Subtype", "lldp.ieee.802_1qbg.subtype", FT_UINT8, BASE_HEX,
