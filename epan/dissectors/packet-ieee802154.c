@@ -636,7 +636,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     ieee802154_short_addr   addr16;
     ieee802154_hints_t     *ieee_hints;
 
-    heur_dtbl_entry_t *hdtbl_entry;
+    heur_dtbl_entry_t      *hdtbl_entry;
 
     packet->short_table = ieee802154_map.short_table;
 
@@ -1108,7 +1108,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 break;
             }
             /* Try heuristic dissection. */
-            if (dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, packet)) break;
+            if (dissector_try_heuristic(ieee802154_heur_subdissector_list, payload_tvb, pinfo, tree, &hdtbl_entry, packet)) break;
             /* Fall-through to dump undissectable payloads. */
         default:
             /* Could not subdissect, call the data dissector instead. */
