@@ -2429,7 +2429,7 @@ static gpointer ieee802154_da_value(packet_info *pinfo _U_)
     ieee802154_hints_t *hints;
     hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                 proto_get_id_by_filter_name(IEEE802154_PROTOABBREV_WPAN), 0);
-    return GUINT_TO_POINTER(hints->src_pan);
+    return GUINT_TO_POINTER((guint)(hints->src_pan));
 } /* iee802154_da_value */
 
 /*FUNCTION:------------------------------------------------------
