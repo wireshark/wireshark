@@ -210,4 +210,3 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 
 	return 1;
 }
-
