@@ -16,7 +16,7 @@ option(BUILD_dftest      "Build dftest" ON)
 option(AUTOGEN_dcerpc    "Autogenerate DCE RPC dissectors" OFF)
 option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 
-option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
+option(DISABLE_WERROR    "Do not treat warnings as errors" ON)
 option(ENABLE_EXTRA_COMPILER_WARNINGS "Do additional compiler warnings (disables -Werror)" OFF)
 #
 # Leave GTK2 the default on Windows, looks better than GTK3
