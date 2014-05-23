@@ -94,7 +94,7 @@ static const mime_files_t magic_files[] = {
  */
 #define MAX_FILE_SIZE	(16*1024*1024)
 
-static gboolean
+static int
 mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
@@ -102,7 +102,7 @@ mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	int packet_size;
 
 	if ((file_size = wtap_file_size(wth, err)) == -1)
-		return FALSE;
+		return -1;
 
 	if (file_size > MAX_FILE_SIZE) {
 		/*
@@ -112,7 +112,7 @@ mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("mime_file: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
 				file_size, MAX_FILE_SIZE);
-		return FALSE;
+		return -1;
 	}
 	packet_size = (int)file_size;
 
@@ -124,10 +124,12 @@ mime_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	phdr->ts.secs = 0;
 	phdr->ts.nsecs = 0;
 
-	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
+	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
+		return -1;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	gint64 offset;
@@ -138,24 +140,24 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 	/* there is only ever one packet */
 	if (offset != 0)
-		return FALSE;
+		return -1;
 
 	*data_offset = offset;
 
 	return mime_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
-static gboolean
+static int
 mime_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	/* there is only one packet */
 	if (seek_off > 0) {
 		*err = 0;
-		return FALSE;
+		return -1;
 	}
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	return mime_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }

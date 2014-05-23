@@ -102,7 +102,7 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
     return TRUE;
 }
 
-static gboolean
+static int
 mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     mp2t_filetype_t *mp2t;
@@ -113,27 +113,27 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, &wth->phdr,
                           wth->frame_buffer, err, err_info)) {
-        return FALSE;
+        return -1;
     }
 
     /* if there's a trailer, skip it and go to the start of the next packet */
     if (mp2t->trailer_len!=0) {
         if (-1 == file_seek(wth->fh, mp2t->trailer_len, SEEK_CUR, err)) {
-            return FALSE;
+            return -1;
         }
     }
 
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
         Buffer *buf, int *err, gchar **err_info)
 {
     mp2t_filetype_t *mp2t;
 
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err)) {
-        return FALSE;
+        return -1;
     }
 
     mp2t = (mp2t_filetype_t*) wth->priv;
@@ -142,9 +142,9 @@ mp2t_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
                           err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return -1;
     }
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
 int

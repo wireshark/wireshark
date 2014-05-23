@@ -99,10 +99,10 @@ extern gboolean
 capture_input_new_file(capture_session *cap_session, gchar *new_file);
 
 /**
- * Capture child told us we have new packets to read.
+ * Capture child told us we have new records to read.
  */
 extern void
-capture_input_new_packets(capture_session *cap_session, int to_read);
+capture_input_new_records(capture_session *cap_session, int to_read);
 
 /**
  * Capture child told us how many dropped packets it counted.

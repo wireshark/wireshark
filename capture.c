@@ -390,9 +390,9 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 }
 
 
-/* capture child tells us we have new packets to read */
+/* capture child tells us we have new records to read */
 void
-capture_input_new_packets(capture_session *cap_session, int to_read)
+capture_input_new_records(capture_session *cap_session, int to_read)
 {
   capture_options *capture_opts = cap_session->capture_opts;
   int  err;
@@ -435,7 +435,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
 #endif
 
   if(capture_opts->show_info)
-    capture_info_new_packets(to_read);
+    capture_info_new_records(to_read);
 }
 
 

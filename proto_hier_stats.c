@@ -147,7 +147,7 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	/* Load the frame from the capture file */
 	buffer_init(&buf, 1500);
-	if (!cf_read_frame_r(&cfile, frame, &phdr, &buf))
+	if (cf_read_frame_r(&cfile, frame, &phdr, &buf) == -1)
 		return FALSE;	/* failure */
 
 	/* Dissect the frame   tree  not visible */

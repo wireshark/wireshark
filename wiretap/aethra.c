@@ -112,9 +112,9 @@ typedef struct {
 	time_t	start;
 } aethra_t;
 
-static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
+static int aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
+static int aethra_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
@@ -182,7 +182,7 @@ static guint packet = 0;
 #endif
 
 /* Read the next packet */
-static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
+static int aethra_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	struct aethrarec_hdr hdr;
@@ -196,7 +196,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 
 		/* Read record header. */
 		if (!aethra_read_rec_header(wth, wth->fh, &hdr, &wth->phdr, err, err_info))
-			return FALSE;
+			return -1;
 
 		/*
 		 * XXX - if this is big, we might waste memory by
@@ -205,7 +205,7 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		if (wth->phdr.caplen != 0) {
 			if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
 			    wth->phdr.caplen, err, err_info))
-				return FALSE;	/* Read error */
+				return -1;	/* Read error */
 		}
 #if 0
 packet++;
@@ -270,32 +270,32 @@ packet, hdr.rec_type, wth->phdr.caplen, hdr.flags);
 	}
 
 found:
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 aethra_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	struct aethrarec_hdr hdr;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	if (!aethra_read_rec_header(wth, wth->random_fh, &hdr, phdr, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return -1;
 	}
 
 	/*
 	 * Read the packet data.
 	 */
 	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err, err_info))
-		return FALSE;	/* failed */
+		return -1;	/* failed */
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 static gboolean

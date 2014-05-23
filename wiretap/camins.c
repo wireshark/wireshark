@@ -256,7 +256,7 @@ create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
 }
 
 
-static gboolean
+static int
 camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
@@ -266,7 +266,7 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     gint        offset, bytes_read;
 
     if (!find_next_pkt_dat_type_len(fh, &dat_trans_type, &dat_len, err, err_info))
-        return FALSE;
+        return -1;
 
     buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
     p = buffer_start_ptr(buf);
@@ -276,7 +276,7 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         /* shouldn't happen, all invalid packets must be detected by
            find_next_pkt_dat_type_len() */
         *err = WTAP_ERR_INTERNAL;
-        return FALSE;
+        return -1;
     }
 
     bytes_read = read_packet_data(fh, dat_trans_type,
@@ -284,7 +284,7 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     /* 0<=bytes_read<=dat_len is very likely a corrupted packet
        we let the dissector handle this */
     if (bytes_read < 0)
-        return FALSE;
+        return -1;
     offset += bytes_read;
 
     phdr->pkt_encap = WTAP_ENCAP_DVBCI;
@@ -292,11 +292,11 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     phdr->caplen = offset;
     phdr->len = offset;
 
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
 
-static gboolean
+static int
 camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
@@ -306,12 +306,12 @@ camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 
-static gboolean
+static int
 camins_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *pkthdr, Buffer *buf, int *err, gchar **err_info)
 {
     if (-1 == file_seek(wth->random_fh, seek_off, SEEK_SET, err))
-        return FALSE;
+        return -1;
 
     return camins_read_packet(wth->random_fh, pkthdr, buf, err, err_info);
 }

@@ -137,29 +137,30 @@ void cf_reload(capture_file *cf);
 cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
 
 /**
- * Read the pseudo-header and raw data for a packet.  It will pop
- * up an alert box if there's an error.
+ * Read a record from a capture file.  It will pop up an alert box
+ * if there's an error.
  *
- * @param cf the capture file from which to read the packet
- * @param fdata the frame_data structure for the packet in question
+ * @param cf the capture file from which to read the record
+ * @param fdata the frame_data structure for the record in question
  * @param phdr pointer to a wtap_pkthdr structure to contain the
- * packet's pseudo-header and other metadata
- * @param buf a Buffer into which to read the packet's raw data
- * @return TRUE if the read succeeded, FALSE if there was an error
+ * packet's pseudo-header and other metadata, if the record is a
+ * packet
+ * @param buf a Buffer into which to read the record's data
+ * @return record type if the read succeeded, -1 if there was an error
  */
-gboolean cf_read_frame_r(capture_file *cf, const frame_data *fdata,
-                         struct wtap_pkthdr *phdr, Buffer *buf);
+int cf_read_frame_r(capture_file *cf, const frame_data *fdata,
+                    struct wtap_pkthdr *phdr, Buffer *buf);
 
 /**
- * Read the pseudo-header and raw data for a packet into a
- * capture_file structure's pseudo_header and buf members.
+ * Read a record from a capture file into a capture_file structure's
+ * pseudo_header and buf members.
  * It will pop up an alert box if there's an error.
  *
- * @param cf the capture file from which to read the packet
- * @param fdata the frame_data structure for the packet in question
- * @return TRUE if the read succeeded, FALSE if there was an error
+ * @param cf the capture file from which to read the record
+ * @param fdata the frame_data structure for the record in question
+ * @return record type if the read succeeded, -1 if there was an error
  */
-gboolean cf_read_frame(capture_file *cf, frame_data *fdata);
+int cf_read_frame(capture_file *cf, frame_data *fdata);
 
 /**
  * Read packets from the "end" of a capture file.

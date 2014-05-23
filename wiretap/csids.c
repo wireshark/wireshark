@@ -44,9 +44,9 @@ typedef struct {
 	gboolean byteswapped;
 } csids_t;
 
-static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
+static int csids_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean csids_seek_read(wtap *wth, gint64 seek_off,
+static int csids_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean csids_read_packet(FILE_T fh, csids_t *csids,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
@@ -144,19 +144,21 @@ int csids_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean csids_read(wtap *wth, int *err, gchar **err_info,
+static int csids_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
   csids_t *csids = (csids_t *)wth->priv;
 
   *data_offset = file_tell(wth->fh);
 
-  return csids_read_packet( wth->fh, csids, &wth->phdr, wth->frame_buffer,
-                            err, err_info );
+  if (!csids_read_packet( wth->fh, csids, &wth->phdr, wth->frame_buffer,
+                          err, err_info ))
+    return -1;
+  return REC_TYPE_PACKET;
 }
 
 /* Used to read packets in random-access fashion */
-static gboolean
+static int
 csids_seek_read(wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
@@ -167,14 +169,14 @@ csids_seek_read(wtap *wth,
   csids_t *csids = (csids_t *)wth->priv;
 
   if( file_seek( wth->random_fh, seek_off, SEEK_SET, err ) == -1 )
-    return FALSE;
+    return -1;
 
   if( !csids_read_packet( wth->random_fh, csids, phdr, buf, err, err_info ) ) {
     if( *err == 0 )
       *err = WTAP_ERR_SHORT_READ;
-    return FALSE;
+    return -1;
   }
-  return TRUE;
+  return REC_TYPE_PACKET;
 }
 
 static gboolean

@@ -123,9 +123,9 @@ typedef struct {
 	gboolean	has_fcs;
 } peektagged_t;
 
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
+static int peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
+static int peektagged_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
@@ -633,7 +633,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     return skip_len;
 }
 
-static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
+static int peektagged_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     int skip_len;
@@ -644,29 +644,29 @@ static gboolean peektagged_read(wtap *wth, int *err, gchar **err_info,
     skip_len = peektagged_read_packet(wth, wth->fh, &wth->phdr,
                                       wth->frame_buffer, err, err_info);
     if (skip_len == -1)
-	return FALSE;
+	return -1;
 
     if (skip_len != 0) {
 	/* Skip extra junk at the end of the packet data. */
         if (!file_skip(wth->fh, skip_len, err))
-	    return FALSE;
+	    return -1;
     }
 
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 peektagged_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-	return FALSE;
+	return -1;
 
     /* Read the packet. */
     if (peektagged_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-	return FALSE;
+	return -1;
     }
-    return TRUE;
+    return REC_TYPE_PACKET;
 }

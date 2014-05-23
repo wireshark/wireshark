@@ -232,9 +232,11 @@ gboolean capture_info_new_file(const char *new_filename)
 }
 
 
-/* new packets arrived */
-void capture_info_new_packets(int to_read)
+/* new records arrived */
+void capture_info_new_records(int to_read)
 {
+    int rec_type;
+    int packets_read = 0;
     int err;
     gchar *err_info;
     gint64 data_offset;
@@ -244,25 +246,27 @@ void capture_info_new_packets(int to_read)
     const guchar *buf;
 
 
-    info_data.ui.new_packets = to_read;
-
     /*g_warning("new packets: %u", to_read);*/
 
     while (to_read > 0) {
         wtap_cleareof(info_data.wtap);
-        if (wtap_read(info_data.wtap, &err, &err_info, &data_offset)) {
-            phdr = wtap_phdr(info_data.wtap);
-            pseudo_header = &phdr->pseudo_header;
-            wtap_linktype = phdr->pkt_encap;
-            buf = wtap_buf_ptr(info_data.wtap);
+        if ((rec_type = wtap_read(info_data.wtap, &err, &err_info, &data_offset)) != -1) {
+            if (rec_type == REC_TYPE_PACKET) {
+                phdr = wtap_phdr(info_data.wtap);
+                pseudo_header = &phdr->pseudo_header;
+                wtap_linktype = phdr->pkt_encap;
+                buf = wtap_buf_ptr(info_data.wtap);
 
-            capture_info_packet(&info_data.counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
+                capture_info_packet(&info_data.counts, wtap_linktype, buf, phdr->caplen, pseudo_header);
+                packets_read++;
 
-            /*g_warning("new packet");*/
+                /*g_warning("new packet");*/
+            }
             to_read--;
         }
     }
 
+    info_data.ui.new_packets = packets_read;
     capture_info_ui_update(&info_data.ui);
 }
 

@@ -214,7 +214,7 @@ iptrace_read_rec_1_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 }
 
 /* Read the next packet */
-static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
+static int iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -223,7 +223,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	if (!iptrace_read_rec_1_0(wth->fh, &wth->phdr, wth->frame_buffer,
 	    err, err_info)) {
 		/* Read error or EOF */
-		return FALSE;
+		return -1;
 	}
 
 	/* If the per-file encapsulation isn't known, set it to this
@@ -239,22 +239,22 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
+static int iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	/* Read the packet */
 	if (!iptrace_read_rec_1_0(wth->random_fh, phdr, buf, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return -1;
 	}
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 /***********************************************************
@@ -409,7 +409,7 @@ iptrace_read_rec_2_0(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 }
 
 /* Read the next packet */
-static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
+static int iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -418,7 +418,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	if (!iptrace_read_rec_2_0(wth->fh, &wth->phdr, wth->frame_buffer,
 	    err, err_info)) {
 		/* Read error or EOF */
-		return FALSE;
+		return -1;
 	}
 
 	/* If the per-file encapsulation isn't known, set it to this
@@ -434,22 +434,22 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
+static int iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	/* Read the packet */
 	if (!iptrace_read_rec_2_0(wth->random_fh, phdr, buf, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return -1;
 	}
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 static int

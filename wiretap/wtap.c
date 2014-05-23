@@ -975,9 +975,11 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
 		wth->add_new_ipv6 = add_new_ipv6;
 }
 
-gboolean
+int
 wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
+	int rectype;
+
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
 	 * value; if that's not WTAP_ENCAP_PER_PACKET, it's the
@@ -988,7 +990,8 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 */
 	wth->phdr.pkt_encap = wth->file_encap;
 
-	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
+	rectype = wth->subtype_read(wth, err, err_info, data_offset);
+	if (rectype == -1) {
 		/*
 		 * If we didn't get an error indication, we read
 		 * the last packet.  See if there's any deferred
@@ -1000,7 +1003,7 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 */
 		if (*err == 0)
 			*err = file_error(wth->fh, err_info);
-		return FALSE;	/* failure */
+		return rectype;	/* failure */
 	}
 
 	/*
@@ -1018,7 +1021,7 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 */
 	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
 
-	return TRUE;	/* success */
+	return rectype;
 }
 
 /*
@@ -1071,12 +1074,15 @@ wtap_buf_ptr(wtap *wth)
 	return buffer_start_ptr(wth->frame_buffer);
 }
 
-gboolean
+int
 wtap_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
-	if (!wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info))
-		return FALSE;
+	int rectype;
+
+	rectype = wth->subtype_seek_read(wth, seek_off, phdr, buf, err, err_info);
+	if (rectype == -1)
+		return rectype;
 
 	/*
 	 * It makes no sense for the captured data length to be bigger
@@ -1093,5 +1099,5 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	 */
 	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
 
-	return TRUE;
+	return rectype;
 }

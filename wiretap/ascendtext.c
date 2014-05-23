@@ -74,9 +74,9 @@ static const ascend_magic_string ascend_magic[] = {
   { ASCEND_PFX_ETHER,	"ETHER" },
 };
 
-static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
+static int ascend_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
+static int ascend_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf,
 	int *err, gchar **err_info);
 
@@ -237,36 +237,36 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
      packet's header because we might mistake part of it for a new header. */
   if (file_seek(wth->fh, ascend->next_packet_seek_start,
                 SEEK_SET, err) == -1)
-    return FALSE;
+    return -1;
 
   offset = ascend_seek(wth, err, err_info);
   if (offset == -1)
-    return FALSE;
+    return -1;
   if (parse_ascend(ascend, wth->fh, &wth->phdr, wth->frame_buffer,
                    wth->snapshot_length) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
-    return FALSE;
+    return -1;
   }
 
   *data_offset = offset;
-  return TRUE;
+  return REC_TYPE_PACKET;
 }
 
-static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
+static int ascend_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf,
 	int *err, gchar **err_info)
 {
   ascend_t *ascend = (ascend_t *)wth->priv;
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-    return FALSE;
+    return -1;
   if (parse_ascend(ascend, wth->random_fh, phdr, buf,
                    wth->snapshot_length) != PARSED_RECORD) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup((ascend_parse_error != NULL) ? ascend_parse_error : "parse error");
-    return FALSE;
+    return -1;
   }
 
-  return TRUE;
+  return REC_TYPE_PACKET;
 }

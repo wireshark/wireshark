@@ -736,11 +736,13 @@ void CaptureFileDialog::preview(const QString & path)
     wtap        *wth;
     int          err = 0;
     gchar       *err_info;
+    int          rec_type;
     gint64       data_offset;
     const struct wtap_pkthdr *phdr;
     double       start_time = 0; /* seconds, with nsec resolution */
     double       stop_time = 0;  /* seconds, with nsec resolution */
     double       cur_time;
+    unsigned int records = 0;
     unsigned int packets = 0;
     bool         timed_out = FALSE;
     time_t       time_preview;
@@ -792,22 +794,25 @@ void CaptureFileDialog::preview(const QString & path)
     preview_size_.setText(QString(tr("%1 bytes")).arg(wtap_file_size(wth, &err)));
 
     time(&time_preview);
-    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-        phdr = wtap_phdr(wth);
-        cur_time = nstime_to_sec(&phdr->ts);
-        if(packets == 0) {
-            start_time = cur_time;
-            stop_time = cur_time;
-        }
-        if (cur_time < start_time) {
-            start_time = cur_time;
-        }
-        if (cur_time > stop_time){
-            stop_time = cur_time;
-        }
+    while ( (rec_type = wtap_read(wth, &err, &err_info, &data_offset)) != -1 ) {
+        if (rec_type == REC_TYPE_PACKET) {
+            phdr = wtap_phdr(wth);
+            cur_time = nstime_to_sec(&phdr->ts);
+            if(packets == 0) {
+                start_time = cur_time;
+                stop_time = cur_time;
+            }
+            if (cur_time < start_time) {
+                start_time = cur_time;
+            }
+            if (cur_time > stop_time){
+                stop_time = cur_time;
+            }
 
-        packets++;
-        if(packets%1000 == 0) {
+            packets++;
+        }
+        records++;
+        if(records%1000 == 0) {
             /* do we have a timeout? */
             time(&time_current);
             if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {

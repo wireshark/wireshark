@@ -84,9 +84,9 @@ struct radcomrec_hdr {
 	char	xxw[9];		/* unknown */
 };
 
-static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
+static int radcom_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
+static int radcom_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info);
@@ -252,8 +252,8 @@ read_error:
 }
 
 /* Read the next packet */
-static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
-			    gint64 *data_offset)
+static int radcom_read(wtap *wth, int *err, gchar **err_info,
+		       gint64 *data_offset)
 {
 	int	bytes_read;
 	char	fcs[2];
@@ -264,7 +264,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	if (!radcom_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
 	    err, err_info)) {
 		/* Read error or EOF */
-		return FALSE;
+		return -1;
 	}
 
 	if (wth->file_encap == WTAP_ENCAP_LAPB) {
@@ -278,20 +278,20 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 			*err = file_error(wth->fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
-			return FALSE;
+			return -1;
 		}
 	}
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 radcom_seek_read(wtap *wth, gint64 seek_off,
 		 struct wtap_pkthdr *phdr, Buffer *buf,
 		 int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	/* Read record. */
 	if (!radcom_read_rec(wth, wth->random_fh, phdr, buf, err,
@@ -301,9 +301,9 @@ radcom_seek_read(wtap *wth, gint64 seek_off,
 			/* EOF means "short read" in random-access mode */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return FALSE;
+		return -1;
 	}
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 static gboolean

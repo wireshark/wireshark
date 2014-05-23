@@ -84,9 +84,9 @@ struct shomiti_trailer {
 #define RX_STATUS_FIFO_ERROR		0x0080	/* receive FIFO error */
 #define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
-static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
+static int snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
+static int snoop_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info);
@@ -447,7 +447,7 @@ typedef struct {
 
 
 /* Read the next packet */
-static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
+static int snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int	padbytes;
@@ -460,7 +460,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 	padbytes = snoop_read_packet(wth, wth->fh, &wth->phdr,
 	    wth->frame_buffer, err, err_info);
 	if (padbytes == -1)
-		return FALSE;
+		return -1;
 
 	/*
 	 * Skip over the padding (don't "fseek()", as the standard
@@ -482,27 +482,27 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 			*err = file_error(wth->fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
-			return FALSE;
+			return -1;
 		}
 		padbytes -= bytes_read;
 	}
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 snoop_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	if (snoop_read_packet(wth, wth->random_fh, phdr, buf, err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return -1;
 	}
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 static int

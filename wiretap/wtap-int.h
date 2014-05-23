@@ -40,10 +40,10 @@
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
-typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
-typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64,
-                                           struct wtap_pkthdr *, Buffer *buf,
-                                           int *, char **);
+typedef int (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
+typedef int (*subtype_seek_read_func)(struct wtap*, gint64,
+                                      struct wtap_pkthdr *, Buffer *,
+                                      int *, char **);
 /**
  * Struct holding data of the currently read file.
  */

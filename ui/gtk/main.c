@@ -543,7 +543,7 @@ get_ip_address_list_from_packet_list_row(gpointer data)
     if (fdata != NULL) {
         epan_dissect_t edt;
 
-        if (!cf_read_frame (&cfile, fdata))
+        if (cf_read_frame (&cfile, fdata) == -1)
             return NULL; /* error reading the frame */
 
         epan_dissect_init(&edt, cfile.epan, FALSE, FALSE);
@@ -584,7 +584,7 @@ get_filter_from_packet_list_row_and_column(gpointer data)
     if (fdata != NULL) {
         epan_dissect_t edt;
 
-        if (!cf_read_frame(&cfile, fdata))
+        if (cf_read_frame(&cfile, fdata) == -1)
             return NULL; /* error reading the frame */
         /* proto tree, visible. We need a proto tree if there's custom columns */
         epan_dissect_init(&edt, cfile.epan, have_custom_cols(&cfile.cinfo), FALSE);

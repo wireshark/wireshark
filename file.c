@@ -575,6 +575,7 @@ cf_read(capture_file *cf, gboolean reloading)
 {
   int                  err;
   gchar               *err_info;
+  int                  rec_type;
   gchar               *name_ptr;
   progdlg_t           *progbar        = NULL;
   gboolean             stop_flag;
@@ -651,7 +652,7 @@ cf_read(capture_file *cf, gboolean reloading)
     }else
       progbar_quantum = 0;
 
-    while ((wtap_read(cf->wth, &err, &err_info, &data_offset))) {
+    while ((rec_type = wtap_read(cf->wth, &err, &err_info, &data_offset)) != -1) {
       if (size >= 0) {
         count++;
         file_pos = wtap_read_so_far(cf->wth);
@@ -701,7 +702,9 @@ cf_read(capture_file *cf, gboolean reloading)
            hours even on fast machines) just to see that it was the wrong file. */
         break;
       }
-      read_packet(cf, dfcode, &edt, cinfo, data_offset);
+
+      if (rec_type == REC_TYPE_PACKET)
+          read_packet(cf, dfcode, &edt, cinfo, data_offset);
     }
   }
   CATCH(OutOfMemoryError) {
@@ -837,6 +840,7 @@ cf_read(capture_file *cf, gboolean reloading)
 cf_read_status_t
 cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 {
+  int               rec_type;
   gchar            *err_info;
   volatile int      newly_displayed_packets = 0;
   dfilter_t        *dfcode;
@@ -875,7 +879,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
 
     while (to_read != 0) {
       wtap_cleareof(cf->wth);
-      if (!wtap_read(cf->wth, err, &err_info, &data_offset)) {
+      if ((rec_type = wtap_read(cf->wth, err, &err_info, &data_offset)) == -1) {
         break;
       }
       if (cf->state == FILE_READ_ABORTED) {
@@ -884,8 +888,10 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
            aren't any packets left to read) exit. */
         break;
       }
-      if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
-        newly_displayed_packets++;
+      if (rec_type == REC_TYPE_PACKET) {
+        if (read_packet(cf, dfcode, &edt, (column_info *) cinfo, data_offset) != -1) {
+          newly_displayed_packets++;
+        }
       }
       to_read--;
     }
@@ -959,6 +965,7 @@ cf_fake_continue_tail(capture_file *cf) {
 cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
+  int        rec_type;
   gchar     *err_info;
   gint64     data_offset;
   dfilter_t *dfcode;
@@ -992,14 +999,15 @@ cf_finish_tail(capture_file *cf, int *err)
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
-  while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
+  while ((rec_type = wtap_read(cf->wth, err, &err_info, &data_offset)) != -1) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
          loop, and let the code below (which is called even if there
          aren't any packets left to read) exit. */
       break;
     }
-    read_packet(cf, dfcode, &edt, cinfo, data_offset);
+    if (rec_type == REC_TYPE_PACKET)
+      read_packet(cf, dfcode, &edt, cinfo, data_offset);
   }
 
   /* Cleanup and release all dfilter resources */
@@ -1753,10 +1761,11 @@ cf_redissect_packets(capture_file *cf)
   }
 }
 
-gboolean
+int
 cf_read_frame_r(capture_file *cf, const frame_data *fdata,
                 struct wtap_pkthdr *phdr, Buffer *buf)
 {
+  int    rec_type;
   int    err;
   gchar *err_info;
   gchar *display_basename;
@@ -1768,17 +1777,19 @@ cf_read_frame_r(capture_file *cf, const frame_data *fdata,
 
     if (!frame) {
       simple_error_message_box("fdata->file_off == -1, but can't find modified frame!");
-      return FALSE;
+      return -1;
     }
 
     *phdr = frame->phdr;
     buffer_assure_space(buf, frame->phdr.caplen);
     memcpy(buffer_start_ptr(buf), frame->pd, frame->phdr.caplen);
-    return TRUE;
+    /* XXX - what if this isn't a packet? */
+    return REC_TYPE_PACKET;
   }
 #endif
 
-  if (!wtap_seek_read(cf->wth, fdata->file_off, phdr, buf, &err, &err_info)) {
+  rec_type = wtap_seek_read(cf->wth, fdata->file_off, phdr, buf, &err, &err_info);
+  if (rec_type == -1) {
     display_basename = g_filename_display_basename(cf->filename);
     switch (err) {
 
@@ -1801,12 +1812,12 @@ cf_read_frame_r(capture_file *cf, const frame_data *fdata,
       break;
     }
     g_free(display_basename);
-    return FALSE;
+    return -1;
   }
-  return TRUE;
+  return rec_type;
 }
 
-gboolean
+int
 cf_read_frame(capture_file *cf, frame_data *fdata)
 {
   return cf_read_frame_r(cf, fdata, &cf->phdr, &cf->buf);
@@ -2005,7 +2016,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* Frame dependencies from the previous dissection/filtering are no longer valid. */
     fdata->flags.dependent_of_displayed = 0;
 
-    if (!cf_read_frame(cf, fdata))
+    if (cf_read_frame(cf, fdata) == -1)
       break; /* error reading the frame */
 
     /* If the previous frame is displayed, and we haven't yet seen the
@@ -2332,7 +2343,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
     }
 
     /* Get the packet */
-    if (!cf_read_frame_r(cf, fdata, &phdr, &buf)) {
+    if (cf_read_frame_r(cf, fdata, &phdr, &buf) == -1) {
       /* Attempt to get the packet failed. */
       ret = PSP_FAILED;
       break;
@@ -3109,7 +3120,7 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
   epan_dissect_t  edt;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3213,7 +3224,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   size_t          c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3311,7 +3322,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3359,7 +3370,7 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3406,7 +3417,7 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3452,7 +3463,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match     = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3522,7 +3533,7 @@ match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
   match_result    result;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (cf_read_frame(cf, fdata) == -1) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3848,7 +3859,7 @@ cf_select_packet(capture_file *cf, int row)
   }
 
   /* Get the data in that frame. */
-  if (!cf_read_frame (cf, fdata)) {
+  if (cf_read_frame (cf, fdata) == -1) {
     return;
   }
 
@@ -4028,7 +4039,7 @@ cf_get_comment(capture_file *cf, const frame_data *fd)
     memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
     buffer_init(&buf, 1500);
-    if (!cf_read_frame_r(cf, fd, &phdr, &buf))
+    if (cf_read_frame_r(cf, fd, &phdr, &buf) == -1)
       { /* XXX, what we can do here? */ }
 
     buffer_free(&buf);
@@ -4322,6 +4333,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 {
   const struct wtap_pkthdr *phdr;
   gchar               *err_info;
+  int                  rec_type;
   gchar               *name_ptr;
   gint64               data_offset;
   gint64               file_pos;
@@ -4408,10 +4420,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 
   framenum = 0;
   phdr = wtap_phdr(cf->wth);
-  while ((wtap_read(cf->wth, err, &err_info, &data_offset))) {
-    framenum++;
-    fdata = frame_data_sequence_find(cf->frames, framenum);
-    fdata->file_off = data_offset;
+  while ((rec_type = wtap_read(cf->wth, err, &err_info, &data_offset)) != -1) {
     if (size >= 0) {
       count++;
       file_pos = wtap_read_so_far(cf->wth);
@@ -4455,13 +4464,19 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
       break;
     }
 
-    /* Add this packet's link-layer encapsulation type to cf->linktypes, if
-       it's not already there.
-       XXX - yes, this is O(N), so if every packet had a different
-       link-layer encapsulation type, it'd be O(N^2) to read the file, but
-       there are probably going to be a small number of encapsulation types
-       in a file. */
-    cf_add_encapsulation_type(cf, phdr->pkt_encap);
+    if (rec_type == REC_TYPE_PACKET) {
+      framenum++;
+      fdata = frame_data_sequence_find(cf->frames, framenum);
+      fdata->file_off = data_offset;
+
+      /* Add this packet's link-layer encapsulation type to cf->linktypes, if
+         it's not already there.
+         XXX - yes, this is O(N), so if every packet had a different
+         link-layer encapsulation type, it'd be O(N^2) to read the file, but
+         there are probably going to be a small number of encapsulation types
+         in a file. */
+      cf_add_encapsulation_type(cf, phdr->pkt_encap);
+    }
   }
 
   /* Free the display name */

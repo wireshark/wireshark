@@ -73,9 +73,9 @@ static const char dct3trace_magic_end[]  = "</dump>";
 
 #define MAX_PACKET_LEN 23
 
-static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
+static int dct3trace_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
+static int dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 /*
@@ -187,7 +187,7 @@ int dct3trace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 
-static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static int dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info)
 {
 	char line[1024];
@@ -202,7 +202,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 		{
 			/* Return on end of file </dump> */
 			*err = 0;
-			return FALSE;
+			return -1;
 		}
 		else if( memcmp(dct3trace_magic_record_end, line, strlen(dct3trace_magic_record_end)) == 0 )
 		{
@@ -222,14 +222,14 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 				buffer_assure_space(buf, phdr->caplen);
 				memcpy( buffer_start_ptr(buf), databuf, phdr->caplen );
 
-				return TRUE;
+				return REC_TYPE_PACKET;
 			}
 			else
 			{
 				/* If not got any data return error */
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("dct3trace: record without data");
-				return FALSE;
+				return -1;
 			}
 		}
 		else if( memcmp(dct3trace_magic_record_start, line, strlen(dct3trace_magic_record_start)) == 0 )
@@ -282,7 +282,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 				{
 					*err = WTAP_ERR_BAD_FILE;
 					*err_info = g_strdup_printf("dct3trace: record length %d too long", phdr->caplen);
-					return FALSE;
+					return -1;
 				}
 			}
 		}
@@ -322,7 +322,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			{
 				*err = WTAP_ERR_BAD_FILE;
 				*err_info = g_strdup_printf("dct3trace: record length %d too long", phdr->caplen);
-				return FALSE;
+				return -1;
 			}
 			len += data_len;
 
@@ -336,17 +336,17 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 	{
 		*err = WTAP_ERR_SHORT_READ;
 	}
-	return FALSE;
+	return -1;
 
 baddata:
 	*err = WTAP_ERR_BAD_FILE;
 	*err_info = g_strdup_printf("dct3trace: record missing mandatory attributes");
-	return FALSE;
+	return -1;
 }
 
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
+static int dct3trace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -357,12 +357,12 @@ static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
 
 
 /* Used to read packets in random-access fashion */
-static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
+static int dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	{
-		return FALSE;
+		return -1;
 	}
 
 	return dct3trace_get_packet(wth->random_fh, phdr, buf, err, err_info);

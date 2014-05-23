@@ -402,9 +402,9 @@ typedef struct {
 	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
 } netxray_t;
 
-static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
+static int netxray_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
+static int netxray_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int netxray_process_rec_header(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
@@ -989,7 +989,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean
+static int
 netxray_read(wtap *wth, int *err, gchar **err_info,
 	     gint64 *data_offset)
 {
@@ -1007,7 +1007,7 @@ reread:
 	if (*data_offset == netxray->end_offset) {
 		/* Yes. */
 		*err = 0;	/* it's just an EOF, not an error */
-		return FALSE;
+		return -1;
 	}
 
 	/* Read and process record header. */
@@ -1021,7 +1021,7 @@ reread:
 			/*
 			 * Error of some sort; give up.
 			 */
-			return FALSE;
+			return -1;
 		}
 
 		/* We're at EOF.  Wrap?
@@ -1046,7 +1046,7 @@ reread:
 		 */
 		if (netxray->start_offset < netxray->end_offset) {
 			*err = WTAP_ERR_SHORT_READ;
-			return FALSE;
+			return -1;
 		}
 
 		if (!netxray->wrapped) {
@@ -1054,12 +1054,12 @@ reread:
 			netxray->wrapped = TRUE;
 			if (file_seek(wth->fh, CAPTUREFILE_HEADER_SIZE,
 			    SEEK_SET, err) == -1)
-				return FALSE;
+				return -1;
 			goto reread;
 		}
 
 		/* We've already wrapped - don't wrap again. */
-		return FALSE;
+		return -1;
 	}
 
 	/*
@@ -1067,13 +1067,13 @@ reread:
 	 */
 	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
 	    wth->phdr.caplen, err, err_info))
-		return FALSE;
+		return -1;
 
 	/*
 	 * If there's extra stuff at the end of the record, skip it.
 	 */
 	if (file_seek(wth->fh, padding, SEEK_CUR, err) == -1)
-		return FALSE;
+		return -1;
 
 	/*
 	 * If it's an ATM packet, and we don't have enough information
@@ -1081,16 +1081,16 @@ reread:
 	 * attempt to guess them from the packet data.
 	 */
 	netxray_guess_atm_type(wth, &wth->phdr, wth->frame_buffer);
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 netxray_seek_read(wtap *wth, gint64 seek_off,
 		  struct wtap_pkthdr *phdr, Buffer *buf,
 		  int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	if (netxray_process_rec_header(wth, wth->random_fh, phdr, err,
 	    err_info) == -1) {
@@ -1102,7 +1102,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 			 */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return FALSE;
+		return -1;
 	}
 
 	/*
@@ -1110,7 +1110,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	 */
 	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err,
 	    err_info))
-		return FALSE;
+		return -1;
 
 	/*
 	 * If it's an ATM packet, and we don't have enough information
@@ -1118,7 +1118,7 @@ netxray_seek_read(wtap *wth, gint64 seek_off,
 	 * attempt to guess them from the packet data.
 	 */
 	netxray_guess_atm_type(wth, phdr, buf);
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 static int

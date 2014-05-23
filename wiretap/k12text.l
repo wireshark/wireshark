@@ -244,7 +244,7 @@ k12text_reset(FILE_T fh)
 	ii=0;
 }
 
-static gboolean
+static int
 k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 {
 	k12text_t *k12text = (k12text_t *)wth->priv;
@@ -259,7 +259,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	 */
 
 	if ( file_seek(wth->fh, k12text->next_frame_offset, SEEK_SET, err) == -1) {
-		return FALSE;
+		return -1;
 	}
 	k12text_reset(wth->fh);		/* init lexer buffer and vars set by lexer */
 
@@ -274,7 +274,7 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 			*err = WTAP_ERR_BAD_FILE;
 			*err_info = error_str;
 		}
-		return FALSE;
+		return -1;
 	}
 
 	*data_offset = k12text->next_frame_offset;       /* file position for beginning of this frame   */
@@ -285,14 +285,14 @@ k12text_read(wtap *wth, int *err, char ** err_info, gint64 *data_offset)
 	buffer_assure_space(wth->frame_buffer, wth->phdr.caplen);
 	memcpy(buffer_start_ptr(wth->frame_buffer), bb, wth->phdr.caplen);
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, char **err_info)
 {
 	if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-		return FALSE;
+		return -1;
 	}
 	k12text_reset(wth->random_fh);		/* init lexer buffer and vars set by lexer */
 
@@ -307,7 +307,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 		} else {
 			*err_info = error_str;
 		}
-		return FALSE;
+		return -1;
 	}
 
 	k12text_set_headers(phdr);
@@ -315,7 +315,7 @@ k12text_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *
 	buffer_assure_space(buf, phdr->caplen);
 	memcpy(buffer_start_ptr(buf), bb, phdr->caplen);
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 int

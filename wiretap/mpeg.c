@@ -220,30 +220,32 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	return TRUE;
 }
 
-static gboolean
+static int
 mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return mpeg_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
-	    FALSE, err, err_info);
+	if (!mpeg_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	    FALSE, err, err_info))
+		return -1;
+	return REC_TYPE_PACKET;
 }
 
-static gboolean
+static int
 mpeg_seek_read(wtap *wth, gint64 seek_off,
 		struct wtap_pkthdr *phdr, Buffer *buf,
 		int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return FALSE;
+		return -1;
 
 	if (!mpeg_read_packet(wth, wth->random_fh, phdr, buf, TRUE, err,
 	    err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return FALSE;
+		return -1;
 	}
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 struct _mpeg_magic {

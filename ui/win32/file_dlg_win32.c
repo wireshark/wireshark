@@ -1119,8 +1119,10 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     int         err = 0;
     gchar      *err_info;
     TCHAR       string_buff[PREVIEW_STR_MAX];
+    int         rec_type;
     gint64      data_offset;
-    guint       packet = 0;
+    guint       records = 0;
+    guint       packets = 0;
     gint64      filesize;
     time_t      ti_time;
     struct tm  *ti_tm;
@@ -1186,21 +1188,24 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     SetWindowText(cur_ctrl, string_buff);
 
     time(&time_preview);
-    while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
-        phdr = wtap_phdr(wth);
-        cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
-        if(packet == 0) {
-            start_time  = cur_time;
-            stop_time = cur_time;
+    while ( (rec_type = wtap_read(wth, &err, &err_info, &data_offset)) != -1 ) {
+        if (rec_type == REC_TYPE_PACKET) {
+            phdr = wtap_phdr(wth);
+            cur_time = nstime_to_sec( (const nstime_t *) &phdr->ts );
+            if(packets == 0) {
+                start_time  = cur_time;
+                stop_time = cur_time;
+            }
+            if (cur_time < start_time) {
+                start_time = cur_time;
+            }
+            if (cur_time > stop_time){
+                stop_time = cur_time;
+            }
+            packets++;
         }
-        if (cur_time < start_time) {
-            start_time = cur_time;
-        }
-        if (cur_time > stop_time){
-            stop_time = cur_time;
-        }
-        packet++;
-        if(packet%100 == 0) {
+        records++;
+        if(records%100 == 0) {
             time(&time_current);
             if(time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {
                 is_breaked = TRUE;
@@ -1210,7 +1215,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
     }
 
     if(err != 0) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packet);
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("error after reading %u packets"), packets);
         cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
         SetWindowText(cur_ctrl, string_buff);
         wtap_close(wth);
@@ -1219,9 +1224,9 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     /* Packets */
     if(is_breaked) {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packet);
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("more than %u packets (preview timeout)"), packets);
     } else {
-        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packet);
+        StringCchPrintf(string_buff, PREVIEW_STR_MAX, _T("%u"), packets);
     }
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_PACKETS);
     SetWindowText(cur_ctrl, string_buff);

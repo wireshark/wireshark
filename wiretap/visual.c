@@ -158,9 +158,9 @@ struct visual_write_info
 
 
 /* Local functions to handle file reads and writes */
-static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
+static int visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
+static int visual_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean visual_read_packet(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
@@ -281,7 +281,7 @@ int visual_open(wtap *wth, int *err, gchar **err_info)
    in a loop to sequentially read the entire file one time.  After
    the file has been read once, any Future access to the packets is
    done through seek_read. */
-static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
+static int visual_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
@@ -292,31 +292,33 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
     if (visual->current_pkt > visual->num_pkts)
     {
         *err = 0;   /* it's just an EOF, not an error */
-        return FALSE;
+        return -1;
     }
     visual->current_pkt++;
 
     *data_offset = file_tell(wth->fh);
 
-    return visual_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
-            err, err_info);
+    if (!visual_read_packet(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+            err, err_info))
+        return -1;
+    return REC_TYPE_PACKET;
 }
 
 /* Read packet header and data for random access. */
-static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
+static int visual_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     /* Seek to the packet header */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return FALSE;
+        return -1;
 
     /* Read the packet. */
     if (!visual_read_packet(wth, wth->random_fh, phdr, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return -1;
     }
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
 static gboolean

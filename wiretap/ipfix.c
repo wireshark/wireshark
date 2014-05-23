@@ -85,10 +85,10 @@
 
 #define RECORDS_FOR_IPFIX_CHECK 20
 
-static gboolean
+static int
 ipfix_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean
+static int
 ipfix_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static void
@@ -280,7 +280,7 @@ ipfix_open(wtap *wth, int *err, gchar **err_info)
 
 
 /* classic wtap: read packet */
-static gboolean
+static int
 ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
@@ -289,15 +289,15 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     if (!ipfix_read_message(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info)) {
         ipfix_debug2("ipfix_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
-        return FALSE;
+        return -1;
     }
 
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
 
 /* classic wtap: seek to file position and read packet */
-static gboolean
+static int
 ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
@@ -305,7 +305,7 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
         ipfix_debug2("ipfix_seek_read: couldn't read message header with code: %d\n, and error '%s'",
                      *err, *err_info);
-        return FALSE;   /* Seek error */
+        return -1;   /* Seek error */
     }
 
     ipfix_debug1("ipfix_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
@@ -314,9 +314,9 @@ ipfix_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
         ipfix_debug0("ipfix_seek_read: couldn't read message header");
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return FALSE;
+        return -1;
     }
-    return TRUE;
+    return REC_TYPE_PACKET;
 }
 
 

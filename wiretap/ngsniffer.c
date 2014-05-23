@@ -509,9 +509,9 @@ static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
     guint16 length, int *err, gchar **err_info);
 static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
     guint16 length, gint16 maj_vers, int *err, gchar **err_info);
-static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
+static int ngsniffer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
+static int ngsniffer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int ngsniffer_process_record(wtap *wth, gboolean is_random,
     guint *padding, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
@@ -1053,7 +1053,7 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 }
 
 /* Read the next packet */
-static gboolean
+static int
 ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	ngsniffer_t *ngsniffer;
@@ -1075,7 +1075,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		    &wth->phdr, wth->frame_buffer, err, err_info);
 		if (ret < 0) {
 			/* Read error or short read */
-			return FALSE;
+			return -1;
 		}
 
 		/*
@@ -1093,16 +1093,16 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			if (padding != 0) {
 				if (!ng_file_skip_seq(wth, padding, err,
 				    err_info))
-					return FALSE;
+					return -1;
 			}
-			return TRUE;
+			return REC_TYPE_PACKET;
 
 		case REC_EOF:
 			/*
 			 * End of file.  Return an EOF indication.
 			 */
 			*err = 0;	/* EOF, not error */
-			return FALSE;
+			return -1;
 
 		default:
 			/*
@@ -1114,26 +1114,26 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			if (padding != 0) {
 				if (!ng_file_skip_seq(wth, padding, err,
 				    err_info))
-					return FALSE;
+					return -1;
 			}
 			break;
 		}
 	}
 }
 
-static gboolean
+static int
 ngsniffer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	int	ret;
 
 	if (!ng_file_seek_rand(wth, seek_off, err, err_info))
-		return FALSE;
+		return -1;
 
 	ret = ngsniffer_process_record(wth, TRUE, NULL, phdr, buf, err, err_info);
 	if (ret < 0) {
 		/* Read error or short read */
-		return FALSE;
+		return -1;
 	}
 
 	/*
@@ -1152,10 +1152,10 @@ ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 		 * "Can't happen".
 		 */
 		g_assert_not_reached();
-		return FALSE;
+		return -1;
 	}
 
-	return TRUE;
+	return REC_TYPE_PACKET;
 }
 
 /*
