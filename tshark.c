@@ -2703,7 +2703,7 @@ capture_input_new_records(capture_session *cap_session, int to_read)
         wtap_close(cf->wth);
         cf->wth = NULL;
       } else {
-      	if (rec_type == REC_TYPE_PACKET) {
+        if (rec_type == REC_TYPE_PACKET) {
           if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
                              wtap_buf_ptr(cf->wth),
                              tap_flags)) {
@@ -3379,7 +3379,7 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
 
         /* If we're supposed to stop after max_packet_count packets,
-         * count this packet. 
+         * count this packet.
          * When the -c option has not been used, max_packet_count
          * starts at 0.
          */
