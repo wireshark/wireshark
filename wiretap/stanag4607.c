@@ -48,8 +48,8 @@ static gboolean is_valid_id(guint16 version_id)
   return TRUE;
 }
 
-static int stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-                                Buffer *buf, int *err, gchar **err_info)
+static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+                               Buffer *buf, int *err, gchar **err_info)
 {
   stanag4607_t *stanag4607 = (stanag4607_t *)wth->priv;
   guint32 millisecs, secs, nsecs;
@@ -69,7 +69,7 @@ static int stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   if (!is_valid_id(pntoh16(&stanag_pkt_hdr[0]))) {
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup("Bad version number");
-    return -1;
+    return FALSE;
   }
 
   /* The next 4 bytes are the packet length */
@@ -133,19 +133,16 @@ static int stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 
   /* wind back to the start of the packet ... */
   if (file_seek(fh, - offset, SEEK_CUR, err) == -1)
-    return -1;
+    goto fail;
 
-  if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
-    return -1;
-
-  return REC_TYPE_PACKET;
+  return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 
 fail:
   *err = file_error(wth->fh, err_info);
-  return -1;
+  return FALSE;
 }
 
-static int stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
   gint64 offset;
 
@@ -158,12 +155,12 @@ static int stanag4607_read(wtap *wth, int *err, gchar **err_info, gint64 *data_o
   return stanag4607_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
-static int stanag4607_seek_read(wtap *wth, gint64 seek_off,
-                                struct wtap_pkthdr *phdr,
-                                Buffer *buf, int *err, gchar **err_info)
+static gboolean stanag4607_seek_read(wtap *wth, gint64 seek_off,
+                               struct wtap_pkthdr *phdr,
+                               Buffer *buf, int *err, gchar **err_info)
 {
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-    return -1;
+    return FALSE;
 
   return stanag4607_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }

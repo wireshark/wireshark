@@ -175,9 +175,9 @@ typedef struct {
 	gboolean is_hpux_11;
 } nettl_t;
 
-static int nettl_read(wtap *wth, int *err, gchar **err_info,
+static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 		gint64 *data_offset);
-static int nettl_seek_read(wtap *wth, gint64 seek_off,
+static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
 		struct wtap_pkthdr *phdr, Buffer *buf,
 		int *err, gchar **err_info);
 static gboolean nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
@@ -287,7 +287,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static int nettl_read(wtap *wth, int *err, gchar **err_info,
+static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     /* Read record header. */
@@ -295,7 +295,7 @@ static int nettl_read(wtap *wth, int *err, gchar **err_info,
     if (!nettl_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
         err, err_info)) {
 	/* Read error or EOF */
-	return -1;
+	return FALSE;
     }
 
     /*
@@ -313,15 +313,15 @@ static int nettl_read(wtap *wth, int *err, gchar **err_info,
 	    wth->file_encap = WTAP_ENCAP_PER_PACKET;
     }
 
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
-static int
+static gboolean
 nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		Buffer *buf, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-	return -1;
+	return FALSE;
 
     /* Read record header. */
     if (!nettl_read_rec(wth, wth->random_fh, phdr, buf, err, err_info)) {
@@ -330,9 +330,9 @@ nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	    /* EOF means "short read" in random-access mode */
 	    *err = WTAP_ERR_SHORT_READ;
 	}
-	return -1;
+	return FALSE;
     }
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 static gboolean

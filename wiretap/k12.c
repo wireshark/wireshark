@@ -623,7 +623,7 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     phdr->pseudo_header.k12.stuff = k12;
 }
 
-static int k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) {
+static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) {
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
@@ -644,16 +644,16 @@ static int k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) 
 
         if (len < 0) {
             /* read error */
-            return -1;
+            return FALSE;
         } else if (len == 0) {
             /* EOF */
             *err = 0;
-            return -1;
+            return FALSE;
         } else if (len < K12_RECORD_SRC_ID + 4) {
             /* Record not large enough to contain a src ID */
             *err = WTAP_ERR_BAD_FILE;
             *err_info = g_strdup_printf("data record length %d too short", len);
-            return -1;
+            return FALSE;
         }
 
         buffer = k12->seq_read_buff;
@@ -681,11 +681,11 @@ static int k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) 
 
     process_packet_data(&wth->phdr, wth->frame_buffer, buffer, len, k12);
 
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 
-static int k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info) {
     k12_t *k12 = (k12_t *)wth->priv;
     guint8* buffer;
     gint len;
@@ -694,18 +694,18 @@ static int k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, B
 
     if ( file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
         K12_DBG(5,("k12_seek_read: SEEK ERROR"));
-        return -1;
+        return FALSE;
     }
 
     len = get_record(k12, wth->random_fh, seek_off, TRUE, err, err_info);
     if (len < 0) {
         K12_DBG(5,("k12_seek_read: READ ERROR"));
-        return -1;
+        return FALSE;
     } else if (len < K12_RECORD_SRC_ID + 4) {
         /* Record not large enough to contain a src ID */
         K12_DBG(5,("k12_seek_read: SHORT READ"));
         *err = WTAP_ERR_SHORT_READ;
-        return -1;
+        return FALSE;
     }
 
     buffer = k12->rand_read_buff;
@@ -714,7 +714,7 @@ static int k12_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr, B
 
     K12_DBG(5,("k12_seek_read: DONE OK"));
 
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 

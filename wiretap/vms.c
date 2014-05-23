@@ -139,9 +139,9 @@ to handle them.
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
 
-static int vms_read(wtap *wth, int *err, gchar **err_info,
+static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int vms_seek_read(wtap *wth, gint64 seek_off,
+static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
     long byte_offset, int in_off, int remaining_bytes);
@@ -255,7 +255,7 @@ int vms_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static int vms_read(wtap *wth, int *err, gchar **err_info,
+static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     gint64   offset = 0;
@@ -268,14 +268,12 @@ static int vms_read(wtap *wth, int *err, gchar **err_info,
 #endif
     if (offset < 1) {
         *err = file_error(wth->fh, err_info);
-        return -1;
+        return FALSE;
     }
     *data_offset = offset;
 
     /* Parse the packet */
-    if (!parse_vms_packet(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info))
-        return -1;
-    return REC_TYPE_PACKET;
+    return parse_vms_packet(wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
@@ -284,14 +282,14 @@ vms_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
-        return -1;
+        return FALSE;
 
     if (!parse_vms_packet(wth->random_fh, phdr, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return -1;
+        return FALSE;
     }
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 /* isdumpline assumes that dump lines start with some non-alphanumerics

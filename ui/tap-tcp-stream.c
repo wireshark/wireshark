@@ -305,7 +305,7 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
     /* dissect the current frame */
-    if (cf_read_frame(cf, fdata) == -1)
+    if (!cf_read_frame(cf, fdata))
         return NULL;    /* error reading the frame */
 
 

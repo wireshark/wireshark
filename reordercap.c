@@ -103,7 +103,7 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
 
 
     /* Re-read the first frame from the stored location */
-    if (wtap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info) == -1) {
+    if (!wtap_seek_read(wth, frame->offset, &phdr, buf, &err, &err_info)) {
         if (err != 0) {
             /* Print a message noting that the read failed somewhere along the line. */
             fprintf(stderr,
@@ -176,7 +176,6 @@ int main(int argc, char *argv[])
 {
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
-    int rec_type;
     Buffer buf;
     int err;
     gchar *err_info;
@@ -262,24 +261,22 @@ int main(int argc, char *argv[])
     frames = g_ptr_array_new();
 
     /* Read each frame from infile */
-    while ((rec_type = wtap_read(wth, &err, &err_info, &data_offset)) != -1) {
-        if (rec_type == REC_TYPE_PACKET) {
-            FrameRecord_t *newFrameRecord;
+    while (wtap_read(wth, &err, &err_info, &data_offset)) {
+        FrameRecord_t *newFrameRecord;
 
-            phdr = wtap_phdr(wth);
+        phdr = wtap_phdr(wth);
 
-            newFrameRecord = g_slice_new(FrameRecord_t);
-            newFrameRecord->num = frames->len + 1;
-            newFrameRecord->offset = data_offset;
-            newFrameRecord->time = phdr->ts;
+        newFrameRecord = g_slice_new(FrameRecord_t);
+        newFrameRecord->num = frames->len + 1;
+        newFrameRecord->offset = data_offset;
+        newFrameRecord->time = phdr->ts;
 
-            if (prevFrame && frames_compare(&newFrameRecord, &prevFrame) < 0) {
-               wrong_order_count++;
-            }
-
-            g_ptr_array_add(frames, newFrameRecord);
-            prevFrame = newFrameRecord;
+        if (prevFrame && frames_compare(&newFrameRecord, &prevFrame) < 0) {
+           wrong_order_count++;
         }
+
+        g_ptr_array_add(frames, newFrameRecord);
+        prevFrame = newFrameRecord;
     }
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */

@@ -33,11 +33,11 @@ typedef struct {
 	gboolean byte_swapped;
 } i4btrace_t;
 
-static int i4btrace_read(wtap *wth, int *err, gchar **err_info,
+static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int i4btrace_seek_read(wtap *wth, gint64 seek_off,
+static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static gboolean i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+static int i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info);
 
 /*
@@ -110,23 +110,21 @@ int i4btrace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static int i4btrace_read(wtap *wth, int *err, gchar **err_info,
+static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	if (!i4b_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
-	    err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return i4b_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
+	    err, err_info);
 }
 
-static int
+static gboolean
 i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	if (!i4b_read_rec(wth, wth->random_fh, phdr, buf, err, err_info)) {
 		/* Read error or EOF */
@@ -134,12 +132,12 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 			/* EOF means "short read" in random-access mode */
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return -1;
+		return FALSE;
 	}
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
-static gboolean
+static int
 i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {

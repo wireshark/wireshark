@@ -57,7 +57,7 @@ frame_read(struct tvb_frame *frame_tvb, struct wtap_pkthdr *phdr, Buffer *buf)
 	/* XXX, what if phdr->caplen isn't equal to
 	 * frame_tvb->tvb.length + frame_tvb->offset?
 	 */
-	if (wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info) == -1) {
+	if (!wtap_seek_read(frame_tvb->wth, frame_tvb->file_off, phdr, buf, &err, &err_info)) {
 		switch (err) {
 			case WTAP_ERR_UNSUPPORTED_ENCAP:
 			case WTAP_ERR_BAD_FILE:

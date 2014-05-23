@@ -2651,11 +2651,11 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 }
 
 
-/* capture child tells us we have new records to read */
+/* capture child tells us we have new packets to read */
 void
-capture_input_new_records(capture_session *cap_session, int to_read)
+capture_input_new_packets(capture_session *cap_session, int to_read)
 {
-  int           rec_type;
+  gboolean      ret;
   int           err;
   gchar        *err_info;
   gint64        data_offset;
@@ -2696,21 +2696,20 @@ capture_input_new_records(capture_session *cap_session, int to_read)
 
     while (to_read-- && cf->wth) {
       wtap_cleareof(cf->wth);
-      rec_type = wtap_read(cf->wth, &err, &err_info, &data_offset);
-      if (rec_type == -1) {
+      ret = wtap_read(cf->wth, &err, &err_info, &data_offset);
+      if (ret == FALSE) {
         /* read from file failed, tell the capture child to stop */
         sync_pipe_stop(cap_session);
         wtap_close(cf->wth);
         cf->wth = NULL;
       } else {
-      	if (rec_type == REC_TYPE_PACKET) {
-          if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
+        ret = process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
                              wtap_buf_ptr(cf->wth),
-                             tap_flags)) {
-            /* packet successfully read and gone through the "Read Filter" */
-            packet_count++;
-          }
-        }
+                             tap_flags);
+      }
+      if (ret != FALSE) {
+        /* packet successfully read and gone through the "Read Filter" */
+        packet_count++;
       }
     }
 
@@ -3063,11 +3062,9 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
   int          snapshot_length;
   wtap_dumper *pdh;
   guint32      framenum;
-  int          rec_type;
   int          err;
   gchar       *err_info = NULL;
   gint64       data_offset;
-  gboolean     packet_count_reached = FALSE;
   char        *save_file_string = NULL;
   gboolean     filtering_tap_listeners;
   guint        tap_flags;
@@ -3194,19 +3191,17 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
 
-    while ((rec_type = wtap_read(cf->wth, &err, &err_info, &data_offset)) != -1) {
-      if (rec_type == REC_TYPE_PACKET) {
-        if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
-                                      wtap_buf_ptr(cf->wth))) {
-          /* Stop reading if we have the maximum number of packets;
-           * When the -c option has not been used, max_packet_count
-           * starts at 0, which practically means, never stop reading.
-           * (unless we roll over max_packet_count ?)
-           */
-          if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-            err = 0; /* This is not an error */
-            break;
-          }
+    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+      if (process_packet_first_pass(cf, edt, data_offset, wtap_phdr(cf->wth),
+                         wtap_buf_ptr(cf->wth))) {
+        /* Stop reading if we have the maximum number of packets;
+         * When the -c option has not been used, max_packet_count
+         * starts at 0, which practically means, never stop reading.
+         * (unless we roll over max_packet_count ?)
+         */
+        if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+          err = 0; /* This is not an error */
+          break;
         }
       }
     }
@@ -3245,57 +3240,55 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
-      if ((rec_type = wtap_seek_read(cf->wth, fdata->file_off, &phdr, &buf, &err,
-                                     &err_info)) == -1) {
-        if (rec_type == REC_TYPE_PACKET) {
-          if (process_packet_second_pass(cf, edt, fdata, &phdr, &buf,
-                                         tap_flags)) {
-            /* Either there's no read filtering or this packet passed the
-               filter, so, if we're writing to a capture file, write
-               this packet out. */
-            if (pdh != NULL) {
-              if (!wtap_dump(pdh, &phdr, buffer_start_ptr(&buf), &err)) {
-                /* Error writing to a capture file */
-                switch (err) {
+      if (wtap_seek_read(cf->wth, fdata->file_off, &phdr, &buf, &err,
+                         &err_info)) {
+        if (process_packet_second_pass(cf, edt, fdata, &phdr, &buf,
+                                       tap_flags)) {
+          /* Either there's no read filtering or this packet passed the
+             filter, so, if we're writing to a capture file, write
+             this packet out. */
+          if (pdh != NULL) {
+            if (!wtap_dump(pdh, &phdr, buffer_start_ptr(&buf), &err)) {
+              /* Error writing to a capture file */
+              switch (err) {
 
-                case WTAP_ERR_UNSUPPORTED_ENCAP:
-                  /*
-                   * This is a problem with the particular frame we're writing
-                   * and the file type and subtype we're writing; note that,
-                   * and report the frame number and file type/subtype.
-                   *
-                   * XXX - framenum is not necessarily the frame number in
-                   * the input file if there was a read filter.
-                   */
-                  fprintf(stderr,
-                          "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-                          framenum, cf->filename,
-                          wtap_file_type_subtype_short_string(out_file_type));
-                  break;
+              case WTAP_ERR_UNSUPPORTED_ENCAP:
+                /*
+                 * This is a problem with the particular frame we're writing
+                 * and the file type and subtype we're writing; note that,
+                 * and report the frame number and file type/subtype.
+                 *
+                 * XXX - framenum is not necessarily the frame number in
+                 * the input file if there was a read filter.
+                 */
+                fprintf(stderr,
+                        "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
+                        framenum, cf->filename,
+                        wtap_file_type_subtype_short_string(out_file_type));
+                break;
 
-                case WTAP_ERR_PACKET_TOO_LARGE:
-                  /*
-                   * This is a problem with the particular frame we're writing
-                   * and the file type and subtype we're writing; note that,
-                   * and report the frame number and file type/subtype.
-                   *
-                   * XXX - framenum is not necessarily the frame number in
-                   * the input file if there was a read filter.
-                   */
-                  fprintf(stderr,
-                          "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
-                          framenum, cf->filename,
-                          wtap_file_type_subtype_short_string(out_file_type));
-                  break;
+              case WTAP_ERR_PACKET_TOO_LARGE:
+                /*
+                 * This is a problem with the particular frame we're writing
+                 * and the file type and subtype we're writing; note that,
+                 * and report the frame number and file type/subtype.
+                 *
+                 * XXX - framenum is not necessarily the frame number in
+                 * the input file if there was a read filter.
+                 */
+                fprintf(stderr,
+                        "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
+                        framenum, cf->filename,
+                        wtap_file_type_subtype_short_string(out_file_type));
+                break;
 
-                default:
-                  show_capture_file_io_error(save_file, err, FALSE);
-                  break;
-                }
-                wtap_dump_close(pdh, &err);
-                g_free(shb_hdr);
-                exit(2);
+              default:
+                show_capture_file_io_error(save_file, err, FALSE);
+                break;
               }
+              wtap_dump_close(pdh, &err);
+              g_free(shb_hdr);
+              exit(2);
             }
           }
         }
@@ -3328,72 +3321,60 @@ load_cap_file(capture_file *cf, char *save_file, int out_file_type,
       edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
     }
 
-    while ((rec_type = wtap_read(cf->wth, &err, &err_info, &data_offset)) != -1) {
-      if (rec_type == REC_TYPE_PACKET) {
-        framenum++;
+    while (wtap_read(cf->wth, &err, &err_info, &data_offset)) {
+      framenum++;
 
-        if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
-                           wtap_buf_ptr(cf->wth),
-                           tap_flags)) {
-          /* Either there's no read filtering or this packet passed the
-             filter, so, if we're writing to a capture file, write
-             this packet out. */
-          if (pdh != NULL) {
-            if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err)) {
-              /* Error writing to a capture file */
-              switch (err) {
+      if (process_packet(cf, edt, data_offset, wtap_phdr(cf->wth),
+                         wtap_buf_ptr(cf->wth),
+                         tap_flags)) {
+        /* Either there's no read filtering or this packet passed the
+           filter, so, if we're writing to a capture file, write
+           this packet out. */
+        if (pdh != NULL) {
+          if (!wtap_dump(pdh, wtap_phdr(cf->wth), wtap_buf_ptr(cf->wth), &err)) {
+            /* Error writing to a capture file */
+            switch (err) {
 
-              case WTAP_ERR_UNSUPPORTED_ENCAP:
-                /*
-                 * This is a problem with the particular frame we're writing
-                 * and the file type and subtype we're writing; note that,
-                 * and report the frame number and file type/subtype.
-                 */
-                fprintf(stderr,
-                        "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
-                        framenum, cf->filename,
-                        wtap_file_type_subtype_short_string(out_file_type));
-                break;
+            case WTAP_ERR_UNSUPPORTED_ENCAP:
+              /*
+               * This is a problem with the particular frame we're writing
+               * and the file type and subtype we're writing; note that,
+               * and report the frame number and file type/subtype.
+               */
+              fprintf(stderr,
+                      "Frame %u of \"%s\" has a network type that can't be saved in a \"%s\" file.\n",
+                      framenum, cf->filename,
+                      wtap_file_type_subtype_short_string(out_file_type));
+              break;
 
-              case WTAP_ERR_PACKET_TOO_LARGE:
-                /*
-                 * This is a problem with the particular frame we're writing
-                 * and the file type and subtype we're writing; note that,
-                 * and report the frame number and file type/subtype.
-                 */
-                fprintf(stderr,
-                        "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
-                        framenum, cf->filename,
-                        wtap_file_type_subtype_short_string(out_file_type));
-                break;
+            case WTAP_ERR_PACKET_TOO_LARGE:
+              /*
+               * This is a problem with the particular frame we're writing
+               * and the file type and subtype we're writing; note that,
+               * and report the frame number and file type/subtype.
+               */
+              fprintf(stderr,
+                      "Frame %u of \"%s\" is too large for a \"%s\" file.\n",
+                      framenum, cf->filename,
+                      wtap_file_type_subtype_short_string(out_file_type));
+              break;
 
-              default:
-                show_capture_file_io_error(save_file, err, FALSE);
-                break;
-              }
-              wtap_dump_close(pdh, &err);
-              g_free(shb_hdr);
-              exit(2);
+            default:
+              show_capture_file_io_error(save_file, err, FALSE);
+              break;
             }
+            wtap_dump_close(pdh, &err);
+            g_free(shb_hdr);
+            exit(2);
           }
         }
-
-        /* If we're supposed to stop after max_packet_count packets,
-         * count this packet. 
-         * When the -c option has not been used, max_packet_count
-         * starts at 0.
-         */
-        if (max_packet_count != 0) {
-          max_packet_count--;
-          if (max_packet_count == 0)
-            packet_count_reached = TRUE;
-        }
       }
-
-      /* Stop reading if we have the maximum number of packets or the
-       * maximum file size.
+      /* Stop reading if we have the maximum number of packets;
+       * When the -c option has not been used, max_packet_count
+       * starts at 0, which practically means, never stop reading.
+       * (unless we roll over max_packet_count ?)
        */
-      if ( packet_count_reached || (max_byte_count != 0 && data_offset >= max_byte_count)) {
+      if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
         err = 0; /* This is not an error */
         break;
       }

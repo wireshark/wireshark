@@ -30,14 +30,14 @@
 #include "buffer.h"
 #include "tnef.h"
 
-static int tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
-                          Buffer *buf, int *err, gchar **err_info)
+static gboolean tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
+                               Buffer *buf, int *err, gchar **err_info)
 {
   gint64 file_size;
   int packet_size;
 
   if ((file_size = wtap_file_size(wth, err)) == -1)
-    return -1;
+    return FALSE;
 
   if (file_size > WTAP_MAX_PACKET_SIZE) {
     /*
@@ -47,7 +47,7 @@ static int tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     *err = WTAP_ERR_BAD_FILE;
     *err_info = g_strdup_printf("tnef: File has %" G_GINT64_MODIFIER "d-byte packet, bigger than maximum of %u",
 				file_size, WTAP_MAX_PACKET_SIZE);
-    return -1;
+    return FALSE;
   }
   packet_size = (int)file_size;
 
@@ -59,12 +59,10 @@ static int tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   phdr->ts.secs = 0;
   phdr->ts.nsecs = 0;
 
-  if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
-    return -1;
-  return REC_TYPE_PACKET;
+  return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static int tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
   gint64 offset;
 
@@ -74,25 +72,25 @@ static int tnef_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
   /* there is only ever one packet */
   if (offset)
-    return -1;
+    return FALSE;
 
   *data_offset = offset;
 
   return tnef_read_file(wth, wth->fh, &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
-static int tnef_seek_read(wtap *wth, gint64 seek_off,
-                          struct wtap_pkthdr *phdr,
-                          Buffer *buf, int *err, gchar **err_info)
+static gboolean tnef_seek_read(wtap *wth, gint64 seek_off,
+                               struct wtap_pkthdr *phdr,
+                               Buffer *buf, int *err, gchar **err_info)
 {
   /* there is only one packet */
   if(seek_off > 0) {
     *err = 0;
-    return -1;
+    return FALSE;
   }
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-    return -1;
+    return FALSE;
 
   return tnef_read_file(wth, wth->random_fh, phdr, buf, err, err_info);
 }

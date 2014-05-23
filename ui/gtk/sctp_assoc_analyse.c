@@ -975,7 +975,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 		return; /* if we exit here it's an error */
 
 	/* dissect the current frame */
-	if (cf_read_frame(cf, fdata) == -1)
+	if (!cf_read_frame(cf, fdata))
 		return;	/* error reading the frame */
 
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);

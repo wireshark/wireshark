@@ -270,9 +270,9 @@ typedef struct {
 	time_t	start;
 } lanalyzer_t;
 
-static int lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int lanalyzer_seek_read(wtap *wth, gint64 seek_off,
+static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
@@ -560,32 +560,30 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 }
 
 /* Read the next packet */
-static int lanalyzer_read(wtap *wth, int *err, gchar **err_info,
+static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the record  */
-	if (!lanalyzer_read_trace_record(wth, wth->fh, &wth->phdr,
-	    wth->frame_buffer, err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return lanalyzer_read_trace_record(wth, wth->fh, &wth->phdr,
+	    wth->frame_buffer, err, err_info);
 }
 
-static int lanalyzer_seek_read(wtap *wth, gint64 seek_off,
+static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	/* Read the record  */
 	if (!lanalyzer_read_trace_record(wth, wth->random_fh, phdr, buf,
 	    err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 /*---------------------------------------------------

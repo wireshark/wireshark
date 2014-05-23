@@ -34,7 +34,7 @@ struct dump_hdr {
 
 #define DUMP_HDR_SIZE (sizeof(struct dump_hdr))
 
-static int hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
+static gboolean hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
     Buffer *buf, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
@@ -45,7 +45,7 @@ static int hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 
 	packet_size = GUINT16_FROM_LE(dh.len);
@@ -57,7 +57,7 @@ static int hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("hcidump: File has %u-byte packet, bigger than maximum of %u",
 			packet_size, WTAP_MAX_PACKET_SIZE);
-		return -1;
+		return FALSE;
 	}
 
 	phdr->presence_flags = WTAP_HAS_TS;
@@ -68,12 +68,10 @@ static int hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 
 	phdr->pseudo_header.p2p.sent = (dh.in ? FALSE : TRUE);
 
-	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return wtap_read_packet_bytes(fh, buf, packet_size, err, err_info);
 }
 
-static int hcidump_read(wtap *wth, int *err, gchar **err_info,
+static gboolean hcidump_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -82,11 +80,11 @@ static int hcidump_read(wtap *wth, int *err, gchar **err_info,
 	    err, err_info);
 }
 
-static int hcidump_seek_read(wtap *wth, gint64 seek_off,
+static gboolean hcidump_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	return hcidump_process_packet(wth->random_fh, phdr, buf, err, err_info);
 }

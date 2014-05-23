@@ -214,31 +214,29 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
     return TRUE;
 }
 
-static int logcat_read(wtap *wth, int *err, gchar **err_info,
+static gboolean logcat_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
-        &wth->phdr, wth->frame_buffer, err, err_info))
-        return -1;
-    return REC_TYPE_PACKET;
+    return logcat_read_packet((struct logcat_phdr *) wth->priv, wth->fh,
+        &wth->phdr, wth->frame_buffer, err, err_info);
 }
 
-static int logcat_seek_read(wtap *wth, gint64 seek_off,
+static gboolean logcat_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return -1;
+        return FALSE;
 
     if (!logcat_read_packet((struct logcat_phdr *) wth->priv, wth->random_fh,
          phdr, buf, err, err_info)) {
         if (*err == 0)
             *err = WTAP_ERR_SHORT_READ;
-        return -1;
+        return FALSE;
     }
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 int logcat_open(wtap *wth, int *err, gchar **err_info _U_)

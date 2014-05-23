@@ -64,11 +64,11 @@ static int erf_read_header(FILE_T fh,
                            gchar **err_info,
                            guint32 *bytes_read,
                            guint32 *packet_size);
-static int erf_read(wtap *wth, int *err, gchar **err_info,
-                    gint64 *data_offset);
-static int erf_seek_read(wtap *wth, gint64 seek_off,
-                         struct wtap_pkthdr *phdr, Buffer *buf,
-                         int *err, gchar **err_info);
+static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
+                         gint64 *data_offset);
+static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
+                              struct wtap_pkthdr *phdr, Buffer *buf,
+                              int *err, gchar **err_info);
 
 static const struct {
   int erf_encap_value;
@@ -280,7 +280,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static int erf_read(wtap *wth, int *err, gchar **err_info,
+static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
                          gint64 *data_offset)
 {
   erf_header_t erf_header;
@@ -292,38 +292,36 @@ static int erf_read(wtap *wth, int *err, gchar **err_info,
     if (!erf_read_header(wth->fh,
                          &wth->phdr, &erf_header,
                          err, err_info, &bytes_read, &packet_size)) {
-      return -1;
+      return FALSE;
     }
 
     if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer, packet_size,
                                 err, err_info))
-      return -1;
+      return FALSE;
 
   } while ( erf_header.type == ERF_TYPE_PAD );
 
-  return REC_TYPE_PACKET;
+  return TRUE;
 }
 
-static int erf_seek_read(wtap *wth, gint64 seek_off,
-                         struct wtap_pkthdr *phdr, Buffer *buf,
-                         int *err, gchar **err_info)
+static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
+                              struct wtap_pkthdr *phdr, Buffer *buf,
+                              int *err, gchar **err_info)
 {
   erf_header_t erf_header;
   guint32      packet_size;
 
   if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-    return -1;
+    return FALSE;
 
   do {
     if (!erf_read_header(wth->random_fh, phdr, &erf_header,
                          err, err_info, NULL, &packet_size))
-      return -1;
+      return FALSE;
   } while ( erf_header.type == ERF_TYPE_PAD );
 
-  if (!wtap_read_packet_bytes(wth->random_fh, buf, packet_size,
-                              err, err_info))
-    return -1;
-  return REC_TYPE_PACKET;
+  return wtap_read_packet_bytes(wth->random_fh, buf, packet_size,
+                                err, err_info);
 }
 
 static int erf_read_header(FILE_T fh,

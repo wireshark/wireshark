@@ -173,7 +173,6 @@ preview_set_filename(GtkWidget *prev, const gchar *cf_name)
 static void
 preview_do(GtkWidget *prev, wtap *wth)
 {
-  int           rec_type;
   GtkWidget    *label;
   unsigned int  elapsed_time;
   time_t        time_preview;
@@ -184,7 +183,6 @@ preview_do(GtkWidget *prev, wtap *wth)
   double        start_time   = 0; /* seconds, with nsec resolution */
   double        stop_time    = 0; /* seconds, with nsec resolution */
   double        cur_time;
-  unsigned int  records    = 0;
   unsigned int  packets    = 0;
   gboolean      is_breaked = FALSE;
   gchar         string_buff[PREVIEW_STR_MAX];
@@ -194,25 +192,22 @@ preview_do(GtkWidget *prev, wtap *wth)
 
 
   time(&time_preview);
-  while ( (rec_type = wtap_read(wth, &err, &err_info, &data_offset)) != -1 ) {
-    if (rec_type == REC_TYPE_PACKET) {
-      phdr = wtap_phdr(wth);
-      cur_time = nstime_to_sec(&phdr->ts);
-      if (packets == 0) {
-        start_time = cur_time;
-        stop_time = cur_time;
-      }
-      if (cur_time < start_time) {
-        start_time = cur_time;
-      }
-      if (cur_time > stop_time) {
-        stop_time = cur_time;
-      }
-
-      packets++;
+  while ( (wtap_read(wth, &err, &err_info, &data_offset)) ) {
+    phdr = wtap_phdr(wth);
+    cur_time = nstime_to_sec(&phdr->ts);
+    if (packets == 0) {
+      start_time = cur_time;
+      stop_time = cur_time;
     }
-    records++;
-    if (records%1000 == 0) {
+    if (cur_time < start_time) {
+      start_time = cur_time;
+    }
+    if (cur_time > stop_time) {
+      stop_time = cur_time;
+    }
+
+    packets++;
+    if (packets%1000 == 0) {
       /* do we have a timeout? */
       time(&time_current);
       if (time_current-time_preview >= (time_t) prefs.gui_fileopen_preview) {

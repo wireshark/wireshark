@@ -903,7 +903,7 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
     }
 
     /* dissect the current frame */
-    if (cf_read_frame(cf, fdata) == -1) {
+    if (!cf_read_frame(cf, fdata)) {
         return NULL;  /* error reading the frame */
     }
 

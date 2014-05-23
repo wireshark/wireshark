@@ -103,12 +103,12 @@ static const gchar catapult_dct2000_magic[] = "Session Transcript";
 
 /************************************************************/
 /* Functions called from wiretap core                       */
-static int catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
-                                 gint64 *data_offset);
-static int catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
-                                      struct wtap_pkthdr *phdr,
-                                      Buffer *buf, int *err,
-                                      gchar **err_info);
+static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
+                                      gint64 *data_offset);
+static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
+                                           struct wtap_pkthdr *phdr,
+                                           Buffer *buf, int *err,
+                                           gchar **err_info);
 static void catapult_dct2000_close(wtap *wth);
 
 static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
@@ -331,9 +331,9 @@ static void write_timestamp_string(char *timestamp_string, int secs, int tenthou
 /**************************************************/
 /* Read packet function.                          */
 /* Look for and read the next usable packet       */
-/* - return REC_TYPE_PACKET and details if found  */
+/* - return TRUE and details if found             */
 /**************************************************/
-static int
+static gboolean
 catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                       gint64 *data_offset)
 {
@@ -370,7 +370,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
         if (!read_new_line(wth->fh, &offset, &line_length, linebuff,
                            sizeof linebuff, err, err_info)) {
             if (*err != 0)
-                return -1;  /* error */
+                return FALSE;  /* error */
             /* No more lines can be read, so quit. */
             break;
         }
@@ -434,19 +434,19 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             g_hash_table_insert(file_externals->packet_prefix_table, pkey, line_prefix_info);
 
             /* OK, we have packet details to return */
-            return REC_TYPE_PACKET;
+            return TRUE;
         }
     }
 
     /* No packet details to return... */
-    return -1;
+    return FALSE;
 }
 
 
 /**************************************************/
 /* Read & seek function.                          */
 /**************************************************/
-static int
+static gboolean
 catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                            struct wtap_pkthdr *phdr, Buffer *buf,
                            int *err, gchar **err_info)
@@ -476,13 +476,13 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
 
     /* Seek to beginning of packet */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-        return -1;
+        return FALSE;
     }
 
     /* Re-read whole line (this really should succeed) */
     if (!read_new_line(wth->random_fh, &offset, &length, linebuff,
                       sizeof linebuff, err, err_info)) {
-        return -1;
+        return FALSE;
     }
 
     /* Try to parse this line again (should succeed as re-reading...) */
@@ -508,7 +508,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                             is_comment, data_chars);
 
         *err = errno = 0;
-        return REC_TYPE_PACKET;
+        return TRUE;
     }
 
     /* If get here, must have failed */
@@ -516,7 +516,7 @@ catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
     *err_info = g_strdup_printf("catapult dct2000: seek_read failed to read/parse "
                                 "line at position %" G_GINT64_MODIFIER "d",
                                 seek_off);
-    return -1;
+    return FALSE;
 }
 
 

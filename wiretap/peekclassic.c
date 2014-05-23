@@ -358,7 +358,7 @@ int peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
-static int peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
+static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	int sliceLength;
@@ -369,38 +369,38 @@ static int peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
 	sliceLength = peekclassic_read_packet_v7(wth, wth->fh, &wth->phdr,
 	    wth->frame_buffer, err, err_info);
 	if (sliceLength < 0)
-		return -1;
+		return FALSE;
 
 	/* Skip extra ignored data at the end of the packet. */
 	if ((guint32)sliceLength > wth->phdr.caplen) {
 		if (!file_skip(wth->fh, sliceLength - wth->phdr.caplen, err))
-			return -1;
+			return FALSE;
 	}
 
 	/* Records are padded to an even length, so if the slice length
 	   is odd, read the padding byte. */
 	if (sliceLength & 0x01) {
 		if (!file_skip(wth->fh, 1, err))
-			return -1;
+			return FALSE;
 	}
 
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
-static int peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
+static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	/* Read the packet. */
 	if (peekclassic_read_packet_v7(wth, wth->random_fh, phdr, buf,
 	    err, err_info) == -1) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
@@ -493,7 +493,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	return sliceLength;
 }
 
-static int peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
+static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -501,29 +501,29 @@ static int peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
 	/* read the packet */
 	if (!peekclassic_read_packet_v56(wth, wth->fh, &wth->phdr,
 	    wth->frame_buffer, err, err_info))
-		return -1;
+		return FALSE;
 
 	/*
 	 * XXX - is the captured packet data padded to a multiple
 	 * of 2 bytes?
 	 */
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	/* read the packet */
 	if (!peekclassic_read_packet_v56(wth, wth->random_fh, phdr, buf,
 	    err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,

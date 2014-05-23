@@ -1349,24 +1349,15 @@ typedef void (*wtap_new_ipv6_callback_t) (const void *addrp, const gchar *name);
 WS_DLL_PUBLIC
 void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6);
 
-/*
- * Values returned by wtap_read() and wtap_seek_read().  They indicate the
- * type of record read by that routine.
- *
- * This list will expand over time, so don't assume everything will be a
- * file-type-specific record or a packet record.
- */
-#define REC_TYPE_FILE_TYPE_SPECIFIC   0    /* file-type-specific record */
-#define REC_TYPE_PACKET               1    /* packet */
-
-/** Returns a REC_TYPE_ value if read was successful, -1 if it failed.
- * *data_offset is set to the offset in the file where the data for
- * the read packet is located. */
+/** Returns TRUE if read was successful. FALSE if failure. data_offset is
+ * set to the offset in the file where the data for the read packet is
+ * located. */
 WS_DLL_PUBLIC
-int wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset);
+gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
+    gint64 *data_offset);
 
 WS_DLL_PUBLIC
-int wtap_seek_read (wtap *wth, gint64 seek_off,
+gboolean wtap_seek_read (wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 /*** get various information snippets about the current packet ***/

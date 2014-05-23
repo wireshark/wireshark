@@ -67,9 +67,9 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 	char *hdr);
 static gboolean netscreen_check_file_type(wtap *wth, int *err,
 	gchar **err_info);
-static int netscreen_read(wtap *wth, int *err, gchar **err_info,
+static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static int netscreen_seek_read(wtap *wth, gint64 seek_off,
+static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf,
 	int *err, gchar **err_info);
 static int parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
@@ -190,7 +190,7 @@ int netscreen_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static int netscreen_read(wtap *wth, int *err, gchar **err_info,
+static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64		offset;
@@ -203,19 +203,19 @@ static int netscreen_read(wtap *wth, int *err, gchar **err_info,
 	/* Find the next packet */
 	offset = netscreen_seek_next_packet(wth, err, err_info, line);
 	if (offset < 0)
-		return -1;
+		return FALSE;
 
 	/* Parse the header */
 	pkt_len = parse_netscreen_rec_hdr(&wth->phdr, line, cap_int, &cap_dir,
 	    cap_dst, err, err_info);
 	if (pkt_len == -1)
-		return -1;
+		return FALSE;
 
 	/* Convert the ASCII hex dump to binary data, and fill in some
 	   struct wtap_pkthdr fields */
 	if (!parse_netscreen_hex_dump(wth->fh, pkt_len, cap_int,
 	    cap_dst, &wth->phdr, wth->frame_buffer, err, err_info))
-		return -1;
+		return FALSE;
 
 	/*
 	 * If the per-file encapsulation isn't known, set it to this
@@ -233,11 +233,11 @@ static int netscreen_read(wtap *wth, int *err, gchar **err_info,
 	}
 
 	*data_offset = offset;
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 netscreen_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf,
 	int *err, gchar **err_info)
@@ -249,7 +249,7 @@ netscreen_seek_read(wtap *wth, gint64 seek_off,
 	char		cap_dst[13];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
-		return -1;
+		return FALSE;
 	}
 
 	if (file_gets(line, NETSCREEN_LINE_LENGTH, wth->random_fh) == NULL) {
@@ -257,18 +257,18 @@ netscreen_seek_read(wtap *wth, gint64 seek_off,
 		if (*err == 0) {
 			*err = WTAP_ERR_SHORT_READ;
 		}
-		return -1;
+		return FALSE;
 	}
 
 	pkt_len = parse_netscreen_rec_hdr(phdr, line, cap_int, &cap_dir,
 	    cap_dst, err, err_info);
 	if (pkt_len == -1)
-		return -1;
+		return FALSE;
 
 	if (!parse_netscreen_hex_dump(wth->random_fh, pkt_len, cap_int,
 	    cap_dst, phdr, buf, err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+		return FALSE;
+	return TRUE;
 }
 
 /* Parses a packet record header. There are a few possible formats:

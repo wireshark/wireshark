@@ -3711,7 +3711,7 @@ void iax2_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 		return; /* if we exit here it's an error */
 
 	/* dissect the current frame */
-	if (cf_read_frame(cf, fdata) == -1)
+	if (!cf_read_frame(cf, fdata))
 		return;	/* error reading the frame */
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);

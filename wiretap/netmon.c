@@ -175,9 +175,9 @@ static const int netmon_encap[] = {
 #define NETMON_NET_DNS_CACHE		0xFFFE
 #define NETMON_NET_NETMON_FILTER	0xFFFF
 
-static int netmon_read(wtap *wth, int *err, gchar **err_info,
+static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int netmon_seek_read(wtap *wth, gint64 seek_off,
+static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
@@ -677,7 +677,7 @@ static process_trailer_retval netmon_process_rec_trailer(netmon_t *netmon,
 }
 
 /* Read the next packet */
-static int netmon_read(wtap *wth, int *err, gchar **err_info,
+static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
@@ -691,7 +691,7 @@ again:
 		g_free(netmon->frame_table);
 		netmon->frame_table = NULL;
 		*err = 0;	/* it's just an EOF, not an error */
-		return -1;
+		return FALSE;
 	}
 
 	/* Seek to the beginning of the current record, if we're
@@ -707,7 +707,7 @@ again:
 	rec_offset = netmon->frame_table[netmon->current_frame];
 	if (file_tell(wth->fh) != rec_offset) {
 		if (file_seek(wth->fh, rec_offset, SEEK_SET, err) == -1)
-			return -1;
+			return FALSE;
 	}
 	netmon->current_frame++;
 
@@ -715,11 +715,11 @@ again:
 
 	if (!netmon_process_rec_header(wth, wth->fh, &wth->phdr,
 	    err, err_info))
-		return -1;
+		return FALSE;
 
 	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
 	    wth->phdr.caplen, err, err_info))
-		return -1;	/* Read error */
+		return FALSE;	/* Read error */
 
 	/*
 	 * For version 2.1 and later, there's additional information
@@ -735,33 +735,33 @@ again:
 		break;
 
 	case FAILURE:
-		return -1;
+		return FALSE;
 	}
 
 	netmon_set_pseudo_header_info(wth->phdr.pkt_encap, &wth->phdr,
 	    wth->frame_buffer);
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
-static int
+static gboolean
 netmon_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	if (!netmon_process_rec_header(wth, wth->random_fh, phdr,
 	    err, err_info))
-		return -1;
+		return FALSE;
 
 	/*
 	 * Read the packet data.
 	 */
 	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen, err,
 	    err_info))
-		return -1;
+		return FALSE;
 
 	/*
 	 * For version 2.1 and later, there's additional information
@@ -776,18 +776,18 @@ netmon_seek_read(wtap *wth, gint64 seek_off,
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup("netmon: saw metadata in netmon_seek_read");
-		return -1;
+		return FALSE;
 
 	case SUCCESS:
 		break;
 
 	case FAILURE:
-		return -1;
+		return FALSE;
 	}
 
 	netmon_set_pseudo_header_info(phdr->pkt_encap, phdr, buf);
 
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 static gboolean

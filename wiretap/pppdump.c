@@ -95,9 +95,9 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static int pppdump_read(wtap *wth, int *err, gchar **err_info,
+static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static int pppdump_seek_read(wtap *wth, gint64 seek_off,
+static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 /*
@@ -327,7 +327,7 @@ pppdump_set_phdr(struct wtap_pkthdr *phdr, int num_bytes,
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static int
+static gboolean
 pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	int		num_bytes;
@@ -344,7 +344,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		pid = g_new(pkt_id, 1);
 		if (!pid) {
 			*err = errno;	/* assume a malloc failed and set "errno" */
-			return -1;
+			return FALSE;
 		}
 		pid->offset = 0;
 	} else
@@ -357,7 +357,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	    pid, 0)) {
 	    	if (pid != NULL)
 			g_free(pid);
-		return -1;
+		return FALSE;
 	}
 
 	if (pid != NULL)
@@ -374,7 +374,7 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wth->phdr.ts.nsecs	= state->tenths * 100000000;
 	pppdump_set_phdr(&wth->phdr, num_bytes, direction);
 
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 /* Returns number of bytes copied for record, -1 if failure.
@@ -715,7 +715,7 @@ done:
 
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 pppdump_seek_read(wtap *wth,
 		 gint64 seek_off,
 		 struct wtap_pkthdr *phdr,
@@ -736,11 +736,11 @@ pppdump_seek_read(wtap *wth,
 	if (!pid) {
 		*err = WTAP_ERR_BAD_FILE;	/* XXX - better error? */
 		*err_info = g_strdup("pppdump: PID not found for record");
-		return -1;
+		return FALSE;
 	}
 
 	if (file_seek(wth->random_fh, pid->offset, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	init_state(state->seek_state);
 	state->seek_state->offset = pid->offset;
@@ -763,13 +763,13 @@ pppdump_seek_read(wtap *wth,
 	do {
 		if (!collate(state->seek_state, wth->random_fh, err, err_info,
 		    pd, &num_bytes, &direction, NULL, num_bytes_to_skip))
-			return -1;
+			return FALSE;
 		num_bytes_to_skip = 0;
 	} while (direction != pid->dir);
 
 	pppdump_set_phdr(phdr, num_bytes, pid->dir);
 
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 static void

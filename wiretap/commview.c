@@ -78,11 +78,11 @@ typedef struct commview_header {
 #define MEDIUM_WIFI		1
 #define MEDIUM_TOKEN_RING	2
 
-static int commview_read(wtap *wth, int *err, gchar **err_info,
-			 gint64 *data_offset);
-static int commview_seek_read(wtap *wth, gint64 seek_off,
-			      struct wtap_pkthdr *phdr,
-			      Buffer *buf, int *err, gchar **err_info);
+static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
+			      gint64 *data_offset);
+static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
+				   struct wtap_pkthdr *phdr,
+				   Buffer *buf, int *err, gchar **err_info);
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				     int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
@@ -136,7 +136,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	struct tm tm;
 
 	if(!commview_read_header(&cv_hdr, fh, err, err_info))
-		return -1;
+		return FALSE;
 
 	switch(cv_hdr.flags & FLAGS_MEDIUM) {
 
@@ -162,7 +162,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("commview: unsupported encap: %u",
 					    cv_hdr.flags & FLAGS_MEDIUM);
-		return -1;
+		return FALSE;
 	}
 
 	tm.tm_year = cv_hdr.year - 1900;
@@ -181,12 +181,10 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	phdr->ts.secs = mktime(&tm);
 	phdr->ts.nsecs = cv_hdr.usecs * 1000;
 
-	if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
 }
 
-static int
+static gboolean
 commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -195,12 +193,12 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	    err_info);
 }
 
-static int
+static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 		   Buffer *buf, int *err, gchar **err_info)
 {
 	if(file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	return commview_read_packet(wth->random_fh, phdr, buf, err, err_info);
 }

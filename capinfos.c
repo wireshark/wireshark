@@ -803,7 +803,6 @@ static int
 process_cap_file(wtap *wth, const char *filename)
 {
   int                   status = 0;
-  int                   rec_type;
   int                   err;
   gchar                *err_info;
   gint64                size;
@@ -829,53 +828,51 @@ process_cap_file(wtap *wth, const char *filename)
   cf_info.encap_counts = g_new0(int,WTAP_NUM_ENCAP_TYPES);
 
   /* Tally up data that we need to parse through the file to find */
-  while ((rec_type = wtap_read(wth, &err, &err_info, &data_offset)) != -1)  {
-    if (rec_type == REC_TYPE_PACKET) {
-      phdr = wtap_phdr(wth);
-      if (phdr->presence_flags & WTAP_HAS_TS) {
-        prev_time = cur_time;
-        cur_time = nstime_to_sec(&phdr->ts);
-        if (packet == 0) {
-          start_time = cur_time;
-          stop_time  = cur_time;
-          prev_time  = cur_time;
-        }
-        if (cur_time < prev_time) {
-          order = NOT_IN_ORDER;
-        }
-        if (cur_time < start_time) {
-          start_time = cur_time;
-        }
-        if (cur_time > stop_time) {
-          stop_time = cur_time;
-        }
+  while (wtap_read(wth, &err, &err_info, &data_offset))  {
+    phdr = wtap_phdr(wth);
+    if (phdr->presence_flags & WTAP_HAS_TS) {
+      prev_time = cur_time;
+      cur_time = nstime_to_sec(&phdr->ts);
+      if (packet == 0) {
+        start_time = cur_time;
+        stop_time  = cur_time;
+        prev_time  = cur_time;
+      }
+      if (cur_time < prev_time) {
+        order = NOT_IN_ORDER;
+      }
+      if (cur_time < start_time) {
+        start_time = cur_time;
+      }
+      if (cur_time > stop_time) {
+        stop_time = cur_time;
+      }
+    } else {
+      have_times = FALSE; /* at least one packet has no time stamp */
+      if (order != NOT_IN_ORDER)
+        order = ORDER_UNKNOWN;
+    }
+
+    bytes+=phdr->len;
+    packet++;
+
+    /* If caplen < len for a rcd, then presumably           */
+    /* 'Limit packet capture length' was done for this rcd. */
+    /* Keep track as to the min/max actual snapshot lengths */
+    /*  seen for this file.                                 */
+    if (phdr->caplen < phdr->len) {
+      if (phdr->caplen < snaplen_min_inferred)
+        snaplen_min_inferred = phdr->caplen;
+      if (phdr->caplen > snaplen_max_inferred)
+        snaplen_max_inferred = phdr->caplen;
+    }
+
+    /* Per-packet encapsulation */
+    if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
+      if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
+        cf_info.encap_counts[phdr->pkt_encap] += 1;
       } else {
-        have_times = FALSE; /* at least one packet has no time stamp */
-        if (order != NOT_IN_ORDER)
-          order = ORDER_UNKNOWN;
-      }
-
-      bytes+=phdr->len;
-      packet++;
-
-      /* If caplen < len for a rcd, then presumably           */
-      /* 'Limit packet capture length' was done for this rcd. */
-      /* Keep track as to the min/max actual snapshot lengths */
-      /*  seen for this file.                                 */
-      if (phdr->caplen < phdr->len) {
-        if (phdr->caplen < snaplen_min_inferred)
-          snaplen_min_inferred = phdr->caplen;
-        if (phdr->caplen > snaplen_max_inferred)
-          snaplen_max_inferred = phdr->caplen;
-      }
-
-      /* Per-packet encapsulation */
-      if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
-        if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
-          cf_info.encap_counts[phdr->pkt_encap] += 1;
-        } else {
-          fprintf(stderr, "capinfos: Unknown per-packet encapsulation: %d [frame number: %d]\n", phdr->pkt_encap, packet);
-        }
+        fprintf(stderr, "capinfos: Unknown per-packet encapsulation: %d [frame number: %d]\n", phdr->pkt_encap, packet);
       }
     }
 

@@ -73,11 +73,11 @@ struct btsnooprec_hdr {
 
 static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
-static int btsnoop_read(wtap *wth, int *err, gchar **err_info,
+static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int btsnoop_seek_read(wtap *wth, gint64 seek_off,
+static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
-static int btsnoop_read_record(wtap *wth, FILE_T fh,
+static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 
 int btsnoop_open(wtap *wth, int *err, gchar **err_info)
@@ -160,7 +160,7 @@ int btsnoop_open(wtap *wth, int *err, gchar **err_info)
 	return 1;
 }
 
-static int btsnoop_read(wtap *wth, int *err, gchar **err_info,
+static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
@@ -169,16 +169,16 @@ static int btsnoop_read(wtap *wth, int *err, gchar **err_info,
 	    err, err_info);
 }
 
-static int btsnoop_seek_read(wtap *wth, gint64 seek_off,
+static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	return btsnoop_read_record(wth, wth->random_fh, phdr, buf, err, err_info);
 }
 
-static int btsnoop_read_record(wtap *wth, FILE_T fh,
+static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
 	int	bytes_read;
@@ -196,7 +196,7 @@ static int btsnoop_read_record(wtap *wth, FILE_T fh,
 		*err = file_error(fh, err_info);
 		if (*err == 0 && bytes_read != 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 
 	packet_size = g_ntohl(hdr.incl_len);
@@ -210,7 +210,7 @@ static int btsnoop_read_record(wtap *wth, FILE_T fh,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("btsnoop: File has %u-byte packet, bigger than maximum of %u",
 		    packet_size, WTAP_MAX_PACKET_SIZE);
-		return -1;
+		return FALSE;
 	}
 
 	ts = GINT64_FROM_BE(hdr.ts_usec);
@@ -248,9 +248,7 @@ static int btsnoop_read_record(wtap *wth, FILE_T fh,
 
 
 	/* Read packet data. */
-	if (!wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return wtap_read_packet_bytes(fh, buf, phdr->caplen, err, err_info);
 }
 
 /* Returns 0 if we could write the specified encapsulation type,

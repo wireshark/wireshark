@@ -43,8 +43,8 @@ extern void capture_info_open(capture_session *cap_session);
 /* new file arrived - (eventually close old wtap), open wtap */
 extern gboolean capture_info_new_file(const char *new_filename);
 
-/* new records arrived - read from wtap, count */
-extern void capture_info_new_records(int to_read);
+/* new packets arrived - read from wtap, count */
+extern void capture_info_new_packets(int to_read);
 
 /* close the info - close wtap, destroy dialog */
 extern void capture_info_close(void);

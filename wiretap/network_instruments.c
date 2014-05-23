@@ -94,9 +94,9 @@ static void init_gmt_to_localtime_offset(void)
     }
 }
 
-static int observer_read(wtap *wth, int *err, gchar **err_info,
+static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int observer_seek_read(wtap *wth, gint64 seek_off,
+static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int read_packet_header(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     packet_entry_header *packet_header, int *err, gchar **err_info);
@@ -258,7 +258,7 @@ int network_instruments_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Reads the next packet. */
-static int observer_read(wtap *wth, int *err, gchar **err_info,
+static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
     int header_bytes_consumed;
@@ -273,7 +273,7 @@ static int observer_read(wtap *wth, int *err, gchar **err_info,
         header_bytes_consumed = read_packet_header(wth->fh, &wth->phdr.pseudo_header, &packet_header, err,
             err_info);
         if (header_bytes_consumed <= 0)
-            return -1;    /* EOF or error */
+            return FALSE;    /* EOF or error */
 
         if (packet_header.packet_type == PACKET_TYPE_DATA_PACKET)
             break;
@@ -281,32 +281,32 @@ static int observer_read(wtap *wth, int *err, gchar **err_info,
         /* skip to next packet */
         if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
                 header_bytes_consumed, err, err_info)) {
-            return -1;    /* EOF or error */
+            return FALSE;    /* EOF or error */
         }
     }
 
     if (!process_packet_header(wth, &packet_header, &wth->phdr, err, err_info))
-        return -1;
+        return FALSE;
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
             header_bytes_consumed, wth->frame_buffer,
             wth->phdr.caplen, err, err_info);
     if (data_bytes_consumed < 0) {
-        return -1;
+        return FALSE;
     }
 
     /* skip over any extra bytes following the frame data */
     if (!skip_to_next_packet(wth, packet_header.offset_to_next_packet,
             header_bytes_consumed + data_bytes_consumed, err, err_info)) {
-        return -1;
+        return FALSE;
     }
 
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 /* Reads a packet at an offset. */
-static int observer_seek_read(wtap *wth, gint64 seek_off,
+static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
@@ -315,25 +315,25 @@ static int observer_seek_read(wtap *wth, gint64 seek_off,
     int data_bytes_consumed;
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return -1;
+        return FALSE;
 
     /* process the packet header, including TLVs */
     offset = read_packet_header(wth->random_fh, pseudo_header, &packet_header, err,
         err_info);
     if (offset <= 0)
-        return -1;    /* EOF or error */
+        return FALSE;    /* EOF or error */
 
     if (!process_packet_header(wth, &packet_header, phdr, err, err_info))
-        return -1;
+        return FALSE;
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->random_fh, packet_header.offset_to_frame,
         offset, buf, phdr->caplen, err, err_info);
     if (data_bytes_consumed < 0) {
-        return -1;
+        return FALSE;
     }
 
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 static int

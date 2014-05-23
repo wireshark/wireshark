@@ -496,8 +496,8 @@ static guint8       get_ofdm_rate(const guint8 *);
 static guint8       get_cck_rate(const guint8 *plcp);
 static void         setup_defaults(vwr_t *, guint16);
 
-static int          vwr_read(wtap *, int *, gchar **, gint64 *);
-static int          vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr,
+static gboolean     vwr_read(wtap *, int *, gchar **, gint64 *);
+static gboolean     vwr_seek_read(wtap *, gint64, struct wtap_pkthdr *phdr,
                                   Buffer *, int *, gchar **);
 
 static gboolean     vwr_read_rec_header(vwr_t *, FILE_T, int *, int *, int *, gchar **);
@@ -571,14 +571,14 @@ int vwr_open(wtap *wth, int *err, gchar **err_info)
 /*  frame, and a 64-byte statistics block trailer.                                         */
 /* The PLCP frame consists of a 4-byte or 6-byte PLCP header, followed by the MAC frame    */
 
-static int vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     vwr_t *vwr      = (vwr_t *)wth->priv;
     int    rec_size = 0, IS_TX;
 
     /* read the next frame record header in the capture file; if no more frames, return */
     if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, err, err_info))
-        return -1;                                   /* Read error or EOF */
+        return FALSE;                                   /* Read error or EOF */
 
     /*
      * We're past the header; return the offset of the header, not of
@@ -589,7 +589,7 @@ static int vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     /* got a frame record; read and process it */
     if (!vwr_process_rec_data(wth->fh, rec_size, &wth->phdr,
                               wth->frame_buffer, vwr, IS_TX, err, err_info))
-       return -1;
+       return FALSE;
 
     /* If the per-file encapsulation isn't known, set it to this packet's encapsulation. */
     /* If it *is* known, and it isn't this packet's encapsulation, set it to             */
@@ -602,12 +602,12 @@ static int vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
             wth->file_encap = WTAP_ENCAP_PER_PACKET;
     }
 
-    return REC_TYPE_PACKET;
+    return TRUE;
 }
 
 /* read a random record in the middle of a file; the start of the record is @ seek_off */
 
-static int vwr_seek_read(wtap *wth, gint64 seek_off,
+static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info)
 {
     vwr_t *vwr = (vwr_t *)wth->priv;
@@ -615,17 +615,14 @@ static int vwr_seek_read(wtap *wth, gint64 seek_off,
 
     /* first seek to the indicated record header */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-        return -1;
+        return FALSE;
 
     /* read in the record header */
     if (!vwr_read_rec_header(vwr, wth->random_fh, &rec_size, &IS_TX, err, err_info))
-        return -1;                                  /* Read error or EOF */
+        return FALSE;                                  /* Read error or EOF */
 
-    if (!vwr_process_rec_data(wth->random_fh, rec_size, phdr, buf,
-                              vwr, IS_TX, err, err_info))
-        return -1;
-
-    return REC_TYPE_PACKET;
+    return vwr_process_rec_data(wth->random_fh, rec_size, phdr, buf,
+                                vwr, IS_TX, err, err_info);
 }
 
 /* Scan down in the input capture file to find the next frame header.       */

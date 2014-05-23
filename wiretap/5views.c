@@ -99,9 +99,9 @@ typedef struct
 #define CST_5VW_CAPTURES_RECORD		(CST_5VW_SECTION_CAPTURES << 28)	/* 0x80000000 */
 #define CST_5VW_SYSTEM_RECORD		0x00000000U
 
-static int _5views_read(wtap *wth, int *err, gchar **err_info,
+static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static int _5views_seek_read(wtap *wth, gint64 seek_off,
+static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info);
@@ -191,7 +191,7 @@ int _5views_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static int
+static gboolean
 _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
@@ -207,7 +207,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		/* Read record header. */
 		if (!_5views_read_header(wth, wth->fh, &TimeStamped_Header,
 		    &wth->phdr, err, err_info))
-			return -1;
+			return FALSE;
 
 		if (TimeStamped_Header.RecSubType == CST_5VW_FRAME_RECORD) {
 			/*
@@ -220,7 +220,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * Not a packet - skip to the next record.
 		 */
 		if (file_seek(wth->fh, TimeStamped_Header.RecSize, SEEK_CUR, err) == -1)
-			return -1;
+			return FALSE;
 	} while (1);
 
 	if (wth->phdr.caplen > WTAP_MAX_PACKET_SIZE) {
@@ -231,13 +231,11 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("5views: File has %u-byte packet, bigger than maximum of %u",
 		    wth->phdr.caplen, WTAP_MAX_PACKET_SIZE);
-		return -1;
+		return FALSE;
 	}
 
-	if (!wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
-	    wth->phdr.caplen, err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return wtap_read_packet_bytes(wth->fh, wth->frame_buffer,
+	    wth->phdr.caplen, err, err_info);
 }
 
 static gboolean
@@ -247,7 +245,7 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	/*
 	 * Read the header.
@@ -256,16 +254,14 @@ _5views_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	    phdr, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
-	    err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return wtap_read_packet_bytes(wth->random_fh, buf, phdr->caplen,
+	    err, err_info);
 }
 
 /* Read the header of the next packet.  Return TRUE on success, FALSE

@@ -90,9 +90,9 @@ static const unsigned char eyesdn_hdr_magic[]  =
  */
 #define EYESDN_MAX_PACKET_LEN	16384
 
-static int eyesdn_read(wtap *wth, int *err, gchar **err_info,
+static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static int eyesdn_seek_read(wtap *wth, gint64 seek_off,
+static gboolean eyesdn_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static int read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer* buf,
 	int *err, gchar **err_info);
@@ -149,7 +149,7 @@ int eyesdn_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static int eyesdn_read(wtap *wth, int *err, gchar **err_info,
+static gboolean eyesdn_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
@@ -157,7 +157,7 @@ static int eyesdn_read(wtap *wth, int *err, gchar **err_info,
 	/* Find the next record */
 	offset = eyesdn_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
-		return -1;
+		return FALSE;
 	*data_offset = offset;
 
 	/* Parse the record */
@@ -166,18 +166,18 @@ static int eyesdn_read(wtap *wth, int *err, gchar **err_info,
 }
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 eyesdn_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	Buffer *buf, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	return read_eyesdn_rec(wth->random_fh, phdr, buf, err, err_info);
 }
 
 /* Parses a record. */
-static int
+static gboolean
 read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
     gchar **err_info)
 {
@@ -198,7 +198,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		*err = file_error(fh, err_info);
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
 
         /* extract information from header */
@@ -251,7 +251,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 			*err_info = g_strdup_printf(
 			    "eyesdn: ATM cell has a length != 53 (%u)",
 			    pkt_len);
-			return -1;
+			return FALSE;
 		}
 
 		cur_off = file_tell(fh);
@@ -259,10 +259,10 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 			*err = file_error(fh, err_info);
 			if (*err == 0)
 				*err = WTAP_ERR_SHORT_READ;
-			return -1;
+			return FALSE;
 		}
 		if (file_seek(fh, cur_off, SEEK_SET, err) == -1)
-			return -1;
+			return FALSE;
 		phdr->pkt_encap = WTAP_ENCAP_ATM_PDUS_UNTRUNCATED;
 		pseudo_header->atm.flags=ATM_RAW_CELL;
 		pseudo_header->atm.aal=AAL_UNKNOWN;
@@ -310,7 +310,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("eyesdn: File has %u-byte packet, bigger than maximum of %u",
 		    pkt_len, EYESDN_MAX_PACKET_LEN);
-		return -1;
+		return FALSE;
 	}
 
 	phdr->presence_flags = WTAP_HAS_TS;
@@ -335,9 +335,9 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 			*err_info = g_strdup("eyesdn: No flag character seen in frame");
 		} else
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return REC_TYPE_PACKET;;
+	return TRUE;
 }
 
 

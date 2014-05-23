@@ -1117,7 +1117,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		cinfo = NULL;
 
 	buffer_init(&buf, 1500);
-	if (cf_read_frame_r(&cfile, fdata, &phdr, &buf) == -1) {
+	if (!cf_read_frame_r(&cfile, fdata, &phdr, &buf)) {
 		/*
 		 * Error reading the frame.
 		 *

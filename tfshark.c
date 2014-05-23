@@ -1857,7 +1857,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     for (framenum = 1; err == 0 && framenum <= cf->count; framenum++) {
       fdata = frame_data_sequence_find(cf->frames, framenum);
 #if 0
-      if (local_wtap_seek_read(cf->wth, fdata->file_off,
+      if (wtap_seek_read(cf->wth, fdata->file_off,
           &buf, fdata->cap_len, &err, &err_info)) {
         process_packet_second_pass(cf, edt, fdata, &cf->phdr, &buf, tap_flags);
       }

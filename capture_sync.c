@@ -1776,7 +1776,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
     case SP_PACKET_COUNT:
         npackets = atoi(buffer);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_input_cb: new packets %u", npackets);
-        capture_input_new_records(cap_session, npackets);
+        capture_input_new_packets(cap_session, npackets);
         break;
     case SP_ERROR_MSG:
         /* convert primary message */

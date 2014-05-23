@@ -105,9 +105,9 @@ static const char toshiba_rec_magic[]  = { '[', 'N', 'o', '.' };
  */
 #define TOSHIBA_MAX_PACKET_LEN	16384
 
-static int toshiba_read(wtap *wth, int *err, gchar **err_info,
+static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
-static int toshiba_seek_read(wtap *wth, gint64 seek_off,
+static gboolean toshiba_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
@@ -214,7 +214,7 @@ int toshiba_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static int toshiba_read(wtap *wth, int *err, gchar **err_info,
+static gboolean toshiba_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	gint64	offset;
@@ -222,31 +222,29 @@ static int toshiba_read(wtap *wth, int *err, gchar **err_info,
 	/* Find the next packet */
 	offset = toshiba_seek_next_packet(wth, err, err_info);
 	if (offset < 1)
-		return -1;
+		return FALSE;
 	*data_offset = offset;
 
 	/* Parse the packet */
-	if (!parse_toshiba_packet(wth->fh, &wth->phdr, wth->frame_buffer,
-	    err, err_info))
-		return -1;
-	return REC_TYPE_PACKET;
+	return parse_toshiba_packet(wth->fh, &wth->phdr, wth->frame_buffer,
+	    err, err_info);
 }
 
 /* Used to read packets in random-access fashion */
-static int
+static gboolean
 toshiba_seek_read(wtap *wth, gint64 seek_off,
 	struct wtap_pkthdr *phdr, Buffer *buf,
 	int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off - 1, SEEK_SET, err) == -1)
-		return -1;
+		return FALSE;
 
 	if (!parse_toshiba_packet(wth->random_fh, phdr, buf, err, err_info)) {
 		if (*err == 0)
 			*err = WTAP_ERR_SHORT_READ;
-		return -1;
+		return FALSE;
 	}
-	return REC_TYPE_PACKET;
+	return TRUE;
 }
 
 /* Parses a packet. */

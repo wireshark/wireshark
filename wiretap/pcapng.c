@@ -2257,7 +2257,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
 
 /* classic wtap: read packet */
-static int
+static gboolean
 pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
         pcapng_t *pcapng = (pcapng_t *)wth->priv;
@@ -2282,7 +2282,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                 if (bytes_read <= 0) {
                         pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
                         pcapng_debug0("pcapng_read: couldn't read packet block");
-                        return -1;
+                        return FALSE;
                 }
 
                 switch (wblock.type) {
@@ -2292,7 +2292,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
                         wth->phdr.pkt_encap = WTAP_ENCAP_UNKNOWN;
                         *err = WTAP_ERR_UNSUPPORTED;
                         *err_info = g_strdup_printf("pcapng: multi-section files not currently supported");
-                        return -1;
+                        return FALSE;
 
                 case(BLOCK_TYPE_PB):
                 case(BLOCK_TYPE_SPB):
@@ -2361,12 +2361,12 @@ got_packet:
         /*pcapng_debug2("Read length: %u Packet length: %u", bytes_read, wth->phdr.caplen);*/
         pcapng_debug1("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset + bytes_read);
 
-        return REC_TYPE_PACKET;
+        return TRUE;
 }
 
 
 /* classic wtap: seek to file position and read packet */
-static int
+static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
     struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
@@ -2380,7 +2380,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         /* seek to the right file position */
         bytes_read64 = file_seek(wth->random_fh, seek_off, SEEK_SET, err);
         if (bytes_read64 <= 0) {
-                return -1;   /* Seek error */
+                return FALSE;   /* Seek error */
         }
         pcapng_debug1("pcapng_seek_read: reading at offset %" G_GINT64_MODIFIER "u", seek_off);
 
@@ -2393,7 +2393,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
         if (bytes_read <= 0) {
                 pcapng_debug3("pcapng_seek_read: couldn't read packet block (err=%d, errno=%d, bytes_read=%d).",
                               *err, errno, bytes_read);
-                return -1;
+                return FALSE;
         }
 
         /* block must be a "Packet Block", an "Enhanced Packet Block",
@@ -2404,7 +2404,7 @@ pcapng_seek_read(wtap *wth, gint64 seek_off,
                 return FALSE;
         }
 
-        return REC_TYPE_PACKET;
+        return TRUE;
 }
 
 
