@@ -904,7 +904,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 static int
 dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
 {
-    const gchar *address;
+    const gchar *addr;
     guint16 afi, addr_len = 0;
 
     /* AS Number (4 bytes) */
@@ -918,9 +918,9 @@ dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
     offset += 2;
 
     /* Address */
-    address = get_addr_str(tvb, offset, afi, &addr_len);
-    if (address && afi)
-        proto_item_append_text(tip, ", Address: %s", address);
+    addr = get_addr_str(tvb, offset, afi, &addr_len);
+    if (addr && afi)
+        proto_item_append_text(tip, ", Address: %s", addr);
 
     switch (afi) {
         case AFNUM_RESERVED:
