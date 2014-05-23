@@ -191,6 +191,10 @@ static gint hf_sip_sec_mechanism_ealg     = -1;
 static gint hf_sip_sec_mechanism_prot     = -1;
 static gint hf_sip_sec_mechanism_spi_c    = -1;
 static gint hf_sip_sec_mechanism_spi_s    = -1;
+static gint hf_sip_sec_mechanism_port1    = -1;
+static gint hf_sip_sec_mechanism_port_c   = -1;
+static gint hf_sip_sec_mechanism_port2    = -1;
+static gint hf_sip_sec_mechanism_port_s   = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_sip                       = -1;
@@ -1828,8 +1832,9 @@ static void
 dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, gint start_offset, gint line_end_offset){
 
     gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
-    guint32 spi_c = 0;
-    guint32 spi_s = 0;
+    guint32 spi_c;
+    guint32 spi_s;
+    guint16 port;
 
     /* skip Spaces and Tabs */
     start_offset = tvb_skip_wsp(tvb, start_offset, line_end_offset - start_offset);
@@ -1911,6 +1916,42 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
                 spi_s = (guint32)strtoul(value, NULL, 10);
                 proto_tree_add_uint(tree, hf_sip_sec_mechanism_spi_s, tvb,
                                     equals_offset+1, semi_colon_offset-equals_offset-1, spi_s);
+            }
+        }else if (g_ascii_strcasecmp(param_name, "port1") == 0){
+            if (!value) {
+                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+                                        tvb, current_offset, -1);
+            } else {
+                port = (guint16)strtoul(value, NULL, 10);
+                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port1, tvb,
+                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
+            }
+        }else if (g_ascii_strcasecmp(param_name, "port-c") == 0){
+            if (!value) {
+                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+                                        tvb, current_offset, -1);
+            } else {
+                port = (guint32)strtoul(value, NULL, 10);
+                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port_c, tvb,
+                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
+            }
+        }else if (g_ascii_strcasecmp(param_name, "port2") == 0){
+            if (!value) {
+                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+                                        tvb, current_offset, -1);
+            } else {
+                port = (guint32)strtoul(value, NULL, 10);
+                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port2, tvb,
+                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
+            }
+        }else if (g_ascii_strcasecmp(param_name, "port-s") == 0){
+            if (!value) {
+                proto_tree_add_expert(tree, pinfo, &ei_sip_sipsec_malformed,
+                                        tvb, current_offset, -1);
+            } else {
+                port = (guint32)strtoul(value, NULL, 10);
+                proto_tree_add_uint(tree, hf_sip_sec_mechanism_port_s, tvb,
+                                    equals_offset+1, semi_colon_offset-equals_offset-1, port);
             }
         }
 
@@ -5503,6 +5544,26 @@ void proto_register_sip(void)
             FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL}
         },
+        { &hf_sip_sec_mechanism_port1,
+          { "port1",  "sip.sec_mechanism.port1",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_sec_mechanism_port_c,
+          { "port-c",  "sip.sec_mechanism.port_c",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_sec_mechanism_port2,
+          { "port2",  "sip.sec_mechanism.port2",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_sip_sec_mechanism_port_s,
+          { "port-s",  "sip.sec_mechanism.port_s",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        }
     };
 
     /* raw_sip header field(s) */
