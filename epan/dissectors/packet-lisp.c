@@ -274,6 +274,13 @@ static int hf_lisp_lcaf_iid_ipv4 = -1;
 static int hf_lisp_lcaf_iid_ipv6 = -1;
 static int hf_lisp_lcaf_iid_mac = -1;
 
+/* LCAF ASN fields */
+static int hf_lisp_lcaf_asn = -1;
+static int hf_lisp_lcaf_asn_afi = -1;
+static int hf_lisp_lcaf_asn_ipv4 = -1;
+static int hf_lisp_lcaf_asn_ipv6 = -1;
+static int hf_lisp_lcaf_asn_mac = -1;
+
 /* LCAF Geo Coordinates fields */
 static int hf_lisp_lcaf_geo_lat = -1;
 static int hf_lisp_lcaf_geo_lat_hemisphere = -1;
@@ -506,7 +513,7 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
     guint32            locator_v4;
     struct e_in6_addr  locator_v6;
     guint8             lcaf_type;
-    guint32            iid;
+    guint32            iid, asn;
     guint16            cur_len;
 
     switch (afi) {
@@ -531,6 +538,12 @@ get_addr_str(tvbuff_t *tvb, gint offset, guint16 afi, guint16 *addr_len)
                 afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
                 addr_str = get_addr_str(tvb, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
                 return wmem_strdup_printf(wmem_packet_scope(), "[%d] %s", iid, addr_str);
+            }
+            if (lcaf_type == LCAF_ASN) {
+                asn = tvb_get_ntohl(tvb, offset + LCAF_HEADER_LEN);
+                afi = tvb_get_ntohs(tvb, offset + LCAF_HEADER_LEN + 4);
+                addr_str = get_addr_str(tvb, offset + LCAF_HEADER_LEN + 6, afi, &cur_len);
+                return wmem_strdup_printf(wmem_packet_scope(), "%s (ASN %d)", addr_str, asn);
             }
             return addr_str;
         case AFNUM_EUI48:
@@ -852,6 +865,73 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
             break;
         case AFNUM_EUI48:
             proto_tree_add_item(tree, hf_lisp_lcaf_iid_mac,
+                    tvb, offset, EUI48_ADDRLEN, ENC_NA);
+            offset += EUI48_ADDRLEN;
+            break;
+        default:
+            expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
+                    "Unexpected Instance ID AFI (%d), cannot decode", afi);
+    }
+    return offset;
+}
+
+
+/*
+ * Dissector code for Instance ID
+ *
+ *    0                   1                   2                   3
+ *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |           AFI = 16387         |     Rsvd1     |     Flags     |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |   Type = 3    |     Rsvd2     |             4 + n             |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |                           AS Number                           |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *   |              AFI = x          |         Address  ...          |
+ *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ */
+
+static int
+dissect_lcaf_asn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
+{
+    const gchar *address;
+    guint16 afi, addr_len = 0;
+
+    /* AS Number (4 bytes) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_asn, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item_append_text(tip, ": %d", tvb_get_ntohl(tvb, offset));
+    offset += 4;
+
+    /* AFI (2 bytes) */
+    afi = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_lisp_lcaf_asn_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Address */
+    address = get_addr_str(tvb, offset, afi, &addr_len);
+    if (address && afi)
+        proto_item_append_text(tip, ", Address: %s", address);
+
+    switch (afi) {
+        case AFNUM_RESERVED:
+            break;
+        case AFNUM_INET:
+            proto_tree_add_item(tree, hf_lisp_lcaf_asn_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(tree, hf_lisp_lcaf_asn_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
+            break;
+        case AFNUM_EUI48:
+            proto_tree_add_item(tree, hf_lisp_lcaf_asn_mac,
                     tvb, offset, EUI48_ADDRLEN, ENC_NA);
             offset += EUI48_ADDRLEN;
             break;
@@ -1619,6 +1699,9 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
             break;
         case LCAF_IID:
             offset = dissect_lcaf_iid(tvb, pinfo, lcaf_tree, offset, ti);
+            break;
+        case LCAF_ASN:
+            offset = dissect_lcaf_asn(tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_GEO:
             offset = dissect_lcaf_geo(tvb, pinfo, lcaf_tree, offset, ti);
@@ -3136,6 +3219,21 @@ proto_register_lisp(void)
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_iid_mac,
             { "Address", "lisp.lcaf.iid.mac",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_asn,
+            { "AS Number", "lisp.lcaf.asn",
+            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_asn_afi,
+            { "Address AFI", "lisp.lcaf.asn.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_asn_ipv4,
+            { "Address", "lisp.lcaf.asn.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_asn_ipv6,
+            { "Address", "lisp.lcaf.asn.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_asn_mac,
+            { "Address", "lisp.lcaf.asn.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_geo_lat,
             { "Latitude", "lisp.lcaf.geo.lat",
