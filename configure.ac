@@ -6,8 +6,8 @@
 # Define variables for the components of the Wireshark version number.
 #
 m4_define([version_major], [1])
-m4_define([version_minor], [11])
-m4_define([version_micro], [4])
+m4_define([version_minor], [99])
+m4_define([version_micro], [0])
 m4_define([version_micro_extra], version_micro)
 m4_append([version_micro_extra], [])
 
