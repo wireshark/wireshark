@@ -306,6 +306,14 @@ static int hf_lisp_lcaf_natt_rloc_afi = -1;
 static int hf_lisp_lcaf_natt_rloc_ipv4 = -1;
 static int hf_lisp_lcaf_natt_rloc_ipv6 = -1;
 
+/* LCAF Nonce Locator fields */
+static int hf_lisp_lcaf_nonce_loc_res = -1;
+static int hf_lisp_lcaf_nonce_loc = -1;
+static int hf_lisp_lcaf_nonce_loc_afi = -1;
+static int hf_lisp_lcaf_nonce_loc_ipv4 = -1;
+static int hf_lisp_lcaf_nonce_loc_ipv6 = -1;
+static int hf_lisp_lcaf_nonce_loc_mac = -1;
+
 /* LCAF Multicast Group Membership Information fields */
 static int hf_lisp_lcaf_mcinfo_flags = -1;
 static int hf_lisp_lcaf_mcinfo_flags_res = -1;
@@ -877,7 +885,7 @@ dissect_lcaf_iid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offse
 
 
 /*
- * Dissector code for Instance ID
+ * Dissector code for AS Number
  *
  *    0                   1                   2                   3
  *    0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
@@ -1171,6 +1179,78 @@ dissect_lcaf_natt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         i++;
     }
 
+    return offset;
+}
+
+
+/*
+ * Dissector code for Nonce Locator
+ *
+ *   0                   1                   2                   3
+ *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |           AFI = 16387         |     Rsvd1     |     Flags     |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |   Type = 8    |     Rsvd2     |             4 + n             |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |   Reserved    |                  Nonce                        |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *  |              AFI = x          |         Address  ...          |
+ *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ *
+ */
+
+static int
+dissect_lcaf_nonce_loc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, proto_item *tip)
+{
+    const gchar *addr;
+    guint16 afi, addr_len = 0;
+
+    /* Reserved (1 byte) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_res, tvb, offset, 1, ENC_NA);
+    proto_item_append_text(tip, ": %d", tvb_get_ntohl(tvb, offset));
+    offset += 1;
+
+    /* Nonce (3 bytes) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc, tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_item_append_text(tip, ": %d", tvb_get_ntohl(tvb, offset));
+    offset += 3;
+
+    /* AFI (2 bytes) */
+    afi = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* Address */
+    addr = get_addr_str(tvb, offset, afi, &addr_len);
+    if (addr && afi)
+        proto_item_append_text(tip, ", Address: %s", addr);
+
+    switch (afi) {
+        case AFNUM_RESERVED:
+            break;
+        case AFNUM_INET:
+            proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_ipv4,
+                    tvb, offset, INET_ADDRLEN, ENC_BIG_ENDIAN);
+            offset += INET_ADDRLEN;
+            break;
+        case AFNUM_INET6:
+            proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_ipv6,
+                    tvb, offset, INET6_ADDRLEN, ENC_NA);
+            offset += INET6_ADDRLEN;
+            break;
+        case AFNUM_LCAF:
+            offset = dissect_lcaf(tvb, pinfo, tree, offset, NULL);
+            break;
+        case AFNUM_EUI48:
+            proto_tree_add_item(tree, hf_lisp_lcaf_nonce_loc_mac,
+                    tvb, offset, EUI48_ADDRLEN, ENC_NA);
+            offset += EUI48_ADDRLEN;
+            break;
+        default:
+            expert_add_info_format(pinfo, tree, &ei_lisp_unexpected_field,
+                    "Unexpected Instance ID AFI (%d), cannot decode", afi);
+    }
     return offset;
 }
 
@@ -1708,6 +1788,9 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
             break;
         case LCAF_NATT:
             offset = dissect_lcaf_natt(tvb, pinfo, lcaf_tree, offset, len);
+            break;
+        case LCAF_NONCE_LOC:
+            offset = dissect_lcaf_nonce_loc(tvb, pinfo, lcaf_tree, offset, ti);
             break;
         case LCAF_MCAST_INFO:
             offset = dissect_lcaf_mcast_info(tvb, pinfo, lcaf_tree, offset, ti);
@@ -3279,6 +3362,24 @@ proto_register_lisp(void)
             FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_geo_mac,
             { "Address", "lisp.lcaf.geo.mac",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc_res,
+            { "Reserved bits", "lisp.lcaf.nonce_loc.res",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc,
+            { "Nonce", "lisp.lcaf.nonce_loc",
+            FT_UINT24, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc_afi,
+            { "Address AFI", "lisp.lcaf.nonce_loc.afi",
+            FT_UINT16, BASE_DEC, VALS(afn_vals), 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc_ipv4,
+            { "Address", "lisp.lcaf.nonce_loc.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc_ipv6,
+            { "Address", "lisp.lcaf.nonce_loc.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_nonce_loc_mac,
+            { "Address", "lisp.lcaf.nonce_loc.mac",
             FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_lisp_lcaf_mcinfo_flags,
             { "Multicast Info Flags", "lisp.lcaf.mcinfo.flags",
