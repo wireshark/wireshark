@@ -1957,4 +1957,3 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 
     return TRUE;
 }
-
