@@ -1372,7 +1372,7 @@ proto_register_mausb(void)
         },
         { &hf_mausb_ep_handle_resp_valid,
             { "Valid", "mausb.ep_valid", FT_BOOLEAN, 6,
-              TFS(&tfs_valid_not_valid), MAUSB_EP_HANDLE_RESP_VALID_MASK,
+              TFS(&tfs_invalid_valid), MAUSB_EP_HANDLE_RESP_VALID_MASK,
               NULL, HFILL
             }
         },

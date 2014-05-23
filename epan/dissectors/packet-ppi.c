@@ -343,7 +343,6 @@ static dissector_handle_t ppi_fnet_handle;
 static const true_false_string tfs_ppi_head_flag_alignment = { "32-bit aligned", "Not aligned" };
 static const true_false_string tfs_tsft_ms = { "milliseconds", "microseconds" };
 static const true_false_string tfs_ht20_40 = { "HT40", "HT20" };
-static const true_false_string tfs_invalid_valid = { "Invalid", "Valid" };
 static const true_false_string tfs_phy_error = { "PHY error", "No errors"};
 
 static const value_string vs_ppi_field_type[] = {

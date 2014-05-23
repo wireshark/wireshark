@@ -515,7 +515,6 @@ static const value_string qoi_r_types[] = {
 static const true_false_string tfs_blocked_not_blocked = { "Blocked", "Not blocked" };
 static const true_false_string tfs_substituted_not_substituted = { "Substituted", "Not Substituted" };
 static const true_false_string tfs_not_topical_topical = { "Not Topical", "Topical" };
-static const true_false_string tfs_invalid_valid = { "Invalid", "Valid" };
 static const true_false_string tfs_transient_not_transient = { "Transient", "Not Transient" };
 static const true_false_string tfs_overflow_no_overflow = { "Overflow", "No overflow" };
 static const true_false_string tfs_select_execute = { "Select", "Execute" };
