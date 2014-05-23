@@ -290,7 +290,7 @@ int nettl_open(wtap *wth, int *err, gchar **err_info)
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-    /* Read record header. */
+    /* Read record. */
     *data_offset = file_tell(wth->fh);
     if (!nettl_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
         err, err_info)) {
