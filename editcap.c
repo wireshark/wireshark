@@ -192,17 +192,20 @@ abs_time_to_str_with_sec_resolution(const nstime_t *abs_time)
 }
 
 static gchar *
-fileset_get_filename_by_pattern(guint idx, const nstime_t *time_val,
+fileset_get_filename_by_pattern(guint idx, const struct wtap_pkthdr *phdr,
                                 gchar *fprefix, gchar *fsuffix)
 {
     gchar  filenum[5+1];
     gchar *timestr;
     gchar *abs_str;
 
-    timestr = abs_time_to_str_with_sec_resolution(time_val);
     g_snprintf(filenum, sizeof(filenum), "%05u", idx % RINGBUFFER_MAX_NUM_FILES);
-    abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
-    g_free(timestr);
+    if (phdr->presence_flags & WTAP_HAS_TS) {
+        timestr = abs_time_to_str_with_sec_resolution(&phdr->ts);
+        abs_str = g_strconcat(fprefix, "_", filenum, "_", timestr, fsuffix, NULL);
+        g_free(timestr);
+    } else
+        abs_str = g_strconcat(fprefix, "_", filenum, fsuffix, NULL);
 
     return abs_str;
 }
@@ -1186,12 +1189,14 @@ main(int argc, char *argv[])
         while (wtap_read(wth, &err, &err_info, &data_offset)) {
             read_count++;
 
+            phdr = wtap_phdr(wth);
+
             if (read_count == 1) {  /* the first packet */
                 if (split_packet_count > 0 || secs_per_block > 0) {
                     if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
                         exit(2);
 
-                    filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+                    filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
                 } else {
                     filename = g_strdup(argv[optind+1]);
                 }
@@ -1213,7 +1218,6 @@ main(int argc, char *argv[])
                 }
             }
 
-            phdr = wtap_phdr(wth);
             buf = wtap_buf_ptr(wth);
 
             /*
@@ -1238,7 +1242,7 @@ main(int argc, char *argv[])
                         }
                         block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
                         g_free(filename);
-                        filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+                        filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
                         g_assert(filename);
 
                         if (verbose)
@@ -1267,7 +1271,7 @@ main(int argc, char *argv[])
                     }
 
                     g_free(filename);
-                    filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+                    filename = fileset_get_filename_by_pattern(block_cnt++, phdr, fprefix, fsuffix);
                     g_assert(filename);
 
                     if (verbose)
