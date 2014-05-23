@@ -137,7 +137,7 @@ i4btrace_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
 	return TRUE;
 }
 
-static int
+static gboolean
 i4b_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
     int *err, gchar **err_info)
 {
