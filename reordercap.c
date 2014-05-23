@@ -135,9 +135,9 @@ frame_write(FrameRecord_t *frame, wtap *wth, wtap_dumper *pdh, Buffer *buf,
 }
 
 /* Comparing timestamps between 2 frames.
-   -1 if (t1 < t2)
-   0  if (t1 == t2)
-   1  if (t1 > t2)
+   negative if (t1 < t2)
+   zero     if (t1 == t2)
+   positive if (t1 > t2)
 */
 static int
 frames_compare(gconstpointer a, gconstpointer b)
@@ -148,24 +148,7 @@ frames_compare(gconstpointer a, gconstpointer b)
     const nstime_t *time1 = &frame1->time;
     const nstime_t *time2 = &frame2->time;
 
-    if (time1->secs > time2->secs)
-        return 1;
-    if (time1->secs < time2->secs)
-        return -1;
-
-    /* time1->secs == time2->secs */
-    if (time1->nsecs > time2->nsecs)
-        return 1;
-    if (time1->nsecs < time2->nsecs)
-        return -1;
-
-    /* time1->nsecs == time2->nsecs */
-
-    if (frame1->num > frame2->num)
-        return 1;
-    if (frame1->num < frame2->num)
-        return -1;
-    return 0;
+    return nstime_cmp(time1, time2);
 }
 
 
@@ -269,7 +252,11 @@ int main(int argc, char *argv[])
         newFrameRecord = g_slice_new(FrameRecord_t);
         newFrameRecord->num = frames->len + 1;
         newFrameRecord->offset = data_offset;
-        newFrameRecord->time = phdr->ts;
+        if (phdr->presence_flags & WTAP_HAS_TS) {
+            newFrameRecord->time = phdr->ts;
+        } else {
+            nstime_set_unset(&newFrameRecord->time);
+        }
 
         if (prevFrame && frames_compare(&newFrameRecord, &prevFrame) < 0) {
            wrong_order_count++;

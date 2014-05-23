@@ -59,7 +59,7 @@ void nstime_set_unset(nstime_t *nstime)
 }
 
 /* is the given nstime_t currently (0,maxint)? */
-gboolean nstime_is_unset(nstime_t *nstime)
+gboolean nstime_is_unset(const nstime_t *nstime)
 {
     if(nstime->secs == 0 && nstime->nsecs == G_MAXINT) {
         return TRUE;
@@ -148,6 +148,17 @@ void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
 
 int nstime_cmp (const nstime_t *a, const nstime_t *b )
 {
+    if (G_UNLIKELY(nstime_is_unset(a))) {
+        if (G_UNLIKELY(nstime_is_unset(b))) {
+            return 0;    /* "no time stamp" is "equal" to "no time stamp" */
+        } else {
+            return -1;   /* and is less than all time stamps */
+        }
+    } else {
+    	if (G_UNLIKELY(nstime_is_unset(b))) {
+    	    return 1;
+    	}
+    }
     if (a->secs == b->secs) {
         return a->nsecs - b->nsecs;
     } else {

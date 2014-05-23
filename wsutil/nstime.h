@@ -56,7 +56,7 @@ WS_DLL_PUBLIC gboolean nstime_is_zero(nstime_t *nstime);
 WS_DLL_PUBLIC void nstime_set_unset(nstime_t *nstime);
 
 /* is the given nstime_t currently (0,maxint)? */
-WS_DLL_PUBLIC gboolean nstime_is_unset(nstime_t *nstime);
+WS_DLL_PUBLIC gboolean nstime_is_unset(const nstime_t *nstime);
 
 /** duplicate the current time
  *
