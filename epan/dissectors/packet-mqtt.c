@@ -418,11 +418,27 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
+/**
+"The minimum size of MQTT Packet is 2 bytes(Ping Req, Ping Rsp,
+Disconnect), and the maximum size is 256MB.  Hence minimum fixed
+length should be 2 bytes for tcp_dissect_pdu.
+
+If the length filed is spread across two TCP segments, then we have a
+problem, because exception will be raised.  So long as MQTT length
+field(although spread over 4 bytes) is present within single TCP
+segment we shouldn't have any issue by calling tcp_dissect_pdu with
+minimum length set to 2."
+
+XXX: ToDo: Commit a fix for the case of the length field spread across TCP segments.
+**/
+
+
+
 static int dissect_mqtt_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   tcp_dissect_pdus(tvb, pinfo, tree,
                    reassemble_mqtt_over_tcp,
-                   5,                           /* Length can be determined within 5 bytes */
+                   2,                           /* Length can be determined within 5 bytes */
                    get_mqtt_pdu_len,
                    dissect_mqtt, data);
 
