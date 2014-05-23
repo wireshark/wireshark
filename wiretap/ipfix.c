@@ -326,4 +326,3 @@ ipfix_close(wtap *wth _U_)
 {
     ipfix_debug0("ipfix_close: closing file");
 }
-
