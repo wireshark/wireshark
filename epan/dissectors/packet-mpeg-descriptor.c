@@ -740,8 +740,7 @@ static void
 proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 
-    float frequency, orbital_position;
-    guint32 symbol_rate;
+    float frequency, orbital_position, symbol_rate;
     guint8  modulation_system;
 
     frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0f +
@@ -770,16 +769,15 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
     proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_modulation_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    symbol_rate = tvb_get_ntohl(tvb, offset) >> 4;
-    proto_tree_add_string_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate, tvb, offset, 4,
-        "Symbol Rate", "%2u%02u%02u%01u,%01u KSymbol/s",
-        MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 24),
-        MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 16),
-        MPEG_SECT_BCD44_TO_DEC(symbol_rate >> 8),
-        MPEG_SECT_BCD44_TO_DEC(symbol_rate) / 10,
-        MPEG_SECT_BCD44_TO_DEC(symbol_rate) % 10);
-
+    symbol_rate = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0f +
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0f +
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0f +
+                  /* symbol rate is 28 bits, only the upper 4 bits of this byte are used */
+                  MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)>>4) / 10000.0f;
+    proto_tree_add_float_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate,
+            tvb, offset, 4, symbol_rate, "Symbol rate: %3.4f MSym/s", symbol_rate);
     offset += 3;
+
     proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_fec_inner, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
@@ -3324,7 +3322,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_satellite_delivery_symbol_rate, {
             "Symbol Rate", "mpeg_descr.sat_delivery.symbol_rate",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_satellite_delivery_fec_inner, {
