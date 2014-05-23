@@ -260,7 +260,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 
 	*data_offset = file_tell(wth->fh);
 
-	/* Read record header. */
+	/* Read record. */
 	if (!radcom_read_rec(wth, wth->fh, &wth->phdr, wth->frame_buffer,
 	    err, err_info)) {
 		/* Read error or EOF */
