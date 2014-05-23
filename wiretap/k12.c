@@ -1256,5 +1256,3 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
 
     return TRUE;
 }
-
-
