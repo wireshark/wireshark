@@ -2638,7 +2638,7 @@ static int dissect_time_sync_port_state_info(packet_info *pinfo, proto_tree *tre
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_state_info);
        proto_tree_add_item(port_tree, hf_time_sync_port_state_info_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_state_info_port_state, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
@@ -2671,7 +2671,7 @@ static int dissect_time_sync_port_enable_cfg(packet_info *pinfo, proto_tree *tre
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_enable_cfg);
        proto_tree_add_item(port_tree, hf_time_sync_port_enable_cfg_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_enable_cfg_port_enable, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
@@ -2704,7 +2704,7 @@ static int dissect_time_sync_port_log_announce(packet_info *pinfo, proto_tree *t
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_log_announce);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_announce_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_announce_interval, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
@@ -2737,7 +2737,7 @@ static int dissect_time_sync_port_log_sync(packet_info *pinfo, proto_tree *tree,
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*4, 4, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*4, 4, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_log_sync);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_sync_port_num, tvb, offset+2+i*4, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_log_sync_port_log_sync_interval, tvb, offset+4+i*4, 2, ENC_LITTLE_ENDIAN);
@@ -2897,7 +2897,7 @@ static int dissect_time_sync_port_profile_id_info(packet_info *pinfo, proto_tree
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*10, 10, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*10, 10, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_profile_id_info);
        proto_tree_add_item(port_tree, hf_time_sync_port_profile_id_info_port_num, tvb, offset+2+i*10, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_profile_id_info_profile_id, tvb, offset+4+i*10, 8, ENC_NA);
@@ -2930,7 +2930,7 @@ static int dissect_time_sync_port_phys_addr_info(packet_info *pinfo, proto_tree 
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*36, 36, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*36, 36, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_phys_addr_info);
        proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_port_num, tvb, offset+2+i*36, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_phys_addr_info_phys_proto, tvb, offset+4+i*36, 16, ENC_NA);
@@ -2965,7 +2965,7 @@ static int dissect_time_sync_port_proto_addr_info(packet_info *pinfo, proto_tree
 
    for (i = 0; i < num_ports; i++)
    {
-       ti = proto_tree_add_text(tree, NULL, offset+2+i*22, 22, "Port #%d", i+1);
+       ti = proto_tree_add_text(tree, tvb, offset+2+i*22, 22, "Port #%d", i+1);
        port_tree = proto_item_add_subtree(ti, ett_time_sync_port_proto_addr_info);
        proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_port_num, tvb, offset+2+i*22, 2, ENC_LITTLE_ENDIAN);
        proto_tree_add_item(port_tree, hf_time_sync_port_proto_addr_info_network_proto, tvb, offset+4+i*22, 2, ENC_LITTLE_ENDIAN);
