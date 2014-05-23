@@ -1862,6 +1862,9 @@ dissect_sip_sec_mechanism(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, g
     while(current_offset < line_end_offset){
         gchar *param_name = NULL, *value = NULL;
 
+        /* skip Spaces and Tabs */
+        current_offset = tvb_skip_wsp(tvb, current_offset, line_end_offset - current_offset);
+
         semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset-current_offset, ';');
 
         if(semi_colon_offset == -1){
