@@ -833,15 +833,15 @@ static value_string_ext mpeg_descr_cable_delivery_fec_inner_vals_ext = VALUE_STR
 static void
 proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
-    guint32 frequency, symbol_rate;
+    float frequency;
+    guint32 symbol_rate;
 
-    frequency = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_string_format_value(tree, hf_mpeg_descr_cable_delivery_frequency, tvb, offset, 4,
-        "Frequency", "%2u%02u,%02u%02u MHz",
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 24),
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 16),
-        MPEG_SECT_BCD44_TO_DEC(frequency >> 8),
-        MPEG_SECT_BCD44_TO_DEC(frequency));
+    frequency = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 100.0f +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 100.0f +
+                MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 10000.f;
+    proto_tree_add_float_format_value(tree, hf_mpeg_descr_cable_delivery_frequency,
+            tvb, offset, 4, frequency, "Frequency: %4.4f MHz", frequency);
     offset += 4;
 
     proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3334,7 +3334,7 @@ proto_register_mpeg_descriptor(void)
         /* 0x44 Cable Delivery System Descriptor */
         { &hf_mpeg_descr_cable_delivery_frequency, {
             "Frequency", "mpeg_descr.cable_delivery.freq",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_FLOAT, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_cable_delivery_reserved, {
