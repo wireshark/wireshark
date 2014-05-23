@@ -591,17 +591,17 @@ static void
 add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *hidden_item;
-	int	    j, size;
+	int	    j;
 	int	    segment, brdgnmb, unprocessed_rif;
-	int	    buff_offset=0;
 
 #define RIF_OFFSET		16
 #define RIF_BYTES_TO_PROCESS	30
 
-	char	*buffer;
+	wmem_strbuf_t	*buf;
 #define MAX_BUF_LEN 3 + (RIF_BYTES_TO_PROCESS / 2) * 6 + 1
 
-	buffer=(char *)wmem_alloc(wmem_packet_scope(), MAX_BUF_LEN);
+	buf = wmem_strbuf_sized_new(wmem_packet_scope(),
+			MAX_BUF_LEN, MAX_BUF_LEN);
 	/* Only process so many  bytes of RIF, as per TR spec, and not overflow
 	 * static buffer above */
 	unprocessed_rif = rcf_len - RIF_BYTES_TO_PROCESS;
@@ -613,23 +613,19 @@ add_ring_bridge_pairs(int rcf_len, tvbuff_t *tvb, proto_tree *tree)
 	for(j = 1; j < rcf_len - 1; j += 2) {
 		if (j==1) {
 			segment = tvb_get_ntohs(tvb, RIF_OFFSET) >> 4;
-			size = g_snprintf(buffer, MAX_BUF_LEN, "%03X",segment);
-			size = MIN(size, MAX_BUF_LEN - 1);
+			wmem_strbuf_append_printf(buf, "%03X", segment);
 			hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 2, 2, segment);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
-			buff_offset += size;
 		}
 		segment = tvb_get_ntohs(tvb, RIF_OFFSET + 1 + j) >> 4;
 		brdgnmb = tvb_get_guint8(tvb, RIF_OFFSET + j) & 0x0f;
-		size = g_snprintf(buffer+buff_offset, MAX_BUF_LEN-buff_offset, "-%01X-%03X",brdgnmb,segment);
-		size = MIN(size, MAX_BUF_LEN-buff_offset-1);
+		wmem_strbuf_append_printf(buf, "-%01X-%03X", brdgnmb, segment);
 		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_ring, tvb, TR_MIN_HEADER_LEN + 3 + j, 2, segment);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		hidden_item = proto_tree_add_uint(tree, hf_tr_rif_bridge, tvb, TR_MIN_HEADER_LEN + 2 + j, 1, brdgnmb);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
-		buff_offset += size;
 	}
-	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, buffer);
+	proto_tree_add_string(tree, hf_tr_rif, tvb, TR_MIN_HEADER_LEN + 2, rcf_len, wmem_strbuf_get_str(buf));
 
 	if (unprocessed_rif > 0) {
 		proto_tree_add_text(tree, tvb, TR_MIN_HEADER_LEN + RIF_BYTES_TO_PROCESS, unprocessed_rif,
@@ -755,3 +751,16 @@ proto_reg_handoff_tr(void)
 	tr_handle = find_dissector("tr");
 	dissector_add_uint("wtap_encap", WTAP_ENCAP_TOKEN_RING, tr_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
