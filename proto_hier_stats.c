@@ -159,13 +159,15 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	/* Get stats from this protocol tree */
 	process_tree(edt.tree, ps, frame->pkt_len);
 
-	/* Update times */
-	cur_time = nstime_to_sec(&frame->abs_ts);
-	if (cur_time < ps->first_time) {
-	  ps->first_time = cur_time;
-	}
-	if (cur_time > ps->last_time){
-	  ps->last_time = cur_time;
+	if (frame->flags.has_ts) {
+		/* Update times */
+		cur_time = nstime_to_sec(&frame->abs_ts);
+		if (cur_time < ps->first_time) {
+		  ps->first_time = cur_time;
+		}
+		if (cur_time > ps->last_time){
+		  ps->last_time = cur_time;
+		}
 	}
 
 	/* Free our memory. */
@@ -266,10 +268,12 @@ ph_stats_new(void)
 		   look only at those packets. */
 		if (frame->flags.passed_dfilter) {
 
-			if (tot_packets == 0) {
-				double cur_time = nstime_to_sec(&frame->abs_ts);
-				ps->first_time = cur_time;
-				ps->last_time = cur_time;
+			if (frame->flags.has_ts) {
+				if (tot_packets == 0) {
+					double cur_time = nstime_to_sec(&frame->abs_ts);
+					ps->first_time = cur_time;
+					ps->last_time = cur_time;
+				}
 			}
 
 			/* we don't care about colinfo */
