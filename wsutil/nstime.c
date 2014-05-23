@@ -155,9 +155,9 @@ int nstime_cmp (const nstime_t *a, const nstime_t *b )
             return -1;   /* and is less than all time stamps */
         }
     } else {
-    	if (G_UNLIKELY(nstime_is_unset(b))) {
-    	    return 1;
-    	}
+        if (G_UNLIKELY(nstime_is_unset(b))) {
+            return 1;
+        }
     }
     if (a->secs == b->secs) {
         return a->nsecs - b->nsecs;
