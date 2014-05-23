@@ -308,15 +308,6 @@ selected(int recno)
   return 0;
 }
 
-/* is the packet in the selected timeframe */
-static gboolean
-check_timestamp(wtap *wth)
-{
-    struct wtap_pkthdr *pkthdr = wtap_phdr(wth);
-
-    return (pkthdr->ts.secs >= starttime) && (pkthdr->ts.secs < stoptime);
-}
-
 static void
 set_time_adjustment(char *optarg_str_p)
 {
@@ -857,7 +848,7 @@ main(int argc, char *argv[])
     int           split_packet_count = 0;
     int           written_count      = 0;
     char         *filename           = NULL;
-    gboolean      ts_okay            = TRUE;
+    gboolean      ts_okay;
     int           secs_per_block     = 0;
     int           block_cnt          = 0;
     nstime_t      block_start;
@@ -1195,13 +1186,7 @@ main(int argc, char *argv[])
         while (wtap_read(wth, &err, &err_info, &data_offset)) {
             read_count++;
 
-            phdr = wtap_phdr(wth);
-            buf = wtap_buf_ptr(wth);
-
-            if (nstime_is_unset(&block_start)) {  /* should only be the first packet */
-                block_start.secs = phdr->ts.secs;
-                block_start.nsecs = phdr->ts.nsecs;
-
+            if (read_count == 1) {  /* the first packet */
                 if (split_packet_count > 0 || secs_per_block > 0) {
                     if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix))
                         exit(2);
@@ -1210,6 +1195,7 @@ main(int argc, char *argv[])
                 } else {
                     filename = g_strdup(argv[optind+1]);
                 }
+                g_assert(filename);
 
                 /* If we don't have an application name add Editcap */
                 if (shb_hdr->shb_user_appl == NULL) {
@@ -1227,34 +1213,46 @@ main(int argc, char *argv[])
                 }
             }
 
-            g_assert(filename);
+            phdr = wtap_phdr(wth);
+            buf = wtap_buf_ptr(wth);
 
-            if (secs_per_block > 0) {
-                while ((phdr->ts.secs - block_start.secs >  secs_per_block)
-                       || (phdr->ts.secs - block_start.secs == secs_per_block
-                           && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
+            /*
+             * Not all packets have time stamps. Only process the time
+             * stamp if we have one.
+             */
+            if (phdr->presence_flags & WTAP_HAS_TS) {
+                if (nstime_is_unset(&block_start)) {
+                    block_start.secs = phdr->ts.secs;
+                    block_start.nsecs = phdr->ts.nsecs;
+                }
 
-                    if (!wtap_dump_close(pdh, &err)) {
-                        fprintf(stderr, "editcap: Error writing to %s: %s\n",
-                                filename, wtap_strerror(err));
-                        exit(2);
-                    }
-                    block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
-                    g_free(filename);
-                    filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
-                    g_assert(filename);
+                if (secs_per_block > 0) {
+                    while ((phdr->ts.secs - block_start.secs >  secs_per_block)
+                           || (phdr->ts.secs - block_start.secs == secs_per_block
+                               && phdr->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
 
-                    if (verbose)
-                        fprintf(stderr, "Continuing writing in file %s\n", filename);
+                        if (!wtap_dump_close(pdh, &err)) {
+                            fprintf(stderr, "editcap: Error writing to %s: %s\n",
+                                    filename, wtap_strerror(err));
+                            exit(2);
+                        }
+                        block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
+                        g_free(filename);
+                        filename = fileset_get_filename_by_pattern(block_cnt++, &phdr->ts, fprefix, fsuffix);
+                        g_assert(filename);
 
-                    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                                            snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
-                                            FALSE /* compressed */, shb_hdr, idb_inf, &err);
+                        if (verbose)
+                            fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                    if (pdh == NULL) {
-                        fprintf(stderr, "editcap: Can't open or create %s: %s\n",
-                                filename, wtap_strerror(err));
-                        exit(2);
+                        pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+                                                snaplen ? MIN(snaplen, wtap_snapshot_length(wth)) : wtap_snapshot_length(wth),
+                                                FALSE /* compressed */, shb_hdr, idb_inf, &err);
+
+                        if (pdh == NULL) {
+                            fprintf(stderr, "editcap: Can't open or create %s: %s\n",
+                                    filename, wtap_strerror(err));
+                            exit(2);
+                        }
                     }
                 }
             }
@@ -1286,8 +1284,22 @@ main(int argc, char *argv[])
                 }
             }
 
-            if (check_startstop)
-                ts_okay = check_timestamp(wth);
+            if (check_startstop) {
+                /*
+                 * Is the packet in the selected timeframe?
+                 * If the packet has no time stamp, the answer is "no".
+                 */
+                if (phdr->presence_flags & WTAP_HAS_TS)
+                    ts_okay = (phdr->ts.secs >= starttime) && (phdr->ts.secs < stoptime);
+                else
+                    ts_okay = FALSE;
+	    } else {
+	        /*
+	         * No selected timeframe, so all packets are "in the
+	         * selected timeframe".
+	         */
+	        ts_okay = TRUE;
+	    }
 
             if (ts_okay && ((!selected(count) && !keep_em)
                             || (selected(count) && keep_em))) {
@@ -1318,28 +1330,47 @@ main(int argc, char *argv[])
                 handle_chopping(chop, &snap_phdr, phdr, &buf, adjlen);
                 phdr = &snap_phdr;
 
-                /* Do we adjust timestamps to ensure strict chronological
-                 * order? */
-                if (do_strict_time_adjustment) {
-                    if (previous_time.secs || previous_time.nsecs) {
-                        if (!strict_time_adj.is_negative) {
-                            nstime_t current;
-                            nstime_t delta;
+                if (phdr->presence_flags & WTAP_HAS_TS) {
+                    /* Do we adjust timestamps to ensure strict chronological
+                     * order? */
+                    if (do_strict_time_adjustment) {
+                        if (previous_time.secs || previous_time.nsecs) {
+                            if (!strict_time_adj.is_negative) {
+                                nstime_t current;
+                                nstime_t delta;
 
-                            current.secs = phdr->ts.secs;
-                            current.nsecs = phdr->ts.nsecs;
+                                current.secs = phdr->ts.secs;
+                                current.nsecs = phdr->ts.nsecs;
 
-                            nstime_delta(&delta, &current, &previous_time);
+                                nstime_delta(&delta, &current, &previous_time);
 
-                            if (delta.secs < 0 || delta.nsecs < 0) {
+                                if (delta.secs < 0 || delta.nsecs < 0) {
+                                    /*
+                                     * A negative delta indicates that the current packet
+                                     * has an absolute timestamp less than the previous packet
+                                     * that it is being compared to.  This is NOT a normal
+                                     * situation since trace files usually have packets in
+                                     * chronological order (oldest to newest).
+                                     */
+                                    /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
+                                    snap_phdr = *phdr;
+                                    snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
+                                    snap_phdr.ts.nsecs = previous_time.nsecs;
+                                    if (snap_phdr.ts.nsecs + strict_time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                                        /* carry */
+                                        snap_phdr.ts.secs++;
+                                        snap_phdr.ts.nsecs += (strict_time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+                                    } else {
+                                        snap_phdr.ts.nsecs += strict_time_adj.tv.tv_usec * 1000;
+                                    }
+                                    phdr = &snap_phdr;
+                                }
+                            } else {
                                 /*
-                                 * A negative delta indicates that the current packet
-                                 * has an absolute timestamp less than the previous packet
-                                 * that it is being compared to.  This is NOT a normal
-                                 * situation since trace files usually have packets in
-                                 * chronological order (oldest to newest).
+                                 * A negative strict time adjustment is requested.
+                                 * Unconditionally set each timestamp to previous
+                                 * packet's timestamp plus delta.
                                  */
-                                /* fprintf(stderr, "++out of order, need to adjust this packet!\n"); */
                                 snap_phdr = *phdr;
                                 snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
                                 snap_phdr.ts.nsecs = previous_time.nsecs;
@@ -1352,60 +1383,43 @@ main(int argc, char *argv[])
                                 }
                                 phdr = &snap_phdr;
                             }
-                        } else {
-                            /*
-                             * A negative strict time adjustment is requested.
-                             * Unconditionally set each timestamp to previous
-                             * packet's timestamp plus delta.
-                             */
-                            snap_phdr = *phdr;
-                            snap_phdr.ts.secs = previous_time.secs + strict_time_adj.tv.tv_sec;
-                            snap_phdr.ts.nsecs = previous_time.nsecs;
-                            if (snap_phdr.ts.nsecs + strict_time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
+                        }
+                        previous_time.secs = phdr->ts.secs;
+                        previous_time.nsecs = phdr->ts.nsecs;
+                    }
+
+                    /* assume that if the frame's tv_sec is 0, then
+                     * the timestamp isn't supported */
+                    if (phdr->ts.secs > 0 && time_adj.tv.tv_sec != 0) {
+                        snap_phdr = *phdr;
+                        if (time_adj.is_negative)
+                            snap_phdr.ts.secs -= time_adj.tv.tv_sec;
+                        else
+                            snap_phdr.ts.secs += time_adj.tv.tv_sec;
+                        phdr = &snap_phdr;
+                    }
+
+                    /* assume that if the frame's tv_sec is 0, then
+                     * the timestamp isn't supported */
+                    if (phdr->ts.secs > 0 && time_adj.tv.tv_usec != 0) {
+                        snap_phdr = *phdr;
+                        if (time_adj.is_negative) { /* subtract */
+                            if (snap_phdr.ts.nsecs/1000 < time_adj.tv.tv_usec) { /* borrow */
+                                snap_phdr.ts.secs--;
+                                snap_phdr.ts.nsecs += ONE_MILLION * 1000;
+                            }
+                            snap_phdr.ts.nsecs -= time_adj.tv.tv_usec * 1000;
+                        } else {                  /* add */
+                            if (snap_phdr.ts.nsecs + time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
                                 /* carry */
                                 snap_phdr.ts.secs++;
-                                snap_phdr.ts.nsecs += (strict_time_adj.tv.tv_usec - ONE_MILLION) * 1000;
+                                snap_phdr.ts.nsecs += (time_adj.tv.tv_usec - ONE_MILLION) * 1000;
                             } else {
-                                snap_phdr.ts.nsecs += strict_time_adj.tv.tv_usec * 1000;
+                                snap_phdr.ts.nsecs += time_adj.tv.tv_usec * 1000;
                             }
-                            phdr = &snap_phdr;
                         }
+                        phdr = &snap_phdr;
                     }
-                    previous_time.secs = phdr->ts.secs;
-                    previous_time.nsecs = phdr->ts.nsecs;
-                }
-
-                /* assume that if the frame's tv_sec is 0, then
-                 * the timestamp isn't supported */
-                if (phdr->ts.secs > 0 && time_adj.tv.tv_sec != 0) {
-                    snap_phdr = *phdr;
-                    if (time_adj.is_negative)
-                        snap_phdr.ts.secs -= time_adj.tv.tv_sec;
-                    else
-                        snap_phdr.ts.secs += time_adj.tv.tv_sec;
-                    phdr = &snap_phdr;
-                }
-
-                /* assume that if the frame's tv_sec is 0, then
-                 * the timestamp isn't supported */
-                if (phdr->ts.secs > 0 && time_adj.tv.tv_usec != 0) {
-                    snap_phdr = *phdr;
-                    if (time_adj.is_negative) { /* subtract */
-                        if (snap_phdr.ts.nsecs/1000 < time_adj.tv.tv_usec) { /* borrow */
-                            snap_phdr.ts.secs--;
-                            snap_phdr.ts.nsecs += ONE_MILLION * 1000;
-                        }
-                        snap_phdr.ts.nsecs -= time_adj.tv.tv_usec * 1000;
-                    } else {                  /* add */
-                        if (snap_phdr.ts.nsecs + time_adj.tv.tv_usec * 1000 > ONE_MILLION * 1000) {
-                            /* carry */
-                            snap_phdr.ts.secs++;
-                            snap_phdr.ts.nsecs += (time_adj.tv.tv_usec - ONE_MILLION) * 1000;
-                        } else {
-                            snap_phdr.ts.nsecs += time_adj.tv.tv_usec * 1000;
-                        }
-                    }
-                    phdr = &snap_phdr;
                 }
 
                 /* suppress duplicates by packet window */
@@ -1434,33 +1448,35 @@ main(int argc, char *argv[])
                     }
                 }
 
-                /* suppress duplicates by time window */
-                if (dup_detect_by_time) {
-                    nstime_t current;
+                if (phdr->presence_flags & WTAP_HAS_TS) {
+                    /* suppress duplicates by time window */
+                    if (dup_detect_by_time) {
+                        nstime_t current;
 
-                    current.secs  = phdr->ts.secs;
-                    current.nsecs = phdr->ts.nsecs;
+                        current.secs  = phdr->ts.secs;
+                        current.nsecs = phdr->ts.nsecs;
 
-                    if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
-                        if (verbose) {
-                            fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
-                                    count, phdr->caplen);
-                            for (i = 0; i < 16; i++)
-                                fprintf(stderr, "%02x",
-                                        (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stderr, "\n");
-                        }
-                        duplicate_count++;
-                        count++;
-                        continue;
-                    } else {
-                        if (verbose) {
-                            fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
-                                    count, phdr->caplen);
-                            for (i = 0; i < 16; i++)
-                                fprintf(stderr, "%02x",
-                                        (unsigned char)fd_hash[cur_dup_entry].digest[i]);
-                            fprintf(stderr, "\n");
+                        if (is_duplicate_rel_time(buf, phdr->caplen, &current)) {
+                            if (verbose) {
+                                fprintf(stderr, "Skipped: %u, Len: %u, MD5 Hash: ",
+                                        count, phdr->caplen);
+                                for (i = 0; i < 16; i++)
+                                    fprintf(stderr, "%02x",
+                                            (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                                fprintf(stderr, "\n");
+                            }
+                            duplicate_count++;
+                            count++;
+                            continue;
+                        } else {
+                            if (verbose) {
+                                fprintf(stderr, "Packet: %u, Len: %u, MD5 Hash: ",
+                                        count, phdr->caplen);
+                                for (i = 0; i < 16; i++)
+                                    fprintf(stderr, "%02x",
+                                            (unsigned char)fd_hash[cur_dup_entry].digest[i]);
+                                fprintf(stderr, "\n");
+                            }
                         }
                     }
                 }
