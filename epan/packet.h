@@ -366,7 +366,7 @@ WS_DLL_PUBLIC gboolean has_heur_dissector_list(const gchar *name);
  * @param tvb the tvbuff with the (remaining) packet data
  * @param pinfo the packet info of this packet (additional info)
  * @param tree the protocol tree to be build or NULL
- * @param returns the last tried dissectors hdtbl_entry.
+ * @param hdtbl_entry returns the last tried dissectors hdtbl_entry.
  * @param data parameter to pass to subdissector
  * @return TRUE if the packet was recognized by the sub-dissector (stop dissection here)
  */
