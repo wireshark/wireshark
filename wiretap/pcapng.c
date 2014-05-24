@@ -414,7 +414,7 @@ register_pcapng_block_type_handler(guint block_type, block_reader read,
                                                        g_direct_equal,
                                                        NULL, g_free);
         }
-        handler = g_malloc(sizeof *handler);
+        handler = (block_handler *)g_malloc(sizeof *handler);
         handler->read = read;
         handler->write = write;
         (void)g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
