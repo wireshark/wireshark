@@ -42,6 +42,7 @@
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "pcapng.h"
+#include "pcapng_module.h"
 
 #if 0
 #define pcapng_debug0(str) g_warning(str)
@@ -374,6 +375,52 @@ typedef struct {
         wtap_new_ipv4_callback_t add_new_ipv4;
         wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
+
+#ifdef HAVE_PLUGINS
+/*
+ * Table for plugins to handle particular block types.
+ *
+ * A handler has a "read" routine and a "write" routine.
+ *
+ * A "read" routine returns a block as a libwiretap record, filling
+ * in the wtap_pkthdr structure with the appropriate record type and
+ * other information, and filling in the supplied Buffer with
+ * data for which there's no place in the wtap_pkthdr structure.
+ *
+ * A "write" routine takes a libwiretap record and Buffer and writes
+ * out a block.
+ */
+typedef struct {
+        block_reader read;
+        block_writer write;
+} block_handler;
+
+static GHashTable *block_handlers;
+
+void
+register_pcapng_block_type_handler(guint block_type, block_reader read,
+                                   block_writer write)
+{
+        block_handler *handler;
+
+        if (block_handlers == NULL) {
+                /*
+                 * Create the table of block handlers.
+                 *
+                 * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+                 * so we use "g_direct_hash()" and "g_direct_equal()".
+                 */
+                block_handlers = g_hash_table_new_full(g_direct_hash,
+                                                       g_direct_equal,
+                                                       NULL, g_free);
+        }
+        handler = g_malloc(sizeof *handler);
+        handler->read = read;
+        handler->write = write;
+        (void)g_hash_table_insert(block_handlers, GUINT_TO_POINTER(block_type),
+                                  handler);
+}
+#endif /* HAVE_PLUGINS */
 
 static int
 pcapng_read_option(FILE_T fh, pcapng_t *pn, pcapng_option_header_t *oh,
@@ -1962,8 +2009,10 @@ static int
 pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_, wtapng_block_t *wblock _U_, int *err, gchar **err_info)
 {
         int block_read;
-        guint64 file_offset64;
         guint32 block_total_length;
+#ifdef HAVE_PLUGINS
+        block_handler *handler;
+#endif
 
         if (bh->block_total_length < MIN_BLOCK_SIZE) {
                 *err = WTAP_ERR_BAD_FILE;
@@ -1982,12 +2031,27 @@ pcapng_read_unknown_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn _U_
 
         block_read = block_total_length - MIN_BLOCK_SIZE;
 
-        /* jump over this unknown block */
-        file_offset64 = file_seek(fh, block_read, SEEK_CUR, err);
-        if (file_offset64 <= 0) {
-                if (*err != 0)
+#ifdef HAVE_PLUGINS
+        /*
+         * Do we have a handler for this block type?
+         */
+        handler = (block_handler *)g_hash_table_lookup(block_handlers,
+                                                       GUINT_TO_POINTER(bh->block_type));
+        if (handler != NULL) {
+                /* Yes - call it to read this block type. */
+                if (!handler->read(fh, block_read, pn->byte_swapped,
+                                   wblock->packet_header, wblock->frame_buffer,
+                                   err, err_info))
                         return -1;
-                return 0;
+        } else
+#endif
+        {
+                /* No.  Skip over this unknown block. */
+                if (!file_skip(fh, block_read, err)) {
+                        if (*err != 0)
+                                return -1;
+                        return 0;
+                }
         }
 
         return block_read;
@@ -2063,6 +2127,7 @@ pcapng_read_block(FILE_T fh, gboolean first_block, pcapng_t *pn, wtapng_block_t 
                 default:
                         pcapng_debug2("pcapng_read_block: Unknown block_type: 0x%x (block ignored), block total length %d", bh.block_type, bh.block_total_length);
                         bytes_read = pcapng_read_unknown_block(fh, &bh, pn, wblock, err, err_info);
+                        break;
         }
 
         if (bytes_read <= 0) {
@@ -3549,21 +3614,48 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
         const guint8 *pd, int *err)
 {
         const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
+#ifdef HAVE_PLUGINS
+        block_handler *handler;
+#endif
 
         pcapng_debug2("pcapng_dump: encap = %d (%s)",
                       phdr->pkt_encap,
                       wtap_encap_string(phdr->pkt_encap));
 
-        /* We can only write packet records. */
-        if (phdr->rec_type != REC_TYPE_PACKET) {
-                *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
-                return FALSE;
-        }
-
         /* Flush any hostname resolution info we may have */
         pcapng_write_name_resolution_block(wdh, err);
 
-        if (!pcapng_write_enhanced_packet_block(wdh, phdr, pseudo_header, pd, err)) {
+        switch (phdr->rec_type) {
+
+        case REC_TYPE_PACKET:
+                if (!pcapng_write_enhanced_packet_block(wdh, phdr, pseudo_header, pd, err)) {
+                        return FALSE;
+                }
+                break;
+
+        case REC_TYPE_FILE_TYPE_SPECIFIC:
+#ifdef HAVE_PLUGINS
+                /*
+                 * Do we have a handler for this block type?
+                 */
+                handler = (block_handler *)g_hash_table_lookup(block_handlers,
+                                                               GUINT_TO_POINTER(pseudo_header->ftsrec.record_type));
+                if (handler != NULL) {
+                        /* Yes. Call it to write out this record. */
+                        if (!handler->write(wdh, phdr, pd, err))
+                                return FALSE;
+                } else
+#endif
+                {
+                        /* No. */
+                        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+                        return FALSE;
+                }
+                break;
+
+        default:
+                /* We don't support writing this record type. */
+                *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
                 return FALSE;
         }
 
