@@ -522,6 +522,7 @@ write_current_packet (void)
 
             memset(&pkthdr, 0, sizeof(struct wtap_pkthdr));
 
+            pkthdr.rec_type = REC_TYPE_PACKET;
             pkthdr.ts.secs = (guint32)ts_sec;
             pkthdr.ts.nsecs = ts_usec * 1000;
             if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */

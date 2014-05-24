@@ -203,6 +203,7 @@ static gboolean logcat_read_packet(struct logcat_phdr *logcat, FILE_T fh,
         return FALSE;
     }
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
     phdr->ts.secs = (time_t) pletoh32(pd + 12);
     phdr->ts.nsecs = (int) pletoh32(pd + 16);
@@ -298,6 +299,12 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const guint8 *pd, int *err)
 {
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
+
     if (!wtap_dump_file_write(wdh, pd, phdr->caplen, err))
         return FALSE;
 
@@ -342,6 +349,12 @@ static gboolean logcat_dump_text(wtap_dumper *wdh,
     const guint32                  *nanoseconds;
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     const struct dumper_t          *dumper        = (const struct dumper_t *) wdh->priv;
+
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
 
     if (pseudo_header->logcat.version == 1) {
         pid = (const gint *) (pd + 4);

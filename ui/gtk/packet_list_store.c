@@ -1117,9 +1117,9 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 		cinfo = NULL;
 
 	buffer_init(&buf, 1500);
-	if (!cf_read_frame_r(&cfile, fdata, &phdr, &buf)) {
+	if (!cf_read_record_r(&cfile, fdata, &phdr, &buf)) {
 		/*
-		 * Error reading the frame.
+		 * Error reading the record.
 		 *
 		 * Don't set the color filter for now (we might want
 		 * to colorize it in some fashion to warn that the
@@ -1139,7 +1139,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 			record->colorized = TRUE;
 		}
 		buffer_free(&buf);
-		return;	/* error reading the frame */
+		return;	/* error reading the record */
 	}
 
 	create_proto_tree = (dissect_color && color_filters_used()) ||

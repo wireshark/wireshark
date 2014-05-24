@@ -314,6 +314,7 @@ parse_toshiba_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	phdr->ts.secs = hr * 3600 + min * 60 + sec;
 	phdr->ts.nsecs = csec * 10000000;

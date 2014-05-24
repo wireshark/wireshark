@@ -554,9 +554,9 @@ extern void free_data_sources(packet_info *pinfo);
 WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame_num);
 
 /*
- * Dissectors should never modify the packet data.
+ * Dissectors should never modify the record data.
  */
-extern void dissect_packet(struct epan_dissect *edt,
+extern void dissect_record(struct epan_dissect *edt,
     struct wtap_pkthdr *phdr, tvbuff_t *tvb,
     frame_data *fd, column_info *cinfo);
 

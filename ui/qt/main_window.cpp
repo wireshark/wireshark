@@ -766,11 +766,11 @@ void MainWindow::saveCaptureFile(capture_file *cf, bool stay_closed) {
             }
 
             /* XXX - cf->filename might get freed out from under us, because
-               the code path through which cf_save_packets() goes currently
+               the code path through which cf_save_records() goes currently
                closes the current file and then opens and reloads the saved file,
                so make a copy and free it later. */
             file_name = cf->filename;
-            status = cf_save_packets(cf, file_name.toUtf8().constData(), cf->cd_t, cf->iscompressed,
+            status = cf_save_records(cf, file_name.toUtf8().constData(), cf->cd_t, cf->iscompressed,
                                      discard_comments, stay_closed);
             switch (status) {
 
@@ -886,7 +886,7 @@ void MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
 //#endif
 
         /* Attempt to save the file */
-        status = cf_save_packets(cf, file_name.toUtf8().constData(), file_type, compressed,
+        status = cf_save_records(cf, file_name.toUtf8().constData(), file_type, compressed,
                                  discard_comments, stay_closed);
         switch (status) {
 

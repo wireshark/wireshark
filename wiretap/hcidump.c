@@ -60,6 +60,7 @@ static gboolean hcidump_process_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 		return FALSE;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->ts.secs = GUINT32_FROM_LE(dh.ts_sec);
 	phdr->ts.nsecs = GUINT32_FROM_LE(dh.ts_usec) * 1000;

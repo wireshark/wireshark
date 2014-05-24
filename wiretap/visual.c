@@ -350,6 +350,7 @@ visual_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
     /* Get the included length of data. This includes extra headers + payload */
     packet_size = pletoh16(&vpkt_hdr.incl_len);
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
     /* Set the packet time and length. */
@@ -673,6 +674,12 @@ static gboolean visual_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     size_t hdr_size = sizeof vpkt_hdr;
     guint delta_msec;
     guint32 packet_status;
+
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
 
     /* Don't write anything we're not willing to read. */
     if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {

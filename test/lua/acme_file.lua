@@ -656,6 +656,7 @@ end
 
 function Packet:set_wslua_fields(frame)
     frame.time = self.timestamp
+    frame.rec_type = wtap_rec_types.PACKET
     frame.flags = wtap_presence_flags.TS  -- for timestamp
     if self.comment then
         frame.comment = self.comment

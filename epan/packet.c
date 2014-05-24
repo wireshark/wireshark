@@ -420,7 +420,7 @@ final_registration_all_protocols(void)
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
-dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
+dissect_record(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	       tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
 	if (cinfo != NULL)
@@ -455,6 +455,10 @@ dissect_packet(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 		edt->pi.pkt_comment = epan_get_user_comment(edt->session, fd);
 	else if (fd->flags.has_phdr_comment)
 		edt->pi.pkt_comment = phdr->opt_comment;
+
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		/* XXX = process these */
+	}
 
 	EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
 

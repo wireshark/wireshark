@@ -957,7 +957,7 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 	dfilter_t      *sfcode;
 	capture_file   *cf;
 	epan_dissect_t	edt;
-	gboolean	frame_matched, frame_found = FALSE;
+	gboolean	frame_found = FALSE;
 	frame_data     *fdata;
 	gchar		filter_text[256];
 
@@ -974,18 +974,16 @@ sctp_analyse_cb(struct sctp_analyse *u_data, gboolean ext)
 	if (fdata == NULL)
 		return; /* if we exit here it's an error */
 
-	/* dissect the current frame */
-	if (!cf_read_frame(cf, fdata))
-		return;	/* error reading the frame */
+	/* dissect the current record */
+	if (!cf_read_record(cf, fdata))
+		return;	/* error reading the record */
 
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
 	epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
-	frame_matched = dfilter_apply_edt(sfcode, &edt);
 
-	/* if it is not an sctp frame, show the dialog */
-
-	if (frame_matched != 1) {
+	/* if it is not an sctp packet, show the dialog */
+	if (!dfilter_apply_edt(sfcode, &edt)) {
 		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Please choose an SCTP packet.");

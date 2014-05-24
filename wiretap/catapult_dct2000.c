@@ -605,6 +605,12 @@ catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     dct2000_file_externals_t *file_externals =
         (dct2000_file_externals_t*)pseudo_header->dct2000.wth->priv;
 
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
+
     dct2000 = (dct2000_dump_t *)wdh->priv;
     if (dct2000 == NULL) {
 
@@ -1276,6 +1282,7 @@ process_parsed_line(wtap *wth, dct2000_file_externals_t *file_externals,
     gsize length;
     guint8 *frame_buffer;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
 
     /* Make sure all packets go to Catapult DCT2000 dissector */

@@ -173,6 +173,7 @@ commview_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	tm.tm_sec = cv_hdr.seconds;
 	tm.tm_isdst = -1;
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS;
 
 	phdr->len = cv_hdr.data_len;
@@ -274,6 +275,12 @@ static gboolean commview_dump(wtap_dumper *wdh,
 {
 	commview_header_t cv_hdr;
 	struct tm *tm;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* Don't write out anything bigger than we can read.
 	 * (The length field in packet headers is 16 bits, which

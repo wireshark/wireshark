@@ -323,7 +323,7 @@ nettl_seek_read(wtap *wth, gint64 seek_off, struct wtap_pkthdr *phdr,
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 	return FALSE;
 
-    /* Read record header. */
+    /* Read record. */
     if (!nettl_read_rec(wth, wth->random_fh, phdr, buf, err, err_info)) {
 	/* Read error or EOF */
 	if (*err == 0) {
@@ -581,6 +581,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	    length, padlen);
 	return FALSE;
     }
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->len = length - padlen;
     if (caplen < padlen) {
@@ -731,6 +732,12 @@ static gboolean nettl_dump(wtap_dumper *wdh,
 	const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
 	struct nettlrec_hdr rec_hdr;
 	guint8 dummyc[24];
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* Don't write anything we're not willing to read. */
 	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {

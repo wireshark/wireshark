@@ -374,6 +374,7 @@ static int erf_read_header(FILE_T fh,
   {
     guint64 ts = pletoh64(&erf_header->ts);
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
     phdr->ts.secs = (long) (ts >> 32);
     ts  = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
@@ -588,6 +589,12 @@ static gboolean erf_dump(
   int      round_down   = 0;
   gboolean must_add_crc = FALSE;
   guint32  crc32        = 0x00000000;
+
+  /* We can only write packet records. */
+  if (phdr->rec_type != REC_TYPE_PACKET) {
+    *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+    return FALSE;
+  }
 
   /* Don't write anything bigger than we're willing to read. */
   if(phdr->caplen > WTAP_MAX_PACKET_SIZE) {

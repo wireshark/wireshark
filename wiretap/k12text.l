@@ -185,6 +185,7 @@ static void finalize_frame(void) {
 static void
 k12text_set_headers(struct wtap_pkthdr *phdr)
 {
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	phdr->ts.secs = 946681200 + (3600*g_h) + (60*g_m) + g_s;

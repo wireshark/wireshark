@@ -1754,8 +1754,8 @@ cf_redissect_packets(capture_file *cf)
 }
 
 gboolean
-cf_read_frame_r(capture_file *cf, const frame_data *fdata,
-                struct wtap_pkthdr *phdr, Buffer *buf)
+cf_read_record_r(capture_file *cf, const frame_data *fdata,
+                 struct wtap_pkthdr *phdr, Buffer *buf)
 {
   int    err;
   gchar *err_info;
@@ -1807,9 +1807,9 @@ cf_read_frame_r(capture_file *cf, const frame_data *fdata,
 }
 
 gboolean
-cf_read_frame(capture_file *cf, frame_data *fdata)
+cf_read_record(capture_file *cf, frame_data *fdata)
 {
-  return cf_read_frame_r(cf, fdata, &cf->phdr, &cf->buf);
+  return cf_read_record_r(cf, fdata, &cf->phdr, &cf->buf);
 }
 
 /* Rescan the list of packets, reconstructing the CList.
@@ -2005,7 +2005,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* Frame dependencies from the previous dissection/filtering are no longer valid. */
     fdata->flags.dependent_of_displayed = 0;
 
-    if (!cf_read_frame(cf, fdata))
+    if (!cf_read_record(cf, fdata))
       break; /* error reading the frame */
 
     /* If the previous frame is displayed, and we haven't yet seen the
@@ -2230,7 +2230,7 @@ typedef enum {
 } psp_return_t;
 
 static psp_return_t
-process_specified_packets(capture_file *cf, packet_range_t *range,
+process_specified_records(capture_file *cf, packet_range_t *range,
     const char *string1, const char *string2, gboolean terminate_is_stop,
     gboolean (*callback)(capture_file *, frame_data *,
                          struct wtap_pkthdr *, const guint8 *, void *),
@@ -2332,7 +2332,7 @@ process_specified_packets(capture_file *cf, packet_range_t *range,
     }
 
     /* Get the packet */
-    if (!cf_read_frame_r(cf, fdata, &phdr, &buf)) {
+    if (!cf_read_record_r(cf, fdata, &phdr, &buf)) {
       /* Attempt to get the packet failed. */
       ret = PSP_FAILED;
       break;
@@ -2411,7 +2411,7 @@ cf_retap_packets(capture_file *cf)
   packet_range_init(&range, cf);
   packet_range_process_init(&range);
 
-  ret = process_specified_packets(cf, &range, "Recalculating statistics on",
+  ret = process_specified_records(cf, &range, "Recalculating statistics on",
                                   "all packets", TRUE, retap_packet,
                                   &callback_args);
 
@@ -2724,7 +2724,7 @@ cf_print_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_packets(cf, &print_args->range, "Printing",
+  ret = process_specified_records(cf, &print_args->range, "Printing",
                                   "selected packets", TRUE, print_packet,
                                   &callback_args);
   epan_dissect_cleanup(&callback_args.edt);
@@ -2815,7 +2815,7 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_packets(cf, &print_args->range, "Writing PDML",
+  ret = process_specified_records(cf, &print_args->range, "Writing PDML",
                                   "selected packets", TRUE,
                                   write_pdml_packet, &callback_args);
 
@@ -2896,7 +2896,7 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_packets(cf, &print_args->range, "Writing PSML",
+  ret = process_specified_records(cf, &print_args->range, "Writing PSML",
                                   "selected packets", TRUE,
                                   write_psml_packet, &callback_args);
 
@@ -2976,7 +2976,7 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_packets(cf, &print_args->range, "Writing CSV",
+  ret = process_specified_records(cf, &print_args->range, "Writing CSV",
                                   "selected packets", TRUE,
                                   write_csv_packet, &callback_args);
 
@@ -3048,7 +3048,7 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
 
   /* Iterate through the list of packets, printing the packets we were
      told to print. */
-  ret = process_specified_packets(cf, &print_args->range,
+  ret = process_specified_records(cf, &print_args->range,
                   "Writing C Arrays",
                   "selected packets", TRUE,
                                   write_carrays_packet, &callback_args);
@@ -3109,7 +3109,7 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
   epan_dissect_t  edt;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3213,7 +3213,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   size_t          c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3311,7 +3311,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3359,7 +3359,7 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3406,7 +3406,7 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3452,7 +3452,7 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match     = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3522,7 +3522,7 @@ match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
   match_result    result;
 
   /* Load the frame's data. */
-  if (!cf_read_frame(cf, fdata)) {
+  if (!cf_read_record(cf, fdata)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3848,7 +3848,7 @@ cf_select_packet(capture_file *cf, int row)
   }
 
   /* Get the data in that frame. */
-  if (!cf_read_frame (cf, fdata)) {
+  if (!cf_read_record (cf, fdata)) {
     return;
   }
 
@@ -4028,7 +4028,7 @@ cf_get_comment(capture_file *cf, const frame_data *fd)
     memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
     buffer_init(&buf, 1500);
-    if (!cf_read_frame_r(cf, fd, &phdr, &buf))
+    if (!cf_read_record_r(cf, fd, &phdr, &buf))
       { /* XXX, what we can do here? */ }
 
     buffer_free(&buf);
@@ -4110,7 +4110,7 @@ typedef struct {
  * up a message box for the failure.
  */
 static gboolean
-save_packet(capture_file *cf _U_, frame_data *fdata,
+save_record(capture_file *cf _U_, frame_data *fdata,
             struct wtap_pkthdr *phdr, const guint8 *pd,
             void *argsp)
 {
@@ -4138,6 +4138,7 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
 
      For WTAP_HAS_PACK_FLAGS, we currently don't save the FCS length
      from the packet flags. */
+  hdr.rec_type = phdr->rec_type;
   hdr.presence_flags = 0;
   if (fdata->flags.has_ts)
     hdr.presence_flags |= WTAP_HAS_TS;
@@ -4147,8 +4148,8 @@ save_packet(capture_file *cf _U_, frame_data *fdata,
     hdr.presence_flags |= WTAP_HAS_PACK_FLAGS;
   hdr.ts.secs      = fdata->abs_ts.secs;
   hdr.ts.nsecs     = fdata->abs_ts.nsecs;
-  hdr.caplen       = fdata->cap_len;
-  hdr.len          = fdata->pkt_len;
+  hdr.caplen       = phdr->caplen;
+  hdr.len          = phdr->len;
   hdr.pkt_encap    = fdata->lnk_t;
   /* pcapng */
   hdr.interface_id = phdr->interface_id;   /* identifier of the interface. */
@@ -4551,7 +4552,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile, int *err)
 }
 
 cf_write_status_t
-cf_save_packets(capture_file *cf, const char *fname, guint save_format,
+cf_save_records(capture_file *cf, const char *fname, guint save_format,
                 gboolean compressed, gboolean discard_comments,
                 gboolean dont_reopen)
 {
@@ -4698,8 +4699,8 @@ cf_save_packets(capture_file *cf, const char *fname, guint save_format,
     callback_args.pdh = pdh;
     callback_args.fname = fname;
     callback_args.file_type = save_format;
-    switch (process_specified_packets(cf, NULL, "Saving", "packets",
-                                      TRUE, save_packet, &callback_args)) {
+    switch (process_specified_records(cf, NULL, "Saving", "packets",
+                                      TRUE, save_record, &callback_args)) {
 
     case PSP_FINISHED:
       /* Completed successfully. */
@@ -4927,14 +4928,14 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
      told to process.
 
      XXX - we've already called "packet_range_process_init(range)", but
-     "process_specified_packets()" will do it again.  Fortunately,
+     "process_specified_records()" will do it again.  Fortunately,
      that's harmless in this case, as we haven't done anything to
      "range" since we initialized it. */
   callback_args.pdh = pdh;
   callback_args.fname = fname;
   callback_args.file_type = save_format;
-  switch (process_specified_packets(cf, range, "Writing", "specified packets",
-                                    TRUE, save_packet, &callback_args)) {
+  switch (process_specified_records(cf, range, "Writing", "specified records",
+                                    TRUE, save_record, &callback_args)) {
 
   case PSP_FINISHED:
     /* Completed successfully. */

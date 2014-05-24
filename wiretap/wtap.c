@@ -833,7 +833,9 @@ static const char *wtap_errlist[] = {
 	NULL,
 	"Uncompression error",
 	"Internal error",
-	"The packet being written is too large for that format"
+	"The packet being written is too large for that format",
+	NULL,
+	"That record type cannot be written in that format"
 };
 #define	WTAP_ERRLIST_SIZE	(sizeof wtap_errlist / sizeof wtap_errlist[0])
 

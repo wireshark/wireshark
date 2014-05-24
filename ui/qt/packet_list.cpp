@@ -655,8 +655,8 @@ QString &PacketList::getFilterFromRowAndColumn()
     if (fdata != NULL) {
         epan_dissect_t edt;
 
-        if (!cf_read_frame(cap_file_, fdata))
-            return filter; /* error reading the frame */
+        if (!cf_read_record(cap_file_, fdata))
+            return filter; /* error reading the record */
         /* proto tree, visible. We need a proto tree if there's custom columns */
         epan_dissect_init(&edt, cap_file_->epan, have_custom_cols(&cap_file_->cinfo), FALSE);
         col_custom_prime_edt(&edt, &cap_file_->cinfo);

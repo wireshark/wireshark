@@ -195,6 +195,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, struct wtap_pkthdr *phdr,
   hdr.seconds = pntoh32(&hdr.seconds);
   hdr.caplen = pntoh16(&hdr.caplen);
 
+  phdr->rec_type = REC_TYPE_PACKET;
   phdr->presence_flags = WTAP_HAS_TS;
   phdr->len = hdr.caplen;
   phdr->caplen = hdr.caplen;

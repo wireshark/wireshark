@@ -538,6 +538,8 @@ static gboolean netmon_process_rec_header(wtap *wth, FILE_T fh,
 		return FALSE;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
+
 	/*
 	 * If this is an ATM packet, the first
 	 * "sizeof (struct netmon_atm_hdr)" bytes have destination and
@@ -1023,6 +1025,12 @@ static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	int atm_hdrsize;
 	gint64	secs;
 	gint32	nsecs;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	switch (wdh->file_type_subtype) {
 

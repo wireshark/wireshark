@@ -979,6 +979,7 @@ static gboolean vwr_read_s1_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
 
     buffer_assure_space(buf, phdr->caplen);
@@ -1335,6 +1336,7 @@ static gboolean vwr_read_s2_W_rec(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
 
     buffer_assure_space(buf, phdr->caplen);
@@ -1628,6 +1630,7 @@ static gboolean vwr_read_rec_data_ethernet(vwr_t *vwr, struct wtap_pkthdr *phdr,
     phdr->ts.nsecs  = (int)(s_usec * 1000);
     phdr->pkt_encap = WTAP_ENCAP_IXVERIWAVE;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
 
     /*etap_hdr.vw_ip_length = (guint16)ip_len;*/

@@ -51,6 +51,7 @@ static gboolean tnef_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
   }
   packet_size = (int)file_size;
 
+  phdr->rec_type = REC_TYPE_PACKET;
   phdr->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
 
   phdr->caplen = packet_size;

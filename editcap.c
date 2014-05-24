@@ -1669,6 +1669,10 @@ handle_chopping(chop_t chop, struct wtap_pkthdr *out_phdr,
                 const struct wtap_pkthdr *in_phdr, guint8 **buf,
                 gboolean adjlen)
 {
+    /* Only packets can be chopped. */
+    if (in_phdr->rec_type != REC_TYPE_PACKET)
+        return;
+
     /* If we're not chopping anything from one side, then the offset for that
      * side is meaningless. */
     if (chop.len_begin == 0)

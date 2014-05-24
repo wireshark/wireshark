@@ -297,6 +297,7 @@ _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
 	hdr->Utc = pletoh32(&hdr->Utc);
 	hdr->NanoSecondes = pletoh32(&hdr->NanoSecondes);
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->ts.secs = hdr->Utc;
 	phdr->ts.nsecs = hdr->NanoSecondes;
@@ -369,6 +370,12 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_TimeStamped_Header HeaderFrame;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* Don't write out something bigger than we can read. */
 	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {

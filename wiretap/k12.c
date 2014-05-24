@@ -553,6 +553,7 @@ process_packet_data(struct wtap_pkthdr *phdr, Buffer *target, guint8 *buffer,
     guint32 src_id;
     k12_src_desc_t* src_desc;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
 
     ts = pntoh64(buffer + K12_PACKET_TIMESTAMP);
@@ -1178,6 +1179,12 @@ static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
             guint8 frame[0x1fc0];
         } record;
     } obj;
+
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
 
     if (k12->num_of_records == 0) {
         k12_t* file_data = (k12_t*)pseudo_header->k12.stuff;

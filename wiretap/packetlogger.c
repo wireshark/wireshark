@@ -157,6 +157,7 @@ packetlogger_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 		return FALSE;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS;
 
 	phdr->len = pl_hdr.len - 8;

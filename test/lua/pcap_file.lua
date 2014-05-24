@@ -8,7 +8,7 @@
     be as good as the real thing; this is a simplistic implementation to show how to
     create such file readers, and for testing purposes.
 
-    This script requires Wireshark v1.11.3 or newer.
+    This script requires Wireshark v1.12 or newer.
 --]]
 --------------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ end
 local major, minor, micro = get_version():match("(%d+)%.(%d+)%.(%d+)")
 if major and tonumber(major) <= 1 and ((tonumber(minor) <= 10) or (tonumber(minor) == 11 and tonumber(micro) < 3)) then
         error(  "Sorry, but your " .. wireshark_name .. " version (" .. get_version() .. ") is too old for this script!\n" ..
-                "This script needs " .. wireshark_name .. "version 1.11.3 or higher.\n" )
+                "This script needs " .. wireshark_name .. "version 1.12 or higher.\n" )
 end
 
 -- verify we have the Struct library in wireshark
@@ -575,6 +575,8 @@ parse_rec_header = function(funcname, file, file_settings, frame)
         dprint("Got a captured_length of", caplen, "which is too big")
         caplen = WTAP_MAX_PACKET_SIZE
     end
+
+    frame.rec_type = wtap_rec_types.PACKET
 
     frame.captured_length = caplen
     frame.original_length = origlen

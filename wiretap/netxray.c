@@ -1590,6 +1590,7 @@ netxray_process_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		break;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	if (netxray->version_major == 0) {
 		phdr->presence_flags = WTAP_HAS_TS;
 		t = (double)pletoh32(&hdr.old_hdr.timelo)
@@ -1737,6 +1738,12 @@ netxray_dump_1_1(wtap_dumper *wdh,
 	guint64 timestamp;
 	guint32 t32;
 	struct netxrayrec_1_x_hdr rec_hdr;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* The captured length field is 16 bits, so there's a hard
 	   limit of 65535. */
@@ -1910,6 +1917,12 @@ netxray_dump_2_0(wtap_dumper *wdh,
 	guint64 timestamp;
 	guint32 t32;
 	struct netxrayrec_2_x_hdr rec_hdr;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* Don't write anything we're not willing to read. */
 	if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {

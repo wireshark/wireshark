@@ -669,6 +669,7 @@ libpcap_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	orig_size -= phdr_len;
 	packet_size -= phdr_len;
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	/* Update the timestamp, if not already done */
@@ -931,6 +932,12 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	int phdrsize;
 
 	phdrsize = pcap_get_phdr_size(wdh->encap, pseudo_header);
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* Don't write anything we're not willing to read. */
 	if (phdr->caplen + phdrsize > WTAP_MAX_PACKET_SIZE) {

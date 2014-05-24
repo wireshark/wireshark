@@ -386,6 +386,7 @@ parse_cosine_rec_hdr(struct wtap_pkthdr *phdr, const char *line,
 		yy = mm = dd = hr = min = sec = csec = 0;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	tm.tm_year = yy - 1900;
 	tm.tm_mon = mm - 1;
