@@ -3633,7 +3633,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
                 }
                 break;
 
-        case REC_TYPE_FILE_TYPE_SPECIFIC:
+        case REC_TYPE_FT_SPECIFIC_EVENT:
+        case REC_TYPE_FT_SPECIFIC_REPORT:
 #ifdef HAVE_PLUGINS
                 /*
                  * Do we have a handler for this block type?
