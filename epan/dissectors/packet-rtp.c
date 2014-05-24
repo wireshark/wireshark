@@ -1481,7 +1481,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 
         if (p_conv_data->btvdp_info->content_protection_type == BTAVDTP_CONTENT_PROTECTION_TYPE_SCMS_T) {
             nexttvb = tvb_new_subset(newtvb, 0, 1, 1);
-            call_dissector(bta2dp_content_protection_header_scms_t, nexttvb, pinfo, tree);
+            call_dissector(btvdp_content_protection_header_scms_t, nexttvb, pinfo, tree);
             suboffset = 1;
         }
 
