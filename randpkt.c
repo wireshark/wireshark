@@ -578,6 +578,7 @@ main(int argc, char **argv)
 	memset(&pkthdr, 0, sizeof(pkthdr));
 	memset(buffer, 0, sizeof(buffer));
 
+	pkthdr.rec_type = REC_TYPE_PACKET;
 	pkthdr.presence_flags = WTAP_HAS_TS;
 	pkthdr.pkt_encap = example->sample_wtap_encap;
 

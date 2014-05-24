@@ -216,6 +216,7 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 	ts = GINT64_FROM_BE(hdr.ts_usec);
 	ts -= KUnixTimeBase;
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	phdr->ts.secs = (guint)(ts / 1000000);
 	phdr->ts.nsecs = (guint)((ts % 1000000) * 1000);
@@ -331,6 +332,12 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
 
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
+
     /*
      * Don't write out anything bigger than we can read.
      * (This will also fail on a caplen of 0, as it should.)
@@ -368,6 +375,12 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
 {
     const union wtap_pseudo_header *pseudo_header = &phdr->pseudo_header;
     struct btsnooprec_hdr rec_hdr;
+
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
 
     /* Don't write out anything bigger than we can read. */
     if (phdr->caplen > WTAP_MAX_PACKET_SIZE) {

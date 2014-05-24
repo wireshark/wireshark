@@ -1109,6 +1109,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         iface_info = g_array_index(pn->interfaces, interface_info_t,
             packet.interface_id);
 
+        wblock->packet_header->rec_type = REC_TYPE_PACKET;
         wblock->packet_header->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
 
         pcapng_debug3("pcapng_read_packet_block: encapsulation = %d (%s), pseudo header size = %d.",
@@ -1388,6 +1389,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
                       pcap_get_phdr_size(iface_info.wtap_encap, &wblock->packet_header->pseudo_header));
 
         /* No time stamp in a simple packet block; no options, either */
+        wblock->packet_header->rec_type = REC_TYPE_PACKET;
         wblock->packet_header->presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID;
         wblock->packet_header->interface_id = 0;
         wblock->packet_header->pkt_encap = iface_info.wtap_encap;
@@ -3551,6 +3553,12 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
         pcapng_debug2("pcapng_dump: encap = %d (%s)",
                       phdr->pkt_encap,
                       wtap_encap_string(phdr->pkt_encap));
+
+        /* We can only write packet records. */
+        if (phdr->rec_type != REC_TYPE_PACKET) {
+                *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+                return FALSE;
+        }
 
         /* Flush any hostname resolution info we may have */
         pcapng_write_name_resolution_block(wdh, err);

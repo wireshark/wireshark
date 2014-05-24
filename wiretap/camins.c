@@ -287,6 +287,7 @@ camins_read_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
         return FALSE;
     offset += bytes_read;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->pkt_encap = WTAP_ENCAP_DVBCI;
     /* timestamps aren't supported for now */
     phdr->caplen = offset;

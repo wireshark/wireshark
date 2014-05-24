@@ -523,6 +523,7 @@ static gboolean lanalyzer_read_trace_record(wtap *wth, FILE_T fh,
 		return FALSE;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	time_low = pletoh16(&descriptor[8]);
@@ -662,6 +663,12 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       struct timeval td;
       int    thisSize = phdr->caplen + LA_PacketRecordSize + LA_RecordHeaderSize;
 
+      /* We can only write packet records. */
+      if (phdr->rec_type != REC_TYPE_PACKET) {
+            *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+            return FALSE;
+            }
+
       if (wdh->bytes_dumped + thisSize > LA_ProFileLimit) {
             /* printf(" LA_ProFileLimit reached\n");     */
             *err = EFBIG;
@@ -674,7 +681,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
       if (len > 65535) {
             *err = WTAP_ERR_PACKET_TOO_LARGE;
             return FALSE;
-      }
+            }
 
       if (!s16write(wdh, GUINT16_TO_LE(0x1005), err))
             return FALSE;

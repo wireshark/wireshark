@@ -136,7 +136,7 @@ process_tree(proto_tree *protocol_tree, ph_stats_t* ps, guint pkt_len)
 }
 
 static gboolean
-process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
+process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 {
 	epan_dissect_t			edt;
 	struct wtap_pkthdr              phdr;
@@ -145,12 +145,12 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 
 	memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
-	/* Load the frame from the capture file */
+	/* Load the record from the capture file */
 	buffer_init(&buf, 1500);
-	if (!cf_read_frame_r(&cfile, frame, &phdr, &buf))
+	if (!cf_read_record_r(&cfile, frame, &phdr, &buf))
 		return FALSE;	/* failure */
 
-	/* Dissect the frame   tree  not visible */
+	/* Dissect the record   tree  not visible */
 	epan_dissect_init(&edt, cfile.epan, TRUE, FALSE);
 	/* Don't fake protocols. We need them for the protocol hierarchy */
 	epan_dissect_fake_protocols(&edt, FALSE);
@@ -162,12 +162,10 @@ process_frame(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	if (frame->flags.has_ts) {
 		/* Update times */
 		cur_time = nstime_to_sec(&frame->abs_ts);
-		if (cur_time < ps->first_time) {
-		  ps->first_time = cur_time;
-		}
-		if (cur_time > ps->last_time){
-		  ps->last_time = cur_time;
-		}
+		if (cur_time < ps->first_time)
+			ps->first_time = cur_time;
+		if (cur_time > ps->last_time)
+			ps->last_time = cur_time;
 	}
 
 	/* Free our memory. */
@@ -277,7 +275,7 @@ ph_stats_new(void)
 			}
 
 			/* we don't care about colinfo */
-			if (!process_frame(frame, NULL, ps)) {
+			if (!process_record(frame, NULL, ps)) {
 				/*
 				 * Give up, and set "stop_flag" so we
 				 * just abort rather than popping up

@@ -209,6 +209,8 @@ mpeg_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	if (!wtap_read_packet_bytes(fh, buf, packet_size, err, err_info))
 		return FALSE;
 
+	phdr->rec_type = REC_TYPE_PACKET;
+
 	/* XXX - relative, not absolute, time stamps */
 	if (!is_random) {
 		phdr->presence_flags = WTAP_HAS_TS;

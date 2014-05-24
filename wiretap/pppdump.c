@@ -319,6 +319,7 @@ static void
 pppdump_set_phdr(struct wtap_pkthdr *phdr, int num_bytes,
     direction_enum direction)
 {
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->len = num_bytes;
 	phdr->caplen = num_bytes;
 	phdr->pkt_encap	= WTAP_ENCAP_PPP_WITH_PHDR;
@@ -369,10 +370,10 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	*data_offset = state->pkt_cnt;
 	state->pkt_cnt++;
 
+	pppdump_set_phdr(&wth->phdr, num_bytes, direction);
 	wth->phdr.presence_flags = WTAP_HAS_TS;
 	wth->phdr.ts.secs	= state->timestamp;
 	wth->phdr.ts.nsecs	= state->tenths * 100000000;
-	pppdump_set_phdr(&wth->phdr, num_bytes, direction);
 
 	return TRUE;
 }

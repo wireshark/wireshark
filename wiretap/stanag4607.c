@@ -72,6 +72,8 @@ static gboolean stanag4607_read_file(wtap *wth, FILE_T fh, struct wtap_pkthdr *p
     return FALSE;
   }
 
+  phdr->rec_type = REC_TYPE_PACKET;
+
   /* The next 4 bytes are the packet length */
   packet_size = pntoh32(&stanag_pkt_hdr[2]);
   phdr->caplen = packet_size;

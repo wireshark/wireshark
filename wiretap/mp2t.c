@@ -79,6 +79,8 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
         return FALSE;
     }
 
+    phdr->rec_type = REC_TYPE_PACKET;
+
     /* XXX - relative, not absolute, time stamps */
     phdr->presence_flags = WTAP_HAS_TS;
 

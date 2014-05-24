@@ -447,6 +447,7 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	}
 
 	/* fill in packet header values */
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	tsecs = (time_t) (timestamp/1000000);
 	tusecs = (guint32) (timestamp - tsecs*1000000);
@@ -580,6 +581,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	}
 
 	/* fill in packet header values */
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	/* timestamp is in milliseconds since reference_time */
 	phdr->ts.secs  = peekclassic->reference_time.tv_sec

@@ -1347,6 +1347,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 		*padding = length - size;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
 	phdr->len = true_size ? true_size : size;
 	phdr->caplen = size;
@@ -2072,6 +2073,12 @@ ngsniffer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 	gint16 maj_vers, min_vers;
 	guint16 start_date;
 	struct tm *tm;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* The captured length field is 16 bits, so there's a hard
 	   limit of 65535. */

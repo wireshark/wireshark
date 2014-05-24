@@ -902,9 +902,9 @@ static rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf, struct segment
         return NULL;
     }
 
-    /* dissect the current frame */
-    if (!cf_read_frame(cf, fdata)) {
-        return NULL;  /* error reading the frame */
+    /* dissect the current record */
+    if (!cf_read_record(cf, fdata)) {
+        return NULL;  /* error reading the record */
     }
 
     error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL);

@@ -3923,7 +3923,6 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	gchar	      filter_text[256];
 	dfilter_t    *sfcode;
 	capture_file *cf;
-	gboolean      frame_matched;
 	frame_data   *fdata;
 	GList	     *strinfo_list;
 	GList	     *filtered_list = NULL;
@@ -3945,16 +3944,15 @@ rtp_analysis_cb(GtkAction *action _U_, gpointer user_data _U_)
 	if (fdata == NULL)
 		return; /* if we exit here it's an error */
 
-	/* dissect the current frame */
-	if (!cf_read_frame(cf, fdata))
-		return;	/* error reading the frame */
+	/* dissect the current record */
+	if (!cf_read_record(cf, fdata))
+		return;	/* error reading the record */
 	epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 	epan_dissect_prime_dfilter(&edt, sfcode);
 	epan_dissect_run(&edt, &cf->phdr, frame_tvbuff_new_buffer(fdata, &cf->buf), fdata, NULL);
 
-	/* if it is not an rtp frame, show the rtpstream dialog */
-	frame_matched = dfilter_apply_edt(sfcode, &edt);
-	if (frame_matched != TRUE) {
+	/* if it is not an rtp packet, show the rtpstream dialog */
+	if (!dfilter_apply_edt(sfcode, &edt)) {
 		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "Please select an RTP packet.");

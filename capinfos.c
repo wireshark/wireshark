@@ -853,26 +853,28 @@ process_cap_file(wtap *wth, const char *filename)
         order = ORDER_UNKNOWN;
     }
 
-    bytes+=phdr->len;
-    packet++;
+    if (phdr->rec_type == REC_TYPE_PACKET) {
+      bytes+=phdr->len;
+      packet++;
 
-    /* If caplen < len for a rcd, then presumably           */
-    /* 'Limit packet capture length' was done for this rcd. */
-    /* Keep track as to the min/max actual snapshot lengths */
-    /*  seen for this file.                                 */
-    if (phdr->caplen < phdr->len) {
-      if (phdr->caplen < snaplen_min_inferred)
-        snaplen_min_inferred = phdr->caplen;
-      if (phdr->caplen > snaplen_max_inferred)
-        snaplen_max_inferred = phdr->caplen;
-    }
+      /* If caplen < len for a rcd, then presumably           */
+      /* 'Limit packet capture length' was done for this rcd. */
+      /* Keep track as to the min/max actual snapshot lengths */
+      /*  seen for this file.                                 */
+      if (phdr->caplen < phdr->len) {
+        if (phdr->caplen < snaplen_min_inferred)
+          snaplen_min_inferred = phdr->caplen;
+        if (phdr->caplen > snaplen_max_inferred)
+          snaplen_max_inferred = phdr->caplen;
+      }
 
-    /* Per-packet encapsulation */
-    if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
-      if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
-        cf_info.encap_counts[phdr->pkt_encap] += 1;
-      } else {
-        fprintf(stderr, "capinfos: Unknown per-packet encapsulation: %d [frame number: %d]\n", phdr->pkt_encap, packet);
+      /* Per-packet encapsulation */
+      if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
+        if ((phdr->pkt_encap > 0) && (phdr->pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
+          cf_info.encap_counts[phdr->pkt_encap] += 1;
+        } else {
+          fprintf(stderr, "capinfos: Unknown per-packet encapsulation: %d [frame number: %d]\n", phdr->pkt_encap, packet);
+        }
       }
     }
 

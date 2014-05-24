@@ -577,6 +577,7 @@ peektagged_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 	return -1;
     }
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->len    = hdr_info.length;
     phdr->caplen = hdr_info.sliceLength;

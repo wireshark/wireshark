@@ -119,6 +119,9 @@ end
 
 -- %FT_TYPES%
 
+-- the following table is since 1.12
+-- %WTAP_REC_TYPES%
+
 -- the following table is since 1.11.3
 -- %WTAP_PRESENCE_FLAGS%
 

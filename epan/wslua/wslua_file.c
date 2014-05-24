@@ -1183,8 +1183,8 @@ WSLUA_METAMETHOD FrameInfo__tostring(lua_State* L) {
         lua_pushstring(L,"FrameInfo pointer is NULL!");
     } else {
         if (fi->phdr)
-            lua_pushfstring(L, "FrameInfo: presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, opt_comment='%s'",
-                fi->phdr->presence_flags, fi->phdr->caplen, fi->phdr->len, fi->phdr->pkt_encap, fi->phdr->opt_comment);
+            lua_pushfstring(L, "FrameInfo: rec_type=%u, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, opt_comment='%s'",
+                fi->phdr->rec_type, fi->phdr->presence_flags, fi->phdr->caplen, fi->phdr->len, fi->phdr->pkt_encap, fi->phdr->opt_comment);
         else
             lua_pushstring(L, "FrameInfo phdr pointer is NULL!");
     }
@@ -1308,6 +1308,12 @@ static int FrameInfo_get_data (lua_State* L) {
     WSLUA_RETURN(1); /* A Lua string of the frame buffer's data. */
 }
 
+/* WSLUA_ATTRIBUTE FrameInfo_rec_type RW The record type of the packet frame
+
+    See `wtap_rec_types` in `init.lua` for values. */
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,rec_type,phdr->rec_type);
+WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,rec_type,phdr->rec_type,guint);
+
 /* WSLUA_ATTRIBUTE FrameInfo_flags RW The presence flags of the packet frame.
 
     See `wtap_presence_flags` in `init.lua` for bit values. */
@@ -1340,6 +1346,7 @@ WSLUA_ATTRIBUTE_NAMED_STRING_SETTER(FrameInfo,comment,phdr->opt_comment,TRUE);
  * from this table for getting/setting the members.
  */
 WSLUA_ATTRIBUTES FrameInfo_attributes[] = {
+    WSLUA_ATTRIBUTE_RWREG(FrameInfo,rec_type),
     WSLUA_ATTRIBUTE_RWREG(FrameInfo,flags),
     WSLUA_ATTRIBUTE_RWREG(FrameInfo,captured_length),
     WSLUA_ATTRIBUTE_RWREG(FrameInfo,original_length),
@@ -1391,8 +1398,8 @@ WSLUA_METAMETHOD FrameInfoConst__tostring(lua_State* L) {
         lua_pushstring(L,"FrameInfo pointer is NULL!");
     } else {
         if (fi->phdr && !fi->expired)
-            lua_pushfstring(L, "FrameInfo: presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, opt_comment='%s'",
-                fi->phdr->presence_flags, fi->phdr->caplen, fi->phdr->len, fi->phdr->pkt_encap, fi->phdr->opt_comment);
+            lua_pushfstring(L, "FrameInfo: rec_type=%u, presence_flags=%d, caplen=%d, len=%d, pkt_encap=%d, opt_comment='%s'",
+                fi->phdr->rec_type, fi->phdr->presence_flags, fi->phdr->caplen, fi->phdr->len, fi->phdr->pkt_encap, fi->phdr->opt_comment);
         else
             lua_pushfstring(L, "FrameInfo has %s", fi->phdr?"expired":"null phdr pointer");
     }
@@ -1464,6 +1471,9 @@ static int FrameInfoConst_get_data (lua_State* L) {
     return 1;
 }
 
+/* WSLUA_ATTRIBUTE FrameInfoConst_rec_type RO The record type of the packet frame - see `wtap_presence_flags` in `init.lua` for values. */
+WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,rec_type,phdr->rec_type);
+
 /* WSLUA_ATTRIBUTE FrameInfoConst_flags RO The presence flags of the packet frame - see `wtap_presence_flags` in `init.lua` for bits. */
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,flags,phdr->presence_flags);
 
@@ -1482,6 +1492,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfoConst,encap,phdr->pkt_encap);
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(FrameInfoConst,comment,phdr->opt_comment);
 
 WSLUA_ATTRIBUTES FrameInfoConst_attributes[] = {
+    WSLUA_ATTRIBUTE_ROREG(FrameInfoConst,rec_type),
     WSLUA_ATTRIBUTE_ROREG(FrameInfoConst,flags),
     WSLUA_ATTRIBUTE_ROREG(FrameInfoConst,captured_length),
     WSLUA_ATTRIBUTE_ROREG(FrameInfoConst,original_length),

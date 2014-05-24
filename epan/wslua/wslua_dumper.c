@@ -325,6 +325,9 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
 
     memset(&pkthdr, 0, sizeof(pkthdr));
 
+    pkthdr.rec_type = REC_TYPE_PACKET;
+
+    pkthdr.presence_flags = WTAP_HAS_TS;
     pkthdr.ts.secs  = (unsigned int)(floor(ts));
     pkthdr.ts.nsecs = (unsigned int)(floor((ts - (double)pkthdr.ts.secs) * 1000000000));
 
@@ -423,6 +426,8 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 
     memset(&pkthdr, 0, sizeof(pkthdr));
 
+    pkthdr.rec_type = REC_TYPE_PACKET;
+    pkthdr.presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     pkthdr.ts.secs   = lua_pinfo->fd->abs_ts.secs;
     pkthdr.ts.nsecs  = lua_pinfo->fd->abs_ts.nsecs;
     pkthdr.len       = tvb_reported_length(tvb);

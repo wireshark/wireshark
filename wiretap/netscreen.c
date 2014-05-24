@@ -297,6 +297,7 @@ parse_netscreen_rec_hdr(struct wtap_pkthdr *phdr, const char *line, char *cap_in
 	char	direction[2];
 	char	cap_src[13];
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	if (sscanf(line, "%9d.%9d: %15[a-z0-9/:.-](%1[io]) len=%9d:%12s->%12s/",

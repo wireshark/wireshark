@@ -210,6 +210,7 @@ static gboolean dct3trace_get_packet(FILE_T fh, struct wtap_pkthdr *phdr,
 			if( have_data )
 			{
 				/* We've got a full packet! */
+				phdr->rec_type = REC_TYPE_PACKET;
 				phdr->presence_flags = 0; /* no time stamp, no separate "on the wire" length */
 				phdr->ts.secs = 0;
 				phdr->ts.nsecs = 0;

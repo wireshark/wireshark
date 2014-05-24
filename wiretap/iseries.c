@@ -618,6 +618,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, struct wtap_pkthdr *phdr,
       return FALSE;
     }
 
+  phdr->rec_type = REC_TYPE_PACKET;
   phdr->presence_flags = WTAP_HAS_CAP_LEN;
 
   /*

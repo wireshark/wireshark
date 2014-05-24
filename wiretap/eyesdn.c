@@ -313,6 +313,7 @@ read_eyesdn_rec(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err,
 		return FALSE;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS;
 	phdr->ts.secs = secs;
 	phdr->ts.nsecs = usecs * 1000;
@@ -414,6 +415,12 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	int origin;
 	int protocol;
 	int size;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	/* Don't write out anything bigger than we can read.
 	 * (The length field in packet headers is 16 bits, which

@@ -221,9 +221,9 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     memset(&phdr, 0, sizeof(struct wtap_pkthdr));
 
     buffer_init(&buf, 1500);
-    if (!cap_file_ || !cf_read_frame_r(cap_file_, fdata, &phdr, &buf)) {
+    if (!cap_file_ || !cf_read_record_r(cap_file_, fdata, &phdr, &buf)) {
         /*
-         * Error reading the frame.
+         * Error reading the record.
          *
          * Don't set the color filter for now (we might want
          * to colorize it in some fashion to warn that the
@@ -247,7 +247,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
             //            record->colorized = TRUE;
         }
         buffer_free(&buf);
-        return QVariant();	/* error reading the frame */
+        return QVariant();	/* error reading the record */
     }
 
     create_proto_tree = (color_filters_used() && enable_color_) ||

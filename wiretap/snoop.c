@@ -626,6 +626,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 		break;
 	}
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 	phdr->ts.secs = g_ntohl(hdr.ts_sec);
 	phdr->ts.nsecs = g_ntohl(hdr.ts_usec) * 1000;
@@ -875,6 +876,12 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	static const char zeroes[4] = {0};
 	struct snoop_atm_hdr atm_hdr;
 	int atm_hdrsize;
+
+	/* We can only write packet records. */
+	if (phdr->rec_type != REC_TYPE_PACKET) {
+		*err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+		return FALSE;
+	}
 
 	if (wdh->encap == WTAP_ENCAP_ATM_PDUS)
 		atm_hdrsize = sizeof (struct snoop_atm_hdr);

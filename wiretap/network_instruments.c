@@ -443,6 +443,7 @@ process_packet_header(wtap *wth, packet_entry_header *packet_header,
     struct wtap_pkthdr *phdr, int *err, gchar **err_info)
 {
     /* set the wiretap packet header fields */
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     phdr->pkt_encap = observer_to_wtap_encap(packet_header->network_type);
     if(wth->file_encap == WTAP_ENCAP_FIBRE_CHANNEL_FC2_WITH_FRAME_DELIMS) {
@@ -694,6 +695,12 @@ static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     observer_dump_private_state * private_state = NULL;
     packet_entry_header           packet_header;
     guint64                       seconds_since_2000;
+
+    /* We can only write packet records. */
+    if (phdr->rec_type != REC_TYPE_PACKET) {
+        *err = WTAP_ERR_REC_TYPE_UNSUPPORTED;
+        return FALSE;
+    }
 
     /* The captured size field is 16 bits, so there's a hard limit of
        65535. */

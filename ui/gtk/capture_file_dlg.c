@@ -1454,11 +1454,11 @@ do_file_save(capture_file *cf, gboolean dont_reopen)
       }
 
       /* XXX - cf->filename might get freed out from under us, because
-         the code path through which cf_save_packets() goes currently
+         the code path through which cf_save_records() goes currently
          closes the current file and then opens and reloads the saved file,
          so make a copy and free it later. */
       fname = g_strdup(cf->filename);
-      status = cf_save_packets(cf, fname, cf->cd_t, cf->iscompressed,
+      status = cf_save_records(cf, fname, cf->cd_t, cf->iscompressed,
                                discard_comments, dont_reopen);
       switch (status) {
 
@@ -1896,7 +1896,7 @@ file_save_as_cmd(capture_file *cf, gboolean must_support_all_comments,
 #endif
 
       /* Attempt to save the file */
-      status = cf_save_packets(&cfile, file_name->str, file_type, compressed,
+      status = cf_save_records(&cfile, file_name->str, file_type, compressed,
                              discard_comments, dont_reopen);
       switch (status) {
 

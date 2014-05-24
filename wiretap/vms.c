@@ -400,6 +400,7 @@ parse_vms_packet(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, gch
     tm.tm_year -= 1900;
     tm.tm_isdst = -1;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
     phdr->ts.secs = mktime(&tm);
     phdr->ts.nsecs = csec * 10000000;

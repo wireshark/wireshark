@@ -916,7 +916,20 @@ union wtap_pseudo_header {
     struct logcat_phdr  logcat;
 };
 
+/*
+ * Record type values.
+ *
+ * This list will expand over time, so don't assume everything will be a
+ * packet record or a file-type-specific record.
+ *
+ * Non-packet records might have a time stamp; other fields may only
+ * apply to packet records.
+ */
+#define REC_TYPE_PACKET               0    /**< packet */
+#define REC_TYPE_FILE_TYPE_SPECIFIC   1    /**< file-type-specific record */
+
 struct wtap_pkthdr {
+    guint               rec_type;       /* what type of record is this? */
     guint32             presence_flags; /* what stuff do we have? */
     nstime_t            ts;
     guint32             caplen;         /* data length in the file */
@@ -1633,6 +1646,9 @@ int wtap_register_encap_type(const char* name, const char* short_name);
 #define WTAP_ERR_CHECK_WSLUA                  -25
     /** Not really an error: the file type being checked is from a Lua
         plugin, so that the code will call wslua_can_write_encap() instead if it gets this */
+
+#define WTAP_ERR_REC_TYPE_UNSUPPORTED         -26
+    /** Specified record type can't be written to that file type */
 
 #ifdef __cplusplus
 }

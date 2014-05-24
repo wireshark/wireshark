@@ -304,9 +304,9 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
         return NULL;
     }
 
-    /* dissect the current frame */
-    if (!cf_read_frame(cf, fdata))
-        return NULL;    /* error reading the frame */
+    /* dissect the current record */
+    if (!cf_read_record(cf, fdata))
+        return NULL;    /* error reading the record */
 
 
     error_string=register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL);

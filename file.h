@@ -131,35 +131,35 @@ void cf_reload(capture_file *cf);
  * Read all packets of a capture file into the internal structures.
  *
  * @param cf the capture file to be read
- * @param from_save reread asked from cf_save_packets
+ * @param from_save reread asked from cf_save_records
  * @return one of cf_read_status_t
  */
 cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
 
 /**
- * Read the pseudo-header and raw data for a packet.  It will pop
+ * Read the metadata and raw data for a record.  It will pop
  * up an alert box if there's an error.
  *
- * @param cf the capture file from which to read the packet
- * @param fdata the frame_data structure for the packet in question
+ * @param cf the capture file from which to read the record
+ * @param fdata the frame_data structure for the record in question
  * @param phdr pointer to a wtap_pkthdr structure to contain the
- * packet's pseudo-header and other metadata
- * @param buf a Buffer into which to read the packet's raw data
+ * record's metadata
+ * @param buf a Buffer into which to read the record's raw data
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
-gboolean cf_read_frame_r(capture_file *cf, const frame_data *fdata,
-                         struct wtap_pkthdr *phdr, Buffer *buf);
+gboolean cf_read_record_r(capture_file *cf, const frame_data *fdata,
+                          struct wtap_pkthdr *phdr, Buffer *buf);
 
 /**
- * Read the pseudo-header and raw data for a packet into a
- * capture_file structure's pseudo_header and buf members.
+ * Read the metadata and raw data for a record into a
+ * capture_file structure's phdr and buf members.
  * It will pop up an alert box if there's an error.
  *
- * @param cf the capture file from which to read the packet
- * @param fdata the frame_data structure for the packet in question
+ * @param cf the capture file from which to read the record
+ * @param fdata the frame_data structure for the record in question
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
-gboolean cf_read_frame(capture_file *cf, frame_data *fdata);
+gboolean cf_read_record(capture_file *cf, frame_data *fdata);
 
 /**
  * Read packets from the "end" of a capture file.
@@ -239,7 +239,7 @@ gboolean cf_has_unsaved_data(capture_file *cf);
  * current capture file
  * @return one of cf_write_status_t
  */
-cf_write_status_t cf_save_packets(capture_file * cf, const char *fname,
+cf_write_status_t cf_save_records(capture_file * cf, const char *fname,
                                   guint save_format, gboolean compressed,
                                   gboolean discard_comments,
                                   gboolean dont_reopen);

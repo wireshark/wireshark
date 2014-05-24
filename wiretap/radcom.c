@@ -339,6 +339,7 @@ radcom_read_rec(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf,
 	length = pletoh16(&hdr.length);
 	real_length = pletoh16(&hdr.real_length);
 
+	phdr->rec_type = REC_TYPE_PACKET;
 	phdr->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
 
 	tm.tm_year = pletoh16(&hdr.date.year)-1900;

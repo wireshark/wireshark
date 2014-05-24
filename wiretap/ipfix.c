@@ -169,6 +169,7 @@ ipfix_read_message(FILE_T fh, struct wtap_pkthdr *phdr, Buffer *buf, int *err, g
     if (!ipfix_read_message_header(&msg_hdr, fh, err, err_info))
         return FALSE;
 
+    phdr->rec_type = REC_TYPE_PACKET;
     phdr->presence_flags = WTAP_HAS_TS;
     phdr->len = msg_hdr.message_length;
     phdr->caplen = msg_hdr.message_length;
