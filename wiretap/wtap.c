@@ -89,7 +89,7 @@ check_for_wtap_plugin(GModule *handle)
 void
 wtap_register_plugin_types(void)
 {
-	add_plugin_type("file format", check_for_wtap_plugin);
+	add_plugin_type("libwiretap", check_for_wtap_plugin);
 }
 
 static void

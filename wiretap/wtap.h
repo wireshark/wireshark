@@ -888,6 +888,11 @@ struct logcat_phdr {
     gint version;
 };
 
+/* Pseudo-header for file-type-specific records */
+struct file_type_specific_record_phdr {
+    guint record_type;    /* the type of record this is */
+};
+
 union wtap_pseudo_header {
     struct eth_phdr     eth;
     struct x25_phdr     x25;
@@ -914,6 +919,7 @@ union wtap_pseudo_header {
     struct nokia_phdr   nokia;
     struct llcp_phdr    llcp;
     struct logcat_phdr  logcat;
+    struct file_type_specific_record_phdr ftsrec;
 };
 
 /*
