@@ -10757,7 +10757,7 @@ dissect_vht_tx_pwr_envelope(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   guint8 opt_ie_cnt=0;
   guint8 i;
 
-  if (tag_len < 2 && tag_len <= 5) {
+  if (tag_len < 2 || tag_len > 5) {
     expert_add_info_format(pinfo, ti_len, &ei_ieee80211_tag_length,
                            "VHT TX PWR Envelope IE length %u wrong, must be >= 2 and <= 5", tag_len);
     return offset;
@@ -11434,7 +11434,7 @@ dissect_wapi_param_set(tvbuff_t *tvb, packet_info *pinfo,
   /* Parse the WAPI Parameter Set IE Here*/
   proto_item *item;
   proto_tree *subtree;
-  guint16 loop_cnt, version  = 1, akm_cnt  = 1, ucast_cnt = 1, bkid_cnt = 1;
+  guint16 loop_cnt, version, akm_cnt  = 1, ucast_cnt = 1, bkid_cnt = 1;
   guint8  akm_suite_type = 0, ucast_cipher_type = 0, mcast_cipher_type = 0;
 
   version = tvb_get_letohs(tvb, offset);

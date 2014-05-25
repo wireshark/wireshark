@@ -641,9 +641,9 @@ dissect_atn_cm(
 		proto_tree *tree,
 		void *data _U_)
 {
-		int 	type = no_msg;
-		proto_item *ti = NULL;
-		proto_tree *sub_tree = NULL;
+		int 	type;
+		proto_item *ti;
+		proto_tree *sub_tree;
 
 		ti = proto_tree_add_text(
 			tree,

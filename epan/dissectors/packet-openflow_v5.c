@@ -2513,7 +2513,6 @@ dissect_openflow_port_desc_prop_ethernet_v5(tvbuff_t *tvb, packet_info *pinfo _U
     offset+=4;
 
     return offset;
-    return offset;
 }
 
 

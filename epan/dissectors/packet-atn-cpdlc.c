@@ -5415,7 +5415,7 @@ dissect_atn_cpdlc_heur(
 		atn_conversation_t *atn_cv = NULL;
 		volatile gboolean is_atn_cpdlc = FALSE;
 		volatile gboolean is_pm = FALSE;
-		int type = no_msg;
+		int type;
 
 		type = check_heur_msg_type(pinfo);
 
@@ -5424,8 +5424,8 @@ dissect_atn_cpdlc_heur(
 					TRY {
 						dissect_ProtectedGroundPDUs_PDU(tvb, pinfo, NULL);
 						is_atn_cpdlc = TRUE;
-						is_pm = TRUE;}
-						break;
+						is_pm = TRUE;
+						break;}
 					CATCH_ALL{
 						is_atn_cpdlc = FALSE;
 						is_pm = FALSE;}

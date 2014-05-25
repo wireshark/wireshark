@@ -82,7 +82,7 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 {
 	proto_item *item;
 	guint3264 len;
-	proto_tree *subtree = tree;
+	proto_tree *subtree;
 
 	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
 			proto_registrar_get_name(hf_index));

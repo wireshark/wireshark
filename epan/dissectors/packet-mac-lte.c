@@ -1389,9 +1389,7 @@ static guint mac_lte_framenum_instance_hash_func(gconstpointer v)
 {
     const drx_state_key_t *p1 = (const drx_state_key_t*)v;
 
-    /* XXX which one return ? */
     return p1->frameNumber + (p1->pdu_instance >> 8);
-    return GPOINTER_TO_UINT(v);
 }
 
 
@@ -4275,6 +4273,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 curr_offset++;
                             }
                         } else {
+                            /* XXX dead code? Expression is always false because
+                             * the condition matches previous condition in the
+                             * original if (so if it were true we'd never get
+                             * to this 'else' block in the first place) */
                             if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
                                 expert_add_info_format(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
                                     "Control Element has an unexpected size (computed=%d, actual=%d)",
