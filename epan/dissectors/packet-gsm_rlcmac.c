@@ -463,7 +463,6 @@ static int hf_change_mark_change_mark_1 = -1;
 static int hf_change_mark_change_mark_2 = -1;
 static int hf_indirect_encoding_ma_number = -1;
 static int hf_packet_request_reference_random_access_information = -1;
-static int hf_timeslot_allocation_usf_tn = -1;
 static int hf_extended_dynamic_allocation = -1;
 static int hf_rlc_data_blocks_granted = -1;
 static int hf_single_block_allocation_timeslot_number = -1;
@@ -2594,7 +2593,7 @@ CSN_DESCR_END  (Packet_Request_Reference_t)
 static const
 CSN_DESCR_BEGIN(Timeslot_Allocation_t)
   M_NEXT_EXIST (Timeslot_Allocation_t, Exist, 1),
-  M_UINT       (Timeslot_Allocation_t,  USF_TN,  3, &hf_timeslot_allocation_usf_tn),
+  M_UINT       (Timeslot_Allocation_t,  USF_TN,  3, &hf_usf),
 CSN_DESCR_END  (Timeslot_Allocation_t)
 
 static const
@@ -5207,7 +5206,7 @@ CSN_DESCR_END    (PHO_UplinkAssignment_t)
 static const
 CSN_DESCR_BEGIN (GlobalTimeslotDescription_UA_t)
   M_TYPE        (GlobalTimeslotDescription_UA_t, GlobalTimeslotDescription, GlobalTimeslotDescription_t),
-  M_NEXT_EXIST  (GlobalTimeslotDescription_UA_t, Exist_PHO_UA, 3),  /* Don't use M_REC_TARRAY as we don't support multiple TBFs */
+  M_NEXT_EXIST  (GlobalTimeslotDescription_UA_t, Exist_PHO_UA, 2),  /* Don't use M_REC_TARRAY as we don't support multiple TBFs */
 
   M_TYPE        (GlobalTimeslotDescription_UA_t, PHO_UA, PHO_UplinkAssignment_t),
   M_FIXED       (GlobalTimeslotDescription_UA_t, 1, 0x0), /* Escape recursive */
@@ -5260,7 +5259,7 @@ CSN_DESCR_BEGIN (PHO_EGPRS_t)
   M_NEXT_EXIST  (PHO_EGPRS_t, Exist_GlobalTimeslotDescription_UA, 1),
   M_TYPE        (PHO_EGPRS_t, GTD_UA, GlobalTimeslotDescription_UA_t),
 
-  M_NEXT_EXIST  (PHO_EGPRS_t, Exist_DownlinkTBF, 2),
+  M_NEXT_EXIST  (PHO_EGPRS_t, Exist_DownlinkTBF, 1),
   M_TYPE        (PHO_EGPRS_t, DownlinkTBF, DownlinkTBF_t),
 CSN_DESCR_END   (PHO_EGPRS_t)
 
