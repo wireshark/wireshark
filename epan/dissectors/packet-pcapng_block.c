@@ -1,6 +1,6 @@
 /* packet-pcapng.c
  * Dissector to handle pcap-ng file-type-specific blocks.
- * 
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
