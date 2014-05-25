@@ -291,7 +291,7 @@ dissect_bson_document(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tre
 
   do {
     /* Read document elements */
-    guint8 e_type = -1;  /* Element type */
+    guint8 e_type;  /* Element type */
     gint str_len = -1;   /* String length */
     gint e_len = -1;     /* Element length */
     gint doc_len = -1;   /* Document length */

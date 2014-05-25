@@ -2502,7 +2502,6 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
     vars->next = NULL;
 
     generate_hash_key(pinfo,0,key,NULL);
-    existing_vars = NULL;
     existing_vars = (netlogon_auth_vars *)g_hash_table_lookup(netlogon_auths, key);
     if (!existing_vars) {
         debugprintf("Adding initial vars with this start packet = %d\n",vars->start);

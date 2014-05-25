@@ -339,7 +339,7 @@ dissect_pft_fec_detailed(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     }
   }
   if(new_tvb && tvb_length(new_tvb) > 0) {
-    gboolean decoded = TRUE;
+    gboolean decoded;
     tvbuff_t *dtvb = NULL;
     const guint8 *input = tvb_get_ptr(new_tvb, 0, -1);
     guint32 reassembled_size = tvb_length(new_tvb);

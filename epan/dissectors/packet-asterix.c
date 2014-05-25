@@ -7005,15 +7005,13 @@ static void dissect_asterix_packet (tvbuff_t *tvb, proto_tree *tree)
     guint i;
     guint8 category;
     guint16 length;
-    proto_item *asterix_packet_item = NULL;
-    proto_tree *asterix_packet_tree = NULL;
+    proto_item *asterix_packet_item;
+    proto_tree *asterix_packet_tree;
 
     for (i = 0; i < tvb_reported_length (tvb); i += length + 3) {
         category = tvb_get_guint8 (tvb, i);
         length = (tvb_get_guint8 (tvb, i + 1) << 8) + tvb_get_guint8 (tvb, i + 2) - 3; /* -3 for category and length */
 
-        asterix_packet_item = NULL;
-        asterix_packet_tree = NULL;
         asterix_packet_item = proto_tree_add_item (tree, proto_asterix, tvb, i, length + 3, ENC_NA);
         proto_item_append_text (asterix_packet_item, ", Category %03d", category);
         asterix_packet_tree = proto_item_add_subtree (asterix_packet_item, ett_asterix);
@@ -7117,7 +7115,6 @@ static void asterix_build_subtree (tvbuff_t *tvb, guint offset, proto_tree *pare
 
     if (field->part != NULL) {
         for (i = 0, inner_offset = 0, go_on = 1; go_on && field->part[i] != NULL; i++) {
-            value = G_GINT64_CONSTANT(0);;
             value = tvb_get_bits64 (tvb, offset * 8 + inner_offset, field->part[i]->bit_length, ENC_BIG_ENDIAN);
             if (field->part[i]->hf != NULL) {
                 switch (field->part[i]->type) {

@@ -2101,11 +2101,11 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
     guint16            addr_len    = 0;
     gint               offset      = 0;
     guint16            flags;
-    gboolean           mrep        = FALSE;
-    gboolean           smr         = FALSE;
-    gboolean           probe       = FALSE;
-    gboolean           pitr        = FALSE;
-    gboolean           smr_invoked = FALSE;
+    gboolean           mrep;
+    gboolean           smr;
+    gboolean           probe;
+    gboolean           pitr;
+    gboolean           smr_invoked;
     guint8             itr_rec_cnt = 0;
     guint8             rec_cnt     = 0;
     guint16            src_eid_afi;
@@ -2350,7 +2350,7 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
 {
     int       i;
     gint      offset  = 0;
-    gboolean  probe   = FALSE;
+    gboolean  probe;
     guint8    flags;
     guint8    rec_cnt = 0;
     tvbuff_t *next_tvb;
@@ -2437,8 +2437,8 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
     tvbuff_t *next_tvb;
     guint16   authlen = 0;
     guint16   flags;
-    gboolean  xtrid   = FALSE;
-    gboolean  rtr     = FALSE;
+    gboolean  xtrid;
+    gboolean  rtr;
 
     /* Flags (1 bit) */
     proto_tree_add_item(lisp_tree, hf_lisp_mreg_flags_pmr, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -2550,8 +2550,8 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
     tvbuff_t *next_tvb;
     guint16   authlen = 0;
     guint16   flags;
-    gboolean  xtrid   = FALSE;
-    gboolean  rtr     = FALSE;
+    gboolean  xtrid;
+    gboolean  rtr;
 
     /* Flags defined in NAT Traversal draft (2 bits) */
     flags = tvb_get_ntohs(tvb, offset);
