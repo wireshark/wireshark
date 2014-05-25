@@ -1049,6 +1049,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-pagp.c
 	dissectors/packet-paltalk.c
 	dissectors/packet-pana.c
+	dissectors/packet-pcapng_block.c
 	dissectors/packet-pcep.c
 	dissectors/packet-pcli.c
 	dissectors/packet-pcnfsd.c
