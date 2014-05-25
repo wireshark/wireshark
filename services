@@ -1932,8 +1932,6 @@ t1distproc       1274/tcp # t1distproc [Julian_Biddle] [Julian_Biddle]
 t1distproc       1274/udp # t1distproc [Julian_Biddle] [Julian_Biddle]
 ivcollector      1275/tcp # ivcollector
 ivcollector      1275/udp # ivcollector
-ivmanager        1276/tcp # ivmanager [Xavier_Roques] [Xavier_Roques]
-ivmanager        1276/udp # ivmanager [Xavier_Roques] [Xavier_Roques]
 miva-mqs         1277/tcp # mqs [Miva_Corporation] [Miva_Corporation]
 miva-mqs         1277/udp # mqs [Miva_Corporation] [Miva_Corporation]
 dellwebadmin-1   1278/tcp # Dell Web Admin 1
@@ -2718,8 +2716,8 @@ dec-mbadmin-h    1656/tcp # dec-mbadmin-h [Nick_Shipman] [Nick_Shipman]
 dec-mbadmin-h    1656/udp # dec-mbadmin-h [Nick_Shipman] [Nick_Shipman]
 fujitsu-mmpdc    1657/tcp # fujitsu-mmpdc [Katsumi_Oomuro] [Katsumi_Oomuro]
 fujitsu-mmpdc    1657/udp # fujitsu-mmpdc [Katsumi_Oomuro] [Katsumi_Oomuro]
-sixnetudr        1658/tcp # sixnetudr [Bob_Rennie] [Bob_Rennie]
-sixnetudr        1658/udp # sixnetudr [Bob_Rennie] [Bob_Rennie]
+sixnetudr        1658/tcp # sixnetudr [Red_Lion_Controls] [Denis_Aull] 2014-05-21
+sixnetudr        1658/udp # sixnetudr [Red_Lion_Controls] [Denis_Aull] 2014-05-21
 sg-lm            1659/tcp # Silicon Grail License Manager [William_R_Bishop] [William_R_Bishop]
 sg-lm            1659/udp # Silicon Grail License Manager [William_R_Bishop] [William_R_Bishop]
 skip-mc-gikreq   1660/tcp # skip-mc-gikreq [Tom_Markson] [Tom_Markson]
@@ -11242,6 +11240,8 @@ neckar          37475/udp # science + computing's Venus Administration Port [Ral
 gdrive-sync     37483/tcp # Google Drive Sync [Google] [Fil_Zembowicz] 2013-02-01
 unisys-eportal  37654/tcp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
 unisys-eportal  37654/udp # Unisys ClearPath ePortal [Sung_U_Ro] [Sung_U_Ro] 2006-01
+ivs-database    38000/tcp # InfoVista Server Database [InfoVista] [Sebastien_Bouchex_Bellomie] 2014-05-23
+ivs-insertion   38001/tcp # InfoVista Server Insertion [InfoVista] [Sebastien_Bouchex_Bellomie] 2014-05-23
 galaxy7-data    38201/tcp # Galaxy7 Data Tunnel [Tatham_Oddie] [Tatham_Oddie] 2002-09
 galaxy7-data    38201/udp # Galaxy7 Data Tunnel [Tatham_Oddie] [Tatham_Oddie] 2002-09
 fairview        38202/tcp # Fairview Message Service [Jim_Lyle] [Jim_Lyle] 2005-11 Defined TXT keys: DevID=<device id>, DevType=<device type>, DevStat=<device status>
