@@ -423,7 +423,7 @@ void
 dissect_record(epan_dissect_t *edt, int file_type_subtype,
     struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
-	const char *record_type;
+	const char *volatile record_type;
 
 	switch (phdr->rec_type) {
 
