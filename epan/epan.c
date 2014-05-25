@@ -325,14 +325,15 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols)
 }
 
 void
-epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
+        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+        column_info *cinfo)
 {
 #ifdef HAVE_LUA
 	wslua_prime_dfilter(edt); /* done before entering wmem scope */
 #endif
 	wmem_enter_packet_scope();
-	dissect_record(edt, phdr, tvb, fd, cinfo);
+	dissect_record(edt, file_type_subtype, phdr, tvb, fd, cinfo);
 
 	/* free all memory allocated */
 	ep_free_all();
@@ -340,12 +341,13 @@ epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 }
 
 void
-epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
+        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+        column_info *cinfo)
 {
 	wmem_enter_packet_scope();
 	tap_queue_init(edt);
-	dissect_record(edt, phdr, tvb, fd, cinfo);
+	dissect_record(edt, file_type_subtype, phdr, tvb, fd, cinfo);
 	tap_push_tapped_queue(edt);
 
 	/* free all memory allocated */
