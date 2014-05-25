@@ -51,7 +51,8 @@ typedef struct _packet_info {
   struct epan_column_info *cinfo;   /**< Column formatting information */
   frame_data *fd;
   union wtap_pseudo_header *pseudo_header;
-  struct wtap_pkthdr *phdr;
+  int file_type_subtype;            /**< Capture file type/subtype */
+  struct wtap_pkthdr *phdr;         /**< Record metadata */
   GSList *data_src;                 /**< Frame data sources */
   address dl_src;                   /**< link-layer source address */
   address dl_dst;                   /**< link-layer destination address */

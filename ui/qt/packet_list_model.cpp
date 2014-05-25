@@ -262,7 +262,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     if (dissect_columns)
         col_custom_prime_edt(&edt, cinfo);
 
-    epan_dissect_run(&edt, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
+    epan_dissect_run(&edt, cap_file_->cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
 
     if (enable_color_)
         fdata->color_filter = color_filters_colorize_packet(&edt);

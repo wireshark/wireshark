@@ -149,6 +149,7 @@ static const value_string packet_word_reception_types[] = {
 };
 
 dissector_table_t wtap_encap_dissector_table;
+static dissector_table_t wtap_fts_rec_dissector_table;;
 
 /*
  * Routine used to register frame end routine.  The routine should only
@@ -182,58 +183,73 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	tree=parent_tree;
 
-	pinfo->current_proto = "Frame";
+	switch (pinfo->phdr->rec_type) {
 
-	if (pinfo->pseudo_header != NULL) {
-		switch (pinfo->fd->lnk_t) {
+	case REC_TYPE_PACKET:
+		pinfo->current_proto = "Frame";
+		if (pinfo->pseudo_header != NULL) {
+			switch (pinfo->fd->lnk_t) {
 
-		case WTAP_ENCAP_WFLEET_HDLC:
-		case WTAP_ENCAP_CHDLC_WITH_PHDR:
-		case WTAP_ENCAP_PPP_WITH_PHDR:
-		case WTAP_ENCAP_SDLC:
-		case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
-			pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent ?
-			    P2P_DIR_SENT : P2P_DIR_RECV;
-			break;
+			case WTAP_ENCAP_WFLEET_HDLC:
+			case WTAP_ENCAP_CHDLC_WITH_PHDR:
+			case WTAP_ENCAP_PPP_WITH_PHDR:
+			case WTAP_ENCAP_SDLC:
+			case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+				pinfo->p2p_dir = pinfo->pseudo_header->p2p.sent ?
+				    P2P_DIR_SENT : P2P_DIR_RECV;
+				break;
 
-		case WTAP_ENCAP_BLUETOOTH_HCI:
-			pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent;
-			break;
+			case WTAP_ENCAP_BLUETOOTH_HCI:
+				pinfo->p2p_dir = pinfo->pseudo_header->bthci.sent;
+				break;
 
-		case WTAP_ENCAP_LAPB:
-		case WTAP_ENCAP_FRELAY_WITH_PHDR:
-			pinfo->p2p_dir =
-			    (pinfo->pseudo_header->x25.flags & FROM_DCE) ?
-			    P2P_DIR_RECV : P2P_DIR_SENT;
-			break;
+			case WTAP_ENCAP_LAPB:
+			case WTAP_ENCAP_FRELAY_WITH_PHDR:
+				pinfo->p2p_dir =
+				    (pinfo->pseudo_header->x25.flags & FROM_DCE) ?
+				    P2P_DIR_RECV : P2P_DIR_SENT;
+				break;
 
-		case WTAP_ENCAP_ISDN:
-		case WTAP_ENCAP_V5_EF:
-		case WTAP_ENCAP_DPNSS:
-		case WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR:
-			pinfo->p2p_dir = pinfo->pseudo_header->isdn.uton ?
-			    P2P_DIR_SENT : P2P_DIR_RECV;
-			break;
+			case WTAP_ENCAP_ISDN:
+			case WTAP_ENCAP_V5_EF:
+			case WTAP_ENCAP_DPNSS:
+			case WTAP_ENCAP_BACNET_MS_TP_WITH_PHDR:
+				pinfo->p2p_dir = pinfo->pseudo_header->isdn.uton ?
+				    P2P_DIR_SENT : P2P_DIR_RECV;
+				break;
 
-		case WTAP_ENCAP_LINUX_LAPD:
-			pinfo->p2p_dir = (pinfo->pseudo_header->lapd.pkttype == 3 ||
-				pinfo->pseudo_header->lapd.pkttype == 4) ?
-				P2P_DIR_SENT : P2P_DIR_RECV;
-			break;
+			case WTAP_ENCAP_LINUX_LAPD:
+				pinfo->p2p_dir = (pinfo->pseudo_header->lapd.pkttype == 3 ||
+					pinfo->pseudo_header->lapd.pkttype == 4) ?
+					P2P_DIR_SENT : P2P_DIR_RECV;
+				break;
 
-		case WTAP_ENCAP_MTP2_WITH_PHDR:
-			pinfo->p2p_dir = pinfo->pseudo_header->mtp2.sent ?
-			    P2P_DIR_SENT : P2P_DIR_RECV;
-			pinfo->link_number  = pinfo->pseudo_header->mtp2.link_number;
-			pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used;
-			break;
+			case WTAP_ENCAP_MTP2_WITH_PHDR:
+				pinfo->p2p_dir = pinfo->pseudo_header->mtp2.sent ?
+				    P2P_DIR_SENT : P2P_DIR_RECV;
+				pinfo->link_number  = pinfo->pseudo_header->mtp2.link_number;
+				pinfo->annex_a_used = pinfo->pseudo_header->mtp2.annex_a_used;
+				break;
 
-		case WTAP_ENCAP_GSM_UM:
-			pinfo->p2p_dir = pinfo->pseudo_header->gsm_um.uplink ?
-			    P2P_DIR_SENT : P2P_DIR_RECV;
-			break;
-
+			case WTAP_ENCAP_GSM_UM:
+				pinfo->p2p_dir = pinfo->pseudo_header->gsm_um.uplink ?
+				    P2P_DIR_SENT : P2P_DIR_RECV;
+				break;
+			}
 		}
+		break;
+
+	case REC_TYPE_FT_SPECIFIC_EVENT:
+		pinfo->current_proto = "Event";
+		break;
+
+	case REC_TYPE_FT_SPECIFIC_REPORT:
+		pinfo->current_proto = "Report";
+		break;
+
+	default:
+		g_assert_not_reached();
+		break;
 	}
 
 	if(pinfo->pkt_comment){
@@ -324,7 +340,8 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			proto_tree_add_boolean(flags_tree, hf_frame_pack_symbol_error, tvb, 0, 0, pinfo->phdr->pack_flags);
 		}
 
-		proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
+		if (pinfo->phdr->rec_type == REC_TYPE_PACKET)
+			proto_tree_add_int(fh_tree, hf_frame_wtap_encap, tvb, 0, 0, pinfo->fd->lnk_t);
 
 		if (pinfo->fd->flags.has_ts) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time, tvb,
@@ -482,17 +499,34 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                 */
 		__try {
 #endif
-			if ((force_docsis_encap) && (docsis_handle)) {
-				call_dissector(docsis_handle, tvb, pinfo, parent_tree);
-			} else {
-				if (!dissector_try_uint(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+			switch (pinfo->phdr->rec_type) {
+
+			case REC_TYPE_PACKET:
+				if ((force_docsis_encap) && (docsis_handle)) {
+					call_dissector(docsis_handle, tvb, pinfo, parent_tree);
+				} else {
+					if (!dissector_try_uint(wtap_encap_dissector_table, pinfo->fd->lnk_t,
+								tvb, pinfo, parent_tree)) {
+
+						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+							     pinfo->fd->lnk_t);
+						call_dissector(data_handle,tvb, pinfo, parent_tree);
+					}
+				}
+				break;
+
+			case REC_TYPE_FT_SPECIFIC_EVENT:
+			case REC_TYPE_FT_SPECIFIC_REPORT:
+				if (!dissector_try_uint(wtap_fts_rec_dissector_table, pinfo->file_type_subtype,
 							tvb, pinfo, parent_tree)) {
 
 					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-						     pinfo->fd->lnk_t);
+						     pinfo->file_type_subtype);
 					call_dissector(data_handle,tvb, pinfo, parent_tree);
 				}
+				break;
 			}
 #ifdef _MSC_VER
 		} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
@@ -816,6 +850,8 @@ proto_register_frame(void)
 
 	wtap_encap_dissector_table = register_dissector_table("wtap_encap",
 	    "Wiretap encapsulation type", FT_UINT32, BASE_DEC);
+	wtap_fts_rec_dissector_table = register_dissector_table("wtap_fts_rec",
+	    "Wiretap file type for file-type-specific records", FT_UINT32, BASE_DEC);
 
 	proto_frame = proto_register_protocol("Frame", "Frame", "frame");
 	proto_pkt_comment = proto_register_protocol("Packet comments", "Pkt_Comment", "pkt_comment");

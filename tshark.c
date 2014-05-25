@@ -2918,7 +2918,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
       ref = &ref_frame;
     }
 
-    epan_dissect_run(edt, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
+    epan_dissect_run(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdlocal, pd), &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
     if (cf->rfcode)
@@ -3001,7 +3001,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt, frame_data *fd
       ref = &ref_frame;
     }
 
-    epan_dissect_run_with_taps(edt, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
+    epan_dissect_run_with_taps(edt, cf->cd_t, phdr, frame_tvbuff_new_buffer(fdata, buf), fdata, cinfo);
 
     /* Run the read/display filter if we have one. */
     if (cf->dfcode)
@@ -3534,7 +3534,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset, struct wtap
       ref = &ref_frame;
     }
 
-    epan_dissect_run_with_taps(edt, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
+    epan_dissect_run_with_taps(edt, cf->cd_t, whdr, frame_tvbuff_new(&fdata, pd), &fdata, cinfo);
 
     /* Run the filter if we have it. */
     if (cf->dfcode)

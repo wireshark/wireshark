@@ -154,7 +154,7 @@ process_record(frame_data *frame, column_info *cinfo, ph_stats_t* ps)
 	epan_dissect_init(&edt, cfile.epan, TRUE, FALSE);
 	/* Don't fake protocols. We need them for the protocol hierarchy */
 	epan_dissect_fake_protocols(&edt, FALSE);
-	epan_dissect_run(&edt, &phdr, frame_tvbuff_new_buffer(frame, &buf), frame, cinfo);
+	epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(frame, &buf), frame, cinfo);
 
 	/* Get stats from this protocol tree */
 	process_tree(edt.tree, ps, frame->pkt_len);

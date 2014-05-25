@@ -179,13 +179,15 @@ epan_dissect_fake_protocols(epan_dissect_t *edt, const gboolean fake_protocols);
 /** run a single packet dissection */
 WS_DLL_PUBLIC
 void
-epan_dissect_run(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
+epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
+        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+        struct epan_column_info *cinfo);
 
 WS_DLL_PUBLIC
 void
-epan_dissect_run_with_taps(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-        tvbuff_t *tvb, frame_data *fd, struct epan_column_info *cinfo);
+epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
+        struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd,
+        struct epan_column_info *cinfo);
 
 /** run a single file packet dissection */
 WS_DLL_PUBLIC

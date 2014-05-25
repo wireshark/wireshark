@@ -420,9 +420,36 @@ final_registration_all_protocols(void)
 
 /* Creates the top-most tvbuff and calls dissect_frame() */
 void
-dissect_record(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
-	       tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
+dissect_record(epan_dissect_t *edt, int file_type_subtype,
+    struct wtap_pkthdr *phdr, tvbuff_t *tvb, frame_data *fd, column_info *cinfo)
 {
+	const char *record_type;
+
+	switch (phdr->rec_type) {
+
+	case REC_TYPE_PACKET:
+		record_type = "Frame";
+		break;
+
+	case REC_TYPE_FT_SPECIFIC_EVENT:
+		record_type = "Event";
+		break;
+
+	case REC_TYPE_FT_SPECIFIC_REPORT:
+		record_type = "Report";
+		break;
+
+	default:
+		/*
+		 * XXX - if we add record types that shouldn't be
+		 * dissected and displayed, but that need to at
+		 * least be processed somewhere, we need to somehow
+		 * indicate that to our caller.
+		 */
+		g_assert_not_reached();
+		break;
+	}
+
 	if (cinfo != NULL)
 		col_init(cinfo, edt->session);
 	edt->pi.epan = edt->session;
@@ -430,6 +457,7 @@ dissect_record(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.current_proto = "<Missing Protocol Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd    = fd;
+	edt->pi.file_type_subtype = file_type_subtype;
 	edt->pi.phdr  = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
 	edt->pi.dl_src.type   = AT_NONE;
@@ -456,15 +484,11 @@ dissect_record(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	else if (fd->flags.has_phdr_comment)
 		edt->pi.pkt_comment = phdr->opt_comment;
 
-	if (phdr->rec_type != REC_TYPE_PACKET) {
-		/* XXX = process these */
-	}
-
-	EP_CHECK_CANARY(("before dissecting frame %d",fd->num));
+	EP_CHECK_CANARY(("before dissecting record %d",fd->num));
 
 	TRY {
 		/* Add this tvbuffer into the data_src list */
-		add_new_data_source(&edt->pi, edt->tvb, "Frame");
+		add_new_data_source(&edt->pi, edt->tvb, record_type);
 
 		/* Even though dissect_frame() catches all the exceptions a
 		 * sub-dissector can throw, dissect_frame() itself may throw
@@ -478,11 +502,12 @@ dissect_record(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	}
 	CATCH2(FragmentBoundsError, ReportedBoundsError) {
 		proto_tree_add_protocol_format(edt->tree, proto_malformed, edt->tvb, 0, 0,
-					       "[Malformed Frame: Packet Length]" );
+					       "[Malformed %s: Packet Length]",
+					       record_type);
 	}
 	ENDTRY;
 
-	EP_CHECK_CANARY(("after dissecting frame %d",fd->num));
+	EP_CHECK_CANARY(("after dissecting record %d",fd->num));
 
 	fd->flags.visited = 1;
 }
@@ -499,6 +524,7 @@ dissect_file(epan_dissect_t *edt, struct wtap_pkthdr *phdr,
 	edt->pi.current_proto = "<Missing Filetype Name>";
 	edt->pi.cinfo = cinfo;
 	edt->pi.fd    = fd;
+	edt->pi.file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN; /* not a capture file, so not relevant */
 	edt->pi.phdr  = phdr;
 	edt->pi.pseudo_header = &phdr->pseudo_header;
 	edt->pi.dl_src.type   = AT_NONE;

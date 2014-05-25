@@ -556,7 +556,7 @@ WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame
 /*
  * Dissectors should never modify the record data.
  */
-extern void dissect_record(struct epan_dissect *edt,
+extern void dissect_record(struct epan_dissect *edt, int file_type_subtype,
     struct wtap_pkthdr *phdr, tvbuff_t *tvb,
     frame_data *fd, column_info *cinfo);
 

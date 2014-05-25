@@ -1158,7 +1158,7 @@ packet_list_dissect_and_cache_record(PacketList *packet_list, PacketListRecord *
 	 * XXX - need to catch an OutOfMemoryError exception and
 	 * attempt to recover from it.
 	 */
-	epan_dissect_run(&edt, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
+	epan_dissect_run(&edt, cfile.cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
 
 	if (dissect_color)
 		fdata->color_filter = color_filters_colorize_packet(&edt);
