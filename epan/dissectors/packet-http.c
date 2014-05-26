@@ -2206,8 +2206,8 @@ is_http_request_or_reply(const gchar *data, int linelen, http_type_t *type,
 		if (isHttpRequestOrReply && reqresp_dissector) {
 			*reqresp_dissector = basic_request_dissector;
 
-			stat_info->request_method = wmem_strndup(wmem_packet_scope(), data, indx+1);
-			conv_data->request_method = wmem_strndup(wmem_file_scope(), data, indx+1);
+			stat_info->request_method = wmem_strndup(wmem_packet_scope(), data, indx);
+			conv_data->request_method = wmem_strndup(wmem_file_scope(), data, indx);
 		}
 
 
