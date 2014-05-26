@@ -11203,7 +11203,7 @@ dissect_ric_descriptor(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
   return offset;
 }
 static int
-dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gboolean vs)
+dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gboolean vendorspecific)
 {
   proto_item *ti;
   proto_tree *mcs_tree, *bit_tree;
@@ -11212,7 +11212,7 @@ dissect_mcs_set(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean basic, gbo
   guint16 tx_mcs_set;
   rx_nss = tx_nss = 8;
   /* 16 byte Supported MCS set */
-  if (vs)
+  if (vendorspecific)
   {
     ti = proto_tree_add_string(tree, hf_ieee80211_mcsset_vs, tvb, offset, 16,
       basic ? "Basic MCS Set" : "MCS Set");
@@ -12128,7 +12128,7 @@ dissect_rm_enabled_capabilities_ie(packet_info *pinfo, proto_tree *tree,
 
 static int
 dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                         guint32 tag_len, proto_item *ti_len, gboolean vs)
+                         guint32 tag_len, proto_item *ti_len, gboolean vendorspecific)
 {
   proto_item *cap_item, *ti;
   proto_tree *cap_tree;
@@ -12139,11 +12139,11 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     return offset;
   }
 
-  if (wlan_ignore_draft_ht && vs)
+  if (wlan_ignore_draft_ht && vendorspecific)
     return offset;
 
   /* 2 byte HT Capabilities  Info*/
-  if (vs)
+  if (vendorspecific)
   {
     cap_item = proto_tree_add_item(tree, hf_ieee80211_ht_vs_cap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   }
@@ -12170,7 +12170,7 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   offset += 2;
 
   /* 1 byte A-MPDU Parameters */
-  if (vs)
+  if (vendorspecific)
   {
     cap_item = proto_tree_add_item(tree, hf_ieee80211_ampduparam_vs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   } else
@@ -12185,11 +12185,11 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   offset += 1;
 
   /* 16 byte MCS set */
-  offset = dissect_mcs_set(tree, tvb, offset, FALSE, vs);
+  offset = dissect_mcs_set(tree, tvb, offset, FALSE, vendorspecific);
 
 
   /* 2 byte HT Extended Capabilities */
-  if (vs)
+  if (vendorspecific)
   {
     cap_item = proto_tree_add_item(tree, hf_ieee80211_htex_vs_cap, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   } else {
@@ -12206,7 +12206,7 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 
   /* 4 byte TxBF capabilities */
-  if (vs)
+  if (vendorspecific)
   {
     cap_item = proto_tree_add_item(tree, hf_ieee80211_txbf_vs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   } else {
@@ -12242,7 +12242,7 @@ dissect_ht_capability_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   offset += 1;
 
   /* 1 byte Antenna Selection (ASEL) capabilities */
-  if (vs)
+  if (vendorspecific)
   {
     cap_item = proto_tree_add_item(tree, hf_ieee80211_antsel_vs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   }
