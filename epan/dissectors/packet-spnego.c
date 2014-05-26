@@ -96,16 +96,14 @@ static int hf_spnego_MechTypeList_item = -1;      /* MechType */
 static int hf_spnego_mechTypes = -1;              /* MechTypeList */
 static int hf_spnego_reqFlags = -1;               /* ContextFlags */
 static int hf_spnego_mechToken = -1;              /* T_mechToken */
-static int hf_spnego_mechListMIC = -1;            /* T_mechListMIC */
+static int hf_spnego_mechListMIC = -1;            /* OCTET_STRING */
 static int hf_spnego_hintName = -1;               /* GeneralString */
 static int hf_spnego_hintAddress = -1;            /* OCTET_STRING */
 static int hf_spnego_mechToken_01 = -1;           /* OCTET_STRING */
 static int hf_spnego_negHints = -1;               /* NegHints */
-static int hf_spnego_mechListMIC_01 = -1;         /* OCTET_STRING */
 static int hf_spnego_negResult = -1;              /* T_negResult */
 static int hf_spnego_supportedMech = -1;          /* T_supportedMech */
 static int hf_spnego_responseToken = -1;          /* T_responseToken */
-static int hf_spnego_mechListMIC_02 = -1;         /* T_mechListMIC_01 */
 static int hf_spnego_thisMech = -1;               /* MechType */
 static int hf_spnego_innerContextToken = -1;      /* InnerContextToken */
 /* named bits */
@@ -270,37 +268,15 @@ dissect_spnego_T_mechToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 
-
   return offset;
 }
 
 
 
 static int
-dissect_spnego_T_mechListMIC(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 140 "../../asn1/spnego/spnego.cnf"
-
-  tvbuff_t *mechListMIC_tvb;
-
-
+dissect_spnego_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &mechListMIC_tvb);
-
-
-
-  /*
-   * Now, we should be able to dispatch, if we've gotten a tvbuff for
-   * the MIC and we have information on how to dissect its contents.
-   */
-  if (mechListMIC_tvb && (tvb_reported_length(mechListMIC_tvb) > 0) ){
-    gssapi_oid_value *value=next_level_value;
-
-    if(value){
-      call_dissector(value->handle, mechListMIC_tvb, actx->pinfo, tree);
-    }
-  }
-
-
+                                       NULL);
 
   return offset;
 }
@@ -310,7 +286,7 @@ static const ber_sequence_t NegTokenInit_sequence[] = {
   { &hf_spnego_mechTypes    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_spnego_MechTypeList },
   { &hf_spnego_reqFlags     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_spnego_ContextFlags },
   { &hf_spnego_mechToken    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_spnego_T_mechToken },
-  { &hf_spnego_mechListMIC  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_T_mechListMIC },
+  { &hf_spnego_mechListMIC  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -369,7 +345,7 @@ dissect_spnego_T_negResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 160 "../../asn1/spnego/spnego.cnf"
+#line 135 "../../asn1/spnego/spnego.cnf"
 
   conversation_t *conversation;
 
@@ -398,7 +374,7 @@ dissect_spnego_T_supportedMech(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "../../asn1/spnego/spnego.cnf"
+#line 158 "../../asn1/spnego/spnego.cnf"
 
   tvbuff_t *responseToken_tvb;
 
@@ -424,39 +400,6 @@ dissect_spnego_T_responseToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 
 
-
-  return offset;
-}
-
-
-
-static int
-dissect_spnego_T_mechListMIC_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 210 "../../asn1/spnego/spnego.cnf"
-
-  tvbuff_t *mechListMIC_tvb;
-
-
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       &mechListMIC_tvb);
-
-
-
-  /*
-   * Now, we should be able to dispatch, if we've gotten a tvbuff for
-   * the MIC and we have information on how to dissect its contents.
-   */
-  if (mechListMIC_tvb && (tvb_reported_length(mechListMIC_tvb) > 0) ){
-    gssapi_oid_value *value=next_level_value;
-
-    if(value){
-      call_dissector(value->handle, mechListMIC_tvb, actx->pinfo, tree);
-    }
-  }
-
-
-
-
   return offset;
 }
 
@@ -465,7 +408,7 @@ static const ber_sequence_t NegTokenTarg_sequence[] = {
   { &hf_spnego_negResult    , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_spnego_T_negResult },
   { &hf_spnego_supportedMech, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_spnego_T_supportedMech },
   { &hf_spnego_responseToken, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_spnego_T_responseToken },
-  { &hf_spnego_mechListMIC_02, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_T_mechListMIC_01 },
+  { &hf_spnego_mechListMIC  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -505,16 +448,6 @@ dissect_spnego_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-
-static int
-dissect_spnego_OCTET_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
 static const ber_sequence_t NegHints_sequence[] = {
   { &hf_spnego_hintName     , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL, dissect_spnego_GeneralString },
   { &hf_spnego_hintAddress  , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
@@ -535,7 +468,7 @@ static const ber_sequence_t NegTokenInit2_sequence[] = {
   { &hf_spnego_reqFlags     , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL, dissect_spnego_ContextFlags },
   { &hf_spnego_mechToken_01 , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
   { &hf_spnego_negHints     , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL, dissect_spnego_NegHints },
-  { &hf_spnego_mechListMIC_01, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
+  { &hf_spnego_mechListMIC  , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL, dissect_spnego_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1927,7 +1860,7 @@ void proto_register_spnego(void) {
     { &hf_spnego_mechListMIC,
       { "mechListMIC", "spnego.mechListMIC",
         FT_BYTES, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
+        "OCTET_STRING", HFILL }},
     { &hf_spnego_hintName,
       { "hintName", "spnego.hintName",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1944,10 +1877,6 @@ void proto_register_spnego(void) {
       { "negHints", "spnego.negHints_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_spnego_mechListMIC_01,
-      { "mechListMIC", "spnego.mechListMIC",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
     { &hf_spnego_negResult,
       { "negResult", "spnego.negResult",
         FT_UINT32, BASE_DEC, VALS(spnego_T_negResult_vals), 0,
@@ -1960,10 +1889,6 @@ void proto_register_spnego(void) {
       { "responseToken", "spnego.responseToken",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_spnego_mechListMIC_02,
-      { "mechListMIC", "spnego.mechListMIC",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "T_mechListMIC_01", HFILL }},
     { &hf_spnego_thisMech,
       { "thisMech", "spnego.thisMech",
         FT_OID, BASE_NONE, NULL, 0,
