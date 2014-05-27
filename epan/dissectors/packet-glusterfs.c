@@ -975,11 +975,13 @@ static int
 glusterfs_gfs3_3_op_mkdir_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	const char *name = NULL;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_mode, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_umask, offset);
-	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, NULL);
+	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, &name);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Filename: %s", name);
 
 	return offset;
 }
@@ -1350,12 +1352,14 @@ static int
 glusterfs_gfs3_3_op_create_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	const char *name = NULL;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_mode, offset);
 	offset = glusterfs_rpc_dissect_mode(tree, tvb, hf_glusterfs_umask, offset);
-	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, NULL);
+	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, &name);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+	col_append_fstr(pinfo->cinfo, COL_INFO, ", Filename: %s", name);
 
 	return offset;
 }
@@ -1435,11 +1439,16 @@ static int
 glusterfs_gfs3_3_op_lookup_call(tvbuff_t *tvb, int offset,
 				packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+	const char *name = NULL;
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_gfid, offset);
 	offset = glusterfs_rpc_dissect_gfid(tree, tvb, hf_glusterfs_pargfid, offset);
 	offset = glusterfs_rpc_dissect_flags(tree, tvb, offset);
-	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, NULL);
+	offset = dissect_rpc_string(tvb, tree, hf_glusterfs_bname, offset, &name);
 	offset = gluster_rpc_dissect_dict(tree, tvb, hf_glusterfs_dict, offset);
+	if(!strncmp(name, RPC_STRING_EMPTY, strlen(RPC_STRING_EMPTY)))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Filename: (nameless, by GFID)");
+	else
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", Filename: %s", name);
 
 	return offset;
 }
