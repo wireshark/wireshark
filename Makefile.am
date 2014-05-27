@@ -1009,7 +1009,6 @@ EXTRA_DIST = \
 	cmake/modules/CMakeInstallDirs.cmake	\
 	cmake/modules/COPYING-CMAKE-SCRIPTS	\
 	cmake/modules/CheckCLinkerFlag.cmake	\
-	cmake/modules/FeatureSummary.cmake	\
 	cmake/modules/FindADNS.cmake		\
 	cmake/modules/FindCAP.cmake		\
 	cmake/modules/FindCARES.cmake		\
