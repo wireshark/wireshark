@@ -962,7 +962,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
-         dest_address.data = &connInfo->T2O.ipaddress;
+         dest_address.data = connInfo->T2O.ipaddress.data;
          if ((conversationTO = find_conversation(pinfo->fd->num, &pinfo->src, &dest_address,
                                                 PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
 
