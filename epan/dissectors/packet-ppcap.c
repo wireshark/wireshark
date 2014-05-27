@@ -1,8 +1,6 @@
 /* packet-ppcap.c
  * Copyright 2012, 2014, Ericsson AB
  *
- * $Id: packet-ppcap.c 53971 2013-03-07 19:52:14Z etxrab $
- *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -23,7 +21,6 @@
  *
  */
 
-
 #include "config.h"
 #include <glib.h>
 #include <epan/packet.h>
@@ -34,7 +31,7 @@
 #define INVALID_SSN	0xff
 
 #define PPCAP_REV_DOC_PC1 1
-#define PPCAP_REV_DOC_2014_MAR 2 
+#define PPCAP_REV_DOC_2014_MAR 2
 
 
 static const enum_val_t rev_doc[]  = {
@@ -127,13 +124,13 @@ void proto_reg_handoff_ppcap(void);
 /* PPCAP payload types */
 typedef enum {
 	PPCAP_UNKNOWN = 0,
-	PPCAP_MTP3  = 1,
-	PPCAP_TCAP  = 2,
-	PPCAP_BSSAP = 3,
-	PPCAP_RANAP = 4,
-	PPCAP_H248  = 5,
-	PPCAP_SIP   = 6,
-	PPCAP_SCCP  = 7
+	PPCAP_MTP3    = 1,
+	PPCAP_TCAP    = 2,
+	PPCAP_BSSAP   = 3,
+	PPCAP_RANAP   = 4,
+	PPCAP_H248    = 5,
+	PPCAP_SIP     = 6,
+	PPCAP_SCCP    = 7
 } payload_type_type;
 
 static int dissect_ppcap_payload_type(tvbuff_t *, proto_tree *, int, payload_type_type *);
@@ -196,7 +193,7 @@ dissect_ppcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_ppcap_tcp_sip_msg(tvb,ppcap_tree1, offset);
 			break;
 		case 256:
-			if(global_ppcap_rev_doc == PPCAP_REV_DOC_PC1) 
+			if(global_ppcap_rev_doc == PPCAP_REV_DOC_PC1)
 			offset = dissect_ppcap_info_string(tvb, ppcap_tree1, offset);
 			break;
 		}
@@ -378,13 +375,13 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		mtp3_addr_dpc->pc = (guint32)tvb_get_ntoh24(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-                SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 
 		if (msg_len%4)
 			msg_len = msg_len + (4 - (msg_len%4));
 
-        offset += msg_len-1;
-        return offset;
+		offset += msg_len-1;
+		return offset;
 
 	}
 	else if (key2 == 2)
@@ -396,7 +393,7 @@ dissect_ppcap_destination_address(tvbuff_t *tvb, packet_info * pinfo, proto_tree
 		mtp3_addr_dpc->pc = tvb_get_ntohl(tvb, offset);
 		mtp3_addr_dpc->type = ITU_STANDARD;
 		mtp3_addr_dpc->ni = 0;
-        SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
+		SET_ADDRESS(&pinfo->dst, AT_SS7PC, sizeof(mtp3_addr_pc_t), (guint8 *) mtp3_addr_dpc);
 	}
 	else if (key2 == 3)
 	{
@@ -490,7 +487,7 @@ dissect_ppcap_remote_port(tvbuff_t *tvb,proto_tree * ppcap_tree1, int offset)
 }
 
 /* Dissecting the function TCP SIP Message */
-        
+
 /*
   *******************************************************
   *               TCP SIP MESSAGE                       *
@@ -533,7 +530,7 @@ dissect_ppcap_payload_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree * ppcap
 		msg_len = msg_len +( 4- (msg_len%4));
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	
+
 	switch (payload_type) {
 	case PPCAP_MTP3:
 		call_dissector(mtp3_handle, next_tvb, pinfo, tree);  /* calling the MTP3 handle */
@@ -600,10 +597,10 @@ module_t *ppcap_module;
 	{ &hf_ppcap_ssn,
 	{ "SSN",     "ppcap.ssn",   FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
-       	{ &hf_ppcap_spc,
+	{ &hf_ppcap_spc,
 	{"OPC",     "ppcap.spc",   FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
-       	{ &hf_ppcap_opc,
+	{ &hf_ppcap_opc,
 	{ "OPC",     "ppcap.opc",   FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_source_ip_address1,
@@ -641,7 +638,7 @@ module_t *ppcap_module;
 	{ &hf_ppcap_destination_nodeid,
 	{ "Destination Node ID",         "ppcap.destination_address",    FT_STRING,
 		BASE_NONE,       NULL,   0x00,   NULL,     HFILL}},
-        { &hf_ppcap_info,
+	{ &hf_ppcap_info,
 	{ "Info",         "ppcap.info",    FT_STRING,
 		BASE_NONE,       NULL,   0x0000,   NULL,     HFILL}},
 	{ &hf_ppcap_payload_data,
@@ -687,3 +684,16 @@ void proto_reg_handoff_ppcap(void)
 	sccp_ssn_dissector_table = find_dissector_table("sccp.ssn");
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
