@@ -40,6 +40,7 @@
 #include <epan/packet.h>
 #include <epan/wmem/wmem.h>
 #include <epan/conversation.h>
+#include <epan/dissector_filters.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
 #include <epan/ipv6-utils.h>
@@ -804,10 +805,6 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
    return request_info;
 }
 
-/*
- * Connection management
- */
-
 typedef struct enip_conn_key {
    guint16 ConnSerialNumber;
    guint16 VendorID;
@@ -823,8 +820,9 @@ typedef struct enip_conn_val {
    guint32 O2TConnID;
    guint32 T2OConnID;
    guint8  TransportClass_trigger;
-   guint32 openframe;
-   guint32 closeframe;
+   guint32 open_frame;
+   guint32 open_reply_frame;
+   guint32 close_frame;
    guint32 connid;
    cip_safety_epath_info_t safety;
    gboolean motion;
@@ -835,6 +833,74 @@ typedef struct _enip_conv_info_t {
    wmem_tree_t *T2OConnIDs;
 } enip_conv_info_t;
 
+/*
+ * Conversation filter
+ */
+static gboolean
+enip_io_conv_valid(packet_info *pinfo)
+{
+   enip_conn_val_t* conn = (enip_conn_val_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+
+   if (conn == NULL)
+      return FALSE;
+
+   return (((conn->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 0) ||
+           ((conn->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 1));
+}
+
+static const gchar *
+enip_io_conv_filter(packet_info *pinfo)
+{
+   char      *buf;
+   enip_conn_val_t* conn = (enip_conn_val_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+
+   if (conn == NULL)
+      return NULL;
+
+   buf = g_strdup_printf(
+        "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "    /* Frames between ForwardOpen and ForwardClose */
+        "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
+        "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
+        conn->open_frame, conn->open_reply_frame, conn->close_frame,
+        conn->O2TConnID, conn->T2OConnID,
+        conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   return buf;
+}
+
+static gboolean
+enip_exp_conv_valid(packet_info *pinfo)
+{
+   enip_conn_val_t* conn = (enip_conn_val_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+
+   if (conn == NULL)
+      return FALSE;
+
+   return (((conn->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 2) ||
+           ((conn->TransportClass_trigger & CI_TRANSPORT_CLASS_MASK) == 3));
+}
+
+static const gchar *
+enip_exp_conv_filter(packet_info *pinfo)
+{
+   char      *buf;
+   enip_conn_val_t* conn = (enip_conn_val_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO);
+
+   if (conn == NULL)
+      return NULL;
+
+   buf = g_strdup_printf(
+        "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "    /* Frames between ForwardOpen and ForwardClose */
+        "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
+        "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
+        conn->open_frame, conn->open_reply_frame, conn->close_frame,
+        conn->O2TConnID, conn->T2OConnID,
+        conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   return buf;
+}
+
+/*
+ * Connection management
+ */
 static GHashTable *enip_conn_hashtable = NULL;
 static guint32 enip_unique_connid = 1;
 
@@ -898,8 +964,9 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
       conn_val->TransportClass_trigger = connInfo->TransportClass_trigger;
       conn_val->safety                 = connInfo->safety;
       conn_val->motion                 = connInfo->motion;
-      conn_val->openframe              = pinfo->fd->num;
-      conn_val->closeframe             = 0;
+      conn_val->open_frame             = connInfo->forward_open_frame;
+      conn_val->open_reply_frame       = pinfo->fd->num;
+      conn_val->close_frame            = 0;
       conn_val->connid                 = enip_unique_connid++;
 
       g_hash_table_insert(enip_conn_hashtable, conn_key, conn_val );
@@ -962,7 +1029,7 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
 
          /* Check if separate T->O conversation is necessary.  If either side is multicast
             or ports aren't equal, a separate conversation must be generated */
-         dest_address.data = &connInfo->T2O.ipaddress;
+         dest_address.data = connInfo->T2O.ipaddress.data;
          if ((conversationTO = find_conversation(pinfo->fd->num, &pinfo->src, &dest_address,
                                                 PT_UDP, connInfo->T2O.port, 0, NO_PORT_B)) == NULL) {
 
@@ -1004,6 +1071,10 @@ enip_open_cip_connection( packet_info *pinfo, cip_conn_info_t* connInfo)
          wmem_tree_insert32(enip_info->T2OConnIDs, connInfo->T2O.connID, (void *)conn_val);
       }
    }
+
+   /* Save the connection info for the conversation filter */
+   if (!pinfo->fd->flags.visited)
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
 }
 
 void
@@ -1025,7 +1096,30 @@ enip_close_cip_connection(packet_info *pinfo, guint16 ConnSerialNumber,
    conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, &conn_key );
    if ( conn_val )
    {
-      conn_val->closeframe = pinfo->fd->num;
+      conn_val->close_frame = pinfo->fd->num;
+
+      /* Save the connection info for the conversation filter */
+      if (!pinfo->fd->flags.visited)
+         p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
+   }
+}
+
+/* Save the connection info for the conversation filter */
+void enip_mark_connection_triad( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber )
+{
+   enip_conn_key_t  conn_key;
+   enip_conn_val_t *conn_val;
+
+   conn_key.ConnSerialNumber   = ConnSerialNumber;
+   conn_key.VendorID           = VendorID;
+   conn_key.DeviceSerialNumber = DeviceSerialNumber;
+   conn_key.O2TConnID          = 0;
+   conn_key.T2OConnID          = 0;
+
+   conn_val = (enip_conn_val_t *)g_hash_table_lookup( enip_conn_hashtable, &conn_key );
+   if ( conn_val )
+   {
+      p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_val);
    }
 }
 
@@ -1077,7 +1171,7 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
            break;
    }
 
-   if ((conn_val == NULL ) || (conn_val->openframe > pinfo->fd->num))
+   if ((conn_val == NULL ) || (conn_val->open_reply_frame > pinfo->fd->num))
       return 0;
 
    return conn_val->connid;
@@ -1125,7 +1219,7 @@ enip_get_io_connid(packet_info *pinfo, guint32 connid, enum enip_connid_type* pc
       *pconnid_type = ECIDT_O2T;
    }
 
-   if ((conn_val == NULL) || ( conn_val->openframe > pinfo->fd->num ))
+   if ((conn_val == NULL) || ( conn_val->open_reply_frame > pinfo->fd->num ))
       return NULL;
 
    return conn_val;
@@ -1698,7 +1792,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                /* Call dissector for interface */
                next_tvb = tvb_new_subset( tvb, offset+6, item_length, item_length );
-               p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, 0, request_info);
+               p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
                if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_srrd_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                {
                   /* Show the undissected payload */
@@ -1726,7 +1820,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                }
                else
                {
-                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                }
                break;
 
@@ -1753,14 +1847,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                   /* Call dissector for interface */
                   next_tvb = tvb_new_subset (tvb, offset+8, item_length-2, item_length-2);
-                  p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, 0, request_info);
+                  p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO, request_info);
                   if ( tvb_length_remaining(next_tvb, 0) <= 0 || !dissector_try_uint(subdissector_sud_table, ifacehndl, next_tvb, pinfo, dissector_tree) )
                   {
                      /* Show the undissected payload */
                       if ( tvb_length_remaining(tvb, offset) > 0 )
                         call_dissector( data_handle, next_tvb, pinfo, dissector_tree );
                   }
-                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+                  p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                }
                else
                {
@@ -1812,6 +1906,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                             proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6+(item_length-io_length), io_length, ENC_NA);
                          }
+
+                         /* Save the connection info for the conversation filter */
+                         if (!pinfo->fd->flags.visited)
+                            p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
                       }
                       else
                       {
@@ -1922,7 +2020,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                if ((FwdOpen == TRUE) || (FwdOpenReply == TRUE))
                {
-                  request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+                  request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
                   if (request_info != NULL)
                   {
                      if (item == SOCK_ADR_INFO_OT)
@@ -1992,16 +2090,16 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
    /* See if there is a CIP connection to establish */
    if (FwdOpenReply == TRUE)
    {
-      request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+      request_info = (enip_request_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
       if (request_info != NULL)
       {
          enip_open_cip_connection(pinfo, request_info->cip_info->connInfo);
       }
-      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
    }
    else if (FwdOpen == TRUE)
    {
-      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+      p_remove_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
    }
 
 } /* end of dissect_cpf() */
@@ -3602,6 +3700,9 @@ proto_register_enip(void)
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
+
+   register_dissector_filter("ENIP IO", enip_io_conv_valid, enip_io_conv_filter);
+   register_dissector_filter("ENIP Explicit", enip_exp_conv_valid, enip_exp_conv_filter);
 
 } /* end of proto_register_enip() */
 

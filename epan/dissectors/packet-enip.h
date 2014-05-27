@@ -105,7 +105,12 @@ typedef struct {
 
 enum enip_connid_type {ECIDT_UNKNOWN, ECIDT_O2T, ECIDT_T2O};
 
+/* proto_data types */
+#define ENIP_REQUEST_INFO     0
+#define ENIP_CONNECTION_INFO  1
+
 void enip_close_cip_connection( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
+void enip_mark_connection_triad( packet_info *pinfo, guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
 
 extern attribute_info_t enip_attribute_vals[45];
 

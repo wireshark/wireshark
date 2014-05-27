@@ -4944,23 +4944,30 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
    dissect_epath( tvb, pinfo, pi, offset+26+net_param_offset+6, conn_path_size, FALSE, FALSE, &connection_path, &safety_fwdopen);
 
    if (pinfo->fd->flags.visited)
-      return;
-
-   if (preq_info != NULL)
    {
-      DISSECTOR_ASSERT(preq_info->connInfo == NULL);
-      preq_info->connInfo = wmem_new0(wmem_file_scope(), cip_conn_info_t);
+       /* "Connection" is created during ForwardOpen reply (which will be after ForwardOpen request),
+          so ForwardOpen request can only be marked after the first pass */
+       enip_mark_connection_triad(pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber);
+   }
+   else
+   {
+      if (preq_info != NULL)
+      {
+         DISSECTOR_ASSERT(preq_info->connInfo == NULL);
+         preq_info->connInfo = wmem_new0(wmem_file_scope(), cip_conn_info_t);
 
-      preq_info->connInfo->ConnSerialNumber = ConnSerialNumber;
-      preq_info->connInfo->VendorID = VendorID;
-      preq_info->connInfo->DeviceSerialNumber = DeviceSerialNumber;
-      preq_info->connInfo->O2T.connID = O2TConnID;
-      preq_info->connInfo->T2O.connID = T2OConnID;
-      preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
-      preq_info->connInfo->T2O.type = T2OType;
-      preq_info->connInfo->O2T.type = O2TType;
-      preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
-      preq_info->connInfo->safety = safety_fwdopen;
+         preq_info->connInfo->ConnSerialNumber = ConnSerialNumber;
+         preq_info->connInfo->VendorID = VendorID;
+         preq_info->connInfo->DeviceSerialNumber = DeviceSerialNumber;
+         preq_info->connInfo->forward_open_frame = pinfo->fd->num;
+         preq_info->connInfo->O2T.connID = O2TConnID;
+         preq_info->connInfo->T2O.connID = T2OConnID;
+         preq_info->connInfo->TransportClass_trigger = TransportClass_trigger;
+         preq_info->connInfo->T2O.type = T2OType;
+         preq_info->connInfo->O2T.type = O2TType;
+         preq_info->connInfo->motion = (connection_path.iClass == 0x42) ? TRUE : FALSE;
+         preq_info->connInfo->safety = safety_fwdopen;
+      }
    }
 }
 
@@ -5383,8 +5390,14 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 
             dissect_cip_cm_timeout( cmd_data_tree, tvb, offset+2+req_path_size);
             proto_tree_add_item( cmd_data_tree, hf_cip_cm_conn_serial_num, tvb, offset+2+req_path_size+2, 2, ENC_LITTLE_ENDIAN);
+            ConnSerialNumber = tvb_get_letohs( tvb, offset+2+req_path_size+2);
             proto_tree_add_item( cmd_data_tree, hf_cip_cm_vendor, tvb, offset+2+req_path_size+4, 2, ENC_LITTLE_ENDIAN);
+            VendorID = tvb_get_letohs( tvb, offset+2+req_path_size+4 );
             proto_tree_add_item( cmd_data_tree, hf_cip_cm_orig_serial_num, tvb, offset+2+req_path_size+6, 4, ENC_LITTLE_ENDIAN);
+            DeviceSerialNumber = tvb_get_letohl( tvb, offset+2+req_path_size+6 );
+
+            if (!pinfo->fd->flags.visited)
+               enip_mark_connection_triad(pinfo, ConnSerialNumber, VendorID, DeviceSerialNumber);
 
             /* Add the path size */
             conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+10 )*2;
@@ -5804,7 +5817,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
    /* Connection Name */
    connection_name_size = tvb_get_guint8( tvb, offset+variable_data_size);
-   str_connection_name = tvb_get_string(wmem_packet_scope(), tvb, offset+variable_data_size+2, connection_name_size);
+   str_connection_name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset+variable_data_size+2, connection_name_size, ENC_ASCII);
    proto_tree_add_text(cmd_tree, tvb, offset+variable_data_size, connection_name_size+2, "Connection Name: %s", str_connection_name);
 
    variable_data_size += ((connection_name_size*2)+2);
@@ -6349,7 +6362,7 @@ dissect_cip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    col_clear(pinfo->cinfo, COL_INFO);
 
    /* Each CIP request received by ENIP gets a unique ID */
-   enip_info = (enip_request_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, 0);
+   enip_info = (enip_request_info_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_REQUEST_INFO);
 
    if ( enip_info )
    {

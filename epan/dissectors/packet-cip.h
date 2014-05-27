@@ -288,6 +288,7 @@ typedef struct cip_conn_info {
    guint16                 ConnSerialNumber;
    guint16                 VendorID;
    guint32                 DeviceSerialNumber;
+   guint32                 forward_open_frame;
    cip_connID_info_t       O2T;
    cip_connID_info_t       T2O;
    guint8                  TransportClass_trigger;
