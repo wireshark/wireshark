@@ -614,9 +614,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 
         header_str = unfold_and_compact_mime_header(hdr_str, &colon_offset);
         if (colon_offset <= 0) {
-           proto_tree_add_text(subtree, tvb, offset, next_offset - offset,
-                 "%s",
-                 tvb_format_text(tvb, offset, next_offset - offset));
+           proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
         } else {
             gint hf_index;
 
@@ -625,10 +623,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
             hf_index = is_known_multipart_header(header_str, colon_offset);
 
             if (hf_index == -1) {
-               proto_tree_add_text(subtree, tvb, offset,
-                     next_offset - offset,
-                     "%s",
-                     tvb_format_text(tvb, offset, next_offset - offset));
+               proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
             } else {
                 char *value_str = header_str + colon_offset + 1;
 
