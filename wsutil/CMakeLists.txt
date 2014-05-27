@@ -11,7 +11,7 @@
 #
 # This program is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
 # GNU General Public License for more details.
 #
 # You should have received a copy of the GNU General Public License
@@ -22,79 +22,79 @@
 include(UseABICheck)
 
 IF(WIN32)
-  set(WSUTIL_PLATFORM_FILES
-    file_util.c
-    inet_aton.c
-    inet_ntop.c
-    inet_pton.c
-    strptime.c
-    wsgetopt.c
-  )
+	set(WSUTIL_PLATFORM_FILES
+		file_util.c
+		inet_aton.c
+		inet_ntop.c
+		inet_pton.c
+		strptime.c
+		wsgetopt.c
+	)
 ENDIF(WIN32)
 
 set(WSUTIL_FILES
-  adler32.c
-  aes.c
-  airpdcap_wep.c
-  base64.c
-  bitswap.c
-  crash_info.c
-  crc10.c
-  crc16.c
-  crc16-plain.c
-  crc32.c
-  crc6.c
-  crc7.c
-  crc8.c
-  crc11.c
-  crcdrm.c
-  des.c
-  eax.c
-  filesystem.c
-  g711.c
-  md4.c
-  md5.c
-  mpeg-audio.c
-  nstime.c
-  plugins.c
-  privileges.c
-  sha1.c
-  strnatcmp.c
-  str_util.c
-  rc4.c
-  report_err.c
-  tempfile.c
-  time_util.c
-  type_util.c
-  u3.c
-  unicode-utils.c
-  ${WSUTIL_PLATFORM_FILES}
+	adler32.c
+	aes.c
+	airpdcap_wep.c
+	base64.c
+	bitswap.c
+	crash_info.c
+	crc10.c
+	crc16.c
+	crc16-plain.c
+	crc32.c
+	crc6.c
+	crc7.c
+	crc8.c
+	crc11.c
+	crcdrm.c
+	des.c
+	eax.c
+	filesystem.c
+	g711.c
+	md4.c
+	md5.c
+	mpeg-audio.c
+	nstime.c
+	plugins.c
+	privileges.c
+	sha1.c
+	strnatcmp.c
+	str_util.c
+	rc4.c
+	report_err.c
+	tempfile.c
+	time_util.c
+	type_util.c
+	u3.c
+	unicode-utils.c
+	${WSUTIL_PLATFORM_FILES}
 )
 
 set(wsutil_LIBS
-  ${GMODULE2_LIBRARIES}
-  ${GLIB2_LIBRARIES}
-  ${GCRYPT_LIBRARIES}
-  ${WIN_WSOCK32_LIBRARY}
+	${GMODULE2_LIBRARIES}
+	${GLIB2_LIBRARIES}
+	${GCRYPT_LIBRARIES}
+	${WIN_WSOCK32_LIBRARY}
 )
 IF(WIN32)
-  set(wsutil_LIBS ${wsutil_LIBS} "ws2_32.lib")
+	set(wsutil_LIBS ${wsutil_LIBS} "ws2_32.lib")
 ENDIF(WIN32)
 
 set(CLEAN_FILES
-  ${WSUTIL_FILES}
+	${WSUTIL_FILES}
 )
 
 if (WERROR)
-  set_source_files_properties(
-    ${CLEAN_FILES}
-    PROPERTIES
-    COMPILE_FLAGS -Werror
-  )
+	set_source_files_properties(
+		${CLEAN_FILES}
+		PROPERTIES
+		COMPILE_FLAGS -Werror
+	)
 endif()
 
 add_library(wsutil ${LINK_MODE_LIB}
-  ${WSUTIL_FILES}
+	${WSUTIL_FILES}
 )
 
 set(FULL_SO_VERSION "0.0.0")
