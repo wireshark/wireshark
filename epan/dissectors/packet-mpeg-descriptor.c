@@ -748,13 +748,13 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 1000.0f +
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 100000.f;
     proto_tree_add_float_format_value(tree, hf_mpeg_descr_satellite_delivery_frequency,
-            tvb, offset, 4, frequency, "Frequency: %f GHz", frequency);
+            tvb, offset, 4, frequency, "%f GHz", frequency);
     offset += 4;
 
     orbital_position = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset)) * 10.0f +
                        MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1)) / 10.0f;
     proto_tree_add_float_format_value(tree, hf_mpeg_descr_satellite_delivery_orbital_position,
-            tvb, offset, 2, orbital_position, "Orbital Position: %f degrees", orbital_position);
+            tvb, offset, 2, orbital_position, "%f degrees", orbital_position);
     offset += 2;
 
     modulation_system = tvb_get_guint8(tvb, offset) & MPEG_DESCR_SATELLITE_DELIVERY_MODULATION_SYSTEM_MASK;
@@ -775,7 +775,7 @@ proto_mpeg_descriptor_dissect_satellite_delivery(tvbuff_t *tvb, guint offset, pr
                   /* symbol rate is 28 bits, only the upper 4 bits of this byte are used */
                   MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)>>4) / 10000.0f;
     proto_tree_add_float_format_value(tree, hf_mpeg_descr_satellite_delivery_symbol_rate,
-            tvb, offset, 4, symbol_rate, "Symbol rate: %3.4f MSym/s", symbol_rate);
+            tvb, offset, 4, symbol_rate, "%3.4f MSym/s", symbol_rate);
     offset += 3;
 
     proto_tree_add_item(tree, hf_mpeg_descr_satellite_delivery_fec_inner, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -840,7 +840,7 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+2)) / 100.0f +
                 MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)) / 10000.f;
     proto_tree_add_float_format_value(tree, hf_mpeg_descr_cable_delivery_frequency,
-            tvb, offset, 4, frequency, "Frequency: %4.4f MHz", frequency);
+            tvb, offset, 4, frequency, "%4.4f MHz", frequency);
     offset += 4;
 
     proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -856,7 +856,7 @@ proto_mpeg_descriptor_dissect_cable_delivery(tvbuff_t *tvb, guint offset, proto_
                   /* symbol rate is 28 bits, only the upper 4 bits of this byte are used */
                   MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+3)>>4) / 10000.0f;
     proto_tree_add_float_format_value(tree, hf_mpeg_descr_cable_delivery_symbol_rate,
-            tvb, offset, 4, symbol_rate, "Symbol rate: %3.4f KSymbol/s", symbol_rate);
+            tvb, offset, 4, symbol_rate, "%3.4f KSymbol/s", symbol_rate);
     offset += 3;
     proto_tree_add_item(tree, hf_mpeg_descr_cable_delivery_fec_inner, tvb, offset, 1, ENC_BIG_ENDIAN);
 
