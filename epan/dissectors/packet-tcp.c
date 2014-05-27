@@ -4134,7 +4134,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     struct tcp_per_packet_data_t *tcppd=NULL;
     proto_item *item;
     proto_tree *checksum_tree;
-	gchar *src_port_str, *dst_port_str;
+    gchar *src_port_str, *dst_port_str;
 
     tcph=wmem_new(wmem_packet_scope(), struct tcpheader);
     SET_ADDRESS(&tcph->ip_src, pinfo->src.type, pinfo->src.len, pinfo->src.data);
@@ -4148,8 +4148,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
     tcph->th_dport = tvb_get_ntohs(tvb, offset + 2);
 
-	src_port_str = ep_tcp_port_to_display(tcph->th_sport);
-	dst_port_str = ep_tcp_port_to_display(tcph->th_dport);
+    src_port_str = ep_tcp_port_to_display(tcph->th_sport);
+    dst_port_str = ep_tcp_port_to_display(tcph->th_dport);
     col_add_lstr(pinfo->cinfo, COL_INFO,
         src_port_str,
         "\xe2\x86\x92", /* UTF8_RIGHTWARDS_ARROW */
@@ -4250,7 +4250,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tcp_calculate_ts) {
         tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, 0);
 
-        /*
+        /*https://raw.githubusercontent.com/FreeRADIUS/freeradius-server/master/.travis.yml
          * Calculate the timestamps relative to this conversation (but only on the
          * first run when frames are accessed sequentially)
          */
