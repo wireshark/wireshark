@@ -241,6 +241,9 @@ static int hf_ieee_802_1qbg_evb_configure_caps_rr = -1;
 static int hf_ieee_802_1qbg_evb_configure_caps_rte = -1;
 static int hf_ieee_802_1qbg_evb_configure_caps_ecp = -1;
 static int hf_ieee_802_1qbg_evb_configure_caps_vdp = -1;
+static int hf_ieee_802_1qbg_evb_supported_vsi = -1;
+static int hf_ieee_802_1qbg_evb_configured_vsi = -1;
+static int hf_ieee_802_1qbg_evb_retrans_timer = -1;
 static int hf_media_tlv_subtype = -1;
 static int hf_media_tlv_subtype_caps = -1;
 static int hf_media_tlv_subtype_caps_llpd = -1;
@@ -2037,8 +2040,6 @@ static void
 dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint8 subType;
-	guint8 tempByte;
-	guint16 tempShort;
 	guint32 tempOffset = offset;
 
 	proto_tree *evb_capabilities_subtree = NULL;
@@ -2080,23 +2081,20 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 			tempOffset += 2;
 
-			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree) {
-				proto_tree_add_text(tree, tvb, tempOffset, 2, "supported no. of VSIs: %04u", tempShort);
+				proto_tree_add_item(tree, hf_ieee_802_1qbg_evb_supported_vsi, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 			}
 
 			tempOffset += 2;
 
-			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree) {
-				proto_tree_add_text(tree, tvb, tempOffset, 2, "configured no. of VSIs: %04u", tempShort);
+				proto_tree_add_item(tree, hf_ieee_802_1qbg_evb_configured_vsi, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 			}
 
 			tempOffset += 2;
 
-			tempByte= tvb_get_guint8(tvb, tempOffset);
 			if (tree) {
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "retransmission timer exponent: %02u", tempByte);
+				proto_tree_add_item(tree, hf_ieee_802_1qbg_evb_retrans_timer, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 			}
 
 			break;
@@ -4127,6 +4125,18 @@ proto_register_lldp(void)
 		{ &hf_ieee_802_1qbg_evb_configure_caps_vdp,
 			{ "VSI discovery protocol (VDP)", "lldp.ieee.802_1qbg.evb_configure_caps.vdp", FT_BOOLEAN, 16,
 			TFS(&tfs_capable_not_capable), EVB_CAPA_VDP, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_supported_vsi,
+			{ "Supported No of VSIs", "lldp.ieee.802_1qbg.evb_supported_vsi", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_configured_vsi,
+			{ "Configured No of VSIs", "lldp.ieee.802_1qbg.evb_configured_vsi", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ieee_802_1qbg_evb_retrans_timer,
+			{ "Retransmission timer exponent", "lldp.ieee.802_1qbg.evb_retrans_timer", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_tlv_subtype,
 			{ "Media Subtype",	"lldp.media.subtype", FT_UINT8, BASE_HEX,
