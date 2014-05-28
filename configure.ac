@@ -2680,7 +2680,7 @@ then
   AC_DEFINE(HAVE_PLUGINS, 1, [Define if plugins are enabled])
 fi
 AC_SUBST(plugindir)
-CPPFLAGS="$CPPFLAGS '-DPLUGIN_DIR=\"\$(plugindir)\"'"
+CPPFLAGS="$CPPFLAGS '-DPLUGIN_INSTALL_DIR=\"\$(plugindir)\"'"
 
 #
 # The plugin dissectors reside in ./plugins/PROTO/

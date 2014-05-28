@@ -1069,7 +1069,7 @@ get_wspython_dir(void)
  *
  * On Windows, we use the "plugin" subdirectory of the datafile directory.
  *
- * On UN*X, we use the PLUGIN_DIR value supplied by the configure
+ * On UN*X, we use the PLUGIN_INSTALL_DIR value supplied by the configure
  * script, unless we think we're being run from the build directory,
  * in which case we use the "plugin" subdirectory of the datafile directory.
  *
@@ -1153,7 +1153,7 @@ init_plugin_dir(void)
         }
 #endif
         else {
-            plugin_dir = PLUGIN_DIR;
+            plugin_dir = PLUGIN_INSTALL_DIR;
         }
     }
 #endif
