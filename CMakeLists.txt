@@ -21,8 +21,7 @@
 
 project(Wireshark C CXX)
 
-cmake_minimum_required(VERSION 2.6)
-set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
+cmake_minimum_required(VERSION 2.8.3)
 
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
 # Policy since 2.6.1
