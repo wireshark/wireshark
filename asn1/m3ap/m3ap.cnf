@@ -139,7 +139,7 @@ ProtocolIE-Field/value ie_field_value
     return offset;
 
   tvb_len = tvb_length(parameter_tvb);
-  proto_tree_add_item(tree, hf_m3ap_IPAddress, parameter_tvb, 0, tvb_len, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_m3ap_IPAddress, parameter_tvb, 0, tvb_len, ENC_NA);
 #.END
 
 #.FN_BODY Absolute-Time-ofMBMS-Data VAL_PTR = &parameter_tvb
