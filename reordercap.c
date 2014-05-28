@@ -204,8 +204,6 @@ int main(int argc, char *argv[])
         exit(1);
     }
 
-    init_open_routines();
-
     /* Open infile */
     /* TODO: if reordercap is ever changed to give the user a choice of which
        open_routine reader to use, then the following needs to change. */

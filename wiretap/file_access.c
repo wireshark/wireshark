@@ -683,6 +683,8 @@ wtap* wtap_open_offline(const char *filename, unsigned int type, int *err, char 
 	gboolean use_stdin = FALSE;
 	gchar *extension;
 
+	init_open_routines();
+
 	/* open standard input if filename is '-' */
 	if (strcmp(filename, "-") == 0)
 		use_stdin = TRUE;
