@@ -140,8 +140,6 @@ static gboolean krb_desegment = TRUE;
 
 static gint proto_kerberos = -1;
 
-static const true_false_string bitval = { "Set", "Not set" };
-
 static gint hf_krb_rm_reserved = -1;
 static gint hf_krb_rm_reclen = -1;
 static gint hf_krb_provsrv_location = -1;
@@ -330,7 +328,7 @@ static int hf_kerberos_KDCOptions_renew = -1;
 static int hf_kerberos_KDCOptions_validate = -1;
 
 /*--- End of included file: packet-kerberos-hf.c ---*/
-#line 157 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 155 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_kerberos = -1;
@@ -394,7 +392,7 @@ static gint ett_kerberos_KERB_PA_PAC_REQUEST = -1;
 static gint ett_kerberos_ChangePasswdData = -1;
 
 /*--- End of included file: packet-kerberos-ett.c ---*/
-#line 163 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 161 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static expert_field ei_kerberos_decrypted_keytype = EI_INIT;
 
@@ -421,7 +419,7 @@ static gboolean gbl_do_col_info;
 #define KERBEROS_ADDR_TYPE_IPV6  24
 
 /*--- End of included file: packet-kerberos-val.h ---*/
-#line 174 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 172 "../../asn1/kerberos/packet-kerberos-template.c"
 
 static void
 call_kerberos_callbacks(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int tag, kerberos_callbacks *cb)
@@ -3920,7 +3918,7 @@ dissect_kerberos_ChangePasswdData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1663 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1661 "../../asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -4163,7 +4161,7 @@ void proto_register_kerberos(void) {
 	static hf_register_info hf[] = {
 	{ &hf_krb_rm_reserved, {
 		"Reserved", "kerberos.rm.reserved", FT_BOOLEAN, 32,
-		TFS(&bitval), KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
+		TFS(&tfs_set_notset), KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
 	{ &hf_krb_rm_reclen, {
 		"Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
 		NULL, KRB_RM_RECLEN, NULL, HFILL }},
@@ -4876,7 +4874,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 1962 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1960 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   /* List of subtrees */
@@ -4941,7 +4939,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_ChangePasswdData,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 1969 "../../asn1/kerberos/packet-kerberos-template.c"
+#line 1967 "../../asn1/kerberos/packet-kerberos-template.c"
   };
 
   static ei_register_info ei[] = {

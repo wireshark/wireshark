@@ -132,8 +132,6 @@ static gboolean krb_desegment = TRUE;
 
 static gint proto_kerberos = -1;
 
-static const true_false_string bitval = { "Set", "Not set" };
-
 static gint hf_krb_rm_reserved = -1;
 static gint hf_krb_rm_reclen = -1;
 static gint hf_krb_provsrv_location = -1;
@@ -1902,7 +1900,7 @@ void proto_register_kerberos(void) {
 	static hf_register_info hf[] = {
 	{ &hf_krb_rm_reserved, {
 		"Reserved", "kerberos.rm.reserved", FT_BOOLEAN, 32,
-		TFS(&bitval), KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
+		TFS(&tfs_set_notset), KRB_RM_RESERVED, "Record mark reserved bit", HFILL }},
 	{ &hf_krb_rm_reclen, {
 		"Record Length", "kerberos.rm.length", FT_UINT32, BASE_DEC,
 		NULL, KRB_RM_RECLEN, NULL, HFILL }},
