@@ -143,7 +143,8 @@ static uat_field_t io_graph_fields[] = {
     UAT_END_FIELDS
 };
 
-static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t len _U_) {
+static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t len) {
+    Q_UNUSED(len);
     io_graph_settings_t* dst = (io_graph_settings_t *)dst_ptr;
     const io_graph_settings_t* src = (const io_graph_settings_t *)src_ptr;
 
