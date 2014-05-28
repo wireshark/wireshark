@@ -31,7 +31,6 @@
 #include <QWidget>
 #include <QDir>
 #include <QFileDialog>
-#include <QIcon>
 #include <QPushButton>
 
 //#include <QDebug>
