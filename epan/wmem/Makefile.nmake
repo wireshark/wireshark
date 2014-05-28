@@ -39,7 +39,7 @@ wmem_test.exe: $(WMEM_TEST_OBJ) $(WMEM_TEST_LIBS)
 
 wmem_test_install:
 	set copycmd=/y
-	if exist wmem_test.exe          xcopy wmem_test.exe          ..\..\$(INSTALL_DIR) /d
+	if exist wmem_test.exe	xcopy wmem_test.exe	..\..\$(INSTALL_DIR) /d
 
 checkapi:
 	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \

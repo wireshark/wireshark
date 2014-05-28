@@ -110,7 +110,7 @@ libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
 libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
+		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib psapi.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
@@ -121,7 +121,7 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem 
 		$(EXTRA_OBJECTS)
 
 libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter wmem $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem/wmem.lib $(WSLUA_LIB) $(WSPYTHON_LIB) dissectors\dissectors.lib
+		crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib wmem\wmem.lib $(WSLUA_LIB) $(WSPYTHON_LIB) dissectors\dissectors.lib
 	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
@@ -364,15 +364,15 @@ exntest_install:
 
 tvbtest_install:
 	set copycmd=/y
-	if exist tvbtest.exe          xcopy tvbtest.exe          ..\$(INSTALL_DIR) /d
+	if exist tvbtest.exe	xcopy tvbtest.exe	..\$(INSTALL_DIR) /d
 
 oids_test_install:
 	set copycmd=/y
-	if exist oids_test.exe          xcopy oids_test.exe          ..\$(INSTALL_DIR) /d
+	if exist oids_test.exe	xcopy oids_test.exe	..\$(INSTALL_DIR) /d
 
 reassemble_test_install:
 	set copycmd=/y
-	if exist reassemble_test.exe          xcopy reassemble_test.exe          ..\$(INSTALL_DIR) /d
+	if exist reassemble_test.exe	xcopy reassemble_test.exe	..\$(INSTALL_DIR) /d
 
 
 #
@@ -449,3 +449,16 @@ ps.c: ..\tools\rdps.py print.ps
 
 checkapi:
 	$(PERL) ../tools/checkAPIs.pl -g termoutput -build $(LIBWIRESHARK_SRC)
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#
