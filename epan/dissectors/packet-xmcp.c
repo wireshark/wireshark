@@ -1257,7 +1257,7 @@ proto_register_xmcp(void)
     },
     { &xmcp_attr_service_protocol,
       { "Protocol",             "xmcp.attr.service.transport.protocol",
-        FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext),
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext,
         0x0, NULL, HFILL }
     },
     { &xmcp_attr_flag,

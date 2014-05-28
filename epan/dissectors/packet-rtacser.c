@@ -300,7 +300,7 @@ proto_register_rtacser(void)
         { &hf_rtacser_timestamp,
         { "Timestamp", "rtacser.timestamp", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_rtacser_event_type,
-        { "Event Type", "rtacser.eventtype", FT_UINT8, BASE_HEX, rtacser_eventtype_vals, 0x0, NULL, HFILL }},
+        { "Event Type", "rtacser.eventtype", FT_UINT8, BASE_HEX, VALS(rtacser_eventtype_vals), 0x0, NULL, HFILL }},
         { &hf_rtacser_ctrl_cts,
         { "CTS", "rtacser.cts", FT_UINT8, BASE_DEC, NULL, RTACSER_CTRL_CTS, NULL, HFILL }},
         { &hf_rtacser_ctrl_dcd,

@@ -3905,12 +3905,12 @@ dissect_rsl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         ti = proto_tree_add_item(tree, proto_rsl, tvb, 0, -1, ENC_NA);
 
         /* if nanoBTS specific vendor messages are not enabled, skip */
-	if (!global_rsl_use_nano_bts) {
+        if (!global_rsl_use_nano_bts) {
             guint8 msg_disc = tvb_get_guint8(tvb, offset) >> 1;
 
             if (msg_disc == RSL_MSGDISC_IPACCESS)
                 return 0;
-	}
+        }
         rsl_tree = proto_item_add_subtree(ti, ett_rsl);
 
         /* 9.1 Message discriminator */
@@ -3970,7 +3970,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_delay_ind,
           { "Delay IND",  "gsm_abis_rsl.delay_ind",
-            FT_UINT8, BASE_DEC, rsl_delay_ind_vals, 0x01,
+            FT_UINT8, BASE_DEC, VALS(rsl_delay_ind_vals), 0x01,
             NULL, HFILL }
         },
         { &hf_rsl_tfo,
@@ -4288,11 +4288,11 @@ void proto_register_rsl(void)
             0xf0, NULL, HFILL }
         },
         { &hf_rsl_conn_id,
-          { "ip.access Connection ID",	"gsm_abis_rsl.ipacc.conn_id",
+          { "ip.access Connection ID", "gsm_abis_rsl.ipacc.conn_id",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_rsl_rtp_payload,
-          { "ip.access RTP Payload Type",	"gsm_abis_rsl.ipacc.rtp_payload",
+          { "ip.access RTP Payload Type", "gsm_abis_rsl.ipacc.rtp_payload",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
         { &hf_rsl_rtp_csd_fmt_d,
@@ -4306,7 +4306,7 @@ void proto_register_rsl(void)
             0xf0, NULL, HFILL },
         },
         { &hf_rsl_local_port,
-          { "ip.access Local RTP Port",	"gsm_abis_rsl.ipacc.local_port",
+          { "ip.access Local RTP Port", "gsm_abis_rsl.ipacc.local_port",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
         },
         { &hf_rsl_remote_port,
@@ -4524,3 +4524,16 @@ proto_reg_handoff_rsl(void)
     gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
     gsm_a_sacch_handle = find_dissector("gsm_a_sacch");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

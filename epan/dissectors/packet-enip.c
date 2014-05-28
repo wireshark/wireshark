@@ -2783,7 +2783,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_status_interface_config,
         { "Interface Configuration Status", "cip.tcpip.status.interface_config",
-          FT_UINT32, BASE_DEC, enip_tcpip_status_interface_config_vals, 0x0000000F,
+          FT_UINT32, BASE_DEC, VALS(enip_tcpip_status_interface_config_vals), 0x0000000F,
           NULL, HFILL }},
 
       { &hf_tcpip_status_mcast_pending,
@@ -2798,7 +2798,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_status_acd,
         { "ACD Status", "cip.tcpip.status.acd",
-          FT_UINT32, BASE_DEC, enip_tcpip_status_acd_vals, 0x00000040,
+          FT_UINT32, BASE_DEC, VALS(enip_tcpip_status_acd_vals), 0x00000040,
           NULL, HFILL }},
 
       { &hf_tcpip_status_reserved,
@@ -2863,7 +2863,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_config_control_config,
         { "Configuration Method", "cip.tcpip.config_control.config",
-          FT_UINT32, BASE_DEC, enip_tcpip_config_control_config_vals, 0x0000000F,
+          FT_UINT32, BASE_DEC, VALS(enip_tcpip_config_control_config_vals), 0x0000000F,
           NULL, HFILL }},
 
       { &hf_tcpip_config_control_dns,
@@ -2923,7 +2923,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_mcast_alloc,
         { "Alloc Control", "cip.tcpip.mcast.alloc",
-          FT_UINT8, BASE_DEC, enip_tcpip_mcast_alloc_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_tcpip_mcast_alloc_vals), 0,
           NULL, HFILL }},
 
       { &hf_tcpip_mcast_reserved,
@@ -2948,7 +2948,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_lcd_acd_activity,
         { "ACD Activity", "cip.tcpip.last_conflict.acd_activity",
-          FT_UINT8, BASE_DEC, enip_tcpip_acd_activity_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_tcpip_acd_activity_vals), 0,
           NULL, HFILL }},
 
       { &hf_tcpip_lcd_remote_mac,
@@ -2984,22 +2984,22 @@ proto_register_enip(void)
 
       { &hf_elink_iflags_duplex,
         { "Duplex", "cip.elink.iflags.duplex",
-          FT_UINT32, BASE_DEC, enip_elink_duplex_vals, 0x00000002,
+          FT_UINT32, BASE_DEC, VALS(enip_elink_duplex_vals), 0x00000002,
           NULL, HFILL }},
 
       { &hf_elink_iflags_neg_status,
         { "Negotiation Status", "cip.elink.iflags.neg_status",
-          FT_UINT32, BASE_DEC, enip_elink_iflags_neg_status_vals, 0x0000001C,
+          FT_UINT32, BASE_DEC, VALS(enip_elink_iflags_neg_status_vals), 0x0000001C,
           NULL, HFILL }},
 
       { &hf_elink_iflags_manual_reset,
         { "Manual Reset Required", "cip.elink.iflags.manual_reset",
-          FT_UINT32, BASE_DEC, enip_elink_iflags_reset_vals, 0x00000020,
+          FT_UINT32, BASE_DEC, VALS(enip_elink_iflags_reset_vals), 0x00000020,
           NULL, HFILL }},
 
       { &hf_elink_iflags_local_hw_fault,
         { "Local Hardware Fault", "cip.elink.iflags.local_hw_fault",
-          FT_UINT32, BASE_DEC, enip_elink_iflags_hw_fault_vals, 0x00000040,
+          FT_UINT32, BASE_DEC, VALS(enip_elink_iflags_hw_fault_vals), 0x00000040,
           NULL, HFILL }},
 
       { &hf_elink_iflags_reserved,
@@ -3139,7 +3139,7 @@ proto_register_enip(void)
 
       { &hf_elink_icontrol_control_bits_forced_duplex,
         { "Forced Duplex Mode", "cip.elink.icontrol.control_bits.forced_duplex",
-          FT_UINT16, BASE_DEC, enip_elink_duplex_vals, 0x0002,
+          FT_UINT16, BASE_DEC, VALS(enip_elink_duplex_vals), 0x0002,
           NULL, HFILL }},
 
       { &hf_elink_icontrol_control_bits_reserved,
@@ -3154,17 +3154,17 @@ proto_register_enip(void)
 
       { &hf_elink_interface_type,
         { "Interface Type", "cip.elink.interface_type",
-          FT_UINT8, BASE_DEC, enip_elink_interface_type_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_elink_interface_type_vals), 0,
           NULL, HFILL }},
 
       { &hf_elink_interface_state,
         { "Interface State", "cip.elink.interface_state",
-          FT_UINT8, BASE_DEC, enip_elink_interface_state_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_elink_interface_state_vals), 0,
           NULL, HFILL }},
 
       { &hf_elink_admin_state,
         { "Admin State", "cip.elink.admin_state",
-          FT_UINT8, BASE_DEC, enip_elink_admin_state_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_elink_admin_state_vals), 0,
           NULL, HFILL }},
 
       { &hf_elink_interface_label,
@@ -3215,17 +3215,17 @@ proto_register_enip(void)
 
       { &hf_dlr_network_topology,
         { "Network Topology", "cip.dlr.network_topology",
-          FT_UINT8, BASE_DEC, enip_dlr_network_topology_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_dlr_network_topology_vals), 0,
           NULL, HFILL }},
 
       { &hf_dlr_network_status,
         { "Network Status", "cip.dlr.network_status",
-          FT_UINT8, BASE_DEC, enip_dlr_network_status_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_dlr_network_status_vals), 0,
           NULL, HFILL }},
 
       { &hf_dlr_ring_supervisor_status,
         { "Ring Supervisor Status", "cip.dlr.ring_supervisor_status",
-          FT_UINT8, BASE_DEC, enip_dlr_ring_supervisor_status_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_dlr_ring_supervisor_status_vals), 0,
           NULL, HFILL }},
 
       { &hf_dlr_rsc_ring_supervisor_enable,
@@ -3375,7 +3375,7 @@ proto_register_enip(void)
 
       { &hf_dlr_redundant_gateway_status,
         { "Redundant Gateway Status", "cip.dlr.redundant_gateway_status",
-          FT_UINT8, BASE_DEC, enip_dlr_redundant_gateway_status_vals, 0,
+          FT_UINT8, BASE_DEC, VALS(enip_dlr_redundant_gateway_status_vals), 0,
           NULL, HFILL }},
 
       { &hf_dlr_aga_ip_addr,

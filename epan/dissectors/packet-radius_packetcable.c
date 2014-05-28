@@ -458,12 +458,12 @@ void proto_register_packetcable(void) {
 		},
 		{ &hf_packetcable_em_header_event_message_type,
 		{ "Event Message Type","packetcable_avps.emh.emt",
-			FT_UINT16, BASE_DEC, radius_vendor_packetcable_event_message_vals, 0x0,
+			FT_UINT16, BASE_DEC, VALS(radius_vendor_packetcable_event_message_vals), 0x0,
 			"PacketCable Event Message Type", HFILL }
 		},
 		{ &hf_packetcable_em_header_element_type,
 		{ "Element Type","packetcable_avps.emh.et",
-			FT_UINT16, BASE_DEC, packetcable_em_header_element_type_vals, 0x0,
+			FT_UINT16, BASE_DEC, VALS(packetcable_em_header_element_type_vals), 0x0,
 			"PacketCable Event Message Element Type", HFILL }
 		},
 		{ &hf_packetcable_em_header_sequence_number,
@@ -478,19 +478,19 @@ void proto_register_packetcable(void) {
 		},
 		{ &hf_packetcable_em_header_status_error_indicator,
 		{ "Status","packetcable_avps.emh.st.ei",
-			FT_UINT32, BASE_HEX, packetcable_em_header_status_error_indicator_vals,
+			FT_UINT32, BASE_HEX, VALS(packetcable_em_header_status_error_indicator_vals),
 			PACKETCABLE_EMHS_EI_MASK,
 			"PacketCable Event Message Status Error Indicator", HFILL }
 		},
 		{ &hf_packetcable_em_header_status_event_origin,
 		{ "Event Origin","packetcable_avps.emh.st.eo",
-			FT_UINT32, BASE_HEX, packetcable_em_header_status_event_origin_vals,
+			FT_UINT32, BASE_HEX, VALS(packetcable_em_header_status_event_origin_vals),
 			PACKETCABLE_EMHS_EO_MASK,
 			"PacketCable Event Message Status Event Origin", HFILL }
 		},
 		{ &hf_packetcable_em_header_status_event_message_proxied,
 		{ "Event Message Proxied","packetcable_avps.emh.st.emp",
-			FT_UINT32, BASE_HEX, packetcable_em_header_status_event_message_proxied_vals,
+			FT_UINT32, BASE_HEX, VALS(packetcable_em_header_status_event_message_proxied_vals),
 			PACKETCABLE_EMHS_EMP_MASK,
 			"PacketCable Event Message Status Event Message Proxied", HFILL }
 		},
@@ -511,7 +511,7 @@ void proto_register_packetcable(void) {
 		},
 		{ &hf_packetcable_call_termination_cause_source_document,
 		{ "Source Document","packetcable_avps.ctc.sd",
-			FT_UINT16, BASE_HEX, packetcable_call_termination_cause_vals, 0x0,
+			FT_UINT16, BASE_HEX, VALS(packetcable_call_termination_cause_vals), 0x0,
 			"PacketCable Call Termination Cause Source Document", HFILL }
 		},
 		{ &hf_packetcable_call_termination_cause_code,
@@ -521,7 +521,7 @@ void proto_register_packetcable(void) {
 		},
 		{ &hf_packetcable_trunk_group_id_trunk_type,
 		{ "Trunk Type","packetcable_avps.tgid.tt",
-			FT_UINT16, BASE_HEX, packetcable_trunk_type_vals, 0x0,
+			FT_UINT16, BASE_HEX, VALS(packetcable_trunk_type_vals), 0x0,
 			"PacketCable Trunk Group ID Trunk Type", HFILL }
 		},
 		{ &hf_packetcable_trunk_group_id_trunk_number,
@@ -536,7 +536,7 @@ void proto_register_packetcable(void) {
 		},
 		{ &hf_packetcable_qos_status_indication,
 		{ "Status Indication","packetcable_avps.qs.si",
-			FT_UINT32, BASE_DEC, packetcable_state_indication_vals, PACKETCABLE_QOS_STATE_INDICATION_MASK,
+			FT_UINT32, BASE_DEC, VALS(packetcable_state_indication_vals), PACKETCABLE_QOS_STATE_INDICATION_MASK,
 			"PacketCable QoS Descriptor Attribute QoS State Indication", HFILL }
 		},
 		{ &hf_packetcable_qos_desc_flags[0],
@@ -809,3 +809,16 @@ proto_reg_handoff_packetcable(void)
 	radius_register_avp_dissector(VENDOR_CABLELABS, 92, dissect_packetcable_party_info); */
 }
 
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

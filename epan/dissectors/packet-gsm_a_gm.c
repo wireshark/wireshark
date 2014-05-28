@@ -3438,8 +3438,8 @@ de_gmm_voice_domain_pref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
 /* [10] 10.5.5.29 P-TMSI type */
 static const true_false_string gsm_a_gm_ptmsi_type_value = {
-    "Mapped P-TMSI",
-    "Native P-TMSI"
+	"Mapped P-TMSI",
+	"Native P-TMSI"
 };
 
 static guint16
@@ -7224,7 +7224,7 @@ proto_register_gsm_a_gm(void)
 		},
 		{ &hf_gsm_a_sm_tft_protocol_header,
 		  { "Protocol/header", "gsm_a.gm.sm.tft.protocol_header",
-		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
+		    FT_UINT8, BASE_HEX|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_gsm_a_sm_tft_port,
@@ -8159,11 +8159,11 @@ proto_register_gsm_a_gm(void)
 		},
 	};
 
-    static ei_register_info ei[] = {
-        { &ei_gsm_a_gm_extraneous_data, { "gsm_a.gm.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
-    };
+	static ei_register_info ei[] = {
+		{ &ei_gsm_a_gm_extraneous_data, { "gsm_a.gm.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
+	};
 
-    expert_module_t* expert_gsm_a_gm;
+	expert_module_t* expert_gsm_a_gm;
 
 	/* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_ELEMS	7
@@ -8205,8 +8205,8 @@ proto_register_gsm_a_gm(void)
 	proto_register_field_array(proto_a_gm, hf, array_length(hf));
 
 	proto_register_subtree_array(ett, array_length(ett));
-    expert_gsm_a_gm = expert_register_protocol(proto_a_gm);
-    expert_register_field_array(expert_gsm_a_gm, ei, array_length(ei));
+	expert_gsm_a_gm = expert_register_protocol(proto_a_gm);
+	expert_register_field_array(expert_gsm_a_gm, ei, array_length(ei));
 
 	/* subdissector code */
 	gprs_sm_pco_subdissector_table = register_dissector_table("sm_pco.protocol",
@@ -8220,3 +8220,16 @@ proto_reg_handoff_gsm_a_gm(void)
 	rrc_irat_ho_info_handle = find_dissector("rrc.irat.irat_ho_info");
 	lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -5010,7 +5010,7 @@ proto_register_giop (void)
 
     { &hf_giop_message_type,
       { "Message type", "giop.type",
-        FT_UINT8, BASE_DEC, giop_message_types, 0x0, NULL, HFILL }
+        FT_UINT8, BASE_DEC, VALS(giop_message_types), 0x0, NULL, HFILL }
     },
 
     { &hf_giop_message_size,

@@ -272,7 +272,7 @@ static hf_register_info hf[] = {
 			  ,HFILL}},
 
 	{&hf_cw_frg	,{"Fragmentation"	,"pwfr.frag"	,FT_UINT8	,BASE_DEC
-			  ,vals_frg		,0xc0		,NULL
+			  ,VALS(vals_frg)	,0xc0		,NULL
 			  ,HFILL}},
 
 	{&hf_cw_len	,{"Length"		,"pwfr.length"	,FT_UINT8	,BASE_DEC
@@ -314,3 +314,16 @@ proto_reg_handoff_pw_fr(void)
 	dissector_add_uint("mpls.label", MPLS_LABEL_INVALID, h);
 	fr_stripped_address_handle = find_dissector("fr_stripped_address");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

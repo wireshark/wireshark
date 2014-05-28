@@ -366,7 +366,7 @@ dissect_TCPFlashUpdate(tvbuff_t *tvb,  packet_info *pinfo _U_, proto_tree *tree,
 	length = tvb_length(tvb) - offset;
 	proto_tree_add_item(adwin_tree, hf_adwin_config_data, tvb, offset, length, ENC_NA);
 
-    return tvb_length(tvb);
+	return tvb_length(tvb);
 }
 
 /* 00:50:c2:0a:2*:** */
@@ -511,7 +511,7 @@ proto_register_adwin_config(void)
 		},
 		{ &hf_adwin_config_command,
 		  { "Command", "adwin_config.command",
-		    FT_UINT32, BASE_DEC, config_command_mapping, 0x0,
+		    FT_UINT32, BASE_DEC, VALS(config_command_mapping), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_config_data,
@@ -571,7 +571,7 @@ proto_register_adwin_config(void)
 		},
 		{ &hf_adwin_config_pattern,
 		  { "Pattern", "adwin_config.pattern",
-		    FT_UINT32, BASE_HEX, pattern_mapping, 0x0,
+		    FT_UINT32, BASE_HEX, VALS(pattern_mapping), 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_adwin_config_path,
@@ -756,3 +756,17 @@ proto_reg_handoff_adwin_config(void)
 	heur_dissector_add("udp", dissect_adwin_config_udp, proto_adwin_config);
 	heur_dissector_add("tcp", dissect_adwin_config_tcp, proto_adwin_config);
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -2542,7 +2542,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_ip_protocol,
               { "Protocol","rohc.ip.protocol",
-                FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
                 NULL , HFILL
               }
             },
@@ -2704,7 +2704,7 @@ proto_register_rohc(void)
             },
             { &hf_rohc_rtp_pt,
               { "Payload Type(PT)","rohc.rtp.pt",
-                FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&rtp_payload_type_vals_ext), 0x7f,
+                FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rtp_payload_type_vals_ext, 0x7f,
                 NULL , HFILL
               }
             },
@@ -2973,3 +2973,16 @@ proto_reg_handoff_rohc(void)
     ipv6_handle = find_dissector("ipv6");
     data_handle = find_dissector("data");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

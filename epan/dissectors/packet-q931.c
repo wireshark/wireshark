@@ -476,14 +476,14 @@ static const value_string q931_info_element_vals7[] = {
 /* Codeset array */
 #define NUM_INFO_ELEMENT_VALS	(Q931_IE_SHIFT_CODESET+1)
 static const value_string *q931_info_element_vals[NUM_INFO_ELEMENT_VALS] = {
-  q931_info_element_vals0,
-  q931_info_element_vals1,
-  q931_info_element_vals2,
-  q931_info_element_vals3,
-  q931_info_element_vals4,
-  q931_info_element_vals5,
-  q931_info_element_vals6,
-  q931_info_element_vals7,
+	q931_info_element_vals0,
+	q931_info_element_vals1,
+	q931_info_element_vals2,
+	q931_info_element_vals3,
+	q931_info_element_vals4,
+	q931_info_element_vals5,
+	q931_info_element_vals6,
+	q931_info_element_vals7,
 };
 
 static const value_string q931_congestion_level_vals[] = {
@@ -1416,12 +1416,12 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 
 void
 dissect_q931_cause_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
+		      proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
 {
-  gboolean have_valid_q931_pi_save = have_valid_q931_pi;
-  have_valid_q931_pi = FALSE;
-  dissect_q931_cause_ie_unsafe(tvb, offset, len, tree, hf_cause_value, cause_value, ie_vals);
-  have_valid_q931_pi =  have_valid_q931_pi_save;
+	gboolean have_valid_q931_pi_save = have_valid_q931_pi;
+	have_valid_q931_pi = FALSE;
+	dissect_q931_cause_ie_unsafe(tvb, offset, len, tree, hf_cause_value, cause_value, ie_vals);
+	have_valid_q931_pi =  have_valid_q931_pi_save;
 }
 
 /*
@@ -2250,11 +2250,11 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 		}
 	}
 
-    /* Collect q931_packet_info */
-    if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && have_valid_q931_pi)
-          q931_pi->calling_number = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
-    if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && have_valid_q931_pi)
-          q931_pi->called_number = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+	/* Collect q931_packet_info */
+	if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && have_valid_q931_pi)
+		q931_pi->calling_number = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+	if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && have_valid_q931_pi)
+		q931_pi->called_number = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
 }
 
 /*
@@ -2685,10 +2685,10 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
 				add_new_data_source(pinfo, next_tvb, "Reassembled Q.931 IEs");
 				/* Show all fragments. */
-                if (tree) {
-                    proto_item *frag_tree_item;
-                    show_fragment_seq_tree(fd_head, &q931_frag_items, q931_tree, pinfo, next_tvb, &frag_tree_item);
-                }
+				if (tree) {
+					proto_item *frag_tree_item;
+					show_fragment_seq_tree(fd_head, &q931_frag_items, q931_tree, pinfo, next_tvb, &frag_tree_item);
+				}
 			} else {  /* only 1 segment */
 				next_tvb = tvb_new_subset_remaining(tvb, offset);
 			}
@@ -3474,7 +3474,7 @@ proto_register_q931(void)
 		  { "Redirecting party number digits", "q931.redirecting_number.digits", FT_STRING, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
-    /* fields for channel identification IE */
+		/* fields for channel identification IE */
 		/* 0x80 is the extension bit */
 
 		{ &hf_q931_channel_interface_explicit,
@@ -3496,11 +3496,11 @@ proto_register_q931(void)
 		    "True if the identified channel is the D-Channel", HFILL }},
 
 		{ &hf_q931_channel_selection_bri,
-		  { "Information channel selection", "q931.channel.selection", FT_UINT8, BASE_HEX, q931_basic_channel_selection_vals, 0x03,
+		  { "Information channel selection", "q931.channel.selection", FT_UINT8, BASE_HEX, VALS(q931_basic_channel_selection_vals), 0x03,
 		    "Identifies the information channel to be used", HFILL }},
 
 		{ &hf_q931_channel_selection_pri,
-		  { "Information channel selection", "q931.channel.selection", FT_UINT8, BASE_HEX, q931_not_basic_channel_selection_vals, 0x03,
+		  { "Information channel selection", "q931.channel.selection", FT_UINT8, BASE_HEX, VALS(q931_not_basic_channel_selection_vals), 0x03,
 		    "Identifies the information channel to be used", HFILL }},
 
 		{ &hf_q931_channel_map,
@@ -3508,14 +3508,14 @@ proto_register_q931(void)
 		    "True if channel is indicates by channel map rather than number", HFILL }},
 
 		{ &hf_q931_channel_element_type,
-		  { "Element type", "q931.channel.element_type", FT_UINT8, BASE_HEX, q931_element_type_vals, 0xF,
+		  { "Element type", "q931.channel.element_type", FT_UINT8, BASE_HEX, VALS(q931_element_type_vals), 0xF,
 		    "Type of element in the channel number/slot map octets", HFILL }},
 
 		{ &hf_q931_channel_number,
 		  { "Channel number", "q931.channel.number", FT_UINT8, BASE_DEC, NULL, 0x7F,
 		    NULL, HFILL }},
 
-    /* desegmentation fields */
+		/* desegmentation fields */
 		{ &hf_q931_segment_overlap,
 		  { "Segment overlap", "q931.segment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
 			"Fragment overlaps with other fragments", HFILL }},
@@ -3620,12 +3620,25 @@ proto_reg_handoff_q931(void)
 
 static void reset_q931_packet_info(q931_packet_info *pi)
 {
-    if(pi == NULL) {
-        return;
-    }
+	if(pi == NULL) {
+		return;
+	}
 
-    pi->calling_number = NULL;
-    pi->called_number = NULL;
-    pi->cause_value = 0xFF;
-    pi->crv = -1;
+	pi->calling_number = NULL;
+	pi->called_number = NULL;
+	pi->cause_value = 0xFF;
+	pi->crv = -1;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

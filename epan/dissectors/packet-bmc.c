@@ -255,7 +255,7 @@ proto_register_bmc(void)
     static hf_register_info hf[] = {
         { &hf_bmc_message_type,
             { "Message Type", "bmc.message_type",
-            FT_UINT8, BASE_DEC, message_type_vals, 0,
+            FT_UINT8, BASE_DEC, VALS(message_type_vals), 0,
             NULL, HFILL }
         },
         { &hf_bmc_message_id,
@@ -297,7 +297,7 @@ proto_register_bmc(void)
         },
         { &hf_bmc_message_description_type,
             { "Message Description Type", "bmc.message_description_type",
-            FT_UINT8, BASE_DEC, message_description_type_vals, 0,
+            FT_UINT8, BASE_DEC, VALS(message_description_type_vals), 0,
             NULL, HFILL }
         },
         { &hf_bmc_offset_to_ctch_bs_index_of_first_transmission,
@@ -343,3 +343,16 @@ proto_register_bmc(void)
     proto_register_field_array(proto_bmc, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

@@ -2442,12 +2442,12 @@ void proto_register_cops(void)
         },
         { &hf_cops_pcmm_classifier_activation_state,
           { "Activation State", "cops.pc_mm_classifier_activation_state",
-            FT_UINT8, BASE_HEX, pcmm_activation_state_vals, 0,
+            FT_UINT8, BASE_HEX, VALS(pcmm_activation_state_vals), 0,
             "PacketCable Multimedia Classifier Activation State", HFILL }
         },
         { &hf_cops_pcmm_classifier_action,
           { "Action", "cops.pc_mm_classifier_action",
-            FT_UINT8, BASE_HEX, pcmm_action_vals, 0,
+            FT_UINT8, BASE_HEX, VALS(pcmm_action_vals), 0,
             "PacketCable Multimedia Classifier Action", HFILL }
         },
         { &hf_cops_pcmm_classifier_flags,
@@ -2508,7 +2508,7 @@ void proto_register_cops(void)
         },
         { &hf_cops_pcmm_flow_spec_service_number,
           { "Service Number", "cops.pc_mm_fs_svc_num",
-            FT_UINT8, BASE_DEC, pcmm_flow_spec_service_vals, 0,
+            FT_UINT8, BASE_DEC, VALS(pcmm_flow_spec_service_vals), 0,
             "PacketCable Multimedia Flow Spec Service Number", HFILL }
         },
 
@@ -2690,12 +2690,12 @@ void proto_register_cops(void)
 
         { &hf_cops_pcmm_synch_options_report_type,
           { "Report Type", "cops.pc_mm_synch_options_report_type",
-            FT_UINT8, BASE_DEC, pcmm_report_type_vals, 0,
+            FT_UINT8, BASE_DEC, VALS(pcmm_report_type_vals), 0,
             "PacketCable Multimedia Synch Options Report Type", HFILL }
         },
         { &hf_cops_pcmm_synch_options_synch_type,
           { "Synch Type", "cops.pc_mm_synch_options_synch_type",
-            FT_UINT8, BASE_DEC, pcmm_synch_type_vals, 0,
+            FT_UINT8, BASE_DEC, VALS(pcmm_synch_type_vals), 0,
             "PacketCable Multimedia Synch Options Synch Type", HFILL }
         },
 
@@ -6259,3 +6259,16 @@ cops_analyze_packetcable_mm_obj(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 
 /* End of PacketCable Addition */
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

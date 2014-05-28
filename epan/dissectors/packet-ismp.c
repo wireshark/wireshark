@@ -126,19 +126,19 @@ static gint ett_ismp_edp_tuples_leaf = -1;
 
 
 static const value_string edp_device_types[] = {
-        { EDP_DEVICE_TYPE_SFS17,       "Network Switch running SecureFast version 1.7 or lower" },
-        { EDP_DEVICE_TYPE_SFS18,         "Network Switch running SecureFast version 1.8 or greater" },
-        { EDP_DEVICE_TYPE_ROUTER,         "Router" },
-        { EDP_DEVICE_TYPE_BRIDGE,         "Bridge" },
-        { EDP_DEVICE_TYPE_VLANMAN,         "Cabletron VLAN Manager" },
-        { EDP_DEVICE_TYPE_NTSERVER,         "Network Server (NT)" },
-        { EDP_DEVICE_TYPE_NTCLIENT,    "Network Workstation (NT)" },
-        { EDP_DEVICE_TYPE_WIN95,     "Windows95" },
-        { EDP_DEVICE_TYPE_WIN98,        "Windows98" },
-        { EDP_DEVICE_TYPE_UNIXSERVER,       "UNIX Server" },
-        { EDP_DEVICE_TYPE_UNIXCLIENT, "UNIX Workstation" },
-        { EDP_DEVICE_TYPE_ACCESSPOINT,     "Roamabout wireless access point" },
-        { 0,                    NULL },
+	{ EDP_DEVICE_TYPE_SFS17,       "Network Switch running SecureFast version 1.7 or lower" },
+	{ EDP_DEVICE_TYPE_SFS18,       "Network Switch running SecureFast version 1.8 or greater" },
+	{ EDP_DEVICE_TYPE_ROUTER,      "Router" },
+	{ EDP_DEVICE_TYPE_BRIDGE,      "Bridge" },
+	{ EDP_DEVICE_TYPE_VLANMAN,     "Cabletron VLAN Manager" },
+	{ EDP_DEVICE_TYPE_NTSERVER,    "Network Server (NT)" },
+	{ EDP_DEVICE_TYPE_NTCLIENT,    "Network Workstation (NT)" },
+	{ EDP_DEVICE_TYPE_WIN95,       "Windows95" },
+	{ EDP_DEVICE_TYPE_WIN98,       "Windows98" },
+	{ EDP_DEVICE_TYPE_UNIXSERVER,  "UNIX Server" },
+	{ EDP_DEVICE_TYPE_UNIXCLIENT,  "UNIX Workstation" },
+	{ EDP_DEVICE_TYPE_ACCESSPOINT, "Roamabout wireless access point" },
+	{ 0,			NULL },
 };
 
 
@@ -207,8 +207,8 @@ static const value_string edp_tuple_types[] =
 
 /* Is value set? */
 static const true_false_string is_set = {
-        "set",
-        "not set"
+	"set",
+	"not set"
 };
 
 
@@ -605,7 +605,7 @@ proto_register_ismp(void)
 		},
 		{ &hf_ismp_edp_device_type,
 			{ "Device Type", "ismp.edp.devtype",
-			FT_UINT16, BASE_DEC, edp_device_types, 0x0,
+			FT_UINT16, BASE_DEC, VALS(edp_device_types), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_ismp_edp_module_rev,
@@ -864,3 +864,16 @@ proto_reg_handoff_ismp(void)
 	    proto_ismp);
 	dissector_add_uint("ethertype", ETHERTYPE_ISMP, ismp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -830,28 +830,28 @@ proto_register_ldss (void) {
 		{   &hf_ldss_message_id,
 		    {	"LDSS Message ID",
 			"ldss.message_id",
-			FT_UINT16, BASE_DEC, ldss_message_id_value, 0x0,
+			FT_UINT16, BASE_DEC, VALS(ldss_message_id_value), 0x0,
 			NULL, HFILL
 		    }
 		},
 		{   &hf_ldss_message_detail,
 		    {	"Inferred meaning",
 			"ldss.inferred_meaning",
-			FT_UINT16, BASE_DEC, ldss_inferred_value, 0x0,
+			FT_UINT16, BASE_DEC, VALS(ldss_inferred_value), 0x0,
 			"Inferred meaning of the packet", HFILL
 		    }
 		},
 		{   &hf_ldss_digest_type,
 		    {	"Digest Type",
 			"ldss.digest_type",
-			FT_UINT8, BASE_DEC, ldss_digest_type_value, 0x0,
+			FT_UINT8, BASE_DEC, VALS(ldss_digest_type_value), 0x0,
 			NULL, HFILL
 		    }
 		},
 		{   &hf_ldss_compression,
 		    {	"Compressed Format",
 			"ldss.compression",
-			FT_UINT8, BASE_DEC, ldss_compression_value, 0x0,
+			FT_UINT8, BASE_DEC, VALS(ldss_compression_value), 0x0,
 			NULL, HFILL
 		    }
 		},
@@ -1009,3 +1009,16 @@ proto_reg_handoff_ldss (void)
 	dissector_add_uint("udp.port", global_udp_port_ldss, ldss_udp_handle);
 	saved_udp_port_ldss = global_udp_port_ldss;
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

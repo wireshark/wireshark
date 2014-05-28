@@ -4786,7 +4786,7 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_oxm_value_ipproto,
             { "Value", "openflow_v4.oxm.value",
-               FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
+               FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_oxm_value_uint16,
@@ -7900,3 +7900,16 @@ proto_register_openflow_v4(void)
     expert_openflow_v4 = expert_register_protocol(proto_openflow_v4);
     expert_register_field_array(expert_openflow_v4, ei, array_length(ei));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
