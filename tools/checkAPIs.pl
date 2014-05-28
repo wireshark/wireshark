@@ -337,6 +337,7 @@ my %APIs = (
 
 my @apiGroups = qw(prohibited deprecated soft-deprecated);
 
+
 # Deprecated GTK+ (and GDK) functions/macros with (E)rror or (W)arning flag:
 # (The list is based upon the GTK+ 2.24.8 documentation;
 # E: There should be no current Wireshark use so Error if seen;
@@ -1765,7 +1766,7 @@ sub check_hf_entries($$)
                                   \s*,\s*
                                   ([A-Z0-9x\|_]+)               # display
                                   \s*,\s*
-                                  ([A-Z0-9&_\(\)' -]+)          # convert
+                                  ([^,]+?)                      # convert
                                   \s*,\s*
                                   ([A-Z0-9_]+)                  # bitmask
                                   \s*,\s*
@@ -1776,10 +1777,11 @@ sub check_hf_entries($$)
 
         #print "Found @items items\n";
         while (@items) {
+                ##my $errorCount_save = $errorCount;
                 my ($hf, $name, $abbrev, $ft, $display, $convert, $bitmask, $blurb) = @items;
                 shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items; shift @items;
 
-                #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=$convert, bitmask=$bitmask, blurb=$blurb\n";
+                #print "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=>$convert<, bitmask=$bitmask, blurb=$blurb\n";
 
                 if ($abbrev eq '""' || $abbrev eq "NULL") {
                         print STDERR "Error: $hf does not have an abbreviation in $filename\n";
@@ -1837,6 +1839,10 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf: FT_BOOLEAN with a bitmask must specify a 'parent field width' for 'display' in $filename\n";
                         $errorCount++;
                 }
+                if (($ft eq "FT_BOOLEAN") && ($convert !~ m/^((0[xX]0?)?0$|NULL$|TFS)/)) {
+                        print STDERR "Error: $hf: FT_BOOLEAN with non-null 'convert' field missing TFS in $filename\n";
+                        $errorCount++;
+                }
                 if ($convert =~ m/RVALS/ && $display !~ m/BASE_RANGE_STRING/) {
                         print STDERR "Error: $hf uses RVALS but 'display' does not include BASE_RANGE_STRING in $filename\n";
                         $errorCount++;
@@ -1849,11 +1855,19 @@ sub check_hf_entries($$)
                         print STDERR "Error: $hf is passing the address of a pointer to RVALS in $filename\n";
                         $errorCount++;
 		}
+                if ($convert !~ m/^((0[xX]0?)?0$|NULL$|VALS|VALS64|RVALS|TFS|&)/ && $display !~ /BASE_CUSTOM/) {
+                        print STDERR "Error: non-null $hf 'convert' field missing 'VALS|VALS64|RVALS|TFS|&' in $filename ?\n";
+                        $errorCount++;
+                }
 ## Benign...
 ##              if (($ft eq "FT_BOOLEAN") && ($bitmask =~ /^(0x)?0+$/) && ($display ne "BASE_NONE")) {
 ##                      print STDERR "Error: $abbrev: FT_BOOLEAN with no bitmask must use BASE_NONE for 'display' in $filename\n";
 ##                      $errorCount++;
 ##              }
+                ##if ($errorCount != $errorCount_save) {
+                ##        print STDERR "name=$name, abbrev=$abbrev, ft=$ft, display=$display, convert=>$convert<, bitmask=$bitmask, blurb=$blurb\n";
+                ##}
+
         }
 
         return $errorCount;
