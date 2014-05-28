@@ -58,7 +58,8 @@ extern void
 capture_session_init(capture_session *cap_session, void *cf);
 #else
 
-typedef struct {} capture_session;
+/* dummy is needed because clang throws the error: empty struct has size 0 in C, size 1 in C++ */
+typedef struct {int dummy;} capture_session;
 
 #endif /* HAVE_LIBPCAP */
 
