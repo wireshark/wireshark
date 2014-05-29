@@ -1488,7 +1488,7 @@ install(
 	FILES
 		"${CMAKE_BINARY_DIR}/wireshark.pc"
 	DESTINATION
-		${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/pkgconfig
+		${CMAKE_INSTALL_LIBDIR}/pkgconfig
 )
 
 install(
