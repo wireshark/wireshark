@@ -857,13 +857,28 @@ enip_io_conv_filter(packet_info *pinfo)
    if (conn == NULL)
       return NULL;
 
-   buf = g_strdup_printf(
-        "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "    /* Frames between ForwardOpen and ForwardClose */
-        "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
-        "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
-        conn->open_frame, conn->open_reply_frame, conn->close_frame,
-        conn->O2TConnID, conn->T2OConnID,
-        conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   if (conn->close_frame > 0)
+   {
+      buf = g_strdup_printf(
+          "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "  /* Frames between ForwardOpen and ForwardClose reply */
+           "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                             /* O->T and T->O Connection IDs */
+           "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
+           conn->open_frame, conn->open_reply_frame, conn->close_frame,
+           conn->O2TConnID, conn->T2OConnID,
+           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   }
+   else
+   {
+       /* If Forward Close isn't found, don't limit the (end) frame range */
+      buf = g_strdup_printf(
+          "((frame.number == %u) || (frame.number >= %u)) && "                                            /* Frames starting with ForwardOpen */
+           "((enip.cpf.sai.connid == 0x%08x || enip.cpf.sai.connid == 0x%08x) || "                            /* O->T and T->O Connection IDs */
+           "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",    /* Connection Triad */
+           conn->open_frame, conn->open_reply_frame,
+           conn->O2TConnID, conn->T2OConnID,
+           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   }
+
    return buf;
 }
 
@@ -888,13 +903,27 @@ enip_exp_conv_filter(packet_info *pinfo)
    if (conn == NULL)
       return NULL;
 
-   buf = g_strdup_printf(
-        "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "    /* Frames between ForwardOpen and ForwardClose */
-        "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
-        "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
-        conn->open_frame, conn->open_reply_frame, conn->close_frame,
-        conn->O2TConnID, conn->T2OConnID,
-        conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   if (conn->close_frame > 0)
+   {
+      buf = g_strdup_printf(
+          "((frame.number == %u) || ((frame.number >= %u) && (frame.number <= %u))) && "  /* Frames between ForwardOpen and ForwardClose reply */
+           "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                             /* O->T and T->O Connection IDs */
+           "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",     /* Connection Triad */
+           conn->open_frame, conn->open_reply_frame, conn->close_frame,
+           conn->O2TConnID, conn->T2OConnID,
+           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   }
+   else
+   {
+       /* If Forward Close isn't found, don't limit the (end) frame range */
+      buf = g_strdup_printf(
+          "((frame.number == %u) || (frame.number >= %u)) && "    /* Frames between ForwardOpen and ForwardClose */
+           "((enip.cpf.cai.connid == 0x%08x || enip.cpf.cai.connid == 0x%08x) || "                          /* O->T and T->O Connection IDs */
+           "((cip.cm.conn_serial_num == 0x%04x) && (cip.cm.vendor == 0x%04x) && (cip.cm.orig_serial_num == 0x%08x)))",  /* Connection Triad */
+           conn->open_frame, conn->open_reply_frame,
+           conn->O2TConnID, conn->T2OConnID,
+           conn->ConnSerialNumber, conn->VendorID, conn->DeviceSerialNumber);
+   }
    return buf;
 }
 
@@ -1123,17 +1152,22 @@ void enip_mark_connection_triad( packet_info *pinfo, guint16 ConnSerialNumber, g
    }
 }
 
-static guint32
+static enip_conn_val_t *
 enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, guint32 connid)
 {
    conversation_t   *conversation;
    enip_conv_info_t *enip_info;
    enip_conn_val_t  *conn_val;
+   enum enip_packet_type requesttype = ENIP_REQUEST_PACKET;
 
-   if (  prequest_key == NULL
-      || ( prequest_key->requesttype != ENIP_REQUEST_PACKET && prequest_key->requesttype != ENIP_RESPONSE_PACKET )
-      )
-      return 0;
+   if (prequest_key != NULL)
+   {
+       /* Sanity check */
+       if ((prequest_key->requesttype != ENIP_REQUEST_PACKET) && (prequest_key->requesttype != ENIP_RESPONSE_PACKET ))
+          return NULL;
+
+       requesttype = prequest_key->requesttype;
+   }
 
    /*
     * Do we have a conversation for this connection?
@@ -1143,17 +1177,17 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
             pinfo->ptype,
             pinfo->srcport, pinfo->destport, 0);
    if (conversation == NULL)
-      return 0;
+      return NULL;
 
    /*
     * Do we already have a state structure for this conv
     */
    enip_info = (enip_conv_info_t *)conversation_get_proto_data(conversation, proto_enip);
    if (!enip_info)
-      return 0;
+      return NULL;
 
    conn_val = NULL;
-   switch ( prequest_key->requesttype )
+   switch (requesttype )
    {
        case ENIP_REQUEST_PACKET:
            conn_val = (enip_conn_val_t *)wmem_tree_lookup32( enip_info->O2TConnIDs, connid );
@@ -1172,9 +1206,9 @@ enip_get_explicit_connid(packet_info *pinfo, enip_request_key_t *prequest_key, g
    }
 
    if ((conn_val == NULL ) || (conn_val->open_reply_frame > pinfo->fd->num))
-      return 0;
+      return NULL;
 
-   return conn_val->connid;
+   return conn_val;
 }
 
 static enip_conn_val_t *
@@ -1770,13 +1804,15 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
           {
               case CONNECTION_BASED:
 
-                  if ( request_key )
-                  {
-                      request_key->type = EPDT_CONNECTED_TRANSPORT;
-                      request_key->data.connected_transport.connid = enip_get_explicit_connid( pinfo, request_key, tvb_get_letohl( tvb, offset+6 ) );
-                  }
                /* Add Connection identifier */
                proto_tree_add_item(item_tree, hf_enip_cpf_cai_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN );
+
+               conn_info = enip_get_explicit_connid( pinfo, request_key, tvb_get_letohl( tvb, offset+6 ) );
+               if ( request_key )
+               {
+                  request_key->type = EPDT_CONNECTED_TRANSPORT;
+                  request_key->data.connected_transport.connid = (conn_info != NULL) ? conn_info->connid : 0;
+               }
 
                /* Add Connection ID to Info col */
                col_append_fstr(pinfo->cinfo, COL_INFO, ", CONID: 0x%08X", tvb_get_letohl( tvb, offset+6 ) );
@@ -1836,6 +1872,10 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                      request_key->data.connected_transport.sequence = tvb_get_letohs( tvb, offset+6 );
                      request_info = enip_match_request( pinfo, tree, request_key );
                   }
+
+                  /* Save the connection info for the conversation filter */
+                  if ((!pinfo->fd->flags.visited) && (conn_info != NULL))
+                     p_add_proto_data(wmem_file_scope(), pinfo, proto_enip, ENIP_CONNECTION_INFO, conn_info);
 
                   /*
                   ** If the encapsulation service is SendUnit Data, this is a
