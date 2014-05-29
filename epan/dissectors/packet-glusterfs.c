@@ -532,8 +532,6 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		/* read the key, '\0' terminated */
 		key = tvb_get_stringz(wmem_packet_scope(), tvb, offset, &key_len);
 		start_offset2 = offset;
-		if (tree)
-			dict_item = proto_tree_add_text(subtree, tvb, offset, -1, "%s: ", key);
 		offset += key_len;
 
 		/* read the value, possibly '\0' terminated */
@@ -546,24 +544,28 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 				char *gfid_s;
 				e_guid_t gfid;
 
-				/* Gluster is not very endianness friendly */
-				tvb_get_letohguid(tvb, offset, &gfid);
+				tvb_get_ntohguid(tvb, offset, &gfid);
 
 				gfid_s = guid_to_ep_str(&gfid);
-				proto_item_append_text(dict_item, "%s", gfid_s);
+				dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
+								tvb, offset, 16, &gfid,
+								"%s: %s", key, gfid_s);
 			/* this is a changelog in binary format */
 			} else if (value_len == 12 && !strncmp("trusted.afr.", key, 12)) {
-				proto_item_append_text(dict_item, "0x%.8x%.8x%.8x",
-						       tvb_get_letohl(tvb, offset + 0),
-						       tvb_get_letohl(tvb, offset + 4),
-						       tvb_get_letohl(tvb, offset + 8));
+				dict_item = proto_tree_add_text(subtree, tvb, offset, -1,
+								"%s: 0x%.8x%.8x%.8x", key,
+								tvb_get_letohl(tvb, offset + 0),
+								tvb_get_letohl(tvb, offset + 4),
+								tvb_get_letohl(tvb, offset + 8));
 			} else {
 				value = tvb_get_string(wmem_packet_scope(), tvb, offset, value_len);
-				proto_item_append_text(dict_item, "%s", value);
+				dict_item = proto_tree_add_text(subtree, tvb, offset, -1, "%s: %s",
+								key, value);
 			}
 		}
 		offset += value_len;
-		proto_item_set_len (dict_item, offset - start_offset2);
+		if (tree)
+			proto_item_set_len (dict_item, offset - start_offset2);
 	}
 
 	if (roundup) {
