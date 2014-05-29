@@ -4225,16 +4225,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         }
                         /* Now quickly parse the header */
                         computed_header_offset = curr_offset;
-                        for (i = 0; i < (guint)(1 + scell_count); i++) {
-                            if ((tvb_get_guint8(tvb, computed_header_offset) & 0x40) == 0) {
+                        for (i = 0; i < scell_count; i++) {
+                            if (tvb_get_guint8(tvb, computed_header_offset) & 0x80) {
                                 computed_header_offset++;
                             }
                             computed_header_offset++;
                         }
 
                         if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
-                            /* PH Type 2 might be present */
-                            if ((tvb_get_guint8(tvb, computed_header_offset) & 0x40) == 0) {
+                            /* PH Type 2 is present */
+                            if (tvb_get_guint8(tvb, computed_header_offset) & 0x80) {
                                 computed_header_offset++;
                             }
                             computed_header_offset++;
@@ -4246,7 +4246,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 break;
                             }
                             byte = tvb_get_guint8(tvb, curr_offset);
-                            ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1), "PCell PUCCH");
+                            ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, ((byte&0x80)?2:1), "PCell");
                             ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
                             proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
                                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -4257,7 +4257,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             proto_item_append_text(ephr_cell_ti, " (%s)",
                                                    val_to_str_ext_const((byte&0x3f), &power_headroom_vals_ext, "Unknown"));
                             curr_offset++;
-                            if ((byte & 0x40) == 0) {
+                            if (byte & 0x80) {
                                 /* Pcmax,c field is present */
                                 byte = tvb_get_guint8(tvb, curr_offset);
                                 /* Check 2 Reserved bits */
@@ -4274,40 +4274,19 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                                        val_to_str_ext_const((byte&0x3f), &pcmaxc_vals_ext, "Unknown"));
                                 curr_offset++;
                             }
-                        }
-                        byte = tvb_get_guint8(tvb, curr_offset);
-                        ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1), "PCell PUSCH");
-                        ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
-                        proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
-                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_value,
-                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_level,
-                                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                        proto_item_append_text(ephr_cell_ti, " (%s)",
-                                               val_to_str_ext_const((byte&0x3f), &power_headroom_vals_ext, "Unknown"));
-                        curr_offset++;
-                        if ((byte & 0x40) == 0) {
-                            /* Pcmax,c field is present */
-                            byte = tvb_get_guint8(tvb, curr_offset);
-                            /* Check 2 Reserved bits */
-                            ti = proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_reserved2,
-                                                     tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                            if (byte & 0xc0) {
-                                expert_add_info_format(pinfo, ti, &ei_mac_lte_reserved_not_zero,
-                                                       "Extended Power Headroom Reserved bits not zero (found 0x%x)",
-                                                       (byte & 0xc0) >> 6);
+                        } else {
+                            if ((gint16)(computed_header_offset + 1 - curr_offset) != pdu_lengths[n]) {
+                                expert_add_info_format(pinfo, ephr_ti, &ei_mac_lte_control_element_size_invalid,
+                                    "Control Element has an unexpected size (computed=%d, actual=%d)",
+                                    computed_header_offset + 1 - curr_offset, pdu_lengths[n]);
+                                offset += pdu_lengths[n];
+                                break;
                             }
-                            proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_pcmaxc,
-                                                tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                            proto_item_append_text(ephr_cell_ti, " (%s)",
-                                                   val_to_str_ext_const((byte&0x3f), &pcmaxc_vals_ext, "Unknown"));
-                            curr_offset++;
                         }
                         for (i = 1, scell_bitmap>>=1; i <= 7; i++, scell_bitmap>>=1) {
                             if (scell_bitmap & 0x01) {
                                 byte = tvb_get_guint8(tvb, curr_offset);
-                                ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, (!(byte&0x40)?2:1), "SCell Index %u PUSCH", i);
+                                ephr_cell_ti = proto_tree_add_text(ephr_tree, tvb, curr_offset, ((byte&0x80)?2:1), "SCell Index %u", i);
                                 ephr_cell_tree = proto_item_add_subtree(ephr_cell_ti, ett_mac_lte_extended_power_headroom_cell);
                                 proto_tree_add_item(ephr_cell_tree, hf_mac_lte_control_ext_power_headroom_power_backoff,
                                                     tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -4318,7 +4297,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 proto_item_append_text(ephr_cell_ti, " (%s)",
                                                        val_to_str_ext_const((byte&0x3f), &power_headroom_vals_ext, "Unknown"));
                                 curr_offset++;
-                                if ((byte & 0x40) == 0) {
+                                if (byte & 0x80) {
                                     /* Pcmax,c field is present */
                                     byte = tvb_get_guint8(tvb, curr_offset);
                                     /* Check 2 Reserved bits */
