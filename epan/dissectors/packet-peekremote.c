@@ -448,6 +448,7 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     break;
   }
 
+  proto_item_set_end(ti, tvb, offset);
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
@@ -489,6 +490,7 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_signal_percent, tvb, 18, 1, ENC_NA);
     proto_tree_add_item(peekremote_tree, &hfi_peekremote_noise_percent, tvb, 19, 1, ENC_NA);
   }
+  proto_item_set_end(ti, tvb, 20);
   next_tvb = tvb_new_subset_remaining(tvb, 20);
   pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
   return 20 + call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
