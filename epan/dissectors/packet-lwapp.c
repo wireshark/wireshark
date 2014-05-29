@@ -1,7 +1,7 @@
 /* packet-lwapp.c
  *
  * Routines for LWAPP encapsulated packet disassembly
- * draft-ohara-capwap-lwapp-N (the current draft is 0)
+ * RFC 5412
  *
  * Copyright (c) 2003 by David Frascone <dave@frascone.com>
  *
@@ -547,7 +547,7 @@ proto_reg_handoff_lwapp(void)
      * Get handles for the Ethernet and wireless dissectors.
      */
     eth_withoutfcs_handle = find_dissector("eth_withoutfcs");
-    wlan_handle = find_dissector("wlan");
+    wlan_handle = find_dissector("wlan_withoutfcs");
     wlan_bsfc_handle = find_dissector("wlan_bsfc");
     data_handle = find_dissector("data");
 

@@ -2607,7 +2607,7 @@ proto_reg_handoff_capwap(void)
         capwap_data_handle    = create_dissector_handle(dissect_capwap_data, proto_capwap);
         dtls_handle           = find_dissector("dtls");
         ieee8023_handle       = find_dissector("eth_withoutfcs");
-        ieee80211_handle      = find_dissector("wlan");
+        ieee80211_handle      = find_dissector("wlan_withoutfcs");
         ieee80211_bsfc_handle = find_dissector("wlan_bsfc");
         data_handle           = find_dissector("data");
 

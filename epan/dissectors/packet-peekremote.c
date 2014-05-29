@@ -450,7 +450,6 @@ dissect_peekremote_new(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
   proto_item_set_end(ti, tvb, offset);
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
   call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
   return TRUE;
 }
@@ -492,7 +491,6 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   }
   proto_item_set_end(ti, tvb, 20);
   next_tvb = tvb_new_subset_remaining(tvb, 20);
-  pinfo->pseudo_header->ieee_802_11.fcs_len = 4;
   return 20 + call_dissector(ieee80211_handle, next_tvb, pinfo, tree);
 }
 
@@ -575,7 +573,7 @@ proto_reg_handoff_peekremote(void)
 {
   dissector_handle_t peekremote_handle;
 
-  ieee80211_handle = find_dissector("wlan_datapad");
+  ieee80211_handle = find_dissector("wlan_datapad_withfcs");
 
   peekremote_handle = new_create_dissector_handle(dissect_peekremote_legacy, proto_peekremote);
   dissector_add_uint("udp.port", 5000, peekremote_handle);

@@ -3661,7 +3661,7 @@ proto_reg_handoff_sflow_245(void) {
         /* wireshark does not have POS dissector yet */
         pos_handle = data_handle;
 #endif
-        ieee80211_mac_handle = find_dissector("wlan");
+        ieee80211_mac_handle = find_dissector("wlan_withoutfcs");
 #if 0
         ieee80211_ampdu_handle = find_dissector("ampdu");
         ieee80211_amsdu_subframe_handle = find_dissector("wlan_aggregate");

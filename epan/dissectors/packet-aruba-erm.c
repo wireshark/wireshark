@@ -282,7 +282,7 @@ proto_reg_handoff_aruba_erm(void)
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        ieee80211_handle = find_dissector("wlan");
+        ieee80211_handle = find_dissector("wlan_withoutfcs");
         ppi_handle = find_dissector("ppi");
         peek_handle = find_dissector("peekremote");
         data_handle = find_dissector("data");

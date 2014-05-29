@@ -24,7 +24,7 @@
  */
 
 /*
-  http://ietfreport.isoc.org/all-ids/draft-singh-capwap-ctp-02.txt
+  https://tools.ietf.org/html/draft-singh-capwap-ctp-02
   looks very similar (but not always identical).
 
   AC: Access Controller
@@ -2113,6 +2113,6 @@ proto_reg_handoff_wassp(void)
 #endif
 
 	snmp_handle = find_dissector("snmp");
-	ieee80211_handle = find_dissector("wlan");
+	ieee80211_handle = find_dissector("wlan_withoutfcs");
 }
 
