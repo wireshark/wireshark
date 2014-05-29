@@ -17586,13 +17586,34 @@ dissect_ieee80211_common (tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /*
- * Dissect 802.11 with a variable-length link-layer header.
+ * Dissect 802.11 with a variable-length link-layer header and with the FCS
+ * presence or absence indicated by the pseudo-header.
  */
 static void
 dissect_ieee80211 (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
                             pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, FALSE, FALSE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and with an
+ * FCS.
+ */
+static void
+dissect_ieee80211_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 4, FALSE, FALSE, FALSE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and without an
+ * FCS.
+ */
+static void
+dissect_ieee80211_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, FALSE, FALSE, FALSE, FALSE);
 }
 
 /*
@@ -17606,19 +17627,29 @@ dissect_ieee80211_centrino(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * Dissect 802.11 with a variable-length link-layer header and data padding.
+ * Dissect 802.11 with a variable-length link-layer header and data padding
+ * and with an FCS.
  */
 static void
-dissect_ieee80211_datapad (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_ieee80211_datapad_withfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_ieee80211_common (tvb, pinfo, tree, FALSE,
-                            pinfo->pseudo_header->ieee_802_11.fcs_len, FALSE, TRUE, FALSE, FALSE);
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 4, FALSE, TRUE, FALSE, FALSE);
+}
+
+/*
+ * Dissect 802.11 with a variable-length link-layer header and data padding
+ * and without an FCS.
+ */
+static void
+dissect_ieee80211_datapad_withoutfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+  dissect_ieee80211_common (tvb, pinfo, tree, FALSE, 0, FALSE, TRUE, FALSE, FALSE);
 }
 
 /*
  * Dissect 802.11 with a variable-length link-layer header and a byte-swapped
- * control field (some hardware sends out LWAPP-encapsulated 802.11
- * packets with the control field byte swapped).
+ * control field and with no FCS (some hardware sends out LWAPP-encapsulated
+ * 802.11 packets with the control field byte swapped).
  */
 static void
 dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -17628,7 +17659,7 @@ dissect_ieee80211_bsfc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /*
  * Dissect 802.11 with a fixed-length link-layer header (padded to the
- * maximum length).
+ * maximum length) and no FCS.
  */
 static void
 dissect_ieee80211_fixed (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -25873,11 +25904,14 @@ proto_register_ieee80211 (void)
   expert_ieee80211 = expert_register_protocol(proto_wlan);
   expert_register_field_array(expert_ieee80211, ei, array_length(ei));
 
-  register_dissector("wlan",         dissect_ieee80211,         proto_wlan);
-  register_dissector("wlan_fixed",   dissect_ieee80211_fixed,   proto_wlan);
-  register_dissector("wlan_bsfc",    dissect_ieee80211_bsfc,    proto_wlan);
-  register_dissector("wlan_datapad", dissect_ieee80211_datapad, proto_wlan);
-  register_dissector("wlan_ht",      dissect_ieee80211_ht,      proto_wlan);
+  register_dissector("wlan",                    dissect_ieee80211,            proto_wlan);
+  register_dissector("wlan_withfcs",            dissect_ieee80211_withfcs,    proto_wlan);
+  register_dissector("wlan_withoutfcs",         dissect_ieee80211_withoutfcs, proto_wlan);
+  register_dissector("wlan_fixed",              dissect_ieee80211_fixed,      proto_wlan);
+  register_dissector("wlan_bsfc",               dissect_ieee80211_bsfc,       proto_wlan);
+  register_dissector("wlan_datapad_withfcs",    dissect_ieee80211_datapad_withfcs,    proto_wlan);
+  register_dissector("wlan_datapad_withoutfcs", dissect_ieee80211_datapad_withoutfcs, proto_wlan);
+  register_dissector("wlan_ht",                 dissect_ieee80211_ht,         proto_wlan);
 
   register_init_routine(wlan_defragment_init);
   register_init_routine(wlan_retransmit_init);
