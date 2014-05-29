@@ -126,6 +126,7 @@ Ethernet Passive Optical Network (EPON)
 ELF file format
 EXPORTED PDU
 FINGER
+GDB Remote Serial Protocol
 HDMI
 High-Speed LAN Instrument Protocol (HiSLIP)
 HTTP2
