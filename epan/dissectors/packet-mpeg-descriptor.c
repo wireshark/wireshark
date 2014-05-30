@@ -1930,11 +1930,14 @@ static const value_string mpeg_descr_terrestrial_delivery_transmission_mode_vals
 static void
 proto_mpeg_descriptor_dissect_terrestrial_delivery(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    guint32 centre_freq;
+    guint64 centre_freq;
 
-    centre_freq = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_string_format_value(tree, hf_mpeg_descr_terrestrial_delivery_centre_frequency, tvb, offset, 4,
-        "CentreFrequency", "%u0 Hz", centre_freq);
+    /* the descriptor stores the centre frequency in units of 10Hz (so
+       that they can get away with 32bits), we're using Hz here */
+    centre_freq = tvb_get_ntohl(tvb, offset) * 10;
+
+    proto_tree_add_uint64_format_value(tree, hf_mpeg_descr_terrestrial_delivery_centre_frequency, tvb, offset, 4,
+        centre_freq, "%d.%06d MHz", (guint)centre_freq/(1000*1000), (guint)centre_freq%(1000*1000));
     offset += 4;
 
     proto_tree_add_item(tree, hf_mpeg_descr_terrestrial_delivery_bandwidth, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3794,7 +3797,7 @@ proto_register_mpeg_descriptor(void)
         /* 0x5A Terrestrial Delivery System Descriptor */
         { &hf_mpeg_descr_terrestrial_delivery_centre_frequency, {
             "Centre Frequency", "mpeg_descr.terr_delivery.centre_freq",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_terrestrial_delivery_bandwidth, {
