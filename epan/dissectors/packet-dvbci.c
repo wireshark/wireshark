@@ -3839,8 +3839,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                     break;
                 case COMMS_CMD_ID_GET_NEXT_BUFFER:
                     phase_id = tvb_get_guint8(tvb, offset);
-                    proto_tree_add_uint_format(tree, hf_dvbci_phase_id,
-                            tvb, offset, 1, phase_id, "Phase ID %d", phase_id);
+                    proto_tree_add_item(tree, hf_dvbci_phase_id, 
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                             "received #%d", phase_id);
                     break;
@@ -3890,8 +3890,8 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
         case T_COMMS_RCV_LAST:
         case T_COMMS_RCV_MORE:
             phase_id = tvb_get_guint8(tvb, offset);
-            proto_tree_add_uint_format(tree, hf_dvbci_phase_id,
-                    tvb, offset, 1, phase_id, "Phase ID %d", phase_id);
+            proto_tree_add_item(tree, hf_dvbci_phase_id,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "Phase ID %d", phase_id);
             offset++;
@@ -5828,7 +5828,7 @@ proto_register_dvbci(void)
         },
         { &hf_dvbci_phase_id,
           { "Phase ID", "dvb-ci.lsc.comms_phase_id",
-            FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_comms_rep_id,
           { "Comms reply ID", "dvb-ci.lsc.comms_reply_id",
