@@ -2736,6 +2736,8 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     sep_data.previous_media_packet_info = NULL;
     sep_data.current_media_packet_info = NULL;
     sep_data.stream_number = 1;
+    sep_data.vendor_id = 0;
+    sep_data.vendor_codec = 0;
 
     if (force_a2dp_scms_t || force_a2dp_codec != CODEC_DEFAULT) {
         if (force_a2dp_scms_t)
