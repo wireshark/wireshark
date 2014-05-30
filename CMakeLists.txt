@@ -825,6 +825,8 @@ configure_file(
 
 include(FeatureSummary)
 #SET_FEATURE_INFO(NAME DESCRIPTION [URL [COMMENT] ]
+SET_FEATURE_INFO(SBC "SBC Codec for Bluetooth A2DP stream playing" "www: http://git.kernel.org/cgit/bluetooth/sbc.git" )
+
 FEATURE_SUMMARY(WHAT ALL)
 
 link_directories(
