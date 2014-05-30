@@ -4333,10 +4333,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flags_str = tcp_flags_to_str(tcph);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " [%s] Seq=%u", flags_str, tcph->th_seq);
-    if (tcph->th_flags&TH_ACK) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Ack=%u", tcph->th_ack);
-    }
-    col_append_fstr(pinfo->cinfo, COL_INFO, " Win=%u", tcph->th_win);
+    if (tcph->th_flags&TH_ACK)
+        tcp_info_append_uint(pinfo, "Ack", tcph->th_ack);
+
+    tcp_info_append_uint(pinfo, "Win", tcph->th_win);
 
     if (tree) {
         if (tcp_summary_in_tree) {
@@ -4643,7 +4643,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            rlogin. */
         tcpinfo.urgent = TRUE;
         tcpinfo.urgent_pointer = th_urp;
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Urg=%u", th_urp);
+        tcp_info_append_uint(pinfo, "Urg", th_urp);
     } else {
         tcpinfo.urgent = FALSE;
          if (th_urp) {
@@ -4652,9 +4652,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          }
     }
 
-    if (tcph->th_have_seglen) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " Len=%u", tcph->th_seglen);
-    }
+    if (tcph->th_have_seglen)
+        tcp_info_append_uint(pinfo, "Len", tcph->th_seglen);
 
     /* If there's more than just the fixed-length header (20 bytes), create
        a protocol tree item for the options.  (We already know there's
