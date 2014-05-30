@@ -1726,7 +1726,8 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
 {
     guint    end = offset + len;
     guint16  time_offset;
-    nstime_t time_of_change;
+    guint8   hour, min;
+    nstime_t local_time_offset, time_of_change;
 
     while (offset < end) {
         proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_country_code, tvb, offset, 3, ENC_ASCII|ENC_NA);
@@ -1737,11 +1738,12 @@ proto_mpeg_descriptor_dissect_local_time_offset(tvbuff_t *tvb, guint offset, gui
         proto_tree_add_item(tree, hf_mpeg_descr_local_time_offset_polarity, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
-        time_offset = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_string_format_value(tree, hf_mpeg_descr_local_time_offset_offset, tvb, offset, 2,
-            "Local Time Offset", "%02u:%02u",
-            MPEG_SECT_BCD44_TO_DEC(time_offset >> 8),
-            MPEG_SECT_BCD44_TO_DEC(time_offset));
+        hour = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset));
+        min = MPEG_SECT_BCD44_TO_DEC(tvb_get_guint8(tvb, offset+1));
+        nstime_set_zero(&local_time_offset);
+        local_time_offset.secs = hour*60*60 + min*60;
+        proto_tree_add_time_format_value(tree, hf_mpeg_descr_local_time_offset_offset,
+                tvb, offset, 2, &local_time_offset, "%02d:%02d", hour, min);
         offset += 2;
 
 
@@ -3754,8 +3756,8 @@ proto_register_mpeg_descriptor(void)
         } },
 
         { &hf_mpeg_descr_local_time_offset_offset, {
-            "Time Offset", "mpeg_descr.local_time_offset.offset",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            "Local Time Offset", "mpeg_descr.local_time_offset.offset",
+            FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_local_time_offset_time_of_change, {
