@@ -1,0 +1,93 @@
+Code from nghttp2 library ( https://github.com/tatsuhiro-t/nghttp2)
+Thanks for Tatsuhiro Tsujikawa for permission to use nghttp2 lib.
+
+Update library from source
+
+download (clone) last release of nghttp2
+and in folder wsutil/nghttp2 copy following file
+
+cp ../../../nghttp2/lib/nghttp2_buf.[ch] .
+cp ../../../nghttp2/lib/nghttp2_hd*.[ch] .
+cp ../../../nghttp2/lib/nghttp2_helper.[ch] .
+cp ../../../nghttp2/lib/nghttp2_int.h .
+cp ../../../nghttp2/lib/nghttp2_net.h .
+cp ../../../nghttp2/lib/includes/nghttp2/nghttp2.h nghttp2/
+cp ../../../nghttp2/lib/includes/nghttp2/nghttp2ver.h nghttp2/
+
+Change path to nghttp2.h
+find . -name "nghttp2*" -type f -exec sed -i 's/<nghttp2\/nghttp2.h>/<wsutil\/nghttp2\/nghttp2\/nghttp2.h>/g'  {} \;
+
+Fix c++-compat error
+
+in nghttp2/nghttp2_helper.h remove check for CONFIG.H
+
+in nghttp2/nghttp2/nghttp2.h
+
+Add on the top
+#include "ws_symbol_export.h"
+
+#include "config.h"
+
+Replace
+
+#include <stdint.h>
+
+By
+
+#ifdef _MSC_VER
+
+typedef __int8 int8_t;
+typedef unsigned __int8 uint8_t;
+typedef __int16 int16_t;
+typedef unsigned __int16 uint16_t;
+typedef __int32 int32_t;
+typedef unsigned __int32 uint32_t;
+typedef __int64 int64_t;
+typedef unsigned __int64 uint64_t;
+
+/* Limits of integral types. */
+#ifndef INT8_MIN
+#define INT8_MIN               (-128)
+#endif
+#ifndef INT16_MIN
+#define INT16_MIN              (-32767-1)
+#endif
+#ifndef INT32_MIN
+#define INT32_MIN              (-2147483647-1)
+#endif
+#ifndef INT8_MAX
+#define INT8_MAX               (127)
+#endif
+#ifndef INT16_MAX
+#define INT16_MAX              (32767)
+#endif
+#ifndef INT32_MAX
+#define INT32_MAX              (2147483647)
+#endif
+#ifndef UINT8_MAX
+#define UINT8_MAX              (255U)
+#endif
+#ifndef UINT16_MAX
+#define UINT16_MAX             (65535U)
+#endif
+#ifndef UINT32_MAX
+#define UINT32_MAX             (4294967295U)
+#endif
+
+#else
+#include <stdint.h>
+#endif
+
+Replace
+
+#include <nghttp2/nghttp2ver.h>
+
+by
+
+#include <wsutil/nghttp2/nghttp2/nghttp2ver.h>
+
+
+and export (WS_DLL_PUBLIC) following function :
+nghttp2_hd_inflate_end_headers
+nghttp2_hd_inflate_new
+nghttp2_hd_inflate_hd

@@ -2937,6 +2937,7 @@ AC_OUTPUT(
   tools/lemon/Makefile
   wiretap/Makefile
   wsutil/Makefile
+  wsutil/nghttp2/Makefile
   echld/Makefile
   _CUSTOM_AC_OUTPUT_
   ,)

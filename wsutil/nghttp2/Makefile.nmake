@@ -1,0 +1,43 @@
+## Makefile for building nghttp2.lib with Microsoft C and nmake
+## Use: $(MAKE) /$(MAKEFLAGS) -f makefile.nmake
+#
+
+include ..\..\config.nmake
+include Makefile.common
+
+############### no need to modify below this line #########
+
+CFLAGS=$(WARNINGS_ARE_ERRORS) $(STANDARD_CFLAGS) \
+	 /I../.. $(GLIB_CFLAGS) -DWS_BUILD_DLL
+
+.c.obj::
+	$(CC) $(CFLAGS)  -Fd.\ -c $<
+
+NGHTTP2_OBJECTS = $(LIBNGHTTP2_SRC:.c=.obj)
+
+nghttp2.lib: $(NGHTTP2_OBJECTS)
+	link /lib /out:nghttp2.lib $(NGHTTP2_OBJECTS)
+
+clean:
+	rm -f $(NGHTTP2_OBJECTS) nghttp2.lib *.pdb *.sbr
+
+distclean: clean
+
+maintainer-clean: distclean
+
+checkapi:
+	$(PERL) ../../tools/checkAPIs.pl -g termoutput -build \
+	$(LIBNGHTTP2_SRC)
+
+#
+# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

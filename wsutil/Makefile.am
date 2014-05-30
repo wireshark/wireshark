@@ -18,6 +18,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
 
+SUBDIRS = nghttp2
+
+DIST_SUBDIRS = $(SUBDIRS)
+
 ACLOCAL_AMFLAGS = `../aclocal-flags`
 
 # Optional objects that I know how to build. These will be
@@ -84,11 +88,13 @@ EXTRA_libwsutil_la_SOURCES=	\
 	wsgetopt_int.h
 
 libwsutil_la_DEPENDENCIES=	\
+	nghttp2/libnghttp2.la	\
 	$(wsutil_optional_objects)
 
 libwsutil_la_LIBADD =		\
 	@GLIB_LIBS@		\
 	@LIBGCRYPT_LIBS@	\
+	nghttp2/libnghttp2.la	\
 	$(wsutil_optional_objects)
 
 EXTRA_DIST =		\

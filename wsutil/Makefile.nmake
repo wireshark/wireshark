@@ -27,13 +27,19 @@ OBJECTS = file_util.obj		\
 	inet_pton.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
 	strptime.obj		\
-	wsgetopt.obj
+	wsgetopt.obj		\
+	nghttp2/nghttp2_buf.obj	\
+	nghttp2/nghttp2_hd.obj	\
+	nghttp2/nghttp2_hd_huffman.obj	\
+	nghttp2/nghttp2_hd_huffman_data.obj	\
+	nghttp2/nghttp2_helper.obj
 
 # For use when making libwsutil.dll
 libwsutil.lib: libwsutil.dll
 libwsutil.exp: libwsutil.dll
 
-libwsutil.dll : $(OBJECTS) ..\image\libwsutil.res
+libwsutil.dll : $(OBJECTS) nghttp ..\image\libwsutil.res
+	@echo Linking libwsutil.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
 		/OUT:libwsutil.dll \
@@ -41,7 +47,7 @@ libwsutil.dll : $(OBJECTS) ..\image\libwsutil.res
 		..\image\libwsutil.res \
 		$(OBJECTS) $(libwsutil_LIBS)
 
-clean :
+clean-local:
 	rm -f $(OBJECTS) \
 		libwsutil.lib \
 		libwsutil.exp \
@@ -49,9 +55,19 @@ clean :
 		libwsutil.dll.manifest \
 		*.pdb *.sbr
 
+clean: clean-local
+	cd nghttp2
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ..
+
 distclean: clean
 
 maintainer-clean: distclean
+
+nghttp: ..\config.h
+	cd nghttp2
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
 
 checkapi:
 ##	$(PERL) ../tools/checkAPIs.pl -g abort -g termoutput \

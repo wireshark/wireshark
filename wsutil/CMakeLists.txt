@@ -68,6 +68,11 @@ set(WSUTIL_FILES
 	type_util.c
 	u3.c
 	unicode-utils.c
+	nghttp2/nghttp2_buf.c
+	nghttp2/nghttp2_hd.c
+	nghttp2/nghttp2_hd_huffman.c
+	nghttp2/nghttp2_hd_huffman_data.c
+	nghttp2/nghttp2_helper.c
 	${WSUTIL_PLATFORM_FILES}
 )
 
