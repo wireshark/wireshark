@@ -41,6 +41,7 @@
 #include <epan/packet.h>
 #include <epan/exceptions.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include "packet-tcp.h"
 
@@ -49,7 +50,7 @@ void proto_register_amqp(void);
 void proto_reg_handoff_amqp(void);
 /*  Generic data  */
 
-static int amqp_port = 5672;
+static guint amqp_port = 5672;
 
 /*  Generic defines  */
 
@@ -13567,6 +13568,7 @@ proto_register_amqp(void)
     };
 
     expert_module_t* expert_amqp;
+    module_t *amqp_module;
 
     proto_amqp = proto_register_protocol(
         "Advanced Message Queueing Protocol", "AMQP", "amqp");
@@ -13574,11 +13576,34 @@ proto_register_amqp(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_amqp = expert_register_protocol(proto_amqp);
     expert_register_field_array(expert_amqp, ei, array_length(ei));
+
+    amqp_module = prefs_register_protocol(proto_amqp, proto_reg_handoff_amqp);
+    prefs_register_uint_preference(amqp_module, "tcp.amqp_port",
+                                   "AMQP listening TCP Port",
+                                   "Set the TCP port for AMQP"
+                                   "(if other than the default of 5672)",
+                                   10, &amqp_port);
 }
 
 void
 proto_reg_handoff_amqp(void)
 {
-    dissector_add_uint("tcp.port", amqp_port,
-        create_dissector_handle(dissect_amqp, proto_amqp));
+    static gboolean amqp_prefs_initialized = FALSE;
+    static dissector_handle_t amqp_tcp_handle;
+    static guint old_amqp_port = 0;
+
+    /* Register as a heuristic TCP dissector */
+    if (amqp_prefs_initialized == FALSE) {
+        amqp_tcp_handle = create_dissector_handle(dissect_amqp, proto_amqp);
+        amqp_prefs_initialized = TRUE;
+    }
+
+    /* Register TCP port for dissection */
+    if (old_amqp_port != 0 && old_amqp_port != amqp_port){
+        dissector_delete_uint("tcp.port", old_amqp_port, amqp_tcp_handle);
+    }
+
+    if (amqp_port != 0 && old_amqp_port != amqp_port) {
+        dissector_add_uint("tcp.port", amqp_port, amqp_tcp_handle);
+    }
 }
