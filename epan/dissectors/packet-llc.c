@@ -179,61 +179,6 @@ const value_string sap_vals[] = {
 	{ 0x00,               NULL }
 };
 
-/*
- * See
- *
- * http://standards.ieee.org/regauth/oui/oui.txt
- *
- * http://www.cisco.com/univercd/cc/td/doc/product/lan/trsrb/vlan.htm
- *
- * for the PIDs for VTP and DRiP that go with an OUI of OUI_CISCO.
- */
-const value_string oui_vals[] = {
-	{ OUI_ENCAP_ETHER,	"Encapsulated Ethernet" },
-	{ OUI_XEROX,		"Xerox" },
-/*
-http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r/brprt1/brsrb.htm
-*/
-	{ OUI_CISCO,			"Cisco" },
-	{ OUI_NORTEL,			"Nortel Discovery Protocol" },
-	{ OUI_CISCO_90,			"Cisco IOS 9.0 Compatible" },
-	{ OUI_FORCE10,			"Force10 Networks" },
-	{ OUI_ERICSSON,			"Ericsson Group" },
-	{ OUI_CATENA,			"Catena Networks" },
-	{ OUI_SONY_ERICSSON,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_SONY_ERICSSON_2,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_PROFINET,			"PROFIBUS Nutzerorganisation e.V." },
-	{ OUI_SONY_ERICSSON_3,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_CIMETRICS,		"Cimetrics" },
-	{ OUI_IEEE_802_3,		"IEEE 802.3" },
-	{ OUI_MEDIA_ENDPOINT,	"Media (TIA TR-41 Committee)" },
-	{ OUI_SONY_ERICSSON_4,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_ERICSSON_MOBILE,	"Ericsson Mobile Platforms" },
-	{ OUI_SONY_ERICSSON_5,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_SONY_ERICSSON_6,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_SONY_ERICSSON_7,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_BLUETOOTH,		"Bluetooth SIG, Inc." },
-	{ OUI_SONY_ERICSSON_8,	"Sony Ericsson Mobile Communications AB" },
-	{ OUI_IEEE_802_1QBG,	"IEEE 802.1Qbg" },
-	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
-	{ OUI_CISCOWL,			"Cisco Wireless (Aironet) L2" },
-	{ OUI_MARVELL,			"Marvell Semiconductor" },
-	{ OUI_BRIDGED,			"Frame Relay or ATM bridged frames" },
-	{ OUI_IEEE_802_1,		"IEEE 802.1 Committee" },
-	{ OUI_ATM_FORUM,		"ATM Forum" },
-	{ OUI_EXTREME,			"Extreme Networks" },
-	/* RFC 2427, RFC 2684 */
-	{ OUI_CABLE_BPDU,		"DOCSIS Spanning Tree" }, /* DOCSIS spanning tree BPDU */
-	{ OUI_SIEMENS,			"Siemens AG" },
-	{ OUI_APPLE_ATALK,		"Apple (AppleTalk)" },
-	{ OUI_HP,				"Hewlett-Packard" },
-	{ OUI_HP_2,				"Hewlett-Packard" },
-	/* Registry Name: PPP Vendor Specific OUI Options */
-	{ OUI_3GPP2,			"3GPP2 Vendor specific packet ID" },
-	{ OUI_ERICSSON_2,		"Ericsson Group" },
-	{ 0,	NULL }
-};
-
 static const value_string format_vals[] = {
 	{ 0x81,        "LLC basic format" },
 	{ 0,           NULL }

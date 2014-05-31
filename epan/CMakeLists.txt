@@ -1550,6 +1550,7 @@ set(LIBWIRESHARK_FILES
 	next_tvb.c
 	oids.c
 	osi-utils.c
+	oui.c
 	packet-range.c
 	packet.c
 	print.c

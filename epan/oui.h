@@ -85,27 +85,9 @@
 #define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
 #define OUI_PRE11N          0x00904C    /* Wi-Fi : 802.11 Pre-N */
 
-/*
- * Defined in packet-llc.c
- */
 extern const value_string oui_vals[];
 
-
-static const value_string tlv_oui_subtype_vals[] = {
-    /* Currently, the manuf file calls this "Ieee8021"; "IEEE 802.1" looks better */
-    { OUI_IEEE_802_1,       "IEEE 802.1" },
-    /* Currently, the manuf file calls this "Ieee8023"; "IEEE 802.3" looks better */
-    { OUI_IEEE_802_3,       "IEEE 802.3" },
-    /* Currently, the manuf file calls this "Telecomm"; "TIA TR-41 Committee" looks better */
-    { OUI_MEDIA_ENDPOINT,   "TIA TR-41 Committee" },
-    /* Currently, the manuf file calls this "Profibus" */
-    { OUI_PROFINET,         "PROFINET" },
-    /* Currently, the manuf file calls this "Procurve", as it's assigned to HP! */
-    { OUI_IEEE_802_1QBG,    "IEEE 802.1Qbg" },
-    /*  Data Center Bridging Exchange */
-    { OUI_DCBX,             "Data Center Bridging Capabilities Exchange" },
-    { 0, NULL }
-};
+extern const value_string tlv_oui_subtype_vals[];
 
 #endif
 
