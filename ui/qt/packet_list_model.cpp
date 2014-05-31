@@ -21,9 +21,6 @@
 
 #include "packet_list_model.h"
 
-#include <epan/epan_dissect.h>
-#include <epan/column-info.h>
-#include <epan/column.h>
 #include <wsutil/nstime.h>
 #include <epan/prefs.h>
 
@@ -41,12 +38,13 @@
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent)
 {
-    cap_file_ = cf;
+    setCaptureFile(cf);
 }
 
 void PacketListModel::setCaptureFile(capture_file *cf)
 {
     cap_file_ = cf;
+    resetColumns();
 }
 
 // Packet list records have no children (for now, at least).
@@ -86,9 +84,9 @@ guint PacketListModel::recreateVisibleRows()
     endResetModel();
     beginInsertRows(QModelIndex(), pos, pos);
     foreach (record, physical_rows_) {
-        if (record->getFdata()->flags.passed_dfilter || record->getFdata()->flags.ref_time) {
+        if (record->frameData()->flags.passed_dfilter || record->frameData()->flags.ref_time) {
             visible_rows_ << record;
-            number_to_row_[record->getFdata()->num] = visible_rows_.count() - 1;
+            number_to_row_[record->frameData()->num] = visible_rows_.count() - 1;
         }
     }
     endInsertRows();
@@ -110,6 +108,9 @@ void PacketListModel::clear() {
 void PacketListModel::resetColumns()
 {
     beginResetModel();
+    if (cap_file_) {
+        PacketListRecord::resetColumns(&cap_file_->cinfo);
+    }
     endResetModel();
 }
 
@@ -136,7 +137,7 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
     PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
     if (!record)
         return QVariant();
-    frame_data *fdata = record->getFdata();
+    frame_data *fdata = record->frameData();
     if (!fdata)
         return QVariant();
 
@@ -190,106 +191,15 @@ QVariant PacketListModel::data(const QModelIndex &index, int role) const
         }
         return QColor(color->red >> 8, color->green >> 8, color->blue >> 8);
     case Qt::DisplayRole:
-        // Need packet data -- fall through
-        break;
+    {
+        int column = index.column();
+        //    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
+        return record->columnString(cap_file_, column);
+    }
     default:
         return QVariant();
     }
 
-    int col_num = index.column();
-//    g_log(NULL, G_LOG_LEVEL_DEBUG, "showing col %d", col_num);
-
-    if (col_num > prefs.num_cols)
-        return QVariant();
-
-    epan_dissect_t edt;
-    column_info *cinfo;
-    gboolean create_proto_tree;
-    struct wtap_pkthdr phdr; /* Packet header */
-    Buffer buf;  /* Packet data */
-    gboolean dissect_columns = TRUE; // XXX - Currently only a placeholder
-
-    if (dissect_columns && cap_file_)
-        cinfo = &cap_file_->cinfo;
-    else
-        cinfo = NULL;
-
-    memset(&phdr, 0, sizeof(struct wtap_pkthdr));
-
-    buffer_init(&buf, 1500);
-    if (!cap_file_ || !cf_read_record_r(cap_file_, fdata, &phdr, &buf)) {
-        /*
-         * Error reading the record.
-         *
-         * Don't set the color filter for now (we might want
-         * to colorize it in some fashion to warn that the
-         * row couldn't be filled in or colorized), and
-         * set the columns to placeholder values, except
-         * for the Info column, where we'll put in an
-         * error message.
-         */
-        if (dissect_columns) {
-            col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
-
-            //            for(gint col = 0; col < cinfo->num_cols; ++col) {
-            //                /* Skip columns based on frame_data because we already store those. */
-            //                if (!col_based_on_frame_data(cinfo, col))
-            //                    packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
-            //            }
-            //            record->columnized = TRUE;
-        }
-        if (enable_color_) {
-            fdata->color_filter = NULL;
-            //            record->colorized = TRUE;
-        }
-        buffer_free(&buf);
-        return QVariant();	/* error reading the record */
-    }
-
-    create_proto_tree = (color_filters_used() && enable_color_) ||
-                        (have_custom_cols(cinfo) && dissect_columns);
-
-    epan_dissect_init(&edt, cap_file_->epan,
-                      create_proto_tree,
-                      FALSE /* proto_tree_visible */);
-
-    if (enable_color_)
-        color_filters_prime_edt(&edt);
-    if (dissect_columns)
-        col_custom_prime_edt(&edt, cinfo);
-
-    epan_dissect_run(&edt, cap_file_->cd_t, &phdr, frame_tvbuff_new_buffer(fdata, &buf), fdata, cinfo);
-
-    if (enable_color_)
-        fdata->color_filter = color_filters_colorize_packet(&edt);
-
-    if (dissect_columns) {
-        /* "Stringify" non frame_data vals */
-        epan_dissect_fill_in_columns(&edt, FALSE, FALSE /* fill_fd_columns */);
-
-        //            for(col = 0; col < cinfo->num_cols; ++col) {
-        //                    /* Skip columns based on frame_data because we already store those. */
-        //                    if (!col_based_on_frame_data(cinfo, col))
-        //                            packet_list_change_record(packet_list, record->physical_pos, col, cinfo);
-        //            }
-//        g_log(NULL, G_LOG_LEVEL_DEBUG, "d_c %d: %s", col_num, cinfo->col_data[col_num]);
-    }
-
-    //    if (dissect_columns)
-    //            record->columnized = TRUE;
-    //    if (enable_color_)
-    //            record->colorized = TRUE;
-
-    epan_dissect_cleanup(&edt);
-    buffer_free(&buf);
-
-    switch (role) {
-    case Qt::DisplayRole:
-        return record->data(col_num, cinfo);
-        break;
-    default:
-        break;
-    }
     return QVariant();
 }
 
@@ -334,14 +244,14 @@ frame_data *PacketListModel::getRowFdata(int row) {
     PacketListRecord *record = visible_rows_[row];
     if (!record)
         return NULL;
-    return record->getFdata();
+    return record->frameData();
 }
 
 int PacketListModel::visibleIndexOf(frame_data *fdata) const
 {
     int row = 0;
     foreach (PacketListRecord *record, visible_rows_) {
-        if (record->getFdata() == fdata) {
+        if (record->frameData() == fdata) {
             return row;
         }
         row++;

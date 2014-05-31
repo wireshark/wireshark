@@ -40,7 +40,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
 
     frame_data *fd;
     PacketListRecord *record = static_cast<PacketListRecord*>(index.internalPointer());
-    if (!record || (fd = record->getFdata()) == NULL) {
+    if (!record || (fd = record->frameData()) == NULL) {
         return;
     }
 

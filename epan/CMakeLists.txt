@@ -1673,6 +1673,7 @@ set_target_properties(epan PROPERTIES VERSION ${FULL_SO_VERSION} SOVERSION 0)
 
 ABICHECK(libwireshark)
 
+file(GLOB COLUMN_INFO_HEADER column-info.h)
 file(GLOB CRYPT_HEADERS crypt/*.h)
 file(GLOB DFILTER_HEADERS dfilter/*.h ../tools/lemon/cppmagic.h)
 file(GLOB D_HEADERS dissectors/*.h)
