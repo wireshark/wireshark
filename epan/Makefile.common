@@ -233,6 +233,7 @@ LIBWIRESHARK_INCLUDES =		\
 	show_exception.h	\
 	sigcomp_state_hdlr.h	\
 	sigcomp-udvm.h		\
+	slow_protocol_subtypes.h \
 	sminmpec.h		\
 	sna-utils.h		\
 	stat_cmd_args.h		\

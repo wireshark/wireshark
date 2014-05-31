@@ -783,6 +783,7 @@ DISSECTOR_SRC = \
 	packet-kt.c		\
 	packet-l1-events.c	\
 	packet-l2tp.c		\
+	packet-lacp.c		\
 	packet-lanforge.c	\
 	packet-lapb.c		\
 	packet-lapbether.c	\
@@ -832,6 +833,7 @@ DISSECTOR_SRC = \
 	packet-macsec.c		\
 	packet-mactelnet.c	\
 	packet-manolito.c	\
+	packet-marker.c		\
 	packet-mausb.c		\
 	packet-mbim.c		\
 	packet-mbtcp.c		\
@@ -944,6 +946,7 @@ DISSECTOR_SRC = \
 	packet-ntp.c		\
 	packet-null.c		\
 	packet-nwmtp.c		\
+	packet-oampdu.c		\
 	packet-oicq.c		\
 	packet-oipf.c		\
 	packet-olsr.c		\
@@ -961,6 +964,7 @@ DISSECTOR_SRC = \
 	packet-osi.c		\
 	packet-ositp.c		\
 	packet-ospf.c		\
+	packet-ossp.c		\
 	packet-ouch.c		\
 	packet-p_mul.c		\
 	packet-pathport.c	\

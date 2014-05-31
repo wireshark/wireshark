@@ -863,6 +863,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-kt.c
 	dissectors/packet-l1-events.c
 	dissectors/packet-l2tp.c
+	dissectors/packet-lacp.c
 	dissectors/packet-lanforge.c
 	dissectors/packet-lapb.c
 	dissectors/packet-lapbether.c
@@ -912,6 +913,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-macsec.c
 	dissectors/packet-mactelnet.c
 	dissectors/packet-manolito.c
+	dissectors/packet-marker.c
 	dissectors/packet-mausb.c
 	dissectors/packet-mbim.c
 	dissectors/packet-mbtcp.c
@@ -1024,6 +1026,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-ntp.c
 	dissectors/packet-null.c
 	dissectors/packet-nwmtp.c
+	dissectors/packet-oampdu.c
 	dissectors/packet-oicq.c
 	dissectors/packet-oipf.c
 	dissectors/packet-olsr.c
@@ -1042,6 +1045,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-osi.c
 	dissectors/packet-ositp.c
 	dissectors/packet-ospf.c
+	dissectors/packet-ossp.c
 	dissectors/packet-ouch.c
 	dissectors/packet-p_mul.c
 	dissectors/packet-pathport.c
