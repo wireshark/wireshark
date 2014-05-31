@@ -1169,6 +1169,13 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_event_simulcast, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_reserved2, tvb, offset, 1, ENC_BIG_ENDIAN);
     } else if (linkage_type == 0x81) {
+        /* linkage type 0x81 is "user defined" in the DVB-SI spec (EN 300468)
+           it is defined in the interaction channel spec (EN 301790)
+           it seems that in practice, 0x81 is also used for other purposes than interaction channel
+           if the following data really belongs to interaction channel, we need at least another 7 bytes */
+        if (offset+7>end)
+            return;
+
         proto_tree_add_item(tree, hf_mpeg_descr_linkage_interactive_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
@@ -1177,7 +1184,6 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
         offset += 1;
 
         while (population_id_loop_count--) {
-
             population_id_base = tvb_get_ntohs(tvb, offset);
             population_id_mask = tvb_get_ntohs(tvb, offset + 2);
             pi = proto_tree_add_uint_format_value(tree, hf_mpeg_descr_linkage_population_id, tvb, offset, 4,
