@@ -1026,13 +1026,40 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 	if (pinfo->gssapi_data_encrypted) {
 		checksum_size = 44 + ec;
-	} else {
-		checksum_size = 12;
-	}
 
-	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
-			    checksum_size, ENC_NA);
-	offset += checksum_size;
+		proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
+				    checksum_size, ENC_NA);
+		offset += checksum_size;
+
+	} else {
+		int inner_token_len = 0;
+
+		/*
+		 * We know we have a wrap token, but we have to let the proto
+		 * above us decode that, so hand it back in gssapi_wrap_tvb
+		 * and put the checksum in the tree.
+		 */
+
+		checksum_size = ec;
+
+		inner_token_len = tvb_reported_length_remaining(tvb, offset) -
+					ec;
+
+		pinfo->gssapi_wrap_tvb = tvb_new_subset(tvb, offset,
+						inner_token_len, inner_token_len);
+
+		offset += inner_token_len;
+
+		proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
+				    checksum_size, ENC_NA);
+
+		/*
+		 * Return an offset that puts our caller before the inner
+		 * token. This is better than before, but we still see the
+		 * checksum included in the LDAP query at times.
+		 */
+		return offset - inner_token_len;
+	}
 
 	if(pinfo->decrypt_gssapi_tvb){
 		/* if the caller did not provide a tvb, then we just use
