@@ -880,7 +880,7 @@ static search_result search_hd_table(nghttp2_hd_context *context,
                                      nghttp2_nv *nv)
 {
   search_result res = { -1, 0 };
-  ssize_t i;
+  size_t i;
   uint32_t name_hash = hash(nv->name, nv->namelen);
   uint32_t value_hash = hash(nv->value, nv->valuelen);
   ssize_t left = -1, right = (ssize_t)STATIC_TABLE_LENGTH;
@@ -891,10 +891,10 @@ static search_result search_hd_table(nghttp2_hd_context *context,
       nghttp2_hd_entry *ent = hd_ringbuf_get(&context->hd_table, i);
       if(ent->name_hash == name_hash && name_eq(&ent->nv, nv)) {
         if(res.index == -1) {
-          res.index = i;
+          res.index = (ssize_t)i;
         }
         if(ent->value_hash == value_hash && value_eq(&ent->nv, nv)) {
-          res.index = i;
+          res.index = (ssize_t)i;
           res.name_value_match = 1;
           return res;
         }
@@ -1395,7 +1395,7 @@ static ssize_t hd_inflate_read_huff(nghttp2_hd_inflater *inflater,
     last = in + inflater->left;
     final = 1;
   }
-  rv = nghttp2_hd_huff_decode(&inflater->huff_decode_ctx, bufs,
+  rv = (int)nghttp2_hd_huff_decode(&inflater->huff_decode_ctx, bufs,
                               in, last - in, final);
 
   if(rv < 0) {

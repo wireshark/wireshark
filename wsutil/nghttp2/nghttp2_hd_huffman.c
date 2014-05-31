@@ -133,7 +133,7 @@ int nghttp2_hd_huff_encode(nghttp2_bufs *bufs,
         avail = nghttp2_bufs_cur_avail(bufs);
       }
     }
-    rembits = huff_encode_sym(bufs, &avail, rembits, sym);
+    rembits = (int)huff_encode_sym(bufs, &avail, rembits, sym);
     if(rembits < 0) {
       return rembits;
     }
@@ -166,7 +166,7 @@ ssize_t nghttp2_hd_huff_decode(nghttp2_hd_huff_decode_context *ctx,
                                nghttp2_bufs *bufs,
                                const uint8_t *src, size_t srclen, int final)
 {
-  ssize_t i, j;
+  size_t i, j;
   int rv;
   size_t avail;
 
@@ -203,5 +203,5 @@ ssize_t nghttp2_hd_huff_decode(nghttp2_hd_huff_decode_context *ctx,
   if(final && !ctx->accept) {
     return NGHTTP2_ERR_HEADER_COMP;
   }
-  return i;
+  return (ssize_t)i;
 }
