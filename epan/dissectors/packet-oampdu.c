@@ -1027,7 +1027,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint16   flags,state;
     guint32   i;
 
-    proto_tree *oampdu_tree;
+    proto_tree *oampdu_tree = NULL;
     proto_item *oampdu_item;
     proto_tree *flags_tree;
     proto_item *flags_item;
