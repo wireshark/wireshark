@@ -27,12 +27,7 @@ OBJECTS = file_util.obj		\
 	inet_pton.obj		\
 	$(LIBWSUTIL_SRC:.c=.obj) \
 	strptime.obj		\
-	wsgetopt.obj		\
-	nghttp2/nghttp2_buf.obj	\
-	nghttp2/nghttp2_hd.obj	\
-	nghttp2/nghttp2_hd_huffman.obj	\
-	nghttp2/nghttp2_hd_huffman_data.obj	\
-	nghttp2/nghttp2_helper.obj
+	wsgetopt.obj
 
 # For use when making libwsutil.dll
 libwsutil.lib: libwsutil.dll
@@ -45,7 +40,12 @@ libwsutil.dll : $(OBJECTS) nghttp ..\image\libwsutil.res
 		/OUT:libwsutil.dll \
 		/IMPLIB:libwsutil.lib \
 		..\image\libwsutil.res \
-		$(OBJECTS) $(libwsutil_LIBS)
+		$(OBJECTS) $(libwsutil_LIBS) \
+		nghttp2/nghttp2_buf.obj	\
+		nghttp2/nghttp2_hd.obj	\
+		nghttp2/nghttp2_hd_huffman.obj	\
+		nghttp2/nghttp2_hd_huffman_data.obj	\
+		nghttp2/nghttp2_helper.obj
 
 clean-local:
 	rm -f $(OBJECTS) \
