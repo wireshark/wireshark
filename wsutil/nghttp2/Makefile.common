@@ -30,7 +30,7 @@ LIBNGHTTP2_SRC =			\
 
 LIBNGHTTP2_INCLUDES =			\
 	nghttp2_buf.h			\
-	nghttp2_ent.h			\
+	nghttp2_net.h			\
 	nghttp2_hd.h			\
 	nghttp2_hd_huffman.h		\
 	nghttp2_helper.h		\
