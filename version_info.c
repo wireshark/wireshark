@@ -40,6 +40,7 @@
 #include "version_info.h"
 #include "capture-pcap-util.h"
 #include <wsutil/unicode-utils.h>
+#include <wsutil/ws_cpuid.h>
 
 #include "version.h"
 
@@ -618,51 +619,9 @@ void get_os_version_info(GString *str)
  * Get the CPU info, and append it to the GString
  */
 
-#if defined(_MSC_VER)
-static void
-do_cpuid(int *CPUInfo, guint32 selector){
-	__cpuid(CPUInfo, selector);
-}
-#elif defined(__GNUC__)
-#if defined(__x86_64__)
-static inline void
-do_cpuid(guint32 *CPUInfo, int selector)
-{
-	__asm__ __volatile__("cpuid"
-						: "=a" (CPUInfo[0]),
-							"=b" (CPUInfo[1]),
-							"=c" (CPUInfo[2]),
-							"=d" (CPUInfo[3])
-						: "a"(selector));
-}
-#else /* (__i386__) */
-/* would need a test if older proccesors have the cpuid instruction */
-static void
-do_cpuid(guint32 *CPUInfo, int selector _U_){
-	CPUInfo[0] = 0;
-}
-
-#endif /* defined(__x86_64__)*/
-#else /* Other compilers */
-static void
-do_cpuid(guint32 *CPUInfo, int selector _U_){
-	CPUInfo[0] = 0;
-}
-#endif
-
-/*
- * Get CPU info on platforms where the cpuid instruction can be used skip 32 bit versions for GCC
- * 	http://www.intel.com/content/dam/www/public/us/en/documents/application-notes/processor-identification-cpuid-instruction-note.pdf
- * the get_cpuid() routine will return 0 in CPUInfo[0] if cpuinfo isn't available.
- */
-
 static void get_cpu_info(GString *str _U_)
 {
-#if defined(_MSC_VER)
-	int CPUInfo[4];
-#else
 	guint32 CPUInfo[4];
-#endif
 	char CPUBrandString[0x40];
 	unsigned nExIds;
 
@@ -670,7 +629,7 @@ static void get_cpu_info(GString *str _U_)
 
 	/* Calling __cpuid with 0x80000000 as the InfoType argument*/
 	/* gets the number of valid extended IDs.*/
-	do_cpuid(CPUInfo, 0x80000000);
+	ws_cpuid(CPUInfo, 0x80000000);
 	nExIds = CPUInfo[0];
 
 	if( nExIds<0x80000005)
@@ -678,11 +637,11 @@ static void get_cpu_info(GString *str _U_)
 	memset(CPUBrandString, 0, sizeof(CPUBrandString));
 
 	/* Interpret CPU brand string.*/
-	do_cpuid(CPUInfo, 0x80000002);
+	ws_cpuid(CPUInfo, 0x80000002);
 	memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
-	do_cpuid(CPUInfo, 0x80000003);
+	ws_cpuid(CPUInfo, 0x80000003);
 	memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
-	do_cpuid(CPUInfo, 0x80000004);
+	ws_cpuid(CPUInfo, 0x80000004);
 	memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
 
 	g_string_append_printf(str, "\n%s", CPUBrandString);

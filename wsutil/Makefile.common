@@ -102,7 +102,8 @@ LIBWSUTIL_INCLUDES = 	\
 	time_util.h	\
 	type_util.h	\
 	u3.h		\
-	unicode-utils.h
+	unicode-utils.h \
+	ws_cpuid.h
 
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
