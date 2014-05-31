@@ -1180,8 +1180,9 @@ proto_mpeg_descriptor_dissect_linkage(tvbuff_t *tvb, guint offset, guint len, pr
 
             population_id_base = tvb_get_ntohs(tvb, offset);
             population_id_mask = tvb_get_ntohs(tvb, offset + 2);
-            pi = proto_tree_add_string_format_value(tree, hf_mpeg_descr_linkage_population_id, tvb, offset, 4, "Population ID", "0x%04x/0x%04x",
-                population_id_base, population_id_mask);
+            pi = proto_tree_add_uint_format_value(tree, hf_mpeg_descr_linkage_population_id, tvb, offset, 4,
+                    population_id_base<<16|population_id_mask,
+                    "0x%04x / 0x%04x", population_id_base, population_id_mask);
             population_tree = proto_item_add_subtree(pi, ett_mpeg_descriptor_linkage_population_id);
 
             proto_tree_add_item(population_tree, hf_mpeg_descr_linkage_population_id_base, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3526,7 +3527,7 @@ proto_register_mpeg_descriptor(void)
 
         { &hf_mpeg_descr_linkage_population_id, {
             "Population ID", "mpeg_descr.population_id",
-            FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL
         } },
 
         { &hf_mpeg_descr_linkage_population_id_base, {
