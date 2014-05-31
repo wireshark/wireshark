@@ -37,10 +37,10 @@
 #define NGHTTP2_HD_DEFAULT_MAX_BUFFER_SIZE NGHTTP2_DEFAULT_HEADER_TABLE_SIZE
 #define NGHTTP2_HD_ENTRY_OVERHEAD 32
 
-/* The maximum value length of name/value pair. This is not specified
-   by the spec. We just chose the arbitrary size */
-#define NGHTTP2_HD_MAX_NAME 256
-#define NGHTTP2_HD_MAX_VALUE 8192
+/* The maximum length of one name/value pair.  This is the sum of the
+   length of name and value.  This is not specified by the spec. We
+   just chose the arbitrary size */
+#define NGHTTP2_HD_MAX_NV 8192
 
 /* Default size of maximum table buffer size for encoder. Even if
    remote decoder notifies larger buffer size for its decoding,
@@ -146,20 +146,17 @@ struct nghttp2_hd_deflater {
 
 struct nghttp2_hd_inflater {
   nghttp2_hd_context ctx;
-  /* header name buffer */
-  nghttp2_bufs namebufs;
-  /* header value buffer */
-  nghttp2_bufs valuebufs;
+  /* header buffer */
+  nghttp2_bufs nvbufs;
   /* Stores current state of huffman decoding */
   nghttp2_hd_huff_decode_context huff_decode_ctx;
   /* Pointer to the nghttp2_hd_entry which is used current header
      emission. This is required because in some cases the
      ent_keep->ref == 0 and we have to keep track of it. */
   nghttp2_hd_entry *ent_keep;
-  /* Pointers to the name/value pair which are used current header
-     emission. They are usually used to keep track of malloc'ed memory
-     for huffman decoding. */
-  uint8_t *name_keep, *value_keep;
+  /* Pointer to the name/value pair buffer which is used in the
+     current header emission. */
+  uint8_t *nv_keep;
   /* Pointers to the name/value pair which is referred as indexed
      name. This entry must be in header table. */
   nghttp2_hd_entry *ent_name;
@@ -170,6 +167,9 @@ struct nghttp2_hd_inflater {
   /* The index of header table to toggle off the entry from reference
      set at the end of decompression. */
   size_t end_headers_index;
+  /* The length of new name encoded in literal.  For huffman encoded
+     string, this is the length after it is decoded. */
+  size_t newnamelen;
   /* The maximum header table size the inflater supports. This is the
      same value transmitted in SETTINGS_HEADER_TABLE_SIZE */
   size_t settings_hd_table_bufsize_max;

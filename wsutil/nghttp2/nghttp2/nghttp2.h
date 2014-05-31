@@ -2237,6 +2237,12 @@ int nghttp2_priority_spec_check_default(const nghttp2_priority_spec *pri_spec);
  * arbitrary pointer, which can be retrieved later by
  * `nghttp2_session_get_stream_user_data()`.
  *
+ * This function returns assigned stream ID if it succeeds.  But that
+ * stream is not opened yet.  The application must not submit frame to
+ * that stream ID before
+ * :member:`nghttp2_session_callbacks.before_frame_send_callback` is
+ * called for this frame.
+ *
  * This function returns assigned stream ID if it succeeds, or one of
  * the following negative error codes:
  *
@@ -2344,6 +2350,12 @@ int nghttp2_submit_response(nghttp2_session *session,
  * This function is low-level in a sense that the application code can
  * specify flags directly.  For usual HTTP request,
  * `nghttp2_submit_request()` is useful.
+ *
+ * This function returns assigned stream ID if it succeeds and
+ * |stream_id| is -1.  But that stream is not opened yet.  The
+ * application must not submit frame to that stream ID before
+ * :member:`nghttp2_session_callbacks.before_frame_send_callback` is
+ * called for this frame.
  *
  * This function returns newly assigned stream ID if it succeeds and
  * |stream_id| is -1.  Otherwise, this function returns 0 if it
@@ -2500,6 +2512,12 @@ int nghttp2_submit_settings(nghttp2_session *session, uint8_t flags,
  * `nghttp2_session_get_stream_user_data()`.  The application can
  * access it in :type:`nghttp2_before_frame_send_callback` and
  * :type:`nghttp2_on_frame_send_callback` of this frame.
+ *
+ * This function returns assigned promised stream ID if it succeeds.
+ * But that stream is not opened yet.  The application must not submit
+ * frame to that stream ID before
+ * :member:`nghttp2_session_callbacks.before_frame_send_callback` is
+ * called for this frame.
  *
  * The client side is not allowed to use this function.
  *

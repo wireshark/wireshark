@@ -36,13 +36,17 @@ typedef enum {
      sequence. */
   NGHTTP2_HUFF_ACCEPTED = 1,
   /* This state emits symbol */
-  NGHTTP2_HUFF_SYM = (1 << 1)
+  NGHTTP2_HUFF_SYM = (1 << 1),
+  /* If state machine reaches this state, decoding fails. */
+  NGHTTP2_HUFF_FAIL = (1 << 2),
 } nghttp2_huff_decode_flag;
 
 typedef struct {
   /* huffman decoding state, which is actually the node ID of internal
-     huffman tree */
-  int16_t state;
+     huffman tree.  We have 257 leaf nodes, but they are identical to
+     root node other than emitting a symbol, so we have 256 internal
+     nodes [1..255], inclusive. */
+  uint8_t state;
   /* bitwise OR of zero or more of the nghttp2_huff_decode_flag */
   uint8_t flags;
   /* symbol if NGHTTP2_HUFF_SYM flag set */
@@ -54,7 +58,7 @@ typedef nghttp2_huff_decode huff_decode_table_type[16];
 typedef struct {
   /* Current huffman decoding state. We stripped leaf nodes, so the
      value range is [0..255], inclusive. */
-  int16_t state;
+  uint8_t state;
   /* nonzero if we can say that the decoding process succeeds at this
      state */
   uint8_t accept;
