@@ -367,7 +367,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     nghttp2_hd_inflater *hd_inflater;
     tvbuff_t *header_tvb = tvb_new_composite();
     int rv;
-    int header_len = 0;
+    int header_len = 0, len;
     int final;
     if(!h2session) {
         /* We may not be able to track all HTTP/2 session if we miss
@@ -386,8 +386,8 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         nghttp2_nv nv;
         int inflate_flags = 0;
 
-        rv = nghttp2_hd_inflate_hd(hd_inflater, &nv,
-                                   &inflate_flags, headbuf, headlen, final);
+        rv = (int)nghttp2_hd_inflate_hd(hd_inflater, &nv,
+                                        &inflate_flags, headbuf, headlen, final);
 
         if(rv < 0) {
             break;
@@ -411,12 +411,13 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
             memcpy(&str[4+nv.namelen], (char *)&nv.valuelen, 4);
             memcpy(&str[4+nv.namelen+4], nv.value, nv.valuelen);
 
-            header_len += + 4 + nv.namelen + 4 + nv.valuelen;
+            len = (int)(4 + nv.namelen + 4 + nv.valuelen);
+            header_len += len;
 
-                /* Now setup the tvb buffer to have the new data */
-                next_tvb = tvb_new_child_real_data(tvb, str, 4+nv.namelen+4+nv.valuelen, 4+nv.namelen+4+nv.valuelen);
-                tvb_set_free_cb(next_tvb, g_free);
-                tvb_composite_append(header_tvb, next_tvb);
+            /* Now setup the tvb buffer to have the new data */
+            next_tvb = tvb_new_child_real_data(tvb, str, len, len);
+            tvb_set_free_cb(next_tvb, g_free);
+            tvb_composite_append(header_tvb, next_tvb);
         }
         if(inflate_flags & NGHTTP2_HD_INFLATE_FINAL) {
             nghttp2_hd_inflate_end_headers(hd_inflater);
