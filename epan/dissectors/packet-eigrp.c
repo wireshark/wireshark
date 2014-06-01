@@ -512,6 +512,7 @@ static expert_field ei_eigrp_auth_len = EI_INIT;
 static expert_field ei_eigrp_tlv_len = EI_INIT;
 static expert_field ei_eigrp_afi = EI_INIT;
 static expert_field ei_eigrp_prefixlen = EI_INIT;
+static expert_field ei_eigrp_tlv_trunc = EI_INIT;
 
 /* some extra handle that might be needed */
 static dissector_handle_t ipxsap_handle = NULL;
@@ -762,47 +763,58 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
 
 /**
  *@fn void dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
- *                                packet_info *pinfo)
+ *                                packet_info *pinfo, proto_item *ti)
  *
  * @param[in,out] tree  detail dissection result
  * @param[in] tvb       packet data
  * @param[in] pinfo     general data about the protocol
+ * @param[in] ti        protocol item
  *
  * @par
- * Dissect the Sequence TLV which consist of the address of peers that must
+ * Dissect the Sequence TLV which consists of the addresses of peers that must
  * not receive the next multicast packet transmitted.
  */
 static void
 dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
-                       packet_info *pinfo)
+                       packet_info *pinfo, proto_item *ti)
 {
     proto_item *ti_addrlen;
     int         offset = 0;
     guint8      addr_len;
 
-    addr_len = tvb_get_guint8(tvb, 0);
-    ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    while (tvb_reported_length_remaining(tvb, offset) > 0) {
+        addr_len = tvb_get_guint8(tvb, offset);
+        ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
 
-    switch (addr_len) {
-    case 4:
-        /* IPv4 */
-        proto_tree_add_item(tree, hf_eigrp_seq_ipv4addr, tvb, offset, addr_len, ENC_BIG_ENDIAN);
-        break;
-    case 10:
-        /* IPX */
-        proto_tree_add_text(tree, tvb, offset, addr_len,
-                            "IPX Address = %08x.%04x.%04x.%04x",
-                            tvb_get_ntohl(tvb, 1), tvb_get_ntohs(tvb, 5),
-                            tvb_get_ntohs(tvb, 7), tvb_get_ntohs(tvb, 9));
-        break;
-    case 16:
-        /* IPv6 */
-        proto_tree_add_item(tree, hf_eigrp_seq_ipv6addr, tvb, offset, addr_len,
-                            ENC_NA);
-        break;
-    default:
-        expert_add_info(pinfo, ti_addrlen, &ei_eigrp_seq_addrlen);
+        if (tvb_reported_length_remaining(tvb, offset) < addr_len) {
+            /* The remaining part of the TLV is shorter than the address it should contain */
+            expert_add_info(pinfo, ti, &ei_eigrp_tlv_trunc);
+            break;
+        }
+
+        switch (addr_len) {
+        case 4:
+            /* IPv4 */
+            proto_tree_add_item(tree, hf_eigrp_seq_ipv4addr, tvb, offset, addr_len, ENC_BIG_ENDIAN);
+            break;
+        case 10:
+            /* IPX */
+            proto_tree_add_text(tree, tvb, offset, addr_len,
+                                "IPX Address = %08x.%04x.%04x.%04x",
+                                tvb_get_ntohl(tvb, 1), tvb_get_ntohs(tvb, 5),
+                                tvb_get_ntohs(tvb, 7), tvb_get_ntohs(tvb, 9));
+            break;
+        case 16:
+            /* IPv6 */
+            proto_tree_add_item(tree, hf_eigrp_seq_ipv6addr, tvb, offset, addr_len,
+                                ENC_NA);
+            break;
+        default:
+            expert_add_info(pinfo, ti_addrlen, &ei_eigrp_seq_addrlen);
+        }
+
+        offset += addr_len;
     }
 }
 
@@ -1622,7 +1634,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
         dissect_eigrp_auth_tlv(tree, tvb, pinfo, ti);
         break;
     case EIGRP_TLV_SEQ:
-        dissect_eigrp_seq_tlv(tree, tvb, pinfo);
+        dissect_eigrp_seq_tlv(tree, tvb, pinfo, ti);
         break;
     case EIGRP_TLV_SW_VERSION:
         dissect_eigrp_sw_version(tvb, tree, ti);
@@ -2525,32 +2537,32 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
             switch (tlv & EIGRP_TLV_RANGEMASK) {
             case EIGRP_TLV_GENERAL:
-                dissect_eigrp_general_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                dissect_eigrp_general_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)), pinfo, tlv);
                 break;
 
             case EIGRP_TLV_IPv4:
-                dissect_eigrp_ipv4_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                dissect_eigrp_ipv4_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)), pinfo, tlv);
                 break;
 
             case EIGRP_TLV_ATALK:
-                dissect_eigrp_atalk_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), tlv);
+                dissect_eigrp_atalk_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)), tlv);
                 break;
 
             case EIGRP_TLV_IPX:
-                dissect_eigrp_ipx_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                dissect_eigrp_ipx_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)), pinfo, tlv);
                 break;
 
             case EIGRP_TLV_IPv6:
-                dissect_eigrp_ipv6_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1), pinfo, tlv);
+                dissect_eigrp_ipv6_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)), pinfo, tlv);
                 break;
 
             case EIGRP_TLV_MP:
-                dissect_eigrp_multi_protocol_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1),
+                dissect_eigrp_multi_protocol_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)),
                                                  pinfo, tlv);
                 break;
 
             case EIGRP_TLV_MTR:
-                dissect_eigrp_multi_topology_tlv(ti, tlv_tree, tvb_new_subset(tvb, (offset + 4), (size - 4), -1),
+                dissect_eigrp_multi_topology_tlv(ti, tlv_tree, tvb_new_subset_length(tvb, (offset + 4), (size - 4)),
                                                  pinfo, tlv);
                 break;
 
@@ -3303,7 +3315,8 @@ proto_register_eigrp(void)
         { &ei_eigrp_tlv_type, { "eigrp.tlv_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown TLV", EXPFILL }},
         { &ei_eigrp_afi, { "eigrp.afi.unknown", PI_PROTOCOL, PI_WARN, "Unknown AFI", EXPFILL }},
         { &ei_eigrp_checksum_bad, { "eigrp.checksum.bad", PI_CHECKSUM, PI_WARN, "Bad Checksum", EXPFILL }},
-        { &ei_eigrp_tlv_len, { "eigrp.tlv.len.invalid", PI_MALFORMED, PI_ERROR, "Corrupt TLV (Zero Size)", EXPFILL }},
+        { &ei_eigrp_tlv_len, { "eigrp.tlv.len.invalid", PI_MALFORMED, PI_ERROR, "Corrupt TLV (Length field set to 0)", EXPFILL }},
+        { &ei_eigrp_tlv_trunc, { "eigrp.tlv.truncated", PI_MALFORMED, PI_ERROR, "Corrupt TLV (Truncated prematurely)", EXPFILL }},
     };
 
     expert_module_t* expert_eigrp;
