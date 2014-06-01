@@ -1617,7 +1617,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 		case FT_ETHER:
 			if (length != FT_ETHER_LEN) {
 				length_error = length < FT_ETHER_LEN ? TRUE : FALSE;
-				report_type_length_mismatch(tree, "an Ethernet", length, length_error);
+				report_type_length_mismatch(tree, "a MAC address", length, length_error);
 			}
 			proto_tree_set_ether_tvb(new_fi, tvb, start);
 			break;
