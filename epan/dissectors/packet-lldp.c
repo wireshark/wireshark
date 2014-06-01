@@ -3025,7 +3025,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		return tLength;
 	}
 	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
-	ouiStr = val_to_str_const(oui, tlv_oui_subtype_vals, "Unknown");
+	ouiStr = val_to_str_const(oui, oui_vals, "Unknown");
 	if (strcmp(ouiStr, "Unknown")==0) {
 		ouiStr = uint_get_manuf_name_if_known(oui);
 		if(ouiStr==NULL) ouiStr="Unknown";
@@ -3516,7 +3516,7 @@ proto_register_lldp(void)
 		},
 		{ &hf_org_spc_oui,
 			{ "Organization Unique Code", "lldp.orgtlv.oui", FT_UINT24, BASE_HEX,
-			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
+			VALS(oui_vals), 0x0, NULL, HFILL }
 		},
 		{ &hf_dcbx_type,
 			{ "DCBx Protocol", "lldp.dcbx.proto", FT_UINT8, BASE_HEX,

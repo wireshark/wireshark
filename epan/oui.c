@@ -48,6 +48,7 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_CATENA,			"Catena Networks" },
 	{ OUI_SONY_ERICSSON,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_SONY_ERICSSON_2,	"Sony Ericsson Mobile Communications AB" },
+	/* PROFINET */
 	{ OUI_PROFINET,			"PROFIBUS Nutzerorganisation e.V." },
 	{ OUI_SONY_ERICSSON_3,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_CIMETRICS,		"Cimetrics" },
@@ -60,12 +61,13 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	{ OUI_SONY_ERICSSON_7,	"Sony Ericsson Mobile Communications AB" },
 	{ OUI_BLUETOOTH,		"Bluetooth SIG, Inc." },
 	{ OUI_SONY_ERICSSON_8,	"Sony Ericsson Mobile Communications AB" },
+	/* Currently, the manuf file calls this "Procurve", as it's assigned to HP! */
 	{ OUI_IEEE_802_1QBG,	"IEEE 802.1Qbg" },
 	{ OUI_TURBOCELL,		"Karlnet (Turbocell)" },
 	{ OUI_CISCOWL,			"Cisco Wireless (Aironet) L2" },
 	{ OUI_MARVELL,			"Marvell Semiconductor" },
-	{ OUI_BRIDGED,			"Frame Relay or ATM bridged frames" },
-	{ OUI_IEEE_802_1,		"IEEE 802.1 Committee" },
+	/* Used for RFC 2427 bridged Frame Relay and RFC 2684 bridged ATM */
+	{ OUI_IEEE_802_1,		"IEEE 802.1" },
 	{ OUI_ATM_FORUM,		"ATM Forum" },
 	{ OUI_EXTREME,			"Extreme Networks" },
 	/* RFC 2427, RFC 2684 */
@@ -77,22 +79,6 @@ http://www.cisco.com/univercd/cc/td/doc/product/software/ios113ed/113ed_cr/ibm_r
 	/* Registry Name: PPP Vendor Specific OUI Options */
 	{ OUI_3GPP2,			"3GPP2 Vendor specific packet ID" },
 	{ OUI_ERICSSON_2,		"Ericsson Group" },
+	{ OUI_DCBX,             "Data Center Bridging Capabilities Exchange" },
 	{ 0,	NULL }
 };
-
-const value_string tlv_oui_subtype_vals[] = {
-    /* Currently, the manuf file calls this "Ieee8021"; "IEEE 802.1" looks better */
-    { OUI_IEEE_802_1,       "IEEE 802.1" },
-    /* Currently, the manuf file calls this "Ieee8023"; "IEEE 802.3" looks better */
-    { OUI_IEEE_802_3,       "IEEE 802.3" },
-    /* Currently, the manuf file calls this "Telecomm"; "TIA TR-41 Committee" looks better */
-    { OUI_MEDIA_ENDPOINT,   "TIA TR-41 Committee" },
-    /* Currently, the manuf file calls this "Profibus" */
-    { OUI_PROFINET,         "PROFINET" },
-    /* Currently, the manuf file calls this "Procurve", as it's assigned to HP! */
-    { OUI_IEEE_802_1QBG,    "IEEE 802.1Qbg" },
-    /*  Data Center Bridging Exchange */
-    { OUI_DCBX,             "Data Center Bridging Capabilities Exchange" },
-    { 0, NULL }
-};
-

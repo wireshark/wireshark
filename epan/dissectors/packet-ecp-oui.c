@@ -199,9 +199,9 @@ dissect_vdp_fi_macvid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, g
 	return tempOffset-offset;
 }
 
-/* Dissect VDP TLVs */
+/* Dissect Organizationally Defined TLVs */
 static gint32
-dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_vdp_org_specific_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;
 	guint16 len;
@@ -223,7 +223,7 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
 	oui = tvb_get_ntoh24(tvb, (tempOffset));
 	/* maintain previous OUI names.  If not included, look in manuf database for OUI */
-	ouiStr = val_to_str_const(oui, tlv_oui_subtype_vals, "Unknown");
+	ouiStr = val_to_str_const(oui, oui_vals, "Unknown");
 	if (strcmp(ouiStr, "Unknown")==0) {
 		ouiStr = uint_get_manuf_name_if_known(oui);
 		if(ouiStr==NULL) ouiStr="Unknown";
@@ -296,7 +296,7 @@ dissect_vdp_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32
 
 /* Dissect End of VDP TLV (Mandatory) */
 gint32
-dissect_vdp_end_of_vdpdu(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_vdp_end_of_vdpdu_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
 {
 	guint16 tempLen;
 	guint16 tempShort;
@@ -356,10 +356,10 @@ dissect_ecp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		switch (tempType) {
 		case ORG_SPECIFIC_TLV_TYPE:
-			tempLen = dissect_vdp_tlv(tvb, pinfo, ecp_tree, offset);
+			tempLen = dissect_vdp_org_specific_tlv(tvb, pinfo, ecp_tree, offset);
 			break;
 		case END_OF_VDPDU_TLV_TYPE:
-			tempLen = dissect_vdp_end_of_vdpdu(tvb, pinfo, ecp_tree, offset);
+			tempLen = dissect_vdp_end_of_vdpdu_tlv(tvb, pinfo, ecp_tree, offset);
 			break;
 		default:
 			tempLen = dissect_ecp_unknown_tlv(tvb, pinfo, ecp_tree, offset);
@@ -407,7 +407,7 @@ void proto_register_ecp_oui(void)
 #if 0
 		{ &hf_ecp_vdp_oui,
 			{ "Organization Unique Code",	"ecp.vdp.oui", FT_UINT24, BASE_HEX,
-			VALS(tlv_oui_subtype_vals), 0x0, NULL, HFILL }
+			VALS(oui_vals), 0x0, NULL, HFILL }
 		},
 #endif
 		{ &hf_ecp_vdp_mode,

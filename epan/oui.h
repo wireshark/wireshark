@@ -46,8 +46,10 @@
 #define OUI_CATENA          0x00025A    /* Catena Networks */
 #define OUI_ATHEROS         0x00037F    /* Atheros Communications */
 #define OUI_SONY_ERICSSON   0x000AD9    /* Sony Ericsson Mobile Communications AB */
+#define OUI_ARUBA           0x000B86    /* Aruba Networks */
 #define OUI_SONY_ERICSSON_2 0x000E07    /* Sony Ericsson Mobile Communications AB */
 #define OUI_PROFINET        0x000ECF    /* PROFIBUS Nutzerorganisation e.V. */
+#define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
 #define OUI_SONY_ERICSSON_3 0x000FDE    /* Sony Ericsson Mobile Communications AB */
 #define OUI_CIMETRICS       0x001090    /* Cimetrics, Inc. */
 #define OUI_IEEE_802_3      0x00120F    /* IEEE 802.3 */
@@ -61,13 +63,14 @@
 #define OUI_SONY_ERICSSON_8 0x001963    /* Sony Ericsson Mobile Communications AB */
 #define OUI_DCBX            0x001B21    /* Data Center Bridging Capabilities Exchange Protocol */
 #define OUI_IEEE_802_1QBG   0x001B3F    /* IEEE 802.1 Qbg */
+#define OUI_NINTENDO        0x001F32
 #define OUI_TURBOCELL       0x0020F6    /* KarlNet, who brought you Turbocell */
 #define OUI_CISCOWL         0x004096    /* Cisco Wireless (Aironet) */
 #define OUI_MARVELL         0x005043    /* Marvell Semiconductor */
+#define OUI_WPAWME          0x0050F2    /* Wi-Fi : WPA / WME */
 #define OUI_ERICSSON_2      0x008037    /* Ericsson Group */
-#define OUI_BRIDGED         0x0080C2    /* Bridged Frame-Relay, RFC 2427 */
-                                        /* and Bridged ATM, RFC 2684 */
 #define OUI_IEEE_802_1      0x0080C2    /* IEEE 802.1 Committee */
+#define OUI_PRE11N          0x00904C    /* Wi-Fi : 802.11 Pre-N */
 #define OUI_ATM_FORUM       0x00A03E    /* ATM Forum */
 #define OUI_EXTREME         0x00E02B    /* Extreme EDP/ESRP */
 #define OUI_CABLE_BPDU      0x00E02F    /* DOCSIS spanning tree BPDU */
@@ -78,16 +81,8 @@
 #define OUI_HP_2            0x00805F    /* Hewlett-Packard */
 #define OUI_WFA             0x506F9A    /* Wi-Fi Alliance */
 #define OUI_3GPP2           0xCF0002    /* 3GPP2 */
-#define OUI_ARUBA           0x000b86    /* Aruba Networks */
-#define OUI_NINTENDO        0x001F32
-
-#define OUI_WPAWME          0x0050F2    /* Wi-Fi : WPA / WME */
-#define OUI_RSN             0x000FAC    /* Wi-Fi : RSN */
-#define OUI_PRE11N          0x00904C    /* Wi-Fi : 802.11 Pre-N */
 
 extern const value_string oui_vals[];
-
-extern const value_string tlv_oui_subtype_vals[];
 
 #endif
 

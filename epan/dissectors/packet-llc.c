@@ -623,7 +623,7 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 		break;
 
-	case OUI_BRIDGED:
+	case OUI_IEEE_802_1:
 		/*
 		 * MAC frames bridged over ATM (RFC 2684) or Frame Relay
 		 * (RFC 2427).
