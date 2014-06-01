@@ -590,7 +590,7 @@ dissect_rtpproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 				col_add_fstr(pinfo->cinfo, COL_INFO, "RTPproxy-ng: %s", rawstr);
 				ti = proto_tree_add_item(rtpproxy_tree, hf_rtpproxy_ng_bencode, tvb, offset, -1, ENC_ASCII | ENC_NA);
 				rtpproxy_tree = proto_item_add_subtree(ti, ett_rtpproxy_ng_bencode);
-				subtvb = tvb_new_subset(tvb, offset, -1, -1);
+				subtvb = tvb_new_subset_remaining(tvb, offset);
 				call_dissector(bencode_handle, subtvb, pinfo, rtpproxy_tree);
 				break;
 			}

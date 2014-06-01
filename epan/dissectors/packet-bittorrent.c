@@ -470,7 +470,7 @@ dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
    case AZUREUS_MESSAGE_HANDSHAKE:
    case AZUREUS_MESSAGE_PEER_EXCHANGE:
-      subtvb = tvb_new_subset(tvb, offset, length, length);
+      subtvb = tvb_new_subset_length(tvb, offset, length);
       call_dissector(bencode_handle, subtvb, pinfo, mtree);
       break;
 

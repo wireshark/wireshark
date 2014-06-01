@@ -29,9 +29,8 @@
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/strutil.h>
-
-#include "packet-tcp.h"
 
 void proto_register_bencode(void);
 
@@ -43,12 +42,21 @@ static gint hf_bencode_int          = -1;
 static gint hf_bencode_dict         = -1;
 static gint hf_bencode_dict_entry   = -1;
 static gint hf_bencode_list         = -1;
+static gint hf_bencode_truncated_data = -1;
 
 static gint ett_bencode_dict = -1;
 static gint ett_bencode_dict_entry = -1;
 static gint ett_bencode_list = -1;
 
-static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
+static expert_field ei_bencode_str = EI_INIT;
+static expert_field ei_bencode_str_length = EI_INIT;
+static expert_field ei_bencode_int = EI_INIT;
+static expert_field ei_bencode_nest = EI_INIT;
+static expert_field ei_bencode_dict_key = EI_INIT;
+static expert_field ei_bencode_dict_value = EI_INIT;
+static expert_field ei_bencode_invalid = EI_INIT;
+
+static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo,
                                  int offset, int length, proto_tree *tree, proto_item *ti, int treeadd)
 {
    guint8 ch;
@@ -57,7 +65,7 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
    int izero = 0;
 
    if (length<2) {
-      proto_tree_add_text(tree, tvb, offset, length, "Decode Aborted: Invalid String");
+      proto_tree_add_expert(tree, pinfo, &ei_bencode_str, tvb, offset, length);
       return -1;
    }
 
@@ -70,7 +78,7 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
 
       if (ch==':' && used>1) {
          if (stringlen>length || stringlen<0) {
-            proto_tree_add_text(tree, tvb, offset, length, "Decode Aborted: Invalid String Length");
+            proto_tree_add_expert(tree, pinfo, &ei_bencode_str_length, tvb, offset, length);
             return -1;
          }
          if (tree) {
@@ -99,11 +107,11 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
          }
       }
 
-      proto_tree_add_text(tree, tvb, offset, length, "Decode Aborted: Invalid String");
+      proto_tree_add_expert(tree, pinfo, &ei_bencode_str, tvb, offset, length);
       return -1;
    }
 
-   proto_tree_add_text(tree, tvb, offset, length, "Truncated Data");
+   proto_tree_add_item(tree, hf_bencode_truncated_data, tvb, offset, length, ENC_NA);
    return -1;
 }
 
@@ -117,7 +125,7 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
    guint8 ch;
 
    if (length<3) {
-      proto_tree_add_text(tree, tvb, offset, length, "Decode Aborted: Invalid Integer");
+      proto_tree_add_expert(tree, pinfo, &ei_bencode_int, tvb, offset, length);
       return -1;
    }
 
@@ -159,12 +167,12 @@ static int dissect_bencoding_int(tvbuff_t *tvb, packet_info *pinfo _U_,
             }
          }
 
-         proto_tree_add_text(tree, tvb, offset, length, "Decode Aborted: Invalid Integer");
+         proto_tree_add_expert(tree, pinfo, &ei_bencode_int, tvb, offset, length);
          return -1;
       }
    }
 
-   proto_tree_add_text(tree, tvb, offset, length, "Truncated Data");
+   proto_tree_add_item(tree, hf_bencode_truncated_data, tvb, offset, length, ENC_NA);
    return -1;
 }
 
@@ -179,26 +187,23 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
    proto_tree *itree = NULL, *dtree = NULL;
 
    if (level>10) {
-      proto_tree_add_text(tree, tvb, offset, -1, "Decode Aborted: Nested Too Deep");
+      proto_tree_add_expert(tree, pinfo, &ei_bencode_nest, tvb, offset, -1);
       return -1;
    }
    if (length<1) {
-      proto_tree_add_text(tree, tvb, offset, -1, "Truncated Data");
+      proto_tree_add_item(tree, hf_bencode_truncated_data, tvb, offset, -1, ENC_NA);
       return length;
    }
 
    op = tvb_get_guint8(tvb, offset);
-   if (tree) {
-      oplen = dissect_bencoding_rec(tvb, pinfo, offset, length, NULL, level, NULL, 0);
-      if (oplen<0) oplen = length;
-   }
+   oplen = dissect_bencoding_rec(tvb, pinfo, offset, length, NULL, level+1, NULL, 0);
+   if (oplen<0)
+      oplen = length;
 
    switch (op) {
    case 'd':
-      if (tree) {
-         td = proto_tree_add_item(tree, hf_bencode_dict, tvb, offset, oplen, ENC_NA);
-         dtree = proto_item_add_subtree(td, ett_bencode_dict);
-      }
+      td = proto_tree_add_item(tree, hf_bencode_dict, tvb, offset, oplen, ENC_NA);
+      dtree = proto_item_add_subtree(td, ett_bencode_dict);
 
       used = 1;
       length--;
@@ -212,9 +217,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
 
          op1len = dissect_bencoding_str(tvb, pinfo, offset+used, length, NULL, NULL, 0);
          if (op1len<0) {
-            if (dtree) {
-               proto_tree_add_text(dtree, tvb, offset+used, -1, "Decode Aborted: Invalid Dictionary Key");
-            }
+            proto_tree_add_expert(dtree, pinfo, &ei_bencode_dict_key, tvb, offset+used, -1);
             return op1len;
          }
 
@@ -222,33 +225,26 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
          if (length-op1len>2)
             op2len = dissect_bencoding_rec(tvb, pinfo, offset+used+op1len, length-op1len, NULL, level+1, NULL, 0);
          if (op2len<0) {
-            if (dtree) {
-               proto_tree_add_text(dtree, tvb, offset+used+op1len, -1, "Decode Aborted: Invalid Dictionary Value");
-            }
+            proto_tree_add_expert(dtree, pinfo, &ei_bencode_dict_value, tvb, offset+used+op1len, -1);
             return op2len;
          }
 
-         if (dtree) {
-            ti = proto_tree_add_item(dtree, hf_bencode_dict_entry, tvb, offset+used, op1len+op2len, ENC_NA);
-            itree = proto_item_add_subtree(ti, ett_bencode_dict_entry);
+         ti = proto_tree_add_item(dtree, hf_bencode_dict_entry, tvb, offset+used, op1len+op2len, ENC_NA);
+         itree = proto_item_add_subtree(ti, ett_bencode_dict_entry);
 
-            dissect_bencoding_str(tvb, pinfo, offset+used, length, itree, ti, 1);
-            dissect_bencoding_rec(tvb, pinfo, offset+used+op1len, length-op1len, itree, level+1, ti, 2);
-         }
+         dissect_bencoding_str(tvb, pinfo, offset+used, length, itree, ti, 1);
+         dissect_bencoding_rec(tvb, pinfo, offset+used+op1len, length-op1len, itree, level+1, ti, 2);
 
          used += op1len+op2len;
          length -= op1len+op2len;
       }
-      if (dtree) {
-         proto_tree_add_text(dtree, tvb, offset+used, -1, "Truncated Data");
-      }
+
+      proto_tree_add_item(dtree, hf_bencode_truncated_data, tvb, offset+used, -1, ENC_NA);
       return -1;
 
    case 'l':
-      if (tree) {
-         ti = proto_tree_add_item(tree, hf_bencode_list, tvb, offset, oplen, ENC_NA);
-         itree = proto_item_add_subtree(ti, ett_bencode_list);
-      }
+      ti = proto_tree_add_item(tree, hf_bencode_list, tvb, offset, oplen, ENC_NA);
+      itree = proto_item_add_subtree(ti, ett_bencode_list);
 
       used = 1;
       length--;
@@ -266,9 +262,8 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
          used += oplen;
          length -= oplen;
       }
-      if (itree) {
-         proto_tree_add_text(itree, tvb, offset+used, -1, "Truncated Data");
-      }
+
+      proto_tree_add_item(itree, hf_bencode_truncated_data, tvb, offset+used, -1, ENC_NA);
       return -1;
 
    case 'i':
@@ -279,7 +274,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
          return dissect_bencoding_str(tvb, pinfo, offset, length, tree, treei, treeadd);
       }
 
-      proto_tree_add_text(tree, tvb, offset, -1, "Decode Aborted: Invalid Bencoding");
+      proto_tree_add_expert(tree, pinfo, &ei_bencode_invalid, tvb, offset, -1);
    }
 
    return -1;
@@ -312,6 +307,9 @@ proto_register_bencode(void)
       { &hf_bencode_list,
         { "List", "bencode.list", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }
       },
+      { &hf_bencode_truncated_data,
+        { "Truncated Data", "bencode.truncated_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }
+      },
    };
 
    static gint *ett[] = {
@@ -320,8 +318,22 @@ proto_register_bencode(void)
       &ett_bencode_list,
    };
 
+   static ei_register_info ei[] = {
+      { &ei_bencode_str, { "bencode.str.invalid", PI_MALFORMED, PI_ERROR, "Decode Aborted: Invalid String", EXPFILL }},
+      { &ei_bencode_str_length, { "bencode.str.length.invalid", PI_MALFORMED, PI_ERROR, "Decode Aborted: Invalid String Length", EXPFILL }},
+      { &ei_bencode_int, { "bencode.int.invalid", PI_MALFORMED, PI_ERROR, "Decode Aborted: Invalid Integer", EXPFILL }},
+      { &ei_bencode_nest, { "bencode.nest", PI_MALFORMED, PI_ERROR, "Decode Aborted: Nested Too Deep", EXPFILL }},
+      { &ei_bencode_dict_key, { "bencode.dict.key_invalid", PI_MALFORMED, PI_ERROR, "Decode Aborted: Invalid Dictionary Key", EXPFILL }},
+      { &ei_bencode_dict_value, { "bencode.dict.value_invalid", PI_MALFORMED, PI_ERROR, "Decode Aborted: Invalid Dictionary Value", EXPFILL }},
+      { &ei_bencode_invalid, { "bencode.invalid", PI_MALFORMED, PI_ERROR, "Invalid Bencoding", EXPFILL }},
+   };
+
+   expert_module_t* expert_bencode;
+
    proto_bencode = proto_register_protocol("Bencode", "Bencode", "bencode");
    register_dissector("bencode", dissect_bencoding, proto_bencode);
    proto_register_field_array(proto_bencode, hf, array_length(hf));
    proto_register_subtree_array(ett, array_length(ett));
+   expert_bencode = expert_register_protocol(proto_bencode);
+   expert_register_field_array(expert_bencode, ei, array_length(ei));
 }

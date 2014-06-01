@@ -128,6 +128,7 @@ dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     guint32     plen;
     proto_tree *prefixed_bencode_tree;
     proto_item *ti;
+    tvbuff_t *subtvb;
 
     plen = tvb_get_ntohl(tvb, offset);
 
@@ -135,15 +136,11 @@ dissect_prefixed_bencode(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                              plen, ENC_NA);
     prefixed_bencode_tree = proto_item_add_subtree(ti, ett_prefixed_bencode);
 
-    if (prefixed_bencode_tree)
-    {
-        tvbuff_t *subtvb;
-        proto_tree_add_item(prefixed_bencode_tree, hf_bzr_prefixed_bencode_len,
+    proto_tree_add_item(prefixed_bencode_tree, hf_bzr_prefixed_bencode_len,
                             tvb, offset, 4, ENC_BIG_ENDIAN);
 
-        subtvb = tvb_new_subset(tvb, offset+4, plen, plen);
-        call_dissector(bencode_handle, subtvb, pinfo, prefixed_bencode_tree);
-    }
+    subtvb = tvb_new_subset_length(tvb, offset+4, plen);
+    call_dissector(bencode_handle, subtvb, pinfo, prefixed_bencode_tree);
 
     return 4 + plen;
 }
