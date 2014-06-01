@@ -993,10 +993,12 @@ static void clear_refset(nghttp2_hd_context *context)
   }
 }
 
+#if 0
 static int check_index_range(nghttp2_hd_context *context, size_t idx)
 {
   return idx < context->hd_table.len + STATIC_TABLE_LENGTH;
 }
+#endif
 
 static int get_max_index(nghttp2_hd_context *context)
 {
