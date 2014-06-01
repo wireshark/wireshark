@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2014-05-24)
+(last updated 2014-05-31)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -34063,8 +34063,8 @@ Decimal
       webmaster&notariato.it
 8527
   Harvard MIT Data Center
-    Micah Altman
-      Micah_Altman&harvard.edu
+    Leonard Wisniewski
+      linux&lists.hmdc.harvard.edu
 8528
   HeyAnita Inc.
     Mandar Wadekar
@@ -51428,7 +51428,7 @@ Decimal
 12968
   Menno Pieters (previously Stelvio)
     Menno Pieters
-      iana-assigned-numbers&mwpieter.dds.nl
+      iana-assigned-numbers&menno.pieters.cx
 12969
   The Rockefeller University
     Lawry Persaud
@@ -63571,9 +63571,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     David Meltzer
       djm&intrusec.com
 16005
-  University of Durham
-    Barry Cornelius
-      barry.cornelius&durham.ac.uk
+  Durham University
+    David Griffith
+      d.e.griffith&durham.ac.uk
 16006
   CodeFab Inc
     Charles Swiger
@@ -90430,8 +90430,8 @@ Informatica Ltda
       leigh&modern-world.net
 22717
   VRT
-    Van de Kauter Marnix
-      marnix.vandekauter&vrt.be
+    Lieven Troch
+      lieven.troch&vrt.be
 22718
   Centre Reseau Communication
     Pierre David
@@ -174744,6 +174744,86 @@ Decentralization / Helenic Public Administra
   becker-aero
     Roger Becker
       roger.becker&becker-aero.de
+43791
+  Cine Digital Service
+    Ronan SALMON
+      snmp&cinedigitalservice.fr
+43792
+  Now Wireless Limited
+    Brett Warthen
+      brett&nowsms.com
+43793
+  Tom Gundersen (systemd)
+    Tom Gundersen
+      teg&jklm.no
+43794
+  Chris Thomson
+    Chris Thomson
+      chris&chris-thomson.co.uk
+43795
+  Guangzhou Andea Electronics Technology Co.,Ltd
+    ZhenSong Li
+      lzs6401948&163.com
+43796
+  Rasing IT Solutions
+    Bastiaan Rasing
+      bastiaan&rasing.me
+43797
+  Croz d.o.o.
+    Neven Biruski
+      nbiruski&croz.net
+43798
+  NANJING SAND TECHNOLOGY CO., LTD
+    Wang  Kai Jiang
+      tech&sandkj.com
+43799
+  TRUMPF GmbH + Co. KG
+    Andreas Reinmoeller
+      andreas.reinmoeller&de.trumpf.com
+43800
+  OraSentry
+    Raphaël Tiran
+      raphael&orasentry.com
+43801
+  Dolphin Systems AG
+    Peter Honegger
+      peter.honegger&dolphin.ch
+43802
+  Avaloq Evolution AG
+    Jukka Salmi
+      jukka.salmi&avaloq.com
+43803
+  University of South Wales
+    Jeremy Thomas
+      sysadmin&southwales.ac.uk
+43804
+  Bombardier Aerospace
+    Marc Rinfret
+      marc.rinfret&aero.bombardier.com
+43805
+  Metalogix International GmbH
+    Anna DeGiorgio
+      adegiorgio&metalogix.com
+43806
+  Shape Security, Inc
+    Judy Karp
+      judy&shapesecurity.com
+43807
+  CENTRI Technology, Inc.
+    Lance Lu
+      lance&centritechnology.com
+43808
+  Spincat Studios
+    Bob Bregant II
+      bob&spincats.com
+43809
+  University of the Philippines
+    Rommel Feria
+      admin&up.edu.ph
+43810
+  Li Hongnan (LiHN)
+    Li Hongnan
+      mail&lihn.cn
 
 
 End of Document
