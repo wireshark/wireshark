@@ -987,9 +987,8 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
         pcr_ext = (pcr_ext << 8) | tmp;
         offset += 1;
 
-        proto_tree_add_none_format(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6,
-                "Program Clock Reference: base(%" G_GINT64_MODIFIER "u) * 300 + ext(%u) = %" G_GINT64_MODIFIER "u",
-                pcr_base, pcr_ext, pcr_base * 300 + pcr_ext);
+        proto_tree_add_uint64_format_value(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6,
+                pcr_base*300 + pcr_ext, "%" G_GINT64_MODIFIER "u", pcr_base*300 + pcr_ext);
     }
 
     if (af_flags &  MP2T_AF_OPCR_MASK) {
@@ -1367,7 +1366,7 @@ proto_register_mp2t(void)
         } } ,
         { &hf_mp2t_af_pcr, {
             "Program Clock Reference", "mp2t.af.pcr",
-            FT_NONE, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_UINT64, BASE_HEX, NULL, 0, NULL, HFILL
         } } ,
         { &hf_mp2t_af_opcr, {
             "Original Program Clock Reference", "mp2t.af.opcr",
