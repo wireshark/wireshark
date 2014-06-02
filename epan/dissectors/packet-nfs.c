@@ -575,6 +575,7 @@ static int hf_nfs4_seek_data_content = -1;
 static int hf_nfs4_huge_bitmap_length = -1;
 static int hf_nfs4_universal_address_ipv4 = -1;
 static int hf_nfs4_universal_address_ipv6 = -1;
+static int hf_nfs4_getdevinfo = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -8108,14 +8109,10 @@ dissect_nfs4_notification_bitmap(tvbuff_t *tvb, proto_tree *tree, int offset)
 
 
 static int
-dissect_nfs4_devices(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_nfs4_devices_file(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	guint i, j;
 	guint32 num_indices, num_multipath, num_addr;
-
-	/* No layout type - argh */
-
-	/* Assume file layout for now */
 
 	/* disect indices */
 	num_indices = tvb_get_ntohl(tvb, offset);
@@ -8138,7 +8135,6 @@ dissect_nfs4_devices(tvbuff_t *tvb, int offset, proto_tree *tree)
 	return offset;
 }
 
-
 static int
 dissect_nfs4_test_stateid_arg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
@@ -8156,14 +8152,26 @@ dissect_nfs4_test_stateid_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_nfs4_deviceaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	guint layout_type;
 
 	/* layout type */
+	layout_type = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_layout_type, offset);
 
-	/* skip da_addr_body size */
+	/* skip length */
 	offset+=4;
 
-	offset = dissect_nfs4_devices(tvb, offset, tree);
+	switch (layout_type) {
+	case LAYOUT4_NFSV4_1_FILES:
+		offset = dissect_nfs4_devices_file(tvb, offset, tree);
+		break;
+	default:
+		/* back up to re-read the length field when treating as
+		 * opaque */
+		offset -= 4;
+		offset = dissect_nfsdata(tvb, offset, tree, hf_nfs4_getdevinfo);
+		break;
+	}
 
 	return offset;
 }
@@ -12188,6 +12196,10 @@ proto_register_nfs(void)
 			"universal_address", "nfs.universal_address.ipv6", FT_IPv6, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
+
+		{ &hf_nfs4_getdevinfo, {
+			"dev info", "nfs.devinfo", FT_BYTES,
+			BASE_NONE, NULL, 0, NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
