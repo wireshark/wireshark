@@ -1078,7 +1078,7 @@ const value_string pct_error_code[] = {
     { 0x00, NULL }
 };
 
-/* RFC 4366 */
+/* http://www.iana.org/assignments/tls-extensiontype-values/tls-extensiontype-values.xhtml#tls-extensiontype-values-1 */
 const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_SERVER_NAME, "server_name" }, /* RFC 3546 */
     { 1, "max_fragment_length" },
@@ -1107,6 +1107,9 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_RENEG_INFO, "renegotiation_info" }, /* RFC 5746 */
     /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-00
        https://twitter.com/ericlaw/status/274237352531083264 */
+    { SSL_HND_HELLO_EXT_CHANNEL_ID_OLD, "channel_id_old" },
+    /* http://tools.ietf.org/html/draft-balfanz-tls-channelid-01
+       https://code.google.com/p/chromium/codesearch#chromium/src/net/third_party/nss/ssl/sslt.h&l=209 */
     { SSL_HND_HELLO_EXT_CHANNEL_ID, "channel_id" },
     { 0, NULL }
 };
