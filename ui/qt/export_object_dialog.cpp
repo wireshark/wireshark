@@ -105,6 +105,8 @@ ExportObjectDialog::ExportObjectDialog(QWidget *parent, capture_file *cf, Object
     save_all_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::SaveAll);
     close_bt = eo_ui_->buttonBox->button(QDialogButtonBox::Close);
 
+    this->setWindowTitle(QString(tr("Wireshark: %1 object list")).arg(name_));
+
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
     if (close_bt) close_bt->setDefault(true);
@@ -263,7 +265,7 @@ void ExportObjectDialog::saveCurrentEntry()
     }
 }
 
-#define MAXFILELEN		255
+#define MAXFILELEN  255
 void ExportObjectDialog::saveAllEntries()
 {
     int i;
