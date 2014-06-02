@@ -184,6 +184,8 @@ WS_DLL_PUBLIC int dissect_rpc_indir_call(tvbuff_t *tvb, packet_info *pinfo,
 WS_DLL_PUBLIC int dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree, int offset, int result_id, int prog_id, int vers_id,
 	int proc_id);
+WS_DLL_PUBLIC int dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree,
+	int offset, packet_info *pinfo);
 
 
 typedef struct _rpc_prog_info_key {

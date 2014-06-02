@@ -545,7 +545,9 @@ static int hf_nfs4_cachethis = -1;
 /* static int hf_nfs4_pattern_offset = -1; */
 static int hf_nfs4_notification_bitmap = -1;
 static int hf_nfs4_lrs_present = -1;
+static int hf_nfs4_nfl_mirrors = -1;
 static int hf_nfs4_nfl_util = -1;
+static int hf_nfs4_nfl_fhs = -1;
 static int hf_nfs4_nfl_first_stripe_index = -1;
 static int hf_nfs4_lrf_body_content = -1;
 static int hf_nfs4_reclaim_one_fs = -1;
@@ -750,7 +752,7 @@ static gint ett_nfs4_gid = -1;
 static gint ett_nfs4_service = -1;
 static gint ett_nfs4_sessionid = -1;
 static gint ett_nfs4_layoutseg = -1;
-static gint ett_nfs4_layoutseg_fh = -1;
+static gint ett_nfs4_layoutseg_sub = -1;
 static gint ett_nfs4_test_stateid = -1;
 static gint ett_nfs4_destroy_clientid = -1;
 static gint ett_nfs4_reclaim_complete = -1;
@@ -8294,11 +8296,12 @@ static int
 dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rpc_call_info_value *civ)
 {
 	guint	    layout_type;
-	guint	    fh_num;
+	guint	    sub_num;
 	guint	    lo_seg_count;
 	guint	    i, lo_seg;
 	proto_tree *newtree;
-	proto_tree *fh_tree;
+	proto_item *sub_fitem;
+	proto_tree *subtree;
 
 	lo_seg_count = tvb_get_ntohl(tvb, offset);
 
@@ -8316,28 +8319,58 @@ dissect_nfs4_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs4_layout_type, offset);
 
 		/* If not files layout type eat the rest and move on.. */
-		if (layout_type != LAYOUT4_NFSV4_1_FILES) {
+		if (layout_type == LAYOUT4_NFSV4_1_FILES) {
+			/* NFS Files */
+			offset += 4; /* Skip past opaque count */
+
+			offset = dissect_nfs4_deviceid(tvb, offset, newtree);
+
+			offset = dissect_rpc_uint32(tvb, newtree,
+					hf_nfs4_nfl_util, offset);
+			offset = dissect_rpc_uint32(tvb, newtree,
+					hf_nfs4_nfl_first_stripe_index, offset);
+			offset = dissect_rpc_uint64(tvb, newtree,
+					hf_nfs4_offset, offset);
+
+			sub_num = tvb_get_ntohl(tvb, offset); /* Len of FH list */
+
+			sub_fitem = proto_tree_add_item(newtree, hf_nfs4_nfl_fhs,
+					tvb, offset, 4, sub_num);
+			offset += 4;
+
+			subtree = proto_item_add_subtree(sub_fitem,
+					ett_nfs4_layoutseg_sub);
+			for (i = 0; i < sub_num; i++)
+				offset = dissect_nfs4_fh(tvb, offset, pinfo,
+						subtree, "lo_filehandle", NULL,
+						civ);
+		} else if (layout_type == LAYOUT4_FLEX_FILES) {
+			/* NFS Flex Files */
+			offset += 4; /* Skip past opaque count */
+
+			/* Len of mirror list */
+			sub_num = tvb_get_ntohl(tvb, offset);
+			offset += 4;
+
+			for (i = 0; i < sub_num; i++) {
+				sub_fitem = proto_tree_add_item(newtree,
+						hf_nfs4_nfl_mirrors, tvb,
+						offset, 4, i);
+				subtree = proto_item_add_subtree(sub_fitem,
+						ett_nfs4_layoutseg_sub);
+				offset = dissect_nfs4_deviceid(tvb, offset,
+						subtree);
+				offset = dissect_nfs4_fh(tvb, offset, pinfo,
+						subtree, "fh", NULL, civ);
+				offset = dissect_nfs4_stateid(tvb, offset,
+						subtree, NULL);
+				offset = dissect_rpc_opaque_auth(tvb, subtree,
+						offset, pinfo);
+			}
+		} else {
 			offset = dissect_nfsdata(tvb, offset, newtree, hf_nfs4_layout);
 			continue;
 		}
-
-		/* NFS Files */
-		offset += 4; /* Skip past opaque count */
-
-		offset = dissect_nfs4_deviceid(tvb, offset, newtree);
-
-		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs4_nfl_util, offset);
-		offset = dissect_rpc_uint32(tvb, newtree, hf_nfs4_nfl_first_stripe_index, offset);
-		offset = dissect_rpc_uint64(tvb, newtree, hf_nfs4_offset, offset);
-
-		fh_num = tvb_get_ntohl(tvb, offset); /* Len of FH list */
-
-		fh_tree = proto_tree_add_subtree_format(newtree, tvb, offset, 4,
-						ett_nfs4_layoutseg_fh, NULL, "File Handles (count: %u)", fh_num);
-		offset += 4;
-
-		for (i = 0; i < fh_num; i++)
-			offset = dissect_nfs4_fh(tvb, offset, pinfo, fh_tree, "lo_filehandle", NULL, civ);
 	}
 	return offset;
 }
@@ -9795,6 +9828,7 @@ static const value_string layouttype_names[] = {
 	{ 1, "LAYOUT4_NFSV4_1_FILES" },
 	{ 2, "LAYOUT4_OSD2_OBJECTS"  },
 	{ 3, "LAYOUT4_BLOCK_VOLUME"  },
+	{ 4, "LAYOUT4_FLEX_FILES"  },
 	{ 0, NULL }
 };
 
@@ -11693,8 +11727,16 @@ proto_register_nfs(void)
 			"return on close?", "nfs.retclose4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
+		{ &hf_nfs4_nfl_mirrors, {
+			"Mirror", "nfs.nfl_mirrors", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_nfl_util, {
 			"nfl_util", "nfs.nfl_util", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_nfl_fhs, {
+			"file handles", "nfs.nfl_fhs", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_nfl_first_stripe_index, {
@@ -12385,7 +12427,7 @@ proto_register_nfs(void)
 		&ett_nfs4_service,
 		&ett_nfs4_sessionid,
 		&ett_nfs4_layoutseg,
-		&ett_nfs4_layoutseg_fh,
+		&ett_nfs4_layoutseg_sub,
 		&ett_nfs4_cb_request_op,
 		&ett_nfs4_cb_resop,
 		&ett_nfs4_cb_getattr,

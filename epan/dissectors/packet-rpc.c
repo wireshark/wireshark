@@ -1177,6 +1177,25 @@ dissect_rpc_cred(tvbuff_t* tvb, proto_tree* tree, int offset,
 	return offset;
 }
 
+int
+dissect_rpc_opaque_auth(tvbuff_t* tvb, proto_tree* tree, int offset,
+			packet_info *pinfo)
+{
+	conversation_t *conv = NULL;
+	rpc_conv_info_t *conv_info = NULL;
+
+	if (pinfo->ptype == PT_TCP)
+		conv = find_conversation(pinfo->fd->num, &pinfo->src,
+				&pinfo->dst, pinfo->ptype, pinfo->srcport,
+				pinfo->destport, 0);
+
+	if (conv)
+		conv_info = (rpc_conv_info_t *)conversation_get_proto_data(conv,
+							proto_rpc);
+
+	return dissect_rpc_cred(tvb, tree, offset, pinfo, conv_info);
+}
+
 /*
  * XDR opaque object, the contents of which are interpreted as a GSS-API
  * token.
