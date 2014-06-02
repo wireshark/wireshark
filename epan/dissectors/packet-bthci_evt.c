@@ -985,12 +985,13 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree, bd_addr);
     if (!pinfo->fd->flags.visited && hci_data != NULL && status == 0x00) {
-        wmem_tree_key_t  key[5];
-        guint32          k_interface_id;
-        guint32          k_adapter_id;
-        guint32          k_connection_handle;
-        guint32          k_frame_number;
-        remote_bdaddr_t  *remote_bdaddr;
+        wmem_tree_key_t    key[5];
+        guint32            k_interface_id;
+        guint32            k_adapter_id;
+        guint32            k_connection_handle;
+        guint32            k_frame_number;
+        remote_bdaddr_t   *remote_bdaddr;
+        chandle_session_t *chandle_session;
 
         k_interface_id = hci_data->interface_id;
         k_adapter_id = hci_data->adapter_id;
@@ -1015,6 +1016,11 @@ dissect_bthci_evt_conn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo,
         memcpy(remote_bdaddr->bd_addr, bd_addr, 6);
 
         wmem_tree_insert32_array(hci_data->chandle_to_bdaddr_table, key, remote_bdaddr);
+
+        chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
+        chandle_session->connect_in_frame = k_frame_number;
+        chandle_session->disconnect_in_frame = G_MAXUINT32;
+        wmem_tree_insert32_array(hci_data->chandle_sessions, key, chandle_session);
     }
 
 
@@ -1042,9 +1048,14 @@ dissect_bthci_evt_conn_request(tvbuff_t *tvb, int offset, packet_info *pinfo, pr
 }
 
 static int
-dissect_bthci_evt_disconn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_disconn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+        proto_tree *tree, hci_data_t *hci_data)
 {
+    guint32          connection_handle;
+    guint8           status;
+
     proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    status = tvb_get_guint8(tvb, offset);
     offset += 1;
 
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1052,6 +1063,31 @@ dissect_bthci_evt_disconn_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 
     proto_tree_add_item(tree, hf_bthci_evt_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
+    if (!pinfo->fd->flags.visited && hci_data != NULL && status == 0x00) {
+        wmem_tree_key_t     key[4];
+        guint32             interface_id;
+        guint32             adapter_id;
+        chandle_session_t  *chandle_session;
+        wmem_tree_t        *subtree;
+
+        interface_id      = hci_data->interface_id;
+        adapter_id        = hci_data->adapter_id;
+
+        key[0].length = 1;
+        key[0].key    = &interface_id;
+        key[1].length = 1;
+        key[1].key    = &adapter_id;
+        key[2].length = 1;
+        key[2].key    = &connection_handle;
+        key[3].length = 0;
+        key[3].key    = NULL;
+
+        subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->chandle_sessions, key);
+        chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+        if (chandle_session && chandle_session->connect_in_frame < pinfo->fd->num)
+            chandle_session->disconnect_in_frame = pinfo->fd->num;
+    }
 
     return offset;
 }
@@ -3381,7 +3417,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x05: /* Disconnection Complete */
-            offset = dissect_bthci_evt_disconn_complete(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_disconn_complete(tvb, offset, pinfo, bthci_evt_tree, hci_data);
             break;
 
         case 0x06: /* Authentication Complete */

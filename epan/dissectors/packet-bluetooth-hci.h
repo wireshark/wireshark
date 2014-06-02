@@ -100,13 +100,20 @@ extern const value_string bthci_cmd_notification_types[];
 /* localhost_bdaddr:         interface_id + adapter_id + frame_number -> bd_addr[6] */
 /* localhost_name:           interface_id + adapter_id + frame_number -> name */
 typedef struct _hci_data_t {
-    guint32     interface_id;
-    guint32     adapter_id;
+    guint32      interface_id;
+    guint32      adapter_id;
+    guint32     *adapter_disconnect_in_frame;
+    wmem_tree_t *chandle_sessions;
     wmem_tree_t *chandle_to_bdaddr_table;
     wmem_tree_t *bdaddr_to_name_table;
     wmem_tree_t *localhost_bdaddr;
     wmem_tree_t *localhost_name;
 } hci_data_t;
+
+typedef struct _chandle_session_t {
+    guint32  connect_in_frame;
+    guint32  disconnect_in_frame;
+} chandle_session_t;
 
 typedef struct _remote_bdaddr_t {
     guint32  interface_id;

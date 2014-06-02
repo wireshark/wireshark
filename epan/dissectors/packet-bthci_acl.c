@@ -44,6 +44,8 @@ static int hf_bthci_acl_length = -1;
 static int hf_bthci_acl_data = -1;
 static int hf_bthci_acl_continuation_to = -1;
 static int hf_bthci_acl_reassembled_in = -1;
+static int hf_bthci_acl_connect_in = -1;
+static int hf_bthci_acl_disconnect_in = -1;
 static int hf_bthci_acl_src_bd_addr = -1;
 static int hf_bthci_acl_src_name = -1;
 static int hf_bthci_acl_dst_bd_addr = -1;
@@ -84,6 +86,9 @@ static const value_string bc_flag_vals[] = {
     { 2, "Piconet Broadcast" },
     { 0, NULL }
 };
+
+static guint32 max_disconnect_in_frame = G_MAXUINT32;
+
 
 void proto_register_bthci_acl(void);
 void proto_reg_handoff_bthci_acl(void);
@@ -126,6 +131,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     const guint8             *dst_bd_addr = &unknown_bd_addr[0];
     const gchar              *dst_name = "";
     const gchar              *dst_addr_name = "";
+    chandle_session_t        *chandle_session;
 
     /* Reject the packet if data is NULL */
     if (data == NULL)
@@ -164,11 +170,10 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     frame_number      = pinfo->fd->num;
 
     acl_data = wmem_new(wmem_packet_scope(), bthci_acl_data_t);
-    acl_data->interface_id = interface_id;
-    acl_data->adapter_id   = adapter_id;
-    acl_data->chandle      = connection_handle;
-    acl_data->remote_bd_addr_oui = 0;
-    acl_data->remote_bd_addr_id  = 0;
+    acl_data->interface_id                = interface_id;
+    acl_data->adapter_id                  = adapter_id;
+    acl_data->adapter_disconnect_in_frame = hci_data->adapter_disconnect_in_frame;
+    acl_data->chandle                     = connection_handle;
 
     key[0].length = 1;
     key[0].key    = &interface_id;
@@ -178,6 +183,19 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     key[2].key    = &connection_handle;
     key[3].length = 0;
     key[3].key    = NULL;
+
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->chandle_sessions, key);
+    chandle_session = (subtree) ? (chandle_session_t *) wmem_tree_lookup32_le(subtree, pinfo->fd->num) : NULL;
+    if (chandle_session &&
+            chandle_session->connect_in_frame < pinfo->fd->num &&
+            chandle_session->disconnect_in_frame > pinfo->fd->num) {
+        acl_data->disconnect_in_frame = &chandle_session->disconnect_in_frame;
+    } else {
+        acl_data->disconnect_in_frame = &max_disconnect_in_frame;
+    }
+
+    acl_data->remote_bd_addr_oui         = 0;
+    acl_data->remote_bd_addr_id          = 0;
 
     /* remote bdaddr and name */
     subtree = (wmem_tree_t *) wmem_tree_lookup32_array(hci_data->chandle_to_bdaddr_table, key);
@@ -399,6 +417,16 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     if (tvb_captured_length_remaining(tvb, offset) > 0)
         proto_tree_add_item(bthci_acl_tree, hf_bthci_acl_data, tvb, offset, -1, ENC_NA);
 
+    if (chandle_session) {
+        sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
+        PROTO_ITEM_SET_GENERATED(sub_item);
+
+        if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
+            sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
+            PROTO_ITEM_SET_GENERATED(sub_item);
+        }
+    }
+
     SET_ADDRESS(&pinfo->net_src, AT_STRINGZ, (int)strlen(src_name) + 1, src_name);
     SET_ADDRESS(&pinfo->dl_src, AT_ETHER, 6, src_bd_addr);
     SET_ADDRESS(&pinfo->src, AT_STRINGZ, (int)strlen(src_addr_name) + 1, src_addr_name);
@@ -463,6 +491,16 @@ proto_register_bthci_acl(void)
           { "This PDU is reassembled in frame",              "bthci_acl.reassembled_in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             "This PDU is reassembled in frame #", HFILL }
+        },
+        { &hf_bthci_acl_connect_in,
+            { "Connect in frame",                            "bthci_acl.connect_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_bthci_acl_disconnect_in,
+            { "Disconnect in frame",                         "bthci_acl.disconnect_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_bthci_acl_src_bd_addr,
             { "Source BD_ADDR",                              "bthci_acl.src.bd_addr",

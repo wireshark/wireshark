@@ -1783,18 +1783,29 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         l2cap_data->interface_id = pinfo->phdr->interface_id;
     else
         l2cap_data->interface_id = HCI_INTERFACE_DEFAULT;
-    l2cap_data->adapter_id       = (acl_data) ? acl_data->adapter_id : HCI_ADAPTER_DEFAULT;
-    l2cap_data->chandle          = (acl_data) ? acl_data->chandle : 0;
+    if (acl_data) {
+        l2cap_data->adapter_id                  = acl_data->adapter_id;
+        l2cap_data->adapter_disconnect_in_frame = acl_data->adapter_disconnect_in_frame;
+        l2cap_data->chandle                     = acl_data->chandle;
+        l2cap_data->hci_disconnect_in_frame     = acl_data->disconnect_in_frame;
+        l2cap_data->remote_bd_addr_oui          = acl_data->remote_bd_addr_oui;
+        l2cap_data->remote_bd_addr_id           = acl_data->remote_bd_addr_id;
+    } else {
+        l2cap_data->adapter_id                  = HCI_ADAPTER_DEFAULT;
+        l2cap_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
+        l2cap_data->chandle                     = 0;
+        l2cap_data->hci_disconnect_in_frame     = &max_disconnect_in_frame;
+        l2cap_data->remote_bd_addr_oui          = 0;
+        l2cap_data->remote_bd_addr_id           = 0;
+    }
+
+    l2cap_data->disconnect_in_frame         = &max_disconnect_in_frame;
+
     l2cap_data->cid              = cid;
     l2cap_data->local_cid        = BTL2CAP_UNKNOWN_CID;
     l2cap_data->remote_cid       = BTL2CAP_UNKNOWN_CID;
     l2cap_data->is_local_psm     = FALSE;
     l2cap_data->psm              = 0;
-    l2cap_data->disconnect_in_frame         = &max_disconnect_in_frame;
-    l2cap_data->hci_disconnect_in_frame     = &max_disconnect_in_frame;
-    l2cap_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
-    l2cap_data->remote_bd_addr_oui = (acl_data) ? acl_data->remote_bd_addr_oui : 0;
-    l2cap_data->remote_bd_addr_id = (acl_data) ? acl_data->remote_bd_addr_id : 0;
 
     if (cid == BTL2CAP_FIXED_CID_SIGNAL || cid == BTL2CAP_FIXED_CID_LE_SIGNAL) {
         /* This is a command packet*/

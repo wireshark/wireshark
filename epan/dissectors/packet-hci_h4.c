@@ -46,6 +46,7 @@ static dissector_handle_t hci_h4_handle;
 static dissector_table_t hci_h4_table;
 static dissector_handle_t data_handle;
 
+static wmem_tree_t *chandle_sessions        = NULL;
 static wmem_tree_t *chandle_to_bdaddr_table = NULL;
 static wmem_tree_t *bdaddr_to_name_table    = NULL;
 static wmem_tree_t *localhost_name          = NULL;
@@ -64,6 +65,9 @@ static const value_string hci_h4_direction_vals[] = {
     {P2P_DIR_UNKNOWN,     "Unspecified"},
     {0, NULL}
 };
+
+static guint32 max_disconnect_in_frame = G_MAXUINT32;
+
 
 void proto_register_hci_h4(void);
 void proto_reg_handoff_hci_h4(void);
@@ -110,6 +114,8 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     else
         hci_data->interface_id = HCI_INTERFACE_DEFAULT;
     hci_data->adapter_id = HCI_ADAPTER_DEFAULT;
+    hci_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
+    hci_data->chandle_sessions = chandle_sessions;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
     hci_data->localhost_bdaddr = localhost_bdaddr;
@@ -165,6 +171,7 @@ proto_register_hci_h4(void)
     hci_h4_table = register_dissector_table("hci_h4.type",
             "HCI H4 pdu type", FT_UINT8, BASE_HEX);
 
+    chandle_sessions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     chandle_to_bdaddr_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, chandle: bdaddr */
     bdaddr_to_name_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* bdaddr: name */
     localhost_bdaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, frame: bdaddr */

@@ -45,6 +45,8 @@ static gint ett_hci_mon = -1;
 
 static expert_field ei_unknown_data = EI_INIT;
 
+static wmem_tree_t *adapter_to_disconnect_in_frame = NULL;
+static wmem_tree_t *chandle_sessions        = NULL;
 static wmem_tree_t *chandle_to_bdaddr_table = NULL;
 static wmem_tree_t *bdaddr_to_name_table    = NULL;
 static wmem_tree_t *localhost_name          = NULL;
@@ -88,6 +90,8 @@ static const value_string bus_vals[] = {
 };
 static value_string_ext(bus_vals_ext) = VALUE_STRING_EXT_INIT(bus_vals);
 
+static guint32 max_disconnect_in_frame = G_MAXUINT32;
+
 
 void proto_register_hci_mon(void);
 void proto_reg_handoff_hci_mon(void);
@@ -95,14 +99,20 @@ void proto_reg_handoff_hci_mon(void);
 static gint
 dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-    proto_tree     *hci_mon_item;
-    proto_item     *hci_mon_tree;
-    proto_item     *sub_item;
-    gint            offset = 0;
-    guint16         opcode;
-    guint16         adapter_id;
-    hci_data_t     *hci_data;
-    tvbuff_t       *next_tvb;
+    proto_tree       *hci_mon_item;
+    proto_item       *hci_mon_tree;
+    proto_item       *sub_item;
+    gint              offset = 0;
+    guint16           opcode;
+    guint16           adapter_id;
+    hci_data_t       *hci_data;
+    tvbuff_t         *next_tvb;
+    guint32          *adapter_disconnect_in_frame;
+    wmem_tree_t      *subtree;
+    wmem_tree_key_t  key[4];
+    guint32          k_interface_id;
+    guint32          k_adapter_id;
+    guint32          k_frame_number;
 
     adapter_id = pinfo->pseudo_header->btmon.adapter_id;
     opcode = pinfo->pseudo_header->btmon.opcode;
@@ -145,16 +155,55 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Adapter Id: %u, Opcode: %s",
             adapter_id, val_to_str_ext_const(opcode, &opcode_vals_ext, "Unknown"));
 
+
     hci_data = (hci_data_t *) wmem_new(wmem_packet_scope(), hci_data_t);
     if (pinfo->phdr->presence_flags & WTAP_HAS_INTERFACE_ID)
         hci_data->interface_id = pinfo->phdr->interface_id;
     else
         hci_data->interface_id = HCI_INTERFACE_DEFAULT;
     hci_data->adapter_id = adapter_id;
+    hci_data->chandle_sessions = chandle_sessions;
     hci_data->chandle_to_bdaddr_table = chandle_to_bdaddr_table;
     hci_data->bdaddr_to_name_table = bdaddr_to_name_table;
     hci_data->localhost_bdaddr = localhost_bdaddr;
     hci_data->localhost_name = localhost_name;
+
+    k_interface_id = hci_data->interface_id;
+    k_adapter_id   = adapter_id;
+    k_frame_number = pinfo->fd->num;
+
+    key[0].length = 1;
+    key[0].key    = &k_interface_id;
+    key[1].length = 1;
+    key[1].key    = &k_adapter_id;
+
+    if (!pinfo->fd->flags.visited && opcode == 0x01) { /* Delete Index */
+        guint32           *disconnect_in_frame;
+
+        key[2].length = 1;
+        key[2].key    = &k_frame_number;
+        key[3].length = 0;
+        key[3].key    = NULL;
+
+        disconnect_in_frame = wmem_new(wmem_file_scope(), guint32);
+
+        if (disconnect_in_frame) {
+            *disconnect_in_frame = pinfo->fd->num;
+
+            wmem_tree_insert32_array(adapter_to_disconnect_in_frame, key, disconnect_in_frame);
+        }
+    }
+
+    key[2].length = 0;
+    key[2].key    = NULL;
+
+    subtree = (wmem_tree_t *) wmem_tree_lookup32_array(adapter_to_disconnect_in_frame, key);
+    adapter_disconnect_in_frame = (subtree) ? (guint32 *) wmem_tree_lookup32_le(subtree, k_frame_number) : NULL;
+    if (adapter_disconnect_in_frame) {
+        hci_data->adapter_disconnect_in_frame = adapter_disconnect_in_frame;
+    } else {
+        hci_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
+    }
 
     pinfo->ptype = PT_BLUETOOTH;
 
@@ -262,6 +311,8 @@ proto_register_hci_mon(void)
         &ett_hci_mon,
     };
 
+    adapter_to_disconnect_in_frame = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    chandle_sessions = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     chandle_to_bdaddr_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, chandle: bdaddr */
     bdaddr_to_name_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* bdaddr: name */
     localhost_bdaddr = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope()); /* adapter, frame: bdaddr */

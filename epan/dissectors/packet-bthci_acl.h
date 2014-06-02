@@ -23,9 +23,11 @@
 #define __PACKET_BTHCI_ACL_H__
 
 typedef struct _bthci_acl_data_t {
-    guint32 interface_id;
-    guint32 adapter_id;
-    guint16 chandle;  /* only low 12 bits used */
+    guint32   interface_id;
+    guint32   adapter_id;
+    guint32  *adapter_disconnect_in_frame;
+    guint16   chandle;  /* only low 12 bits used */
+    guint32  *disconnect_in_frame;
 
     guint32 remote_bd_addr_oui;
     guint32 remote_bd_addr_id;
