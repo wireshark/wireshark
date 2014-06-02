@@ -2199,8 +2199,6 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	}
 	case 0x02:	/* MDI Power Support */
 	{
-		const char *strPtr;
-
 		/* Get MDI power support info */
 		if (tree)
 		{
@@ -2238,14 +2236,18 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 			proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
-		/* Determine power source */
+		if (tree)
+			tf = proto_tree_add_item(tree, hf_ieee_802_3_mdi_power_source, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+		/* Determine power source subtype */
 		switch (subType)
 		{
 		case 0:
 		case 2:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str_const(subType, media_power_pse_device, "Reserved");
+			if (tree)
+				proto_item_append_text(tf, "%s", val_to_str_const(subType, media_power_pse_device, "Reserved"));
 
 			break;
 		}
@@ -2253,18 +2255,18 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		case 3:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str_const(subType, media_power_pd_device, "Reserved");
+			if (tree)
+				proto_item_append_text(tf, "%s", val_to_str_const(subType, media_power_pd_device, "Reserved"));
 
 			break;
 		}
 		default:
 		{
-			strPtr = "Unknown";
+			proto_item_append_text(tf, "%s", "Unknown");
+
 			break;
 		}
 		}
-		if (tree)
-			proto_tree_add_string(tree, hf_ieee_802_3_mdi_power_source, tvb, tempOffset, 1, strPtr);
 
 		/* Determine power priority */
 		if (tree)
