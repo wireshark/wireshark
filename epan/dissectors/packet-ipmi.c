@@ -1454,3 +1454,16 @@ proto_register_ipmi(void)
 			"Selects which OEM format is used for commands that IPMI does not define",
 			&selected_oem, oemsel_vals, FALSE);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -2138,37 +2138,37 @@ static const value_string cc33[] = {
 };
 
 static ipmi_cmd_t cmd_transport[] = {
-  /* LAN Device Commands */
-  { 0x01, rq01, NULL, cc01, NULL, "Set LAN Configuration Parameters", 0 },
-  { 0x02, rq02, rs02, cc02, NULL, "Get LAN Configuration Parameters", CMD_CALLRQ },
-  { 0x03, rq03, rs03, NULL, NULL, "Suspend BMC ARPs", 0 },
-  { 0x04, rq04, rs04, NULL, NULL, "Get IP/UDP/RMCP Statistics", 0 },
+	/* LAN Device Commands */
+	{ 0x01, rq01, NULL, cc01, NULL, "Set LAN Configuration Parameters", 0 },
+	{ 0x02, rq02, rs02, cc02, NULL, "Get LAN Configuration Parameters", CMD_CALLRQ },
+	{ 0x03, rq03, rs03, NULL, NULL, "Suspend BMC ARPs", 0 },
+	{ 0x04, rq04, rs04, NULL, NULL, "Get IP/UDP/RMCP Statistics", 0 },
 
-  /* Serial/Modem Device Commands */
-  { 0x10, rq10, NULL, cc10, NULL, "Set Serial/Modem Configuration", 0 },
-  { 0x11, rq11, rs11, cc11, NULL, "Get Serial/Modem Configuration", CMD_CALLRQ },
-  { 0x12, rq12, rs12, NULL, NULL, "Set Serial/Modem Mux", 0 },
-  { 0x13, rq13, rs13, NULL, NULL, "Get TAP Response Codes", 0 },
-  { 0x14, rq14, NULL, NULL, NULL, "Set PPP UDP Proxy Transmit Data", 0 },
-  { 0x15, rq15, rs15, NULL, NULL, "Get PPP UDP Proxy Transmit Data", 0 },
-  { 0x16, rq16, NULL, cc16, NULL, "Send PPP UDP Proxy Packet", 0 },
-  { 0x17, rq17, rs17, cc17, NULL, "Get PPP UDP Proxy Receive Data", CMD_CALLRQ },
-  { 0x18, rq18, NULL, NULL, NULL, "Serial/Modem Connection Active", 0 },
-  { 0x19, rq19, NULL, cc19, NULL, "Callback", 0 },
-  { 0x1a, rq1a, NULL, NULL, NULL, "Set User Callback Options", 0 },
-  { 0x1b, rq1b, rs1b, NULL, NULL, "Get User Callback Options", 0 },
-  { 0x1c, IPMI_TBD,   NULL, NULL, "Set Serial Routing Mux", 0 },
+	/* Serial/Modem Device Commands */
+	{ 0x10, rq10, NULL, cc10, NULL, "Set Serial/Modem Configuration", 0 },
+	{ 0x11, rq11, rs11, cc11, NULL, "Get Serial/Modem Configuration", CMD_CALLRQ },
+	{ 0x12, rq12, rs12, NULL, NULL, "Set Serial/Modem Mux", 0 },
+	{ 0x13, rq13, rs13, NULL, NULL, "Get TAP Response Codes", 0 },
+	{ 0x14, rq14, NULL, NULL, NULL, "Set PPP UDP Proxy Transmit Data", 0 },
+	{ 0x15, rq15, rs15, NULL, NULL, "Get PPP UDP Proxy Transmit Data", 0 },
+	{ 0x16, rq16, NULL, cc16, NULL, "Send PPP UDP Proxy Packet", 0 },
+	{ 0x17, rq17, rs17, cc17, NULL, "Get PPP UDP Proxy Receive Data", CMD_CALLRQ },
+	{ 0x18, rq18, NULL, NULL, NULL, "Serial/Modem Connection Active", 0 },
+	{ 0x19, rq19, NULL, cc19, NULL, "Callback", 0 },
+	{ 0x1a, rq1a, NULL, NULL, NULL, "Set User Callback Options", 0 },
+	{ 0x1b, rq1b, rs1b, NULL, NULL, "Get User Callback Options", 0 },
+	{ 0x1c, IPMI_TBD,   NULL, NULL, "Set Serial Routing Mux", 0 },
 
-  /* Serial-Over-LAN Commands */
-  { 0x20, IPMI_TBD,   NULL, NULL, "SOL Activating", 0 },
-  { 0x21, IPMI_TBD,   cc21, NULL, "Set SOL Configuration Parameters", 0 },
-  { 0x22, IPMI_TBD,   cc22, NULL, "Get SOL Configuration Parameters", CMD_CALLRQ },
+	/* Serial-Over-LAN Commands */
+	{ 0x20, IPMI_TBD,   NULL, NULL, "SOL Activating", 0 },
+	{ 0x21, IPMI_TBD,   cc21, NULL, "Set SOL Configuration Parameters", 0 },
+	{ 0x22, IPMI_TBD,   cc22, NULL, "Get SOL Configuration Parameters", CMD_CALLRQ },
 
-  /* Command Forwarding Commands */
-  { 0x30, IPMI_TBD,   NULL, NULL, "Forwarded Command", 0 },
-  { 0x31, IPMI_TBD,   NULL, NULL, "Set Forwarded Commands", 0 },
-  { 0x32, IPMI_TBD,   NULL, NULL, "Get Forwarded Commands", 0 },
-  { 0x33, IPMI_TBD,   cc33, NULL, "Enable Forwarded Commands", 0 },
+	/* Command Forwarding Commands */
+	{ 0x30, IPMI_TBD,   NULL, NULL, "Forwarded Command", 0 },
+	{ 0x31, IPMI_TBD,   NULL, NULL, "Set Forwarded Commands", 0 },
+	{ 0x32, IPMI_TBD,   NULL, NULL, "Get Forwarded Commands", 0 },
+	{ 0x33, IPMI_TBD,   cc33, NULL, "Enable Forwarded Commands", 0 },
 };
 
 void
@@ -2177,7 +2177,7 @@ ipmi_register_transport(gint proto_ipmi)
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_trn_lan00_sip,
 			{ "Set In Progress",
-				"ipmi.lan00.sip", FT_UINT8, BASE_HEX, lan00_sip_vals, 0x03, NULL, HFILL }},
+				"ipmi.lan00.sip", FT_UINT8, BASE_HEX, VALS(lan00_sip_vals), 0x03, NULL, HFILL }},
 
 		{ &hf_ipmi_trn_lanXX_oem,
 			{ "OEM Proprietary",
@@ -2201,7 +2201,7 @@ ipmi_register_transport(gint proto_ipmi)
 
 		{ &hf_ipmi_trn_lan04_ipsrc,
 			{ "IP Address Source",
-				"ipmi.lan04.ipsrc", FT_UINT8, BASE_HEX, lan04_ipsrc_vals, 0x0f, NULL, HFILL }},
+				"ipmi.lan04.ipsrc", FT_UINT8, BASE_HEX, VALS(lan04_ipsrc_vals), 0x0f, NULL, HFILL }},
 
 		{ &hf_ipmi_trn_lan05_ether,
 			{ "MAC Address",
@@ -2275,7 +2275,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.lan18.ack", FT_BOOLEAN, 8, TFS(&lan18_ack_tfs), 0x80, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan18_dst_type,
 			{ "Destination Type",
-				"ipmi.lan18.dst_type", FT_UINT8, BASE_HEX, lan18_dst_type_vals, 0x07, NULL, HFILL }},
+				"ipmi.lan18.dst_type", FT_UINT8, BASE_HEX, VALS(lan18_dst_type_vals), 0x07, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan18_tout,
 			{ "Timeout/Retry Interval",
 				"ipmi.lan18.tout", FT_UINT8, BASE_CUSTOM, ipmi_fmt_1s_0based, 0, NULL, HFILL }},
@@ -2288,7 +2288,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.lan19.dst_selector", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan19_addr_format,
 			{ "Address Format",
-				"ipmi.lan19.addr_format", FT_UINT8, BASE_HEX, lan19_af_vals, 0xf0, NULL, HFILL }},
+				"ipmi.lan19.addr_format", FT_UINT8, BASE_HEX, VALS(lan19_af_vals), 0xf0, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan19_address,
 			{ "Address (format unknown)",
 				"ipmi.lan19.address", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -2330,7 +2330,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.lan25.dst_selector", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan25_addr_format,
 			{ "Address Format",
-				"ipmi.lan25.addr_format", FT_UINT8, BASE_HEX, lan25_af_vals, 0xf0, NULL, HFILL }},
+				"ipmi.lan25.addr_format", FT_UINT8, BASE_HEX, VALS(lan25_af_vals), 0xf0, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan25_address,
 			{ "Address (format unknown)",
 				"ipmi.lan25.address", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -2394,13 +2394,13 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial06.dcd", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial07_flowctl,
 			{ "Flow Control",
-				"ipmi.serial07.flowctl", FT_UINT8, BASE_HEX, serialXX_flowctl_vals, 0xc0, NULL, HFILL }},
+				"ipmi.serial07.flowctl", FT_UINT8, BASE_HEX, VALS(serialXX_flowctl_vals), 0xc0, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial07_dtrhangup,
 			{ "DTR Hang-up",
 				"ipmi.serial07.dtrhangup", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial07_bitrate,
 			{ "Bit rate",
-				"ipmi.serial07.bitrate", FT_UINT8, BASE_HEX, serialXX_bitrate_vals, 0x0f, NULL, HFILL }},
+				"ipmi.serial07.bitrate", FT_UINT8, BASE_HEX, VALS(serialXX_bitrate_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial08_esc_powerup,
 			{ "Power-up/wakeup via ESC-^",
 				"ipmi.serial08.esc_powerup", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x40, NULL, HFILL }},
@@ -2472,7 +2472,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial17.ack", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial17_dest_type,
 			{ "Destination Type",
-				"ipmi.serial17.dest_type", FT_UINT8, BASE_HEX, serial17_dest_type_vals, 0x0f, NULL, HFILL }},
+				"ipmi.serial17.dest_type", FT_UINT8, BASE_HEX, VALS(serial17_dest_type_vals), 0x0f, NULL, HFILL }},
 #if 0
 		{ &hf_ipmi_trn_serial17_ack_timeout,
 			{ "Alert Acknowledge Timeout",
@@ -2510,7 +2510,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial19.destsel", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial19_flowctl,
 			{ "Flow Control",
-				"ipmi.serial19.flowctl", FT_UINT8, BASE_HEX, serialXX_flowctl_vals, 0xc0, NULL, HFILL }},
+				"ipmi.serial19.flowctl", FT_UINT8, BASE_HEX, VALS(serialXX_flowctl_vals), 0xc0, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial19_dtrhangup,
 			{ "DTR Hang-up",
 				"ipmi.serial19.dtrhangup", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }},
@@ -2522,10 +2522,10 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial19.charsize", FT_BOOLEAN, 8, TFS(&serial19_charsize_tfs), 0x08, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial19_parity,
 			{ "Parity",
-				"ipmi.serial19.parity", FT_UINT8, BASE_HEX, serial19_parity_vals, 0x07, NULL, HFILL }},
+				"ipmi.serial19.parity", FT_UINT8, BASE_HEX, VALS(serial19_parity_vals), 0x07, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial19_bitrate,
 			{ "Bit rate",
-				"ipmi.serial19.bitrate", FT_UINT8, BASE_HEX, serialXX_bitrate_vals, 0x0f, NULL, HFILL }},
+				"ipmi.serial19.bitrate", FT_UINT8, BASE_HEX, VALS(serialXX_bitrate_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial20_num_dial_strings,
 			{ "Number of Dial Strings",
 				"ipmi.serial20.num_dial_strings", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
@@ -2576,7 +2576,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial28.tapsrv_sel", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial28_confirm,
 			{ "TAP Confirmation",
-				"ipmi.serial28.confirm", FT_UINT8, BASE_HEX, serial28_confirm_vals, 0x03, NULL, HFILL }},
+				"ipmi.serial28.confirm", FT_UINT8, BASE_HEX, VALS(serial28_confirm_vals), 0x03, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial28_srvtype,
 			{ "TAP 'SST' Service Type",
 				"ipmi.serial28.srvtype", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -2615,13 +2615,13 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial28.tap_n3", FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial29_op,
 			{ "Parameter Operation",
-				"ipmi.serial29.op", FT_UINT8, BASE_HEX, serial29_op_vals, 0xc0, NULL, HFILL }},
+				"ipmi.serial29.op", FT_UINT8, BASE_HEX, VALS(serial29_op_vals), 0xc0, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial29_lineedit,
 			{ "Line Editing",
 				"ipmi.serial29.lineedit", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x20, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial29_deletectl,
 			{ "Delete control",
-				"ipmi.serial29.deletectl", FT_UINT8, BASE_HEX, serial29_delete_vals, 0x0c, NULL, HFILL }},
+				"ipmi.serial29.deletectl", FT_UINT8, BASE_HEX, VALS(serial29_delete_vals), 0x0c, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial29_echo,
 			{ "Echo",
 				"ipmi.serial29.echo", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }},
@@ -2630,19 +2630,19 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial29.handshake", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial29_o_newline,
 			{ "Output newline sequence",
-				"ipmi.serial29.o_newline", FT_UINT8, BASE_HEX, serial29_o_nl_vals, 0xf0, NULL, HFILL }},
+				"ipmi.serial29.o_newline", FT_UINT8, BASE_HEX, VALS(serial29_o_nl_vals), 0xf0, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial29_i_newline,
 			{ "Input newline sequence",
-				"ipmi.serial29.i_newline", FT_UINT8, BASE_HEX, serial29_i_nl_vals, 0x0f, NULL, HFILL }},
+				"ipmi.serial29.i_newline", FT_UINT8, BASE_HEX, VALS(serial29_i_nl_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial30_snooping,
 			{ "System Negotiation Snooping",
 				"ipmi.serial30.snooping", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial30_snoopctl,
 			{ "Snoop ACCM Control",
-				"ipmi.serial30.snoopctl", FT_UINT8, BASE_HEX, serial30_snoopctl_vals, 0x03, NULL, HFILL }},
+				"ipmi.serial30.snoopctl", FT_UINT8, BASE_HEX, VALS(serial30_snoopctl_vals), 0x03, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial30_negot_ctl,
 			{ "BMC negotiates link parameters",
-				"ipmi.serial30.negot_ctl", FT_UINT8, BASE_HEX, serial30_negoctl_vals, 0x30, NULL, HFILL }},
+				"ipmi.serial30.negot_ctl", FT_UINT8, BASE_HEX, VALS(serial30_negoctl_vals), 0x30, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial30_use_xmit_accm,
 			{ "Filtering incoming chars",
 				"ipmi.serial30.filter", FT_BOOLEAN, 8, TFS(&serial30_filter_tfs), 0x04, NULL, HFILL }},
@@ -2654,7 +2654,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial30.xmit_proto_comp", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial30_ipaddr,
 			{ "IP Address negotiation",
-				"ipmi.serial30.ipaddr", FT_UINT8, BASE_HEX, serial30_ipaddr_val, 0x18, NULL, HFILL }},
+				"ipmi.serial30.ipaddr", FT_UINT8, BASE_HEX, VALS(serial30_ipaddr_val), 0x18, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial30_accm,
 			{ "ACCM Negotiation",
 				"ipmi.serial30.accm", FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }},
@@ -2672,7 +2672,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial32.port", FT_UINT16, BASE_CUSTOM, ipmi_fmt_udpport, 0, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial33_auth_proto,
 			{ "PPP Link Authentication Protocol",
-				"ipmi.serial33.auth_proto", FT_UINT8, BASE_HEX, serialXX_proto_vals, 0x0f, NULL, HFILL }},
+				"ipmi.serial33.auth_proto", FT_UINT8, BASE_HEX, VALS(serialXX_proto_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial34_chap_name,
 			{ "CHAP Name",
 				"ipmi.serial34.chap_name", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -2723,7 +2723,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.serial43.acct_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial43_auth_proto,
 			{ "Link Auth Type",
-				"ipmi.serial43.auth_proto", FT_UINT8, BASE_HEX, serialXX_proto_vals, 0x0f, NULL, HFILL }},
+				"ipmi.serial43.auth_proto", FT_UINT8, BASE_HEX, VALS(serialXX_proto_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_serial44_acct_sel,
 			{ "PPP Account Selector",
 				"ipmi.serial44.acct_sel", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -2922,7 +2922,7 @@ ipmi_register_transport(gint proto_ipmi)
 				"ipmi.tr12.chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_12_mux_setting,
 			{ "Mux Setting",
-				"ipmi.tr12.mux_setting", FT_UINT8, BASE_HEX, vals_12_mux, 0x0f, NULL, HFILL }},
+				"ipmi.tr12.mux_setting", FT_UINT8, BASE_HEX, VALS(vals_12_mux), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_12_sw_to_sys,
 			{ "Requests to switch to system",
 				"ipmi.tr12.sw_to_sys", FT_BOOLEAN, 8, TFS(&tfs_12_blocked), 0x80, NULL, HFILL }},
@@ -3018,7 +3018,7 @@ ipmi_register_transport(gint proto_ipmi)
 
 		{ &hf_ipmi_trn_18_state,
 			{ "Session state",
-				"ipmi.tr18.state", FT_UINT8, BASE_HEX, vals_18_state, 0x0f, NULL, HFILL }},
+				"ipmi.tr18.state", FT_UINT8, BASE_HEX, VALS(vals_18_state), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_trn_18_ipmi_ver,
 			{ "IPMI Version",
 				"ipmi.tr18.ipmi_ver", FT_UINT8, BASE_CUSTOM, ipmi_fmt_version, 0, NULL, HFILL }},
@@ -3185,3 +3185,16 @@ ipmi_register_transport(gint proto_ipmi)
 	ipmi_register_netfn_cmdtab(IPMI_TRANSPORT_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_transport, array_length(cmd_transport));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

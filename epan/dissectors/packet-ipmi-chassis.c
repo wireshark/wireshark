@@ -715,7 +715,7 @@ ipmi_register_chassis(gint proto_ipmi)
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_chs_bo00_sip,
 			{ "Set In Progress",
-				"ipmi.bootopt00.sip", FT_UINT8, BASE_HEX, bo00_sip_vals, 0x03, NULL, HFILL }},
+			  	"ipmi.bootopt00.sip", FT_UINT8, BASE_HEX, VALS(bo00_sip_vals), 0x03, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo01_spsel,
 			{ "Service Partition Selector",
 				"ipmi.bootopt01.spsel", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -775,7 +775,7 @@ ipmi_register_chassis(gint proto_ipmi)
 				"ipmi.bootopt05.lock_kbd", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_bootdev,
 			{ "Boot Device Selector",
-				"ipmi.bootopt05.bootdev", FT_UINT8, BASE_HEX, bo05_bootdev_vals, 0x3c, NULL, HFILL }},
+				"ipmi.bootopt05.bootdev", FT_UINT8, BASE_HEX, VALS(bo05_bootdev_vals), 0x3c, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_screen_blank,
 			{ "Screen Blank",
 				"ipmi.bootopt05.screen_blank", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
@@ -787,7 +787,7 @@ ipmi_register_chassis(gint proto_ipmi)
 				"ipmi.bootopt05.lockout_poweroff", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_bios_verbosity,
 			{ "BIOS verbosity",
-				"ipmi.bootopt05.bios_verbosity", FT_UINT8, BASE_HEX, bo05_bios_verbosity_vals, 0x60, NULL, HFILL }},
+				"ipmi.bootopt05.bios_verbosity", FT_UINT8, BASE_HEX, VALS(bo05_bios_verbosity_vals), 0x60, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_progress_traps,
 			{ "Force Progress Event Traps",
 				"ipmi.bootopt05.progress_traps", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
@@ -799,13 +799,13 @@ ipmi_register_chassis(gint proto_ipmi)
 				"ipmi.bootopt05.lock_sleep", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_console_redirection,
 			{ "Console redirection",
-				"ipmi.bootopt05.console_redirection", FT_UINT8, BASE_HEX, bo05_console_redir_vals, 0x03, NULL, HFILL }},
+				"ipmi.bootopt05.console_redirection", FT_UINT8, BASE_HEX, VALS(bo05_console_redir_vals), 0x03, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_bios_shared_override,
 			{ "BIOS Shared Mode Override",
 				"ipmi.bootopt05.bios_shared_override", FT_BOOLEAN, 8, TFS(&bo05_bios_shared_tfs), 0x08, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_bios_muxctl_override,
 			{ "BIOS Mux Control Override",
-				"ipmi.bootopt05.bios_muxctl_override", FT_UINT8, BASE_HEX, bo05_bios_muxctl_vals, 0x07, NULL, HFILL }},
+				"ipmi.bootopt05.bios_muxctl_override", FT_UINT8, BASE_HEX, VALS(bo05_bios_muxctl_vals), 0x07, NULL, HFILL }},
 		{ &hf_ipmi_chs_bo05_byte5,
 			{ "Data 5 (reserved)",
 				"ipmi.bootopt05.byte5", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -855,7 +855,7 @@ ipmi_register_chassis(gint proto_ipmi)
 
 		{ &hf_ipmi_chs_01_pwr_state_policy,
 			{ "Power Restore Policy",
-				"ipmi.ch01.cur_pwr.policy", FT_UINT8, BASE_HEX, vals_01_pwr_policy, 0x60, NULL, HFILL }},
+				"ipmi.ch01.cur_pwr.policy", FT_UINT8, BASE_HEX, VALS(vals_01_pwr_policy), 0x60, NULL, HFILL }},
 		{ &hf_ipmi_chs_01_pwr_state_ctl_fault,
 			{ "Power Control Fault",
 				"ipmi.ch01.cur_pwr.ctl_fault", FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
@@ -891,7 +891,7 @@ ipmi_register_chassis(gint proto_ipmi)
 				"ipmi.ch01.identsupp", FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
 		{ &hf_ipmi_chs_01_misc_identstate,
 			{ "Chassis Identify state (if supported)",
-				"ipmi.ch01.identstate", FT_UINT8, BASE_HEX, vals_01_identstate, 0x30, NULL, HFILL }},
+				"ipmi.ch01.identstate", FT_UINT8, BASE_HEX, VALS(vals_01_identstate), 0x30, NULL, HFILL }},
 		{ &hf_ipmi_chs_01_misc_fan,
 			{ "Cooling/fan fault detected",
 				"ipmi.ch01.misc.fan", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
@@ -931,7 +931,7 @@ ipmi_register_chassis(gint proto_ipmi)
 
 		{ &hf_ipmi_chs_02_cctrl,
 			{ "Chassis Control",
-				"ipmi.ch02.chassis_control", FT_UINT8, BASE_HEX, vals_02_cctrl, 0x0f, NULL, HFILL }},
+				"ipmi.ch02.chassis_control", FT_UINT8, BASE_HEX, VALS(vals_02_cctrl), 0x0f, NULL, HFILL }},
 
 		{ &hf_ipmi_chs_04_ival,
 			{ "Identify Interval in seconds",
@@ -964,7 +964,7 @@ ipmi_register_chassis(gint proto_ipmi)
 
 		{ &hf_ipmi_chs_06_rq_policy,
 			{ "Power Restore Policy",
-				"ipmi.ch06.rq_policy", FT_UINT8, BASE_HEX, vals_06_policy, 0x07, NULL, HFILL }},
+				"ipmi.ch06.rq_policy", FT_UINT8, BASE_HEX, VALS(vals_06_policy), 0x07, NULL, HFILL }},
 		{ &hf_ipmi_chs_06_rs_policy_support_powerup,
 			{ "Always powering up",
 				"ipmi.ch06.rs_support.powerup", FT_BOOLEAN, 8, TFS(&tfs_06_supported), 0x04, NULL, HFILL }},
@@ -977,7 +977,7 @@ ipmi_register_chassis(gint proto_ipmi)
 
 		{ &hf_ipmi_chs_07_cause,
 			{ "Restart Cause",
-				"ipmi.ch07.cause", FT_UINT8, BASE_HEX, vals_07_cause, 0x0f, NULL, HFILL }},
+				"ipmi.ch07.cause", FT_UINT8, BASE_HEX, VALS(vals_07_cause), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_chs_07_chan,
 			{ "Channel",
 				"ipmi.ch07.chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0, NULL, HFILL }},
@@ -1054,3 +1054,17 @@ ipmi_register_chassis(gint proto_ipmi)
 	ipmi_register_netfn_cmdtab(IPMI_CHASSIS_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_chassis, array_length(cmd_chassis));
 }
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -705,41 +705,41 @@ rq5b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 static ipmi_cmd_t cmd_storage[] = {
-  /* FRU Device Commands */
-  { 0x10, rq10, rs10, NULL, NULL, "Get FRU Inventory Area Info", 0 },
-  { 0x11, rq11, rs11, cc11, NULL, "Read FRU Data", 0 },
-  { 0x12, rq12, rs12, cc12, NULL, "Write FRU Data", 0 },
+	/* FRU Device Commands */
+	{ 0x10, rq10, rs10, NULL, NULL, "Get FRU Inventory Area Info", 0 },
+	{ 0x11, rq11, rs11, cc11, NULL, "Read FRU Data", 0 },
+	{ 0x12, rq12, rs12, cc12, NULL, "Write FRU Data", 0 },
 
-  /* SDR Device Commands */
-  { 0x20, NULL, rs20, NULL, NULL, "Get SDR Repository Info", 0 },
-  { 0x21, NULL, rs21, NULL, NULL, "Get SDR Repository Allocation Info", 0 },
-  { 0x22, NULL, rs22, NULL, NULL, "Reserve SDR Repository", 0 },
-  { 0x23, rq23, rs23, NULL, NULL, "Get SDR", 0 },
-  { 0x24, rq24, rs24, NULL, NULL, "Add SDR", 0 },
-  { 0x25, rq25, rs25, cc25, NULL, "Partial Add SDR", 0 },
-  { 0x26, rq26, rs26, NULL, NULL, "Delete SDR", 0 },
-  { 0x27, rq27, rs27, NULL, NULL, "Clear SDR Repository", 0 },
-  { 0x28, NULL, rs28, NULL, NULL, "Get SDR Repository Time", 0 },
-  { 0x29, rq29, NULL, NULL, NULL, "Set SDR Repository Time", 0 },
-  { 0x2a, NULL, NULL, NULL, NULL, "Enter SDR Repository Update Mode", 0 },
-  { 0x2b, NULL, NULL, NULL, NULL, "Exit SDR Repository Update Mode", 0 },
-  { 0x2c, rq2c, rs2c, NULL, NULL, "Run Initialization Agent", 0 },
+	/* SDR Device Commands */
+	{ 0x20, NULL, rs20, NULL, NULL, "Get SDR Repository Info", 0 },
+	{ 0x21, NULL, rs21, NULL, NULL, "Get SDR Repository Allocation Info", 0 },
+	{ 0x22, NULL, rs22, NULL, NULL, "Reserve SDR Repository", 0 },
+	{ 0x23, rq23, rs23, NULL, NULL, "Get SDR", 0 },
+	{ 0x24, rq24, rs24, NULL, NULL, "Add SDR", 0 },
+	{ 0x25, rq25, rs25, cc25, NULL, "Partial Add SDR", 0 },
+	{ 0x26, rq26, rs26, NULL, NULL, "Delete SDR", 0 },
+	{ 0x27, rq27, rs27, NULL, NULL, "Clear SDR Repository", 0 },
+	{ 0x28, NULL, rs28, NULL, NULL, "Get SDR Repository Time", 0 },
+	{ 0x29, rq29, NULL, NULL, NULL, "Set SDR Repository Time", 0 },
+	{ 0x2a, NULL, NULL, NULL, NULL, "Enter SDR Repository Update Mode", 0 },
+	{ 0x2b, NULL, NULL, NULL, NULL, "Exit SDR Repository Update Mode", 0 },
+	{ 0x2c, rq2c, rs2c, NULL, NULL, "Run Initialization Agent", 0 },
 
-  /* SEL Device Commands */
-  { 0x40, NULL, rs40, cc40, NULL, "Get SEL Info", 0 },
-  { 0x41, NULL, rs41, NULL, NULL, "Get SEL Allocation Info", 0 },
-  { 0x42, NULL, rs42, cc42, NULL, "Reserve SEL", 0 },
-  { 0x43, rq43, rs43, cc43, NULL, "Get SEL Entry", 0 },
-  { 0x44, rq44, rs44, cc44, NULL, "Add SEL Entry", 0 },
-  { 0x45, rq45, rs45, cc45, NULL, "Partial Add SEL Entry", 0 },
-  { 0x46, rq46, rs46, cc46, NULL, "Delete SEL Entry", 0 },
-  { 0x47, rq47, rs47, NULL, NULL, "Clear SEL", 0 },
-  { 0x48, NULL, rs48, NULL, NULL, "Get SEL Time", 0 },
-  { 0x49, rq49, NULL, NULL, NULL, "Set SEL Time", 0 },
-  { 0x5a, rq5a, rs5a, NULL, NULL, "Get Auxiliary Log Status", CMD_CALLRQ },
-  { 0x5b, rq5b, NULL, NULL, NULL, "Set Auxiliary Log Status", 0 },
-  { 0x5c, IPMI_TBD,   NULL, NULL, "Get SEL Time UTC Offset", 0 },
-  { 0x5d, IPMI_TBD,   NULL, NULL, "Set SEL Time UTC Offset", 0 },
+	/* SEL Device Commands */
+	{ 0x40, NULL, rs40, cc40, NULL, "Get SEL Info", 0 },
+	{ 0x41, NULL, rs41, NULL, NULL, "Get SEL Allocation Info", 0 },
+	{ 0x42, NULL, rs42, cc42, NULL, "Reserve SEL", 0 },
+	{ 0x43, rq43, rs43, cc43, NULL, "Get SEL Entry", 0 },
+	{ 0x44, rq44, rs44, cc44, NULL, "Add SEL Entry", 0 },
+	{ 0x45, rq45, rs45, cc45, NULL, "Partial Add SEL Entry", 0 },
+	{ 0x46, rq46, rs46, cc46, NULL, "Delete SEL Entry", 0 },
+	{ 0x47, rq47, rs47, NULL, NULL, "Clear SEL", 0 },
+	{ 0x48, NULL, rs48, NULL, NULL, "Get SEL Time", 0 },
+	{ 0x49, rq49, NULL, NULL, NULL, "Set SEL Time", 0 },
+	{ 0x5a, rq5a, rs5a, NULL, NULL, "Get Auxiliary Log Status", CMD_CALLRQ },
+	{ 0x5b, rq5b, NULL, NULL, NULL, "Set Auxiliary Log Status", 0 },
+	{ 0x5c, IPMI_TBD,   NULL, NULL, "Get SEL Time UTC Offset", 0 },
+	{ 0x5d, IPMI_TBD,   NULL, NULL, "Set SEL Time UTC Offset", 0 },
 };
 
 void
@@ -805,7 +805,7 @@ ipmi_register_storage(gint proto_ipmi)
 				"ipmi.st20.op_overflow", FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 		{ &hf_ipmi_stor_20_op_update,
 			{ "SDR Repository Update",
-				"ipmi.st20.op_update", FT_UINT8, BASE_HEX, vals_20_update, 0x60, NULL, HFILL }},
+				"ipmi.st20.op_update", FT_UINT8, BASE_HEX, VALS(vals_20_update), 0x60, NULL, HFILL }},
 		{ &hf_ipmi_stor_20_op_delete,
 			{ "Delete SDR",
 				"ipmi.st20.op_delete", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
@@ -876,7 +876,7 @@ ipmi_register_storage(gint proto_ipmi)
 				"ipmi.st25.offset", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_25_inprogress,
 			{ "In progress",
-				"ipmi.st25.inprogress", FT_UINT8, BASE_HEX, vals_25_inprogress, 0x0f, NULL, HFILL }},
+				"ipmi.st25.inprogress", FT_UINT8, BASE_HEX, VALS(vals_25_inprogress), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_stor_25_data,
 			{ "SDR Data",
 				"ipmi.st25.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -905,10 +905,10 @@ ipmi_register_storage(gint proto_ipmi)
 				"ipmi.st27.clr", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_27_action,
 			{ "Action",
-				"ipmi.st27.action", FT_UINT8, BASE_HEX, vals_27_action, 0, NULL, HFILL }},
+				"ipmi.st27.action", FT_UINT8, BASE_HEX, VALS(vals_27_action), 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_27_status,
 			{ "Erasure Status",
-				"ipmi.st27.status", FT_UINT8, BASE_HEX, vals_27_status, 0x0f, NULL, HFILL }},
+				"ipmi.st27.status", FT_UINT8, BASE_HEX, VALS(vals_27_status), 0x0f, NULL, HFILL }},
 
 		{ &hf_ipmi_stor_28_time,
 			{ "Time",
@@ -1013,7 +1013,7 @@ ipmi_register_storage(gint proto_ipmi)
 				"ipmi.st45.offset", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_45_inprogress,
 			{ "In progress",
-				"ipmi.st45.inprogress", FT_UINT8, BASE_HEX, vals_45_inprogress, 0x0f, NULL, HFILL }},
+				"ipmi.st45.inprogress", FT_UINT8, BASE_HEX, VALS(vals_45_inprogress), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_stor_45_data,
 			{ "Record Data",
 				"ipmi.st45.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -1042,10 +1042,10 @@ ipmi_register_storage(gint proto_ipmi)
 				"ipmi.st47.clr", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_47_action,
 			{ "Action",
-				"ipmi.st47.action", FT_UINT8, BASE_HEX, vals_47_action, 0, NULL, HFILL }},
+				"ipmi.st47.action", FT_UINT8, BASE_HEX, VALS(vals_47_action), 0, NULL, HFILL }},
 		{ &hf_ipmi_stor_47_status,
 			{ "Erasure Status",
-				"ipmi.st47.status", FT_UINT8, BASE_HEX, vals_47_status, 0x0f, NULL, HFILL }},
+				"ipmi.st47.status", FT_UINT8, BASE_HEX, VALS(vals_47_status), 0x0f, NULL, HFILL }},
 
 		{ &hf_ipmi_stor_48_time,
 			{ "Time",
@@ -1057,7 +1057,7 @@ ipmi_register_storage(gint proto_ipmi)
 
 		{ &hf_ipmi_stor_5a_log_type,
 			{ "Log type",
-				"ipmi.st5a.log_type", FT_UINT8, BASE_HEX, log_type_vals, 0x0f, NULL, HFILL }},
+				"ipmi.st5a.log_type", FT_UINT8, BASE_HEX, VALS(log_type_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_stor_5a_ts_add,
 			{ "Last addition timestamp",
 				"ipmi.st5a.ts_add", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1076,7 +1076,7 @@ ipmi_register_storage(gint proto_ipmi)
 
 		{ &hf_ipmi_stor_5b_log_type,
 			{ "Log type",
-				"ipmi.st5b.log_type", FT_UINT8, BASE_HEX, log_type_vals, 0x0f, NULL, HFILL }},
+				"ipmi.st5b.log_type", FT_UINT8, BASE_HEX, VALS(log_type_vals), 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_stor_5b_ts_add,
 			{ "Last addition timestamp",
 				"ipmi.st5b.ts_add", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -1113,3 +1113,16 @@ ipmi_register_storage(gint proto_ipmi)
 	ipmi_register_netfn_cmdtab(IPMI_STORAGE_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_storage, array_length(cmd_storage));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

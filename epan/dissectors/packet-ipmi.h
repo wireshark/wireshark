@@ -182,3 +182,17 @@ int ipmi_sendmsg_whichresponse(struct ipmi_header *hdr, struct ipmi_reqresp *rr)
 int ipmi_sendmsg_otheridx(struct ipmi_header *hdr);
 
 #endif
+
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

@@ -2909,38 +2909,38 @@ static const value_string cc30[] = {
 };
 
 static ipmi_cmd_t cmd_se[] = {
-  /* Event commands */
-  { 0x00, rq00, NULL, NULL, NULL, "Set Event Receiver", 0 },
-  { 0x01, NULL, rs01, NULL, NULL, "Get Event Receiver", 0 },
-  { 0x02, rq02, NULL, NULL, NULL, "Platform Event", 0 },
+	/* Event commands */
+	{ 0x00, rq00, NULL, NULL, NULL, "Set Event Receiver", 0 },
+	{ 0x01, NULL, rs01, NULL, NULL, "Get Event Receiver", 0 },
+	{ 0x02, rq02, NULL, NULL, NULL, "Platform Event", 0 },
 
-  /* PEF and Alerting Commands */
-  { 0x10, NULL, rs10, NULL, NULL, "Get PEF Capabilities", 0 },
-  { 0x11, rq11, rs11, NULL, NULL, "Arm PEF Postpone Timer", 0 },
-  { 0x12, rq12, NULL, cc12, NULL, "Set PEF Configuration Parameters", 0 },
-  { 0x13, rq13, rs13, cc13, NULL, "Get PEF Configuration Parameters", CMD_CALLRQ },
-  { 0x14, rq14, NULL, cc14, NULL, "Set Last Processed Event ID", 0 },
-  { 0x15, NULL, rs15, cc15, NULL, "Get Last Processed Event ID", 0 },
-  { 0x16, rq16, rs16, cc16, NULL, "Alert Immediate", CMD_CALLRQ },
-  { 0x17, rq17, NULL, NULL, NULL, "PET Acknowledge", 0 },
+	/* PEF and Alerting Commands */
+	{ 0x10, NULL, rs10, NULL, NULL, "Get PEF Capabilities", 0 },
+	{ 0x11, rq11, rs11, NULL, NULL, "Arm PEF Postpone Timer", 0 },
+	{ 0x12, rq12, NULL, cc12, NULL, "Set PEF Configuration Parameters", 0 },
+	{ 0x13, rq13, rs13, cc13, NULL, "Get PEF Configuration Parameters", CMD_CALLRQ },
+	{ 0x14, rq14, NULL, cc14, NULL, "Set Last Processed Event ID", 0 },
+	{ 0x15, NULL, rs15, cc15, NULL, "Get Last Processed Event ID", 0 },
+	{ 0x16, rq16, rs16, cc16, NULL, "Alert Immediate", CMD_CALLRQ },
+	{ 0x17, rq17, NULL, NULL, NULL, "PET Acknowledge", 0 },
 
-  /* Sensor Device Commands */
-  { 0x20, rq20, rs20, NULL, NULL, "Get Device SDR Info", CMD_CALLRQ },
-  { 0x21, rq21, rs21, cc21, NULL, "Get Device SDR", 0 },
-  { 0x22, NULL, rs22, NULL, NULL, "Reserve Device SDR Repository", 0 },
-  { 0x23, rq23, rs23, NULL, NULL, "Get Sensor Reading Factors", 0 },
-  { 0x24, rq24, NULL, NULL, NULL, "Set Sensor Hysteresis", 0 },
-  { 0x25, rq25, rs25, NULL, NULL, "Get Sensor Hysteresis", 0 },
-  { 0x26, rq26, NULL, NULL, NULL, "Set Sensor Threshold", 0 },
-  { 0x27, rq27, rs27, NULL, NULL, "Get Sensor Threshold", 0 },
-  { 0x28, rq28, NULL, NULL, NULL, "Set Sensor Event Enable", 0 },
-  { 0x29, rq29, rs29, NULL, NULL, "Get Sensor Event Enable", 0 },
-  { 0x2a, rq2a, NULL, NULL, NULL, "Re-arm Sensor Events", 0 },
-  { 0x2b, rq2b, rs2b, NULL, NULL, "Get Sensor Event Status", 0 },
-  { 0x2d, rq2d, rs2d, NULL, NULL, "Get Sensor Reading", 0 },
-  { 0x2e, rq2e, NULL, NULL, NULL, "Set Sensor Type", 0 },
-  { 0x2f, rq2f, rs2f, NULL, NULL, "Get Sensor Type", 0 },
-  { 0x30, IPMI_TBD,   cc30, NULL, "Set Sensor Reading and Event Status", 0 },
+	/* Sensor Device Commands */
+	{ 0x20, rq20, rs20, NULL, NULL, "Get Device SDR Info", CMD_CALLRQ },
+	{ 0x21, rq21, rs21, cc21, NULL, "Get Device SDR", 0 },
+	{ 0x22, NULL, rs22, NULL, NULL, "Reserve Device SDR Repository", 0 },
+	{ 0x23, rq23, rs23, NULL, NULL, "Get Sensor Reading Factors", 0 },
+	{ 0x24, rq24, NULL, NULL, NULL, "Set Sensor Hysteresis", 0 },
+	{ 0x25, rq25, rs25, NULL, NULL, "Get Sensor Hysteresis", 0 },
+	{ 0x26, rq26, NULL, NULL, NULL, "Set Sensor Threshold", 0 },
+	{ 0x27, rq27, rs27, NULL, NULL, "Get Sensor Threshold", 0 },
+	{ 0x28, rq28, NULL, NULL, NULL, "Set Sensor Event Enable", 0 },
+	{ 0x29, rq29, rs29, NULL, NULL, "Get Sensor Event Enable", 0 },
+	{ 0x2a, rq2a, NULL, NULL, NULL, "Re-arm Sensor Events", 0 },
+	{ 0x2b, rq2b, rs2b, NULL, NULL, "Get Sensor Event Status", 0 },
+	{ 0x2d, rq2d, rs2d, NULL, NULL, "Get Sensor Reading", 0 },
+	{ 0x2e, rq2e, NULL, NULL, NULL, "Set Sensor Type", 0 },
+	{ 0x2f, rq2f, rs2f, NULL, NULL, "Get Sensor Type", 0 },
+	{ 0x30, IPMI_TBD,   cc30, NULL, "Set Sensor Reading and Event Status", 0 },
 };
 
 void
@@ -2949,7 +2949,7 @@ ipmi_register_se(gint proto_ipmi)
 	static hf_register_info hf[] = {
 		{ &hf_ipmi_se_evt_rev,
 			{ "Event Message Revision",
-				"ipmi.evt.evmrev", FT_UINT8, BASE_HEX, evt_evm_rev_vals, 0, NULL, HFILL }},
+				"ipmi.evt.evmrev", FT_UINT8, BASE_HEX, VALS(evt_evm_rev_vals), 0, NULL, HFILL }},
 		{ &hf_ipmi_se_evt_sensor_type,
 			{ "Sensor Type",
 				"ipmi.evt.sensor_type", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -2986,7 +2986,7 @@ ipmi_register_se(gint proto_ipmi)
 
 		{ &hf_ipmi_se_cp00_sip,
 			{ "Set In Progress",
-				"ipmi.cp00.sip", FT_UINT8, BASE_HEX, cp00_sip_vals, 0x03, NULL, HFILL }},
+				"ipmi.cp00.sip", FT_UINT8, BASE_HEX, VALS(cp00_sip_vals), 0x03, NULL, HFILL }},
 		{ &hf_ipmi_se_cp01_alert_startup,
 			{ "PEF Alert Startup Delay disable",
 				"ipmi.cp01.alert_startup", FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
@@ -3108,7 +3108,7 @@ ipmi_register_se(gint proto_ipmi)
 				"ipmi.cp15.retries", FT_UINT8, BASE_DEC, NULL, 0x70, NULL, HFILL }},
 		{ &hf_ipmi_se_cp15_operation,
 			{ "Operation",
-				"ipmi.cp15.operation", FT_UINT8, BASE_HEX, cp15_op_vals, 0x0f, NULL, HFILL }},
+				"ipmi.cp15.operation", FT_UINT8, BASE_HEX, VALS(cp15_op_vals), 0x0f, NULL, HFILL }},
 
 		{ &hf_ipmi_se_00_addr,
 			{ "Event Receiver slave address",
@@ -3219,7 +3219,7 @@ ipmi_register_se(gint proto_ipmi)
 				"ipmi.se16.chan", FT_UINT8, BASE_CUSTOM, ipmi_fmt_channel, 0x0f, NULL, HFILL }},
 		{ &hf_ipmi_se_16_op,
 			{ "Operation",
-				"ipmi.se16.op", FT_UINT8, BASE_HEX, vals_16_op, 0xc0, NULL, HFILL }},
+				"ipmi.se16.op", FT_UINT8, BASE_HEX, VALS(vals_16_op), 0xc0, NULL, HFILL }},
 		{ &hf_ipmi_se_16_dst,
 			{ "Destination",
 				"ipmi.se16.dst", FT_UINT8, BASE_HEX, NULL, 0x0f, NULL, HFILL }},
@@ -3234,7 +3234,7 @@ ipmi_register_se(gint proto_ipmi)
 				"ipmi.se16.gen", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_se_16_status,
 			{ "Alert Immediate Status",
-				"ipmi.se16.status", FT_UINT8, BASE_HEX, vals_16_status, 0, NULL, HFILL }},
+				"ipmi.se16.status", FT_UINT8, BASE_HEX, VALS(vals_16_status), 0, NULL, HFILL }},
 
 		{ &hf_ipmi_se_17_seq,
 			{ "Sequence Number",
@@ -3494,7 +3494,7 @@ ipmi_register_se(gint proto_ipmi)
 				"ipmi.se28.fl_scan", FT_BOOLEAN, 8, TFS(&tfs_28_enable), 0x40, NULL, HFILL }},
 		{ &hf_ipmi_se_28_fl_action,
 			{ "Action",
-				"ipmi.se28.fl_action", FT_UINT8, BASE_HEX, vals_28_act, 0x30, NULL, HFILL }},
+				"ipmi.se28.fl_action", FT_UINT8, BASE_HEX, VALS(vals_28_act), 0x30, NULL, HFILL }},
 
 		{ &hf_ipmi_se_29_sensor,
 			{ "Sensor Number",
@@ -3655,3 +3655,16 @@ ipmi_register_se(gint proto_ipmi)
 	ipmi_register_netfn_cmdtab(IPMI_SE_REQ, IPMI_OEM_NONE, NULL, 0, NULL,
 			cmd_se, array_length(cmd_se));
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

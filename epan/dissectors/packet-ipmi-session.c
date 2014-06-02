@@ -77,36 +77,36 @@ static const value_string ipmi_authtype_vals[] = {
 #define IPMI_OEM_EXPLICIT	2
 
 static const value_string ipmi_payload_vals[] = {
-	{ IPMI_IPMI_MESSAGE,	"IPMI Message" },
-	{ 0x01,	"SOL (serial over LAN)" },
-	{ IPMI_OEM_EXPLICIT,	"OEM Explicit" },
+	{ IPMI_IPMI_MESSAGE, "IPMI Message" },
+	{ 0x01,		     "SOL (serial over LAN)" },
+	{ IPMI_OEM_EXPLICIT, "OEM Explicit" },
 	/* Session Setup Payload Types */
-	{ 0x10,	"RMCP+ Open Session Request" },
-	{ 0x11,	"RMCP+ Open Session Response" },
-	{ 0x12,	"RAKP Message 1" },
-	{ 0x13,	"RAKP Message 2" },
-	{ 0x14,	"RAKP Message 3" },
-	{ 0x15,	"RAKP Message 4" },
+	{ 0x10,		     "RMCP+ Open Session Request" },
+	{ 0x11,		     "RMCP+ Open Session Response" },
+	{ 0x12,		     "RAKP Message 1" },
+	{ 0x13,		     "RAKP Message 2" },
+	{ 0x14,		     "RAKP Message 3" },
+	{ 0x15,		     "RAKP Message 4" },
 	/* OEM Payload Type Handles */
-	{ 0x20,	"OEM0 (OEM Payload)" },
-	{ 0x21,	"OEM1 (OEM Payload)" },
-	{ 0x22,	"OEM2 (OEM Payload)" },
-	{ 0x23,	"OEM3 (OEM Payload)" },
-	{ 0x24,	"OEM4 (OEM Payload)" },
-	{ 0x25,	"OEM5 (OEM Payload)" },
-	{ 0x26,	"OEM6 (OEM Payload)" },
-	{ 0x27,	"OEM7 (OEM Payload)" },
+	{ 0x20,		     "OEM0 (OEM Payload)" },
+	{ 0x21,		     "OEM1 (OEM Payload)" },
+	{ 0x22,		     "OEM2 (OEM Payload)" },
+	{ 0x23,		     "OEM3 (OEM Payload)" },
+	{ 0x24,		     "OEM4 (OEM Payload)" },
+	{ 0x25,		     "OEM5 (OEM Payload)" },
+	{ 0x26,		     "OEM6 (OEM Payload)" },
+	{ 0x27,		     "OEM7 (OEM Payload)" },
 	{ 0x00,	NULL }
 };
 
 static const true_false_string ipmi_payload_aut_val  = {
-  "Payload is authenticated",
-  "Payload is unauthenticated"
+	"Payload is authenticated",
+	"Payload is unauthenticated"
 };
 
 static const true_false_string ipmi_payload_enc_val  = {
-  "Payload is encrypted",
-  "Payload is unencrypted"
+	"Payload is encrypted",
+	"Payload is unencrypted"
 };
 
 static int
@@ -321,3 +321,16 @@ proto_reg_handoff_ipmi_session(void)
 	data_handle = find_dissector("data");
 	ipmi_handle = find_dissector("ipmi");
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */
