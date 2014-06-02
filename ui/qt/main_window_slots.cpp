@@ -1393,6 +1393,11 @@ void MainWindow::on_actionFileExportObjectsSMB_triggered()
     new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Smb);
 }
 
+void MainWindow::on_actionFileExportObjectsTFTP_triggered()
+{
+    new ExportObjectDialog(this, cap_file_, ExportObjectDialog::Tftp);
+}
+
 void MainWindow::on_actionFilePrint_triggered()
 {
     PrintDialog pdlg(this, cap_file_);

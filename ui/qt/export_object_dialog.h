@@ -55,7 +55,7 @@ class ExportObjectDialog : public QDialog
     Q_OBJECT
 
 public:
-    enum ObjectType { Dicom, Http, Smb };
+    enum ObjectType { Dicom, Http, Smb, Tftp };
 
     explicit ExportObjectDialog(QWidget *parent, capture_file *cf, ObjectType object_type);
     ~ExportObjectDialog();

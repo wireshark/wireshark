@@ -99,6 +99,11 @@ ExportObjectDialog::ExportObjectDialog(QWidget *parent, capture_file *cf, Object
         tap_packet_ = eo_smb_packet;
         eo_protocoldata_resetfn_ = eo_smb_cleanup;
         break;
+    case Tftp:
+        tap_name_ = "tftp_eo";
+        name_ = "TFTP";
+        tap_packet_ = eo_tftp_packet;
+        break;
     }
 
     save_bt_ = eo_ui_->buttonBox->button(QDialogButtonBox::Save);

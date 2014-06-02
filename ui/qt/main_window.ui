@@ -28,16 +28,7 @@
     </sizepolicy>
    </property>
    <layout class="QGridLayout" name="gridLayout">
-    <property name="leftMargin">
-     <number>0</number>
-    </property>
-    <property name="topMargin">
-     <number>0</number>
-    </property>
-    <property name="rightMargin">
-     <number>0</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>0</number>
     </property>
     <property name="spacing">
@@ -68,7 +59,7 @@
        <item>
         <widget class="QLineEdit" name="goToLineEdit">
          <property name="inputMask">
-          <string>900000000</string>
+          <string>900000000; </string>
          </property>
         </widget>
        </item>
@@ -106,7 +97,7 @@
      <x>0</x>
      <y>0</y>
      <width>960</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -145,6 +136,7 @@
      <addaction name="actionFileExportObjectsDICOM"/>
      <addaction name="actionFileExportObjectsHTTP"/>
      <addaction name="actionFileExportObjectsSMB"/>
+     <addaction name="actionFileExportObjectsTFTP"/>
     </widget>
     <addaction name="actionFileOpen"/>
     <addaction name="menuOpenRecentCaptureFile"/>
@@ -362,7 +354,7 @@
      <addaction name="menu29WestQueues"/>
      <addaction name="menu29WestUIM"/>
      <addaction name="actionStatistics29WestLBTRM"/>
-	 <addaction name="actionStatistics29WestLBTRU"/>
+     <addaction name="actionStatistics29WestLBTRU"/>
     </widget>
     <addaction name="actionSummary"/>
     <addaction name="actionProtocol_Hierarchy"/>
@@ -1705,6 +1697,11 @@
    </property>
    <property name="toolTip">
     <string>Show/hide the display filter toolbar</string>
+   </property>
+  </action>
+  <action name="actionFileExportObjectsTFTP">
+   <property name="text">
+    <string>&amp;TFTP</string>
    </property>
   </action>
  </widget>
