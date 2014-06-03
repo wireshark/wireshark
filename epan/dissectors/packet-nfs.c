@@ -578,6 +578,9 @@ static int hf_nfs4_huge_bitmap_length = -1;
 static int hf_nfs4_universal_address_ipv4 = -1;
 static int hf_nfs4_universal_address_ipv6 = -1;
 static int hf_nfs4_getdevinfo = -1;
+static int hf_nfs4_ffda_version = -1;
+static int hf_nfs4_ffda_minorversion = -1;
+static int hf_nfs4_ffda_tightly_coupled = -1;
 
 static gint ett_nfs = -1;
 static gint ett_nfs_fh_encoding = -1;
@@ -8138,6 +8141,29 @@ dissect_nfs4_devices_file(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
+dissect_nfs4_devices_flexfile(tvbuff_t *tvb, int offset, proto_tree *tree)
+{
+	guint i;
+	guint32 num_addr;
+
+	/* disect indices */
+	num_addr = tvb_get_ntohl(tvb, offset);
+	offset += 4;
+	for (i = 0; i < num_addr; i++) {
+		offset = dissect_rpc_string(tvb, tree, hf_nfs4_r_netid, offset,
+					    NULL);
+		offset = dissect_rpc_string(tvb, tree, hf_nfs4_r_addr, offset,
+					    NULL);
+	}
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_version, offset);
+	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_ffda_minorversion,
+				    offset);
+	offset = dissect_rpc_bool(tvb, tree, hf_nfs4_ffda_tightly_coupled,
+				  offset);
+	return offset;
+}
+
+static int
 dissect_nfs4_test_stateid_arg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	return dissect_nfs4_stateid(tvb, offset, tree, NULL);
@@ -8166,6 +8192,9 @@ dissect_nfs4_deviceaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 	switch (layout_type) {
 	case LAYOUT4_NFSV4_1_FILES:
 		offset = dissect_nfs4_devices_file(tvb, offset, tree);
+		break;
+	case LAYOUT4_FLEX_FILES:
+		offset = dissect_nfs4_devices_flexfile(tvb, offset, tree);
 		break;
 	default:
 		/* back up to re-read the length field when treating as
@@ -12242,6 +12271,19 @@ proto_register_nfs(void)
 		{ &hf_nfs4_getdevinfo, {
 			"dev info", "nfs.devinfo", FT_BYTES,
 			BASE_NONE, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ffda_version, {
+			"version", "nfs.ffda_version", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ffda_minorversion, {
+			"minorversion", "nfs.ffda_minorversion", FT_UINT32,
+			BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_ffda_tightly_coupled, {
+                        "tightly coupled", "nfs.ffda_tightly_coupled",
+			FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
+			NULL, HFILL }},
 
 	/* Hidden field for v2, v3, and v4 status */
 		{ &hf_nfs_status, {
