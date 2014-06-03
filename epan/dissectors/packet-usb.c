@@ -3349,8 +3349,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         device_protocol_data = NULL;
     }
 
-    p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID,
-            GUINT_TO_POINTER(usb_conv_info->bus_id));
+    p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_BUS_ID, GUINT_TO_POINTER((guint)usb_conv_info->bus_id));
     p_add_proto_data(pinfo->pool, pinfo, proto_usb, USB_DEVICE_ADDRESS, GUINT_TO_POINTER((guint)device_address));
 
     if (tvb_length_remaining(tvb, offset) > 0) {
