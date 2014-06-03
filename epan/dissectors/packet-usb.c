@@ -1055,7 +1055,7 @@ get_usb_conv_info(conversation_t *conversation)
     return usb_conv_info;
 }
 
-static conversation_t *
+conversation_t *
 get_usb_conversation(packet_info *pinfo,
                      address *src_addr, address *dst_addr,
                      guint32 src_endpoint, guint32 dst_endpoint)
@@ -2654,7 +2654,7 @@ dissect_win32_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 /* Set the usb_address_t fields based on the direction of the urb */
-static void
+void
 usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
              usb_address_t *dst_addr, guint16 device_address, int endpoint,
              gboolean req)

@@ -326,6 +326,11 @@ static const value_string mausb_type_string[] = {
 #define MAUSB_EP_HANDLE_DEV_ADDR 0x0fe0
 #define MAUSB_EP_HANDLE_BUS_NUM  0xf000
 
+#define MAUSB_EP_HANDLE_D_OFFSET        0
+#define MAUSB_EP_HANDLE_EP_NUM_OFFSET   1
+#define MAUSB_EP_HANDLE_DEV_ADDR_OFFSET 5
+#define MAUSB_EP_HANDLE_BUS_NUM_OFFSET  12
+
 static const value_string mausb_status_string[] = {
     {   0, "SUCCESS (NO_ERROR)" },
     { 128, "UNSUCCESSFUL" },
@@ -513,6 +518,16 @@ static gboolean mausb_is_mgmt_pkt(struct mausb_header *header)
 static gboolean mausb_is_data_pkt(struct mausb_header *header)
 {
     return MAUSB_PKT_TYPE_DATA == (header->type & MAUSB_PKT_TYPE_MASK);
+}
+
+/*** EP Handle parsing helper functions */
+
+static guint8 mausb_ep_handle_ep_num(guint16 handle) {
+    return (handle & MAUSB_EP_HANDLE_EP_NUM) >> MAUSB_EP_HANDLE_EP_NUM_OFFSET;
+}
+
+static guint8 mausb_ep_handle_dev_addr(guint16 handle) {
+    return (handle & MAUSB_EP_HANDLE_DEV_ADDR) >> MAUSB_EP_HANDLE_DEV_ADDR_OFFSET;
 }
 
 /* returns the length field of the MAUSB packet */
@@ -876,6 +891,30 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     return offset;
 }
 
+static conversation_t
+*get_mausb_conversation(packet_info *pinfo, guint16 handle,
+                        gboolean is_data, gboolean req)
+{
+    conversation_t *conversation;
+    static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
+    guint16 device_address;
+    int endpoint;
+
+    /* Treat data packets the same as URBs */
+    if (is_data) {
+        device_address = mausb_ep_handle_dev_addr(handle);
+        endpoint = mausb_ep_handle_ep_num(handle);
+
+        usb_set_addr(pinfo, &src_addr, &dst_addr, device_address, endpoint,
+                     req);
+        conversation = get_usb_conversation(pinfo, &pinfo->src, &pinfo->dst,
+                                            pinfo->srcport, pinfo->destport);
+    }
+    /* TODO: track control & managment packet conversations */
+
+    return conversation;
+}
+
 /* Used to detect multiple MA Packets in a single TCP packet */
 /* Not used for MA Packets in SNAP Packets */
 static gint mausb_num_pdus = 0;
@@ -961,6 +1000,8 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Is the next field a device handle or an endpoint handle */
     header.handle = tvb_get_letohs(tvb, offset);
+    get_mausb_conversation(pinfo, header.handle, mausb_is_data_pkt(&header),
+                                                  mausb_is_from_host(&header));
 
     if (mausb_is_mgmt_pkt(&header)) {
 

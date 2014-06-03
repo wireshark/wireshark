@@ -24,6 +24,7 @@
 
 #include <epan/value_string.h>
 #include <epan/wmem/wmem.h>
+#include <epan/conversation.h>
 
 typedef struct _usb_address_t {
     guint32 device;
@@ -194,6 +195,11 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
 
+conversation_t *
+get_usb_conversation(packet_info *pinfo,
+                     address *src_addr, address *dst_addr,
+                     guint32 src_endpoint, guint32 dst_endpoint);
+
 usb_conv_info_t *get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num);
 
 proto_item * dissect_usb_descriptor_header(proto_tree *tree,
@@ -212,4 +218,10 @@ dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
                                tvbuff_t *tvb, int offset,
                                usb_trans_info_t *usb_trans_info _U_,
                                usb_conv_info_t  *usb_conv_info _U_);
+
+void
+usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
+             usb_address_t *dst_addr, guint16 device_address, int endpoint,
+             gboolean req);
+
 #endif
