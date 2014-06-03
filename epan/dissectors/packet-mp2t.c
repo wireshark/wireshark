@@ -958,37 +958,17 @@ dissect_mp2t_adaptation_field(tvbuff_t *tvb, gint offset, proto_tree *tree)
     offset += 1;
 
     if (af_flags &  MP2T_AF_PCR_MASK) {
-        guint64 pcr_base = 0;
-        guint32 pcr_ext = 0;
-        guint8 tmp;
+        guint64 pcr_base;
+        guint16 pcr_ext;
 
-        tmp = tvb_get_guint8(tvb, offset);
-        pcr_base = (pcr_base << 8) | tmp;
-        offset += 1;
+        /* 33 bit PCR base, 6 bit reserved, 9 bit PCR ext */
+        pcr_base = tvb_get_ntoh48(tvb, offset) >> (48-33);
+        pcr_ext  = tvb_get_ntoh48(tvb, offset) & 0x1FF;
 
-        tmp = tvb_get_guint8(tvb, offset);
-        pcr_base = (pcr_base << 8) | tmp;
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        pcr_base = (pcr_base << 8) | tmp;
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        pcr_base = (pcr_base << 8) | tmp;
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        pcr_base = (pcr_base << 1) | ((tmp >> 7) & 0x01);
-        pcr_ext = (tmp & 0x01);
-        offset += 1;
-
-        tmp = tvb_get_guint8(tvb, offset);
-        pcr_ext = (pcr_ext << 8) | tmp;
-        offset += 1;
-
-        proto_tree_add_uint64_format_value(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset - 6, 6,
+         proto_tree_add_uint64_format_value(mp2t_af_tree, hf_mp2t_af_pcr, tvb, offset, 6,
                 pcr_base*300 + pcr_ext, "%" G_GINT64_MODIFIER "u", pcr_base*300 + pcr_ext);
+
+        offset += 6;
     }
 
     if (af_flags &  MP2T_AF_OPCR_MASK) {
