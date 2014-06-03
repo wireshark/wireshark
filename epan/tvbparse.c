@@ -91,7 +91,7 @@ static tvbparse_elem_t* new_tok(tvbparse_t* tt,
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_NEWTOK) g_warning("new_tok: id=%i offset=%u len=%u",id,offset,len);
 #endif
 
-    tok = (tvbparse_elem_t *)ep_alloc(sizeof(tvbparse_elem_t));
+    tok = (tvbparse_elem_t *)wmem_new(wmem_packet_scope(), tvbparse_elem_t);
 
     tok->tvb = tt->tvb;
     tok->id = id;
@@ -1209,7 +1209,7 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
                           int len,
                           void* data,
                           const tvbparse_wanted_t* ignore) {
-    tvbparse_t* tt = (tvbparse_t *)ep_alloc(sizeof(tvbparse_t));
+    tvbparse_t* tt = (tvbparse_t *)wmem_new(wmem_packet_scope(), tvbparse_t);
 
 #ifdef TVBPARSE_DEBUG
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_TT) g_warning("tvbparse_init: offset=%i len=%i",offset,len);
@@ -1218,7 +1218,7 @@ tvbparse_t* tvbparse_init(tvbuff_t* tvb,
 
     tt->tvb = tvb;
     tt->offset = offset;
-    len = (len == -1) ? (int) tvb_length(tvb) : len;
+    len = (len == -1) ? (int) tvb_captured_length(tvb) : len;
     tt->end_offset = offset + len;
     tt->data = data;
     tt->ignore = ignore;
@@ -1233,9 +1233,9 @@ gboolean tvbparse_reset(tvbparse_t* tt,
     if (TVBPARSE_DEBUG & TVBPARSE_DEBUG_TT) g_warning("tvbparse_init: offset=%i len=%i",offset,len);
 #endif
 
-    len = (len == -1) ? (int) tvb_length(tt->tvb) : len;
+    len = (len == -1) ? (int) tvb_captured_length(tt->tvb) : len;
 
-    if( tvb_length_remaining(tt->tvb, offset) >= len) {
+    if( tvb_captured_length_remaining(tt->tvb, offset) >= len) {
         tt->offset = offset;
         tt->end_offset = offset + len;
         return TRUE;
