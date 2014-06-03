@@ -994,6 +994,14 @@ APPVER=5.02
 #                                   This definition prevents the complaint about the redefinition of inline by WinPCap
 #                                   in pcap-stdinc.h when compiling CPP files, e.g. the QT UI
 #
+# -Ox                               http://msdn.microsoft.com/en-us/library/59a3b321.aspx
+#                                   Specifying the /Ox compiler option is the same as using the following options:
+#                                   /Ob (Inline Function Expansion), where the option parameter is 2 (/Ob2)
+#                                   /Og (Global Optimizations)
+#                                   /Oi (Generate Intrinsic Functions)
+#                                   /Ot (Favor Fast Code)
+#                                   /Oy (Frame-Pointer Omission)
+
 ##Note: LOCAL_CFLAGS are flags used for *all* compilations
 ##      STANDARD_CFLAGS (see below) are flags used just for *Wireshark* compilations
 !IF "$(MSVC_VARIANT)" == "MSVC2005"   || \
@@ -1007,7 +1015,7 @@ APPVER=5.02
         "$(MSVC_VARIANT)" == "MSVC2012EE" || \
         "$(MSVC_VARIANT)" == "MSVC2013"   || \
         "$(MSVC_VARIANT)" == "MSVC2013EE"
-LOCAL_CFLAGS=/Zi /W3 /MD /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
+LOCAL_CFLAGS=/Zi /W3 /MD /Ox /DWIN32_LEAN_AND_MEAN /DMSC_VER_REQUIRED=$(MSC_VER_REQUIRED) \
 	     /D_CRT_SECURE_NO_DEPRECATE /D_CRT_NONSTDC_NO_DEPRECATE -DPSAPI_VERSION=1
 
 !IF "$(MSVC_VARIANT)" == "MSVC2012"   || \
