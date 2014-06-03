@@ -205,7 +205,6 @@ static const value_string nbipx_data_stream_type_vals[] = {
 };
 
 static const true_false_string tfs_system_non_system = { "System packet", "Non-system packet" };
-static const true_false_string tfs_required_not_required = { "Required", "Not required" };
 
 static void
 add_routers(proto_tree *tree, tvbuff_t *tvb, int offset)

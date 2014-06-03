@@ -34,6 +34,7 @@
 #include "packet-q931.h"
 #include "packet-e164.h"
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/reassemble.h>
 #include <epan/wmem/wmem.h>
 
@@ -121,11 +122,99 @@ static int hf_q931_segment_count = -1;
 static int hf_q931_reassembled_in = -1;
 static int hf_q931_reassembled_length = -1;
 
+/* Generated from convert_proto_tree_add_text.pl */
+static int hf_q931_user_information_bytes = -1;
+static int hf_q931_restart_indicator = -1;
+static int hf_q931_call_state_data = -1;
+static int hf_q931_first_segment = -1;
+static int hf_q931_packet_size_backward_value = -1;
+static int hf_q931_packet_size_forward_value = -1;
+static int hf_q931_information_rate_minimum_outgoing = -1;
+static int hf_q931_bearer_capability_data = -1;
+static int hf_q931_uil2_info = -1;
+static int hf_q931_netid_facility_specification = -1;
+static int hf_q931_bearer_capability_stop_bits = -1;
+static int hf_q931_netid_length = -1;
+static int hf_q931_channel_data = -1;
+static int hf_q931_call_state = -1;
+static int hf_q931_party_subaddr_type = -1;
+static int hf_q931_uil3 = -1;
+static int hf_q931_user_information_str = -1;
+static int hf_q931_bearer_capability_user_rate = -1;
+static int hf_q931_channel_slot_map = -1;
+static int hf_q931_bearer_capability_modem_type = -1;
+static int hf_q931_cause_data = -1;
+static int hf_q931_cause_recommendation = -1;
+static int hf_q931_bearer_capability_parity = -1;
+static int hf_q931_cause_call_rejection_reason = -1;
+static int hf_q931_party_category = -1;
+static int hf_q931_progress_indicator_location = -1;
+static int hf_q931_bearer_capability_packet_window_size = -1;
+static int hf_q931_extension_reason = -1;
+static int hf_q931_information_rate_minimum_incoming = -1;
+static int hf_q931_user_protocol_discriminator = -1;
+static int hf_q931_uil2 = -1;
+static int hf_q931_progress_indicator_description = -1;
+static int hf_q931_bearer_capability_mode = -1;
+static int hf_q931_not_first_segment = -1;
+static int hf_q931_fast_select = -1;
+static int hf_q931_netid_plan = -1;
+static int hf_q931_cause_call_message_type = -1;
+static int hf_q931_reverse_charging_ind = -1;
+static int hf_q931_high_layer_compat_data = -1;
+static int hf_q931_progress_indicator_data = -1;
+static int hf_q931_pl_window_size_forward_value = -1;
+static int hf_q931_cause_call_rec_timer = -1;
+static int hf_q931_bearer_capability_window_size = -1;
+static int hf_q931_cause_call_user_specific_diagnostic = -1;
+static int hf_q931_channel_interface_id = -1;
+static int hf_q931_uil3_additional = -1;
+static int hf_q931_party_subaddr = -1;
+static int hf_q931_bearer_capability_rate_multiplier = -1;
+static int hf_q931_bearer_capability_data_bits = -1;
+static int hf_q931_cug_index_code = -1;
+static int hf_q931_bearer_capability_default_packet_size = -1;
+static int hf_q931_notification_description = -1;
+static int hf_q931_information_rate_outgoing = -1;
+static int hf_q931_user_information_len = -1;
+static int hf_q931_pl_window_size_backward_value = -1;
+static int hf_q931_repeat_indicator = -1;
+static int hf_q931_cause_call_diagnostic = -1;
+static int hf_q931_netid = -1;
+static int hf_q931_cause_call_condition = -1;
+static int hf_q931_signal = -1;
+static int hf_q931_congestion_level = -1;
+static int hf_q931_bearer_capability_intermediate_rate = -1;
+static int hf_q931_netid_type = -1;
+static int hf_q931_information_rate_incoming = -1;
+static int hf_q931_party_subaddr_odd_even_indicator = -1;
+static int hf_q931_cug_indication = -1;
+static int hf_q931_multiple_frame_establishment = -1;
+static int hf_q931_message_originator = -1;
+static int hf_q931_out_band_negotiation = -1;
+static int hf_q931_negotiation_is_done = -1;
+static int hf_q931_layer_1 = -1;
+static int hf_q931_accept_data_flow_control = -1;
+static int hf_q931_mode_of_operation = -1;
+static int hf_q931_extension_condition_type = -1;
+static int hf_q931_pl_binary_confirmation = -1;
+static int hf_q931_network_service = -1;
+static int hf_q931_extension_condition = -1;
+static int hf_q931_rate_adaption_header = -1;
+static int hf_q931_send_data_net_independent_clock = -1;
+static int hf_q931_bearer_capability_duplex = -1;
+static int hf_q931_accept_data_net_independent_clock = -1;
+static int hf_q931_send_data_flow_control = -1;
+static int hf_q931_data = -1;
+static int hf_q931_layer_1_in_band_negotiation = -1;
+
 static gint ett_q931 					= -1;
 static gint ett_q931_ie 				= -1;
 
 static gint ett_q931_segments = -1;
 static gint ett_q931_segment = -1;
+
+static expert_field ei_q931_invalid_length = EI_INIT;
 
 static const fragment_items q931_frag_items = {
 	&ett_q931_segment,
@@ -506,22 +595,24 @@ static const value_string q931_repeat_indication_vals[] = {
  * Dissect a Segmented message information element.
  */
 static void
-dissect_q931_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+dissect_q931_segmented_message_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item)
 {
+	guint8 octet;
+
 	if (len != 2) {
-		proto_tree_add_text(tree, tvb, offset, len,
+		expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
 		    "Segmented message: length is %d, should be 2", len);
 		return;
 	}
-	if (tvb_get_guint8(tvb, offset) & 0x80) {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "First segment: %u segments remaining",
-		    tvb_get_guint8(tvb, offset) & 0x7F);
+
+	octet = tvb_get_guint8(tvb, offset);
+	if (octet & 0x80) {
+		proto_tree_add_uint_format_value(tree, hf_q931_first_segment, tvb, offset, 1,
+		    octet & 0x7F, "%u segments remaining", octet & 0x7F);
 	} else {
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Not first segment: %u segments remaining",
-		    tvb_get_guint8(tvb, offset) & 0x7F);
+		proto_tree_add_uint_format_value(tree, hf_q931_not_first_segment, tvb, offset, 1,
+		    octet & 0x7F, "%u segments remaining", octet & 0x7F);
 	}
 	proto_tree_add_item(tree, hf_q931_segment_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 }
@@ -647,24 +738,6 @@ static const value_string q931_l1_parity_vals[] = {
 	{ 0,    NULL }
 };
 
-static const value_string q931_l1_modem_type_vals[] = {
-	{ 0x11, "V.21" },
-	{ 0x12, "V.22" },
-	{ 0x13, "V.22 bis" },
-	{ 0x14, "V.23" },
-	{ 0x15, "V.26" },
-	{ 0x16, "V.26 bis" },
-	{ 0x17, "V.26 ter" },
-	{ 0x18, "V.27" },
-	{ 0x19, "V.27 bis" },
-	{ 0x1A, "V.27 ter" },
-	{ 0x1B, "V.29" },
-	{ 0x1C, "V.32" },
-	{ 0x1E, "V.34" },
-	{ 0,    NULL }
-};
-static value_string_ext q931_l1_modem_type_vals_ext = VALUE_STRING_EXT_INIT(q931_l1_modem_type_vals);
-
 #define	Q931_UIL2_USER_SPEC	0x10
 
 static const value_string q931_uil2_vals[] = {
@@ -753,6 +826,34 @@ static const value_string q931_bearer_capability_layer_ident_vals[] = {
 	{ 0x00, NULL }
 };
 
+#define	Q931_UIL2_USER_SPEC	0x10
+
+static const range_string q931_l1_modem_type_rvals[] = {
+	{ 0x00,	0x05,	"National use" },
+	{ 0x11, 0x11, "V.21" },
+	{ 0x12, 0x12, "V.22" },
+	{ 0x13, 0x13, "V.22 bis" },
+	{ 0x14, 0x14, "V.23" },
+	{ 0x15, 0x15, "V.26" },
+	{ 0x16, 0x16, "V.26 bis" },
+	{ 0x17, 0x17, "V.26 ter" },
+	{ 0x18, 0x18, "V.27" },
+	{ 0x19, 0x19, "V.27 bis" },
+	{ 0x1A, 0x1A,"V.27 ter" },
+	{ 0x1B, 0x1B,"V.29" },
+	{ 0x1C, 0x1C,"V.32" },
+	{ 0x1E, 0x1E, "V.34" },
+	{ 0x20, 0x2F,	"National use" },
+	{ 0x30, 0x3F,	"User specified" },
+	{ 0, 0,			NULL }
+};
+
+static const true_false_string tfs_asynchronous_synchronous = { "Asynchronous", "Synchronous" };
+static const true_false_string tfs_protocol_sensative_bit_transparent = { "Protocol sensitive", "Bit transparent" };
+static const true_false_string tfs_assignor_default = { "Assignor only", "Default assignee" };
+static const true_false_string tfs_in_out_band = { "in-band", "out-of-band" };
+static const true_false_string tfs_full_half = { "Full", "Half" };
+
 void
 dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
@@ -760,7 +861,6 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 	guint8 octet;
 	guint8 coding_standard;
 	guint8 it_rate;
-	guint8 modem_type;
 	guint8 uil2_protocol;
 	guint8 uil3_protocol;
 	guint8 add_l3_info;
@@ -774,9 +874,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		 * We don't know how the bearer capability is encoded,
 		 * so just dump it as data and be done with it.
 		 */
-		proto_tree_add_text(tree, tvb, offset,
-		    len, "Data: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_bearer_capability_data, tvb, offset, len, ENC_NA);
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
 		return;
@@ -794,9 +892,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Out-band negotiation %spossible",
-		    (octet & 0x40) ? "" : "not ");
+		proto_tree_add_item(tree, hf_q931_out_band_negotiation, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 	}
@@ -814,7 +910,7 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 	if (it_rate == Q931_IT_RATE_MULTIRATE) {
 		if (len == 0)
 			return;
-		proto_tree_add_text(tree, tvb, offset, 1, "Rate multiplier: %u", tvb_get_guint8(tvb, offset) & 0x7f);
+		proto_tree_add_item(tree, hf_q931_bearer_capability_rate_multiplier, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 	}
@@ -837,16 +933,9 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Layer 1 is %s",
-		    (octet & 0x40) ? "Asynchronous" : "Synchronous");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Layer 1 in-band negotiation is %spossible",
-		    (octet & 0x20) ? "" : "not ");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "User rate: %s",
-		    val_to_str_ext(octet & 0x1F, &q931_l1_user_rate_vals_ext,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_layer_1, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_layer_1_in_band_negotiation, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_bearer_capability_user_rate, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 
@@ -855,22 +944,11 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Intermediate rate: %s",
-		      val_to_str(octet & 0x60, q931_l1_intermediate_rate_vals,
-		       "Unknown (0x%X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s to send data with network independent clock",
-		    (octet & 0x10) ? "Required" : "Not required");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s accept data with network independent clock",
-		    (octet & 0x08) ? "Can" : "Cannot");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s to send data with flow control mechanism",
-		    (octet & 0x04) ? "Required" : "Not required");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s accept data with flow control mechanism",
-		    (octet & 0x02) ? "Can" : "Cannot");
+		proto_tree_add_item(tree, hf_q931_bearer_capability_intermediate_rate, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_send_data_net_independent_clock, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_accept_data_net_independent_clock, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_send_data_flow_control, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_accept_data_flow_control, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 
@@ -879,24 +957,14 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Rate adaption header %sincluded",
-		    (octet & 0x40) ? "" : "not ");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Multiple frame establishment %ssupported",
-		    (octet & 0x20) ? "" : "not ");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s mode of operation",
-		    (octet & 0x10) ? "Protocol sensitive" : "Bit transparent");
+		proto_tree_add_item(tree, hf_q931_rate_adaption_header, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_multiple_frame_establishment, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_mode_of_operation, tvb, offset, 1, ENC_NA);
 		proto_tree_add_text(tree, tvb, offset, 1,
 		    (octet & 0x08) ?
 		      "Full protocol negotiation" : "LLI = 256 only");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Message originator is %s",
-		    (octet & 0x04) ? "Assignor only" : "Default assignee");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Negotiation is done %s",
-		    (octet & 0x02) ? "in-band" : "out-of-band");
+		proto_tree_add_item(tree, hf_q931_message_originator, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_negotiation_is_done, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 
@@ -905,39 +973,14 @@ dissect_q931_bearer_capability_ie(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Stop bits: %s",
-		      val_to_str(octet & 0x60, q931_l1_stop_bits_vals,
-		       "Unknown (0x%X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Data bits: %s",
-		      val_to_str(octet & 0x18, q931_l1_data_bits_vals,
-		       "Unknown (0x%X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Parity: %s",
-		      val_to_str(octet & 0x07, q931_l1_parity_vals,
-		       "Unknown (0x%X)"));
+		proto_tree_add_item(tree, hf_q931_bearer_capability_stop_bits, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_bearer_capability_data_bits, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_bearer_capability_parity, tvb, offset, 1, ENC_NA);
 
 		if (octet & Q931_IE_VL_EXTENSION)
 			goto l1_done;
-		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s duplex",
-		    (octet & 0x40) ? "Full" : "Half");
-		modem_type = octet & 0x3F;
-		if (modem_type <= 0x5 ||
-		    (modem_type >= 0x20 && modem_type <= 0x2F)) {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Modem type: National use 0x%02X", modem_type);
-		} else if (modem_type >= 0x30) {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Modem type: User specified 0x%02X", modem_type);
-		} else {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Modem type: %s",
-			      val_to_str_ext(modem_type, &q931_l1_modem_type_vals_ext,
-			      "Unknown (0x%02X)"));
-		}
+		proto_tree_add_item(tree, hf_q931_bearer_capability_duplex, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_bearer_capability_modem_type, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 	}
@@ -954,10 +997,7 @@ l1_done:
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		proto_tree_add_uint(tree, hf_q931_layer_ident, tvb, offset, 1, octet);
 		uil2_protocol = octet & 0x1F;
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "User information layer 2 protocol: %s",
-		    val_to_str_ext(uil2_protocol, &q931_uil2_vals_ext,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_uil2, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 
@@ -970,14 +1010,9 @@ l1_done:
 			return;
 		octet = tvb_get_guint8(tvb, offset);
 		if (uil2_protocol == Q931_UIL2_USER_SPEC) {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "User-specified layer 2 protocol information: 0x%02X",
-			    octet & 0x7F);
+			proto_tree_add_item(tree, hf_q931_uil2_info, tvb, offset, 1, ENC_NA);
 		} else {
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Mode: %s",
-			    val_to_str(octet & 0x60, q931_mode_vals,
-			      "Unknown (0x%02X)"));
+			proto_tree_add_item(tree, hf_q931_bearer_capability_mode, tvb, offset, 1, ENC_NA);
 		}
 		offset += 1;
 		len -= 1;
@@ -986,9 +1021,9 @@ l1_done:
 			goto l2_done;
 		if (len == 0)
 			return;
-		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Window size: %u k", octet & 0x7F);
+		octet = tvb_get_guint8(tvb, offset) & 0x7F;
+		proto_tree_add_uint_format_value(tree, hf_q931_bearer_capability_window_size, tvb, offset, 1,
+		    octet, "octet & 0x7F%u k", octet);
 		offset += 1;
 		len -= 1;
 	}
@@ -1005,10 +1040,7 @@ l2_done:
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		proto_tree_add_uint(tree, hf_q931_layer_ident, tvb, offset, 1, octet);
 		uil3_protocol = octet & 0x1F;
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "User information layer 3 protocol: %s",
-		    val_to_str(uil3_protocol, q931_uil3_vals,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_uil3, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 
@@ -1026,10 +1058,7 @@ l2_done:
 		case Q931_UIL3_X25_PL:
 		case Q931_UIL3_ISO_8208:
 		case Q931_UIL3_X223:
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Mode: %s",
-			    val_to_str(octet & 0x60, q931_mode_vals,
-			      "Unknown (0x%02X)"));
+			proto_tree_add_item(tree, hf_q931_bearer_capability_mode, tvb, offset, 1, ENC_NA);
 			offset += 1;
 			len -= 1;
 
@@ -1038,8 +1067,7 @@ l2_done:
 			if (len == 0)
 				return;
 			octet = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Default packet size: %u", octet & 0x0F);
+			proto_tree_add_item(tree, hf_q931_bearer_capability_default_packet_size, tvb, offset, 1, ENC_NA);
 			offset += 1;
 			len -= 1;
 
@@ -1047,17 +1075,14 @@ l2_done:
 				goto l3_done;
 			if (len == 0)
 				return;
-			octet = tvb_get_guint8(tvb, offset);
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Packet window size: %u", octet & 0x7F);
+			proto_tree_add_item(tree, hf_q931_bearer_capability_packet_window_size, tvb, offset, 1, ENC_NA);
 			/*offset += 1;*/
 			/*len -= 1;*/
 			break;
 
 		case Q931_UIL3_USER_SPEC:
-			proto_tree_add_text(tree, tvb, offset, 1,
-			    "Default packet size: %u octets",
-			    1 << (octet & 0x0F));
+			proto_tree_add_uint_format_value(tree, hf_q931_bearer_capability_default_packet_size, tvb, offset, 1,
+			    1 << (octet & 0x0F), "%u octets", 1 << (octet & 0x0F));
 			/*offset += 1;*/
 			/*len -= 1;*/
 			break;
@@ -1070,10 +1095,7 @@ l2_done:
 				return;
 			octet = tvb_get_guint8(tvb, offset + 1);
 			add_l3_info |= (octet & 0x0F);
-			proto_tree_add_text(tree, tvb, offset, 2,
-			    "Additional layer 3 protocol information: %s",
-			    val_to_str(add_l3_info, nlpid_vals,
-			      "Unknown (0x%02X)"));
+			proto_tree_add_uint(tree, hf_q931_uil3_additional, tvb, offset, 2, add_l3_info);
 			/*offset += 2;*/
 			/*len -= 2;*/
 			break;
@@ -1255,6 +1277,9 @@ static const gchar *get_message_name(guint8 prot_discr, guint8 message_type) {
 		return val_to_str_ext(message_type, &q931_message_type_vals_ext, "Unknown (0x%02X)");
 }
 
+static const true_false_string tfs_user_provider = { "User", "Provider" };
+static const true_false_string tfs_abnormal_normal = { "Abnormal", "Normal" };
+
 static void
 dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree, int hf_cause_value, guint8 *cause_value, const value_string *ie_vals)
@@ -1273,9 +1298,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		 * so just dump it as data and be done with it.
 		 */
 		proto_tree_add_uint(tree, hf_q931_coding_standard, tvb, offset, 1, octet);
-		proto_tree_add_text(tree, tvb, offset,
-		    len, "Data: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_cause_data, tvb, offset, len, ENC_NA);
 		return;
 	}
 	proto_tree_add_uint(tree, hf_q931_cause_location, tvb, offset, 1, octet);
@@ -1288,10 +1311,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		if (len == 0)
 			return;
 		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Recommendation: %s",
-		    val_to_str(octet & 0x7F, q931_cause_recommendation_vals,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_cause_recommendation, tvb, offset, 1, ENC_NA);
 		proto_tree_add_boolean(tree, hf_q931_extension_ind, tvb, offset, 1, octet);
 		offset += 1;
 		len -= 1;
@@ -1315,33 +1335,18 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	switch (*cause_value) {
-
 	case Q931_CAUSE_UNALLOC_NUMBER:
 	case Q931_CAUSE_NO_ROUTE_TO_DEST:
 	case Q931_CAUSE_QOS_UNAVAILABLE:
-		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Network service: %s",
-		    (octet & 0x80) ? "User" : "Provider");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "%s",
-		    (octet & 0x40) ? "Abnormal" : "Normal");
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Condition: %s",
-		    val_to_str(octet & 0x03, q931_cause_condition_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_item(tree, hf_q931_network_service, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_extension_condition_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_extension_condition, tvb, offset, 1, ENC_NA);
 		break;
 
 	case Q931_CAUSE_CALL_REJECTED:
 		rejection_reason = octet & 0x7C;
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Rejection reason: %s",
-		    val_to_str(octet & 0x7C, q931_rejection_reason_vals,
-		      "Unknown (0x%X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Condition: %s",
-		    val_to_str(octet & 0x03, q931_cause_condition_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_item(tree, hf_q931_cause_call_rejection_reason, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_cause_call_condition, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 
@@ -1350,9 +1355,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 		switch (rejection_reason) {
 
 		case Q931_REJ_USER_SPECIFIC:
-			proto_tree_add_text(tree, tvb, offset, len,
-			    "User specific diagnostic: %s",
-			    tvb_bytes_to_ep_str(tvb, offset, len));
+			proto_tree_add_item(tree, hf_q931_cause_call_user_specific_diagnostic, tvb, offset, len, ENC_NA);
 			break;
 
 		case Q931_REJ_IE_MISSING:
@@ -1370,9 +1373,7 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 			break;
 
 		default:
-			proto_tree_add_text(tree, tvb, offset, len,
-			    "Diagnostic: %s",
-			    tvb_bytes_to_ep_str(tvb, offset, len));
+			proto_tree_add_item(tree, hf_q931_cause_call_diagnostic, tvb, offset, len, ENC_NA);
 			break;
 		}
 		break;
@@ -1394,23 +1395,17 @@ dissect_q931_cause_ie_unsafe(tvbuff_t *tvb, int offset, int len,
 
 	case Q931_CAUSE_MT_NONEX_OR_UNIMPL:
 	case Q931_CAUSE_MSG_INCOMPAT_W_CS:
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Message type: %s",
-		    val_to_str_ext(tvb_get_guint8(tvb, offset), &q931_message_type_vals_ext,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_cause_call_message_type, tvb, offset, 1, ENC_NA);
 		break;
 
 	case Q931_CAUSE_REC_TIMER_EXP:
 		if (len < 3)
 			return;
-		proto_tree_add_text(tree, tvb, offset, 3,
-		    "Timer: %.3s", tvb_get_string(wmem_packet_scope(), tvb, offset, 3));
+		proto_tree_add_item(tree, hf_q931_cause_call_rec_timer, tvb, offset, 3, ENC_NA|ENC_ASCII);
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, len,
-		    "Diagnostics: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_cause_call_diagnostic, tvb, offset, len, ENC_NA);
 	}
 }
 
@@ -1495,15 +1490,10 @@ dissect_q931_call_state_ie(tvbuff_t *tvb, int offset, int len,
 		 * We don't know how the call state is encoded,
 		 * so just dump it as data and be done with it.
 		 */
-		proto_tree_add_text(tree, tvb, offset,
-		    len, "Data: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_call_state_data, tvb, offset, len, ENC_NA);
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Call state: %s",
-	    val_to_str_ext(octet & 0x3F, &q931_call_state_vals_ext,
-	      "Unknown (0x%02X)"));
+	proto_tree_add_item(tree, hf_q931_call_state, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -1579,8 +1569,8 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		} while (!(octet2 & Q931_IE_VL_EXTENSION));
 
 		if (identifier_len != 0) {
-			proto_tree_add_text(tree, tvb, identifier_offset,
-			    identifier_len, "Interface ID: %u", identifier_val);
+			proto_tree_add_uint(tree, hf_q931_channel_interface_id, tvb, identifier_offset,
+			    identifier_len, identifier_val);
 		}
 	}
 
@@ -1597,9 +1587,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			 * encoded, so just dump it as data and be done
 			 * with it.
 			 */
-			proto_tree_add_text(tree, tvb, offset,
-			    len, "Data: %s",
-			    tvb_bytes_to_ep_str(tvb, offset, len));
+			proto_tree_add_item(tree, hf_q931_channel_data, tvb, offset, len, ENC_NA);
 			return;
 		}
 		proto_tree_add_item(tree, hf_q931_channel_map, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1609,11 +1597,8 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 		len -= 1;
 
 		if (octet & Q931_IS_SLOT_MAP) {
-			guint8 octet2;
 			while (len) {
-				octet2 = tvb_get_guint8(tvb, offset);
-				proto_tree_add_text(tree, tvb, offset, 1,
-					"Slot map: 0x%02x", octet2);
+				proto_tree_add_item(tree, hf_q931_channel_slot_map, tvb, offset, 1, ENC_NA);
 				offset += 1;
 				len -= 1;
 			}
@@ -1665,25 +1650,17 @@ dissect_q931_progress_indicator_ie(tvbuff_t *tvb, int offset, int len,
 		 * We don't know how the progress indicator is encoded,
 		 * so just dump it as data and be done with it.
 		 */
-		proto_tree_add_text(tree, tvb, offset,
-		    len, "Data: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_progress_indicator_data, tvb, offset, len, ENC_NA);
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Location: %s",
-	    val_to_str_ext(octet & 0x0F, &q931_cause_location_vals_ext,
-	      "Unknown (0x%X)"));
+	proto_tree_add_item(tree, hf_q931_progress_indicator_location, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Progress description: %s",
-	    val_to_str_ext(octet & 0x7F, &q931_progress_description_vals_ext,
-	      "Unknown (0x%02X)"));
+
+	proto_tree_add_item(tree, hf_q931_progress_indicator_description, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -1715,23 +1692,14 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 		return;
 	octet = tvb_get_guint8(tvb, offset);
 	netid_len = octet & 0x7F;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Network identification length: %u",
-	    netid_len);
+	proto_tree_add_item(tree, hf_q931_netid_length, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 	if (netid_len != 0) {
 		if (len == 0)
 			return;
-		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Type of network identification: %s",
-		    val_to_str(octet & 0x70, q931_netid_type_vals,
-		      "Unknown (0x%02X)"));
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Network identification plan: %s",
-		    val_to_str(octet & 0x0F, q931_netid_plan_vals,
-		      "Unknown (0x%02X)"));
+		proto_tree_add_item(tree, hf_q931_netid_type, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_q931_netid_plan, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 		netid_len--;
@@ -1741,9 +1709,7 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 		if (netid_len > len)
 			netid_len = len;
 		if (netid_len != 0) {
-			proto_tree_add_text(tree, tvb, offset, netid_len,
-			    "Network identification: %s",
-			    tvb_format_text(tvb, offset, netid_len));
+			proto_tree_add_item(tree, hf_q931_netid, tvb, offset, netid_len, ENC_NA|ENC_ASCII);
 			offset += netid_len;
 			len -= netid_len;
 		}
@@ -1753,11 +1719,9 @@ dissect_q931_ns_facilities_ie(tvbuff_t *tvb, int offset, int len,
 	 * Whatever is left is the network-specific facility
 	 * specification.
 	 */
-	 if (len == 0)
-	 	return;
-	proto_tree_add_text(tree, tvb, offset,
-	    len, "Network-specific facility specification: %s",
-	    tvb_bytes_to_ep_str(tvb, offset, len));
+	if (len == 0)
+		return;
+	proto_tree_add_item(tree, hf_q931_netid_facility_specification, tvb, offset, len, ENC_NA);
 }
 
 /*
@@ -1774,15 +1738,10 @@ static void
 dissect_q931_notification_indicator_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-	guint8 octet;
-
 	if (len == 0)
 		return;
-	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Notification description: %s",
-	    val_to_str(octet & 0x7F, q931_notification_description_vals,
-	      "Unknown (0x%02X)"));
+
+	proto_tree_add_item(tree, hf_q931_notification_description, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -1841,18 +1800,15 @@ static const value_string q931_signal_vals[] = {
 static value_string_ext q931_signal_vals_ext = VALUE_STRING_EXT_INIT(q931_signal_vals);
 
 static void
-dissect_q931_signal_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+dissect_q931_signal_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item)
 {
 	if (len != 1) {
-		proto_tree_add_text(tree, tvb, offset, len,
-		    "Signal: length is %d, should be 1", len);
+		expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
+			"Signal: length is %d, should be 1", len);
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Signal: %s",
-	    val_to_str_ext(tvb_get_guint8(tvb, offset), &q931_signal_vals_ext,
-	        "Unknown (0x%02X)"));
+	proto_tree_add_item(tree, hf_q931_signal, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -1875,35 +1831,23 @@ static const value_string q931_throughput_class_vals[] = {
 static value_string_ext q931_throughput_class_vals_ext = VALUE_STRING_EXT_INIT(q931_throughput_class_vals);
 
 static void
-dissect_q931_information_rate_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+dissect_q931_information_rate_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item)
 {
 	if (len != 4) {
-		proto_tree_add_text(tree, tvb, offset, len,
-		    "Information rate: length is %d, should be 4", len);
+		expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
+			"Information rate: length is %d, should be 4", len);
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset + 0, 1,
-	    "Incoming information rate: %s",
-	    val_to_str_ext(tvb_get_guint8(tvb, offset + 0) & 0x1F,
-	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
-	proto_tree_add_text(tree, tvb, offset + 1, 1,
-	    "Outgoing information rate: %s",
-	    val_to_str_ext(tvb_get_guint8(tvb, offset + 1) & 0x1F,
-	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
-	proto_tree_add_text(tree, tvb, offset + 2, 1,
-	    "Minimum incoming information rate: %s",
-	    val_to_str_ext(tvb_get_guint8(tvb, offset + 2) & 0x1F,
-	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
-	proto_tree_add_text(tree, tvb, offset + 3, 1,
-	    "Minimum outgoing information rate: %s",
-	    val_to_str_ext(tvb_get_guint8(tvb, offset + 3) & 0x1F,
-	      &q931_throughput_class_vals_ext, "Unknown (0x%02X)"));
+	proto_tree_add_item(tree, hf_q931_information_rate_incoming, tvb, offset + 0, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q931_information_rate_outgoing, tvb, offset + 1, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q931_information_rate_minimum_incoming, tvb, offset + 2, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q931_information_rate_minimum_outgoing, tvb, offset + 3, 1, ENC_NA);
 }
 
 static int
-dissect_q931_guint16_value(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree, const char *label)
+dissect_q931_guint16_value(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item, const char *label)
 {
 	guint8 octet;
 	guint16 value;
@@ -1964,13 +1908,12 @@ dissect_q931_guint16_value(tvbuff_t *tvb, int offset, int len,
 	return value_len;
 
 past_end:
-	proto_tree_add_text(tree, tvb, offset, len,
+	expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
 	    "%s goes past end of information element", label);
 	return -1;
 
 bad_length:
-	proto_tree_add_text(tree, tvb, offset, len, "%s isn't 3 octets long",
-	    label);
+	expert_add_info_format(pinfo, item, &ei_q931_invalid_length, "%s isn't 3 octets long", label);
 	return -1;
 }
 
@@ -1978,14 +1921,14 @@ bad_length:
  * Dissect an End-to-end transit delay information element.
  */
 static void
-dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item)
 {
 	int value_len;
 
 	if (len == 0)
 		return;
-	value_len = dissect_q931_guint16_value(tvb, offset, len, tree,
+	value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
 	    "Cumulative transit delay");
 	if (value_len < 0)
 		return;	/* error */
@@ -1994,7 +1937,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	value_len = dissect_q931_guint16_value(tvb, offset, len, tree,
+	value_len = dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
 	    "Requested end-to-end transit delay");
 	if (value_len < 0)
 		return;	/* error */
@@ -2003,7 +1946,7 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
 
 	if (len == 0)
 		return;
-	/*value_len =*/ dissect_q931_guint16_value(tvb, offset, len, tree,
+	/*value_len =*/ dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
 	    "Maximum end-to-end transit delay");
 }
 
@@ -2011,12 +1954,12 @@ dissect_q931_e2e_transit_delay_ie(tvbuff_t *tvb, int offset, int len,
  * Dissect a Transit delay selection and indication information element.
  */
 static void
-dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+dissect_q931_td_selection_and_int_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item)
 {
 	if (len == 0)
 		return;
-	dissect_q931_guint16_value(tvb, offset, len, tree,
+	dissect_q931_guint16_value(tvb, pinfo, offset, len, tree, item,
 	    "Transit delay");
 }
 
@@ -2031,6 +1974,8 @@ static const value_string q931_fast_selected_vals[] = {
 	{ 0x00, NULL }
 };
 
+static const true_false_string tfs_link_end = { "Link-by-link", "End-to-end" };
+
 static void
 dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
@@ -2040,16 +1985,11 @@ dissect_q931_pl_binary_parameters_ie(tvbuff_t *tvb, int offset, int len,
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_q931_fast_select, tvb, offset, 1, ENC_NA);
 	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Fast select: %s",
-	    val_to_str(octet & 0x18, q931_fast_selected_vals, "Unknown (0x%02X)"));
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "%s",
-	    (octet & 0x04) ? "No request/request denied" :
-	    		     "Request indicated/request accepted");
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "%s confirmation",
-	    (octet & 0x02) ? "Link-by-link" : "End-to-end");
+		"%s", (octet & 0x04) ? "No request/request denied" :
+				"Request indicated/request accepted");
+	proto_tree_add_item(tree, hf_q931_pl_binary_confirmation, tvb, offset, 1, ENC_NA);
 	proto_tree_add_text(tree, tvb, offset, 1,
 	    "Modulus %u sequencing",
 	    (octet & 0x01) ? 8 : 128);
@@ -2064,15 +2004,13 @@ dissect_q931_pl_window_size_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Forward value: %u", tvb_get_guint8(tvb, offset) & 0x7F);
+	proto_tree_add_item(tree, hf_q931_pl_window_size_forward_value, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Backward value: %u", tvb_get_guint8(tvb, offset) & 0x7F);
+	proto_tree_add_item(tree, hf_q931_pl_window_size_backward_value, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -2084,15 +2022,13 @@ dissect_q931_packet_size_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Forward value: %u", tvb_get_guint8(tvb, offset) & 0x7F);
+	proto_tree_add_item(tree, hf_q931_packet_size_forward_value, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Backward value: %u", tvb_get_guint8(tvb, offset) & 0x7F);
+	proto_tree_add_item(tree, hf_q931_packet_size_backward_value, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -2109,17 +2045,13 @@ dissect_q931_cug_ie(tvbuff_t *tvb, int offset, int len, proto_tree *tree)
 {
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "CUG indication: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07,
-	      q931_cug_indication_vals, "Unknown (0x%02X)"));
+	proto_tree_add_item(tree, hf_q931_cug_indication, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, len, "CUG index code: %s",
-	    tvb_format_text(tvb, offset, len));
+	proto_tree_add_item(tree, hf_q931_cug_index_code, tvb, offset, len, ENC_NA|ENC_ASCII);
 }
 
 /*
@@ -2136,10 +2068,7 @@ dissect_q931_reverse_charge_ind_ie(tvbuff_t *tvb, int offset, int len,
 {
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Reverse charging indication: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07,
-	      q931_reverse_charging_indication_vals, "Unknown (0x%02X)"));
+	proto_tree_add_item(tree, hf_q931_reverse_charging_ind, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -2227,11 +2156,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 	if (!(octet & Q931_IE_VL_EXTENSION)) {
 		if (len == 0)
 			return;
-		octet = tvb_get_guint8(tvb, offset);
-		proto_tree_add_text(tree, tvb, offset, 1,
-		    "Reason for redirection: %s",
-		    val_to_str(octet & 0x0F, q931_redirection_reason_vals,
-		      "Unknown (0x%X)"));
+		proto_tree_add_item(tree, hf_q931_extension_reason, tvb, offset, 1, ENC_NA);
 		offset += 1;
 		len -= 1;
 	}
@@ -2244,7 +2169,7 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 	if ( number_plan == 1 ) {
 		if ( e164_info.e164_number_type != NONE ){
 
-			e164_info.E164_number_str = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+			e164_info.E164_number_str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
 			e164_info.E164_number_length = len;
 			dissect_e164_number(tvb, tree, offset, len, e164_info);
 		}
@@ -2252,9 +2177,9 @@ dissect_q931_number_ie(tvbuff_t *tvb, int offset, int len,
 
 	/* Collect q931_packet_info */
 	if ( e164_info.e164_number_type == CALLING_PARTY_NUMBER && have_valid_q931_pi)
-		q931_pi->calling_number = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+		q931_pi->calling_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
 	if ( e164_info.e164_number_type == CALLED_PARTY_NUMBER && have_valid_q931_pi)
-		q931_pi->called_number = tvb_get_string(wmem_packet_scope(), tvb, offset, len);
+		q931_pi->called_number = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
 /*
@@ -2276,26 +2201,17 @@ static void
 dissect_q931_party_subaddr_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-	guint8 octet;
-
 	if (len == 0)
 		return;
-	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Type of subaddress: %s",
-	    val_to_str(octet & 0x70, q931_subaddress_type_vals,
-	      "Unknown (0x%02X)"));
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Odd/even indicator: %s",
-	    val_to_str(octet & 0x08, q931_odd_even_indicator_vals,
-	      "Unknown (0x%02X)"));
+
+	proto_tree_add_item(tree, hf_q931_party_subaddr_type, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_q931_party_subaddr_odd_even_indicator, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
-	proto_tree_add_text(tree, tvb, offset, len, "Subaddress: %s",
-	    tvb_bytes_to_ep_str(tvb, offset, len));
+	proto_tree_add_item(tree, hf_q931_party_subaddr, tvb, offset, len, ENC_NA);
 }
 
 /*
@@ -2309,18 +2225,15 @@ static const value_string q931_restart_indicator_class_vals[] = {
 };
 
 static void
-dissect_q931_restart_indicator_ie(tvbuff_t *tvb, int offset, int len,
-    proto_tree *tree)
+dissect_q931_restart_indicator_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len,
+    proto_tree *tree, proto_item* item)
 {
 	if (len != 1) {
-		proto_tree_add_text(tree, tvb, offset, len,
-		    "Restart indicator: length is %d, should be 1", len);
+		expert_add_info_format(pinfo, item, &ei_q931_invalid_length,
+			"Restart indicator: length is %d, should be 1", len);
 		return;
 	}
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Restart indicator: %s",
-	    val_to_str(tvb_get_guint8(tvb, offset) & 0x07,
-	      q931_restart_indicator_class_vals, "Unknown (0x%02X)"));
+	proto_tree_add_item(tree, hf_q931_restart_indicator, tvb, offset, 1, ENC_NA);
 }
 
 /*
@@ -2424,9 +2337,7 @@ dissect_q931_high_layer_compat_ie(tvbuff_t *tvb, int offset, int len,
 		 * We don't know how the call state is encoded,
 		 * so just dump it as data and be done with it.
 		 */
-		proto_tree_add_text(tree, tvb, offset,
-		    len, "Data: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_high_layer_compat_data, tvb, offset, len, ENC_NA);
 		return;
 	}
 	if (len == 0)
@@ -2490,10 +2401,7 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 	if (len == 0)
 		return;
 	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Protocol discriminator: %s",
-	    val_to_str_ext(octet, &q931_protocol_discriminator_vals_ext,
-	    "Unknown (0x%02x)"));
+	proto_tree_add_item(tree, hf_q931_user_protocol_discriminator, tvb, offset, 1, ENC_NA);
 	offset += 1;
 	len -= 1;
 
@@ -2503,20 +2411,18 @@ dissect_q931_user_user_ie(tvbuff_t *tvb, packet_info *pinfo, int offset, int len
 
 	case Q931_PROTOCOL_DISCRIMINATOR_USER:
 		next_tvb = tvb_new_subset(tvb, offset, len, len);
-		proto_tree_add_text(tree, tvb, offset, len, "User information: %d octets", len);
+		proto_tree_add_uint_format_value(tree, hf_q931_user_information_len, tvb, offset, len, len, "%d octets", len);
 		if (!dissector_try_heuristic(q931_user_heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
 		call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
 		}
 		break;
 
 	case Q931_PROTOCOL_DISCRIMINATOR_IA5:
-		proto_tree_add_text(tree, tvb, offset, len, "User information: %s",
-		    tvb_format_text(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_user_information_str, tvb, offset, len, ENC_NA|ENC_ASCII);
 		break;
 
 	default:
-		proto_tree_add_text(tree, tvb, offset, len, "User information: %s",
-		    tvb_bytes_to_ep_str(tvb, offset, len));
+		proto_tree_add_item(tree, hf_q931_user_information_bytes, tvb, offset, len, ENC_NA);
 		break;
 	}
 }
@@ -2533,21 +2439,16 @@ static void
 dissect_q931_party_category_ie(tvbuff_t *tvb, int offset, int len,
     proto_tree *tree)
 {
-	guint8 octet;
-
 	if (len == 0)
 		return;
 
-	octet = tvb_get_guint8(tvb, offset);
-	proto_tree_add_text(tree, tvb, offset, 1,
-	    "Party category: %s",
-	    val_to_str(octet&0x07, q931_party_category_vals,
-	    "Unknown (0x%02x)"));
-	/*offset += 1;*/
+	proto_tree_add_item(tree, hf_q931_party_category, tvb, offset, 1, ENC_NA);
+	/*offset += 1;
 	len -= 1;
 
 	if (len == 0)
 		return;
+	*/
 }
 
 /*
@@ -2662,7 +2563,7 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_text(ie_tree, tvb, offset, 1, "Information element: %s",
 				    val_to_str(info_element, q931_info_element_vals[0], "Unknown (0x%02X)"));
 	proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
-	dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
+	dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
 	first_frag = (tvb_get_guint8(tvb, offset + 2) & 0x80) != 0;
 	more_frags = (tvb_get_guint8(tvb, offset + 2) & 0x7F) != 0;
 	segmented_message_type = tvb_get_guint8(tvb, offset + 3);
@@ -2780,55 +2681,33 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 				switch (info_element) {
 
 				case Q931_IE_MORE_DATA:
-					if (q931_tree != NULL) {
-						proto_tree_add_text(q931_tree, tvb, offset, 1,
-						    "More data");
-					}
+					proto_tree_add_text(q931_tree, tvb, offset, 1, "More data");
 					break;
 
 				case Q931_IE_SENDING_COMPLETE:
-					if (q931_tree != NULL) {
-						proto_tree_add_text(q931_tree, tvb, offset, 1,
-						    "Sending complete");
-					}
+					proto_tree_add_text(q931_tree, tvb, offset, 1, "Sending complete");
 					break;
 
 				default:
-					if (q931_tree != NULL) {
-						proto_tree_add_text(q931_tree, tvb, offset, 1,
+					proto_tree_add_text(q931_tree, tvb, offset, 1,
 						    "Unknown information element (0x%02X)",
 						    info_element);
-					}
 					break;
 				}
 				break;
 
 			case CS0 | Q931_IE_CONGESTION_LEVEL:
-				if (q931_tree != NULL) {
-					proto_tree_add_text(q931_tree, tvb, offset, 1,
-					    "Congestion level: %s",
-					    val_to_str(info_element & Q931_IE_SO_IE_MASK,
-					      q931_congestion_level_vals,
-					      "Unknown (0x%X)"));
-				}
+				proto_tree_add_item(q931_tree, hf_q931_congestion_level, tvb, offset, 1, ENC_NA);
 				break;
 
 			case CS0 | Q931_IE_REPEAT_INDICATOR:
-				if (q931_tree != NULL) {
-					proto_tree_add_text(q931_tree, tvb, offset, 1,
-					    "Repeat indicator: %s",
-					    val_to_str(info_element & Q931_IE_SO_IE_MASK,
-				    	  q931_repeat_indication_vals,
-					      "Unknown (0x%X)"));
-				}
+				proto_tree_add_item(q931_tree, hf_q931_repeat_indicator, tvb, offset, 1, ENC_NA);
 				break;
 
 			default:
-				if (q931_tree != NULL) {
-					proto_tree_add_text(q931_tree, tvb, offset, 1,
+				proto_tree_add_text(q931_tree, tvb, offset, 1,
 					    "Unknown information element (0x%02X)",
 					    info_element);
-				}
 				break;
 			}
 			offset += 1;
@@ -2901,11 +2780,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					 * information" (if "ie_tree" is
 					 * null, this won't add anything).
 					 */
-					proto_tree_add_text(ie_tree, tvb,
-					    offset + 4, info_element_len - 1,
-					    "User information: %s",
-					    tvb_bytes_to_ep_str(tvb, offset + 4,
-					      info_element_len - 1));
+					proto_tree_add_item(ie_tree, hf_q931_user_information_bytes, tvb, offset + 4, info_element_len - 1, ENC_NA);
 				}
 			}
 			offset += 1 + 2 + info_element_len;
@@ -2913,7 +2788,7 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			info_element_len = tvb_get_guint8(tvb, offset + 1);
 
 			if (first_segment && (tvb_reported_length_remaining(tvb, offset + 2) < info_element_len)) {  /* incomplete IE at the end of the 1st segment */
-				proto_tree_add_text(q931_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "Incomplete IE in the 1st segment");
+				proto_tree_add_text(q931_tree, tvb, offset, -1, "Incomplete IE in the 1st segment");
 				break;
 			}
 
@@ -2940,14 +2815,14 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 			proto_tree_add_text(ie_tree, tvb, offset + 1, 1, "Length: %u", info_element_len);
 
 			if (((codeset << 8) | info_element) == (CS0 | Q931_IE_SEGMENTED_MESSAGE)) {
-				dissect_q931_segmented_message_ie(tvb, offset + 2, info_element_len, ie_tree);
+				dissect_q931_segmented_message_ie(tvb, pinfo, offset + 2, info_element_len, ie_tree, ti);
 				col_append_fstr(pinfo->cinfo, COL_INFO, " of %s",
 					    val_to_str_ext(tvb_get_guint8(tvb, offset + 3), &q931_message_type_vals_ext, "Unknown message type (0x%02X)"));
 
 				if (tvb_get_guint8(tvb, offset + 2) & 0x80) {  /* the 1st segment */
 					first_segment = TRUE;
 				} else {  /* not the 1st segment */
-					proto_tree_add_text(q931_tree, tvb, offset + 4, tvb_reported_length_remaining(tvb, offset + 4), "Message segment");
+					proto_tree_add_text(q931_tree, tvb, offset + 4, -1, "Message segment");
 					info_element_len += tvb_reported_length_remaining(tvb, offset + 4);
 				}
 			} else {
@@ -3051,35 +2926,27 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					break;
 
 				case CS0 | Q931_IE_SIGNAL:
-					if (q931_tree != NULL) {
-						dissect_q931_signal_ie(tvb,
+					dissect_q931_signal_ie(tvb, pinfo,
 							offset + 2, info_element_len,
-							ie_tree);
-					}
+							ie_tree, ti);
 					break;
 
 				case CS0 | Q931_IE_INFORMATION_RATE:
-					if (q931_tree != NULL) {
-						dissect_q931_information_rate_ie(tvb,
+					dissect_q931_information_rate_ie(tvb, pinfo,
 							offset + 2, info_element_len,
-							ie_tree);
-					}
+							ie_tree, ti);
 					break;
 
 				case CS0 | Q931_IE_E2E_TRANSIT_DELAY:
-					if (q931_tree != NULL) {
-						dissect_q931_e2e_transit_delay_ie(tvb,
+					dissect_q931_e2e_transit_delay_ie(tvb, pinfo,
 							offset + 2, info_element_len,
-							ie_tree);
-					}
+							ie_tree, ti);
 					break;
 
 				case CS0 | Q931_IE_TD_SELECTION_AND_INT:
-					if (q931_tree != NULL) {
-						dissect_q931_td_selection_and_int_ie(
-							tvb, offset + 2, info_element_len,
-							ie_tree);
-					}
+					dissect_q931_td_selection_and_int_ie(
+							tvb, pinfo, offset + 2, info_element_len,
+							ie_tree, ti);
 					break;
 
 				case CS0 | Q931_IE_PL_BINARY_PARAMETERS:
@@ -3167,11 +3034,9 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 					break;
 
 				case CS0 | Q931_IE_RESTART_INDICATOR:
-					if (q931_tree != NULL) {
-						dissect_q931_restart_indicator_ie(tvb,
+					dissect_q931_restart_indicator_ie(tvb, pinfo,
 							offset + 2, info_element_len,
-							ie_tree);
-					}
+							ie_tree, ti);
 					break;
 
 				case CS0 | Q931_IE_HIGH_LAYER_COMPAT:
@@ -3208,11 +3073,8 @@ dissect_q931_IEs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root_tree,
 
 				default:
 					if (q931_tree != NULL) {
-						proto_tree_add_text(ie_tree, tvb,
-							offset + 2, info_element_len,
-							"Data: %s",
-							tvb_bytes_to_ep_str(tvb, offset + 2,
-							  info_element_len));
+						proto_tree_add_item(ie_tree, hf_q931_data, tvb,
+							offset + 2, info_element_len, ENC_NA);
 					}
 					break;
 				}
@@ -3555,6 +3417,92 @@ proto_register_q931(void)
 		{ &hf_q931_reassembled_length,
 		  { "Reassembled Q.931 length", "q931.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
 			"The total length of the reassembled payload", HFILL}},
+
+      /* Generated from convert_proto_tree_add_text.pl */
+      { &hf_q931_first_segment, { "First segment", "q931.segment.first", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_not_first_segment, { "Not first segment", "q931.segment.not_first", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_bearer_capability_data, { "Data", "q931.bearer_capability.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_bearer_capability_rate_multiplier, { "Rate multiplier", "q931.bearer_capability.rate_multiplier", FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL }},
+      { &hf_q931_bearer_capability_user_rate, { "User rate", "q931.bearer_capability.user_rate", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_l1_user_rate_vals_ext, 0x1F, NULL, HFILL }},
+      { &hf_q931_bearer_capability_intermediate_rate, { "Intermediate rate", "q931.bearer_capability.intermediate_rate", FT_UINT8, BASE_HEX, VALS(q931_l1_intermediate_rate_vals), 0x60, NULL, HFILL }},
+      { &hf_q931_bearer_capability_stop_bits, { "Stop bits", "q931.bearer_capability.stop_bits", FT_UINT8, BASE_HEX, VALS(q931_l1_stop_bits_vals), 0x60, NULL, HFILL }},
+      { &hf_q931_bearer_capability_data_bits, { "Data bits", "q931.bearer_capability.data_bits", FT_UINT8, BASE_HEX, VALS(q931_l1_data_bits_vals), 0x18, NULL, HFILL }},
+      { &hf_q931_bearer_capability_parity, { "Parity", "q931.bearer_capability.parity", FT_UINT8, BASE_HEX, VALS(q931_l1_parity_vals), 0x07, NULL, HFILL }},
+      { &hf_q931_bearer_capability_modem_type, { "Modem type", "q931.bearer_capability.modem_type", FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(q931_l1_modem_type_rvals), 0x3F, NULL, HFILL }},
+      { &hf_q931_uil2, { "User information layer 2 protocol", "q931.uil2", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_uil2_vals_ext, 0x1F, NULL, HFILL }},
+      { &hf_q931_uil2_info, { "User-specified layer 2 protocol information", "q931.uil2_info", FT_UINT8, BASE_HEX, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_bearer_capability_mode, { "Mode", "q931.bearer_capability.mode", FT_UINT8, BASE_HEX, VALS(q931_mode_vals), 0x60, NULL, HFILL }},
+      { &hf_q931_bearer_capability_window_size, { "Window size", "q931.bearer_capability.window_size", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_uil3, { "User information layer 3 protocol", "q931.uil3", FT_UINT8, BASE_HEX, VALS(q931_uil3_vals), 0x1F, NULL, HFILL }},
+      { &hf_q931_bearer_capability_default_packet_size, { "Default packet size", "q931.bearer_capability.default_packet_size", FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
+      { &hf_q931_bearer_capability_packet_window_size, { "Packet window size", "q931.bearer_capability.packet_window_size", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_uil3_additional, { "Additional layer 3 protocol information", "q931.uil3_additional", FT_UINT16, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
+      { &hf_q931_cause_data, { "Data", "q931.cause.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_cause_recommendation, { "Recommendation", "q931.cause.recommendation", FT_UINT8, BASE_HEX, VALS(q931_cause_recommendation_vals), 0x7F, NULL, HFILL }},
+      { &hf_q931_cause_call_rejection_reason, { "Rejection reason", "q931.cause_call.rejection_reason", FT_UINT8, BASE_HEX, VALS(q931_rejection_reason_vals), 0x7C, NULL, HFILL }},
+      { &hf_q931_cause_call_condition, { "Condition", "q931.cause_call.condition", FT_UINT8, BASE_HEX, VALS(q931_cause_condition_vals), 0x03, NULL, HFILL }},
+      { &hf_q931_cause_call_user_specific_diagnostic, { "User specific diagnostic", "q931.cause_call.user_specific_diagnostic", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_cause_call_diagnostic, { "Diagnostic", "q931.cause_call.diagnostic", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_cause_call_message_type, { "Message type", "q931.cause_call.message_type", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_message_type_vals_ext, 0x0, NULL, HFILL }},
+      { &hf_q931_cause_call_rec_timer, { "Timer", "q931.cause_call.rec_timer", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_call_state_data, { "Data", "q931.call_state.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_call_state, { "Call state", "q931.call_state", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_call_state_vals_ext, 0x3F, NULL, HFILL }},
+      { &hf_q931_channel_interface_id, { "Interface ID", "q931.channel.interface_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_channel_data, { "Data", "q931.channel.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_channel_slot_map, { "Slot map", "q931.channel.slot_map", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_progress_indicator_data, { "Data", "q931.progress_indicator.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_progress_indicator_location, { "Location", "q931.progress_indicator.location", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_cause_location_vals_ext, 0x0F, NULL, HFILL }},
+      { &hf_q931_progress_indicator_description, { "Progress description", "q931.progress_indicator.description", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_progress_description_vals_ext, 0x7F, NULL, HFILL }},
+      { &hf_q931_netid_length, { "Network identification length", "q931.netid.length", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_netid_type, { "Type of network identification", "q931.netid.type", FT_UINT8, BASE_HEX, VALS(q931_netid_type_vals), 0x70, NULL, HFILL }},
+      { &hf_q931_netid_plan, { "Network identification plan", "q931.netid.plan", FT_UINT8, BASE_HEX, VALS(q931_netid_plan_vals), 0x0F, NULL, HFILL }},
+      { &hf_q931_netid, { "Network identification", "q931.netid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_netid_facility_specification, { "Network-specific facility specification", "q931.netid.facility_specification", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_notification_description, { "Notification description", "q931.notification_description", FT_UINT8, BASE_HEX, VALS(q931_notification_description_vals), 0x7F, NULL, HFILL }},
+      { &hf_q931_signal, { "Signal", "q931.signal", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_signal_vals_ext, 0x0, NULL, HFILL }},
+      { &hf_q931_information_rate_incoming, { "Incoming information rate", "q931.information_rate.incoming", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_throughput_class_vals_ext, 0x1F, NULL, HFILL }},
+      { &hf_q931_information_rate_outgoing, { "Outgoing information rate", "q931.information_rate.outgoing", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_throughput_class_vals_ext, 0x1F, NULL, HFILL }},
+      { &hf_q931_information_rate_minimum_incoming, { "Minimum incoming information rate", "q931.information_rate.minimum_incoming", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_throughput_class_vals_ext, 0x1F, NULL, HFILL }},
+      { &hf_q931_information_rate_minimum_outgoing, { "Minimum outgoing information rate", "q931.information_rate.minimum_outgoing", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_throughput_class_vals_ext, 0x1F, NULL, HFILL }},
+      { &hf_q931_fast_select, { "Fast select", "q931.fast_select", FT_UINT8, BASE_HEX, VALS(q931_fast_selected_vals), 0x18, NULL, HFILL }},
+      { &hf_q931_pl_window_size_forward_value, { "Forward value", "q931.pl_window_size.forward_value", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_pl_window_size_backward_value, { "Backward value", "q931.pl_window_size.backward_value", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_packet_size_forward_value, { "Forward value", "q931.packet_size.forward_value", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_packet_size_backward_value, { "Backward value", "q931.packet_size.backward_value", FT_UINT8, BASE_DEC, NULL, 0x7F, NULL, HFILL }},
+      { &hf_q931_cug_indication, { "CUG indication", "q931.cug_indication", FT_UINT8, BASE_HEX, VALS(q931_cug_indication_vals), 0x07, NULL, HFILL }},
+      { &hf_q931_cug_index_code, { "CUG index code", "q931.cug_index_code", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_reverse_charging_ind, { "Reverse charging indication", "q931.reverse_charging_ind", FT_UINT8, BASE_HEX, VALS(q931_reverse_charging_indication_vals), 0x07, NULL, HFILL }},
+      { &hf_q931_extension_reason, { "Reason for redirection", "q931.extension.reason", FT_UINT8, BASE_HEX, VALS(q931_redirection_reason_vals), 0x0F, NULL, HFILL }},
+      { &hf_q931_party_subaddr_type, { "Type of subaddress", "q931.party_subaddr.type", FT_UINT8, BASE_HEX, VALS(q931_subaddress_type_vals), 0x70, NULL, HFILL }},
+      { &hf_q931_party_subaddr_odd_even_indicator, { "Odd/even indicator", "q931.party_subaddr.odd_even", FT_UINT8, BASE_HEX, VALS(q931_odd_even_indicator_vals), 0x08, NULL, HFILL }},
+      { &hf_q931_party_subaddr, { "Subaddress", "q931.party_subaddr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_restart_indicator, { "Restart indicator", "q931.restart_indicator", FT_UINT8, BASE_HEX, VALS(q931_restart_indicator_class_vals), 0x07, NULL, HFILL }},
+      { &hf_q931_high_layer_compat_data, { "Data", "q931.high_layer_compat.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_user_protocol_discriminator, { "Protocol discriminator", "q931.user.protocol_discriminator", FT_UINT8, BASE_HEX|BASE_EXT_STRING, &q931_protocol_discriminator_vals_ext, 0x0, NULL, HFILL }},
+      { &hf_q931_user_information_len, { "User information", "q931.user.len", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_user_information_str, { "User information", "q931.user.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_user_information_bytes, { "User information", "q931.user.bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_q931_party_category, { "Party category", "q931.party_category", FT_UINT8, BASE_HEX, VALS(q931_party_category_vals), 0x07, NULL, HFILL }},
+      { &hf_q931_congestion_level, { "Congestion level", "q931.congestion_level", FT_UINT8, BASE_HEX, VALS(q931_congestion_level_vals), Q931_IE_SO_IE_MASK, NULL, HFILL }},
+      { &hf_q931_repeat_indicator, { "Repeat indicator", "q931.repeat_indicator", FT_UINT8, BASE_HEX, VALS(q931_repeat_indication_vals), Q931_IE_SO_IE_MASK, NULL, HFILL }},
+      { &hf_q931_out_band_negotiation, { "Out-band negotiation", "q931.out_band_negotiation", FT_BOOLEAN, 8, TFS(&tfs_possible_not_possible), 0x40, NULL, HFILL }},
+      { &hf_q931_layer_1, { "Layer 1", "q931.layer_1", FT_BOOLEAN, 8, TFS(&tfs_asynchronous_synchronous), 0x40, NULL, HFILL }},
+      { &hf_q931_layer_1_in_band_negotiation, { "Layer 1 in-band negotiation", "q931.layer_1_in_band_negotiation", FT_BOOLEAN, 8, TFS(&tfs_possible_not_possible), 0x20, NULL, HFILL }},
+      { &hf_q931_send_data_net_independent_clock, { "Send data with network independent clock", "q931.send_data_net_independent_clock", FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x10, NULL, HFILL }},
+      { &hf_q931_accept_data_net_independent_clock, { "Accept data with network independent clock", "q931.accept_data_net_independent_clock", FT_BOOLEAN, 8, TFS(&tfs_accepted_not_accepted), 0x08, NULL, HFILL }},
+      { &hf_q931_send_data_flow_control, { "Send data with flow control mechanism", "q931.send_data_flow_control", FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x04, NULL, HFILL }},
+      { &hf_q931_accept_data_flow_control, { "Accept data with flow control mechanism", "q931.accept_data_flow_control", FT_BOOLEAN, 8, TFS(&tfs_accepted_not_accepted), 0x2, NULL, HFILL }},
+      { &hf_q931_rate_adaption_header, { "Rate adaption header", "q931.rate_adaption_header", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40, NULL, HFILL }},
+      { &hf_q931_multiple_frame_establishment, { "Multiple frame establishment", "q931.multiple_frame_establishment", FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20, NULL, HFILL }},
+      { &hf_q931_mode_of_operation, { "mode of operation", "q931.mode_of_operation", FT_BOOLEAN, 8, TFS(&tfs_protocol_sensative_bit_transparent), 0x10, NULL, HFILL }},
+      { &hf_q931_message_originator, { "Message originator", "q931.message_originator", FT_BOOLEAN, 8, TFS(&tfs_assignor_default), 0x04, NULL, HFILL }},
+      { &hf_q931_negotiation_is_done, { "Negotiation is done", "q931.negotiation_is_done", FT_BOOLEAN, 8, TFS(&tfs_in_out_band), 0x02, NULL, HFILL }},
+      { &hf_q931_bearer_capability_duplex, { "Duplex", "q931.bearer_capability.duplex", FT_BOOLEAN, 8, TFS(&tfs_full_half), 0x40, NULL, HFILL }},
+      { &hf_q931_network_service, { "Network service", "q931.network_service", FT_BOOLEAN, 8, TFS(&tfs_user_provider), 0x80, NULL, HFILL }},
+      { &hf_q931_extension_condition_type, { "Type", "q931.extension_condition_type", FT_BOOLEAN, 8, TFS(&tfs_abnormal_normal), 0x40, NULL, HFILL }},
+      { &hf_q931_extension_condition, { "Condition", "q931.extension_condition", FT_UINT8, BASE_HEX, VALS(q931_cause_condition_vals), 0x03, NULL, HFILL }},
+      { &hf_q931_pl_binary_confirmation, { "Confirmation", "q931.pl_binary_confirmation", FT_BOOLEAN, 8, TFS(&tfs_link_end), 0x02, NULL, HFILL }},
+      { &hf_q931_data, { "Data", "q931.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	};
 	static gint *ett[] = {
 		&ett_q931,
@@ -3562,11 +3510,18 @@ proto_register_q931(void)
 		&ett_q931_segments,
 		&ett_q931_segment,
 	};
+	static ei_register_info ei[] = {
+		{ &ei_q931_invalid_length, { "q931.invalid_length", PI_MALFORMED, PI_ERROR, "Invalid length", EXPFILL }},
+	};
+
 	module_t *q931_module;
+	expert_module_t* expert_q931;
 
 	proto_q931 = proto_register_protocol("Q.931", "Q.931", "q931");
 	proto_register_field_array (proto_q931, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_q931 = expert_register_protocol(proto_q931);
+	expert_register_field_array(expert_q931, ei, array_length(ei));
 	register_init_routine(q931_init);
 
 	q931_handle = register_dissector("q931", dissect_q931, proto_q931);

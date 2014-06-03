@@ -1471,7 +1471,6 @@ static const value_string gsm_a_dtap_user_info_layer2_vals[] = {
 static const true_false_string tfs_bearer_cap_coding_standard = { "reserved", "GSM standardized coding" };
 static const true_false_string tfs_bearer_cap_transfer_mode = { "packet", "circuit" };
 static const true_false_string tfs_bearer_cap_coding = { "octet used for other extension of octet 3", "octet used for extension of information transfer capability" };
-static const true_false_string tfs_possible_not_possible = { "Possible", "Not Possible" };
 static const true_false_string tfs_duplex_mode = { "Full", "Half" };
 static const true_false_string tfs_bearer_cap_configuration = { "Reserved", "Point-to-point" };
 static const true_false_string tfs_nirr = { "Data up to and including 4.8 kb/s, full rate, non-transparent, 6 kb/s radio interface rate is requested",
