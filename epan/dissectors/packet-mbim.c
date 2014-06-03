@@ -1759,7 +1759,7 @@ mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         }
     }
 
-    if ((i == array_length(mbim_uuid_service_id_vals)) && uuid_ext_info) {
+    if ((i == array_length(mbim_uuid_service_id_vals)) && mbim_uuid_ext_hash && uuid_ext_info) {
         /* Let's check if UUID is known in extension table */
         uuid_ext[0] = tvb_get_ntohl(tvb, *offset);
         uuid_ext[1] = tvb_get_ntohl(tvb, *offset + 4);
