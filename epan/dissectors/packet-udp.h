@@ -95,7 +95,7 @@ extern void add_udp_process_info(guint32 frame_num, address *local_addr, address
  */
 WS_DLL_PUBLIC guint32 get_udp_stream_count(void);
 
-extern void decode_udp_ports(tvbuff_t *, int, packet_info *,
+WS_DLL_PUBLIC void decode_udp_ports(tvbuff_t *, int, packet_info *,
 	proto_tree *, int, int, int);
 
 #endif
