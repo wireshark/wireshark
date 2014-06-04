@@ -942,7 +942,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     mausb_num_pdus++;
 
-    col_clear(pinfo->cinfo, COL_INFO);
+    col_add_str(pinfo->cinfo, COL_INFO, "[");
 
     /*** PROTOCOL TREE ***/
 
@@ -977,7 +977,7 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Packet Type */
     header.type = tvb_get_guint8(tvb, offset);
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(header.type, mausb_type_string, "%d"));
+    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(header.type, mausb_type_string, "%d"));
     proto_tree_add_item(mausb_tree, hf_mausb_type, tvb,
             offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1135,6 +1135,9 @@ dissect_mausb_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     }
 
+    col_append_str(pinfo->cinfo, COL_INFO, "]");
+    col_set_fence(pinfo->cinfo, COL_INFO);
+
     return offset;
 
 }
@@ -1150,6 +1153,7 @@ dissect_mausb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             mausb_get_pkt_len, dissect_mausb_pkt, data);
 
     if (1 < mausb_num_pdus) {
+        col_clear_fence(pinfo->cinfo, COL_INFO);
         col_prepend_fstr(pinfo->cinfo, COL_INFO, "[%i packets] ", mausb_num_pdus);
     }
 
