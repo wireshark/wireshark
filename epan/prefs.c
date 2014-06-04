@@ -3502,7 +3502,7 @@ prefs_set_pref(char *prefarg)
 
     /*
      * Set the counters of "mgcp.{tcp,udp}.port" entries we've
-     * seen to values that keep us from trying to interpret tham
+     * seen to values that keep us from trying to interpret them
      * as "mgcp.{tcp,udp}.gateway_port" or "mgcp.{tcp,udp}.callagent_port",
      * as, from the command line, we have no way of guessing which
      * the user had in mind.
