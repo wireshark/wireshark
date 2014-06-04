@@ -1084,8 +1084,8 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	 * It makes no sense for the captured data length to be bigger
 	 * than the actual data length.
 	 */
-	if (wth->phdr.caplen > wth->phdr.len)
-		wth->phdr.caplen = wth->phdr.len;
+	if (phdr->caplen > phdr->len)
+		phdr->caplen = phdr->len;
 
 	/*
 	 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
@@ -1093,7 +1093,7 @@ wtap_seek_read(wtap *wth, gint64 seek_off,
 	 * but the read routine didn't set this packet's
 	 * encapsulation type.
 	 */
-	g_assert(wth->phdr.pkt_encap != WTAP_ENCAP_PER_PACKET);
+	g_assert(phdr->pkt_encap != WTAP_ENCAP_PER_PACKET);
 
 	return TRUE;
 }
