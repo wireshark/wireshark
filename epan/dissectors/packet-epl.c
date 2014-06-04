@@ -2734,7 +2734,7 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 {
 	gint dataoffset;
 	guint8 subindex = 0x00,  padding = 0x00;
-	guint16 index = 0x00;
+	guint16 idx = 0x00;
 	guint32 size, offsetincrement, datalength, remlength;
 	gboolean lastentry = FALSE;
 	proto_item *psf_item;
@@ -2807,16 +2807,16 @@ dissect_epl_sdo_command_write_multiple_by_index(proto_tree *epl_tree, tvbuff_t *
 
 			if (segmented <= EPL_ASND_SDO_CMD_SEGMENTATION_INITIATE_TRANSFER)
 			{
-				index = tvb_get_letohs(tvb, dataoffset);
+				idx = tvb_get_letohs(tvb, dataoffset);
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, dataoffset, 2, ENC_LITTLE_ENDIAN);
-				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (index << 16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item," (%s)", val_to_str_ext_const(((guint32)(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [%s", val_to_str_ext_const(((guint32) (idx << 16)), &sod_index_names, "User Defined"));
 				dataoffset += 2;
 
 				subindex = tvb_get_guint8(tvb, dataoffset);
 				psf_item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, dataoffset, 1, ENC_LITTLE_ENDIAN);
-				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
-				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(index<<16)), &sod_index_names, "User Defined"));
+				proto_item_append_text(psf_item, " (%s)", val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
+				col_append_fstr(pinfo->cinfo, COL_INFO, " | %s]",val_to_str_ext_const((subindex|(idx<<16)), &sod_index_names, "User Defined"));
 				dataoffset += 1;
 
 				proto_tree_add_uint(epl_tree, hf_epl_asnd_sdo_cmd_data_padding, tvb, dataoffset, 1, padding);
