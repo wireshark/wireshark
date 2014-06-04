@@ -257,7 +257,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 	set( _output_dbk ${_source_base_name}.dbk )
 	ADD_CUSTOM_COMMAND(
 		OUTPUT
-			${_output_xml} _output_dbk
+			${_output_xml} ${_output_dbk}
 		# XXX - Output to a specific directory, e.g. wsdg_generated_src
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${A2X_EXECUTABLE}
