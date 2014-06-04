@@ -1,5 +1,5 @@
 
-                         Wireshark 1.11.4 Release Notes
+                         Wireshark 1.99.0 Release Notes
 
    This is an experimental release intended to test new features for the
    next stable release.
@@ -100,22 +100,22 @@ What's New
    Bluetooth Low Energy RF Info, CARP, CFDP, Cisco MetaData, DCE/RPC
    MDSSVC, DeviceNet, ELF file format, Ethernet Local Management Interface
    (E-LMI), Ethernet Passive Optical Network (EPON), EXPORTED PDU, FINGER,
-   HDMI, High-Speed LAN Instrument Protocol (HiSLIP), HTTP2, IDRP, IEEE
-   1722a, ILP, iWARP Direct Data Placement and Remote Direct Memory Access
-   Protocol, Kafka, Kyoto Tycoon, Landis & Gyr Telegyr 8979, LBM, LBMC,
-   LBMPDM, LBMPDM-TCP, LBMR, LBT-RM, LBT-RU, LBT-TCP, Lightweight Mesh
-   (v1.1.1), Link16, Linux netlink, Linux netlink netfilter, Linux netlink
-   sock diag, Linux rtnetlink (route netlink), Logcat, MBIM, Media
-   Agnostic USB (MA USB), MiNT, MP4 / ISOBMFF file format, MQ Telemetry
-   Transport Protocol, MS NLB (Rewrite), Novell PKIS certificate
-   extensions, NXP PN532 HCI, Open Sound Control, OpenFlow, Pathport, PDC,
-   Picture Transfer Protocol Over IP, PKTAP, Private Data Channel, QUIC
-   (Quick UDP Internet Connections), SAE J1939, SEL RTAC (Real Time
-   Automation Controller) EIA-232 Serial-Line Dissection, Sippy RTPproxy,
-   SMB-Direct, SPDY, STANAG 4607, STANAG 5066 DTS, STANAG 5066 SIS,
-   Tinkerforge, Ubertooth, UDT, URL Encoded Form Data, USB Communications
-   and CDC Control, USB Device Firmware Upgrade, VP8, WHOIS, Wi-Fi
-   Display, and ZigBee Green Power profile
+   GDB Remote Serial Protocol, HDMI, High-Speed LAN Instrument Protocol
+   (HiSLIP), HTTP2, IDRP, IEEE 1722a, ILP, iWARP Direct Data Placement and
+   Remote Direct Memory Access Protocol, Kafka, Kyoto Tycoon, Landis & Gyr
+   Telegyr 8979, LBM, LBMC, LBMPDM, LBMPDM-TCP, LBMR, LBT-RM, LBT-RU,
+   LBT-TCP, Lightweight Mesh (v1.1.1), Link16, Linux netlink, Linux
+   netlink netfilter, Linux netlink sock diag, Linux rtnetlink (route
+   netlink), Logcat, MBIM, Media Agnostic USB (MA USB), MiNT, MP4 /
+   ISOBMFF file format, MQ Telemetry Transport Protocol, MS NLB (Rewrite),
+   Novell PKIS certificate extensions, NXP PN532 HCI, Open Sound Control,
+   OpenFlow, Pathport, PDC, Picture Transfer Protocol Over IP, PKTAP,
+   Private Data Channel, QUIC (Quick UDP Internet Connections), SAE J1939,
+   SEL RTAC (Real Time Automation Controller) EIA-232 Serial-Line
+   Dissection, Sippy RTPproxy, SMB-Direct, SPDY, STANAG 4607, STANAG 5066
+   DTS, STANAG 5066 SIS, Tinkerforge, Ubertooth, UDT, URL Encoded Form
+   Data, USB Communications and CDC Control, USB Device Firmware Upgrade,
+   VP8, WHOIS, Wi-Fi Display, and ZigBee Green Power profile
 
   Updated Protocol Support
 
@@ -137,6 +137,10 @@ What's New
        tvb_captured_length for clarity, and tvb_get_string and
        tvb_get_stringz have been deprecated in favour of
        tvb_get_string_enc and tvb_get_stringz_enc.
+     * dissector_try_heuristic() signature has been changed to return
+       heur_dtbl_entry_t to make it possible to save it and use it in
+       subsequent calls to avoid the overhead of going trough the
+       heuristics list.
      __________________________________________________________________
 
 Getting Wireshark
@@ -208,7 +212,7 @@ Frequently Asked Questions
    A complete FAQ is available on the [22]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2014-05-11 18:03:37 CEST
+   Last updated 2014-05-30 08:14:03 CEST
 
 References
 
