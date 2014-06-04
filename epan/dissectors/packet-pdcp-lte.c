@@ -1636,7 +1636,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 gint message_length;
                 guint8 *message_data;
                 guint8  mac[4];
-                ssize_t read_digest_length = 4;
+                size_t read_digest_length = 4;
 
                 /* Open gcrypt handle */
                 /* N.B. Unfortunately GCRY_MAC_CMAC_AES is not available in currently used version of gcrypt! */

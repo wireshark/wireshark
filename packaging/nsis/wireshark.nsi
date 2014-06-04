@@ -312,10 +312,16 @@ File "${STAGING_DIR}\krb5_32.dll"
 File "${STAGING_DIR}\k5sprt32.dll"
 !endif
 !ifdef GNUTLS_DIR
-File "${STAGING_DIR}\libgcrypt-11.dll"
-File "${STAGING_DIR}\libgnutls-26.dll"
-File "${STAGING_DIR}\libgpg-error-0.dll"
-File "${STAGING_DIR}\libtasn1-3.dll"
+File "${STAGING_DIR}\libffi-6.dll"
+File "${STAGING_DIR}\${GCC_DLL}"
+File "${STAGING_DIR}\libgcrypt-20.dll"
+File "${STAGING_DIR}\libgmp-10.dll"
+File "${STAGING_DIR}\libgnutls-28.dll"
+File "${STAGING_DIR}\${GPGERROR_DLL}"
+File "${STAGING_DIR}\libhogweed-2-4.dll"
+File "${STAGING_DIR}\libnettle-4-6.dll"
+File "${STAGING_DIR}\libp11-kit-0.dll"
+File "${STAGING_DIR}\libtasn1-6.dll"
 StrCmp "${INTL_DLL}" "libintl-8.dll" SkipLibIntl8
 File "${STAGING_DIR}\libintl-8.dll"
 SkipLibIntl8:

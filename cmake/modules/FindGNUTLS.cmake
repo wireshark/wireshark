@@ -25,8 +25,8 @@ FIND_PATH(GNUTLS_INCLUDE_DIR
 	  ${GNUTLS_HINTS}
 )
 
-SET(GNUTLS_NAMES gnutls libgnutls-26)
-FIND_LIBRARY(GNUTLS_LIBRARY NAMES ${GNUTLS_NAMES} HINTS "${GNUTLS_HINTS}/bin" )
+SET(GNUTLS_NAMES gnutls libgnutls-28)
+FIND_LIBRARY(GNUTLS_LIBRARY NAMES ${GNUTLS_NAMES} libgmp-10 libgcc_s_sjlj-1 libffi-6 libhogweed-2-4 libnettle-4-6 libp11-kit-0 libtasn1-6 HINTS "${GNUTLS_HINTS}/bin" )
 
 # handle the QUIETLY and REQUIRED arguments and set GNUTLS_FOUND to TRUE if 
 # all listed variables are TRUE
