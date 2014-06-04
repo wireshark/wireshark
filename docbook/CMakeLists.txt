@@ -221,7 +221,9 @@ MACRO( ASCIIDOC2DOCBOOK _asciidocsource _conffile )
 	set( A2X_HTML_OPTS --stylesheet=ws.css )
 	set( _output_xml ${_source_base_name}.xml )
 	set( _output_dbk ${_source_base_name}.dbk )
-	ADD_CUSTOM_TARGET(${_output_xml}
+	ADD_CUSTOM_COMMAND(
+		OUTPUT
+			${_output_xml}
 		# XXX - Output to a specific directory, e.g. wsdg_generated_src
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${A2X_EXECUTABLE}
@@ -253,7 +255,9 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 	set( A2X_HTML_OPTS --stylesheet=ws.css )
 	set( _output_xml ${_source_base_name}.xml )
 	set( _output_dbk ${_source_base_name}.dbk )
-	ADD_CUSTOM_TARGET(${_output_xml}
+	ADD_CUSTOM_COMMAND(
+		OUTPUT
+			${_output_xml} _output_dbk
 		# XXX - Output to a specific directory, e.g. wsdg_generated_src
 		WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
 		COMMAND ${A2X_EXECUTABLE}
@@ -277,7 +281,7 @@ MACRO( ASCIIDOC2CHAPTER _asciidocsource _conffile )
 	${CMAKE_CURRENT_SOURCE_DIR}/${_asciidocsource}
 	${CMAKE_CURRENT_SOURCE_DIR}/${_conffile}
 	)
-LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
+	LIST( APPEND WSDG_GENERATED_FILES ${CMAKE_CURRENT_BINARY_DIR}/${_output_xml} )
 ENDMACRO()
 
 #FOREACH(ASCIIDOCFILE ${WSDG_ASCIIDOC_FILES})
