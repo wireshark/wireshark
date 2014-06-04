@@ -2426,6 +2426,41 @@ dissect_usb_standard_setup_request(packet_info *pinfo, proto_tree *tree ,
 
 }
 
+/* Dissector used for standard usb setup responses */
+static int
+dissect_usb_standard_setup_response(packet_info *pinfo, proto_tree *tree,
+                                    tvbuff_t *tvb, int offset,
+                                    usb_conv_info_t  *usb_conv_info)
+{
+    const usb_setup_dissector_table_t *tmp;
+    usb_setup_dissector dissector;
+
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
+        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
+            &setup_request_names_vals_ext, "Unknown type %x"));
+
+    dissector = NULL;
+    for(tmp = setup_response_dissectors;tmp->dissector;tmp++) {
+        if (tmp->request == usb_conv_info->usb_trans_info->setup.request) {
+            dissector = tmp->dissector;
+            break;
+        }
+    }
+
+    if (dissector) {
+        offset = dissector(pinfo, tree, tvb, offset, usb_conv_info);
+    } else {
+        if (tvb_reported_length_remaining(tvb, offset) != 0) {
+            proto_tree_add_text(tree, tvb, offset, -1, "CONTROL response data");
+            offset += tvb_length_remaining(tvb, offset);
+        }
+    }
+
+    return offset;
+}
+
+
 static gint
 try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
         usb_conv_info_t *usb_conv_info, gint type_2, guint8 urb_type,
@@ -2935,8 +2970,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     case URB_CONTROL:
         {
-        const usb_setup_dissector_table_t *tmp;
-        usb_setup_dissector dissector;
         proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
 
@@ -3055,30 +3088,9 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 switch (type_2) {
 
                 case RQT_SETUP_TYPE_STANDARD:
-                    /*
-                     * This is a standard response which is managed by this
-                     * dissector
-                     */
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Response",
-                        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
-                            &setup_request_names_vals_ext, "Unknown type %x"));
-
-                    dissector = NULL;
-                    for(tmp = setup_response_dissectors;tmp->dissector;tmp++) {
-                        if (tmp->request == usb_conv_info->usb_trans_info->setup.request) {
-                            dissector = tmp->dissector;
-                            break;
-                        }
-                    }
-
-                    if (dissector) {
-                        offset = dissector(pinfo, parent, tvb, offset, usb_conv_info);
-                    } else {
-                        if (tvb_reported_length_remaining(tvb, offset) != 0) {
-                            proto_tree_add_text(parent, tvb, offset, -1, "CONTROL response data");
-                            offset += tvb_length_remaining(tvb, offset);
-                        }
-                    }
+                    /* This is a standard response */
+                    offset = dissect_usb_standard_setup_response(pinfo, parent, tvb,
+                                                                 offset, usb_conv_info);
                     break;
                 default:
                     /* Try to find a non-standard specific dissector */
