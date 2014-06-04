@@ -2284,6 +2284,24 @@ dissect_usb_setup_synch_frame_response(packet_info *pinfo _U_, proto_tree *tree 
     return offset;
 }
 
+/* Dissector used for unknown USB setup request/responses */
+static int
+dissect_usb_setup_generic(packet_info *pinfo _U_, proto_tree *tree ,
+                                       tvbuff_t *tvb, int offset,
+                                       usb_conv_info_t  *usb_conv_info _U_)
+{
+
+    proto_tree_add_item(tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+
 
 typedef int (*usb_setup_dissector)(packet_info *pinfo, proto_tree *tree,
                                    tvbuff_t *tvb, int offset,
@@ -2933,27 +2951,17 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                             }
                         }
 
-                        if (dissector) {
-                            offset = dissector(pinfo, setup_tree, tvb, offset, usb_conv_info);
-                        } else {
-                            proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                            offset += 2;
-                            proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                            offset += 2;
-                            proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                            offset += 2;
+                        if (!dissector) {
+                                dissector = &dissect_usb_setup_generic;
                         }
+
+                        offset = dissector(pinfo, setup_tree, tvb, offset, usb_conv_info);
                         break;
                     default:
                         /* no dissector found - display generic fields */
                         proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                         offset += 1;
-                        proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        offset += 2;
-                        proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        offset += 2;
-                        proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                        offset += 2;
+                        offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
 
                         if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
                             setup_tvb = tvb_new_composite();
@@ -3109,12 +3117,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
                 proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
-                proto_tree_add_item(setup_tree, hf_usb_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-                proto_tree_add_item(setup_tree, hf_usb_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
-                proto_tree_add_item(setup_tree, hf_usb_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-                offset += 2;
+                offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
             } else {
 
                 /* Process ISO related fields (usbmon_packet.iso). The fields are
@@ -3300,12 +3303,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
             proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
-            proto_tree_add_item(setup_tree, hf_usb_value,   tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-            proto_tree_add_item(setup_tree, hf_usb_index,   tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
-            proto_tree_add_item(setup_tree, hf_usb_length,  tvb, offset, 2, ENC_LITTLE_ENDIAN);
-            offset += 2;
+            offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
         } else {
             if (header_info & USB_HEADER_IS_LINUX) {
                 /* Skip setup/isochronous header - it's not applicable */
