@@ -2392,6 +2392,40 @@ static const value_string bmrequesttype_recipient_vals[] = {
     {0, NULL }
 };
 
+/* Dissector used for standard usb setup requests */
+static int
+dissect_usb_standard_setup_request(packet_info *pinfo, proto_tree *tree ,
+                                   tvbuff_t *tvb, int offset,
+                                   usb_conv_info_t  *usb_conv_info,
+                                   usb_trans_info_t *usb_trans_info)
+{
+    const usb_setup_dissector_table_t *tmp;
+    usb_setup_dissector dissector;
+
+    proto_tree_add_item(tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
+            val_to_str_ext(usb_trans_info->setup.request, &setup_request_names_vals_ext, "Unknown type %x"));
+
+    dissector = NULL;
+    for(tmp = setup_request_dissectors;tmp->dissector;tmp++) {
+        if (tmp->request == usb_trans_info->setup.request) {
+            dissector = tmp->dissector;
+            break;
+        }
+    }
+
+    if (!dissector) {
+            dissector = &dissect_usb_setup_generic;
+    }
+
+    offset = dissector(pinfo, tree, tvb, offset, usb_conv_info);
+
+    return offset;
+
+}
+
 static gint
 try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
         usb_conv_info_t *usb_conv_info, gint type_2, guint8 urb_type,
@@ -2933,29 +2967,10 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
                 switch (type_2) {
                     case RQT_SETUP_TYPE_STANDARD:
-                        /*
-                         * This is a standard request which is managed by this
-                         * dissector
-                         */
-                        proto_tree_add_item(setup_tree, hf_usb_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                        offset += 1;
+                        /* This is a standard request */
+                        offset = dissect_usb_standard_setup_request(pinfo, setup_tree, tvb, offset,
+                                                                    usb_conv_info, usb_trans_info);
 
-                        col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request",
-                                val_to_str_ext(usb_trans_info->setup.request, &setup_request_names_vals_ext, "Unknown type %x"));
-
-                        dissector = NULL;
-                        for(tmp = setup_request_dissectors;tmp->dissector;tmp++) {
-                            if (tmp->request == usb_trans_info->setup.request) {
-                                dissector = tmp->dissector;
-                                break;
-                            }
-                        }
-
-                        if (!dissector) {
-                                dissector = &dissect_usb_setup_generic;
-                        }
-
-                        offset = dissector(pinfo, setup_tree, tvb, offset, usb_conv_info);
                         break;
                     default:
                         /* no dissector found - display generic fields */
