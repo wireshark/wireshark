@@ -254,6 +254,7 @@ void InterfaceTree::updateStatistics(void) {
             if (capture_stats(stat_cache_, device.name, &stats)) {
                 if ((int)(stats.ps_recv - device.last_packets) >= 0) {
                     diff = stats.ps_recv - device.last_packets;
+                    device.packet_diff = diff;
                 }
                 device.last_packets = stats.ps_recv;
             }
@@ -300,6 +301,30 @@ void InterfaceTree::updateSelectedInterfaces()
                 }
                 break;
             }
+        }
+        iter++;
+    }
+#endif // HAVE_LIBPCAP
+}
+
+void InterfaceTree::setSelectedInterfaces()
+{
+#ifdef HAVE_LIBPCAP
+    interface_t device;
+    QTreeWidgetItemIterator iter(this);
+
+    while (*iter) {
+        QString device_name = (*iter)->data(0, Qt::UserRole).value<QString>();
+        for (guint i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+            device = g_array_index(global_capture_opts.all_ifaces, interface_t, i);
+            if (device_name.compare(QString().fromUtf8(device.name)) == 0) {
+                (*iter)->setSelected(device.selected);
+                global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+                g_array_insert_val(global_capture_opts.all_ifaces, i, device);
+                break;
+            }
+            global_capture_opts.all_ifaces = g_array_remove_index(global_capture_opts.all_ifaces, i);
+            g_array_insert_val(global_capture_opts.all_ifaces, i, device);
         }
         iter++;
     }

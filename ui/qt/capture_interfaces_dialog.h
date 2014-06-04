@@ -41,18 +41,13 @@ typedef struct if_stat_cache_s if_stat_cache_t;
  */
 enum
 {
-    CAPTURE = 0,
-    INTERFACE,
+    INTERFACE = 0,
     TRAFFIC,
     LINK,
     PMODE,
     SNAPLEN,
-#if defined(HAVE_PCAP_CREATE)
     BUFFER,
     MONITOR,
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    BUFFER,
-#endif
     FILTER,
     NUM_COLUMNS
 };
@@ -61,6 +56,32 @@ enum
 namespace Ui {
 class CaptureInterfacesDialog;
 }
+
+#include <QStyledItemDelegate>
+
+class TbInterfacesDelegate : public QStyledItemDelegate
+{
+    Q_OBJECT
+private:
+    QTableWidget* table;
+
+public:
+    TbInterfacesDelegate(QObject *parent = 0);
+    ~TbInterfacesDelegate();
+
+    QWidget *createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    void setTable(QTableWidget* tb) { table = tb; };
+    bool eventFilter(QObject *object, QEvent *event);
+
+private slots:
+    void pmode_changed(QString index);
+#if defined (HAVE_PCAP_CREATE)
+    void monitor_changed(QString index);
+#endif
+    void link_changed(QString index);
+    void snaplen_changed(int value);
+    void buffer_changed(int value);
+};
 
 class CaptureInterfacesDialog : public QDialog
 {
@@ -72,7 +93,6 @@ public:
 
     void SetTab(int index);
     void UpdateInterfaces();
-    //void updateStatistics(void);
 
 private slots:
     void on_capturePromModeCheckBox_toggled(bool checked);
@@ -82,21 +102,24 @@ private slots:
     void on_gbNewFileAuto_toggled(bool checked);
     void on_cbExtraCaptureInfo_toggled(bool checked);
     void on_cbResolveMacAddresses_toggled(bool checked);
+    void on_compileBPF_clicked();
     void on_cbResolveNetworkNames_toggled(bool checked);
     void on_cbResolveTransportNames_toggled(bool checked);
-    void on_bStart_clicked();
-    void on_bStop_clicked();
+    void start_button_clicked();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
     void tableItemClicked(QTableWidgetItem * item);
+    void tableSelected();
     void updateStatistics(void);
-    //void on_tbInterfaces_hideEvent(QHideEvent *evt);
-    //void on_tbInterfaces_showEvent(QShowEvent *evt);
+    void allFilterChanged();
 
 signals:
     void startCapture();
     void stopCapture();
     void getPoints(int row, PointList *pts);
+    void setSelectedInterfaces();
+    void setFilterValid(bool valid);
+    void interfacesChanged();
 
 private:
     Ui::CaptureInterfacesDialog *ui;
@@ -106,6 +129,10 @@ private:
     QPushButton *stop_bt_;
     if_stat_cache_t *stat_cache_;
     QTimer *stat_timer_;
+    TbInterfacesDelegate combobox_item_delegate_;
+    QMap<int, int> deviceMap;
+
+    void saveOptionsToPreferences();
 };
 
 #endif /* HAVE_LIBPCAP */

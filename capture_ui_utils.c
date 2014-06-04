@@ -101,7 +101,7 @@ capture_dev_user_descr_find(const gchar *if_name)
 gint
 capture_dev_user_linktype_find(const gchar *if_name)
 {
-  gchar *p, *next;
+  gchar *p, *next, *tmpname;
   long linktype;
 
   if ((prefs.capture_devices_linktypes == NULL) ||
@@ -109,13 +109,13 @@ capture_dev_user_linktype_find(const gchar *if_name)
     /* There are no link-layer header types */
     return -1;
   }
-
-  if ((p = strstr(prefs.capture_devices_linktypes, if_name)) == NULL) {
+  tmpname = g_strdup_printf(",%s(", if_name);
+  if ((p = strstr(prefs.capture_devices_linktypes, tmpname)) == NULL) {
     /* There are, but there isn't one for this interface. */
     return -1;
   }
 
-  p += strlen(if_name) + 1;
+  p += strlen(if_name) + 2;
   linktype = strtol(p, &next, 10);
   if (next == p || *next != ')' || linktype < 0) {
     /* Syntax error */
@@ -133,7 +133,7 @@ capture_dev_user_linktype_find(const gchar *if_name)
 gint
 capture_dev_user_buffersize_find(const gchar *if_name)
 {
-  gchar *p, *next;
+  gchar *p, *next, *tmpname;
   gint buffersize;
 
   if ((prefs.capture_devices_buffersize == NULL) ||
@@ -141,13 +141,13 @@ capture_dev_user_buffersize_find(const gchar *if_name)
     /* There are no buffersizes defined */
     return -1;
   }
-
-  if ((p = strstr(prefs.capture_devices_buffersize, if_name)) == NULL) {
+  tmpname = g_strdup_printf(",%s(", if_name);
+  if ((p = strstr(prefs.capture_devices_buffersize, tmpname)) == NULL) {
     /* There are, but there isn't one for this interface. */
     return -1;
   }
 
-  p += strlen(if_name) + 1;
+  p += strlen(if_name) + 2;
   buffersize = (gint)strtol(p, &next, 10);
   if (next == p || *next != ')' || buffersize < 0) {
     /* Syntax error */
@@ -165,7 +165,7 @@ capture_dev_user_buffersize_find(const gchar *if_name)
 gint
 capture_dev_user_snaplen_find(const gchar *if_name)
 {
-  gchar *p, *next;
+  gchar *p, *next, *tmpname;
   gint snaplen;
 
   if ((prefs.capture_devices_snaplen == NULL) ||
@@ -173,13 +173,13 @@ capture_dev_user_snaplen_find(const gchar *if_name)
     /* There is no snap length defined */
     return -1;
   }
-
-  if ((p = strstr(prefs.capture_devices_snaplen, if_name)) == NULL) {
+  tmpname = g_strdup_printf(",%s:", if_name);
+  if ((p = strstr(prefs.capture_devices_snaplen, tmpname)) == NULL) {
     /* There are, but there isn't one for this interface. */
     return -1;
   }
 
-  p += strlen(if_name) + 3;
+  p += strlen(if_name) + 4;
   snaplen = (gint)strtol(p, &next, 10);
   if (next == p || *next != ')' || snaplen < 0) {
     /* Syntax error */
@@ -196,7 +196,7 @@ capture_dev_user_snaplen_find(const gchar *if_name)
 gboolean
 capture_dev_user_hassnap_find(const gchar *if_name)
 {
-  gchar *p, *next;
+  gchar *p, *next, *tmpname;
   gboolean hassnap;
 
   if ((prefs.capture_devices_snaplen == NULL) ||
@@ -204,13 +204,13 @@ capture_dev_user_hassnap_find(const gchar *if_name)
     /* There is no snap length defined */
     return -1;
   }
-
-  if ((p = strstr(prefs.capture_devices_snaplen, if_name)) == NULL) {
+  tmpname = g_strdup_printf(",%s:", if_name);
+  if ((p = strstr(prefs.capture_devices_snaplen, tmpname)) == NULL) {
     /* There are, but there isn't one for this interface. */
     return -1;
   }
 
-  p += strlen(if_name) + 1;
+  p += strlen(if_name) + 2;
   hassnap = (gboolean)strtol(p, &next, 10);
   if (next == p || *next != '(') {
     /* Syntax error */
@@ -223,7 +223,7 @@ capture_dev_user_hassnap_find(const gchar *if_name)
 gboolean
 capture_dev_user_pmode_find(const gchar *if_name)
 {
-  gchar *p, *next;
+  gchar *p, *next, *tmpname;
   gboolean pmode;
 
   if ((prefs.capture_devices_pmode == NULL) ||
@@ -231,19 +231,45 @@ capture_dev_user_pmode_find(const gchar *if_name)
     /* There is no promiscuous mode defined */
     return -1;
   }
-
-  if ((p = strstr(prefs.capture_devices_pmode, if_name)) == NULL) {
+  tmpname = g_strdup_printf(",%s(", if_name);
+  if ((p = strstr(prefs.capture_devices_pmode, tmpname)) == NULL) {
     /* There are, but there isn't one for this interface. */
     return -1;
   }
 
-  p += strlen(if_name) + 1;
+  p += strlen(if_name) + 2;
   pmode = (gboolean)strtol(p, &next, 10);
   if (next == p || *next != ')') {
     /* Syntax error */
     return -1;
   }
   return (gboolean)pmode;
+}
+
+gchar*
+capture_dev_user_cfilter_find(const gchar *if_name)
+{
+  gchar *p, q[MAX_VAL_LEN], *tmpname;
+  int i = 0;
+
+  if ((prefs.capture_devices_filter == NULL) ||
+      (*prefs.capture_devices_filter == '\0')) {
+    /* There is no capture filter defined */
+    return NULL;
+  }
+  tmpname = g_strdup_printf(",%s(", if_name);
+  if ((p = strstr(prefs.capture_devices_filter, tmpname)) == NULL) {
+    /* There are, but there isn't one for this interface. */
+    return NULL;
+  }
+
+  p += strlen(if_name) + 2;
+  while (p[i+1] != ',' && p[i+1] != '\0') {
+    q[i] = p[i];
+    i++;
+  }
+  q[i] = '\0';
+  return g_strdup(q);
 }
 
 /*

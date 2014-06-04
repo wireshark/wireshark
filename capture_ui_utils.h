@@ -66,6 +66,12 @@ gboolean capture_dev_user_hassnap_find(const gchar *if_name);
  */
 gboolean capture_dev_user_pmode_find(const gchar *if_name);
 
+/**
+ * Find user-specified capture filter that matches interface
+ * name, if any.
+ */
+gchar* capture_dev_user_cfilter_find(const gchar *if_name);
+
 /** Return as descriptive a name for an interface as we can get.
  * If the user has specified a comment, use that.  Otherwise,
  * if capture_interface_list() supplies a description, use that,

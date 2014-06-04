@@ -2431,6 +2431,10 @@ prefs_register_modules(void)
     prefs_register_bool_preference(capture_module, "prom_mode", "Capture in promiscuous mode",
         "Capture in promiscuous mode?", &prefs.capture_prom_mode);
 
+    prefs_register_string_preference(capture_module, "devices_filter", "Interface capture filter",
+        "Interface capture filter (Ex: en0(tcp),en1(udp),...)",
+        (const char **)&prefs.capture_devices_filter);
+
     prefs_register_bool_preference(capture_module, "pcap_ng", "Capture in Pcap-NG format",
         "Capture in Pcap-NG format?", &prefs.capture_pcap_ng);
 

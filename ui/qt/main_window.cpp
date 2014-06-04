@@ -299,6 +299,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(&capture_interfaces_dialog_, SIGNAL(getPoints(int,PointList*)),
             this->main_welcome_->getInterfaceTree(), SLOT(getPoints(int,PointList*)));
+    connect(&capture_interfaces_dialog_, SIGNAL(setSelectedInterfaces()),
+            this->main_welcome_->getInterfaceTree(), SLOT(setSelectedInterfaces()));
 #endif
 
     main_ui_->mainStack->setCurrentWidget(main_welcome_);
@@ -1392,7 +1394,7 @@ void MainWindow::setMenusForFollowStream()
     main_ui_->actionAnalyzeFollowSSLStream->setEnabled(false);
 
     proto_get_frame_protocols(cap_file_->edt->pi.layers, NULL, &is_tcp, &is_udp, NULL, NULL);
-    
+
     if (is_tcp)
     {
         main_ui_->actionAnalyzeFollowTCPStream->setEnabled(true);

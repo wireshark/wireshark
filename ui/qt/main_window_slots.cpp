@@ -1101,6 +1101,12 @@ void MainWindow::captureFilterSyntaxChanged(bool valid)
     interfaceSelectionChanged();
 }
 
+void MainWindow::startInterfaceCapture(bool valid)
+{
+    capture_filter_valid_ = valid;
+    startCapture();
+}
+
 void MainWindow::redissectPackets()
 {
     if (cap_file_)
@@ -2320,6 +2326,7 @@ void MainWindow::on_actionSummary_triggered()
 #ifdef HAVE_LIBPCAP
 void MainWindow::on_actionCaptureInterfaces_triggered()
 {
+    connect(&capture_interfaces_dialog_, SIGNAL(setFilterValid(bool)), this, SLOT(startInterfaceCapture(bool)));
     capture_interfaces_dialog_.SetTab(0);
     capture_interfaces_dialog_.UpdateInterfaces();
 

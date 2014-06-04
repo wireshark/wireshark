@@ -125,6 +125,7 @@ typedef struct interface_tag {
     remote_options remote_opts;
 #endif
     guint32     last_packets;
+    guint32     packet_diff;
     if_info_t   if_info;
     gboolean    selected;
     gboolean    hidden;

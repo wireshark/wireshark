@@ -37,6 +37,7 @@ set(WIRESHARK_QT_HEADERS
 	color_dialog.h
 	color_utils.h
 	column_preferences_frame.h
+	compiled_filter_output.h
 	decode_as_dialog.h
 	display_filter_combo.h
 	display_filter_edit.h
@@ -117,6 +118,7 @@ set(WIRESHARK_QT_SRC
 	color_utils.cpp
 	capture_preferences_frame.cpp
 	column_preferences_frame.cpp
+	compiled_filter_output.cpp
 	decode_as_dialog.cpp
 	display_filter_combo.cpp
 	display_filter_edit.cpp
@@ -197,6 +199,7 @@ set(WIRESHARK_QT_UI
 	capture_preferences_frame.ui
 	capture_interfaces_dialog.ui
 	column_preferences_frame.ui
+	compiled_filter_output.ui
 	decode_as_dialog.ui
 	export_object_dialog.ui
 	export_pdu_dialog.ui
