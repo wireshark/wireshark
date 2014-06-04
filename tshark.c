@@ -1826,7 +1826,7 @@ main(int argc, char *argv[])
         /* When capturing, we only support writing pcap or pcap-ng format. */
         if (out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAP &&
             out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-          cmdarg_err("Live captures can only be saved in libpcap format.");
+          cmdarg_err("Live captures can only be saved in pcap or pcapng format.");
           return 1;
         }
         if (global_capture_opts.capture_comment &&
