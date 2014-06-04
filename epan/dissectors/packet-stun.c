@@ -31,6 +31,9 @@
  * - RFC 5766, formerly draft-ietf-behave-turn-16
  * - draft-ietf-behave-turn-ipv6-11
  * - RFC 3489, http://www.faqs.org/rfcs/rfc3489.html  (Addition of deprecated attributes for diagnostics purpose)
+ *
+ * From MS (Lync)
+ * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
  */
 
 #include "config.h"
@@ -108,10 +111,15 @@ static int hf_stun_att_reserve_next = -1;
 static int hf_stun_att_reserved = -1;
 static int hf_stun_att_value = -1;
 static int hf_stun_att_transp = -1;
+static int hf_stun_att_magic_cookie = -1;
 static int hf_stun_att_bandwidth = -1;
 static int hf_stun_att_lifetime = -1;
 static int hf_stun_att_channelnum = -1;
-
+static int hf_stun_att_ms_version = -1;
+static int hf_stun_att_ms_connection_id = -1;
+static int hf_stun_att_ms_sequence_number = -1;
+static int hf_stun_att_ms_stream_type = -1;
+static int hf_stun_att_ms_service_quality = -1;
 
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
@@ -159,7 +167,9 @@ typedef struct _stun_conv_info_t {
 #define REFLECTED_FROM          0x000b /* Deprecated */
 #define CHANNEL_NUMBER          0x000c /* draft-ietf-behave-turn-10 */
 #define LIFETIME                0x000d /* draft-ietf-behave-turn-10 */
+#define MAGIC_COOKIE            0x000f /* MS-TURN / turn-08 */
 #define BANDWIDTH               0x0010 /* turn-07 */
+#define DESTINATION_ADDRESS     0x0011 /* MS-TURN / turn-08 */
 #define XOR_PEER_ADDRESS        0x0012 /* draft-ietf-behave-turn-10 */
 #define DATA                    0x0013 /* draft-ietf-behave-turn-10 */
 #define REALM                   0x0014 /* draft-ietf-behave-rfc3489bis-17 */
@@ -178,6 +188,8 @@ typedef struct _stun_conv_info_t {
 #define XOR_REFLECTED_FROM      0x0028 /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define ICMP                    0x0030 /* Moved from TURN to a future I-D */
 /* Comprehension-optional range (0x8000-0xFFFF) */
+#define MS_VERSION              0x8008 /* MS-TURN */
+#define MS_XOR_MAPPED_ADDRESS   0x8020 /* MS-TURN */
 #define SOFTWARE                0x8022 /* draft-ietf-behave-rfc3489bis-17 */
 #define ALTERNATE_SERVER        0x8023 /* draft-ietf-behave-rfc3489bis-17 */
 #define CACHE_TIMEOUT           0x8027 /* draft-ietf-behave-nat-behavior-discovery-03 */
@@ -186,6 +198,9 @@ typedef struct _stun_conv_info_t {
 #define ICE_CONTROLLING         0x802a /* draft-ietf-mmusic-ice-19 */
 #define RESPONSE_ORIGIN         0x802b /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define OTHER_ADDRESS           0x802c /* draft-ietf-behave-nat-behavior-discovery-03 */
+#define MS_SEQUENCE_NUMBER      0x8050 /* MS-TURN */
+#define MS_SERVICE_QUALITY      0x8055 /* MS-TURN */
+#define MS_ALT_MAPPED_ADDRESS   0x8090 /* MS-TURN */
 
 
 /* Initialize the subtree pointers */
@@ -243,7 +258,9 @@ static const value_string attributes[] = {
     {REFLECTED_FROM        , "REFLECTED-FROM"},
     {CHANNEL_NUMBER        , "CHANNEL-NUMBER"},
     {LIFETIME              , "LIFETIME"},
+    {MAGIC_COOKIE          , "MAGIC-COOKIE"},
     {BANDWIDTH             , "BANDWIDTH"},
+    {DESTINATION_ADDRESS   , "DESTINATION-ADDRESS"},
     {XOR_PEER_ADDRESS      , "XOR-PEER-ADDRESS"},
     {DATA                  , "DATA"},
     {REALM                 , "REALM"},
@@ -262,6 +279,8 @@ static const value_string attributes[] = {
     {XOR_REFLECTED_FROM    , "XOR-REFELECTED-FROM"},
     {ICMP                  , "ICMP"},
 
+    {MS_VERSION            , "MS-VERSION"},
+    {MS_XOR_MAPPED_ADDRESS , "XOR-MAPPED-ADDRESS"},
     {SOFTWARE              , "SOFTWARE"},
     {ALTERNATE_SERVER      , "ALTERNATE-SERVER"},
     {CACHE_TIMEOUT         , "CACHE-TIMEOUT"},
@@ -270,6 +289,9 @@ static const value_string attributes[] = {
     {ICE_CONTROLLING       , "ICE-CONTROLLING"},
     {RESPONSE_ORIGIN       , "RESPONSE-ORIGIN"},
     {OTHER_ADDRESS         , "OTHER-ADDRESS"},
+    {MS_SEQUENCE_NUMBER    , "MS-SEQUENCE-NUMBER"},
+    {MS_SERVICE_QUALITY    , "MS-SERVICE-QUALITY"},
+    {MS_ALT_MAPPED_ADDRESS , "MS-ALT-MAPPED-ADDRESS"},
     {0x00                  , NULL}
 };
 static value_string_ext attributes_ext = VALUE_STRING_EXT_INIT(attributes);
@@ -326,6 +348,28 @@ static const value_string error_code[] = {
     {0x00, NULL}
 };
 static value_string_ext error_code_ext = VALUE_STRING_EXT_INIT(error_code);
+
+static const value_string ms_version_vals[] = {
+    {0x00000001, "ICE"},
+    {0x00000002, "MS-ICE2"},
+    {0x00000003, "MS-ICE2 with SHA256"},
+    {0x00000004, "MS-ICE2 with SHA256 and IPv6"},
+    {0x00, NULL}
+};
+
+static const value_string ms_stream_type_vals[] = {
+    {0x0001, "Audio"},
+    {0x0002, "Video"},
+    {0x0003, "Supplemental Video"},
+    {0x0004, "Data"},
+    {0x00, NULL}
+};
+
+static const value_string ms_service_quality_vals[] = {
+    {0x0000, "Best effort delivery"},
+    {0x0001, "Reliable delivery"},
+    {0x00, NULL}
+};
 
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
@@ -676,6 +720,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case SOURCE_ADDRESS:
             case CHANGED_ADDRESS:
             case REFLECTED_FROM:
+            case DESTINATION_ADDRESS:
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
@@ -716,6 +761,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case ALTERNATE_SERVER:
             case RESPONSE_ORIGIN:
             case OTHER_ADDRESS:
+            case MS_ALT_MAPPED_ADDRESS:
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
@@ -849,6 +895,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case XOR_RELAYED_ADDRESS:
             case XOR_RESPONSE_TARGET:
             case XOR_REFLECTED_FROM:
+            case MS_XOR_MAPPED_ADDRESS:
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
@@ -1033,6 +1080,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+2, 2, ENC_NA);
                 break;
 
+            case MAGIC_COOKIE:
+                if (att_length < 4)
+                    break;
+                proto_tree_add_item(att_tree, hf_stun_att_magic_cookie, tvb, offset, 4, ENC_BIG_ENDIAN);
+                break;
+
             case BANDWIDTH:
                 if (att_length < 4)
                     break;
@@ -1056,6 +1109,18 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     );
                 break;
 
+            case MS_VERSION:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_item_append_text(att_tree, ": %s", val_to_str(tvb_get_ntohl(tvb, offset), ms_version_vals, "Unknown (0x%u)"));
+                break;
+            case MS_SEQUENCE_NUMBER:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_connection_id, tvb, offset, 20, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_ms_sequence_number, tvb, offset+20, 4, ENC_BIG_ENDIAN);
+                break;
+            case MS_SERVICE_QUALITY:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_stream_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_ms_service_quality, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                break;
             default:
                 if (att_length > 0)
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
@@ -1310,10 +1375,35 @@ proto_register_stun(void)
           { "Channel-Number", "stun.att.channelnum", FT_UINT16,
             BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
+        { &hf_stun_att_magic_cookie,
+          { "Magic Cookie", "stun.att.magic_cookie", FT_UINT32,
+            BASE_HEX, NULL, 0x0, NULL, HFILL }
+        },
         { &hf_stun_att_bandwidth,
           { "Bandwidth", "stun.port.bandwidth", FT_UINT32,
             BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
+
+        { &hf_stun_att_ms_version,
+          { "MS Version", "stun.att.ms.version", FT_UINT32,
+            BASE_DEC, VALS(ms_version_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_ms_connection_id,
+          { "Connection ID", "stun.att.ms.connection_id", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_ms_sequence_number,
+          { "Sequence Number", "stun.att.ms.sequence_number", FT_UINT32,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_ms_stream_type,
+          { "Stream Type", "stun.att.ms.stream_type", FT_UINT16,
+            BASE_DEC, VALS(ms_stream_type_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_ms_service_quality,
+          { "Service Quality", "stun.att.ms.service_quality", FT_UINT16,
+            BASE_DEC, VALS(ms_service_quality_vals), 0x0, NULL, HFILL}
+         },
     };
 
     /* Setup protocol subtree array */
