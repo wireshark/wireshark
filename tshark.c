@@ -1727,6 +1727,7 @@ main(int argc, char *argv[])
           cmdarg_err("Display filters aren't supported when capturing and saving the captured packets.");
           return 1;
         }
+        global_capture_opts.use_pcapng = (out_file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) ? TRUE : FALSE;
       } else {
         /* They didn't specify a "-w" flag, so we won't be saving to a
            capture file.  Check for options that only make sense if
