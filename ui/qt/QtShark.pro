@@ -448,8 +448,11 @@ win32 {
         $${GLIB_DIR}/bin/libglib-2.0-0.dll $${GLIB_DIR}/bin/libgmodule-2.0-0.dll \
         $${GLIB_DIR}/bin/libgthread-2.0-0.dll $${GLIB_DIR}/bin/$${INTL_DLL} \
         $${C_ARES_DIR}/bin/libcares-2.dll $${ZLIB_DIR}/zlib1.dll \
-        $${GNUTLS_DIR}/bin/libgcrypt-11.dll $${GNUTLS_DIR}/bin/libgnutls-26.dll \
-        $${GNUTLS_DIR}/bin/libgpg-error-0.dll $${GNUTLS_DIR}/bin/libtasn1-3.dll \
+        $${GNUTLS_DIR}/bin/libffi-6.dll $${GNUTLS_DIR}/bin/$$(GCC_DLL) \
+        $${GNUTLS_DIR}/bin/libgcrypt-20.dll $${GNUTLS_DIR}/bin/libgmp-10.dll \
+        $${GNUTLS_DIR}/bin/libgnutls-28.dll $${GNUTLS_DIR}/bin/$$(GPGERROR_DLL) \
+        $${GNUTLS_DIR}/bin/libhogweed-2-4.dll $${GNUTLS_DIR}/bin/libnettle-4-6.dll \
+        $${GNUTLS_DIR}/bin/libp11-kit-0.dll $${GNUTLS_DIR}/bin/libtasn1-6.dll \
         $${GNUTLS_DIR}/bin/libintl-8.dll $${SMI_DIR}/bin/libsmi-2.dll \
         $${LUA_DIR}/lua52.dll \
         $${GEOIP_DIR}/bin/libGeoIP-1.dll \

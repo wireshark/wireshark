@@ -1071,6 +1071,7 @@ clean_setup:
 	rm -r -f gnutls-2.8.5-*-win??ws
 	rm -r -f gnutls-2.10.3-*-win??ws
 	rm -r -f gnutls-2.12.18-*-win??ws
+	rm -r -f gnutls-3.1.22-*-win??ws
 !IF "$(GTK_NAME)" == "gtk2"
 	rm -r -f gtk2
 !ELSE
@@ -1356,10 +1357,16 @@ install-all: install-generated-files
 	xcopy $(KFW_PATH)\k5sprt32.dll $(INSTALL_DIR) /d
 !ENDIF
 !IFDEF GNUTLS_DIR
-	xcopy $(GNUTLS_DIR)\bin\libgcrypt-11.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgnutls-26.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libgpg-error-0.dll $(INSTALL_DIR) /d
-	xcopy $(GNUTLS_DIR)\bin\libtasn1-3.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libffi-6.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\$(GCC_DLL) $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgcrypt-20.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgmp-10.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libgnutls-28.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\$(GPGERROR_DLL) $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libhogweed-2-4.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libnettle-4-6.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libp11-kit-0.dll $(INSTALL_DIR) /d
+	xcopy $(GNUTLS_DIR)\bin\libtasn1-6.dll $(INSTALL_DIR) /d
 ! IF "$(INTL_DLL)" != "libintl-8.dll"
 # The gtk+ bundle doesn't provide libintl-8.dll (which is the case
 # with the 32-bit package); use the GNUTLS version.
