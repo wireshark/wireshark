@@ -895,7 +895,7 @@ static conversation_t
 *get_mausb_conversation(packet_info *pinfo, guint16 handle,
                         gboolean is_data, gboolean req)
 {
-    conversation_t *conversation;
+    conversation_t *conversation = NULL;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     guint16 device_address;
     int endpoint;
