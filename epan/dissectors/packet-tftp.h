@@ -1,6 +1,4 @@
-/* export_object.h
- * Common routines for tracking & saving objects found in streams of data
- * Copyright 2007, Stephen Fisher (see AUTHORS file)
+/* packet-tftp.h
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -18,17 +16,27 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301,
- * USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-#ifndef __EXPORT_OBJECT_DLG_H__
-#define __EXPORT_OBJECT_DLG_H__
+#ifndef __PACKET_TFTP_H__
+#define __PACKET_TFTP_H__
 
-/* Protocol specific */
-void eo_dicom_cb(GtkWidget *widget _U_, gpointer data _U_);
-void eo_http_cb(GtkWidget *widget _U_, gpointer data _U_);
-void eo_smb_cb(GtkWidget *widget _U_, gpointer data _U_);
-void eo_tftp_cb(GtkWidget *widget _U_, gpointer data _U_);
+#include <epan/packet.h>
 
-#endif /* __EXPORT_OBJECT_DLG_H__ */
+/* When export file data, store list of separate blocks */
+typedef struct file_block_t {
+  void *data;
+  guint length;
+} file_block_t;
+
+/* Used for TFTP Export Object feature */
+typedef struct _tftp_eo_t {
+	guint32  pkt_num;
+	gchar    *filename;
+	guint32  payload_len;
+	GSList   *block_list;
+} tftp_eo_t;
+
+
+#endif /* __PACKET_TFTP_H__ */

@@ -994,6 +994,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='HTTP' action='/File/ExportObjects/HTTP'/>\n"
 "        <menuitem name='DICOM' action='/File/ExportObjects/DICOM'/>\n"
 "        <menuitem name='SMB' action='/File/ExportObjects/SMB'/>\n"
+"        <menuitem name='TFTP' action='/File/ExportObjects/TFTP'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='Print' action='/File/Print'/>\n"
@@ -1468,7 +1469,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/ExportObjects/HTTP",           NULL,       "_HTTP",                           NULL,                   NULL,           G_CALLBACK(eo_http_cb) },
   { "/File/ExportObjects/DICOM",          NULL,       "_DICOM",                          NULL,                   NULL,           G_CALLBACK(eo_dicom_cb) },
   { "/File/ExportObjects/SMB",            NULL,       "_SMB/SMB2",                            NULL,                   NULL,           G_CALLBACK(eo_smb_cb) },
-
+  { "/File/ExportObjects/TFTP",            NULL,       "_TFTP",                          NULL,                   NULL,           G_CALLBACK(eo_tftp_cb) },
 
   { "/Edit/Copy",                         NULL,       "Copy",                            NULL,                   NULL,           NULL },
 

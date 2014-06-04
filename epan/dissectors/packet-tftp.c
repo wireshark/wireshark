@@ -48,6 +48,9 @@
 #include <epan/expert.h>
 #include <epan/range.h>
 #include <epan/prefs.h>
+#include <epan/tap.h>
+
+#include "packet-tftp.h"
 
 void proto_register_tftp(void);
 
@@ -55,6 +58,15 @@ void proto_register_tftp(void);
 typedef struct _tftp_conv_info_t {
   guint16  blocksize;
   gchar   *source_file, *destination_file;
+
+  /* Sequence analysis */
+  guint    next_block_num;
+  gboolean blocks_missing;
+
+  /* When exporting file object, build up list of data blocks here */
+  guint    next_tap_block_num;
+  GSList   *block_list;
+  guint    file_length;
 } tftp_conv_info_t;
 
 
@@ -116,6 +128,8 @@ static const value_string tftp_error_code_vals[] = {
   { 0, NULL }
 };
 
+static int tftp_eo_tap = -1;
+
 static void
 tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
                      proto_tree *tree, guint16 opcode, tftp_conv_info_t *tftp_info)
@@ -160,6 +174,24 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
   }
 }
 
+static void cleanup_tftp_blocks(tftp_conv_info_t *conv)
+{
+    GSList *block_iterator;
+
+    /* Walk list of block items */
+    for (block_iterator = conv->block_list; block_iterator; block_iterator = block_iterator->next) {
+        file_block_t *block = (file_block_t*)block_iterator->data;
+        /* Free block data */
+        wmem_free(NULL, block->data);
+
+        /* Free block itself */
+        g_free(block);
+    }
+    conv->block_list = NULL;
+    conv->file_length = 0;
+}
+
+
 static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                                  tvbuff_t *tvb, packet_info *pinfo,
                                  proto_tree *tree)
@@ -172,6 +204,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
   guint16     blocknum;
   guint       i1;
   guint16     error;
+  tvbuff_t    *data_tvb;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "TFTP");
 
@@ -264,17 +297,98 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     proto_tree_add_uint(tftp_tree, hf_tftp_blocknum, tvb, offset, 2,
                         blocknum);
 
+    /* Sequence analysis on blocknums (first pass only) */
+    if (!pinfo->fd->flags.visited) {
+      if (blocknum > tftp_info->next_block_num) {
+        /* There is a gap.  Don't try to recover from this. */
+        tftp_info->next_block_num = blocknum + 1;
+        tftp_info->blocks_missing = TRUE;
+        /* TODO: add info to a result table for showing expert info in later passes */
+      }
+      else if (blocknum == tftp_info->next_block_num) {
+        /* OK, inc what we expect next */
+        tftp_info->next_block_num++;
+      }
+    }
     offset += 2;
 
+    /* Show number of bytes in this block, and whether it is the end of the file */
     bytes = tvb_reported_length_remaining(tvb, offset);
-
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %i%s",
                     blocknum,
                     (bytes < tftp_info->blocksize)?" (last)":"" );
 
-    if (bytes != 0) {
-      tvbuff_t *data_tvb = tvb_new_subset(tvb, offset, -1, bytes);
+    /* Show data in tree */
+    if (bytes > 0) {
+      data_tvb = tvb_new_subset(tvb, offset, -1, bytes);
       call_dissector(data_handle, data_tvb, pinfo, tree);
+    }
+
+    /* If Export Object tap is listening, need to accumulate blocks info list
+       to send to tap. But if already know there are blocks missing, there is no
+       point in trying. */
+    if (have_tap_listener(tftp_eo_tap) && !tftp_info->blocks_missing) {
+      file_block_t *block;
+
+      if (blocknum == 1) {
+        /* Reset data for this conversation, freeing any accumulated blocks! */
+        cleanup_tftp_blocks(tftp_info);
+        tftp_info->next_tap_block_num = 1;
+      }
+
+      if (blocknum != tftp_info->next_tap_block_num) {
+        /* Ignore.  Could be missing frames, or just clicking previous frame */
+        return;
+      }
+
+      if (bytes > 0) {
+        /* Create a block for this block */
+        block = (file_block_t*)g_malloc(sizeof(file_block_t));
+        block->length = bytes;
+        block->data = tvb_memdup(NULL, data_tvb, 0, bytes);
+
+        /* Add to the end of the list (does involve traversing whole list..) */
+        tftp_info->block_list = g_slist_append(tftp_info->block_list, block);
+        tftp_info->file_length += bytes;
+
+        /* Look for next blocknum next time */
+        tftp_info->next_tap_block_num++;
+      }
+
+      /* Tap export object only when reach end of file */
+      if (bytes < tftp_info->blocksize) {
+        tftp_eo_t        *eo_info;
+
+        /* If don't have a filename, won't tap file info */
+        if ((tftp_info->source_file == NULL) && (tftp_info->destination_file == NULL)) {
+            cleanup_tftp_blocks(tftp_info);
+            return;
+        }
+
+        /* Create the eo_info to pass to the listener */
+        eo_info = wmem_new(wmem_packet_scope(), tftp_eo_t);
+
+        /* Set filename */
+        if (tftp_info->source_file) {
+          eo_info->filename = g_strdup(tftp_info->source_file);
+        }
+        else if (tftp_info->destination_file) {
+          eo_info->filename = g_strdup(tftp_info->destination_file);
+        }
+
+        /* Send block list, which will be combined and freed at tap. */
+        eo_info->payload_len = tftp_info->file_length;
+        eo_info->pkt_num = blocknum;
+        eo_info->block_list = tftp_info->block_list;
+
+        /* Send to tap */
+        tap_queue_packet(tftp_eo_tap, pinfo, eo_info);
+
+        /* Have sent, so forget list of blocks, and only pay attention if we
+           get back to the first block again. */
+        tftp_info->block_list = NULL;
+        tftp_info->next_tap_block_num = 1;
+      }
     }
     break;
 
@@ -340,6 +454,12 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     tftp_info->blocksize = 512; /* TFTP default block size */
     tftp_info->source_file = NULL;
     tftp_info->destination_file = NULL;
+    tftp_info->next_block_num = 1;
+    tftp_info->blocks_missing = FALSE;
+    tftp_info->next_tap_block_num = 1;
+    tftp_info->block_list = NULL;
+    tftp_info->file_length = 0;
+
     conversation_add_proto_data(conversation, proto_tftp, tftp_info);
   }
 
@@ -412,6 +532,11 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tftp_info->blocksize = 512; /* TFTP default block size */
     tftp_info->source_file = NULL;
     tftp_info->destination_file = NULL;
+    tftp_info->next_block_num = 1;
+    tftp_info->blocks_missing = FALSE;
+    tftp_info->next_tap_block_num = 1;
+    tftp_info->block_list = NULL;
+    tftp_info->file_length = 0;
     conversation_add_proto_data(conversation, proto_tftp, tftp_info);
   }
 
@@ -501,6 +626,9 @@ proto_register_tftp(void)
                                   "Port numbers used for TFTP traffic "
                                   "(default " UDP_PORT_TFTP_RANGE ")",
                                   &global_tftp_port_range, MAX_UDP_PORT);
+
+  /* Register the tap for the "Export Object" function */
+  tftp_eo_tap = register_tap("tftp_eo"); /* TFTP Export Object tap */
 }
 
 void

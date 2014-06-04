@@ -60,8 +60,11 @@ gboolean eo_http_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
 	const void *data);
 gboolean eo_smb_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
 	const void *data);
+gboolean eo_tftp_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_,
+	const void *data);
 
 void eo_smb_cleanup(void);
+void eo_tftp_cleanup(void);
 
 
 #ifdef __cplusplus
