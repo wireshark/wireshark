@@ -2494,9 +2494,8 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Q.931");
 
 	prot_discr = tvb_get_guint8(tvb, offset);
+	ti = proto_tree_add_item(tree, proto_q931, tvb, offset, -1, ENC_NA);
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_q931, tvb, offset, -1,
-		    ENC_NA);
 		q931_tree = proto_item_add_subtree(ti, ett_q931);
 
 		dissect_q931_protocol_discriminator(tvb, offset, q931_tree);
