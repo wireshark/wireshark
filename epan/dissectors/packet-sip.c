@@ -1207,6 +1207,13 @@ uri_host_end_found:
     return uri_offsets->name_addr_end;
 }
 
+static void
+sip_proto_set_format_text(const proto_tree *tree, proto_item *item, tvbuff_t *tvb, int offset, int length)
+{
+    if (tree != item && item && PTREE_DATA(item)->visible)
+        proto_item_set_text(item, "%s", tvb_format_text(tvb, offset, length));
+}
+
 /*
  *           History-Info = "History-Info" HCOLON
  *                            hi-entry *(COMMA hi-entry)
@@ -1796,8 +1803,10 @@ dissect_sip_reason_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gi
         return;
 
     length = semi_colon_offset - current_offset;
-    proto_tree_add_text(tree, tvb, start_offset, length,
-        "Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
+    if (tree) {
+        proto_tree_add_text(tree, tvb, start_offset, length,
+            "Reason Protocols: %s", tvb_format_text(tvb, start_offset, length));
+    }
 
     param_name = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, length, ENC_UTF_8|ENC_NA);
     if (g_ascii_strcasecmp(param_name, "Q.850") == 0){
@@ -2372,9 +2381,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     const char *descr;
     guint token_1_len = 0;
     guint current_method_idx = SIP_METHOD_INVALID;
-    proto_item *ts = NULL, *ti_a = NULL, *th = NULL, *sip_element_item = NULL;
+    proto_item *ts = NULL, *ti_a = NULL, *th = NULL;
     proto_tree *sip_tree  = NULL, *reqresp_tree      = NULL, *hdr_tree  = NULL,
-        *sip_element_tree = NULL, *message_body_tree = NULL, *cseq_tree = NULL,
+        *message_body_tree = NULL, *cseq_tree = NULL,
         *via_tree         = NULL, *reason_tree       = NULL, *rack_tree = NULL,
         *route_tree       = NULL, *security_client_tree = NULL;
     guchar contacts = 0, contact_is_star = 0, expires_is_0 = 0, contacts_expires_0 = 0, contacts_expires_unknown = 0;
@@ -2634,6 +2643,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 proto_item *ti_c = proto_tree_add_text(hdr_tree, tvb,
                                                      offset, next_offset - offset, "%s",
                                                      tvb_format_text(tvb, offset, linelen));
+
                 ext_hdr_handle = dissector_get_string_handle(ext_hdr_subdissector_table, header_name);
                 if (ext_hdr_handle != NULL) {
                     tvbuff_t *next_tvb2;
@@ -2642,9 +2652,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                 } else {
                     expert_add_info_format(pinfo, ti_c, &ei_sip_unrecognized_header,
                                            "Unrecognised SIP header (%s)",
-                                           tvb_format_text(tvb, offset, header_len));
+                                           header_name);
                 }
             } else {
+                proto_item *sip_element_item;
+                proto_tree *sip_element_tree;
+
                 /*
                  * Add it to the protocol tree,
                  * but display the line as is.
@@ -2656,11 +2669,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         if(hdr_tree) {
                             proto_item *item;
 
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_element);
                             /* To        =  ( "To" / "t" ) HCOLON ( name-addr
@@ -2716,11 +2730,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         if(hdr_tree) {
                             proto_item *item;
 
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
                             /*
                              * From        =  ( "From" / "f" ) HCOLON from-spec
@@ -2766,11 +2781,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_P_ASSERTED_IDENTITY :
                         if(hdr_tree)
                         {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_element);
 
@@ -2789,11 +2805,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_HISTORY_INFO:
                         if(hdr_tree)
                         {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_hist);
                             dissect_sip_history_info(tvb, sip_element_tree, pinfo, value_offset, line_end_offset);
@@ -2803,11 +2820,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_P_CHARGING_FUNC_ADDRESSES:
                         if(hdr_tree)
                         {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_element);
                             dissect_sip_p_charging_func_addresses(tvb, sip_element_tree, pinfo, value_offset, line_end_offset);
@@ -2817,11 +2835,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_P_PREFERRED_IDENTITY :
                         if(hdr_tree)
                         {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_element);
                             /*
@@ -2840,11 +2859,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_PERMISSION_MISSING :
                         if(hdr_tree)
                         {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
 
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                                    ett_sip_element);
@@ -2865,11 +2884,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_TRIGGER_CONSENT :
                         if(hdr_tree)
                         {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
 
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                                         ett_sip_element);
@@ -2918,11 +2937,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                         /* Add CSeq  tree */
                         if (hdr_tree) {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             cseq_tree = proto_item_add_subtree(sip_element_item, ett_sip_cseq);
                         }
 
@@ -2989,11 +3009,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                         /* Add RAck  tree */
                         if (hdr_tree) {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             rack_tree = proto_item_add_subtree(sip_element_item, ett_sip_rack);
                         }
 
@@ -3068,13 +3089,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         stat_info->tap_call_id = wmem_strdup(wmem_packet_scope(), call_id);
 
                         /* Add 'Call-id' string item to tree */
-                        if(hdr_tree) {
-                            proto_tree_add_string_format(hdr_tree,
-                                                         hf_header_array[hf_index], tvb,
-                                                         offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
-                        }
+                        sip_element_item = proto_tree_add_string(hdr_tree,
+                                                    hf_header_array[hf_index], tvb,
+                                                    offset, next_offset - offset,
+                                                    value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                     break;
 
                     case POS_EXPIRES :
@@ -3098,11 +3117,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                      * lookup in "media_type" dissector table.
                      */
                     case POS_CONTENT_TYPE :
-                        proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                         content_type_len = value_len;
                         semi_colon_offset = tvb_find_guint8(tvb, value_offset, value_len, ';');
                         /* Content-Type     =  ( "Content-Type" / "c" ) HCOLON media-type
@@ -3134,13 +3154,13 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                     case POS_CONTENT_LENGTH :
                         content_length = atoi(value);
-                        if(hdr_tree) {
-                            proto_tree_add_uint_format(hdr_tree,
+
+                        sip_element_item = proto_tree_add_uint(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               content_length, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
-                        }
+                                               content_length);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                         break;
 
                     case POS_MAX_BREADTH :
@@ -3160,11 +3180,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                          *                   ( STAR / (contact-param *(COMMA contact-param)))
                          * contact-param  =  (name-addr / addr-spec) *(SEMI contact-params)
                          */
-                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                         sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_element);
 
@@ -3230,11 +3251,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         if (hdr_tree) {
                             proto_item *ti_c;
                             /* Add whole line as header tree */
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                hf_header_array[hf_index], tvb,
                                                offset, next_offset - offset,
-                                               value, "%s",
-                                               tvb_format_text(tvb, offset, linelen));
+                                               value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             sip_element_tree = proto_item_add_subtree( sip_element_item,
                                                ett_sip_element);
 
@@ -3279,11 +3301,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_ROUTE:
                         /* Add Route subtree */
                         if (hdr_tree) {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             route_tree = proto_item_add_subtree(sip_element_item, ett_sip_route);
                             dissect_sip_route_header(tvb, route_tree, pinfo, &sip_route_uri, value_offset, line_end_offset);
                         }
@@ -3291,11 +3314,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_RECORD_ROUTE:
                         /* Add Record-Route subtree */
                         if (hdr_tree) {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             route_tree = proto_item_add_subtree(sip_element_item, ett_sip_route);
                             dissect_sip_route_header(tvb, route_tree, pinfo, &sip_record_route_uri, value_offset, line_end_offset);
                         }
@@ -3303,22 +3327,24 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                     case POS_VIA:
                         /* Add Via subtree */
                         if (hdr_tree) {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             via_tree = proto_item_add_subtree(sip_element_item, ett_sip_via);
                             dissect_sip_via_header(tvb, via_tree, value_offset, line_end_offset);
                         }
                         break;
                     case POS_REASON:
                         if(hdr_tree) {
-                            sip_element_item = proto_tree_add_string_format(hdr_tree,
+                            sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                            sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                             reason_tree = proto_item_add_subtree(sip_element_item, ett_sip_reason);
                             dissect_sip_reason_header(tvb, reason_tree, value_offset, line_end_offset);
                         }
@@ -3327,11 +3353,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* Content-Encoding  =  ( "Content-Encoding" / "e" ) HCOLON
                          * content-coding *(COMMA content-coding)
                          */
-                        proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
 
                         content_encoding_parameter_str = ascii_strdown_inplace(tvb_get_string_enc(wmem_packet_scope(), tvb, value_offset,
                                                          (line_end_offset-value_offset), ENC_UTF_8|ENC_NA));
@@ -3340,11 +3366,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* security-client  = "Security-Client" HCOLON
                          *                     sec-mechanism *(COMMA sec-mechanism)
                          */
-                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                         comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
                         while(comma_offset<line_end_offset){
                             comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
@@ -3361,11 +3388,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* security-server  = "Security-Server" HCOLON
                          *                     sec-mechanism *(COMMA sec-mechanism)
                          */
-                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                         comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
                         while(comma_offset<line_end_offset){
                             comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
@@ -3382,11 +3410,12 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         /* security-verify  = "Security-Verify" HCOLON
                          *                     sec-mechanism *(COMMA sec-mechanism)
                          */
-                        sip_element_item = proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
+
                         comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
                         while(comma_offset<line_end_offset){
                             comma_offset = tvb_find_guint8(tvb, value_offset, line_end_offset - value_offset, ',');
@@ -3401,11 +3430,11 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         break;
                     default :
                         /* Default case is to assume it's an FT_STRING field */
-                        proto_tree_add_string_format(hdr_tree,
+                        sip_element_item = proto_tree_add_string(hdr_tree,
                                                          hf_header_array[hf_index], tvb,
                                                          offset, next_offset - offset,
-                                                         value, "%s",
-                                                         tvb_format_text(tvb, offset, linelen));
+                                                         value);
+                        sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                         break;
                 }/* end switch */
             }/*if HF_index */
