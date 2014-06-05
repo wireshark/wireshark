@@ -35,6 +35,7 @@
  * From MS (Lync)
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
  * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595756.aspx
+ * MS-TURNBWM:  Traversal using Relay NAT (TURN) Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595670.aspx
  */
 
 #include "config.h"
@@ -121,7 +122,23 @@ static int hf_stun_att_ms_connection_id = -1;
 static int hf_stun_att_ms_sequence_number = -1;
 static int hf_stun_att_ms_stream_type = -1;
 static int hf_stun_att_ms_service_quality = -1;
-
+static int hf_stun_att_bandwidth_acm_type = -1;
+static int hf_stun_att_bandwidth_rsv_id = -1;
+static int hf_stun_att_bandwidth_rsv_amount_misb = -1;
+static int hf_stun_att_bandwidth_rsv_amount_masb = -1;
+static int hf_stun_att_bandwidth_rsv_amount_mirb = -1;
+static int hf_stun_att_bandwidth_rsv_amount_marb = -1;
+static int hf_stun_att_address_rp_a = -1;
+static int hf_stun_att_address_rp_b = -1;
+static int hf_stun_att_address_rp_rsv1 = -1;
+static int hf_stun_att_address_rp_rsv2 = -1;
+static int hf_stun_att_address_rp_masb = -1;
+static int hf_stun_att_address_rp_marb = -1;
+static int hf_stun_att_sip_dialog_id = -1;
+static int hf_stun_att_sip_call_id = -1;
+static int hf_stun_att_lp_peer_location = -1;
+static int hf_stun_att_lp_self_location = -1;
+static int hf_stun_att_lp_federation = -1;
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
     guint32 req_frame;
@@ -201,6 +218,20 @@ typedef struct _stun_conv_info_t {
 #define OTHER_ADDRESS           0x802c /* draft-ietf-behave-nat-behavior-discovery-03 */
 #define MS_SEQUENCE_NUMBER      0x8050 /* MS-TURN */
 #define MS_SERVICE_QUALITY      0x8055 /* MS-TURN */
+#define BANDWIDTH_ACM           0x8056 /* MS-TURNBWM */
+#define BANDWIDTH_RSV_ID        0x8057 /* MS-TURNBWM */
+#define BANDWIDTH_RSV_AMOUNT    0x8058 /* MS-TURNBWM */
+#define REMOTE_SITE_ADDR        0x8059 /* MS-TURNBWM */
+#define REMOTE_RELAY_SITE       0x805A /* MS-TURNBWM */
+#define LOCAL_SITE_ADDR         0x805B /* MS-TURNBWM */
+#define LOCAL_RELAY_SITE        0x805C /* MS-TURNBWM */
+#define REMOTE_SITE_ADDR_RP     0x805D /* MS-TURNBWM */
+#define REMOTE_RELAY_SITE_RP    0x805E /* MS-TURNBWM */
+#define LOCAL_SITE_ADDR_RP      0x805F /* MS-TURNBWM */
+#define LOCAL_RELAY_SITE_RP     0x8060 /* MS-TURNBWM */
+#define SIP_DIALOG_ID           0x8061 /* MS-TURNBWM */
+#define SIP_CALL_ID             0x8062 /* MS-TURNBWM */
+#define LOCATION_PROFILE        0x8068 /* MS-TURNBWM */
 #define MS_ALT_MAPPED_ADDRESS   0x8090 /* MS-TURN */
 
 
@@ -292,6 +323,20 @@ static const value_string attributes[] = {
     {OTHER_ADDRESS         , "OTHER-ADDRESS"},
     {MS_SEQUENCE_NUMBER    , "MS-SEQUENCE-NUMBER"},
     {MS_SERVICE_QUALITY    , "MS-SERVICE-QUALITY"},
+    {BANDWIDTH_ACM         , "Bandwidth Admission Control Message"},
+    {BANDWIDTH_RSV_ID      , "Bandwidth Reservation Identifier"},
+    {BANDWIDTH_RSV_AMOUNT  , "Bandwidth Reservation Amount"},
+    {REMOTE_SITE_ADDR      , "Remote Site Address"},
+    {REMOTE_RELAY_SITE     , "Remote Relay Site Address"},
+    {LOCAL_SITE_ADDR       , "Local Site Address"},
+    {LOCAL_RELAY_SITE      , "Local Relay Site Address"},
+    {REMOTE_SITE_ADDR_RP   , "Remote Site Address Response"},
+    {REMOTE_RELAY_SITE     , "Remote Relay Site Address Response"},
+    {LOCAL_SITE_ADDR       , "Local Site Address Response"},
+    {LOCAL_RELAY_SITE      , "Local Relay Site Address Response"},
+    {SIP_DIALOG_ID         , "SIP Dialog Identifier"},
+    {SIP_CALL_ID           , "SIP Call Identifier"},
+    {LOCATION_PROFILE      , "Location Profile"},
     {MS_ALT_MAPPED_ADDRESS , "MS-ALT-MAPPED-ADDRESS"},
     {0x00                  , NULL}
 };
@@ -371,6 +416,27 @@ static const value_string ms_stream_type_vals[] = {
 static const value_string ms_service_quality_vals[] = {
     {0x0000, "Best effort delivery"},
     {0x0001, "Reliable delivery"},
+    {0x00, NULL}
+};
+
+static const value_string bandwidth_acm_type_vals[] = {
+    {0x0000, "Reservation Check"},
+    {0x0001, "Reservation Commit"},
+    {0x0002, "Reservation Update"},
+    {0x00, NULL}
+};
+
+static const value_string location_vals[] = {
+    {0x00, "Unknown"},
+    {0x01, "Internet"},
+    {0x02, "Intranet"},
+    {0x00, NULL}
+};
+
+static const value_string federation_vals[] = {
+    {0x00, "No Federation"},
+    {0x01, "Enterprise Federation"},
+    {0x02, "Public Cloud Federation"},
     {0x00, NULL}
 };
 
@@ -899,6 +965,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case XOR_RESPONSE_TARGET:
             case XOR_REFLECTED_FROM:
             case MS_XOR_MAPPED_ADDRESS:
+            case REMOTE_SITE_ADDR:
+            case REMOTE_RELAY_SITE:
+            case LOCAL_SITE_ADDR:
+            case LOCAL_RELAY_SITE:
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 1, ENC_NA);
@@ -1123,6 +1193,46 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case MS_SERVICE_QUALITY:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_stream_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(att_tree, hf_stun_att_ms_service_quality, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                break;
+            case BANDWIDTH_ACM:
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset, 2, ENC_NA);
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth_acm_type, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                break;
+            case BANDWIDTH_RSV_ID:
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth_rsv_id, tvb, offset, 16, ENC_NA);
+                break;
+            case BANDWIDTH_RSV_AMOUNT:
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth_rsv_amount_masb, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth_rsv_amount_misb, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth_rsv_amount_marb, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_bandwidth_rsv_amount_mirb, tvb, offset+12, 4, ENC_BIG_ENDIAN);
+                break;
+            case REMOTE_SITE_ADDR_RP:
+            case LOCAL_SITE_ADDR_RP:
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_a, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_b, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_rsv1, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_masb, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_marb, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+                break;
+            case REMOTE_RELAY_SITE_RP:
+            case LOCAL_RELAY_SITE_RP:
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_a, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_rsv2, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_masb, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_address_rp_marb, tvb, offset+8, 4, ENC_BIG_ENDIAN);
+                break;
+            case SIP_DIALOG_ID:
+                proto_tree_add_item(att_tree, hf_stun_att_sip_dialog_id, tvb, offset, att_length, ENC_NA);
+                break;
+            case SIP_CALL_ID:
+                proto_tree_add_item(att_tree, hf_stun_att_sip_call_id, tvb, offset, att_length, ENC_NA);
+                break;
+            case LOCATION_PROFILE:
+                proto_tree_add_item(att_tree, hf_stun_att_lp_peer_location, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_lp_self_location, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_lp_federation, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+3, 1, ENC_NA);
                 break;
             default:
                 if (att_length > 0)
@@ -1406,6 +1516,74 @@ proto_register_stun(void)
         { &hf_stun_att_ms_service_quality,
           { "Service Quality", "stun.att.ms.service_quality", FT_UINT16,
             BASE_DEC, VALS(ms_service_quality_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_bandwidth_acm_type,
+          { "Message Type", "stun.att.bandwidth_acm.type", FT_UINT16,
+            BASE_DEC, VALS(bandwidth_acm_type_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_bandwidth_rsv_id,
+          { "Reservation ID", "stun.att.bandwidth_rsv_id", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_bandwidth_rsv_amount_misb,
+          { "Minimum Send Bandwidth", "stun.att.bandwidth_rsv_amount.misb", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
+         },
+        { &hf_stun_att_bandwidth_rsv_amount_masb,
+          { "Maximum Send Bandwidth", "stun.att.bandwidth_rsv_amount.masb", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
+         },
+        { &hf_stun_att_bandwidth_rsv_amount_mirb,
+          { "Minimum Receive Bandwidth", "stun.att.bandwidth_rsv_amount.mirb", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
+         },
+        { &hf_stun_att_bandwidth_rsv_amount_marb,
+          { "Maximum Receive Bandwidth", "stun.att.bandwidth_rsv_amount.marb", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
+         },
+        { &hf_stun_att_address_rp_a,
+          { "Valid", "stun.att.address_rp.valid", FT_BOOLEAN,
+            32, TFS(&tfs_yes_no), 0x80000000, NULL, HFILL}
+         },
+        { &hf_stun_att_address_rp_b,
+          { "PSTN", "stun.att.address_rp.valid", FT_BOOLEAN,
+            32, TFS(&tfs_yes_no), 0x40000000, NULL, HFILL}
+         },
+        { &hf_stun_att_address_rp_rsv1,
+          { "Reserved", "stun.att.address_rp.reserved", FT_UINT32,
+            BASE_HEX, NULL, 0x3FFFFFFF, NULL, HFILL}
+         },
+        { &hf_stun_att_address_rp_rsv2,
+          { "Reserved", "stun.att.address_rp.reserved", FT_UINT32,
+            BASE_HEX, NULL, 0x7FFFFFFF, NULL, HFILL}
+         },
+        { &hf_stun_att_address_rp_masb,
+          { "Maximum Send Bandwidth", "stun.att.adress_rp.masb", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
+         },
+        { &hf_stun_att_address_rp_marb,
+          { "Maximum Receive Bandwidth", "stun.att.adress_rp.marb", FT_UINT32,
+            BASE_DEC, NULL, 0x0, "In kilobits per second", HFILL}
+         },
+        { &hf_stun_att_sip_dialog_id,
+          { "SIP Dialog ID", "stun.att.sip_dialog_id", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_sip_call_id,
+          { "SIP Call ID", "stun.att.sip_call_id", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_lp_peer_location,
+          { "Peer Location", "stun.att.lp.peer_location", FT_UINT8,
+            BASE_DEC, VALS(location_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_lp_self_location,
+          { "Self Location", "stun.att.lp.seft_location", FT_UINT8,
+            BASE_DEC, VALS(location_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_lp_federation,
+          { "Federation", "stun.att.lp.federation", FT_UINT8,
+            BASE_DEC, VALS(federation_vals), 0x0, NULL, HFILL}
          },
     };
 
