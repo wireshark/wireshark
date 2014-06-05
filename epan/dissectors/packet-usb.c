@@ -2900,7 +2900,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
             wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
         }
-        usb_conv_info->usb_trans_info = usb_trans_info;
 
         if (usb_trans_info->response_in) {
             proto_item *ti;
@@ -2919,7 +2918,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
             }
         }
-        usb_conv_info->usb_trans_info = usb_trans_info;
 
         if (usb_trans_info && usb_trans_info->request_in) {
             proto_item *ti;
@@ -2934,6 +2932,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             PROTO_ITEM_SET_GENERATED(ti);
         }
     }
+    usb_conv_info->usb_trans_info = usb_trans_info;
 
     tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
     tap_data->urb_type      = urb_type;
