@@ -90,11 +90,20 @@ since version 1.10:
 * The Kerberos dissector has been replaced with an auto generated one from ASN1
   protocol description, changing a lot of filter names.  
 
-=== Removed dissectors
+=== Removed Dissectors
 
 * The ASN1 plugin has been removed as it's deemed obsolete.
 * The GNM dissector has been removed as it was never used.
 * The Kerberos hand made dissector has been replaced by one generated from ASN1 code.
+
+=== Platform Support
+
+Support for Windows XP has been deprecated. We will make an effort to support it for
+as long as possible but our ability to do so depends largely on third-party libraries.
+
+U3 packages are no longer supported or provided.
+
+This is the last major release that will support 32-bit versions of Mac OS X.
 
 === New Protocol Support
 
