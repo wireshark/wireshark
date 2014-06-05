@@ -2461,6 +2461,22 @@ dissect_usb_standard_setup_response(packet_info *pinfo, proto_tree *tree,
 }
 
 
+static void
+usb_tap_queue_packet(packet_info *pinfo, guint8 urb_type,
+                     usb_conv_info_t *usb_conv_info)
+{
+    usb_tap_data_t *tap_data;
+
+    tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
+    tap_data->urb_type      = urb_type;
+    tap_data->transfer_type = (guint8)(usb_conv_info->transfer_type);
+    tap_data->conv_info     = usb_conv_info;
+    tap_data->trans_info    = usb_conv_info->usb_trans_info;
+
+    tap_queue_packet(usb_tap, pinfo, tap_data);
+}
+
+
 static gint
 try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_tvb, gint offset, packet_info *pinfo,
         usb_conv_info_t *usb_conv_info, gint type_2, guint8 urb_type,
@@ -2526,7 +2542,6 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                     /* Make sure we have the proper conversation */
                     if (usb_trans_info && ((is_request && usb_conv_info->is_setup && type_2 == RQT_SETUP_TYPE_CLASS) ||
                             (!is_request && USB_TYPE(usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_CLASS))) {
-                        usb_tap_data_t  *tap_data;
                         proto_item      *sub_item;
 
                         if (USB_RECIPIENT(usb_trans_info->setup.requesttype) == RQT_SETUP_RECIPIENT_INTERFACE) {
@@ -2559,12 +2574,7 @@ try_dissect_next_protocol(proto_tree *tree, proto_tree *parent, tvbuff_t *next_t
                             usb_conv_info->usb_trans_info = usb_trans_info;
                         }
 
-                        tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
-                        tap_data->urb_type      = urb_type;
-                        tap_data->transfer_type = (guint8)(usb_conv_info->transfer_type);
-                        tap_data->conv_info     = usb_conv_info;
-                        tap_data->trans_info    = usb_trans_info;
-                        tap_queue_packet(usb_tap, pinfo, tap_data);
+                        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
                         sub_item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
                         PROTO_ITEM_SET_GENERATED(sub_item);
                     }
@@ -2788,7 +2798,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     usb_conv_info_t      *usb_conv_info;
     usb_trans_info_t     *usb_trans_info = NULL;
     conversation_t       *conversation;
-    usb_tap_data_t       *tap_data;
     guint                bus_id = 0;
     guint16              device_address;
     tvbuff_t             *next_tvb = NULL;
@@ -2934,14 +2943,8 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     }
     usb_conv_info->usb_trans_info = usb_trans_info;
 
-    tap_data                = wmem_new(wmem_packet_scope(), usb_tap_data_t);
-    tap_data->urb_type      = urb_type;
-    tap_data->transfer_type = (guint8)(usb_conv_info->transfer_type);
-    tap_data->conv_info     = usb_conv_info;
-    tap_data->trans_info    = usb_trans_info;
-
     if (usb_conv_info->transfer_type != URB_CONTROL) {
-        tap_queue_packet(usb_tap, pinfo, tap_data);
+        usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
     }
 
 
@@ -2994,7 +2997,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 usb_trans_info->setup.wLength = tvb_get_letohs(tvb, offset+5);
 
                 if (type_2 != RQT_SETUP_TYPE_CLASS) {
-                    tap_queue_packet(usb_tap, pinfo, tap_data);
+                    usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
                 }
 
                 switch (type_2) {
