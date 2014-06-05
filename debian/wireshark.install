@@ -1,0 +1,5 @@
+usr/bin/wireshark
+wireshark.desktop usr/share/applications/
+image/wsicon32.xpm usr/share/pixmaps/
+usr/share/icons/
+usr/share/mime/packages/

@@ -1,55 +1,78 @@
 Source: wireshark
 Section: net
 Priority: optional
-Maintainer: Wireshark Self-made package <wireshark@example.com>
-X-Orig-Maintainer: Frederic Peters <fpeters@debian.org>
-X-Orig-Uploaders: Joost Yervante Damad <andete@debian.org>
-Standards-Version: 3.8.1.0
-Homepage: http://www.wireshark.org
-Build-Depends: libgtk2.0-dev (>=2.12.0-0), libpcap0.8-dev, flex, libz-dev, dpatch, debhelper (>= 6), libtool, python, automake1.9 | automake1.10 | automake, autoconf, autotools-dev, libc-ares-dev, xsltproc, docbook-xsl (>= 1.64.1.0-0), libcap-dev [!kfreebsd-i386 !kfreebsd-amd64 !hurd-i386], bison, libgnutls-dev, python-support (>= 0.3), portaudio19-dev, libkrb5-dev, liblua5.1-0-dev, libsmi2-dev, libgeoip-dev, imagemagick, xdg-utils
+Maintainer: Balint Reczey <balint@balintreczey.hu>
+Standards-Version: 3.9.5
+Build-Depends: libgtk-3-dev,
+# enable Qt 5 related depandencies for Qt 5-enabled build
+# qtbase5-dev, qtbase5-dev-tools, qttools5-dev, qttools5-dev-tools,
+# enable Qt 4 related dependencies for Qt 4-enabled build
+ qt4-qmake, libqt4-dev,
+ libpcap0.8-dev, flex, libz-dev, debhelper (>= 9), po-debconf, libtool,
+ python (>= 2.6.6-3~), python-ply, libc-ares-dev, xsltproc,
+ docbook-xsl (>= 1.64.1.0-0), libxml2-utils, libpcre3-dev,
+ libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any],
+ bison,
+# enable versioned libgnutls28-dev below to have GPLv2+ compatible GMP
+# libgnutls28-dev (>= 3.2.14-1~),
+# enable backports-compatible libgnutls-dev
+ libgnutls-dev,
+ libgcrypt-dev, portaudio19-dev, libkrb5-dev, liblua5.2-dev, libsmi2-dev,
+ libgeoip-dev, dpkg-dev (>= 1.16.1~), imagemagick, xdg-utils,
+ libnl-genl-3-dev [linux-any], libnl-route-3-dev [linux-any], asciidoc, cmake, w3m
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
-XS-Python-Version: all
+Vcs-Svn: svn://svn.debian.org/svn/collab-maint/ext-maint/wireshark/trunk
+Vcs-Browser: http://svn.debian.org/wsvn/collab-maint/ext-maint/wireshark/trunk/
+Homepage: http://www.wireshark.org/
 
 Package: wireshark-common
 Architecture: any
-Depends: ${shlibs:Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark0 (>= ${binary:Version}),
+ libwiretap0 (>= ${binary:Version}), debconf, libcap2-bin [linux-any]
 Recommends: wireshark (>= ${binary:Version}) | tshark (>= ${binary:Version})
-Suggests: snmp-mibs-downloader
-Replaces: ethereal-common (<< 0.99.2-0)
-Conflicts: ethereal-common (<< 0.99.2-0)
-Description: network traffic analyser (common files)
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
+Replaces: ethereal-common (<< 1.0.0-3)
+Conflicts: ethereal-common (<< 1.0.0-3)
+Description: network traffic analyzer - common files
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
  .
  This package provides files common to both wireshark (the GTK+ version)
  and tshark (the console version).
 
 Package: wireshark
 Architecture: any
-Depends: ${shlibs:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
-Recommends: gksu
-Replaces: ethereal (<< 0.99.2-0)
-Conflicts: ethereal (<< 0.99.2-0)
-Description: network traffic analyzer
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
+Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
+Replaces: ethereal (<< 1.0.0-3)
+Conflicts: ethereal (<< 1.0.0-3)
+Description: network traffic analyzer - GTK+ version
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
  .
- This package provides wireshark (the GTK+ version)
+ This package provides the GTK+ version of wireshark.
+
+Package: wireshark-qt
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version}), xdg-utils
+Replaces: ethereal (<< 1.0.0-3)
+Conflicts: ethereal (<< 1.0.0-3)
+Description: network traffic analyzer - Qt version
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
+ .
+ This package provides the Qt version of wireshark.
 
 Package: tshark
 Architecture: any
-Depends: ${shlibs:Depends}, wireshark-common (= ${binary:Version})
-Replaces: tethereal (<< 0.99.2-0)
-Conflicts: tethereal (<< 0.99.2-0)
-Description: network traffic analyzer (console)
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
+Depends: ${shlibs:Depends}, ${misc:Depends}, wireshark-common (= ${binary:Version})
+Replaces: tethereal (<< 1.0.0-3)
+Conflicts: tethereal (<< 1.0.0-3)
+Description: network traffic analyzer - console version
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
  .
  This package provides the console version of wireshark, named
  "tshark".
@@ -57,16 +80,175 @@ Description: network traffic analyzer (console)
 Package: wireshark-dev
 Architecture: any
 Section: devel
-Depends: ${shlibs:Depends}, omniidl4 (>= 4.0.1-2), libpcap0.8-dev, libtool, libglib2.0-dev, ${python:Depends}, snacc, autotools-dev, debhelper, cdbs, automake1.9, autoconf
-Replaces: ethereal-dev (<< 0.99.2-0)
-Conflicts: ethereal-dev (<< 0.99.2-0)
-XB-Python-Version: ${python:Versions}
-Description: network traffic analyser (development tools)
- Wireshark is a network traffic analyzer, or "sniffer", for Unix and
- Unix-like operating systems. A sniffer is a tool used to capture 
- packets off the wire. Wireshark decodes numerous protocols (too many
- to list).
+Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev, libtool,
+ libglib2.0-dev, ${python:Depends}, python-ply, snacc, autotools-dev, debhelper,
+ cdbs, automake, autoconf, libwireshark-dev, libwiretap-dev
+Replaces: ethereal-dev (<< 1.0.0-3)
+Conflicts: ethereal-dev (<< 1.0.0-3)
+Description: network traffic analyzer - development tools
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
  .
- This package provides idl2wrs and other necessary files to develop
+ This package provides idl2wrs and other files necessary for developing
  new packet dissectors.
 
+Package: wireshark-dbg
+Priority: extra
+Architecture: any
+Section: debug
+Depends: ${misc:Depends}, wireshark-common (= ${binary:Version}) | wireshark (= ${binary:Version}) | tshark (= ${binary:Version})
+Description: network traffic analyzer - debug symbols
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
+ .
+ This package contains stripped debugging symbols for all Wireshark
+ programs and libraries.
+
+Package: wireshark-doc
+Priority: extra
+Architecture: all
+Multi-Arch: foreign
+Section: doc
+Depends: ${misc:Depends}
+Description: network traffic analyzer - documentation
+ Wireshark is a network "sniffer" - a tool that captures and analyzes
+ packets off the wire. Wireshark can decode too many protocols to list
+ here.
+ .
+ This package contains Wireshark User's guide, Wireshark Developer's Guide
+ and the Lua Reference.
+
+Package: libwireshark0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}, libwireshark-data (>= ${source:Version}),
+ libwsutil0 (>= ${source:Version})
+Suggests: wireshark-doc (>= ${source:Version})
+Conflicts: wireshark-common (<< 1.4.0~rc2-1)
+Replaces: wireshark-common (<< 1.4.0~rc2-1)
+Description: network packet dissection library -- shared library
+ The libwireshark library provides the network packet dissection services
+ developed by the Wireshark project.
+
+Package: libwsutil0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
+Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark1 (<< 1.4.2-2)
+Description: network packet dissection utilities library -- shared library
+ The libwsutil library provides utility functions for libwireshark05.
+
+Package: libwsutil-dev
+Section: libdevel
+Architecture: any
+Depends: ${misc:Depends} , libwsutil0 (= ${binary:Version})
+Conflicts: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
+ wireshark-dev (<< 1.4.0~rc2-1)
+Replaces: wireshark-common (<< 1.4.0~rc2-1), libwireshark-dev (<< 1.4.2-2),
+ wireshark-dev (<< 1.4.0~rc2-1)
+Description: network packet dissection utilities library -- shared library
+ The libwsutil library provides utility functions for libwireshark0.
+ .
+ This package contains the static library and the C header files that are
+ needed for applications to use the libwsutil library.
+
+Package: libwireshark-data
+Section: libs
+Architecture: all
+Multi-Arch: foreign
+Depends: ${misc:Depends}
+Conflicts: wireshark-common (<< 1.4.0~rc2-1)
+Replaces: wireshark-common (<< 1.4.0~rc2-1)
+Suggests: snmp-mibs-downloader
+Description: network packet dissection library -- data files
+ The libwireshark library provides the network packet dissection services
+ developed by the Wireshark project.
+ .
+ This package contains the platform independent files.
+
+Package: libwireshark-dev
+Section: libdevel
+Depends: ${misc:Depends}, libwsutil-dev, libwireshark0 (= ${binary:Version})
+Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
+Replaces: wireshark-dev (<< 1.4.0~rc2-1)
+Architecture: any
+Description: network packet dissection library -- development files
+ The "libwireshark" library provides the network packet dissection services
+ developed by the Wireshark project.
+ .
+ This package contains the static library and the C header files that are
+ needed for applications to use libwireshark services.
+
+Package: libwiretap0
+Section: libs
+Architecture: any
+Multi-Arch: same
+Pre-Depends: ${misc:Pre-Depends}
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Conflicts: wireshark-common (<< 1.4.0~rc2-1)
+Description: network packet capture library -- shared library
+ Wiretap, part of the Wireshark project, is a library that allows one to
+ read and write several packet capture file formats.
+ .
+ Supported formats are:
+  * Libpcap
+  * Sniffer
+  * LANalyzer
+  * Network Monitor
+  * "snoop"
+  * "iptrace"
+  * Sniffer Basic (NetXRay)/Windows Sniffer Pro
+  * RADCOM WAN/LAN Analyzers
+  * Lucent/Ascend access products
+  * HP-UX nettl
+  * Toshiba ISDN Router
+  * ISDN4BSD "i4btrace" utility
+  * Cisco Secure Intrustion Detection System iplogging facility
+  * pppd logs (pppdump-format files)
+  * VMS TCPTRACE
+  * DBS Etherwatch (text format)
+  * Catapult DCT2000 (.out files)
+ .
+ Wiretap's shortcomings are: no filter capability and no support for packet
+ capture.
+
+Package: libwiretap-dev
+Section: libdevel
+Depends: ${misc:Depends}, libwiretap0 (= ${binary:Version})
+Conflicts: wireshark-dev (<< 1.4.0~rc2-1)
+Replaces: wireshark-dev (<< 1.4.0~rc2-1)
+Architecture: any
+Description: network packet capture library -- development files
+ Wiretap, part of the Wireshark project, is a library that allows one to
+ read and write several packet capture file formats.
+ .
+ Supported formats are:
+  * Libpcap
+  * Sniffer
+  * LANalyzer
+  * Network Monitor
+  * "snoop"
+  * "iptrace"
+  * Sniffer Basic (NetXRay)/Windows Sniffer Pro
+  * RADCOM WAN/LAN Analyzers
+  * Lucent/Ascend access products
+  * HP-UX nettl
+  * Toshiba ISDN Router
+  * ISDN4BSD "i4btrace" utility
+  * Cisco Secure Intrustion Detection System iplogging facility
+  * pppd logs (pppdump-format files)
+  * VMS TCPTRACE
+  * DBS Etherwatch (text format)
+  * Catapult DCT2000 (.out files)
+ .
+ Wiretap's shortcomings are: no filter capability and no support for packet
+ capture.
+ .
+ This package contains the static library and the C header files.

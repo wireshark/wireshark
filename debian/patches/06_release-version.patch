@@ -1,0 +1,15 @@
+Description: Don't regenerate svnversion.h
+Forwarded: not-needed
+Author: Balint Reczey <balint@balintreczey.hu>
+
+--- a/Makefile.am
++++ b/Makefile.am
+@@ -638,7 +638,7 @@
+ am__v_PERL_0 = @echo "  PERL    " $@;
+ am__v_PERL_1 =
+
+-version.h: FORCE
++version.h:
+	$(AM_V_PERL)$(PERL) $(srcdir)/make-version.pl $(srcdir)
+
+ #

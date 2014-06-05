@@ -1,9 +1,11 @@
-#! /bin/bash -e
+#! /bin/bash
 #
 # Debian prerm script for Python x.y hierarchical modules
 # Written by Gregor Hoffleit <flight@debian.org>
 # Extended by Matthias Klose <doko@debian.org>
 #
+
+set -e
 
 PACKAGE=`basename $0 | sed -e 's/\.[^.]*$//'`
 

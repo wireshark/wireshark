@@ -1,0 +1,66 @@
+# Portuguese wireshark debconf translation
+# Copyright (C) 2009, the wireshark authors
+# This file is distributed under the same license as the wireshark package.
+# 2010, Pedro Ribeiro <p.m42.ribeiro@gmail.com>.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: wireshark 1.2.1-3\n"
+"Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
+"POT-Creation-Date: 2010-06-20 16:35+0200\n"
+"PO-Revision-Date: 2010-06-26 11:23+0100\n"
+"Last-Translator: Pedro Ribeiro <p.m42.ribeiro@gmail.com>\n"
+"Language-Team: Portuguese <traduz@debianpt.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid "Should non-superusers be able to capture packets?"
+msgstr "Devem os utilizadores regulares conseguir capturar pacotes?"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+#| msgid ""
+#| "Dumpcap can be installed with the set-user-id bit set, so members of the "
+#| "\"wireshark\" system group will have the privileges required to use it. "
+#| "This way of capturing packets using Wireshark/Tshark is recommended over "
+#| "the alternative of running them directly as superuser, because less of "
+#| "the code will run with elevated privileges."
+msgid ""
+"Dumpcap can be installed in a way that allows members of the \"wireshark\" "
+"system group to capture packets. This is recommended over the alternative of "
+"running Wireshark/Tshark directly as root, because less of the code will run "
+"with elevated privileges."
+msgstr ""
+"O dumpcap pode ser instalado de maneira que os membros do grupo de sistema "
+"\"wireshark\" possam capturar pacotes. Este é o modo recomendado em vez da "
+"alternativa de correr o Wireshark/Tshark directamente como root, porque "
+"menos código será executado com privilégios elevados."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"For more detailed information please see /usr/share/doc/wireshark-common/"
+"README.Debian."
+msgstr ""
+"Para informação mais detalhada, leia por favor /usr/share/doc/wireshark-"
+"common/README.Debian."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"Enabling this feature may be a security risk, so it is disabled by default. "
+"If in doubt, it is suggested to leave it disabled."
+msgstr ""
+"Activar esta característica pode ser um risco de segurança, por isso vem "
+"desactivada por predefinição. Em caso de dúvida, sugere-se deixá-la "
+"desactivada."
+
+#~ msgid "Should dumpcap be installed \"setuid root\"?"
+#~ msgstr "O dumpcap deve ser instalado com \"setuid root\"?"

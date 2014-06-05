@@ -1,0 +1,13 @@
+
+ Handling security fixes in source package wireshark
+
+Wireshark is a network protocol analyzer and it's ability to perform deep
+packet inspection in live traffic may encourage users to use Wireshark/Tshark
+as a part of an intrusion detection or traffic monitoring system.
+In that case, please note that Wireshark/Tshark may contain remotely
+triggerable bugs causing crashes or allowing code injection.
+
+Bugs allowing code injection will be fixed in regular Debian Security
+Advisories, but fixes for pure crash bugs may be delayed.
+
+ -- Balint Reczey <balint@balintreczey.hu> Fri, 10 Jul 2009 15:38:33 +0200

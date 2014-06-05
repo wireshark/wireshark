@@ -1,0 +1,13 @@
+Description: Change Icon and Categories for desktop file
+Forwarded: not-needed
+Author: <fred@candle>
+
+--- a/wireshark.desktop
++++ b/wireshark.desktop
+@@ -75,4 +75,5 @@
+ MimeType=application/vnd.tcpdump.pcap;application/x-pcapng;application/x-snoop;application/x-iptrace;application/x-lanalyzer;application/x-nettl;application/x-radcom;application/x-etherpeek;application/x-visualnetworks;application/x-netinstobserver;application/x-5view;
+ # Category entry according to:
+ # http://standards.freedesktop.org/menu-spec/1.0/
+-Categories=System;Monitor;GTK;
++Categories=GNOME;Network;
++Encoding=UTF-8

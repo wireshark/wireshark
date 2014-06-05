@@ -1,0 +1,40 @@
+#!/bin/sh
+
+set -e
+
+. /usr/share/debconf/confmodule
+PROGRAM=/usr/bin/dumpcap
+GROUP=wireshark
+
+if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
+    db_get wireshark-common/install-setuid
+    if [ -e "$PROGRAM" ]; then
+	if [ "$RET" = "false" ] ; then
+	    chown root:root $PROGRAM
+	    chmod u=rwx,go=rx $PROGRAM
+	else
+	    if ! addgroup --quiet --system $GROUP; then
+		echo "Executing \"addgroup --quiet --system $GROUP\" failed."
+		echo "Most probably the $GROUP group exists, but is not a system group."
+		echo "Please delete the existing group or re-create it as a system group and try configuring wireshark-common again."
+		exit 1
+	    fi
+	    chown root:$GROUP $PROGRAM
+	    if which setcap > /dev/null ; then
+                chmod u=rwx,g=rx,o=r $PROGRAM
+                if ! setcap cap_net_raw,cap_net_admin=eip $PROGRAM; then
+		    echo "Setting capabilities for dumpcap using Linux Capabilities failed."
+		    echo "Falling back to setting set-user-id bit."
+		    chmod u=rwxs,g=rx,o=r $PROGRAM
+                fi
+	    else
+                chmod u=rwxs,g=rx,o=r $PROGRAM
+	    fi
+        fi
+    fi
+else
+    echo "Preserving owner and mode for $PROGRAM set by dpkg-statoverride:"
+    dpkg-statoverride --list $PROGRAM
+fi
+
+#DEBHELPER#

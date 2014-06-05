@@ -1,0 +1,61 @@
+# Dutch translation of wireshark debconf templates.
+# Copyright (C) 2011 Jeroen Schot <schot@a-eskwadraat.nl>
+# This file is distributed under the same license as the wireshark package.
+#
+# Translators:
+# Jeroen Schot <schot@a-eskwadraat.nl>, 2011.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: wireshark_1.4.5-1\n"
+"Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
+"POT-Creation-Date: 2010-06-20 16:35+0200\n"
+"PO-Revision-Date: 2011-05-09 11:43+0200\n"
+"Last-Translator: Jeroen Schot <schot@a-eskwadraat.nl>\n"
+"Language-Team: Debian l10n Dutch <debian-l10n-dutch@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: nl\n"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid "Should non-superusers be able to capture packets?"
+msgstr ""
+"Moet het voor niet-beheerders mogelijk zijn om pakketjes te onderscheppen?"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"Dumpcap can be installed in a way that allows members of the \"wireshark\" "
+"system group to capture packets. This is recommended over the alternative of "
+"running Wireshark/Tshark directly as root, because less of the code will run "
+"with elevated privileges."
+msgstr ""
+"Dumpcap kan zodanig worden geïnstalleerd dat leden van de systeemgroep "
+"\"wireshark\" netwerkpakketjes mogen onderscheppen. Dit wordt aanbevolen "
+"boven het uitvoeren  van Wireshark/Tshark als beheerder, omdat op deze "
+"manier minder code met verhoogde privileges wordt uitgevoerd."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"For more detailed information please see /usr/share/doc/wireshark-common/"
+"README.Debian."
+msgstr ""
+"Uitgebreide informatie hierover is te vinden in /usr/share/doc/wireshark-"
+"common/README.Debian."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"Enabling this feature may be a security risk, so it is disabled by default. "
+"If in doubt, it is suggested to leave it disabled."
+msgstr ""
+"Het activeren van deze functionaliteit is mogelijk een beveiligingsrisico, "
+"daarom staat dit niet standaard aan. Bij twijfel wordt u aangeraden om dit "
+"niet te activeren."

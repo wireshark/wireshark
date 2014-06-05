@@ -1,0 +1,55 @@
+# Japanese translation of wireshark debconf templates.
+# Copyright (C) 2009-2010 Hideki Yamane <henrich@debian.org>
+# This file is distributed under the same license as the wireshark package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: wireshark 1.2.1-3\n"
+"Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
+"POT-Creation-Date: 2010-06-20 16:35+0200\n"
+"PO-Revision-Date: 2010-07-25 14:19+0900\n"
+"Last-Translator: Hideki Yamane <henrich@debian.org>\n"
+"Language-Team: Japanese <debian-japanese@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid "Should non-superusers be able to capture packets?"
+msgstr "非特権ユーザ (root 以外のユーザ) がパケットをキャプチャできるようにしますか?"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"Dumpcap can be installed in a way that allows members of the \"wireshark\" "
+"system group to capture packets. This is recommended over the alternative of "
+"running Wireshark/Tshark directly as root, because less of the code will run "
+"with elevated privileges."
+msgstr ""
+"「wireshark」システムグループのメンバーがパケットをキャプチャできる設定で "
+"dumpcap をインストールすることができます。直接 root ユーザとして動かす別の方法と比較"
+"すると、この方が高くなった権限上で動作するコードが少なくなるのでお勧めです。"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"For more detailed information please see /usr/share/doc/wireshark-common/"
+"README.Debian."
+msgstr ""
+"より詳細な情報については /usr/share/doc/wireshark-common/README.Debian を"
+"参照してください。"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"Enabling this feature may be a security risk, so it is disabled by default. "
+"If in doubt, it is suggested to leave it disabled."
+msgstr ""
+"この機能を有効にするのはセキュリティ上のリスクになる可能性があるので、デフォル"
+"トでは無効にされています。分からない場合は無効のままにしておくことをお勧めし"
+"ます。"

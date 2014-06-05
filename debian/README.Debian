@@ -1,0 +1,75 @@
+
+I. Capturing packets with Wireshark/Tshark
+
+   There are two ways of installing Wireshark/Tshark on Debian:
+
+   I./a. Installing dumpcap without allowing non-root users to capture packets
+
+      Only root user will be able to capture packets. It is advised to capture
+      packets with the bundled dumpcap program as root and then run
+      Wireshark/Tshark as an ordinary user to analyze the captured logs. [2]
+
+      This is the default on Debian systems.
+
+   I./b. Installing dumpcap and allowing non-root users to capture packets
+
+      Members of the wireshark group will be able to capture packets on network
+      interfaces. This is the preferred way of installation if Wireshark/Tshark
+      will be used for capturing and displaying packets at the same time, since
+      that way only the dumpcap process has to be run with elevated privileges
+      thanks to the privilege separation[1].
+
+      Note that no user will be added to group wireshark automatically, the
+      system administrator has to add them manually.
+
+      The additional privileges are provided using the Linux Capabilities
+      system where it is available and resort to setting the set-user-id bit
+      of the dumpcap binary as a fall-back, where the Linux Capabilities system
+      is not present (Debian GNU/kFreeBSD, Debian GNU/Hurd).
+
+      Linux kernels provided by Debian support Linux Capabilities, but custom
+      built kernels may lack this support. If the support for Linux
+      Capabilities is not present at the time of installing wireshark-common
+      package, the installer will fall back to set the set-user-id bit to
+      allow non-root users to capture packets.
+
+      If installation succeeds with using Linux Capabilities, non-root users
+      will not be able to capture packets while running kernels not supporting
+      Linux Capabilities.
+
+      Note that capturing USB packets is not enabled for non-root users by using
+      Linux Capabilities. You have to capture the packets using the method
+      described in I./a., setting the set-user-id permanently using
+      dpkg-statoverride or running Wireshark as root.
+
+   The installation method can be changed any time by running:
+   dpkg-reconfigure wireshark-common
+
+
+II. Installing SNMP MIBs
+
+    SNMP [4] OIDs can be decoded using MIBs provided by other packages.
+    wireshark-common suggests snmp-mibs-downloader which package can be used to
+    download a set of common MIBs Wireshark/Tshark tries to load at startup.
+
+    At the time of writing, MIBs are distributed under DFSG incompatible terms
+    [5] thus snmp-mibs-downloader has to be in the non-free archive area.
+    To keep wireshark in the main area [7], wireshark-common does not depend on
+    or recommend snmp-mibs-downloader and as a result snmp-mibs-downloader is
+    not installed automatically with wireshark.
+
+    To make Wireshark/Tshark able to decode OIDs, please install
+    snmp-mibs-downloader manually.
+
+    To help Wireshark/Tshark to decode OIDs without having to install packages
+    manually, please support the initiative of requesting additional rights
+    from RFC authors [5].
+
+
+   [1] http://wiki.wireshark.org/Development/PrivilegeSeparation
+   [2] http://wiki.wireshark.org/CaptureSetup/CapturePrivileges
+   [3] https://blog.wireshark.org/2010/02/running-wireshark-as-you
+   [4] http://wiki.wireshark.org/SNMP
+   [5] http://wiki.debian.org/NonFreeIETFDocuments
+   [6] http://www.debian.org/doc/debian-policy/ch-archive.html#s-non-free
+   [7] http://www.debian.org/doc/debian-policy/ch-archive.html#s-main
