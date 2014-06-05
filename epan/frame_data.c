@@ -67,18 +67,21 @@ p_compare(gconstpointer a, gconstpointer b)
 }
 
 void
-p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data)
+p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data)
 {
   frame_proto_data *p1;
   GSList** proto_list;
+  wmem_allocator_t *scope;
 
-  if (scope == pinfo->pool) {
-    p1 = (frame_proto_data *)wmem_alloc(scope, sizeof(frame_proto_data));
+  if (tmp_scope == pinfo->pool) {
+    scope = tmp_scope;
     proto_list = &pinfo->proto_data;
   } else {
-    p1 = (frame_proto_data *)wmem_alloc(wmem_file_scope(), sizeof(frame_proto_data));
+    scope = wmem_file_scope();
     proto_list = &pinfo->fd->pfd;
   }
+
+  p1 = (frame_proto_data *)wmem_alloc(scope, sizeof(frame_proto_data));
 
   p1->proto = proto;
   p1->key = key;
