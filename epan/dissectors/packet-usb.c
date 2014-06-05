@@ -2824,6 +2824,67 @@ usb_set_addr(packet_info *pinfo, usb_address_t *src_addr,
     pinfo->destport = dst_addr->endpoint;
 }
 
+
+/* Gets the transfer info for a given packet
+ * Generates transfer info if none exists yet
+ * Also adds request/response info to the tree for the given packet */
+static usb_trans_info_t
+*usb_get_trans_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                    guint8 header_info, usb_conv_info_t *usb_conv_info)
+{
+    usb_trans_info_t *usb_trans_info;
+    proto_item       *ti;
+    nstime_t          t, deltat;
+
+    /* request/response matching so we can keep track of transaction specific
+     * data.
+     */
+    if (usb_conv_info->is_request) {
+        /* this is a request */
+        usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+        if (!usb_trans_info) {
+            usb_trans_info              = wmem_new0(wmem_file_scope(), usb_trans_info_t);
+            usb_trans_info->request_in  = pinfo->fd->num;
+            usb_trans_info->req_time    = pinfo->fd->abs_ts;
+            usb_trans_info->header_info = header_info;
+
+            wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+        }
+
+        if (usb_trans_info->response_in) {
+            ti = proto_tree_add_uint(tree, hf_usb_response_in, tvb, 0, 0, usb_trans_info->response_in);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+
+    } else {
+        /* this is a response */
+        if (pinfo->fd->flags.visited) {
+            usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
+
+        } else {
+            usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
+            if (usb_trans_info) {
+                usb_trans_info->response_in = pinfo->fd->num;
+                wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
+            }
+        }
+
+        if (usb_trans_info && usb_trans_info->request_in) {
+
+            ti = proto_tree_add_uint(tree, hf_usb_request_in, tvb, 0, 0, usb_trans_info->request_in);
+            PROTO_ITEM_SET_GENERATED(ti);
+
+            t = pinfo->fd->abs_ts;
+            nstime_delta(&deltat, &t, &usb_trans_info->req_time);
+            ti = proto_tree_add_time(tree, hf_usb_time, tvb, 0, 0, &deltat);
+            PROTO_ITEM_SET_GENERATED(ti);
+        }
+    }
+
+    return usb_trans_info;
+}
+
+
 static void
 dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                    guint8 header_info)
@@ -2841,7 +2902,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     proto_item           *item;
     static usb_address_t  src_addr, dst_addr; /* has to be static due to SET_ADDRESS */
     usb_conv_info_t      *usb_conv_info;
-    usb_trans_info_t     *usb_trans_info = NULL;
     conversation_t       *conversation;
     guint                bus_id = 0;
     guint16              device_address;
@@ -2925,7 +2985,6 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         proto_item_set_len(tree_ti, hdr_len);
     }
 
-
     usb_conv_info->bus_id = bus_id;
     usb_conv_info->device_address = device_address;
     usb_conv_info->endpoint = endpoint;
@@ -2940,59 +2999,11 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         usb_conv_info->direction = P2P_DIR_SENT;
     }
 
-    /* request/response matching so we can keep track of transaction specific
-     * data.
-     */
-    if (usb_conv_info->is_request) {
-        /* this is a request */
-        usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
-        if (!usb_trans_info) {
-            usb_trans_info              = wmem_new0(wmem_file_scope(), usb_trans_info_t);
-            usb_trans_info->request_in  = pinfo->fd->num;
-            usb_trans_info->req_time    = pinfo->fd->abs_ts;
-            usb_trans_info->header_info = header_info;
-
-            wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
-        }
-
-        if (usb_trans_info->response_in) {
-            proto_item *ti;
-
-            ti = proto_tree_add_uint(tree, hf_usb_response_in, tvb, 0, 0, usb_trans_info->response_in);
-            PROTO_ITEM_SET_GENERATED(ti);
-        }
-    } else {
-        /* this is a response */
-        if (pinfo->fd->flags.visited) {
-            usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32(usb_conv_info->transactions, pinfo->fd->num);
-        } else {
-            usb_trans_info = (usb_trans_info_t *)wmem_tree_lookup32_le(usb_conv_info->transactions, pinfo->fd->num);
-            if (usb_trans_info) {
-                usb_trans_info->response_in = pinfo->fd->num;
-                wmem_tree_insert32(usb_conv_info->transactions, pinfo->fd->num, usb_trans_info);
-            }
-        }
-
-        if (usb_trans_info && usb_trans_info->request_in) {
-            proto_item *ti;
-            nstime_t    t, deltat;
-
-            ti = proto_tree_add_uint(tree, hf_usb_request_in, tvb, 0, 0, usb_trans_info->request_in);
-            PROTO_ITEM_SET_GENERATED(ti);
-
-            t = pinfo->fd->abs_ts;
-            nstime_delta(&deltat, &t, &usb_trans_info->req_time);
-            ti = proto_tree_add_time(tree, hf_usb_time, tvb, 0, 0, &deltat);
-            PROTO_ITEM_SET_GENERATED(ti);
-        }
-    }
-    usb_conv_info->usb_trans_info = usb_trans_info;
+    usb_conv_info->usb_trans_info = usb_get_trans_info(tvb, pinfo, tree, header_info, usb_conv_info);
 
     if (usb_conv_info->transfer_type != URB_CONTROL) {
         usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
     }
-
-
 
     switch(usb_conv_info->transfer_type) {
         case URB_BULK:
@@ -3096,7 +3107,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
             }
 
 
-            if (usb_trans_info) {
+            if (usb_conv_info->usb_trans_info) {
                 /* Check if this is status stage */
                 if ((header_info & USB_HEADER_IS_USBPCAP) &&
                     (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
@@ -3107,7 +3118,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                     return;
                 }
 
-                type_2 = USB_TYPE(usb_trans_info->setup.requesttype);
+                type_2 = USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype);
                 switch (type_2) {
 
                 case RQT_SETUP_TYPE_STANDARD:
