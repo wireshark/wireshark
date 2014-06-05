@@ -1,8 +1,6 @@
 ;
 ; wireshark.nsi
 ;
-; $Id$
-
 
 ; Set the compression mechanism first.
 ; As of NSIS 2.07, solid compression which makes installer about 1MB smaller
@@ -773,7 +771,7 @@ SetShellVarContext all
 SectionEnd ; "Required"
 
 !ifdef GTK_DIR
-Section "${PROGRAM_NAME} GTK+ UI (stable)" SecWiresharkGtk
+Section "${PROGRAM_NAME}" SecWiresharkGtk
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\${PROGRAM_NAME_PATH_GTK}"
@@ -865,7 +863,7 @@ File "..\..\doc\tshark.html"
 SectionEnd
 
 !ifdef QT_DIR
-Section "${PROGRAM_NAME} Qt UI (alpha)" SecWiresharkQt
+Section "${PROGRAM_NAME} 2 Preview" SecWiresharkQt
 ;-------------------------------------------
 ; by default, QtShark is installed but file is always associate with Wireshark GTK+
 SetOutPath $INSTDIR
@@ -1052,11 +1050,11 @@ SectionEnd
 ; ============================================================================
 !insertmacro MUI_FUNCTION_DESCRIPTION_BEGIN
 !ifdef GTK_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGtk} "${PROGRAM_NAME} is a GUI network protocol analyzer. (GTK+ UI)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkGtk} "The main network protocol analyzer application."
 !endif
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "TShark is a text based network protocol analyzer."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecTShark} "Text based network protocol analyzer."
 !ifdef QT_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkQt} "${PROGRAM_NAME} is a GUI network protocol analyzer. (Qt UI, alpha)"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecWiresharkQt} "Preview of the next major release."
 !endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecPluginsGroup} "Plugins and extensions for both ${PROGRAM_NAME} and TShark."
@@ -1071,15 +1069,15 @@ SectionEnd
 !endif
 
   !insertmacro MUI_DESCRIPTION_TEXT ${SecToolsGroup} "Additional command line based tools."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Editcap is a program that reads a capture file and writes some or all of the packets into another capture file."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Text2pcap is a program that reads in an ASCII hex dump and writes the data into a libpcap-style capture file."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Mergecap is a program that combines multiple saved capture files into a single output file"
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Reordercap is a program that copies frames from an input capture to an output capture after sorting by time."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Capinfos is a program that provides information on capture files."
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Rawshark is a raw packet filter."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecReordercap} "Copy packets to a new file, sorted by time."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Pring information about capture files."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
 
 !ifdef HHC_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install the user's guide, so an internet connection is not required to read the help pages."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install an offline copy of the User's Guide."
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 
@@ -1205,24 +1203,32 @@ Function myShowCallback
     StrCmp $R0 'ME' lbl_winversion_unsupported
     StrCmp $R0 'NT 4.0' lbl_winversion_unsupported_nt4
     StrCmp $R0 '2000' lbl_winversion_unsupported_2000
+    StrCmp $R0 'XP' lbl_winversion_warn_xp
     Goto lbl_winversion_supported
+
 lbl_winversion_unsupported:
     MessageBox MB_OK \
-        "Windows $R0 is no longer supported. The last known version working with 98/ME was Ethereal 0.99.0." \
+        "Windows $R0 is no longer supported.$\nPlease install Ethereal 0.99.0 instead." \
         /SD IDOK
     Quit
 
 lbl_winversion_unsupported_nt4:
     MessageBox MB_OK \
-            "Windows $R0 is no longer supported. The last known version working with NT 4.0 was Wireshark 0.99.4." \
+            "Windows $R0 is no longer supported.$\nPlease install Wireshark 0.99.4 instead." \
             /SD IDOK
     Quit
 
 lbl_winversion_unsupported_2000:
     MessageBox MB_OK \
-        "Windows $R0 is no longer supported. Please install Wireshark 1.2 or 1.0." \
+        "Windows $R0 is no longer supported.$\nPlease install Wireshark 1.2 or 1.0 instead." \
         /SD IDOK
     Quit
+
+lbl_winversion_warn_xp:
+    MessageBox MB_OK \
+        "This version of ${PROGRAM_NAME} may not work on Windows $R0.$\nWe recommend Wireshark 1.10 instead." \
+        /SD IDOK
+    ; Don't quit.
 
 lbl_winversion_supported:
     ; detect if WinPcap should be installed
