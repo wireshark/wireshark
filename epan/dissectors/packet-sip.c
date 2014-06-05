@@ -74,6 +74,7 @@ static gint sip_tap = -1;
 static gint exported_pdu_tap = -1;
 static dissector_handle_t sigcomp_handle;
 static dissector_handle_t sip_diag_handle;
+static dissector_handle_t sip_uri_userinfo_handle;
 
 /* Initialize the protocol and registered fields */
 static gint proto_sip                     = -1;
@@ -1455,10 +1456,11 @@ dissect_sip_name_addr_or_addr_spec(tvbuff_t *tvb, packet_info *pinfo _U_, gint s
 */
 
 static proto_tree *
-display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* uri_offsets, hf_sip_uri_t* uri)
+display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, packet_info *pinfo, uri_offset_info* uri_offsets, hf_sip_uri_t* uri)
 {
     proto_item *ti;
     proto_tree *uri_item_tree = NULL;
+    tvbuff_t *next_tvb;
 
     if(uri_offsets->display_name_end != uri_offsets->display_name_start) {
         proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
@@ -1472,6 +1474,13 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
     if(uri_offsets->uri_user_end > uri_offsets->uri_user_start) {
         proto_tree_add_item(uri_item_tree, *(uri->hf_sip_user), tvb, uri_offsets->uri_user_start,
                             uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1, ENC_UTF_8|ENC_NA);
+        /* If we have a SIP diagnostics sub dissector call it */
+        if(sip_uri_userinfo_handle){
+            next_tvb = tvb_new_subset(tvb, uri_offsets->uri_user_start, uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1,
+                                      uri_offsets->uri_user_end - uri_offsets->uri_user_start + 1);
+            call_dissector(sip_uri_userinfo_handle, next_tvb, pinfo, uri_item_tree);
+        }
+
     }
 
     proto_tree_add_item(uri_item_tree, *(uri->hf_sip_host), tvb, uri_offsets->uri_host_start,
@@ -1563,7 +1572,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
         /* Parsing failed */
         return -1;
     }
-    display_sip_uri(tvb, tree, &uri_offsets, &sip_contact_uri);
+    display_sip_uri(tvb, tree, pinfo, &uri_offsets, &sip_contact_uri);
 
     /* check if there's a comma before a ';', in which case we stop parsing this item at the comma */
     queried_offset = tvb_find_guint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ',');
@@ -1999,7 +2008,7 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, current_offset, &uri_offsets);
             if(current_offset == -1)
                 return;
-            display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri_p);
+            display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
 
             current_offset++;
             start_offset = current_offset + 1;
@@ -2009,7 +2018,7 @@ static void dissect_sip_route_header(tvbuff_t *tvb, proto_tree *tree, packet_inf
             current_offset = dissect_sip_name_addr_or_addr_spec(tvb, pinfo, start_offset, line_end_offset, &uri_offsets);
             if(current_offset == -1)
                 return;
-            display_sip_uri(tvb, tree, &uri_offsets, sip_route_uri_p);
+            display_sip_uri(tvb, tree, pinfo, &uri_offsets, sip_route_uri_p);
 
             return;
         }
@@ -2682,7 +2691,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              */
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
-                                display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
+                                display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_to_uri);
                                 if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
                                     stat_info->tap_to_addr=tvb_get_string_enc(wmem_packet_scope(), tvb, uri_offsets.name_addr_start,
                                         uri_offsets.name_addr_end - uri_offsets.name_addr_start, ENC_UTF_8|ENC_NA);
@@ -2745,7 +2754,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
 
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
-                                display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
+                                display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_from_uri);
                                 if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
                                     stat_info->tap_from_addr=tvb_get_string_enc(wmem_packet_scope(), tvb, uri_offsets.name_addr_start,
                                         uri_offsets.name_addr_end - uri_offsets.name_addr_start, ENC_UTF_8|ENC_NA);
@@ -2799,7 +2808,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              */
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
-                                 display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pai_uri);
+                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_pai_uri);
                         }
                         break;
                     case POS_HISTORY_INFO:
@@ -2852,7 +2861,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              */
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
-                                 display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_ppi_uri);
+                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_ppi_uri);
                         }
                         break;
 
@@ -2876,7 +2885,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                              */
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1)
-                                 display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_pmiss_uri);
+                                 display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_pmiss_uri);
                         }
                         break;
 
@@ -2905,7 +2914,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             sip_uri_offset_init(&uri_offsets);
                             if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1) {
 
-                                tc_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_tc_uri);
+                                tc_uri_item_tree = display_sip_uri(tvb, sip_element_tree, pinfo, &uri_offsets, &sip_tc_uri);
                                 if (line_end_offset > uri_offsets.uri_end) {
                                     gint hparam_offset = uri_offsets.uri_end + 1;
                                     /* Is there a header parameter */
@@ -3769,7 +3778,7 @@ dfilter_sip_request_line(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gi
         /* calc R-URI len*/
         uri_offsets.uri_end = tvb_find_guint8(tvb, offset, linelen, ' ')-1;
         dissect_sip_uri(tvb, pinfo, offset, offset + linelen, &uri_offsets);
-        display_sip_uri(tvb, tree, &uri_offsets, &sip_req_uri);
+        display_sip_uri(tvb, tree, pinfo, &uri_offsets, &sip_req_uri);
     }
 }
 
@@ -5759,6 +5768,7 @@ proto_reg_handoff_sip(void)
         sip_tcp_handle = find_dissector("sip.tcp");
         sigcomp_handle = find_dissector("sigcomp");
         sip_diag_handle = find_dissector("sip.diagnostic");
+        sip_uri_userinfo_handle = find_dissector("sip.uri_userinfo");
         /* SIP content type and internet media type used by other dissectors are the same */
         media_type_dissector_table = find_dissector_table("media_type");
 
