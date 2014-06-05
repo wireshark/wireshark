@@ -34,6 +34,7 @@
  *
  * From MS (Lync)
  * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
+ * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595756.aspx
  */
 
 #include "config.h"
@@ -329,6 +330,8 @@ static const value_string attributes_family[] = {
 };
 
 static const value_string error_code[] = {
+    {274, "Disable Candidate"},               /* MS-ICE2BWN */
+    {275, "Disable Candidate Pair"},               /* MS-ICE2BWN */
     {300, "Try Alternate"},                   /* rfc3489bis-15 */
     {400, "Bad Request"},                     /* rfc3489bis-15 */
     {401, "Unauthorized"},                    /* rfc3489bis-15 */
