@@ -1,0 +1,3 @@
+usr/lib/*/libwsutil.so
+ws_symbol_export.h usr/include/wireshark
+wsutil/*.h usr/include/wireshark/wsutil

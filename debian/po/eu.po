@@ -1,0 +1,66 @@
+# translation of wireshark_1.2.10-2_eu.po to Basque
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#
+# Piarres Beobide <pi@beobide.net>, 2009.
+# Iñaki Larrañaga Murgoitio <dooteo@euskalgnu.org>, 2010.
+msgid ""
+msgstr ""
+"Project-Id-Version: wireshark_1.2.10-2_eu\n"
+"Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
+"POT-Creation-Date: 2010-06-20 16:35+0200\n"
+"PO-Revision-Date: 2010-09-03 10:53+0200\n"
+"Last-Translator: Iñaki Larrañaga Murgoitio <dooteo@euskalgnu.org>\n"
+"Language-Team: Basque <debian-l10n-basque@lists.debian.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: KBabel 1.11.4\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid "Should non-superusers be able to capture packets?"
+msgstr "Supererabiltzailea ez direnak paketeak kapturatzeko gai izan daitezke?"
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+#| msgid ""
+#| "Dumpcap can be installed with the set-user-id bit set, so members of the "
+#| "\"wireshark\" system group will have the privileges required to use it. "
+#| "This way of capturing packets using Wireshark/Tshark is recommended over "
+#| "the alternative of running them directly as superuser, because less of "
+#| "the code will run with elevated privileges."
+msgid ""
+"Dumpcap can be installed in a way that allows members of the \"wireshark\" "
+"system group to capture packets. This is recommended over the alternative of "
+"running Wireshark/Tshark directly as root, because less of the code will run "
+"with elevated privileges."
+msgstr ""
+"Sistemako \"wireshark\" taldeko partaideek paketeak kapturatzea baimentzeko "
+"modu batean instala daiteke Dumpcap. Wireshark/Tshark erabiliz paketeak "
+"supererabiltzaile gisa kapturatzeko modu hau gomendatuta dago, "
+"pribilegio handiekin kode gutxiago exekutatzen da eta."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"For more detailed information please see /usr/share/doc/wireshark-common/"
+"README.Debian."
+msgstr ""
+"Informazio gehiagorako, irakurri usr/share/doc/wireshark-common/"
+"README.Debian."
+
+#. Type: boolean
+#. Description
+#: ../templates:2001
+msgid ""
+"Enabling this feature may be a security risk, so it is disabled by default. "
+"If in doubt, it is suggested to leave it disabled."
+msgstr ""
+"Eginbide hau gaitzean segurtasuneko arrisku bat sor daiteke, hau dela eta "
+"desgaituta dago lehenespenez. Zalantzako kasuan, desgaituta "
+"uztea gomendantzen da."

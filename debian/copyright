@@ -27,7 +27,7 @@ Wireshark is copyright (c) 1998-2006 Gerald Combs.
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301,  USA.
 
-On Debian systems the GNU GPL may be viewed in /usr/share/common-licenses/GPL.
+On Debian systems the GNU GPL (v2) may be viewed in /usr/share/common-licenses/GPL-2.
 
 Wireshark and the "fin" logo are trademarks of Gerald Combs.
 
@@ -68,6 +68,7 @@ LGPL
 
 mkstemp.c: LGPL, from GNU C Library
 mkstemp.h: idem
+strcasecmp.c: idem
 strncasecmp.c: idem
 strptime.c: idem
 ps.c: idem
@@ -376,52 +377,25 @@ wiretap/i4b_trace.h:
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
 
+GLPv3+ (Note that those are interface definitions thus are not copyrightable
+in FSF's view http://lkml.iu.edu//hypermail/linux/kernel/0301.1/0362.html)
+------
 
-Files missing license notices
------------------------------
+epan/dissectors/pidl/rfr/rfr.idl:
+epan/dissectors/pidl/mapi/mapi.idl:
+   OpenChange Project
 
-tap-funnel.c:
-  Wireshark terms, according to author on wireshark-dev@, message-id:
-  <f20d86b70607200240x2a6f7b0as68daf43b2eef6a56@mail.gmail.com>
+   Copyright (C) Julien Kerihuel 2008.
 
-editcap.c:
-merge.c:
-mergecap.c:
-  Wireshark terms, according to wireshark-dev@, message-id:
-  <c9a3e4540607210110v50758766wf272c4e6c74d48f3@mail.gmail.com>
+   This program is free software; you can redistribute it and/or modify
+   it under the terms of the GNU General Public License as published by
+   the Free Software Foundation; either version 3 of the License, or
+   (at your option) any later version.
 
-epan/epan.c:
-epan/exceptions.h:
-epan/dfilter/gencode.h:
-epan/dfilter/glib-util.c:
-epan/dfilter/glib-util.h:
-  Contributed by Gilbert Ramirez, he has been contacted, his other files are
-  under Wireshark terms, (message-id: <44C1EFA2.3050907@alum.mit.edu>)
+   This program is distributed in the hope that it will be useful,
+   but WITHOUT ANY WARRANTY; without even the implied warranty of
+   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+   GNU General Public License for more details.
 
-epan/dissectors/packet-bootparams.h:
-epan/dissectors/packet-mount.h:
-epan/dissectors/packet-nfs.h:
-epan/dissectors/packet-x11-keysym.h:
-  Corresponding .c files have GPL notices, authors have been contacted for
-  clarification.
-
-epan/dissectors/packet-nlm.h: no license info
-  Wireshark terms, according to wireshark-dev@, message-id:
-  <c9a3e4540607221458j407d552ekf28309c494487a8b@mail.gmail.com>
-
-gtk/win32-file-dlg.h:
-  Contributed by Gerald Combs, Wireshark author, no answer yet but there is no
-  reason why it would not have standard Wireshark terms.  Message-id:
-  <44C1EFA2.3050907@alum.mit.edu>
-
-epan/in_cksum.h:
-  BSD, like in_cksum.c, according to wireshark-dev@, message-id:
-  <44C1EFA2.3050907@alum.mit.edu>
-
-epan/dissectors/packet-diameter-defs.h:
-  GNU GPL notice added in current Subversion repository, will be in file for
-  0.99.3.
-
-snprintf.h:
-  no longer used, according to wireshark-dev@, but it was under GPL like .c
-  message-id: <c9a3e4540607200322j2225fdf8q8687b1b1fd13543a@mail.gmail.com>
+   You should have received a copy of the GNU General Public License
+   along with this program.  If not, see <http://www.gnu.org/licenses/>.

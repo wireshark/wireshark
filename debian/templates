@@ -1,0 +1,23 @@
+# These templates have been reviewed by the debian-l10n-english
+# team
+#
+# If modifications/additions/rewording are needed, please ask
+# debian-l10n-english@lists.debian.org for advice.
+#
+# Even minor modifications require translation updates and such
+# changes should be coordinated with translators and reviewers.
+
+Template: wireshark-common/install-setuid
+Type: boolean
+Default: false
+_Description: Should non-superusers be able to capture packets?
+ Dumpcap can be installed in a way that allows members of the "wireshark"
+ system group to capture packets. This is recommended over the
+ alternative of running Wireshark/Tshark directly as root, because
+ less of the code will run with elevated privileges.
+ .
+ For more detailed information please see
+ /usr/share/doc/wireshark-common/README.Debian.
+ .
+ Enabling this feature may be a security risk, so it is disabled by
+ default. If in doubt, it is suggested to leave it disabled.

@@ -1,0 +1,17 @@
+Description: Use lex/yacc from ply
+Forwarded: not-needed
+Bug-Debian: http://bugs.debian.org/554613
+Author: Jakub Wilk <ubanus@users.sf.net>
+
+--- a/tools/asn2wrs.py
++++ b/tools/asn2wrs.py
+@@ -70,8 +70,8 @@
+ import getopt
+ import traceback
+
+-import lex
+-import yacc
++from ply import lex
++from ply import yacc
+
+ from functools import partial

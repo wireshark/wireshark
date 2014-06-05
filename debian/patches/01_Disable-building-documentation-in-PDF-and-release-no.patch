@@ -1,0 +1,48 @@
+From 2c646fef768917a94e2147aab2eff45899a0f9b3 Mon Sep 17 00:00:00 2001
+From: Balint Reczey <balint@balintreczey.hu>
+Date: Fri, 30 May 2014 09:30:15 +0700
+Subject: [PATCH] Disable building documentation in PDF and release notes in
+ HTML
+
+Change-Id: I86b3bae00d9e08fbe5c5e04ccc3db8f4e4734dbf
+---
+ docbook/CMakeLists.txt | 14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+--- a/docbook/CMakeLists.txt
++++ b/docbook/CMakeLists.txt
+@@ -332,8 +332,8 @@
+		wsluarm
+		wsug_html_chunked/index.html
+		wsug_html/index.html
+-		user-guide-a4.pdf
+-		user-guide-us.pdf
++#		user-guide-a4.pdf
++#		user-guide-us.pdf
+ )
+
+ VALIDATE_XML(
+@@ -381,8 +381,8 @@
+		wsluarm
+		wsdg_html_chunked/index.html
+		wsdg_html/index.html
+-		developer-guide-a4.pdf
+-		developer-guide-us.pdf
++#		developer-guide-a4.pdf
++#		developer-guide-us.pdf
+ )
+
+ VALIDATE_XML(
+@@ -425,10 +425,10 @@
+ add_custom_target(
+	release_notes ALL
+	DEPENDS
+-		release-notes.html
++#		release-notes.html
+		release-notes.txt
+-		release-notes-a4.pdf
+-		release-notes-us.pdf
++#		release-notes-a4.pdf
++#		release-notes-us.pdf
+		${CMAKE_SOURCE_DIR}/NEWS
+ )

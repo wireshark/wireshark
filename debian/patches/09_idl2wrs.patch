@@ -1,0 +1,48 @@
+Description: Do not try to locate wireshark_be.py and wireshark_gen.py in
+ non-standard places.
+Author: Frederic Peters <fpeters@debian.org>
+
+--- a/tools/idl2wrs
++++ b/tools/idl2wrs
+@@ -65,41 +65,8 @@
+     exit 1;
+ fi
+
+-#
+-# Run wireshark backend, looking for wireshark_be.py and wireshark_gen.py
+-# in pythons's "site-packages" directory. If cannot find that, then
+-# try looking in current directory. If still cannot, then exit with
+-# error.
+-
+-if [ -f $PYTHONPATH/site-packages/wireshark_be.py ] && [ -f $PYTHONPATH/site-packages/wireshark_gen.py ]; then
+-    exec omniidl  -p $PYTHONPATH/site-packages -b wireshark_be $@
+-    /* not reached */
+-fi
+-
+-# Try current directory.
+-
+-if [ -f ./wireshark_be.py ] && [ -f ./wireshark_gen.py ]; then
+-    exec omniidl  -p ./ -b wireshark_be $@
+-    /* not reached */
+-fi
+-
+-# Could not find both wireshark_be.py AND wireshark_gen.py
+-# So let's just try to run it without -p, hoping that the installation
+-# set up a valid path.
+-
+ exec omniidl -b wireshark_be $@
+
+-old code: not reached
+-
+-echo "idl2wrs Error: Could not find both wireshark_be.py AND wireshark_gen.py."
+-echo "Please ensure you have the PYTHONPATH variable set, or that wireshark_be.py "
+-echo "and wireshark_gen.py exist in the current directory. "
+-echo
+-echo "On this system, PYTHONPATH is : $PYTHONPATH"
+-echo
+-
+-exit 2
+-
+
+ #
+ # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
