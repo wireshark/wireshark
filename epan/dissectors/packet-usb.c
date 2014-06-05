@@ -2617,6 +2617,51 @@ dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, in
     return ++offset;
 }
 
+/* Dissector used for usb setup requests */
+static int
+dissect_usb_setup_request(packet_info *pinfo, proto_tree *parent, tvbuff_t *tvb,
+                          int offset, usb_conv_info_t *usb_conv_info, proto_tree **setup_tree)
+{
+    int type;
+    proto_item *ti = NULL;
+    usb_trans_info_t *usb_trans_info = usb_conv_info->usb_trans_info;
+
+
+    ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
+    *setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
+    usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
+    usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
+    offset = dissect_usb_bmrequesttype(*setup_tree, tvb, offset, &type);
+
+
+    /* read the request code and spawn off to a class specific
+     * dissector if found
+     */
+    usb_trans_info->setup.request = tvb_get_guint8(tvb, offset);
+    usb_trans_info->setup.wValue  = tvb_get_letohs(tvb, offset+1);
+    usb_trans_info->setup.wIndex  = tvb_get_letohs(tvb, offset+3);
+    usb_trans_info->setup.wLength = tvb_get_letohs(tvb, offset+5);
+
+
+    switch (type) {
+        case RQT_SETUP_TYPE_STANDARD:
+            /* This is a standard request */
+            offset = dissect_usb_standard_setup_request(pinfo, *setup_tree, tvb, offset,
+                                                        usb_conv_info, usb_trans_info);
+
+            break;
+        default:
+            /* no dissector found - display generic fields */
+            proto_tree_add_item(*setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset += 1;
+            offset = dissect_usb_setup_generic(pinfo, *setup_tree, tvb, offset, usb_conv_info);
+
+    }
+
+    return offset;
+}
+
+
 /* Adds the Linux USB pseudo header fields to the tree. */
 static void
 dissect_linux_usb_pseudo_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -2972,53 +3017,29 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     case URB_CONTROL:
         {
-        proto_item *ti = NULL;
         proto_tree *setup_tree = NULL;
 
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
                 /* this is a request */
 
+                type_2 = USB_TYPE(tvb_get_guint8(tvb, offset));
+
                 /* Dissect the setup header - it's applicable */
-
-                ti = proto_tree_add_protocol_format(parent, proto_usb, tvb, offset, 8, "URB setup");
-                setup_tree = proto_item_add_subtree(ti, usb_setup_hdr);
-                usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
-                usb_conv_info->setup_requesttype = tvb_get_guint8(tvb, offset);
-                offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &type_2);
-
-
-                /* read the request code and spawn off to a class specific
-                 * dissector if found
-                 */
-                usb_trans_info->setup.request = tvb_get_guint8(tvb, offset);
-                usb_trans_info->setup.wValue  = tvb_get_letohs(tvb, offset+1);
-                usb_trans_info->setup.wIndex  = tvb_get_letohs(tvb, offset+3);
-                usb_trans_info->setup.wLength = tvb_get_letohs(tvb, offset+5);
+                offset = dissect_usb_setup_request(pinfo, tree, tvb, offset, usb_conv_info, &setup_tree);
 
                 if (type_2 != RQT_SETUP_TYPE_CLASS) {
                     usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
                 }
 
-                switch (type_2) {
-                    case RQT_SETUP_TYPE_STANDARD:
-                        /* This is a standard request */
-                        offset = dissect_usb_standard_setup_request(pinfo, setup_tree, tvb, offset,
-                                                                    usb_conv_info, usb_trans_info);
+                if ((type_2 != RQT_SETUP_TYPE_STANDARD) &&
+                    (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES))) {
 
-                        break;
-                    default:
-                        /* no dissector found - display generic fields */
-                        proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-                        offset += 1;
-                        offset = dissect_usb_setup_generic(pinfo, setup_tree, tvb, offset, usb_conv_info);
-
-                        if (header_info & (USB_HEADER_IS_LINUX | USB_HEADER_IS_64_BYTES)) {
-                            setup_tvb = tvb_new_composite();
-                            next_tvb = tvb_new_subset(tvb, offset - 7, 7, 7);
-                            tvb_composite_append(setup_tvb, next_tvb);
-                        }
+                    setup_tvb = tvb_new_composite();
+                    next_tvb = tvb_new_subset(tvb, offset - 7, 7, 7);
+                    tvb_composite_append(setup_tvb, next_tvb);
                 }
+
             } else {
                 if (header_info & USB_HEADER_IS_LINUX) {
                     /* Skip setup/isochronous header - it's not applicable */
