@@ -34,6 +34,7 @@
 #include <epan/oui.h>
 #include <epan/afn.h>
 #include <epan/addr_resolv.h>
+#include <epan/expert.h>
 #include "oui.h"
 
 void proto_register_lldp(void);
@@ -252,8 +253,40 @@ static int hf_media_tlv_subtype_caps_location_id = -1;
 static int hf_media_tlv_subtype_caps_mdi_pse = -1;
 static int hf_media_tlv_subtype_caps_mid_pd = -1;
 static int hf_media_tlv_subtype_caps_inventory = -1;
+static int hf_media_tlv_subtype_class = -1;
+static int hf_media_application_type = -1;
 static int hf_media_policy_flag = -1;
 static int hf_media_tag_flag = -1;
+static int hf_media_vlan_id = -1;
+static int hf_media_l2_prio = -1;
+static int hf_media_dscp = -1;
+static int hf_media_loc_data_format = -1;
+static int hf_media_loc_lat_resolution = -1;
+static int hf_media_loc_lat = -1;
+static int hf_media_loc_long_resolution = -1;
+static int hf_media_loc_long = -1;
+static int hf_media_loc_alt_type = -1;
+static int hf_media_loc_alt_resolution = -1;
+static int hf_media_loc_alt = -1;
+static int hf_media_loc_datum = -1;
+static int hf_media_civic_lci_length = -1;
+static int hf_media_civic_what = -1;
+static int hf_media_civic_country = -1;
+static int hf_media_civic_addr_type = -1;
+static int hf_media_civic_addr_len = -1;
+static int hf_media_civic_addr_value = -1;
+static int hf_media_ecs = -1;
+static int hf_media_power_type = -1;
+static int hf_media_power_source = -1;
+static int hf_media_power_priority = -1;
+static int hf_media_power_value = -1;
+static int hf_media_hardware = -1;
+static int hf_media_firmware = -1;
+static int hf_media_software = -1;
+static int hf_media_sn = -1;
+static int hf_media_manufacturer = -1;
+static int hf_media_model = -1;
+static int hf_media_asset = -1;
 static int hf_profinet_tlv_subtype = -1;
 static int hf_profinet_class2_port_status = -1;
 static int hf_profinet_class3_port_status = -1;
@@ -362,6 +395,9 @@ static gint ett_802_1qbg_capabilities_flags = -1;
 static gint ett_media_capabilities = -1;
 static gint ett_profinet_period = -1;
 static gint ett_cisco_fourwire_tlv = -1;
+
+static expert_field ei_lldp_bad_length = EI_INIT;
+static expert_field ei_lldp_bad_length_excess = EI_INIT;
 
 /* TLV Types */
 #define END_OF_LLDPDU_TLV_TYPE		0x00	/* Mandatory */
@@ -615,6 +651,13 @@ static const value_string location_data_format[] = {
 	{ 0, NULL }
 };
 
+/* Altitude Type */
+static const value_string altitude_type[] = {
+	{ 1,	"Meters" },
+	{ 2,	"Floors" },
+	{ 0, NULL }
+};
+
 /* Civic Address LCI - What field */
 static const value_string civic_address_what_values[] = {
 	{ 0,	"Location of the DHCP server" },
@@ -822,6 +865,11 @@ static const value_string ieee_802_1qbg_subtypes[] = {
 	{ 0x02,	"VDP" },
 	{ 0, NULL }
 };
+
+static void
+media_power_base(gchar *buf, guint32 value) {
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u mW", value * 100);
+}
 
 /* Calculate Latitude and Longitude string */
 /*
@@ -2325,16 +2373,12 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 /* Dissect Media TLVs */
 static void
-dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset)
+dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset)
 {
 	guint32 tempOffset = offset;
 	guint16 tlvLen = tvb_reported_length(tvb)-offset;
 	guint8 subType;
-	guint16 tempShort;
-	guint16 tempVLAN;
 	guint8 tempByte;
-	guint32 tempLong;
-	const char *strPtr;
 	guint32 LCI_Length;
 	guint64 temp64bit = 0;
 
@@ -2354,7 +2398,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Get capabilities */
 		if (tlvLen < 2)
 		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 			return;
 		}
 		if (tree)
@@ -2374,12 +2418,13 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Get Class type */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 			return;
 		}
-		tempByte = tvb_get_guint8(tvb, tempOffset);
+
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Class Type: %s", val_to_str_const(tempByte, media_class_values, "Unknown"));
+			proto_tree_add_item(tree, hf_media_tlv_subtype_class, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
 		tempOffset++;
 		tlvLen--;
 
@@ -2390,56 +2435,55 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Get application type */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 			return;
 		}
-		tempByte = tvb_get_guint8(tvb, tempOffset);
+
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Application Type: %s (%u)",
-							val_to_str_const(tempByte, media_application_type, "Unknown"), tempByte);
+			proto_tree_add_item(tree, hf_media_application_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
 		tempOffset++;
 		tlvLen--;
 
 		/* Get flags */
 		if (tlvLen < 2)
 		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 			return;
 		}
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
 
 		if (tree)
 		{
-			proto_tree_add_item(tree, hf_media_policy_flag, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
-			proto_tree_add_item(tree, hf_media_tag_flag, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_media_policy_flag, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_media_tag_flag, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 		}
 
 		/* Get vlan id */
-		tempVLAN = (tempShort & 0x1FFE) >> 1;
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "VLAN Id: %u", tempVLAN);
+			proto_tree_add_item(tree, hf_media_vlan_id, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
 		tempOffset++;
 		tlvLen--;
 
 		/* Get L2 priority */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 			return;
 		}
-		tempShort = tvb_get_ntohs(tvb, tempOffset);
+
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "L2 Priority: %u",
-												((tempShort & 0x01C0) >> 6));
+			proto_tree_add_item(tree, hf_media_l2_prio, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
+
 		tempOffset++;
 		tlvLen--;
 
 		/* Get DSCP value */
-		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "DSCP Value: %u",
-												(tempByte & 0x3F));
+			proto_tree_add_item(tree, hf_media_dscp, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
+		tempOffset++;
+		tlvLen--;
 		break;
 	}
 	case 3:	/* Location Identification */
@@ -2447,13 +2491,14 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Get location data format */
 		if (tlvLen < 1)
 		{
-			proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+			proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 			return;
 		}
+
 		tempByte = tvb_get_guint8(tvb, tempOffset);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Location Data Format: %s (%u)",
-							val_to_str_const(tempByte, location_data_format, "Unknown"), tempByte);
+			proto_tree_add_item(tree, hf_media_loc_data_format, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
 		tempOffset++;
 		tlvLen--;
 
@@ -2468,82 +2513,60 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			 */
 			if (tlvLen < 16)
 			{
-				proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 				return;
 			}
 
 			/* Get latitude resolution */
-			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "Latitude Resolution: %u",
-												((tempByte & 0xFC) >> 2));
+				proto_tree_add_item(tree, hf_media_loc_lat_resolution, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 			/* Get latitude */
 			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 5, "Latitude: %s (0x%16" G_GINT64_MODIFIER "X)",
+				proto_tree_add_string_format_value(tree, hf_media_loc_lat, tvb, tempOffset, 5, "", "%s (0x%16" G_GINT64_MODIFIER "X)",
 				    get_latitude_or_longitude(0, temp64bit),
 				    temp64bit);
 
 			tempOffset += 5;
 
 			/* Get longitude resolution */
-			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "Longitude Resolution: %u",
-											((tempByte & 0xFC) >> 2));
+				proto_tree_add_item(tree, hf_media_loc_long_resolution, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 			/* Get longitude */
 			temp64bit = tvb_get_ntoh64(tvb, tempOffset);
 			temp64bit = (temp64bit & G_GINT64_CONSTANT(0x03FFFFFFFF000000)) >> 24;
-			;
+
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 5, "Longitude: %s (0x%16" G_GINT64_MODIFIER "X)",
+				proto_tree_add_string_format_value(tree, hf_media_loc_long, tvb, tempOffset, 5, "", "%s (0x%16" G_GINT64_MODIFIER "X)",
 				    get_latitude_or_longitude(1,temp64bit),
 				    temp64bit);
 
 			tempOffset += 5;
 
 			/* Altitude Type */
-			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-			{
-				tf = proto_tree_add_text(tree, tvb, tempOffset, 1, "Altitude Type:");
-
-				switch ((tempByte >> 4))
-				{
-				case 1:
-					proto_item_append_text(tf, "Meters (1)");
-					break;
-				case 2:
-					proto_item_append_text(tf, "Floors (2)");
-					break;
-				default:
-					proto_item_append_text(tf, " Unknown (%u)", (tempByte >> 4));
-					break;
-				}
-			}
+				proto_tree_add_item(tree, hf_media_loc_alt_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 			/* Get Altitude Resolution */
-			tempShort = tvb_get_ntohs(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 2, "Altitude Resolution: %u",
-						((tempShort & 0x0FC0) >> 6));
+				proto_tree_add_item(tree, hf_media_loc_alt_resolution, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
 			tempOffset++;
 
 			/* Get Altitude */
-			tempLong = (tvb_get_ntohl(tvb, tempOffset) & 0x03FFFFFFF);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 4, "Altitude: 0x%08X", tempLong);
+				proto_tree_add_item(tree, hf_media_loc_alt, tvb, tempOffset, 4, ENC_BIG_ENDIAN);
 
 			tempOffset += 4;
 
 			/* Get datum */
-			tempByte = tvb_get_guint8(tvb, tempOffset);
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "Datum: %u", tempByte);
+				proto_tree_add_item(tree, hf_media_loc_datum, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+			tempOffset++;
 
 			break;
 		}
@@ -2556,7 +2579,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			 */
 			if (tlvLen < 1)
 			{
-				proto_tree_add_text(tree, tvb, tempOffset, 0, "TLV too short");
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 				return;
 			}
 
@@ -2566,13 +2589,13 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			if (tempByte > tlvLen)
 			{
 				if (tree)
-					proto_tree_add_text(tree, tvb, tempOffset, 1, "LCI Length: %u (greater than TLV length)", tempByte);
+					proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length_excess , tvb, tempOffset, tlvLen);
 
 				return;
 			}
 
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "LCI Length: %u", tempByte);
+				proto_tree_add_item(tree, hf_media_civic_lci_length, tvb, tempOffset, 1 , ENC_BIG_ENDIAN);
 
 			LCI_Length = (guint32)tempByte;
 
@@ -2581,26 +2604,25 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			/* Get what value */
 			if (LCI_Length < 1)
 			{
-				proto_tree_add_text(tree, tvb, tempOffset, 0, "LCI Length too short");
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 				return;
 			}
-			tempByte = tvb_get_guint8(tvb, tempOffset);
+
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 1, "What: %s (%u)",
-									val_to_str_const(tempByte,civic_address_what_values,"Unknown"),
-									tempByte);
+				proto_tree_add_item(tree, hf_media_civic_what, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
 			tempOffset++;
 			LCI_Length--;
 
 			/* Get country code */
 			if (LCI_Length < 2)
 			{
-				proto_tree_add_text(tree, tvb, tempOffset, 0, "LCI Length too short");
+				proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 				return;
 			}
+
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, 2, "Country: %s",
-				    tvb_format_text(tvb, tempOffset, 2));
+				proto_tree_add_item(tree, hf_media_civic_country, tvb, tempOffset, 2, ENC_ASCII|ENC_NA);
 
 			tempOffset += 2;
 			LCI_Length -= 2;
@@ -2610,14 +2632,12 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				/* Get CA Type */
 				if (LCI_Length < 1)
 				{
-					proto_tree_add_text(tree, tvb, tempOffset, 0, "LCI Length too short");
+					proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 					return;
 				}
-				tempByte = tvb_get_guint8(tvb, tempOffset);
+
 				if (tree)
-					proto_tree_add_text(tree, tvb, tempOffset, 1, "CA Type: %s (%u)",
-									val_to_str_const(tempByte,civic_address_type_values,"Unknown"),
-									tempByte);
+					proto_tree_add_item(tree, hf_media_civic_addr_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 				tempOffset++;
 				LCI_Length--;
@@ -2625,12 +2645,13 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				/* Get CA Length */
 				if (LCI_Length < 1)
 				{
-					proto_tree_add_text(tree, tvb, tempOffset, 0, "LCI Length too short");
+					proto_tree_add_expert(tree, pinfo, &ei_lldp_bad_length , tvb, tempOffset, tlvLen);
 					return;
 				}
 				tempByte = tvb_get_guint8(tvb, tempOffset);
+
 				if (tree)
-					proto_tree_add_text(tree, tvb, tempOffset, 1, "CA Length: %u", tempByte);
+					proto_tree_add_item(tree, hf_media_civic_addr_len, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 				tempOffset++;
 				LCI_Length--;
@@ -2643,8 +2664,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 				{
 					/* Get CA Value */
 					if (tree)
-						proto_tree_add_text(tree, tvb, tempOffset, tempByte, "CA Value: %s",
-						    tvb_format_stringzpad(tvb, tempOffset, tempByte));
+						proto_tree_add_item(tree, hf_media_civic_addr_value, tvb, tempOffset, tempByte, ENC_ASCII|ENC_NA);
 
 					tempOffset += tempByte;
 					LCI_Length -= tempByte;
@@ -2658,9 +2678,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 			if (tlvLen > 0)
 			{
 				if (tree)
-					proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "ELIN: %s",
-					    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
-
+					proto_tree_add_item(tree, hf_media_ecs, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 			}
 
 			break;
@@ -2677,8 +2695,10 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		/* Determine power type */
 		subType = ((tempByte & 0xC0) >> 6);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Type %s",
-									val_to_str_const(subType, media_power_type, "Unknown"));
+			proto_tree_add_item(tree, hf_media_power_type, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
+
+		if (tree)
+			tf = proto_tree_add_item(tree, hf_media_power_source, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		/* Determine power source */
 		switch (subType)
@@ -2686,38 +2706,33 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		case 0:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str_const(subType, media_power_pse_device, "Reserved");
+			proto_item_append_text(tf, " %s", val_to_str_const(subType, media_power_pse_device, "Reserved"));
 
 			break;
 		}
 		case 1:
 		{
 			subType = ((tempByte & 0x30) >> 4);
-			strPtr = val_to_str_const(subType, media_power_pd_device, "Reserved");
+			proto_item_append_text(tf, " %s", val_to_str_const(subType, media_power_pd_device, "Reserved"));
 
 			break;
 		}
 		default:
 		{
-			strPtr = "Unknown";
+			proto_item_append_text(tf, " %s", "Unknown");
 			break;
 		}
 		}
-		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Source: %s", strPtr);
 
 		/* Determine power priority */
-		subType = (tempByte & 0x0F);
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 1, "Power Priority: %s",
-									val_to_str_const(subType, media_power_priority, "Reserved"));
+			proto_tree_add_item(tree, hf_media_power_priority, tvb, tempOffset, 1, ENC_BIG_ENDIAN);
 
 		tempOffset++;
 
 		/* Power Value: 0 to 102.3 Watts (0.1 W increments) */
-		tempShort = tvb_get_ntohs(tvb, tempOffset) * 100;
 		if (tree)
-			proto_tree_add_text(tree, tvb, tempOffset, 2, "Power Value: %u mW", tempShort);
+			proto_tree_add_item(tree, hf_media_power_value, tvb, tempOffset, 2, ENC_BIG_ENDIAN);
 
 		break;
 	}
@@ -2727,8 +2742,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Hardware Revision: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_hardware, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -2739,8 +2753,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Firmware Revision: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_firmware, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -2751,8 +2764,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Software Revision: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_software, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -2763,8 +2775,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Serial Number: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_sn, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -2775,8 +2786,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Manufacturer Name: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_manufacturer, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -2787,8 +2797,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Model Name: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_model, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -2799,8 +2808,7 @@ dissect_media_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 		if (tlvLen > 0)
 		{
 			if (tree)
-				proto_tree_add_text(tree, tvb, tempOffset, tlvLen, "Asset ID: %s",
-				    tvb_format_stringzpad(tvb, tempOffset, tlvLen));
+				proto_tree_add_item(tree, hf_media_asset, tvb, tempOffset, tlvLen, ENC_ASCII|ENC_NA);
 		}
 
 		break;
@@ -3338,6 +3346,8 @@ dissect_lldp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_lldp(void)
 {
+	expert_module_t *expert_lldp;
+
 	/* Setup list of header fields */
 	static hf_register_info hf[] = {
 		{ &hf_lldp_tlv_type,
@@ -4172,13 +4182,137 @@ proto_register_lldp(void)
 			{ "Inventory", "lldp.media.subtype.caps.inventory", FT_BOOLEAN, 16,
 			TFS(&tfs_capable_not_capable), MEDIA_CAPABILITY_INVENTORY, NULL, HFILL }
 		},
+		{ &hf_media_tlv_subtype_class,
+			{ "Class Type", "lldp.media.subtype.class", FT_UINT8, BASE_DEC,
+			VALS(media_class_values), 0x0, "Unknown", HFILL }
+		},
+		{ &hf_media_application_type,
+			{ "Application Type", "lldp.media.app_type", FT_UINT8, BASE_DEC,
+			VALS(media_application_type), 0x0, "Unknown", HFILL }
+		},
 		{ &hf_media_policy_flag,
-			{ "Policy", "lldp.media.policy_flag", FT_BOOLEAN, 16,
-			TFS(&tfs_unknown_defined), 0x8000, NULL, HFILL }
+			{ "Policy", "lldp.media.policy_flag", FT_BOOLEAN, 24,
+			TFS(&tfs_unknown_defined), 0x800000, NULL, HFILL }
 		},
 		{ &hf_media_tag_flag,
-			{ "Tagged", "lldp.media.tag_flag", FT_BOOLEAN, 16,
-			TFS(&tfs_yes_no), 0x4000, NULL, HFILL }
+			{ "Tagged", "lldp.media.tag_flag", FT_BOOLEAN, 24,
+			TFS(&tfs_yes_no), 0x400000, NULL, HFILL }
+		},
+		{ &hf_media_vlan_id,
+			{ "VLAN Id", "lldp.media.vlan_id", FT_UINT24, BASE_DEC,
+			NULL, 0x1FFE00, NULL, HFILL }
+		},
+		{ &hf_media_l2_prio,
+			{ "L2 Priority", "lldp.media.l2_prio", FT_UINT24, BASE_DEC,
+			NULL, 0x1C0, NULL, HFILL }
+		},
+		{ &hf_media_dscp,
+			{ "DSCP Priority", "lldp.media.dscp", FT_UINT24, BASE_DEC,
+			NULL, 0x3F, NULL, HFILL }
+		},
+		{ &hf_media_loc_data_format,
+			{ "Location Data Format", "lldp.media.loc.data_format", FT_UINT8, BASE_DEC,
+			VALS(location_data_format), 0x0, NULL, HFILL }
+		},
+		{ &hf_media_loc_lat_resolution,
+			{ "Latitude Resolution", "lldp.media.loc.lat_resolution", FT_UINT8, BASE_DEC,
+			NULL, 0xFC, NULL, HFILL }
+		},
+		{ &hf_media_loc_lat,
+			{ "Latitude", "lldp.media.loc.latitude", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_loc_long_resolution,
+			{ "Longitude Resolution", "lldp.media.loc.long_resolution", FT_UINT8, BASE_DEC,
+			NULL, 0xFC, NULL, HFILL }
+		},
+		{ &hf_media_loc_long,
+			{ "Longitude", "lldp.media.loc.longitude", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_loc_alt_type,
+			{ "Altitude Type", "lldp.media.loc.alt_type", FT_UINT8, BASE_DEC,
+			VALS(altitude_type), 0xF0, "Unknown", HFILL }
+		},
+		{ &hf_media_loc_alt_resolution,
+			{ "Altitude Resolution", "lldp.media.loc.alt_resolution", FT_UINT16, BASE_DEC,
+			NULL, 0x0FC0, NULL, HFILL }
+		},
+		{ &hf_media_loc_alt,
+			{ "Altitude", "lldp.media.loc.altitude", FT_UINT32, BASE_DEC,
+			NULL, 0x03FFFFFFF, NULL, HFILL }
+		},
+		{ &hf_media_civic_lci_length,
+			{ "LCI Length", "lldp.media.civic.lenth", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_civic_what,
+			{ "What", "lldp.media.civic.what", FT_UINT8, BASE_DEC,
+			VALS(civic_address_what_values), 0x0, "Unknown", HFILL }
+		},
+		{ &hf_media_civic_country,
+			{ "Country", "lldp.media.civic.country", FT_STRING, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_civic_addr_type,
+			{ "CA Type", "lldp.media.civic.type", FT_UINT8, BASE_DEC,
+			VALS(civic_address_type_values), 0x0, "Unknown", HFILL }
+		},
+		{ &hf_media_civic_addr_len,
+			{ "CA Length", "lldp.media.civic.length", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_civic_addr_value,
+			{ "CA Value", "lldp.media.civic.value", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_ecs,
+			{ "ELIN", "lldp.media.ecs", FT_STRINGZ, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_power_type,
+			{ "Power Type", "lldp.media.power.type", FT_UINT8, BASE_DEC,
+			VALS(media_power_type), 0xC0, "Unknown", HFILL }
+		},
+		{ &hf_media_power_source,
+			{ "Power Source", "lldp.media.power.source", FT_UINT8, BASE_DEC,
+			NULL, 0x30, NULL, HFILL }
+		},
+		{ &hf_media_power_priority,
+			{ "Power Priority", "lldp.media.power.prio", FT_UINT8, BASE_DEC,
+			VALS(media_power_priority), 0x0F, "Reserved", HFILL }
+		},
+		{ &hf_media_power_value,
+			{ "Power Value", "lldp.media.power.value", FT_UINT16, BASE_CUSTOM,
+			media_power_base, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_hardware,
+			{ "Hardware Revision", "lldp.media.hardware", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_firmware,
+			{ "Firmware Revision", "lldp.media.firmware", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_software,
+			{ "Software Revision", "lldp.media.software", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_sn,
+			{ "Serial Number", "lldp.media.sn", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_manufacturer,
+			{ "Manufacturer Name", "lldp.media.manufacturer", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_model,
+			{ "Model Name", "lldp.media.model", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_media_asset,
+			{ "Asset ID", "lldp.media.asset", FT_STRINGZPAD, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_profinet_tlv_subtype,
 			{ "Subtype",	"lldp.profinet.subtype", FT_UINT8, BASE_HEX,
@@ -4382,6 +4516,11 @@ proto_register_lldp(void)
 		&ett_cisco_fourwire_tlv
 	};
 
+	static ei_register_info ei[] = {
+		{ &ei_lldp_bad_length, { "lldp.incorrect_length", PI_MALFORMED, PI_WARN, "Invalid length, too short", EXPFILL }},
+		{ &ei_lldp_bad_length_excess, { "lldp.excess_length", PI_MALFORMED, PI_WARN, "Invalid length, greater than TLV length", EXPFILL }},
+	};
+
 	/* Register the protocol name and description */
 	proto_lldp = proto_register_protocol("Link Layer Discovery Protocol", "LLDP", "lldp");
 
@@ -4389,6 +4528,9 @@ proto_register_lldp(void)
 	proto_register_field_array(proto_lldp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 	oui_unique_code_table = register_dissector_table("lldp.orgtlv.oui", "LLDP OUI", FT_UINT24, BASE_HEX );
+
+	expert_lldp = expert_register_protocol(proto_lldp);
+	expert_register_field_array(expert_lldp, ei, array_length(ei));
 }
 
 void
