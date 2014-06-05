@@ -2205,6 +2205,10 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
+            /* Make sure we don't lose the summary of this SDU */
+            col_append_str(pinfo->cinfo, COL_INFO, "  | ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+
             tvb_ensure_bytes_exist(tvb, offset, s_lengths[n]);
             offset += s_lengths[n];
         }
@@ -2595,6 +2599,10 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
+            /* Make sure we don't lose the summary of this SDU */
+            col_append_str(pinfo->cinfo, COL_INFO, "  | ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+
             tvb_ensure_bytes_exist(tvb, offset, s_lengths[n]);
             offset += s_lengths[n];
         }
