@@ -838,6 +838,7 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     case USBDevHandleReq:
     case USBDevHandleResp:
     case ModifyEP0Req:
+    case SetDevAddrReq:
     case SetDevAddrResp:
     case UpdateDevReq:
     case MAUSBSyncReq:
@@ -855,7 +856,6 @@ static guint16 dissect_mausb_mgmt_pkt_flds(struct mausb_header *header,
     /* Managment packets with no additional data */
     case MAUSBDevResetReq:
     case MAUSBDevResetResp:
-    case SetDevAddrReq:
     case UpdateDevResp:
     case DisconnectDevReq:
     case DisconnectDevResp:
