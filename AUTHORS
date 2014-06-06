@@ -3553,6 +3553,12 @@ Juan Antonio Montesinos <juan.mondl[AT]gmail.com> {
 	Dissector for the CCSDS CFDP protocol
 }
 
+Anish Bhatt		<anish[at]chelsio.com> {
+	Dissector for CIN DCBx
+	Dissector for CEE DCBx
+	Dissector for IEEE DCBx (802.1az)
+	Dissector for Congestion Notification (802.1Qau)
+}
 
 and by:
 
