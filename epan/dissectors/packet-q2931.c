@@ -948,7 +948,6 @@ l2_done:
 				goto l3_done;
 			if (len == 0)
 				return;
-			octet = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(tree, hf_q2931_bband_low_layer_info_packet_window_size, tvb, offset, 1, ENC_NA);
 			/*offset += 1;*/
 			/*len -= 1;*/
